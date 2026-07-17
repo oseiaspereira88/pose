@@ -193,9 +193,12 @@ elif [[ -n "$MCP_BINARY" ]]; then
   install -m 0755 "$MCP_BINARY" "$TARGET/.pose/bin/pose-mcp"
   write_mcp_wrapper
   log "MCP: vendored binary + wrapper at .pose/bin/"
-elif command -v go >/dev/null 2>&1 && [[ -f "$SRC/../pose-mcp/go.mod" ]]; then
+elif command -v go >/dev/null 2>&1 && { [[ -f "$SRC/../pose-mcp/go.mod" ]] || [[ -f "$SRC/pose-mcp/go.mod" ]]; }; then
+  # Dual-home: monorepo tem o fonte em ../pose-mcp; o repo standalone em ./pose-mcp.
+  MCP_SRC="$SRC/../pose-mcp"
+  [[ -f "$MCP_SRC/go.mod" ]] || MCP_SRC="$SRC/pose-mcp"
   log "MCP: building from source (go build)…"
-  ( cd "$SRC/../pose-mcp" && go build -o "$TARGET/.pose/bin/pose-mcp" ./cmd/pose-mcp ) \
+  ( cd "$MCP_SRC" && go build -o "$TARGET/.pose/bin/pose-mcp" ./cmd/pose-mcp ) \
     || die "go build of pose-mcp failed"
   write_mcp_wrapper
   log "MCP: built binary + wrapper at .pose/bin/"
