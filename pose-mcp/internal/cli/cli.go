@@ -71,6 +71,9 @@ func Main(args []string, stdout, stderr io.Writer) int {
 		return cmdInstall(args, stdout, stderr)
 	case "doctor":
 		return cmdDoctor(args, stdout, stderr)
+	case "import":
+		defer emitTelemetry("import")
+		return cmdImport(args, stdout, stderr)
 	case "lint-spec":
 		defer emitTelemetry("lint-spec")
 		return cmdLintSpec(args, stdout, stderr)
@@ -167,6 +170,7 @@ Nativos (binário):
   serve-mcp [--stdio]                 Sobe o servidor MCP do POSE (env POSE_*)
   doctor [--json]                     Diagnóstico da instalação/instância
   install <dir> [--locale tag] [...]  Instala o POSE embutido num repo (sem clone)
+  import <spec-kit|openspec> <path>   Importa specs externas [--dry-run]
   telemetry <enable|disable|status>   Telemetria anônima OPT-IN (nada é enviado
                                       sem opt-in E POSE_TELEMETRY_URL)
 

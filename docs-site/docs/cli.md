@@ -1,9 +1,9 @@
 # CLI reference
 
 The `pose` CLI has two layers today (strangler migration in progress): a
-unified Go binary (`pose`) with native `version`/`init`/`serve-mcp`, and the
-script engine in `.pose/scripts/` to which every other command is delegated
-with identical interface and exit codes.
+unified Go binary (`pose`) for native commands and the script engine in
+`.pose/scripts/` for commands still being migrated, with identical interface
+and exit codes.
 
 ## Scaffold
 
@@ -35,6 +35,30 @@ with identical interface and exit codes.
 | `pose stats [workflows\|tasks\|contexts] [--since-days N]` | Outcome aggregation from history |
 | `pose index` | Regenerate all indexes (repo-map, spec-graph, roadmaps…) |
 | `pose report --task "..." [--outcome ...] [--since ref]` | Versionable report + history JSONL |
+
+## Import existing SDD specs
+
+```bash
+# Preview every spec-kit feature under the tree without writing files.
+pose import spec-kit .specify/specs --dry-run
+
+# Import an OpenSpec capability, specs tree, or change directory.
+pose import openspec openspec/changes/add-2fa
+```
+
+The importer is native, deterministic, and offline. It accepts a single
+`spec.md`, a feature/capability directory, or a supported specs tree. spec-kit
+imports consume sibling `plan.md` and `tasks.md` when available; OpenSpec
+change imports consume `proposal.md`, `design.md`, `tasks.md`, and capability
+specs below `specs/`.
+
+Every unit becomes `.pose/specs/<slug>/spec.md`. POSE validates the complete
+batch before writing, never overwrites an existing destination, rejects
+symlinks, and reports every source section that still needs human curation.
+Use `pose lint-spec <slug> --ready-check` after reviewing that report. The
+first version intentionally does not support force-overwrite, bidirectional
+sync, custom spec-kit presets, or OpenSpec schemas outside the documented
+behavioral/change layout.
 
 ## Maintenance
 

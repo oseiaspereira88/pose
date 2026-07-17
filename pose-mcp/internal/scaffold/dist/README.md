@@ -77,6 +77,14 @@ Then start working: `./pose new-spec my-first-feature`, fill the spec, and let
 the gates guide the rest (`./pose suggest feature` prints the canonical trail:
 workflow + skill + rules).
 
+Already use spec-kit or OpenSpec? Preview an offline migration with
+`pose import spec-kit <path> --dry-run` or
+`pose import openspec <path> --dry-run`, then rerun without `--dry-run` to
+create POSE specs. Import validates the whole batch before writing, never
+overwrites an existing spec, and prints a curation report for information the
+source format could not supply. See the [CLI reference](docs-site/docs/cli.md#import-existing-sdd-specs)
+for supported layouts and limits.
+
 Requirements: bash 4+, git, python3 (Go optional, only for the MCP server).
 Platforms: Linux/macOS/WSL — native Windows support is on the roadmap, via the
 single-binary Go CLI.
