@@ -23,6 +23,8 @@ jobs:
       - uses: goreleaser/goreleaser-action@v6
         with:
           version: "~> v2"
-          args: release --clean --release-notes /tmp/notes.md
+          # Tag push → release real (exige tag no HEAD). workflow_dispatch →
+          # snapshot de validação: builda tudo, não publica, não exige tag.
+          args: ${{ startsWith(github.ref, 'refs/tags/') && 'release --clean --release-notes /tmp/notes.md' || 'release --clean --snapshot --skip=publish' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
