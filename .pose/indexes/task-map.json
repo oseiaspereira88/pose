@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "description": "Mapa machine-readable de tipo-de-tarefa → trilha canônica POSE. Consumido por ./pose suggest e validado por ./pose check.",
+  "tasks": {
+    "feature": {
+      "description": "Implementação de feature não-trivial com escopo afetando >=1 módulo.",
+      "workflow": ".pose/workflows/feature.md",
+      "skill": "pose-feature",
+      "rules": ["security", "documentation-style"],
+      "rules_by_domain": {
+        "frontend": ["frontend-react"],
+        "backend-go": ["backend-go"],
+        "k8s": ["kubernetes"]
+      },
+      "requires_spec": true,
+      "requires_adr": "se houver mudança arquitetural",
+      "knowledge_consume": true,
+      "knowledge_produce": "handoff (quando houver contexto reaproveitável)",
+      "validation": "./pose validate --strict --module <path-afetado>"
+    },
+    "bugfix": {
+      "description": "Correção de defeito com causa raiz isolada e regressão coberta.",
+      "workflow": ".pose/workflows/bugfix.md",
+      "skill": "pose-bugfix",
+      "rules": ["security", "documentation-style"],
+      "rules_by_domain": {
+        "frontend": ["frontend-react"],
+        "backend-go": ["backend-go"],
+        "k8s": ["kubernetes"]
+      },
+      "requires_spec": "opcional (pode referenciar spec existente)",
+      "requires_adr": false,
+      "knowledge_consume": true,
+      "knowledge_produce": "decision-log (quando revelar dívida sistêmica)",
+      "validation": "./pose validate --tolerant --module <path-afetado>"
+    },
+    "review": {
+      "description": "Avaliação técnica de PR/diff: escopo, contratos, segurança, validação.",
+      "workflow": ".pose/workflows/review.md",
+      "skill": "pose-review",
+      "rules": ["security", "documentation-style"],
+      "rules_by_domain": {
+        "frontend": ["frontend-react"],
+        "backend-go": ["backend-go"],
+        "k8s": ["kubernetes"]
+      },
+      "requires_spec": false,
+      "requires_adr": false,
+      "knowledge_consume": true,
+      "knowledge_produce": "handoff (quando aceitar risco residual ou condicionar merge)",
+      "validation": "exigir evidência de ./pose validate do implementador"
+    },
+    "refactor": {
+      "description": "Refactor cirúrgico sem mudança funcional observável.",
+      "workflow": ".pose/workflows/refactor.md",
+      "skill": "pose-feature",
+      "rules": ["security", "documentation-style"],
+      "rules_by_domain": {
+        "frontend": ["frontend-react"],
+        "backend-go": ["backend-go"]
+      },
+      "requires_spec": "opcional",
+      "requires_adr": "se mudar contrato estrutural",
+      "knowledge_consume": true,
+      "knowledge_produce": false,
+      "validation": "./pose validate --strict no escopo afetado"
+    },
+    "documentation": {
+      "description": "Mudança em docs, AGENTS, POSE, workflows, rules ou specs editoriais.",
+      "workflow": ".pose/workflows/documentation-update.md",
+      "skill": "pose-doc-update",
+      "rules": ["documentation-style"],
+      "rules_by_domain": {},
+      "requires_spec": false,
+      "requires_adr": false,
+      "knowledge_consume": false,
+      "knowledge_produce": false,
+      "validation": "./pose check --strict"
+    },
+    "adr": {
+      "description": "Registro de decisão arquitetural ou mudança de contrato estrutural.",
+      "workflow": ".pose/workflows/refactor.md",
+      "skill": "pose-adr",
+      "rules": ["security", "documentation-style"],
+      "rules_by_domain": {},
+      "requires_spec": "opcional",
+      "requires_adr": true,
+      "knowledge_consume": false,
+      "knowledge_produce": "decision-log",
+      "validation": "./pose check --strict"
+    },
+    "test-plan": {
+      "description": "Plano de teste explícito para mudanças de risco médio/alto antes da implementação.",
+      "workflow": ".pose/workflows/feature.md",
+      "skill": "pose-test-plan",
+      "rules": ["security", "documentation-style"],
+      "rules_by_domain": {
+        "frontend": ["frontend-react"],
+        "backend-go": ["backend-go"]
+      },
+      "requires_spec": true,
+      "requires_adr": false,
+      "knowledge_consume": true,
+      "knowledge_produce": false,
+      "validation": "definir comandos por camada (unit, integração, e2e/smoke) antes do código"
+    },
+    "knowledge": {
+      "description": "Criação/gestão de handoff, decision-log ou note em .pose/knowledge/.",
+      "workflow": ".pose/workflows/feature.md",
+      "skill": "pose-knowledge",
+      "rules": ["knowledge-governance", "documentation-style"],
+      "rules_by_domain": {},
+      "requires_spec": false,
+      "requires_adr": false,
+      "knowledge_consume": false,
+      "knowledge_produce": "handoff|note|decision-log",
+      "validation": "./pose knowledge-check --strict"
+    },
+    "recurrence-escalation": {
+      "description": "Escalação quando recurrence-check sinaliza padrão recorrente.",
+      "workflow": ".pose/workflows/recurrence-escalation.md",
+      "skill": "pose-recurrence-escalation",
+      "rules": ["security", "documentation-style"],
+      "rules_by_domain": {},
+      "requires_spec": "se a escalação propor rule/workflow novo",
+      "requires_adr": false,
+      "knowledge_consume": true,
+      "knowledge_produce": "decision-log",
+      "validation": "./pose recurrence-check --strict e revisão humana do escopo"
+    },
+    "spec-closeout": {
+      "description": "Fechamento do ciclo de vida da spec: status done + completed_at + disposição de cada follow-up.",
+      "workflow": ".pose/workflows/feature.md",
+      "skill": "pose-spec-closeout",
+      "rules": ["documentation-style"],
+      "rules_by_domain": {},
+      "requires_spec": true,
+      "requires_adr": false,
+      "knowledge_consume": false,
+      "knowledge_produce": "handoff (quando follow-up [open] precisar de owner futuro)",
+      "validation": "./pose lint-spec <slug> --strict"
+    }
+  }
+}

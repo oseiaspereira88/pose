@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+COMMAND="${1:-help}"
+shift || true
+
+ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+POSE_DIR="$ROOT_DIR/.pose"
+
+case "$COMMAND" in
+  init) bash "$POSE_DIR/scripts/pose-init.sh" "$@" ;;
+  upgrade) bash "$POSE_DIR/scripts/pose-upgrade.sh" "$@" ;;
+  new-spec) bash "$POSE_DIR/scripts/pose-new-spec.sh" "$@" ;;
+  new-roadmap) bash "$POSE_DIR/scripts/pose-new-roadmap.sh" "$@" ;;
+  new-adr) bash "$POSE_DIR/scripts/pose-new-adr.sh" "$@" ;;
+  new-knowledge) bash "$POSE_DIR/scripts/pose-new-knowledge.sh" "$@" ;;
+  check) bash "$POSE_DIR/scripts/pose-check.sh" "$@" ;;
+  validate) bash "$POSE_DIR/scripts/pose-validate.sh" "$@" ;;
+  index) bash "$POSE_DIR/scripts/pose-index.sh" "$@" ;;
+  report) bash "$POSE_DIR/scripts/pose-report.sh" "$@" ;;
+  knowledge-check) bash "$POSE_DIR/scripts/pose-knowledge-check.sh" "$@" ;;
+  knowledge-housekeeping) bash "$POSE_DIR/scripts/pose-knowledge-housekeeping.sh" "$@" ;;
+  reports-housekeeping) bash "$POSE_DIR/scripts/pose-reports-housekeeping.sh" "$@" ;;
+  recurrence-check) bash "$POSE_DIR/scripts/pose-recurrence-check.sh" "$@" ;;
+  hooks) bash "$POSE_DIR/scripts/pose-hooks.sh" "$@" ;;
+  lint-spec) bash "$POSE_DIR/scripts/pose-lint-spec.sh" "$@" ;;
+  followups) bash "$POSE_DIR/scripts/pose-followups.sh" "$@" ;;
+  suggest) bash "$POSE_DIR/scripts/pose-suggest.sh" "$@" ;;
+  stats) bash "$POSE_DIR/scripts/pose-stats.sh" "$@" ;;
+  history-check) bash "$POSE_DIR/scripts/pose-history-check.sh" "$@" ;;
+  help|-h|--help)
+    cat <<'USAGE'
+POSE - Project Operating Standard for Engineering
+
+Uso: ./pose <comando> [opções]
+
+Scaffold:
+  init                                Garante a estrutura mínima do POSE no repo
+  upgrade [--dry-run]                 Migra o contrato .pose/ para a versão do motor
+  new-spec <slug>                     Cria scaffold de spec por feature
+  new-roadmap <slug>                  Cria roadmap governado em .pose/roadmaps/
+  new-adr "<título>"                  Cria ADR com template padrão
+  new-knowledge <type> <slug> [--owner @x --ttl-days N --restricted]
+                                      Cria handoff/note/decision-log em .pose/knowledge/
+
+Gates determinísticos:
+  check [--strict|--tolerant]         Valida integridade estrutural do POSE
+  validate [--strict|--tolerant] [--stack s] [--module path] [--report]
+                                      Executa matriz de validação por stack/módulo;
+                                      --report dispara ./pose report ao final
+  knowledge-check [--strict|--tolerant] [--max-overdue N]
+                                      Schema + backlog vencido em .pose/knowledge/
+  recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T]
+                                      Detecta task_slugs recorrentes no history
+  lint-spec <slug>|--all [--strict|--tolerant] [--required-only]
+                                      Detecta seções vazias/esqueléticas + gate de
+                                      ciclo de vida (status: done exige completed_at
+                                      e disposição em cada follow-up)
+  followups [--open|--all] [--json]   Agrega follow-ups de todas as specs (backlog
+                                      vivo + colisões); base para triagem
+  history-check [--strict|--tolerant]
+                                      Detecta JSONL untracked em .pose/reports/history/
+
+Descoberta e métricas:
+  suggest [<tipo>] [--domain <d>] [--path <p>] [--json]
+                                      Trilha canônica (workflow+skill+rules+spec/ADR);
+                                      --path infere domínio via repo-map.json
+  stats [workflows|tasks|contexts] [--since-days N] [--json]
+                                      Agrega outcomes do history JSONL
+
+Geração de artefatos:
+  index                               Regenera índices em .pose/indexes/
+  report --task "<desc>" [--outcome pass|fail|partial] [--since <ref>] [--git-stage] [...]
+                                      Gera relatório markdown + JSONL histórico;
+                                      --git-stage chama git add no JSONL após escrita
+
+Manutenção:
+  knowledge-housekeeping <list-expired|archive-expired|purge-archived>
+                                      Operações sobre .pose/knowledge/
+  reports-housekeeping <list-stale|archive-stale|purge-archived>
+                                      Operações sobre .pose/reports/ (mantém history)
+  hooks <install|uninstall|status> [--force]
+                                      Gerencia symlinks de .pose/hooks/ em .git/hooks/
+
+  help                                Mostra esta ajuda
+USAGE
+    ;;
+  *)
+    echo "Comando desconhecido: $COMMAND" >&2
+    echo "Execute './pose help' para ver os comandos disponíveis." >&2
+    exit 2
+    ;;
+esac

@@ -1,0 +1,93 @@
+{
+  "defaults": {
+    "mode": "strict"
+  },
+  "stacks": {
+    "node": {
+      "checks": [
+        {
+          "name": "lint",
+          "command": "npm run lint --if-present",
+          "severity": "optional"
+        },
+        {
+          "name": "test",
+          "command": "npm test --if-present",
+          "severity": "required"
+        },
+        {
+          "name": "build",
+          "command": "npm run build --if-present",
+          "severity": "required"
+        },
+        {
+          "name": "typecheck",
+          "command": "npm run typecheck --if-present",
+          "severity": "optional"
+        }
+      ]
+    },
+    "go": {
+      "checks": [
+        {
+          "name": "test",
+          "command": "go test ./...",
+          "severity": "required"
+        },
+        {
+          "name": "vet",
+          "command": "go vet ./...",
+          "severity": "optional"
+        }
+      ]
+    },
+    "rust": {
+      "checks": [
+        {
+          "name": "test",
+          "command": "cargo test",
+          "severity": "required"
+        }
+      ]
+    },
+    "java": {
+      "checks": [
+        {
+          "name": "maven-test",
+          "command": "mvn -B test",
+          "severity": "required",
+          "when": {
+            "fileExists": "pom.xml"
+          }
+        },
+        {
+          "name": "gradle-test",
+          "command": "./gradlew test",
+          "severity": "required",
+          "when": {
+            "fileExists": "gradlew"
+          }
+        },
+        {
+          "name": "gradle-test-wrapper",
+          "command": "gradle test",
+          "severity": "required",
+          "when": {
+            "fileExists": "build.gradle",
+            "fileNotExists": "gradlew"
+          }
+        },
+        {
+          "name": "gradle-test-wrapper-kts",
+          "command": "gradle test",
+          "severity": "required",
+          "when": {
+            "fileExists": "build.gradle.kts",
+            "fileNotExists": "gradlew"
+          }
+        }
+      ]
+    }
+  },
+  "moduleOverrides": {}
+}
