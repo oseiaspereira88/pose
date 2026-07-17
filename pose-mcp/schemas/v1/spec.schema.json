@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crisol://pose-mcp/schemas/v1/spec.json",
+  "title": "POSE Spec",
+  "description": "Parsed view of a POSE spec: lifecycle frontmatter plus markdown body (body only present on pose_get_spec).",
+  "type": "object",
+  "properties": {
+    "slug": { "type": "string" },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle state: draft | in-progress | done | blocked | superseded | abandoned (free-form for legacy specs)"
+    },
+    "created_at": { "type": "string" },
+    "completed_at": { "type": "string" },
+    "supersedes": { "type": "string" },
+    "title": { "type": "string" },
+    "path": { "type": "string" },
+    "body": { "type": "string" }
+  },
+  "required": ["slug", "path"],
+  "additionalProperties": true
+}

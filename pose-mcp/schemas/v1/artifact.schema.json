@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "crisol://pose-mcp/schemas/v1/artifact.json",
+  "title": "POSE Markdown Artifact",
+  "description": "A named POSE markdown artifact (workflow or rule). Body only present when fetching a single artifact.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "title": { "type": "string" },
+    "path": { "type": "string" },
+    "body": { "type": "string" }
+  },
+  "required": ["name", "path"],
+  "additionalProperties": true
+}

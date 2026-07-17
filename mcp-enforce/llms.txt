@@ -1,0 +1,60 @@
+# mcp-enforce
+
+> Canonical authorization-enforcement library for Crisol MCP servers (ADR-004, ADR-021):
+> per-call OPA policy gate (default-deny), allow/deny auditor, and shared request-extraction
+> helpers. Stdlib only; one network dependency (OPA REST). Module:
+> github.com/crisol/mcp-enforce, package mcpenforce.
+
+## Why this module exists
+
+The policy/audit gate was duplicated between pose-mcp and graphforge/mcp-server and had begun to
+diverge (RequirePrincipal and audit-on-allow existed only in pose-mcp). This is the single
+implementation, consumed in-process by Crisol-org Go servers and embedded in the enforcement
+sidecar that fronts foreign servers. Same code in both modes = consistency required by ADR-004.
+
+## Core types
+
+- PolicyGate / NewPolicyGate(PolicyConfig): the gate. Evaluate(ctx, PolicyInput) →
+  (PolicyDecision, error). Order: RequirePrincipal (deny anonymous) → dev allow-all when OPAURL
+  empty → OPA REST → default-deny on any error.
+- PolicyConfig{OPAURL, OPAPath, Timeout, RequirePrincipal, HTTPClient}. Zero value = dev allow-all.
+- PolicyInput{Principal, ProjectID, Method, ToolName} plus inert ADR-007 fields {Scopes []string,
+  RunID string, ExpiresAt time.Time} — serialized to OPA only when set; no Rego evaluates them yet.
+- PolicyDecision{Allow, Principal, ProjectID, ToolName, Violations}; Metadata() → map for JSON-RPC
+  error data and audit. DenyDecision(input, reason) builds a denied decision.
+
+## Auditing
+
+- Auditor interface: Record(ctx, PolicyDecision). Never logs payload content.
+- SlogAuditor(logger, component): allow → Info "policy allowed" event_type=policy.decided; deny →
+  Warn "policy denied" event_type=policy.violation. NopAuditor discards.
+
+## Execution Identity (ADR-007)
+
+- Identity{RunID, ProjectID, Scopes, PolicyVersion, ExpiresAt}: conductor-issued, run-bound,
+  time-boxed. MintToken(id, secret)/ParseToken(token, secret): compact HMAC-SHA256 token
+  "base64url(claims).base64url(sig)" (stdlib only; symmetric secret = V1 backend, SPIFFE = upgrade).
+- IdentityFromHeader(h, secret): reads/verifies the X-MCP-Execution-Identity header; (nil,nil) when
+  absent, error when present-but-invalid. id.Apply(input) binds RunID/Scopes/ExpiresAt onto PolicyInput.
+- Gate enforcement: RequireIdentity → deny missing_identity; time-box → deny identity_expired when
+  ExpiresAt past (PolicyConfig.Clock injectable). Scopes/run_id/expires_at flow into the OPA input doc.
+
+## Extraction helpers
+
+- PrincipalFromHeader(h): X-MCP-Principal then X-Principal. HeaderValue(h, names...).
+- ProjectIDFromArguments(rawJSON): reads project_id from tools/call arguments.
+- ConfigFromEnv(prefix, defaultOPAPath): reads <prefix>OPA_URL/OPA_PATH/OPA_TIMEOUT(seconds)/
+  REQUIRE_PRINCIPAL. Example: ConfigFromEnv("POSE_MCP_", "pose/mcp/allow").
+
+## Contracts (golden-pinned)
+
+- testdata/opa_input_minimal.json — base OPA input doc (unchanged wire).
+- testdata/opa_input_with_scope.json — with ADR-007 scope fields.
+- testdata/audit_events.jsonl — audit event schema (allow + deny).
+- Regenerate: MCP_ENFORCE_UPDATE_GOLDEN=1 go test ./...
+
+## Consumers (planned)
+
+- pose-mcp-enforce-adopt: pose-mcp imports this, deletes internal/mcpserver/policy.go.
+- graphforge-mcp-enforce-sidecar: sidecar embeds this in front of graphforge/mcp-server.
+- mcp-execution-identity-scope-binding: activates the inert scope fields (ADR-007).

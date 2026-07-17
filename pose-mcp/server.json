@@ -1,0 +1,40 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "io.github.oseiaspereira88/pose-mcp",
+  "description": "POSE governance server: specs, readiness, roadmaps, knowledge, reports and deterministic gates for spec-driven development that closes the loop.",
+  "status": "active",
+  "repository": {
+    "url": "https://github.com/oseiaspereira88/pose",
+    "source": "github"
+  },
+  "version_detail": {
+    "version": "0.9.0"
+  },
+  "packages": [
+    {
+      "registry_type": "github-release",
+      "identifier": "pose",
+      "version": "0.9.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environment_variables": [
+        {
+          "name": "POSE_PROJECT_ROOT",
+          "description": "Repository root containing the .pose/ instance",
+          "is_required": true
+        },
+        {
+          "name": "POSE_DEFAULT_PROJECT_ID",
+          "description": "Project id (derived from the root directory name when empty)",
+          "is_required": false
+        },
+        {
+          "name": "POSE_PROJECT_ROOTS",
+          "description": "JSON map project_id→root for multi-repo routing",
+          "is_required": false
+        }
+      ]
+    }
+  ]
+}

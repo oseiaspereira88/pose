@@ -1,0 +1,40 @@
+# POSE documentation site (spec pose-docs-site).
+# Local preview: pip install mkdocs-material && mkdocs serve -f docs-site/mkdocs.yml
+# CI deploy: .github/workflows/docs.yml (GitHub Pages).
+site_name: POSE
+site_description: >-
+  Project Operating Standard for Engineering — spec-driven development that
+  closes the loop.
+repo_name: POSE
+docs_dir: docs
+site_dir: ../.docs-site-build
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      toggle: { icon: material/weather-night, name: Dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      toggle: { icon: material/weather-sunny, name: Light mode }
+  features:
+    - navigation.sections
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Concepts: concepts.md
+  - CLI reference: cli.md
+  - MCP server: mcp.md
+  - Frontmatter contracts: frontmatter.md
+  - CI integration: ci.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - tables

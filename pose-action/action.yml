@@ -1,0 +1,56 @@
+name: "POSE Gates"
+description: >-
+  Run the deterministic POSE governance gates (check, lint-spec, optional
+  recurrence/history checks) on a repository with an installed POSE instance.
+author: "POSE"
+branding:
+  icon: "check-circle"
+  color: "green"
+
+inputs:
+  mode:
+    description: "Gate mode: strict or tolerant"
+    required: false
+    default: "strict"
+  lint-specs:
+    description: "Run 'pose lint-spec --all' (true/false)"
+    required: false
+    default: "true"
+  recurrence-check:
+    description: "Run 'pose recurrence-check' (true/false)"
+    required: false
+    default: "true"
+  history-check:
+    description: "Run 'pose history-check' (true/false)"
+    required: false
+    default: "true"
+  working-directory:
+    description: "Directory containing the POSE instance (default: repo root)"
+    required: false
+    default: "."
+
+runs:
+  using: "composite"
+  steps:
+    - name: POSE structure (check)
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: ./pose check --${{ inputs.mode }}
+
+    - name: Spec lifecycle (lint-spec)
+      if: ${{ inputs.lint-specs == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: ./pose lint-spec --all --${{ inputs.mode }}
+
+    - name: Recurrence signal
+      if: ${{ inputs.recurrence-check == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: ./pose recurrence-check --${{ inputs.mode }}
+
+    - name: History integrity
+      if: ${{ inputs.history-check == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: ./pose history-check --${{ inputs.mode }}

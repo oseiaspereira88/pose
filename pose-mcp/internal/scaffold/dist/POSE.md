@@ -1,0 +1,295 @@
+# POSE — Project Operating Standard for Engineering
+
+## 1) What it is
+
+POSE is the operating standard for agent work in **{{PROJECT_NAME}}**.
+
+Primary goals:
+
+- reduce ambiguity in tasks
+- improve execution predictability
+- make validation and reporting consistent
+- scale collaboration in a heterogeneous repository
+
+POSE does **not** replace product architecture or existing security policies;
+it organizes how agents execute technical work.
+
+The short agent contract lives in [`AGENTS.md`](AGENTS.md); this document is
+the operating manual (structure, CLI, per-type flows, CI, governance).
+
+---
+
+## 2) Principles
+
+1. **Scope first**: read only the instructions and artifacts needed for the affected directories.
+2. **Plan before implementing**: non-trivial changes go through a spec/plan.
+3. **Incrementalism**: small, cohesive, auditable deliveries.
+4. **Deterministic validation**: prefer reproducible commands (`test`, `lint`, `typecheck`, `build`, contract/security checks).
+5. **Risk transparency**: always surface gaps and human-review points.
+
+---
+
+## 3) Structure
+
+```text
+.pose/
+  workflows/     # procedure per work type
+  templates/     # spec.md, roadmap.md, knowledge.md, changelog-fragment.md, doc-audit-report.md
+  rules/         # domain rules (cumulative)
+  knowledge/     # handoffs and notes with active governance
+  adr/           # architectural decisions
+  roadmaps/      # governed roadmaps (milestone DAGs)
+  changelogs/    # user-facing fragments per spec (unreleased/ until the release cut)
+  indexes/       # repo-map, services, packages, validation-matrix, module-metadata, task-map, spec-graph, roadmaps
+  reports/       # versionable reports + history JSONL + archive/
+  specs/         # living specs per feature
+  scripts/       # CLI engine (shared pose-lib.sh)
+  hooks/         # pre-commit and post-merge, installable via ./pose hooks
+  schema-version # instance contract version (see `pose upgrade`)
+
+.agents/skills/  # skills (source of truth; Codex-native format)
+.claude/skills/  # Claude Code-compatible symlinks
+pose             # CLI dispatcher
+AGENTS.md        # short operating contract
+POSE.md          # this manual
+```
+
+---
+
+## 4) Key files
+
+- [`AGENTS.md`](AGENTS.md): short contract, precedence and entry points.
+- Subproject `AGENTS.md` (when present): local guidance, applied only to that directory's scope.
+- [`.pose/workflows/*.md`](.pose/workflows/): procedure per work type (`feature`, `bugfix`, `review`, `refactor`, `documentation-update`, `recurrence-escalation`).
+- [`.pose/rules/*.md`](.pose/rules/): domain rules; recurring content lives in [`.pose/rules/_base-recurrence.md`](.pose/rules/_base-recurrence.md).
+- [`.pose/templates/spec.md`](.pose/templates/spec.md): the single per-feature spec template.
+- [`.pose/templates/roadmap.md`](.pose/templates/roadmap.md): governed roadmap template.
+- [`.pose/templates/changelog-fragment.md`](.pose/templates/changelog-fragment.md): user-facing fragment per spec (written at closeout).
+- [`.pose/templates/doc-audit-report.md`](.pose/templates/doc-audit-report.md): template for editorial reviews and documentation audits.
+- [`.pose/scripts/*.sh`](.pose/scripts/): scaffold/check/validate/report automation (shared [`pose-lib.sh`](.pose/scripts/pose-lib.sh)).
+- [`.pose/specs/*/spec.md`](.pose/specs/): living specs per feature.
+- [`.agents/skills/`](.agents/skills/): 9 skills in Codex-native format (`name`/`description` frontmatter, body with Required reading + Steps + Output requirements, optional metadata in `agents/openai.yaml`). Use `description` as the single routing source; Claude Code consumes the symlinks in [`.claude/skills/`](.claude/skills/) without requiring `when_to_use`.
+
+---
+
+## 5) Flows per task type
+
+The operational step-by-step lives in the workflows. Each workflow also
+includes the relevant "Execution — planner/implementer/reviewer mode" sections.
+
+- Feature: [`.pose/workflows/feature.md`](.pose/workflows/feature.md)
+- Bugfix: [`.pose/workflows/bugfix.md`](.pose/workflows/bugfix.md)
+- Review: [`.pose/workflows/review.md`](.pose/workflows/review.md)
+- Refactor: [`.pose/workflows/refactor.md`](.pose/workflows/refactor.md)
+- Documentation: [`.pose/workflows/documentation-update.md`](.pose/workflows/documentation-update.md)
+- Recurrence escalation: [`.pose/workflows/recurrence-escalation.md`](.pose/workflows/recurrence-escalation.md)
+
+The agent contract (precedence, spec/ADR/check obligations, verification,
+don'ts) lives in [`AGENTS.md`](AGENTS.md) and is **not** repeated here.
+
+### 5.1 Spec lifecycle
+
+Every spec created by [`./pose new-spec`](.pose/scripts/pose-new-spec.sh)
+carries frontmatter with state and dates, preventing specs that linger "open"
+after completion and follow-ups that rot into dead text.
+
+```yaml
+---
+slug: <feature-slug>
+status: draft        # draft → in-progress → done | blocked | superseded | abandoned
+created_at: 2026-01-15   # stamped by ./pose new-spec
+completed_at:            # filled on the transition to done
+supersedes:              # slug of the superseded spec (when applicable)
+depends_on:              # prerequisites: other-spec, milestone:<roadmap>/<id>, roadmap:<slug>
+priority:                # integer >= 0 (lower = higher priority)
+---
+```
+
+- **`status`** evolves `draft` → `in-progress` → `done`. Alternative terminal
+  states: `blocked`, `superseded` (use `supersedes:` on the successor),
+  `abandoned`.
+- **`created_at`/`completed_at`** give the spec's real time window (file mtime
+  is unreliable — it changes on every edit).
+- **`depends_on`** declares prerequisites as an **inline comma-separated
+  list** (POSE frontmatter is flat by contract — never a multi-line YAML
+  list), with typed refs: a spec slug, `milestone:<roadmap>/<id>` or
+  `roadmap:<slug>`. Spec refs are resolved by `check` (existence + graph
+  acyclicity); `milestone:`/`roadmap:` refs resolve against the governed
+  roadmaps in `.pose/roadmaps/` when they exist. `depends_on` expresses a real
+  technical/logical prerequisite; scheduling preference is `priority`'s job.
+  The aggregated graph lives in
+  [`.pose/indexes/spec-graph.json`](.pose/indexes/) (generated by
+  `./pose index`; frontmatter stays authoritative) and a spec's eligibility is
+  queryable via the pose-mcp tool `pose_spec_readiness`.
+- **`priority`** (optional) orders attack preference among eligible specs; it
+  creates no blocking.
+- **Follow-ups with disposition:** the `Final Report > Follow-ups` section is
+  not free text. Each item gets a bracketed disposition — `[open]`,
+  `[spawned: <slug>]`, `[covered: <slug>]`, `[duplicate: <slug>]`, `[done]`,
+  `[wont-do: <reason>]`. That answers, per follow-up, whether it seeded a new
+  spec, is already covered elsewhere, was triaged before, or was discarded.
+
+Closeout is an explicit step (skill [`pose-spec-closeout`](.agents/skills/pose-spec-closeout/SKILL.md)):
+set `status: done`, fill `completed_at`, triage every follow-up and pass the
+gate [`./pose lint-spec <slug> --strict`](.pose/scripts/pose-lint-spec.sh),
+which blocks "done without `completed_at`" and "done with an undispositioned
+follow-up". The aggregated live backlog (`./pose followups --open`) feeds the
+planning of new specs.
+
+Follow-up triage has **two layers**, by design, to keep the CLI deterministic
+and avoid cascading drift:
+
+1. **Deterministic (CLI):** [`./pose followups`](.pose/scripts/pose-followups.sh)
+   proposes near-duplicate candidates by lexical similarity. Reproducible, no
+   network, runs in CI.
+2. **Semantic + confirmation (agent):** the `pose-spec-closeout` skill judges
+   intent equivalence (what lexical heuristics miss) and **confirms with the
+   user before writing** the consequential dispositions
+   (`[spawned]`/`[covered]`/`[duplicate]`) — reusing a follow-up is a
+   decision, not a default.
+
+---
+
+## 6) The `pose` CLI
+
+```bash
+./pose help                          # show help
+
+# Scaffold
+./pose init [--wizard [--yes]]       # ensure minimal structure; --wizard detects
+                                      # stacks and seeds the validation matrix
+./pose new-spec <slug>               # create a spec at .pose/specs/<slug>/spec.md
+./pose new-roadmap <slug>            # create a governed roadmap in .pose/roadmaps/
+./pose new-adr "<title>"             # create a dated ADR
+./pose new-knowledge <type> <slug>   # create handoff/note/decision-log
+                                      # (options: --owner @x --ttl-days N --restricted)
+
+# Deterministic gates
+./pose check [--strict|--tolerant]   # structural integrity + matrix schema +
+                                      # task-map sync + spec graph + schema version
+./pose validate [--strict|--tolerant] [--stack s] [--module path] [--report]
+./pose knowledge-check [--strict|--tolerant] [--max-overdue N]
+./pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T] [--include-pass]
+./pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]
+./pose followups [--open|--all] [--json]
+./pose history-check [--strict|--tolerant]
+
+# Discovery and metrics
+./pose suggest [<type>] [--domain <d>] [--path <p>] [--json]
+./pose stats [workflows|tasks|contexts] [--since-days N] [--json]
+
+# Artifact generation
+./pose index                         # regenerate indexes (incl. spec-graph, roadmaps)
+./pose report --task "..." [--outcome pass|fail|partial] [--since <ref>] [--git-stage] [...]
+
+# Maintenance
+./pose upgrade [--dry-run]           # migrate the .pose/ contract to the engine version
+./pose knowledge-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
+./pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-than N] [--dry-run|--apply]
+./pose hooks <install|uninstall|status> [--force]
+```
+
+### Command reference
+
+- `check` — validates POSE structural integrity (required paths, scripts, references in `AGENTS.md`/`POSE.md`) **plus** the [`validation-matrix.json`](.pose/indexes/validation-matrix.json) schema (catches typos like `severty`), [`task-map.json`](.pose/indexes/task-map.json) sync (referenced workflows/skills/rules must exist), the **spec dependency graph** (valid `depends_on` refs, existing specs, integer `priority` ≥ 0, acyclic graph) and the **schema version gate** (missing → warning/error with instruction; instance newer than engine → always an error). Fails in `--strict`, warns in `--tolerant`.
+- `new-spec` — generates a `spec.md` from [`.pose/templates/spec.md`](.pose/templates/spec.md).
+- `new-adr` — creates an ADR with the standard template and a deterministic slug.
+- `new-roadmap` — creates a governed roadmap from [`.pose/templates/roadmap.md`](.pose/templates/roadmap.md): flat frontmatter (`status: draft|active|done|abandoned`, `depends_on:` between roadmaps) + milestones as `## Milestone: <id>` sections with flat bullets (`- after:`, `- target_start:`, `- target_due:`, `- specs:`). `check` validates single membership in active roadmaps, milestone/roadmap DAGs, dates and typed-ref resolution; `pose_spec_readiness` resolves those refs for real (milestone satisfied = its specs done; roadmap satisfied = status done). Dates are planning input; actuals derive from events.
+- `new-knowledge` — creates an artifact in [`.pose/knowledge/`](.pose/knowledge/) with mandatory frontmatter (`type`, `owner`, `sensitivity`, `created_at`, `last_reviewed_at`, `expires_at`). TTL default 30d, max 90d.
+- `validate` — runs the declarative matrix in [`validation-matrix.json`](.pose/indexes/validation-matrix.json): per-stack checks, per-module overrides, severity (`required`/`optional`) and mode (`strict`/`tolerant`).
+- `upgrade` — migrates the instance contract to the engine's `POSE_SCHEMA_VERSION` by applying sequential idempotent migrations from `.pose/scripts/migrations/`; `--dry-run` lists the plan. Downgrade (instance newer than engine) is always refused.
+- `index` — generates `repo-map.json`, `services.json`, `packages.json`, `spec-graph.json` and `roadmaps.json` in `.pose/indexes/`, including per-module operational metadata from [`module-metadata.json`](.pose/indexes/module-metadata.json).
+- `report` — generates a versionable report in `.pose/reports/` with execution metadata, minimal per-task history (`.pose/reports/history/`) and stable-field diffs.
+- `knowledge-check` — double gate: (1) frontmatter schema of each knowledge artifact, and (2) overdue backlog against `--max-overdue`. In `--strict` both gates exit 1.
+- `recurrence-check` — scans [`history JSONL`](.pose/reports/) for `task_slug`s with `≥ --threshold` occurrences in `--window-days` (default 3 in 14d). Ignores `outcome=pass` by default. When flagged, points to [`recurrence-escalation.md`](.pose/workflows/recurrence-escalation.md).
+- `lint-spec` — verifies each `spec.md` section has real content, not placeholders. **`--ready-check`** applies the **Definition of Ready** (ENTRY gate): Intent/Requirements/Technical Plan filled, acceptance criteria with stable IDs (`- R<N>:`) and syntactically valid `depends_on` — without requiring Validation/Final Report. `check` applies the ready-check automatically on the `→ in-progress` transition. **Lifecycle gate:** `status: done` requires `completed_at` and a valid disposition on every follow-up; for `spawned`/`covered`/`duplicate` the target must be an **existing** spec (and not itself).
+- `followups` — aggregates all specs' follow-ups, derives the live (`--open`) or full (`--all`) backlog and proposes near-duplicate candidates by deterministic lexical similarity (stdlib only; threshold via `--similarity 0..100`, default 60). Always exit 0; enforcement belongs to `lint-spec`.
+- `history-check` — verifies every `.jsonl` under `reports/history/` is git-tracked. Strict blocks; tolerant warns.
+- `suggest` — reads [`task-map.json`](.pose/indexes/task-map.json) and prints the canonical trail (workflow + skill + rules + spec/ADR + knowledge) for a task type. `--domain` adds domain rules; `--path` infers the domain via [`repo-map.json`](.pose/indexes/repo-map.json); `--json` for agents.
+- `stats` — aggregates history JSONL outcomes by workflow, task or context. `--since-days N`; `--json`.
+- `knowledge-housekeeping` / `reports-housekeeping` — idempotent maintenance (list/archive/purge). Mutations require `--apply`. Reports housekeeping **never touches `history/`**.
+- `hooks` — manages symlinks from [`.pose/hooks/`](.pose/hooks/) into `.git/hooks/`. Bundled: `pre-commit` (runs `check --tolerant`) and `post-merge` (runs `index`).
+
+---
+
+## 7) CI policy
+
+- Run `./pose check --strict` on every `pull_request` to `main`; treat failure as blocking.
+- Run `./pose validate --strict` on every `pull_request` to `main`; treat `required` check failure as blocking.
+- Run the same workflow on `push` to `main` to detect post-merge drift.
+- Publish versionable artifacts per run: `pose-check.log`, `pose-validate.latest.log` and the `./pose report` output.
+- Consume those artifacts during review instead of ephemeral job logs.
+
+A ready-made GitHub Action wrapping these gates ships with the POSE
+distribution (`pose-action/`).
+
+### Interpreting failures
+
+- `POSE check (strict)` failure = structural break of the standard.
+- `POSE validate (strict, required gate)` failure = objective quality block.
+- `optional`-only failures = flagged technical risk; prioritize by criticality.
+
+### Phased rollout (recommended)
+
+1. Observability: PR workflow with artifacts, no new gates raised.
+2. Enforcement on `main`: strict `check` and `validate` as blocking gates; adjust `moduleOverrides` for modules not ready.
+3. Gradual expansion: promote mature checks from `optional` to `required` per domain.
+4. Hardening: review the matrix periodically, remove temporary exceptions.
+
+### Validation matrix per stack/module
+
+- Single source: [`validation-matrix.json`](.pose/indexes/validation-matrix.json).
+- Base stacks: `node`, `go`, `rust`, `java` (Maven/Gradle).
+- `moduleOverrides` adjusts stack, mode and extra checks per module
+  (`./pose init --wizard` seeds them from repository scan).
+- `required` in a `strict` or `tolerant` module → exit 1; `optional` failures don't block.
+
+---
+
+## 8) `.pose/knowledge/` governance
+
+The full loop (create → consult in workflows → schema validation → CI gate →
+housekeeping) is available from installation; maturity comes from usage.
+
+Write path: [`./pose new-knowledge <type> <slug>`](.pose/scripts/pose-new-knowledge.sh).
+Read path: the feature/bugfix/review workflows include "consult
+`.pose/knowledge/`" as a mandatory checklist step.
+Gate: [`./pose knowledge-check --strict`](.pose/scripts/pose-knowledge-check.sh), used in CI.
+
+Health criteria: a dedicated governance spec when activating the subsystem;
+the [`knowledge-governance.md`](.pose/rules/knowledge-governance.md) rule;
+defined ownership with biweekly/monthly review; minimal housekeeping.
+On repeated neglect (overdue items untreated for 2 cycles), treat `knowledge`
+as degraded and block functional expansion until it recovers.
+
+---
+
+## 9) Instance limitations
+
+<!-- Keep the REAL limitations of your instance here, with evidence:
+     modules missing from module-metadata.json, stacks outside the matrix,
+     gates still tolerant and why. -->
+
+- Document limitations as the instance evolves.
+
+---
+
+## 10) Instance next steps
+
+<!-- The operational backlog of POSE IN THIS repository (not product
+     features). Each item with an owner and a done criterion. -->
+
+1. Fill `.pose/indexes/module-metadata.json` for critical modules.
+2. Enable strict `check`/`validate` in CI (see §7).
+3. Run knowledge housekeeping on a recurring cycle.
+
+---
+
+## 11) Executive summary
+
+POSE is the operational layer that makes agent work reliable in the repository:
+
+- short instructions in [`AGENTS.md`](AGENTS.md)
+- operational depth in [`.pose/`](.pose/)
+- assisted execution via [`./pose`](pose) (CLI)
+- progressive maturity with skills in [`.agents/skills/`](.agents/skills/)
