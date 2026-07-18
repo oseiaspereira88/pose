@@ -17,7 +17,9 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import html
 import json
+import os
 import pathlib
 import sys
 
@@ -37,6 +39,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--since-days", type=int, default=0,
                         help="Filtra registros gerados nos últimos N dias (0 = sem filtro)")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--html", action="store_true",
+                        help="Gera relatório HTML auto-contido")
+    parser.add_argument("--out", help="Arquivo de saída para --html")
+    parser.add_argument("--specs-dir", help="Diretório de specs para métricas de lead time")
     return parser.parse_args(argv)
 
 
@@ -128,6 +134,62 @@ def render_table(rows: list[dict], group_label: str) -> str:
     return "\n".join(lines)
 
 
+def spec_metrics(specs_dir: pathlib.Path | None) -> dict[str, object]:
+    """Return best-effort lead-time and open-follow-up metrics from specs."""
+    if specs_dir is None or not specs_dir.is_dir():
+        return {"completed": 0, "lead_time_days": None, "open_followups": 0}
+    lead_times: list[int] = []
+    open_followups = 0
+    for spec in specs_dir.glob("*/spec.md"):
+        try:
+            text = spec.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        open_followups += text.count("- [open]")
+        values = {
+            key.strip(): value.strip()
+            for line in text.splitlines()
+            if ":" in line
+            for key, value in [line.split(":", 1)]
+            if key.strip() in {"created_at", "completed_at"}
+        }
+        created = parse_iso(values.get("created_at", ""))
+        completed = parse_iso(values.get("completed_at", ""))
+        if created and completed and completed >= created:
+            lead_times.append((completed - created).days)
+    return {
+        "completed": len(lead_times),
+        "lead_time_days": round(sum(lead_times) / len(lead_times), 1) if lead_times else None,
+        "open_followups": open_followups,
+    }
+
+
+def render_html(rows: list[dict], scanned: int, skipped_invalid: int, metrics: dict[str, object]) -> str:
+    """Render a CSP-safe, standalone report; all dynamic values are escaped."""
+    table_rows = "".join(
+        "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(
+            html.escape(str(row["key"])), row["pass"], row["fail"], row["partial"], row["total"])
+        for row in rows
+    ) or "<tr><td colspan=\"5\">No history records found.</td></tr>"
+    lead = metrics["lead_time_days"]
+    lead_text = "unavailable" if lead is None else f"{lead} days"
+    return f"""<!doctype html>
+<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src 'unsafe-inline'\">
+<title>POSE local insights</title><style>body{{font-family:system-ui;margin:2rem;max-width:960px}}table{{border-collapse:collapse;width:100%}}th,td{{border:1px solid #ccc;padding:.45rem;text-align:left}}.cards{{display:flex;gap:1rem;flex-wrap:wrap}}.card{{border:1px solid #ccc;padding:1rem;min-width:10rem}}</style></head>
+<body><h1>POSE local insights</h1><p>Offline report generated from repository-local data.</p>
+<div class=\"cards\"><div class=\"card\"><b>History records</b><br>{scanned}</div><div class=\"card\"><b>Invalid records skipped</b><br>{skipped_invalid}</div><div class=\"card\"><b>Open follow-ups</b><br>{metrics['open_followups']}</div><div class=\"card\"><b>Average completed-spec lead time</b><br>{lead_text}</div></div>
+<h2>Outcomes by workflow</h2><table><thead><tr><th>Workflow</th><th>Pass</th><th>Fail</th><th>Partial</th><th>Total</th></tr></thead><tbody>{table_rows}</tbody></table>
+</body></html>"""
+
+
+def write_atomic(path: pathlib.Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp")
+    temporary.write_text(content, encoding="utf-8")
+    os.replace(temporary, path)
+
+
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
     history_dir = pathlib.Path(args.history_dir)
@@ -139,6 +201,13 @@ def main(argv: list[str]) -> int:
     rows, scanned, skipped_window, skipped_invalid = aggregate(
         history_dir, group_field, args.since_days
     )
+
+    if args.html:
+        output = pathlib.Path(args.out) if args.out else history_dir.parent / "pose-stats.html"
+        metrics = spec_metrics(pathlib.Path(args.specs_dir) if args.specs_dir else None)
+        write_atomic(output, render_html(rows, scanned, skipped_invalid, metrics))
+        print(f"stats.html={output}")
+        return 0
 
     if args.json:
         payload = {

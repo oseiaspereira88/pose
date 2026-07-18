@@ -6,7 +6,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/pose-lib.sh"
 
 usage() {
   cat <<'USAGE'
-Uso: pose-stats.sh [outcomes|workflows|tasks|contexts] [--since-days N] [--json]
+Uso: pose-stats.sh [outcomes|workflows|tasks|contexts] [--since-days N] [--json] [--html [--out FILE]]
 
 Agrega outcomes do .pose/reports/history/*.jsonl. Útil para promover checks
 optional → required por taxa de sucesso real, identificar workflows instáveis,
@@ -21,6 +21,8 @@ Subcomandos:
 Opções:
   --since-days N     Considera apenas registros dos últimos N dias (default: 0 = todos)
   --json             Saída em JSON
+  --html             Gera relatório HTML offline auto-contido
+  --out FILE         Destino do relatório HTML (default: .pose/reports/pose-stats.html)
   -h, --help         Mostra esta ajuda
 
 Exemplos:
@@ -34,11 +36,17 @@ SUB=""
 GROUP_BY="workflow"
 SINCE_DAYS=0
 EMIT_JSON=false
+EMIT_HTML=false
+HTML_OUT=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -h|--help) usage; exit 0 ;;
     --json) EMIT_JSON=true; shift ;;
+    --html) EMIT_HTML=true; shift ;;
+    --out)
+      [[ $# -ge 2 && -n "${2:-}" && "${2:-}" != --* ]] || { echo "Erro: --out exige arquivo" >&2; exit 2; }
+      HTML_OUT="$2"; shift 2 ;;
     --since-days)
       [[ $# -ge 2 && "${2:-}" =~ ^[0-9]+$ ]] || { echo "Erro: --since-days exige inteiro >= 0" >&2; exit 2; }
       SINCE_DAYS="$2"; shift 2 ;;
@@ -82,6 +90,8 @@ fi
 
 extra=()
 $EMIT_JSON && extra+=(--json)
+$EMIT_HTML && extra+=(--html --specs-dir "$REPO_ROOT/.pose/specs")
+[[ -n "$HTML_OUT" ]] && extra+=(--out "$HTML_OUT")
 
 python3 "$STATS_SCRIPT" \
   --history-dir "$HISTORY_DIR" \
