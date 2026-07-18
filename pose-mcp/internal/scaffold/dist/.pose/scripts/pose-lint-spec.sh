@@ -6,7 +6,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/pose-lib.sh"
 
 usage() {
   cat <<'USAGE'
-Uso: pose-lint-spec.sh <slug>|--all [--strict|--tolerant] [--required-only]
+Uso: pose-lint-spec.sh <slug>|--all [--strict|--tolerant] [--required-only] [--ears]
 
 Lint de specs em .pose/specs/<slug>/spec.md. Detecta seções vazias ou
 esqueléticas (apenas placeholders/comments HTML) e aplica o gate de ciclo
@@ -22,6 +22,7 @@ Opções:
   --strict           Exit 1 se qualquer spec tem seção obrigatória vazia (default).
   --tolerant         Sempre exit 0; reporta como aviso.
   --required-only    Ignora seções opcionais (Decisions).
+  --ears             Exige sintaxe EARS nos acceptance criteria (`R<N>`).
 
 Seções obrigatórias: Intent, Requirements, Technical Plan, Tasks, Validation, Final Report.
 Seções opcionais: Decisions.
@@ -31,6 +32,7 @@ USAGE
 MODE="strict"
 REQUIRED_ONLY=false
 READY_CHECK=false
+EARS=false
 TARGET=""
 
 while [[ $# -gt 0 ]]; do
@@ -39,6 +41,7 @@ while [[ $# -gt 0 ]]; do
     --tolerant) MODE="tolerant"; shift ;;
     --required-only) REQUIRED_ONLY=true; shift ;;
     --ready-check) READY_CHECK=true; shift ;;
+    --ears) EARS=true; shift ;;
     --all) TARGET="--all"; shift ;;
     -h|--help) usage; exit 0 ;;
     --*) echo "Erro: opção desconhecida: $1" >&2; usage; exit 2 ;;
@@ -71,6 +74,7 @@ fi
 extra_args=()
 $REQUIRED_ONLY && extra_args+=(--required-only)
 $READY_CHECK && extra_args+=(--ready-check)
+$EARS && extra_args+=(--ears)
 
 lint_one() {
   local spec_path="$1"

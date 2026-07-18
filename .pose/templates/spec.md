@@ -42,6 +42,9 @@ priority:            # integer >= 0 (lower = higher priority); ordering preferen
 > requirements must have **acceptance criteria with stable IDs** (`- R<N>: ...`).
 > Published IDs are never renumbered; a removed criterion is marked as
 > withdrawn. Verify with `./pose lint-spec <slug> --ready-check`.
+>
+> Optional EARS form: `- R1: When <trigger>, the <system> shall <behavior>.`
+> Verify an opted-in spec with `./pose lint-spec <slug> --ears`.
 
 ### Functional
 - R1: 

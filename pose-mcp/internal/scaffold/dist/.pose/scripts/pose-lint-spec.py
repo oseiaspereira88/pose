@@ -95,6 +95,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "IDs (- R<N>:) e depends_on sintaticamente válido. Não exige "
         "Validation/Final Report (a spec ainda não executou).",
     )
+    parser.add_argument("--ears", action="store_true",
+                        help="Exige que acceptance criteria usem sintaxe EARS")
     return parser.parse_args(argv)
 
 
@@ -261,6 +263,16 @@ READY_SECTIONS = ("Intent", "Requirements", "Technical Plan")
 # using the plain form (no bracket) keep matching unchanged — the bracket
 # group is non-capturing-optional, not a new requirement.
 ACCEPTANCE_ID_RE = re.compile(r"^\s*-\s*R(\d+)\s*(?:\[(\w+)\])?\s*[:—-]")
+# EARS forms: ubiquitous, event-driven, state-driven, optional-feature, and
+# unwanted behavior.  The trailing behavior is deliberately free-form.
+EARS_RE = re.compile(
+    r"^(?:The\s+\S+(?:\s+\S+){0,8}\s+shall\s+.+|"
+    r"When\s+.+,\s+the\s+\S+(?:\s+\S+){0,8}\s+shall\s+.+|"
+    r"While\s+.+,\s+the\s+\S+(?:\s+\S+){0,8}\s+shall\s+.+|"
+    r"Where\s+.+,\s+the\s+\S+(?:\s+\S+){0,8}\s+shall\s+.+|"
+    r"If\s+.+,\s+then\s+the\s+\S+(?:\s+\S+){0,8}\s+shall\s+.+)$",
+    re.IGNORECASE,
+)
 DEP_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 DEP_MILESTONE_RE = re.compile(r"^milestone:[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$")
 DEP_ROADMAP_RE = re.compile(r"^roadmap:[a-z0-9][a-z0-9._-]*$")
@@ -294,6 +306,19 @@ def check_requirement_ids(slug: str, sections: dict[str, list[str]]) -> int:
                 f"[ERRO] {slug}: R-ID duplicado: {rid} aparece {count} vezes em Requirements",
                 file=sys.stderr,
             )
+            failures += 1
+    return failures
+
+
+def check_ears(slug: str, sections: dict[str, list[str]]) -> int:
+    failures = 0
+    for line in sections.get("Requirements", []):
+        match = ACCEPTANCE_ID_RE.match(line)
+        if not match:
+            continue
+        criterion = line[match.end():].strip()
+        if not EARS_RE.match(criterion):
+            print(f"[ERRO] {slug}: {match.group(0).strip()} deve usar sintaxe EARS", file=sys.stderr)
             failures += 1
     return failures
 
@@ -491,6 +516,7 @@ def main(argv: list[str]) -> int:
                 )
 
     requirement_id_failures = check_requirement_ids(slug, sections)
+    ears_failures = check_ears(slug, sections) if args.ears else 0
 
     followups = extract_followups(sections.get("Final Report", []))
     followups_open = 0
@@ -530,8 +556,9 @@ def main(argv: list[str]) -> int:
     print(f"spec.lifecycle.failures={lifecycle_failures}")
     print(f"spec.requirements.ids={len(parse_requirement_ids(sections.get('Requirements', [])))}")
     print(f"spec.requirements.duplicate_failures={requirement_id_failures}")
+    print(f"spec.ears.failures={ears_failures}")
 
-    return 1 if (required_missing > 0 or lifecycle_failures > 0 or requirement_id_failures > 0) else 0
+    return 1 if (required_missing > 0 or lifecycle_failures > 0 or requirement_id_failures > 0 or ears_failures > 0) else 0
 
 
 if __name__ == "__main__":
