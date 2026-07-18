@@ -1,7 +1,7 @@
 # MCP server
 
-`pose serve-mcp` exposes the whole POSE
-instance to MCP-capable agents — read-heavy by design. Transports: stdio
+`pose serve-mcp` exposes a read-heavy governance view of a POSE instance to
+MCP-capable agents. Transports: stdio
 (`--stdio`, ideal for agent runtimes) and Streamable HTTP (`POSE_MCP_ADDR`,
 default `:8790`).
 
