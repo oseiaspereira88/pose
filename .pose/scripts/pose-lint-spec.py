@@ -40,6 +40,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 from datetime import datetime, timezone
+import json
 import pathlib
 import re
 import sys
@@ -397,10 +398,29 @@ def check_lifecycle_dates(slug: str, frontmatter: dict[str, str]) -> int:
     return failures
 
 
-def ready_check(slug: str, frontmatter: dict[str, str], sections: dict[str, list[str]]) -> int:
+def dor_policy(spec_path: pathlib.Path) -> tuple[str, list[str]]:
+    policy_path = spec_path.parents[2] / "policy" / "dor.json"
+    try:
+        policy = json.loads(policy_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return "feature", list(READY_SECTIONS)
+    default = policy.get("defaultTaskType", "feature")
+    task_type = default
+    return task_type, policy.get("taskTypes", {}).get(task_type, list(READY_SECTIONS))
+
+
+def ready_check(slug: str, spec_path: pathlib.Path, frontmatter: dict[str, str], sections: dict[str, list[str]]) -> int:
     """Gate de entrada: retorna o número de violações de DoR (0 = ready)."""
     failures = 0
-    for name in READY_SECTIONS:
+    task_type, required_sections = dor_policy(spec_path)
+    task_type = frontmatter.get("task_type", task_type)
+    policy_path = spec_path.parents[2] / "policy" / "dor.json"
+    try:
+        policy = json.loads(policy_path.read_text(encoding="utf-8"))
+        required_sections = policy.get("taskTypes", {}).get(task_type, required_sections)
+    except (OSError, json.JSONDecodeError):
+        pass
+    for name in required_sections:
         if name not in sections or classify_section(sections[name]) != "filled":
             print(f"[ERRO] {slug}: DoR: seção {name} ausente/vazia/esquelética", file=sys.stderr)
             failures += 1
@@ -409,7 +429,7 @@ def ready_check(slug: str, frontmatter: dict[str, str], sections: dict[str, list
         for line in sections.get("Requirements", [])
         if ACCEPTANCE_ID_RE.match(line)
     ]
-    if not criteria:
+    if task_type == "feature" and not criteria:
         print(
             f"[ERRO] {slug}: DoR: nenhum acceptance criterion com ID estável "
             f"(use bullets '- R<N>: ...' em Requirements)",
@@ -422,6 +442,7 @@ def ready_check(slug: str, frontmatter: dict[str, str], sections: dict[str, list
         print(f"[ERRO] {slug}: DoR: ref inválida em depends_on: '{ref}'", file=sys.stderr)
         failures += 1
     print(f"spec.ready={'true' if failures == 0 else 'false'}")
+    print(f"spec.ready.task_type={task_type}")
     print(f"spec.ready.failures={failures}")
     return failures
 
@@ -440,7 +461,7 @@ def main(argv: list[str]) -> int:
     slug = spec_path.parent.name
 
     if args.ready_check:
-        return 1 if ready_check(slug, frontmatter, sections) else 0
+        return 1 if ready_check(slug, spec_path, frontmatter, sections) else 0
 
     targets = list(REQUIRED_SECTIONS)
     if not args.required_only:
