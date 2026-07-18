@@ -1,7 +1,7 @@
 ---
 name: pose-bugfix
-description: Use when corrigir um bug/defeito sob POSE — reproduzir falha, isolar causa raiz, aplicar fix mínimo coeso, cobrir regressão e registrar decision-log se houver dívida sistêmica. Trigger keywords - bugfix, bug, defeito, regression, hotfix, correção, root cause, causa raiz, fix.
-when_to_use: A tarefa atual é corrigir um defeito observável (não introduzir feature). Use ANTES de tocar código to garantir reprodução, isolamento de causa raiz e cobertura de regressão.
+description: Use when corrigir um bug/defeito sob POSE — reproduzir failure, isolar causa raiz, aplicar fix mínimo coeso, cobrir regressão e registrar decision-log se houver dívida sistêmica. Trigger keywords - bugfix, bug, defeito, regression, hotfix, correção, root cause, causa raiz, fix.
+when_to_use: A tarefa atual é corrigir um defeito observável (not introduzir feature). Use ANTES de tocar código to garantir reprodução, isolamento de causa raiz e cobertura de regressão.
 ---
 
 # Skill: pose-bugfix
@@ -17,7 +17,7 @@ Fluxo POSE to correção cirúrgica de defeito.
 
 ## Steps
 
-1. Reproduzir o defeito e registrar modo de falha observável (comando + saída esperada vs. obtida).
+1. Reproduzir o defeito e registrar modo de failure observável (comando + saída esperada vs. obtida).
 2. Consultar `.pose/knowledge/` por incidents/handoffs anteriores no mesmo módulo ou padrão:
    ```bash
    find .pose/knowledge -name "*<modulo>*.md" -type f
@@ -37,7 +37,7 @@ Fluxo POSE to correção cirúrgica de defeito.
 ## Output requirements
 
 - Descrição da causa raiz e abordagem.
-- Diff cirúrgico, without mudanças não relacionadas.
+- Diff cirúrgico, without mudanças not relacionadas.
 - Evidência de regressão coberta (teste novo/ajustado).
 - Saída do `./pose validate` with `Resultado: SUCESSO`.
 - Decision-log optional em `.pose/knowledge/` when aplicável.

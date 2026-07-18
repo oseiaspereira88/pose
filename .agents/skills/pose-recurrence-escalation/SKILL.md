@@ -1,6 +1,6 @@
 ---
 name: pose-recurrence-escalation
-description: Use when ./pose recurrence-check sinalizar task_slug recorrente acima do threshold — investigar causa sistêmica, propor rule/workflow novo, documentar decisão e fechar o loop. Trigger keywords - recurrence, recorrência, padrão recorrente, recurrence-escalation, escalation, sistêmico, dívida recorrente.
+description: Use when ./pose recurrence-check sinalizar task_slug recorrente acima do threshold — investigar causa sistêmica, propor rule/workflow novo, documentar decision e fechar o loop. Trigger keywords - recurrence, recorrência, padrão recorrente, recurrence-escalation, escalation, sistêmico, dívida recorrente.
 when_to_use: Recurrence-check (manual ou em CI) flagueou ≥1 chave acima do threshold. Use ANTES de aceitar tag "intermitente" ou silenciar o sinal, to garantir tratamento sistêmico em vez de remediação localizada.
 ---
 
@@ -25,15 +25,15 @@ Fluxo POSE to escalonar padrões detectados pelo recurrence-check.
    ./pose stats workflows --since-days 30
    ./pose stats tasks --since-days 30 --json
    ```
-3. Investigar causa sistêmica (não localizada):
+3. Investigar causa sistêmica (not localizada):
    - É o mesmo módulo? Causa raiz comum?
    - É a mesma rule violada repetidamente? Falta cobertura na rule?
-   - É o workflow que não previne o padrão?
+   - É o workflow que not previne o padrão?
 4. Propor remediação:
    - Adicionar/ajustar `.pose/rules/<dominio>.md` se a causa for ausência de regra.
    - Adicionar/update `.pose/workflows/<tipo>.md` se for ausência de passo no fluxo.
    - Promover check de `optional` to `required` em [`validation-matrix.json`](../../../.pose/indexes/validation-matrix.json) se a métrica em `./pose stats` justifica (taxa de sucesso ≥ 95% em 4 semanas).
-5. Registrar decisão em decision-log:
+5. Registrar decision em decision-log:
    ```bash
    ./pose new-knowledge decision-log escalation-<task-slug> --owner @<dono> --ttl-days 90
    ```
@@ -43,5 +43,5 @@ Fluxo POSE to escalonar padrões detectados pelo recurrence-check.
 
 - Decision-log em `.pose/knowledge/` referenciando os outcomes históricos.
 - PR with mudança em rule/workflow/matrix (escolher a mais barata que resolve).
-- `./pose recurrence-check --strict` esperado em SUCESSO após próximo ciclo (sinaliza que a remediação funcionou).
+- `./pose recurrence-check --strict` esperado em SUCESSO after next ciclo (sinaliza que a remediação funcionou).
 - Atualização de [`.pose/workflows/recurrence-escalation.md`](../../../.pose/workflows/recurrence-escalation.md) se o padrão de escalação for inédito.

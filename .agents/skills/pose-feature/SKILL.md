@@ -1,12 +1,12 @@
 ---
 name: pose-feature
-description: Use when implementar uma feature não-trivial sob POSE — escopo afeta pelo menos um módulo, exige spec, planejamento incremental, validation determinística e handoff entre executions. Trigger keywords - feature, implementar, nova funcionalidade, scope change, spec nova, refactor (without mudança funcional).
-when_to_use: A tarefa é adicionar/estender funcionalidade observável (não bug, não doc, não review). Use ANTES de codar to garantir spec, leitura de knowledge prévia, plano incremental e validation proporcional.
+description: Use when implementar uma feature not-trivial sob POSE — escopo afeta pelo menos um módulo, exige spec, planejamento incremental, validation determinística e handoff entre executions. Trigger keywords - feature, implementar, nova funcionalidade, scope change, spec nova, refactor (without mudança funcional).
+when_to_use: A tarefa é adicionar/estender funcionalidade observável (not bug, not doc, not review). Use ANTES de codar to garantir spec, leitura de knowledge prévia, plano incremental e validation proporcional.
 ---
 
 # Skill: pose-feature
 
-Fluxo POSE to implementação de feature ou refactor não-trivial.
+Fluxo POSE to implementação de feature ou refactor not-trivial.
 
 ## Required reading (na ordem)
 
@@ -25,13 +25,13 @@ Fluxo POSE to implementação de feature ou refactor não-trivial.
    ```bash
    find .pose/knowledge -name "*<modulo>*.md" -type f -not -path '*/archive/*'
    ```
-3. Preencher seções `Intent → Requirements → Technical Plan → Tasks` da spec antes de codar.
+3. Preencher sections `Intent → Requirements → Technical Plan → Tasks` da spec antes de codar.
 4. Implementar incrementalmente, validando cada passo:
    ```bash
    ./pose validate --strict --module <path-afetado> --report
    ```
 5. Atualizar seção `Validation` da spec with os comandos executados e resultado.
-6. Se houver context reaproveitável to próxima execution (estado parcial, follow-up, transição de owner), create handoff:
+6. Se houver context reaproveitável to próxima execution (state parcial, follow-up, transição de owner), create handoff:
    ```bash
    ./pose new-knowledge handoff <slug>-handoff --owner @<squad>
    ```
@@ -44,7 +44,7 @@ Fluxo POSE to implementação de feature ou refactor não-trivial.
 
 ## Output requirements
 
-- `.pose/specs/<slug>/spec.md` with todas as seções obrigatórias preenchidas (zero placeholders restantes).
+- `.pose/specs/<slug>/spec.md` with todas as sections obrigatórias filled (zero placeholders restantes).
 - `./pose validate --strict` em SUCESSO to o(s) módulo(s) afetado(s).
 - Frontmatter with `status: done` + `completed_at`; follow-ups with disposição.
 - `./pose lint-spec <slug> --strict` em SUCESSO.

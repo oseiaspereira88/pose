@@ -1,7 +1,7 @@
 ---
 name: pose-doc-update
 description: Use to mudanças em documentação POSE — AGENTS.md, POSE.md, workflows, rules, README de módulo, ou specs editoriais. Garante padronização editorial e que pose check continua passando. Trigger keywords - documentation, docs, doc-update, AGENTS, POSE.md, workflow, rule, README, editorial.
-when_to_use: A tarefa é editar/create documentação operacional (não código de produto). Use ANTES de escrever to alinhar tom, evitar duplicação e garantir que referências (.pose/, .agents/skills/, local/) permaneçam válidas.
+when_to_use: A tarefa é editar/create documentação operacional (not código de produto). Use ANTES de escrever to alinhar tom, evitar duplicação e garantir que referências (.pose/, .agents/skills/, local/) permaneçam válidas.
 ---
 
 # Skill: pose-doc-update
@@ -17,8 +17,8 @@ Fluxo POSE to atualização de documentação operacional.
 ## Steps
 
 1. Identificar o(s) arquivo(s) a editar. Para escolha entre AGENTS.md vs POSE.md:
-   - **AGENTS.md** = contrato curto (precedência, paths, não-fazer).
-   - **POSE.md** = manual operacional (estrutura, CLI, governança).
+   - **AGENTS.md** = contrato curto (precedência, paths, not-fazer).
+   - **POSE.md** = manual operacional (estrutura, CLI, governance).
    - **`.pose/workflows/*.md`** = procedimento por tipo de tarefa.
    - **`.pose/rules/*.md`** = regras por domínio (cumulativas).
 2. Aplicar a rule `documentation-style`: tom imperativo, bullets curtos, without duplicação verbatim, termos consistentes (`check`, `spec`, `workflow`).

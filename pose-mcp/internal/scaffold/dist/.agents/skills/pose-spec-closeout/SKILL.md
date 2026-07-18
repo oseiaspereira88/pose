@@ -1,14 +1,14 @@
 ---
 name: pose-spec-closeout
-description: Use when concluir uma spec POSE — marcar status done with data de conclusão e dar disposição a cada follow-up (reaproveitado, coberto por outra spec, duplicado, descartado) to que o backlog não apodreça. Trigger keywords - closeout, fechar spec, concluir spec, marcar done, follow-up, triagem, aproveitamento, spec lifecycle, completed_at.
+description: Use when concluir uma spec POSE — marcar status done with data de conclusão e dar disposição a cada follow-up (reaproveitado, coberto por outra spec, duplicado, descartado) to que o backlog not apodreça. Trigger keywords - closeout, fechar spec, concluir spec, marcar done, follow-up, triagem, aproveitamento, spec lifecycle, completed_at.
 when_to_use: A implementação de uma feature/bugfix/refactor terminou e a spec needs to ser fechada formalmente. Use DEPOIS da validation determinística, como passo final de feature.md/bugfix.md/refactor.md, antes de considerar a tarefa entregue.
 ---
 
 # Skill: pose-spec-closeout
 
 Fluxo POSE to fechar o ciclo de vida de uma spec e triar seus follow-ups.
-Resolve dois problemas: (1) specs ficavam "em aberto" após a conclusão, without
-estado nem data; (2) follow-ups viravam texto morto, re-analisados ou
+Resolve dois problemas: (1) specs ficavam "em aberto" after a conclusão, without
+state nem data; (2) follow-ups viravam texto morto, re-analisados ou
 duplicados entre specs.
 
 ## Required reading (na ordem)
@@ -38,39 +38,39 @@ Toda spec `done` exige disposição explícita em cada follow-up (o gate de
 | `[done]` | resolvido direto, without spec separada |
 | `[wont-do: <motivo>]` | descartado conscientemente (registre o porquê) |
 
-`[open]` é uma disposição legítima: significa "triado e mantido em aberto", não
-"esquecido". `./pose followups --open` agrega esses to o próximo planejamento.
+`[open]` é uma disposição legítima: significa "triado e mantido em aberto", not
+"esquecido". `./pose followups --open` agrega esses to o next planejamento.
 
 ## Triagem em duas camadas (determinística → withoutântica → confirmação)
 
-O reaproveitamento de follow-up é uma **decisão, não um default**. Um follow-up
+O reaproveitamento de follow-up é uma **decision, not um default**. Um follow-up
 foi escrito num momento; carregá-lo adiante automaticamente baka uma premissa
 possivelmente obsoleta e a propaga (drift em cascata). Por isso:
 
 1. **Camada determinística (CLI):** `./pose followups --all` agrega o backlog e
    propõe **candidatos a near-duplicate** por similaridade léxica. São pistas
-   mecânicas, não veredito.
-2. **Camada withoutântica (você, agente):** a similaridade léxica não pega tudo
+   mecânicas, not veredito.
+2. **Camada withoutântica (você, agente):** a similaridade léxica not pega tudo
    (paráfrases with tokens diferentes escapam). Leia o backlog `--open` cruzado e
    julgue equivalência de intenção — "este follow-up já é a mesma coisa que o da
    spec X?", "a spec Y já entrega isto?".
-3. **Confirmação humana (obrigatória nas transições consequentes):** antes de
+3. **Confirmação humana (required nas transições consequentes):** antes de
    gravar `[spawned: <slug>]`, `[covered: <slug>]` ou `[duplicate: <slug>]`,
    **PARE e confirme with o usuário** — apresente a disposição proposta e o motivo,
-   e só grave após o aceite. Essas três transições ou criam trabalho novo ou
+   e só grave after o aceite. Essas três transições ou criam trabalho novo ou
    descartam silenciosamente um follow-up; um veredito errado se propaga.
-   `[open]`, `[done]` e `[wont-do: <motivo>]` seguem direto (baixo risco).
+   `[open]`, `[done]` e `[wont-do: <motivo>]` seguem direto (baixo risk).
    Nunca copie o texto do follow-up verbatim to o `Intent` de uma spec nova —
    revalide a intenção atual with o usuário.
 
 O gate `lint-spec` reforça isso de forma determinística: o alvo de
-`spawned`/`covered`/`duplicate` needs to ser uma spec existente (e não a própria).
+`spawned`/`covered`/`duplicate` needs to ser uma spec existente (e not a própria).
 Logo, ao marcar `[covered: X]`/`[duplicate: X]`, a spec `X` já deve existir; ao
 marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
 
 ## Steps
 
-1. Confirmar que a validation determinística já passou (não feche spec with check pendente):
+1. Confirmar que a validation determinística já passou (not feche spec with check pendente):
    ```bash
    ./pose validate --strict --module <path-afetado>
    ```
@@ -103,9 +103,9 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
 
 - Frontmatter da spec with `status: done` e `completed_at` preenchido.
 - Todo follow-up de `Final Report > Follow-ups` with disposição válida.
-- `spawned`/`covered`/`duplicate` gravados **somente após confirmação** do usuário.
+- `spawned`/`covered`/`duplicate` gravados **somente after confirmação** do usuário.
 - `./pose lint-spec <slug> --strict` em SUCESSO.
-- Specs sucessoras criadas to os follow-ups `[spawned: …]`, when houver, with intenção revalidada (não cópia verbatim do follow-up).
+- Specs sucessoras criadas to os follow-ups `[spawned: …]`, when houver, with intenção revalidada (not cópia verbatim do follow-up).
 
 ## Anti-padrões
 
@@ -113,4 +113,4 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
 - Reaproveitar follow-up automaticamente (`spawned`/`covered`/`duplicate`) without confirmar with o usuário — propaga premissa obsoleta em cascata.
 - Tratar os candidatos do `./pose followups` como veredito — eles são pistas léxicas; a equivalência de intenção é julgamento seu + confirmação humana.
 - Deixar follow-up without tag (o gate bloqueia, mas a tentação é remover o follow-up — registre-o como `[wont-do: …]` em vez de apagar o histórico).
-- Usar `[open]` como lixeira: se não há intenção real de retomar, é `[wont-do: <motivo>]`.
+- Usar `[open]` como lixeira: se not há intenção real de retomar, é `[wont-do: <motivo>]`.
