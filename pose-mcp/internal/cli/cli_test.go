@@ -182,6 +182,27 @@ func TestFollowupsNativeOpenAllAndJSON(t *testing.T) {
 	})
 }
 
+func TestReportNativeCreatesMarkdownAndValidatesArgs(t *testing.T) {
+	repo := newGitRepo(t)
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		if code := Main([]string{"report", "--task", "native report", "--outcome", "pass"}, &out, &errB); code != 0 {
+			t.Fatalf("report exit=%d stderr=%s", code, errB.String())
+		}
+		matches, err := filepath.Glob(filepath.Join(repo, ".pose", "reports", "*-standard-native-report.md"))
+		if err != nil || len(matches) != 1 {
+			t.Fatalf("report path matches=%v err=%v", matches, err)
+		}
+		content, _ := os.ReadFile(matches[0])
+		if !strings.Contains(string(content), "Outcome: pass") {
+			t.Fatalf("report content=%q", content)
+		}
+		if code := Main([]string{"report", "--task", "x", "--outcome", "bad"}, &out, &errB); code != 2 {
+			t.Fatalf("invalid outcome exit=%d", code)
+		}
+	})
+}
+
 func TestCLILocaleSelectionAndFallback(t *testing.T) {
 	old := os.Getenv("POSE_LOCALE")
 	t.Cleanup(func() { _ = os.Setenv("POSE_LOCALE", old) })

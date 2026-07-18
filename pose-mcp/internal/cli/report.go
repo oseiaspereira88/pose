@@ -5,9 +5,12 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
+
+var reportSlugChars = regexp.MustCompile(`[^a-z0-9]+`)
 
 // cmdReport creates the native baseline report and history record. Advanced
 // comparison fields remain delegated until their parity fixture is ported.
@@ -35,7 +38,7 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "Erro: --outcome inválido.")
 		return 2
 	}
-	slug := strings.Trim(scaffoldSlug.ReplaceAllString(strings.ToLower(task), "-"), "-")
+	slug := strings.Trim(reportSlugChars.ReplaceAllString(strings.ToLower(task), "-"), "-")
 	if slug == "" {
 		fmt.Fprintln(stderr, "Erro: --task não gera slug válido.")
 		return 2
