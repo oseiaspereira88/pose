@@ -157,6 +157,13 @@ if [[ "$LOCALE" != "en" ]]; then
       cp -a "$SRC/locales/$LOCALE/templates/." "$TARGET/.pose/templates/"
       log "machinery (locale override): .pose/templates"
     fi
+    for locale_dir in .pose/workflows .pose/rules .agents/skills; do
+      if [[ -d "$SRC/locales/$LOCALE/$locale_dir" ]]; then
+        mkdir -p "$TARGET/$locale_dir"
+        cp -a "$SRC/locales/$LOCALE/$locale_dir/." "$TARGET/$locale_dir/"
+        log "machinery (locale override): $locale_dir"
+      fi
+    done
   else
     log "locale '$LOCALE' not available — falling back to en"
   fi
