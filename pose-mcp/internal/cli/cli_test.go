@@ -147,6 +147,38 @@ func TestNewSpecNativeCreatesTemplateAndRejectsInvalidInput(t *testing.T) {
 	})
 }
 
+func TestFollowupsNativeOpenAllAndJSON(t *testing.T) {
+	repo := newGitRepo(t)
+	for slug, body := range map[string]string{
+		"one": "## 7. Final Report\n\n### Follow-ups\n- [open] investigate cache\n- [done] shipped\n",
+		"two": "## 7. Final Report\n\n### Follow-ups\n- untriaged item\n",
+	} {
+		path := filepath.Join(repo, ".pose", "specs", slug)
+		if err := os.MkdirAll(path, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(path, "spec.md"), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		if code := Main([]string{"followups"}, &out, &errB); code != 0 || strings.Contains(out.String(), "shipped") || !strings.Contains(out.String(), "investigate cache") {
+			t.Fatalf("open output=%q code=%d err=%q", out.String(), code, errB.String())
+		}
+		out.Reset()
+		Main([]string{"followups", "--all"}, &out, &errB)
+		if !strings.Contains(out.String(), "shipped") {
+			t.Fatalf("all output=%q", out.String())
+		}
+		out.Reset()
+		Main([]string{"followups", "--json"}, &out, &errB)
+		if !strings.Contains(out.String(), `"total":2`) {
+			t.Fatalf("json output=%q", out.String())
+		}
+	})
+}
+
 func TestCLILocaleSelectionAndFallback(t *testing.T) {
 	old := os.Getenv("POSE_LOCALE")
 	t.Cleanup(func() { _ = os.Setenv("POSE_LOCALE", old) })
