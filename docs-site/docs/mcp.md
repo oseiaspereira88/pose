@@ -35,12 +35,14 @@ environment; no wrapper or second executable is generated.
 | `pose_get_workflow` / `pose_get_rules` / `pose_get_skill` | Operating procedure content |
 | `pose_list_knowledge` / `pose_get_knowledge` | Operational memory |
 | `pose_list_reports` / `pose_get_report` | Validation evidence |
+| `pose_insights` | Deterministic outcome aggregates by workflow, task or context |
 
 ## Security posture
 
 - Default deny on OPA errors; policy decisions are audited
   (`policy.decided` / `policy.violation` structured logs).
-- CLI-backed tools invoke the current native executable, validate every
-  argument and never evaluate shell text.
+- Shared-domain tools run in-process; CLI-backed tools invoke the current
+  native executable. Every argument is validated and shell text is never
+  evaluated.
 - Multi-replica deployments need the Redis cursor store (enterprise hardening
   track); single-node dev needs nothing beyond the binary.

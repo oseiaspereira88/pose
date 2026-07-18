@@ -29,8 +29,9 @@ spec → execution → evidence → follow-ups → recurrence → knowledge
 - Specs form a **dependency graph** (`depends_on`, `priority`) organized into
   governed **roadmaps** with milestone DAGs — validated for existence and
   acyclicity on every `pose check`.
-- Everything is exposed to agents through a native **MCP server** (17 read
-  tools: specs, readiness, roadmaps, knowledge, reports, changelogs, skills).
+- Everything is exposed to agents through a native **MCP server** (18 read
+  tools: specs, readiness, roadmaps, knowledge, reports, insights,
+  changelogs, skills).
 
 ## What's in the box
 

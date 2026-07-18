@@ -92,7 +92,7 @@ func skip(rel string, d fs.DirEntry) bool {
 	}
 	base := filepath.Base(rel)
 	if base == "pose-mcp" || base == "pose-mcp-claude" {
-		return true // binaries/wrappers are never embedded
+		return true // binaries and legacy launchers are never embedded
 	}
 	if d.Type()&fs.ModeSymlink != 0 {
 		return true

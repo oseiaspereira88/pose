@@ -1,11 +1,11 @@
 package cli
 
 // pose install — clone-free native installer (spec pose-cli-embed-standalone):
-// installs the embedded POSE distribution into a target repository. Port of
-// pose-dist/install.sh with one deliberate difference: the MCP wrapper runs
-// `pose serve-mcp` (this very binary) instead of vendoring a second binary.
+// installs the embedded POSE distribution into a target repository and seeds
+// MCP configuration that invokes this same binary through `pose serve-mcp`.
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/fs"
@@ -200,10 +200,18 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// 5. MCP points directly at the native binary; no shell wrapper.
 	if !skipMCP {
 		mcpJSON := filepath.Join(target, ".mcp.json")
-		if _, err := os.Stat(mcpJSON); err != nil {
-			config := fmt.Sprintf("{\n  \"mcpServers\": {\n    \"pose\": {\n      \"type\": \"stdio\",\n      \"command\": \"pose\",\n      \"args\": [\"serve-mcp\", \"--stdio\"],\n      \"env\": {\"POSE_PROJECT_ROOT\": %q, \"POSE_DEFAULT_PROJECT_ID\": %q}\n    }\n  }\n}\n", target, projectID)
-			_ = os.WriteFile(mcpJSON, []byte(config), 0o644)
+		action, err := configureMCP(mcpJSON, target, projectID)
+		if err != nil {
+			fmt.Fprintf(stderr, "pose install: .mcp.json: %v\n", err)
+			return 1
+		}
+		switch action {
+		case "seeded":
 			log("seeded: .mcp.json (server \"pose\")", "semente criada: .mcp.json (servidor \"pose\")")
+		case "migrated":
+			log("migrated: legacy MCP entry now uses native pose", "migrado: entrada MCP legada agora usa pose nativo")
+		case "preserved":
+			log("kept existing: .mcp.json (custom configuration)", "mantido existente: .mcp.json (configuração customizada)")
 		}
 	} else if skipMCP {
 		log("MCP: skipped (--skip-mcp)", "MCP: ignorado (--skip-mcp)")
@@ -228,6 +236,80 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	}
 	log("install complete — POSE is ready in %s", "instalação concluída — POSE pronto em %s", target)
 	return 0
+}
+
+func configureMCP(path, target, projectID string) (string, error) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		payload := map[string]any{"mcpServers": map[string]any{"pose": nativeMCPEntry(target, projectID, nil)}}
+		return "seeded", writeMCPJSON(path, payload)
+	} else if err != nil {
+		return "", err
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(raw, &payload); err != nil {
+		return "preserved", nil
+	}
+	servers, ok := payload["mcpServers"].(map[string]any)
+	if !ok {
+		return "preserved", nil
+	}
+	changed := false
+	for name, rawEntry := range servers {
+		entry, ok := rawEntry.(map[string]any)
+		if !ok || !legacyMCPEntry(name, entry) {
+			continue
+		}
+		env, _ := entry["env"].(map[string]any)
+		servers[name] = nativeMCPEntry(target, projectID, env)
+		changed = true
+	}
+	if !changed {
+		return "preserved", nil
+	}
+	return "migrated", writeMCPJSON(path, payload)
+}
+
+func legacyMCPEntry(name string, entry map[string]any) bool {
+	if name != "pose" && name != "crisol-pose" {
+		return false
+	}
+	return legacyMCPCommand(entry["command"])
+}
+
+func legacyMCPCommand(value any) bool {
+	command, ok := value.(string)
+	if !ok {
+		return false
+	}
+	base := filepath.Base(filepath.Clean(command))
+	return base == "pose-mcp-claude" || base == "pose-mcp"
+}
+
+func nativeMCPEntry(target, projectID string, existingEnv map[string]any) map[string]any {
+	env := map[string]any{}
+	for key, value := range existingEnv {
+		env[key] = value
+	}
+	env["POSE_PROJECT_ROOT"] = target
+	env["POSE_DEFAULT_PROJECT_ID"] = projectID
+	return map[string]any{
+		"type":    "stdio",
+		"command": "pose",
+		"args":    []string{"serve-mcp", "--stdio"},
+		"env":     env,
+	}
+}
+
+func writeMCPJSON(path string, payload map[string]any) error {
+	raw, err := json.MarshalIndent(payload, "", "  ")
+	if err != nil {
+		return err
+	}
+	return writeAtomic(path, append(raw, '\n'), 0o644)
 }
 
 func isDir(p string) bool {

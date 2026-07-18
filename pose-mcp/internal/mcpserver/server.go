@@ -564,6 +564,15 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return map[string]any{"rules": items, "count": len(items)}, nil
 		}
 		return store.GetRule(a.Domain)
+	case "pose_insights":
+		var a struct {
+			GroupBy   string `json:"group_by"`
+			SinceDays int    `json:"since_days"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_insights: invalid arguments")
+		}
+		return store.Insights(a.GroupBy, a.SinceDays)
 	case "pose_get_followups":
 		var a struct {
 			All bool `json:"all"`
@@ -882,6 +891,32 @@ func toolDefinitions() []map[string]any {
 					"domain": map[string]any{
 						"type":        "string",
 						"description": "Rule domain, e.g. security, backend-go, frontend-react; omit to list all",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_insights",
+			"description": "Aggregate local POSE report history into deterministic outcome insights. " +
+				"Returns the same structured contract as pose stats --json, without network access or writes.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"group_by": map[string]any{
+						"type":        "string",
+						"enum":        []string{"workflow", "task", "context"},
+						"default":     "workflow",
+						"description": "Dimension used to group outcomes",
+					},
+					"since_days": map[string]any{
+						"type":        "integer",
+						"minimum":     0,
+						"default":     0,
+						"description": "Optional rolling window in days; zero includes all history",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
 			},

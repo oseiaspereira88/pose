@@ -86,7 +86,7 @@ func TestListWorkflowsAndRules(t *testing.T) {
 func TestIntegration_SuggestDogfood(t *testing.T) {
 	root := filepath.Join("..", "..", "..")
 	if _, err := os.Stat(filepath.Join(root, "pose")); err != nil {
-		t.Skip("repo pose wrapper not available")
+		t.Skip("repo-level pose launcher not available")
 	}
 	if _, err := os.Stat(filepath.Join(root, ".pose", "specs", "pose-mcp", "spec.md")); err != nil {
 		t.Skip("monorepo instance not available (standalone dist repo)")
@@ -116,7 +116,7 @@ func TestIntegration_SuggestDogfood(t *testing.T) {
 func TestIntegration_GatesDogfood(t *testing.T) {
 	root := filepath.Join("..", "..", "..")
 	if _, err := os.Stat(filepath.Join(root, "pose")); err != nil {
-		t.Skip("repo pose wrapper not available")
+		t.Skip("repo-level pose launcher not available")
 	}
 	if _, err := os.Stat(filepath.Join(root, ".pose", "specs", "pose-mcp", "spec.md")); err != nil {
 		t.Skip("monorepo instance not available (standalone dist repo)")

@@ -111,6 +111,60 @@ func TestNewSpecNativeCreatesTemplateAndRejectsInvalidInput(t *testing.T) {
 	})
 }
 
+func TestInstallMigratesOnlyLegacyMCPEntries(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, ".mcp.json")
+	legacy := `{"mcpServers":{"crisol-pose":{"type":"stdio","command":"/project/.pose/bin/pose-mcp-claude","env":{"KEEP":"yes"}},"custom":{"command":"custom-mcp","args":["serve"]},"custom-same-basename":{"command":"/company/pose-mcp","args":["proxy"]}}}`
+	if err := os.WriteFile(path, []byte(legacy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	action, err := configureMCP(path, root, "proj.test")
+	if err != nil || action != "migrated" {
+		t.Fatalf("configureMCP action=%q err=%v", action, err)
+	}
+	var payload map[string]any
+	raw, err := os.ReadFile(path)
+	if err != nil || json.Unmarshal(raw, &payload) != nil {
+		t.Fatalf("reading migrated config: %v", err)
+	}
+	servers := payload["mcpServers"].(map[string]any)
+	poseEntry := servers["crisol-pose"].(map[string]any)
+	if poseEntry["command"] != "pose" {
+		t.Fatalf("pose command = %v", poseEntry["command"])
+	}
+	args := poseEntry["args"].([]any)
+	if len(args) != 2 || args[0] != "serve-mcp" || args[1] != "--stdio" {
+		t.Fatalf("pose args = %v", args)
+	}
+	env := poseEntry["env"].(map[string]any)
+	if env["KEEP"] != "yes" || env["POSE_PROJECT_ROOT"] != root || env["POSE_DEFAULT_PROJECT_ID"] != "proj.test" {
+		t.Fatalf("pose env = %v", env)
+	}
+	if servers["custom"].(map[string]any)["command"] != "custom-mcp" {
+		t.Fatalf("custom server changed: %v", servers["custom"])
+	}
+	if servers["custom-same-basename"].(map[string]any)["command"] != "/company/pose-mcp" {
+		t.Fatalf("custom same-basename server changed: %v", servers["custom-same-basename"])
+	}
+}
+
+func TestInstallPreservesCustomMCPConfig(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, ".mcp.json")
+	custom := []byte(`{"mcpServers":{"pose":{"command":"company-pose-proxy","args":["run"]}}}`)
+	if err := os.WriteFile(path, custom, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	action, err := configureMCP(path, root, "proj.test")
+	if err != nil || action != "preserved" {
+		t.Fatalf("configureMCP action=%q err=%v", action, err)
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil || string(raw) != string(custom) {
+		t.Fatalf("custom config changed: %q err=%v", raw, err)
+	}
+}
+
 func TestNativeScaffoldsCreateContractArtifacts(t *testing.T) {
 	repo := newGitRepo(t)
 	var out, errB bytes.Buffer

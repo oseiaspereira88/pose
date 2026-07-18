@@ -121,14 +121,14 @@ func (s Store) runGate(ctx context.Context, args []string) (*GateResult, error) 
 // runCLI executes a JSON-emitting, side-effect-free pose command; any
 // non-zero exit is an error (these commands always succeed structurally).
 func (s Store) runCLI(ctx context.Context, args []string) ([]byte, error) {
-	wrapper, err := s.wrapperPath()
+	executable, err := s.nativeExecutablePath()
 	if err != nil {
 		return nil, err
 	}
 	ctx, cancel := context.WithTimeout(ctx, cliTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, wrapper, args...)
+	cmd := exec.CommandContext(ctx, executable, args...)
 	cmd.Dir = s.Root
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
@@ -147,16 +147,16 @@ func (s Store) runCLI(ctx context.Context, args []string) ([]byte, error) {
 
 // runCLIExit executes a gate command capturing stdout+stderr together; a
 // non-zero exit is returned as a verdict, not an error. Errors are reserved
-// for execution failures (wrapper missing, timeout).
+// for execution failures (native executable missing, timeout).
 func (s Store) runCLIExit(ctx context.Context, args []string) ([]byte, int, error) {
-	wrapper, err := s.wrapperPath()
+	executable, err := s.nativeExecutablePath()
 	if err != nil {
 		return nil, -1, err
 	}
 	ctx, cancel := context.WithTimeout(ctx, cliTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, wrapper, args...)
+	cmd := exec.CommandContext(ctx, executable, args...)
 	cmd.Dir = s.Root
 	var combined bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &combined, &combined
@@ -170,19 +170,19 @@ func (s Store) runCLIExit(ctx context.Context, args []string) ([]byte, int, erro
 	return combined.Bytes(), 0, nil
 }
 
-func (s Store) wrapperPath() (string, error) {
+func (s Store) nativeExecutablePath() (string, error) {
 	if configured := os.Getenv("POSE_EXECUTABLE"); configured != "" {
 		if !filepath.IsAbs(configured) {
 			return "", fmt.Errorf("pose: POSE_EXECUTABLE must be absolute")
 		}
 		return configured, nil
 	}
-	wrapper, err := os.Executable()
+	executable, err := os.Executable()
 	if err != nil {
 		return "", fmt.Errorf("pose: resolving native executable: %w", err)
 	}
-	if strings.HasSuffix(wrapper, ".test") {
+	if strings.HasSuffix(executable, ".test") {
 		return "", fmt.Errorf("pose: native executable unavailable in test process")
 	}
-	return wrapper, nil
+	return executable, nil
 }

@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	posepkg "github.com/crisol/pose-mcp/internal/pose"
 )
 
 type historyRecord struct {
@@ -167,77 +169,7 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 	return 0
 }
 
-type statRow struct {
-	Key      string   `json:"key"`
-	Pass     int      `json:"pass"`
-	Fail     int      `json:"fail"`
-	Partial  int      `json:"partial"`
-	Skipped  int      `json:"skipped"`
-	Unknown  int      `json:"unknown"`
-	Total    int      `json:"total"`
-	PassRate *float64 `json:"pass_rate"`
-}
-
-func aggregateStats(records []historyRecord, by string, since int) ([]statRow, int) {
-	cutoff := time.Time{}
-	if since > 0 {
-		cutoff = time.Now().UTC().AddDate(0, 0, -since)
-	}
-	skippedWindow := 0
-	b := map[string]*statRow{}
-	for _, r := range records {
-		if !cutoff.IsZero() {
-			t, ok := parseHistoryTime(r.GeneratedAt)
-			if !ok || t.Before(cutoff) {
-				skippedWindow++
-				continue
-			}
-		}
-		key := r.Workflow
-		if by == "task" {
-			key = r.TaskSlug
-		} else if by == "context" {
-			key = r.Context
-		}
-		if key == "" {
-			key = "_unset_"
-		}
-		row := b[key]
-		if row == nil {
-			row = &statRow{Key: key}
-			b[key] = row
-		}
-		switch r.Outcome {
-		case "pass":
-			row.Pass++
-		case "fail":
-			row.Fail++
-		case "partial":
-			row.Partial++
-		case "skipped":
-			row.Skipped++
-		default:
-			row.Unknown++
-		}
-		row.Total++
-	}
-	keys := make([]string, 0, len(b))
-	for k := range b {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	rows := make([]statRow, 0, len(keys))
-	for _, k := range keys {
-		r := b[k]
-		graded := r.Total - r.Unknown - r.Skipped
-		if graded > 0 {
-			v := float64(r.Pass) / float64(graded)
-			r.PassRate = &v
-		}
-		rows = append(rows, *r)
-	}
-	return rows, skippedWindow
-}
+type statRow = posepkg.InsightRow
 
 func cmdStats(root string, args []string, stdout, stderr io.Writer) int {
 	by, since, jsonOut, htmlOut, out := "workflow", 0, false, false, ""
@@ -290,8 +222,12 @@ func cmdStats(root string, args []string, stdout, stderr io.Writer) int {
 	if by != "workflow" && by != "task" && by != "context" {
 		return usageError(stderr, "pose stats: invalid grouping")
 	}
-	records, invalid := readHistory(root, stderr)
-	rows, window := aggregateStats(records, by, since)
+	result, err := (posepkg.Store{Root: root}).Insights(by, since)
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
+	rows := result.Rows
 	if htmlOut {
 		if out == "" {
 			out = filepath.Join(root, ".pose", "reports", "pose-stats.html")
@@ -299,9 +235,17 @@ func cmdStats(root string, args []string, stdout, stderr io.Writer) int {
 		if !confinedOutput(root, out) {
 			return usageError(stderr, "pose stats: --out must remain inside project")
 		}
-		workflows, _ := aggregateStats(records, "workflow", since)
-		tasks, _ := aggregateStats(records, "task", since)
-		content := renderStatsHTML(workflows, tasks, len(records), invalid, collectSpecInsights(root))
+		workflows, err := (posepkg.Store{Root: root}).Insights("workflow", since)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 1
+		}
+		tasks, err := (posepkg.Store{Root: root}).Insights("task", since)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 1
+		}
+		content := renderStatsHTML(workflows.Rows, tasks.Rows, result.RecordsScanned, result.RecordsSkippedInvalid, collectSpecInsights(root))
 		if err := writeAtomic(out, []byte(content), 0o644); err != nil {
 			fmt.Fprintln(stderr, err)
 			return 1
@@ -310,7 +254,7 @@ func cmdStats(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	if jsonOut {
-		_ = json.NewEncoder(stdout).Encode(map[string]any{"group_by": by, "since_days": since, "records_scanned": len(records), "records_skipped_by_window": window, "records_skipped_invalid": invalid, "rows": rows})
+		_ = json.NewEncoder(stdout).Encode(result)
 		return 0
 	}
 	fmt.Fprintf(stdout, "# Stats by %s\n\n", by)
@@ -326,7 +270,7 @@ func cmdStats(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stdout, "%s | %d | %d | %d | %d | %d | %d | %s\n", r.Key, r.Pass, r.Fail, r.Partial, r.Skipped, r.Unknown, r.Total, rate)
 		}
 	}
-	fmt.Fprintf(stdout, "\nstats.records_scanned=%d\nstats.records_skipped_by_window=%d\nstats.records_skipped_invalid=%d\nstats.groups=%d\n", len(records), window, invalid, len(rows))
+	fmt.Fprintf(stdout, "\nstats.records_scanned=%d\nstats.records_skipped_by_window=%d\nstats.records_skipped_invalid=%d\nstats.groups=%d\n", result.RecordsScanned, result.RecordsSkippedByWindow, result.RecordsSkippedInvalid, len(rows))
 	return 0
 }
 

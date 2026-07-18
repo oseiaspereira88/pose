@@ -41,5 +41,5 @@ cp "$binary" "$bundle/pose"
 cp "$repo_root/install.sh" "$bundle/install.sh"
 git -C "$bundle_target" init -q
 PATH="$(dirname "$(command -v git)")" bash "$bundle/install.sh" "$bundle_target" --skip-mcp >/dev/null
-PATH="$(dirname "$(command -v git)")" "$bundle/pose" check --strict >/dev/null
+(cd "$bundle_target" && PATH="$(dirname "$(command -v git)")" "$bundle/pose" check --strict >/dev/null)
 echo "native installer scenarios: PASS"

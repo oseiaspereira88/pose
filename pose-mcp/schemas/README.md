@@ -20,6 +20,7 @@ do `pose-mcp`, conforme a política da
 | `v1/spec.schema.json` | `pose_get_spec`; itens de `pose_list_specs` (envelope `{specs: [...], count}`) |
 | `v1/artifact.schema.json` | `pose_get_workflow`, `pose_get_rules`; itens dos envelopes de listagem (`{workflows|rules: [...], count}`) |
 | `v1/gate-result.schema.json` | `pose_check`, `pose_lint_spec` |
+| `v1/insights.schema.json` | `pose_insights`; saída JSON de `pose stats` |
 
 ## Pass-through (contrato da CLI)
 
@@ -27,3 +28,6 @@ do `pose-mcp`, conforme a política da
 (`pose suggest --json`, `pose followups --json`). **O dono desses contratos
 é a CLI do POSE** (fonte de verdade determinística — ADR-003: adapter, não
 fork); o adapter não os redefine nem os re-schematiza.
+
+`pose_insights` e `pose stats --json` compartilham diretamente o domínio Go
+`internal/pose`, coberto pelo schema `v1/insights.schema.json`.
