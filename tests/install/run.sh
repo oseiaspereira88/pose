@@ -2,6 +2,7 @@
 # E2E harness for pose-dist/install.sh (spec pose-installer-bootstrap).
 #
 # Scenarios:
+#   0. distribution checkout itself → ./pose check --strict green.
 #   1. fresh install into an empty git repo → ./pose check --strict green,
 #      wrapper generated with derived root/id, no foreign-project residue.
 #   2. idempotent re-run → user instance content and edited root docs preserved.
@@ -26,6 +27,13 @@ MCP_ARGS=()
 if [[ -n "${POSE_INSTALL_TEST_MCP_BINARY:-}" ]]; then
   MCP_ARGS=(--mcp-binary "$POSE_INSTALL_TEST_MCP_BINARY")
 fi
+
+# --- Scenario 0: the distributable checkout is a valid POSE instance ---------
+echo "== scenario 0: distribution contract =="
+DIST_ROOT="$(cd "$(dirname "$INSTALLER")" && pwd)"
+( cd "$DIST_ROOT" && ./pose check --strict >/dev/null 2>&1 ) \
+  && pass "./pose check --strict green in distribution checkout" \
+  || fail "./pose check --strict failed in distribution checkout"
 
 # --- Scenario 1: fresh install ------------------------------------------------
 echo "== scenario 1: fresh install =="
