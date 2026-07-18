@@ -2,36 +2,36 @@
 
 ## Objective
 
-Melhorar estrutura interna e manutenibilidade sem alterar comportamento funcional observado.
+Improve internal structure and maintainability without changing observed functional behavior.
 
 ## Preconditions
 
-- Motivação técnica do refactor está documentada.
-- Escopo está delimitado por módulo e risco.
-- Critérios de não-regressão funcional foram definidos.
-- Baseline de testes/checks está disponível.
+- The refactor's technical motivation is documented.
+- Scope is bounded by module and risk.
+- Functional non-regression criteria are defined.
+- A baseline of tests and checks is available.
 
 ## Execution checklist
 
-1. Definir objetivo técnico (legibilidade, acoplamento, duplicação, etc.).
-2. Mapear limites de escopo e contratos que devem permanecer intactos.
-3. Quebrar refactor em etapas pequenas, revisáveis e revertíveis.
-4. Executar mudanças mecânicas com commits/diffs coesos.
-5. Garantir equivalência comportamental com testes automatizados.
-6. Rodar checks determinísticos relevantes (`test`, `lint`, `typecheck`, `build`).
-7. Medir ganhos práticos (complexidade, clareza, cobertura, manutenção).
-8. Registrar riscos residuais e follow-ups não essenciais.
+1. Define the technical objective (readability, coupling, duplication, and so on).
+2. Map scope boundaries and contracts that must remain intact.
+3. Split the refactor into small, reviewable, reversible steps.
+4. Make mechanical changes through cohesive commits and diffs.
+5. Ensure behavioral equivalence with automated tests.
+6. Run relevant deterministic checks (`test`, `lint`, `typecheck`, `build`).
+7. Measure practical gains (complexity, clarity, coverage, maintenance).
+8. Record residual risks and non-essential follow-ups.
 
 ## Required outputs
 
-- Descrição do problema estrutural e da estratégia aplicada.
-- Evidência de preservação de comportamento.
-- Resultado de checks determinísticos executados.
-- Lista de ganhos obtidos e pendências futuras.
+- Description of the structural problem and the applied strategy.
+- Evidence that behavior was preserved.
+- Results of executed deterministic checks.
+- List of achieved gains and future pending work.
 
 ## Definition of done
 
-- Comportamento funcional permaneceu equivalente.
-- Refactor reduziu dívida técnica de forma verificável.
-- Não houve expansão de escopo para mudanças não relacionadas.
-- Checks relevantes aprovados.
+- Functional behavior remained equivalent.
+- The refactor reduced technical debt in a verifiable way.
+- Scope did not expand to unrelated changes.
+- Relevant checks passed.
