@@ -45,6 +45,37 @@ func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
+func cmdNewADR(root string, args []string, stdout, stderr io.Writer) int {
+	title := strings.TrimSpace(strings.Join(args, " "))
+	if title == "" {
+		fmt.Fprintln(stderr, "Uso: pose new-adr <título>")
+		return 2
+	}
+	slug := strings.ToLower(title)
+	slug = regexp.MustCompile(`[^a-z0-9]+`).ReplaceAllString(slug, "-")
+	slug = strings.Trim(slug, "-")
+	if slug == "" {
+		fmt.Fprintln(stderr, "Erro: título não gera slug válido")
+		return 2
+	}
+	path := filepath.Join(root, ".pose", "adr", time.Now().Format("2006-01-02")+"-"+slug+".md")
+	if _, err := os.Stat(path); err == nil {
+		fmt.Fprintf(stderr, "Erro: ADR já existe: %s\n", path)
+		return 1
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		fmt.Fprintf(stderr, "Erro: criar ADR: %v\n", err)
+		return 1
+	}
+	content := fmt.Sprintf("# ADR: %s\n\n## Status\nProposed\n\n## Context\n\n## Decision\n\n## Consequences\n", title)
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		fmt.Fprintf(stderr, "Erro: escrever ADR: %v\n", err)
+		return 1
+	}
+	fmt.Fprintf(stdout, "ADR criada: %s\n", path)
+	return 0
+}
+
 // cmdNewRoadmap is the native parity implementation of pose-new-roadmap.sh.
 func cmdNewRoadmap(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) != 1 || !scaffoldSlug.MatchString(args[0]) {
