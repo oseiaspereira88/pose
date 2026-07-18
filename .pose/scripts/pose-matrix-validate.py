@@ -26,7 +26,7 @@ import sys
 
 ALLOWED_MODES = {"strict", "tolerant"}
 ALLOWED_SEVERITIES = {"required", "optional"}
-ALLOWED_CHECK_KEYS = {"name", "command", "program", "args", "severity", "when"}
+ALLOWED_CHECK_KEYS = {"name", "command", "program", "args", "env", "severity", "when"}
 ALLOWED_WHEN_KEYS = {"fileExists", "fileNotExists"}
 ALLOWED_OVERRIDE_KEYS = {"stack", "mode", "checks", "replaceDefaultChecks"}
 ALLOWED_TOP_KEYS = {"defaults", "stacks", "moduleOverrides"}
@@ -150,6 +150,9 @@ def _validate_check(prefix: str, rule, errors: list[str], warnings: list[str]) -
         errors.append(f"{prefix}.program: deve ser string não-vazia")
     if args is not None and (not isinstance(args, list) or not all(isinstance(arg, str) for arg in args)):
         errors.append(f"{prefix}.args: deve ser lista de strings")
+    env = rule.get("env")
+    if env is not None and (not isinstance(env, dict) or not all(isinstance(key, str) and isinstance(value, str) for key, value in env.items())):
+        errors.append(f"{prefix}.env: deve ser objeto string:string")
 
     severity = rule.get("severity")
     if severity is None:
