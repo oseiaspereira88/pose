@@ -12,6 +12,16 @@ import (
 
 var scaffoldSlug = regexp.MustCompile(`^[a-z0-9][a-z0-9._-]*$`)
 
+func scaffoldSlugify(value string) string {
+	slug := strings.ToLower(value)
+	slug = regexp.MustCompile(`[^a-z0-9]+`).ReplaceAllString(slug, "-")
+	slug = strings.Trim(slug, "-")
+	if slug == "" {
+		return "task"
+	}
+	return slug
+}
+
 // cmdNewSpec is the native parity implementation of pose-new-spec.sh.
 func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) != 1 || !scaffoldSlug.MatchString(args[0]) {
@@ -51,13 +61,7 @@ func cmdNewADR(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "Uso: pose new-adr <título>")
 		return 2
 	}
-	slug := strings.ToLower(title)
-	slug = regexp.MustCompile(`[^a-z0-9]+`).ReplaceAllString(slug, "-")
-	slug = strings.Trim(slug, "-")
-	if slug == "" {
-		fmt.Fprintln(stderr, "Erro: título não gera slug válido")
-		return 2
-	}
+	slug := scaffoldSlugify(title)
 	path := filepath.Join(root, ".pose", "adr", time.Now().Format("2006-01-02")+"-"+slug+".md")
 	if _, err := os.Stat(path); err == nil {
 		fmt.Fprintf(stderr, "Erro: ADR já existe: %s\n", path)
@@ -108,11 +112,11 @@ func cmdNewKnowledge(root string, args []string, stdout, stderr io.Writer) int {
 			positionals = append(positionals, args[i])
 		}
 	}
-	if len(positionals) != 2 || !scaffoldSlug.MatchString(positionals[1]) {
+	if len(positionals) != 2 {
 		fmt.Fprintln(stderr, "Uso: pose new-knowledge <type> <slug> [--owner @owner] [--ttl-days N] [--restricted]")
 		return 2
 	}
-	kind, slug := positionals[0], positionals[1]
+	kind, slug := positionals[0], scaffoldSlugify(positionals[1])
 	if kind != "handoff" && kind != "note" && kind != "decision-log" {
 		fmt.Fprintln(stderr, "Erro: <type> inválido: use handoff|note|decision-log.")
 		return 2

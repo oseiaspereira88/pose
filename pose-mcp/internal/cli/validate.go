@@ -73,7 +73,7 @@ type validationModule struct {
 }
 
 func discoverValidationModules(root string) ([]validationModule, error) {
-	ignored := map[string]bool{".git": true, "node_modules": true, "vendor": true, "target": true, "dist": true, "build": true, ".pose": true}
+	ignored := map[string]bool{".git": true, "node_modules": true, "vendor": true, ".venv": true, ".pnpm-store": true, "target": true, "dist": true, "build": true, ".next": true, "coverage": true, ".pose": true}
 	byPath := map[string]string{}
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
@@ -211,7 +211,32 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "Erro: descobrir módulos: %v\n", err)
 		return 1
 	}
+	knownModules := map[string]bool{}
+	for _, module := range modules {
+		knownModules[module.Rel] = true
+	}
+	for rel, override := range matrix.ModuleOverrides {
+		clean := filepath.ToSlash(filepath.Clean(rel))
+		if clean == "." || clean == ".." || strings.HasPrefix(clean, "../") || filepath.IsAbs(rel) {
+			fmt.Fprintf(stderr, "Erro: moduleOverrides contém path fora do projeto: %s\n", rel)
+			return 2
+		}
+		if knownModules[clean] {
+			continue
+		}
+		abs := filepath.Join(root, filepath.FromSlash(clean))
+		if info, err := os.Stat(abs); err == nil && info.IsDir() {
+			stack := override.Stack
+			if stack == "" {
+				stack = "contract"
+			}
+			modules = append(modules, validationModule{Rel: clean, Abs: abs, Stack: stack})
+			knownModules[clean] = true
+		}
+	}
+	sort.Slice(modules, func(i, j int) bool { return modules[i].Rel < modules[j].Rel })
 	failures := 0
+	optionalFailures := 0
 	executed := 0
 	for _, module := range modules {
 		override := matrix.ModuleOverrides[module.Rel]
@@ -228,7 +253,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		checks = append(checks, override.Checks...)
 		moduleMode := mode
-		if override.Mode != "" && mode == matrix.Defaults.Mode {
+		if override.Mode != "" {
 			moduleMode = override.Mode
 		}
 		fmt.Fprintf(stdout, "[module] %s (%s, mode=%s)\n", module.Rel, stack, moduleMode)
@@ -245,8 +270,12 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			for key, value := range check.Env {
 				cmd.Env = append(cmd.Env, key+"="+value)
 			}
-			if err := cmd.Run(); err != nil && (check.Severity == "required" || check.Severity == "") {
-				failures++
+			if err := cmd.Run(); err != nil {
+				if check.Severity == "required" || check.Severity == "" {
+					failures++
+				} else {
+					optionalFailures++
+				}
 			}
 		}
 	}
@@ -258,6 +287,9 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		result = "fail"
 		fmt.Fprintln(stdout, "Result: FAILURE (required check failed)")
 	} else {
+		if optionalFailures > 0 {
+			fmt.Fprintf(stdout, "Warning: %d optional check(s) failed.\n", optionalFailures)
+		}
 		fmt.Fprintln(stdout, "Result: SUCCESS")
 	}
 	if autoReport {

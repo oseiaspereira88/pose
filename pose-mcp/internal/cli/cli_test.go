@@ -69,12 +69,12 @@ func TestDelegationPropagatesArgsAndExitCode(t *testing.T) {
 		t.Fatal(err)
 	}
 	stub := "#!/usr/bin/env bash\necho \"args:$*\"\nexit 3\n"
-	if err := os.WriteFile(filepath.Join(scripts, "pose-check.sh"), []byte(stub), 0o755); err != nil {
+	if err := os.WriteFile(filepath.Join(scripts, "pose-index.sh"), []byte(stub), 0o755); err != nil {
 		t.Fatal(err)
 	}
 	inDir(t, repo, func() {
 		var out, errB bytes.Buffer
-		code := Main([]string{"check", "--strict", "extra"}, &out, &errB)
+		code := Main([]string{"index", "--strict", "extra"}, &out, &errB)
 		if code != 3 {
 			t.Fatalf("delegated exit=%d, want 3 (stderr=%s)", code, errB.String())
 		}
@@ -88,7 +88,7 @@ func TestDelegationMissingEngineIsActionable(t *testing.T) {
 	repo := newGitRepo(t) // no .pose/scripts
 	inDir(t, repo, func() {
 		var out, errB bytes.Buffer
-		code := Main([]string{"check"}, &out, &errB)
+		code := Main([]string{"index"}, &out, &errB)
 		if code != 1 {
 			t.Fatalf("exit=%d, want 1", code)
 		}
@@ -145,6 +145,46 @@ func TestNewSpecNativeCreatesTemplateAndRejectsInvalidInput(t *testing.T) {
 		}
 		if code := Main([]string{"new-spec", "../escape"}, &out, &errB); code != 2 {
 			t.Fatalf("invalid slug exit=%d, want 2", code)
+		}
+	})
+}
+
+func TestNativeScaffoldsCreateContractArtifacts(t *testing.T) {
+	repo := newGitRepo(t)
+	var out, errB bytes.Buffer
+	if code := cmdInstall([]string{repo, "--skip-mcp"}, &out, &errB); code != 0 {
+		t.Fatalf("install fixture exit=%d err=%s", code, errB.String())
+	}
+	inDir(t, repo, func() {
+		out.Reset()
+		if code := Main([]string{"new-roadmap", "adoption-v3"}, &out, &errB); code != 0 {
+			t.Fatalf("new-roadmap exit=%d err=%s", code, errB.String())
+		}
+		roadmap, err := os.ReadFile(filepath.Join(repo, ".pose", "roadmaps", "adoption-v3.md"))
+		if err != nil || !strings.Contains(string(roadmap), "slug: adoption-v3") || strings.Contains(string(roadmap), "<YYYY-MM-DD>") {
+			t.Fatalf("roadmap artifact=%q err=%v", roadmap, err)
+		}
+
+		out.Reset()
+		if code := Main([]string{"new-adr", "Structured Validation"}, &out, &errB); code != 0 {
+			t.Fatalf("new-adr exit=%d err=%s", code, errB.String())
+		}
+		adrs, _ := filepath.Glob(filepath.Join(repo, ".pose", "adr", "*-structured-validation.md"))
+		if len(adrs) != 1 {
+			t.Fatalf("ADR artifact=%v", adrs)
+		}
+
+		out.Reset()
+		if code := Main([]string{"new-knowledge", "handoff", "Release Readiness", "--ttl-days", "7", "--restricted"}, &out, &errB); code != 0 {
+			t.Fatalf("new-knowledge exit=%d err=%s", code, errB.String())
+		}
+		knowledge, _ := filepath.Glob(filepath.Join(repo, ".pose", "knowledge", "*-handoff-release-readiness.md"))
+		if len(knowledge) != 1 {
+			t.Fatalf("knowledge artifact=%v", knowledge)
+		}
+		content, _ := os.ReadFile(knowledge[0])
+		if !strings.Contains(string(content), "sensitivity: restricted") || strings.Contains(string(content), "<expires_at>") {
+			t.Fatalf("knowledge content=%s", content)
 		}
 	})
 }
@@ -301,6 +341,9 @@ func TestValidateNativeRunsStructuredChecksWithoutShell(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(module, "go.mod"), []byte("module example.test/service\n\ngo 1.22\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.MkdirAll(filepath.Join(repo, "contracts"), 0o755); err != nil {
+		t.Fatal(err)
+	}
 	executable, err := os.Executable()
 	if err != nil {
 		t.Fatal(err)
@@ -309,7 +352,7 @@ func TestValidateNativeRunsStructuredChecksWithoutShell(t *testing.T) {
 	if err := os.MkdirAll(matrixDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	matrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"self","program":%q,"args":["-test.run=^$"] ,"severity":"required"}]}},"moduleOverrides":{}}`, executable)
+	matrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"self","program":%q,"args":["-test.run=^$"] ,"severity":"required"}]},"contract":{"checks":[]}},"moduleOverrides":{"contracts":{"stack":"contract","checks":[{"name":"self","program":%q,"args":["-test.run=^$"],"severity":"required"}]}}}`, executable, executable)
 	if err := os.WriteFile(filepath.Join(matrixDir, "validation-matrix.json"), []byte(matrix), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -321,8 +364,62 @@ func TestValidateNativeRunsStructuredChecksWithoutShell(t *testing.T) {
 		if !strings.Contains(out.String(), "Result: SUCCESS") || strings.Contains(errB.String(), "deprecated script engine") {
 			t.Fatalf("validate not native: out=%q err=%q", out.String(), errB.String())
 		}
+		out.Reset()
+		if code := Main([]string{"validate", "--module", "contracts"}, &out, &errB); code != 0 || !strings.Contains(out.String(), "[module] contracts") {
+			t.Fatalf("override-only module not discovered: exit=%d out=%s err=%s", code, out.String(), errB.String())
+		}
 		if code := Main([]string{"validate", "--module", "../escape"}, &out, &errB); code != 2 {
 			t.Fatalf("unsafe module exit=%d", code)
+		}
+	})
+}
+
+func TestCheckNativeParityAndSchemaFailures(t *testing.T) {
+	repo := newGitRepo(t)
+	var installOut, installErr bytes.Buffer
+	if code := cmdInstall([]string{repo, "--skip-mcp"}, &installOut, &installErr); code != 0 {
+		t.Fatalf("install fixture exit=%d out=%s err=%s", code, installOut.String(), installErr.String())
+	}
+	inDir(t, repo, func() {
+		var nativeOut, nativeErr bytes.Buffer
+		if code := Main([]string{"check", "--strict"}, &nativeOut, &nativeErr); code != 0 {
+			t.Fatalf("native healthy exit=%d out=%s err=%s", code, nativeOut.String(), nativeErr.String())
+		}
+		if !strings.Contains(nativeOut.String(), "Resultado: SUCESSO") || strings.Contains(nativeErr.String(), "deprecated script engine") {
+			t.Fatalf("check was not native/compatible: out=%q err=%q", nativeOut.String(), nativeErr.String())
+		}
+		legacy := exec.Command("bash", filepath.Join(repo, ".pose", "scripts", "pose-check.sh"), "--strict")
+		legacy.Dir = repo
+		legacyOutput, err := legacy.CombinedOutput()
+		if err != nil || !strings.Contains(string(legacyOutput), "Resultado: SUCESSO") {
+			t.Fatalf("legacy fixture failed: %v %s", err, legacyOutput)
+		}
+
+		matrixPath := filepath.Join(repo, ".pose", "indexes", "validation-matrix.json")
+		raw, err := os.ReadFile(matrixPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var matrix map[string]any
+		if err := json.Unmarshal(raw, &matrix); err != nil {
+			t.Fatal(err)
+		}
+		matrix["severty"] = "required"
+		broken, _ := json.Marshal(matrix)
+		if err := os.WriteFile(matrixPath, broken, 0o644); err != nil {
+			t.Fatal(err)
+		}
+		nativeOut.Reset()
+		if code := Main([]string{"check", "--strict"}, &nativeOut, &nativeErr); code != 1 || !strings.Contains(nativeOut.String(), "chave desconhecida") {
+			t.Fatalf("unknown matrix key accepted: exit=%d out=%s", code, nativeOut.String())
+		}
+
+		if err := os.Remove(filepath.Join(repo, ".pose", "schema-version")); err != nil {
+			t.Fatal(err)
+		}
+		nativeOut.Reset()
+		if code := Main([]string{"check", "--tolerant"}, &nativeOut, &nativeErr); code != 0 || !strings.Contains(nativeOut.String(), "[AVISO] schema:") {
+			t.Fatalf("tolerant schema behavior: exit=%d out=%s", code, nativeOut.String())
 		}
 	})
 }
