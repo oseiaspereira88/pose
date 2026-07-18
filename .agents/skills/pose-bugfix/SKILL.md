@@ -25,7 +25,7 @@ Fluxo POSE para correção cirúrgica de defeito.
 3. Isolar causa raiz; mapear impacto colateral.
 4. Implementar fix mínimo coeso (sem refactor paralelo).
 5. Adicionar/ajustar teste de regressão.
-6. Rodar validação determinística do módulo:
+6. Rodar validation determinística do módulo:
    ```bash
    ./pose validate --tolerant --module <path-afetado> --report
    ```
@@ -40,4 +40,4 @@ Fluxo POSE para correção cirúrgica de defeito.
 - Diff cirúrgico, sem mudanças não relacionadas.
 - Evidência de regressão coberta (teste novo/ajustado).
 - Saída do `./pose validate` com `Resultado: SUCESSO`.
-- Decision-log opcional em `.pose/knowledge/` quando aplicável.
+- Decision-log optional em `.pose/knowledge/` quando aplicável.

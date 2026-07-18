@@ -1,7 +1,7 @@
 ---
 name: pose-knowledge
-description: Use ao criar/atualizar artefatos em .pose/knowledge/ — handoffs entre execuções, decision-logs com gatilho de revisão, ou notes de contexto reaproveitável. Valida frontmatter e dispara housekeeping. Trigger keywords - knowledge, handoff, decision-log, note, memória, context handoff, pose-maintainers.
-when_to_use: Há contexto técnico que sobrevive a uma execução isolada e precisa ser retomado por outro agente/ciclo. Tipicamente ao final de feature/bugfix/review quando spec/ADR não capturam o que precisa ser lembrado.
+description: Use ao criar/atualizar artifacts em .pose/knowledge/ — handoffs entre execuções, decision-logs com gatilho de revisão, ou notes de contexto reaproveitável. Valida frontmatter e dispara housekeeping. Trigger keywords - knowledge, handoff, decision-log, note, memória, context handoff, pose-maintainers.
+when_to_use: Há contexto técnico que sobrevive a uma execution isolada e precisa ser retomado por outro agente/ciclo. Tipicamente ao final de feature/bugfix/review quando spec/ADR não capturam o que precisa ser lembrado.
 ---
 
 # Skill: pose-knowledge
@@ -13,7 +13,7 @@ Fluxo POSE para o subsistema de memória entre execuções.
 1. [`.pose/rules/knowledge-governance.md`](../../../.pose/rules/knowledge-governance.md) — TTL, ownership, sensitivity, expurgo.
 2. [`.pose/specs/pose-knowledge-governance.md`](../../../.pose/specs/pose-knowledge-governance.md) — governança detalhada.
 
-## Tipos de artefato
+## Tipos de artifact
 
 - **handoff** — estado parcial + próximo owner; típico ao final de feature/review.
 - **decision-log** — decisão arquitetural localizada (não-ADR) com gatilho de revisão.
@@ -23,7 +23,7 @@ TTL padrão 30 dias (`--ttl-days N`, máximo 90 conforme rule).
 
 ## Steps
 
-### Criar artefato
+### Criar artifact
 
 ```bash
 ./pose new-knowledge handoff <slug-do-tema> --owner @<squad> --ttl-days 30
@@ -59,11 +59,11 @@ find .pose/knowledge -name "*<modulo-ou-tema>*.md" -type f -not -path '*/archive
 ## Restrições
 
 - Proibido: segredos, tokens, dados pessoais, cópia integral de incidents restritos.
-- Owner obrigatório; default `@pose-maintainers` apenas para artefatos institucionais.
+- Owner obrigatório; default `@pose-maintainers` apenas para artifacts institucionais.
 - `last_reviewed_at` deve refletir revisão real, não data de criação.
 
 ## Output requirements
 
 - Arquivo criado em `.pose/knowledge/` com frontmatter completo e seções preenchidas (não apenas placeholders).
 - `./pose knowledge-check --strict` em SUCESSO.
-- Referência ao artefato no spec/PR que motivou sua criação.
+- Referência ao artifact no spec/PR que motivou sua criação.

@@ -1,6 +1,6 @@
 ---
 name: pose-review
-description: Use para PR ou code review sob POSE — verifica escopo controlado, contratos preservados, impacto de segurança/observabilidade, validação proporcional ao risco, e propõe escalação quando aplicável. Trigger keywords - review, code review, PR review, parecer, revisar PR, code-review, ultrareview.
+description: Use para PR ou code review sob POSE — verifica escopo controlado, contratos preservados, impacto de security/observabilidade, validation proporcional ao risco, e propõe escalação quando aplicável. Trigger keywords - review, code review, PR review, parecer, revisar PR, code-review, ultrareview.
 when_to_use: Avaliando um diff/PR (próprio ou de outro autor) sob POSE. Use ANTES de comentar/aprovar para garantir cobertura uniforme: rules aplicáveis, evidência de validate, consulta a decision-logs prévios, decisão acionável.
 ---
 
@@ -25,8 +25,8 @@ Fluxo POSE para revisão técnica de PR ou diff local.
    ```bash
    find .pose/knowledge -name "*<modulo>*.md" -type f -not -path '*/archive/*'
    ```
-4. Exigir evidência de `./pose validate` proporcional ao risco. Se ausente, bloquear até execução.
-5. Avaliar nas dimensões: correção funcional, contratos públicos, segurança, observabilidade, performance, regressão.
+4. Exigir evidência de `./pose validate` proporcional ao risco. Se ausente, bloquear até execution.
+5. Avaliar nas dimensões: correção funcional, contratos públicos, security, observabilidade, performance, regressão.
 6. Classificar findings por severidade (`crítico | alto | médio | baixo`) com evidência e ação esperada por item.
 7. Verificar se há sinal de recorrência sistêmica:
    ```bash
@@ -44,4 +44,4 @@ Fluxo POSE para revisão técnica de PR ou diff local.
 - Parecer com seção "Rules aplicadas no review" preenchida (template em `workflows/review.md`).
 - Findings por severidade com ação esperada.
 - Decisão final clara e acionável.
-- Handoff opcional quando há risco residual aceito.
+- Handoff optional quando há risco residual aceito.

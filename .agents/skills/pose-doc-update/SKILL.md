@@ -38,4 +38,4 @@ Fluxo POSE para atualização de documentação operacional.
 - Diff legível e coeso (uma intenção editorial por commit).
 - Zero duplicação verbatim entre arquivos.
 - `./pose check --strict` passando.
-- Relatório opcional `doc-audit` para mudanças amplas.
+- Relatório optional `doc-audit` para mudanças amplas.

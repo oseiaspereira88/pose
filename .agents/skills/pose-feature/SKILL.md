@@ -1,7 +1,7 @@
 ---
 name: pose-feature
-description: Use ao implementar uma feature não-trivial sob POSE — escopo afeta pelo menos um módulo, exige spec, planejamento incremental, validação determinística e handoff entre execuções. Trigger keywords - feature, implementar, nova funcionalidade, scope change, spec nova, refactor (sem mudança funcional).
-when_to_use: A tarefa é adicionar/estender funcionalidade observável (não bug, não doc, não review). Use ANTES de codar para garantir spec, leitura de knowledge prévia, plano incremental e validação proporcional.
+description: Use ao implementar uma feature não-trivial sob POSE — escopo afeta pelo menos um módulo, exige spec, planejamento incremental, validation determinística e handoff entre execuções. Trigger keywords - feature, implementar, nova funcionalidade, scope change, spec nova, refactor (sem mudança funcional).
+when_to_use: A tarefa é adicionar/estender funcionalidade observável (não bug, não doc, não review). Use ANTES de codar para garantir spec, leitura de knowledge prévia, plano incremental e validation proporcional.
 ---
 
 # Skill: pose-feature
@@ -31,7 +31,7 @@ Fluxo POSE para implementação de feature ou refactor não-trivial.
    ./pose validate --strict --module <path-afetado> --report
    ```
 5. Atualizar seção `Validation` da spec com os comandos executados e resultado.
-6. Se houver contexto reaproveitável para próxima execução (estado parcial, follow-up, transição de owner), criar handoff:
+6. Se houver contexto reaproveitável para próxima execution (estado parcial, follow-up, transição de owner), criar handoff:
    ```bash
    ./pose new-knowledge handoff <slug>-handoff --owner @<squad>
    ```
@@ -48,4 +48,4 @@ Fluxo POSE para implementação de feature ou refactor não-trivial.
 - `./pose validate --strict` em SUCESSO para o(s) módulo(s) afetado(s).
 - Frontmatter com `status: done` + `completed_at`; follow-ups com disposição.
 - `./pose lint-spec <slug> --strict` em SUCESSO.
-- Handoff opcional em `.pose/knowledge/` quando aplicável.
+- Handoff optional em `.pose/knowledge/` quando aplicável.

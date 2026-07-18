@@ -42,5 +42,5 @@ Fluxo POSE para construir plano de teste risk-based antes da implementação.
 - Plano em `Validation` da spec com 3 colunas: cenário, comando, evidência esperada.
 - Cenários negativos cobertos explicitamente (não apenas happy path).
 - Comandos copy-pasteable, sem placeholders abstratos.
-- Marcação clara de obrigatório vs. opcional para o risco corrente.
+- Marcação clara de obrigatório vs. optional para o risco corrente.
 - Eventual atualização de `validation-matrix.json` com schema válido.

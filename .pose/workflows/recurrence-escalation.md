@@ -1,10 +1,10 @@
 # Workflow: Recurrence Escalation
 
-## Objetivo
+## Objective
 
 Ativar correção sistêmica quando houver retrabalho recorrente não coberto pelos workflows atuais.
 
-## Precondições
+## Preconditions
 
 - Existe registro de incidentes/retrabalho por período com classificação por domínio e causa.
 - O time já avaliou os workflows existentes em `.pose/workflows/` para evitar duplicação.
@@ -27,7 +27,7 @@ Ative este workflow quando qualquer critério abaixo for atendido no período m�
 - `>= 5` incidentes recorrentes não cobertos no total multi-domínio.
 - Tendência de crescimento por 2 períodos consecutivos (30d vs. 30d anterior).
 
-## Checklist de execução
+## Execution checklist
 
 1. Consolidar evidência da métrica `recurrence_rework_uncovered` com recorte de 30 dias.
 2. Confirmar que o padrão não está coberto por workflow vigente e registrar o gap.
@@ -47,7 +47,7 @@ Selecione cumulativamente as `rules` por domínio afetado:
 - `.pose/rules/frontend-react.md`
 - `.pose/rules/kubernetes.md`
 - `.pose/rules/documentation-style.md`
-- `.pose/rules/knowledge-governance.md` (quando houver artefatos de conhecimento/processo)
+- `.pose/rules/knowledge-governance.md` (quando houver artifacts de conhecimento/processo)
 
 Em conflito, aplique a alternativa mais restritiva.
 
@@ -57,11 +57,11 @@ Execute revisão após 45 dias de piloto:
 
 - Compare volume de recorrência pré/pós ativação por domínio.
 - Validar taxa de redução mínima de 30% no domínio alvo.
-- Avaliar custo operacional (tempo de execução e qualidade de evidência).
+- Avaliar custo operacional (tempo de execution e qualidade de evidência).
 - Emitir decisão formal: `manter`, `ajustar` ou `descartar`.
 - Se `ajustar`/`descartar`, abrir follow-up com owner, prazo e critério de saída.
 
-## Saídas obrigatórias
+## Required outputs
 
 - Evidência da métrica e do limiar de ativação atingido.
 - Novo workflow especializado publicado e referenciado.

@@ -41,5 +41,5 @@ Fluxo POSE para registrar decisões arquiteturais.
 
 - ADR em `.pose/adr/<data>-<slug>.md` com 4 seções preenchidas.
 - Trade-offs descartados com 1 linha explicando o motivo.
-- Decision-log opcional quando houver gatilho de revisão.
+- Decision-log optional quando houver gatilho de revisão.
 - Referência cruzada na spec (quando a decisão deriva de implementação ativa).

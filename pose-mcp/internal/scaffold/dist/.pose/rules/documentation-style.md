@@ -1,8 +1,8 @@
 # Rule: Documentation Style
 
-## Quando consultar
+## When to consult
 
-Consulte este guia em tarefas de documentação de processo, regras, specs, workflows e instruções operacionais.
+Consult this guide em tarefas de documentação de processo, regras, specs, workflows e instruções operacionais.
 
 ## Convenções obrigatórias
 
@@ -23,7 +23,7 @@ Consulte este guia em tarefas de documentação de processo, regras, specs, work
 ### Referência ambígua
 
 - **Bom:** "Rode o `check` de lint descrito no `workflow` de review."
-- **Ruim:** "Rode aquela validação padrão antes de subir."
+- **Ruim:** "Rode aquela validation padrão antes de subir."
 
 ## Checklist rápido de aderência editorial
 
@@ -35,7 +35,7 @@ Consulte este guia em tarefas de documentação de processo, regras, specs, work
 
 ## Precedência em conflito multi-domínio
 
-- Em conflito com outras `rules`, aplique a alternativa mais restritiva para segurança, contrato e operação.
+- Em conflito com outras `rules`, aplique a alternativa mais restritiva para security, contrato e operação.
 - Quando houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
 - Registre no parecer de review a decisão de precedência e o racional objetivo.
 

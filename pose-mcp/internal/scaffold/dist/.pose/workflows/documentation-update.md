@@ -1,17 +1,17 @@
 # Workflow: Documentation Update
 
-## Objetivo
+## Objective
 
 Manter documentação alinhada ao estado real do sistema, clara para operação e útil para tomada de decisão.
 
-## Precondições
+## Preconditions
 
 - Fonte de verdade técnica foi identificada (código, spec, contrato, processo).
 - Público-alvo e objetivo da documentação estão definidos.
 - Escopo de documentos a atualizar está delimitado.
 - Mudanças técnicas relacionadas já foram concluídas ou estão estáveis.
 
-## Checklist de execução
+## Execution checklist
 
 1. Levantar discrepâncias entre documentação atual e comportamento real.
 2. Priorizar correções por risco operacional e frequência de uso.
@@ -22,14 +22,14 @@ Manter documentação alinhada ao estado real do sistema, clara para operação 
 7. Registrar impactos para operação, suporte e onboarding.
 8. Publicar resumo das mudanças e pontos de atenção.
 
-## Saídas obrigatórias
+## Required outputs
 
 - Documentos atualizados com escopo e data da revisão.
 - Resumo das inconsistências corrigidas.
-- Evidências de validação mínima (links/comandos/referências revisados).
+- Evidências de validation mínima (links/comandos/referências revisados).
 - Pendências conhecidas e próximos ajustes recomendados.
 
-## Critérios de pronto
+## Definition of done
 
 - Documentação reflete com precisão o comportamento atual.
 - Instruções críticas estão testáveis e sem ambiguidades.

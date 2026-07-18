@@ -1,8 +1,8 @@
 # Rule: Delivery Evidence
 
-## Quando consultar
+## When to consult
 
-Consulte este guia ao escrever ou revisar qualquer documento que **declare entrega,
+Consult this guide ao escrever ou revisar qualquer documento que **declare entrega,
 conclusão ou prontidão** — relatórios de status, handoffs, summaries, READMEs de
 módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X completo".
 
@@ -17,7 +17,7 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 - Para `done`, referencie o report ou a evidência que cruzou o gate de saída da spec.
 - Converta datas relativas em absolutas; carimbe a data da verificação.
 
-## Anti-padrões bloqueadores
+## Blocking anti-patterns
 
 - Declarar "100% COMPLETE"/"pronto para produção" sem `./pose validate --strict` verde
   no(s) módulo(s) afetado(s).
@@ -26,7 +26,7 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 - Código mergeado com doc de conclusão mas sem passar pelos `check`/`validate` do POSE.
 - Misturar aspiração e estado verificado no mesmo parágrafo sem marcação clara.
 
-## Checks mínimos
+## Minimum checks
 
 - `./pose check --strict` (estrutura + enum de status das specs).
 - `./pose validate --strict` no(s) módulo(s) que o documento afirma entregar.

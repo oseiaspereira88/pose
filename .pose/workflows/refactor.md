@@ -1,17 +1,17 @@
 # Workflow: Refactor
 
-## Objetivo
+## Objective
 
 Melhorar estrutura interna e manutenibilidade sem alterar comportamento funcional observado.
 
-## Precondições
+## Preconditions
 
 - Motivação técnica do refactor está documentada.
 - Escopo está delimitado por módulo e risco.
 - Critérios de não-regressão funcional foram definidos.
 - Baseline de testes/checks está disponível.
 
-## Checklist de execução
+## Execution checklist
 
 1. Definir objetivo técnico (legibilidade, acoplamento, duplicação, etc.).
 2. Mapear limites de escopo e contratos que devem permanecer intactos.
@@ -22,14 +22,14 @@ Melhorar estrutura interna e manutenibilidade sem alterar comportamento funciona
 7. Medir ganhos práticos (complexidade, clareza, cobertura, manutenção).
 8. Registrar riscos residuais e follow-ups não essenciais.
 
-## Saídas obrigatórias
+## Required outputs
 
 - Descrição do problema estrutural e da estratégia aplicada.
 - Evidência de preservação de comportamento.
 - Resultado de checks determinísticos executados.
 - Lista de ganhos obtidos e pendências futuras.
 
-## Critérios de pronto
+## Definition of done
 
 - Comportamento funcional permaneceu equivalente.
 - Refactor reduziu dívida técnica de forma verificável.

@@ -1,17 +1,17 @@
 # Workflow: Review
 
-## Objetivo
+## Objective
 
 Validar se a mudança está correta, segura para produção e alinhada ao escopo e às specs.
 
-## Precondições
+## Preconditions
 
 - Diff final está disponível e legível por commits/lotes coesos.
 - Contexto de requisito/spec da mudança está acessível.
-- Evidências de validação do implementador estão anexadas (incluindo saída de `./pose validate`).
+- Evidências de validation do implementador estão anexadas (incluindo saída de `./pose validate`).
 - Critérios de aceite e risco esperado foram definidos.
 
-## Checklist de execução
+## Execution checklist
 
 1. Confirmar entendimento do objetivo e do escopo aprovado.
 2. Selecionar explicitamente as `rules` aplicáveis para o tipo de mudança e registrar no parecer.
@@ -19,7 +19,7 @@ Validar se a mudança está correta, segura para produção e alinhada ao escopo
 3. **Consultar `.pose/knowledge/`** por handoffs ou decision-logs que contextualizem a mudança (riscos prévios, follow-ups pendentes, decisões aceitas com gatilho de revisão).
 4. Revisar aderência às specs, contratos e instruções locais.
 5. Checar correção funcional e consistência de casos limite.
-6. Avaliar riscos de segurança, observabilidade e performance.
+6. Avaliar riscos de security, observabilidade e performance.
 7. Exigir evidência do `check` `./pose validate` conforme matriz `.pose/indexes/validation-matrix.json` e cobertura proporcional ao risco.
 8. Identificar regressões potenciais e impactos de rollout/rollback.
 9. Classificar achados por severidade e sugerir ações objetivas.
@@ -77,7 +77,7 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 
 ## Checklist de review por domínio
 
-### Segurança
+### Security
 
 - Confirmar autenticação/autorização e princípio do menor privilégio quando aplicável.
 - Verificar ausência de segredos em código, config, manifests, docs e logs.
@@ -95,11 +95,11 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 - Confirmar probes/healthchecks/alertas coerentes com o comportamento real.
 - Garantir rastreabilidade mínima para diagnóstico pós-deploy.
 
-### Validação
+### Validation
 
 - Confirmar cobertura de `check` proporcional ao risco: `lint`, `typecheck`, `test`, `build`.
-- Exigir evidência de execução de `./pose validate` e resultados relevantes.
-- Registrar limitações de ambiente e riscos residuais de validação.
+- Exigir evidência de execution de `./pose validate` e resultados relevantes.
+- Registrar limitações de ambiente e riscos residuais de validation.
 
 ## Checklist rápido de aderência editorial
 
@@ -108,7 +108,7 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 - Checar uso consistente dos termos `check`, `spec` e `workflow`.
 - Exigir referência explícita de arquivo/caminho para evitar ambiguidade.
 
-## Saídas obrigatórias
+## Required outputs
 
 - Parecer de review com decisão final e racional.
 - Seção `Rules aplicadas no review` preenchida com justificativas.
@@ -127,8 +127,8 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 - Workflow: `.pose/workflows/feature.md`
 
 ## Rules aplicadas no review
-- `.pose/rules/backend-go.md`: validada aderência de handlers, contexto e erros.
-- `.pose/rules/frontend-react.md`: validada acessibilidade e tratamento explícito de loading/erro.
+- `.pose/rules/backend-go.md`: validada aderência de handlers, contexto e errors.
+- `.pose/rules/frontend-react.md`: validada acessibilidade e tratamento explícito de loading/error.
 - `.pose/rules/kubernetes.md`: validados resources/probes e imagem imutável.
 - `.pose/rules/security.md`: validada ausência de segredos e revisão de autorização.
 - `.pose/rules/documentation-style.md`: validada consistência editorial em docs/spec.
@@ -141,11 +141,11 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 
 ## Contratos e compatibilidade
 - Contrato HTTP `POST /v1/storage` preservado.
-- Campo novo `retentionDays` adicionado como opcional (backward compatible).
+- Campo novo `retentionDays` adicionado como optional (backward compatible).
 
 ## Achados
 - Médio: falta alerta para saturação de fila (ação: incluir métrica e alerta antes de produção).
-- Baixo: mensagem de erro frontend sem contexto do request-id (ação: ajustar UX observável).
+- Baixo: mensagem de error frontend sem contexto do request-id (ação: ajustar UX observável).
 
 ## Riscos residuais
 - Carga real do cluster não simulada em ambiente de review.
@@ -156,12 +156,12 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 
 - Considere `POSE check (strict)` bloqueante para merge em branches principais (`main`).
 - Considere `POSE validate (strict, required gate)` bloqueante quando houver falha em check `required`.
-- Baixe e anexe evidências dos artefatos da pipeline:
+- Baixe e anexe evidências dos artifacts da pipeline:
   - log de check (`pose-check.log`)
-  - log de validação (`pose-validate.latest.log`)
+  - log de validation (`pose-validate.latest.log`)
   - relatório gerado por `pose-report.sh`
 - Classifique falhas de check `optional` como ressalva de qualidade e registre plano de saneamento.
-- Reprove o PR quando a falha impedir compliance com spec, contrato público, segurança ou rollout seguro.
+- Reprove o PR quando a falha impedir compliance com spec, contrato público, security ou rollout seguro.
 
 ## Rollout faseado para módulos não prontos
 
@@ -174,21 +174,21 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 - Selecione domínio piloto e mapeie checks `optional` candidatos a `required` com owner e risco explícitos.
 - Meça taxa de sucesso por 4 semanas e confirme baseline >= 95% antes da promoção.
 - Altere classificação do check de `optional` para `required` somente no domínio elegível via `moduleOverrides` da matriz.
-- Atualize a matriz de validação e a documentação da política de qualidade no mesmo change set.
+- Atualize a matriz de validation e a documentação da política de qualidade no mesmo change set.
 - Monitore regressões nas semanas seguintes e ajuste rollout por domínio sem remover gates globais já `required`.
 - Exija atualização de spec/rules quando o rollout alterar critérios de aceite de merge.
 
-## Critérios de pronto
+## Definition of done
 
 - Todos os achados críticos/altos estão resolvidos ou aceitos formalmente.
 - Decisão final está clara e acionável para o próximo passo.
-- Evidências sustentam conclusões de qualidade e segurança.
+- Evidências sustentam conclusões de qualidade e security.
 - Escopo foi respeitado sem deriva não justificada.
 
 ## Execução — modo revisor
 
 **Objetivo:** avaliar qualidade técnica e prontidão de produção com foco em correção, risco e aderência ao escopo.
 
-- **Foco:** correção funcional e consistência com specs; risco de regressão, segurança e operabilidade; qualidade e suficiência das validações executadas; clareza do feedback e decisão acionável.
-- **Anti-padrões:** aprovar sem evidência de validação suficiente; focar apenas em estilo e ignorar risco funcional; solicitar mudanças fora do escopo sem justificativa; bloquear progresso por preferências subjetivas.
+- **Foco:** correção funcional e consistência com specs; risco de regressão, security e operabilidade; qualidade e suficiência das validações executadas; clareza do feedback e decisão acionável.
+- **Anti-padrões:** aprovar sem evidência de validation suficiente; focar apenas em estilo e ignorar risco funcional; solicitar mudanças fora do escopo sem justificativa; bloquear progresso por preferências subjetivas.
 - **Handoff:** decisão explícita (aprovado / aprovado com ressalvas / reprovado); achados com severidade, evidência e ação esperada; condições para merge/deploy seguro; riscos aceitos e monitoramento recomendado.

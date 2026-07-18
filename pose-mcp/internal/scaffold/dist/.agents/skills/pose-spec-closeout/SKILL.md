@@ -1,7 +1,7 @@
 ---
 name: pose-spec-closeout
 description: Use ao concluir uma spec POSE — marcar status done com data de conclusão e dar disposição a cada follow-up (reaproveitado, coberto por outra spec, duplicado, descartado) para que o backlog não apodreça. Trigger keywords - closeout, fechar spec, concluir spec, marcar done, follow-up, triagem, aproveitamento, spec lifecycle, completed_at.
-when_to_use: A implementação de uma feature/bugfix/refactor terminou e a spec precisa ser fechada formalmente. Use DEPOIS da validação determinística, como passo final de feature.md/bugfix.md/refactor.md, antes de considerar a tarefa entregue.
+when_to_use: A implementação de uma feature/bugfix/refactor terminou e a spec precisa ser fechada formalmente. Use DEPOIS da validation determinística, como passo final de feature.md/bugfix.md/refactor.md, antes de considerar a tarefa entregue.
 ---
 
 # Skill: pose-spec-closeout
@@ -70,7 +70,7 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
 
 ## Steps
 
-1. Confirmar que a validação determinística já passou (não feche spec com check pendente):
+1. Confirmar que a validation determinística já passou (não feche spec com check pendente):
    ```bash
    ./pose validate --strict --module <path-afetado>
    ```
@@ -109,7 +109,7 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
 
 ## Anti-padrões
 
-- Marcar `done` sem rodar a validação determinística.
+- Marcar `done` sem rodar a validation determinística.
 - Reaproveitar follow-up automaticamente (`spawned`/`covered`/`duplicate`) sem confirmar com o usuário — propaga premissa obsoleta em cascata.
 - Tratar os candidatos do `./pose followups` como veredito — eles são pistas léxicas; a equivalência de intenção é julgamento seu + confirmação humana.
 - Deixar follow-up sem tag (o gate bloqueia, mas a tentação é remover o follow-up — registre-o como `[wont-do: …]` em vez de apagar o histórico).
