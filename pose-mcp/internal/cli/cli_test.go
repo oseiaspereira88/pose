@@ -207,6 +207,16 @@ func TestReportNativeCreatesMarkdownAndValidatesArgs(t *testing.T) {
 	})
 }
 
+func TestParseStructuredChecks(t *testing.T) {
+	checks, err := parseStructuredChecks([]byte(`{"stacks":{"go":{"checks":[{"name":"test","program":"go","args":["test","./..."],"env":{"GOCACHE":"/tmp/cache"}}]}}}`))
+	if err != nil || len(checks) != 1 || checks[0].Program != "go" || checks[0].Env["GOCACHE"] != "/tmp/cache" {
+		t.Fatalf("checks=%+v err=%v", checks, err)
+	}
+	if _, err := parseStructuredChecks([]byte(`{`)); err == nil {
+		t.Fatal("malformed JSON accepted")
+	}
+}
+
 func TestCLILocaleSelectionAndFallback(t *testing.T) {
 	old := os.Getenv("POSE_LOCALE")
 	t.Cleanup(func() { _ = os.Setenv("POSE_LOCALE", old) })
