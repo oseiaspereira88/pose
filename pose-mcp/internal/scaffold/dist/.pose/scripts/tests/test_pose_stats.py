@@ -19,7 +19,8 @@ class TestPoseStatsHTML(unittest.TestCase):
         self.history.mkdir(parents=True)
         self.specs.mkdir(parents=True)
         (self.history / "records.jsonl").write_text(
-            json.dumps({"generated_at": "2026-07-17T00:00:00Z", "workflow": "feature<script>", "outcome": "pass"})
+            json.dumps({"generated_at": "2026-07-17T00:00:00Z", "workflow": "feature<script>", "task_slug": "safe-task", "outcome": "pass"})
+            + "\n" + json.dumps({"generated_at": "2026-07-17T01:00:00Z", "workflow": "feature", "task_slug": "safe-task", "outcome": "partial"})
             + "\nnot-json\n",
             encoding="utf-8",
         )
@@ -42,6 +43,8 @@ class TestPoseStatsHTML(unittest.TestCase):
         content = output.read_text(encoding="utf-8")
         self.assertIn("Content-Security-Policy", content)
         self.assertIn("Open follow-ups", content)
+        self.assertIn("Recurrence candidates", content)
+        self.assertIn("safe-task", content)
         self.assertIn("2.0 days", content)
         self.assertIn("Invalid records skipped</b><br>1", content)
         self.assertIn("feature&lt;script&gt;", content)

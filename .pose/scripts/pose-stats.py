@@ -164,13 +164,18 @@ def spec_metrics(specs_dir: pathlib.Path | None) -> dict[str, object]:
     }
 
 
-def render_html(rows: list[dict], scanned: int, skipped_invalid: int, metrics: dict[str, object]) -> str:
+def render_html(rows: list[dict], task_rows: list[dict], scanned: int, skipped_invalid: int, metrics: dict[str, object]) -> str:
     """Render a CSP-safe, standalone report; all dynamic values are escaped."""
     table_rows = "".join(
         "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(
             html.escape(str(row["key"])), row["pass"], row["fail"], row["partial"], row["total"])
         for row in rows
     ) or "<tr><td colspan=\"5\">No history records found.</td></tr>"
+    recurring_rows = "".join(
+        "<tr><td>{}</td><td>{}</td><td>{}</td></tr>".format(
+            html.escape(str(row["key"])), row["total"], row["fail"] + row["partial"])
+        for row in task_rows if row["total"] >= 2
+    ) or "<tr><td colspan=\"3\">No recurrence candidates found.</td></tr>"
     lead = metrics["lead_time_days"]
     lead_text = "unavailable" if lead is None else f"{lead} days"
     return f"""<!doctype html>
@@ -180,6 +185,7 @@ def render_html(rows: list[dict], scanned: int, skipped_invalid: int, metrics: d
 <body><h1>POSE local insights</h1><p>Offline report generated from repository-local data.</p>
 <div class=\"cards\"><div class=\"card\"><b>History records</b><br>{scanned}</div><div class=\"card\"><b>Invalid records skipped</b><br>{skipped_invalid}</div><div class=\"card\"><b>Open follow-ups</b><br>{metrics['open_followups']}</div><div class=\"card\"><b>Average completed-spec lead time</b><br>{lead_text}</div></div>
 <h2>Outcomes by workflow</h2><table><thead><tr><th>Workflow</th><th>Pass</th><th>Fail</th><th>Partial</th><th>Total</th></tr></thead><tbody>{table_rows}</tbody></table>
+<h2>Recurrence candidates</h2><table><thead><tr><th>Task</th><th>Occurrences</th><th>Fail or partial</th></tr></thead><tbody>{recurring_rows}</tbody></table>
 </body></html>"""
 
 
@@ -205,7 +211,8 @@ def main(argv: list[str]) -> int:
     if args.html:
         output = pathlib.Path(args.out) if args.out else history_dir.parent / "pose-stats.html"
         metrics = spec_metrics(pathlib.Path(args.specs_dir) if args.specs_dir else None)
-        write_atomic(output, render_html(rows, scanned, skipped_invalid, metrics))
+        task_rows, _, _, _ = aggregate(history_dir, GROUP_KEYS["task"], args.since_days)
+        write_atomic(output, render_html(rows, task_rows, scanned, skipped_invalid, metrics))
         print(f"stats.html={output}")
         return 0
 
