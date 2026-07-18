@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -22,13 +23,25 @@ var followupDisposition = regexp.MustCompile(`^\[\s*([a-z-]+)(?:\s*:\s*[^\]]+)?\
 
 func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 	all, jsonOut := false, false
-	for _, arg := range args {
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
 		switch arg {
 		case "--open":
 		case "--all":
 			all = true
 		case "--json":
 			jsonOut = true
+		case "--similarity":
+			if i+1 >= len(args) {
+				fmt.Fprintln(stderr, "Erro: --similarity exige inteiro 0..100.")
+				return 2
+			}
+			i++
+			value, err := strconv.Atoi(args[i])
+			if err != nil || value < 0 || value > 100 {
+				fmt.Fprintln(stderr, "Erro: --similarity exige inteiro 0..100.")
+				return 2
+			}
 		default:
 			fmt.Fprintf(stderr, "Erro: opção desconhecida: %s\n", arg)
 			return 2
