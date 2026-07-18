@@ -76,6 +76,77 @@ func cmdNewADR(root string, args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
+func cmdNewKnowledge(root string, args []string, stdout, stderr io.Writer) int {
+	owner, sensitivity, ttl := "@pose-maintainers", "public-internal", 30
+	positionals := []string{}
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--owner":
+			if i+1 >= len(args) || args[i+1] == "" {
+				fmt.Fprintln(stderr, "Erro: --owner exige um valor.")
+				return 2
+			}
+			i++
+			owner = args[i]
+		case "--ttl-days":
+			if i+1 >= len(args) {
+				fmt.Fprintln(stderr, "Erro: --ttl-days exige inteiro > 0.")
+				return 2
+			}
+			i++
+			if _, err := fmt.Sscanf(args[i], "%d", &ttl); err != nil || ttl < 1 || ttl > 90 {
+				fmt.Fprintln(stderr, "Erro: --ttl-days fora do intervalo permitido (1..90).")
+				return 2
+			}
+		case "--restricted":
+			sensitivity = "restricted"
+		default:
+			if strings.HasPrefix(args[i], "--") {
+				fmt.Fprintf(stderr, "Erro: opção desconhecida: %s\n", args[i])
+				return 2
+			}
+			positionals = append(positionals, args[i])
+		}
+	}
+	if len(positionals) != 2 || !scaffoldSlug.MatchString(positionals[1]) {
+		fmt.Fprintln(stderr, "Uso: pose new-knowledge <type> <slug> [--owner @owner] [--ttl-days N] [--restricted]")
+		return 2
+	}
+	kind, slug := positionals[0], positionals[1]
+	if kind != "handoff" && kind != "note" && kind != "decision-log" {
+		fmt.Fprintln(stderr, "Erro: <type> inválido: use handoff|note|decision-log.")
+		return 2
+	}
+	templatePath := filepath.Join(root, ".pose", "templates", "knowledge.md")
+	template, err := os.ReadFile(templatePath)
+	if err != nil {
+		fmt.Fprintf(stderr, "Erro: template ausente: %s\n", templatePath)
+		return 2
+	}
+	now := time.Now().UTC()
+	date := now.Format("2006-01-02")
+	path := filepath.Join(root, ".pose", "knowledge", date+"-"+kind+"-"+slug+".md")
+	if _, err := os.Stat(path); err == nil {
+		fmt.Fprintf(stderr, "Erro: artefato já existe: %s\n", path)
+		return 1
+	}
+	replacements := map[string]string{"<type>": kind, "<slug>": slug, "<owner>": owner, "<sensitivity>": sensitivity, "<created_at>": date, "<last_reviewed_at>": date, "<expires_at>": now.AddDate(0, 0, ttl).Format("2006-01-02")}
+	content := string(template)
+	for from, to := range replacements {
+		content = strings.ReplaceAll(content, from, to)
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		fmt.Fprintf(stderr, "Erro: criar knowledge: %v\n", err)
+		return 1
+	}
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		fmt.Fprintf(stderr, "Erro: escrever knowledge: %v\n", err)
+		return 1
+	}
+	fmt.Fprintf(stdout, "Artefato de knowledge criado: %s\n", path)
+	return 0
+}
+
 // cmdNewRoadmap is the native parity implementation of pose-new-roadmap.sh.
 func cmdNewRoadmap(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) != 1 || !scaffoldSlug.MatchString(args[0]) {
