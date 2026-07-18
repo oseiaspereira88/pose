@@ -1,19 +1,19 @@
 ---
 name: pose-bugfix
-description: Use ao corrigir um bug/defeito sob POSE — reproduzir falha, isolar causa raiz, aplicar fix mínimo coeso, cobrir regressão e registrar decision-log se houver dívida sistêmica. Trigger keywords - bugfix, bug, defeito, regression, hotfix, correção, root cause, causa raiz, fix.
-when_to_use: A tarefa atual é corrigir um defeito observável (não introduzir feature). Use ANTES de tocar código para garantir reprodução, isolamento de causa raiz e cobertura de regressão.
+description: Use when corrigir um bug/defeito sob POSE — reproduzir falha, isolar causa raiz, aplicar fix mínimo coeso, cobrir regressão e registrar decision-log se houver dívida sistêmica. Trigger keywords - bugfix, bug, defeito, regression, hotfix, correção, root cause, causa raiz, fix.
+when_to_use: A tarefa atual é corrigir um defeito observável (não introduzir feature). Use ANTES de tocar código to garantir reprodução, isolamento de causa raiz e cobertura de regressão.
 ---
 
 # Skill: pose-bugfix
 
-Fluxo POSE para correção cirúrgica de defeito.
+Fluxo POSE to correção cirúrgica de defeito.
 
 ## Required reading (na ordem)
 
 1. [AGENTS.md](../../../AGENTS.md) — precedência e obrigatoriedade de spec/ADR/checks.
 2. [`.pose/workflows/bugfix.md`](../../../.pose/workflows/bugfix.md) — checklist completo.
-3. `AGENTS.md` específico do módulo afetado (quando existir).
-4. `.pose/rules/` das rules cumulativas (use `./pose suggest bugfix --path <dir-afetado>` para inferir).
+3. `AGENTS.md` específico do módulo afetado (when existir).
+4. `.pose/rules/` das rules cumulativas (use `./pose suggest bugfix --path <dir-afetado>` to inferir).
 
 ## Steps
 
@@ -23,7 +23,7 @@ Fluxo POSE para correção cirúrgica de defeito.
    find .pose/knowledge -name "*<modulo>*.md" -type f
    ```
 3. Isolar causa raiz; mapear impacto colateral.
-4. Implementar fix mínimo coeso (sem refactor paralelo).
+4. Implementar fix mínimo coeso (without refactor paralelo).
 5. Adicionar/ajustar teste de regressão.
 6. Rodar validation determinística do módulo:
    ```bash
@@ -37,7 +37,7 @@ Fluxo POSE para correção cirúrgica de defeito.
 ## Output requirements
 
 - Descrição da causa raiz e abordagem.
-- Diff cirúrgico, sem mudanças não relacionadas.
+- Diff cirúrgico, without mudanças não relacionadas.
 - Evidência de regressão coberta (teste novo/ajustado).
-- Saída do `./pose validate` com `Resultado: SUCESSO`.
-- Decision-log optional em `.pose/knowledge/` quando aplicável.
+- Saída do `./pose validate` with `Resultado: SUCESSO`.
+- Decision-log optional em `.pose/knowledge/` when aplicável.

@@ -2,10 +2,10 @@
 
 Skills concentram fluxos recorrentes em formato consumível por agentes
 (Claude Code via [`.claude/skills/`](../../.claude/skills/) — symlinks que
-apontam para este diretório; outros agentes via `.agents/skills/` direto).
+apontam to este diretório; outros agentes via `.agents/skills/` direto).
 
-Cada `SKILL.md` segue o formato nativo Claude Code: YAML frontmatter com
-`name` + `description` + `when_to_use`, e corpo markdown free-form com
+Cada `SKILL.md` segue o formato nativo Claude Code: YAML frontmatter with
+`name` + `description` + `when_to_use`, e corpo markdown free-form with
 seções `Required reading`, `Steps`, `Output requirements`.
 
 ## Catálogo (9 skills)
@@ -36,10 +36,10 @@ Mudanças em workflows/skills/rules referenciados são validadas por `./pose che
 ## Regra de escopo
 
 Carregue **apenas** a skill correspondente ao tipo de tarefa e os `AGENTS.md`
-necessários para os caminhos afetados. Não leia o catálogo inteiro por padrão.
+necessários to os caminhos afetados. Não leia o catálogo inteiro por padrão.
 
 ## Discovery por Claude Code
 
-[`.claude/skills/`](../../.claude/skills/) contém symlinks para cada skill
+[`.claude/skills/`](../../.claude/skills/) contém symlinks to cada skill
 deste diretório. Claude Code descobre as skills nativamente via esse path
-(`description` + `when_to_use` no frontmatter são usados para roteamento).
+(`description` + `when_to_use` no frontmatter são usados to roteamento).

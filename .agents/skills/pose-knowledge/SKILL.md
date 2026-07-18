@@ -1,12 +1,12 @@
 ---
 name: pose-knowledge
-description: Use ao criar/atualizar artifacts em .pose/knowledge/ — handoffs entre execuções, decision-logs com gatilho de revisão, ou notes de contexto reaproveitável. Valida frontmatter e dispara housekeeping. Trigger keywords - knowledge, handoff, decision-log, note, memória, context handoff, pose-maintainers.
-when_to_use: Há contexto técnico que sobrevive a uma execution isolada e precisa ser retomado por outro agente/ciclo. Tipicamente ao final de feature/bugfix/review quando spec/ADR não capturam o que precisa ser lembrado.
+description: Use when create/update artifacts em .pose/knowledge/ — handoffs entre executions, decision-logs with gatilho de revisão, ou notes de context reaproveitável. Valida frontmatter e dispara housekeeping. Trigger keywords - knowledge, handoff, decision-log, note, memória, context handoff, pose-maintainers.
+when_to_use: Há context técnico que sobrevive a uma execution isolada e needs to be resumed por outro agente/ciclo. Typically ao final de feature/bugfix/review when spec/ADR não capturam o que needs to ser lembrado.
 ---
 
 # Skill: pose-knowledge
 
-Fluxo POSE para o subsistema de memória entre execuções.
+Fluxo POSE to o subsistema de memória entre executions.
 
 ## Required reading
 
@@ -16,8 +16,8 @@ Fluxo POSE para o subsistema de memória entre execuções.
 ## Tipos de artifact
 
 - **handoff** — estado parcial + próximo owner; típico ao final de feature/review.
-- **decision-log** — decisão arquitetural localizada (não-ADR) com gatilho de revisão.
-- **note** — contexto técnico curto reaproveitável (debug recipe, gotcha, link curado).
+- **decision-log** — decisão arquitetural localizada (não-ADR) with gatilho de revisão.
+- **note** — context técnico curto reaproveitável (debug recipe, gotcha, link curado).
 
 TTL padrão 30 dias (`--ttl-days N`, máximo 90 conforme rule).
 
@@ -32,7 +32,7 @@ TTL padrão 30 dias (`--ttl-days N`, máximo 90 conforme rule).
 Edite o arquivo gerado em `.pose/knowledge/<data>-<type>-<slug>.md`:
 - Preencher `Context`, `Estado atual`, `Próximos checks`, `Risks`, `Próximo owner`.
 - Atualizar `source_refs` (spec, workflow, comandos executados).
-- Para conteúdo sensível, recriar com `--restricted` (sensitivity = `restricted`).
+- Para conteúdo sensível, recriar with `--restricted` (sensitivity = `restricted`).
 
 ### Validar
 
@@ -59,11 +59,11 @@ find .pose/knowledge -name "*<modulo-ou-tema>*.md" -type f -not -path '*/archive
 ## Restrições
 
 - Proibido: segredos, tokens, dados pessoais, cópia integral de incidents restritos.
-- Owner obrigatório; default `@pose-maintainers` apenas para artifacts institucionais.
+- Owner obrigatório; default `@pose-maintainers` apenas to artifacts institucionais.
 - `last_reviewed_at` deve refletir revisão real, não data de criação.
 
 ## Output requirements
 
-- Arquivo criado em `.pose/knowledge/` com frontmatter completo e seções preenchidas (não apenas placeholders).
+- Arquivo criado em `.pose/knowledge/` with frontmatter completo e seções preenchidas (não apenas placeholders).
 - `./pose knowledge-check --strict` em SUCESSO.
 - Referência ao artifact no spec/PR que motivou sua criação.

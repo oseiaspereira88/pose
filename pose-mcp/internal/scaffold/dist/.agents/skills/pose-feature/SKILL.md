@@ -1,23 +1,23 @@
 ---
 name: pose-feature
-description: Use ao implementar uma feature não-trivial sob POSE — escopo afeta pelo menos um módulo, exige spec, planejamento incremental, validation determinística e handoff entre execuções. Trigger keywords - feature, implementar, nova funcionalidade, scope change, spec nova, refactor (sem mudança funcional).
-when_to_use: A tarefa é adicionar/estender funcionalidade observável (não bug, não doc, não review). Use ANTES de codar para garantir spec, leitura de knowledge prévia, plano incremental e validation proporcional.
+description: Use when implementar uma feature não-trivial sob POSE — escopo afeta pelo menos um módulo, exige spec, planejamento incremental, validation determinística e handoff entre executions. Trigger keywords - feature, implementar, nova funcionalidade, scope change, spec nova, refactor (without mudança funcional).
+when_to_use: A tarefa é adicionar/estender funcionalidade observável (não bug, não doc, não review). Use ANTES de codar to garantir spec, leitura de knowledge prévia, plano incremental e validation proporcional.
 ---
 
 # Skill: pose-feature
 
-Fluxo POSE para implementação de feature ou refactor não-trivial.
+Fluxo POSE to implementação de feature ou refactor não-trivial.
 
 ## Required reading (na ordem)
 
 1. [AGENTS.md](../../../AGENTS.md) — precedência e obrigatoriedade.
 2. [`.pose/workflows/feature.md`](../../../.pose/workflows/feature.md) — checklist + modos planejador/implementador.
-3. `AGENTS.md` específico do módulo afetado (quando existir).
+3. `AGENTS.md` específico do módulo afetado (when existir).
 4. Rules cumulativas em `.pose/rules/`. Para descobrir quais: `./pose suggest feature --path <dir-afetado>`.
 
 ## Steps
 
-1. Identificar slug curto e verificar/criar spec:
+1. Identificar slug curto e verificar/create spec:
    ```bash
    ls .pose/specs/<slug>/spec.md 2>/dev/null || ./pose new-spec <slug>
    ```
@@ -30,12 +30,12 @@ Fluxo POSE para implementação de feature ou refactor não-trivial.
    ```bash
    ./pose validate --strict --module <path-afetado> --report
    ```
-5. Atualizar seção `Validation` da spec com os comandos executados e resultado.
-6. Se houver contexto reaproveitável para próxima execution (estado parcial, follow-up, transição de owner), criar handoff:
+5. Atualizar seção `Validation` da spec with os comandos executados e resultado.
+6. Se houver context reaproveitável to próxima execution (estado parcial, follow-up, transição de owner), create handoff:
    ```bash
    ./pose new-knowledge handoff <slug>-handoff --owner @<squad>
    ```
-7. Preencher seção `Final Report` da spec com escopo entregue, riscos residuais e follow-ups.
+7. Preencher seção `Final Report` da spec with escopo entregue, riscos residuais e follow-ups.
 8. **Fechar a spec** (skill [pose-spec-closeout](../pose-spec-closeout/SKILL.md)): `status: done` + `completed_at` no frontmatter, disposição em cada follow-up, e gate de saída:
    ```bash
    ./pose followups --all          # backlog cruzado + colisões antes de triar
@@ -44,8 +44,8 @@ Fluxo POSE para implementação de feature ou refactor não-trivial.
 
 ## Output requirements
 
-- `.pose/specs/<slug>/spec.md` com todas as seções obrigatórias preenchidas (zero placeholders restantes).
-- `./pose validate --strict` em SUCESSO para o(s) módulo(s) afetado(s).
-- Frontmatter com `status: done` + `completed_at`; follow-ups com disposição.
+- `.pose/specs/<slug>/spec.md` with todas as seções obrigatórias preenchidas (zero placeholders restantes).
+- `./pose validate --strict` em SUCESSO to o(s) módulo(s) afetado(s).
+- Frontmatter with `status: done` + `completed_at`; follow-ups with disposição.
 - `./pose lint-spec <slug> --strict` em SUCESSO.
-- Handoff optional em `.pose/knowledge/` quando aplicável.
+- Handoff optional em `.pose/knowledge/` when aplicável.
