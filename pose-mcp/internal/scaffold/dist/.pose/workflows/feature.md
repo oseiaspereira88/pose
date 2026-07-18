@@ -27,7 +27,7 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 
 ## Required outputs
 
-- Resumo das mudanças por módulo/arquivo.
+- Summary das mudanças por módulo/arquivo.
 - Evidências de validation executada (comandos e status).
 - Atualização de spec/docs quando houve alteração de comportamento.
 - Lista de riscos residuais com mitigação ou plano de follow-up.
@@ -37,12 +37,12 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 - Critérios de aceite atendidos e verificáveis.
 - Contratos públicos preservados ou documentados quando alterados.
 - Todos os checks determinísticos relevantes passaram.
-- Escopo permaneceu controlado, sem refactors não relacionados.
+- Scope permaneceu controlado, sem refactors não relacionados.
 - Spec fechada: `status: done` + `completed_at` preenchido e cada follow-up com disposição (`./pose lint-spec <slug> --strict` em SUCESSO).
 
 ## Execução — modo planejador
 
-**Objetivo:** transformar intenção em plano executável com escopo controlado, riscos explícitos e validation definida.
+**Objective:** turn intent into an executable plan with controlled scope, explicit risks, and defined validation.
 
 - **Foco:** compreensão precisa do problema; delimitação por módulos e contratos; sequenciamento incremental com marcos verificáveis; validações determinísticas definidas no início.
 - **Anti-padrões:** planejar sem mapear restrições/dependências; plano grande demais para validation incremental; ignorar specs/workflows existentes; assumir ausência de risco sem evidência.
@@ -50,7 +50,7 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 
 ## Execução — modo implementador
 
-**Objetivo:** executar o plano com mudanças coesas, seguras para produção e validadas continuamente.
+**Objective:** execute the plan with cohesive, production-safe changes and continuous validation.
 
 - **Foco:** alterações mínimas com alto impacto; aderência ao escopo e convenções locais; validation determinística após cada incremento relevante; comunicação clara de trade-offs e riscos residuais.
 - **Anti-padrões:** expandir escopo com refactors não solicitados; alterar contratos públicos sem atualizar spec/docs; acumular mudanças grandes sem checkpoints; corrigir sintomas sem investigar causa raiz.

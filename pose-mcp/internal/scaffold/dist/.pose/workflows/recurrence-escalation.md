@@ -67,4 +67,4 @@ Execute revisão após 45 dias de piloto:
 - Novo workflow especializado publicado e referenciado.
 - Mapeamento explícito de `rules` aplicadas.
 - Resultado da revisão de piloto com decisão final.
-- Riscos residuais e plano de mitigação.
+- Risks residuais e plano de mitigação.

@@ -7,7 +7,7 @@ Melhorar estrutura interna e manutenibilidade sem alterar comportamento funciona
 ## Preconditions
 
 - Motivação técnica do refactor está documentada.
-- Escopo está delimitado por módulo e risco.
+- Scope está delimitado por módulo e risco.
 - Critérios de não-regressão funcional foram definidos.
 - Baseline de testes/checks está disponível.
 

@@ -13,7 +13,7 @@ Consult this guide em tarefas que criam, atualizam, revisam ou removem artifacts
 
 ## Formato reutilizável entre execuções
 
-- Estruture contexto reutilizável como `handoff` com seções fixas: `Contexto`, `Estado atual`, `Próximos checks`, `Riscos`, `Próximo owner`.
+- Estruture contexto reutilizável como `handoff` com seções fixas: `Context`, `Estado atual`, `Próximos checks`, `Risks`, `Próximo owner`.
 - Mantenha `source_refs` apontando para `spec`, `workflow` e comandos de `check` executados.
 - Registre `last_reviewed_at` no corpo para rastrear atualização efetiva entre execuções.
 

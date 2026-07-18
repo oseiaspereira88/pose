@@ -29,7 +29,7 @@ preenchido aqui, na transição para `done`.
 Toda spec `done` exige disposição explícita em cada follow-up (o gate de
 `./pose lint-spec` bloqueia o contrário). Mapeie cada um para:
 
-| Disposição | Quando usar |
+| Disposição | When usar |
 |---|---|
 | `[open]` | ainda relevante, sem owner/spec — vira backlog vivo |
 | `[spawned: <slug>]` | originou/alimentou uma nova spec |

@@ -33,7 +33,7 @@ Fluxo POSE para revisão técnica de PR ou diff local.
    ./pose recurrence-check --tolerant --window-days 14
    ```
    Se flagged no mesmo escopo do PR, use o skill `pose-recurrence-escalation` em vez de só comentar no PR.
-8. Quando aceitar risco residual, condicionar merge a monitoramento ou postergar ação, criar handoff:
+8. When aceitar risco residual, condicionar merge a monitoramento ou postergar ação, criar handoff:
    ```bash
    ./pose new-knowledge handoff review-<pr-slug> --owner @<squad>
    ```
@@ -43,5 +43,5 @@ Fluxo POSE para revisão técnica de PR ou diff local.
 
 - Parecer com seção "Rules aplicadas no review" preenchida (template em `workflows/review.md`).
 - Findings por severidade com ação esperada.
-- Decisão final clara e acionável.
+- Decision final clara e acionável.
 - Handoff optional quando há risco residual aceito.

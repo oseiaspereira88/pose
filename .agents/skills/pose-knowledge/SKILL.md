@@ -30,7 +30,7 @@ TTL padrão 30 dias (`--ttl-days N`, máximo 90 conforme rule).
 ```
 
 Edite o arquivo gerado em `.pose/knowledge/<data>-<type>-<slug>.md`:
-- Preencher `Contexto`, `Estado atual`, `Próximos checks`, `Riscos`, `Próximo owner`.
+- Preencher `Context`, `Estado atual`, `Próximos checks`, `Risks`, `Próximo owner`.
 - Atualizar `source_refs` (spec, workflow, comandos executados).
 - Para conteúdo sensível, recriar com `--restricted` (sensitivity = `restricted`).
 

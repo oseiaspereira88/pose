@@ -36,7 +36,7 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 
 - Em conflito com outras `rules`, prevaleça a evidência verificável de `check` sobre a
   narrativa de progresso.
-- Quando houver pressão por declarar conclusão sem gate, registre o estado real
+- When houver pressão por declarar conclusão sem gate, registre o estado real
   (`in-progress`/`blocked`) e o que falta para o gate fechar.
 
 ## Rastreabilidade de recorrência

@@ -7,7 +7,7 @@ Corrigir a causa raiz com o menor impacto possível, cobertura de regressão e s
 ## Preconditions
 
 - Falha reproduzida (ou evidência objetiva do defeito) está registrada.
-- Escopo do bug e componentes impactados estão identificados.
+- Scope do bug e componentes impactados estão identificados.
 - Existe hipótese de causa raiz validável.
 - Existe plano de validation para prevenir regressão.
 
@@ -29,7 +29,7 @@ Corrigir a causa raiz com o menor impacto possível, cobertura de regressão e s
 - Descrição do defeito, causa raiz e abordagem de correção.
 - Evidência de regressão coberta por teste ou validation equivalente.
 - Resultado dos checks executados.
-- Riscos residuais, plano de monitoramento e rollback (quando necessário).
+- Risks residuais, plano de monitoramento e rollback (quando necessário).
 
 ## Definition of done
 
@@ -40,7 +40,7 @@ Corrigir a causa raiz com o menor impacto possível, cobertura de regressão e s
 
 ## Execução — modo implementador
 
-**Objetivo:** corrigir a causa raiz com mudanças mínimas, sem expandir escopo.
+**Objective:** fix the root cause with minimal changes, without expanding scope.
 
 - **Foco:** isolamento da causa raiz antes de qualquer fix; alteração coesa sem refactor paralelo; cobertura de regressão antes do merge; comunicação clara do trade-off entre correção mínima e prevenção sistêmica.
 - **Anti-padrões:** corrigir sintoma sem investigar causa; misturar bugfix com refactor não solicitado; alterar contrato público para esconder o defeito; acumular mudanças sem checkpoint de validation.

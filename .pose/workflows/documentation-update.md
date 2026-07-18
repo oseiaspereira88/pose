@@ -8,7 +8,7 @@ Manter documentação alinhada ao estado real do sistema, clara para operação 
 
 - Fonte de verdade técnica foi identificada (código, spec, contrato, processo).
 - Público-alvo e objetivo da documentação estão definidos.
-- Escopo de documentos a atualizar está delimitado.
+- Scope de documentos a atualizar está delimitado.
 - Mudanças técnicas relacionadas já foram concluídas ou estão estáveis.
 
 ## Execution checklist
@@ -25,7 +25,7 @@ Manter documentação alinhada ao estado real do sistema, clara para operação 
 ## Required outputs
 
 - Documentos atualizados com escopo e data da revisão.
-- Resumo das inconsistências corrigidas.
+- Summary das inconsistências corrigidas.
 - Evidências de validation mínima (links/comandos/referências revisados).
 - Pendências conhecidas e próximos ajustes recomendados.
 

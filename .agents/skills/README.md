@@ -16,7 +16,7 @@ seções `Required reading`, `Steps`, `Output requirements`.
 | [pose-spec-closeout](pose-spec-closeout/SKILL.md) | Fechar spec concluída (status + data + triagem de follow-ups) | [feature.md](../../.pose/workflows/feature.md) | documentation-style |
 | [pose-bugfix](pose-bugfix/SKILL.md) | Correção de defeito | [bugfix.md](../../.pose/workflows/bugfix.md) | security, documentation-style + domínio |
 | [pose-review](pose-review/SKILL.md) | PR / code review | [review.md](../../.pose/workflows/review.md) | security (prevalece), documentation-style + domínio |
-| [pose-adr](pose-adr/SKILL.md) | Decisão arquitetural | tipo motivador | security, documentation-style |
+| [pose-adr](pose-adr/SKILL.md) | Decision arquitetural | tipo motivador | security, documentation-style |
 | [pose-test-plan](pose-test-plan/SKILL.md) | Plano de teste antes de codar (risco médio/alto) | [feature.md](../../.pose/workflows/feature.md) ou [bugfix.md](../../.pose/workflows/bugfix.md) | security, documentation-style + domínio |
 | [pose-doc-update](pose-doc-update/SKILL.md) | Documentação editorial | [documentation-update.md](../../.pose/workflows/documentation-update.md) | documentation-style |
 | [pose-knowledge](pose-knowledge/SKILL.md) | Handoff / decision-log / note em `.pose/knowledge/` | qualquer (final do fluxo) | knowledge-governance, documentation-style |

@@ -31,7 +31,7 @@ Consult this guide em tarefas de UI, componentes React, estado cliente, acessibi
 ## Precedência em conflito multi-domínio
 
 - Em conflito com outras `rules`, aplique a alternativa mais restritiva para security, contrato e operação.
-- Quando houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
+- When houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
 - Registre no parecer de review a decisão de precedência e o racional objetivo.
 
 ## Rastreabilidade de recorrência

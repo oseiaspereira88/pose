@@ -17,7 +17,7 @@ Consult this guide em tarefas de documentação de processo, regras, specs, work
 
 ### Redundância
 
-- **Bom:** "Atualize critérios de review em `.pose/workflows/review.md` e referencie esse workflow no AGENTS raiz."
+- **Bom:** "Update critérios de review em `.pose/workflows/review.md` e referencie esse workflow no AGENTS raiz."
 - **Ruim:** "Repita os critérios de review no AGENTS, no workflow e em cada spec relacionada."
 
 ### Referência ambígua
@@ -36,7 +36,7 @@ Consult this guide em tarefas de documentação de processo, regras, specs, work
 ## Precedência em conflito multi-domínio
 
 - Em conflito com outras `rules`, aplique a alternativa mais restritiva para security, contrato e operação.
-- Quando houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
+- When houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
 - Registre no parecer de review a decisão de precedência e o racional objetivo.
 
 ## Rastreabilidade de recorrência

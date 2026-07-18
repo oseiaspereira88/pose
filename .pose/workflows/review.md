@@ -7,7 +7,7 @@ Validar se a mudança está correta, segura para produção e alinhada ao escopo
 ## Preconditions
 
 - Diff final está disponível e legível por commits/lotes coesos.
-- Contexto de requisito/spec da mudança está acessível.
+- Context de requisito/spec da mudança está acessível.
 - Evidências de validation do implementador estão anexadas (incluindo saída de `./pose validate`).
 - Critérios de aceite e risco esperado foram definidos.
 
@@ -65,7 +65,7 @@ Use a seleção como evidência obrigatória de cobertura por domínio real do m
 - `.pose/rules/documentation-style.md`
 - `.pose/rules/knowledge-governance.md`
 
-Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais restritiva documentada no parecer.
+Apply cumulativamente por domínio e, em conflito, preserve a decisão mais restritiva documentada no parecer.
 
 ## Mapeamento mínimo de cobertura por domínio
 
@@ -115,14 +115,14 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 - Lista de achados com severidade, evidência e recomendação.
 - Seção de recorrência de achados por domínio/causa e ação preventiva associada.
 - Confirmação explícita sobre contratos públicos e compatibilidade.
-- Riscos residuais e condições para deploy seguro.
+- Risks residuais e condições para deploy seguro.
 - Referência aos `checks` executados e às evidências coletadas.
 
 ## Exemplo de review completo (multi-rule)
 
 ```md
 ## Review Summary
-- Decisão: aprovado com ressalvas
+- Decision: aprovado com ressalvas
 - Tipo de mudança: feature (API Go + UI React + Helm)
 - Workflow: `.pose/workflows/feature.md`
 
@@ -147,7 +147,7 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 - Médio: falta alerta para saturação de fila (ação: incluir métrica e alerta antes de produção).
 - Baixo: mensagem de error frontend sem contexto do request-id (ação: ajustar UX observável).
 
-## Riscos residuais
+## Risks residuais
 - Carga real do cluster não simulada em ambiente de review.
 - Recomendar monitoramento reforçado nas primeiras 24h.
 ```
@@ -165,7 +165,7 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 
 ## Rollout faseado para módulos não prontos
 
-- Aplique enforcement imediato apenas ao conjunto atual de checks `required` na matriz.
+- Apply enforcement imediato apenas ao conjunto atual de checks `required` na matriz.
 - Use `moduleOverrides` para modularizar adoção sem relaxar gates globais de `check` e `required`.
 - Planeje promoção de checks `optional` para `required` por módulo com janela acordada e owner definido.
 
@@ -174,20 +174,20 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 - Selecione domínio piloto e mapeie checks `optional` candidatos a `required` com owner e risco explícitos.
 - Meça taxa de sucesso por 4 semanas e confirme baseline >= 95% antes da promoção.
 - Altere classificação do check de `optional` para `required` somente no domínio elegível via `moduleOverrides` da matriz.
-- Atualize a matriz de validation e a documentação da política de qualidade no mesmo change set.
+- Update a matriz de validation e a documentação da política de qualidade no mesmo change set.
 - Monitore regressões nas semanas seguintes e ajuste rollout por domínio sem remover gates globais já `required`.
 - Exija atualização de spec/rules quando o rollout alterar critérios de aceite de merge.
 
 ## Definition of done
 
 - Todos os achados críticos/altos estão resolvidos ou aceitos formalmente.
-- Decisão final está clara e acionável para o próximo passo.
+- Decision final está clara e acionável para o próximo passo.
 - Evidências sustentam conclusões de qualidade e security.
-- Escopo foi respeitado sem deriva não justificada.
+- Scope foi respeitado sem deriva não justificada.
 
 ## Execução — modo revisor
 
-**Objetivo:** avaliar qualidade técnica e prontidão de produção com foco em correção, risco e aderência ao escopo.
+**Objective:** assess technical quality and production readiness, focusing on correctness, risk, and scope adherence.
 
 - **Foco:** correção funcional e consistência com specs; risco de regressão, security e operabilidade; qualidade e suficiência das validações executadas; clareza do feedback e decisão acionável.
 - **Anti-padrões:** aprovar sem evidência de validation suficiente; focar apenas em estilo e ignorar risco funcional; solicitar mudanças fora do escopo sem justificativa; bloquear progresso por preferências subjetivas.
