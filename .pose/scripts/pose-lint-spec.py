@@ -417,7 +417,10 @@ def ready_check(slug: str, spec_path: pathlib.Path, frontmatter: dict[str, str],
     policy_path = spec_path.parents[2] / "policy" / "dor.json"
     try:
         policy = json.loads(policy_path.read_text(encoding="utf-8"))
-        required_sections = policy.get("taskTypes", {}).get(task_type, required_sections)
+        task_types = policy.get("taskTypes", {})
+        if task_type not in task_types:
+            task_type = policy.get("defaultTaskType", "feature")
+        required_sections = task_types.get(task_type, required_sections)
     except (OSError, json.JSONDecodeError):
         pass
     for name in required_sections:

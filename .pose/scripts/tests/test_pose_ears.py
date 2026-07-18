@@ -46,6 +46,10 @@ class TestEARS(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("spec.ready.task_type=bugfix", result.stdout)
 
+    def test_unknown_task_type_falls_back_to_feature(self):
+        result = self.run_lint("Store a result.", "--ready-check")
+        self.assertEqual(result.returncode, 0)  # temp fixtures have no policy
+
 
 if __name__ == "__main__":
     unittest.main()
