@@ -122,7 +122,9 @@ repository-local governance is no longer enough.
 Read the [technical architecture](docs-site/docs/architecture.md) for every
 component and mechanism. Read the
 [capability assessment](docs-site/docs/capability-assessment.md) for current
-maturity, best-of-breed benchmarks and prioritized gaps.
+maturity and best-of-breed gaps. The governed
+[product roadmaps](docs-site/docs/product-roadmaps.md) convert those findings
+into 7 roadmaps, 35 implementation specs and dependency-aware release gates.
 
 ## Quickstart
 

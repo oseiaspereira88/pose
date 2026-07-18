@@ -1,4 +1,295 @@
 {
-  "roadmaps": {},
+  "roadmaps": {
+    "adoption-developer-experience": {
+      "created_at": "2026-07-18",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "trusted-install",
+          "target_start": "2026-09-21",
+          "target_due": "2026-10-30",
+          "specs": [
+            "pose-package-manager-distribution",
+            "pose-upgrade-compatibility-lab"
+          ]
+        },
+        {
+          "id": "guided-adoption",
+          "after": [
+            "trusted-install"
+          ],
+          "target_start": "2026-11-02",
+          "target_due": "2026-12-11",
+          "specs": [
+            "pose-doctor-guided-remediation",
+            "pose-brownfield-reference-kits"
+          ]
+        },
+        {
+          "id": "product-polish",
+          "after": [
+            "guided-adoption"
+          ],
+          "target_start": "2026-12-14",
+          "target_due": "2027-01-29",
+          "specs": [
+            "pose-localization-docs-contract"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/adoption-developer-experience.md",
+      "status": "active"
+    },
+    "agent-interop-ecosystem": {
+      "created_at": "2026-07-18",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "project-protocol",
+          "target_start": "2026-09-21",
+          "target_due": "2026-10-23",
+          "specs": [
+            "pose-mcp-project-scope-contract",
+            "pose-mcp-protocol-completeness"
+          ]
+        },
+        {
+          "id": "controlled-execution",
+          "after": [
+            "project-protocol"
+          ],
+          "target_start": "2026-10-26",
+          "target_due": "2026-11-20",
+          "specs": [
+            "pose-safe-validate-orchestration"
+          ]
+        },
+        {
+          "id": "extension-ecosystem",
+          "after": [
+            "controlled-execution"
+          ],
+          "target_start": "2026-11-23",
+          "target_due": "2026-12-18",
+          "specs": [
+            "pose-agent-skills-conformance",
+            "pose-extension-catalog-lifecycle"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/agent-interop-ecosystem.md",
+      "status": "active"
+    },
+    "governance-traceability": {
+      "created_at": "2026-07-18",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "trace-core",
+          "target_start": "2026-08-24",
+          "target_due": "2026-09-25",
+          "specs": [
+            "pose-requirement-evidence-traceability",
+            "pose-followup-ownership-sla"
+          ]
+        },
+        {
+          "id": "governed-change",
+          "after": [
+            "trace-core"
+          ],
+          "target_start": "2026-09-28",
+          "target_due": "2026-10-23",
+          "specs": [
+            "pose-spec-amendment-history",
+            "pose-knowledge-consumption-traceability"
+          ]
+        },
+        {
+          "id": "measured-closure",
+          "after": [
+            "governed-change"
+          ],
+          "target_start": "2026-10-26",
+          "target_due": "2026-11-06",
+          "specs": [
+            "pose-recurrence-effectiveness"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/governance-traceability.md",
+      "status": "active"
+    },
+    "insights-enterprise-scale": {
+      "created_at": "2026-07-18",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "observability-foundation",
+          "target_start": "2026-11-02",
+          "target_due": "2026-12-04",
+          "specs": [
+            "pose-otel-observability"
+          ]
+        },
+        {
+          "id": "delivery-outcomes",
+          "after": [
+            "observability-foundation"
+          ],
+          "target_start": "2026-12-07",
+          "target_due": "2027-01-15",
+          "specs": [
+            "pose-dora-adoption-metrics"
+          ]
+        },
+        {
+          "id": "governance-intelligence",
+          "after": [
+            "delivery-outcomes"
+          ],
+          "target_start": "2027-01-18",
+          "target_due": "2027-02-26",
+          "specs": [
+            "pose-semantic-governance-assist",
+            "pose-cross-repo-portfolio"
+          ]
+        },
+        {
+          "id": "control-plane-composition",
+          "after": [
+            "governance-intelligence"
+          ],
+          "target_start": "2027-03-01",
+          "target_due": "2027-03-31",
+          "specs": [
+            "pose-crisol-control-plane-integration"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/insights-enterprise-scale.md",
+      "status": "active"
+    },
+    "product-integrity": {
+      "created_at": "2026-07-18",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "contract-baseline",
+          "target_start": "2026-07-20",
+          "target_due": "2026-08-01",
+          "specs": [
+            "pose-version-contract",
+            "pose-standalone-dogfood"
+          ]
+        },
+        {
+          "id": "public-accuracy",
+          "after": [
+            "contract-baseline"
+          ],
+          "target_start": "2026-08-03",
+          "target_due": "2026-08-14",
+          "specs": [
+            "pose-mcp-catalog-conformance",
+            "pose-public-install-contract"
+          ]
+        },
+        {
+          "id": "release-compatibility",
+          "after": [
+            "public-accuracy"
+          ],
+          "target_start": "2026-08-17",
+          "target_due": "2026-08-28",
+          "specs": [
+            "pose-release-compatibility-matrix"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/product-integrity.md",
+      "status": "active"
+    },
+    "supply-chain-trust": {
+      "created_at": "2026-07-18",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "security-baseline",
+          "target_start": "2026-08-03",
+          "target_due": "2026-08-14",
+          "specs": [
+            "pose-ossf-security-baseline"
+          ]
+        },
+        {
+          "id": "artifact-identity",
+          "after": [
+            "security-baseline"
+          ],
+          "target_start": "2026-08-17",
+          "target_due": "2026-08-28",
+          "specs": [
+            "pose-release-signing",
+            "pose-cyclonedx-sbom"
+          ]
+        },
+        {
+          "id": "attested-release",
+          "after": [
+            "artifact-identity"
+          ],
+          "target_start": "2026-09-01",
+          "target_due": "2026-09-18",
+          "specs": [
+            "pose-slsa-provenance",
+            "pose-reproducible-release-verification"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/supply-chain-trust.md",
+      "status": "active"
+    },
+    "validation-platform": {
+      "created_at": "2026-07-18",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "result-contract",
+          "target_start": "2026-08-24",
+          "target_due": "2026-09-11",
+          "specs": [
+            "pose-structured-validation-results"
+          ]
+        },
+        {
+          "id": "safe-selection",
+          "after": [
+            "result-contract"
+          ],
+          "target_start": "2026-09-14",
+          "target_due": "2026-10-16",
+          "specs": [
+            "pose-changed-scope-validation",
+            "pose-validation-runtime-guardrails"
+          ]
+        },
+        {
+          "id": "ecosystem-breadth",
+          "after": [
+            "safe-selection"
+          ],
+          "target_start": "2026-10-19",
+          "target_due": "2026-11-20",
+          "specs": [
+            "pose-stack-catalog-expansion",
+            "pose-monorepo-validation-recipes"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/validation-platform.md",
+      "status": "active"
+    }
+  },
   "schemaVersion": 1
 }

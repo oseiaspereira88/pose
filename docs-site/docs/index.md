@@ -37,7 +37,9 @@ follow-up disposition, recurrence and expiring operational knowledge.
 
 Read the [technical architecture](architecture.md) for the complete component
 and mechanism model. Use the [capability assessment](capability-assessment.md)
-for evidence-based maturity, best-of-breed benchmarks and prioritized gaps.
+for evidence-based maturity and benchmark gaps, then use the governed
+[product roadmaps](product-roadmaps.md) for implementation order, milestones
+and release gates.
 
 ## License
 
