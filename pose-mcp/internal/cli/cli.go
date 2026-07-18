@@ -68,6 +68,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdInit(root, stdout, stderr)
+	case "new-spec":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose new-spec: %v\n", err)
+			return 1
+		}
+		return cmdNewSpec(root, args, stdout, stderr)
 	case "install":
 		return cmdInstall(args, stdout, stderr)
 	case "doctor":
