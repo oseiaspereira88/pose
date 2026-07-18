@@ -55,7 +55,7 @@ func TestUnknownCommandExit2(t *testing.T) {
 	if code != 2 {
 		t.Fatalf("unknown command exit=%d, want 2", code)
 	}
-	if !strings.Contains(errB.String(), "Comando desconhecido") {
+	if !strings.Contains(errB.String(), "Unknown command") {
 		t.Fatalf("missing error message: %q", errB.String())
 	}
 }
@@ -90,7 +90,7 @@ func TestDelegationMissingEngineIsActionable(t *testing.T) {
 		if code != 1 {
 			t.Fatalf("exit=%d, want 1", code)
 		}
-		if !strings.Contains(errB.String(), "motor de scripts não encontrado") {
+		if !strings.Contains(errB.String(), "script engine not found") {
 			t.Fatalf("missing actionable message: %q", errB.String())
 		}
 	})
@@ -113,10 +113,28 @@ func TestInitNativeCreatesStructure(t *testing.T) {
 		if code := Main([]string{"init"}, &out, &errB); code != 0 {
 			t.Fatalf("second init exit=%d", code)
 		}
-		if !strings.Contains(out.String(), "já presente") {
+		if !strings.Contains(out.String(), "already present") {
 			t.Fatalf("second init not idempotent: %q", out.String())
 		}
 	})
+}
+
+func TestCLILocaleSelectionAndFallback(t *testing.T) {
+	old := os.Getenv("POSE_LOCALE")
+	t.Cleanup(func() { _ = os.Setenv("POSE_LOCALE", old) })
+	for _, tc := range []struct {
+		locale, want string
+	}{
+		{"en", "Unknown command"},
+		{"pt-BR", "Comando desconhecido"},
+		{"fr", "Unknown command"},
+	} {
+		_ = os.Setenv("POSE_LOCALE", tc.locale)
+		var out, errB bytes.Buffer
+		if code := Main([]string{"not-a-command"}, &out, &errB); code != 2 || !strings.Contains(errB.String(), tc.want) {
+			t.Fatalf("locale=%s code=%d stderr=%q", tc.locale, code, errB.String())
+		}
+	}
 }
 
 // TestInitParityWithBashEngine guards against drift between the native list

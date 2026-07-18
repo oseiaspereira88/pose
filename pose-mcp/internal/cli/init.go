@@ -29,6 +29,7 @@ var instanceDirs = []string{
 // cmdInit creates the minimal POSE directory structure, idempotently —
 // native parity of pose-init.sh.
 func cmdInit(root string, stdout, stderr io.Writer) int {
+	locale := cliLocaleFor(stderr)
 	created := 0
 	for _, rel := range instanceDirs {
 		dir := filepath.Join(root, filepath.FromSlash(rel))
@@ -36,14 +37,14 @@ func cmdInit(root string, stdout, stderr io.Writer) int {
 			continue
 		}
 		if err := os.MkdirAll(dir, 0o755); err != nil {
-			fmt.Fprintf(stderr, "[ERRO] criando %s: %v\n", rel, err)
+			fmt.Fprintf(stderr, "[%s] %s %s: %v\n", cliText(locale, "ERROR", "ERRO"), cliText(locale, "creating", "criando"), rel, err)
 			return 1
 		}
 		fmt.Fprintf(stdout, "[OK] criado: %s\n", rel)
 		created++
 	}
 	if created == 0 {
-		fmt.Fprintln(stdout, "[INFO] estrutura POSE já presente. Execute: pose check")
+		fmt.Fprintf(stdout, "[INFO] %s\n", cliText(locale, "POSE structure already present. Run: pose check", "estrutura POSE já presente. Execute: pose check"))
 	} else {
 		fmt.Fprintf(stdout, "[INFO] %d diretório(s) criado(s). Execute: pose check\n", created)
 	}

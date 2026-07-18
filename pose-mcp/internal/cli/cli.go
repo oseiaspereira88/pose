@@ -45,6 +45,7 @@ var delegated = map[string]string{
 
 // Main is the entrypoint used by cmd/pose. It returns the process exit code.
 func Main(args []string, stdout, stderr io.Writer) int {
+	locale := cliLocaleFor(stderr)
 	cmd := "help"
 	if len(args) > 0 {
 		cmd = args[0]
@@ -91,8 +92,8 @@ func Main(args []string, stdout, stderr io.Writer) int {
 	defer emitTelemetry(cmd)
 	script, known := delegated[cmd]
 	if !known {
-		fmt.Fprintf(stderr, "Comando desconhecido: %s\n", cmd)
-		fmt.Fprintf(stderr, "Execute 'pose help' para ver os comandos disponíveis.\n")
+		fmt.Fprintf(stderr, "%s: %s\n", cliText(locale, "Unknown command", "Comando desconhecido"), cmd)
+		fmt.Fprintln(stderr, cliText(locale, "Run 'pose help' to see available commands.", "Execute 'pose help' para ver os comandos disponíveis."))
 		return 2
 	}
 	return delegate(script, args, stdout, stderr)
@@ -123,8 +124,9 @@ func delegate(script string, args []string, stdout, stderr io.Writer) int {
 	}
 	path := filepath.Join(root, ".pose", "scripts", script)
 	if _, err := os.Stat(path); err != nil {
-		fmt.Fprintf(stderr, "pose: motor de scripts não encontrado em %s\n", path)
-		fmt.Fprintf(stderr, "pose: este diretório tem uma instalação POSE? Rode o install.sh da distribuição ou 'pose init' num repo já instalado.\n")
+		locale := cliLocaleFor(stderr)
+		fmt.Fprintf(stderr, "pose: %s %s\n", cliText(locale, "script engine not found at", "motor de scripts não encontrado em"), path)
+		fmt.Fprintln(stderr, "pose:", cliText(locale, "is this directory a POSE installation? Run the distribution install.sh or 'pose init' in an installed repository.", "este diretório tem uma instalação POSE? Rode o install.sh da distribuição ou 'pose init' num repo já instalado."))
 		return 1
 	}
 	c := exec.Command("bash", append([]string{path}, args...)...)
