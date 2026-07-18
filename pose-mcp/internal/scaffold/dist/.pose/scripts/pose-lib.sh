@@ -3,7 +3,7 @@
 #
 # Convenções:
 # - Todas as funções com prefixo `pose_`.
-# - Mensagens humanas em português; chaves técnicas em JSON/JSONL em ASCII estável.
+# - Mensagens humanas usam POSE_LOCALE (en por padrão; pt-BR disponível).
 # - `set -euo pipefail` deve ser definido no script chamador, não aqui.
 
 # Evita duplicação ao ser sourced múltiplas vezes na mesma sessão.
@@ -11,6 +11,35 @@ if [[ -n "${__POSE_LIB_LOADED:-}" ]]; then
   return 0
 fi
 __POSE_LIB_LOADED=1
+
+# Locale selection is deliberately allowlisted and process-local.  The English
+# strings are the fallback source of truth; translations must never affect
+# machine-readable keys or exit codes.
+POSE_LOCALE_EFFECTIVE="en"
+case "${POSE_LOCALE:-en}" in
+  en) POSE_LOCALE_EFFECTIVE="en" ;;
+  pt-BR) POSE_LOCALE_EFFECTIVE="pt-BR" ;;
+  *) printf '[WARN] unsupported POSE_LOCALE=%q; falling back to en\n' "${POSE_LOCALE:-}" >&2 ;;
+esac
+
+pose_msg() {
+  local key="${1:-}"; shift || true
+  case "$POSE_LOCALE_EFFECTIVE:$key" in
+    en:mode.invalid) printf 'invalid mode: %s (use --strict or --tolerant)' "${1:-}" ;;
+    pt-BR:mode.invalid) printf 'modo inválido: %s (use --strict ou --tolerant)' "${1:-}" ;;
+    en:flag.value) printf '%s requires a value.' "${1:-}" ;;
+    pt-BR:flag.value) printf '%s exige um valor.' "${1:-}" ;;
+    en:info) printf '[INFO] %s' "${1:-}" ;;
+    pt-BR:info) printf '[INFO] %s' "${1:-}" ;;
+    en:ok) printf '[OK] %s' "${1:-}" ;;
+    pt-BR:ok) printf '[OK] %s' "${1:-}" ;;
+    en:warn) printf '[WARN] %s' "${1:-}" ;;
+    pt-BR:warn) printf '[AVISO] %s' "${1:-}" ;;
+    en:error) printf '[ERROR] %s' "${1:-}" ;;
+    pt-BR:error) printf '[ERRO] %s' "${1:-}" ;;
+    *) printf '%s' "${1:-$key}" ;;
+  esac
+}
 
 # Caminho absoluto da raiz do repositório (git ou cwd como fallback).
 pose_repo_root() {
@@ -40,7 +69,7 @@ pose_parse_mode() {
     ""|--strict) printf 'strict' ;;
     --tolerant) printf 'tolerant' ;;
     *)
-      echo "Erro: modo inválido: ${1:-} (use --strict ou --tolerant)" >&2
+      printf 'Error: %s\n' "$(pose_msg mode.invalid "${1:-}")" >&2
       return 2
       ;;
   esac
@@ -48,10 +77,10 @@ pose_parse_mode() {
 
 # Logging consistente. Escreve em stderr para não poluir stdout de scripts que
 # imprimem dados estruturados (slug, path, etc.).
-pose_log_info()  { printf '[INFO] %s\n'  "$*" >&2; }
-pose_log_ok()    { printf '[OK] %s\n'    "$*" >&2; }
-pose_log_warn()  { printf '[AVISO] %s\n' "$*" >&2; }
-pose_log_error() { printf '[ERRO] %s\n'  "$*" >&2; }
+pose_log_info()  { pose_msg info "$*" >&2; printf '\n' >&2; }
+pose_log_ok()    { pose_msg ok "$*" >&2; printf '\n' >&2; }
+pose_log_warn()  { pose_msg warn "$*" >&2; printf '\n' >&2; }
+pose_log_error() { pose_msg error "$*" >&2; printf '\n' >&2; }
 
 # Valida que `--flag` veio acompanhada de um valor (próximo arg não-flag).
 # Uso: pose_require_flag_value --task "$#" "${2:-}" || exit 2
@@ -60,7 +89,7 @@ pose_require_flag_value() {
   local remaining="$2"
   local next="${3:-}"
   if (( remaining < 2 )) || [[ -z "$next" ]] || [[ "$next" == --* ]]; then
-    echo "Erro: $flag exige um valor." >&2
+    printf 'Error: %s\n' "$(pose_msg flag.value "$flag")" >&2
     return 2
   fi
   return 0

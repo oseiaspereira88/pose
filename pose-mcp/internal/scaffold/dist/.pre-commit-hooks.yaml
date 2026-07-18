@@ -1,0 +1,32 @@
+- id: pose-check
+  name: POSE structural check
+  description: Validate the installed POSE structure and contracts in strict mode.
+  entry: pre-commit/run-pose-hook check
+  language: unsupported_script
+  minimum_pre_commit_version: 4.4.0
+  pass_filenames: false
+  always_run: true
+  require_serial: true
+  stages: [pre-commit, manual]
+
+- id: pose-lint-spec
+  name: POSE spec lifecycle lint
+  description: Validate every POSE spec, including lifecycle and follow-up rules.
+  entry: pre-commit/run-pose-hook lint-spec
+  language: unsupported_script
+  minimum_pre_commit_version: 4.4.0
+  pass_filenames: false
+  always_run: true
+  require_serial: true
+  stages: [pre-commit, manual]
+
+- id: pose-history-check
+  name: POSE tracked history check
+  description: Ensure POSE report history remains versioned in git.
+  entry: pre-commit/run-pose-hook history-check
+  language: unsupported_script
+  minimum_pre_commit_version: 4.4.0
+  pass_filenames: false
+  always_run: true
+  require_serial: true
+  stages: [pre-commit, manual]
