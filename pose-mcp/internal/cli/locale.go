@@ -16,7 +16,8 @@ const (
 // cliLocaleFor resolves the process-local allowlist. Unknown values never
 // become paths or commands and fall back to English.
 func cliLocaleFor(stderr io.Writer) cliLocale {
-	switch value := os.Getenv("POSE_LOCALE"); value {
+	value := os.Getenv("POSE_LOCALE")
+	switch value {
 	case "", "en":
 		return localeEN
 	case "pt-BR":
@@ -27,6 +28,13 @@ func cliLocaleFor(stderr io.Writer) cliLocale {
 		}
 		return localeEN
 	}
+}
+
+func cliLocaleValue() cliLocale {
+	if os.Getenv("POSE_LOCALE") == "pt-BR" {
+		return localePtBR
+	}
+	return localeEN
 }
 
 func cliText(locale cliLocale, english, portuguese string) string {

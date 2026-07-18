@@ -37,6 +37,7 @@ type reportRecord struct {
 }
 
 func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
+	locale := cliLocaleValue()
 	values := map[string]string{"type": "standard", "outcome": "", "context": "not-provided", "validation-profile": "not-provided"}
 	gitStage := false
 	valueFlags := map[string]bool{
@@ -50,16 +51,16 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 			continue
 		}
 		if !strings.HasPrefix(args[i], "--") {
-			fmt.Fprintln(stderr, "Usage: pose report --task <description> [options]")
+			fmt.Fprintln(stderr, cliText(locale, "Usage: pose report --task <description> [options]", "Uso: pose report --task <descrição> [opções]"))
 			return 2
 		}
 		key := strings.TrimPrefix(args[i], "--")
 		if !valueFlags[key] {
-			fmt.Fprintf(stderr, "Error: invalid argument: --%s\n", key)
+			fmt.Fprintf(stderr, cliText(locale, "Error: invalid argument: --%s\n", "Erro: argumento inválido: --%s\n"), key)
 			return 2
 		}
 		if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
-			fmt.Fprintf(stderr, "Error: --%s requires a value.\n", key)
+			fmt.Fprintf(stderr, cliText(locale, "Error: --%s requires a value.\n", "Erro: --%s exige um valor.\n"), key)
 			return 2
 		}
 		i++
@@ -67,11 +68,11 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	task := strings.TrimSpace(values["task"])
 	if task == "" {
-		fmt.Fprintln(stderr, "Error: --task is required.")
+		fmt.Fprintln(stderr, cliText(locale, "Error: --task is required.", "Erro: --task é obrigatório."))
 		return 2
 	}
 	if values["type"] != "standard" && values["type"] != "doc-audit" {
-		fmt.Fprintln(stderr, "Error: --type must be 'standard' or 'doc-audit'.")
+		fmt.Fprintln(stderr, cliText(locale, "Error: --type must be 'standard' or 'doc-audit'.", "Erro: --type deve ser 'standard' ou 'doc-audit'."))
 		return 2
 	}
 	outcome, outcomeSource := values["outcome"], "manual"
@@ -92,19 +93,19 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 		outcome = "unknown"
 	}
 	if !map[string]bool{"pass": true, "fail": true, "partial": true, "skipped": true, "unknown": true}[outcome] {
-		fmt.Fprintln(stderr, "Error: invalid --outcome (use pass|fail|partial|skipped|unknown).")
+		fmt.Fprintln(stderr, cliText(locale, "Error: invalid --outcome (use pass|fail|partial|skipped|unknown).", "Erro: --outcome inválido (use pass|fail|partial|skipped|unknown)."))
 		return 2
 	}
 	slug := strings.Trim(reportSlugChars.ReplaceAllString(strings.ToLower(task), "-"), "-")
 	if slug == "" {
-		fmt.Fprintln(stderr, "Error: --task does not produce a valid slug.")
+		fmt.Fprintln(stderr, cliText(locale, "Error: --task does not produce a valid slug.", "Erro: --task não produz um slug válido."))
 		return 2
 	}
 	now := time.Now().UTC()
 	reports := filepath.Join(root, ".pose", "reports")
 	historyDir := filepath.Join(reports, "history")
 	if err := os.MkdirAll(historyDir, 0o755); err != nil {
-		fmt.Fprintf(stderr, "Error: creating reports: %v\n", err)
+		fmt.Fprintf(stderr, cliText(locale, "Error: creating reports: %v\n", "Erro: criando relatórios: %v\n"), err)
 		return 1
 	}
 	reportPath := filepath.Join(reports, now.Format("2006-01-02")+"-"+values["type"]+"-"+slug+".md")
@@ -141,25 +142,25 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 	filesChanged := reportChangedFiles(root, values["since"])
 	markdown := renderReportMarkdown(now, values, task, slug, outcome, outcomeSource, filesChanged, validationCommands, validationResults, sequence, stableHash, compareStatus, previousAt, changes)
 	if err := os.WriteFile(reportPath, []byte(markdown), 0o644); err != nil {
-		fmt.Fprintf(stderr, "Error: writing report: %v\n", err)
+		fmt.Fprintf(stderr, cliText(locale, "Error: writing report: %v\n", "Erro: escrevendo relatório: %v\n"), err)
 		return 1
 	}
 	record := reportRecord{now.Format(time.RFC3339), sequence, task, slug, values["type"], values["spec"], values["workflow"], values["rules"], values["validation-profile"], values["context"], values["risk"], outcome, outcomeSource, stableHash, reportPath}
 	history, err := os.OpenFile(historyPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
-		fmt.Fprintf(stderr, "Error: writing history: %v\n", err)
+		fmt.Fprintf(stderr, cliText(locale, "Error: writing history: %v\n", "Erro: escrevendo histórico: %v\n"), err)
 		return 1
 	}
 	encodeErr := json.NewEncoder(history).Encode(record)
 	closeErr := history.Close()
 	if encodeErr != nil || closeErr != nil {
-		fmt.Fprintf(stderr, "Error: serializing history: %v %v\n", encodeErr, closeErr)
+		fmt.Fprintf(stderr, cliText(locale, "Error: serializing history: %v %v\n", "Erro: serializando histórico: %v %v\n"), encodeErr, closeErr)
 		return 1
 	}
 	if gitStage {
 		rel, _ := filepath.Rel(root, historyPath)
 		if err := exec.Command("git", "-C", root, "add", "--", filepath.ToSlash(rel)).Run(); err != nil {
-			fmt.Fprintf(stderr, "Error: staging history: %v\n", err)
+			fmt.Fprintf(stderr, cliText(locale, "Error: staging history: %v\n", "Erro: adicionando histórico ao stage: %v\n"), err)
 			return 1
 		}
 	}

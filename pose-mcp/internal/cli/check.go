@@ -23,9 +23,14 @@ var checkRoadmapRef = regexp.MustCompile(`^roadmap:[a-z0-9][a-z0-9._-]*$`)
 type nativeChecker struct {
 	root     string
 	mode     string
+	locale   cliLocale
 	stdout   io.Writer
 	errors   int
 	warnings int
+}
+
+func (checker *nativeChecker) message(english, portuguese string) string {
+	return cliText(checker.locale, english, portuguese)
 }
 
 func (checker *nativeChecker) issue(level, message string) {
@@ -46,9 +51,10 @@ func (checker *nativeChecker) failOrWarn(message string) {
 }
 
 func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
+	locale := cliLocaleValue()
 	mode := "strict"
 	if len(args) > 1 {
-		fmt.Fprintln(stderr, "Uso: pose check [--strict|--tolerant]")
+		fmt.Fprintln(stderr, cliText(locale, "Usage: pose check [--strict|--tolerant]", "Uso: pose check [--strict|--tolerant]"))
 		return 2
 	}
 	if len(args) == 1 {
@@ -57,11 +63,11 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 		case "--tolerant":
 			mode = "tolerant"
 		default:
-			fmt.Fprintf(stderr, "Erro: argumento inválido: %s\n", args[0])
+			fmt.Fprintf(stderr, cliText(locale, "Error: invalid argument: %s\n", "Erro: argumento inválido: %s\n"), args[0])
 			return 2
 		}
 	}
-	checker := &nativeChecker{root: root, mode: mode, stdout: stdout}
+	checker := &nativeChecker{root: root, mode: mode, locale: locale, stdout: stdout}
 	checker.checkRequiredStructure()
 	checker.checkSchemaVersion()
 	checker.checkReferences()
@@ -86,7 +92,7 @@ func (checker *nativeChecker) checkRequiredStructure() {
 	required := []string{"AGENTS.md", "POSE.md", ".pose", ".pose/workflows", ".pose/templates", ".pose/rules", ".pose/scripts", ".pose/workflows/feature.md", ".pose/workflows/review.md", ".pose/workflows/bugfix.md", ".pose/templates/spec.md"}
 	for _, rel := range required {
 		if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(rel))); err != nil {
-			checker.issue("ERRO", "Path obrigatório ausente: "+filepath.Join(checker.root, filepath.FromSlash(rel)))
+			checker.issue("ERRO", checker.message("Required path missing: ", "Path obrigatório ausente: ")+filepath.Join(checker.root, filepath.FromSlash(rel)))
 		}
 	}
 	scripts := []string{"pose-lib.sh", "pose-init.sh", "pose-check.sh", "pose-index.sh", "pose-validate.sh", "pose-report.sh", "pose-new-spec.sh", "pose-new-adr.sh", "pose-new-knowledge.sh", "pose-knowledge-check.sh", "pose-knowledge-housekeeping.sh", "pose-reports-housekeeping.sh", "pose-recurrence-check.sh", "pose-hooks.sh", "pose-lint-spec.sh", "pose-suggest.sh", "pose-stats.sh", "pose-history-check.sh"}
@@ -94,15 +100,15 @@ func (checker *nativeChecker) checkRequiredStructure() {
 		path := filepath.Join(checker.root, ".pose", "scripts", name)
 		info, err := os.Stat(path)
 		if err != nil {
-			checker.issue("ERRO", "Arquivo obrigatório ausente: "+path)
+			checker.issue("ERRO", checker.message("Required file missing: ", "Arquivo obrigatório ausente: ")+path)
 			continue
 		}
 		if info.Mode().Perm()&0o111 == 0 {
-			checker.issue("ERRO", "Script sem permissão de execução: "+path)
+			checker.issue("ERRO", checker.message("Script is not executable: ", "Script sem permissão de execução: ")+path)
 		}
 		content, err := os.ReadFile(path)
 		if err != nil || !strings.HasPrefix(string(content), "#!") {
-			checker.issue("ERRO", "Script com shebang inválido ou ausente: "+path)
+			checker.issue("ERRO", checker.message("Script has an invalid or missing shebang: ", "Script com shebang inválido ou ausente: ")+path)
 		}
 	}
 }
@@ -111,19 +117,19 @@ func (checker *nativeChecker) checkSchemaVersion() {
 	path := filepath.Join(checker.root, ".pose", "schema-version")
 	content, err := os.ReadFile(path)
 	if err != nil {
-		checker.failOrWarn("schema: instância sem .pose/schema-version — rode './pose upgrade'")
+		checker.failOrWarn(checker.message("schema: instance has no .pose/schema-version — run './pose upgrade'", "schema: instância sem .pose/schema-version — rode './pose upgrade'"))
 		return
 	}
 	version, err := strconv.Atoi(strings.TrimSpace(string(content)))
 	if err != nil {
-		checker.issue("ERRO", fmt.Sprintf("schema: .pose/schema-version inválido (%q)", strings.TrimSpace(string(content))))
+		checker.issue("ERRO", fmt.Sprintf(checker.message("schema: invalid .pose/schema-version (%q)", "schema: .pose/schema-version inválido (%q)"), strings.TrimSpace(string(content))))
 		return
 	}
 	if version > nativeSchemaVersion {
-		checker.issue("ERRO", fmt.Sprintf("schema: instância v%d é mais nova que o motor v%d", version, nativeSchemaVersion))
+		checker.issue("ERRO", fmt.Sprintf(checker.message("schema: instance v%d is newer than engine v%d", "schema: instância v%d é mais nova que o motor v%d"), version, nativeSchemaVersion))
 	}
 	if version < nativeSchemaVersion {
-		checker.failOrWarn(fmt.Sprintf("schema: instância v%d atrás do motor v%d — rode './pose upgrade'", version, nativeSchemaVersion))
+		checker.failOrWarn(fmt.Sprintf(checker.message("schema: instance v%d is behind engine v%d — run './pose upgrade'", "schema: instância v%d atrás do motor v%d — rode './pose upgrade'"), version, nativeSchemaVersion))
 	}
 }
 
@@ -142,11 +148,11 @@ func (checker *nativeChecker) checkReferences() {
 			}
 			seen[ref] = true
 			if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(ref))); err != nil {
-				checker.failOrWarn(fmt.Sprintf("Referência quebrada: %q (origem: %s)", ref, rel))
+				checker.failOrWarn(fmt.Sprintf(checker.message("Broken reference: %q (source: %s)", "Referência quebrada: %q (origem: %s)"), ref, rel))
 			}
 		}
 		if len(seen) == 0 {
-			checker.issue("ERRO", "Nenhuma referência POSE encontrada para validar em "+rel)
+			checker.issue("ERRO", checker.message("No POSE reference found to validate in ", "Nenhuma referência POSE encontrada para validar em ")+rel)
 		}
 	}
 }
@@ -159,21 +165,21 @@ func (checker *nativeChecker) checkValidationMatrix() {
 	}
 	var document map[string]any
 	if err := json.Unmarshal(raw, &document); err != nil {
-		checker.failOrWarn("validation-matrix.json: JSON inválido: " + err.Error())
+		checker.failOrWarn(checker.message("validation-matrix.json: invalid JSON: ", "validation-matrix.json: JSON inválido: ") + err.Error())
 		return
 	}
 	allowedTop := map[string]bool{"defaults": true, "stacks": true, "moduleOverrides": true}
 	for key := range document {
 		if !allowedTop[key] {
-			checker.failOrWarn("validation-matrix.json: root: chave desconhecida '" + key + "'")
+			checker.failOrWarn(checker.message("validation-matrix.json: root: unknown key '", "validation-matrix.json: root: chave desconhecida '") + key + "'")
 		}
 	}
 	if defaults, ok := document["defaults"]; ok {
 		object, valid := defaults.(map[string]any)
 		if !valid {
-			checker.failOrWarn("validation-matrix.json: defaults: deve ser objeto")
+			checker.failOrWarn(checker.message("validation-matrix.json: defaults: must be an object", "validation-matrix.json: defaults: deve ser objeto"))
 		} else if mode, exists := object["mode"]; exists && mode != "strict" && mode != "tolerant" {
-			checker.failOrWarn("validation-matrix.json: defaults.mode: deve ser strict ou tolerant")
+			checker.failOrWarn(checker.message("validation-matrix.json: defaults.mode: must be strict or tolerant", "validation-matrix.json: defaults.mode: deve ser strict ou tolerant"))
 		}
 	}
 	checker.validateMatrixObjects(document, "stacks", map[string]bool{"checks": true})
@@ -202,19 +208,19 @@ func (checker *nativeChecker) validateMatrixObjects(document map[string]any, fie
 	}
 	objects, ok := value.(map[string]any)
 	if !ok {
-		checker.failOrWarn("validation-matrix.json: " + field + ": deve ser objeto")
+		checker.failOrWarn("validation-matrix.json: " + field + checker.message(": must be an object", ": deve ser objeto"))
 		return
 	}
 	allowedCheck := map[string]bool{"name": true, "command": true, "program": true, "args": true, "env": true, "severity": true, "when": true}
 	for name, rawObject := range objects {
 		object, ok := rawObject.(map[string]any)
 		if !ok {
-			checker.failOrWarn(fmt.Sprintf("validation-matrix.json: %s.%s: deve ser objeto", field, name))
+			checker.failOrWarn(fmt.Sprintf(checker.message("validation-matrix.json: %s.%s: must be an object", "validation-matrix.json: %s.%s: deve ser objeto"), field, name))
 			continue
 		}
 		for key := range object {
 			if !allowed[key] {
-				checker.failOrWarn(fmt.Sprintf("validation-matrix.json: %s.%s: chave desconhecida '%s'", field, name, key))
+				checker.failOrWarn(fmt.Sprintf(checker.message("validation-matrix.json: %s.%s: unknown key '%s'", "validation-matrix.json: %s.%s: chave desconhecida '%s'"), field, name, key))
 			}
 		}
 		checks, exists := object["checks"]
@@ -223,18 +229,18 @@ func (checker *nativeChecker) validateMatrixObjects(document map[string]any, fie
 		}
 		list, ok := checks.([]any)
 		if !ok {
-			checker.failOrWarn(fmt.Sprintf("validation-matrix.json: %s.%s.checks: deve ser lista", field, name))
+			checker.failOrWarn(fmt.Sprintf(checker.message("validation-matrix.json: %s.%s.checks: must be a list", "validation-matrix.json: %s.%s.checks: deve ser lista"), field, name))
 			continue
 		}
 		for index, rawCheck := range list {
 			check, ok := rawCheck.(map[string]any)
 			if !ok {
-				checker.failOrWarn(fmt.Sprintf("validation-matrix.json: %s.%s.checks[%d]: deve ser objeto", field, name, index))
+				checker.failOrWarn(fmt.Sprintf(checker.message("validation-matrix.json: %s.%s.checks[%d]: must be an object", "validation-matrix.json: %s.%s.checks[%d]: deve ser objeto"), field, name, index))
 				continue
 			}
 			for key := range check {
 				if !allowedCheck[key] {
-					checker.failOrWarn(fmt.Sprintf("validation-matrix.json: %s.%s.checks[%d]: chave desconhecida '%s'", field, name, index, key))
+					checker.failOrWarn(fmt.Sprintf(checker.message("validation-matrix.json: %s.%s.checks[%d]: unknown key '%s'", "validation-matrix.json: %s.%s.checks[%d]: chave desconhecida '%s'"), field, name, index, key))
 				}
 			}
 		}
@@ -243,20 +249,20 @@ func (checker *nativeChecker) validateMatrixObjects(document map[string]any, fie
 
 func (checker *nativeChecker) validateMatrixCheck(prefix string, check validationCheck) {
 	if strings.TrimSpace(check.Name) == "" {
-		checker.failOrWarn(prefix + ".name: obrigatório")
+		checker.failOrWarn(prefix + checker.message(".name: required", ".name: obrigatório"))
 	}
 	if (check.Command == "") == (check.Program == "") {
-		checker.failOrWarn(prefix + ": exige exatamente um de command ou program")
+		checker.failOrWarn(prefix + checker.message(": requires exactly one of command or program", ": exige exatamente um de command ou program"))
 	}
 	if check.Command != "" && len(check.Args) > 0 {
-		checker.failOrWarn(prefix + ".args: só é aceito com program estruturado")
+		checker.failOrWarn(prefix + checker.message(".args: accepted only with structured program", ".args: só é aceito com program estruturado"))
 	}
 	if check.Severity != "" && check.Severity != "required" && check.Severity != "optional" {
-		checker.failOrWarn(prefix + ".severity: inválida")
+		checker.failOrWarn(prefix + checker.message(".severity: invalid", ".severity: inválida"))
 	}
 	for key := range check.Env {
 		if strings.TrimSpace(key) == "" || strings.Contains(key, "=") {
-			checker.failOrWarn(prefix + ".env: chave inválida")
+			checker.failOrWarn(prefix + checker.message(".env: invalid key", ".env: chave inválida"))
 		}
 	}
 }
@@ -269,11 +275,11 @@ func (checker *nativeChecker) checkTaskMap() {
 	}
 	var rawDocument map[string]any
 	if err := json.Unmarshal(raw, &rawDocument); err != nil {
-		checker.failOrWarn("task-map.json: JSON inválido: " + err.Error())
+		checker.failOrWarn(checker.message("task-map.json: invalid JSON: ", "task-map.json: JSON inválido: ") + err.Error())
 		return
 	}
 	if _, ok := rawDocument["tasks"].(map[string]any); !ok {
-		checker.failOrWarn("task-map.json: tasks: deve ser objeto")
+		checker.failOrWarn(checker.message("task-map.json: tasks: must be an object", "task-map.json: tasks: deve ser objeto"))
 		return
 	}
 	var document struct {
@@ -283,7 +289,7 @@ func (checker *nativeChecker) checkTaskMap() {
 		} `json:"tasks"`
 	}
 	if err := json.Unmarshal(raw, &document); err != nil {
-		checker.failOrWarn("task-map.json: schema inválido: " + err.Error())
+		checker.failOrWarn(checker.message("task-map.json: invalid schema: ", "task-map.json: schema inválido: ") + err.Error())
 		return
 	}
 	for name, task := range document.Tasks {
@@ -301,7 +307,7 @@ func (checker *nativeChecker) checkTaskMap() {
 
 func (checker *nativeChecker) requireTaskRef(field, rel string) {
 	if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(rel))); err != nil {
-		checker.failOrWarn(fmt.Sprintf("task-map.json: %s inexistente: %s", field, rel))
+		checker.failOrWarn(fmt.Sprintf(checker.message("task-map.json: %s does not exist: %s", "task-map.json: %s inexistente: %s"), field, rel))
 	}
 }
 
@@ -329,13 +335,13 @@ func (checker *nativeChecker) checkSpecs() {
 		}
 		status := fields["status"]
 		if status != "" && !validStatus[status] {
-			checker.failOrWarn(fmt.Sprintf("spec status: %s: status inválido: %q", slug, status))
+			checker.failOrWarn(fmt.Sprintf(checker.message("spec status: %s: invalid status: %q", "spec status: %s: status inválido: %q"), slug, status))
 		}
 		priority := 0
 		if fields["priority"] != "" {
 			parsed, err := strconv.Atoi(fields["priority"])
 			if err != nil || parsed < 0 {
-				checker.failOrWarn(fmt.Sprintf("spec deps: %s: priority inválida", slug))
+				checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: %s: invalid priority", "spec deps: %s: priority inválida"), slug))
 			} else {
 				priority = parsed
 			}
@@ -347,22 +353,22 @@ func (checker *nativeChecker) checkSpecs() {
 		seen := map[string]bool{}
 		for _, ref := range splitInlineList(spec.dependsOn) {
 			if seen[ref] {
-				checker.issue("AVISO", fmt.Sprintf("spec deps: %s: dependência duplicada: %s", slug, ref))
+				checker.issue("AVISO", fmt.Sprintf(checker.message("spec deps: %s: duplicate dependency: %s", "spec deps: %s: dependência duplicada: %s"), slug, ref))
 				continue
 			}
 			seen[ref] = true
 			switch {
 			case checkSlug.MatchString(ref):
 				if ref == slug {
-					checker.failOrWarn(fmt.Sprintf("spec deps: %s: depende da própria spec", slug))
+					checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: %s: depends on itself", "spec deps: %s: depende da própria spec"), slug))
 				} else if _, ok := specs[ref]; !ok {
-					checker.failOrWarn(fmt.Sprintf("spec deps: %s: spec inexistente: %s", slug, ref))
+					checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: %s: missing spec: %s", "spec deps: %s: spec inexistente: %s"), slug, ref))
 				} else {
 					edges[slug] = append(edges[slug], ref)
 				}
 			case checkMilestoneRef.MatchString(ref), checkRoadmapRef.MatchString(ref):
 			default:
-				checker.failOrWarn(fmt.Sprintf("spec deps: %s: ref inválida: %s", slug, ref))
+				checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: %s: invalid reference: %s", "spec deps: %s: ref inválida: %s"), slug, ref))
 			}
 		}
 	}
@@ -387,7 +393,7 @@ func (checker *nativeChecker) checkSpecs() {
 	}
 	for slug := range specs {
 		if visit(slug) {
-			checker.failOrWarn("spec deps: ciclo detectado envolvendo " + slug)
+			checker.failOrWarn(checker.message("spec deps: cycle detected involving ", "spec deps: ciclo detectado envolvendo ") + slug)
 			break
 		}
 	}
@@ -466,13 +472,13 @@ func (checker *nativeChecker) checkRoadmaps(specs map[string]checkSpec) {
 	datePattern := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 	for slug, rm := range roadmaps {
 		if rm.status != "" && !validRoadmapStatus[rm.status] {
-			checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s: status inválido: %s", slug, rm.status))
+			checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s: invalid status: %s", "spec deps: roadmap %s: status inválido: %s"), slug, rm.status))
 		}
 		for _, dep := range rm.dependsOn {
 			if dep == slug {
-				checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s depende de si próprio", slug))
+				checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s depends on itself", "spec deps: roadmap %s depende de si próprio"), slug))
 			} else if _, ok := roadmaps[dep]; !ok {
-				checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s referencia roadmap inexistente: %s", slug, dep))
+				checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s references missing roadmap: %s", "spec deps: roadmap %s referencia roadmap inexistente: %s"), slug, dep))
 			} else {
 				roadmapEdges[slug] = append(roadmapEdges[slug], dep)
 			}
@@ -480,17 +486,17 @@ func (checker *nativeChecker) checkRoadmaps(specs map[string]checkSpec) {
 		seen := map[string]bool{}
 		for _, milestone := range rm.milestones {
 			if !checkSlug.MatchString(milestone.id) {
-				checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s: milestone inválido: %s", slug, milestone.id))
+				checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s: invalid milestone: %s", "spec deps: roadmap %s: milestone inválido: %s"), slug, milestone.id))
 				continue
 			}
 			if seen[milestone.id] {
-				checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s: milestone duplicado: %s", slug, milestone.id))
+				checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s: duplicate milestone: %s", "spec deps: roadmap %s: milestone duplicado: %s"), slug, milestone.id))
 			}
 			seen[milestone.id] = true
 			milestones[slug+"/"+milestone.id] = true
 			for name, value := range map[string]string{"target_start": milestone.targetStart, "target_due": milestone.targetDue} {
 				if value != "" && !datePattern.MatchString(value) {
-					checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s/%s: %s inválido: %s", slug, milestone.id, name, value))
+					checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s/%s: invalid %s: %s", "spec deps: roadmap %s/%s: %s inválido: %s"), slug, milestone.id, name, value))
 				}
 			}
 			if milestone.targetStart != "" && milestone.targetDue != "" && milestone.targetStart > milestone.targetDue {
@@ -498,9 +504,9 @@ func (checker *nativeChecker) checkRoadmaps(specs map[string]checkSpec) {
 			}
 			for _, spec := range milestone.specs {
 				if _, ok := specs[spec]; !ok {
-					checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s/%s: spec inexistente: %s", slug, milestone.id, spec))
+					checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s/%s: missing spec: %s", "spec deps: roadmap %s/%s: spec inexistente: %s"), slug, milestone.id, spec))
 				} else if rm.status == "active" && owners[spec] != "" && owners[spec] != slug {
-					checker.failOrWarn(fmt.Sprintf("spec deps: spec %s pertence a dois roadmaps ativos: %s e %s", spec, owners[spec], slug))
+					checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: spec %s belongs to two active roadmaps: %s and %s", "spec deps: spec %s pertence a dois roadmaps ativos: %s e %s"), spec, owners[spec], slug))
 				} else if rm.status == "active" {
 					owners[spec] = slug
 				}
@@ -511,31 +517,31 @@ func (checker *nativeChecker) checkRoadmaps(specs map[string]checkSpec) {
 			for _, dep := range milestone.after {
 				if strings.HasPrefix(dep, "spec:") {
 					if _, ok := specs[strings.TrimPrefix(dep, "spec:")]; !ok {
-						checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s/%s: after referencia spec inexistente: %s", slug, milestone.id, dep))
+						checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s/%s: after references a missing spec: %s", "spec deps: roadmap %s/%s: after referencia spec inexistente: %s"), slug, milestone.id, dep))
 					}
 				} else if !seen[dep] {
-					checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s/%s: after referencia milestone inexistente: %s", slug, milestone.id, dep))
+					checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s/%s: after references a missing milestone: %s", "spec deps: roadmap %s/%s: after referencia milestone inexistente: %s"), slug, milestone.id, dep))
 				} else {
 					milestoneEdges[milestone.id] = append(milestoneEdges[milestone.id], dep)
 				}
 			}
 		}
 		if graphHasCycle(milestoneEdges) {
-			checker.failOrWarn("spec deps: ciclo entre milestones do roadmap " + slug)
+			checker.failOrWarn(checker.message("spec deps: milestone cycle in roadmap ", "spec deps: ciclo entre milestones do roadmap ") + slug)
 		}
 	}
 	if graphHasCycle(roadmapEdges) {
-		checker.failOrWarn("spec deps: ciclo de dependência entre roadmaps")
+		checker.failOrWarn(checker.message("spec deps: dependency cycle between roadmaps", "spec deps: ciclo de dependência entre roadmaps"))
 	}
 	if len(roadmaps) > 0 {
 		for slug, spec := range specs {
 			for _, ref := range splitInlineList(spec.dependsOn) {
 				if strings.HasPrefix(ref, "roadmap:") {
 					if _, ok := roadmaps[strings.TrimPrefix(ref, "roadmap:")]; !ok {
-						checker.failOrWarn(fmt.Sprintf("spec deps: %s referencia roadmap inexistente: %s", slug, ref))
+						checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: %s references a missing roadmap: %s", "spec deps: %s referencia roadmap inexistente: %s"), slug, ref))
 					}
 				} else if strings.HasPrefix(ref, "milestone:") && !milestones[strings.TrimPrefix(ref, "milestone:")] {
-					checker.failOrWarn(fmt.Sprintf("spec deps: %s referencia milestone inexistente: %s", slug, ref))
+					checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: %s references a missing milestone: %s", "spec deps: %s referencia milestone inexistente: %s"), slug, ref))
 				}
 			}
 		}
@@ -585,13 +591,13 @@ func (checker *nativeChecker) checkChangelogs() {
 		}
 		covered[slug] = true
 		if _, err := os.Stat(filepath.Join(checker.root, ".pose", "specs", slug, "spec.md")); err != nil {
-			checker.failOrWarn(fmt.Sprintf("changelog: fragment %s aponta para spec inexistente: %s", filepath.Base(path), slug))
+			checker.failOrWarn(fmt.Sprintf(checker.message("changelog: fragment %s points to a missing spec: %s", "changelog: fragment %s aponta para spec inexistente: %s"), filepath.Base(path), slug))
 		}
 		if !valid[fields["category"]] {
-			checker.failOrWarn(fmt.Sprintf("changelog: fragment %s tem category inválida", filepath.Base(path)))
+			checker.failOrWarn(fmt.Sprintf(checker.message("changelog: fragment %s has an invalid category", "changelog: fragment %s tem category inválida"), filepath.Base(path)))
 		}
 		if strings.TrimSpace(stripHTMLComments(frontmatterBody(path))) == "" {
-			checker.failOrWarn(fmt.Sprintf("changelog: fragment %s tem corpo vazio", filepath.Base(path)))
+			checker.failOrWarn(fmt.Sprintf(checker.message("changelog: fragment %s has an empty body", "changelog: fragment %s tem corpo vazio"), filepath.Base(path)))
 		}
 	}
 	released, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "changelogs", "*.md"))
@@ -625,7 +631,7 @@ func (checker *nativeChecker) checkChangelogs() {
 		fields := simpleFrontmatter(path)
 		slug := filepath.Base(filepath.Dir(path))
 		if fields["status"] == "done" && fields["changelog"] != "none" && fields["completed_at"] >= policy.AdoptedAt && !covered[slug] {
-			checker.issue("AVISO", "changelog: spec done sem changelog fragment: "+slug)
+			checker.issue("AVISO", checker.message("changelog: done spec without a changelog fragment: ", "changelog: spec done sem changelog fragment: ")+slug)
 		}
 	}
 }
@@ -682,7 +688,7 @@ func (checker *nativeChecker) checkReadyTransitions() {
 		}
 		if !specReady(checker.root, path) {
 			slug := filepath.Base(filepath.Dir(path))
-			checker.failOrWarn("DoR: transição para in-progress sem Definition of Ready: " + slug + " (detalhes: ./pose lint-spec " + slug + " --ready-check)")
+			checker.failOrWarn(checker.message("DoR: transition to in-progress without Definition of Ready: ", "DoR: transição para in-progress sem Definition of Ready: ") + slug + checker.message(" (details: ./pose lint-spec ", " (detalhes: ./pose lint-spec ") + slug + " --ready-check)")
 		}
 	}
 }

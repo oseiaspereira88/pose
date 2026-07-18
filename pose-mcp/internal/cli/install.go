@@ -22,6 +22,8 @@ import (
 var schemaVersionRE = regexp.MustCompile(`(?m)^POSE_SCHEMA_VERSION=(\d+)$`)
 
 func cmdInstall(args []string, stdout, stderr io.Writer) int {
+	commandLocale := cliLocaleValue()
+	text := func(english, portuguese string) string { return cliText(commandLocale, english, portuguese) }
 	var target, projectName, projectID, locale string
 	locale = "en"
 	force, skipMCP, allowNonGit := false, false, false
@@ -32,7 +34,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		switch a {
 		case "--project-name", "--project-id", "--locale":
 			if i+1 >= len(args) {
-				fmt.Fprintf(stderr, "pose install: %s requires a value\n", a)
+				fmt.Fprintf(stderr, text("pose install: %s requires a value\n", "pose install: %s exige um valor\n"), a)
 				return 2
 			}
 			v := args[i+1]
@@ -55,15 +57,15 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			allowNonGit = true
 			i++
 		case "-h", "--help":
-			fmt.Fprintln(stdout, "Uso: pose install <target-dir> [--project-name n] [--project-id id] [--locale tag] [--force] [--skip-mcp] [--allow-non-git]")
+			fmt.Fprintln(stdout, text("Usage: pose install <target-dir> [--project-name n] [--project-id id] [--locale tag] [--force] [--skip-mcp] [--allow-non-git]", "Uso: pose install <target-dir> [--project-name n] [--project-id id] [--locale tag] [--force] [--skip-mcp] [--allow-non-git]"))
 			return 0
 		default:
 			if strings.HasPrefix(a, "-") {
-				fmt.Fprintf(stderr, "pose install: unknown option: %s\n", a)
+				fmt.Fprintf(stderr, text("pose install: unknown option: %s\n", "pose install: opção desconhecida: %s\n"), a)
 				return 2
 			}
 			if target != "" {
-				fmt.Fprintf(stderr, "pose install: unexpected argument: %s\n", a)
+				fmt.Fprintf(stderr, text("pose install: unexpected argument: %s\n", "pose install: argumento inesperado: %s\n"), a)
 				return 2
 			}
 			target = a
@@ -71,18 +73,18 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	if target == "" {
-		fmt.Fprintln(stderr, "pose install: target directory is required")
+		fmt.Fprintln(stderr, text("pose install: target directory is required", "pose install: diretório alvo é obrigatório"))
 		return 2
 	}
 	abs, err := filepath.Abs(target)
 	if err != nil || !isDir(abs) {
-		fmt.Fprintf(stderr, "pose install: target directory does not exist: %s\n", target)
+		fmt.Fprintf(stderr, text("pose install: target directory does not exist: %s\n", "pose install: diretório alvo não existe: %s\n"), target)
 		return 1
 	}
 	target = abs
 	if !allowNonGit {
 		if err := exec.Command("git", "-C", target, "rev-parse", "--git-dir").Run(); err != nil {
-			fmt.Fprintf(stderr, "pose install: target is not a git repository: %s (use --allow-non-git)\n", target)
+			fmt.Fprintf(stderr, text("pose install: target is not a git repository: %s (use --allow-non-git)\n", "pose install: alvo não é um repositório git: %s (use --allow-non-git)\n"), target)
 			return 1
 		}
 	}
@@ -92,10 +94,12 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	if projectID == "" {
 		projectID = "proj." + projectName
 	}
-	log := func(format string, a ...any) { fmt.Fprintf(stdout, "[pose-install] "+format+"\n", a...) }
-	log("target:       %s", target)
-	log("project name: %s", projectName)
-	log("project id:   %s", projectID)
+	log := func(english, portuguese string, a ...any) {
+		fmt.Fprintf(stdout, "[pose-install] "+text(english, portuguese)+"\n", a...)
+	}
+	log("target:       %s", "alvo:         %s", target)
+	log("project name: %s", "nome do projeto: %s", projectName)
+	log("project id:   %s", "id do projeto:   %s", projectID)
 
 	dist := scaffold.Dist()
 
@@ -106,17 +110,17 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		if err := copyTree(dist, dir, target); err != nil {
-			fmt.Fprintf(stderr, "pose install: %s: %v\n", dir, err)
+			fmt.Fprintf(stderr, text("pose install: copying %s: %v\n", "pose install: copiando %s: %v\n"), dir, err)
 			return 1
 		}
-		log("engine (replaced): %s", dir)
+		log("engine (replaced): %s", "motor (substituído): %s", dir)
 	}
 	for _, dir := range []string{".pose/workflows", ".pose/rules", ".pose/templates", ".agents/skills"} {
 		if err := copyTree(dist, dir, target); err != nil {
-			fmt.Fprintf(stderr, "pose install: %s: %v\n", dir, err)
+			fmt.Fprintf(stderr, text("pose install: merging %s: %v\n", "pose install: mesclando %s: %v\n"), dir, err)
 			return 1
 		}
-		log("machinery (merged): %s", dir)
+		log("machinery (merged): %s", "maquinário (mesclado): %s", dir)
 	}
 
 	// .claude/skills symlinks (embed cannot carry them).
@@ -131,18 +135,18 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			}
 		}
 		if linked {
-			log("machinery: .claude/skills (symlinks)")
+			log("machinery: .claude/skills (symlinks)", "maquinário: .claude/skills (symlinks)")
 		} else {
-			log("warning: could not create .claude/skills symlinks (unsupported filesystem?) — Claude Code discovery degraded")
+			log("warning: could not create .claude/skills symlinks (unsupported filesystem?) — Claude Code discovery degraded", "aviso: não foi possível criar symlinks em .claude/skills (filesystem sem suporte?) — descoberta do Claude Code degradada")
 		}
 	}
 
 	// CLI dispatcher.
 	if err := copyFile(dist, "pose", filepath.Join(target, "pose"), 0o755); err != nil {
-		fmt.Fprintf(stderr, "pose install: dispatcher: %v\n", err)
+		fmt.Fprintf(stderr, text("pose install: dispatcher: %v\n", "pose install: dispatcher: %v\n"), err)
 		return 1
 	}
-	log("machinery: pose (CLI)")
+	log("machinery: pose (CLI)", "maquinário: pose (CLI)")
 
 	// 2. Config indexes: seed only when absent.
 	idxEntries, _ := fs.ReadDir(dist, ".pose/indexes")
@@ -156,27 +160,27 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			continue
 		}
 		if err := copyFile(dist, ".pose/indexes/"+e.Name(), dst, 0o644); err == nil {
-			log("index (seed): %s", e.Name())
+			log("index (seed): %s", "índice (semente): %s", e.Name())
 		}
 	}
 
 	// 3. Legal texts vendored under .pose/.
 	_ = copyFile(dist, "LICENSE", filepath.Join(target, ".pose", "LICENSE"), 0o644)
 	_ = copyFile(dist, "NOTICE", filepath.Join(target, ".pose", "NOTICE"), 0o644)
-	log("vendored: .pose/LICENSE, .pose/NOTICE")
+	log("vendored: .pose/LICENSE, .pose/NOTICE", "incorporados: .pose/LICENSE, .pose/NOTICE")
 
 	// 4. Root docs with locale + placeholders.
 	docsPrefix := ""
 	if locale != "en" {
 		if _, err := fs.Stat(dist, "locales/"+locale); err == nil {
 			docsPrefix = "locales/" + locale + "/"
-			log("locale: %s (docs/templates localized)", locale)
+			log("locale: %s (docs/templates localized)", "locale: %s (docs/templates localizados)", locale)
 			if tmplEntries, err := fs.ReadDir(dist, "locales/"+locale+"/templates"); err == nil {
 				for _, e := range tmplEntries {
 					_ = copyFile(dist, "locales/"+locale+"/templates/"+e.Name(),
 						filepath.Join(target, ".pose", "templates", e.Name()), 0o644)
 				}
-				log("machinery (locale override): .pose/templates")
+				log("machinery (locale override): .pose/templates", "maquinário (override de locale): .pose/templates")
 			}
 			for _, editorialDir := range []string{".pose/workflows", ".pose/rules", ".agents/skills"} {
 				source := "locales/" + locale + "/" + editorialDir
@@ -184,20 +188,20 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 					continue
 				}
 				if err := copyTreeInto(dist, source, filepath.Join(target, filepath.FromSlash(editorialDir))); err != nil {
-					fmt.Fprintf(stderr, "pose install: locale overlay %s: %v\n", editorialDir, err)
+					fmt.Fprintf(stderr, text("pose install: locale overlay %s: %v\n", "pose install: overlay de locale %s: %v\n"), editorialDir, err)
 					return 1
 				}
-				log("machinery (locale override): %s", editorialDir)
+				log("machinery (locale override): %s", "maquinário (override de locale): %s", editorialDir)
 			}
 		} else {
-			log("locale '%s' not available — falling back to en", locale)
+			log("locale '%s' not available — falling back to en", "locale '%s' indisponível — fallback para en", locale)
 		}
 	}
 	replacer := strings.NewReplacer("{{PROJECT_NAME}}", projectName, "{{PROJECT_ID}}", projectID)
 	for _, doc := range []string{"AGENTS.md", "POSE.md"} {
 		dst := filepath.Join(target, doc)
 		if _, err := os.Stat(dst); err == nil && !force {
-			log("kept existing: %s (use --force to overwrite)", doc)
+			log("kept existing: %s (use --force to overwrite)", "mantido existente: %s (use --force para sobrescrever)", doc)
 			continue
 		}
 		b, err := fs.ReadFile(dist, docsPrefix+doc)
@@ -212,7 +216,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "pose install: %v\n", err)
 			return 1
 		}
-		log("installed: %s", doc)
+		log("installed: %s", "instalado: %s", doc)
 	}
 
 	// 5. MCP wrapper: this binary IS the server (pose serve-mcp).
@@ -226,15 +230,15 @@ export POSE_DEFAULT_PROJECT_ID=%q
 exec pose serve-mcp --stdio "$@"
 `, projectID)
 		if err := os.WriteFile(filepath.Join(binDir, "pose-mcp-claude"), []byte(wrapper), 0o755); err == nil {
-			log("MCP: wrapper at .pose/bin/pose-mcp-claude (runs 'pose serve-mcp' from PATH)")
+			log("MCP: wrapper at .pose/bin/pose-mcp-claude (runs 'pose serve-mcp' from PATH)", "MCP: wrapper em .pose/bin/pose-mcp-claude (executa 'pose serve-mcp' pelo PATH)")
 		}
 		mcpJSON := filepath.Join(target, ".mcp.json")
 		if _, err := os.Stat(mcpJSON); err != nil {
 			_ = os.WriteFile(mcpJSON, []byte("{\n  \"mcpServers\": {\n    \"pose\": {\n      \"type\": \"stdio\",\n      \"command\": \"./.pose/bin/pose-mcp-claude\"\n    }\n  }\n}\n"), 0o644)
-			log("seeded: .mcp.json (server \"pose\")")
+			log("seeded: .mcp.json (server \"pose\")", "semente criada: .mcp.json (servidor \"pose\")")
 		}
 	} else if skipMCP {
-		log("MCP: skipped (--skip-mcp)")
+		log("MCP: skipped (--skip-mcp)", "MCP: ignorado (--skip-mcp)")
 	}
 
 	// 6. Schema stamp + instance dirs + final gate.
@@ -243,19 +247,19 @@ exec pose serve-mcp --stdio "$@"
 			svPath := filepath.Join(target, ".pose", "schema-version")
 			if _, err := os.Stat(svPath); err != nil {
 				_ = os.WriteFile(svPath, append(m[1], '\n'), 0o644)
-				log("schema-version stamped: v%s", m[1])
+				log("schema-version stamped: v%s", "schema-version gravado: v%s", m[1])
 			}
 		}
 	}
 	if rc := cmdInit(target, io.Discard, stderr); rc != 0 {
 		return rc
 	}
-	log("running native final gate")
+	log("running native final gate", "executando gate final nativo")
 	if rc := cmdCheck(target, []string{"--strict"}, stdout, stderr); rc != 0 {
-		fmt.Fprintln(stderr, "pose install: post-install gate failed (check --strict)")
+		fmt.Fprintln(stderr, text("pose install: post-install gate failed (check --strict)", "pose install: gate pós-instalação falhou (check --strict)"))
 		return 1
 	}
-	log("install complete — POSE is ready in %s", target)
+	log("install complete — POSE is ready in %s", "instalação concluída — POSE pronto em %s", target)
 	return 0
 }
 

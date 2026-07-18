@@ -172,28 +172,28 @@ func siblingSpecStatus(specsDir, slug string) string {
 
 // lintFollowupDisposition mirrors lint_followup_disposition: returns the
 // disposition ("" when absent) and an error message ("" when valid).
-func lintFollowupDisposition(content string, knownSlugs map[string]bool, currentSlug string) (string, string) {
+func lintFollowupDisposition(content string, knownSlugs map[string]bool, currentSlug string, locale cliLocale) (string, string) {
 	m := dispositionRE.FindStringSubmatch(content)
 	if m == nil {
-		return "", "sem disposição (esperado prefixo [open|spawned|covered|duplicate|done|wont-do])"
+		return "", cliText(locale, "missing disposition (expected [open|spawned|covered|duplicate|done|wont-do] prefix)", "sem disposição (esperado prefixo [open|spawned|covered|duplicate|done|wont-do])")
 	}
 	disposition, target := m[1], strings.TrimSpace(m[2])
 	if !validDispositions[disposition] {
-		return disposition, fmt.Sprintf("disposição inválida: [%s]", disposition)
+		return disposition, fmt.Sprintf(cliText(locale, "invalid disposition: [%s]", "disposição inválida: [%s]"), disposition)
 	}
 	if dispositionNeedsTarget[disposition] && target == "" {
 		kind := "slug"
 		if disposition == "wont-do" {
-			kind = "motivo"
+			kind = cliText(locale, "reason", "motivo")
 		}
-		return disposition, fmt.Sprintf("disposição [%s] exige %s (use [%s: <%s>])", disposition, kind, disposition, kind)
+		return disposition, fmt.Sprintf(cliText(locale, "disposition [%s] requires a %s (use [%s: <%s>])", "disposição [%s] exige %s (use [%s: <%s>])"), disposition, kind, disposition, kind)
 	}
 	if knownSlugs != nil && dispositionSlugTargeted[disposition] {
 		if currentSlug != "" && target == currentSlug {
-			return disposition, fmt.Sprintf("disposição [%s] aponta para a própria spec (%s)", disposition, target)
+			return disposition, fmt.Sprintf(cliText(locale, "disposition [%s] points to the current spec (%s)", "disposição [%s] aponta para a própria spec (%s)"), disposition, target)
 		}
 		if !knownSlugs[target] {
-			return disposition, fmt.Sprintf("disposição [%s: %s] aponta para spec inexistente", disposition, target)
+			return disposition, fmt.Sprintf(cliText(locale, "disposition [%s: %s] points to a missing spec", "disposição [%s: %s] aponta para spec inexistente"), disposition, target)
 		}
 	}
 	return disposition, ""
@@ -230,9 +230,10 @@ func parseISOInstant(value string) (time.Time, bool) {
 // lintOneSpec lints a single spec.md, printing the same machine lines and
 // stderr diagnostics as the python engine. Returns 0/1 (2 on IO error).
 func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr io.Writer) int {
+	locale := cliLocaleValue()
 	raw, err := os.ReadFile(specPath)
 	if err != nil {
-		fmt.Fprintf(stderr, "Erro: spec ausente: %s\n", specPath)
+		fmt.Fprintf(stderr, cliText(locale, "Error: spec not found: %s\n", "Erro: spec ausente: %s\n"), specPath)
 		return 2
 	}
 	frontmatter := lintParseFrontmatter(string(raw))
@@ -245,19 +246,19 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		for _, name := range []string{"Intent", "Requirements", "Technical Plan"} {
 			lines, ok := sections[name]
 			if !ok || classifySection(lines) != "filled" {
-				fmt.Fprintf(stderr, "[ERRO] %s: DoR: seção %s ausente/vazia/esquelética\n", slug, name)
+				fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: DoR: section %s is missing, empty, or skeletal\n", "[ERRO] %s: DoR: seção %s ausente/vazia/esquelética\n"), slug, name)
 				failures++
 			}
 		}
 		if len(parseRequirementIDs(sections["Requirements"])) == 0 {
-			fmt.Fprintf(stderr, "[ERRO] %s: DoR: nenhum acceptance criterion com ID estável (use bullets '- R<N>: ...' em Requirements)\n", slug)
+			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: DoR: no acceptance criterion has a stable ID (use '- R<N>: ...' bullets in Requirements)\n", "[ERRO] %s: DoR: nenhum acceptance criterion com ID estável (use bullets '- R<N>: ...' em Requirements)\n"), slug)
 			failures++
 		}
 		for _, ref := range lintParseDependsOn(frontmatter["depends_on"]) {
 			if depSlugRE.MatchString(ref) || depMilestoneRE.MatchString(ref) || depRoadmapRE.MatchString(ref) {
 				continue
 			}
-			fmt.Fprintf(stderr, "[ERRO] %s: DoR: ref inválida em depends_on: '%s'\n", slug, ref)
+			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: DoR: invalid depends_on reference: '%s'\n", "[ERRO] %s: DoR: ref inválida em depends_on: '%s'\n"), slug, ref)
 			failures++
 		}
 		ready := "true"
@@ -286,30 +287,30 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		lines, ok := sections[name]
 		if !ok {
 			if isRequired[name] {
-				fmt.Fprintf(stderr, "[ERRO] %s: seção obrigatória ausente: %s\n", slug, name)
+				fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: required section missing: %s\n", "[ERRO] %s: seção obrigatória ausente: %s\n"), slug, name)
 				requiredMissing++
 			} else {
-				fmt.Fprintf(stderr, "[AVISO] %s: seção opcional ausente: %s\n", slug, name)
+				fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: optional section missing: %s\n", "[AVISO] %s: seção opcional ausente: %s\n"), slug, name)
 			}
 			continue
 		}
 		total++
-		level := "AVISO"
+		level := cliText(locale, "WARNING", "AVISO")
 		if isRequired[name] {
-			level = "ERRO"
+			level = cliText(locale, "ERROR", "ERRO")
 		}
 		switch classifySection(lines) {
 		case "filled":
 			filled++
 		case "skeleton":
 			skeleton++
-			fmt.Fprintf(stderr, "[%s] %s: %s: esqueleto (apenas placeholders/comentários)\n", level, slug, name)
+			fmt.Fprintf(stderr, cliText(locale, "[%s] %s: %s: skeletal (placeholders or comments only)\n", "[%s] %s: %s: esqueleto (apenas placeholders/comentários)\n"), level, slug, name)
 			if isRequired[name] {
 				requiredMissing++
 			}
 		default:
 			empty++
-			fmt.Fprintf(stderr, "[%s] %s: %s: vazia\n", level, slug, name)
+			fmt.Fprintf(stderr, cliText(locale, "[%s] %s: %s: empty\n", "[%s] %s: %s: vazia\n"), level, slug, name)
 			if isRequired[name] {
 				requiredMissing++
 			}
@@ -322,7 +323,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	}
 	lifecycle := 0
 	if specStatus != "unset" && !validStatus[specStatus] {
-		fmt.Fprintf(stderr, "[ERRO] %s: status inválido no frontmatter: '%s' (use draft|in-progress|done|blocked|superseded|abandoned)\n", slug, specStatus)
+		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: invalid frontmatter status: '%s' (use draft|in-progress|done|blocked|superseded|abandoned)\n", "[ERRO] %s: status inválido no frontmatter: '%s' (use draft|in-progress|done|blocked|superseded|abandoned)\n"), slug, specStatus)
 		lifecycle++
 	}
 
@@ -336,13 +337,13 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		if t, ok := parseISOInstant(value); ok {
 			parsed[field] = t
 		} else {
-			fmt.Fprintf(stderr, "[ERRO] %s: %s deve usar ISO 8601: '%s'\n", slug, field, value)
+			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: %s must use ISO 8601: '%s'\n", "[ERRO] %s: %s deve usar ISO 8601: '%s'\n"), slug, field, value)
 			lifecycle++
 		}
 	}
 	if c, ok1 := parsed["created_at"]; ok1 {
 		if d, ok2 := parsed["completed_at"]; ok2 && d.Before(c) {
-			fmt.Fprintf(stderr, "[ERRO] %s: completed_at anterior a created_at\n", slug)
+			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: completed_at is earlier than created_at\n", "[ERRO] %s: completed_at anterior a created_at\n"), slug)
 			lifecycle++
 		}
 	}
@@ -367,11 +368,11 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	}
 	sort.Strings(dupNames)
 	for _, n := range dupNames {
-		fmt.Fprintf(stderr, "[ERRO] %s: heading canônico duplicado: %s aparece %d vezes\n", slug, n, nameCount[n])
+		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: duplicate canonical heading: %s appears %d times\n", "[ERRO] %s: heading canônico duplicado: %s aparece %d vezes\n"), slug, n, nameCount[n])
 		lifecycle++
 	}
 	if followupHeadings > 1 {
-		fmt.Fprintf(stderr, "[ERRO] %s: heading canônico duplicado: Follow-ups aparece %d vezes\n", slug, followupHeadings)
+		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: duplicate canonical heading: Follow-ups appears %d times\n", "[ERRO] %s: heading canônico duplicado: Follow-ups aparece %d vezes\n"), slug, followupHeadings)
 		lifecycle++
 	}
 
@@ -382,7 +383,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 				continue
 			}
 			if st := siblingSpecStatus(specsDir, dep); st != "" && st != "done" {
-				fmt.Fprintf(stderr, "[AVISO] %s: in-progress com dependência não satisfeita: '%s' (status: %s)\n", slug, dep, st)
+				fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: in-progress with unsatisfied dependency: '%s' (status: %s)\n", "[AVISO] %s: in-progress com dependência não satisfeita: '%s' (status: %s)\n"), slug, dep, st)
 			}
 		}
 	}
@@ -401,7 +402,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	}
 	sort.Strings(rids)
 	for _, id := range rids {
-		fmt.Fprintf(stderr, "[ERRO] %s: R-ID duplicado: %s aparece %d vezes em Requirements\n", slug, id, seen[id])
+		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: duplicate R-ID: %s appears %d times in Requirements\n", "[ERRO] %s: R-ID duplicado: %s aparece %d vezes em Requirements\n"), slug, id, seen[id])
 		ridFailures++
 	}
 
@@ -411,17 +412,17 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 
 	if specStatus == "done" {
 		if strings.TrimSpace(frontmatter["completed_at"]) == "" {
-			fmt.Fprintf(stderr, "[ERRO] %s: status: done exige 'completed_at' preenchido no frontmatter\n", slug)
+			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: status: done requires populated 'completed_at' frontmatter\n", "[ERRO] %s: status: done exige 'completed_at' preenchido no frontmatter\n"), slug)
 			lifecycle++
 		}
 		for _, content := range followups {
-			disposition, errMsg := lintFollowupDisposition(content, knownSlugs, slug)
+			disposition, errMsg := lintFollowupDisposition(content, knownSlugs, slug, locale)
 			if errMsg != "" {
 				snippet := content
 				if len([]rune(snippet)) > 60 {
 					snippet = string([]rune(snippet)[:60]) + "…"
 				}
-				fmt.Fprintf(stderr, "[ERRO] %s: follow-up sem disposição válida: %s → \"%s\"\n", slug, errMsg, snippet)
+				fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: follow-up lacks a valid disposition: %s → \"%s\"\n", "[ERRO] %s: follow-up sem disposição válida: %s → \"%s\"\n"), slug, errMsg, snippet)
 				lifecycle++
 			} else if disposition == "open" {
 				followupsOpen++
@@ -429,7 +430,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		}
 	} else {
 		for _, content := range followups {
-			disposition, _ := lintFollowupDisposition(content, nil, "")
+			disposition, _ := lintFollowupDisposition(content, nil, "", locale)
 			if disposition == "open" || disposition == "" {
 				followupsOpen++
 			}
@@ -458,6 +459,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 // cmdLintSpec mirrors pose-lint-spec.sh: <slug>|--all, --strict|--tolerant,
 // --required-only, --ready-check; aggregate lines and Resultado semantics.
 func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
+	locale := cliLocaleValue()
 	mode := "strict"
 	requiredOnly, readyCheck := false, false
 	target := ""
@@ -474,22 +476,22 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 		case "--all":
 			target = "--all"
 		case "-h", "--help":
-			fmt.Fprintln(stdout, "Uso: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]")
+			fmt.Fprintln(stdout, cliText(locale, "Usage: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]", "Uso: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]"))
 			return 0
 		default:
 			if strings.HasPrefix(a, "--") {
-				fmt.Fprintf(stderr, "Erro: opção desconhecida: %s\n", a)
+				fmt.Fprintf(stderr, cliText(locale, "Error: unknown option: %s\n", "Erro: opção desconhecida: %s\n"), a)
 				return 2
 			}
 			if target != "" {
-				fmt.Fprintf(stderr, "Erro: argumento extra: %s\n", a)
+				fmt.Fprintf(stderr, cliText(locale, "Error: unexpected argument: %s\n", "Erro: argumento extra: %s\n"), a)
 				return 2
 			}
 			target = a
 		}
 	}
 	if target == "" {
-		fmt.Fprintln(stderr, "Erro: informe <slug> ou --all")
+		fmt.Fprintln(stderr, cliText(locale, "Error: provide <slug> or --all", "Erro: informe <slug> ou --all"))
 		return 2
 	}
 	root, err := projectRoot()
@@ -511,7 +513,7 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 	if target == "--all" {
 		entries, err := os.ReadDir(specsDir)
 		if err != nil {
-			fmt.Fprintf(stderr, "Erro: specs dir ausente: %s\n", specsDir)
+			fmt.Fprintf(stderr, cliText(locale, "Error: specs directory not found: %s\n", "Erro: specs dir ausente: %s\n"), specsDir)
 			return 2
 		}
 		var names []string
@@ -530,7 +532,7 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 		for _, name := range names {
 			if _, err := os.Stat(filepath.Join(specsDir, name, "spec.md")); err != nil {
 				fmt.Fprintln(stdout, "---")
-				fmt.Fprintf(stderr, "[AVISO] %s: sem spec.md consolidado (formato pré-template-único)\n", name)
+				fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: no consolidated spec.md (pre-unified-template format)\n", "[AVISO] %s: sem spec.md consolidado (formato pré-template-único)\n"), name)
 			}
 		}
 	} else {
@@ -540,7 +542,7 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 			if _, err := os.Stat(legacy); err == nil {
 				specMD = legacy
 			} else {
-				fmt.Fprintf(stderr, "Erro: spec não encontrada: %s\n", specMD)
+				fmt.Fprintf(stderr, cliText(locale, "Error: spec not found: %s\n", "Erro: spec não encontrada: %s\n"), specMD)
 				return 2
 			}
 		}
@@ -555,7 +557,7 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 		if mode == "strict" {
 			return 1
 		}
-		fmt.Fprintln(stdout, "Modo tolerant: registrar follow-up para completar specs.")
+		fmt.Fprintln(stdout, cliText(locale, "Tolerant mode: record a follow-up to complete specs.", "Modo tolerant: registrar follow-up para completar specs."))
 		fmt.Fprintln(stdout, "Resultado: FALHA_TOLERADA")
 		return 0
 	}

@@ -173,7 +173,7 @@ func projectRoot() (string, error) {
 // propagating the exit code. Scripts are resolved ONLY under
 // <root>/.pose/scripts — never via PATH lookup.
 func delegate(script string, args []string, stdout, stderr io.Writer) int {
-	fmt.Fprintf(stderr, "[WARN] pose: %s\n", cliText(cliLocaleFor(stderr), "delegating to the deprecated script engine", "delegando para o motor de scripts descontinuado"))
+	fmt.Fprintf(stderr, "[WARN] pose: %s\n", cliText(cliLocaleValue(), "delegating to the deprecated script engine", "delegando para o motor de scripts descontinuado"))
 	root, err := projectRoot()
 	if err != nil {
 		fmt.Fprintf(stderr, "pose: %v\n", err)
@@ -181,7 +181,7 @@ func delegate(script string, args []string, stdout, stderr io.Writer) int {
 	}
 	path := filepath.Join(root, ".pose", "scripts", script)
 	if _, err := os.Stat(path); err != nil {
-		locale := cliLocaleFor(stderr)
+		locale := cliLocaleValue()
 		fmt.Fprintf(stderr, "pose: %s %s\n", cliText(locale, "script engine not found at", "motor de scripts não encontrado em"), path)
 		fmt.Fprintln(stderr, "pose:", cliText(locale, "is this directory a POSE installation? Run the distribution install.sh or 'pose init' in an installed repository.", "este diretório tem uma instalação POSE? Rode o install.sh da distribuição ou 'pose init' num repo já instalado."))
 		return 1
@@ -215,11 +215,45 @@ func cmdVersion(w io.Writer) int {
 }
 
 func cmdHelp(w io.Writer) int {
-	fmt.Fprint(w, helpText)
+	fmt.Fprint(w, cliText(cliLocaleValue(), helpTextEN, helpTextPtBR))
 	return 0
 }
 
-const helpText = `POSE - Project Operating Standard for Engineering
+const helpTextEN = `POSE - Project Operating Standard for Engineering
+
+Usage: pose <command> [options]
+
+Native binary:
+  version                             Binary and instance schema versions
+  init                                Ensure the minimum POSE repository structure
+  serve-mcp [--stdio]                 Start the POSE MCP server (POSE_* environment)
+  doctor [--json]                     Diagnose installation and instance health
+  install <dir> [--locale tag] [...]  Install embedded POSE without cloning
+  import <spec-kit|openspec> <path>   Import external specs [--dry-run]
+  telemetry <enable|disable|status>   Anonymous opt-in telemetry
+
+Scaffolds:
+  new-spec <slug>                     Create a feature spec scaffold
+  new-roadmap <slug>                  Create a governed roadmap
+  new-adr "<title>"                   Create an ADR
+  new-knowledge <type> <slug>         Create a handoff, note, or decision log
+
+Deterministic gates:
+  check | validate | knowledge-check | recurrence-check | lint-spec |
+  followups | history-check
+
+Discovery and metrics:
+  suggest | stats
+
+Artifacts and maintenance:
+  index | report | upgrade [--dry-run] | knowledge-housekeeping |
+  reports-housekeeping | hooks
+
+Commands without native replacements are delegated to the deprecated script
+engine with the same interface. See the installed POSE.md for full details.
+`
+
+const helpTextPtBR = `POSE - Project Operating Standard for Engineering
 
 Uso: pose <comando> [opções]
 

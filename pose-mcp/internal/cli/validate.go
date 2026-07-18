@@ -149,6 +149,7 @@ func matrixHasLegacyChecks(matrix validationMatrix) bool {
 }
 
 func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
+	locale := cliLocaleValue()
 	mode, stackFilter, moduleFilter, reportTask := "", "", "", ""
 	autoReport := false
 	for i := 0; i < len(args); i++ {
@@ -161,7 +162,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			autoReport = true
 		case "--stack", "--module", "--report-task":
 			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
-				fmt.Fprintf(stderr, "Erro: %s exige um valor.\n", args[i])
+				fmt.Fprintf(stderr, cliText(locale, "Error: %s requires a value.\n", "Erro: %s exige um valor.\n"), args[i])
 				return 2
 			}
 			i++
@@ -174,27 +175,27 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 				reportTask = args[i]
 			}
 		default:
-			fmt.Fprintf(stderr, "Erro: argumento inválido: %s\n", args[i])
+			fmt.Fprintf(stderr, cliText(locale, "Error: invalid argument: %s\n", "Erro: argumento inválido: %s\n"), args[i])
 			return 2
 		}
 	}
 	if stackFilter != "" && !map[string]bool{"node": true, "go": true, "rust": true, "java": true, "contract": true}[stackFilter] {
-		fmt.Fprintf(stderr, "Erro: --stack inválido: %s\n", stackFilter)
+		fmt.Fprintf(stderr, cliText(locale, "Error: invalid --stack: %s\n", "Erro: --stack inválido: %s\n"), stackFilter)
 		return 2
 	}
 	if moduleFilter == ".." || strings.HasPrefix(moduleFilter, "../") || filepath.IsAbs(moduleFilter) {
-		fmt.Fprintln(stderr, "Erro: --module deve permanecer dentro do projeto.")
+		fmt.Fprintln(stderr, cliText(locale, "Error: --module must remain inside the project.", "Erro: --module deve permanecer dentro do projeto."))
 		return 2
 	}
 	matrixPath := filepath.Join(root, ".pose", "indexes", "validation-matrix.json")
 	raw, err := os.ReadFile(matrixPath)
 	if err != nil {
-		fmt.Fprintf(stderr, "Erro: matriz de validação não encontrada em %s\n", matrixPath)
+		fmt.Fprintf(stderr, cliText(locale, "Error: validation matrix not found at %s\n", "Erro: matriz de validação não encontrada em %s\n"), matrixPath)
 		return 2
 	}
 	matrix, err := parseValidationMatrix(raw)
 	if err != nil {
-		fmt.Fprintf(stderr, "Erro: matriz de validação inválida: %v\n", err)
+		fmt.Fprintf(stderr, cliText(locale, "Error: invalid validation matrix: %v\n", "Erro: matriz de validação inválida: %v\n"), err)
 		return 2
 	}
 	if matrixHasLegacyChecks(matrix) {
@@ -208,7 +209,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	modules, err := discoverValidationModules(root)
 	if err != nil {
-		fmt.Fprintf(stderr, "Erro: descobrir módulos: %v\n", err)
+		fmt.Fprintf(stderr, cliText(locale, "Error: discovering modules: %v\n", "Erro: descobrir módulos: %v\n"), err)
 		return 1
 	}
 	knownModules := map[string]bool{}
@@ -218,7 +219,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	for rel, override := range matrix.ModuleOverrides {
 		clean := filepath.ToSlash(filepath.Clean(rel))
 		if clean == "." || clean == ".." || strings.HasPrefix(clean, "../") || filepath.IsAbs(rel) {
-			fmt.Fprintf(stderr, "Erro: moduleOverrides contém path fora do projeto: %s\n", rel)
+			fmt.Fprintf(stderr, cliText(locale, "Error: moduleOverrides contains a path outside the project: %s\n", "Erro: moduleOverrides contém path fora do projeto: %s\n"), rel)
 			return 2
 		}
 		if knownModules[clean] {

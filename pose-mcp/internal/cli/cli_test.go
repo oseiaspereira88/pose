@@ -410,7 +410,7 @@ func TestCheckNativeParityAndSchemaFailures(t *testing.T) {
 			t.Fatal(err)
 		}
 		nativeOut.Reset()
-		if code := Main([]string{"check", "--strict"}, &nativeOut, &nativeErr); code != 1 || !strings.Contains(nativeOut.String(), "chave desconhecida") {
+		if code := Main([]string{"check", "--strict"}, &nativeOut, &nativeErr); code != 1 || !strings.Contains(nativeOut.String(), "unknown key") {
 			t.Fatalf("unknown matrix key accepted: exit=%d out=%s", code, nativeOut.String())
 		}
 
@@ -438,6 +438,43 @@ func TestCLILocaleSelectionAndFallback(t *testing.T) {
 		var out, errB bytes.Buffer
 		if code := Main([]string{"not-a-command"}, &out, &errB); code != 2 || !strings.Contains(errB.String(), tc.want) {
 			t.Fatalf("locale=%s code=%d stderr=%q", tc.locale, code, errB.String())
+		}
+	}
+}
+
+func TestNativeCommandLocaleMessagesAndStableAnchors(t *testing.T) {
+	old := os.Getenv("POSE_LOCALE")
+	t.Cleanup(func() { _ = os.Setenv("POSE_LOCALE", old) })
+	for _, tc := range []struct {
+		locale, wantUsage, wantError, wantHelp, wantReport string
+	}{
+		{"en", "Usage: pose new-spec", "Error: provide <slug> or --all", "Usage: pose <command>", "Error: --task is required."},
+		{"pt-BR", "Uso: pose new-spec", "Erro: informe <slug> ou --all", "Uso: pose <comando>", "Erro: --task é obrigatório."},
+	} {
+		_ = os.Setenv("POSE_LOCALE", tc.locale)
+		var out, errB bytes.Buffer
+		if code := cmdNewSpec(t.TempDir(), nil, &out, &errB); code != 2 || !strings.Contains(errB.String(), tc.wantUsage) {
+			t.Fatalf("locale=%s scaffold exit=%d stderr=%q", tc.locale, code, errB.String())
+		}
+		out.Reset()
+		errB.Reset()
+		if code := cmdLintSpec(nil, &out, &errB); code != 2 || !strings.Contains(errB.String(), tc.wantError) {
+			t.Fatalf("locale=%s lint exit=%d stderr=%q", tc.locale, code, errB.String())
+		}
+		out.Reset()
+		errB.Reset()
+		if code := Main([]string{"help"}, &out, &errB); code != 0 || !strings.Contains(out.String(), tc.wantHelp) {
+			t.Fatalf("locale=%s help exit=%d out=%q", tc.locale, code, out.String())
+		}
+		out.Reset()
+		errB.Reset()
+		if code := cmdReport(t.TempDir(), nil, &out, &errB); code != 2 || !strings.Contains(errB.String(), tc.wantReport) {
+			t.Fatalf("locale=%s report exit=%d stderr=%q", tc.locale, code, errB.String())
+		}
+		out.Reset()
+		errB.Reset()
+		if code := cmdCheck(t.TempDir(), []string{"--tolerant"}, &out, &errB); code != 1 || !strings.Contains(out.String(), "Resultado: FALHA") {
+			t.Fatalf("locale=%s check anchor exit=%d out=%q", tc.locale, code, out.String())
 		}
 	}
 }

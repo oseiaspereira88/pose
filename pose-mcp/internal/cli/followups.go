@@ -37,18 +37,19 @@ var followupDisposition = regexp.MustCompile(`^\[\s*([a-z-]+)(?:\s*:\s*([^\]]+))
 var followupHTMLComment = regexp.MustCompile(`(?s)<!--.*?-->`)
 
 func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
+	locale := cliLocaleValue()
 	all, jsonOut, scopeSet, threshold := false, false, false, 60
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--open":
 			if scopeSet && all {
-				fmt.Fprintln(stderr, "Erro: --open e --all são mutuamente exclusivos.")
+				fmt.Fprintln(stderr, cliText(locale, "Error: --open and --all are mutually exclusive.", "Erro: --open e --all são mutuamente exclusivos."))
 				return 2
 			}
 			scopeSet = true
 		case "--all":
 			if scopeSet && !all {
-				fmt.Fprintln(stderr, "Erro: --open e --all são mutuamente exclusivos.")
+				fmt.Fprintln(stderr, cliText(locale, "Error: --open and --all are mutually exclusive.", "Erro: --open e --all são mutuamente exclusivos."))
 				return 2
 			}
 			all, scopeSet = true, true
@@ -56,18 +57,18 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 			jsonOut = true
 		case "--similarity":
 			if i+1 >= len(args) {
-				fmt.Fprintln(stderr, "Erro: --similarity exige inteiro 0..100.")
+				fmt.Fprintln(stderr, cliText(locale, "Error: --similarity requires an integer from 0 to 100.", "Erro: --similarity exige inteiro 0..100."))
 				return 2
 			}
 			i++
 			value, err := strconv.Atoi(args[i])
 			if err != nil || value < 0 || value > 100 {
-				fmt.Fprintln(stderr, "Erro: --similarity exige inteiro 0..100.")
+				fmt.Fprintln(stderr, cliText(locale, "Error: --similarity requires an integer from 0 to 100.", "Erro: --similarity exige inteiro 0..100."))
 				return 2
 			}
 			threshold = value
 		default:
-			fmt.Fprintf(stderr, "Erro: opção desconhecida: %s\n", args[i])
+			fmt.Fprintf(stderr, cliText(locale, "Error: unknown option: %s\n", "Erro: opção desconhecida: %s\n"), args[i])
 			return 2
 		}
 	}
@@ -94,7 +95,7 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 			"near_duplicate_candidates": candidates,
 		}
 		if err := json.NewEncoder(stdout).Encode(payload); err != nil {
-			fmt.Fprintf(stderr, "Erro: serializar follow-ups: %v\n", err)
+			fmt.Fprintf(stderr, cliText(locale, "Error: serializing follow-ups: %v\n", "Erro: serializar follow-ups: %v\n"), err)
 			return 1
 		}
 		return 0
