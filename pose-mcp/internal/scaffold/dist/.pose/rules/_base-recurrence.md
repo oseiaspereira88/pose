@@ -1,8 +1,8 @@
-# Base: Rastreabilidade de recorrência para reduzir retrabalho
+# Base: Recurrence traceability to reduce rework
 
-Este arquivo é referenciado por todas as `rules` de domínio. Aplicar
-cumulativamente em qualquer review/escalation.
+Every domain rule references this file. Apply it cumulatively during any
+review or escalation.
 
-- Classifique achados recorrentes por domínio e causa (processo, contrato, implementação, validation).
-- Vincule cada achado recorrente a ação preventiva no `workflow`/`spec`/`rule` correspondente.
-- Priorize correções sistêmicas quando o mesmo padrão ocorrer em mais de um módulo.
+- Classify recurring findings by domain and cause: process, contract, implementation, or validation.
+- Link each recurring finding to a preventive action in the corresponding `workflow`, `spec`, or `rule`.
+- Prefer systemic corrections when the same pattern appears in more than one module.

@@ -2,43 +2,43 @@
 
 ## When to consult
 
-Consult this guide em tarefas de documentação de processo, regras, specs, workflows e instruções operacionais.
+Consult this guide for process documentation, rules, specs, workflows, and operational instructions.
 
-## Convenções obrigatórias
+## Required conventions
 
-- Escreva no tom imperativo, com verbos de ação no início das instruções.
-- Use bullets curtos com uma única ideia por item.
-- Evite duplicar seções com o mesmo propósito em arquivos diferentes.
-- Prefira links/referências para a fonte única em vez de copiar conteúdo.
-- Use nomenclatura consistente: `check`, `spec` e `workflow`.
-- Explicite o escopo da instrução para reduzir ambiguidades.
+- Write instructions in the imperative mood and begin them with action verbs.
+- Keep bullets short and limited to one idea.
+- Avoid duplicating sections with the same purpose across files.
+- Link to the single source of truth instead of copying its content.
+- Use `check`, `spec`, and `workflow` consistently.
+- State each instruction's scope explicitly to reduce ambiguity.
 
-## Exemplos: bom vs ruim
+## Examples: good and bad
 
-### Redundância
+### Redundancy
 
-- **Bom:** "Atualize critérios de review em `.pose/workflows/review.md` e referencie esse workflow no AGENTS raiz."
-- **Ruim:** "Repita os critérios de review no AGENTS, no workflow e em cada spec relacionada."
+- **Good:** "Update review criteria in `.pose/workflows/review.md` and reference that workflow from the root AGENTS file."
+- **Bad:** "Repeat review criteria in AGENTS, the workflow, and every related spec."
 
-### Referência ambígua
+### Ambiguous reference
 
-- **Bom:** "Rode o `check` de lint descrito no `workflow` de review."
-- **Ruim:** "Rode aquela validation padrão antes de subir."
+- **Good:** "Run the lint check described by the review workflow."
+- **Bad:** "Run that standard validation before pushing."
 
-## Checklist rápido de aderência editorial
+## Quick editorial checklist
 
-- Linguagem está imperativa e direta.
-- Bullets estão curtos e sem sobreposição.
-- Não há duplicação de seção entre arquivos.
-- Termos `check`, `spec` e `workflow` foram usados de forma consistente.
-- Referências apontam para arquivo/caminho explícito.
+- Language is imperative and direct.
+- Bullets are short and non-overlapping.
+- Files do not duplicate sections.
+- `check`, `spec`, and `workflow` are used consistently.
+- References point to explicit files or paths.
 
-## Precedência em conflito multi-domínio
+## Precedence in multi-domain conflicts
 
-- Em conflito com outras `rules`, aplique a alternativa mais restritiva para security, contrato e operação.
-- Quando houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
-- Registre no parecer de review a decisão de precedência e o racional objetivo.
+- Apply the most restrictive security, contract, and operational rule when domain rules conflict.
+- Prefer verifiable check evidence and explicit risk mitigation when speed conflicts with control.
+- Record the precedence decision and objective rationale in the review.
 
-## Rastreabilidade de recorrência
+## Recurrence traceability
 
-> Aplicar também: [.pose/rules/_base-recurrence.md](_base-recurrence.md)
+> Also apply: [.pose/rules/_base-recurrence.md](_base-recurrence.md)

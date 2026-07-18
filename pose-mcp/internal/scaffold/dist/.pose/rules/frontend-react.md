@@ -2,38 +2,38 @@
 
 ## When to consult
 
-Consult this guide em tarefas de UI, componentes React, estado cliente, acessibilidade, formulários e integração frontend com APIs.
+Consult this guide for UI work, React components, client state, accessibility, forms, and frontend API integrations.
 
 ## Required patterns
 
-- Componentes devem ser pequenos, com responsabilidade única e props tipadas com clareza.
-- Efeitos (`useEffect`) devem declarar dependências completas e ter cleanup quando aplicável.
-- Estado derivado deve ser calculado, evitando duplicação desnecessária em `useState`.
-- Fluxos assíncronos devem tratar estados de loading, error e sucesso de forma explícita.
-- Acessibilidade mínima: uso semântico de HTML, labels em campos e navegação por teclado preservada.
-- Comunicação com backend deve ser encapsulada em camada de serviço/hook reutilizável.
+- Keep components small, single-purpose, and explicit about typed props.
+- Declare complete dependencies in effects (`useEffect`) and clean them up when needed.
+- Compute derived state instead of duplicating it unnecessarily in `useState`.
+- Handle loading, error, and success states explicitly in asynchronous flows.
+- Preserve basic accessibility through semantic HTML, field labels, and keyboard navigation.
+- Encapsulate backend communication in a reusable service or hook layer.
 
 ## Blocking anti-patterns
 
-- Lógica de regra de negócio espalhada diretamente em componentes visuais.
-- `useEffect` sem dependências corretas, causando stale data ou loops infinitos.
-- Uso de `any` indiscriminado para contornar problemas de tipagem.
-- Silenciar errors de API no cliente sem feedback observável para usuário/log.
-- Quebrar acessibilidade básica (campos sem label, botões sem texto acessível).
+- Spreading business rules directly across visual components.
+- Using incorrect effect dependencies that cause stale data or infinite loops.
+- Using `any` broadly to bypass type errors.
+- Hiding API failures from both users and observable logs.
+- Breaking basic accessibility with unlabeled fields or controls without accessible names.
 
 ## Minimum checks
 
-- `lint` do frontend sem errors.
-- `typecheck` do frontend sem errors.
-- `test` unitário/integrado dos fluxos alterados.
-- `build` do frontend concluído com sucesso.
+- Run frontend lint without errors.
+- Run frontend type checking without errors.
+- Run unit or integration tests for the changed flows.
+- Complete the frontend build successfully.
 
-## Precedência em conflito multi-domínio
+## Precedence in multi-domain conflicts
 
-- Em conflito com outras `rules`, aplique a alternativa mais restritiva para security, contrato e operação.
-- Quando houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
-- Registre no parecer de review a decisão de precedência e o racional objetivo.
+- Apply the most restrictive security, contract, and operational rule when domain rules conflict.
+- Prefer verifiable check evidence and explicit risk mitigation when speed conflicts with control.
+- Record the precedence decision and objective rationale in the review.
 
-## Rastreabilidade de recorrência
+## Recurrence traceability
 
-> Aplicar também: [.pose/rules/_base-recurrence.md](_base-recurrence.md)
+> Also apply: [.pose/rules/_base-recurrence.md](_base-recurrence.md)

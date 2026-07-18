@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"testing"
@@ -138,5 +139,49 @@ func TestClaudeSkillLinksMatchAgentsSkills(t *testing.T) {
 	sort.Strings(fromMap)
 	if strings.Join(fromEmbed, ",") != strings.Join(fromMap, ",") {
 		t.Fatalf("ClaudeSkillLinks drifted from .agents/skills:\nembed: %v\nmap:   %v", fromEmbed, fromMap)
+	}
+}
+
+func TestEditorialDefaultsAreEnglishAndPtBROverlayIsComplete(t *testing.T) {
+	root := poseDistDir(t)
+	portugueseAccent := regexp.MustCompile(`[áéíóúãõâêôçÁÉÍÓÚÃÕÂÊÔÇ]`)
+	prefixes := []string{".pose/workflows/", ".pose/rules/", ".agents/skills/"}
+	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if entry.IsDir() {
+			return nil
+		}
+		rel, relErr := filepath.Rel(root, path)
+		if relErr != nil {
+			return relErr
+		}
+		rel = filepath.ToSlash(rel)
+		inEditorialScope := false
+		for _, prefix := range prefixes {
+			if strings.HasPrefix(rel, prefix) {
+				inEditorialScope = true
+				break
+			}
+		}
+		if !inEditorialScope || filepath.Ext(path) != ".md" {
+			return nil
+		}
+		content, readErr := os.ReadFile(path)
+		if readErr != nil {
+			return readErr
+		}
+		if portugueseAccent.Match(content) {
+			t.Errorf("English-default editorial artifact still contains Portuguese text: %s", rel)
+		}
+		localized := filepath.Join(root, "locales", "pt-BR", filepath.FromSlash(rel))
+		if _, statErr := os.Stat(localized); statErr != nil {
+			t.Errorf("pt-BR overlay missing for %s", rel)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }

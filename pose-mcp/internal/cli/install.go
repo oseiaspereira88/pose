@@ -178,6 +178,17 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 				}
 				log("machinery (locale override): .pose/templates")
 			}
+			for _, editorialDir := range []string{".pose/workflows", ".pose/rules", ".agents/skills"} {
+				source := "locales/" + locale + "/" + editorialDir
+				if _, err := fs.Stat(dist, source); err != nil {
+					continue
+				}
+				if err := copyTreeInto(dist, source, filepath.Join(target, filepath.FromSlash(editorialDir))); err != nil {
+					fmt.Fprintf(stderr, "pose install: locale overlay %s: %v\n", editorialDir, err)
+					return 1
+				}
+				log("machinery (locale override): %s", editorialDir)
+			}
 		} else {
 			log("locale '%s' not available — falling back to en", locale)
 		}
@@ -239,23 +250,10 @@ exec pose serve-mcp --stdio "$@"
 	if rc := cmdInit(target, io.Discard, stderr); rc != 0 {
 		return rc
 	}
-	log("running final gate")
-	if _, err := exec.LookPath("bash"); err == nil {
-		c := exec.Command("bash", filepath.Join(target, ".pose", "scripts", "pose-index.sh"))
-		c.Dir = target
-		_ = c.Run()
-		chk := exec.Command("bash", filepath.Join(target, ".pose", "scripts", "pose-check.sh"), "--strict")
-		chk.Dir = target
-		chk.Stdout, chk.Stderr = stdout, stderr
-		if err := chk.Run(); err != nil {
-			fmt.Fprintln(stderr, "pose install: post-install gate failed (check --strict)")
-			return 1
-		}
-	} else {
-		log("bash unavailable — running native lint gate only (full check needs the script engine)")
-		if rc := inTarget(target, func() int { return cmdLintSpec([]string{"--all", "--tolerant"}, stdout, stderr) }); rc != 0 {
-			return rc
-		}
+	log("running native final gate")
+	if rc := cmdCheck(target, []string{"--strict"}, stdout, stderr); rc != 0 {
+		fmt.Fprintln(stderr, "pose install: post-install gate failed (check --strict)")
+		return 1
 	}
 	log("install complete — POSE is ready in %s", target)
 	return 0
@@ -276,6 +274,23 @@ func copyTree(src fs.FS, root, targetBase string) error {
 			return os.MkdirAll(dst, 0o755)
 		}
 		return copyFile(src, path, dst, filePerm(path))
+	})
+}
+
+func copyTreeInto(src fs.FS, sourceRoot, destinationRoot string) error {
+	return fs.WalkDir(src, sourceRoot, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(filepath.FromSlash(sourceRoot), filepath.FromSlash(path))
+		if err != nil {
+			return err
+		}
+		destination := filepath.Join(destinationRoot, rel)
+		if entry.IsDir() {
+			return os.MkdirAll(destination, 0o755)
+		}
+		return copyFile(src, path, destination, filePerm(path))
 	})
 }
 

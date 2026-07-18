@@ -556,6 +556,9 @@ func TestInstallEmbeddedFreshAndIdempotent(t *testing.T) {
 			t.Errorf("missing after install: %s", rel)
 		}
 	}
+	if b, _ := os.ReadFile(filepath.Join(repo, ".agents", "skills", "pose-feature", "SKILL.md")); !strings.Contains(string(b), "Use to implement a non-trivial feature") {
+		t.Error("default English skill not installed")
+	}
 	// Conteúdo de usuário + rule custom sobrevivem ao re-run.
 	if err := os.MkdirAll(filepath.Join(repo, ".pose", "specs", "user-spec"), 0o755); err != nil {
 		t.Fatal(err)
@@ -586,5 +589,8 @@ func TestInstallEmbeddedFreshAndIdempotent(t *testing.T) {
 	}
 	if b, _ := os.ReadFile(filepath.Join(repo2, "AGENTS.md")); !strings.Contains(string(b), "Precedência") {
 		t.Error("pt-BR locale not applied")
+	}
+	if b, _ := os.ReadFile(filepath.Join(repo2, ".agents", "skills", "pose-feature", "SKILL.md")); !strings.Contains(string(b), "Use ao implementar") {
+		t.Error("pt-BR skill overlay not applied")
 	}
 }

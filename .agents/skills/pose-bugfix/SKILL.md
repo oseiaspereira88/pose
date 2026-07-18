@@ -1,43 +1,32 @@
 ---
 name: pose-bugfix
-description: Use ao corrigir um bug/defeito sob POSE — reproduzir falha, isolar causa raiz, aplicar fix mínimo coeso, cobrir regressão e registrar decision-log se houver dívida sistêmica. Trigger keywords - bugfix, bug, defeito, regression, hotfix, correção, root cause, causa raiz, fix.
-when_to_use: A tarefa atual é corrigir um defeito observável (não introduzir feature). Use ANTES de tocar código para garantir reprodução, isolamento de causa raiz e cobertura de regressão.
+description: Use to correct an observable defect under POSE by reproducing the failure, isolating root cause, applying the smallest cohesive fix, covering regression, and recording systemic debt. Trigger keywords - bugfix, bug, defect, regression, hotfix, correction, root cause, fix.
+when_to_use: The task corrects observable broken behavior rather than adding a feature. Use before editing code so reproduction, root-cause isolation, and regression coverage are explicit.
 ---
 
 # Skill: pose-bugfix
 
-Fluxo POSE para correção cirúrgica de defeito.
+## Required reading
 
-## Required reading (na ordem)
-
-1. [AGENTS.md](../../../AGENTS.md) — precedência e obrigatoriedade de spec/ADR/checks.
-2. [`.pose/workflows/bugfix.md`](../../../.pose/workflows/bugfix.md) — checklist completo.
-3. `AGENTS.md` específico do módulo afetado (quando existir).
-4. `.pose/rules/` das rules cumulativas (use `./pose suggest bugfix --path <dir-afetado>` para inferir).
+1. [AGENTS.md](../../../AGENTS.md).
+2. [`.pose/workflows/bugfix.md`](../../../.pose/workflows/bugfix.md).
+3. The affected module's nearest `AGENTS.md`, when present.
+4. Cumulative rules returned by `./pose suggest bugfix --path <affected-dir>`.
 
 ## Steps
 
-1. Reproduzir o defeito e registrar modo de falha observável (comando + saída esperada vs. obtida).
-2. Consultar `.pose/knowledge/` por incidents/handoffs anteriores no mesmo módulo ou padrão:
-   ```bash
-   find .pose/knowledge -name "*<modulo>*.md" -type f
-   ```
-3. Isolar causa raiz; mapear impacto colateral.
-4. Implementar fix mínimo coeso (sem refactor paralelo).
-5. Adicionar/ajustar teste de regressão.
-6. Rodar validation determinística do módulo:
-   ```bash
-   ./pose validate --tolerant --module <path-afetado> --report
-   ```
-7. Se a causa raiz revelar dívida sistêmica ou trade-off relevante, produzir decision-log:
-   ```bash
-   ./pose new-knowledge decision-log <slug-do-tema> --owner @<squad>
-   ```
+1. Reproduce the defect and record expected and actual observable output.
+2. Search `.pose/knowledge/` for earlier incidents and handoffs in the same module.
+3. Isolate root cause and map collateral impact.
+4. Implement the smallest cohesive fix without parallel refactoring.
+5. Add or update a regression test.
+6. Run `./pose validate --tolerant --module <affected-path> --report`.
+7. Create a decision log when root cause exposes systemic debt or a significant trade-off.
 
 ## Output requirements
 
-- Descrição da causa raiz e abordagem.
-- Diff cirúrgico, sem mudanças não relacionadas.
-- Evidência de regressão coberta (teste novo/ajustado).
-- Saída do `./pose validate` com `Resultado: SUCESSO`.
-- Decision-log optional em `.pose/knowledge/` quando aplicável.
+- Root-cause description and correction approach.
+- Surgical diff without unrelated changes.
+- Regression-test evidence.
+- Successful applicable validation evidence.
+- Decision log under `.pose/knowledge/` when needed.
