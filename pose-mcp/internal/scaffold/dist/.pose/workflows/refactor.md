@@ -2,7 +2,7 @@
 
 ## Objective
 
-Melhorar estrutura interna e manutenibilidade sem alterar comportamento funcional observado.
+Melhorar estrutura interna e manutenibilidade without alterar comportamento funcional observado.
 
 ## Preconditions
 
@@ -14,10 +14,10 @@ Melhorar estrutura interna e manutenibilidade sem alterar comportamento funciona
 ## Execution checklist
 
 1. Definir objetivo técnico (legibilidade, acoplamento, duplicação, etc.).
-2. Mapear limites de escopo e contratos que devem permanecer intactos.
+2. Mapear limites de escopo e contratos que must permanecer intactos.
 3. Quebrar refactor em etapas pequenas, revisáveis e revertíveis.
-4. Executar mudanças mecânicas com commits/diffs coesos.
-5. Garantir equivalência comportamental com testes automatizados.
+4. Executar mudanças mecânicas with commits/diffs coesos.
+5. Garantir equivalência comportamental with testes automatizados.
 6. Rodar checks determinísticos relevantes (`test`, `lint`, `typecheck`, `build`).
 7. Medir ganhos práticos (complexidade, clareza, cobertura, manutenção).
 8. Registrar riscos residuais e follow-ups não essenciais.
