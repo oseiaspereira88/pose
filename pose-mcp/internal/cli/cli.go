@@ -96,6 +96,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdNewKnowledge(root, args, stdout, stderr)
+	case "followups":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose followups: %v\n", err)
+			return 1
+		}
+		return cmdFollowups(root, args, stdout, stderr)
 	case "install":
 		return cmdInstall(args, stdout, stderr)
 	case "doctor":
