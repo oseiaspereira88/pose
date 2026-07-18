@@ -6,9 +6,9 @@ Consult this guide em tarefas de documentação de processo, regras, specs, work
 
 ## Convenções obrigatórias
 
-- Escreva no tom imperativo, with verbos de ação no início das instruções.
-- Use bullets curtos with uma única ideia por item.
-- Evite duplicar seções with o mesmo propósito em arquivos diferentes.
+- Escreva no tom imperativo, com verbos de ação no início das instruções.
+- Use bullets curtos com uma única ideia por item.
+- Evite duplicar seções com o mesmo propósito em arquivos diferentes.
 - Prefira links/referências para a fonte única em vez de copiar conteúdo.
 - Use nomenclatura consistente: `check`, `spec` e `workflow`.
 - Explicite o escopo da instrução para reduzir ambiguidades.
@@ -17,7 +17,7 @@ Consult this guide em tarefas de documentação de processo, regras, specs, work
 
 ### Redundância
 
-- **Bom:** "Update critérios de review em `.pose/workflows/review.md` e referencie esse workflow no AGENTS raiz."
+- **Bom:** "Atualize critérios de review em `.pose/workflows/review.md` e referencie esse workflow no AGENTS raiz."
 - **Ruim:** "Repita os critérios de review no AGENTS, no workflow e em cada spec relacionada."
 
 ### Referência ambígua
@@ -28,15 +28,15 @@ Consult this guide em tarefas de documentação de processo, regras, specs, work
 ## Checklist rápido de aderência editorial
 
 - Linguagem está imperativa e direta.
-- Bullets estão curtos e without sobreposição.
+- Bullets estão curtos e sem sobreposição.
 - Não há duplicação de seção entre arquivos.
 - Termos `check`, `spec` e `workflow` foram usados de forma consistente.
 - Referências apontam para arquivo/caminho explícito.
 
 ## Precedência em conflito multi-domínio
 
-- Em conflito with outras `rules`, apply a alternativa mais restritiva para security, contrato e operação.
-- When houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
+- Em conflito com outras `rules`, aplique a alternativa mais restritiva para security, contrato e operação.
+- Quando houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
 - Registre no parecer de review a decisão de precedência e o racional objetivo.
 
 ## Rastreabilidade de recorrência

@@ -8,7 +8,7 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 
 ## Convenções obrigatórias
 
-- Declare entrega apenas with **evidência de gate verificável** anexada: comando + saída
+- Declare entrega apenas com **evidência de gate verificável** anexada: comando + saída
   (`./pose validate`, `go test`, `tsc`, `vitest`) ou link ao report POSE correspondente.
 - Use o vocabulário de estado do POSE: `draft` · `in-progress` · `done` · `blocked` ·
   `superseded` · `abandoned`. Não invente rótulos (`completed`, `100% COMPLETE`).
@@ -19,24 +19,24 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 
 ## Blocking anti-patterns
 
-- Declarar "100% COMPLETE"/"pronto para produção" without `./pose validate --strict` verde
+- Declarar "100% COMPLETE"/"pronto para produção" sem `./pose validate --strict` verde
   no(s) módulo(s) afetado(s).
 - Doc de entrega que contradiz outro doc do mesmo escopo (ex.: "delivery report" diz
   completo e "gaps analysis" diz incompleto) — reconcilie antes de publicar.
-- Código mergeado with doc de conclusão mas without passar pelos `check`/`validate` do POSE.
-- Misturar aspiração e estado verificado no mesmo parágrafo without marcação clara.
+- Código mergeado com doc de conclusão mas sem passar pelos `check`/`validate` do POSE.
+- Misturar aspiração e estado verificado no mesmo parágrafo sem marcação clara.
 
 ## Minimum checks
 
 - `./pose check --strict` (estrutura + enum de status das specs).
 - `./pose validate --strict` no(s) módulo(s) que o documento afirma entregar.
-- `./pose lint-spec` when o documento for uma spec.
+- `./pose lint-spec` quando o documento for uma spec.
 
 ## Precedência em conflito multi-domínio
 
-- Em conflito with outras `rules`, prevaleça a evidência verificável de `check` sobre a
+- Em conflito com outras `rules`, prevaleça a evidência verificável de `check` sobre a
   narrativa de progresso.
-- When houver pressão por declarar conclusão without gate, registre o estado real
+- Quando houver pressão por declarar conclusão sem gate, registre o estado real
   (`in-progress`/`blocked`) e o que falta para o gate fechar.
 
 ## Rastreabilidade de recorrência
