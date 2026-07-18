@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -53,6 +54,17 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 	content := fmt.Sprintf("# POSE Report - %s\n\n## Task\n- %s\n\n## Outcome\n- Outcome: %s\n", now.Format("2006-01-02"), task, outcome)
 	if err := os.WriteFile(reportPath, []byte(content), 0o644); err != nil {
 		fmt.Fprintf(stderr, "Erro: escrever relatório: %v\n", err)
+		return 1
+	}
+	historyPath := filepath.Join(reports, "history", values["type"]+"-"+slug+".jsonl")
+	history, err := os.OpenFile(historyPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+	if err != nil {
+		fmt.Fprintf(stderr, "Erro: escrever history: %v\n", err)
+		return 1
+	}
+	defer history.Close()
+	if err := json.NewEncoder(history).Encode(map[string]string{"generated_at": now.Format(time.RFC3339), "task": task, "task_slug": slug, "outcome": outcome, "report_type": values["type"]}); err != nil {
+		fmt.Fprintf(stderr, "Erro: serializar history: %v\n", err)
 		return 1
 	}
 	fmt.Fprintf(stdout, "Report criado: %s\n", reportPath)

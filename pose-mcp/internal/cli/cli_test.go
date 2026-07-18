@@ -197,6 +197,10 @@ func TestReportNativeCreatesMarkdownAndValidatesArgs(t *testing.T) {
 		if !strings.Contains(string(content), "Outcome: pass") {
 			t.Fatalf("report content=%q", content)
 		}
+		history, err := os.ReadFile(filepath.Join(repo, ".pose", "reports", "history", "standard-native-report.jsonl"))
+		if err != nil || !strings.Contains(string(history), `"outcome":"pass"`) {
+			t.Fatalf("history=%q err=%v", history, err)
+		}
 		if code := Main([]string{"report", "--task", "x", "--outcome", "bad"}, &out, &errB); code != 2 {
 			t.Fatalf("invalid outcome exit=%d", code)
 		}
