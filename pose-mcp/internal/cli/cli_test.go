@@ -119,6 +119,34 @@ func TestInitNativeCreatesStructure(t *testing.T) {
 	})
 }
 
+func TestNewSpecNativeCreatesTemplateAndRejectsInvalidInput(t *testing.T) {
+	repo := newGitRepo(t)
+	templateDir := filepath.Join(repo, ".pose", "templates")
+	if err := os.MkdirAll(templateDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	template := "slug: <feature-slug>\ncreated_at: <YYYY-MM-DD>\n"
+	if err := os.WriteFile(filepath.Join(templateDir, "spec.md"), []byte(template), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		if code := Main([]string{"new-spec", "user-auth"}, &out, &errB); code != 0 {
+			t.Fatalf("new-spec exit=%d stderr=%s", code, errB.String())
+		}
+		content, err := os.ReadFile(filepath.Join(repo, ".pose", "specs", "user-auth", "spec.md"))
+		if err != nil || !strings.Contains(string(content), "slug: user-auth") || strings.Contains(string(content), "<YYYY-MM-DD>") {
+			t.Fatalf("template not materialized: %q err=%v", content, err)
+		}
+		if code := Main([]string{"new-spec", "user-auth"}, &out, &errB); code != 1 {
+			t.Fatalf("duplicate exit=%d, want 1", code)
+		}
+		if code := Main([]string{"new-spec", "../escape"}, &out, &errB); code != 2 {
+			t.Fatalf("invalid slug exit=%d, want 2", code)
+		}
+	})
+}
+
 func TestCLILocaleSelectionAndFallback(t *testing.T) {
 	old := os.Getenv("POSE_LOCALE")
 	t.Cleanup(func() { _ = os.Setenv("POSE_LOCALE", old) })
