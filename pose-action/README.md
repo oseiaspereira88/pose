@@ -1,6 +1,6 @@
 # POSE Gates — GitHub Action
 
-Runs the deterministic [POSE](../pose-dist/README.md) governance gates on any
+Runs the deterministic [POSE](../README.md) governance gates on any
 repository with an installed POSE instance.
 
 ```yaml
@@ -19,6 +19,6 @@ jobs:
           history-check: "true"
 ```
 
-Requirements in the target repo: an installed POSE instance (`./pose`,
-`.pose/`) — see the [installer](../pose-dist/README.md#quickstart). The gates
-are offline and need only bash + python3 (present on all GitHub runners).
+Requirements in the target repo: an installed POSE instance (`pose`,
+`.pose/`) — see the [installer](../README.md#quickstart). The gates are offline
+and require the native `pose` binary on `PATH` plus git.

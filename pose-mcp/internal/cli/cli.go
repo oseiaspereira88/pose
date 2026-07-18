@@ -1,13 +1,4 @@
-// Package cli implements the unified `pose` binary (spec
-// pose-cli-go-unification, Corte 1 — strangler pattern):
-//
-//   - native subcommands: version, init, serve-mcp, help
-//   - every other known subcommand is DELEGATED to the bash engine at
-//     .pose/scripts/pose-<cmd>.sh, preserving args and exit code, so the
-//     binary is a drop-in replacement for the `pose` shell dispatcher.
-//
-// The bash engine remains the source of truth for delegated gates; future
-// phases port them natively one by one with parity tests.
+// Package cli implements the native-only unified `pose` binary.
 package cli
 
 import (
@@ -21,27 +12,6 @@ import (
 
 // Version is stamped via -ldflags at release time (pose-release-pipeline).
 var Version = "0.9.0-dev"
-
-// delegated maps subcommands to their bash engine scripts.
-var delegated = map[string]string{
-	"upgrade":                "pose-upgrade.sh",
-	"new-spec":               "pose-new-spec.sh",
-	"new-roadmap":            "pose-new-roadmap.sh",
-	"new-adr":                "pose-new-adr.sh",
-	"new-knowledge":          "pose-new-knowledge.sh",
-	"check":                  "pose-check.sh",
-	"validate":               "pose-validate.sh",
-	"index":                  "pose-index.sh",
-	"report":                 "pose-report.sh",
-	"knowledge-check":        "pose-knowledge-check.sh",
-	"knowledge-housekeeping": "pose-knowledge-housekeeping.sh",
-	"reports-housekeeping":   "pose-reports-housekeeping.sh",
-	"recurrence-check":       "pose-recurrence-check.sh",
-	"hooks":                  "pose-hooks.sh",
-	"followups":              "pose-followups.sh",
-	"suggest":                "pose-suggest.sh",
-	"stats":                  "pose-stats.sh",
-}
 
 // Main is the entrypoint used by cmd/pose. It returns the process exit code.
 func Main(args []string, stdout, stderr io.Writer) int {
@@ -58,9 +28,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 	case "help", "-h", "--help":
 		return cmdHelp(stdout)
 	case "init":
-		// --wizard delega ao onboarding assistido do motor de scripts.
 		if len(args) > 0 && args[0] == "--wizard" {
-			return delegate("pose-init-wizard.sh", args[1:], stdout, stderr)
+			root, err := projectRoot()
+			if err != nil {
+				fmt.Fprintf(stderr, "pose init: %v\n", err)
+				return 1
+			}
+			return cmdInitWizard(root, args[1:], stdout, stderr)
 		}
 		root, err := projectRoot()
 		if err != nil {
@@ -124,6 +98,39 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
+	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "reports-housekeeping", "recurrence-check", "hooks", "suggest", "stats":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
+			return 1
+		}
+		switch cmd {
+		case "upgrade":
+			return cmdUpgrade(root, args, stdout, stderr)
+		case "index":
+			return cmdIndex(root, args, stdout, stderr)
+		case "knowledge-check":
+			return cmdKnowledgeCheck(root, args, stdout, stderr)
+		case "knowledge-housekeeping":
+			return cmdKnowledgeHousekeeping(root, args, stdout, stderr)
+		case "reports-housekeeping":
+			return cmdReportsHousekeeping(root, args, stdout, stderr)
+		case "recurrence-check":
+			return cmdRecurrenceCheck(root, args, stdout, stderr)
+		case "hooks":
+			return cmdHooks(root, args, stdout, stderr)
+		case "suggest":
+			return cmdSuggest(root, args, stdout, stderr)
+		default:
+			return cmdStats(root, args, stdout, stderr)
+		}
+	case "release-notes":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose release-notes: %v\n", err)
+			return 1
+		}
+		return cmdReleaseNotes(root, args, stdout, stderr)
 	case "install":
 		return cmdInstall(args, stdout, stderr)
 	case "doctor":
@@ -140,23 +147,17 @@ func Main(args []string, stdout, stderr io.Writer) int {
 	case "telemetry":
 		return cmdTelemetry(args, stdout, stderr)
 	case "serve-mcp":
-		// Blocking; wiring lives in internal/bootstrap (shared with cmd/pose-mcp).
+		// Blocking; wiring lives in internal/bootstrap.
 		runServeMCP(args)
 		return 0
 	}
 
-	defer emitTelemetry(cmd)
-	script, known := delegated[cmd]
-	if !known {
-		fmt.Fprintf(stderr, "%s: %s\n", cliText(locale, "Unknown command", "Comando desconhecido"), cmd)
-		fmt.Fprintln(stderr, cliText(locale, "Run 'pose help' to see available commands.", "Execute 'pose help' para ver os comandos disponíveis."))
-		return 2
-	}
-	return delegate(script, args, stdout, stderr)
+	fmt.Fprintf(stderr, "%s: %s\n", cliText(locale, "Unknown command", "Comando desconhecido"), cmd)
+	fmt.Fprintln(stderr, cliText(locale, "Run 'pose help' to see available commands.", "Execute 'pose help' para ver os comandos disponíveis."))
+	return 2
 }
 
-// projectRoot resolves the repository root the same way the bash dispatcher
-// does: git toplevel, falling back to the current directory.
+// projectRoot resolves the git toplevel, falling back to the current directory.
 func projectRoot() (string, error) {
 	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 	if err == nil {
@@ -167,38 +168,6 @@ func projectRoot() (string, error) {
 		return "", err
 	}
 	return wd, nil
-}
-
-// delegate runs the bash engine script for cmd, streaming stdio and
-// propagating the exit code. Scripts are resolved ONLY under
-// <root>/.pose/scripts — never via PATH lookup.
-func delegate(script string, args []string, stdout, stderr io.Writer) int {
-	fmt.Fprintf(stderr, "[WARN] pose: %s\n", cliText(cliLocaleValue(), "delegating to the deprecated script engine", "delegando para o motor de scripts descontinuado"))
-	root, err := projectRoot()
-	if err != nil {
-		fmt.Fprintf(stderr, "pose: %v\n", err)
-		return 1
-	}
-	path := filepath.Join(root, ".pose", "scripts", script)
-	if _, err := os.Stat(path); err != nil {
-		locale := cliLocaleValue()
-		fmt.Fprintf(stderr, "pose: %s %s\n", cliText(locale, "script engine not found at", "motor de scripts não encontrado em"), path)
-		fmt.Fprintln(stderr, "pose:", cliText(locale, "is this directory a POSE installation? Run the distribution install.sh or 'pose init' in an installed repository.", "este diretório tem uma instalação POSE? Rode o install.sh da distribuição ou 'pose init' num repo já instalado."))
-		return 1
-	}
-	c := exec.Command("bash", append([]string{path}, args...)...)
-	c.Dir = root
-	c.Stdin = os.Stdin
-	c.Stdout = stdout
-	c.Stderr = stderr
-	if err := c.Run(); err != nil {
-		if ee, ok := err.(*exec.ExitError); ok {
-			return ee.ExitCode()
-		}
-		fmt.Fprintf(stderr, "pose: %v\n", err)
-		return 1
-	}
-	return 0
 }
 
 func cmdVersion(w io.Writer) int {
@@ -249,8 +218,7 @@ Artifacts and maintenance:
   index | report | upgrade [--dry-run] | knowledge-housekeeping |
   reports-housekeeping | hooks
 
-Commands without native replacements are delegated to the deprecated script
-engine with the same interface. See the installed POSE.md for full details.
+All commands execute in the Go binary without Bash or Python fallbacks.
 `
 
 const helpTextPtBR = `POSE - Project Operating Standard for Engineering
@@ -286,7 +254,6 @@ Geração de artefatos:
 Manutenção:
   upgrade [--dry-run] | knowledge-housekeeping | reports-housekeeping | hooks
 
-Comandos não-nativos são delegados ao motor em .pose/scripts/ (mesma
-interface do dispatcher shell). 'pose help' completo por comando: consulte
-POSE.md da instância.
+Todos os comandos executam no binário Go, sem fallbacks Bash ou Python.
+'pose help' completo por comando: consulte o POSE.md da instância.
 `

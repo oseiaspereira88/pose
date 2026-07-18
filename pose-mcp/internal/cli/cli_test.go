@@ -7,8 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
-	"sort"
 	"strings"
 	"testing"
 )
@@ -60,42 +58,6 @@ func TestUnknownCommandExit2(t *testing.T) {
 	if !strings.Contains(errB.String(), "Unknown command") {
 		t.Fatalf("missing error message: %q", errB.String())
 	}
-}
-
-func TestDelegationPropagatesArgsAndExitCode(t *testing.T) {
-	repo := newGitRepo(t)
-	scripts := filepath.Join(repo, ".pose", "scripts")
-	if err := os.MkdirAll(scripts, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	stub := "#!/usr/bin/env bash\necho \"args:$*\"\nexit 3\n"
-	if err := os.WriteFile(filepath.Join(scripts, "pose-index.sh"), []byte(stub), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	inDir(t, repo, func() {
-		var out, errB bytes.Buffer
-		code := Main([]string{"index", "--strict", "extra"}, &out, &errB)
-		if code != 3 {
-			t.Fatalf("delegated exit=%d, want 3 (stderr=%s)", code, errB.String())
-		}
-		if !strings.Contains(out.String(), "args:--strict extra") {
-			t.Fatalf("args not propagated: %q", out.String())
-		}
-	})
-}
-
-func TestDelegationMissingEngineIsActionable(t *testing.T) {
-	repo := newGitRepo(t) // no .pose/scripts
-	inDir(t, repo, func() {
-		var out, errB bytes.Buffer
-		code := Main([]string{"index"}, &out, &errB)
-		if code != 1 {
-			t.Fatalf("exit=%d, want 1", code)
-		}
-		if !strings.Contains(errB.String(), "script engine not found") {
-			t.Fatalf("missing actionable message: %q", errB.String())
-		}
-	})
 }
 
 func TestInitNativeCreatesStructure(t *testing.T) {
@@ -161,7 +123,7 @@ func TestNativeScaffoldsCreateContractArtifacts(t *testing.T) {
 			t.Fatalf("new-roadmap exit=%d err=%s", code, errB.String())
 		}
 		roadmap, err := os.ReadFile(filepath.Join(repo, ".pose", "roadmaps", "adoption-v3.md"))
-		if err != nil || !strings.Contains(string(roadmap), "slug: adoption-v3") || strings.Contains(string(roadmap), "<YYYY-MM-DD>") {
+		if err != nil || !strings.Contains(string(roadmap), "slug: adoption-v3") || strings.Contains(string(roadmap), "<YYYY-MM-DD>") || strings.Contains(string(roadmap), "<created_at>") {
 			t.Fatalf("roadmap artifact=%q err=%v", roadmap, err)
 		}
 
@@ -229,56 +191,6 @@ func TestFollowupsNativeOpenAllAndJSON(t *testing.T) {
 	})
 }
 
-func TestFollowupsNativeParityWithPythonFixture(t *testing.T) {
-	repo := newGitRepo(t)
-	for slug, body := range map[string]string{
-		"alpha": "---\nstatus: done\n---\n## 7. Final Report\n### Follow-ups\n- [open] Add cache invalidation contract\n- [done] shipped\n",
-		"beta":  "---\nstatus: in-progress\n---\n## 7. Final Report\n### Follow-ups\n- Add contract for cache invalidation\n",
-	} {
-		dir := filepath.Join(repo, ".pose", "specs", slug)
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(filepath.Join(dir, "spec.md"), []byte(body), 0o644); err != nil {
-			t.Fatal(err)
-		}
-	}
-	aggregator, err := filepath.Abs(filepath.Join("..", "..", "..", ".pose", "scripts", "pose-followups.py"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	python := exec.Command("python3", aggregator, "--specs-dir", filepath.Join(repo, ".pose", "specs"), "--all", "--json", "--similarity", "60")
-	pythonOutput, err := python.Output()
-	if err != nil {
-		t.Fatalf("python fixture: %v", err)
-	}
-	var expected map[string]any
-	if err := json.Unmarshal(pythonOutput, &expected); err != nil {
-		t.Fatal(err)
-	}
-	inDir(t, repo, func() {
-		var out, errB bytes.Buffer
-		if code := Main([]string{"followups", "--all", "--json", "--similarity", "60"}, &out, &errB); code != 0 {
-			t.Fatalf("native exit=%d err=%s", code, errB.String())
-		}
-		var actual map[string]any
-		if err := json.Unmarshal(out.Bytes(), &actual); err != nil {
-			t.Fatal(err)
-		}
-		for _, key := range []string{"total", "open", "specs", "similarity_threshold"} {
-			if fmt.Sprint(actual[key]) != fmt.Sprint(expected[key]) {
-				t.Errorf("%s native=%v python=%v", key, actual[key], expected[key])
-			}
-		}
-		if len(actual["items"].([]any)) != len(expected["items"].([]any)) {
-			t.Errorf("item count mismatch")
-		}
-		if len(actual["near_duplicate_candidates"].([]any)) != len(expected["near_duplicate_candidates"].([]any)) {
-			t.Errorf("candidate count mismatch")
-		}
-	})
-}
-
 func TestReportNativeCreatesMarkdownAndValidatesArgs(t *testing.T) {
 	repo := newGitRepo(t)
 	inDir(t, repo, func() {
@@ -303,6 +215,9 @@ func TestReportNativeCreatesMarkdownAndValidatesArgs(t *testing.T) {
 		}
 		if code := Main([]string{"report", "--task", "x", "--type", "../../escape"}, &out, &errB); code != 2 {
 			t.Fatalf("unsafe report type exit=%d", code)
+		}
+		if code := Main([]string{"report", "--task", "x", "--validate-output", "../escape.log"}, &out, &errB); code != 2 {
+			t.Fatalf("unsafe validation log exit=%d", code)
 		}
 		if code := Main([]string{"report", "--task", "x", "--unknown", "value"}, &out, &errB); code != 2 {
 			t.Fatalf("unknown flag exit=%d", code)
@@ -371,6 +286,13 @@ func TestValidateNativeRunsStructuredChecksWithoutShell(t *testing.T) {
 		if code := Main([]string{"validate", "--module", "../escape"}, &out, &errB); code != 2 {
 			t.Fatalf("unsafe module exit=%d", code)
 		}
+		unsafeMatrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"unsafe","program":%q,"args":[],"severity":"required","when":{"fileExists":"../../secret"}}]}},"moduleOverrides":{}}`, executable)
+		if err := os.WriteFile(filepath.Join(matrixDir, "validation-matrix.json"), []byte(unsafeMatrix), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if code := Main([]string{"validate", "--module", "service"}, &out, &errB); code != 2 || !strings.Contains(errB.String(), "must remain inside") {
+			t.Fatalf("unsafe when path accepted: exit=%d err=%s", code, errB.String())
+		}
 	})
 }
 
@@ -388,13 +310,6 @@ func TestCheckNativeParityAndSchemaFailures(t *testing.T) {
 		if !strings.Contains(nativeOut.String(), "Resultado: SUCESSO") || strings.Contains(nativeErr.String(), "deprecated script engine") {
 			t.Fatalf("check was not native/compatible: out=%q err=%q", nativeOut.String(), nativeErr.String())
 		}
-		legacy := exec.Command("bash", filepath.Join(repo, ".pose", "scripts", "pose-check.sh"), "--strict")
-		legacy.Dir = repo
-		legacyOutput, err := legacy.CombinedOutput()
-		if err != nil || !strings.Contains(string(legacyOutput), "Resultado: SUCESSO") {
-			t.Fatalf("legacy fixture failed: %v %s", err, legacyOutput)
-		}
-
 		matrixPath := filepath.Join(repo, ".pose", "indexes", "validation-matrix.json")
 		raw, err := os.ReadFile(matrixPath)
 		if err != nil {
@@ -479,36 +394,6 @@ func TestNativeCommandLocaleMessagesAndStableAnchors(t *testing.T) {
 	}
 }
 
-// TestInitParityWithBashEngine guards against drift between the native list
-// and pose-init.sh REQUIRED_DIRS (R5): it parses the script and compares.
-func TestInitParityWithBashEngine(t *testing.T) {
-	script, err := os.ReadFile(filepath.Join("..", "..", "..", ".pose", "scripts", "pose-init.sh"))
-	if err != nil {
-		t.Skipf("bash engine not available: %v", err)
-	}
-	block := regexp.MustCompile(`(?s)REQUIRED_DIRS=\((.*?)\)`).FindStringSubmatch(string(script))
-	if block == nil {
-		t.Fatal("REQUIRED_DIRS array not found in pose-init.sh")
-	}
-	re := regexp.MustCompile(`"\$(?:POSE_DIR|ROOT_DIR)(/[^"]+)"`)
-	var fromBash []string
-	for _, m := range re.FindAllStringSubmatch(block[1], -1) {
-		p := m[1]
-		if strings.HasPrefix(m[0], `"$POSE_DIR`) {
-			p = ".pose" + p
-		} else {
-			p = strings.TrimPrefix(p, "/")
-		}
-		fromBash = append(fromBash, strings.TrimPrefix(p, "/"))
-	}
-	native := append([]string(nil), instanceDirs...)
-	sort.Strings(fromBash)
-	sort.Strings(native)
-	if strings.Join(fromBash, ",") != strings.Join(native, ",") {
-		t.Fatalf("init parity drift:\n bash:   %v\n native: %v", fromBash, native)
-	}
-}
-
 func TestTelemetryOptInLifecycle(t *testing.T) {
 	repo := newGitRepo(t)
 	inDir(t, repo, func() {
@@ -552,12 +437,8 @@ func TestDoctorHealthyAndBrokenInstance(t *testing.T) {
 		if !strings.Contains(out.String(), "install.sh") {
 			t.Fatalf("hint de install ausente: %q", out.String())
 		}
-		// Instância mínima com motor + schema: melhora o quadro.
-		if err := os.MkdirAll(filepath.Join(repo, ".pose", "scripts"), 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(filepath.Join(repo, ".pose", "scripts", "pose-lib.sh"),
-			[]byte("POSE_SCHEMA_VERSION=1\n"), 0o644); err != nil {
+		// Minimal native instance + schema improves the result.
+		if err := os.MkdirAll(filepath.Join(repo, ".pose"), 0o755); err != nil {
 			t.Fatal(err)
 		}
 		if err := os.WriteFile(filepath.Join(repo, ".pose", "schema-version"), []byte("1\n"), 0o644); err != nil {
@@ -588,10 +469,16 @@ func TestInstallEmbeddedFreshAndIdempotent(t *testing.T) {
 	if code := Main([]string{"install", repo, "--skip-mcp"}, &out, &errB); code != 0 {
 		t.Fatalf("install exit=%d\nout=%s\nerr=%s", code, out.String(), errB.String())
 	}
-	for _, rel := range []string{".pose/scripts/pose-lib.sh", ".pose/schema-version", "AGENTS.md", "pose", ".pose/LICENSE"} {
+	for _, rel := range []string{".pose/schema-version", "AGENTS.md", ".pose/LICENSE"} {
 		if _, err := os.Stat(filepath.Join(repo, rel)); err != nil {
 			t.Errorf("missing after install: %s", rel)
 		}
+	}
+	if _, err := os.Stat(filepath.Join(repo, ".pose", "scripts")); !os.IsNotExist(err) {
+		t.Error("legacy .pose/scripts must not be installed")
+	}
+	if _, err := os.Stat(filepath.Join(repo, "pose")); !os.IsNotExist(err) {
+		t.Error("legacy root dispatcher must not be installed")
 	}
 	if b, _ := os.ReadFile(filepath.Join(repo, ".agents", "skills", "pose-feature", "SKILL.md")); !strings.Contains(string(b), "Use to implement a non-trivial feature") {
 		t.Error("default English skill not installed")

@@ -42,7 +42,7 @@ Consult this guide when creating, updating, reviewing, or removing artifacts und
 
 ## Minimum operational checks
 
-- Run `./pose knowledge-check --strict` biweekly to validate the expired backlog.
-- Run `bash .pose/scripts/pose-knowledge-housekeeping.sh list-expired` for detailed triage.
-- Run `bash .pose/scripts/pose-knowledge-housekeeping.sh archive-expired --dry-run` before applying changes.
+- Run `pose knowledge-check --strict` biweekly to validate the expired backlog.
+- Run `pose knowledge-housekeeping list-expired` for detailed triage.
+- Run `pose knowledge-housekeeping archive-expired --dry-run` before applying changes.
 - Execute destructive actions only with an explicit `--apply` flag.

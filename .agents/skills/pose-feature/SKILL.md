@@ -11,18 +11,18 @@ when_to_use: The task adds or extends observable functionality rather than fixin
 1. [AGENTS.md](../../../AGENTS.md).
 2. [`.pose/workflows/feature.md`](../../../.pose/workflows/feature.md).
 3. The affected module's nearest `AGENTS.md`, when present.
-4. Cumulative rules returned by `./pose suggest feature --path <affected-dir>`.
+4. Cumulative rules returned by `pose suggest feature --path <affected-dir>`.
 
 ## Steps
 
 1. Identify a short slug and create or locate `.pose/specs/<slug>/spec.md`.
 2. Search `.pose/knowledge/` for related handoffs and decision logs.
 3. Complete Intent, Requirements, Technical Plan, and Tasks before coding.
-4. Implement incrementally and run `./pose validate --strict --module <affected-path> --report`.
+4. Implement incrementally and run `pose validate --strict --module <affected-path> --report`.
 5. Record executed commands and results in Validation.
 6. Create a handoff when another execution needs partial state, follow-ups, or owner transition.
 7. Complete the Final Report with delivered scope and residual risk.
-8. Use [pose-spec-closeout](../pose-spec-closeout/SKILL.md), disposition follow-ups, and pass `./pose lint-spec <slug> --strict`.
+8. Use [pose-spec-closeout](.pose-spec-closeout/SKILL.md), disposition follow-ups, and pass `pose lint-spec <slug> --strict`.
 
 ## Output requirements
 

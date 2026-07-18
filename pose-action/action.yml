@@ -35,22 +35,22 @@ runs:
     - name: POSE structure (check)
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: ./pose check --${{ inputs.mode }}
+      run: pose check --${{ inputs.mode }}
 
     - name: Spec lifecycle (lint-spec)
       if: ${{ inputs.lint-specs == 'true' }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: ./pose lint-spec --all --${{ inputs.mode }}
+      run: pose lint-spec --all --${{ inputs.mode }}
 
     - name: Recurrence signal
       if: ${{ inputs.recurrence-check == 'true' }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: ./pose recurrence-check --${{ inputs.mode }}
+      run: pose recurrence-check --${{ inputs.mode }}
 
     - name: History integrity
       if: ${{ inputs.history-check == 'true' }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: ./pose history-check --${{ inputs.mode }}
+      run: pose history-check --${{ inputs.mode }}

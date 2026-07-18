@@ -72,6 +72,14 @@ type validationModule struct {
 	Rel, Abs, Stack string
 }
 
+func confinedRelativePath(path string) bool {
+	if strings.TrimSpace(path) == "" {
+		return true
+	}
+	clean := filepath.Clean(filepath.FromSlash(path))
+	return !filepath.IsAbs(clean) && clean != ".." && !strings.HasPrefix(clean, ".."+string(filepath.Separator))
+}
+
 func discoverValidationModules(root string) ([]validationModule, error) {
 	ignored := map[string]bool{".git": true, "node_modules": true, "vendor": true, ".venv": true, ".pnpm-store": true, "target": true, "dist": true, "build": true, ".next": true, "coverage": true, ".pose": true}
 	byPath := map[string]string{}
@@ -118,16 +126,46 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 
 func validationCheckEnabled(module string, when validationWhen) bool {
 	if when.FileExists != "" {
+		if !confinedRelativePath(when.FileExists) {
+			return false
+		}
 		if _, err := os.Stat(filepath.Join(module, filepath.FromSlash(when.FileExists))); err != nil {
 			return false
 		}
 	}
 	if when.FileNotExists != "" {
+		if !confinedRelativePath(when.FileNotExists) {
+			return false
+		}
 		if _, err := os.Stat(filepath.Join(module, filepath.FromSlash(when.FileNotExists))); err == nil {
 			return false
 		}
 	}
 	return true
+}
+
+func validateStructuredMatrixPaths(matrix validationMatrix) error {
+	validate := func(scope string, checks []validationCheck) error {
+		for index, check := range checks {
+			for field, path := range map[string]string{"fileExists": check.When.FileExists, "fileNotExists": check.When.FileNotExists} {
+				if !confinedRelativePath(path) {
+					return fmt.Errorf("%s.checks[%d].when.%s must remain inside its module", scope, index, field)
+				}
+			}
+		}
+		return nil
+	}
+	for name, stack := range matrix.Stacks {
+		if err := validate("stacks."+name, stack.Checks); err != nil {
+			return err
+		}
+	}
+	for name, override := range matrix.ModuleOverrides {
+		if err := validate("moduleOverrides."+name, override.Checks); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func matrixHasLegacyChecks(matrix validationMatrix) bool {
@@ -198,8 +236,13 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, cliText(locale, "Error: invalid validation matrix: %v\n", "Erro: matriz de validação inválida: %v\n"), err)
 		return 2
 	}
+	if err := validateStructuredMatrixPaths(matrix); err != nil {
+		fmt.Fprintf(stderr, cliText(locale, "Error: invalid validation matrix path: %v\n", "Erro: path inválido na matriz de validação: %v\n"), err)
+		return 2
+	}
 	if matrixHasLegacyChecks(matrix) {
-		return delegate("pose-validate.sh", args, stdout, stderr)
+		fmt.Fprintln(stderr, cliText(locale, "Error: legacy shell 'command' checks are unsupported; migrate each check to program + args + env.", "Erro: checks shell legados em 'command' não são suportados; migre cada check para program + args + env."))
+		return 2
 	}
 	if mode == "" {
 		mode = matrix.Defaults.Mode

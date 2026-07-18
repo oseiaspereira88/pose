@@ -21,10 +21,10 @@ Use a 30-day default TTL and at most 90 days with justification.
 
 ## Steps
 
-1. Create an artifact with `./pose new-knowledge <type> <slug> --owner @<team> --ttl-days 30`.
+1. Create an artifact with `pose new-knowledge <type> <slug> --owner @<team> --ttl-days 30`.
 2. Fill Context, Current state, Next checks, Risks, and Next owner; update `source_refs`.
 3. Use `--restricted` for restricted content, while still excluding secrets and personal data.
-4. Run `./pose knowledge-check --strict`.
+4. Run `pose knowledge-check --strict`.
 5. Search active knowledge before related work with `find .pose/knowledge -name '*<topic>*.md' -type f -not -path '*/archive/*'`.
 6. Use `knowledge-housekeeping` to list expired artifacts, archive with `--apply`, and purge only after the retention window.
 

@@ -1,9 +1,7 @@
 # CLI reference
 
-The `pose` CLI has two layers today (strangler migration in progress): a
-unified Go binary (`pose`) for native commands and the script engine in
-`.pose/scripts/` for commands still being migrated, with identical interface
-and exit codes.
+The `pose` CLI is a single native Go binary. Every command below executes
+without Bash or Python fallbacks and works offline.
 
 ## Scaffold
 

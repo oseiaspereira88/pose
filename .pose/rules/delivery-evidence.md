@@ -9,7 +9,7 @@ current-state sections in specs or proposals, and messages that say something is
 ## Required conventions
 
 - Claim delivery only with attached, verifiable gate evidence: command and output
-  (`./pose validate`, `go test`, `tsc`, `vitest`) or a link to the corresponding POSE report.
+  (`pose validate`, `go test`, `tsc`, `vitest`) or a link to the corresponding POSE report.
 - Use POSE lifecycle vocabulary: `draft`, `in-progress`, `done`, `blocked`,
   `superseded`, or `abandoned`. Do not invent labels such as `completed` or `100% COMPLETE`.
 - Separate **implemented and verified** work from **planned or documented** work.
@@ -20,16 +20,16 @@ current-state sections in specs or proposals, and messages that say something is
 ## Blocking anti-patterns
 
 - Claiming `100% COMPLETE` or production readiness without a green
-  `./pose validate --strict` for every affected module.
+  `pose validate --strict` for every affected module.
 - Publishing contradictory delivery documents for the same scope; reconcile them first.
 - Merging code with completion documentation before the applicable POSE checks pass.
 - Mixing aspiration and verified state in one paragraph without clear labels.
 
 ## Minimum checks
 
-- Run `./pose check --strict` for structure and spec status enums.
-- Run `./pose validate --strict` for every module the document claims to deliver.
-- Run `./pose lint-spec` when the document is a spec.
+- Run `pose check --strict` for structure and spec status enums.
+- Run `pose validate --strict` for every module the document claims to deliver.
+- Run `pose lint-spec` when the document is a spec.
 
 ## Precedence in multi-domain conflicts
 

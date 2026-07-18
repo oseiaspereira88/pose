@@ -14,6 +14,6 @@ Repositório de memória operacional de curto prazo sob governança POSE.
 - Responsável primário: `@pose-maintainers`.
 - Responsável de backup: `@your-team-leads`.
 
-- Liste vencidos: `bash .pose/scripts/pose-knowledge-housekeeping.sh list-expired`
-- Arquive vencidos (simulação): `bash .pose/scripts/pose-knowledge-housekeeping.sh archive-expired --dry-run`
-- Expurgue arquivados (simulação): `bash .pose/scripts/pose-knowledge-housekeeping.sh purge-archived --dry-run`
+- Liste vencidos: `pose knowledge-housekeeping list-expired`
+- Arquive vencidos (simulação): `pose knowledge-housekeeping archive-expired --dry-run`
+- Expurgue arquivados (simulação): `pose knowledge-housekeeping purge-archived --dry-run`

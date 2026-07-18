@@ -75,7 +75,7 @@ refs: PR#123
 ```
 
 The body is 1–3 user-facing sentences. At release time,
-`pose-release-notes.sh` consolidates fragments into grouped release notes
+`pose release-notes` consolidates fragments into grouped release notes
 (breaking changes first).
 
 ## Schema version (`.pose/schema-version`)

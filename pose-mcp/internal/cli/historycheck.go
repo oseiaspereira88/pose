@@ -1,7 +1,7 @@
 package cli
 
 // Native port of the history-check gate (spec pose-cli-native-gates).
-// Mirrors .pose/scripts/pose-history-check.sh.
+// Implements the tracked-history contract natively.
 
 import (
 	"fmt"

@@ -51,13 +51,6 @@ func cmdDoctor(args []string, stdout, stderr io.Writer) int {
 	} else {
 		add("deps.git", "ok", text("git available", "git disponível"), "")
 	}
-	for _, dep := range []string{"bash", "python3"} {
-		if _, err := exec.LookPath(dep); err != nil {
-			add("deps."+dep, "warn", text(dep+" not found in PATH", dep+" não encontrado no PATH"), text("only deprecated delegated commands require this runtime", "apenas comandos delegados descontinuados exigem este runtime"))
-		} else {
-			add("deps."+dep, "ok", text(dep+" available for deprecated delegated commands", dep+" disponível para comandos delegados descontinuados"), "")
-		}
-	}
 	if _, err := exec.LookPath("go"); err != nil {
 		add("deps.go", "warn", text("go not found (optional; needed only to rebuild MCP)", "go não encontrado (opcional: só para rebuild do MCP)"), "")
 	} else {
@@ -79,19 +72,8 @@ func cmdDoctor(args []string, stdout, stderr io.Writer) int {
 	}
 	add("instance.pose-dir", "ok", text(".pose/ present", ".pose/ presente"), "")
 
-	// 3. Engine + dispatcher.
-	if _, err := os.Stat(filepath.Join(poseDir, "scripts", "pose-lib.sh")); err != nil {
-		add("engine.scripts", "warn", text("deprecated script engine not found (.pose/scripts/pose-lib.sh)", "motor de scripts descontinuado ausente (.pose/scripts/pose-lib.sh)"),
-			text("rerun install.sh if delegated commands are still needed", "re-rode o install.sh se comandos delegados ainda forem necessários"))
-	} else {
-		add("engine.scripts", "ok", text("deprecated script engine present", "motor de scripts descontinuado presente"), "")
-	}
-	if _, err := os.Stat(filepath.Join(root, "pose")); err != nil {
-		add("engine.dispatcher", "warn", text("root ./pose dispatcher not found", "dispatcher ./pose ausente na raiz"),
-			text("optional with the unified binary, but standard CI and hooks use it", "opcional com o binário unificado, mas o CI/hooks padrão o usam"))
-	} else {
-		add("engine.dispatcher", "ok", text("root ./pose dispatcher present", "dispatcher ./pose presente"), "")
-	}
+	// 3. Native engine contract.
+	add("engine.native", "ok", text("native Go engine active; no script runtime required", "motor Go nativo ativo; runtime de scripts não é necessário"), "")
 
 	// 4. Schema version.
 	svPath := filepath.Join(poseDir, "schema-version")
@@ -135,28 +117,19 @@ func cmdDoctor(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
-	// 6. MCP wrapper.
-	wrapper := filepath.Join(poseDir, "bin", "pose-mcp-claude")
-	if b, err := os.ReadFile(wrapper); err != nil {
-		add("mcp.wrapper", "warn", text("MCP wrapper not found (.pose/bin/pose-mcp-claude)", "wrapper MCP ausente (.pose/bin/pose-mcp-claude)"), text("optional; install with install.sh or --mcp-binary", "opcional; instale com install.sh ou --mcp-binary"))
+	// 6. MCP uses the same native binary directly.
+	if b, err := os.ReadFile(filepath.Join(root, ".mcp.json")); err != nil {
+		add("mcp.config", "warn", text(".mcp.json not found", ".mcp.json ausente"), text("run 'pose install' to seed the native server configuration", "rode 'pose install' para criar a configuração do servidor nativo"))
+	} else if strings.Contains(string(b), `"command": "pose"`) {
+		add("mcp.config", "ok", text("MCP points to the native pose binary", "MCP aponta para o binário pose nativo"), "")
 	} else {
-		content := string(b)
-		if strings.Contains(content, `POSE_PROJECT_ROOT="$(cd`) {
-			add("mcp.wrapper", "ok", text("wrapper resolves root dynamically", "wrapper deriva o root dinamicamente"), "")
-		} else {
-			add("mcp.wrapper", "error", text("wrapper has a hard-coded POSE_PROJECT_ROOT", "wrapper com POSE_PROJECT_ROOT hardcoded"), text("regenerate with the current install.sh", "regenere com o install.sh atual (bug do formato antigo)"))
-		}
-		if _, err := os.Stat(filepath.Join(poseDir, "bin", "pose-mcp")); err != nil {
-			add("mcp.binary", "warn", text("pose-mcp binary not found beside wrapper", "binário pose-mcp ausente ao lado do wrapper"), text("build it with go build or pass --mcp-binary to install.sh", "compile com go build ou passe --mcp-binary no install.sh"))
-		} else {
-			add("mcp.binary", "ok", text("pose-mcp binary present", "binário pose-mcp presente"), "")
-		}
+		add("mcp.config", "warn", text("MCP configuration does not use the native pose command", "configuração MCP não usa o comando pose nativo"), text("regenerate .mcp.json with 'pose install'", "regenere .mcp.json com 'pose install'"))
 	}
 
 	// 7. Git hooks.
 	hook := filepath.Join(root, ".git", "hooks", "pre-commit")
 	if _, err := os.Lstat(hook); err != nil {
-		add("hooks.pre-commit", "warn", text("pre-commit hook not installed", "pre-commit não instalado"), text("run './pose hooks install' for an automatic commit gate", "rode './pose hooks install' para gate automático no commit"))
+		add("hooks.pre-commit", "warn", text("pre-commit hook not installed", "pre-commit não instalado"), text("run 'pose hooks install' for an automatic commit gate", "rode 'pose hooks install' para gate automático no commit"))
 	} else {
 		add("hooks.pre-commit", "ok", text("pre-commit hook installed", "pre-commit instalado"), "")
 	}
@@ -164,20 +137,8 @@ func cmdDoctor(args []string, stdout, stderr io.Writer) int {
 	return doctorReport(findings, jsonOut, stdout, locale)
 }
 
-// engineSchemaVersion parses POSE_SCHEMA_VERSION from the installed engine.
 func engineSchemaVersion(root string) int {
-	b, err := os.ReadFile(filepath.Join(root, ".pose", "scripts", "pose-lib.sh"))
-	if err != nil {
-		return 0
-	}
-	for _, line := range strings.Split(string(b), "\n") {
-		if v, ok := strings.CutPrefix(strings.TrimSpace(line), "POSE_SCHEMA_VERSION="); ok {
-			if n, err := strconv.Atoi(strings.TrimSpace(v)); err == nil {
-				return n
-			}
-		}
-	}
-	return 0
+	return nativeSchemaVersion
 }
 
 func doctorReport(findings []doctorFinding, jsonOut bool, stdout io.Writer, locale cliLocale) int {

@@ -19,8 +19,7 @@ jobs:
 ```
 
 It runs `pose check`, `pose lint-spec --all`, `pose recurrence-check` and
-`pose history-check` — all offline, needing only bash + python3 (present on
-all GitHub runners).
+`pose history-check` — all offline, requiring the native `pose` binary and git.
 
 ## Use POSE from pre-commit.com
 
@@ -35,7 +34,7 @@ repos:
 ```
 
 Run `pre-commit install`, then use `pre-commit run --all-files` in CI. The
-hooks call the repository's installed `./pose` in strict mode and do not
+hooks call `pose` from `PATH` in strict mode and do not
 receive staged filenames. Run one manually with
 `pre-commit run pose-check --hook-stage manual --all-files`. Skip a single
 hook temporarily with `SKIP=pose-history-check git commit ...`; CI remains the
@@ -53,7 +52,7 @@ delivery authority and should not skip required gates.
 ## Releases
 
 Tagging `v*` triggers the release pipeline: POSE gates + Go tests + installer
-E2E, then goreleaser publishes multi-platform binaries (`pose`, `pose-mcp`)
+E2E, then goreleaser publishes the multi-platform `pose` binary
 with SHA-256 checksums, the installer script, and release notes consolidated
 from the POSE changelog fragments. See `docs/RELEASE.md` in the repository for
 the full process and ownership of the remaining manual steps.

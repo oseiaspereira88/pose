@@ -14,11 +14,11 @@ when_to_use: Manual or CI recurrence-check flags at least one key above threshol
 
 ## Steps
 
-1. Confirm the signal with `./pose recurrence-check --tolerant --window-days 30 --threshold 3`.
-2. Aggregate workflow and task outcomes with `./pose stats workflows --since-days 30` and `./pose stats tasks --since-days 30 --json`.
+1. Confirm the signal with `pose recurrence-check --tolerant --window-days 30 --threshold 3`.
+2. Aggregate workflow and task outcomes with `pose stats workflows --since-days 30` and `pose stats tasks --since-days 30 --json`.
 3. Investigate common modules, root causes, repeatedly violated rules, and missing workflow prevention.
 4. Add or adjust the cheapest effective rule or workflow; promote an optional check only with at least 95 percent success over four weeks.
-5. Record the decision with `./pose new-knowledge decision-log escalation-<task-slug> --owner @<owner> --ttl-days 90`.
+5. Record the decision with `pose new-knowledge decision-log escalation-<task-slug> --owner @<owner> --ttl-days 90`.
 6. Update the related spec and link the decision log.
 
 ## Output requirements

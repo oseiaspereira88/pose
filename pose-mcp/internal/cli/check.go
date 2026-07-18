@@ -89,26 +89,10 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func (checker *nativeChecker) checkRequiredStructure() {
-	required := []string{"AGENTS.md", "POSE.md", ".pose", ".pose/workflows", ".pose/templates", ".pose/rules", ".pose/scripts", ".pose/workflows/feature.md", ".pose/workflows/review.md", ".pose/workflows/bugfix.md", ".pose/templates/spec.md"}
+	required := []string{"AGENTS.md", "POSE.md", ".pose", ".pose/workflows", ".pose/templates", ".pose/rules", ".pose/workflows/feature.md", ".pose/workflows/review.md", ".pose/workflows/bugfix.md", ".pose/templates/spec.md"}
 	for _, rel := range required {
 		if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(rel))); err != nil {
 			checker.issue("ERRO", checker.message("Required path missing: ", "Path obrigatório ausente: ")+filepath.Join(checker.root, filepath.FromSlash(rel)))
-		}
-	}
-	scripts := []string{"pose-lib.sh", "pose-init.sh", "pose-check.sh", "pose-index.sh", "pose-validate.sh", "pose-report.sh", "pose-new-spec.sh", "pose-new-adr.sh", "pose-new-knowledge.sh", "pose-knowledge-check.sh", "pose-knowledge-housekeeping.sh", "pose-reports-housekeeping.sh", "pose-recurrence-check.sh", "pose-hooks.sh", "pose-lint-spec.sh", "pose-suggest.sh", "pose-stats.sh", "pose-history-check.sh"}
-	for _, name := range scripts {
-		path := filepath.Join(checker.root, ".pose", "scripts", name)
-		info, err := os.Stat(path)
-		if err != nil {
-			checker.issue("ERRO", checker.message("Required file missing: ", "Arquivo obrigatório ausente: ")+path)
-			continue
-		}
-		if info.Mode().Perm()&0o111 == 0 {
-			checker.issue("ERRO", checker.message("Script is not executable: ", "Script sem permissão de execução: ")+path)
-		}
-		content, err := os.ReadFile(path)
-		if err != nil || !strings.HasPrefix(string(content), "#!") {
-			checker.issue("ERRO", checker.message("Script has an invalid or missing shebang: ", "Script com shebang inválido ou ausente: ")+path)
 		}
 	}
 }
@@ -117,7 +101,7 @@ func (checker *nativeChecker) checkSchemaVersion() {
 	path := filepath.Join(checker.root, ".pose", "schema-version")
 	content, err := os.ReadFile(path)
 	if err != nil {
-		checker.failOrWarn(checker.message("schema: instance has no .pose/schema-version — run './pose upgrade'", "schema: instância sem .pose/schema-version — rode './pose upgrade'"))
+		checker.failOrWarn(checker.message("schema: instance has no .pose/schema-version — run 'pose upgrade'", "schema: instância sem .pose/schema-version — rode 'pose upgrade'"))
 		return
 	}
 	version, err := strconv.Atoi(strings.TrimSpace(string(content)))
@@ -129,7 +113,7 @@ func (checker *nativeChecker) checkSchemaVersion() {
 		checker.issue("ERRO", fmt.Sprintf(checker.message("schema: instance v%d is newer than engine v%d", "schema: instância v%d é mais nova que o motor v%d"), version, nativeSchemaVersion))
 	}
 	if version < nativeSchemaVersion {
-		checker.failOrWarn(fmt.Sprintf(checker.message("schema: instance v%d is behind engine v%d — run './pose upgrade'", "schema: instância v%d atrás do motor v%d — rode './pose upgrade'"), version, nativeSchemaVersion))
+		checker.failOrWarn(fmt.Sprintf(checker.message("schema: instance v%d is behind engine v%d — run 'pose upgrade'", "schema: instância v%d atrás do motor v%d — rode 'pose upgrade'"), version, nativeSchemaVersion))
 	}
 }
 
@@ -147,6 +131,10 @@ func (checker *nativeChecker) checkReferences() {
 				continue
 			}
 			seen[ref] = true
+			if !confinedRelativePath(ref) {
+				checker.failOrWarn(fmt.Sprintf(checker.message("Reference escapes the project root: %q (source: %s)", "Referência escapa da raiz do projeto: %q (origem: %s)"), ref, rel))
+				continue
+			}
 			if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(ref))); err != nil {
 				checker.failOrWarn(fmt.Sprintf(checker.message("Broken reference: %q (source: %s)", "Referência quebrada: %q (origem: %s)"), ref, rel))
 			}
@@ -265,6 +253,11 @@ func (checker *nativeChecker) validateMatrixCheck(prefix string, check validatio
 			checker.failOrWarn(prefix + checker.message(".env: invalid key", ".env: chave inválida"))
 		}
 	}
+	for field, path := range map[string]string{"fileExists": check.When.FileExists, "fileNotExists": check.When.FileNotExists} {
+		if !confinedRelativePath(path) {
+			checker.failOrWarn(prefix + ".when." + field + checker.message(": must remain inside its module", ": deve permanecer dentro do módulo"))
+		}
+	}
 }
 
 func (checker *nativeChecker) checkTaskMap() {
@@ -306,6 +299,10 @@ func (checker *nativeChecker) checkTaskMap() {
 }
 
 func (checker *nativeChecker) requireTaskRef(field, rel string) {
+	if !confinedRelativePath(rel) {
+		checker.failOrWarn(fmt.Sprintf(checker.message("task-map.json: %s escapes the project root: %s", "task-map.json: %s escapa da raiz do projeto: %s"), field, rel))
+		return
+	}
 	if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(rel))); err != nil {
 		checker.failOrWarn(fmt.Sprintf(checker.message("task-map.json: %s does not exist: %s", "task-map.json: %s inexistente: %s"), field, rel))
 	}
@@ -688,7 +685,7 @@ func (checker *nativeChecker) checkReadyTransitions() {
 		}
 		if !specReady(checker.root, path) {
 			slug := filepath.Base(filepath.Dir(path))
-			checker.failOrWarn(checker.message("DoR: transition to in-progress without Definition of Ready: ", "DoR: transição para in-progress sem Definition of Ready: ") + slug + checker.message(" (details: ./pose lint-spec ", " (detalhes: ./pose lint-spec ") + slug + " --ready-check)")
+			checker.failOrWarn(checker.message("DoR: transition to in-progress without Definition of Ready: ", "DoR: transição para in-progress sem Definition of Ready: ") + slug + checker.message(" (details: pose lint-spec ", " (detalhes: pose lint-spec ") + slug + " --ready-check)")
 		}
 	}
 }

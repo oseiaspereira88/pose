@@ -1,5 +1,5 @@
 // Package bootstrap wires the POSE MCP server from environment configuration.
-// It is shared by cmd/pose-mcp (compatibility alias) and by `pose serve-mcp`
+// It is invoked by the unified `pose serve-mcp` command.
 // (unified CLI, spec pose-cli-go-unification).
 package bootstrap
 

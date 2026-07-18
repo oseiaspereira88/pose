@@ -41,7 +41,7 @@ priority:            # inteiro >= 0 (menor = mais prioritário); preferência de
 > Definition of Ready (gate de entrada): antes de `status: in-progress`, os
 > requisitos funcionais devem ter **acceptance criteria com IDs estáveis**
 > (`- R<N>: ...`). IDs publicados não são renumerados; critério removido é
-> marcado como retirado. Verifique com `./pose lint-spec <slug> --ready-check`.
+> marcado como retirado. Verifique com `pose lint-spec <slug> --ready-check`.
 
 ### Funcionais
 - R1: 
@@ -168,7 +168,7 @@ priority:            # inteiro >= 0 (menor = mais prioritário); preferência de
 <!--
 Cada follow-up começa com uma disposição entre colchetes. Quando a spec é
 marcada `status: done`, todo follow-up DEVE ter disposição (use `[open]` para
-os que ainda não foram triados — `./pose followups --open` os agrega).
+os que ainda não foram triados — `pose followups --open` os agrega).
 
 Disposições válidas:
   [open]                  ainda não triado (backlog vivo)

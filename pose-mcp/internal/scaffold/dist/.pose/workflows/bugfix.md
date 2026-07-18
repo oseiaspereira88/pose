@@ -21,7 +21,7 @@ Fix the root cause with the smallest possible impact, regression coverage, and o
 6. Add or adjust a regression test when applicable.
 7. Run relevant deterministic checks (`test`, `lint`, `typecheck`, `build`).
 8. Validate that the defect is gone and adjacent behavior is preserved.
-9. **Create a decision log** in `.pose/knowledge/` when the root cause reveals systemic debt or a trade-off with future impact (`./pose new-knowledge decision-log <slug>`).
+9. **Create a decision log** in `.pose/knowledge/` when the root cause reveals systemic debt or a trade-off with future impact (`pose new-knowledge decision-log <slug>`).
 10. Record residual risks and post-fix monitoring.
 
 ## Required outputs

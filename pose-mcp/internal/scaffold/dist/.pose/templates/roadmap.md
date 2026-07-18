@@ -11,7 +11,7 @@ depends_on:          # prerequisite roadmaps, inline list: other-roadmap-a, othe
 > a `## Milestone: <id>` section with flat bullets. Ordering between
 > milestones comes from `- after:`; dates are PLANNING input (Gantt) — actuals
 > derive from events and are never edited here. A spec belongs to at most ONE
-> active roadmap (`./pose check` validates).
+> active roadmap (`pose check` validates).
 >
 > Free prose is welcome outside milestone sections: context, risks, release
 > cut criteria.

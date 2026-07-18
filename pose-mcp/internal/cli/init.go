@@ -7,14 +7,11 @@ import (
 	"path/filepath"
 )
 
-// instanceDirs is the native mirror of .pose/scripts/pose-init.sh
-// (REQUIRED_DIRS). The parity test in init_test.go fails if the two lists
-// drift, keeping the bash engine authoritative during the strangler phase.
+// instanceDirs is the native instance contract.
 var instanceDirs = []string{
 	".pose/workflows",
 	".pose/templates",
 	".pose/rules",
-	".pose/scripts",
 	".pose/specs",
 	".pose/adr",
 	".pose/indexes",

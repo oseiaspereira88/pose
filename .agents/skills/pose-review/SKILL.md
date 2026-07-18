@@ -15,12 +15,12 @@ when_to_use: Evaluating your own or another author's diff or PR under POSE. Use 
 ## Steps
 
 1. Classify the change as feature, bugfix, refactor, documentation, or mixed.
-2. Select rules with `./pose suggest <type> --path <affected-dir>`.
+2. Select rules with `pose suggest <type> --path <affected-dir>`.
 3. Search `.pose/knowledge/` for prior module decisions, accepted risks, and pending follow-ups.
-4. Require `./pose validate` evidence proportional to risk.
+4. Require `pose validate` evidence proportional to risk.
 5. Evaluate functional correctness, public contracts, security, observability, performance, and regression.
 6. Classify findings as critical, high, medium, or low with evidence and expected action.
-7. Run `./pose recurrence-check --tolerant --window-days 14`; use recurrence escalation for a matching systemic signal.
+7. Run `pose recurrence-check --tolerant --window-days 14`; use recurrence escalation for a matching systemic signal.
 8. Create a handoff for accepted residual risk, monitoring, or deferred action.
 9. Decide: approved, approved with reservations, or rejected.
 

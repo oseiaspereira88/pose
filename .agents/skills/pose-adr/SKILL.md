@@ -18,10 +18,10 @@ Record architectural decisions so their rationale remains reviewable.
 
 1. Confirm this is architectural rather than tactical: someone will reasonably ask why in six months.
 2. Search existing ADRs for the topic.
-3. Run `./pose new-adr "<decision title>"`.
+3. Run `pose new-adr "<decision title>"`.
 4. Fill Status, Context, Decision, and Consequences in the generated file.
 5. Link affected modules and explain rejected trade-offs.
-6. Create a decision log with `./pose new-knowledge decision-log adr-<slug>-review --owner @<team> --ttl-days 90` when a future review trigger exists.
+6. Create a decision log with `pose new-knowledge decision-log adr-<slug>-review --owner @<team> --ttl-days 90` when a future review trigger exists.
 7. Reference the ADR from the related spec's Decisions section.
 
 ## Output requirements

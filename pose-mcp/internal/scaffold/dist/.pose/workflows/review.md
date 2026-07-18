@@ -8,7 +8,7 @@ Verify that a change is correct, production-safe, and aligned with its approved 
 
 - Make the final diff readable through cohesive commits or batches.
 - Provide requirement and spec context.
-- Attach implementer validation evidence, including `./pose validate` output.
+- Attach implementer validation evidence, including `pose validate` output.
 - Define acceptance criteria and expected risk.
 
 ## Execution checklist
@@ -83,7 +83,7 @@ Attach this section to the review:
 ### Validation
 
 - Require lint, typecheck, test, and build coverage proportional to risk.
-- Require executed `./pose validate` evidence and relevant results.
+- Require executed `pose validate` evidence and relevant results.
 - Record environment limitations and residual validation risks.
 
 ## Editorial checklist
@@ -119,7 +119,7 @@ Attach this section to the review:
 - `.pose/rules/documentation-style.md`: verified editorial consistency.
 
 ## Checks and evidence
-- `./pose validate`: passed
+- `pose validate`: passed
 - `go test ./...`: passed in the backend module
 - `pnpm lint && pnpm test`: passed in the frontend module
 - `helm template` and `kubectl apply --dry-run=client`: passed

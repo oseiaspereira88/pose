@@ -12,7 +12,7 @@ import (
 // Roadmap is the parsed view of a governed roadmap artifact
 // (pose-roadmap-artifact): flat frontmatter + `## Milestone: <id>` body
 // sections with flat bullets. Keep the parser in sync with
-// .pose/scripts/pose-spec-graph.py (parse_roadmap).
+// the native CLI indexer.
 type Roadmap struct {
 	Slug       string      `json:"slug"`
 	Status     string      `json:"status"`

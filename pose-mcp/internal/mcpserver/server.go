@@ -835,7 +835,7 @@ func toolDefinitions() []map[string]any {
 			"name": "pose_suggest",
 			"description": "Canonical POSE trail for a task type (workflow + skill + cumulative " +
 				"rules + validation command), straight from the deterministic CLI " +
-				"(./pose suggest --json). Use before starting any task to know which workflow " +
+				"(pose suggest --json). Use before starting any task to know which workflow " +
 				"and rules apply. Optional domain or repo-relative path refine the rule set.",
 			"inputSchema": map[string]any{
 				"type": "object",
@@ -888,7 +888,7 @@ func toolDefinitions() []map[string]any {
 		},
 		{
 			"name": "pose_get_followups",
-			"description": "Live backlog of spec follow-ups (./pose followups --json): open " +
+			"description": "Live backlog of spec follow-ups (pose followups --json): open " +
 				"items with their source spec, disposition and lexical near-duplicate " +
 				"candidates. Input for planning the next specs.",
 			"inputSchema": map[string]any{
@@ -903,7 +903,7 @@ func toolDefinitions() []map[string]any {
 		},
 		{
 			"name": "pose_check",
-			"description": "Evaluate the POSE structural integrity gate (./pose check) in " +
+			"description": "Evaluate the POSE structural integrity gate (pose check) in " +
 				"read-only mode. Returns the verdict (passed/exit_code) plus the full output " +
 				"as evidence — a failing gate is a result, not an error.",
 			"inputSchema": map[string]any{
@@ -918,7 +918,7 @@ func toolDefinitions() []map[string]any {
 		},
 		{
 			"name": "pose_lint_spec",
-			"description": "Evaluate the spec content + lifecycle gate (./pose lint-spec) in " +
+			"description": "Evaluate the spec content + lifecycle gate (pose lint-spec) in " +
 				"read-only mode: skeletal sections, done-without-completed_at, follow-ups " +
 				"without disposition. Without a slug, evaluates every spec.",
 			"inputSchema": map[string]any{

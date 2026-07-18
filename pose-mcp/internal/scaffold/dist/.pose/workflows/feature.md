@@ -21,9 +21,9 @@ Deliver a production feature with clear scope, incremental implementation, and d
 6. Implement incrementally and validate each meaningful step.
 7. Run applicable deterministic checks: test, lint, typecheck, and build.
 8. Review security, observability, and operational-documentation impact.
-9. Create a reusable handoff with `./pose new-knowledge handoff <slug>` when another execution needs partial state, a pending decision, or a follow-up; link the spec through `source_refs`.
+9. Create a reusable handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, a pending decision, or a follow-up; link the spec through `source_refs`.
 10. Summarize the result, residual risks, and next steps.
-11. Close the spec with `pose-spec-closeout`: set `status: done` and `completed_at`, disposition every follow-up, and pass `./pose lint-spec <slug> --strict`.
+11. Close the spec with `pose-spec-closeout`: set `status: done` and `completed_at`, disposition every follow-up, and pass `pose lint-spec <slug> --strict`.
 
 ## Required outputs
 

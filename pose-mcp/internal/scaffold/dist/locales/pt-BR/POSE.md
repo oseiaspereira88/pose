@@ -43,12 +43,10 @@ o manual operacional (estrutura, CLI, fluxos por tipo, CI, governança).
   indexes/       # repo-map, services, packages, validation-matrix, module-metadata, task-map, spec-graph, roadmaps
   reports/       # relatórios versionáveis + history JSONL + archive/
   specs/         # specs vivas por feature
-  scripts/       # automações da CLI ./pose (compartilham pose-lib.sh)
-  hooks/         # pre-commit e post-merge instaláveis via ./pose hooks
 
 .agents/skills/  # skills (fonte de verdade; formato nativo Codex)
 .claude/skills/  # symlinks compatíveis com Claude Code
-pose             # wrapper da CLI
+pose             # binário Go nativo disponível no PATH
 AGENTS.md        # contrato operacional curto
 POSE.md          # este manual
 ```
@@ -65,7 +63,7 @@ POSE.md          # este manual
 - [`.pose/templates/roadmap.md`](.pose/templates/roadmap.md): template de roadmap governado.
 - [`.pose/templates/changelog-fragment.md`](.pose/templates/changelog-fragment.md): fragment user-facing por spec (escrito no closeout).
 - [`.pose/templates/doc-audit-report.md`](.pose/templates/doc-audit-report.md): template para revisões editoriais e auditoria de documentação.
-- [`.pose/scripts/*.sh`](.pose/scripts/): automações de scaffold/check/validação/report (compartilham [`pose-lib.sh`](.pose/scripts/pose-lib.sh)).
+- Binário `pose`: automações nativas de scaffold/check/validação/report e servidor MCP.
 - [`.pose/specs/*/spec.md`](.pose/specs/): specs vivas por feature.
 - [`.agents/skills/`](.agents/skills/): 9 skills no formato nativo Codex (frontmatter `name`/`description`, corpo com Required reading + Steps + Output requirements, metadata opcional em `agents/openai.yaml`). Use `description` como fonte única de roteamento; Claude Code consome os symlinks em [`.claude/skills/`](.claude/skills/) sem exigir `when_to_use`.
 
@@ -88,7 +86,7 @@ verificação, não-fazer) está em [`AGENTS.md`](AGENTS.md) e **não** é repet
 
 ### 5.1 Ciclo de vida da spec
 
-Toda spec criada por [`./pose new-spec`](.pose/scripts/pose-new-spec.sh) carrega
+Toda spec criada por `pose new-spec` carrega
 frontmatter com estado e datas, evitando specs que ficam "em aberto" após a
 conclusão e follow-ups que viram texto morto.
 
@@ -96,7 +94,7 @@ conclusão e follow-ups que viram texto morto.
 ---
 slug: <feature-slug>
 status: draft        # draft → in-progress → done | blocked | superseded | abandoned
-created_at: 2026-01-15   # carimbado por ./pose new-spec
+created_at: 2026-01-15   # carimbado por pose new-spec
 completed_at:            # preenchido na transição para done
 supersedes:              # slug da spec substituída (quando aplicável)
 depends_on:              # pré-requisitos: outra-spec, milestone:<roadmap>/<id>, roadmap:<slug>
@@ -118,7 +116,7 @@ priority:                # inteiro >= 0 (menor = mais prioritário)
   repos sem roadmaps). `depends_on` expressa
   pré-requisito técnico/lógico real; preferência de cronograma é papel de
   `priority`. O grafo agregado vive em
-  [`.pose/indexes/spec-graph.json`](.pose/indexes/) (gerado por `./pose index`;
+  [`.pose/indexes/spec-graph.json`](.pose/indexes/) (gerado por `pose index`;
   o frontmatter segue autoritativo) e a elegibilidade de uma spec é consultável
   via tool `pose_spec_readiness` do pose-mcp.
 - **`priority`** (opcional) ordena preferência de ataque entre specs elegíveis;
@@ -132,15 +130,15 @@ priority:                # inteiro >= 0 (menor = mais prioritário)
 
 O fechamento é um passo explícito (skill [`pose-spec-closeout`](.agents/skills/pose-spec-closeout/SKILL.md)):
 definir `status: done`, preencher `completed_at`, triar cada follow-up e passar o
-gate [`./pose lint-spec <slug> --strict`](.pose/scripts/pose-lint-spec.sh), que
+gate `pose lint-spec <slug> --strict`, que
 bloqueia "done sem `completed_at`" e "done com follow-up sem disposição". O
-backlog vivo agregado (`./pose followups --open`) vira insumo de planejamento
+backlog vivo agregado (`pose followups --open`) vira insumo de planejamento
 para novas specs.
 
 A triagem de follow-ups tem **duas camadas**, por design, para não quebrar o
 determinismo do CLI nem gerar drift em cascata:
 
-1. **Determinística (CLI):** [`./pose followups`](.pose/scripts/pose-followups.sh)
+1. **Determinística (CLI):** `pose followups`
    propõe candidatos a near-duplicate por similaridade léxica. Reproduzível,
    sem rede, roda em CI.
 2. **Semântica + confirmação (agente):** a skill `pose-spec-closeout` julga
@@ -154,59 +152,59 @@ determinismo do CLI nem gerar drift em cascata:
 ## 6) CLI `pose`
 
 ```bash
-./pose help                          # mostra ajuda
+pose help                          # mostra ajuda
 
 # Scaffold
-./pose init                          # garante estrutura mínima (idempotente)
-./pose new-spec <slug>               # cria spec única em .pose/specs/<slug>/spec.md
-./pose new-roadmap <slug>            # cria roadmap governado em .pose/roadmaps/
-./pose new-adr "<título>"            # cria ADR datada
-./pose new-knowledge <type> <slug>   # cria handoff/note/decision-log em .pose/knowledge/
+pose init                          # garante estrutura mínima (idempotente)
+pose new-spec <slug>               # cria spec única em .pose/specs/<slug>/spec.md
+pose new-roadmap <slug>            # cria roadmap governado em .pose/roadmaps/
+pose new-adr "<título>"            # cria ADR datada
+pose new-knowledge <type> <slug>   # cria handoff/note/decision-log em .pose/knowledge/
                                       # (opções: --owner @x --ttl-days N --restricted)
 
 # Gates determinísticos
-./pose check [--strict|--tolerant]   # integridade estrutural + matrix schema + task-map sync
-./pose validate [--strict|--tolerant] [--stack s] [--module path] [--report]
-                                      # --report dispara ./pose report ao final
+pose check [--strict|--tolerant]   # integridade estrutural + matrix schema + task-map sync
+pose validate [--strict|--tolerant] [--stack s] [--module path] [--report]
+                                      # --report dispara pose report ao final
                                       # com --outcome deduzido (auto-validate)
-./pose knowledge-check [--strict|--tolerant] [--max-overdue N]
+pose knowledge-check [--strict|--tolerant] [--max-overdue N]
                                       # schema (gate) + backlog vencido
-./pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T] [--include-pass]
+pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T] [--include-pass]
                                       # task_slugs com ≥T runs em N dias
-./pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]
+pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]
                                       # detecta spec.md com seções esqueléticas
                                       # + gate de ciclo de vida (status: done)
                                       # + Definition of Ready (--ready-check)
-./pose followups [--open|--all] [--json]
+pose followups [--open|--all] [--json]
                                       # agrega follow-ups de todas as specs
                                       # (backlog vivo + colisões) para triagem
-./pose history-check [--strict|--tolerant]
+pose history-check [--strict|--tolerant]
                                       # detecta JSONL untracked em .pose/reports/history/
 
 # Descoberta e métricas
-./pose suggest [<tipo>] [--domain <d>] [--path <p>] [--json]
+pose suggest [<tipo>] [--domain <d>] [--path <p>] [--json]
                                       # trilha canônica por tipo de tarefa
                                       # --path infere domínio via repo-map.json
-./pose stats [workflows|tasks|contexts] [--since-days N] [--json]
+pose stats [workflows|tasks|contexts] [--since-days N] [--json]
                                       # agrega outcomes do history JSONL
 
 # Geração de artefatos
-./pose index                         # regenera repo-map/services/packages/spec-graph/roadmaps
-./pose report --task "..." [--outcome pass|fail|partial|skipped] [--since <ref>] [--git-stage] [...]
+pose index                         # regenera repo-map/services/packages/spec-graph/roadmaps
+pose report --task "..." [--outcome pass|fail|partial|skipped] [--since <ref>] [--git-stage] [...]
                                       # --since usa `git diff --name-only`;
                                       # outcome auto-derivado de --validate-output;
                                       # --git-stage faz git add do JSONL após escrita
 
 # Manutenção
-./pose knowledge-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
-./pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-than N] [--dry-run|--apply]
-./pose hooks <install|uninstall|status> [--force]
-                                      # symlinks .pose/hooks/<x>.sh → .git/hooks/<x>
+pose knowledge-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
+pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-than N] [--dry-run|--apply]
+pose hooks <install|uninstall|status> [--force]
+                                      # symlinks do binário pose em .git/hooks/<x>
 ```
 
 ### Estado atual
 
-- `check` — valida integridade estrutural POSE (paths obrigatórios, scripts, referências em `AGENTS.md`/`POSE.md`) **mais** schema de [`.pose/indexes/validation-matrix.json`](.pose/indexes/validation-matrix.json) (pega typos como `severty`), sync de [`.pose/indexes/task-map.json`](.pose/indexes/task-map.json) (workflows/skills/rules referenciados devem existir) e o **grafo de dependências entre specs** ([`.pose/scripts/pose-spec-graph.py`](.pose/scripts/pose-spec-graph.py): refs de `depends_on` com sintaxe válida e specs existentes, `priority` inteiro ≥ 0, grafo acíclico). Falha em `--strict`, vira aviso em `--tolerant`.
+- `check` — valida integridade estrutural POSE (paths obrigatórios e referências em `AGENTS.md`/`POSE.md`) **mais** schema de [`.pose/indexes/validation-matrix.json`](.pose/indexes/validation-matrix.json), sync de [`.pose/indexes/task-map.json`](.pose/indexes/task-map.json) e o grafo nativo de dependências entre specs. Falha em `--strict`, vira aviso em `--tolerant`.
 - `new-spec` — gera `spec.md` único a partir de [`.pose/templates/spec.md`](.pose/templates/spec.md).
 - `new-adr` — cria ADR com template padrão usando slug determinístico.
 - `new-roadmap` — cria roadmap governado em `.pose/roadmaps/` a partir de [`.pose/templates/roadmap.md`](.pose/templates/roadmap.md): frontmatter flat (`status: draft|active|done|abandoned`, `depends_on:` entre roadmaps) + milestones como seções `## Milestone: <id>` com bullets flat (`- after:`, `- target_start:`, `- target_due:`, `- specs:`). O `check` valida membership única em roadmaps ativos, DAG de milestones/roadmaps, datas e a resolução das refs tipadas `milestone:`/`roadmap:` das specs; `pose_spec_readiness` resolve essas refs de verdade (milestone satisfeito = specs done; roadmap satisfeito = status done). Datas são planejamento; o realizado deriva de eventos.
@@ -223,16 +221,16 @@ determinismo do CLI nem gerar drift em cascata:
 - `stats` — agrega outcomes do history JSONL por workflow, task ou context. Habilita decisões objetivas (promover check de optional → required, identificar workflows instáveis, comparar ci vs manual). `--since-days N` filtra janela; `--json` para machine consumption.
 - `knowledge-housekeeping` — operações destrutivas/idempotentes sobre `.pose/knowledge/` (listar, arquivar, expurgar). Sempre exige `--apply` para mutações.
 - `reports-housekeeping` — espelha o housekeeping de knowledge sobre `.pose/reports/`. **Não toca em `history/`**: o JSONL é a fonte de verdade para `recurrence-check` e comparações temporais de `report`. Defaults: stale = 120d, archive purge = 365d.
-- `hooks` — gerencia symlinks de [`.pose/hooks/`](.pose/hooks/) em `.git/hooks/`. Hooks bundled: `pre-commit` (roda `./pose check --tolerant`) e `post-merge` (roda `./pose index`). `install --force` faz backup de hooks pré-existentes.
+- `hooks` — gerencia symlinks do binário nativo em `.git/hooks/`. `pre-commit` roda `pose check --tolerant` e `post-merge` roda `pose index`; `install --force` preserva backup de hooks preexistentes.
 
 ---
 
 ## 7) Política de CI
 
-- Execute `./pose check --strict` em todo `pull_request` para `main` e trate falha como bloqueante.
-- Execute `./pose validate --strict` em todo `pull_request` para `main` e trate falha de check `required` como bloqueante.
+- Execute `pose check --strict` em todo `pull_request` para `main` e trate falha como bloqueante.
+- Execute `pose validate --strict` em todo `pull_request` para `main` e trate falha de check `required` como bloqueante.
 - Execute o mesmo workflow em `push` para `main` para detectar drift pós-merge.
-- Publique artefatos versionáveis por execução: `pose-check.log`, `pose-validate.latest.log` e relatório gerado por `./pose report`.
+- Publique artefatos versionáveis por execução: `pose-check.log`, `pose-validate.latest.log` e relatório gerado por `pose report`.
 - Consuma os artefatos no review para auditoria sem depender de log efêmero da job.
 
 ### Interpretação de falhas
@@ -254,7 +252,7 @@ determinismo do CLI nem gerar drift em cascata:
 - Stacks base: `node`, `go`, `rust`, `java` (Maven/Gradle).
 - `moduleOverrides` ajusta stack, modo e checks adicionais por módulo.
 - `required` em módulo `strict` ou `tolerant` → exit 1; `optional` falha não bloqueia pipeline.
-- Logs padronizados com linhas `-> comando` e resumo final para consumo por `./pose report`.
+- Logs padronizados com linhas `-> comando` e resumo final para consumo por `pose report`.
 
 ---
 
@@ -263,23 +261,23 @@ determinismo do CLI nem gerar drift em cascata:
 O circuito completo (criar → consultar nos workflows → validar schema → gate em
 CI → housekeeping) está disponível desde a instalação; a maturidade vem do uso.
 
-Caminho de escrita: [`./pose new-knowledge <type> <slug>`](.pose/scripts/pose-new-knowledge.sh) gera artefato a partir de [`.pose/templates/knowledge.md`](.pose/templates/knowledge.md) com frontmatter validado.
+Caminho de escrita: `pose new-knowledge <type> <slug>` gera artefato a partir de [`.pose/templates/knowledge.md`](.pose/templates/knowledge.md) com frontmatter validado.
 
 Caminho de leitura: workflows [feature](.pose/workflows/feature.md), [bugfix](.pose/workflows/bugfix.md) e [review](.pose/workflows/review.md) incluem "consultar `.pose/knowledge/`" como passo obrigatório do checklist.
 
-Gate: [`./pose knowledge-check --strict`](.pose/scripts/pose-knowledge-check.sh) valida schema (via [`pose-knowledge-validate.py`](.pose/scripts/pose-knowledge-validate.py)) e backlog vencido em conjunto; usado em CI.
+Gate: `pose knowledge-check --strict` valida schema nativamente e o backlog vencido em conjunto; usado em CI.
 
 Critérios para considerar o subsistema "saudável" continuamente:
 
-- spec dedicada de governança de knowledge (criar via `./pose new-spec` ao ativar o subsistema);
+- spec dedicada de governança de knowledge (criar via `pose new-spec` ao ativar o subsistema);
 - rule dedicada em [`.pose/rules/knowledge-governance.md`](.pose/rules/knowledge-governance.md);
 - ownership definido (ex.: `@pose-maintainers`) com revisão quinzenal/mensal;
-- housekeeping mínimo em [`.pose/scripts/pose-knowledge-housekeeping.sh`](.pose/scripts/pose-knowledge-housekeeping.sh).
+- housekeeping mínimo via `pose knowledge-housekeeping`.
 
 Em caso de descumprimento recorrente (vencidos sem tratamento por 2 ciclos),
 trate `knowledge` como degradado e bloqueie expansão funcional até regularização.
 A transição de "saudável" para "maduro" exige dois ciclos consecutivos com
-`./pose knowledge-check --strict` em PASS e ao menos uma consulta documentada
+`pose knowledge-check --strict` em PASS e ao menos uma consulta documentada
 por feature em specs ativas.
 
 ---
@@ -314,5 +312,5 @@ POSE é a camada operacional para tornar uso de agentes mais confiável no repos
 
 - instruções curtas no [`AGENTS.md`](AGENTS.md)
 - profundidade operacional em [`.pose/`](.pose/)
-- execução assistida por [`./pose`](pose) (CLI)
+- execução assistida por [`pose`](pose) (CLI)
 - maturidade progressiva com skills em [`.agents/skills/`](.agents/skills/)

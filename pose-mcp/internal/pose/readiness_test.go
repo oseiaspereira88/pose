@@ -155,10 +155,10 @@ func TestParseSpecDependsOnAndPriority(t *testing.T) {
 
 func TestParseDependsOnFormats(t *testing.T) {
 	cases := map[string][]string{
-		"":                      nil,
-		"a":                     {"a"},
-		"a, b":                  {"a", "b"},
-		"[a, b]":                {"a", "b"},
+		"":                       nil,
+		"a":                      {"a"},
+		"a, b":                   {"a", "b"},
+		"[a, b]":                 {"a", "b"},
 		" [ a , milestone:r/m ]": {"a", "milestone:r/m"},
 	}
 	for input, want := range cases {

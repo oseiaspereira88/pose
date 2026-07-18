@@ -18,10 +18,10 @@ when_to_use: The task has medium or high risk, touches HTTP, schema, or event co
 1. Identify affected modules and real criticality.
 2. Define unit coverage always, integration or contract coverage for medium risk and above, and end-to-end smoke coverage for high risk and above.
 3. Map invalid input, denied authorization, timeout, unavailable dependencies, and documented fallback behavior.
-4. List deterministic required and optional commands; reuse `./pose validate --module <path> --report --report-task test-plan-baseline-<slug>`.
+4. List deterministic required and optional commands; reuse `pose validate --module <path> --report --report-task test-plan-baseline-<slug>`.
 5. Define expected output, metric, or schema evidence for each command.
 6. Attach the plan to the spec Validation section before implementation.
-7. Update the validation matrix when a scenario should become a permanent gate, then run `./pose check --strict`.
+7. Update the validation matrix when a scenario should become a permanent gate, then run `pose check --strict`.
 
 ## Output requirements
 

@@ -24,6 +24,6 @@ do `pose-mcp`, conforme a política da
 ## Pass-through (contrato da CLI)
 
 `pose_suggest` e `pose_get_followups` repassam o JSON emitido pela própria CLI
-(`./pose suggest --json`, `./pose followups --json`). **O dono desses contratos
+(`pose suggest --json`, `pose followups --json`). **O dono desses contratos
 é a CLI do POSE** (fonte de verdade determinística — ADR-003: adapter, não
 fork); o adapter não os redefine nem os re-schematiza.

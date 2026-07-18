@@ -17,12 +17,12 @@ when_to_use: The task edits operational documentation rather than product code. 
 1. Choose the correct source: AGENTS for the short contract, POSE for the manual, workflows for procedures, and rules for cumulative domain constraints.
 2. Use imperative language, short bullets, consistent terms, and links to a single source of truth.
 3. Use [`.pose/templates/doc-audit-report.md`](../../../.pose/templates/doc-audit-report.md) for broad editorial audits.
-4. Run `./pose check --strict` after reference changes.
+4. Run `pose check --strict` after reference changes.
 5. Generate a `doc-audit` report for broad changes.
 
 ## Output requirements
 
 - Cohesive, readable diff with one editorial intent per commit.
 - No verbatim duplication across files.
-- Green `./pose check --strict`.
+- Green `pose check --strict`.
 - Optional doc-audit report for broad changes.

@@ -24,11 +24,11 @@ Each `SKILL.md` uses YAML frontmatter with `name`, `description`, and
 ## Machine-readable routing
 
 ```bash
-./pose suggest <task-type> [--path <dir>] [--json]
+pose suggest <task-type> [--path <dir>] [--json]
 ```
 
 The source of truth is [`.pose/indexes/task-map.json`](../../.pose/indexes/task-map.json).
-`./pose check` validates referenced workflows, skills, and rules.
+`pose check` validates referenced workflows, skills, and rules.
 
 ## Scope rule
 

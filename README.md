@@ -36,45 +36,40 @@ spec → execution → evidence → follow-ups → recurrence → knowledge
 
 | Path | Purpose |
 |---|---|
-| `pose` | CLI dispatcher: scaffolding, gates, discovery, metrics, housekeeping |
-| `.pose/scripts/` | The engine behind the CLI (deterministic, offline, no network) |
+| `pose` binary | Native Go CLI: scaffolding, gates, discovery, metrics, housekeeping and MCP |
 | `.pose/workflows/` | Procedures per task type: feature, bugfix, review, refactor, docs, recurrence escalation |
 | `.pose/rules/` | Cumulative domain rules: security, backend, frontend, docs style, delivery evidence, knowledge governance |
 | `.pose/templates/` | Spec, roadmap, knowledge and changelog-fragment templates |
-| `.pose/hooks/` | Git hooks (`pre-commit` runs `pose check`, `post-merge` reindexes) |
 | `.pose/indexes/` | Machine-readable caches: repo map, validation matrix, spec graph, roadmaps, task map |
 | `.agents/skills/` | 9 agent skills (Codex-native format; `.claude/skills/` symlinks for Claude Code) |
 | `AGENTS.md` / `POSE.md` | The short agent contract and the full operating manual |
-| `pose-mcp` | MCP server (Go) exposing the whole instance to agents |
+| `pose serve-mcp` | MCP server exposed by the same native binary |
 
 ## Quickstart
 
 ```bash
-# from a clone of the POSE repository:
-bash pose-dist/install.sh /path/to/your/repo
+# with the native binary on PATH:
+pose install /path/to/your/repo
 ```
 
 That's it. The installer:
 
-- copies the machinery (CLI, engine scripts, workflows, rules, templates,
-  hooks, skills) and creates the empty instance directories;
+- copies workflows, rules, templates and skills, and creates the empty
+  instance directories; the runtime remains the native binary on `PATH`;
 - substitutes `{{PROJECT_NAME}}`/`{{PROJECT_ID}}` in `AGENTS.md`/`POSE.md`
   (derived from the target directory name; override with `--project-name` /
   `--project-id`);
-- builds the MCP server from source when a Go toolchain is available (or
-  vendors a binary you pass via `--mcp-binary`; `--skip-mcp` to opt out) and
-  generates a wrapper at `.pose/bin/pose-mcp-claude` that derives the project
-  root — nothing is ever hardcoded;
+- configures the same binary as the MCP server (`pose serve-mcp`);
 - seeds `.mcp.json` if your repo has none;
-- finishes by running `./pose init && ./pose check --strict` in your repo —
+- finishes by running native `init` and `check --strict` in your repo —
   the install is only reported successful if the gate is green.
 
 Re-running the installer updates the machinery in place and **never touches
 your instance content** (specs, ADRs, knowledge, reports, roadmaps). Your
 edited `AGENTS.md`/`POSE.md` are preserved unless you pass `--force`.
 
-Then start working: `./pose new-spec my-first-feature`, fill the spec, and let
-the gates guide the rest (`./pose suggest feature` prints the canonical trail:
+Then start working: `pose new-spec my-first-feature`, fill the spec, and let
+the gates guide the rest (`pose suggest feature` prints the canonical trail:
 workflow + skill + rules).
 
 Already use spec-kit or OpenSpec? Preview an offline migration with
@@ -90,9 +85,8 @@ Teams standardized on pre-commit.com can enable `pose-check`,
 an immutable POSE release and see the [CI guide](docs-site/docs/ci.md#use-pose-from-pre-commitcom)
 for the four-line configuration and pre-commit 4.4+ requirement.
 
-Requirements: bash 4+, git, python3 (Go optional, only for the MCP server).
-Platforms: Linux/macOS/WSL — native Windows support is on the roadmap, via the
-single-binary Go CLI.
+Requirements: the `pose` binary and git. No Bash or Python runtime is needed.
+Platforms: Linux, macOS and Windows.
 
 ## How POSE compares
 

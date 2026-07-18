@@ -35,7 +35,7 @@ when transitioning to `done`.
 
 ## Deterministic, semantic, and human triage
 
-1. Run `./pose followups --all` to aggregate backlog and lexical near-duplicate candidates.
+1. Run `pose followups --all` to aggregate backlog and lexical near-duplicate candidates.
 2. Judge semantic equivalence yourself; lexical candidates are hints, not verdicts.
 3. Stop and obtain user confirmation before writing `spawned`, `covered`, or `duplicate`. These transitions create work or silently discard an item if wrong. `open`, `done`, and `wont-do` do not require confirmation.
 4. Ensure every target slug exists and does not point back to the current spec.
@@ -43,12 +43,12 @@ when transitioning to `done`.
 ## Steps
 
 1. Confirm strict deterministic validation passed for affected modules.
-2. Inspect `./pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
+2. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
 3. Propose each consequential disposition and obtain confirmation before writing it.
 4. Set `status: done` and the real `completed_at` date.
-5. Run `./pose lint-spec <slug> --strict`.
+5. Run `pose lint-spec <slug> --strict`.
 6. Create any confirmed successor spec and revalidate its intent instead of copying follow-up text verbatim.
-7. Inspect residual live backlog with `./pose followups --open --json`.
+7. Inspect residual live backlog with `pose followups --open --json`.
 
 ## Output requirements
 

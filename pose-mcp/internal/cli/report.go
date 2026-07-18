@@ -77,6 +77,18 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	outcome, outcomeSource := values["outcome"], "manual"
 	validateOutput := values["validate-output"]
+	if validateOutput != "" {
+		clean := validateOutput
+		if !filepath.IsAbs(clean) {
+			clean = filepath.Join(root, filepath.FromSlash(clean))
+		}
+		rel, err := filepath.Rel(root, filepath.Clean(clean))
+		if err != nil || !confinedRelativePath(rel) {
+			fmt.Fprintln(stderr, cliText(locale, "Error: --validate-output must remain inside the project.", "Erro: --validate-output deve permanecer dentro do projeto."))
+			return 2
+		}
+		validateOutput = clean
+	}
 	if validateOutput == "" {
 		for _, candidate := range []string{filepath.Join(root, ".pose", "reports", "pose-validate.latest.log"), filepath.Join(root, ".pose", "pose-validate.log")} {
 			if _, err := os.Stat(candidate); err == nil {

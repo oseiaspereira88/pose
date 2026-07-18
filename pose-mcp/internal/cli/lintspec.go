@@ -1,10 +1,7 @@
 package cli
 
-// Native port of the lint-spec gate (spec pose-cli-native-gates, strangler
-// phase 2). Behavior mirrors .pose/scripts/pose-lint-spec.{sh,py} — the bash
-// engine stays the source of truth; TestLintSpecParityCorpus compares both
-// over every spec in the repository and fails on any divergence of verdict
-// or metrics.
+// Native lint-spec gate. It preserves the published lifecycle verdicts and
+// stable machine metrics without an external runtime.
 
 import (
 	"fmt"

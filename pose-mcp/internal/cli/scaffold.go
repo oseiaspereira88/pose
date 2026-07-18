@@ -43,6 +43,7 @@ func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	content := strings.ReplaceAll(string(template), "<feature-slug>", slug)
 	content = strings.ReplaceAll(content, "<YYYY-MM-DD>", time.Now().UTC().Format("2006-01-02"))
+	content = strings.ReplaceAll(content, "<created_at>", time.Now().UTC().Format("2006-01-02"))
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: creating spec: %v\n", "Erro: criar spec: %v\n"), err)
 		return 1
@@ -175,6 +176,7 @@ func cmdNewRoadmap(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	content := strings.ReplaceAll(string(template), "<roadmap-slug>", slug)
 	content = strings.ReplaceAll(content, "<YYYY-MM-DD>", time.Now().UTC().Format("2006-01-02"))
+	content = strings.ReplaceAll(content, "<created_at>", time.Now().UTC().Format("2006-01-02"))
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: creating roadmap: %v\n", "Erro: criar roadmap: %v\n"), err)
 		return 1

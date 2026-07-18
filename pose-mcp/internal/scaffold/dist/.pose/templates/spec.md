@@ -41,10 +41,10 @@ priority:            # integer >= 0 (lower = higher priority); ordering preferen
 > Definition of Ready (entry gate): before `status: in-progress`, functional
 > requirements must have **acceptance criteria with stable IDs** (`- R<N>: ...`).
 > Published IDs are never renumbered; a removed criterion is marked as
-> withdrawn. Verify with `./pose lint-spec <slug> --ready-check`.
+> withdrawn. Verify with `pose lint-spec <slug> --ready-check`.
 >
 > Optional EARS form: `- R1: When <trigger>, the <system> shall <behavior>.`
-> Verify an opted-in spec with `./pose lint-spec <slug> --ears`.
+> Verify an opted-in spec with `pose lint-spec <slug> --ears`.
 
 ### Functional
 - R1: 
@@ -172,7 +172,7 @@ priority:            # integer >= 0 (lower = higher priority); ordering preferen
 <!--
 Every follow-up starts with a bracketed disposition. When the spec is marked
 `status: done`, every follow-up MUST have one (use `[open]` for the untriaged
-ones — `./pose followups --open` aggregates them).
+ones — `pose followups --open` aggregates them).
 
 Valid dispositions:
   [open]                  not yet triaged (live backlog)

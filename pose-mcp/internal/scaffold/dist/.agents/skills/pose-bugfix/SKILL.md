@@ -11,7 +11,7 @@ when_to_use: The task corrects observable broken behavior rather than adding a f
 1. [AGENTS.md](../../../AGENTS.md).
 2. [`.pose/workflows/bugfix.md`](../../../.pose/workflows/bugfix.md).
 3. The affected module's nearest `AGENTS.md`, when present.
-4. Cumulative rules returned by `./pose suggest bugfix --path <affected-dir>`.
+4. Cumulative rules returned by `pose suggest bugfix --path <affected-dir>`.
 
 ## Steps
 
@@ -20,7 +20,7 @@ when_to_use: The task corrects observable broken behavior rather than adding a f
 3. Isolate root cause and map collateral impact.
 4. Implement the smallest cohesive fix without parallel refactoring.
 5. Add or update a regression test.
-6. Run `./pose validate --tolerant --module <affected-path> --report`.
+6. Run `pose validate --tolerant --module <affected-path> --report`.
 7. Create a decision log when root cause exposes systemic debt or a significant trade-off.
 
 ## Output requirements
