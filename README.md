@@ -85,6 +85,11 @@ overwrites an existing spec, and prints a curation report for information the
 source format could not supply. See the [CLI reference](docs-site/docs/cli.md#import-existing-sdd-specs)
 for supported layouts and limits.
 
+Teams standardized on pre-commit.com can enable `pose-check`,
+`pose-lint-spec`, and `pose-history-check` directly from this repository. Pin
+an immutable POSE release and see the [CI guide](docs-site/docs/ci.md#use-pose-from-pre-commitcom)
+for the four-line configuration and pre-commit 4.4+ requirement.
+
 Requirements: bash 4+, git, python3 (Go optional, only for the MCP server).
 Platforms: Linux/macOS/WSL — native Windows support is on the roadmap, via the
 single-binary Go CLI.
