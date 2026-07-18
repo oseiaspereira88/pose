@@ -176,6 +176,9 @@ func TestFollowupsNativeOpenAllAndJSON(t *testing.T) {
 		if !strings.Contains(out.String(), `"total":2`) {
 			t.Fatalf("json output=%q", out.String())
 		}
+		if code := Main([]string{"followups", "--similarity", "101"}, &out, &errB); code != 2 {
+			t.Fatalf("invalid similarity exit=%d, want 2", code)
+		}
 	})
 }
 
