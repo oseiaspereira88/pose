@@ -2,6 +2,8 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -151,7 +153,7 @@ func TestFollowupsNativeOpenAllAndJSON(t *testing.T) {
 	repo := newGitRepo(t)
 	for slug, body := range map[string]string{
 		"one": "## 7. Final Report\n\n### Follow-ups\n- [open] investigate cache\n- [done] shipped\n",
-		"two": "## 7. Final Report\n\n### Follow-ups\n- untriaged item\n",
+		"two": "---\nstatus: in-progress\n---\n## 7. Final Report\n\n### Follow-ups\n- untriaged item\n- [covered: cache-spec] investigate cache behavior\n",
 	} {
 		path := filepath.Join(repo, ".pose", "specs", slug)
 		if err := os.MkdirAll(path, 0o755); err != nil {
@@ -173,11 +175,66 @@ func TestFollowupsNativeOpenAllAndJSON(t *testing.T) {
 		}
 		out.Reset()
 		Main([]string{"followups", "--json"}, &out, &errB)
-		if !strings.Contains(out.String(), `"total":2`) {
+		if !strings.Contains(out.String(), `"total":4`) || !strings.Contains(out.String(), `"open":2`) || !strings.Contains(out.String(), "near_duplicate_candidates") {
 			t.Fatalf("json output=%q", out.String())
+		}
+		out.Reset()
+		Main([]string{"followups", "--all", "--json", "--similarity", "80"}, &out, &errB)
+		if !strings.Contains(out.String(), `"target":"cache-spec"`) || !strings.Contains(out.String(), `"spec_status":"in-progress"`) || !strings.Contains(out.String(), `"total":4`) {
+			t.Fatalf("all JSON missing parity fields: %q", out.String())
 		}
 		if code := Main([]string{"followups", "--similarity", "101"}, &out, &errB); code != 2 {
 			t.Fatalf("invalid similarity exit=%d, want 2", code)
+		}
+	})
+}
+
+func TestFollowupsNativeParityWithPythonFixture(t *testing.T) {
+	repo := newGitRepo(t)
+	for slug, body := range map[string]string{
+		"alpha": "---\nstatus: done\n---\n## 7. Final Report\n### Follow-ups\n- [open] Add cache invalidation contract\n- [done] shipped\n",
+		"beta":  "---\nstatus: in-progress\n---\n## 7. Final Report\n### Follow-ups\n- Add contract for cache invalidation\n",
+	} {
+		dir := filepath.Join(repo, ".pose", "specs", slug)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "spec.md"), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	aggregator, err := filepath.Abs(filepath.Join("..", "..", "..", ".pose", "scripts", "pose-followups.py"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	python := exec.Command("python3", aggregator, "--specs-dir", filepath.Join(repo, ".pose", "specs"), "--all", "--json", "--similarity", "60")
+	pythonOutput, err := python.Output()
+	if err != nil {
+		t.Fatalf("python fixture: %v", err)
+	}
+	var expected map[string]any
+	if err := json.Unmarshal(pythonOutput, &expected); err != nil {
+		t.Fatal(err)
+	}
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		if code := Main([]string{"followups", "--all", "--json", "--similarity", "60"}, &out, &errB); code != 0 {
+			t.Fatalf("native exit=%d err=%s", code, errB.String())
+		}
+		var actual map[string]any
+		if err := json.Unmarshal(out.Bytes(), &actual); err != nil {
+			t.Fatal(err)
+		}
+		for _, key := range []string{"total", "open", "specs", "similarity_threshold"} {
+			if fmt.Sprint(actual[key]) != fmt.Sprint(expected[key]) {
+				t.Errorf("%s native=%v python=%v", key, actual[key], expected[key])
+			}
+		}
+		if len(actual["items"].([]any)) != len(expected["items"].([]any)) {
+			t.Errorf("item count mismatch")
+		}
+		if len(actual["near_duplicate_candidates"].([]any)) != len(expected["near_duplicate_candidates"].([]any)) {
+			t.Errorf("candidate count mismatch")
 		}
 	})
 }
@@ -204,6 +261,24 @@ func TestReportNativeCreatesMarkdownAndValidatesArgs(t *testing.T) {
 		if code := Main([]string{"report", "--task", "x", "--outcome", "bad"}, &out, &errB); code != 2 {
 			t.Fatalf("invalid outcome exit=%d", code)
 		}
+		if code := Main([]string{"report", "--task", "x", "--type", "../../escape"}, &out, &errB); code != 2 {
+			t.Fatalf("unsafe report type exit=%d", code)
+		}
+		if code := Main([]string{"report", "--task", "x", "--unknown", "value"}, &out, &errB); code != 2 {
+			t.Fatalf("unknown flag exit=%d", code)
+		}
+		logPath := filepath.Join(repo, "validate.log")
+		if err := os.WriteFile(logPath, []byte("  -> go test ./...\nResult: FAILURE_TOLERATED\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		out.Reset()
+		if code := Main([]string{"report", "--task", "native report", "--validate-output", logPath}, &out, &errB); code != 0 {
+			t.Fatalf("derived report exit=%d err=%s", code, errB.String())
+		}
+		history, _ = os.ReadFile(filepath.Join(repo, ".pose", "reports", "history", "standard-native-report.jsonl"))
+		if !strings.Contains(string(history), `"sequence":2`) || !strings.Contains(string(history), `"outcome":"partial"`) || !strings.Contains(string(history), `"outcome_source":"derived"`) {
+			t.Fatalf("derived history=%s", history)
+		}
 	})
 }
 
@@ -215,6 +290,41 @@ func TestParseStructuredChecks(t *testing.T) {
 	if _, err := parseStructuredChecks([]byte(`{`)); err == nil {
 		t.Fatal("malformed JSON accepted")
 	}
+}
+
+func TestValidateNativeRunsStructuredChecksWithoutShell(t *testing.T) {
+	repo := newGitRepo(t)
+	module := filepath.Join(repo, "service")
+	if err := os.MkdirAll(module, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(module, "go.mod"), []byte("module example.test/service\n\ngo 1.22\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	executable, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	matrixDir := filepath.Join(repo, ".pose", "indexes")
+	if err := os.MkdirAll(matrixDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	matrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"self","program":%q,"args":["-test.run=^$"] ,"severity":"required"}]}},"moduleOverrides":{}}`, executable)
+	if err := os.WriteFile(filepath.Join(matrixDir, "validation-matrix.json"), []byte(matrix), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		if code := Main([]string{"validate", "--module", "service"}, &out, &errB); code != 0 {
+			t.Fatalf("validate exit=%d out=%s err=%s", code, out.String(), errB.String())
+		}
+		if !strings.Contains(out.String(), "Result: SUCCESS") || strings.Contains(errB.String(), "deprecated script engine") {
+			t.Fatalf("validate not native: out=%q err=%q", out.String(), errB.String())
+		}
+		if code := Main([]string{"validate", "--module", "../escape"}, &out, &errB); code != 2 {
+			t.Fatalf("unsafe module exit=%d", code)
+		}
+	})
 }
 
 func TestCLILocaleSelectionAndFallback(t *testing.T) {

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import sys
 
 
@@ -93,6 +94,8 @@ def main() -> int:
             if not check_when(module, rule):
                 continue
             cmd = rule.get("command", "").strip()
+            if not cmd and isinstance(rule.get("program"), str):
+                cmd = " ".join([shlex.quote(rule["program"]), *[shlex.quote(arg) for arg in rule.get("args", [])]])
             severity = rule.get("severity", "required")
             if cmd:
                 print(f"{module}|{stack}|{mod_mode}|{severity}|{cmd}")

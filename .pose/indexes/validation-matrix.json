@@ -7,22 +7,26 @@
       "checks": [
         {
           "name": "lint",
-          "command": "npm run lint --if-present",
+          "program": "npm",
+          "args": ["run", "lint", "--if-present"],
           "severity": "optional"
         },
         {
           "name": "test",
-          "command": "npm test --if-present",
+          "program": "npm",
+          "args": ["test", "--if-present"],
           "severity": "required"
         },
         {
           "name": "build",
-          "command": "npm run build --if-present",
+          "program": "npm",
+          "args": ["run", "build", "--if-present"],
           "severity": "required"
         },
         {
           "name": "typecheck",
-          "command": "npm run typecheck --if-present",
+          "program": "npm",
+          "args": ["run", "typecheck", "--if-present"],
           "severity": "optional"
         }
       ]
@@ -31,12 +35,14 @@
       "checks": [
         {
           "name": "test",
-          "command": "go test ./...",
+          "program": "go",
+          "args": ["test", "./..."],
           "severity": "required"
         },
         {
           "name": "vet",
-          "command": "go vet ./...",
+          "program": "go",
+          "args": ["vet", "./..."],
           "severity": "optional"
         }
       ]
@@ -45,7 +51,8 @@
       "checks": [
         {
           "name": "test",
-          "command": "cargo test",
+          "program": "cargo",
+          "args": ["test"],
           "severity": "required"
         }
       ]
@@ -54,7 +61,8 @@
       "checks": [
         {
           "name": "maven-test",
-          "command": "mvn -B test",
+          "program": "mvn",
+          "args": ["-B", "test"],
           "severity": "required",
           "when": {
             "fileExists": "pom.xml"
@@ -62,7 +70,8 @@
         },
         {
           "name": "gradle-test",
-          "command": "./gradlew test",
+          "program": "./gradlew",
+          "args": ["test"],
           "severity": "required",
           "when": {
             "fileExists": "gradlew"
@@ -70,7 +79,8 @@
         },
         {
           "name": "gradle-test-wrapper",
-          "command": "gradle test",
+          "program": "gradle",
+          "args": ["test"],
           "severity": "required",
           "when": {
             "fileExists": "build.gradle",
@@ -79,7 +89,8 @@
         },
         {
           "name": "gradle-test-wrapper-kts",
-          "command": "gradle test",
+          "program": "gradle",
+          "args": ["test"],
           "severity": "required",
           "when": {
             "fileExists": "build.gradle.kts",

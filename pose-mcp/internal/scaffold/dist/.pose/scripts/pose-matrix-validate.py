@@ -26,7 +26,7 @@ import sys
 
 ALLOWED_MODES = {"strict", "tolerant"}
 ALLOWED_SEVERITIES = {"required", "optional"}
-ALLOWED_CHECK_KEYS = {"name", "command", "severity", "when"}
+ALLOWED_CHECK_KEYS = {"name", "command", "program", "args", "env", "severity", "when"}
 ALLOWED_WHEN_KEYS = {"fileExists", "fileNotExists"}
 ALLOWED_OVERRIDE_KEYS = {"stack", "mode", "checks", "replaceDefaultChecks"}
 ALLOWED_TOP_KEYS = {"defaults", "stacks", "moduleOverrides"}
@@ -140,8 +140,19 @@ def _validate_check(prefix: str, rule, errors: list[str], warnings: list[str]) -
             )
 
     command = rule.get("command")
-    if not isinstance(command, str) or not command.strip():
+    program = rule.get("program")
+    args = rule.get("args")
+    if command is None and program is None:
+        errors.append(f"{prefix}: exige command legado ou program estruturado")
+    if command is not None and (not isinstance(command, str) or not command.strip()):
         errors.append(f"{prefix}.command: deve ser string não-vazia")
+    if program is not None and (not isinstance(program, str) or not program.strip()):
+        errors.append(f"{prefix}.program: deve ser string não-vazia")
+    if args is not None and (not isinstance(args, list) or not all(isinstance(arg, str) for arg in args)):
+        errors.append(f"{prefix}.args: deve ser lista de strings")
+    env = rule.get("env")
+    if env is not None and (not isinstance(env, dict) or not all(isinstance(key, str) and isinstance(value, str) for key, value in env.items())):
+        errors.append(f"{prefix}.env: deve ser objeto string:string")
 
     severity = rule.get("severity")
     if severity is None:
