@@ -1,37 +1,37 @@
 # Workflow: Documentation Update
 
-## Objetivo
+## Objective
 
-Manter documentação alinhada ao estado real do sistema, clara para operação e útil para tomada de decisão.
+Keep documentation aligned with the system's actual state, clear for operations, and useful for decision-making.
 
-## Precondições
+## Preconditions
 
-- Fonte de verdade técnica foi identificada (código, spec, contrato, processo).
-- Público-alvo e objetivo da documentação estão definidos.
-- Escopo de documentos a atualizar está delimitado.
-- Mudanças técnicas relacionadas já foram concluídas ou estão estáveis.
+- The technical source of truth is identified (code, spec, contract, or process).
+- The documentation audience and objective are defined.
+- The scope of documents to update is bounded.
+- Related technical changes are already complete or stable.
 
-## Checklist de execução
+## Execution checklist
 
-1. Levantar discrepâncias entre documentação atual e comportamento real.
-2. Priorizar correções por risco operacional e frequência de uso.
-3. Atualizar conteúdo com linguagem objetiva e acionável.
-4. Garantir consistência entre docs, specs e exemplos.
-5. Revisar comandos, links e referências para evitar conteúdo quebrado.
-6. Validar formatação e estrutura para leitura por agentes/humanos.
-7. Registrar impactos para operação, suporte e onboarding.
-8. Publicar resumo das mudanças e pontos de atenção.
+1. Identify discrepancies between the current documentation and actual behavior.
+2. Prioritize corrections by operational risk and frequency of use.
+3. Update content using clear, actionable language.
+4. Ensure consistency among docs, specs, and examples.
+5. Review commands, links, and references to avoid broken content.
+6. Validate formatting and structure for agents and human readers.
+7. Record impacts on operations, support, and onboarding.
+8. Publish a summary of changes and attention points.
 
-## Saídas obrigatórias
+## Required outputs
 
-- Documentos atualizados com escopo e data da revisão.
-- Resumo das inconsistências corrigidas.
-- Evidências de validação mínima (links/comandos/referências revisados).
-- Pendências conhecidas e próximos ajustes recomendados.
+- Updated documents with review scope and date.
+- Summary of corrected inconsistencies.
+- Evidence of minimum validation (reviewed links, commands, and references).
+- Known pending work and recommended next adjustments.
 
-## Critérios de pronto
+## Definition of done
 
-- Documentação reflete com precisão o comportamento atual.
-- Instruções críticas estão testáveis e sem ambiguidades.
-- Estrutura está padronizada e fácil de navegar.
-- Não restam referências obsoletas no escopo alterado.
+- Documentation accurately reflects current behavior.
+- Critical instructions are testable and unambiguous.
+- Structure is standardized and easy to navigate.
+- No obsolete references remain within the changed scope.

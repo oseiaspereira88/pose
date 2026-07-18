@@ -1,0 +1,32 @@
+- id: pose-check
+  name: POSE structural check
+  description: Validate the installed POSE structure and contracts in strict mode.
+  entry: pose check --strict
+  language: system
+  minimum_pre_commit_version: 4.4.0
+  pass_filenames: false
+  always_run: true
+  require_serial: true
+  stages: [pre-commit, manual]
+
+- id: pose-lint-spec
+  name: POSE spec lifecycle lint
+  description: Validate every POSE spec, including lifecycle and follow-up rules.
+  entry: pose lint-spec --all --strict
+  language: system
+  minimum_pre_commit_version: 4.4.0
+  pass_filenames: false
+  always_run: true
+  require_serial: true
+  stages: [pre-commit, manual]
+
+- id: pose-history-check
+  name: POSE tracked history check
+  description: Ensure POSE report history remains versioned in git.
+  entry: pose history-check --strict
+  language: system
+  minimum_pre_commit_version: 4.4.0
+  pass_filenames: false
+  always_run: true
+  require_serial: true
+  stages: [pre-commit, manual]

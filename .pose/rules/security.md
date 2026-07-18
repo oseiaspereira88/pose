@@ -1,39 +1,39 @@
 # Rule: Security
 
-## Quando consultar
+## When to consult
 
-Consulte este guia em tarefas com autenticação/autorização, dados sensíveis, integrações externas, dependências e superfícies de ataque.
+Consult this guide for authentication, authorization, sensitive data, external integrations, dependencies, and attack surfaces.
 
-## Padrões obrigatórios
+## Required patterns
 
-- Princípio do menor privilégio para acesso a recursos e credenciais.
-- Segredos devem ser armazenados apenas em mecanismos apropriados (nunca em código).
-- Entrada externa deve ser validada/sanitizada conforme contexto.
-- Logs e métricas não devem conter dados pessoais/sigilosos em texto claro.
-- Dependências novas devem ser avaliadas por manutenção, licença e vulnerabilidades conhecidas.
-- Controles de autenticação e autorização devem ter testes cobrindo casos positivos e negativos.
+- Apply least privilege to resource and credential access.
+- Store secrets only in appropriate secret-management mechanisms, never in code.
+- Validate and sanitize external input for its execution context.
+- Keep personal and confidential data out of plaintext logs and metrics.
+- Evaluate new dependencies for maintenance, licensing, and known vulnerabilities.
+- Test both positive and negative authentication and authorization cases.
 
-## Anti-padrões bloqueadores
+## Blocking anti-patterns
 
-- Commit de credenciais, tokens, chaves ou segredos em qualquer artefato versionado.
-- Desativar TLS/verificações de certificado sem mitigação formal documentada.
-- Confiar em input do cliente para decisões de autorização.
-- Executar comandos dinâmicos sem validação/escape adequado.
-- Ignorar alertas críticos de segurança sem registro de exceção aprovada.
+- Committing credentials, tokens, keys, or secrets in any versioned artifact.
+- Disabling TLS or certificate verification without a formally documented mitigation.
+- Trusting client input for authorization decisions.
+- Executing dynamic commands without adequate validation and escaping.
+- Ignoring critical security alerts without an approved exception record.
 
-## Checks mínimos
+## Minimum checks
 
-- Execução de scanner de segredos no diff/escopo alterado.
-- Execução de scanner de vulnerabilidades de dependências aplicável ao módulo.
-- Testes de autenticação/autorização relevantes passando.
-- Revisão de exposição de dados sensíveis em logs/configs concluída.
+- Run secret scanning on the changed diff or scope.
+- Run the module's applicable dependency vulnerability scanner.
+- Pass the relevant authentication and authorization tests.
+- Complete a review for sensitive-data exposure in logs and configuration.
 
-## Precedência em conflito multi-domínio
+## Precedence in multi-domain conflicts
 
-- Em conflito com outras `rules`, aplique a alternativa mais restritiva para segurança, contrato e operação.
-- Quando houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
-- Registre no parecer de review a decisão de precedência e o racional objetivo.
+- Apply the most restrictive security, contract, and operational rule when domain rules conflict.
+- Prefer verifiable check evidence and explicit risk mitigation when speed conflicts with control.
+- Record the precedence decision and objective rationale in the review.
 
-## Rastreabilidade de recorrência
+## Recurrence traceability
 
-> Aplicar também: [.pose/rules/_base-recurrence.md](_base-recurrence.md)
+> Also apply: [.pose/rules/_base-recurrence.md](_base-recurrence.md)

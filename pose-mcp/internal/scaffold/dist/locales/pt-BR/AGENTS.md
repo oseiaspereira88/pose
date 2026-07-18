@@ -35,7 +35,7 @@ profundo no diretório afetado); (3) `AGENTS.md` mais abrangente (raiz). Leia ap
 - Roadmaps governados: [`.pose/roadmaps/`](.pose/roadmaps/)
 - ADRs de implementação: [`.pose/adr/`](.pose/adr/)
 - Skills por tarefa recorrente: [`.agents/skills/`](.agents/skills/)
-- Suporte de automação (CLI `./pose`): [`.pose/scripts/`](.pose/scripts/)
+- Entry point nativo de automação: binário Go `pose` (`pose help`).
 
 ## Rules por domínio
 
@@ -56,7 +56,7 @@ Aplique cumulativamente as rules relevantes ao escopo:
 
 Use a skill correspondente ao tipo de tarefa (não carregue todas). Catálogo em
 [`.agents/skills/README.md`](.agents/skills/README.md); descoberta machine-readable:
-`./pose suggest <tipo> [--path <dir>]`.
+`pose suggest <tipo> [--path <dir>]`.
 
 - `pose-feature` · `pose-bugfix` · `pose-review` · `pose-adr` · `pose-test-plan`
 - `pose-doc-update` · `pose-knowledge` · `pose-spec-closeout` · `pose-recurrence-escalation`
@@ -66,7 +66,7 @@ Use a skill correspondente ao tipo de tarefa (não carregue todas). Catálogo em
 Prefira checks determinísticos quando existirem: `test`, `lint`, `typecheck`, `build`,
 validações de segurança/contrato. Matriz canônica em
 [`.pose/indexes/validation-matrix.json`](.pose/indexes/validation-matrix.json), executada
-por `./pose validate`.
+por `pose validate`.
 
 ## Não fazer
 

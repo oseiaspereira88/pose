@@ -9,17 +9,17 @@ a formal closeout. Contributions follow the same path.
 1. **Open an issue first** for anything beyond a typo fix. Describe the problem
    (not the solution) and, if you can, the evidence: a failing gate, a
    confusing workflow step, a gap against the documented contract.
-2. **Non-trivial changes get a spec.** Run `./pose new-spec <slug>` in your
+2. **Non-trivial changes get a spec.** Run `pose new-spec <slug>` in your
    fork and fill Intent, Requirements (acceptance criteria with stable
    `- R<N>:` IDs) and Technical Plan. The spec travels with the PR — it is the
    PR description's source of truth.
-3. **Architectural decisions get an ADR** (`./pose new-adr "<title>"`): new
+3. **Architectural decisions get an ADR** (`pose new-adr "<title>"`): new
    contracts, changed frontmatter semantics, new gate behavior.
 
 ## Pull request expectations
 
-- `./pose check --strict` and `./pose lint-spec <your-spec> --strict` pass.
-- Engine changes (`.pose/scripts/`) come with tests in `.pose/scripts/tests/`.
+- `pose check --strict` and `pose lint-spec <your-spec> --strict` pass.
+- Native engine changes come with Go tests under `pose-mcp/internal/`.
 - Docs changes keep `AGENTS.md`/`POSE.md` references valid (`pose check`
   verifies them).
 - One cohesive change per PR; follow-ups you discover go into the spec's
@@ -27,8 +27,7 @@ a formal closeout. Contributions follow the same path.
 
 ## Style
 
-- Shell: bash 4+, `shellcheck`-clean, no network calls in gates.
-- Python: stdlib only (the engine must run offline with no pip installs).
+- Go: stdlib-first, `gofmt`/`go vet` clean, no network calls in gates.
 - Documentation: imperative, concrete, no aspirational claims — a statement of
   delivery requires verifiable gate evidence (see
   `.pose/rules/delivery-evidence.md`).

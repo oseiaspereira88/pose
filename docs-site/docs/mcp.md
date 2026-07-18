@@ -1,6 +1,6 @@
 # MCP server
 
-`pose-mcp` (also available as `pose serve-mcp`) exposes the whole POSE
+`pose serve-mcp` exposes the whole POSE
 instance to MCP-capable agents — read-heavy by design. Transports: stdio
 (`--stdio`, ideal for agent runtimes) and Streamable HTTP (`POSE_MCP_ADDR`,
 default `:8790`).
@@ -17,9 +17,9 @@ default `:8790`).
 | `POSE_MCP_REQUIRE_PRINCIPAL` | Deny anonymous `tools/call` even without OPA |
 | `POSE_MCP_IDENTITY_SECRET` | Verifies run-bound execution identities |
 
-The installer generates `.pose/bin/pose-mcp-claude`, a wrapper that derives
-`POSE_PROJECT_ROOT` from its own location — nothing is hardcoded — and seeds
-`.mcp.json` when the repo has none.
+The installer seeds `.mcp.json` when absent. It invokes the native binary
+directly and records the installed project's root and project id in the server
+environment; no wrapper or second executable is generated.
 
 ## Tools
 
@@ -35,12 +35,14 @@ The installer generates `.pose/bin/pose-mcp-claude`, a wrapper that derives
 | `pose_get_workflow` / `pose_get_rules` / `pose_get_skill` | Operating procedure content |
 | `pose_list_knowledge` / `pose_get_knowledge` | Operational memory |
 | `pose_list_reports` / `pose_get_report` | Validation evidence |
+| `pose_insights` | Deterministic outcome aggregates by workflow, task or context |
 
 ## Security posture
 
 - Default deny on OPA errors; policy decisions are audited
   (`policy.decided` / `policy.violation` structured logs).
-- `pose_suggest`-style tools that shell into the CLI validate every argument
-  and never do PATH lookups.
+- Shared-domain tools run in-process; CLI-backed tools invoke the current
+  native executable. Every argument is validated and shell text is never
+  evaluated.
 - Multi-replica deployments need the Redis cursor store (enterprise hardening
   track); single-node dev needs nothing beyond the binary.

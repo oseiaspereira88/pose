@@ -1,70 +1,68 @@
 # Workflow: Recurrence Escalation
 
-## Objetivo
+## Objective
 
-Ativar correção sistêmica quando houver retrabalho recorrente não coberto pelos workflows atuais.
+Trigger a systemic correction when recurring rework is not covered by current workflows.
 
-## Precondições
+## Preconditions
 
-- Existe registro de incidentes/retrabalho por período com classificação por domínio e causa.
-- O time já avaliou os workflows existentes em `.pose/workflows/` para evitar duplicação.
-- O owner da área validou a necessidade de escalar para ação de processo.
+- Maintain period-based incident and rework records classified by domain and cause.
+- Review existing workflows under `.pose/workflows/` to avoid duplication.
+- Obtain area-owner confirmation that process escalation is necessary.
 
-## Métrica obrigatória de recorrência
+## Required recurrence metric
 
-Use a métrica base abaixo para detectar retrabalho recorrente:
+- **Name:** `recurrence_rework_uncovered`
+- **Definition:** recurring incidents or rework during the period whose root cause is not covered by a current workflow.
+- **Formula:** `uncovered_recurring_incidents / period`
+- **Minimum dimensions:** domain (`frontend-react`, `backend-go`, `kubernetes`, `security`, `documentation-style`) and cause (`process`, `contract`, `implementation`, `validation`).
 
-- **Nome:** `recurrence_rework_uncovered`
-- **Definição:** total de incidentes/retrabalho repetidos no período cuja causa raiz não é coberta por workflow vigente.
-- **Fórmula:** `incidentes_recorrentes_nao_cobertos / periodo`
-- **Dimensões mínimas:** domínio (`frontend-react`, `backend-go`, `kubernetes`, `security`, `documentation-style`) e causa (`processo`, `contrato`, `implementacao`, `validacao`).
+## Activation threshold
 
-## Limiar de ativação
+Activate this workflow when any condition is met in a rolling 30-day period:
 
-Ative este workflow quando qualquer critério abaixo for atendido no período móvel de 30 dias:
+- At least three uncovered recurring incidents in one domain.
+- At least five uncovered recurring incidents across domains.
+- Growth over two consecutive periods compared with the preceding 30 days.
 
-- `>= 3` incidentes recorrentes não cobertos no mesmo domínio.
-- `>= 5` incidentes recorrentes não cobertos no total multi-domínio.
-- Tendência de crescimento por 2 períodos consecutivos (30d vs. 30d anterior).
+## Execution checklist
 
-## Checklist de execução
+1. Consolidate 30 days of `recurrence_rework_uncovered` evidence.
+2. Confirm that no current workflow covers the pattern and record the gap.
+3. Create `.pose/workflows/<name>.md` with scope, preconditions, checks, and outputs.
+4. Link the new workflow from applicable domain rules and from the review workflow when relevant.
+5. Update the related spec with rationale, acceptance criteria, and residual risks.
+6. Define an owner, pilot window, and pilot success criteria.
+7. Run deterministic checks for every changed file.
+8. Record the post-pilot decision: keep, adjust, or discard the workflow.
 
-1. Consolidar evidência da métrica `recurrence_rework_uncovered` com recorte de 30 dias.
-2. Confirmar que o padrão não está coberto por workflow vigente e registrar o gap.
-3. Criar workflow especializado em `.pose/workflows/<nome>.md` com escopo, precondições, checks e saídas.
-4. Vincular o novo workflow às `rules` de domínio correspondentes no próprio arquivo e no `.pose/workflows/review.md` quando aplicável.
-5. Atualizar `spec` relacionada com justificativa, critérios de aceite e riscos residuais.
-6. Definir owner, janela piloto e critérios de sucesso do piloto.
-7. Rodar checks determinísticos aplicáveis aos arquivos alterados.
-8. Registrar decisão pós-piloto: manter, ajustar ou descartar workflow.
+## Required rule linkage
 
-## Vinculação obrigatória de rules
-
-Selecione cumulativamente as `rules` por domínio afetado:
+Select rules cumulatively for every affected domain:
 
 - `.pose/rules/security.md`
 - `.pose/rules/backend-go.md`
 - `.pose/rules/frontend-react.md`
 - `.pose/rules/kubernetes.md`
 - `.pose/rules/documentation-style.md`
-- `.pose/rules/knowledge-governance.md` (quando houver artefatos de conhecimento/processo)
+- `.pose/rules/knowledge-governance.md` when knowledge or process artifacts change
 
-Em conflito, aplique a alternativa mais restritiva.
+Apply the most restrictive rule when they conflict.
 
-## Revisão de adoção (piloto)
+## Adoption review
 
-Execute revisão após 45 dias de piloto:
+Review the pilot after 45 days:
 
-- Compare volume de recorrência pré/pós ativação por domínio.
-- Validar taxa de redução mínima de 30% no domínio alvo.
-- Avaliar custo operacional (tempo de execução e qualidade de evidência).
-- Emitir decisão formal: `manter`, `ajustar` ou `descartar`.
-- Se `ajustar`/`descartar`, abrir follow-up com owner, prazo e critério de saída.
+- Compare recurrence volume before and after activation by domain.
+- Require at least a 30 percent reduction in the target domain.
+- Evaluate operational cost, execution time, and evidence quality.
+- Issue a formal `keep`, `adjust`, or `discard` decision.
+- Open an owned, dated follow-up with an exit criterion for `adjust` or `discard`.
 
-## Saídas obrigatórias
+## Required outputs
 
-- Evidência da métrica e do limiar de ativação atingido.
-- Novo workflow especializado publicado e referenciado.
-- Mapeamento explícito de `rules` aplicadas.
-- Resultado da revisão de piloto com decisão final.
-- Riscos residuais e plano de mitigação.
+- Evidence that the metric crossed its activation threshold.
+- A published and referenced specialized workflow.
+- An explicit map of applied rules.
+- Pilot-review results and final decision.
+- Residual risks and a mitigation plan.

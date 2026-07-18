@@ -11,12 +11,12 @@ WORKDIR /app
 COPY mcp-enforce/ ./mcp-enforce/
 COPY pose-mcp/ ./pose-mcp/
 WORKDIR /app/pose-mcp
-RUN CGO_ENABLED=0 GOOS=linux go build -o /pose-mcp ./cmd/pose-mcp
+RUN CGO_ENABLED=0 GOOS=linux go build -o /pose ./cmd/pose
 
 FROM alpine:3.21
-RUN apk --no-cache add ca-certificates bash python3
-COPY --from=builder /pose-mcp /usr/local/bin/pose-mcp
+RUN apk --no-cache add ca-certificates git
+COPY --from=builder /pose /usr/local/bin/pose
 # Default to the port the Conductor and assembler expect for pose-mcp.
 ENV POSE_MCP_ADDR=:8799
 EXPOSE 8799
-ENTRYPOINT ["pose-mcp"]
+ENTRYPOINT ["pose", "serve-mcp"]

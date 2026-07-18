@@ -1,45 +1,36 @@
-# Skills POSE — índice
+# POSE skills index
 
-Skills concentram fluxos recorrentes em formato consumível por agentes
-(Claude Code via [`.claude/skills/`](../../.claude/skills/) — symlinks que
-apontam para este diretório; outros agentes via `.agents/skills/` direto).
+Skills package recurring workflows in a format agents can consume. Claude Code
+uses the symlinks under [`.claude/skills/`](../../.claude/skills/); other agents
+read `.agents/skills/` directly.
 
-Cada `SKILL.md` segue o formato nativo Claude Code: YAML frontmatter com
-`name` + `description` + `when_to_use`, e corpo markdown free-form com
-seções `Required reading`, `Steps`, `Output requirements`.
+Each `SKILL.md` uses YAML frontmatter with `name`, `description`, and
+`when_to_use`, followed by Required reading, Steps, and Output requirements.
 
-## Catálogo (9 skills)
+## Catalog
 
-| Skill | Tipo de tarefa | Workflow primário | Rules base |
+| Skill | Task type | Primary workflow | Base rules |
 |---|---|---|---|
-| [pose-feature](pose-feature/SKILL.md) | Feature / refactor não-trivial | [feature.md](../../.pose/workflows/feature.md) | security, documentation-style + domínio |
-| [pose-spec-closeout](pose-spec-closeout/SKILL.md) | Fechar spec concluída (status + data + triagem de follow-ups) | [feature.md](../../.pose/workflows/feature.md) | documentation-style |
-| [pose-bugfix](pose-bugfix/SKILL.md) | Correção de defeito | [bugfix.md](../../.pose/workflows/bugfix.md) | security, documentation-style + domínio |
-| [pose-review](pose-review/SKILL.md) | PR / code review | [review.md](../../.pose/workflows/review.md) | security (prevalece), documentation-style + domínio |
-| [pose-adr](pose-adr/SKILL.md) | Decisão arquitetural | tipo motivador | security, documentation-style |
-| [pose-test-plan](pose-test-plan/SKILL.md) | Plano de teste antes de codar (risco médio/alto) | [feature.md](../../.pose/workflows/feature.md) ou [bugfix.md](../../.pose/workflows/bugfix.md) | security, documentation-style + domínio |
-| [pose-doc-update](pose-doc-update/SKILL.md) | Documentação editorial | [documentation-update.md](../../.pose/workflows/documentation-update.md) | documentation-style |
-| [pose-knowledge](pose-knowledge/SKILL.md) | Handoff / decision-log / note em `.pose/knowledge/` | qualquer (final do fluxo) | knowledge-governance, documentation-style |
-| [pose-recurrence-escalation](pose-recurrence-escalation/SKILL.md) | Escalação após `recurrence-check` flagged | [recurrence-escalation.md](../../.pose/workflows/recurrence-escalation.md) | security, documentation-style |
+| [pose-feature](pose-feature/SKILL.md) | Feature or non-trivial refactor | [feature.md](../../.pose/workflows/feature.md) | security, documentation-style, and domain rules |
+| [pose-spec-closeout](pose-spec-closeout/SKILL.md) | Close a completed spec | [feature.md](../../.pose/workflows/feature.md) | documentation-style |
+| [pose-bugfix](pose-bugfix/SKILL.md) | Defect correction | [bugfix.md](../../.pose/workflows/bugfix.md) | security, documentation-style, and domain rules |
+| [pose-review](pose-review/SKILL.md) | PR or code review | [review.md](../../.pose/workflows/review.md) | security, documentation-style, and domain rules |
+| [pose-adr](pose-adr/SKILL.md) | Architectural decision | Motivating workflow | security and documentation-style |
+| [pose-test-plan](pose-test-plan/SKILL.md) | Pre-implementation test plan | feature or bugfix | security, documentation-style, and domain rules |
+| [pose-doc-update](pose-doc-update/SKILL.md) | Editorial documentation | [documentation-update.md](../../.pose/workflows/documentation-update.md) | documentation-style |
+| [pose-knowledge](pose-knowledge/SKILL.md) | Handoff, decision log, or note | Any workflow closeout | knowledge-governance and documentation-style |
+| [pose-recurrence-escalation](pose-recurrence-escalation/SKILL.md) | Escalation after recurrence detection | [recurrence-escalation.md](../../.pose/workflows/recurrence-escalation.md) | security and documentation-style |
 
-## Mapeamento machine-readable
-
-Para descobrir a skill canônica + rules adicionais por domínio:
+## Machine-readable routing
 
 ```bash
-./pose suggest <tipo-de-tarefa> [--path <dir>] [--json]
+pose suggest <task-type> [--path <dir>] [--json]
 ```
 
-Fonte de verdade: [`.pose/indexes/task-map.json`](../../.pose/indexes/task-map.json).
-Mudanças em workflows/skills/rules referenciados são validadas por `./pose check`.
+The source of truth is [`.pose/indexes/task-map.json`](../../.pose/indexes/task-map.json).
+`pose check` validates referenced workflows, skills, and rules.
 
-## Regra de escopo
+## Scope rule
 
-Carregue **apenas** a skill correspondente ao tipo de tarefa e os `AGENTS.md`
-necessários para os caminhos afetados. Não leia o catálogo inteiro por padrão.
-
-## Discovery por Claude Code
-
-[`.claude/skills/`](../../.claude/skills/) contém symlinks para cada skill
-deste diretório. Claude Code descobre as skills nativamente via esse path
-(`description` + `when_to_use` no frontmatter são usados para roteamento).
+Load only the skill for the current task type and the `AGENTS.md` files needed
+for affected paths. Do not read the entire catalog by default.

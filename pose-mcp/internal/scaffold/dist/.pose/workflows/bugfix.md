@@ -1,47 +1,47 @@
 # Workflow: Bugfix
 
-## Objetivo
+## Objective
 
-Corrigir a causa raiz com o menor impacto possível, cobertura de regressão e segurança operacional.
+Fix the root cause with the smallest possible impact, regression coverage, and operational safety.
 
-## Precondições
+## Preconditions
 
-- Falha reproduzida (ou evidência objetiva do defeito) está registrada.
-- Escopo do bug e componentes impactados estão identificados.
-- Existe hipótese de causa raiz validável.
-- Existe plano de validação para prevenir regressão.
+- The failure is reproduced (or objective evidence of the defect is recorded).
+- The bug scope and affected components are identified.
+- There is a testable root-cause hypothesis.
+- There is a validation plan that prevents regression.
 
-## Checklist de execução
+## Execution checklist
 
-1. Reproduzir o problema e definir modo de falha observável.
-2. **Consultar `.pose/knowledge/`** por incidents/handoffs anteriores no mesmo módulo ou padrão de falha; reaproveitar diagnóstico já registrado.
-3. Isolar causa raiz e mapear impacto colateral.
-4. Definir correção mínima segura e plano de rollback.
-5. Implementar fix com alteração coesa e sem refactor paralelo.
-6. Adicionar/ajustar teste de regressão quando aplicável.
-7. Rodar checks determinísticos relevantes (`test`, `lint`, `typecheck`, `build`).
-8. Validar que o defeito foi removido e comportamento adjacente preservado.
-9. **Produzir decision-log** em `.pose/knowledge/` quando a causa raiz revelar dívida sistêmica ou trade-off com impacto futuro (`./pose new-knowledge decision-log <slug>`).
-10. Registrar riscos residuais e monitoramento pós-correção.
+1. Reproduce the problem and define an observable failure mode.
+2. **Consult `.pose/knowledge/`** for earlier incidents or handoffs in the same module or failure pattern; reuse an existing diagnosis when available.
+3. Isolate the root cause and map collateral impact.
+4. Define the smallest safe fix and a rollback plan.
+5. Implement the fix as a cohesive change, without parallel refactoring.
+6. Add or adjust a regression test when applicable.
+7. Run relevant deterministic checks (`test`, `lint`, `typecheck`, `build`).
+8. Validate that the defect is gone and adjacent behavior is preserved.
+9. **Create a decision log** in `.pose/knowledge/` when the root cause reveals systemic debt or a trade-off with future impact (`pose new-knowledge decision-log <slug>`).
+10. Record residual risks and post-fix monitoring.
 
-## Saídas obrigatórias
+## Required outputs
 
-- Descrição do defeito, causa raiz e abordagem de correção.
-- Evidência de regressão coberta por teste ou validação equivalente.
-- Resultado dos checks executados.
-- Riscos residuais, plano de monitoramento e rollback (quando necessário).
+- Description of the defect, root cause, and fix approach.
+- Evidence of regression coverage through a test or equivalent validation.
+- Results of the executed checks.
+- Residual risks, monitoring plan, and rollback plan when needed.
 
-## Critérios de pronto
+## Definition of done
 
-- Defeito não reproduz mais no cenário-alvo.
-- Regressão coberta por teste/validação determinística adequada.
-- Não houve alteração indevida de comportamento fora do escopo.
-- Checks relevantes concluídos com sucesso.
+- The defect no longer reproduces in the target scenario.
+- Regression is covered by a suitable deterministic test or validation.
+- No behavior outside the scope changed inadvertently.
+- Relevant checks completed successfully.
 
-## Execução — modo implementador
+## Execution — implementer mode
 
-**Objetivo:** corrigir a causa raiz com mudanças mínimas, sem expandir escopo.
+**Objective:** fix the root cause with minimal changes, without expanding scope.
 
-- **Foco:** isolamento da causa raiz antes de qualquer fix; alteração coesa sem refactor paralelo; cobertura de regressão antes do merge; comunicação clara do trade-off entre correção mínima e prevenção sistêmica.
-- **Anti-padrões:** corrigir sintoma sem investigar causa; misturar bugfix com refactor não solicitado; alterar contrato público para esconder o defeito; acumular mudanças sem checkpoint de validação.
-- **Handoff:** diff cirúrgico com rationale; teste de regressão executado; risco residual e monitoramento; pontos de atenção no review (especialmente trechos próximos ao fix).
+- **Focus:** isolate the root cause before any fix; make a cohesive change without parallel refactoring; provide regression coverage before merge; clearly communicate the trade-off between a minimal fix and systemic prevention.
+- **Anti-patterns:** fix a symptom without investigating the cause; mix a bugfix with an unrequested refactor; change a public contract to hide the defect; accumulate changes without validation checkpoints.
+- **Handoff:** a surgical diff with rationale; executed regression test; residual risk and monitoring; review attention points, especially code near the fix.

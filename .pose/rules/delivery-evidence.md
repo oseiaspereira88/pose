@@ -1,44 +1,42 @@
 # Rule: Delivery Evidence
 
-## Quando consultar
+## When to consult
 
-Consulte este guia ao escrever ou revisar qualquer documento que **declare entrega,
-conclusão ou prontidão** — relatórios de status, handoffs, summaries, READMEs de
-módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X completo".
+Consult this guide when writing or reviewing any document that **claims delivery,
+completion, or readiness**: status reports, handoffs, summaries, module READMEs,
+current-state sections in specs or proposals, and messages that say something is complete.
 
-## Convenções obrigatórias
+## Required conventions
 
-- Declare entrega apenas com **evidência de gate verificável** anexada: comando + saída
-  (`./pose validate`, `go test`, `tsc`, `vitest`) ou link ao report POSE correspondente.
-- Use o vocabulário de estado do POSE: `draft` · `in-progress` · `done` · `blocked` ·
-  `superseded` · `abandoned`. Não invente rótulos (`completed`, `100% COMPLETE`).
-- Separe **implementado e verificado** de **planejado/documentado**. Documento de plano
-  descreve intenção; não afirme que a intenção é realidade.
-- Para `done`, referencie o report ou a evidência que cruzou o gate de saída da spec.
-- Converta datas relativas em absolutas; carimbe a data da verificação.
+- Claim delivery only with attached, verifiable gate evidence: command and output
+  (`pose validate`, `go test`, `tsc`, `vitest`) or a link to the corresponding POSE report.
+- Use POSE lifecycle vocabulary: `draft`, `in-progress`, `done`, `blocked`,
+  `superseded`, or `abandoned`. Do not invent labels such as `completed` or `100% COMPLETE`.
+- Separate **implemented and verified** work from **planned or documented** work.
+  A plan describes intent; do not present that intent as current reality.
+- Reference the report or evidence that crossed the spec exit gate before using `done`.
+- Convert relative dates to absolute dates and stamp the verification date.
 
-## Anti-padrões bloqueadores
+## Blocking anti-patterns
 
-- Declarar "100% COMPLETE"/"pronto para produção" sem `./pose validate --strict` verde
-  no(s) módulo(s) afetado(s).
-- Doc de entrega que contradiz outro doc do mesmo escopo (ex.: "delivery report" diz
-  completo e "gaps analysis" diz incompleto) — reconcilie antes de publicar.
-- Código mergeado com doc de conclusão mas sem passar pelos `check`/`validate` do POSE.
-- Misturar aspiração e estado verificado no mesmo parágrafo sem marcação clara.
+- Claiming `100% COMPLETE` or production readiness without a green
+  `pose validate --strict` for every affected module.
+- Publishing contradictory delivery documents for the same scope; reconcile them first.
+- Merging code with completion documentation before the applicable POSE checks pass.
+- Mixing aspiration and verified state in one paragraph without clear labels.
 
-## Checks mínimos
+## Minimum checks
 
-- `./pose check --strict` (estrutura + enum de status das specs).
-- `./pose validate --strict` no(s) módulo(s) que o documento afirma entregar.
-- `./pose lint-spec` quando o documento for uma spec.
+- Run `pose check --strict` for structure and spec status enums.
+- Run `pose validate --strict` for every module the document claims to deliver.
+- Run `pose lint-spec` when the document is a spec.
 
-## Precedência em conflito multi-domínio
+## Precedence in multi-domain conflicts
 
-- Em conflito com outras `rules`, prevaleça a evidência verificável de `check` sobre a
-  narrativa de progresso.
-- Quando houver pressão por declarar conclusão sem gate, registre o estado real
-  (`in-progress`/`blocked`) e o que falta para o gate fechar.
+- Prefer verifiable check evidence over progress narratives when rules conflict.
+- When pressured to claim completion without a gate, record the real state
+  (`in-progress` or `blocked`) and the remaining exit conditions.
 
-## Rastreabilidade de recorrência
+## Recurrence traceability
 
-> Aplicar também: [.pose/rules/_base-recurrence.md](_base-recurrence.md)
+> Also apply: [.pose/rules/_base-recurrence.md](_base-recurrence.md)

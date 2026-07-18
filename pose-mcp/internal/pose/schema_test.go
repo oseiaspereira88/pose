@@ -20,6 +20,9 @@ func TestSchemaDrift(t *testing.T) {
 			CompletedAt: "2026-01-02", Supersedes: "old", Title: "T", Path: "p", Body: "b"}},
 		{"artifact.schema.json", Markdown{Name: "n", Title: "T", Path: "p", Body: "b"}},
 		{"gate-result.schema.json", GateResult{Command: "c", ExitCode: 1, Passed: false, Output: "o"}},
+		{"insights.schema.json", InsightsResult{GroupBy: "workflow", SinceDays: 30,
+			RecordsScanned: 2, RecordsSkippedByWindow: 1, RecordsSkippedInvalid: 0,
+			Rows: []InsightRow{{Key: "feature", Pass: 1, Total: 1}}}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.schema, func(t *testing.T) {

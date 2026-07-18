@@ -67,7 +67,7 @@ func (s Store) roadmapWaitingReason(slug string) string {
 // dorApplies reads the adoption cutoff from .pose/policy/dor.json: the DoR
 // readiness condition only applies to specs created on/after adopted_at.
 // Missing/invalid policy or created_at disables the condition (fail-open here
-// by design — the transition gate in ./pose check is the enforcing layer).
+// by design — the transition gate in pose check is the enforcing layer).
 func (s Store) dorApplies(createdAt string) bool {
 	if createdAt == "" {
 		return false
@@ -134,7 +134,7 @@ func (s Store) SpecReadiness(slug string) (*Readiness, error) {
 	// Definition of Ready (pose-definition-of-ready): specs criadas a partir do
 	// cutoff de adoção precisam de acceptance criteria com IDs estáveis antes de
 	// serem elegíveis. Specs anteriores são legadas (isentas) — o gate de
-	// transição do ./pose check cobre o funil novo.
+	// transição do pose check cobre o funil novo.
 	if s.dorApplies(sp.CreatedAt) && !hasAcceptanceCriteriaIDs(sp.Body) {
 		r.WaitingOn = append(r.WaitingOn, WaitingRef{
 			Ref:    "dor:acceptance-criteria",

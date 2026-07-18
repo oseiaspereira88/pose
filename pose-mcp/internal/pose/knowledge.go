@@ -10,7 +10,7 @@ import (
 
 type KnowledgeEntry struct {
 	Slug        string `json:"slug"`
-	Type        string `json:"type"`         // handoff | decision-log | note
+	Type        string `json:"type"` // handoff | decision-log | note
 	Owner       string `json:"owner"`
 	Sensitivity string `json:"sensitivity"` // public | public-internal | restricted
 	CreatedAt   string `json:"created_at,omitempty"`

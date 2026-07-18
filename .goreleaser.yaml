@@ -1,6 +1,6 @@
 # goreleaser config for POSE releases (spec pose-release-pipeline).
-# Builds the unified CLI (`pose`) and the MCP server (`pose-mcp`) from the
-# pose-mcp Go module, multi-platform, CGO-free, with SHA-256 checksums.
+# Builds the unified native CLI/MCP server (`pose`) multi-platform, CGO-free,
+# with SHA-256 checksums.
 #
 # Local validation: `goreleaser check` / `goreleaser build --snapshot --clean`.
 # Publishing runs in .github/workflows/release.yml on tags `v*`.
@@ -25,18 +25,10 @@ builds:
     ldflags:
       - -s -w
       - -X github.com/crisol/pose-mcp/internal/cli.Version={{ .Version }}
-  - id: pose-mcp
-    dir: pose-mcp
-    main: ./cmd/pose-mcp
-    binary: pose-mcp
-    env: [CGO_ENABLED=0]
-    goos: [linux, darwin]
-    goarch: [amd64, arm64]
-    ldflags: [-s -w]
 
 archives:
   - id: default
-    ids: [pose, pose-mcp]
+    ids: [pose]
     formats: [tar.gz]
     name_template: "pose_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     files:
@@ -53,7 +45,7 @@ checksum:
 
 changelog:
   # Release notes come from the POSE changelog fragments, injected by the
-  # release workflow via --release-notes (pose-release-notes.sh). goreleaser's
+  # release workflow via --release-notes (`pose release-notes`). goreleaser's
   # own git-log changelog stays disabled to keep notes user-facing.
   disable: true
 

@@ -64,7 +64,7 @@ func newTestServer(t *testing.T, token string) *httptest.Server {
 	write(".pose/rules/security.md", "# Rule: Security\n")
 	write(".pose/rules/backend-go.md", "# Rule: Backend Go\n")
 	write(".pose/knowledge/handbook.md", "---\nslug: handbook\ntype: handoff\nowner: @platform\nsensitivity: public-internal\ncreated_at: 2026-06-01\n---\n\n# Handbook\n\nTeam processes.\n")
-	write(".pose/reports/history/standard-feature.jsonl", `{"generated_at":"2026-06-11T12:00:00Z","task":"feature","report_path":"/abs/path/to/2026-06-11-standard-feature.md","outcome":"pass"}`)
+	write(".pose/reports/history/standard-feature.jsonl", `{"generated_at":"2026-06-11T12:00:00Z","task":"feature","task_slug":"alpha","workflow":"feature","context":"ci","report_path":"/abs/path/to/2026-06-11-standard-feature.md","outcome":"pass"}`)
 	write(".pose/reports/2026-06-11-standard-feature.md", "# Report Feature\nPassed standard validation.")
 
 	ts := httptest.NewServer(New(pose.Store{Root: root}).Handler(token, ""))
@@ -126,8 +126,8 @@ func TestToolsList(t *testing.T) {
 	ts := newTestServer(t, "")
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}`)
 	tools, _ := out.Result["tools"].([]any)
-	if len(tools) != 20 {
-		t.Fatalf("tools = %d, want 20", len(tools))
+	if len(tools) != 21 {
+		t.Fatalf("tools = %d, want 21", len(tools))
 	}
 	names := map[string]bool{}
 	for _, raw := range tools {
@@ -139,7 +139,7 @@ func TestToolsList(t *testing.T) {
 	}
 	for _, want := range []string{"pose_get_spec", "pose_list_specs", "pose_spec_readiness",
 		"pose_list_roadmaps", "pose_get_roadmap", "pose_get_changelog",
-		"pose_suggest", "pose_get_workflow", "pose_get_rules", "pose_get_followups", "pose_check",
+		"pose_suggest", "pose_get_workflow", "pose_get_rules", "pose_insights", "pose_get_followups", "pose_check",
 		"pose_lint_spec", "pose_list_knowledge", "pose_get_knowledge", "pose_list_reports",
 		"pose_get_report"} {
 		if !names[want] {
@@ -176,6 +176,33 @@ func TestToolsCall_ListSpecsFilter(t *testing.T) {
 	}
 }
 
+func TestToolsCall_Insights(t *testing.T) {
+	ts := newTestServer(t, "")
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":31,"method":"tools/call","params":{"name":"pose_insights","arguments":{"group_by":"task","since_days":0}}}`)
+	if out.Error != nil || out.Result["isError"] != false {
+		t.Fatalf("insights failed: error=%+v result=%v", out.Error, out.Result)
+	}
+	structured, _ := out.Result["structuredContent"].(map[string]any)
+	if structured["group_by"] != "task" || structured["records_scanned"] != float64(1) {
+		t.Fatalf("unexpected insights: %v", structured)
+	}
+	rows, _ := structured["rows"].([]any)
+	if len(rows) != 1 || rows[0].(map[string]any)["key"] != "alpha" {
+		t.Fatalf("unexpected rows: %v", rows)
+	}
+}
+
+func TestToolsCall_InsightsRejectsInvalidInputs(t *testing.T) {
+	ts := newTestServer(t, "")
+	for _, arguments := range []string{`{"group_by":"owner"}`, `{"since_days":-1}`} {
+		body := `{"jsonrpc":"2.0","id":32,"method":"tools/call","params":{"name":"pose_insights","arguments":` + arguments + `}}`
+		_, out := post(t, ts, body)
+		if out.Error != nil || out.Result["isError"] != true {
+			t.Fatalf("invalid arguments %s did not fail closed: error=%+v result=%v", arguments, out.Error, out.Result)
+		}
+	}
+}
+
 // newMultiProjectServer builds two project roots with distinct specs, served by
 // one project-aware server (pose-mcp-multi-project).
 func newMultiProjectServer(t *testing.T) *httptest.Server {
@@ -188,6 +215,14 @@ func newMultiProjectServer(t *testing.T) *httptest.Server {
 		}
 		body := "---\nslug: " + slug + "\nstatus: done\ncreated_at: 2026-06-01\ncompleted_at: 2026-06-02\n---\n\n# Spec: " + slug + "\n"
 		if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		history := filepath.Join(root, ".pose", "reports", "history", "runs.jsonl")
+		if err := os.MkdirAll(filepath.Dir(history), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		record := `{"generated_at":"2026-07-18T00:00:00Z","workflow":"feature","task_slug":"` + slug + `","outcome":"pass"}`
+		if err := os.WriteFile(history, []byte(record+"\n"), 0o644); err != nil {
 			t.Fatal(err)
 		}
 		return root
@@ -243,6 +278,16 @@ func TestToolsCall_ListSpecs_ScopedByProject(t *testing.T) {
 	}
 }
 
+func TestToolsCall_InsightsProject(t *testing.T) {
+	ts := newMultiProjectServer(t)
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":23,"method":"tools/call","params":{"name":"pose_insights","arguments":{"project_id":"proj.b","group_by":"task"}}}`)
+	structured, _ := out.Result["structuredContent"].(map[string]any)
+	rows, _ := structured["rows"].([]any)
+	if len(rows) != 1 || rows[0].(map[string]any)["key"] != "only-in-b" {
+		t.Fatalf("proj.b insights = %v, want only-in-b", structured)
+	}
+}
+
 func TestToolsCall_UnknownProjectIsToolError(t *testing.T) {
 	ts := newMultiProjectServer(t)
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":22,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{"project_id":"proj.ghost"}}}`)
@@ -273,7 +318,7 @@ func TestToolsCall_ListRules(t *testing.T) {
 }
 
 func TestToolsCall_CheckWithoutCLIIsToolError(t *testing.T) {
-	// The fixture has no ./pose wrapper: execution failure must surface as a
+	// A Go test process is not a runnable native pose executable: failure must surface as a
 	// tool-level error (isError=true), never as a crash or protocol error.
 	ts := newTestServer(t, "")
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"pose_check","arguments":{}}}`)

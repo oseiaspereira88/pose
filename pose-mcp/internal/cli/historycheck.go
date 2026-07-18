@@ -1,7 +1,7 @@
 package cli
 
 // Native port of the history-check gate (spec pose-cli-native-gates).
-// Mirrors .pose/scripts/pose-history-check.sh.
+// Implements the tracked-history contract natively.
 
 import (
 	"fmt"
@@ -14,6 +14,7 @@ import (
 )
 
 func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
+	locale := cliLocaleValue()
 	mode := "tolerant"
 	for _, a := range args {
 		switch a {
@@ -22,10 +23,10 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 		case "--tolerant":
 			mode = "tolerant"
 		case "-h", "--help":
-			fmt.Fprintln(stdout, "Uso: pose history-check [--strict|--tolerant]")
+			fmt.Fprintln(stdout, cliText(locale, "Usage: pose history-check [--strict|--tolerant]", "Uso: pose history-check [--strict|--tolerant]"))
 			return 0
 		default:
-			fmt.Fprintf(stderr, "Erro: argumento inválido: %s\n", a)
+			fmt.Fprintf(stderr, cliText(locale, "Error: invalid argument: %s\n", "Erro: argumento inválido: %s\n"), a)
 			return 2
 		}
 	}
@@ -36,17 +37,17 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 	}
 	historyDir := filepath.Join(root, ".pose", "reports", "history")
 	if fi, err := os.Stat(historyDir); err != nil || !fi.IsDir() {
-		fmt.Fprintf(stderr, "Erro: history dir ausente: %s\n", historyDir)
+		fmt.Fprintf(stderr, cliText(locale, "Error: history directory not found: %s\n", "Erro: history dir ausente: %s\n"), historyDir)
 		return 2
 	}
 	if err := exec.Command("git", "-C", root, "rev-parse", "--is-inside-work-tree").Run(); err != nil {
-		fmt.Fprintf(stderr, "Erro: não é um repositório git: %s\n", root)
+		fmt.Fprintf(stderr, cliText(locale, "Error: not a git repository: %s\n", "Erro: não é um repositório git: %s\n"), root)
 		return 2
 	}
 
 	entries, err := os.ReadDir(historyDir)
 	if err != nil {
-		fmt.Fprintf(stderr, "Erro: lendo %s: %v\n", historyDir, err)
+		fmt.Fprintf(stderr, cliText(locale, "Error: reading %s: %v\n", "Erro: lendo %s: %v\n"), historyDir, err)
 		return 2
 	}
 	var files []string
@@ -66,10 +67,10 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 		case status == "":
 			clean++
 		case strings.HasPrefix(status, "??"):
-			fmt.Fprintf(stderr, "[AVISO] JSONL untracked: %s\n", rel)
+			fmt.Fprintf(stderr, cliText(locale, "[WARNING] untracked JSONL: %s\n", "[AVISO] JSONL untracked: %s\n"), rel)
 			untracked++
 		case strings.HasPrefix(status, " M "), strings.HasPrefix(status, " D "), strings.HasPrefix(status, " T "):
-			fmt.Fprintf(stderr, "[AVISO] JSONL modificado e não-staged: %s\n", rel)
+			fmt.Fprintf(stderr, cliText(locale, "[WARNING] modified unstaged JSONL: %s\n", "[AVISO] JSONL modificado e não-staged: %s\n"), rel)
 			modified++
 		default:
 			// Index has changes (staged) — OK for the gate.
@@ -84,10 +85,10 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 	if problems := untracked + modified; problems > 0 {
 		fmt.Fprintf(stdout, "Resultado: FALHA (%d JSONL fora do versionamento)\n", problems)
 		if mode == "strict" {
-			fmt.Fprintln(stderr, "Para corrigir: git add .pose/reports/history/")
+			fmt.Fprintln(stderr, cliText(locale, "To fix: git add .pose/reports/history/", "Para corrigir: git add .pose/reports/history/"))
 			return 1
 		}
-		fmt.Fprintln(stdout, "Modo tolerant: registrar e versionar antes do próximo merge.")
+		fmt.Fprintln(stdout, cliText(locale, "Tolerant mode: record and version before the next merge.", "Modo tolerant: registrar e versionar antes do próximo merge."))
 		fmt.Fprintln(stdout, "Resultado: FALHA_TOLERADA")
 		return 0
 	}

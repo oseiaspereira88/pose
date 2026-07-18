@@ -1,11 +1,84 @@
 {
-  "root": "",
   "apps": [],
-  "services": [],
-  "packages": [],
-  "manifests": [],
-  "dockerfiles": [],
+  "dockerfiles": [
+    "mcp-enforce/Dockerfile",
+    "pose-mcp/Dockerfile"
+  ],
   "helmCharts": [],
-  "readmes": [],
-  "moduleMetadata": {}
+  "manifests": [
+    "mcp-enforce/go.mod",
+    "pose-mcp/go.mod"
+  ],
+  "moduleMetadata": {
+    "schemaVersion": 1,
+    "source": ".pose/indexes/module-metadata.json"
+  },
+  "packages": [
+    {
+      "name": "mcp-enforce",
+      "path": "mcp-enforce",
+      "language": "go",
+      "hasDockerfile": true,
+      "hasHelmChart": false,
+      "owner": "unknown",
+      "criticality": "medium",
+      "domain": "unknown",
+      "validationProfile": "baseline",
+      "metadata": {
+        "criticality": "medium",
+        "domain": "unknown",
+        "owner": "unknown",
+        "validationProfile": "baseline"
+      },
+      "metadataStatus": {
+        "isComplete": false,
+        "missingFields": [
+          "criticality",
+          "domain",
+          "owner",
+          "validationProfile"
+        ],
+        "source": "defaulted"
+      }
+    },
+    {
+      "name": "pose-mcp",
+      "path": "pose-mcp",
+      "language": "go",
+      "hasDockerfile": true,
+      "hasHelmChart": false,
+      "owner": "unknown",
+      "criticality": "medium",
+      "domain": "unknown",
+      "validationProfile": "baseline",
+      "metadata": {
+        "criticality": "medium",
+        "domain": "unknown",
+        "owner": "unknown",
+        "validationProfile": "baseline"
+      },
+      "metadataStatus": {
+        "isComplete": false,
+        "missingFields": [
+          "criticality",
+          "domain",
+          "owner",
+          "validationProfile"
+        ],
+        "source": "defaulted"
+      }
+    }
+  ],
+  "readmes": [
+    ".agents/skills/README.md",
+    ".pose/knowledge/README.md",
+    ".pose/reports/README.md",
+    "README.md",
+    "locales/pt-BR/.agents/skills/README.md",
+    "mcp-enforce/README.md",
+    "pose-action/README.md",
+    "pose-mcp/schemas/README.md"
+  ],
+  "root": ".",
+  "services": []
 }

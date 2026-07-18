@@ -1,48 +1,48 @@
 # Rule: Knowledge Governance
 
-## Quando consultar
+## When to consult
 
-Consulte este guia em tarefas que criam, atualizam, revisam ou removem artefatos em `.pose/knowledge/`.
+Consult this guide when creating, updating, reviewing, or removing artifacts under `.pose/knowledge/`.
 
-## TTL e retenção
+## TTL and retention
 
-- Defina `expires_at` em todo artefato no momento da criação.
-- Use TTL padrão de 30 dias para `note`, `decision-log` e `handoff`.
-- Use TTL máximo de 90 dias apenas quando houver justificativa registrada no corpo do artefato.
-- Marque artefato sem `expires_at` como não conforme e bloqueie criação/merge.
+- Set `expires_at` on every artifact when it is created.
+- Use a default TTL of 30 days for notes, decision logs, and handoffs.
+- Use a TTL of up to 90 days only with a justification recorded in the artifact body.
+- Treat an artifact without `expires_at` as non-compliant and block its creation or merge.
 
-## Formato reutilizável entre execuções
+## Reusable cross-execution format
 
-- Estruture contexto reutilizável como `handoff` com seções fixas: `Contexto`, `Estado atual`, `Próximos checks`, `Riscos`, `Próximo owner`.
-- Mantenha `source_refs` apontando para `spec`, `workflow` e comandos de `check` executados.
-- Registre `last_reviewed_at` no corpo para rastrear atualização efetiva entre execuções.
+- Structure reusable context as a handoff with fixed sections: Context, Current state, Next checks, Risks, and Next owner.
+- Keep `source_refs` linked to the relevant spec, workflow, and executed check commands.
+- Record `last_reviewed_at` in the body to make effective cross-execution updates traceable.
 
-## Arquivamento e expurgo
+## Archiving and purging
 
-- Rode triagem quinzenal para listar artefatos vencidos.
-- Mova artefatos vencidos para `.pose/knowledge/archive/` quando houver valor de auditoria.
-- Expurgue artefatos arquivados após 180 dias do vencimento, salvo exigência legal/compliance documentada.
-- Registre toda ação de arquivamento/expurgo em log de housekeeping.
+- Run biweekly triage to list expired artifacts.
+- Move expired artifacts to `.pose/knowledge/archive/` when they retain audit value.
+- Purge archived artifacts 180 days after expiration unless documented legal or compliance requirements apply.
+- Record every archive and purge action in the housekeeping log.
 
-## Conteúdo sensível
+## Sensitive content
 
-- Proíba segredos, tokens, credenciais, chaves privadas e material equivalente.
-- Proíba dados pessoais e dados de cliente não anonimizados.
-- Proíba cópia integral de incidentes ou relatórios com acesso restrito; mantenha apenas referência controlada.
-- Classifique `sensitivity` no front matter como `public-internal` ou `restricted`.
-- Remova imediatamente conteúdo sensível identificado e abra follow-up de segurança.
+- Prohibit secrets, tokens, credentials, private keys, and equivalent material.
+- Prohibit personal data and non-anonymized customer data.
+- Do not copy restricted incidents or reports in full; keep only a controlled reference.
+- Classify frontmatter `sensitivity` as `public-internal` or `restricted`.
+- Remove identified sensitive content immediately and open a security follow-up.
 
-## Ownership e revisão
+## Ownership and review
 
-- Mantenha owner primário de governança em `@pose-maintainers`.
-- Exija owner por artefato no front matter para responsabilização.
-- Execute revisão quinzenal de vencimento e revisão mensal de qualidade.
-- Escale backlog vencido acima de 2 ciclos para owner primário.
-- Bloqueie expansão de backlog quando `list-expired` exceder limite operacional (padrão: 0 em strict, 2 em tolerant).
+- Keep `@pose-maintainers` as the primary governance owner.
+- Require an owner in every artifact frontmatter.
+- Review expiration biweekly and quality monthly.
+- Escalate a backlog overdue by more than two cycles to the primary owner.
+- Block backlog growth when `list-expired` exceeds the operational limit: zero in strict mode, two in tolerant mode.
 
-## Check mínimo operacional
+## Minimum operational checks
 
-- Execute `./pose knowledge-check --strict` em rotina quinzenal para validar backlog vencido.
-- Execute `bash .pose/scripts/pose-knowledge-housekeeping.sh list-expired` para triagem detalhada.
-- Execute `bash .pose/scripts/pose-knowledge-housekeeping.sh archive-expired --dry-run` antes de aplicar mudanças.
-- Execute ações destrutivas apenas com `--apply` explícito.
+- Run `pose knowledge-check --strict` biweekly to validate the expired backlog.
+- Run `pose knowledge-housekeeping list-expired` for detailed triage.
+- Run `pose knowledge-housekeeping archive-expired --dry-run` before applying changes.
+- Execute destructive actions only with an explicit `--apply` flag.

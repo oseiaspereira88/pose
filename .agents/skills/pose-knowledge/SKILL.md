@@ -1,69 +1,41 @@
 ---
 name: pose-knowledge
-description: Use ao criar/atualizar artefatos em .pose/knowledge/ — handoffs entre execuções, decision-logs com gatilho de revisão, ou notes de contexto reaproveitável. Valida frontmatter e dispara housekeeping. Trigger keywords - knowledge, handoff, decision-log, note, memória, context handoff, pose-maintainers.
-when_to_use: Há contexto técnico que sobrevive a uma execução isolada e precisa ser retomado por outro agente/ciclo. Tipicamente ao final de feature/bugfix/review quando spec/ADR não capturam o que precisa ser lembrado.
+description: Use to create or update artifacts under .pose/knowledge, including cross-execution handoffs, decision logs with review triggers, and reusable technical notes. Trigger keywords - knowledge, handoff, decision-log, note, memory, context handoff, pose-maintainers.
+when_to_use: Technical context must survive one execution and be resumed by another agent or cycle, especially after feature, bugfix, or review work when a spec or ADR is insufficient.
 ---
 
 # Skill: pose-knowledge
 
-Fluxo POSE para o subsistema de memória entre execuções.
-
 ## Required reading
 
-1. [`.pose/rules/knowledge-governance.md`](../../../.pose/rules/knowledge-governance.md) — TTL, ownership, sensitivity, expurgo.
-2. [`.pose/specs/pose-knowledge-governance.md`](../../../.pose/specs/pose-knowledge-governance.md) — governança detalhada.
+1. [`.pose/rules/knowledge-governance.md`](../../../.pose/rules/knowledge-governance.md).
+2. The knowledge-governance spec present in the installation.
 
-## Tipos de artefato
+## Artifact types
 
-- **handoff** — estado parcial + próximo owner; típico ao final de feature/review.
-- **decision-log** — decisão arquitetural localizada (não-ADR) com gatilho de revisão.
-- **note** — contexto técnico curto reaproveitável (debug recipe, gotcha, link curado).
+- **handoff:** partial state and next owner.
+- **decision-log:** localized non-ADR decision with a review trigger.
+- **note:** reusable technical context such as a debug recipe or curated link.
 
-TTL padrão 30 dias (`--ttl-days N`, máximo 90 conforme rule).
+Use a 30-day default TTL and at most 90 days with justification.
 
 ## Steps
 
-### Criar artefato
+1. Create an artifact with `pose new-knowledge <type> <slug> --owner @<team> --ttl-days 30`.
+2. Fill Context, Current state, Next checks, Risks, and Next owner; update `source_refs`.
+3. Use `--restricted` for restricted content, while still excluding secrets and personal data.
+4. Run `pose knowledge-check --strict`.
+5. Search active knowledge before related work with `find .pose/knowledge -name '*<topic>*.md' -type f -not -path '*/archive/*'`.
+6. Use `knowledge-housekeeping` to list expired artifacts, archive with `--apply`, and purge only after the retention window.
 
-```bash
-./pose new-knowledge handoff <slug-do-tema> --owner @<squad> --ttl-days 30
-```
+## Restrictions
 
-Edite o arquivo gerado em `.pose/knowledge/<data>-<type>-<slug>.md`:
-- Preencher `Contexto`, `Estado atual`, `Próximos checks`, `Riscos`, `Próximo owner`.
-- Atualizar `source_refs` (spec, workflow, comandos executados).
-- Para conteúdo sensível, recriar com `--restricted` (sensitivity = `restricted`).
-
-### Validar
-
-```bash
-./pose knowledge-check --strict
-```
-
-Falha em strict se: frontmatter inválido (type, sensitivity, datas, TTL > 90d) ou backlog vencido.
-
-### Consultar antes de uma tarefa
-
-```bash
-find .pose/knowledge -name "*<modulo-ou-tema>*.md" -type f -not -path '*/archive/*'
-```
-
-### Housekeeping (manutenção)
-
-```bash
-./pose knowledge-housekeeping list-expired
-./pose knowledge-housekeeping archive-expired --apply
-./pose knowledge-housekeeping purge-archived --apply   # após 180d arquivado
-```
-
-## Restrições
-
-- Proibido: segredos, tokens, dados pessoais, cópia integral de incidents restritos.
-- Owner obrigatório; default `@pose-maintainers` apenas para artefatos institucionais.
-- `last_reviewed_at` deve refletir revisão real, não data de criação.
+- Never store secrets, tokens, personal data, or full restricted incident reports.
+- Require an owner; reserve `@pose-maintainers` for institutional artifacts.
+- Update `last_reviewed_at` only after a real review.
 
 ## Output requirements
 
-- Arquivo criado em `.pose/knowledge/` com frontmatter completo e seções preenchidas (não apenas placeholders).
-- `./pose knowledge-check --strict` em SUCESSO.
-- Referência ao artefato no spec/PR que motivou sua criação.
+- Complete artifact frontmatter and body under `.pose/knowledge/`.
+- Successful strict knowledge check.
+- Reference from the motivating spec or review.

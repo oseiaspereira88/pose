@@ -1,39 +1,39 @@
 # Rule: Kubernetes
 
-## Quando consultar
+## When to consult
 
-Consulte este guia em tarefas de manifests Kubernetes, Helm/Kustomize, configuração de deploy, escalabilidade e operação em cluster.
+Consult this guide for Kubernetes manifests, Helm or Kustomize, deployment configuration, scaling, and cluster operations.
 
-## Padrões obrigatórios
+## Required patterns
 
-- Todo workload deve definir `resources.requests` e `resources.limits`.
-- Probes (`liveness`, `readiness`) devem refletir comportamento real da aplicação.
-- Imagens devem ser versionadas de forma imutável (tag fixa/digest), evitando `latest`.
-- Configuração deve separar segredo de configuração pública (Secret vs ConfigMap).
-- Estratégia de rollout deve minimizar indisponibilidade (ex.: rolling update).
-- Namespaces, labels e annotations devem seguir padrão de rastreabilidade do projeto.
+- Define `resources.requests` and `resources.limits` for every workload.
+- Make liveness and readiness probes reflect actual application behavior.
+- Use immutable image versions through fixed tags or digests; never use `latest`.
+- Separate secrets from public configuration with Secret and ConfigMap resources.
+- Choose rollout strategies that minimize downtime, such as rolling updates.
+- Follow project traceability conventions for namespaces, labels, and annotations.
 
-## Anti-padrões bloqueadores
+## Blocking anti-patterns
 
-- Deploy sem probes, sem recursos ou com privilégios excessivos desnecessários.
-- Uso de `:latest` em imagem de produção.
-- Secrets hardcoded em manifest, chart ou values.
-- Exposição externa sem política mínima de segurança/restrição.
-- Alteração de manifest sem considerar backward compatibility de rollout.
+- Deploying without probes or resources, or with unnecessary elevated privileges.
+- Using `:latest` for production images.
+- Hard-coding secrets in manifests, charts, or values.
+- Exposing services externally without minimum security and restriction policies.
+- Changing manifests without considering rollout backward compatibility.
 
-## Checks mínimos
+## Minimum checks
 
-- Validação estrutural de YAML/manifest sem erros.
-- `kubectl apply --dry-run=client` (ou equivalente) no escopo alterado.
-- Renderização de templates (Helm/Kustomize) concluída sem erro.
-- Verificação de políticas de segurança/contrato de plataforma aplicáveis.
+- Validate YAML and manifest structure without errors.
+- Run `kubectl apply --dry-run=client`, or the equivalent, for the changed scope.
+- Render Helm or Kustomize templates successfully.
+- Verify applicable platform security and contract policies.
 
-## Precedência em conflito multi-domínio
+## Precedence in multi-domain conflicts
 
-- Em conflito com outras `rules`, aplique a alternativa mais restritiva para segurança, contrato e operação.
-- Quando houver choque entre velocidade e controle, priorize evidência verificável de `check` e mitigação explícita de risco.
-- Registre no parecer de review a decisão de precedência e o racional objetivo.
+- Apply the most restrictive security, contract, and operational rule when domain rules conflict.
+- Prefer verifiable check evidence and explicit risk mitigation when speed conflicts with control.
+- Record the precedence decision and objective rationale in the review.
 
-## Rastreabilidade de recorrência
+## Recurrence traceability
 
-> Aplicar também: [.pose/rules/_base-recurrence.md](_base-recurrence.md)
+> Also apply: [.pose/rules/_base-recurrence.md](_base-recurrence.md)

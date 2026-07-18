@@ -35,7 +35,7 @@ On conflict: (1) direct instruction of the current task; (2) the most specific
 - Governed roadmaps: [`.pose/roadmaps/`](.pose/roadmaps/)
 - Implementation ADRs: [`.pose/adr/`](.pose/adr/)
 - Skills for recurring tasks: [`.agents/skills/`](.agents/skills/)
-- Automation support (CLI `./pose`): [`.pose/scripts/`](.pose/scripts/)
+- Native automation entrypoint: the `pose` Go binary (`pose help`).
 
 ## Domain rules
 
@@ -56,7 +56,7 @@ Apply the rules relevant to the scope, cumulatively:
 
 Use the skill matching the task type (do not load all of them). Catalog in
 [`.agents/skills/README.md`](.agents/skills/README.md); machine-readable
-discovery: `./pose suggest <type> [--path <dir>]`.
+discovery: `pose suggest <type> [--path <dir>]`.
 
 - `pose-feature` · `pose-bugfix` · `pose-review` · `pose-adr` · `pose-test-plan`
 - `pose-doc-update` · `pose-knowledge` · `pose-spec-closeout` · `pose-recurrence-escalation`
@@ -66,7 +66,7 @@ discovery: `./pose suggest <type> [--path <dir>]`.
 Prefer deterministic checks whenever they exist: `test`, `lint`, `typecheck`,
 `build`, security/contract validations. Canonical matrix in
 [`.pose/indexes/validation-matrix.json`](.pose/indexes/validation-matrix.json),
-executed by `./pose validate`.
+executed by `pose validate`.
 
 ## Do not
 

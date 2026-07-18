@@ -18,7 +18,7 @@ jobs:
           bash tests/install/run.sh
       - name: Release notes from changelog fragments
         run: |
-          bash .pose/scripts/pose-release-notes.sh --version "${GITHUB_REF_NAME}" --filter pose > /tmp/notes.md
+          go run ./pose-mcp/cmd/pose release-notes --version "${GITHUB_REF_NAME}" --filter pose > /tmp/notes.md
           cat /tmp/notes.md
       - uses: goreleaser/goreleaser-action@v6
         with:
