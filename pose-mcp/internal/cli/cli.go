@@ -145,6 +145,7 @@ func projectRoot() (string, error) {
 // propagating the exit code. Scripts are resolved ONLY under
 // <root>/.pose/scripts — never via PATH lookup.
 func delegate(script string, args []string, stdout, stderr io.Writer) int {
+	fmt.Fprintf(stderr, "[WARN] pose: %s\n", cliText(cliLocaleFor(stderr), "delegating to the deprecated script engine", "delegando para o motor de scripts descontinuado"))
 	root, err := projectRoot()
 	if err != nil {
 		fmt.Fprintf(stderr, "pose: %v\n", err)
