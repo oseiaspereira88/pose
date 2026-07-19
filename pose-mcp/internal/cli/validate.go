@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 )
 
 type validationWhen struct {
@@ -124,24 +126,27 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 	return modules, nil
 }
 
-func validationCheckEnabled(module string, when validationWhen) bool {
+// validationSkipReason returns the deterministic selection reason when a
+// check must be skipped ("" = run it). Every skip is recorded with its
+// reason in the structured result (spec pose-structured-validation-results).
+func validationSkipReason(module string, when validationWhen) string {
 	if when.FileExists != "" {
 		if !confinedRelativePath(when.FileExists) {
-			return false
+			return "when.fileExists escapes the module: " + when.FileExists
 		}
 		if _, err := os.Stat(filepath.Join(module, filepath.FromSlash(when.FileExists))); err != nil {
-			return false
+			return "when.fileExists not met: " + when.FileExists
 		}
 	}
 	if when.FileNotExists != "" {
 		if !confinedRelativePath(when.FileNotExists) {
-			return false
+			return "when.fileNotExists escapes the module: " + when.FileNotExists
 		}
 		if _, err := os.Stat(filepath.Join(module, filepath.FromSlash(when.FileNotExists))); err == nil {
-			return false
+			return "when.fileNotExists violated: " + when.FileNotExists + " exists"
 		}
 	}
-	return true
+	return ""
 }
 
 func validateStructuredMatrixPaths(matrix validationMatrix) error {
@@ -189,6 +194,7 @@ func matrixHasLegacyChecks(matrix validationMatrix) bool {
 func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	mode, stackFilter, moduleFilter, reportTask := "", "", "", ""
+	jsonOut, junitOut, sarifOut := "", "", ""
 	autoReport := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -198,7 +204,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			mode = "tolerant"
 		case "--report":
 			autoReport = true
-		case "--stack", "--module", "--report-task":
+		case "--stack", "--module", "--report-task", "--json", "--junit", "--sarif":
 			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
 				fmt.Fprintf(stderr, cliText(locale, "Error: %s requires a value.\n", "Erro: %s exige um valor.\n"), args[i])
 				return 2
@@ -211,9 +217,21 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 				moduleFilter = filepath.ToSlash(filepath.Clean(args[i]))
 			case "--report-task":
 				reportTask = args[i]
+			case "--json":
+				jsonOut = args[i]
+			case "--junit":
+				junitOut = args[i]
+			case "--sarif":
+				sarifOut = args[i]
 			}
 		default:
 			fmt.Fprintf(stderr, cliText(locale, "Error: invalid argument: %s\n", "Erro: argumento inválido: %s\n"), args[i])
+			return 2
+		}
+	}
+	for _, out := range []string{jsonOut, junitOut, sarifOut} {
+		if out != "" && !confinedRelativePath(out) {
+			fmt.Fprintln(stderr, cliText(locale, "Error: result output paths must remain inside the project.", "Erro: paths de saída de resultado devem permanecer dentro do projeto."))
 			return 2
 		}
 	}
@@ -279,6 +297,14 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	sort.Slice(modules, func(i, j int) bool { return modules[i].Rel < modules[j].Rel })
+	run := validationRunResult{
+		SchemaVersion: validationResultSchema,
+		GeneratedAt:   time.Now().UTC().Format(time.RFC3339),
+		Mode:          mode,
+		StackFilter:   stackFilter,
+		ModuleFilter:  moduleFilter,
+		Checks:        []checkResult{},
+	}
 	failures := 0
 	optionalFailures := 0
 	executed := 0
@@ -302,25 +328,68 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		fmt.Fprintf(stdout, "[module] %s (%s, mode=%s)\n", module.Rel, stack, moduleMode)
 		for _, check := range checks {
-			if check.Program == "" || !validationCheckEnabled(module.Abs, check.When) {
+			if check.Program == "" {
+				continue
+			}
+			severity := check.Severity
+			if severity == "" {
+				severity = "required"
+			}
+			result := checkResult{
+				ID: module.Rel + "/" + stack + "/" + check.Name, Module: module.Rel,
+				Stack: stack, Name: check.Name, Program: check.Program,
+				Args: check.Args, Env: redactedEnv(check.Env), Severity: severity,
+			}
+			if reason := validationSkipReason(module.Abs, check.When); reason != "" {
+				result.Outcome, result.SkipReason = "skipped", reason
+				run.Counts.Skipped++
+				run.Checks = append(run.Checks, result)
 				continue
 			}
 			executed++
+			run.Counts.Executed++
 			fmt.Fprintf(stdout, "  -> %s %s\n", check.Program, strings.Join(check.Args, " "))
+			capture := &tailBuffer{capacity: 4096}
 			cmd := exec.CommandContext(context.Background(), check.Program, check.Args...)
 			cmd.Dir = module.Abs
-			cmd.Stdout, cmd.Stderr = stdout, stderr
+			cmd.Stdout = io.MultiWriter(stdout, capture)
+			cmd.Stderr = io.MultiWriter(stderr, capture)
 			cmd.Env = os.Environ()
 			for key, value := range check.Env {
 				cmd.Env = append(cmd.Env, key+"="+value)
 			}
-			if err := cmd.Run(); err != nil {
-				if check.Severity == "required" || check.Severity == "" {
+			started := time.Now()
+			err := cmd.Run()
+			result.DurationSeconds = time.Since(started).Seconds()
+			result.Output = redactSecrets(capture.String(), check.Env)
+			var exitErr *exec.ExitError
+			switch {
+			case err == nil:
+				result.Outcome = "pass"
+				run.Counts.Passed++
+			case errors.As(err, &exitErr):
+				code := exitErr.ExitCode()
+				result.Outcome, result.ExitCode = "fail", &code
+				if severity == "required" {
+					failures++
+					run.Counts.Failed++
+				} else {
+					optionalFailures++
+					run.Counts.OptionalFailed++
+				}
+			default:
+				// Infrastructure failure: the tool never ran (R3 keeps this
+				// distinguishable from a real check failure).
+				result.Outcome = "error"
+				result.Output = redactSecrets(err.Error(), check.Env)
+				run.Counts.Errored++
+				if severity == "required" {
 					failures++
 				} else {
 					optionalFailures++
 				}
 			}
+			run.Checks = append(run.Checks, result)
 		}
 	}
 	if executed == 0 {
@@ -332,9 +401,29 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, "Result: FAILURE (required check failed)")
 	} else {
 		if optionalFailures > 0 {
+			result = "partial"
 			fmt.Fprintf(stdout, "Warning: %d optional check(s) failed.\n", optionalFailures)
 		}
 		fmt.Fprintln(stdout, "Result: SUCCESS")
+	}
+	run.Outcome = result
+	for name, writer := range map[string]struct {
+		path  string
+		write func(string, validationRunResult) error
+	}{
+		"json":  {jsonOut, writeValidationJSON},
+		"junit": {junitOut, writeValidationJUnit},
+		"sarif": {sarifOut, writeValidationSARIF},
+	} {
+		if writer.path == "" {
+			continue
+		}
+		target := filepath.Join(root, filepath.FromSlash(writer.path))
+		if err := writer.write(target, run); err != nil {
+			fmt.Fprintf(stderr, cliText(locale, "Error: writing %s result: %v\n", "Erro: escrevendo resultado %s: %v\n"), name, err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "%s: %s\n", name, target)
 	}
 	if autoReport {
 		if reportTask == "" {

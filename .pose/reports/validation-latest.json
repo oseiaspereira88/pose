@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-19T11:46:58Z",
+  "mode": "strict",
+  "module_filter": "pose-mcp",
+  "outcome": "pass",
+  "counts": {
+    "executed": 2,
+    "passed": 2,
+    "failed": 0,
+    "optional_failed": 0,
+    "errored": 0,
+    "skipped": 0
+  },
+  "checks": [
+    {
+      "id": "pose-mcp/go/test",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "test",
+      "program": "go",
+      "args": [
+        "test",
+        "./..."
+      ],
+      "severity": "required",
+      "outcome": "pass",
+      "duration_seconds": 0.390765679,
+      "output": "?   \tgithub.com/harne8/pose-mcp/cmd/pose\t[no test files]\n?   \tgithub.com/harne8/pose-mcp/internal/bootstrap\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.143s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/scaffold\t0.008s\n?   \tgithub.com/harne8/pose-mcp/internal/scaffold/gen\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/version\t0.003s\n"
+    },
+    {
+      "id": "pose-mcp/go/vet",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "vet",
+      "program": "go",
+      "args": [
+        "vet",
+        "./..."
+      ],
+      "severity": "optional",
+      "outcome": "pass",
+      "duration_seconds": 0.101390364
+    }
+  ]
+}

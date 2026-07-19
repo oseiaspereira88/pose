@@ -175,7 +175,7 @@ pose new-knowledge <type> <slug>   # create handoff/note/decision-log
 # Deterministic gates
 pose check [--strict|--tolerant]   # structural integrity + matrix schema +
                                       # task-map sync + spec graph + schema version
-pose validate [--strict|--tolerant] [--stack s] [--module path] [--report]
+pose validate [--strict|--tolerant] [--stack s] [--module path] [--report] [--json f] [--junit f] [--sarif f]
 pose knowledge-check [--strict|--tolerant] [--max-overdue N]
 pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T] [--include-pass]
 pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]
@@ -204,7 +204,7 @@ pose hooks <install|uninstall|status> [--force]
 - `new-adr` — creates an ADR with the standard template and a deterministic slug.
 - `new-roadmap` — creates a governed roadmap from [`.pose/templates/roadmap.md`](.pose/templates/roadmap.md): flat frontmatter (`status: draft|active|done|abandoned`, `depends_on:` between roadmaps) + milestones as `## Milestone: <id>` sections with flat bullets (`- after:`, `- target_start:`, `- target_due:`, `- specs:`). `check` validates single membership in active roadmaps, milestone/roadmap DAGs, dates and typed-ref resolution; `pose_spec_readiness` resolves those refs for real (milestone satisfied = its specs done; roadmap satisfied = status done). Dates are planning input; actuals derive from events.
 - `new-knowledge` — creates an artifact in [`.pose/knowledge/`](.pose/knowledge/) with mandatory frontmatter (`type`, `owner`, `sensitivity`, `created_at`, `last_reviewed_at`, `expires_at`). TTL default 30d, max 90d.
-- `validate` — runs the declarative matrix in [`validation-matrix.json`](.pose/indexes/validation-matrix.json): per-stack checks, per-module overrides, severity (`required`/`optional`) and mode (`strict`/`tolerant`).
+- `validate` — runs the declarative matrix in [`validation-matrix.json`](.pose/indexes/validation-matrix.json): per-stack checks, per-module overrides, severity (`required`/`optional`) and mode (`strict`/`tolerant`). `--json`/`--junit`/`--sarif <path>` emit the versioned structured result (schema 1) from one canonical model: stable check IDs (`<module>/<stack>/<name>`), command metadata, timing, severity, distinguishable outcomes (`pass|fail|error|skipped` — infra failures never masquerade as check failures), deterministic skip reasons, bounded captured output and secret redaction (configured env values only; inherited environment never enters the result). Text output stays authoritative; machine formats are additive. POSE-specific semantics survive the JUnit/SARIF projections via documented extensions (classname suffix / `pose/*` properties).
 - `upgrade` — migrates the instance contract through native, sequential and idempotent migrations; `--dry-run` lists the plan. Downgrade is always refused.
 - `index` — generates `repo-map.json`, `services.json`, `packages.json`, `spec-graph.json` and `roadmaps.json` in `.pose/indexes/`, including per-module operational metadata from [`module-metadata.json`](.pose/indexes/module-metadata.json).
 - `report` — generates a versionable report in `.pose/reports/` with execution metadata, minimal per-task history (`.pose/reports/history/`) and stable-field diffs.
