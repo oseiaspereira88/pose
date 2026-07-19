@@ -1,0 +1,60 @@
+# Quarterly governance audit (spec pose-standalone-dogfood R3): surface stale
+# specs, roadmaps, knowledge and follow-ups on a fixed cadence. The audit
+# reports; humans disposition. It never mutates the instance.
+name: Governance audit
+on:
+  schedule:
+    - cron: "0 6 1 1,4,7,10 *" # 1st of Jan/Apr/Jul/Oct, 06:00 UTC
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26.4", cache: true, cache-dependency-path: pose-mcp/go.mod }
+      - name: Build development pose binary
+        run: |
+          go -C pose-mcp build -o "$RUNNER_TEMP/pose" ./cmd/pose
+          "$RUNNER_TEMP/pose" version
+      - name: Run audit gates
+        run: |
+          mkdir -p audit
+          {
+            echo "# POSE quarterly governance audit"
+            echo
+            echo "- date: $(date -u +%Y-%m-%d)"
+            echo "- commit: $GITHUB_SHA"
+            echo "- binary: $("$RUNNER_TEMP/pose" version | head -1)"
+            echo
+          } > audit/report.md
+          run_gate() {
+            echo "## $1" >> audit/report.md
+            echo '```' >> audit/report.md
+            shift
+            if "$RUNNER_TEMP/pose" "$@" >> audit/report.md 2>&1; then
+              status=0
+            else
+              status=$?
+              echo "exit=$status" >> audit/report.md
+              overall=1
+            fi
+            echo '```' >> audit/report.md
+            echo >> audit/report.md
+          }
+          overall=0
+          run_gate "Structural gate (strict)" check --strict
+          run_gate "Open follow-up backlog" followups --all
+          run_gate "Knowledge overdue gate" knowledge-check
+          run_gate "History integrity" history-check
+          run_gate "Outcome stats" stats
+          cat audit/report.md >> "$GITHUB_STEP_SUMMARY"
+          exit $overall
+      - name: Retain audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pose-governance-audit
+          path: audit/report.md
+          retention-days: 400

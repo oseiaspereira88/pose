@@ -1,8 +1,8 @@
 ---
 slug: pose-version-contract
-status: draft
+status: done
 created_at: 2026-07-18
-completed_at:
+completed_at: 2026-07-19
 supersedes:
 depends_on:
 priority: 0
@@ -58,20 +58,20 @@ Removes a P0 credibility defect and unlocks trustworthy release, package and com
 ## 4. Tasks
 
 ### Planning
-- [ ] Confirm baseline and fixtures against [Semantic Versioning](https://semver.org/).
+- [x] Confirm baseline and fixtures against [Semantic Versioning](https://semver.org/): CLI `0.9.0-dev`, MCP `0.1.0` (hard-coded), registry `0.9.0` — drift confirmed.
 
 ### Implementation
-- [ ] Define the authority and development-version policy in an ADR. ([reference](https://semver.org/))
-- [ ] Replace hard-coded MCP and registry values with generated metadata. ([reference](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle))
-- [ ] Add release and dirty-tree golden tests across every public version surface. ([reference](https://semver.org/))
+- [x] Define the authority and development-version policy in an ADR: `.pose/adr/2026-07-19-authoritative-release-version-source.md`. ([reference](https://semver.org/))
+- [x] Replace hard-coded MCP and registry values with generated metadata: `internal/version.Version` is the single authority; `internal/cli.Version` and `mcpserver` `serverInfo.version` derive from it; GoReleaser stamps the authoritative symbol; `server.json` is pinned to `version.ReleaseBase()` by contract test. ([reference](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle))
+- [x] Add release and dirty-tree golden tests across every public version surface: `internal/version/contract_test.go` (dev policy, CLI, registry, GoReleaser ldflags) and initialize assertions for the HTTP and stdio transports in `internal/mcpserver/server_test.go`. ([reference](https://semver.org/))
 
 ### Validation
-- [ ] Run `go test ./pose-mcp/... -run 'Version|Initialize'` and retain the result artifact. ([reference](https://semver.org/))
-- [ ] Run `pose check --strict` and inspect readiness projections. ([reference](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle))
+- [x] Run `go test ./pose-mcp/... -run 'Version|Initialize'` and retain the result artifact (see §6 and `.pose/reports/`). ([reference](https://semver.org/))
+- [x] Run `pose check --strict` and inspect readiness projections. ([reference](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle))
 
 ## 5. Decisions
 
-- Create an ADR before changing this public or structural contract; compare alternatives against [Semantic Versioning](https://semver.org/).
+- ADR `.pose/adr/2026-07-19-authoritative-release-version-source.md` (Accepted): single authoritative Go symbol (`internal/version.Version`) stamped from the git tag via GoReleaser ldflags; development builds carry an explicit `-dev` suffix; checked-in registry metadata must equal `version.ReleaseBase()`; `.pose/schema-version` stays independent of SemVer. Generated-artifact and per-surface-constant alternatives were compared and rejected in the ADR.
 
 ## 6. Validation
 
@@ -83,10 +83,32 @@ Removes a P0 credibility defect and unlocks trustworthy release, package and com
 - Readiness: `pose lint-spec pose-version-contract --ready-check`.
 
 ### Execution status
-- Not executed. This planning spec remains `draft`; delivery requires recorded gate evidence.
+Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
+
+- `go -C pose-mcp test ./internal/version/... ./internal/mcpserver/ -run 'Version|Initialize' -count=1` — SUCCESS.
+- `go -C pose-mcp test ./... -count=1` — SUCCESS (full suite, includes the embedded-scaffold drift guard).
+- Release path exercised end-to-end: `go build -ldflags "-X github.com/harne8/pose-mcp/internal/version.Version=0.9.0"` produced a binary reporting `pose 0.9.0` on every surface.
+- `pose check --strict` — SUCCESS.
+- `pose lint-spec pose-version-contract --ready-check` — SUCCESS.
+- `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
 
 ## 7. Final Report
 
-- Delivered scope: none; this spec defines future implementation.
-- Residual risk: Build-time injection can make local and packaged binaries diverge unless tests cover both.
-- Follow-ups: none until implementation starts.
+### Delivered scope
+
+Single authoritative version source (`pose-mcp/internal/version`) consumed by
+CLI, MCP (stdio + Streamable HTTP) and telemetry; GoReleaser stamps the
+authoritative symbol; contract tests enumerate CLI, MCP, registry
+(`server.json`) and release-pipeline surfaces and fail on divergence; explicit
+`-dev` development identity; ADR recorded.
+
+### Residual risks
+
+- `server.json` publication to an external MCP registry is not yet automated —
+  the contract test pins the checked-in file, but registry submission remains
+  manual until the public-accuracy milestone.
+
+### Follow-ups
+
+- [covered: pose-release-compatibility-matrix] Automate registry metadata verification against the released tag in the release workflow.
+- [covered: pose-mcp-catalog-conformance] Full MCP catalog/schema conformance (tool drift, protocol completeness).

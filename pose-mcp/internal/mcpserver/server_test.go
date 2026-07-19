@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/harne8/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
 // fakeReporter implements Reporter for testing the conductor_run_* tools.
@@ -111,6 +112,21 @@ func TestInitialize(t *testing.T) {
 	info, _ := out.Result["serverInfo"].(map[string]any)
 	if info["name"] != "harne8-pose-mcp" {
 		t.Errorf("serverInfo.name = %v", info["name"])
+	}
+	// spec pose-version-contract R1: serverInfo.version follows the
+	// authoritative binary version on every transport.
+	if info["version"] != version.Version {
+		t.Errorf("serverInfo.version = %v, want %v", info["version"], version.Version)
+	}
+}
+
+func TestInitializeStdioVersionMatchesAuthority(t *testing.T) {
+	s := &Server{}
+	resp := s.dispatchRPC(context.Background(), rpcRequest{JSONRPC: "2.0", ID: json.RawMessage(`1`), Method: "initialize"})
+	res, _ := resp.Result.(map[string]any)
+	info, _ := res["serverInfo"].(map[string]any)
+	if info["version"] != version.Version {
+		t.Errorf("stdio serverInfo.version = %v, want %v", info["version"], version.Version)
 	}
 }
 

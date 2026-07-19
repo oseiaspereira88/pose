@@ -21,6 +21,7 @@ import (
 
 	mcpenforce "github.com/harne8/mcp-enforce"
 	"github.com/harne8/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
 // Reporter is the interface for emitting Conductor run events (external-run-reporters).
@@ -101,8 +102,12 @@ func (c *ConductorClient) conductorPost(ctx context.Context, path string, body [
 const (
 	protocolVersion = "2025-03-26"
 	serverName      = "harne8-pose-mcp"
-	serverVersion   = "0.1.0"
 )
+
+// serverVersion follows the authoritative binary version instead of an
+// MCP-local one (spec pose-version-contract): serverInfo.version must match
+// `pose version` and the release metadata for the same build.
+var serverVersion = version.Version
 
 // Server dispatches MCP requests against a POSE store resolved per project_id
 // (pose-mcp-multi-project). With a single root it behaves as before.

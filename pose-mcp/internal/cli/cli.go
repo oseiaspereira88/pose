@@ -8,10 +8,13 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
-// Version is stamped via -ldflags at release time (pose-release-pipeline).
-var Version = "0.9.0-dev"
+// Version mirrors the authoritative release version. The release pipeline
+// stamps internal/version via -ldflags (spec pose-version-contract).
+var Version = version.Version
 
 // Main is the entrypoint used by cmd/pose. It returns the process exit code.
 func Main(args []string, stdout, stderr io.Writer) int {

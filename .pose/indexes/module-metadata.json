@@ -1,10 +1,23 @@
 {
   "schemaVersion": 1,
   "defaults": {
-    "owner": "unknown",
+    "owner": "@pose-maintainers",
     "criticality": "medium",
-    "domain": "unknown",
+    "domain": "developer-tooling",
     "validationProfile": "baseline"
   },
-  "modules": {}
+  "modules": {
+    "pose-mcp": {
+      "owner": "@pose-maintainers",
+      "criticality": "high",
+      "domain": "governance-engine",
+      "validationProfile": "baseline"
+    },
+    "mcp-enforce": {
+      "owner": "@pose-maintainers",
+      "criticality": "high",
+      "domain": "policy-enforcement",
+      "validationProfile": "baseline"
+    }
+  }
 }
