@@ -73,11 +73,8 @@ func (a *SlogAuditor) Record(ctx context.Context, d PolicyDecision) {
 		args = append(args, "run_id", d.RunID)
 	}
 	if d.Allow {
-		// codeql[go/clear-text-logging] — see the Record doc comment above.
-		a.logger.InfoContext(ctx, a.component+": policy allowed", append(args, "event_type", "policy.decided")...)
+		a.logger.InfoContext(ctx, a.component+": policy allowed", append(args, "event_type", "policy.decided")...) // codeql[go/clear-text-logging] see Record doc comment above
 		return
 	}
-	// codeql[go/clear-text-logging] — see the Record doc comment above.
-	a.logger.WarnContext(ctx, a.component+": policy denied",
-		append(args, "violations", d.Violations, "event_type", "policy.violation")...)
+	a.logger.WarnContext(ctx, a.component+": policy denied", append(args, "violations", d.Violations, "event_type", "policy.violation")...) // codeql[go/clear-text-logging] see Record doc comment above
 }
