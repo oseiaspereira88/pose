@@ -51,6 +51,37 @@ them from commits — and carry no identity field beyond `application` and
 `source`; every metric is a team/application aggregate, never an
 individual score. See [DORA metrics guide](https://dora.dev/guides/dora-metrics/).
 
+## Semantic governance assist
+
+| Command | Purpose |
+|---|---|
+| `pose semantic-suggest (--for <spec-slug>\|--query "text") [--top N] [--provider lexical] [--json]` | Advisory suggestions: related follow-ups, recurrence patterns and knowledge, each cited with score/rationale/provider |
+| `pose suggest-feedback --for <spec-slug> --ref <artifact-ref> --kind knowledge\|followup\|recurrence --decision accept\|reject [--score N]` | Record a minimized accept/reject decision (never the candidate's content) |
+
+Suggestions are advisory only — they never gate a check or mutate a spec.
+`lexical` (deterministic, offline token/sequence similarity) is the only
+approved provider today; sensitivity-restricted knowledge is filtered
+before any retrieval, never suggested.
+
+## Cross-repository portfolio
+
+| Command | Purpose |
+|---|---|
+| `pose portfolio-projection [--projects-dir DIR] [--max-staleness-days N] [--json]` | Reconcile dependencies, readiness, ownership and criticality across authorized repositories |
+
+Only repositories registered via `HARNE8_PROJECTS_DIR` (or explicit
+`POSE_PROJECT_ROOTS`) — the same allowlist the MCP server already uses —
+ever enter a projection; nothing is discovered by an open filesystem
+walk. Add `depends_on: xref:<project_id>/<spec-slug>` to a spec to
+declare a cross-repository dependency (additive to the existing
+`other-spec` / `milestone:...` / `roadmap:...` forms). The projection is
+persisted to `.pose/reports/portfolio-projection.json`, explains every
+blocked, stale or unauthorized/unknown cross-reference explicitly, and
+tombstones artifacts that disappeared since the last run rather than
+silently dropping them. Repositories remain authoritative; the
+projection is a reconciled read, never a write back to another
+repository.
+
 ## Import existing SDD specs
 
 ```bash

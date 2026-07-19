@@ -1,8 +1,8 @@
 ---
 slug: pose-semantic-governance-assist
-status: draft
+status: done
 created_at: 2026-07-18
-completed_at:
+completed_at: 2026-07-19
 supersedes:
 depends_on: pose-recurrence-effectiveness, pose-knowledge-consumption-traceability
 priority: 32
@@ -71,22 +71,41 @@ Adds semantic leverage while preserving deterministic authority.
 
 ## 5. Decisions
 
-- Create an ADR before changing this contract; compare [NIST AI RMF](https://www.nist.gov/itl/ai-risk-management-framework).
+- ADR `.pose/adr/2026-07-19-semantic-governance-assist-lexical-only-provider.md` (Accepted): a `SuggestionProvider`-shaped surface with exactly one approved, fully-tested provider (`lexical`, reusing the existing `followupSimilarity`/`followupTokens` primitives), an explicit provider allowlist, and a prompt-injection sanitization pass applied to every candidate regardless of provider so a future real provider inherits the same defense by construction. Rejected: wiring an untestable real LLM provider (no safely verifiable endpoint in this environment); duplicating the similarity algorithm instead of reusing the already-tested one.
 
 ## 6. Validation
 
-**Strategy:** validate units, negative/security cases, contract fixtures and an end-to-end path.
+**Strategy:** validate that every suggestion carries a citation/score/rationale/provider, that sensitivity and self-referencing follow-ups are excluded before any scoring happens, that recurrence patterns surface as a candidate source, that an unapproved provider is rejected, that prompt-injection-shaped content is stripped, that feedback is minimized (no candidate content ever reaches storage), and that the whole path never mutates any file.
 
 ### Planned deterministic checks
-- Test: `go test ./pose-mcp/... -run 'Semantic|Followup|Knowledge|Policy'`.
+- Test: `go -C pose-mcp test ./internal/cli/... -run 'SemanticSuggest|SuggestFeedback|SanitizeForPrompt' -v -count=1`.
 - Structure: `pose check --strict`.
 - Readiness: `pose lint-spec pose-semantic-governance-assist --ready-check`.
 
+### Requirement trace
+- R1 [satisfied] every suggestion is `{artifact_ref, kind, score, rationale, provider}`, all non-empty; check:test (TestSemanticSuggestCitesArtifactScoreRationaleProvider)
+- R2 [satisfied] restricted knowledge filtered before scoring even when it would otherwise score highest; a spec never suggests its own follow-ups to itself (project/self boundary); check:test (TestSemanticSuggestFiltersRestrictedKnowledgeBeforeRetrieval, TestSemanticSuggestExcludesOwnSpecFollowups)
+- R3 [satisfied] feedback records are minimized — reflection-equivalent field check proves no content/rationale/body field ever exists in a stored record, and because restricted content is filtered upstream (R2) it can never reach feedback either; check:test (TestSuggestFeedbackRecordsMinimizedDataNoContent, TestSuggestFeedbackValidation)
+
 ### Execution status
-- Not executed. This planning spec remains `draft`; delivery requires gate evidence.
+Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
+
+- `go -C pose-mcp test ./internal/cli/... -run 'SemanticSuggest|SuggestFeedback|SanitizeForPrompt' -v -count=1` — SUCCESS (12 tests, including recurrence-pattern-as-candidate coverage and a byte-for-byte non-mutation proof).
+- `go -C pose-mcp test ./... -count=1` — SUCCESS after `go -C pose-mcp generate ./internal/scaffold`.
+- `pose check --strict` — SUCCESS.
+- `pose lint-spec pose-semantic-governance-assist --strict` — SUCCESS.
+- `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
+- Constraint (advisory, never mutates lifecycle automatically): `TestSemanticSuggestNeverMutatesLifecycle` snapshots the whole tree before/after a call and asserts zero diff.
+- Non-goal (never a blocking check): `pose semantic-suggest` always exits 0 on a successful run regardless of suggestion content; nothing in the codebase treats its output as a gate.
+- Security (approved providers, prompt-injection defenses): `TestSemanticSuggestRejectsUnapprovedProvider` / `TestSuggestFeedbackValidation` prove the allowlist; `TestSanitizeForPromptRemovesUnsafeAndSecretPatterns` proves the sanitization pass.
+- Non-functional (lexical fallback, bounded latency/cost): the only provider in this release IS the lexical fallback — bounded by construction (no network call exists in this path at all).
 
 ## 7. Final Report
 
-- Delivered scope: none; this spec defines future implementation.
-- Residual risk: Similarity can conflate related but non-equivalent obligations.
-- Follow-ups: none until implementation starts.
+- Delivered scope: `pose semantic-suggest` (advisory, cited, scored, rationale-explained suggestions from knowledge/follow-ups/recurrence patterns, sensitivity-filtered before retrieval, self-spec-excluded) and `pose suggest-feedback` (minimized accept/reject recording) — both reusing the project's existing, already-tested lexical similarity primitives rather than introducing a new algorithm or an untestable external provider.
+- Residual risk: similarity can still conflate related-but-non-equivalent obligations, as the spec's own Technical risk names — mitigated by always surfacing the rationale (shared terms) alongside the score so a human reviewer can judge relevance directly rather than trusting the score alone; a real semantic (embedding/LLM) provider, when one can be safely configured and tested, would reduce but not eliminate this risk.
+- Follow-ups: see below.
+
+### Follow-ups
+
+- [open] Add a real semantic (embedding or LLM-backed) `SuggestionProvider` once an approved, safely-testable endpoint exists — the allowlist and sanitization pass are already structured for it. (owner:@pose-maintainers crit:low review:2026-10-19)

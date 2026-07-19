@@ -1,8 +1,8 @@
 ---
 slug: pose-cross-repo-portfolio
-status: draft
+status: done
 created_at: 2026-07-18
-completed_at:
+completed_at: 2026-07-19
 supersedes:
 depends_on: pose-mcp-project-scope-contract, pose-requirement-evidence-traceability
 priority: 33
@@ -71,22 +71,37 @@ Extends strong local governance to organization planning visibility.
 
 ## 5. Decisions
 
-- Create an ADR before changing this contract; compare [Backstage software catalog](https://backstage.io/docs/features/software-catalog/).
+- ADR `.pose/adr/2026-07-19-cross-repo-portfolio-reuses-mcp-project-authorization.md` (Accepted): reuse `pose.ScanProjectsDir`/`pose.ParseRootsJSON` — the MCP server's own project authorization — verbatim rather than a second discovery mechanism; `xref:<project_id>/<slug>` additive to the existing `depends_on` grammar; four distinct, explicit resolution states (resolved/blocking/reason) rather than a collapsed boolean; ownership/criticality sourced from each project's own `module-metadata.json`, no capacity/velocity/ETA field anywhere; revisioned projection with tombstones for disappeared artifacts. Rejected: a second feature-specific project registry (duplicated authorization boundary, drift risk); an unrestricted directory scan (violates the Security requirement outright).
 
 ## 6. Validation
 
-**Strategy:** validate units, negative/security cases, contract fixtures and an end-to-end path.
+**Strategy:** validate xref resolution against authorized/unauthorized/unknown targets, blocked-vs-not-done semantics, stale-source detection, ownership/criticality exposure without fabricated capacity, zero filesystem-path leakage in output, tombstone reconciliation across runs, and backward-compatible `depends_on` parsing.
 
 ### Planned deterministic checks
-- Test: `go test ./pose-mcp/... -run 'Roadmap|Project|CrossRepo|Readiness'`.
+- Test: `go -C pose-mcp test ./internal/cli/... -run 'PortfolioProjection|XrefDependsOn' -v -count=1`.
 - Structure: `pose check --strict`.
 - Readiness: `pose lint-spec pose-cross-repo-portfolio --ready-check`.
 
+### Requirement trace
+- R1 [satisfied] `xref:<project_id>/<spec-slug>` is a stable, typed reference validated by `depXrefRE`; only projects in the authorized allowlist are ever resolved; check:test (TestPortfolioProjectionResolvesAuthorizedXref, TestPortfolioProjectionRejectsUnauthorizedProject, TestXrefDependsOnPassesReadyCheck)
+- R2 [satisfied] blocked (target not done), stale (source mtime beyond threshold) and unknown/unauthorized cross-references are each an explicit, distinct reason, never silently merged; check:test (TestPortfolioProjectionExplainsBlockedXref, TestPortfolioProjectionMarksStaleSource, TestPortfolioProjectionExplainsUnknownSpec)
+- R3 [satisfied] ownership/criticality exposed per project from `module-metadata.json`; no capacity-shaped field exists in the output; check:test (TestPortfolioProjectionOwnershipCriticalityNoFabricatedCapacity)
+
 ### Execution status
-- Not executed. This planning spec remains `draft`; delivery requires gate evidence.
+Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
+
+- `go -C pose-mcp test ./internal/cli/... -run 'PortfolioProjection|XrefDependsOn' -v -count=1` — SUCCESS (10 tests).
+- `go -C pose-mcp test ./... -count=1` — SUCCESS after `go -C pose-mcp generate ./internal/scaffold`.
+- `pose check --strict` — SUCCESS.
+- `pose lint-spec pose-cross-repo-portfolio --strict` — SUCCESS.
+- `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
+- Constraint (repositories remain authoritative; central state is a reconciled projection): the projection is written only to the invoking repository's own `.pose/reports/`; nothing is ever written back into another project's directory — `discoverAuthorizedProjects`/`buildPortfolioProjection` only read other projects.
+- Security (tenant/project authorization; filter restricted metadata): `TestPortfolioProjectionRejectsUnauthorizedProject` proves an on-disk-but-unregistered project is never resolved; `TestPortfolioProjectionNeverLeaksFilesystemPaths` proves no absolute path of any project ever reaches the output.
+- Compatibility (local typed references remain valid; cross-repo syntax additive): `TestXrefDependsOnPassesReadyCheck` proves a spec with an `xref:` reference still passes the pre-existing DoR readiness gate unmodified.
+- Data/storage (revisioned projections with timestamps and tombstones): `TestPortfolioProjectionTombstonesRemovedSpecs` proves a disappeared spec is carried forward as an explicit, timestamped tombstone rather than silently vanishing between runs.
 
 ## 7. Final Report
 
-- Delivered scope: none; this spec defines future implementation.
-- Residual risk: Stale projections can misprioritize work unless freshness is prominent.
-- Follow-ups: none until implementation starts.
+- Delivered scope: `pose portfolio-projection` — cross-repository dependency/readiness/ownership/criticality reconciliation reusing the MCP server's exact project-authorization boundary, a new additive `xref:` reference grammar, explicit blocked/stale/unauthorized/unknown resolution states, and a revisioned, tombstoned projection persisted to `.pose/reports/portfolio-projection.json`.
+- Residual risk: stale projections can still misprioritize work if a reader ignores the `stale`/`stale-source` signal — mitigated by making staleness a first-class, always-present field on every projected spec and every xref resolution rather than an opt-in flag a caller could forget to check.
+- Follow-ups: none — the requirement families are satisfied with executed evidence and no sandbox-unavailable gap (the whole feature is local filesystem reconciliation; no network or external infrastructure is needed to test it end to end).

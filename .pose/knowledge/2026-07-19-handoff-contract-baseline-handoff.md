@@ -119,8 +119,36 @@ sem NENHUM campo de identidade individual — garantido por teste de
 reflection (`TestNoDORAOrAdoptionTypeExposesIndividualIdentity`), não só
 convenção. `pose events-housekeeping` para retenção/deleção. ADR
 `2026-07-19-dora-adoption-metrics-explicit-events-and-unavailable-state.md`.
-Próximo: milestone 3 `governance-intelligence`
-(`pose-semantic-governance-assist`, `pose-cross-repo-portfolio`).
+
+Milestone 3 `governance-intelligence` **concluído em 2026-07-19**: (1)
+`pose-semantic-governance-assist` — `pose semantic-suggest` sugere
+follow-ups relacionados, padrões de recorrência e knowledge, cada
+sugestão com citação de artefato, score, rationale (termos compartilhados)
+e metadado de provider; único provider aprovado é `lexical`
+(determinístico, offline, reaproveita `followupSimilarity`/
+`followupTokens` já existentes de `pose-followup-ownership-sla`);
+sensibilidade filtrada ANTES de qualquer scoring; `pose suggest-feedback`
+grava decisão accept/reject minimizada (nunca o conteúdo do candidato).
+Provider real LLM deliberadamente NÃO implementado nesta entrega (sem
+endpoint aprovado testável neste sandbox) — decisão documentada em ADR,
+follow-up aberto. (2) `pose-cross-repo-portfolio` — `pose
+portfolio-projection` reconcilia dependências/prontidão/ownership/
+criticality entre repositórios, reaproveitando EXATAMENTE a mesma
+autorização de projetos que o MCP server já usa
+(`pose.ScanProjectsDir`/`HARNE8_PROJECTS_DIR`,
+`pose.ParseRootsJSON`/`POSE_PROJECT_ROOTS` — nunca um scan livre de
+filesystem); nova sintaxe aditiva `xref:<project_id>/<slug>` em
+`depends_on`; explica bloqueio/staleness/não-autorizado/desconhecido de
+forma explícita e distinta; ownership/criticality do `module-metadata.json`
+de cada projeto, sem NENHUM campo de capacidade/velocity fabricado;
+projeção versionada com tombstones para artefatos que desapareceram. ADRs
+`2026-07-19-semantic-governance-assist-lexical-only-provider.md` e
+`2026-07-19-cross-repo-portfolio-reuses-mcp-project-authorization.md`.
+
+**Roadmap 7 `insights-enterprise-scale`: 3 de 4 milestones concluídas.**
+Próximo e último: milestone 4 `control-plane-composition`
+(`pose-harne8-control-plane-integration`) — a ÚLTIMA spec de todo o
+portfólio de 7 roadmaps.
 
 ## Estado atual
 
@@ -151,11 +179,14 @@ Próximo: milestone 3 `governance-intelligence`
   workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
   `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
   `supported_upgrades` no `compatibility.json` com pin SHA-256.
-- Roadmap 7 `insights-enterprise-scale`, milestone 3 `governance-intelligence`:
-  próxima leitura são as specs `pose-semantic-governance-assist` e
-  `pose-cross-repo-portfolio`.
+- Roadmap 7 `insights-enterprise-scale`, milestone 4 `control-plane-composition`
+  (última do portfólio): próxima leitura é a spec
+  `pose-harne8-control-plane-integration`.
 - Revisitar export OTLP de logs (`otel/sdk/log` + `otlploghttp`) quando
   saírem de alpha (v0.x) — follow-up aberto em `pose-otel-observability`.
+- Adicionar um `SuggestionProvider` semântico real (embedding/LLM) quando
+  houver endpoint aprovado testável — follow-up aberto em
+  `pose-semantic-governance-assist`.
 - Confirmar o primeiro run de `mkdocs build --strict` (`docs.yml`) contra
   as edições de página desta rodada — não executável neste sandbox (sem
   pip/mkdocs) — follow-up aberto em `pose-localization-docs-contract`.
@@ -200,7 +231,8 @@ Próximo: milestone 3 `governance-intelligence`
   `.pose/specs/pose-package-manager-distribution/`, `.pose/specs/pose-upgrade-compatibility-lab/`,
   `.pose/specs/pose-doctor-guided-remediation/`, `.pose/specs/pose-brownfield-reference-kits/`,
   `.pose/specs/pose-localization-docs-contract/`, `.pose/specs/pose-otel-observability/`,
-  `.pose/specs/pose-dora-adoption-metrics/`
+  `.pose/specs/pose-dora-adoption-metrics/`, `.pose/specs/pose-semantic-governance-assist/`,
+  `.pose/specs/pose-cross-repo-portfolio/`
 - ADR: `.pose/adr/2026-07-19-authoritative-release-version-source.md`,
   `.pose/adr/2026-07-19-package-manager-channels-generated-not-hosted.md`,
   `.pose/adr/2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`,
@@ -208,7 +240,9 @@ Próximo: milestone 3 `governance-intelligence`
   `.pose/adr/2026-07-19-brownfield-kits-checked-in-fixtures-git-native-rollback.md`,
   `.pose/adr/2026-07-19-localization-docs-contract-self-inspecting-tests.md`,
   `.pose/adr/2026-07-19-otel-observability-safe-by-construction-signals.md`,
-  `.pose/adr/2026-07-19-dora-adoption-metrics-explicit-events-and-unavailable-state.md`
+  `.pose/adr/2026-07-19-dora-adoption-metrics-explicit-events-and-unavailable-state.md`,
+  `.pose/adr/2026-07-19-semantic-governance-assist-lexical-only-provider.md`,
+  `.pose/adr/2026-07-19-cross-repo-portfolio-reuses-mcp-project-authorization.md`
 - Roadmap: `.pose/roadmaps/product-integrity.md` (roadmaps 1-5, concluído),
   `.pose/roadmaps/adoption-developer-experience.md` (roadmap 6, concluído),
   `.pose/roadmaps/insights-enterprise-scale.md` (roadmap 7, em execução, final)

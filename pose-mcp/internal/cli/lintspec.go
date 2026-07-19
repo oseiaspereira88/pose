@@ -39,6 +39,10 @@ var (
 	depSlugRE      = regexp.MustCompile(`^[a-z0-9][a-z0-9._-]*$`)
 	depMilestoneRE = regexp.MustCompile(`^milestone:[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$`)
 	depRoadmapRE   = regexp.MustCompile(`^roadmap:[a-z0-9][a-z0-9._-]*$`)
+	// depXrefRE is the cross-repository reference grammar (spec
+	// pose-cross-repo-portfolio, R1): xref:<project_id>/<spec-slug> —
+	// additive to the local-only forms above, never a substitute for them.
+	depXrefRE = regexp.MustCompile(`^xref:[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$`)
 )
 
 func lintParseFrontmatter(text string) map[string]string {
@@ -254,7 +258,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			failures++
 		}
 		for _, ref := range lintParseDependsOn(frontmatter["depends_on"]) {
-			if depSlugRE.MatchString(ref) || depMilestoneRE.MatchString(ref) || depRoadmapRE.MatchString(ref) {
+			if depSlugRE.MatchString(ref) || depMilestoneRE.MatchString(ref) || depRoadmapRE.MatchString(ref) || depXrefRE.MatchString(ref) {
 				continue
 			}
 			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: DoR: invalid depends_on reference: '%s'\n", "[ERRO] %s: DoR: ref inválida em depends_on: '%s'\n"), slug, ref)

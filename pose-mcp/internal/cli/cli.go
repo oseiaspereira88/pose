@@ -103,7 +103,7 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
-	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks", "skills-check", "record-deployment", "record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping":
+	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks", "skills-check", "record-deployment", "record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping", "semantic-suggest", "suggest-feedback", "portfolio-projection":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
@@ -146,6 +146,12 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return cmdAdoptionMetrics(root, args, stdout, stderr)
 		case "events-housekeeping":
 			return cmdEventsHousekeeping(root, args, stdout, stderr)
+		case "semantic-suggest":
+			return cmdSemanticSuggest(root, args, stdout, stderr)
+		case "suggest-feedback":
+			return cmdSuggestFeedback(root, args, stdout, stderr)
+		case "portfolio-projection":
+			return cmdPortfolioProjection(root, args, stdout, stderr)
 		default:
 			return cmdStats(root, args, stdout, stderr)
 		}
@@ -248,6 +254,7 @@ Deterministic gates:
 Discovery and metrics:
   suggest | stats | recurrence-effect | stacks
   record-deployment | record-incident | dora-metrics | adoption-metrics
+  semantic-suggest | suggest-feedback | portfolio-projection
 
 Extensions:
   extension install <dir> [--dry-run] [--yes] [--force] [--allow-unsigned]
@@ -287,6 +294,7 @@ Gates determinísticos:
 Descoberta e métricas:
   suggest | stats | recurrence-effect | stacks
   record-deployment | record-incident | dora-metrics | adoption-metrics
+  semantic-suggest | suggest-feedback | portfolio-projection
 
 Extensões:
   extension install <dir> [--dry-run] [--yes] [--force] [--allow-unsigned]
