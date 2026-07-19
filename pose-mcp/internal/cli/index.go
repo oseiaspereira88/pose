@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	posepkg "github.com/crisol/pose-mcp/internal/pose"
+	posepkg "github.com/harne8/pose-mcp/internal/pose"
 )
 
 type indexedModule struct {

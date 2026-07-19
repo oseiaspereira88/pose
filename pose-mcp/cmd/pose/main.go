@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/crisol/pose-mcp/internal/cli"
+	"github.com/harne8/pose-mcp/internal/cli"
 )
 
 func main() {

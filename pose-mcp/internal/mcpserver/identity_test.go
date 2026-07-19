@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	mcpenforce "github.com/crisol/mcp-enforce"
+	mcpenforce "github.com/harne8/mcp-enforce"
 
-	"github.com/crisol/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/pose"
 )
 
 // TestToolsCall_Identity_Enforcement exercises the full HTTP path with identity

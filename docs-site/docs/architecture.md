@@ -20,7 +20,7 @@ flowchart LR
     V[Language toolchains]
     M[MCP clients]
     O[Optional OPA policy service]
-    C[Optional Crisol control plane]
+    C[Optional Harne8 control plane]
 
     H --> I
     A --> I
@@ -183,7 +183,7 @@ forking every workflow or repeating the same instruction in every prompt.
 
 `pose init --wizard` uses stack markers to seed validation configuration.
 Indexes are intentionally shallow and local; semantic code intelligence is a
-separate concern that Crisol can supply through GraphForge.
+separate concern that Harne8 can supply through GraphForge.
 
 ## Mechanism 6: deterministic validation
 
@@ -260,7 +260,7 @@ provenance are tracked as maturity gaps rather than implied guarantees.
 advertises 18 POSE tools for specs, readiness, roadmaps, changelogs, follow-ups,
 structural gates, task routing, workflows, rules, skills, knowledge, reports
 and insights. Three optional `conductor_run_*` tools report external runs when
-Crisol endpoints are configured.
+Harne8 endpoints are configured.
 
 MCP tools use JSON schemas and project-scoped root resolution. The server
 supports a default project plus explicit or directory-discovered roots. The
@@ -359,7 +359,7 @@ Extend POSE safely through repository data before changing the engine:
 
 Engine changes are appropriate when a deterministic invariant must be shared
 by every installation. Hosted orchestration, semantic code graphs, durable task
-state and visual portfolio management belong to Crisol rather than the free
+state and visual portfolio management belong to Harne8 rather than the free
 repository engine.
 
 ## Known architectural limits

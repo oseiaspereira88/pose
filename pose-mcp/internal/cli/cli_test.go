@@ -114,7 +114,7 @@ func TestNewSpecNativeCreatesTemplateAndRejectsInvalidInput(t *testing.T) {
 func TestInstallMigratesOnlyLegacyMCPEntries(t *testing.T) {
 	root := t.TempDir()
 	path := filepath.Join(root, ".mcp.json")
-	legacy := `{"mcpServers":{"crisol-pose":{"type":"stdio","command":"/project/.pose/bin/pose-mcp-claude","env":{"KEEP":"yes"}},"custom":{"command":"custom-mcp","args":["serve"]},"custom-same-basename":{"command":"/company/pose-mcp","args":["proxy"]}}}`
+	legacy := `{"mcpServers":{"harne8-pose":{"type":"stdio","command":"/project/.pose/bin/pose-mcp-claude","env":{"KEEP":"yes"}},"custom":{"command":"custom-mcp","args":["serve"]},"custom-same-basename":{"command":"/company/pose-mcp","args":["proxy"]}}}`
 	if err := os.WriteFile(path, []byte(legacy), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -128,7 +128,7 @@ func TestInstallMigratesOnlyLegacyMCPEntries(t *testing.T) {
 		t.Fatalf("reading migrated config: %v", err)
 	}
 	servers := payload["mcpServers"].(map[string]any)
-	poseEntry := servers["crisol-pose"].(map[string]any)
+	poseEntry := servers["harne8-pose"].(map[string]any)
 	if poseEntry["command"] != "pose" {
 		t.Fatalf("pose command = %v", poseEntry["command"])
 	}

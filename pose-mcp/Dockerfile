@@ -2,7 +2,7 @@
 # (ADR-003). Serves a project mounted read-only at POSE_PROJECT_ROOT.
 #
 # Build context is the REPO ROOT: pose-mcp depends on the sibling module
-# github.com/crisol/mcp-enforce via `replace => ../mcp-enforce` (ADR-021), which
+# github.com/harne8/mcp-enforce via `replace => ../mcp-enforce` (ADR-021), which
 # must be present in the build context. Build with:
 #   docker build -f pose-mcp/Dockerfile .
 FROM golang:1.26.4-alpine AS builder

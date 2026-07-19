@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	mcpenforce "github.com/crisol/mcp-enforce"
+	mcpenforce "github.com/harne8/mcp-enforce"
 )
 
 // capturingRecorder collects exchanges for assertions.

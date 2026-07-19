@@ -37,9 +37,11 @@ follow-up disposition, recurrence and expiring operational knowledge.
 
 Read the [technical architecture](architecture.md) for the complete component
 and mechanism model. Use the [capability assessment](capability-assessment.md)
-for evidence-based maturity, best-of-breed benchmarks and prioritized gaps.
+for evidence-based maturity and benchmark gaps, then use the governed
+[product roadmaps](product-roadmaps.md) for implementation order, milestones
+and release gates.
 
 ## License
 
-Apache-2.0. POSE is developed as part of the **Crisol** platform and runs
+Apache-2.0. POSE is developed as part of the **Harne8** platform and runs
 entirely offline in your repository — the governance layer is free, forever.

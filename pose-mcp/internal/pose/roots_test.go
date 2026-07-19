@@ -9,7 +9,7 @@ import (
 func TestRoots_StoreFor(t *testing.T) {
 	roots := NewRoots(RootsConfig{
 		DefaultRoot:      "/default",
-		DefaultProjectID: "proj.crisol",
+		DefaultProjectID: "proj.harne8",
 		Explicit:         map[string]string{"proj.foo": "/foo"},
 	})
 
@@ -20,7 +20,7 @@ func TestRoots_StoreFor(t *testing.T) {
 		}
 	})
 	t.Run("default project id maps to default root", func(t *testing.T) {
-		s, err := roots.StoreFor("proj.crisol")
+		s, err := roots.StoreFor("proj.harne8")
 		if err != nil || s.Root != "/default" {
 			t.Fatalf("got (%q,%v), want /default", s.Root, err)
 		}
@@ -41,10 +41,10 @@ func TestRoots_StoreFor(t *testing.T) {
 func TestRoots_ExplicitWinsOverDefaultMapping(t *testing.T) {
 	roots := NewRoots(RootsConfig{
 		DefaultRoot:      "/default",
-		DefaultProjectID: "proj.crisol",
-		Explicit:         map[string]string{"proj.crisol": "/explicit"},
+		DefaultProjectID: "proj.harne8",
+		Explicit:         map[string]string{"proj.harne8": "/explicit"},
 	})
-	s, err := roots.StoreFor("proj.crisol")
+	s, err := roots.StoreFor("proj.harne8")
 	if err != nil || s.Root != "/explicit" {
 		t.Fatalf("got (%q,%v), want /explicit (explicit wins)", s.Root, err)
 	}

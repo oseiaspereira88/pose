@@ -1,6 +1,6 @@
 package mcpserver
 
-import mcpenforce "github.com/crisol/mcp-enforce"
+import mcpenforce "github.com/harne8/mcp-enforce"
 
 // The authorization gate, its types and the auditor are provided by the shared
 // mcp-enforce module (ADR-021, single source of truth). They are re-exported

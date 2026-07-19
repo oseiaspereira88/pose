@@ -1,0 +1,1574 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Project Operating Standard for Engineering — spec-driven development that closes the loop.">
+      
+      
+      
+      
+        <link rel="prev" href="../architecture/">
+      
+      
+        <link rel="next" href="../product-roadmaps/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Capability assessment - POSE</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#capability-assessment" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="POSE" class="md-header__button md-logo" aria-label="POSE" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            POSE
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Capability assessment
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="POSE" class="md-nav__button md-logo" aria-label="POSE" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    POSE
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technical architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capability assessment
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capability assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executive-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed findings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Detailed findings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-install-upgrade-and-local-first-runtime-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Install, upgrade and local-first runtime — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-spec-lifecycle-and-closeout-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Spec lifecycle and closeout — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-task-routing-workflows-rules-and-skills-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Task routing, workflows, rules and skills — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-dependencies-readiness-and-roadmaps-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Dependencies, readiness and roadmaps — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-validation-and-structural-integrity-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Validation and structural integrity — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-evidence-history-and-insights-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Evidence, history and insights — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-follow-ups-and-recurrence-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Follow-ups and recurrence — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-operational-knowledge-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Operational knowledge — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-mcp-and-agent-interoperability-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. MCP and agent interoperability — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-policy-identity-and-audit-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Policy, identity and audit — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#11-ci-release-and-supply-chain-trust-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. CI, release and supply-chain trust — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-import-and-adoption-interoperability-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Import and adoption interoperability — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-metrics-and-observability-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Metrics and observability — 2/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-documentation-localization-and-diagnostics-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Documentation, localization and diagnostics — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-extensibility-and-ecosystem-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Extensibility and ecosystem — 2/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16-multi-repository-and-enterprise-operation-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Multi-repository and enterprise operation — 2/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-improvement-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority improvement plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority improvement plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p0-establish-product-trust-and-contract-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 — establish product trust and contract accuracy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p1-deepen-delivery-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1 — deepen delivery value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p2-build-ecosystem-and-scale-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2 — build ecosystem and scale path
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reassessment-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reassessment protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../product-roadmaps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Product roadmaps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontmatter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontmatter contracts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executive-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed findings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Detailed findings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-install-upgrade-and-local-first-runtime-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Install, upgrade and local-first runtime — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-spec-lifecycle-and-closeout-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Spec lifecycle and closeout — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-task-routing-workflows-rules-and-skills-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Task routing, workflows, rules and skills — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-dependencies-readiness-and-roadmaps-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Dependencies, readiness and roadmaps — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-validation-and-structural-integrity-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Validation and structural integrity — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-evidence-history-and-insights-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Evidence, history and insights — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-follow-ups-and-recurrence-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Follow-ups and recurrence — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-operational-knowledge-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Operational knowledge — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-mcp-and-agent-interoperability-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. MCP and agent interoperability — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-policy-identity-and-audit-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Policy, identity and audit — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#11-ci-release-and-supply-chain-trust-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. CI, release and supply-chain trust — 3/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-import-and-adoption-interoperability-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Import and adoption interoperability — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-metrics-and-observability-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Metrics and observability — 2/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-documentation-localization-and-diagnostics-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Documentation, localization and diagnostics — 4/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-extensibility-and-ecosystem-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Extensibility and ecosystem — 2/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16-multi-repository-and-enterprise-operation-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Multi-repository and enterprise operation — 2/5
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-improvement-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority improvement plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority improvement plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p0-establish-product-trust-and-contract-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 — establish product trust and contract accuracy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p1-deepen-delivery-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1 — deepen delivery value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p2-build-ecosystem-and-scale-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2 — build ecosystem and scale path
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reassessment-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reassessment protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="capability-assessment">Capability assessment</h1>
+<p><strong>Assessment date:</strong> 2026-07-18<br />
+<strong>Evidence baseline:</strong> commit <code>d9c0b98</code>, local source inspection, <code>pose doctor
+--json</code>, MCP <code>tools/list</code> and repository checks<br />
+<strong>Purpose:</strong> measure fitness against POSE's own promises and relevant
+best-of-breed practices, not manufacture a universal product ranking.</p>
+<h2 id="method">Method</h2>
+<p>Score each mechanism against its stated purpose:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Score</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td>Absent</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td>Designed or scaffolded</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>Functional in a narrow path</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Reliable for a single repository or early team adoption</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>Strong product capability with clear operational contracts</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td>Reference-grade capability with ecosystem, scale and independently verified evidence</td>
+</tr>
+</tbody>
+</table>
+<p>The target is not always 5. A local engine should not become a hosted portal
+only to improve a score. Compare each mechanism with the strongest relevant
+practice while preserving POSE's boundary.</p>
+<h2 id="executive-result">Executive result</h2>
+<p>POSE is strongest where the market is usually fragmented: lifecycle closure,
+repository-owned governance, deterministic gates, follow-up disposition and
+recurrence feedback. It is already credible as an open-source, single-repo
+governance engine. The largest distance to a reference-grade product is not in
+the core SDD model; it is in distribution trust, ecosystem reach, measurable
+delivery outcomes, public product polish and scaled team operation.</p>
+<table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th style="text-align: right;">Current</th>
+<th style="text-align: right;">Target</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Install, upgrade and local-first runtime</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td>Strong native distribution; package channels and upgrade trust remain</td>
+</tr>
+<tr>
+<td>Spec lifecycle and closeout</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td>Distinctive two-sided gates; traceability can go deeper</td>
+</tr>
+<tr>
+<td>Task routing, workflows, rules and skills</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td>Coherent and agent-portable; extension lifecycle is still manual</td>
+</tr>
+<tr>
+<td>Dependency graph, readiness and roadmaps</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td>Useful eligibility model; limited portfolio planning</td>
+</tr>
+<tr>
+<td>Validation matrix and structural checks</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td>Safe structured execution; broader outputs and isolation needed</td>
+</tr>
+<tr>
+<td>Evidence, history and insights</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">5</td>
+<td>Auditable local history; no signed provenance or outcome integrations</td>
+</tr>
+<tr>
+<td>Follow-ups and recurrence</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td>High-value closed-loop mechanism; semantic and trend layers are early</td>
+</tr>
+<tr>
+<td>Knowledge governance</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td>TTL, ownership and sensitivity work; retrieval and team review can improve</td>
+</tr>
+<tr>
+<td>MCP and agent interoperability</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">5</td>
+<td>Broad read surface; contract drift and protocol completeness remain</td>
+</tr>
+<tr>
+<td>Policy, identity and audit</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">5</td>
+<td>Sound OPA/default-deny foundation; deployment hardening remains external</td>
+</tr>
+<tr>
+<td>CI, release and supply-chain trust</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">5</td>
+<td>Working pipelines/checksums; signatures, SBOM and provenance are missing</td>
+</tr>
+<tr>
+<td>Import and adoption interoperability</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td>Safe Spec Kit/OpenSpec import; no bidirectional or plugin ecosystem</td>
+</tr>
+<tr>
+<td>Metrics and observability</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+<td>Local outcome counts exist; DORA, traces and product analytics do not</td>
+</tr>
+<tr>
+<td>Documentation, localization and diagnostics</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td>Solid English/pt-BR and doctor; public onboarding still has placeholders</td>
+</tr>
+<tr>
+<td>Extensibility and ecosystem</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+<td>File contracts are extensible; no formal plugin/catalog lifecycle</td>
+</tr>
+<tr>
+<td>Multi-repository and enterprise operation</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+<td>MCP roots/policy exist; central UX, tenancy and durable orchestration live in Harne8</td>
+</tr>
+</tbody>
+</table>
+<h2 id="detailed-findings">Detailed findings</h2>
+<h3 id="1-install-upgrade-and-local-first-runtime-45">1. Install, upgrade and local-first runtime — 4/5</h3>
+<p><strong>Purpose:</strong> make governance easy to adopt without creating a hosted-service
+dependency.</p>
+<p><strong>Delivered now:</strong> one CGO-free Go binary, six OS/architecture release targets,
+embedded English and pt-BR scaffolds, idempotent installation, schema versioning,
+dry-run upgrades and <code>pose doctor</code>.</p>
+<p><strong>Strength:</strong> a repository can keep operating offline with Git and its native
+toolchains. Reinstallation preserves instance content.</p>
+<p><strong>Gap to ideal:</strong> publish supported Homebrew/Scoop/Winget/Nix or package-manager
+paths, verify in-place version upgrades across released versions, align all
+reported versions and publish a stable install command that does not assume the
+binary is already present.</p>
+<h3 id="2-spec-lifecycle-and-closeout-45">2. Spec lifecycle and closeout — 4/5</h3>
+<p><strong>Purpose:</strong> prevent ambiguous work from starting and incomplete work from being
+declared done.</p>
+<p><strong>Delivered now:</strong> stable requirement IDs, DoR checks, lifecycle dates,
+dependency syntax, strict closeout and mandatory follow-up dispositions.</p>
+<p><strong>Strength:</strong> POSE couples an entry gate to an exit gate. This is a stronger
+delivery-governance proposition than planning artifacts alone.</p>
+<p><strong>Gap to ideal:</strong> add requirement-to-test/result traceability, structured change
+history for spec amendments and machine-readable approval records. Preserve
+human review for intent changes.</p>
+<p><strong>Benchmark:</strong> <a href="https://github.com/github/spec-kit/blob/main/docs/reference/overview.md">GitHub Spec Kit</a>
+offers a rich SDD lifecycle, extensions, presets and workflows;
+<a href="https://github.com/Fission-AI/OpenSpec">OpenSpec</a> is strong at lightweight
+brownfield change deltas and archive-to-source flow; <a href="https://aws.amazon.com/documentation-overview/kiro/">Kiro</a>
+integrates specs, steering and hooks into an agentic development service.</p>
+<h3 id="3-task-routing-workflows-rules-and-skills-45">3. Task routing, workflows, rules and skills — 4/5</h3>
+<p><strong>Purpose:</strong> translate task intent into the correct procedure, constraints and
+checks across agents.</p>
+<p><strong>Delivered now:</strong> ten routed task types, six workflows, cumulative domain
+rules and nine portable skills, with Codex-native structure and Claude links.</p>
+<p><strong>Strength:</strong> routing is data, not prompt folklore. Rules can evolve without
+copying every workflow.</p>
+<p><strong>Gap to ideal:</strong> validate the complete <a href="https://agentskills.io/specification">Agent Skills</a>
+contract in CI, version skills independently, add compatibility metadata and
+publish a signed catalog with update/conflict handling comparable to mature
+extension systems.</p>
+<h3 id="4-dependencies-readiness-and-roadmaps-35">4. Dependencies, readiness and roadmaps — 3/5</h3>
+<p><strong>Purpose:</strong> start only eligible work and expose planning order.</p>
+<p><strong>Delivered now:</strong> typed dependencies, priorities, acyclic spec/roadmap graphs,
+milestone DAGs, target dates and MCP readiness resolution.</p>
+<p><strong>Strength:</strong> readiness derives from versioned contracts rather than board
+status alone.</p>
+<p><strong>Gap to ideal:</strong> add impact visualization, critical-path explanation,
+cross-repository references, ownership/capacity views and drift reconciliation.
+Do not turn POSE into a transactional scheduler; expose these projections to
+Harne8 or portals such as <a href="https://backstage.io/docs/features/software-catalog/">Backstage</a>.</p>
+<h3 id="5-validation-and-structural-integrity-45">5. Validation and structural integrity — 4/5</h3>
+<p><strong>Purpose:</strong> replace subjective “looks done” decisions with repeatable checks.</p>
+<p><strong>Delivered now:</strong> strict/tolerant modes, required/optional severity, structured
+program/args/env execution, file predicates, module overrides and baseline
+Node.js, Go, Rust and Java stacks.</p>
+<p><strong>Strength:</strong> POSE delegates to real test/build tools while rejecting shell-text
+checks and confining module paths.</p>
+<p><strong>Gap to ideal:</strong> add Python, .NET and common monorepo/build systems; emit JUnit,
+SARIF or a stable result schema; support timeouts and resource ceilings per
+check; isolate untrusted repository checks in the Harness; add changed-scope
+selection and cache adapters without making results nondeterministic.</p>
+<h3 id="6-evidence-history-and-insights-35">6. Evidence, history and insights — 3/5</h3>
+<p><strong>Purpose:</strong> preserve why a delivery was accepted and feed future decisions.</p>
+<p><strong>Delivered now:</strong> Markdown reports, append-only JSONL history, stable-field
+hashes, sequences, changed-file capture, outcome aggregation and MCP insights.</p>
+<p><strong>Strength:</strong> evidence is inspectable with ordinary Git and survives ephemeral
+CI logs.</p>
+<p><strong>Gap to ideal:</strong> link requirement IDs to checks and commits; capture actor and
+approval identity; export standard event/result schemas; generate attestations.
+POSE report hashes detect metadata change but are not signatures or build
+provenance.</p>
+<p><strong>Benchmark:</strong> <a href="https://slsa.dev/spec/v1.0/levels">SLSA</a> defines progressive
+build provenance guarantees. CycloneDX defines interoperable SBOM media types
+and predicates. These complement rather than replace POSE evidence.</p>
+<h3 id="7-follow-ups-and-recurrence-45">7. Follow-ups and recurrence — 4/5</h3>
+<p><strong>Purpose:</strong> stop residual work and repeated failures from disappearing into
+free text.</p>
+<p><strong>Delivered now:</strong> disposition vocabulary, target validation, aggregated open
+backlog, lexical duplicate candidates, time-window recurrence checks and an
+escalation workflow.</p>
+<p><strong>Strength:</strong> findings become planning input, and repeated fixes are directed
+toward systemic rules or workflows. This is POSE's clearest differentiator.</p>
+<p><strong>Gap to ideal:</strong> add owner/SLA for open follow-ups, trend and recurrence-cost
+views, semantic candidate adapters with human confirmation, and effectiveness
+measurement after an escalation is introduced.</p>
+<h3 id="8-operational-knowledge-35">8. Operational knowledge — 3/5</h3>
+<p><strong>Purpose:</strong> preserve reusable context without creating permanent, ownerless
+documentation.</p>
+<p><strong>Delivered now:</strong> handoff, decision-log and note types; owner, sensitivity,
+review dates, TTL, overdue gate and explicit archive/purge operations.</p>
+<p><strong>Strength:</strong> knowledge has decay and accountability by design.</p>
+<p><strong>Gap to ideal:</strong> add reference validation from active work, review queues,
+usage signals, optional semantic retrieval and external identity/RBAC mapping.
+Keep restricted content excluded from broad MCP reads.</p>
+<h3 id="9-mcp-and-agent-interoperability-35">9. MCP and agent interoperability — 3/5</h3>
+<p><strong>Purpose:</strong> expose governance consistently to any MCP-capable agent.</p>
+<p><strong>Delivered now:</strong> stdio and Streamable HTTP, 18 POSE tools, structured content,
+multi-project roots and optional Conductor run reporting.</p>
+<p><strong>Strength:</strong> agents can query the same repository contracts the CLI enforces.</p>
+<p><strong>Gap to ideal:</strong> resolve the known catalog drift (<code>pose_validate</code> in ADR vs no
+tool), advertise <code>project_id</code> consistently, derive MCP version from the binary,
+add exact catalog conformance tests, pagination, resources/prompts where useful
+and a defined refresh/reconnect contract. Publish and validate the registry
+entry against each release.</p>
+<p><strong>Benchmark:</strong> the <a href="https://modelcontextprotocol.io/specification/2025-06-18/server/tools">MCP tools specification</a>
+defines schema-based discovery, pagination and invocation and recommends
+human control over tool use.</p>
+<h3 id="10-policy-identity-and-audit-35">10. Policy, identity and audit — 3/5</h3>
+<p><strong>Purpose:</strong> authorize every remote governance call within project and run
+scope.</p>
+<p><strong>Delivered now:</strong> bearer auth, OPA decisions, default denial on failure,
+principal/project extraction, expiring HMAC execution identities and allow/deny
+audit events.</p>
+<p><strong>Strength:</strong> policy decisions are separated from enforcement in the model
+recommended by <a href="https://www.openpolicyagent.org/docs">OPA</a>.</p>
+<p><strong>Gap to ideal:</strong> add asymmetric workload identity or SPIFFE integration,
+external secret management, TLS deployment guidance, rate limits, audit export,
+policy bundles/versioning and end-to-end negative tests in a production
+topology.</p>
+<h3 id="11-ci-release-and-supply-chain-trust-35">11. CI, release and supply-chain trust — 3/5</h3>
+<p><strong>Purpose:</strong> make governance blocking and distribute a verifiable engine.</p>
+<p><strong>Delivered now:</strong> CI tests, installer E2E, docs build, composite action,
+pre-commit hooks, native Git hooks, GoReleaser archives and SHA-256 checksums.</p>
+<p><strong>Strength:</strong> multiple adoption levels support gradual rollout.</p>
+<p><strong>Gap to ideal:</strong> replace <code>&lt;owner&gt;/&lt;repo&gt;</code> placeholders, publish the action,
+sign binaries, publish SBOMs and SLSA provenance, add CodeQL/secret/dependency
+scanning, pin actions by immutable digest where appropriate and run OpenSSF
+Scorecard. <a href="https://scorecard.dev/">OpenSSF Scorecard</a> explicitly evaluates
+CI, review, token permissions, packaging and signed releases.</p>
+<h3 id="12-import-and-adoption-interoperability-45">12. Import and adoption interoperability — 4/5</h3>
+<p><strong>Purpose:</strong> let teams adopt POSE without discarding existing SDD work.</p>
+<p><strong>Delivered now:</strong> bounded, offline, dry-run imports for Spec Kit and OpenSpec;
+symlink rejection; batch preflight; no overwrite; curation warnings.</p>
+<p><strong>Strength:</strong> POSE positions itself as a governance continuation rather than a
+forced rewrite.</p>
+<p><strong>Gap to ideal:</strong> publish mapping fixtures, support custom source schemas through
+plugins, preserve more provenance and consider a read-only diff/reconciliation
+mode. Bidirectional sync should remain opt-in because two lifecycle authorities
+create ambiguity.</p>
+<h3 id="13-metrics-and-observability-25">13. Metrics and observability — 2/5</h3>
+<p><strong>Purpose:</strong> show whether governance improves delivery outcomes and product
+adoption.</p>
+<p><strong>Delivered now:</strong> pass/fail/partial history grouped by workflow, task or
+context; privacy-preserving telemetry is opt-in and endpoint-less by default.</p>
+<p><strong>Strength:</strong> the data model is deterministic and privacy conservative.</p>
+<p><strong>Gap to ideal:</strong> correlate specs, commits, deployments and incidents; add the
+five <a href="https://dora.dev/guides/dora-metrics/">DORA delivery metrics</a> at the
+application level; capture adoption, retention and task-success signals; emit
+OpenTelemetry-compatible traces, metrics and logs for server operation. Avoid
+using metrics as individual productivity targets.</p>
+<h3 id="14-documentation-localization-and-diagnostics-45">14. Documentation, localization and diagnostics — 4/5</h3>
+<p><strong>Purpose:</strong> shorten time to first governed delivery and make failures
+actionable.</p>
+<p><strong>Delivered now:</strong> product README, MkDocs site, full CLI/manual references,
+English and pt-BR scaffolds, JSON doctor output and explicit limitations.</p>
+<p><strong>Strength:</strong> operating docs are installed beside the code and remain editable.</p>
+<p><strong>Gap to ideal:</strong> publish stable URLs, add a complete download/install path,
+remove release/action placeholders, add upgrade and troubleshooting guides,
+test every documented command and add worked examples for brownfield and
+monorepo adoption.</p>
+<h3 id="15-extensibility-and-ecosystem-25">15. Extensibility and ecosystem — 2/5</h3>
+<p><strong>Purpose:</strong> let teams add domains and integrations without maintaining a fork.</p>
+<p><strong>Delivered now:</strong> editable task maps, rules, workflows, skills, validation
+checks and JSON projections.</p>
+<p><strong>Strength:</strong> many useful extensions require data changes, not Go code.</p>
+<p><strong>Gap to ideal:</strong> define versioned plugin manifests, compatibility constraints,
+discovery, installation/update/removal, conflict handling, provenance and a
+catalog. GitHub Spec Kit's current extensions, presets, workflows and bundles
+provide a useful completeness benchmark for this layer.</p>
+<h3 id="16-multi-repository-and-enterprise-operation-25">16. Multi-repository and enterprise operation — 2/5</h3>
+<p><strong>Purpose:</strong> preserve the same governance model across many teams and projects.</p>
+<p><strong>Delivered now:</strong> multi-root MCP selection, OPA hooks, execution identity and
+Conductor reporter integration.</p>
+<p><strong>Strength:</strong> the open core already has clean composition boundaries.</p>
+<p><strong>Gap to ideal:</strong> centralized discovery, SSO/RBAC, tenant isolation, durable
+orchestration, approvals, portfolio UX, policy distribution, retention and
+support operations. These are the natural responsibilities of Harne8; keeping
+them out of the local CLI preserves a credible freemium boundary.</p>
+<h2 id="priority-improvement-plan">Priority improvement plan</h2>
+<h3 id="p0-establish-product-trust-and-contract-accuracy">P0 — establish product trust and contract accuracy</h3>
+<ol>
+<li>Align binary, MCP and registry versions.</li>
+<li>Resolve MCP catalog/schema drift and add exact conformance tests.</li>
+<li>Replace public CI/action placeholders and document a real download path.</li>
+<li>Dogfood POSE in this standalone repository with product-owned specs,
+   reports and a roadmap instead of an empty instance.</li>
+<li>Sign releases and publish SBOM plus SLSA provenance.</li>
+<li>Add OpenSSF Scorecard, dependency, secret and static-analysis checks.</li>
+</ol>
+<h3 id="p1-deepen-delivery-value">P1 — deepen delivery value</h3>
+<ol>
+<li>Add requirement-to-check-to-commit traceability.</li>
+<li>Export structured validation results as JSON, JUnit and SARIF where relevant.</li>
+<li>Add changed-scope validation, per-check timeout and Harness isolation.</li>
+<li>Add DORA-compatible delivery integrations and OpenTelemetry server signals.</li>
+<li>Add follow-up ownership, SLA and recurrence-effectiveness views.</li>
+<li>Expand the baseline stack catalog and publish monorepo recipes.</li>
+</ol>
+<h3 id="p2-build-ecosystem-and-scale-path">P2 — build ecosystem and scale path</h3>
+<ol>
+<li>Publish a versioned extension/skill catalog with provenance.</li>
+<li>Add optional semantic knowledge and follow-up adapters with human approval.</li>
+<li>Add cross-repository references and portfolio projections.</li>
+<li>Connect the open core to Harne8 for durable orchestration, visual operation,
+   centralized policy and team analytics.</li>
+</ol>
+<h2 id="reassessment-protocol">Reassessment protocol</h2>
+<p>Re-run this assessment at each minor release:</p>
+<ol>
+<li>Pin the release commit and list evidence commands.</li>
+<li>Score only behavior that is implemented and verified.</li>
+<li>Link each score increase to a check, report or public artifact.</li>
+<li>Record benchmark changes; external products evolve.</li>
+<li>Keep historical assessments so product progress is visible.</li>
+</ol>
+<p>Do not collapse the table into one percentage. The purpose is to choose the
+next highest-value constraint, not to optimize a vanity score.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

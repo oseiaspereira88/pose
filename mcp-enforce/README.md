@@ -1,6 +1,6 @@
 # mcp-enforce
 
-Canonical authorization-enforcement layer for Crisol MCP servers (ADR-004, ADR-021).
+Canonical authorization-enforcement layer for Harne8 MCP servers (ADR-004, ADR-021).
 
 A single source of truth for **per-call policy** (OPA-backed, default-deny), **audit**
 (allow *and* deny), and the **request-extraction helpers** shared by every MCP server. It
@@ -11,7 +11,7 @@ Standard library only. The single network dependency is the OPA REST API.
 
 ## Two consumption modes (ADR-021)
 
-- **In-process** by Crisol-org Go MCP servers (e.g. `pose-mcp`) — import directly.
+- **In-process** by Harne8-org Go MCP servers (e.g. `pose-mcp`) — import directly.
 - **Embedded in the enforcement sidecar** that fronts foreign/polyglot servers (e.g.
   `graphforge/mcp-server`) — same code, no cross-org coupling.
 

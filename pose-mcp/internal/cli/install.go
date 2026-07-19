@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/crisol/pose-mcp/internal/scaffold"
+	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
 func cmdInstall(args []string, stdout, stderr io.Writer) int {
@@ -274,7 +274,7 @@ func configureMCP(path, target, projectID string) (string, error) {
 }
 
 func legacyMCPEntry(name string, entry map[string]any) bool {
-	if name != "pose" && name != "crisol-pose" {
+	if name != "pose" && name != "harne8-pose" {
 		return false
 	}
 	return legacyMCPCommand(entry["command"])

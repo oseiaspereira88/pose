@@ -12,8 +12,8 @@ import (
 	"os"
 	"time"
 
-	mcpenforce "github.com/crisol/mcp-enforce"
-	"github.com/crisol/mcp-enforce/sidecar"
+	mcpenforce "github.com/harne8/mcp-enforce"
+	"github.com/harne8/mcp-enforce/sidecar"
 )
 
 func main() {
@@ -58,7 +58,7 @@ func main() {
 		Handler:           sc,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
-	log.Printf("crisol mcp-enforce-sidecar listening addr=%s upstream=%s policy=%s require_principal=%v",
+	log.Printf("harne8 mcp-enforce-sidecar listening addr=%s upstream=%s policy=%s require_principal=%v",
 		addr, upstreamRaw, policyMode, cfg.RequirePrincipal)
 	log.Fatal(srv.ListenAndServe())
 }

@@ -19,8 +19,8 @@ import (
 	"strings"
 	"time"
 
-	mcpenforce "github.com/crisol/mcp-enforce"
-	"github.com/crisol/pose-mcp/internal/pose"
+	mcpenforce "github.com/harne8/mcp-enforce"
+	"github.com/harne8/pose-mcp/internal/pose"
 )
 
 // Reporter is the interface for emitting Conductor run events (external-run-reporters).
@@ -100,7 +100,7 @@ func (c *ConductorClient) conductorPost(ctx context.Context, path string, body [
 
 const (
 	protocolVersion = "2025-03-26"
-	serverName      = "crisol-pose-mcp"
+	serverName      = "harne8-pose-mcp"
 	serverVersion   = "0.1.0"
 )
 

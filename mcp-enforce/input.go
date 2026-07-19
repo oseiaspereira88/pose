@@ -1,7 +1,7 @@
-// Package mcpenforce is the canonical authorization-enforcement layer for Crisol
+// Package mcpenforce is the canonical authorization-enforcement layer for Harne8
 // MCP servers: a per-call policy gate (OPA-backed, default-deny), an auditor for
 // allow and deny decisions, and the request-extraction helpers shared by every
-// MCP server. It is consumed in-process by Crisol-org Go MCP servers (e.g.
+// MCP server. It is consumed in-process by Harne8-org Go MCP servers (e.g.
 // pose-mcp) and embedded in the enforcement sidecar that fronts foreign servers
 // (e.g. graphforge/mcp-server), per ADR-021.
 //

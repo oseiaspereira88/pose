@@ -50,7 +50,7 @@ func listSource(t *testing.T, root string) map[string][]byte {
 		}
 		top := strings.SplitN(filepath.ToSlash(rel), "/", 2)[0]
 		switch top {
-		case ".git", ".github", ".gitignore", "pose-mcp", "mcp-enforce", "pose-action", "docs-site",
+		case ".git", ".github", ".gitignore", ".docs-site-build", "pose-mcp", "mcp-enforce", "pose-action", "docs-site",
 			"tests", ".goreleaser.yaml", "dist-release":
 			if d.IsDir() {
 				return filepath.SkipDir
