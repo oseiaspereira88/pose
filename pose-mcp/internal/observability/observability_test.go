@@ -118,9 +118,15 @@ func TestNilProviderShutdownIsSafe(t *testing.T) {
 
 func TestSecretsRedaction(t *testing.T) {
 	fakeAWSKeyShapedFixture := "AKIA" + "ABCDEFGHIJKLMNOP"
+	// The PEM header/footer is split across concatenated literals so the
+	// contiguous "-----BEGIN...PRIVATE KEY-----" shape never appears in
+	// this source file — it would otherwise trip real secret scanners
+	// (gitleaks) on this deliberately fake, non-key fixture. Secrets()
+	// still sees the full, matching string at runtime.
+	fakePEMShapedFixture := "-----BEGIN RSA PRIV" + "ATE KEY-----\nMIIB...\n-----END RSA PRIV" + "ATE KEY-----"
 	for _, s := range []string{
 		"key: " + fakeAWSKeyShapedFixture,
-		"-----BEGIN RSA PRIVATE KEY-----\nMIIB...\n-----END RSA PRIVATE KEY-----",
+		fakePEMShapedFixture,
 		"token ghp_" + strings.Repeat("a", 30),
 		"Authorization: Bearer " + strings.Repeat("x", 24),
 	} {
