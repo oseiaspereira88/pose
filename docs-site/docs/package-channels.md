@@ -1,5 +1,7 @@
 # Package-manager channels
 
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 Every channel below installs the exact same signed release artifact used by
 the [verified install contract](quickstart.md#install) — no channel ever
 builds from source or repackages independently. Manifests are generated

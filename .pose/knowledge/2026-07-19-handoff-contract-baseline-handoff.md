@@ -67,8 +67,29 @@ byte-a-byte, avisos, readiness, rollback via git puro). `examples/`
 adicionado à lista de exclusão do scaffold. ADR
 `2026-07-19-brownfield-kits-checked-in-fixtures-git-native-rollback.md`.
 
-Próximo: milestone 3 `product-polish` (`pose-localization-docs-contract`) —
-última milestone do roadmap 6.
+Milestone 3 `product-polish` **concluído em 2026-07-19** — spec
+`pose-localization-docs-contract`: corrigiu um bug real de paridade de
+locale (templates default en `knowledge.md`/`doc-audit-report.md` estavam
+inteiramente em português, sem tradução pt-BR correspondente) unificando
+a convenção de path do overlay de locale (`install.go`: templates agora
+seguem o mesmo padrão `locales/<locale>/.pose/templates/...` de
+workflows/rules/skills) e estendendo o teste de paridade existente
+(`TestEditorialDefaultsAreEnglishAndPtBROverlayIsComplete`) para cobrir
+`.pose/templates/`. Teste de auto-inspeção deriva os comandos válidos
+direto do switch de `cli.go` (não duplica a lista) para verificar que
+todo `pose <comando>` documentado no README/docs-site é reconhecido; 12
+páginas do docs-site ganharam classificação Diátaxis visível + linha de
+aplicabilidade de versão; scan de segurança reaproveitando os padrões de
+`pose-agent-skills-conformance`. ADR
+`2026-07-19-localization-docs-contract-self-inspecting-tests.md`.
+
+**Roadmap 6 `adoption-developer-experience` CONCLUÍDO em 2026-07-19** — 6
+specs fechadas nos 3 milestones (trusted-install, guided-adoption,
+product-polish). Próximo do portfólio: roadmap 7 `insights-enterprise-scale`
+(final, 7 de 7) — janela 2026-11-02 → 2027-03-31, 4 milestones, 5 specs:
+`pose-otel-observability`, `pose-dora-adoption-metrics`,
+`pose-semantic-governance-assist`, `pose-cross-repo-portfolio`,
+`pose-harne8-control-plane-integration`.
 
 ## Estado atual
 
@@ -99,8 +120,12 @@ Próximo: milestone 3 `product-polish` (`pose-localization-docs-contract`) —
   workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
   `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
   `supported_upgrades` no `compatibility.json` com pin SHA-256.
-- Roadmap 6 `adoption-developer-experience`, milestone 3 `product-polish`:
-  próxima leitura é a spec `pose-localization-docs-contract`.
+- Roadmap 7 `insights-enterprise-scale` (final): próxima leitura é o
+  roadmap file + milestone 1 `observability-foundation`
+  (`pose-otel-observability`).
+- Confirmar o primeiro run de `mkdocs build --strict` (`docs.yml`) contra
+  as edições de página desta rodada — não executável neste sandbox (sem
+  pip/mkdocs) — follow-up aberto em `pose-localization-docs-contract`.
 - No primeiro release publicado: rodar `pose release-package-manifests`
   real na pipeline, confirmar `package-channels.yml` (macOS/Windows) e
   submeter o primeiro manifesto WinGet ao `winget-pkgs` — follow-ups
@@ -140,11 +165,14 @@ Próximo: milestone 3 `product-polish` (`pose-localization-docs-contract`) —
 
 - Specs: `.pose/specs/pose-version-contract/`, `.pose/specs/pose-standalone-dogfood/`,
   `.pose/specs/pose-package-manager-distribution/`, `.pose/specs/pose-upgrade-compatibility-lab/`,
-  `.pose/specs/pose-doctor-guided-remediation/`, `.pose/specs/pose-brownfield-reference-kits/`
+  `.pose/specs/pose-doctor-guided-remediation/`, `.pose/specs/pose-brownfield-reference-kits/`,
+  `.pose/specs/pose-localization-docs-contract/`
 - ADR: `.pose/adr/2026-07-19-authoritative-release-version-source.md`,
   `.pose/adr/2026-07-19-package-manager-channels-generated-not-hosted.md`,
   `.pose/adr/2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`,
   `.pose/adr/2026-07-19-doctor-guided-remediation-confined-fix-registry.md`,
-  `.pose/adr/2026-07-19-brownfield-kits-checked-in-fixtures-git-native-rollback.md`
+  `.pose/adr/2026-07-19-brownfield-kits-checked-in-fixtures-git-native-rollback.md`,
+  `.pose/adr/2026-07-19-localization-docs-contract-self-inspecting-tests.md`
 - Roadmap: `.pose/roadmaps/product-integrity.md` (roadmaps 1-5, concluído),
-  `.pose/roadmaps/adoption-developer-experience.md` (roadmap 6, em execução)
+  `.pose/roadmaps/adoption-developer-experience.md` (roadmap 6, concluído),
+  `.pose/roadmaps/insights-enterprise-scale.md` (roadmap 7, próximo, final)

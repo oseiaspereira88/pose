@@ -1,5 +1,7 @@
 # CLI reference
 
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 The `pose` CLI is a single native Go binary. Every command below executes
 without Bash or Python fallbacks and works offline.
 

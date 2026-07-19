@@ -1,5 +1,7 @@
 # POSE
 
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 **Spec-driven development that closes the loop.**
 
 POSE (Project Operating Standard for Engineering) is a repository-owned

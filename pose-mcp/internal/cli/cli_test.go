@@ -571,4 +571,27 @@ func TestInstallEmbeddedFreshAndIdempotent(t *testing.T) {
 	if b, _ := os.ReadFile(filepath.Join(repo2, ".agents", "skills", "pose-feature", "SKILL.md")); !strings.Contains(string(b), "Use ao implementar") {
 		t.Error("pt-BR skill overlay not applied")
 	}
+	// Every locale-overlaid directory uses the same convention (spec
+	// pose-localization-docs-contract): .pose/templates/ must localize
+	// exactly like workflows/rules/skills, not just the two files a
+	// hand-picked assertion happens to check.
+	for _, name := range []string{"knowledge.md", "doc-audit-report.md", "spec.md", "roadmap.md", "changelog-fragment.md"} {
+		b, err := os.ReadFile(filepath.Join(repo2, ".pose", "templates", name))
+		if err != nil {
+			t.Errorf("pt-BR template overlay missing: %s: %v", name, err)
+			continue
+		}
+		if !hasPortugueseAccent(string(b)) {
+			t.Errorf("pt-BR template overlay not applied (no Portuguese content): %s", name)
+		}
+	}
+}
+
+func hasPortugueseAccent(s string) bool {
+	for _, r := range "áéíóúãõâêôçÁÉÍÓÚÃÕÂÊÔÇ" {
+		if strings.ContainsRune(s, r) {
+			return true
+		}
+	}
+	return false
 }

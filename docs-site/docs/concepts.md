@@ -1,5 +1,7 @@
 # Concepts
 
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 ## The closed loop
 
 POSE's central idea: **work that leaves no machine-checkable trace didn't

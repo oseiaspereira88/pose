@@ -144,14 +144,11 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		if _, err := fs.Stat(dist, "locales/"+locale); err == nil {
 			docsPrefix = "locales/" + locale + "/"
 			log("locale: %s (docs/templates localized)", "locale: %s (docs/templates localizados)", locale)
-			if tmplEntries, err := fs.ReadDir(dist, "locales/"+locale+"/templates"); err == nil {
-				for _, e := range tmplEntries {
-					_ = copyFile(dist, "locales/"+locale+"/templates/"+e.Name(),
-						filepath.Join(target, ".pose", "templates", e.Name()), 0o644)
-				}
-				log("machinery (locale override): .pose/templates", "maquinário (override de locale): .pose/templates")
-			}
-			for _, editorialDir := range []string{".pose/workflows", ".pose/rules", ".agents/skills"} {
+			// Every locale overlay directory mirrors its English path exactly
+			// under locales/<locale>/ — no per-directory path convention
+			// (spec pose-localization-docs-contract fixed a pre-existing
+			// inconsistency where templates used a stripped ".pose/" prefix).
+			for _, editorialDir := range []string{".pose/templates", ".pose/workflows", ".pose/rules", ".agents/skills"} {
 				source := "locales/" + locale + "/" + editorialDir
 				if _, err := fs.Stat(dist, source); err != nil {
 					continue

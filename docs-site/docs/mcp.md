@@ -1,5 +1,7 @@
 # MCP server
 
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 `pose serve-mcp` exposes a read-heavy governance view of a POSE instance to
 MCP-capable agents. Transports: stdio
 (`--stdio`, ideal for agent runtimes) and Streamable HTTP (`POSE_MCP_ADDR`,

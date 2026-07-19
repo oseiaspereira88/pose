@@ -153,7 +153,7 @@ func TestClaudeSkillLinksMatchAgentsSkills(t *testing.T) {
 func TestEditorialDefaultsAreEnglishAndPtBROverlayIsComplete(t *testing.T) {
 	root := poseDistDir(t)
 	portugueseAccent := regexp.MustCompile(`[áéíóúãõâêôçÁÉÍÓÚÃÕÂÊÔÇ]`)
-	prefixes := []string{".pose/workflows/", ".pose/rules/", ".agents/skills/"}
+	prefixes := []string{".pose/workflows/", ".pose/rules/", ".agents/skills/", ".pose/templates/"}
 	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err

@@ -1,5 +1,7 @@
 # Technical architecture
 
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 **Scope:** POSE open-source distribution  
 **Verified:** 2026-07-18 at repository commit `d9c0b98`
 

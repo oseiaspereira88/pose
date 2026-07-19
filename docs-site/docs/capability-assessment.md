@@ -1,5 +1,7 @@
 # Capability assessment
 
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 **Assessment date:** 2026-07-18  
 **Evidence baseline:** commit `d9c0b98`, local source inspection, `pose doctor
 --json`, MCP `tools/list` and repository checks  

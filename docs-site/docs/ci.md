@@ -1,5 +1,7 @@
 # CI integration
 
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 ## GitHub Action
 
 The distribution ships a composite action (`pose-action/`):
