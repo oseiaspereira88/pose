@@ -113,5 +113,5 @@ embed parity guard it had just been tested by.
 
 ### Follow-ups
 
-- [open] Review the first quarterly audit run (2026-10-01) and disposition its findings.
+- [open] Review the first quarterly audit run (2026-10-01) and disposition its findings. (owner:@pose-maintainers crit:medium review:2026-10-08)
 - [covered: pose-ossf-security-baseline] Extend CI evidence with OpenSSF Scorecard and supply-chain checks.

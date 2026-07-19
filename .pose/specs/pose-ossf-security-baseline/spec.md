@@ -113,6 +113,6 @@ least-privilege permission cleanup (`docs.yml`); release security gate (R3);
 
 ### Follow-ups
 
-- [open] Review the first CI runs of security.yml and scorecard.yml on this branch's PR, triage findings and record the baseline score.
+- [open] Review the first CI runs of security.yml and scorecard.yml on this branch's PR, triage findings and record the baseline score. (owner:@pose-maintainers crit:high review:2026-08-14)
 - [covered: pose-release-signing] Signed release identity on top of this baseline.
 - [covered: pose-slsa-provenance] Build provenance attestation.

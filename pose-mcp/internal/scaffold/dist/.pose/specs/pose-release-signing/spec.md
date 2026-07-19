@@ -107,6 +107,6 @@ artifacts; snapshot rehearsal path; ADR recorded.
 
 ### Follow-ups
 
-- [open] Run a workflow_dispatch snapshot rehearsal after merge and confirm sign + verify pass in the release environment.
+- [open] Run a workflow_dispatch snapshot rehearsal after merge and confirm sign + verify pass in the release environment. (owner:@pose-maintainers crit:high review:2026-08-14)
 - [covered: pose-slsa-provenance] Build provenance attestation on top of signatures.
 - [covered: pose-reproducible-release-verification] Single consumer command verifying signature, provenance, checksum and SBOM together.

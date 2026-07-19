@@ -112,5 +112,5 @@ consumer procedure; ADR.
 
 ### Follow-ups
 
-- [open] Review the first Verify release run on the next published release: confirm all layers pass and record the reproducibility result (MATCH or explained delta).
+- [open] Review the first Verify release run on the next published release: confirm all layers pass and record the reproducibility result (MATCH or explained delta). (owner:@pose-maintainers crit:high review:2026-09-18)
 - [covered: pose-upgrade-compatibility-lab] Broaden executed-target coverage (emulation/VMs) beyond the verifier's native platform.

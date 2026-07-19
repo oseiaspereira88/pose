@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -19,6 +20,14 @@ type followup struct {
 	RawDisposition string `json:"raw_disposition"`
 	Target         string `json:"target"`
 	Text           string `json:"text"`
+	// Ownership metadata (spec pose-followup-ownership-sla): parsed from a
+	// trailing "(owner:@x crit:high review:YYYY-MM-DD by:@y)" group. Owner is
+	// "unowned" when the group is absent (legacy follow-ups).
+	Owner       string `json:"owner"`
+	Criticality string `json:"criticality,omitempty"`
+	Review      string `json:"review,omitempty"`
+	By          string `json:"by,omitempty"`
+	MetaErr     string `json:"meta_error,omitempty"`
 }
 
 type nearDuplicateMember struct {
@@ -35,12 +44,68 @@ type nearDuplicateCandidate struct {
 var followupBullet = regexp.MustCompile(`^\s*-\s+(.*\S)\s*$`)
 var followupDisposition = regexp.MustCompile(`^\[\s*([a-z-]+)(?:\s*:\s*([^\]]+))?\s*\]\s*(.*)$`)
 var followupHTMLComment = regexp.MustCompile(`(?s)<!--.*?-->`)
+var followupMetaGroup = regexp.MustCompile(`\(([^()]*\bowner:[^()]*)\)\s*$`)
+var followupReviewDate = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+var followupCriticality = map[string]bool{"low": true, "medium": true, "high": true}
+
+// parseFollowupMeta extracts the trailing ownership group from a follow-up
+// text. Returns the stripped text and the parsed fields; metaErr describes a
+// malformed group ("" when valid or absent).
+func parseFollowupMeta(text string) (stripped, owner, crit, review, by, metaErr string) {
+	m := followupMetaGroup.FindStringSubmatchIndex(text)
+	if m == nil {
+		return strings.TrimSpace(text), "unowned", "", "", "", ""
+	}
+	group := text[m[2]:m[3]]
+	stripped = strings.TrimSpace(text[:m[0]])
+	owner = "unowned"
+	for _, field := range strings.Fields(group) {
+		key, value, ok := strings.Cut(field, ":")
+		if !ok || value == "" {
+			return stripped, owner, crit, review, by, "malformed ownership field '" + field + "' (use key:value)"
+		}
+		switch key {
+		case "owner":
+			owner = value
+		case "crit":
+			if !followupCriticality[value] {
+				return stripped, owner, crit, review, by, "invalid crit '" + value + "' (use low|medium|high)"
+			}
+			crit = value
+		case "review":
+			if !followupReviewDate.MatchString(value) {
+				return stripped, owner, crit, review, by, "invalid review date '" + value + "' (use YYYY-MM-DD)"
+			}
+			review = value
+		case "by":
+			by = value
+		default:
+			return stripped, owner, crit, review, by, "unknown ownership field '" + key + "' (use owner|crit|review|by)"
+		}
+	}
+	if crit == "" || review == "" {
+		return stripped, owner, crit, review, by, "incomplete ownership group (declare owner, crit and review together)"
+	}
+	return stripped, owner, crit, review, by, ""
+}
 
 func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	all, jsonOut, scopeSet, threshold := false, false, false, 60
+	overdueOnly, failOverdue, ownerFilter := false, false, ""
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
+		case "--overdue":
+			overdueOnly = true
+		case "--fail-overdue":
+			failOverdue = true
+		case "--owner":
+			if i+1 >= len(args) {
+				fmt.Fprintln(stderr, cliText(locale, "Error: --owner requires an alias.", "Erro: --owner exige um alias."))
+				return 2
+			}
+			i++
+			ownerFilter = args[i]
 		case "--open":
 			if scopeSet && all {
 				fmt.Fprintln(stderr, cliText(locale, "Error: --open and --all are mutually exclusive.", "Erro: --open e --all são mutuamente exclusivos."))
@@ -73,15 +138,36 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	allEntries := collectFollowups(root)
+	today := followupToday()
 	openEntries := make([]followup, 0, len(allEntries))
+	overdueEntries := make([]followup, 0)
+	unowned := 0
 	for _, entry := range allEntries {
 		if entry.RawDisposition == "" || entry.RawDisposition == "open" {
 			openEntries = append(openEntries, entry)
+			if entry.Owner == "unowned" {
+				unowned++
+			}
+			if entry.Review != "" && entry.Review < today {
+				overdueEntries = append(overdueEntries, entry)
+			}
 		}
 	}
 	selected := openEntries
 	if all {
 		selected = allEntries
+	}
+	if overdueOnly {
+		selected = overdueEntries
+	}
+	if ownerFilter != "" {
+		filtered := make([]followup, 0, len(selected))
+		for _, entry := range selected {
+			if entry.Owner == ownerFilter {
+				filtered = append(filtered, entry)
+			}
+		}
+		selected = filtered
 	}
 	candidates := clusterFollowups(allEntries, float64(threshold)/100)
 	if jsonOut {
@@ -91,11 +177,15 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		payload := map[string]any{
 			"total": len(allEntries), "open": len(openEntries), "specs": len(specs),
+			"overdue": len(overdueEntries), "unowned": unowned,
 			"similarity_threshold": threshold, "items": selected,
 			"near_duplicate_candidates": candidates,
 		}
 		if err := json.NewEncoder(stdout).Encode(payload); err != nil {
 			fmt.Fprintf(stderr, cliText(locale, "Error: serializing follow-ups: %v\n", "Erro: serializar follow-ups: %v\n"), err)
+			return 1
+		}
+		if failOverdue && len(overdueEntries) > 0 {
 			return 1
 		}
 		return 0
@@ -104,7 +194,10 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 	if all {
 		label = "all follow-ups"
 	}
-	fmt.Fprintf(stdout, "# POSE follow-ups — %s\n# total=%d open=%d specs=%d\n\n", label, len(allEntries), len(openEntries), uniqueFollowupSpecs(allEntries))
+	if overdueOnly {
+		label = "overdue follow-ups"
+	}
+	fmt.Fprintf(stdout, "# POSE follow-ups — %s\n# total=%d open=%d overdue=%d unowned=%d specs=%d\n\n", label, len(allEntries), len(openEntries), len(overdueEntries), unowned, uniqueFollowupSpecs(allEntries))
 	if len(selected) == 0 {
 		fmt.Fprintln(stdout, "(none)")
 	}
@@ -117,7 +210,21 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 		if entry.Target != "" {
 			tag = "[" + disposition + ": " + entry.Target + "]"
 		}
-		fmt.Fprintf(stdout, "- %s %s\n    %s\n", entry.Spec, tag, entry.Text)
+		meta := "owner:" + entry.Owner
+		if entry.Criticality != "" {
+			meta += " crit:" + entry.Criticality
+		}
+		if entry.Review != "" {
+			meta += " review:" + entry.Review
+			if entry.Review < today && (entry.RawDisposition == "" || entry.RawDisposition == "open") {
+				meta += " OVERDUE"
+			}
+		}
+		fmt.Fprintf(stdout, "- %s %s (%s)\n    %s\n", entry.Spec, tag, meta, entry.Text)
+	}
+	if failOverdue && len(overdueEntries) > 0 {
+		fmt.Fprintf(stdout, "\nResultado: FALHA (%d follow-up(s) com review vencido)\n", len(overdueEntries))
+		return 1
 	}
 	if len(candidates) > 0 {
 		fmt.Fprintf(stdout, "\n## Near-duplicate candidates (%d) — lexical similarity >= %d/100\n", len(candidates), threshold)
@@ -165,12 +272,27 @@ func collectFollowups(root string) []followup {
 			if parsed := followupDisposition.FindStringSubmatch(text); parsed != nil {
 				disposition, target, text = parsed[1], strings.TrimSpace(parsed[2]), strings.TrimSpace(parsed[3])
 			}
-			if text != "" {
-				entries = append(entries, followup{filepath.Base(filepath.Dir(path)), status, disposition, target, text})
+			stripped, owner, crit, review, by, metaErr := parseFollowupMeta(text)
+			if stripped != "" {
+				entries = append(entries, followup{
+					Spec: filepath.Base(filepath.Dir(path)), SpecStatus: status,
+					RawDisposition: disposition, Target: target, Text: stripped,
+					Owner: owner, Criticality: crit, Review: review, By: by, MetaErr: metaErr,
+				})
 			}
 		}
 	}
 	return entries
+}
+
+// followupToday returns today's UTC date (YYYY-MM-DD) for overdue math.
+// Test override: POSE_FOLLOWUP_TODAY (dogfood determinism, never documented
+// as a user surface).
+func followupToday() string {
+	if v := os.Getenv("POSE_FOLLOWUP_TODAY"); followupReviewDate.MatchString(v) {
+		return v
+	}
+	return time.Now().UTC().Format("2006-01-02")
 }
 
 func frontmatterStatus(text string) string {

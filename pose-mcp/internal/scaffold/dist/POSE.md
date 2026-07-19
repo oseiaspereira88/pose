@@ -126,6 +126,16 @@ priority:                # integer >= 0 (lower = higher priority)
   `[spawned: <slug>]`, `[covered: <slug>]`, `[duplicate: <slug>]`, `[done]`,
   `[wont-do: <reason>]`. That answers, per follow-up, whether it seeded a new
   spec, is already covered elsewhere, was triaged before, or was discarded.
+  Open items additionally declare ownership and a triage service level with a
+  trailing `(owner:@alias crit:low|medium|high review:YYYY-MM-DD)` group —
+  the SLA is a triage promise, not an implementation deadline. Legacy items
+  without the group are reported as `unowned` (warning at closeout).
+- **Requirement trace:** at closeout, the `Validation > Requirement trace`
+  subsection maps every declared `R<N>` to its outcome — `[satisfied]` with
+  evidence (free text plus structured refs `check:`, `test:`, `report:`,
+  `commit:`), `[waived: <reason>]` or `[withdrawn: <reason>]`. Orphaned or
+  missing IDs fail `lint-spec --strict`; the MCP tool
+  `pose_requirement_trace` exposes the bidirectional projection.
 
 Closeout is an explicit step (skill [`pose-spec-closeout`](.agents/skills/pose-spec-closeout/SKILL.md)):
 set `status: done`, fill `completed_at`, triage every follow-up and pass the
@@ -201,7 +211,7 @@ pose hooks <install|uninstall|status> [--force]
 - `knowledge-check` — double gate: (1) frontmatter schema of each knowledge artifact, and (2) overdue backlog against `--max-overdue`. In `--strict` both gates exit 1.
 - `recurrence-check` — scans [`history JSONL`](.pose/reports/) for `task_slug`s with `≥ --threshold` occurrences in `--window-days` (default 3 in 14d). Ignores `outcome=pass` by default. When flagged, points to [`recurrence-escalation.md`](.pose/workflows/recurrence-escalation.md).
 - `lint-spec` — verifies each `spec.md` section has real content, not placeholders. **`--ready-check`** applies the **Definition of Ready** (ENTRY gate): Intent/Requirements/Technical Plan filled, acceptance criteria with stable IDs (`- R<N>:`) and syntactically valid `depends_on` — without requiring Validation/Final Report. `check` applies the ready-check automatically on the `→ in-progress` transition. **Lifecycle gate:** `status: done` requires `completed_at` and a valid disposition on every follow-up; for `spawned`/`covered`/`duplicate` the target must be an **existing** spec (and not itself).
-- `followups` — aggregates all specs' follow-ups, derives the live (`--open`) or full (`--all`) backlog and proposes near-duplicate candidates by deterministic lexical similarity (stdlib only; threshold via `--similarity 0..100`, default 60). Always exit 0; enforcement belongs to `lint-spec`.
+- `followups` — aggregates all specs' follow-ups, derives the live (`--open`) or full (`--all`) backlog, projects ownership (`--owner <alias>`) and expired reviews (`--overdue`), and proposes near-duplicate candidates by deterministic lexical similarity (stdlib only; threshold via `--similarity 0..100`, default 60). Exit 0 by default; `--fail-overdue` turns expired reviews into a blocking, risk-based policy gate.
 - `history-check` — verifies every `.jsonl` under `reports/history/` is git-tracked. Strict blocks; tolerant warns.
 - `suggest` — reads [`task-map.json`](.pose/indexes/task-map.json) and prints the canonical trail (workflow + skill + rules + spec/ADR + knowledge) for a task type. `--domain` adds domain rules; `--path` infers the domain via [`repo-map.json`](.pose/indexes/repo-map.json); `--json` for agents.
 - `stats` — aggregates history JSONL outcomes by workflow, task or context. `--since-days N`; `--json`.

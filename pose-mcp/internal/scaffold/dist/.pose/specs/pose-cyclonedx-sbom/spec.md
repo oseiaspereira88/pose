@@ -108,5 +108,5 @@ consumer guidance.
 
 ### Follow-ups
 
-- [open] Inspect the first snapshot rehearsal's SBOMs: confirm syft resolves the replaced `mcp-enforce` module path and review detected licenses against NOTICE.
+- [open] Inspect the first snapshot rehearsal's SBOMs: confirm syft resolves the replaced `mcp-enforce` module path and review detected licenses against NOTICE. (owner:@pose-maintainers crit:medium review:2026-08-14)
 - [covered: pose-slsa-provenance] Attest SBOM subjects in build provenance.

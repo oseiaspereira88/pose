@@ -107,5 +107,5 @@ stated; consumer verification command pinned to repo + signer workflow in
 
 ### Follow-ups
 
-- [open] After the first tagged release, confirm `gh attestation verify` passes for all six archives and checksums.txt, and record the evidence.
+- [open] After the first tagged release, confirm `gh attestation verify` passes for all six archives and checksums.txt, and record the evidence. (owner:@pose-maintainers crit:high review:2026-09-18)
 - [covered: pose-reproducible-release-verification] Consumer-side verification of provenance together with all other layers.

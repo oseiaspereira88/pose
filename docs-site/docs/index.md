@@ -22,7 +22,7 @@ spec → execution → evidence → follow-ups → recurrence → knowledge
 | **Recurrence detection** | `pose recurrence-check` mines that history for repeated failures and escalates them into systemic fixes instead of endless re-fixing. |
 | **Operational memory** | `.pose/knowledge/` captures handoffs and decision logs with TTL governance — context survives between executions and agents. |
 | **Portfolio graph** | Specs declare dependencies and priorities, organized into governed roadmaps with milestone DAGs, validated on every `pose check`. |
-| **Native MCP surface** | 18 governance tools (read + deterministic gates) expose specs, readiness, roadmaps, knowledge, reports, insights and changelogs to MCP-capable agents, plus 3 optional Conductor run reporters. |
+| **Native MCP surface** | 19 governance tools (read + deterministic gates) expose specs, readiness, requirement traces, roadmaps, knowledge, reports, insights and changelogs to MCP-capable agents, plus 3 optional Conductor run reporters. |
 
 ## How POSE compares
 

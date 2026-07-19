@@ -64,6 +64,9 @@
     "pose_list_specs": {
       "risk": "read"
     },
+    "pose_requirement_trace": {
+      "risk": "read"
+    },
     "pose_spec_readiness": {
       "risk": "read"
     },
@@ -91,6 +94,26 @@
         "type": "object"
       },
       "name": "pose_get_spec"
+    },
+    {
+      "description": "Bidirectional requirement-to-evidence trace of one POSE spec: every declared R-ID with its trace disposition (satisfied, waived, withdrawn), evidence text and structured refs (check:, test:, report:, commit:), plus the reverse evidence→requirements index, missing and orphaned entries.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Spec slug whose requirement trace to project",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_requirement_trace"
     },
     {
       "description": "List every POSE spec of the project with its lifecycle frontmatter (no body). Optionally filter by status: draft, in-progress, done, blocked, superseded or abandoned.",

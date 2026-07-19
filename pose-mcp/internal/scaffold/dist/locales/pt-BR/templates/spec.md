@@ -143,6 +143,13 @@ priority:            # inteiro >= 0 (menor = mais prioritário); preferência de
 - Falhas:
 - Avisos:
 
+### Requirement trace
+<!-- No closeout, um bullet por R-ID declarado (spec pose-requirement-evidence-traceability):
+- R<N> [satisfied] <caso de verificação; refs estruturadas: check:<nome> test:<id> report:<arquivo> commit:<sha>>
+- R<N> [waived: <motivo>]
+- R<N> [withdrawn: <motivo>]
+IDs ausentes ou órfãos falham `pose lint-spec --strict` em specs done. -->
+
 ### Gaps conhecidos
 <!-- Limitações temporárias, checks bloqueados, validações postergadas. -->
 

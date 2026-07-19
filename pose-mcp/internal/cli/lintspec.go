@@ -12,6 +12,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	posepkg "github.com/harne8/pose-mcp/internal/pose"
 )
 
 var (
@@ -403,6 +405,37 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		ridFailures++
 	}
 
+	// Requirement-to-evidence trace (spec pose-requirement-evidence-traceability).
+	// Malformed entries and orphans always fail; full coverage is enforced at
+	// closeout when the section exists. Legacy done specs without the section
+	// get a visible warning (additive migration — see the traceability ADR).
+	trace := posepkg.ParseRequirementTrace(text)
+	traceFailures := 0
+	for _, msg := range trace.Errors {
+		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: requirement trace: %s\n", "[ERRO] %s: requirement trace: %s\n"), slug, msg)
+		traceFailures++
+	}
+	for _, id := range trace.Orphans {
+		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: requirement trace: %s is traced but not declared in Requirements\n", "[ERRO] %s: requirement trace: %s rastreado mas não declarado em Requirements\n"), slug, id)
+		traceFailures++
+	}
+	traceEntries := 0
+	for _, r := range trace.Requirements {
+		if r.Entry != nil {
+			traceEntries++
+		}
+	}
+	if specStatus == "done" {
+		if trace.HasSection {
+			for _, id := range trace.Missing {
+				fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: requirement trace: %s has no trace entry (declare satisfied, waived or withdrawn)\n", "[ERRO] %s: requirement trace: %s sem entrada de trace (declare satisfied, waived ou withdrawn)\n"), slug, id)
+				traceFailures++
+			}
+		} else if len(trace.Requirements) > 0 {
+			fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: done without a '### Requirement trace' subsection in Validation (legacy spec; new closeouts must trace every R-ID)\n", "[AVISO] %s: done sem subseção '### Requirement trace' em Validation (spec legada; novos closeouts devem rastrear cada R-ID)\n"), slug)
+		}
+	}
+
 	followups := extractFollowups(sections["Final Report"])
 	followupsOpen := 0
 	knownSlugs := collectSpecSlugs(specsDir)
@@ -423,6 +456,17 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 				lifecycle++
 			} else if disposition == "open" {
 				followupsOpen++
+				// Ownership gate (spec pose-followup-ownership-sla): open
+				// residual work on a done spec needs an owner, criticality
+				// and review date. Legacy entries stay visible as unowned
+				// warnings; malformed metadata is an error.
+				_, owner, _, _, _, metaErr := parseFollowupMeta(content)
+				if metaErr != "" {
+					fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: open follow-up ownership: %s\n", "[ERRO] %s: ownership de follow-up aberto: %s\n"), slug, metaErr)
+					lifecycle++
+				} else if owner == "unowned" {
+					fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: open follow-up is unowned (declare '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)')\n", "[AVISO] %s: follow-up aberto sem dono (declare '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)')\n"), slug)
+				}
 			}
 		}
 	} else {
@@ -446,8 +490,12 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	fmt.Fprintf(stdout, "spec.lifecycle.failures=%d\n", lifecycle)
 	fmt.Fprintf(stdout, "spec.requirements.ids=%d\n", len(parseRequirementIDs(sections["Requirements"])))
 	fmt.Fprintf(stdout, "spec.requirements.duplicate_failures=%d\n", ridFailures)
+	fmt.Fprintf(stdout, "spec.trace.present=%t\n", trace.HasSection)
+	fmt.Fprintf(stdout, "spec.trace.entries=%d\n", traceEntries)
+	fmt.Fprintf(stdout, "spec.trace.missing=%d\n", len(trace.Missing))
+	fmt.Fprintf(stdout, "spec.trace.failures=%d\n", traceFailures)
 
-	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 {
+	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 || traceFailures > 0 {
 		return 1
 	}
 	return 0

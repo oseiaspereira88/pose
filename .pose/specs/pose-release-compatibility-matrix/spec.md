@@ -112,6 +112,6 @@ policy section.
 
 ### Follow-ups
 
-- [open] After the first post-0.9.0 release, add 0.9.0 to supported_upgrades with its checksums.txt SHA-256 pin and verify the gate exercises it.
+- [open] After the first post-0.9.0 release, add 0.9.0 to supported_upgrades with its checksums.txt SHA-256 pin and verify the gate exercises it. (owner:@pose-maintainers crit:medium review:2026-10-01)
 - [covered: pose-release-signing] Sign the compatibility artifacts with the release.
 - [covered: pose-upgrade-compatibility-lab] Broaden upgrade coverage across OS/arch and released-version pairs.

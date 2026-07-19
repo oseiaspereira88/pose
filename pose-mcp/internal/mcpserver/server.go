@@ -487,6 +487,19 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_get_spec: required argument %q missing", "slug")
 		}
 		return store.GetSpec(a.Slug)
+	case "pose_requirement_trace":
+		var a struct {
+			Slug string `json:"slug"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
+			return nil, fmt.Errorf("pose_requirement_trace: required argument %q missing", "slug")
+		}
+		spec, err := store.GetSpec(a.Slug)
+		if err != nil {
+			return nil, err
+		}
+		trace := pose.ParseRequirementTrace(spec.Body)
+		return map[string]any{"slug": spec.Slug, "status": spec.Status, "trace": trace}, nil
 	case "pose_list_specs":
 		var a struct {
 			Status string `json:"status"`
@@ -744,6 +757,27 @@ func toolDefinitions() []map[string]any {
 					"slug": map[string]any{
 						"type":        "string",
 						"description": "Spec slug, e.g. \"semql-entity-aliases\"",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"slug"},
+			},
+		},
+		{
+			"name": "pose_requirement_trace",
+			"description": "Bidirectional requirement-to-evidence trace of one POSE spec: every " +
+				"declared R-ID with its trace disposition (satisfied, waived, withdrawn), " +
+				"evidence text and structured refs (check:, test:, report:, commit:), plus the " +
+				"reverse evidence→requirements index, missing and orphaned entries.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"slug": map[string]any{
+						"type":        "string",
+						"description": "Spec slug whose requirement trace to project",
 					},
 					"project_id": map[string]any{
 						"type":        "string",

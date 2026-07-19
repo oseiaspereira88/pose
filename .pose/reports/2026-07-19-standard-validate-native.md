@@ -14,29 +14,54 @@
 - _Not provided_
 
 ## Files Changed
-- github/workflows/release.yml
-- .goreleaser.yaml
-- .pose/knowledge/2026-07-19-handoff-contract-baseline-handoff.md
-- .pose/roadmaps/supply-chain-trust.md
+- pose/specs/pose-cyclonedx-sbom/spec.md
+- .pose/specs/pose-followup-ownership-sla/spec.md
+- .pose/specs/pose-ossf-security-baseline/spec.md
+- .pose/specs/pose-release-compatibility-matrix/spec.md
+- .pose/specs/pose-release-signing/spec.md
 - .pose/specs/pose-reproducible-release-verification/spec.md
+- .pose/specs/pose-requirement-evidence-traceability/spec.md
 - .pose/specs/pose-slsa-provenance/spec.md
-- SECURITY.md
-- pose-mcp/internal/scaffold/dist/.pose/knowledge/2026-07-19-handoff-contract-baseline-handoff.md
-- pose-mcp/internal/scaffold/dist/.pose/roadmaps/supply-chain-trust.md
+- .pose/specs/pose-standalone-dogfood/spec.md
+- .pose/templates/spec.md
+- POSE.md
+- README.md
+- docs-site/docs/concepts.md
+- docs-site/docs/index.md
+- docs-site/docs/mcp.md
+- locales/pt-BR/templates/spec.md
+- pose-mcp/internal/cli/followups.go
+- pose-mcp/internal/cli/lintspec.go
+- pose-mcp/internal/mcpserver/catalog.go
+- pose-mcp/internal/mcpserver/server.go
+- pose-mcp/internal/mcpserver/server_test.go
+- pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-cyclonedx-sbom/spec.md
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-followup-ownership-sla/spec.md
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-ossf-security-baseline/spec.md
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-compatibility-matrix/spec.md
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-signing/spec.md
 - pose-mcp/internal/scaffold/dist/.pose/specs/pose-reproducible-release-verification/spec.md
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-requirement-evidence-traceability/spec.md
 - pose-mcp/internal/scaffold/dist/.pose/specs/pose-slsa-provenance/spec.md
-- pose-mcp/internal/scaffold/dist/SECURITY.md
-- pose-mcp/internal/version/contract_test.go
-- .github/workflows/verify-release.yml
-- .pose/adr/2026-07-19-independent-release-verification.md
-- .pose/adr/2026-07-19-slsa-build-l2-provenance-claim.md
-- .pose/changelogs/unreleased/pose-reproducible-release-verification.md
-- .pose/changelogs/unreleased/pose-slsa-provenance.md
-- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-independent-release-verification.md
-- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-slsa-build-l2-provenance-claim.md
-- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-reproducible-release-verification.md
-- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-slsa-provenance.md
-- tests/release/independent-verify.sh
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-standalone-dogfood/spec.md
+- pose-mcp/internal/scaffold/dist/.pose/templates/spec.md
+- pose-mcp/internal/scaffold/dist/POSE.md
+- pose-mcp/internal/scaffold/dist/README.md
+- pose-mcp/internal/scaffold/dist/locales/pt-BR/templates/spec.md
+- .pose/adr/2026-07-19-follow-up-ownership-and-triage-sla.md
+- .pose/adr/2026-07-19-requirement-trace-contract.md
+- .pose/changelogs/unreleased/pose-followup-ownership-sla.md
+- .pose/changelogs/unreleased/pose-requirement-evidence-traceability.md
+- pose-mcp/internal/cli/followups_owner_test.go
+- pose-mcp/internal/cli/trace_lint_test.go
+- pose-mcp/internal/mcpserver/trace_tool_test.go
+- pose-mcp/internal/pose/trace.go
+- pose-mcp/internal/pose/trace_test.go
+- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-follow-up-ownership-and-triage-sla.md
+- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-requirement-trace-contract.md
+- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-followup-ownership-sla.md
+- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-requirement-evidence-traceability.md
 
 ## Validation Commands
 - _Fill manually_
@@ -45,14 +70,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-07-19T06:53:32Z
+- Generated at (UTC): 2026-07-19T09:15:37Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 9
+- Sequence for task/spec: 10
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-07-19T06:49:03Z
+- Previous execution: 2026-07-19T06:53:32Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
