@@ -16,22 +16,27 @@
 ## Files Changed
 - github/workflows/release.yml
 - .goreleaser.yaml
-- .pose/specs/pose-cyclonedx-sbom/spec.md
-- .pose/specs/pose-release-signing/spec.md
+- .pose/knowledge/2026-07-19-handoff-contract-baseline-handoff.md
+- .pose/roadmaps/supply-chain-trust.md
+- .pose/specs/pose-reproducible-release-verification/spec.md
+- .pose/specs/pose-slsa-provenance/spec.md
 - SECURITY.md
-- pose-mcp/internal/scaffold/dist/.pose/specs/pose-cyclonedx-sbom/spec.md
-- pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-signing/spec.md
+- pose-mcp/internal/scaffold/dist/.pose/knowledge/2026-07-19-handoff-contract-baseline-handoff.md
+- pose-mcp/internal/scaffold/dist/.pose/roadmaps/supply-chain-trust.md
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-reproducible-release-verification/spec.md
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-slsa-provenance/spec.md
 - pose-mcp/internal/scaffold/dist/SECURITY.md
 - pose-mcp/internal/version/contract_test.go
-- .pose/adr/2026-07-19-cyclonedx-sbom-publication.md
-- .pose/adr/2026-07-19-keyless-release-signing-identity.md
-- .pose/changelogs/unreleased/pose-cyclonedx-sbom.md
-- .pose/changelogs/unreleased/pose-release-signing.md
-- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-cyclonedx-sbom-publication.md
-- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-keyless-release-signing-identity.md
-- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-cyclonedx-sbom.md
-- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-release-signing.md
-- tests/release/verify.sh
+- .github/workflows/verify-release.yml
+- .pose/adr/2026-07-19-independent-release-verification.md
+- .pose/adr/2026-07-19-slsa-build-l2-provenance-claim.md
+- .pose/changelogs/unreleased/pose-reproducible-release-verification.md
+- .pose/changelogs/unreleased/pose-slsa-provenance.md
+- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-independent-release-verification.md
+- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-slsa-build-l2-provenance-claim.md
+- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-reproducible-release-verification.md
+- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-slsa-provenance.md
+- tests/release/independent-verify.sh
 
 ## Validation Commands
 - _Fill manually_
@@ -40,14 +45,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-07-19T06:49:03Z
+- Generated at (UTC): 2026-07-19T06:53:32Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 8
+- Sequence for task/spec: 9
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-07-19T06:00:56Z
+- Previous execution: 2026-07-19T06:49:03Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

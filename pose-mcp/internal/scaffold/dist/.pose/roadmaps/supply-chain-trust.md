@@ -1,6 +1,6 @@
 ---
 slug: supply-chain-trust
-status: active
+status: done
 created_at: 2026-07-18
 depends_on:
 ---

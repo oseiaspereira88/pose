@@ -178,6 +178,62 @@ func TestArtifactIdentityContract(t *testing.T) {
 	}
 }
 
+// specs pose-slsa-provenance / pose-reproducible-release-verification: every
+// archive is a provenance subject, the build is reproducible by
+// configuration, and an independent consumer-side workflow verifies
+// signature, provenance, checksum and SBOM before executing anything.
+func TestAttestedReleaseContract(t *testing.T) {
+	rel, err := os.ReadFile("../../../.github/workflows/release.yml")
+	if err != nil {
+		t.Fatalf("reading release.yml: %v", err)
+	}
+	rw := string(rel)
+	for _, want := range []string{
+		"attestations: write",
+		"actions/attest-build-provenance@",
+		"dist-release/*.tar.gz",
+		"dist-release/checksums.txt",
+	} {
+		if !strings.Contains(rw, want) {
+			t.Errorf("release.yml missing %q (provenance contract)", want)
+		}
+	}
+	gorel, _ := os.ReadFile("../../../.goreleaser.yaml")
+	for _, want := range []string{
+		"flags: [-trimpath]",
+		`mod_timestamp: "{{ .CommitTimestamp }}"`,
+	} {
+		if !strings.Contains(string(gorel), want) {
+			t.Errorf(".goreleaser.yaml missing %q (reproducible build inputs)", want)
+		}
+	}
+	ver, err := os.ReadFile("../../../.github/workflows/verify-release.yml")
+	if err != nil {
+		t.Fatalf("reading verify-release.yml (independent verifier): %v", err)
+	}
+	vw := string(ver)
+	for _, want := range []string{
+		"release:",
+		"workflow_dispatch:",
+		"cache: false",
+		"tests/release/independent-verify.sh",
+		"permissions: { contents: read }",
+	} {
+		if !strings.Contains(vw, want) {
+			t.Errorf("verify-release.yml missing %q (verifier isolation contract)", want)
+		}
+	}
+	sec, _ := os.ReadFile("../../../SECURITY.md")
+	for _, want := range []string{
+		"gh attestation verify",
+		"--signer-workflow",
+	} {
+		if !strings.Contains(string(sec), want) {
+			t.Errorf("SECURITY.md missing %q (provenance verification instructions)", want)
+		}
+	}
+}
+
 // R1/R3: the release pipeline stamps the authoritative symbol — and only it.
 func TestReleasePipelineStampsAuthority(t *testing.T) {
 	raw, err := os.ReadFile("../../../.goreleaser.yaml")

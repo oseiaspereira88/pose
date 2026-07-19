@@ -3,8 +3,9 @@ on:
   push:
     tags: ["v*"]
   workflow_dispatch:
-# id-token: write enables keyless Sigstore signing (spec pose-release-signing)
-permissions: { contents: write, id-token: write }
+# id-token: write enables keyless Sigstore signing (spec pose-release-signing);
+# attestations: write publishes SLSA build provenance (spec pose-slsa-provenance)
+permissions: { contents: write, id-token: write, attestations: write }
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -50,6 +51,16 @@ jobs:
           args: ${{ startsWith(github.ref, 'refs/tags/') && 'release --clean --release-notes /tmp/notes.md' || 'release --clean --snapshot --skip=publish' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attest build provenance (spec pose-slsa-provenance)
+        # Every archive and the checksum manifest become provenance subjects
+        # identified by digest (SLSA v1 predicate, Build L2 claim — see ADR).
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            dist-release/*.tar.gz
+            dist-release/*.zip
+            dist-release/checksums.txt
       - name: Verify artifact identity (specs pose-release-signing, pose-cyclonedx-sbom)
         # R3: unsigned artifacts, identity mismatch or an incomplete SBOM fail
         # the release run. Runs on tag releases and snapshot rehearsals alike.

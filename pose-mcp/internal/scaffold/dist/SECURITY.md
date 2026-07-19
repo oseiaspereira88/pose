@@ -61,6 +61,24 @@ licenses. An SBOM is an inventory, not proof of absence of vulnerabilities.
 release workflow runs the same script and fails on unsigned artifacts,
 identity mismatch or an incomplete SBOM.
 
+Every archive and the checksum manifest is additionally a **SLSA build
+provenance** subject, attested from the release workflow (SLSA v1 predicate;
+we claim Build L2 — hosted builder with signed provenance — and explicitly do
+not claim L3 build isolation). Verify provenance with:
+
+```bash
+gh attestation verify pose_0.9.0_linux_amd64.tar.gz \
+  --repo oseiaspereira88/pose \
+  --signer-workflow oseiaspereira88/pose/.github/workflows/release.yml
+```
+
+A modified artifact, a different source repository or an untrusted builder
+fails this check. After every release, the independent `Verify release`
+workflow re-downloads the published assets in a clean environment, verifies
+signature, provenance, checksum and SBOM before executing anything, and
+publishes a verification report including a controlled-rebuild
+reproducibility comparison (`tests/release/independent-verify.sh`).
+
 ## Scope notes
 
 - The POSE engine is designed to run **offline**: gates make no network calls.

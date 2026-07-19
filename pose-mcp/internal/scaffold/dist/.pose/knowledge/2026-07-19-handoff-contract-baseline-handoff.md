@@ -16,13 +16,14 @@ source_refs:
 
 ## Contexto
 
-Roadmap `product-integrity` (1 de 7 do portfólio) **concluído em 2026-07-19**:
-os 3 milestones e as 5 specs (`pose-version-contract`,
-`pose-standalone-dogfood`, `pose-mcp-catalog-conformance`,
-`pose-public-install-contract`, `pose-release-compatibility-matrix`) fechadas
-com evidência; roadmap marcado `done`. Próximo do portfólio: roadmap 2
-`supply-chain-trust` (janela 2026-08-03 → 2026-09-18), que depende dos
-contratos de versão/install agora estabelecidos.
+Roadmaps 1 (`product-integrity`) e 2 (`supply-chain-trust`) do portfólio
+**concluídos em 2026-07-19** — 10 specs fechadas com evidência, ambos os
+roadmaps marcados `done`. Cadeia de release agora: versão autoritativa →
+catálogo/install/compatibilidade testados → CI endurecido (CodeQL,
+govulncheck, gitleaks, dependency review, Scorecard, pinning) → assinatura
+keyless + SBOM CycloneDX → proveniência SLSA L2 → verificador independente
+pós-release. Próximo do portfólio: roadmap 3 `governance-traceability`
+(janela 2026-08-24 → 2026-11-06).
 
 ## Estado atual
 
@@ -43,15 +44,19 @@ contratos de versão/install agora estabelecidos.
 
 ## Próximos checks
 
-- Pós-merge: confirmar jobs `governance` e (no primeiro release) o gate
-  `tests/release/compat.sh` verdes; artefatos `pose-governance-evidence` e
-  `pose-compatibility-report` retidos.
-- Após o primeiro release pós-0.9.0: adicionar 0.9.0 a `supported_upgrades`
-  no `compatibility.json` com o pin SHA-256 do checksums.txt (follow-up
-  aberto na spec `pose-release-compatibility-matrix`).
-- Roadmap 2 `supply-chain-trust`: começar por `pose-release-signing` e
-  `pose-cyclonedx-sbom`; o gate de compatibilidade e os contract tests são a
-  base para atestar o que será assinado.
+- Pós-merge: revisar os primeiros runs de `security.yml` e `scorecard.yml`
+  (baseline + triagem de findings — follow-up aberto em
+  `pose-ossf-security-baseline`); confirmar job `governance` verde.
+- Antes do primeiro release: rodar rehearsal `workflow_dispatch` do release
+  (assina, gera SBOM e verifica sem publicar — follow-ups abertos em
+  `pose-release-signing` e `pose-cyclonedx-sbom`).
+- No primeiro release publicado: confirmar `gh attestation verify` e o run do
+  workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
+  `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
+  `supported_upgrades` no `compatibility.json` com pin SHA-256.
+- Roadmap 3 `governance-traceability`: specs de rastreabilidade
+  requisito→evidência, amendment history, followup ownership/SLA, recurrence
+  effectiveness e knowledge consumption.
 
 ## Riscos
 

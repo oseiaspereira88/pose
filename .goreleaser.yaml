@@ -22,6 +22,11 @@ builds:
     env: [CGO_ENABLED=0]
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]
+    # Reproducibility (spec pose-reproducible-release-verification): strip
+    # host paths and pin the embedded timestamp to the commit so an
+    # independent rebuild with the same toolchain yields the same binary.
+    flags: [-trimpath]
+    mod_timestamp: "{{ .CommitTimestamp }}"
     ldflags:
       - -s -w
       - -X github.com/harne8/pose-mcp/internal/version.Version={{ .Version }}
