@@ -20,19 +20,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
-        # Go build cache disabled here only: CodeQL's manual build-mode
-        # traces the real compiler invocations, and a warm module/build
-        # cache can make `go build` a no-op with nothing to trace,
-        # producing "CodeQL could not process any code written in Go."
         with: { go-version: "1.26.5", cache: false }
       - uses: github/codeql-action/init@v3
         with:
           languages: go
-          build-mode: manual
-      - name: Build for analysis
-        run: |
-          go -C pose-mcp build ./...
-          go -C mcp-enforce build ./...
+          # autobuild (not manual): manual build-mode relies on tracing a
+          # `go build` invocation this workflow runs itself, which failed
+          # ("CodeQL could not process any code written in Go") even with
+          # the module/build cache disabled — the real compiler
+          # invocation was still not observed. autobuild lets the
+          # codeql-action drive the build directly through its own
+          # tracer, which is the mode GitHub recommends for Go.
+          build-mode: autobuild
       - uses: github/codeql-action/analyze@v3
         with:
           category: codeql-go
