@@ -35,6 +35,27 @@ type checkResult struct {
 	ExitCode        *int              `json:"exit_code,omitempty"`
 	DurationSeconds float64           `json:"duration_seconds"`
 	Output          string            `json:"output,omitempty"` // bounded tail, redacted
+	// Runtime guardrails (spec pose-validation-runtime-guardrails), additive:
+	LimitState string `json:"limit_state,omitempty"` // timeout | output-limit
+	Isolation  string `json:"isolation,omitempty"`   // required = delegated to Harness
+}
+
+// outputLimiter cancels the check when total output exceeds the limit —
+// an explicit guardrail state, distinct from the bounded capture tail.
+type outputLimiter struct {
+	limit    int
+	written  int
+	exceeded bool
+	cancel   func()
+}
+
+func (l *outputLimiter) Write(p []byte) (int, error) {
+	l.written += len(p)
+	if !l.exceeded && l.written > l.limit {
+		l.exceeded = true
+		l.cancel()
+	}
+	return len(p), nil
 }
 
 type validationRunResult struct {
@@ -114,6 +135,38 @@ func (b *tailBuffer) String() string {
 		s = "…" + s
 	}
 	return s
+}
+
+// --- Harness execution plan -------------------------------------------------
+// Remote plans bind project, spec, check plan, input digests and an approval
+// slot (spec pose-validation-runtime-guardrails R3). The CLI only authors the
+// envelope; approval identity is stamped by the control plane (Conductor)
+// with an expiring execution identity before the Harness may run it. The
+// local boundary never executes isolation-required checks.
+
+type executionPlan struct {
+	SchemaVersion int           `json:"schema_version"`
+	GeneratedAt   string        `json:"generated_at"`
+	ProjectID     string        `json:"project_id"`
+	Spec          string        `json:"spec,omitempty"`
+	GitHead       string        `json:"git_head,omitempty"`
+	MatrixSHA256  string        `json:"matrix_sha256"`
+	Checks        []checkResult `json:"checks"` // isolation-required only
+	Approval      planApproval  `json:"approval"`
+}
+
+type planApproval struct {
+	Required bool   `json:"required"`
+	Identity string `json:"identity,omitempty"` // expiring execution identity (ADR-007), stamped externally
+	Expires  string `json:"expires,omitempty"`
+}
+
+func writeExecutionPlan(path string, plan executionPlan) error {
+	payload, err := json.MarshalIndent(plan, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, append(payload, '\n'), 0o644)
 }
 
 func writeValidationJSON(path string, run validationRunResult) error {

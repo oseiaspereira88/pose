@@ -18,18 +18,18 @@ source_refs:
 
 Roadmaps 1 (`product-integrity`), 2 (`supply-chain-trust`) e 3
 (`governance-traceability`) do portfólio **concluídos em 2026-07-19** — 15
-specs fechadas com evidência, os três roadmaps marcados `done`. Além da
-cadeia de release confiável (versão autoritativa → catálogo/install/
-compatibilidade → CI endurecido → assinatura keyless + SBOM → proveniência
-SLSA L2 → verificador independente), o loop de governança agora fecha por
-inteiro: requirement trace (R-ID → evidência, tool `pose_requirement_trace`),
-ownership/SLA de follow-ups (`--overdue`/`--fail-overdue`), amendment history
-append-only (`pose amend`, tool `pose_spec_amendments`), consumo de knowledge
-(`knowledge:` refs, `knowledge-usage`, `knowledge-suggest`) e efetividade de
-recorrência (`recurrence-effect`, telemetria opcional em `pose report`).
-Próximo do portfólio: roadmap 4 `validation-platform` (janela 2026-08-24 →
-2026-11-20; saída estruturada, guardrails de runtime, changed-scope, stacks e
-monorepo).
+specs fechadas com evidência, os três roadmaps marcados `done`. Roadmap 4
+(`validation-platform`): milestones 1 (`result-contract`) e 2
+(`safe-selection`) também concluídos — 3 specs. Além da cadeia de release
+confiável e do loop de governança fechado (ver seções anteriores deste
+handoff), `pose validate` agora emite resultado estruturado versionado
+(`--json/--junit/--sarif`), aplica guardrails de runtime (timeout, ceiling de
+output, delegação de checks `isolation: required` ao Harness via
+`--emit-plan`) e seleciona escopo alterado de forma explicável
+(`--changed-from/--changed-to`, `--explain`). Falta o milestone 3
+`ecosystem-breadth` (`pose-stack-catalog-expansion`,
+`pose-monorepo-validation-recipes`, janela 2026-10-19 → 2026-11-20) para
+fechar o roadmap 4.
 
 ## Estado atual
 
@@ -60,9 +60,13 @@ monorepo).
   workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
   `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
   `supported_upgrades` no `compatibility.json` com pin SHA-256.
-- Roadmap 3 `governance-traceability`: specs de rastreabilidade
-  requisito→evidência, amendment history, followup ownership/SLA, recurrence
-  effectiveness e knowledge consumption.
+- Roadmap 4, milestone `ecosystem-breadth`: expandir stacks baseline
+  (Python/.NET) e receitas de monorepo, provando fixtures poliglotas sob o
+  mesmo contrato de resultado (`pose validate --json/--junit/--sarif`) já
+  entregue.
+- `dependsOn` em `module-metadata.json` ainda não foi semeado para os módulos
+  reais deste repo (`pose-mcp`, `mcp-enforce`) — follow-up aberto em
+  `pose-changed-scope-validation`.
 
 ## Riscos
 
