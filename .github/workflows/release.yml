@@ -65,3 +65,22 @@ jobs:
         # R3: unsigned artifacts, identity mismatch or an incomplete SBOM fail
         # the release run. Runs on tag releases and snapshot rehearsals alike.
         run: bash tests/release/verify.sh dist-release
+      - name: Package-manager manifests (spec pose-package-manager-distribution)
+        # R2: generated only here, after every prior verification step
+        # (compatibility gate, security gate, signing/SBOM identity check)
+        # has already succeeded — a failure anywhere above halts the job
+        # before this step runs, so channel metadata never advances on a
+        # release that failed verification.
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          go run ./pose-mcp/cmd/pose release-package-manifests \
+            --version "${GITHUB_REF_NAME#v}" \
+            --checksums dist-release/checksums.txt \
+            --out package-manifests
+      - name: Retain package-manager manifests
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: pose-package-manifests
+          path: package-manifests
+          retention-days: 400

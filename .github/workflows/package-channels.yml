@@ -1,0 +1,55 @@
+# Clean-host package-manager install verification (spec
+# pose-package-manager-distribution, R3): installs the real published
+# release through the generated Homebrew formula and WinGet manifest on
+# unmodified macOS and Windows runners — no shared state with the release
+# job, no local build shortcuts — then exercises the installed binary.
+name: Package channels
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to verify (vX.Y.Z)"
+        required: true
+permissions: { contents: read }
+jobs:
+  package-channels:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.4"
+          cache: false
+      - name: Download release checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "${{ github.event.release.tag_name || inputs.tag }}" --repo "${{ github.repository }}" --pattern checksums.txt
+      - name: Generate package-manager manifests
+        shell: bash
+        run: |
+          TAG="${{ github.event.release.tag_name || inputs.tag }}"
+          go run ./pose-mcp/cmd/pose release-package-manifests \
+            --version "${TAG#v}" \
+            --checksums checksums.txt \
+            --out package-manifests
+      - name: Install via Homebrew
+        if: runner.os == 'macOS'
+        run: |
+          brew install --formula ./package-manifests/homebrew/pose.rb
+          pose doctor --json
+          brew uninstall pose
+      - name: Install via WinGet
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          winget install --manifest .\package-manifests\winget --accept-package-agreements --accept-source-agreements --disable-interactivity
+          pose doctor --json
+          winget uninstall --id Harne8.Pose --disable-interactivity

@@ -28,8 +28,28 @@ conformidade Agent Skills, achou e corrigiu um link quebrado real) e
 `pose extension install/list/remove/verify` (lifecycle transacional de
 extensões assinadas — skill/workflow/rule/import-adapter — com rollback
 real, preservação de modificação do usuário, rejeição de pacote não
-assinado por padrão). Catálogo MCP: **30 tools**. Próximo do portfólio:
-roadmap 6 `adoption-developer-experience` (janela 2026-09-21 → 2027-01-29).
+assinado por padrão). Catálogo MCP: **30 tools**.
+
+Roadmap 6 `adoption-developer-experience` (janela 2026-09-21 → 2027-01-29)
+**em execução** — milestone 1 `trusted-install` **concluído em 2026-07-19**:
+(1) `pose-package-manager-distribution` — gerador determinístico
+(`pose release-package-manifests`) de formula Homebrew + manifesto WinGet a
+partir de `checksums.txt` + tag de release; wired em `release.yml`
+estritamente após todo gate de verificação existente (compat/security/
+sign/SBOM/verify); CI clean-host `package-channels.yml` (macOS+Windows);
+canais documentados em `docs-site/docs/package-channels.md`; ADR
+`2026-07-19-package-manager-channels-generated-not-hosted.md`. (2)
+`pose-upgrade-compatibility-lab` — `cmdUpgrade` (antes sem teste unitário
+algum) ganhou cobertura completa contra instância populada (locale pt-BR,
+spec real, knowledge real, `AGENTS.md` editado pelo usuário): dry-run
+comprovadamente não-mutante, apply muda só `schema-version`, reapply é
+no-op estrito, instância mais nova falha com remediação explícita; corrigiu
+gap real de symlink-escape nos diretórios gerenciados (`ensureManagedDirSafe`);
+`tests/release/compat.sh` ganhou a mesma profundidade de fixture para pares
+N-minus reais (ainda 0 pares declarados). ADR
+`2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`. Próximo:
+milestone 2 `guided-adoption` (`pose-doctor-guided-remediation`,
+`pose-brownfield-reference-kits`).
 
 ## Estado atual
 
@@ -60,8 +80,16 @@ roadmap 6 `adoption-developer-experience` (janela 2026-09-21 → 2027-01-29).
   workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
   `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
   `supported_upgrades` no `compatibility.json` com pin SHA-256.
-- Roadmap 6 `adoption-developer-experience`: distribuição e onboarding —
-  próxima leitura é o roadmap file + specs correspondentes.
+- Roadmap 6 `adoption-developer-experience`, milestone 2 `guided-adoption`:
+  próxima leitura é `pose-doctor-guided-remediation`/`pose-brownfield-reference-kits`.
+- No primeiro release publicado: rodar `pose release-package-manifests`
+  real na pipeline, confirmar `package-channels.yml` (macOS/Windows) e
+  submeter o primeiro manifesto WinGet ao `winget-pkgs` — follow-ups
+  abertos em `pose-package-manager-distribution`.
+- Ao popular `compatibility.json.supported_upgrades` com a primeira entrada
+  (0.9.0): confirmar o primeiro run real de `check_upgrade_pair` em
+  `tests/release/compat.sh` — follow-up aberto em
+  `pose-upgrade-compatibility-lab`.
 - `dependsOn` em `module-metadata.json` ainda não foi semeado para os módulos
   reais deste repo (`pose-mcp`, `mcp-enforce`) — follow-up aberto em
   `pose-changed-scope-validation`.
@@ -91,6 +119,10 @@ roadmap 6 `adoption-developer-experience` (janela 2026-09-21 → 2027-01-29).
 
 ## Referências
 
-- Specs: `.pose/specs/pose-version-contract/`, `.pose/specs/pose-standalone-dogfood/`
-- ADR: `.pose/adr/2026-07-19-authoritative-release-version-source.md`
-- Roadmap: `.pose/roadmaps/product-integrity.md`
+- Specs: `.pose/specs/pose-version-contract/`, `.pose/specs/pose-standalone-dogfood/`,
+  `.pose/specs/pose-package-manager-distribution/`, `.pose/specs/pose-upgrade-compatibility-lab/`
+- ADR: `.pose/adr/2026-07-19-authoritative-release-version-source.md`,
+  `.pose/adr/2026-07-19-package-manager-channels-generated-not-hosted.md`,
+  `.pose/adr/2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`
+- Roadmap: `.pose/roadmaps/product-integrity.md` (roadmaps 1-5, concluído),
+  `.pose/roadmaps/adoption-developer-experience.md` (roadmap 6, em execução)

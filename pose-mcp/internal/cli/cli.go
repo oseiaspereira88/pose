@@ -146,6 +146,8 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdReleaseNotes(root, args, stdout, stderr)
+	case "release-package-manifests":
+		return cmdReleasePackageManifests(args, stdout, stderr)
 	case "install":
 		return cmdInstall(args, stdout, stderr)
 	case "doctor":

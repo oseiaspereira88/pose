@@ -65,7 +65,7 @@ gate "version contract (CLI, MCP, registry, release pipeline)" \
 gate "MCP catalog conformance (golden, docs, registry, schemas)" \
   go -C "$repo_root/pose-mcp" test ./internal/mcpserver -run 'Catalog|Initialize|ToolsList' -count=1
 gate "compatibility matrix + schema upgrade fixtures" \
-  go -C "$repo_root/pose-mcp" test ./internal/cli -run 'Compat|Version|Install|Doctor' -count=1
+  go -C "$repo_root/pose-mcp" test ./internal/cli -run 'Compat|Version|Install|Doctor|Upgrade' -count=1
 gate "embedded scaffold parity" \
   go -C "$repo_root/pose-mcp" test ./internal/scaffold -count=1
 gate "installer E2E (fresh install, verified download, doctor, strict gate)" \
@@ -79,6 +79,37 @@ if [[ "$count" -eq 0 ]]; then
 else
   os="$(go env GOOS)"
   arch="$(go env GOARCH)"
+
+  # Upgrade compatibility lab (spec pose-upgrade-compatibility-lab): each
+  # N-minus pair is exercised against a *populated* instance — pt-BR locale
+  # content, a user-modified managed file, a real spec and knowledge note —
+  # not a bare fresh install, then proves the candidate's upgrade is
+  # idempotent and preserves everything untouched. Mirrors the depth of the
+  # network-free Go fixtures in internal/cli/upgrade_test.go.
+  check_upgrade_pair() {
+    local prior_bin="$1" fixture="$2"
+    mkdir -p "$fixture"
+    git -C "$fixture" init -q
+    "$prior_bin" install "$fixture" --locale pt-BR --skip-mcp >/dev/null || return 1
+    (
+      cd "$fixture"
+      "$prior_bin" new-spec upgrade-lab-fixture >/dev/null
+      "$prior_bin" new-knowledge handoff upgrade-lab-fixture --owner @pose-maintainers >/dev/null
+      printf '\n<!-- upgrade-lab: user customization preserved across upgrade -->\n' >> AGENTS.md
+    ) || return 1
+    local before after
+    before="$($sha_cmd "$fixture/AGENTS.md" | awk '{print $1}')"
+    (cd "$fixture" && "$candidate" upgrade >/dev/null) || return 1
+    (cd "$fixture" && "$candidate" check --strict >/dev/null) || return 1
+    local reapply
+    reapply="$(cd "$fixture" && "$candidate" upgrade)"
+    [[ "$reapply" == *"already at schema"* ]] || return 1
+    after="$($sha_cmd "$fixture/AGENTS.md" | awk '{print $1}')"
+    [[ "$before" == "$after" ]] || return 1
+    [[ -f "$fixture/.pose/specs/upgrade-lab-fixture/spec.md" ]] || return 1
+    compgen -G "$fixture/.pose/knowledge/*upgrade-lab-fixture*.md" >/dev/null || return 1
+  }
+
   for i in $(seq 0 $((count - 1))); do
     from="$(jq -r ".supported_upgrades[$i].from" "$matrix")"
     pin="$(jq -r ".supported_upgrades[$i].checksums_sha256" "$matrix")"
@@ -95,11 +126,8 @@ else
       tar -xzf "$asset" pose
     )
     fixture="$work/fixture-$from"
-    mkdir -p "$fixture"
-    git -C "$fixture" init -q
-    if "$prior_dir/pose" install "$fixture" --skip-mcp >/dev/null \
-      && (cd "$fixture" && "$candidate" upgrade >/dev/null && "$candidate" check --strict >/dev/null); then
-      echo "- PASS: $from → $engine_version (verified artifact, install → upgrade → strict gate)" >> "$report"
+    if check_upgrade_pair "$prior_dir/pose" "$fixture"; then
+      echo "- PASS: $from → $engine_version (verified artifact; populated pt-BR + user-modified + spec/knowledge fixture; upgrade → strict gate → idempotent reapply → preservation verified)" >> "$report"
     else
       echo "- FAIL: $from → $engine_version" >> "$report"
       overall=1

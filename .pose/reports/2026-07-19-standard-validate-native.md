@@ -14,77 +14,28 @@
 - _Not provided_
 
 ## Files Changed
-- agents/skills/pose-adr/SKILL.md
-- .agents/skills/pose-bugfix/SKILL.md
-- .agents/skills/pose-doc-update/SKILL.md
-- .agents/skills/pose-feature/SKILL.md
-- .agents/skills/pose-knowledge/SKILL.md
-- .agents/skills/pose-recurrence-escalation/SKILL.md
-- .agents/skills/pose-review/SKILL.md
-- .agents/skills/pose-spec-closeout/SKILL.md
-- .agents/skills/pose-test-plan/SKILL.md
-- .github/workflows/ci.yml
-- .pose/knowledge/2026-07-19-handoff-contract-baseline-handoff.md
-- .pose/reports/validation-latest.json
-- .pose/roadmaps/agent-interop-ecosystem.md
-- .pose/specs/pose-agent-skills-conformance/spec.md
-- .pose/specs/pose-extension-catalog-lifecycle/spec.md
-- POSE.md
-- docs-site/docs/mcp.md
-- locales/pt-BR/.agents/skills/pose-adr/SKILL.md
-- locales/pt-BR/.agents/skills/pose-bugfix/SKILL.md
-- locales/pt-BR/.agents/skills/pose-doc-update/SKILL.md
-- locales/pt-BR/.agents/skills/pose-feature/SKILL.md
-- locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md
-- locales/pt-BR/.agents/skills/pose-recurrence-escalation/SKILL.md
-- locales/pt-BR/.agents/skills/pose-review/SKILL.md
-- locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
-- locales/pt-BR/.agents/skills/pose-test-plan/SKILL.md
+- github/workflows/release.yml
+- .pose/specs/pose-package-manager-distribution/spec.md
+- .pose/specs/pose-upgrade-compatibility-lab/spec.md
+- docs-site/mkdocs.yml
 - pose-mcp/internal/cli/cli.go
-- pose-mcp/internal/mcpserver/catalog.go
-- pose-mcp/internal/mcpserver/server.go
-- pose-mcp/internal/mcpserver/server_test.go
-- pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
-- pose-mcp/internal/pose/cli.go
-- pose-mcp/internal/scaffold/dist/.agents/skills/pose-adr/SKILL.md
-- pose-mcp/internal/scaffold/dist/.agents/skills/pose-bugfix/SKILL.md
-- pose-mcp/internal/scaffold/dist/.agents/skills/pose-doc-update/SKILL.md
-- pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md
-- pose-mcp/internal/scaffold/dist/.agents/skills/pose-knowledge/SKILL.md
-- pose-mcp/internal/scaffold/dist/.agents/skills/pose-recurrence-escalation/SKILL.md
-- pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md
-- pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
-- pose-mcp/internal/scaffold/dist/.agents/skills/pose-test-plan/SKILL.md
-- pose-mcp/internal/scaffold/dist/.pose/knowledge/2026-07-19-handoff-contract-baseline-handoff.md
-- pose-mcp/internal/scaffold/dist/.pose/roadmaps/agent-interop-ecosystem.md
-- pose-mcp/internal/scaffold/dist/.pose/specs/pose-agent-skills-conformance/spec.md
-- pose-mcp/internal/scaffold/dist/.pose/specs/pose-extension-catalog-lifecycle/spec.md
-- pose-mcp/internal/scaffold/dist/POSE.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-adr/SKILL.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-bugfix/SKILL.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-doc-update/SKILL.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-recurrence-escalation/SKILL.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-test-plan/SKILL.md
-- .pose/adr/2026-07-19-agent-skills-compatibility-metadata-and-conformance-gate.md
-- .pose/adr/2026-07-19-signed-extension-packages-as-data-only-directories.md
-- .pose/changelogs/unreleased/pose-agent-skills-conformance.md
-- .pose/changelogs/unreleased/pose-extension-catalog-lifecycle.md
-- .pose/indexes/extensions.lock.json
-- pose-mcp/internal/cli/extension.go
-- pose-mcp/internal/cli/extension_test.go
-- pose-mcp/internal/cli/skills_check.go
-- pose-mcp/internal/cli/skills_check_test.go
-- pose-mcp/internal/pose/extensions.go
-- pose-mcp/internal/pose/extensions_test.go
-- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-agent-skills-compatibility-metadata-and-conformance-gate.md
-- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-signed-extension-packages-as-data-only-directories.md
-- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-agent-skills-conformance.md
-- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-extension-catalog-lifecycle.md
-- pose-mcp/internal/scaffold/dist/.pose/indexes/extensions.lock.json
+- pose-mcp/internal/cli/maintenance.go
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-package-manager-distribution/spec.md
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-upgrade-compatibility-lab/spec.md
+- tests/release/compat.sh
+- .github/workflows/package-channels.yml
+- .pose/adr/2026-07-19-package-manager-channels-generated-not-hosted.md
+- .pose/adr/2026-07-19-upgrade-compatibility-lab-populated-fixtures.md
+- .pose/changelogs/unreleased/pose-package-manager-distribution.md
+- .pose/changelogs/unreleased/pose-upgrade-compatibility-lab.md
+- docs-site/docs/package-channels.md
+- pose-mcp/internal/cli/release_manifests.go
+- pose-mcp/internal/cli/release_manifests_test.go
+- pose-mcp/internal/cli/upgrade_test.go
+- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-package-manager-channels-generated-not-hosted.md
+- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-upgrade-compatibility-lab-populated-fixtures.md
+- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-package-manager-distribution.md
+- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-upgrade-compatibility-lab.md
 
 ## Validation Commands
 - _Fill manually_
@@ -93,14 +44,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-07-19T15:43:00Z
+- Generated at (UTC): 2026-07-19T16:45:44Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 18
+- Sequence for task/spec: 19
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-07-19T14:23:31Z
+- Previous execution: 2026-07-19T15:43:00Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
