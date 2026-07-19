@@ -19,7 +19,13 @@ import (
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/trace"
+
 	mcpenforce "github.com/harne8/mcp-enforce"
+	"github.com/harne8/pose-mcp/internal/observability"
 	"github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/version"
 )
@@ -119,6 +125,7 @@ type Server struct {
 	reporter       Reporter           // nil = conductor_run_* tools return config error
 	harness        HarnessExecutor    // nil = pose_validate_submit returns config error
 	orch           *orchestrator      // safe validation orchestration state (spec pose-safe-validate-orchestration)
+	obs            *observability.Provider
 }
 
 // WithIdentitySecret sets the HMAC secret used to verify the Execution Identity
@@ -144,10 +151,38 @@ func (s *Server) WithHarnessExecutor(h HarnessExecutor) *Server {
 	return s
 }
 
+// WithObservability wires the opt-in OpenTelemetry provider (spec
+// pose-otel-observability). Every server has a working (no-op by default)
+// obs field from construction, so this is optional — callers that never
+// call it get zero-cost, zero-network tracing/metrics/logging.
+func (s *Server) WithObservability(p *observability.Provider) *Server {
+	if p != nil {
+		s.obs = p
+	}
+	return s
+}
+
+func defaultObservability() *observability.Provider {
+	p, _ := observability.Init(context.Background(), observability.Config{})
+	return p
+}
+
+// observability returns s.obs, falling back to a shared no-op instance for
+// a Server constructed as a bare struct literal (test fixtures) rather
+// than via New/NewWithRoots — never nil, so call sites need no guard.
+func (s *Server) observability() *observability.Provider {
+	if s.obs != nil {
+		return s.obs
+	}
+	return sharedNoopObservability
+}
+
+var sharedNoopObservability = defaultObservability()
+
 // New builds a single-root server (legacy / dev): every request resolves to this
 // store regardless of project_id only when project_id is empty.
 func New(store pose.Store) *Server {
-	return &Server{roots: pose.NewRoots(pose.RootsConfig{DefaultRoot: store.Root}), policy: NewPolicyGate(PolicyConfig{}), auditor: defaultAuditor, orch: newOrchestrator()}
+	return &Server{roots: pose.NewRoots(pose.RootsConfig{DefaultRoot: store.Root}), policy: NewPolicyGate(PolicyConfig{}), auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability()}
 }
 
 // NewWithRoots builds a project-aware server backed by a roots registry.
@@ -160,7 +195,7 @@ func NewWithRootsAndPolicy(roots *pose.Roots, policy *PolicyGate) *Server {
 	if policy == nil {
 		policy = NewPolicyGate(PolicyConfig{})
 	}
-	return &Server{roots: roots, policy: policy, auditor: defaultAuditor, orch: newOrchestrator()}
+	return &Server{roots: roots, policy: policy, auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability()}
 }
 
 // TokenAuth wraps next with Bearer token authentication. When token is empty
@@ -361,6 +396,32 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	if err := json.Unmarshal(req.Params, &p); err != nil || p.Name == "" {
 		return errorResp(req.ID, -32602, "invalid tools/call params")
 	}
+
+	// Opt-in OpenTelemetry signals (spec pose-otel-observability, R1/R2):
+	// one span + one duration/outcome measurement per tool call, tagged
+	// only with the tool name and its catalog risk class — both fixed,
+	// low-cardinality values, never an argument, path or repo name.
+	obs := s.observability()
+	riskClass := string(catalogGovernance[p.Name].Risk)
+	callAttrs := metric.WithAttributes(attribute.String("tool", p.Name))
+	ctx, span := obs.Tracer.Start(ctx, p.Name, trace.WithAttributes(
+		attribute.String("pose.mcp.tool", p.Name),
+		attribute.String("pose.mcp.risk_class", riskClass),
+	))
+	obs.Instr.InFlight.Add(ctx, 1, callAttrs)
+	start := time.Now()
+	outcome, logMsg := "ok", "ok"
+	defer func() {
+		obs.Instr.InFlight.Add(ctx, -1, callAttrs)
+		obs.Instr.CallDuration.Record(ctx, float64(time.Since(start).Microseconds())/1000,
+			metric.WithAttributes(attribute.String("tool", p.Name), attribute.String("risk_class", riskClass), attribute.String("outcome", outcome)))
+		if outcome != "ok" {
+			span.SetStatus(codes.Error, outcome)
+		}
+		obs.Log.Emit(ctx, p.Name, riskClass, outcome, logMsg)
+		span.End()
+	}()
+
 	projectID := projectIDFromArguments(p.Arguments)
 	if projectID == "" {
 		projectID = projectIDFromHeader
@@ -376,6 +437,8 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	if len(s.identitySecret) > 0 && identityToken != "" {
 		id, ierr := mcpenforce.ParseToken(identityToken, s.identitySecret)
 		if ierr != nil {
+			outcome, logMsg = "policy_denied", "invalid_identity"
+			obs.Instr.PolicyDenials.Add(ctx, 1, callAttrs)
 			decision := mcpenforce.DenyDecision(policyInput, "invalid_identity")
 			s.auditor.Record(ctx, decision)
 			return errorRespData(req.ID, -32004, "policy denied", decision.Metadata())
@@ -391,6 +454,8 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	// what, with no payload content.
 	s.auditor.Record(ctx, decision)
 	if !decision.Allow {
+		outcome, logMsg = "policy_denied", "policy denied"
+		obs.Instr.PolicyDenials.Add(ctx, 1, callAttrs)
 		return errorRespData(req.ID, -32004, "policy denied", decision.Metadata())
 	}
 	// Carry the verified Execution Identity (if any) to dispatch so tools
@@ -403,6 +468,9 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	ctx = withCallerIdentity(ctx, policyInput.RunID, policyInput.Scopes)
 	out, err := s.dispatch(ctx, p.Name, p.Arguments)
 	if err != nil {
+		outcome = "error"
+		logMsg = observability.Message(err.Error())
+		span.RecordError(err)
 		var unknown unknownToolError
 		if errors.As(err, &unknown) {
 			return errorResp(req.ID, -32602, err.Error())
@@ -437,6 +505,7 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	}
 	pretty, merr := json.MarshalIndent(out, "", "  ")
 	if merr != nil {
+		outcome, logMsg = "error", "internal error encoding tool result"
 		return errorResp(req.ID, -32603, "internal error encoding tool result")
 	}
 	return result(req.ID, map[string]any{

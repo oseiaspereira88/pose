@@ -24,6 +24,31 @@ The installer seeds `.mcp.json` when absent. It invokes the native binary
 directly and records the installed project's root and project id in the server
 environment; no wrapper or second executable is generated.
 
+## Observability
+
+`pose serve-mcp` can emit OpenTelemetry traces, metrics and correlated logs
+for every `tools/call` (spec `pose-otel-observability`). Off by default —
+POSE stays fully offline unless **both** of the following are set:
+
+| Env var | Purpose |
+|---|---|
+| `POSE_OTEL_ENABLED` | Must be `1`/`true` — POSE's own opt-in gate |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP/HTTP collector endpoint — no default is baked into the binary |
+| `OTEL_EXPORTER_OTLP_INSECURE` | `true` to skip TLS (local/dev collectors) |
+| `OTEL_EXPORTER_OTLP_HEADERS` | `key1=value1,key2=value2` — e.g. a collector auth header |
+| `OTEL_TRACES_SAMPLER_ARG` | Trace sample ratio, `0.0`–`1.0` (default `1.0`) |
+| `OTEL_METRIC_EXPORT_INTERVAL` | Metric export interval in milliseconds (default `15000`) |
+
+Every span and metric carries only the tool name and its catalog risk
+class (`read`/`gate`/`external-side-effect`) — never an argument, path,
+repo name or user id. Metrics: `pose.mcp.tool.call.duration` (histogram),
+`pose.mcp.policy.denial.count` (counter), `pose.mcp.tool.call.inflight`
+(current concurrency). Logs are structured JSON on stderr, correlated to
+the active span's `trace_id`/`span_id`, with paths and secret-shaped
+content redacted before being written. A misconfigured or unreachable
+collector never blocks server startup or a tool call — export failures
+are logged and swallowed, bounded by the shutdown timeout.
+
 ## Tools
 
 | Tool | Returns |

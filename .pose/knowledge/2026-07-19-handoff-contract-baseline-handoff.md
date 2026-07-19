@@ -85,11 +85,26 @@ aplicabilidade de versão; scan de segurança reaproveitando os padrões de
 
 **Roadmap 6 `adoption-developer-experience` CONCLUÍDO em 2026-07-19** — 6
 specs fechadas nos 3 milestones (trusted-install, guided-adoption,
-product-polish). Próximo do portfólio: roadmap 7 `insights-enterprise-scale`
-(final, 7 de 7) — janela 2026-11-02 → 2027-03-31, 4 milestones, 5 specs:
-`pose-otel-observability`, `pose-dora-adoption-metrics`,
-`pose-semantic-governance-assist`, `pose-cross-repo-portfolio`,
-`pose-harne8-control-plane-integration`.
+product-polish).
+
+**Roadmap 7 `insights-enterprise-scale` (final, 7 de 7) em execução** —
+milestone 1 `observability-foundation` **concluído em 2026-07-19**: spec
+`pose-otel-observability` — sinais OpenTelemetry opt-in (duplo gate:
+`POSE_OTEL_ENABLED=1` + `OTEL_EXPORTER_OTLP_ENDPOINT`, senão totalmente
+inerte/offline) para todo `tools/call` do `pose serve-mcp` (tools MCP
+comuns e os 5 `pose_validate_*` de orquestração, via um único ponto de
+instrumentação em `Server.callToolCtx`). Sinais "seguros por construção":
+atributos fechados (nome da tool + risk class do catálogo — nunca
+argumento/path/repo/user id); 3 métricas (latência, negação de política,
+concorrência em voo); logger estruturado local correlacionado por
+trace_id/span_id com redação de paths e segredos (decisão deliberada de
+NÃO adotar o OTel Logs SDK/`otlploghttp`, ainda alpha v0.x — trace/metric
+usam o SDK estável v1.44.0). Novo pacote `internal/observability`; SDK
+OTel adicionado como dependência real (`go.opentelemetry.io/otel` v1.44.0
++ exporters OTLP/HTTP); `internal/bootstrap.Run` ganhou shutdown gracioso
+(SIGINT/SIGTERM) que não existia antes. ADR
+`2026-07-19-otel-observability-safe-by-construction-signals.md`. Próximo:
+milestone 2 `delivery-outcomes` (`pose-dora-adoption-metrics`).
 
 ## Estado atual
 
@@ -120,9 +135,10 @@ product-polish). Próximo do portfólio: roadmap 7 `insights-enterprise-scale`
   workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
   `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
   `supported_upgrades` no `compatibility.json` com pin SHA-256.
-- Roadmap 7 `insights-enterprise-scale` (final): próxima leitura é o
-  roadmap file + milestone 1 `observability-foundation`
-  (`pose-otel-observability`).
+- Roadmap 7 `insights-enterprise-scale`, milestone 2 `delivery-outcomes`:
+  próxima leitura é a spec `pose-dora-adoption-metrics`.
+- Revisitar export OTLP de logs (`otel/sdk/log` + `otlploghttp`) quando
+  saírem de alpha (v0.x) — follow-up aberto em `pose-otel-observability`.
 - Confirmar o primeiro run de `mkdocs build --strict` (`docs.yml`) contra
   as edições de página desta rodada — não executável neste sandbox (sem
   pip/mkdocs) — follow-up aberto em `pose-localization-docs-contract`.
@@ -166,13 +182,14 @@ product-polish). Próximo do portfólio: roadmap 7 `insights-enterprise-scale`
 - Specs: `.pose/specs/pose-version-contract/`, `.pose/specs/pose-standalone-dogfood/`,
   `.pose/specs/pose-package-manager-distribution/`, `.pose/specs/pose-upgrade-compatibility-lab/`,
   `.pose/specs/pose-doctor-guided-remediation/`, `.pose/specs/pose-brownfield-reference-kits/`,
-  `.pose/specs/pose-localization-docs-contract/`
+  `.pose/specs/pose-localization-docs-contract/`, `.pose/specs/pose-otel-observability/`
 - ADR: `.pose/adr/2026-07-19-authoritative-release-version-source.md`,
   `.pose/adr/2026-07-19-package-manager-channels-generated-not-hosted.md`,
   `.pose/adr/2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`,
   `.pose/adr/2026-07-19-doctor-guided-remediation-confined-fix-registry.md`,
   `.pose/adr/2026-07-19-brownfield-kits-checked-in-fixtures-git-native-rollback.md`,
-  `.pose/adr/2026-07-19-localization-docs-contract-self-inspecting-tests.md`
+  `.pose/adr/2026-07-19-localization-docs-contract-self-inspecting-tests.md`,
+  `.pose/adr/2026-07-19-otel-observability-safe-by-construction-signals.md`
 - Roadmap: `.pose/roadmaps/product-integrity.md` (roadmaps 1-5, concluído),
   `.pose/roadmaps/adoption-developer-experience.md` (roadmap 6, concluído),
-  `.pose/roadmaps/insights-enterprise-scale.md` (roadmap 7, próximo, final)
+  `.pose/roadmaps/insights-enterprise-scale.md` (roadmap 7, em execução, final)
