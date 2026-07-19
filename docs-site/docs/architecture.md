@@ -1,5 +1,7 @@
 # Technical architecture
 
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 **Scope:** POSE open-source distribution  
 **Verified:** 2026-07-18 at repository commit `d9c0b98`
 
@@ -256,11 +258,14 @@ provenance are tracked as maturity gaps rather than implied guarantees.
 
 ## Mechanism 11: MCP governance API
 
-`pose serve-mcp` supports stdio and Streamable HTTP. The server currently
-advertises 18 POSE tools for specs, readiness, roadmaps, changelogs, follow-ups,
-structural gates, task routing, workflows, rules, skills, knowledge, reports
-and insights. Three optional `conductor_run_*` tools report external runs when
-Harne8 endpoints are configured.
+`pose serve-mcp` supports stdio and Streamable HTTP. The server advertises the
+full POSE governance surface — specs, readiness, roadmaps, changelogs,
+follow-ups, structural gates, task routing, workflows, rules, skills,
+knowledge, reports, insights and safe validation orchestration — frozen by a
+golden catalog fixture with an explicit risk class per tool. Optional
+`pose_validate_submit` and `conductor_run_*` tools report external runs or
+submit to a Harness only when the corresponding Harne8 endpoints are
+configured.
 
 MCP tools use JSON schemas and project-scoped root resolution. The server
 supports a default project plus explicit or directory-discovered roots. The
@@ -303,6 +308,44 @@ Telemetry is disabled by default. Enabling it still sends nothing until an
 endpoint is explicitly configured. The payload is limited to anonymous ID,
 binary version and command name; repository names, paths and content are
 excluded by contract.
+
+## Mechanism 15: Harne8 control-plane composition
+
+Five responsibilities compose without moving repository authority
+(spec `pose-harne8-control-plane-integration`):
+
+| Component | Responsibility | Consumes/exposes |
+|---|---|---|
+| POSE (this repository's engine) | Governs — owns specs, gates, evidence, policy input | CLI, MCP tools |
+| Conductor | Orchestrates idempotent governed runs with approvals | `conductor_run_*`, `pose_validate_request/approve/submit/status/cancel` |
+| Harness | Executes an approved, digest-pinned plan | `HarnessExecutor.Submit`, reconciled back via `pose reconcile-evidence` |
+| GraphForge | Contextualizes (semantic code graph) | Consumes `pose portfolio-projection` and `pose semantic-suggest` output |
+| Portal | Presents (portfolio, review UI) | Consumes policy-filtered projections; never a second lifecycle authority |
+
+Every boundary already ships in the open core, testable without any Harne8
+component present: `pose_validate_submit` returns a clear configuration
+error (not a crash) when no Harness is wired; `pose reconcile-evidence`
+rejects a second, silent record for an already-reconciled request unless
+`--allow-supersede` is passed explicitly, and even then appends a new,
+identity-bound record rather than editing the prior one;
+`pose portfolio-projection` and `pose semantic-suggest` are exactly the
+policy-filtered, tenant-scoped projections Portal/GraphForge would
+consume. `pose_validate_submit`'s idempotent resubmit (same execution_id,
+no re-invocation) is the durable-state contract Conductor composes with,
+not replaces — the in-process registry is a local reference
+implementation; a real multi-replica deployment centralizes run state in
+Conductor itself.
+
+**Offline degradation is structural, not a fallback mode**: no open-core
+command requires `CONDUCTOR_URL`, `POSE_MCP_IDENTITY_SECRET`,
+`HARNE8_PROJECTS_DIR` or any other Harne8-related environment variable —
+every one of them is optional, and their absence degrades a specific
+optional tool to a configuration error rather than blocking anything
+else. SLOs, backpressure, retry policy and disaster recovery for the
+*hosted* components (Conductor, Harness, GraphForge, Portal) are Harne8's
+own operational responsibility, out of this repository's scope by design
+(Non-goal: never move repository authority into a required hosted
+service).
 
 ## Primary data flows
 
@@ -366,10 +409,15 @@ repository engine.
 
 - POSE does not execute or schedule AI agents by itself.
 - Roadmaps model eligibility and ordering, not capacity or transactional work.
-- Local insights do not yet implement DORA delivery metrics.
+- Cross-repository portfolio projections and DORA/adoption metrics never
+  fabricate capacity, velocity or an ETA — only what was explicitly
+  recorded or already governed locally.
 - Reports are auditable Git artifacts but are not signed attestations.
-- MCP is tool-oriented; resources, prompts and live catalog refresh are not yet
-  part of the public surface.
+- MCP is deliberately tool-only: list tools paginate with opaque cursors and
+  the catalog is stable within a process lifetime, but resources and prompts
+  are not implemented — a generic resources primitive would expose
+  repository files wholesale, and prompts risk becoming policy outside
+  `.pose/workflows/`, both explicitly out of scope (see [MCP server](mcp.md)).
 - The baseline validation matrix covers four stack families and relies on
   repository overrides for other ecosystems.
 

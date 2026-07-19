@@ -86,8 +86,14 @@ func skip(rel string, d fs.DirEntry) bool {
 	// código do produto — nada disso entra no scaffold embutido.
 	top := strings.SplitN(rel, string(filepath.Separator), 2)[0]
 	switch top {
-	case ".git", ".github", ".gitignore", ".docs-site-build", "pose-mcp", "mcp-enforce", "pose-action", "docs-site",
-		"tests", ".goreleaser.yaml", "dist-release":
+	case ".git", ".github", ".gitignore", ".docs-site-build", ".idea", "pose-mcp", "mcp-enforce", "pose-action",
+		"docs-site", "tests", "examples", ".goreleaser.yaml", ".gitleaks.toml", "dist-release",
+		"compatibility.json", "compatibility-report.md":
+		return true
+	}
+	// Append-only evidence is instance state, not scaffold: embedding it would
+	// make every `pose validate --report` run drift the embed it was tested by.
+	if rel == filepath.Join(".pose", "reports") || strings.HasPrefix(rel, filepath.Join(".pose", "reports")+string(filepath.Separator)) {
 		return true
 	}
 	base := filepath.Base(rel)

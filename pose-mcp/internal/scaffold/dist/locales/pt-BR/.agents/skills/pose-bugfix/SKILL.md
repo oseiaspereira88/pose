@@ -2,6 +2,9 @@
 name: pose-bugfix
 description: Use ao corrigir um bug/defeito sob POSE — reproduzir falha, isolar causa raiz, aplicar fix mínimo coeso, cobrir regressão e registrar decision-log se houver dívida sistêmica. Trigger keywords - bugfix, bug, defeito, regression, hotfix, correção, root cause, causa raiz, fix.
 when_to_use: A tarefa atual é corrigir um defeito observável (não introduzir feature). Use ANTES de tocar código para garantir reprodução, isolamento de causa raiz e cobertura de regressão.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, spec-write, validate
 ---
 
 # Skill: pose-bugfix

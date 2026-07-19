@@ -50,8 +50,16 @@ func listSource(t *testing.T, root string) map[string][]byte {
 		}
 		top := strings.SplitN(filepath.ToSlash(rel), "/", 2)[0]
 		switch top {
-		case ".git", ".github", ".gitignore", ".docs-site-build", "pose-mcp", "mcp-enforce", "pose-action", "docs-site",
-			"tests", ".goreleaser.yaml", "dist-release":
+		case ".git", ".github", ".gitignore", ".docs-site-build", ".idea", "pose-mcp", "mcp-enforce", "pose-action",
+			"docs-site", "tests", "examples", ".goreleaser.yaml", ".gitleaks.toml", "dist-release",
+			"compatibility.json", "compatibility-report.md":
+			if d.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		// Mirrors gen/main.go: append-only evidence is instance state, not scaffold.
+		if strings.HasPrefix(filepath.ToSlash(rel), ".pose/reports") {
 			if d.IsDir() {
 				return filepath.SkipDir
 			}
@@ -145,7 +153,7 @@ func TestClaudeSkillLinksMatchAgentsSkills(t *testing.T) {
 func TestEditorialDefaultsAreEnglishAndPtBROverlayIsComplete(t *testing.T) {
 	root := poseDistDir(t)
 	portugueseAccent := regexp.MustCompile(`[áéíóúãõâêôçÁÉÍÓÚÃÕÂÊÔÇ]`)
-	prefixes := []string{".pose/workflows/", ".pose/rules/", ".agents/skills/"}
+	prefixes := []string{".pose/workflows/", ".pose/rules/", ".agents/skills/", ".pose/templates/"}
 	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err

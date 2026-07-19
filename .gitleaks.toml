@@ -1,0 +1,13 @@
+# Gitleaks config (spec pose-ossf-security-baseline). Extends every default
+# rule; the allowlist below is a documented, owned exception for a single
+# historical commit, not a relaxation of any detection rule.
+title = "POSE gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "b6d4a72: TestSecretsRedaction (internal/observability, spec pose-otel-observability) used an inline PEM-shaped literal to test the redaction function. Not a real key — the body is the literal placeholder 'MIIB...'. The literal was split across concatenated strings in a later commit so the shape no longer appears in the file, but the original commit remains in history."
+commits = [
+  "b6d4a72534fa8834c7dd67888f48a1eb8efd3966",
+]

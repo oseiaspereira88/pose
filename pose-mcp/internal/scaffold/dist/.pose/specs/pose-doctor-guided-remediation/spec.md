@@ -1,8 +1,8 @@
 ---
 slug: pose-doctor-guided-remediation
-status: draft
+status: done
 created_at: 2026-07-18
-completed_at:
+completed_at: 2026-07-19
 supersedes:
 depends_on: pose-public-install-contract
 priority: 27
@@ -71,22 +71,35 @@ Reduces first-run abandonment and support load without hiding failures.
 
 ## 5. Decisions
 
-- Create an ADR before changing this contract; compare [Diátaxis](https://diataxis.fr/).
+- ADR `.pose/adr/2026-07-19-doctor-guided-remediation-confined-fix-registry.md` (Accepted): a small explicit `doctorFixRegistry` (3 entries: `hooks.pre-commit`, `mcp.config`, `skills.symlinks`), each reusing an already-tested confined action; classification (fixable/detectable/blocked) derived centrally from that registry plus a fixed blocked-list, so existing `add()` call sites needed no change; JSON schema additive only (`doctor_schema_version`, `evidence`, `remediation_class`, `fix_code`, an optional `fix` object) — `check`/`level`/`message`/`hint` and top-level `findings`/`errors`/`warnings` unchanged. Rejected: a generic "re-run install" auto-fix (violates the confined/reversible constraint); free-form fix logic without a registry (no structural guarantee of confinement). `schema.version` deliberately excluded from the registry — `pose upgrade` remains the explicit, separately-governed path.
 
 ## 6. Validation
 
-**Strategy:** validate units, negative/security cases, contract fixtures and an end-to-end path.
+**Strategy:** validate the classification function directly (table test), the redaction helper, JSON-contract backward compatibility, and the full fix lifecycle (preview non-mutation, apply+recheck, idempotent reapply, `--only` scoping, invalid-code/`--yes`-without-`--fix` usage errors) against a real installed fixture.
 
 ### Planned deterministic checks
-- Test: `go test ./pose-mcp/internal/cli/... -run 'Doctor|Remediation|Redact'`.
+- Test: `go -C pose-mcp test ./internal/cli/... -run 'Doctor|Classify|RedactSecretShaped' -v -count=1`.
 - Structure: `pose check --strict`.
 - Readiness: `pose lint-spec pose-doctor-guided-remediation --ready-check`.
 
+### Requirement trace
+- R1 [satisfied] every finding carries `check`/`level`/`evidence`/(`hint` when non-ok); check:test (TestDoctorFindingsHaveEvidenceAndRemediationClass)
+- R2 [satisfied] `remediation_class` is one of n/a/fixable/detectable/blocked, with `fix_code` present exactly when fixable; check:test (TestClassifyFinding, TestDoctorFindingsHaveEvidenceAndRemediationClass)
+- R3 [satisfied] preview is non-mutating, apply changes only the targeted files then rechecks and reports per-finding success, reapply is idempotent ("nothing fixable"), `--only` scopes to one check; check:test (TestDoctorFixPreviewIsNonMutating, TestDoctorFixApplyAppliesAndRechecksAndIsIdempotent, TestDoctorFixOnlyScopesToOneCheck, TestDoctorFixSkillsSymlinks)
+
 ### Execution status
-- Not executed. This planning spec remains `draft`; delivery requires gate evidence.
+Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
+
+- `go -C pose-mcp test ./internal/cli/... -run 'Doctor|Classify|RedactSecretShaped' -v -count=1` — SUCCESS (10 tests, including the pre-existing `TestDoctorHealthyAndBrokenInstance` unmodified — proving JSON backward compatibility).
+- `go -C pose-mcp test ./... -count=1` — SUCCESS after `go -C pose-mcp generate ./internal/scaffold`.
+- `pose check --strict` — SUCCESS.
+- `pose lint-spec pose-doctor-guided-remediation --strict` — SUCCESS.
+- `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
+- Security (never print secrets): `redactSecretShapedContent` applied to every message/evidence/hint/fix-error string; TestRedactSecretShapedContent proves a fake AWS-key-shaped fixture never survives verbatim. Doctor makes no TLS or privilege-elevation calls, so those two clauses are vacuously satisfied by the diagnostic pass's existing design (no network, no `sudo`/setuid anywhere in the CLI).
+- Non-functional (fast, offline, platform-aware): every check and every fix action is filesystem/`exec.LookPath`-only — no network — consistent with the rest of the native CLI.
 
 ## 7. Final Report
 
-- Delivered scope: none; this spec defines future implementation.
-- Residual risk: Overconfident fixes can damage custom setups.
-- Follow-ups: none until implementation starts.
+- Delivered scope: `pose doctor` findings now carry a stable code, evidence and remediation class (fixable/detectable/blocked), versioned additively via `doctor_schema_version`; `pose doctor --fix` (preview) / `--fix --yes` (apply + recheck) / `--only <check>` covers three confined, reversible, idempotent repairs (pre-commit hook, `.mcp.json`, `.claude/skills` symlinks) by reusing existing, already-tested code paths (`cmdHooks`, `configureMCP`, a newly-shared `recreateClaudeSkillSymlinks`); defensive secret redaction applied to all doctor output.
+- Residual risk: overconfident fixes could still damage a custom setup if a future registry entry is added carelessly — mitigated structurally by keeping the registry small and requiring every entry to reuse an already-tested, confined, idempotent action (documented as the pattern in the ADR) rather than writing new bespoke mutation logic per check; `schema.version` (the most common real finding) intentionally stays manual (`pose upgrade`), not silently foldable into `--fix`.
+- Follow-ups: none — all three requirements are satisfied with executed evidence and no sandbox-unavailable gap (unlike the release-pipeline specs, `pose doctor` needs no network or external release infrastructure to test end to end).

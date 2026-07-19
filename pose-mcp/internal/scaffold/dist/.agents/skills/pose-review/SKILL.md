@@ -2,6 +2,9 @@
 name: pose-review
 description: Use for POSE pull-request or code review to verify controlled scope, preserved contracts, security and observability impact, risk-proportional validation, and escalation where applicable. Trigger keywords - review, code review, PR review, review opinion, ultrareview.
 when_to_use: Evaluating your own or another author's diff or PR under POSE. Use before commenting or approving to select rules, inspect validation evidence and prior decisions, and issue an actionable decision.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read
 ---
 
 # Skill: pose-review

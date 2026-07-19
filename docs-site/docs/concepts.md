@@ -1,5 +1,7 @@
 # Concepts
 
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 ## The closed loop
 
 POSE's central idea: **work that leaves no machine-checkable trace didn't
@@ -34,7 +36,12 @@ draft ──(DoR gate)──► in-progress ──(closeout gate)──► done
   dispositioned — `[open]`, `[spawned: slug]`, `[covered: slug]`,
   `[duplicate: slug]`, `[done]`, `[wont-do: reason]`. For
   spawned/covered/duplicate the target spec must exist (no "covered" by a
-  typo).
+  typo). Open follow-ups declare ownership and a triage SLA —
+  `(owner:@alias crit:low|medium|high review:YYYY-MM-DD)` — and every
+  declared `R<N>` gets a trace entry (`[satisfied]` with evidence refs,
+  `[waived: reason]` or `[withdrawn: reason]`) in the
+  `Requirement trace` subsection; `pose followups --overdue` and the MCP
+  tool `pose_requirement_trace` project both sides.
 
 ## Dependency graph and roadmaps
 

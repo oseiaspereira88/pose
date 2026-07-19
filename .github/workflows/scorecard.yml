@@ -1,0 +1,28 @@
+# OpenSSF Scorecard baseline (spec pose-ossf-security-baseline): weekly and
+# on-main supply-chain posture measurement with published results. The score
+# is a baseline and backlog input, never a security guarantee.
+name: Scorecard
+on:
+  schedule:
+    - cron: "30 5 * * 1"
+  push:
+    branches: [main]
+permissions: read-all
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+      - uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif

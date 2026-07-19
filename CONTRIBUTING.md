@@ -16,6 +16,33 @@ a formal closeout. Contributions follow the same path.
 3. **Architectural decisions get an ADR** (`pose new-adr "<title>"`): new
    contracts, changed frontmatter semantics, new gate behavior.
 
+## Dogfooding governance (spec `pose-standalone-dogfood`)
+
+The standalone repository is itself a governed POSE instance. The minimum
+ownership and review rules are:
+
+- **One spec, one roadmap.** Every non-trivial product change has exactly one
+  owned spec in `.pose/specs/` and at most one active roadmap membership in
+  `.pose/roadmaps/` (`pose check --strict` enforces exclusivity).
+- **Owned modules.** `.pose/indexes/module-metadata.json` names an owner for
+  every module; changes to a module follow its validation profile via
+  `pose validate --strict --module <path> --report`.
+- **Evidence is append-only.** Validation reports and JSONL history under
+  `.pose/reports/` start at adoption time and are never backfilled or edited.
+  CI re-runs the structural gate and retains the evidence produced by the
+  build as workflow artifacts.
+- **Identified builds only.** Gates run either a released `pose` binary or a
+  development build compiled from the tree — development builds always report
+  the explicit `-dev` version suffix and never impersonate a release
+  (ADR `2026-07-19-authoritative-release-version-source`).
+- **Quarterly audit.** The scheduled `governance-audit` workflow (also
+  manually dispatchable) runs the structural gate, the open follow-up backlog,
+  the knowledge overdue gate and outcome stats every quarter, and publishes
+  the result as an artifact. Stale specs, roadmaps, knowledge or follow-ups
+  found by the audit become issues or specs — silence is not a disposition.
+- **No secrets in evidence.** Reports, history and audit artifacts must not
+  contain tokens, restricted knowledge content or CI credentials.
+
 ## Pull request expectations
 
 - `pose check --strict` and `pose lint-spec <your-spec> --strict` pass.
@@ -24,6 +51,10 @@ a formal closeout. Contributions follow the same path.
   verifies them).
 - One cohesive change per PR; follow-ups you discover go into the spec's
   Final Report with a disposition, not into scope creep.
+- Diffs to `internal/mcpserver/testdata/tool-catalog.golden.json` are public
+  API changes: review them as such. Removals or incompatible schema changes
+  additionally require an ADR and a release note (ADR
+  `2026-07-19-mcp-tool-catalog-is-a-release-gated-contract`).
 
 ## Style
 

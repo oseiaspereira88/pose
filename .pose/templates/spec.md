@@ -147,6 +147,13 @@ priority:            # integer >= 0 (lower = higher priority); ordering preferen
 - Failures:
 - Warnings:
 
+### Requirement trace
+<!-- At closeout, one bullet per declared R-ID (spec pose-requirement-evidence-traceability):
+- R<N> [satisfied] <verification case; structured refs: check:<name> test:<id> report:<file> commit:<sha>>
+- R<N> [waived: <reason>]
+- R<N> [withdrawn: <reason>]
+Missing or orphaned IDs fail `pose lint-spec --strict` on done specs. -->
+
 ### Known gaps
 <!-- Temporary limitations, blocked checks, deferred validations. -->
 

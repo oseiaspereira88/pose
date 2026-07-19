@@ -1,5 +1,7 @@
 # POSE
 
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 **Spec-driven development that closes the loop.**
 
 POSE (Project Operating Standard for Engineering) is a repository-owned
@@ -22,7 +24,7 @@ spec → execution → evidence → follow-ups → recurrence → knowledge
 | **Recurrence detection** | `pose recurrence-check` mines that history for repeated failures and escalates them into systemic fixes instead of endless re-fixing. |
 | **Operational memory** | `.pose/knowledge/` captures handoffs and decision logs with TTL governance — context survives between executions and agents. |
 | **Portfolio graph** | Specs declare dependencies and priorities, organized into governed roadmaps with milestone DAGs, validated on every `pose check`. |
-| **Native MCP surface** | 18 read tools expose the governance view (specs, readiness, roadmaps, knowledge, reports, insights and changelogs) to MCP-capable agents. |
+| **Native MCP surface** | 20 governance tools (read + deterministic gates) expose specs, readiness, requirement traces, amendment history, roadmaps, knowledge, reports, insights and changelogs to MCP-capable agents, plus 3 optional Conductor run reporters. |
 
 ## How POSE compares
 

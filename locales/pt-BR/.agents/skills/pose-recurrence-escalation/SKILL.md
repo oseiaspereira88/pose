@@ -2,6 +2,9 @@
 name: pose-recurrence-escalation
 description: Use quando ./pose recurrence-check sinalizar task_slug recorrente acima do threshold — investigar causa sistêmica, propor rule/workflow novo, documentar decisão e fechar o loop. Trigger keywords - recurrence, recorrência, padrão recorrente, recurrence-escalation, escalation, sistêmico, dívida recorrente.
 when_to_use: Recurrence-check (manual ou em CI) flagueou ≥1 chave acima do threshold. Use ANTES de aceitar tag "intermitente" ou silenciar o sinal, para garantir tratamento sistêmico em vez de remediação localizada.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, workflow-write, rule-write
 ---
 
 # Skill: pose-recurrence-escalation

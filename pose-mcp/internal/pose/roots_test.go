@@ -1,8 +1,10 @@
 package pose
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -36,6 +38,64 @@ func TestRoots_StoreFor(t *testing.T) {
 			t.Fatal("want error for unknown project_id")
 		}
 	})
+}
+
+// Distinct structured error types (spec pose-mcp-project-scope-contract R2):
+// unknown vs. ambiguous selection must be programmatically distinguishable,
+// and neither ever carries a filesystem path (R3).
+func TestRoots_UnknownProjectIsTypedAndPathFree(t *testing.T) {
+	roots := NewRoots(RootsConfig{DefaultRoot: "/secret/host/path", DefaultProjectID: "proj.harne8"})
+	_, err := roots.StoreFor("proj.ghost")
+	var unknown ProjectUnknownError
+	if !errors.As(err, &unknown) {
+		t.Fatalf("want ProjectUnknownError, got %T: %v", err, err)
+	}
+	if unknown.ProjectID != "proj.ghost" {
+		t.Errorf("ProjectID = %q, want proj.ghost", unknown.ProjectID)
+	}
+	if strings.Contains(err.Error(), "/secret/host/path") {
+		t.Errorf("error must never leak the filesystem root: %v", err)
+	}
+}
+
+func TestRoots_AmbiguousNoDefault(t *testing.T) {
+	roots := NewRoots(RootsConfig{})
+	_, err := roots.StoreFor("")
+	var ambiguous ProjectAmbiguousError
+	if !errors.As(err, &ambiguous) || ambiguous.Reason != "no-default" {
+		t.Fatalf("want ProjectAmbiguousError{no-default}, got %T: %v", err, err)
+	}
+}
+
+func TestRoots_CompatModeKeepsImplicitDefaultUnderMultiProject(t *testing.T) {
+	roots := NewRoots(RootsConfig{
+		DefaultRoot: "/default", DefaultProjectID: "proj.harne8",
+		Explicit: map[string]string{"proj.foo": "/foo"},
+	})
+	s, err := roots.StoreFor("")
+	if err != nil || s.Root != "/default" {
+		t.Fatalf("compat mode must preserve implicit default even with >1 project, got (%q,%v)", s.Root, err)
+	}
+}
+
+func TestRoots_StrictModeRejectsImplicitDefaultUnderMultiProject(t *testing.T) {
+	roots := NewRoots(RootsConfig{
+		DefaultRoot: "/default", DefaultProjectID: "proj.harne8",
+		Explicit:        map[string]string{"proj.foo": "/foo"},
+		StrictSelection: true,
+	})
+	_, err := roots.StoreFor("")
+	var ambiguous ProjectAmbiguousError
+	if !errors.As(err, &ambiguous) || ambiguous.Reason != "multi-project-implicit" {
+		t.Fatalf("want ProjectAmbiguousError{multi-project-implicit}, got %T: %v", err, err)
+	}
+	// A single-project deployment (no other registered projects) is
+	// unaffected by strict mode — existing stdio ergonomics survive.
+	single := NewRoots(RootsConfig{DefaultRoot: "/default", DefaultProjectID: "proj.harne8", StrictSelection: true})
+	s, err := single.StoreFor("")
+	if err != nil || s.Root != "/default" {
+		t.Fatalf("strict mode must not affect a genuinely single-project deployment, got (%q,%v)", s.Root, err)
+	}
 }
 
 func TestRoots_ExplicitWinsOverDefaultMapping(t *testing.T) {

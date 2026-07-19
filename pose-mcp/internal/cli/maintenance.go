@@ -27,8 +27,11 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	poseDir := filepath.Join(root, ".pose")
-	if _, e := os.Stat(poseDir); e != nil {
+	if fi, e := os.Lstat(poseDir); e != nil {
 		fmt.Fprintln(stderr, "pose upgrade: .pose not found")
+		return 1
+	} else if fi.Mode()&os.ModeSymlink != 0 {
+		fmt.Fprintln(stderr, "pose upgrade: refusing to follow symlink at .pose")
 		return 1
 	}
 	current := 0
@@ -54,8 +57,8 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	for _, rel := range []string{".pose/roadmaps", ".pose/changelogs/unreleased", ".pose/reports/history"} {
-		if e := os.MkdirAll(filepath.Join(root, filepath.FromSlash(rel)), 0o755); e != nil {
-			fmt.Fprintln(stderr, e)
+		if e := ensureManagedDirSafe(root, rel); e != nil {
+			fmt.Fprintf(stderr, "pose upgrade: %v\n", e)
 			return 1
 		}
 	}
@@ -65,6 +68,27 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "Result: SUCCESS — schema v%d.\n", nativeSchemaVersion)
 	return 0
+}
+
+// ensureManagedDirSafe creates root/rel like os.MkdirAll, but first Lstat's
+// the target and every already-existing ancestor under root: if any of them
+// is a symlink, the upgrade refuses rather than silently writing through an
+// instance-controlled escape (spec pose-upgrade-compatibility-lab).
+func ensureManagedDirSafe(root, rel string) error {
+	full := filepath.Join(root, filepath.FromSlash(rel))
+	if fi, err := os.Lstat(full); err == nil {
+		if fi.Mode()&os.ModeSymlink != 0 {
+			return fmt.Errorf("refusing to follow symlink at %s", rel)
+		}
+		return nil
+	}
+	for dir := filepath.Dir(full); len(dir) > len(root) && strings.HasPrefix(dir, root); dir = filepath.Dir(dir) {
+		if fi, err := os.Lstat(dir); err == nil && fi.Mode()&os.ModeSymlink != 0 {
+			relDir, _ := filepath.Rel(root, dir)
+			return fmt.Errorf("refusing to follow symlink at %s", filepath.ToSlash(relDir))
+		}
+	}
+	return os.MkdirAll(full, 0o755)
 }
 
 func cmdKnowledgeHousekeeping(root string, args []string, stdout, stderr io.Writer) int {
@@ -305,7 +329,11 @@ func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int
 			}
 		}
 	}
-	fmt.Fprintf(stdout, "knowledge.schema.errors=%d\nknowledge.schema.warnings=%d\nknowledge.schema.checked=%d\nknowledge.overdue_count=%d\nknowledge.max_overdue=%d\n", errors, warnings, checked, overdue, max)
+	// Consumption refs (spec pose-knowledge-consumption-traceability R1):
+	// knowledge:<slug> citations in specs must resolve to governed artifacts.
+	refFailures := validateKnowledgeRefs(root, stderr)
+	errors += refFailures
+	fmt.Fprintf(stdout, "knowledge.schema.errors=%d\nknowledge.schema.warnings=%d\nknowledge.schema.checked=%d\nknowledge.overdue_count=%d\nknowledge.max_overdue=%d\nknowledge.ref_failures=%d\n", errors, warnings, checked, overdue, max, refFailures)
 	if errors > 0 || overdue > max {
 		fmt.Fprintln(stdout, "Result: FAILURE")
 		if mode == "strict" {

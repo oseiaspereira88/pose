@@ -1,5 +1,7 @@
 # CI integration
 
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 ## GitHub Action
 
 The distribution ships a composite action (`pose-action/`):
@@ -10,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: <owner>/<repo>/pose-action@main   # marketplace name after the repo split
+      - uses: oseiaspereira88/pose/pose-action@main   # pin to a release tag or commit SHA in production
         with:
           mode: strict            # or tolerant
           lint-specs: "true"
@@ -29,7 +31,7 @@ the POSE repository to an immutable release tag or commit:
 ```yaml
 repos:
   - repo: https://github.com/oseiaspereira88/pose
-    rev: v0.2.0  # replace with the first release containing these hooks
+    rev: v0.9.0  # pin to an immutable release tag
     hooks: [{id: pose-check}, {id: pose-lint-spec}, {id: pose-history-check}]
 ```
 

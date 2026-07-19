@@ -1,21 +1,21 @@
 # Doc Audit Report — <YYYY-MM-DD>
 
-## Escopo
-<!-- Descreva rapidamente o conjunto de documentos e limites da auditoria. -->
-<!-- Inclua contexto mínimo: produto/módulo e período ou versão analisada. -->
+## Scope
+<!-- Briefly describe the set of documents and the boundaries of the audit. -->
+<!-- Include minimal context: product/module and the period or version analyzed. -->
 
-## Achados
-<!-- Liste inconsistências, ambiguidades ou links/comandos quebrados encontrados. -->
-<!-- Priorize por impacto (alto/médio/baixo) e referência do documento afetado. -->
+## Findings
+<!-- List inconsistencies, ambiguities, or broken links/commands found. -->
+<!-- Prioritize by impact (high/medium/low) and reference the affected document. -->
 
-## Correções aplicadas
-<!-- Registre o que foi corrigido nesta rodada com rastreabilidade (arquivo/seção). -->
-<!-- Para cada item, indique a motivação curta da correção aplicada. -->
+## Fixes applied
+<!-- Record what was fixed in this round with traceability (file/section). -->
+<!-- For each item, note the short rationale for the fix applied. -->
 
-## Riscos residuais
-<!-- Aponte o que permaneceu pendente e possíveis impactos operacionais. -->
-<!-- Indique dependências externas ou validações humanas ainda necessárias. -->
+## Residual risks
+<!-- Point out what remained pending and its possible operational impact. -->
+<!-- Note external dependencies or human validations still needed. -->
 
 ## Follow-ups
-<!-- Defina próximos passos objetivos com responsável e prazo sugerido. -->
-<!-- Inclua ações para prevenir recorrência dos achados em futuras revisões. -->
+<!-- Define objective next steps with an owner and a suggested deadline. -->
+<!-- Include actions to prevent recurrence of the findings in future reviews. -->

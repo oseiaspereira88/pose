@@ -22,14 +22,22 @@ builds:
     env: [CGO_ENABLED=0]
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]
+    # Reproducibility (spec pose-reproducible-release-verification): strip
+    # host paths and pin the embedded timestamp to the commit so an
+    # independent rebuild with the same toolchain yields the same binary.
+    flags: [-trimpath]
+    mod_timestamp: "{{ .CommitTimestamp }}"
     ldflags:
       - -s -w
-      - -X github.com/harne8/pose-mcp/internal/cli.Version={{ .Version }}
+      - -X github.com/harne8/pose-mcp/internal/version.Version={{ .Version }}
 
 archives:
   - id: default
     ids: [pose]
     formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
     name_template: "pose_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     files:
       - src: LICENSE
@@ -43,6 +51,29 @@ checksum:
   name_template: checksums.txt
   algorithm: sha256
 
+# spec pose-cyclonedx-sbom: one CycloneDX SBOM per release archive, generated
+# by syft from the exact packaged artifact (binary analysis; the Go build
+# info inside the binary carries module versions). Subject mapping is by
+# filename: <archive>.cdx.json describes <archive>.
+sboms:
+  - id: archive-sbom
+    artifacts: archive
+    cmd: syft
+    documents: ["${artifact}.cdx.json"]
+    args: ["scan", "${artifact}", "--output", "cyclonedx-json=${document}"]
+
+# spec pose-release-signing: keyless Sigstore signing of every artifact
+# (archives, SBOMs and checksums.txt) with offline-verifiable bundles.
+# Identity policy (ADR 2026-07-19-keyless-release-signing-identity):
+# certificate identity is the release workflow of this repository via the
+# GitHub OIDC issuer; verification commands are documented in SECURITY.md.
+signs:
+  - id: sigstore-bundles
+    cmd: cosign
+    signature: "${artifact}.sigstore.json"
+    args: ["sign-blob", "--yes", "--bundle", "${signature}", "${artifact}"]
+    artifacts: all
+
 changelog:
   # Release notes come from the POSE changelog fragments, injected by the
   # release workflow via --release-notes (`pose release-notes`). goreleaser's
@@ -54,3 +85,5 @@ release:
   prerelease: auto
   extra_files:
     - glob: install.sh
+    - glob: compatibility.json
+    - glob: compatibility-report.md

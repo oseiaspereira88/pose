@@ -1,5 +1,7 @@
 # Quickstart
 
+**Doc type:** Tutorial &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 ## Install
 
 ```bash

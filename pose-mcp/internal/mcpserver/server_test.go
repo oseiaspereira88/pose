@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/harne8/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
 // fakeReporter implements Reporter for testing the conductor_run_* tools.
@@ -112,6 +113,21 @@ func TestInitialize(t *testing.T) {
 	if info["name"] != "harne8-pose-mcp" {
 		t.Errorf("serverInfo.name = %v", info["name"])
 	}
+	// spec pose-version-contract R1: serverInfo.version follows the
+	// authoritative binary version on every transport.
+	if info["version"] != version.Version {
+		t.Errorf("serverInfo.version = %v, want %v", info["version"], version.Version)
+	}
+}
+
+func TestInitializeStdioVersionMatchesAuthority(t *testing.T) {
+	s := &Server{}
+	resp := s.dispatchRPC(context.Background(), rpcRequest{JSONRPC: "2.0", ID: json.RawMessage(`1`), Method: "initialize"})
+	res, _ := resp.Result.(map[string]any)
+	info, _ := res["serverInfo"].(map[string]any)
+	if info["version"] != version.Version {
+		t.Errorf("stdio serverInfo.version = %v, want %v", info["version"], version.Version)
+	}
 }
 
 func TestNotificationAccepted(t *testing.T) {
@@ -126,8 +142,8 @@ func TestToolsList(t *testing.T) {
 	ts := newTestServer(t, "")
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}`)
 	tools, _ := out.Result["tools"].([]any)
-	if len(tools) != 21 {
-		t.Fatalf("tools = %d, want 21", len(tools))
+	if len(tools) != 30 {
+		t.Fatalf("tools = %d, want 30", len(tools))
 	}
 	names := map[string]bool{}
 	for _, raw := range tools {

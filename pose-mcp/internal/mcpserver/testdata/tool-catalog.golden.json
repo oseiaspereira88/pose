@@ -1,0 +1,735 @@
+{
+  "catalog_version": 1,
+  "governance": {
+    "conductor_run_close": {
+      "risk": "external-side-effect",
+      "optional": true,
+      "activation": "Conductor reporter configured (CONDUCTOR_URL, CONDUCTOR_RUN_TOKEN, CONDUCTOR_PROJECT_ID)"
+    },
+    "conductor_run_event": {
+      "risk": "external-side-effect",
+      "optional": true,
+      "activation": "Conductor reporter configured (CONDUCTOR_URL, CONDUCTOR_RUN_TOKEN, CONDUCTOR_PROJECT_ID)"
+    },
+    "conductor_run_open": {
+      "risk": "external-side-effect",
+      "optional": true,
+      "activation": "Conductor reporter configured (CONDUCTOR_URL, CONDUCTOR_RUN_TOKEN, CONDUCTOR_PROJECT_ID)"
+    },
+    "pose_check": {
+      "risk": "gate"
+    },
+    "pose_extension_list": {
+      "risk": "read"
+    },
+    "pose_get_changelog": {
+      "risk": "read"
+    },
+    "pose_get_followups": {
+      "risk": "read"
+    },
+    "pose_get_knowledge": {
+      "risk": "read"
+    },
+    "pose_get_report": {
+      "risk": "read"
+    },
+    "pose_get_roadmap": {
+      "risk": "read"
+    },
+    "pose_get_rules": {
+      "risk": "read"
+    },
+    "pose_get_skill": {
+      "risk": "read"
+    },
+    "pose_get_spec": {
+      "risk": "read"
+    },
+    "pose_get_workflow": {
+      "risk": "read"
+    },
+    "pose_insights": {
+      "risk": "read"
+    },
+    "pose_lint_spec": {
+      "risk": "gate"
+    },
+    "pose_list_knowledge": {
+      "risk": "read"
+    },
+    "pose_list_reports": {
+      "risk": "read"
+    },
+    "pose_list_roadmaps": {
+      "risk": "read"
+    },
+    "pose_list_specs": {
+      "risk": "read"
+    },
+    "pose_requirement_trace": {
+      "risk": "read"
+    },
+    "pose_skills_check": {
+      "risk": "gate"
+    },
+    "pose_spec_amendments": {
+      "risk": "read"
+    },
+    "pose_spec_readiness": {
+      "risk": "read"
+    },
+    "pose_suggest": {
+      "risk": "read"
+    },
+    "pose_validate_approve": {
+      "risk": "gate"
+    },
+    "pose_validate_cancel": {
+      "risk": "gate"
+    },
+    "pose_validate_request": {
+      "risk": "gate"
+    },
+    "pose_validate_status": {
+      "risk": "read"
+    },
+    "pose_validate_submit": {
+      "risk": "external-side-effect",
+      "optional": true,
+      "activation": "Harness executor configured via WithHarnessExecutor"
+    }
+  },
+  "tools": [
+    {
+      "description": "Read one POSE spec by slug: lifecycle frontmatter (status, created_at, completed_at, supersedes, depends_on, priority) plus the full markdown body.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Spec slug, e.g. \"semql-entity-aliases\"",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_get_spec"
+    },
+    {
+      "description": "Bidirectional requirement-to-evidence trace of one POSE spec: every declared R-ID with its trace disposition (satisfied, waived, withdrawn), evidence text and structured refs (check:, test:, report:, commit:), plus the reverse evidence→requirements index, missing and orphaned entries.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Spec slug whose requirement trace to project",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_requirement_trace"
+    },
+    {
+      "description": "Append-only amendment history of one POSE spec: material requirement changes with affected R-IDs, rationale, author/reviewer aliases and timestamps, plus any current requirement state not yet acknowledged by an amendment event.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Spec slug whose amendment history to read",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_spec_amendments"
+    },
+    {
+      "description": "List every POSE spec of the project with its lifecycle frontmatter (no body). Optionally filter by status: draft, in-progress, done, blocked, superseded or abandoned.",
+      "inputSchema": {
+        "properties": {
+          "cursor": {
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "type": "integer"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "status": {
+            "description": "Optional lifecycle filter",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_list_specs"
+    },
+    {
+      "description": "Answer whether a POSE spec is eligible for work/execution: not in a terminal status and every depends_on ref satisfied (spec refs need status done; milestone:/roadmap: refs are fail-closed until roadmaps are projected). Returns {ready, status, waiting_on: [{ref, reason}], reason}. Consult before acting on a spec.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Spec slug to evaluate",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_spec_readiness"
+    },
+    {
+      "description": "Read the changelog state (pose-release-changelog): pending unreleased fragments (one per delivered spec) and consolidated release versions; pass a version to load its full body.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "version": {
+            "description": "Optional release version (e.g. \"v0.2.0\") to load its consolidated changelog",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_get_changelog"
+    },
+    {
+      "description": "List every governed roadmap (pose-roadmap-artifact): status, depends_on and milestones (id, after, target dates, specs). The order of N specs lives here.",
+      "inputSchema": {
+        "properties": {
+          "cursor": {
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "type": "integer"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_list_roadmaps"
+    },
+    {
+      "description": "Read one governed roadmap by slug: frontmatter, milestones (with planned dates and member specs) and the markdown body.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Roadmap slug, e.g. \"sdd-serie\"",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_get_roadmap"
+    },
+    {
+      "description": "Canonical POSE trail for a task type (workflow + skill + cumulative rules + validation command), straight from the deterministic CLI (pose suggest --json). Use before starting any task to know which workflow and rules apply. Optional domain or repo-relative path refine the rule set.",
+      "inputSchema": {
+        "properties": {
+          "domain": {
+            "description": "Optional domain for extra rules (e.g. frontend, backend-go, k8s)",
+            "type": "string"
+          },
+          "path": {
+            "description": "Optional repo-relative path to infer the domain from",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "task_type": {
+            "description": "Task type, e.g. feature, bugfix, refactor, documentation, adr, knowledge, recurrence-escalation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_type"
+        ],
+        "type": "object"
+      },
+      "name": "pose_suggest"
+    },
+    {
+      "description": "Read one POSE workflow (.pose/workflows/\u003cname\u003e.md) with its full checklist and execution modes. Without a name, lists every available workflow.",
+      "inputSchema": {
+        "properties": {
+          "name": {
+            "description": "Workflow name, e.g. feature, bugfix, review; omit to list all",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_get_workflow"
+    },
+    {
+      "description": "Read one POSE domain rule (.pose/rules/\u003cdomain\u003e.md). Without a domain, lists every available rule. Rules apply cumulatively; in conflict the most restrictive (usually security) prevails.",
+      "inputSchema": {
+        "properties": {
+          "domain": {
+            "description": "Rule domain, e.g. security, backend-go, frontend-react; omit to list all",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_get_rules"
+    },
+    {
+      "description": "Aggregate local POSE report history into deterministic outcome insights. Returns the same structured contract as pose stats --json, without network access or writes.",
+      "inputSchema": {
+        "properties": {
+          "group_by": {
+            "default": "workflow",
+            "description": "Dimension used to group outcomes",
+            "enum": [
+              "workflow",
+              "task",
+              "context"
+            ],
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "since_days": {
+            "default": 0,
+            "description": "Optional rolling window in days; zero includes all history",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_insights"
+    },
+    {
+      "description": "Live backlog of spec follow-ups (pose followups --json): open items with their source spec, disposition and lexical near-duplicate candidates. Input for planning the next specs.",
+      "inputSchema": {
+        "properties": {
+          "all": {
+            "description": "true = every follow-up (any disposition); default false = open backlog only",
+            "type": "boolean"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_get_followups"
+    },
+    {
+      "description": "Evaluate the POSE structural integrity gate (pose check) in read-only mode. Returns the verdict (passed/exit_code) plus the full output as evidence — a failing gate is a result, not an error.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "strict": {
+            "description": "Strict mode (default true); tolerant turns failures into warnings",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_check"
+    },
+    {
+      "description": "List installed POSE extensions (skills, workflows, rules or import adapters installed via `pose extension install`): id, version, kind, installed_at, digest, managed files and whether signature verification passed at install time. Read-only — installing or removing an extension is a local CLI operation (`pose extension install/remove`), never exposed as an MCP write.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_extension_list"
+    },
+    {
+      "description": "Evaluate the Agent Skills conformance gate (pose skills-check) in read-only mode: required metadata (name/description/when_to_use plus POSE's pose_schema_range/clients/capabilities), linked-resource resolution, an offline unsafe-instruction/secret-shaped-content scan, and claude-code client cross-check. Returns the verdict (passed/exit_code) plus the full output as evidence.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "strict": {
+            "description": "Strict mode (default true); tolerant turns failures into warnings",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_skills_check"
+    },
+    {
+      "description": "Evaluate the spec content + lifecycle gate (pose lint-spec) in read-only mode: skeletal sections, done-without-completed_at, follow-ups without disposition. Without a slug, evaluates every spec.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Spec slug; omit to lint all specs",
+            "type": "string"
+          },
+          "strict": {
+            "description": "Strict mode (default true)",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_lint_spec"
+    },
+    {
+      "description": "List POSE knowledge entries (handoffs, decision-logs, notes) from .pose/knowledge/. Excludes sensitivity:restricted entries. Returns metadata only; use pose_get_knowledge for the full body.",
+      "inputSchema": {
+        "properties": {
+          "cursor": {
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "type": "integer"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_list_knowledge"
+    },
+    {
+      "description": "Get one POSE knowledge entry by slug (full body). Returns error if the entry has sensitivity:restricted.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Knowledge slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_get_knowledge"
+    },
+    {
+      "description": "List all historical POSE compliance and validation reports from .pose/reports/history/*.jsonl. Returns structured execution metadata, excluding full report bodies.",
+      "inputSchema": {
+        "properties": {
+          "cursor": {
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "type": "integer"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_list_reports"
+    },
+    {
+      "description": "Get the full markdown content of a POSE validation report by its filename from .pose/reports/.",
+      "inputSchema": {
+        "properties": {
+          "filename": {
+            "description": "The report filename, e.g. \"2026-06-11-standard-semql-entity-aliases.md\"",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "required": [
+          "filename"
+        ],
+        "type": "object"
+      },
+      "name": "pose_get_report"
+    },
+    {
+      "description": "Read one agent skill by name (.agents/skills/\u003cname\u003e/SKILL.md): full SKILL.md body with trigger keywords, steps, and output requirements. Without a name, lists every available skill. Use before executing a skill-driven task (e.g. pose-investigate) to get the exact execution protocol.",
+      "inputSchema": {
+        "properties": {
+          "name": {
+            "description": "Skill name, e.g. \"pose-investigate\"; omit to list all",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_get_skill"
+    },
+    {
+      "description": "Resolve an immutable, digest-pinned validation check plan (mirrors pose validate's stack/module/changed-scope filters) without executing anything. Returns {request_id, plan, state: \"pending_approval\"}. The plan's digest binds every subsequent step — approve with the exact digest returned here.",
+      "inputSchema": {
+        "properties": {
+          "changed_from": {
+            "description": "Optional changed-scope base revision, same as pose validate --changed-from",
+            "type": "string"
+          },
+          "changed_to": {
+            "description": "Optional changed-scope head revision, same as pose validate --changed-to",
+            "type": "string"
+          },
+          "module_filter": {
+            "description": "Optional module filter, same as pose validate --module",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "stack_filter": {
+            "description": "Optional stack filter, same values as pose validate --stack",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_validate_request"
+    },
+    {
+      "description": "Approve or reject a pending validation request. Requires a bound Execution Identity (X-MCP-Execution-Identity) — approval can never be anonymous, regardless of the server's default policy mode. plan_digest must equal the exact digest pose_validate_request returned; a mismatch is rejected as plan substitution.",
+      "inputSchema": {
+        "properties": {
+          "decision": {
+            "description": "Approval decision",
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "type": "string"
+          },
+          "plan_digest": {
+            "description": "The exact plan.digest returned by pose_validate_request — binds the approval to that immutable plan",
+            "type": "string"
+          },
+          "rationale": {
+            "description": "Why this decision was made; recorded on the request",
+            "type": "string"
+          },
+          "request_id": {
+            "description": "Request id returned by pose_validate_request",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "plan_digest",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "name": "pose_validate_approve"
+    },
+    {
+      "description": "Hand an approved validation request to the configured Harness executor. Only valid from state \"approved\"; idempotent — resubmitting an already-submitted request returns the same execution_id without re-invoking the Harness. Requires a Harness executor to be configured; otherwise returns a configuration error.",
+      "inputSchema": {
+        "properties": {
+          "request_id": {
+            "description": "Request id to submit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "type": "object"
+      },
+      "name": "pose_validate_submit"
+    },
+    {
+      "description": "Read the current state of a validation request: pending_approval, approved, rejected, submitted or cancelled, plus its plan, approver and execution_id when present.",
+      "inputSchema": {
+        "properties": {
+          "request_id": {
+            "description": "Request id to inspect",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "type": "object"
+      },
+      "name": "pose_validate_status"
+    },
+    {
+      "description": "Cancel a validation request that has not reached a terminal state. Cancelling a submitted request marks it locally; propagating cancellation to a running Harness execution is the executor's own responsibility.",
+      "inputSchema": {
+        "properties": {
+          "reason": {
+            "description": "Why this request is being cancelled",
+            "type": "string"
+          },
+          "request_id": {
+            "description": "Request id to cancel",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "type": "object"
+      },
+      "name": "pose_validate_cancel"
+    },
+    {
+      "description": "Open an observed external run on the Conductor board. Call this at the start of a session to create a task visible in the board. Returns run_id and task_id to pass to subsequent conductor_run_event / conductor_run_close calls. Requires CONDUCTOR_URL, CONDUCTOR_PROJECT_ID (and optionally CONDUCTOR_RUN_TOKEN) to be set when pose-mcp was started.",
+      "inputSchema": {
+        "properties": {
+          "adapter": {
+            "description": "Reporter adapter identifier, e.g. 'claude-code', 'codex'. Defaults to 'mcp'",
+            "type": "string"
+          },
+          "origin": {
+            "description": "Free-form origin label, e.g. 'ide', 'cli'",
+            "type": "string"
+          },
+          "spec_slug": {
+            "description": "POSE spec slug this run is associated with, e.g. 'portal-session-principal'",
+            "type": "string"
+          },
+          "title": {
+            "description": "Human-readable title for the run (e.g. 'Fix auth bug in session-store')",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "conductor_run_open"
+    },
+    {
+      "description": "Append an event to an open external run on the Conductor board. Use to report intermediate progress (tool calls, cost increments, checkpoints). Terminal event types (run.succeeded, run.failed, run.canceled) also close the run — prefer conductor_run_close for that.",
+      "inputSchema": {
+        "properties": {
+          "cost_usd": {
+            "description": "Incremental cost in USD for this event (optional)",
+            "type": "number"
+          },
+          "payload": {
+            "description": "Arbitrary JSON payload for the event (will be redacted server-side)",
+            "type": "object"
+          },
+          "run_id": {
+            "description": "run_id returned by conductor_run_open",
+            "type": "string"
+          },
+          "type": {
+            "description": "Event type, e.g. 'run.event', 'run.tool_call', 'run.checkpoint'. Defaults to 'run.event'",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "name": "conductor_run_event"
+    },
+    {
+      "description": "Close an observed external run on the Conductor board by emitting a terminal event. The run's task moves to CLOSED / FAILED / CANCELED. Call this at the end of a session.",
+      "inputSchema": {
+        "properties": {
+          "cost_usd": {
+            "description": "Total cost in USD for the run (optional)",
+            "type": "number"
+          },
+          "outcome": {
+            "description": "Outcome of the run: 'succeeded' (default), 'failed', or 'canceled'",
+            "type": "string"
+          },
+          "run_id": {
+            "description": "run_id returned by conductor_run_open",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "name": "conductor_run_close"
+    }
+  ]
+}

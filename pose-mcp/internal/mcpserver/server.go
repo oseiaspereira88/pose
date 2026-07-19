@@ -19,8 +19,15 @@ import (
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/trace"
+
 	mcpenforce "github.com/harne8/mcp-enforce"
+	"github.com/harne8/pose-mcp/internal/observability"
 	"github.com/harne8/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
 // Reporter is the interface for emitting Conductor run events (external-run-reporters).
@@ -101,8 +108,12 @@ func (c *ConductorClient) conductorPost(ctx context.Context, path string, body [
 const (
 	protocolVersion = "2025-03-26"
 	serverName      = "harne8-pose-mcp"
-	serverVersion   = "0.1.0"
 )
+
+// serverVersion follows the authoritative binary version instead of an
+// MCP-local one (spec pose-version-contract): serverInfo.version must match
+// `pose version` and the release metadata for the same build.
+var serverVersion = version.Version
 
 // Server dispatches MCP requests against a POSE store resolved per project_id
 // (pose-mcp-multi-project). With a single root it behaves as before.
@@ -112,6 +123,9 @@ type Server struct {
 	auditor        mcpenforce.Auditor // records allow+deny decisions
 	identitySecret []byte             // verifies X-MCP-Execution-Identity (ADR-007); empty = disabled
 	reporter       Reporter           // nil = conductor_run_* tools return config error
+	harness        HarnessExecutor    // nil = pose_validate_submit returns config error
+	orch           *orchestrator      // safe validation orchestration state (spec pose-safe-validate-orchestration)
+	obs            *observability.Provider
 }
 
 // WithIdentitySecret sets the HMAC secret used to verify the Execution Identity
@@ -128,10 +142,47 @@ func (s *Server) WithReporter(r Reporter) *Server {
 	return s
 }
 
+// WithHarnessExecutor enables pose_validate_submit by wiring a real Harness
+// client (spec pose-safe-validate-orchestration). Without it, an approved
+// request can be resolved and approved but never submitted — the same
+// "optional tool, clear config error" pattern as WithReporter.
+func (s *Server) WithHarnessExecutor(h HarnessExecutor) *Server {
+	s.harness = h
+	return s
+}
+
+// WithObservability wires the opt-in OpenTelemetry provider (spec
+// pose-otel-observability). Every server has a working (no-op by default)
+// obs field from construction, so this is optional — callers that never
+// call it get zero-cost, zero-network tracing/metrics/logging.
+func (s *Server) WithObservability(p *observability.Provider) *Server {
+	if p != nil {
+		s.obs = p
+	}
+	return s
+}
+
+func defaultObservability() *observability.Provider {
+	p, _ := observability.Init(context.Background(), observability.Config{})
+	return p
+}
+
+// observability returns s.obs, falling back to a shared no-op instance for
+// a Server constructed as a bare struct literal (test fixtures) rather
+// than via New/NewWithRoots — never nil, so call sites need no guard.
+func (s *Server) observability() *observability.Provider {
+	if s.obs != nil {
+		return s.obs
+	}
+	return sharedNoopObservability
+}
+
+var sharedNoopObservability = defaultObservability()
+
 // New builds a single-root server (legacy / dev): every request resolves to this
 // store regardless of project_id only when project_id is empty.
 func New(store pose.Store) *Server {
-	return &Server{roots: pose.NewRoots(pose.RootsConfig{DefaultRoot: store.Root}), policy: NewPolicyGate(PolicyConfig{}), auditor: defaultAuditor}
+	return &Server{roots: pose.NewRoots(pose.RootsConfig{DefaultRoot: store.Root}), policy: NewPolicyGate(PolicyConfig{}), auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability()}
 }
 
 // NewWithRoots builds a project-aware server backed by a roots registry.
@@ -144,7 +195,7 @@ func NewWithRootsAndPolicy(roots *pose.Roots, policy *PolicyGate) *Server {
 	if policy == nil {
 		policy = NewPolicyGate(PolicyConfig{})
 	}
-	return &Server{roots: roots, policy: policy, auditor: defaultAuditor}
+	return &Server{roots: roots, policy: policy, auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability()}
 }
 
 // TokenAuth wraps next with Bearer token authentication. When token is empty
@@ -345,6 +396,32 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	if err := json.Unmarshal(req.Params, &p); err != nil || p.Name == "" {
 		return errorResp(req.ID, -32602, "invalid tools/call params")
 	}
+
+	// Opt-in OpenTelemetry signals (spec pose-otel-observability, R1/R2):
+	// one span + one duration/outcome measurement per tool call, tagged
+	// only with the tool name and its catalog risk class — both fixed,
+	// low-cardinality values, never an argument, path or repo name.
+	obs := s.observability()
+	riskClass := string(catalogGovernance[p.Name].Risk)
+	callAttrs := metric.WithAttributes(attribute.String("tool", p.Name))
+	ctx, span := obs.Tracer.Start(ctx, p.Name, trace.WithAttributes(
+		attribute.String("pose.mcp.tool", p.Name),
+		attribute.String("pose.mcp.risk_class", riskClass),
+	))
+	obs.Instr.InFlight.Add(ctx, 1, callAttrs)
+	start := time.Now()
+	outcome, logMsg := "ok", "ok"
+	defer func() {
+		obs.Instr.InFlight.Add(ctx, -1, callAttrs)
+		obs.Instr.CallDuration.Record(ctx, float64(time.Since(start).Microseconds())/1000,
+			metric.WithAttributes(attribute.String("tool", p.Name), attribute.String("risk_class", riskClass), attribute.String("outcome", outcome)))
+		if outcome != "ok" {
+			span.SetStatus(codes.Error, outcome)
+		}
+		obs.Log.Emit(ctx, p.Name, riskClass, outcome, logMsg)
+		span.End()
+	}()
+
 	projectID := projectIDFromArguments(p.Arguments)
 	if projectID == "" {
 		projectID = projectIDFromHeader
@@ -360,6 +437,8 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	if len(s.identitySecret) > 0 && identityToken != "" {
 		id, ierr := mcpenforce.ParseToken(identityToken, s.identitySecret)
 		if ierr != nil {
+			outcome, logMsg = "policy_denied", "invalid_identity"
+			obs.Instr.PolicyDenials.Add(ctx, 1, callAttrs)
 			decision := mcpenforce.DenyDecision(policyInput, "invalid_identity")
 			s.auditor.Record(ctx, decision)
 			return errorRespData(req.ID, -32004, "policy denied", decision.Metadata())
@@ -375,13 +454,47 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	// what, with no payload content.
 	s.auditor.Record(ctx, decision)
 	if !decision.Allow {
+		outcome, logMsg = "policy_denied", "policy denied"
+		obs.Instr.PolicyDenials.Add(ctx, 1, callAttrs)
 		return errorRespData(req.ID, -32004, "policy denied", decision.Metadata())
 	}
+	// Carry the verified Execution Identity (if any) to dispatch so tools
+	// that require explicit authorization beyond the server's default
+	// policy mode — pose_validate_approve/submit (spec
+	// pose-safe-validate-orchestration R2) — can enforce it per-call. By
+	// this point any presented identity is guaranteed valid and unexpired
+	// (PolicyGate.Evaluate denies otherwise); RunID is empty when no
+	// identity was presented or identity binding is unconfigured.
+	ctx = withCallerIdentity(ctx, policyInput.RunID, policyInput.Scopes)
 	out, err := s.dispatch(ctx, p.Name, p.Arguments)
 	if err != nil {
+		outcome = "error"
+		logMsg = observability.Message(err.Error())
+		span.RecordError(err)
 		var unknown unknownToolError
 		if errors.As(err, &unknown) {
 			return errorResp(req.ID, -32602, err.Error())
+		}
+		// Project selection failures (spec pose-mcp-project-scope-contract
+		// R2/R3): distinct, machine-readable error codes carrying only the
+		// caller-supplied logical project_id — never the resolved filesystem
+		// root — so a client can tell "retry with a known id" apart from
+		// "pass project_id, the deployment has more than one project."
+		var unknownProj pose.ProjectUnknownError
+		var ambiguousProj pose.ProjectAmbiguousError
+		switch {
+		case errors.As(err, &unknownProj):
+			return result(req.ID, map[string]any{
+				"content":           []map[string]any{{"type": "text", "text": err.Error()}},
+				"structuredContent": map[string]any{"error_code": "project_unknown", "project_id": unknownProj.ProjectID},
+				"isError":           true,
+			})
+		case errors.As(err, &ambiguousProj):
+			return result(req.ID, map[string]any{
+				"content":           []map[string]any{{"type": "text", "text": err.Error()}},
+				"structuredContent": map[string]any{"error_code": "project_ambiguous", "reason": ambiguousProj.Reason},
+				"isError":           true,
+			})
 		}
 		// Tool execution failures are results with isError=true (MCP spec),
 		// so the model can read the cause and adapt.
@@ -392,6 +505,7 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	}
 	pretty, merr := json.MarshalIndent(out, "", "  ")
 	if merr != nil {
+		outcome, logMsg = "error", "internal error encoding tool result"
 		return errorResp(req.ID, -32603, "internal error encoding tool result")
 	}
 	return result(req.ID, map[string]any{
@@ -464,6 +578,13 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 	case "conductor_run_open", "conductor_run_event", "conductor_run_close":
 		return s.dispatchReporter(ctx, name, args)
 	}
+	// Safe validation orchestration (spec pose-safe-validate-orchestration):
+	// approve/submit/status/cancel act on an already-resolved request_id and
+	// need no POSE store of their own — only pose_validate_request does.
+	switch name {
+	case "pose_validate_approve", "pose_validate_submit", "pose_validate_status", "pose_validate_cancel":
+		return s.dispatchValidateOrchestration(ctx, name, args)
+	}
 	// All other tools resolve their store from the optional project_id (multi-project).
 	var sel struct {
 		ProjectID string `json:"project_id"`
@@ -482,9 +603,47 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_get_spec: required argument %q missing", "slug")
 		}
 		return store.GetSpec(a.Slug)
+	case "pose_requirement_trace":
+		var a struct {
+			Slug string `json:"slug"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
+			return nil, fmt.Errorf("pose_requirement_trace: required argument %q missing", "slug")
+		}
+		spec, err := store.GetSpec(a.Slug)
+		if err != nil {
+			return nil, err
+		}
+		trace := pose.ParseRequirementTrace(spec.Body)
+		return map[string]any{"slug": spec.Slug, "status": spec.Status, "trace": trace}, nil
+	case "pose_spec_amendments":
+		var a struct {
+			Slug string `json:"slug"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
+			return nil, fmt.Errorf("pose_spec_amendments: required argument %q missing", "slug")
+		}
+		spec, err := store.GetSpec(a.Slug)
+		if err != nil {
+			return nil, err
+		}
+		events, err := pose.LoadAmendments(pose.AmendmentsPath(spec.Path))
+		if err != nil {
+			return nil, fmt.Errorf("pose_spec_amendments: %v", err)
+		}
+		pending := pose.UnacknowledgedChanges(spec.Body, events)
+		if events == nil {
+			events = []pose.Amendment{}
+		}
+		if pending == nil {
+			pending = []string{}
+		}
+		return map[string]any{"slug": spec.Slug, "status": spec.Status, "events": events, "unacknowledged": pending}, nil
 	case "pose_list_specs":
 		var a struct {
 			Status string `json:"status"`
+			Cursor string `json:"cursor"`
+			Limit  int    `json:"limit"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_specs: invalid arguments")
@@ -493,7 +652,12 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err != nil {
 			return nil, err
 		}
-		return map[string]any{"specs": specs, "count": len(specs)}, nil
+		after, err := decodePageCursor(a.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("pose_list_specs: %w", err)
+		}
+		page, next := paginatePage(specs, after, a.Limit)
+		return map[string]any{"specs": page, "count": len(page), "next_cursor": next}, nil
 	case "pose_spec_readiness":
 		var a struct {
 			Slug string `json:"slug"`
@@ -511,11 +675,23 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		return store.GetChangelog(a.Version)
 	case "pose_list_roadmaps":
+		var a struct {
+			Cursor string `json:"cursor"`
+			Limit  int    `json:"limit"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_list_roadmaps: invalid arguments")
+		}
 		roadmaps, err := store.ListRoadmaps()
 		if err != nil {
 			return nil, err
 		}
-		return map[string]any{"roadmaps": roadmaps, "count": len(roadmaps)}, nil
+		after, err := decodePageCursor(a.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("pose_list_roadmaps: %w", err)
+		}
+		page, next := paginatePage(roadmaps, after, a.Limit)
+		return map[string]any{"roadmaps": page, "count": len(page), "next_cursor": next}, nil
 	case "pose_get_roadmap":
 		var a struct {
 			Slug string `json:"slug"`
@@ -589,6 +765,20 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_check: invalid arguments")
 		}
 		return store.Check(ctx, a.Strict == nil || *a.Strict)
+	case "pose_extension_list":
+		items, err := store.ListExtensions()
+		if err != nil {
+			return nil, err
+		}
+		return map[string]any{"extensions": items, "count": len(items)}, nil
+	case "pose_skills_check":
+		var a struct {
+			Strict *bool `json:"strict"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_skills_check: invalid arguments")
+		}
+		return store.SkillsCheck(ctx, a.Strict == nil || *a.Strict)
 	case "pose_lint_spec":
 		var a struct {
 			Slug   string `json:"slug"`
@@ -599,11 +789,23 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		return store.LintSpec(ctx, a.Slug, a.Strict == nil || *a.Strict)
 	case "pose_list_knowledge":
+		var a struct {
+			Cursor string `json:"cursor"`
+			Limit  int    `json:"limit"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_list_knowledge: invalid arguments")
+		}
 		items, err := store.ListKnowledge()
 		if err != nil {
 			return nil, err
 		}
-		return map[string]any{"entries": items, "count": len(items)}, nil
+		after, err := decodePageCursor(a.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("pose_list_knowledge: %w", err)
+		}
+		page, next := paginatePage(items, after, a.Limit)
+		return map[string]any{"entries": page, "count": len(page), "next_cursor": next}, nil
 	case "pose_get_knowledge":
 		var a struct {
 			Slug string `json:"slug"`
@@ -613,11 +815,23 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		return store.GetKnowledge(a.Slug)
 	case "pose_list_reports":
+		var a struct {
+			Cursor string `json:"cursor"`
+			Limit  int    `json:"limit"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_list_reports: invalid arguments")
+		}
 		reports, err := store.ListReports()
 		if err != nil {
 			return nil, err
 		}
-		return map[string]any{"reports": reports, "count": len(reports)}, nil
+		after, err := decodePageCursor(a.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("pose_list_reports: %w", err)
+		}
+		page, next := paginatePage(reports, after, a.Limit)
+		return map[string]any{"reports": page, "count": len(page), "next_cursor": next}, nil
 	case "pose_get_report":
 		var a struct {
 			Filename string `json:"filename"`
@@ -641,6 +855,79 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return map[string]any{"skills": items, "count": len(items)}, nil
 		}
 		return store.GetSkill(a.Name)
+	case "pose_validate_request":
+		var a struct {
+			ProjectID    string `json:"project_id"`
+			StackFilter  string `json:"stack_filter"`
+			ModuleFilter string `json:"module_filter"`
+			ChangedFrom  string `json:"changed_from"`
+			ChangedTo    string `json:"changed_to"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_validate_request: invalid arguments")
+		}
+		req, err := s.orch.request(store.Root, sel.ProjectID, a.StackFilter, a.ModuleFilter, a.ChangedFrom, a.ChangedTo)
+		if err != nil {
+			return nil, fmt.Errorf("pose_validate_request: %w", err)
+		}
+		return req, nil
+	default:
+		return nil, unknownToolError{name}
+	}
+}
+
+// dispatchValidateOrchestration handles the request-id-scoped orchestration
+// tools (spec pose-safe-validate-orchestration): approve, submit, status,
+// cancel. None resolves a POSE store — they act purely on the in-process
+// request registry created by pose_validate_request.
+func (s *Server) dispatchValidateOrchestration(ctx context.Context, name string, args json.RawMessage) (any, error) {
+	switch name {
+	case "pose_validate_approve":
+		var a struct {
+			RequestID  string `json:"request_id"`
+			PlanDigest string `json:"plan_digest"`
+			Decision   string `json:"decision"`
+			Rationale  string `json:"rationale"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.RequestID == "" || a.PlanDigest == "" || a.Decision == "" {
+			return nil, fmt.Errorf("pose_validate_approve: required arguments %q, %q and %q missing", "request_id", "plan_digest", "decision")
+		}
+		// R2: explicit authorization — a bound, verified Execution Identity
+		// is mandatory for this tool specifically, independent of the
+		// server's default policy mode (dev/allow-all still gates approval).
+		caller := callerIdentityFromContext(ctx)
+		if caller.RunID == "" {
+			return nil, fmt.Errorf("pose_validate_approve: requires a bound Execution Identity (X-MCP-Execution-Identity) — approval cannot be anonymous")
+		}
+		return s.orch.approve(a.RequestID, a.PlanDigest, a.Decision, a.Rationale, caller.RunID, caller.Scopes)
+	case "pose_validate_submit":
+		var a struct {
+			RequestID string `json:"request_id"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.RequestID == "" {
+			return nil, fmt.Errorf("pose_validate_submit: required argument %q missing", "request_id")
+		}
+		if s.harness == nil {
+			return nil, fmt.Errorf("harness executor not configured — set up a Harness client via WithHarnessExecutor")
+		}
+		return s.orch.submit(ctx, a.RequestID, s.harness)
+	case "pose_validate_status":
+		var a struct {
+			RequestID string `json:"request_id"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.RequestID == "" {
+			return nil, fmt.Errorf("pose_validate_status: required argument %q missing", "request_id")
+		}
+		return s.orch.status(a.RequestID)
+	case "pose_validate_cancel":
+		var a struct {
+			RequestID string `json:"request_id"`
+			Reason    string `json:"reason"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.RequestID == "" {
+			return nil, fmt.Errorf("pose_validate_cancel: required argument %q missing", "request_id")
+		}
+		return s.orch.cancel(a.RequestID, a.Reason)
 	default:
 		return nil, unknownToolError{name}
 	}
@@ -749,6 +1036,47 @@ func toolDefinitions() []map[string]any {
 			},
 		},
 		{
+			"name": "pose_requirement_trace",
+			"description": "Bidirectional requirement-to-evidence trace of one POSE spec: every " +
+				"declared R-ID with its trace disposition (satisfied, waived, withdrawn), " +
+				"evidence text and structured refs (check:, test:, report:, commit:), plus the " +
+				"reverse evidence→requirements index, missing and orphaned entries.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"slug": map[string]any{
+						"type":        "string",
+						"description": "Spec slug whose requirement trace to project",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"slug"},
+			},
+		},
+		{
+			"name": "pose_spec_amendments",
+			"description": "Append-only amendment history of one POSE spec: material requirement " +
+				"changes with affected R-IDs, rationale, author/reviewer aliases and timestamps, " +
+				"plus any current requirement state not yet acknowledged by an amendment event.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"slug": map[string]any{
+						"type":        "string",
+						"description": "Spec slug whose amendment history to read",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"slug"},
+			},
+		},
+		{
 			"name": "pose_list_specs",
 			"description": "List every POSE spec of the project with its lifecycle frontmatter " +
 				"(no body). Optionally filter by status: draft, in-progress, done, blocked, " +
@@ -763,6 +1091,14 @@ func toolDefinitions() []map[string]any {
 					"project_id": map[string]any{
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+					"cursor": map[string]any{
+						"type":        "string",
+						"description": sharedCursorDescription,
+					},
+					"limit": map[string]any{
+						"type":        "integer",
+						"description": sharedLimitDescription,
 					},
 				},
 			},
@@ -818,6 +1154,14 @@ func toolDefinitions() []map[string]any {
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
+					"cursor": map[string]any{
+						"type":        "string",
+						"description": sharedCursorDescription,
+					},
+					"limit": map[string]any{
+						"type":        "integer",
+						"description": sharedLimitDescription,
+					},
 				},
 			},
 		},
@@ -862,6 +1206,10 @@ func toolDefinitions() []map[string]any {
 						"type":        "string",
 						"description": "Optional repo-relative path to infer the domain from",
 					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
 				},
 				"required": []string{"task_type"},
 			},
@@ -877,6 +1225,10 @@ func toolDefinitions() []map[string]any {
 						"type":        "string",
 						"description": "Workflow name, e.g. feature, bugfix, review; omit to list all",
 					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
 				},
 			},
 		},
@@ -891,6 +1243,10 @@ func toolDefinitions() []map[string]any {
 					"domain": map[string]any{
 						"type":        "string",
 						"description": "Rule domain, e.g. security, backend-go, frontend-react; omit to list all",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
 			},
@@ -933,6 +1289,10 @@ func toolDefinitions() []map[string]any {
 						"type":        "boolean",
 						"description": "true = every follow-up (any disposition); default false = open backlog only",
 					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
 				},
 			},
 		},
@@ -947,6 +1307,48 @@ func toolDefinitions() []map[string]any {
 					"strict": map[string]any{
 						"type":        "boolean",
 						"description": "Strict mode (default true); tolerant turns failures into warnings",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_extension_list",
+			"description": "List installed POSE extensions (skills, workflows, rules or import " +
+				"adapters installed via `pose extension install`): id, version, kind, installed_at, " +
+				"digest, managed files and whether signature verification passed at install time. " +
+				"Read-only — installing or removing an extension is a local CLI operation " +
+				"(`pose extension install/remove`), never exposed as an MCP write.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_skills_check",
+			"description": "Evaluate the Agent Skills conformance gate (pose skills-check) in " +
+				"read-only mode: required metadata (name/description/when_to_use plus POSE's " +
+				"pose_schema_range/clients/capabilities), linked-resource resolution, an offline " +
+				"unsafe-instruction/secret-shaped-content scan, and claude-code client cross-check. " +
+				"Returns the verdict (passed/exit_code) plus the full output as evidence.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"strict": map[string]any{
+						"type":        "boolean",
+						"description": "Strict mode (default true); tolerant turns failures into warnings",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
 			},
@@ -967,6 +1369,10 @@ func toolDefinitions() []map[string]any {
 						"type":        "boolean",
 						"description": "Strict mode (default true)",
 					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
 				},
 			},
 		},
@@ -976,8 +1382,21 @@ func toolDefinitions() []map[string]any {
 				"from .pose/knowledge/. Excludes sensitivity:restricted entries. " +
 				"Returns metadata only; use pose_get_knowledge for the full body.",
 			"inputSchema": map[string]any{
-				"type":       "object",
-				"properties": map[string]any{},
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+					"cursor": map[string]any{
+						"type":        "string",
+						"description": sharedCursorDescription,
+					},
+					"limit": map[string]any{
+						"type":        "integer",
+						"description": sharedLimitDescription,
+					},
+				},
 			},
 		},
 		{
@@ -990,6 +1409,10 @@ func toolDefinitions() []map[string]any {
 					"slug": map[string]any{
 						"type":        "string",
 						"description": "Knowledge slug",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
 				"required": []string{"slug"},
@@ -1006,6 +1429,14 @@ func toolDefinitions() []map[string]any {
 					"project_id": map[string]any{
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+					"cursor": map[string]any{
+						"type":        "string",
+						"description": sharedCursorDescription,
+					},
+					"limit": map[string]any{
+						"type":        "integer",
+						"description": sharedLimitDescription,
 					},
 				},
 			},
@@ -1042,7 +1473,133 @@ func toolDefinitions() []map[string]any {
 						"type":        "string",
 						"description": "Skill name, e.g. \"pose-investigate\"; omit to list all",
 					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
 				},
+			},
+		},
+		// Safe validation orchestration (external-side-effect, spec
+		// pose-safe-validate-orchestration): request an immutable check plan,
+		// require explicit approval bound to that plan's digest, and hand the
+		// approved plan to a pluggable Harness executor. pose-mcp never runs
+		// the plan itself on tools/call — only Submit reaches outside this
+		// process, and only after project scope, policy allow and a bound
+		// Execution Identity all pass.
+		{
+			"name": "pose_validate_request",
+			"description": "Resolve an immutable, digest-pinned validation check plan (mirrors " +
+				"pose validate's stack/module/changed-scope filters) without executing anything. " +
+				"Returns {request_id, plan, state: \"pending_approval\"}. The plan's digest binds " +
+				"every subsequent step — approve with the exact digest returned here.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+					"stack_filter": map[string]any{
+						"type":        "string",
+						"description": "Optional stack filter, same values as pose validate --stack",
+					},
+					"module_filter": map[string]any{
+						"type":        "string",
+						"description": "Optional module filter, same as pose validate --module",
+					},
+					"changed_from": map[string]any{
+						"type":        "string",
+						"description": "Optional changed-scope base revision, same as pose validate --changed-from",
+					},
+					"changed_to": map[string]any{
+						"type":        "string",
+						"description": "Optional changed-scope head revision, same as pose validate --changed-to",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_validate_approve",
+			"description": "Approve or reject a pending validation request. Requires a bound " +
+				"Execution Identity (X-MCP-Execution-Identity) — approval can never be anonymous, " +
+				"regardless of the server's default policy mode. plan_digest must equal the exact " +
+				"digest pose_validate_request returned; a mismatch is rejected as plan substitution.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"request_id": map[string]any{
+						"type":        "string",
+						"description": "Request id returned by pose_validate_request",
+					},
+					"plan_digest": map[string]any{
+						"type":        "string",
+						"description": "The exact plan.digest returned by pose_validate_request — binds the approval to that immutable plan",
+					},
+					"decision": map[string]any{
+						"type":        "string",
+						"enum":        []string{"approve", "reject"},
+						"description": "Approval decision",
+					},
+					"rationale": map[string]any{
+						"type":        "string",
+						"description": "Why this decision was made; recorded on the request",
+					},
+				},
+				"required": []string{"request_id", "plan_digest", "decision"},
+			},
+		},
+		{
+			"name": "pose_validate_submit",
+			"description": "Hand an approved validation request to the configured Harness executor. " +
+				"Only valid from state \"approved\"; idempotent — resubmitting an already-submitted " +
+				"request returns the same execution_id without re-invoking the Harness. Requires a " +
+				"Harness executor to be configured; otherwise returns a configuration error.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"request_id": map[string]any{
+						"type":        "string",
+						"description": "Request id to submit",
+					},
+				},
+				"required": []string{"request_id"},
+			},
+		},
+		{
+			"name": "pose_validate_status",
+			"description": "Read the current state of a validation request: pending_approval, " +
+				"approved, rejected, submitted or cancelled, plus its plan, approver and execution_id " +
+				"when present.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"request_id": map[string]any{
+						"type":        "string",
+						"description": "Request id to inspect",
+					},
+				},
+				"required": []string{"request_id"},
+			},
+		},
+		{
+			"name": "pose_validate_cancel",
+			"description": "Cancel a validation request that has not reached a terminal state. " +
+				"Cancelling a submitted request marks it locally; propagating cancellation to a " +
+				"running Harness execution is the executor's own responsibility.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"request_id": map[string]any{
+						"type":        "string",
+						"description": "Request id to cancel",
+					},
+					"reason": map[string]any{
+						"type":        "string",
+						"description": "Why this request is being cancelled",
+					},
+				},
+				"required": []string{"request_id"},
 			},
 		},
 		// Conductor run reporter tools (external-run-reporters): open, append events to,

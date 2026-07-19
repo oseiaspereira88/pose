@@ -3,7 +3,9 @@ on:
   push:
     tags: ["v*"]
   workflow_dispatch:
-permissions: { contents: write }
+# id-token: write enables keyless Sigstore signing (spec pose-release-signing);
+# attestations: write publishes SLSA build provenance (spec pose-slsa-provenance)
+permissions: { contents: write, id-token: write, attestations: write }
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -11,16 +13,37 @@ jobs:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
       - uses: actions/setup-go@v5
-        with: { go-version: "1.26.4", cache: true, cache-dependency-path: pose-mcp/go.mod }
+        with: { go-version: "1.26.5", cache: true, cache-dependency-path: pose-mcp/go.mod }
       - name: Tests + installer E2E
         run: |
           go -C pose-mcp test ./... -count=1
           bash tests/install/run.sh
+      - name: Compatibility gate (spec pose-release-compatibility-matrix)
+        run: bash tests/release/compat.sh "${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}"
+      - name: Retain compatibility report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pose-compatibility-report
+          path: compatibility-report.md
+          retention-days: 400
       - name: Release notes from changelog fragments
         run: |
           go run ./pose-mcp/cmd/pose release-notes --version "${GITHUB_REF_NAME}" --filter pose > /tmp/notes.md
           cat /tmp/notes.md
-      - uses: goreleaser/goreleaser-action@v6
+      - name: Security gate (spec pose-ossf-security-baseline)
+        # R3: unresolved critical findings are explicit release-decision
+        # inputs — known vulnerabilities, leaked secrets or a broken workflow
+        # security contract block the release unless a waiver exists in
+        # .github/security-exceptions.json (owned + expiring).
+        run: |
+          go -C pose-mcp test ./internal/version -run 'WorkflowSecurity' -count=1
+          go -C pose-mcp run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+          go -C mcp-enforce run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+          go -C pose-mcp run github.com/zricethezav/gitleaks/v8@v8.21.2 git --no-banner --redact --config ../.gitleaks.toml ..
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      - uses: anchore/sbom-action/download-syft@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+      - uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6
         with:
           version: "~> v2"
           # Tag push → release real (exige tag no HEAD). workflow_dispatch →
@@ -28,3 +51,36 @@ jobs:
           args: ${{ startsWith(github.ref, 'refs/tags/') && 'release --clean --release-notes /tmp/notes.md' || 'release --clean --snapshot --skip=publish' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attest build provenance (spec pose-slsa-provenance)
+        # Every archive and the checksum manifest become provenance subjects
+        # identified by digest (SLSA v1 predicate, Build L2 claim — see ADR).
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            dist-release/*.tar.gz
+            dist-release/*.zip
+            dist-release/checksums.txt
+      - name: Verify artifact identity (specs pose-release-signing, pose-cyclonedx-sbom)
+        # R3: unsigned artifacts, identity mismatch or an incomplete SBOM fail
+        # the release run. Runs on tag releases and snapshot rehearsals alike.
+        run: bash tests/release/verify.sh dist-release
+      - name: Package-manager manifests (spec pose-package-manager-distribution)
+        # R2: generated only here, after every prior verification step
+        # (compatibility gate, security gate, signing/SBOM identity check)
+        # has already succeeded — a failure anywhere above halts the job
+        # before this step runs, so channel metadata never advances on a
+        # release that failed verification.
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          go run ./pose-mcp/cmd/pose release-package-manifests \
+            --version "${GITHUB_REF_NAME#v}" \
+            --checksums dist-release/checksums.txt \
+            --out package-manifests
+      - name: Retain package-manager manifests
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: pose-package-manifests
+          path: package-manifests
+          retention-days: 400

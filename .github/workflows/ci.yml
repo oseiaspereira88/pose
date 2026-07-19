@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
-        with: { go-version: "1.26.4", cache: true, cache-dependency-path: pose-mcp/go.mod }
+        with: { go-version: "1.26.5", cache: true, cache-dependency-path: pose-mcp/go.mod }
       - name: Go tests (engine drift guard included)
         run: go -C pose-mcp test ./... -count=1
       - name: Shellcheck
@@ -19,3 +19,33 @@ jobs:
           shellcheck --severity=warning install.sh tests/install/run.sh
       - name: Installer E2E
         run: bash tests/install/run.sh
+  governance:
+    # Dogfood gate (spec pose-standalone-dogfood): the standalone instance
+    # must pass its own structural/validation gates with an explicitly
+    # identified development build, and CI retains the evidence.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26.5", cache: true, cache-dependency-path: pose-mcp/go.mod }
+      - name: Build development pose binary
+        run: |
+          go -C pose-mcp build -o "$RUNNER_TEMP/pose" ./cmd/pose
+          "$RUNNER_TEMP/pose" version
+      - name: Structural gate (pose check --strict)
+        run: '"$RUNNER_TEMP/pose" check --strict'
+      - name: Agent Skills conformance (spec pose-agent-skills-conformance)
+        run: '"$RUNNER_TEMP/pose" skills-check --strict'
+      - name: History gate (pose history-check)
+        run: '"$RUNNER_TEMP/pose" history-check'
+      - name: Retain governance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pose-governance-evidence
+          path: |
+            .pose/reports/
+            .pose/indexes/spec-graph.json
+            .pose/indexes/roadmaps.json
+          if-no-files-found: warn
+          retention-days: 90

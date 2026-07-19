@@ -51,13 +51,27 @@ Apply the most restrictive rule when they conflict.
 
 ## Adoption review
 
-Review the pilot after 45 days:
+Register the intervention when the escalation ships, so the review is
+measured, not remembered (spec pose-recurrence-effectiveness):
 
-- Compare recurrence volume before and after activation by domain.
+```bash
+pose recurrence-effect --register --task <task-slug> \
+  --ref rule:<name>|workflow:<name>|spec:<slug> \
+  --window-days 45 --rationale "<why this intervention>" --author @<alias>
+```
+
+Review the pilot after the observation window:
+
+- Run `pose recurrence-effect` — it compares recurrence rate (and recorded
+  duration/cost) before and after the intervention from append-only history,
+  with data-quality warnings for sparse samples or incomplete windows.
 - Require at least a 30 percent reduction in the target domain.
-- Evaluate operational cost, execution time, and evidence quality.
+- Evaluate operational cost, execution time, and evidence quality
+  (`pose report --duration-seconds/--cost-usd` feeds the telemetry).
 - Issue a formal `keep`, `adjust`, or `discard` decision.
-- Open an owned, dated follow-up with an exit criterion for `adjust` or `discard`.
+- An `INEFFECTIVE` verdict is not tolerable silence: reopen or spawn an
+  owned, dated follow-up with an exit criterion (`adjust`/`discard`) —
+  creating the escalation was never the success condition.
 
 ## Required outputs
 

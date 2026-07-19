@@ -8,10 +8,13 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
-// Version is stamped via -ldflags at release time (pose-release-pipeline).
-var Version = "0.9.0-dev"
+// Version mirrors the authoritative release version. The release pipeline
+// stamps internal/version via -ldflags (spec pose-version-contract).
+var Version = version.Version
 
 // Main is the entrypoint used by cmd/pose. It returns the process exit code.
 func Main(args []string, stdout, stderr io.Writer) int {
@@ -77,6 +80,8 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdFollowups(root, args, stdout, stderr)
+	case "amend":
+		return cmdAmend(args, stdout, stderr)
 	case "report":
 		root, err := projectRoot()
 		if err != nil {
@@ -98,7 +103,7 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
-	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "reports-housekeeping", "recurrence-check", "hooks", "suggest", "stats":
+	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks", "skills-check", "record-deployment", "record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping", "semantic-suggest", "suggest-feedback", "portfolio-projection", "reconcile-evidence":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
@@ -113,14 +118,42 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return cmdKnowledgeCheck(root, args, stdout, stderr)
 		case "knowledge-housekeeping":
 			return cmdKnowledgeHousekeeping(root, args, stdout, stderr)
+		case "knowledge-usage":
+			return cmdKnowledgeUsage(root, stdout, stderr)
+		case "knowledge-suggest":
+			return cmdKnowledgeSuggest(root, args, stdout, stderr)
 		case "reports-housekeeping":
 			return cmdReportsHousekeeping(root, args, stdout, stderr)
 		case "recurrence-check":
 			return cmdRecurrenceCheck(root, args, stdout, stderr)
+		case "recurrence-effect":
+			return cmdRecurrenceEffect(root, args, stdout, stderr)
+		case "skills-check":
+			return cmdSkillsCheck(root, args, stdout, stderr)
+		case "stacks":
+			return cmdStacks(root, args, stdout, stderr)
 		case "hooks":
 			return cmdHooks(root, args, stdout, stderr)
 		case "suggest":
 			return cmdSuggest(root, args, stdout, stderr)
+		case "record-deployment":
+			return cmdRecordDeployment(root, args, stdout, stderr)
+		case "record-incident":
+			return cmdRecordIncident(root, args, stdout, stderr)
+		case "dora-metrics":
+			return cmdDORAMetrics(root, args, stdout, stderr)
+		case "adoption-metrics":
+			return cmdAdoptionMetrics(root, args, stdout, stderr)
+		case "events-housekeeping":
+			return cmdEventsHousekeeping(root, args, stdout, stderr)
+		case "semantic-suggest":
+			return cmdSemanticSuggest(root, args, stdout, stderr)
+		case "suggest-feedback":
+			return cmdSuggestFeedback(root, args, stdout, stderr)
+		case "portfolio-projection":
+			return cmdPortfolioProjection(root, args, stdout, stderr)
+		case "reconcile-evidence":
+			return cmdReconcileEvidence(root, args, stdout, stderr)
 		default:
 			return cmdStats(root, args, stdout, stderr)
 		}
@@ -131,6 +164,8 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdReleaseNotes(root, args, stdout, stderr)
+	case "release-package-manifests":
+		return cmdReleasePackageManifests(args, stdout, stderr)
 	case "install":
 		return cmdInstall(args, stdout, stderr)
 	case "doctor":
@@ -138,6 +173,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 	case "import":
 		defer emitTelemetry("import")
 		return cmdImport(args, stdout, stderr)
+	case "extension":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose extension: %v\n", err)
+			return 1
+		}
+		return cmdExtension(root, args, stdout, stderr)
 	case "lint-spec":
 		defer emitTelemetry("lint-spec")
 		return cmdLintSpec(args, stdout, stderr)
@@ -209,14 +251,20 @@ Scaffolds:
 
 Deterministic gates:
   check | validate | knowledge-check | recurrence-check | lint-spec |
-  followups | history-check
+  followups | amend | history-check | skills-check
 
 Discovery and metrics:
-  suggest | stats
+  suggest | stats | recurrence-effect | stacks
+  record-deployment | record-incident | dora-metrics | adoption-metrics
+  semantic-suggest | suggest-feedback | portfolio-projection | reconcile-evidence
+
+Extensions:
+  extension install <dir> [--dry-run] [--yes] [--force] [--allow-unsigned]
+  extension list [--json] | extension remove <id> [...] | extension verify <dir>
 
 Artifacts and maintenance:
   index | report | upgrade [--dry-run] | knowledge-housekeeping |
-  reports-housekeeping | hooks
+  knowledge-usage | knowledge-suggest | reports-housekeeping | events-housekeeping | hooks
 
 All commands execute in the Go binary without Bash or Python fallbacks.
 `
@@ -243,16 +291,23 @@ Scaffold:
 
 Gates determinísticos:
   check | validate | knowledge-check | recurrence-check | lint-spec |
-  followups | history-check
+  followups | amend | history-check | skills-check
 
 Descoberta e métricas:
-  suggest | stats
+  suggest | stats | recurrence-effect | stacks
+  record-deployment | record-incident | dora-metrics | adoption-metrics
+  semantic-suggest | suggest-feedback | portfolio-projection | reconcile-evidence
+
+Extensões:
+  extension install <dir> [--dry-run] [--yes] [--force] [--allow-unsigned]
+  extension list [--json] | extension remove <id> [...] | extension verify <dir>
 
 Geração de artefatos:
   index | report
 
 Manutenção:
-  upgrade [--dry-run] | knowledge-housekeeping | reports-housekeeping | hooks
+  upgrade [--dry-run] | knowledge-housekeeping | knowledge-usage |
+  knowledge-suggest | reports-housekeeping | events-housekeeping | hooks
 
 Todos os comandos executam no binário Go, sem fallbacks Bash ou Python.
 'pose help' completo por comando: consulte o POSE.md da instância.

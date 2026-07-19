@@ -8,11 +8,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 	"time"
 
 	mcpenforce "github.com/harne8/mcp-enforce"
 	"github.com/harne8/pose-mcp/internal/mcpserver"
+	"github.com/harne8/pose-mcp/internal/observability"
 	"github.com/harne8/pose-mcp/internal/pose"
 )
 
@@ -32,6 +35,24 @@ func opaConfigFromEnv() mcpserver.PolicyConfig {
 // remaining command-line arguments (used only to detect --stdio). It blocks
 // until the server exits.
 func Run(args []string) {
+	ctx, stopSignals := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stopSignals()
+
+	// Opt-in OpenTelemetry signals (spec pose-otel-observability): inert
+	// unless both POSE_OTEL_ENABLED=1 and OTEL_EXPORTER_OTLP_ENDPOINT are
+	// set. A misconfiguration while enabled must never block startup — log
+	// and fall back to the no-op provider instead of failing the process.
+	obs, obsErr := observability.Init(ctx, observability.FromEnv())
+	if obsErr != nil {
+		log.Printf("pose-mcp: observability disabled (init error): %v", obsErr)
+		obs, _ = observability.Init(ctx, observability.Config{})
+	}
+	defer func() {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = obs.Shutdown(shutdownCtx)
+	}()
+
 	// Empty default root = empty start: no pre-wired default project; projects are
 	// resolved only after onboarding (empty-start-no-default-project). When
 	// POSE_PROJECT_ROOT is set it must have a .pose/ and becomes the default.
@@ -65,12 +86,20 @@ func Run(args []string) {
 	if err != nil {
 		log.Fatalf("pose-mcp: %v", err)
 	}
+	// pose-mcp-project-scope-contract: opt-in fail-closed mode for a
+	// deployment that has onboarded more than one project — an empty
+	// project_id becomes a structured project_ambiguous error instead of
+	// silently resolving to the default root. Off by default: existing
+	// single-project stdio deployments are always unaffected regardless of
+	// this flag (strict mode only trips when >1 project is registered).
+	strictSelection := envOr("POSE_MCP_STRICT_PROJECT_SELECTION", "") != ""
 	roots := pose.NewRoots(pose.RootsConfig{
 		DefaultRoot:      root,
 		DefaultProjectID: defaultProjectID,
 		ProjectsDir:      projectsDir,
 		ProjectIDPrefix:  projectIDPrefix,
 		Explicit:         explicit,
+		StrictSelection:  strictSelection,
 	})
 
 	authMode := "off"
@@ -89,7 +118,8 @@ func Run(args []string) {
 	// X-MCP-Execution-Identity token; POSE_MCP_REQUIRE_IDENTITY (via opaConfigFromEnv)
 	// denies calls without a run-bound identity. Empty secret = binding disabled.
 	server := mcpserver.NewWithRootsAndPolicy(roots, policy).
-		WithIdentitySecret([]byte(os.Getenv("POSE_MCP_IDENTITY_SECRET")))
+		WithIdentitySecret([]byte(os.Getenv("POSE_MCP_IDENTITY_SECRET"))).
+		WithObservability(obs)
 
 	// Conductor run reporter (external-run-reporters): enable conductor_run_* tools
 	// when CONDUCTOR_URL and CONDUCTOR_PROJECT_ID are set.
@@ -106,7 +136,7 @@ func Run(args []string) {
 	if stdioMode(args) {
 		log.SetOutput(os.Stderr)
 		log.Printf("pose-mcp default_root=%s projects=%v transport=stdio policy=%s", root, roots.Projects(), policyMode)
-		if err := server.ServeStdio(context.Background()); err != nil {
+		if err := server.ServeStdio(ctx); err != nil {
 			log.Fatal(err)
 		}
 		return
@@ -118,8 +148,16 @@ func Run(args []string) {
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       30 * time.Second,
 	}
+	go func() {
+		<-ctx.Done()
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = srv.Shutdown(shutdownCtx)
+	}()
 	log.Printf("pose-mcp listening addr=%s default_root=%s projects=%v transport=streamable-http auth=%s policy=%s", addr, root, roots.Projects(), authMode, policyMode)
-	log.Fatal(srv.ListenAndServe())
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatal(err)
+	}
 }
 
 func envOr(key, def string) string {

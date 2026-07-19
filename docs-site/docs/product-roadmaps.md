@@ -1,5 +1,7 @@
 # Product roadmaps
 
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+
 **Planning baseline:** 2026-07-18  
 **Canonical execution artifacts:** `.pose/roadmaps/*.md` and `.pose/specs/*/spec.md`
 

@@ -2,6 +2,9 @@
 name: pose-knowledge
 description: Use ao criar/atualizar artefatos em .pose/knowledge/ — handoffs entre execuções, decision-logs com gatilho de revisão, ou notes de contexto reaproveitável. Valida frontmatter e dispara housekeeping. Trigger keywords - knowledge, handoff, decision-log, note, memória, context handoff, pose-maintainers.
 when_to_use: Há contexto técnico que sobrevive a uma execução isolada e precisa ser retomado por outro agente/ciclo. Tipicamente ao final de feature/bugfix/review quando spec/ADR não capturam o que precisa ser lembrado.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, knowledge-write
 ---
 
 # Skill: pose-knowledge

@@ -23,6 +23,10 @@ type historyRecord struct {
 	TaskSlug    string `json:"task_slug"`
 	Context     string `json:"context"`
 	ReportType  string `json:"report_type"`
+	// Optional telemetry (spec pose-recurrence-effectiveness): absent fields
+	// yield partial metrics, never fabricated ones.
+	DurationSeconds *float64 `json:"duration_seconds,omitempty"`
+	CostUSD         *float64 `json:"cost_usd,omitempty"`
 }
 
 func readHistory(root string, stderr io.Writer) ([]historyRecord, int) {

@@ -2,6 +2,9 @@
 name: pose-bugfix
 description: Use to correct an observable defect under POSE by reproducing the failure, isolating root cause, applying the smallest cohesive fix, covering regression, and recording systemic debt. Trigger keywords - bugfix, bug, defect, regression, hotfix, correction, root cause, fix.
 when_to_use: The task corrects observable broken behavior rather than adding a feature. Use before editing code so reproduction, root-cause isolation, and regression coverage are explicit.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, spec-write, validate
 ---
 
 # Skill: pose-bugfix

@@ -109,16 +109,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	}
 
 	// .claude/skills symlinks (embed cannot carry them).
-	claudeDir := filepath.Join(target, ".claude", "skills")
-	if err := os.MkdirAll(claudeDir, 0o755); err == nil {
-		linked := true
-		for name, dest := range scaffold.ClaudeSkillLinks {
-			link := filepath.Join(claudeDir, name)
-			_ = os.Remove(link)
-			if err := os.Symlink(dest, link); err != nil {
-				linked = false
-			}
-		}
+	if linked, err := recreateClaudeSkillSymlinks(target); err == nil {
 		if linked {
 			log("machinery: .claude/skills (symlinks)", "maquinário: .claude/skills (symlinks)")
 		} else {
@@ -153,14 +144,11 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		if _, err := fs.Stat(dist, "locales/"+locale); err == nil {
 			docsPrefix = "locales/" + locale + "/"
 			log("locale: %s (docs/templates localized)", "locale: %s (docs/templates localizados)", locale)
-			if tmplEntries, err := fs.ReadDir(dist, "locales/"+locale+"/templates"); err == nil {
-				for _, e := range tmplEntries {
-					_ = copyFile(dist, "locales/"+locale+"/templates/"+e.Name(),
-						filepath.Join(target, ".pose", "templates", e.Name()), 0o644)
-				}
-				log("machinery (locale override): .pose/templates", "maquinário (override de locale): .pose/templates")
-			}
-			for _, editorialDir := range []string{".pose/workflows", ".pose/rules", ".agents/skills"} {
+			// Every locale overlay directory mirrors its English path exactly
+			// under locales/<locale>/ — no per-directory path convention
+			// (spec pose-localization-docs-contract fixed a pre-existing
+			// inconsistency where templates used a stripped ".pose/" prefix).
+			for _, editorialDir := range []string{".pose/templates", ".pose/workflows", ".pose/rules", ".agents/skills"} {
 				source := "locales/" + locale + "/" + editorialDir
 				if _, err := fs.Stat(dist, source); err != nil {
 					continue
@@ -236,6 +224,26 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	}
 	log("install complete — POSE is ready in %s", "instalação concluída — POSE pronto em %s", target)
 	return 0
+}
+
+// recreateClaudeSkillSymlinks (re)links .claude/skills/* to their
+// .agents/skills targets. Shared by cmdInstall and the doctor-guided
+// "skills.symlinks" fix (spec pose-doctor-guided-remediation) — confined to
+// .claude/skills and reversible (rerunning it is a no-op once healthy).
+func recreateClaudeSkillSymlinks(target string) (linked bool, err error) {
+	claudeDir := filepath.Join(target, ".claude", "skills")
+	if err := os.MkdirAll(claudeDir, 0o755); err != nil {
+		return false, err
+	}
+	linked = true
+	for name, dest := range scaffold.ClaudeSkillLinks {
+		link := filepath.Join(claudeDir, name)
+		_ = os.Remove(link)
+		if err := os.Symlink(dest, link); err != nil {
+			linked = false
+		}
+	}
+	return linked, nil
 }
 
 func configureMCP(path, target, projectID string) (string, error) {

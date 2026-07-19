@@ -14,26 +14,26 @@ source_refs:
 
 # <type>: <slug>
 
-## Contexto
+## Context
 
-<!-- O problema, escopo afetado e ponto de partida. Mantenha objetivo. -->
+<!-- The problem, affected scope and starting point. Keep it objective. -->
 
-## Estado atual
+## Current state
 
-<!-- O que está pronto, em andamento, ou bloqueado neste momento. -->
+<!-- What's done, in progress, or blocked right now. -->
 
-## Próximos checks
+## Next checks
 
-<!-- Comandos determinísticos pendentes (test, lint, validate, etc.). -->
+<!-- Pending deterministic commands (test, lint, validate, etc.). -->
 
-## Riscos
+## Risks
 
-<!-- Riscos residuais conhecidos e como mitigar/monitorar. -->
+<!-- Known residual risks and how to mitigate/monitor them. -->
 
-## Próximo owner
+## Next owner
 
-<!-- Quem assume na próxima execução (pessoa/squad). Vazio = mesmo owner. -->
+<!-- Who picks this up on the next run (person/squad). Empty = same owner. -->
 
-## Referências
+## References
 
-<!-- Links para spec, ADR, commits, incidents, dashboards. -->
+<!-- Links to spec, ADR, commits, incidents, dashboards. -->

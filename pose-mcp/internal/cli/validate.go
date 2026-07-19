@@ -2,7 +2,10 @@ package cli
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -10,11 +13,17 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 )
 
 type validationWhen struct {
 	FileExists    string `json:"fileExists"`
 	FileNotExists string `json:"fileNotExists"`
+	// FileNotExistsAny (spec pose-stack-catalog-expansion): skip when ANY of
+	// these files exist — expresses manager-priority exclusion (e.g. a pip
+	// check yields to poetry/pipenv when their lockfiles are present)
+	// without needing repeated single-field checks.
+	FileNotExistsAny []string `json:"fileNotExistsAny"`
 }
 
 type validationCheck struct {
@@ -25,6 +34,9 @@ type validationCheck struct {
 	Env      map[string]string `json:"env"`
 	Severity string            `json:"severity"`
 	When     validationWhen    `json:"when"`
+	// Runtime guardrails (spec pose-validation-runtime-guardrails).
+	TimeoutSeconds int    `json:"timeoutSeconds"` // 0 = defaults.timeoutSeconds (600)
+	Isolation      string `json:"isolation"`      // "" | "required" — required never runs locally
 }
 
 type validationStack struct {
@@ -40,7 +52,9 @@ type validationOverride struct {
 
 type validationMatrix struct {
 	Defaults struct {
-		Mode string `json:"mode"`
+		Mode           string `json:"mode"`
+		TimeoutSeconds int    `json:"timeoutSeconds"` // safe default 600 when 0
+		MaxOutputBytes int    `json:"maxOutputBytes"` // safe default 1 MiB when 0
 	} `json:"defaults"`
 	Stacks          map[string]validationStack    `json:"stacks"`
 	ModuleOverrides map[string]validationOverride `json:"moduleOverrides"`
@@ -103,8 +117,22 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 			stack = "rust"
 		case "pom.xml", "build.gradle", "build.gradle.kts":
 			stack = "java"
+		case "pyproject.toml", "requirements.txt", "Pipfile", "poetry.lock", "setup.py":
+			// spec pose-stack-catalog-expansion: manager (poetry/pipenv/pip/
+			// setuptools/pep517) is resolved by the matrix `when` predicates,
+			// not at discovery time — every marker maps to the "python" stack.
+			stack = "python"
+		default:
+			switch filepath.Ext(entry.Name()) {
+			case ".sln", ".csproj", ".fsproj", ".vbproj":
+				stack = "dotnet"
+			}
 		}
 		if stack != "" {
+			// Existing overwrite-by-walk-order semantics preserved
+			// unchanged for compatibility; `pose stacks` surfaces the full
+			// per-directory catalog resolution (including any conflicting
+			// markers) independently of what this single-stack map picks.
 			byPath[filepath.Dir(path)] = stack
 		}
 		return nil
@@ -124,24 +152,35 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 	return modules, nil
 }
 
-func validationCheckEnabled(module string, when validationWhen) bool {
+// validationSkipReason returns the deterministic selection reason when a
+// check must be skipped ("" = run it). Every skip is recorded with its
+// reason in the structured result (spec pose-structured-validation-results).
+func validationSkipReason(module string, when validationWhen) string {
 	if when.FileExists != "" {
 		if !confinedRelativePath(when.FileExists) {
-			return false
+			return "when.fileExists escapes the module: " + when.FileExists
 		}
 		if _, err := os.Stat(filepath.Join(module, filepath.FromSlash(when.FileExists))); err != nil {
-			return false
+			return "when.fileExists not met: " + when.FileExists
 		}
 	}
 	if when.FileNotExists != "" {
 		if !confinedRelativePath(when.FileNotExists) {
-			return false
+			return "when.fileNotExists escapes the module: " + when.FileNotExists
 		}
 		if _, err := os.Stat(filepath.Join(module, filepath.FromSlash(when.FileNotExists))); err == nil {
-			return false
+			return "when.fileNotExists violated: " + when.FileNotExists + " exists"
 		}
 	}
-	return true
+	for _, excl := range when.FileNotExistsAny {
+		if !confinedRelativePath(excl) {
+			return "when.fileNotExistsAny escapes the module: " + excl
+		}
+		if _, err := os.Stat(filepath.Join(module, filepath.FromSlash(excl))); err == nil {
+			return "when.fileNotExistsAny violated: higher-priority manager marker present: " + excl
+		}
+	}
+	return ""
 }
 
 func validateStructuredMatrixPaths(matrix validationMatrix) error {
@@ -150,6 +189,11 @@ func validateStructuredMatrixPaths(matrix validationMatrix) error {
 			for field, path := range map[string]string{"fileExists": check.When.FileExists, "fileNotExists": check.When.FileNotExists} {
 				if !confinedRelativePath(path) {
 					return fmt.Errorf("%s.checks[%d].when.%s must remain inside its module", scope, index, field)
+				}
+			}
+			for i, path := range check.When.FileNotExistsAny {
+				if !confinedRelativePath(path) {
+					return fmt.Errorf("%s.checks[%d].when.fileNotExistsAny[%d] must remain inside its module", scope, index, i)
 				}
 			}
 		}
@@ -189,7 +233,11 @@ func matrixHasLegacyChecks(matrix validationMatrix) bool {
 func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	mode, stackFilter, moduleFilter, reportTask := "", "", "", ""
+	jsonOut, junitOut, sarifOut, planOut := "", "", "", ""
+	changedFrom, changedTo := "", ""
+	explain := false
 	autoReport := false
+	var isolationChecks []checkResult
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--strict":
@@ -198,7 +246,9 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			mode = "tolerant"
 		case "--report":
 			autoReport = true
-		case "--stack", "--module", "--report-task":
+		case "--explain":
+			explain = true
+		case "--stack", "--module", "--report-task", "--json", "--junit", "--sarif", "--emit-plan", "--changed-from", "--changed-to":
 			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
 				fmt.Fprintf(stderr, cliText(locale, "Error: %s requires a value.\n", "Erro: %s exige um valor.\n"), args[i])
 				return 2
@@ -211,13 +261,31 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 				moduleFilter = filepath.ToSlash(filepath.Clean(args[i]))
 			case "--report-task":
 				reportTask = args[i]
+			case "--json":
+				jsonOut = args[i]
+			case "--junit":
+				junitOut = args[i]
+			case "--sarif":
+				sarifOut = args[i]
+			case "--emit-plan":
+				planOut = args[i]
+			case "--changed-from":
+				changedFrom = args[i]
+			case "--changed-to":
+				changedTo = args[i]
 			}
 		default:
 			fmt.Fprintf(stderr, cliText(locale, "Error: invalid argument: %s\n", "Erro: argumento inválido: %s\n"), args[i])
 			return 2
 		}
 	}
-	if stackFilter != "" && !map[string]bool{"node": true, "go": true, "rust": true, "java": true, "contract": true}[stackFilter] {
+	for _, out := range []string{jsonOut, junitOut, sarifOut, planOut} {
+		if out != "" && !confinedRelativePath(out) {
+			fmt.Fprintln(stderr, cliText(locale, "Error: result output paths must remain inside the project.", "Erro: paths de saída de resultado devem permanecer dentro do projeto."))
+			return 2
+		}
+	}
+	if stackFilter != "" && !map[string]bool{"node": true, "go": true, "rust": true, "java": true, "python": true, "dotnet": true, "contract": true}[stackFilter] {
 		fmt.Fprintf(stderr, cliText(locale, "Error: invalid --stack: %s\n", "Erro: --stack inválido: %s\n"), stackFilter)
 		return 2
 	}
@@ -279,6 +347,37 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	sort.Slice(modules, func(i, j int) bool { return modules[i].Rel < modules[j].Rel })
+	var scope *scopeSelection
+	if changedTo != "" && changedFrom == "" {
+		fmt.Fprintln(stderr, cliText(locale, "Error: --changed-to requires --changed-from.", "Erro: --changed-to exige --changed-from."))
+		return 2
+	}
+	if changedFrom != "" {
+		sel, err := computeChangedScope(root, changedFrom, changedTo, modules)
+		if err != nil {
+			fmt.Fprintf(stderr, cliText(locale, "Error: changed-scope selection: %v\n", "Erro: seleção por escopo alterado: %v\n"), err)
+			return 2
+		}
+		scope = &sel
+		if explain {
+			fmt.Fprintf(stdout, "[changed-scope] %s: %d changed file(s), %d/%d module(s) selected\n", sel.rangeLabel(), len(sel.Changed), len(sel.Selected), len(modules))
+			for _, m := range modules {
+				if reason, ok := sel.Selected[m.Rel]; ok {
+					fmt.Fprintf(stdout, "  + %s: %s\n", m.Rel, reason)
+				} else {
+					fmt.Fprintf(stdout, "  - %s: not affected by %s\n", m.Rel, sel.rangeLabel())
+				}
+			}
+		}
+	}
+	run := validationRunResult{
+		SchemaVersion: validationResultSchema,
+		GeneratedAt:   time.Now().UTC().Format(time.RFC3339),
+		Mode:          mode,
+		StackFilter:   stackFilter,
+		ModuleFilter:  moduleFilter,
+		Checks:        []checkResult{},
+	}
 	failures := 0
 	optionalFailures := 0
 	executed := 0
@@ -296,31 +395,145 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			checks = nil
 		}
 		checks = append(checks, override.Checks...)
+		if scope != nil {
+			if _, selected := scope.Selected[module.Rel]; !selected {
+				// R3: every unselected check keeps a machine-readable reason.
+				reason := "changed-scope: module not affected by " + scope.rangeLabel()
+				for _, check := range checks {
+					if check.Program == "" {
+						continue
+					}
+					severity := check.Severity
+					if severity == "" {
+						severity = "required"
+					}
+					run.Counts.Skipped++
+					run.Checks = append(run.Checks, checkResult{
+						ID: module.Rel + "/" + stack + "/" + check.Name, Module: module.Rel,
+						Stack: stack, Name: check.Name, Program: check.Program,
+						Args: check.Args, Env: redactedEnv(check.Env), Severity: severity,
+						Outcome: "skipped", SkipReason: reason,
+					})
+				}
+				continue
+			}
+		}
 		moduleMode := mode
 		if override.Mode != "" {
 			moduleMode = override.Mode
 		}
 		fmt.Fprintf(stdout, "[module] %s (%s, mode=%s)\n", module.Rel, stack, moduleMode)
 		for _, check := range checks {
-			if check.Program == "" || !validationCheckEnabled(module.Abs, check.When) {
+			if check.Program == "" {
+				continue
+			}
+			severity := check.Severity
+			if severity == "" {
+				severity = "required"
+			}
+			result := checkResult{
+				ID: module.Rel + "/" + stack + "/" + check.Name, Module: module.Rel,
+				Stack: stack, Name: check.Name, Program: check.Program,
+				Args: check.Args, Env: redactedEnv(check.Env), Severity: severity,
+			}
+			if check.Isolation == "required" {
+				// The local CLI never weakens its boundary: isolated
+				// execution is delegated to the Harness via --emit-plan.
+				result.Outcome = "skipped"
+				result.Isolation = "required"
+				result.SkipReason = "requires isolated execution (harness) — include via --emit-plan"
+				run.Counts.Skipped++
+				run.Checks = append(run.Checks, result)
+				isolationChecks = append(isolationChecks, result)
+				fmt.Fprintf(stdout, "  -- %s: skipped (%s)\n", check.Name, result.SkipReason)
+				continue
+			}
+			if reason := validationSkipReason(module.Abs, check.When); reason != "" {
+				result.Outcome, result.SkipReason = "skipped", reason
+				run.Counts.Skipped++
+				run.Checks = append(run.Checks, result)
 				continue
 			}
 			executed++
+			run.Counts.Executed++
 			fmt.Fprintf(stdout, "  -> %s %s\n", check.Program, strings.Join(check.Args, " "))
-			cmd := exec.CommandContext(context.Background(), check.Program, check.Args...)
+			timeout := check.TimeoutSeconds
+			if timeout <= 0 {
+				timeout = matrix.Defaults.TimeoutSeconds
+			}
+			if timeout <= 0 {
+				timeout = 600 // documented safe default
+			}
+			maxOutput := matrix.Defaults.MaxOutputBytes
+			if maxOutput <= 0 {
+				maxOutput = 1 << 20 // 1 MiB documented safe default
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+			capture := &tailBuffer{capacity: 4096}
+			limiter := &outputLimiter{limit: maxOutput, cancel: cancel}
+			cmd := exec.CommandContext(ctx, check.Program, check.Args...)
+			setProcessGroup(cmd)
+			cmd.Cancel = func() error { return killProcessGroup(cmd) }
 			cmd.Dir = module.Abs
-			cmd.Stdout, cmd.Stderr = stdout, stderr
+			cmd.Stdout = io.MultiWriter(stdout, capture, limiter)
+			cmd.Stderr = io.MultiWriter(stderr, capture, limiter)
 			cmd.Env = os.Environ()
 			for key, value := range check.Env {
 				cmd.Env = append(cmd.Env, key+"="+value)
 			}
-			if err := cmd.Run(); err != nil {
-				if check.Severity == "required" || check.Severity == "" {
+			started := time.Now()
+			err := cmd.Run()
+			cancel()
+			result.DurationSeconds = time.Since(started).Seconds()
+			result.Output = redactSecrets(capture.String(), check.Env)
+			var exitErr *exec.ExitError
+			switch {
+			case limiter.exceeded:
+				// Explicit guardrail state: the check flooded output and was
+				// cancelled (never conflated with a normal check failure).
+				result.Outcome, result.LimitState = "error", "output-limit"
+				result.Output = fmt.Sprintf("output limit exceeded (%d bytes) — process group terminated", maxOutput)
+				run.Counts.Errored++
+				if severity == "required" {
+					failures++
+				} else {
+					optionalFailures++
+				}
+			case ctx.Err() == context.DeadlineExceeded:
+				result.Outcome, result.LimitState = "error", "timeout"
+				result.Output = fmt.Sprintf("timeout after %ds — process group terminated", timeout)
+				run.Counts.Errored++
+				if severity == "required" {
+					failures++
+				} else {
+					optionalFailures++
+				}
+			case err == nil:
+				result.Outcome = "pass"
+				run.Counts.Passed++
+			case errors.As(err, &exitErr):
+				code := exitErr.ExitCode()
+				result.Outcome, result.ExitCode = "fail", &code
+				if severity == "required" {
+					failures++
+					run.Counts.Failed++
+				} else {
+					optionalFailures++
+					run.Counts.OptionalFailed++
+				}
+			default:
+				// Infrastructure failure: the tool never ran (R3 keeps this
+				// distinguishable from a real check failure).
+				result.Outcome = "error"
+				result.Output = redactSecrets(err.Error(), check.Env)
+				run.Counts.Errored++
+				if severity == "required" {
 					failures++
 				} else {
 					optionalFailures++
 				}
 			}
+			run.Checks = append(run.Checks, result)
 		}
 	}
 	if executed == 0 {
@@ -332,9 +545,55 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, "Result: FAILURE (required check failed)")
 	} else {
 		if optionalFailures > 0 {
+			result = "partial"
 			fmt.Fprintf(stdout, "Warning: %d optional check(s) failed.\n", optionalFailures)
 		}
 		fmt.Fprintln(stdout, "Result: SUCCESS")
+	}
+	run.Outcome = result
+	for name, writer := range map[string]struct {
+		path  string
+		write func(string, validationRunResult) error
+	}{
+		"json":  {jsonOut, writeValidationJSON},
+		"junit": {junitOut, writeValidationJUnit},
+		"sarif": {sarifOut, writeValidationSARIF},
+	} {
+		if writer.path == "" {
+			continue
+		}
+		target := filepath.Join(root, filepath.FromSlash(writer.path))
+		if err := writer.write(target, run); err != nil {
+			fmt.Fprintf(stderr, cliText(locale, "Error: writing %s result: %v\n", "Erro: escrevendo resultado %s: %v\n"), name, err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "%s: %s\n", name, target)
+	}
+	if planOut != "" {
+		digest := sha256.Sum256(raw)
+		head := ""
+		if out, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output(); err == nil {
+			head = strings.TrimSpace(string(out))
+		}
+		plan := executionPlan{
+			SchemaVersion: validationResultSchema,
+			GeneratedAt:   run.GeneratedAt,
+			ProjectID:     filepath.Base(root),
+			Spec:          reportTask,
+			GitHead:       head,
+			MatrixSHA256:  hex.EncodeToString(digest[:]),
+			Checks:        isolationChecks,
+			Approval:      planApproval{Required: true},
+		}
+		if plan.Checks == nil {
+			plan.Checks = []checkResult{}
+		}
+		target := filepath.Join(root, filepath.FromSlash(planOut))
+		if err := writeExecutionPlan(target, plan); err != nil {
+			fmt.Fprintf(stderr, cliText(locale, "Error: writing execution plan: %v\n", "Erro: escrevendo plano de execução: %v\n"), err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "plan: %s (%d isolated check(s); approval required before Harness execution)\n", target, len(plan.Checks))
 	}
 	if autoReport {
 		if reportTask == "" {

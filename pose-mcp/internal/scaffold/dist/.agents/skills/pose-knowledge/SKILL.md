@@ -2,6 +2,9 @@
 name: pose-knowledge
 description: Use to create or update artifacts under .pose/knowledge, including cross-execution handoffs, decision logs with review triggers, and reusable technical notes. Trigger keywords - knowledge, handoff, decision-log, note, memory, context handoff, pose-maintainers.
 when_to_use: Technical context must survive one execution and be resumed by another agent or cycle, especially after feature, bugfix, or review work when a spec or ADR is insufficient.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, knowledge-write
 ---
 
 # Skill: pose-knowledge
