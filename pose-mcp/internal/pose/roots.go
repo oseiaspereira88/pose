@@ -17,6 +17,36 @@ type RootsConfig struct {
 	ProjectsDir      string            // base scanned for materialized projects
 	ProjectIDPrefix  string            // dirname -> prefix+dirname (default "": dirname IS the project_id)
 	Explicit         map[string]string // env override, wins over scan/default
+	// StrictSelection (spec pose-mcp-project-scope-contract): when true, an
+	// empty project_id in a deployment that has onboarded more than one
+	// project fails closed with ProjectAmbiguousError instead of silently
+	// resolving to DefaultRoot. Default false preserves existing
+	// single-project stdio ergonomics and gives multi-project deployments an
+	// announced deprecation window before this becomes the default.
+	StrictSelection bool
+}
+
+// ProjectUnknownError means project_id was provided but does not resolve to
+// any registered root, even after a rescan. It never carries a filesystem
+// path — only the caller-supplied logical identifier.
+type ProjectUnknownError struct{ ProjectID string }
+
+func (e ProjectUnknownError) Error() string {
+	return fmt.Sprintf("unknown project_id %q", e.ProjectID)
+}
+
+// ProjectAmbiguousError means project_id was omitted and the server cannot
+// (or, in strict mode, will not) pick one root unambiguously.
+//
+//   - "no-default": no default root is configured at all.
+//   - "multi-project-implicit": a default root is configured but more than
+//     one project is registered, so omitting project_id is a deprecated,
+//     strict-mode-rejectable convenience rather than a real single-project
+//     deployment.
+type ProjectAmbiguousError struct{ Reason string }
+
+func (e ProjectAmbiguousError) Error() string {
+	return fmt.Sprintf("ambiguous project selection: %s (pass project_id explicitly)", e.Reason)
 }
 
 // Roots resolves a project_id to a project-scoped Store. The registry is rebuilt
@@ -69,13 +99,19 @@ func (r *Roots) maybeRescan() {
 	}
 }
 
-// StoreFor resolves the Store for a project_id. Empty -> default root. Known
-// project_id -> its root. An unknown id triggers one throttled rescan (a project
-// may have just been cloned) before erroring; we never silently fall back.
+// StoreFor resolves the Store for a project_id. Empty -> default root (or a
+// distinct ProjectAmbiguousError when no default is configured, or, under
+// StrictSelection, when more than one project is registered). Known
+// project_id -> its root. An unknown id triggers one throttled rescan (a
+// project may have just been cloned) before returning ProjectUnknownError;
+// there is no silent fallback.
 func (r *Roots) StoreFor(projectID string) (Store, error) {
 	if projectID == "" {
 		if r.cfg.DefaultRoot == "" {
-			return Store{}, fmt.Errorf("no default project root configured")
+			return Store{}, ProjectAmbiguousError{Reason: "no-default"}
+		}
+		if r.cfg.StrictSelection && r.registeredProjectCount() > 1 {
+			return Store{}, ProjectAmbiguousError{Reason: "multi-project-implicit"}
 		}
 		return Store{Root: r.cfg.DefaultRoot}, nil
 	}
@@ -89,9 +125,15 @@ func (r *Roots) StoreFor(projectID string) (Store, error) {
 		r.mu.RUnlock()
 	}
 	if !ok {
-		return Store{}, fmt.Errorf("unknown project_id %q", projectID)
+		return Store{}, ProjectUnknownError{ProjectID: projectID}
 	}
 	return Store{Root: root}, nil
+}
+
+func (r *Roots) registeredProjectCount() int {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return len(r.byProject)
 }
 
 // Refresh forces an immediate rebuild of the registry, bypassing the rescan

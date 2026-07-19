@@ -65,12 +65,20 @@ func Run(args []string) {
 	if err != nil {
 		log.Fatalf("pose-mcp: %v", err)
 	}
+	// pose-mcp-project-scope-contract: opt-in fail-closed mode for a
+	// deployment that has onboarded more than one project — an empty
+	// project_id becomes a structured project_ambiguous error instead of
+	// silently resolving to the default root. Off by default: existing
+	// single-project stdio deployments are always unaffected regardless of
+	// this flag (strict mode only trips when >1 project is registered).
+	strictSelection := envOr("POSE_MCP_STRICT_PROJECT_SELECTION", "") != ""
 	roots := pose.NewRoots(pose.RootsConfig{
 		DefaultRoot:      root,
 		DefaultProjectID: defaultProjectID,
 		ProjectsDir:      projectsDir,
 		ProjectIDPrefix:  projectIDPrefix,
 		Explicit:         explicit,
+		StrictSelection:  strictSelection,
 	})
 
 	authMode := "off"

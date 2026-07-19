@@ -388,6 +388,27 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 		if errors.As(err, &unknown) {
 			return errorResp(req.ID, -32602, err.Error())
 		}
+		// Project selection failures (spec pose-mcp-project-scope-contract
+		// R2/R3): distinct, machine-readable error codes carrying only the
+		// caller-supplied logical project_id — never the resolved filesystem
+		// root — so a client can tell "retry with a known id" apart from
+		// "pass project_id, the deployment has more than one project."
+		var unknownProj pose.ProjectUnknownError
+		var ambiguousProj pose.ProjectAmbiguousError
+		switch {
+		case errors.As(err, &unknownProj):
+			return result(req.ID, map[string]any{
+				"content":           []map[string]any{{"type": "text", "text": err.Error()}},
+				"structuredContent": map[string]any{"error_code": "project_unknown", "project_id": unknownProj.ProjectID},
+				"isError":           true,
+			})
+		case errors.As(err, &ambiguousProj):
+			return result(req.ID, map[string]any{
+				"content":           []map[string]any{{"type": "text", "text": err.Error()}},
+				"structuredContent": map[string]any{"error_code": "project_ambiguous", "reason": ambiguousProj.Reason},
+				"isError":           true,
+			})
+		}
 		// Tool execution failures are results with isError=true (MCP spec),
 		// so the model can read the cause and adapt.
 		return result(req.ID, map[string]any{
@@ -526,6 +547,8 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 	case "pose_list_specs":
 		var a struct {
 			Status string `json:"status"`
+			Cursor string `json:"cursor"`
+			Limit  int    `json:"limit"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_specs: invalid arguments")
@@ -534,7 +557,12 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err != nil {
 			return nil, err
 		}
-		return map[string]any{"specs": specs, "count": len(specs)}, nil
+		after, err := decodePageCursor(a.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("pose_list_specs: %w", err)
+		}
+		page, next := paginatePage(specs, after, a.Limit)
+		return map[string]any{"specs": page, "count": len(page), "next_cursor": next}, nil
 	case "pose_spec_readiness":
 		var a struct {
 			Slug string `json:"slug"`
@@ -552,11 +580,23 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		return store.GetChangelog(a.Version)
 	case "pose_list_roadmaps":
+		var a struct {
+			Cursor string `json:"cursor"`
+			Limit  int    `json:"limit"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_list_roadmaps: invalid arguments")
+		}
 		roadmaps, err := store.ListRoadmaps()
 		if err != nil {
 			return nil, err
 		}
-		return map[string]any{"roadmaps": roadmaps, "count": len(roadmaps)}, nil
+		after, err := decodePageCursor(a.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("pose_list_roadmaps: %w", err)
+		}
+		page, next := paginatePage(roadmaps, after, a.Limit)
+		return map[string]any{"roadmaps": page, "count": len(page), "next_cursor": next}, nil
 	case "pose_get_roadmap":
 		var a struct {
 			Slug string `json:"slug"`
@@ -640,11 +680,23 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		return store.LintSpec(ctx, a.Slug, a.Strict == nil || *a.Strict)
 	case "pose_list_knowledge":
+		var a struct {
+			Cursor string `json:"cursor"`
+			Limit  int    `json:"limit"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_list_knowledge: invalid arguments")
+		}
 		items, err := store.ListKnowledge()
 		if err != nil {
 			return nil, err
 		}
-		return map[string]any{"entries": items, "count": len(items)}, nil
+		after, err := decodePageCursor(a.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("pose_list_knowledge: %w", err)
+		}
+		page, next := paginatePage(items, after, a.Limit)
+		return map[string]any{"entries": page, "count": len(page), "next_cursor": next}, nil
 	case "pose_get_knowledge":
 		var a struct {
 			Slug string `json:"slug"`
@@ -654,11 +706,23 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		return store.GetKnowledge(a.Slug)
 	case "pose_list_reports":
+		var a struct {
+			Cursor string `json:"cursor"`
+			Limit  int    `json:"limit"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_list_reports: invalid arguments")
+		}
 		reports, err := store.ListReports()
 		if err != nil {
 			return nil, err
 		}
-		return map[string]any{"reports": reports, "count": len(reports)}, nil
+		after, err := decodePageCursor(a.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("pose_list_reports: %w", err)
+		}
+		page, next := paginatePage(reports, after, a.Limit)
+		return map[string]any{"reports": page, "count": len(page), "next_cursor": next}, nil
 	case "pose_get_report":
 		var a struct {
 			Filename string `json:"filename"`
@@ -846,6 +910,14 @@ func toolDefinitions() []map[string]any {
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
+					"cursor": map[string]any{
+						"type":        "string",
+						"description": sharedCursorDescription,
+					},
+					"limit": map[string]any{
+						"type":        "integer",
+						"description": sharedLimitDescription,
+					},
 				},
 			},
 		},
@@ -900,6 +972,14 @@ func toolDefinitions() []map[string]any {
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
+					"cursor": map[string]any{
+						"type":        "string",
+						"description": sharedCursorDescription,
+					},
+					"limit": map[string]any{
+						"type":        "integer",
+						"description": sharedLimitDescription,
+					},
 				},
 			},
 		},
@@ -944,6 +1024,10 @@ func toolDefinitions() []map[string]any {
 						"type":        "string",
 						"description": "Optional repo-relative path to infer the domain from",
 					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
 				},
 				"required": []string{"task_type"},
 			},
@@ -959,6 +1043,10 @@ func toolDefinitions() []map[string]any {
 						"type":        "string",
 						"description": "Workflow name, e.g. feature, bugfix, review; omit to list all",
 					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
 				},
 			},
 		},
@@ -973,6 +1061,10 @@ func toolDefinitions() []map[string]any {
 					"domain": map[string]any{
 						"type":        "string",
 						"description": "Rule domain, e.g. security, backend-go, frontend-react; omit to list all",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
 			},
@@ -1015,6 +1107,10 @@ func toolDefinitions() []map[string]any {
 						"type":        "boolean",
 						"description": "true = every follow-up (any disposition); default false = open backlog only",
 					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
 				},
 			},
 		},
@@ -1029,6 +1125,10 @@ func toolDefinitions() []map[string]any {
 					"strict": map[string]any{
 						"type":        "boolean",
 						"description": "Strict mode (default true); tolerant turns failures into warnings",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
 			},
@@ -1049,6 +1149,10 @@ func toolDefinitions() []map[string]any {
 						"type":        "boolean",
 						"description": "Strict mode (default true)",
 					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
 				},
 			},
 		},
@@ -1058,8 +1162,21 @@ func toolDefinitions() []map[string]any {
 				"from .pose/knowledge/. Excludes sensitivity:restricted entries. " +
 				"Returns metadata only; use pose_get_knowledge for the full body.",
 			"inputSchema": map[string]any{
-				"type":       "object",
-				"properties": map[string]any{},
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+					"cursor": map[string]any{
+						"type":        "string",
+						"description": sharedCursorDescription,
+					},
+					"limit": map[string]any{
+						"type":        "integer",
+						"description": sharedLimitDescription,
+					},
+				},
 			},
 		},
 		{
@@ -1072,6 +1189,10 @@ func toolDefinitions() []map[string]any {
 					"slug": map[string]any{
 						"type":        "string",
 						"description": "Knowledge slug",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
 				"required": []string{"slug"},
@@ -1088,6 +1209,14 @@ func toolDefinitions() []map[string]any {
 					"project_id": map[string]any{
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+					"cursor": map[string]any{
+						"type":        "string",
+						"description": sharedCursorDescription,
+					},
+					"limit": map[string]any{
+						"type":        "integer",
+						"description": sharedLimitDescription,
 					},
 				},
 			},
@@ -1123,6 +1252,10 @@ func toolDefinitions() []map[string]any {
 					"name": map[string]any{
 						"type":        "string",
 						"description": "Skill name, e.g. \"pose-investigate\"; omit to list all",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
 			},

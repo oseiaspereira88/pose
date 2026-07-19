@@ -77,8 +77,11 @@ func (s Store) ListReports() ([]Report, error) {
 		file.Close()
 	}
 
-	// Sort descending by generated_at
-	sort.Slice(reports, func(i, j int) bool {
+	// Sort descending by generated_at. SliceStable (spec
+	// pose-mcp-protocol-completeness R1): pagination cursors are only valid
+	// over a deterministic order, and plain sort.Slice does not guarantee
+	// one when two records share a timestamp.
+	sort.SliceStable(reports, func(i, j int) bool {
 		return reports[i].GeneratedAt > reports[j].GeneratedAt
 	})
 

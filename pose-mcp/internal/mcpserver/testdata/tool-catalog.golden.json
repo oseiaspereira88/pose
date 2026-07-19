@@ -142,6 +142,14 @@
       "description": "List every POSE spec of the project with its lifecycle frontmatter (no body). Optionally filter by status: draft, in-progress, done, blocked, superseded or abandoned.",
       "inputSchema": {
         "properties": {
+          "cursor": {
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "type": "integer"
+          },
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
             "type": "string"
@@ -196,6 +204,14 @@
       "description": "List every governed roadmap (pose-roadmap-artifact): status, depends_on and milestones (id, after, target dates, specs). The order of N specs lives here.",
       "inputSchema": {
         "properties": {
+          "cursor": {
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "type": "integer"
+          },
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
             "type": "string"
@@ -237,6 +253,10 @@
             "description": "Optional repo-relative path to infer the domain from",
             "type": "string"
           },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
           "task_type": {
             "description": "Task type, e.g. feature, bugfix, refactor, documentation, adr, knowledge, recurrence-escalation",
             "type": "string"
@@ -256,6 +276,10 @@
           "name": {
             "description": "Workflow name, e.g. feature, bugfix, review; omit to list all",
             "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
           }
         },
         "type": "object"
@@ -268,6 +292,10 @@
         "properties": {
           "domain": {
             "description": "Rule domain, e.g. security, backend-go, frontend-react; omit to list all",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
             "type": "string"
           }
         },
@@ -311,6 +339,10 @@
           "all": {
             "description": "true = every follow-up (any disposition); default false = open backlog only",
             "type": "boolean"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
           }
         },
         "type": "object"
@@ -321,6 +353,10 @@
       "description": "Evaluate the POSE structural integrity gate (pose check) in read-only mode. Returns the verdict (passed/exit_code) plus the full output as evidence — a failing gate is a result, not an error.",
       "inputSchema": {
         "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
           "strict": {
             "description": "Strict mode (default true); tolerant turns failures into warnings",
             "type": "boolean"
@@ -334,6 +370,10 @@
       "description": "Evaluate the spec content + lifecycle gate (pose lint-spec) in read-only mode: skeletal sections, done-without-completed_at, follow-ups without disposition. Without a slug, evaluates every spec.",
       "inputSchema": {
         "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
           "slug": {
             "description": "Spec slug; omit to lint all specs",
             "type": "string"
@@ -350,7 +390,20 @@
     {
       "description": "List POSE knowledge entries (handoffs, decision-logs, notes) from .pose/knowledge/. Excludes sensitivity:restricted entries. Returns metadata only; use pose_get_knowledge for the full body.",
       "inputSchema": {
-        "properties": {},
+        "properties": {
+          "cursor": {
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "type": "integer"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "name": "pose_list_knowledge"
@@ -359,6 +412,10 @@
       "description": "Get one POSE knowledge entry by slug (full body). Returns error if the entry has sensitivity:restricted.",
       "inputSchema": {
         "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
           "slug": {
             "description": "Knowledge slug",
             "type": "string"
@@ -375,6 +432,14 @@
       "description": "List all historical POSE compliance and validation reports from .pose/reports/history/*.jsonl. Returns structured execution metadata, excluding full report bodies.",
       "inputSchema": {
         "properties": {
+          "cursor": {
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "type": "integer"
+          },
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
             "type": "string"
@@ -410,6 +475,10 @@
         "properties": {
           "name": {
             "description": "Skill name, e.g. \"pose-investigate\"; omit to list all",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
             "type": "string"
           }
         },

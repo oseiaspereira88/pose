@@ -16,19 +16,18 @@ source_refs:
 
 ## Contexto
 
-Roadmaps 1 (`product-integrity`), 2 (`supply-chain-trust`), 3
-(`governance-traceability`) e 4 (`validation-platform`) do portfólio
-**concluídos em 2026-07-19** — 20 specs fechadas com evidência, os quatro
-roadmaps marcados `done`. `pose validate` agora emite resultado estruturado
-versionado (`--json/--junit/--sarif`), aplica guardrails de runtime (timeout,
-ceiling de output, delegação `isolation: required` ao Harness via
-`--emit-plan`), seleciona escopo alterado de forma explicável
-(`--changed-from/--changed-to`, `--explain`) e cobre Python/.NET via o
-catálogo `pose stacks` — tudo comprovado com receitas docs-as-tests de
-monorepo (JS workspace, grafo declarado, mixed-language). Próximo do
-portfólio: roadmap 5 `agent-interoperability` (janela 2026-09-21 →
-2026-12-18; conformidade MCP/Agent Skills, catálogo de extensões assinado,
-canais de pacote).
+Roadmaps 1-4 do portfólio **concluídos em 2026-07-19** — 20 specs fechadas,
+todos `done` (ver seções anteriores). Roadmap 5 `agent-interoperability`:
+milestone 1 `project-protocol` também concluído (2 specs) —
+`pose_*` MCP: os 20 tools compartilham o mesmo schema `project_id`; erros de
+seleção de projeto (`project_unknown`/`project_ambiguous`) são estruturados e
+nunca vazam path; flag opt-in `POSE_MCP_STRICT_PROJECT_SELECTION` para
+multi-projeto; os 4 tools `pose_list_*` ganharam paginação por cursor opaco
+aditiva; decisão registrada (ADR) de **não** implementar resources/prompts
+MCP — os tools tipados já cobrem o caso de uso com mais segurança. Faltam os
+milestones 2 `controlled-execution` (`pose-safe-validate-orchestration`) e 3
+`extension-ecosystem` (`pose-agent-skills-conformance`,
+`pose-extension-catalog-lifecycle`) para fechar o roadmap 5.
 
 ## Estado atual
 

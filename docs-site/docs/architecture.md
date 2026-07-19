@@ -368,8 +368,11 @@ repository engine.
 - Roadmaps model eligibility and ordering, not capacity or transactional work.
 - Local insights do not yet implement DORA delivery metrics.
 - Reports are auditable Git artifacts but are not signed attestations.
-- MCP is tool-oriented; resources, prompts and live catalog refresh are not yet
-  part of the public surface.
+- MCP is deliberately tool-only: list tools paginate with opaque cursors and
+  the catalog is stable within a process lifetime, but resources and prompts
+  are not implemented — a generic resources primitive would expose
+  repository files wholesale, and prompts risk becoming policy outside
+  `.pose/workflows/`, both explicitly out of scope (see [MCP server](mcp.md)).
 - The baseline validation matrix covers four stack families and relies on
   repository overrides for other ecosystems.
 

@@ -16,6 +16,7 @@ default `:8790`).
 | `POSE_MCP_OPA_URL` / `POSE_MCP_OPA_PATH` | OPA policy endpoint (empty = allow-all dev mode; failures deny) |
 | `POSE_MCP_REQUIRE_PRINCIPAL` | Deny anonymous `tools/call` even without OPA |
 | `POSE_MCP_IDENTITY_SECRET` | Verifies run-bound execution identities |
+| `POSE_MCP_STRICT_PROJECT_SELECTION` | Non-empty = fail closed on empty `project_id` when more than one project is registered (see below) |
 
 The installer seeds `.mcp.json` when absent. It invokes the native binary
 directly and records the installed project's root and project id in the server
@@ -59,6 +60,68 @@ return an `isError` result with configuration guidance.
 | `conductor_run_open` | Open an observed external run (returns `run_id`, `task_id`) |
 | `conductor_run_event` | Append a progress/checkpoint event to an open run |
 | `conductor_run_close` | Close a run with its outcome and cost |
+
+## Project scope contract
+
+Every `pose_*` tool advertises the same `project_id` schema and resolution
+rule — a default is convenience only, never a silent guess. `tools/call`
+resolves the project from, in order: the `project_id` argument, then the
+`X-MCP-Project`/`X-Project-Id` header, then the configured default root.
+Resolution failures are distinct, structured errors (`isError: true`,
+`structuredContent.error_code`) that never include the resolved filesystem
+root — only the caller-supplied logical identifier:
+
+| `error_code` | Meaning | `structuredContent` |
+|---|---|---|
+| `project_unknown` | `project_id` does not resolve to any registered root, even after a rescan | `project_id` |
+| `project_ambiguous` | `project_id` was omitted and the server cannot pick one unambiguously | `reason`: `no-default` or `multi-project-implicit` |
+
+A third case — the resolved project exists but policy denies it — surfaces
+through the existing JSON-RPC error `-32004` with `decision.Metadata()`
+(`policy denied`), not through `structuredContent`.
+
+**Compatibility / deprecation window:** with `POSE_MCP_STRICT_PROJECT_SELECTION`
+unset (default), an empty `project_id` always resolves to the configured
+default root, even once a deployment has onboarded more than one project —
+existing single-project stdio ergonomics are exactly unchanged. Setting the
+variable makes that same omission fail closed with
+`project_ambiguous`/`multi-project-implicit` whenever more than one project
+is registered; a genuinely single-project deployment is never affected by
+the flag. Multi-project operators should plan to adopt it as project count
+grows; it is expected to become the default in a future release.
+
+## Pagination and catalog stability
+
+`pose_list_specs`, `pose_list_roadmaps`, `pose_list_knowledge` and
+`pose_list_reports` accept optional `cursor`/`limit` arguments and return an
+additive `next_cursor` field (empty when exhausted). Cursors are opaque,
+versioned position tokens over each list's fixed deterministic order (spec
+slug, roadmap slug, knowledge slug, or `generated_at` descending) — never
+parse or construct one client-side; a malformed or wrong-version cursor is a
+tool error, not silently coerced to page 1. Omitting both arguments returns
+every item in a single page — the exact response shape from before
+pagination existed.
+
+The tool catalog itself never changes within one server process: `tools/list`
+is a pure function of the binary and is byte-identical across calls in the
+same session, so `capabilities.tools.listChanged: false` is verified, not
+aspirational. A catalog change only happens across a release (a new
+`pose-mcp` binary, a new `serverInfo.version`) — clients should reconnect
+(re-`initialize`) after observing that version change; POSE does not (and,
+given a static per-process catalog, has no reason to) emit
+`notifications/tools/list_changed` events.
+
+**Resources and prompts are deliberately not implemented.** Every governed
+read POSE exposes — specs, roadmaps, knowledge, reports, workflows, rules,
+skills — is already served through typed, schema-validated, project-scoped,
+policy-gated tools. A generic MCP `resources` primitive would let a client
+address arbitrary repository content by URI, which is exactly "expose
+repository files wholesale" — explicitly out of scope. A generic `prompts`
+primitive risks encoding procedure outside the reviewable
+`.pose/workflows/*.md` files it is meant to expose, which is "turn prompts
+into hidden policy" — also out of scope. `capabilities` therefore advertises
+only `tools`; a tools-only client sees no unimplemented primitive to
+misconfigure.
 
 ## Security posture
 
