@@ -78,6 +78,15 @@ func TestGetChangelogVersionBody(t *testing.T) {
 	if _, err := s.GetChangelog("../etc"); err == nil {
 		t.Fatal("versão com traversal deve dar erro")
 	}
+	// Path-traversal-shaped inputs that don't contain "..": an absolute
+	// path or any embedded separator must still be confined to
+	// changelogsDir() by the filepath.Base(version) == version check,
+	// not solely by the ".." substring guard above.
+	for _, malicious := range []string{"/etc/passwd", "sub/dir", "a/b/../../etc"} {
+		if _, err := s.GetChangelog(malicious); err == nil {
+			t.Fatalf("versão %q com separador de path deve dar erro", malicious)
+		}
+	}
 }
 
 func TestGetChangelogEmptyRepo(t *testing.T) {

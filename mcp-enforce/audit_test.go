@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"log/slog"
+	"strings"
 	"testing"
 )
 
@@ -45,5 +46,28 @@ func TestNewSlogAuditor_Defaults(t *testing.T) {
 	}
 	if a.component != "mcp" {
 		t.Errorf("component = %q, want default \"mcp\"", a.component)
+	}
+}
+
+// TestSlogAuditor_TruncatesOversizedIdentityFields proves an abusive,
+// oversized X-MCP-Principal/project_id header (a client controls both,
+// unvalidated) cannot inflate the audit log without bound — defense in
+// depth on top of these fields being legitimate, by-design audit data.
+func TestSlogAuditor_TruncatesOversizedIdentityFields(t *testing.T) {
+	var buf bytes.Buffer
+	a := NewSlogAuditor(slog.New(slog.NewJSONHandler(&buf, nil)), "pose-mcp")
+
+	huge := strings.Repeat("x", 10_000)
+	a.Record(context.Background(), PolicyDecision{Allow: true, Principal: huge, ProjectID: huge, ToolName: "pose_get_spec"})
+
+	out := buf.String()
+	if strings.Contains(out, huge) {
+		t.Fatal("an oversized identity field was logged verbatim, unbounded")
+	}
+	if !strings.Contains(out, "(truncated)") {
+		t.Errorf("expected a truncation marker in the audit line: %s", out)
+	}
+	if len(out) > 2*maxAuditFieldLen+512 {
+		t.Errorf("audit line length = %d, expected it bounded near maxAuditFieldLen, not proportional to the 10,000-byte input", len(out))
 	}
 }

@@ -41,10 +41,31 @@ func NewSlogAuditor(logger *slog.Logger, component string) *SlogAuditor {
 	return &SlogAuditor{logger: logger, component: component}
 }
 
+// maxAuditFieldLen bounds every caller-supplied identity field before it
+// reaches a log line. Principal/ProjectID arrive verbatim from request
+// headers with no format validation — they are authorization identifiers
+// by design (this Auditor's entire purpose is recording who invoked
+// what), not secrets, but an unbounded value is still a log-injection /
+// volume-abuse surface worth closing regardless of intent.
+const maxAuditFieldLen = 128
+
+func truncateForAudit(s string) string {
+	if len(s) <= maxAuditFieldLen {
+		return s
+	}
+	return s[:maxAuditFieldLen] + "...(truncated)"
+}
+
 // Record implements Auditor. The run_id attribute is included only when the
 // decision carries an Execution Identity, keeping anonymous-call logs unchanged.
+//
+// codeql[go/clear-text-logging]: principal/project_id are authorization
+// identifiers from the caller's own request (X-MCP-Principal / project_id),
+// not secrets — recording them is this Auditor's documented purpose (see
+// the package doc: "a complete trail of who invoked what"). Bounded via
+// truncateForAudit as defense in depth against an oversized value.
 func (a *SlogAuditor) Record(ctx context.Context, d PolicyDecision) {
-	args := []any{"principal", d.Principal, "project_id", d.ProjectID, "tool", d.ToolName}
+	args := []any{"principal", truncateForAudit(d.Principal), "project_id", truncateForAudit(d.ProjectID), "tool", d.ToolName}
 	if len(d.ProjectIDs) > 0 {
 		args = append(args, "project_ids", d.ProjectIDs)
 	}

@@ -72,6 +72,14 @@ func (s Store) GetChangelog(version string) (*Changelog, error) {
 		if err := ValidateSlug(strings.TrimPrefix(version, "v")); err != nil && !validVersionName(version) {
 			return nil, fmt.Errorf("pose: invalid changelog version %q", version)
 		}
+		// Defense in depth against a path-traversal-shaped version value:
+		// require that the requested name is exactly one path component
+		// (no separator survives Base unless the input already had none),
+		// confining the read to changelogsDir() by construction rather
+		// than relying solely on the substring checks above.
+		if filepath.Base(version) != version {
+			return nil, fmt.Errorf("pose: invalid changelog version %q", version)
+		}
 		raw, err := os.ReadFile(filepath.Join(s.changelogsDir(), version+".md"))
 		if err != nil {
 			return nil, fmt.Errorf("pose: changelog version %q not found", version)
