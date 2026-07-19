@@ -125,6 +125,59 @@ func TestPublicInstallContract(t *testing.T) {
 	}
 }
 
+// specs pose-release-signing / pose-cyclonedx-sbom: the release pipeline
+// signs every artifact with offline-verifiable Sigstore bundles, publishes a
+// CycloneDX SBOM per archive, and the workflow verifies both against the
+// pinned identity before the run may succeed.
+func TestArtifactIdentityContract(t *testing.T) {
+	gorel, err := os.ReadFile("../../../.goreleaser.yaml")
+	if err != nil {
+		t.Fatalf("reading .goreleaser.yaml: %v", err)
+	}
+	gr := string(gorel)
+	for _, want := range []string{
+		`signature: "${artifact}.sigstore.json"`,
+		`"sign-blob", "--yes", "--bundle", "${signature}"`,
+		"artifacts: all",
+		`documents: ["${artifact}.cdx.json"]`,
+		`"cyclonedx-json=${document}"`,
+	} {
+		if !strings.Contains(gr, want) {
+			t.Errorf(".goreleaser.yaml missing %q (signing/SBOM contract)", want)
+		}
+	}
+	rel, err := os.ReadFile("../../../.github/workflows/release.yml")
+	if err != nil {
+		t.Fatalf("reading release.yml: %v", err)
+	}
+	rw := string(rel)
+	for _, want := range []string{
+		"id-token: write",
+		"sigstore/cosign-installer@",
+		"anchore/sbom-action/download-syft@",
+		"tests/release/verify.sh",
+	} {
+		if !strings.Contains(rw, want) {
+			t.Errorf("release.yml missing %q (identity verification gate)", want)
+		}
+	}
+	sec, err := os.ReadFile("../../../SECURITY.md")
+	if err != nil {
+		t.Fatalf("reading SECURITY.md: %v", err)
+	}
+	sm := string(sec)
+	for _, want := range []string{
+		"cosign verify-blob",
+		"--certificate-oidc-issuer https://token.actions.githubusercontent.com",
+		`--certificate-identity-regexp`,
+		"release\\.yml@refs/tags/v",
+	} {
+		if !strings.Contains(sm, want) {
+			t.Errorf("SECURITY.md missing %q (pinned verification instructions)", want)
+		}
+	}
+}
+
 // R1/R3: the release pipeline stamps the authoritative symbol — and only it.
 func TestReleasePipelineStampsAuthority(t *testing.T) {
 	raw, err := os.ReadFile("../../../.goreleaser.yaml")
