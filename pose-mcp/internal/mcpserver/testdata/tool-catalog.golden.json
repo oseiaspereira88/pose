@@ -75,6 +75,23 @@
     },
     "pose_suggest": {
       "risk": "read"
+    },
+    "pose_validate_approve": {
+      "risk": "gate"
+    },
+    "pose_validate_cancel": {
+      "risk": "gate"
+    },
+    "pose_validate_request": {
+      "risk": "gate"
+    },
+    "pose_validate_status": {
+      "risk": "read"
+    },
+    "pose_validate_submit": {
+      "risk": "external-side-effect",
+      "optional": true,
+      "activation": "Harness executor configured via WithHarnessExecutor"
     }
   },
   "tools": [
@@ -485,6 +502,121 @@
         "type": "object"
       },
       "name": "pose_get_skill"
+    },
+    {
+      "description": "Resolve an immutable, digest-pinned validation check plan (mirrors pose validate's stack/module/changed-scope filters) without executing anything. Returns {request_id, plan, state: \"pending_approval\"}. The plan's digest binds every subsequent step — approve with the exact digest returned here.",
+      "inputSchema": {
+        "properties": {
+          "changed_from": {
+            "description": "Optional changed-scope base revision, same as pose validate --changed-from",
+            "type": "string"
+          },
+          "changed_to": {
+            "description": "Optional changed-scope head revision, same as pose validate --changed-to",
+            "type": "string"
+          },
+          "module_filter": {
+            "description": "Optional module filter, same as pose validate --module",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "stack_filter": {
+            "description": "Optional stack filter, same values as pose validate --stack",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_validate_request"
+    },
+    {
+      "description": "Approve or reject a pending validation request. Requires a bound Execution Identity (X-MCP-Execution-Identity) — approval can never be anonymous, regardless of the server's default policy mode. plan_digest must equal the exact digest pose_validate_request returned; a mismatch is rejected as plan substitution.",
+      "inputSchema": {
+        "properties": {
+          "decision": {
+            "description": "Approval decision",
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "type": "string"
+          },
+          "plan_digest": {
+            "description": "The exact plan.digest returned by pose_validate_request — binds the approval to that immutable plan",
+            "type": "string"
+          },
+          "rationale": {
+            "description": "Why this decision was made; recorded on the request",
+            "type": "string"
+          },
+          "request_id": {
+            "description": "Request id returned by pose_validate_request",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "plan_digest",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "name": "pose_validate_approve"
+    },
+    {
+      "description": "Hand an approved validation request to the configured Harness executor. Only valid from state \"approved\"; idempotent — resubmitting an already-submitted request returns the same execution_id without re-invoking the Harness. Requires a Harness executor to be configured; otherwise returns a configuration error.",
+      "inputSchema": {
+        "properties": {
+          "request_id": {
+            "description": "Request id to submit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "type": "object"
+      },
+      "name": "pose_validate_submit"
+    },
+    {
+      "description": "Read the current state of a validation request: pending_approval, approved, rejected, submitted or cancelled, plus its plan, approver and execution_id when present.",
+      "inputSchema": {
+        "properties": {
+          "request_id": {
+            "description": "Request id to inspect",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "type": "object"
+      },
+      "name": "pose_validate_status"
+    },
+    {
+      "description": "Cancel a validation request that has not reached a terminal state. Cancelling a submitted request marks it locally; propagating cancellation to a running Harness execution is the executor's own responsibility.",
+      "inputSchema": {
+        "properties": {
+          "reason": {
+            "description": "Why this request is being cancelled",
+            "type": "string"
+          },
+          "request_id": {
+            "description": "Request id to cancel",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "type": "object"
+      },
+      "name": "pose_validate_cancel"
     },
     {
       "description": "Open an observed external run on the Conductor board. Call this at the start of a session to create a task visible in the board. Returns run_id and task_id to pass to subsequent conductor_run_event / conductor_run_close calls. Requires CONDUCTOR_URL, CONDUCTOR_PROJECT_ID (and optionally CONDUCTOR_RUN_TOKEN) to be set when pose-mcp was started.",

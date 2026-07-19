@@ -18,16 +18,21 @@ source_refs:
 
 Roadmaps 1-4 do portfólio **concluídos em 2026-07-19** — 20 specs fechadas,
 todos `done` (ver seções anteriores). Roadmap 5 `agent-interoperability`:
-milestone 1 `project-protocol` também concluído (2 specs) —
-`pose_*` MCP: os 20 tools compartilham o mesmo schema `project_id`; erros de
-seleção de projeto (`project_unknown`/`project_ambiguous`) são estruturados e
-nunca vazam path; flag opt-in `POSE_MCP_STRICT_PROJECT_SELECTION` para
-multi-projeto; os 4 tools `pose_list_*` ganharam paginação por cursor opaco
-aditiva; decisão registrada (ADR) de **não** implementar resources/prompts
-MCP — os tools tipados já cobrem o caso de uso com mais segurança. Faltam os
-milestones 2 `controlled-execution` (`pose-safe-validate-orchestration`) e 3
-`extension-ecosystem` (`pose-agent-skills-conformance`,
-`pose-extension-catalog-lifecycle`) para fechar o roadmap 5.
+milestones 1 `project-protocol` e 2 `controlled-execution` concluídos (3
+specs). Milestone 1: os 20 tools `pose_*` compartilham schema `project_id`;
+erros de seleção estruturados (`project_unknown`/`project_ambiguous`) sem
+vazar path; paginação por cursor opaco nos 4 `pose_list_*`; decisão de não
+implementar resources/prompts MCP. Milestone 2
+(`pose-safe-validate-orchestration`): 5 novos tools
+(`pose_validate_request/approve/submit/status/cancel`) implementam uma
+máquina de estados de orquestração — plano imutável e digest-pinned →
+aprovação exige Execution Identity vinculada (independente do modo de
+política default) e o digest exato (rejeita substituição) → submit
+idempotente para um `HarnessExecutor` plugável (nil = erro de config, nunca
+sucesso falso). `pose validate` local está 100% inalterado. Catálogo MCP
+agora com 28 tools. Falta o milestone 3 `extension-ecosystem`
+(`pose-agent-skills-conformance`, `pose-extension-catalog-lifecycle`) para
+fechar o roadmap 5.
 
 ## Estado atual
 

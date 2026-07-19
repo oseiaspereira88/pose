@@ -30,6 +30,7 @@ type toolGovernance struct {
 }
 
 const conductorActivation = "Conductor reporter configured (CONDUCTOR_URL, CONDUCTOR_RUN_TOKEN, CONDUCTOR_PROJECT_ID)"
+const harnessActivation = "Harness executor configured via WithHarnessExecutor"
 
 // catalogGovernance must cover exactly the tools returned by
 // toolDefinitions(); catalog_test.go enforces the bijection.
@@ -54,6 +55,11 @@ var catalogGovernance = map[string]toolGovernance{
 	"pose_list_reports":      {Risk: RiskRead},
 	"pose_get_report":        {Risk: RiskRead},
 	"pose_get_skill":         {Risk: RiskRead},
+	"pose_validate_request":  {Risk: RiskGate},
+	"pose_validate_approve":  {Risk: RiskGate},
+	"pose_validate_submit":   {Risk: RiskExternal, Optional: true, Activation: harnessActivation},
+	"pose_validate_status":   {Risk: RiskRead},
+	"pose_validate_cancel":   {Risk: RiskGate},
 	"conductor_run_open":     {Risk: RiskExternal, Optional: true, Activation: conductorActivation},
 	"conductor_run_event":    {Risk: RiskExternal, Optional: true, Activation: conductorActivation},
 	"conductor_run_close":    {Risk: RiskExternal, Optional: true, Activation: conductorActivation},

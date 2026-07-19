@@ -117,6 +117,8 @@ type Server struct {
 	auditor        mcpenforce.Auditor // records allow+deny decisions
 	identitySecret []byte             // verifies X-MCP-Execution-Identity (ADR-007); empty = disabled
 	reporter       Reporter           // nil = conductor_run_* tools return config error
+	harness        HarnessExecutor    // nil = pose_validate_submit returns config error
+	orch           *orchestrator      // safe validation orchestration state (spec pose-safe-validate-orchestration)
 }
 
 // WithIdentitySecret sets the HMAC secret used to verify the Execution Identity
@@ -133,10 +135,19 @@ func (s *Server) WithReporter(r Reporter) *Server {
 	return s
 }
 
+// WithHarnessExecutor enables pose_validate_submit by wiring a real Harness
+// client (spec pose-safe-validate-orchestration). Without it, an approved
+// request can be resolved and approved but never submitted — the same
+// "optional tool, clear config error" pattern as WithReporter.
+func (s *Server) WithHarnessExecutor(h HarnessExecutor) *Server {
+	s.harness = h
+	return s
+}
+
 // New builds a single-root server (legacy / dev): every request resolves to this
 // store regardless of project_id only when project_id is empty.
 func New(store pose.Store) *Server {
-	return &Server{roots: pose.NewRoots(pose.RootsConfig{DefaultRoot: store.Root}), policy: NewPolicyGate(PolicyConfig{}), auditor: defaultAuditor}
+	return &Server{roots: pose.NewRoots(pose.RootsConfig{DefaultRoot: store.Root}), policy: NewPolicyGate(PolicyConfig{}), auditor: defaultAuditor, orch: newOrchestrator()}
 }
 
 // NewWithRoots builds a project-aware server backed by a roots registry.
@@ -149,7 +160,7 @@ func NewWithRootsAndPolicy(roots *pose.Roots, policy *PolicyGate) *Server {
 	if policy == nil {
 		policy = NewPolicyGate(PolicyConfig{})
 	}
-	return &Server{roots: roots, policy: policy, auditor: defaultAuditor}
+	return &Server{roots: roots, policy: policy, auditor: defaultAuditor, orch: newOrchestrator()}
 }
 
 // TokenAuth wraps next with Bearer token authentication. When token is empty
@@ -382,6 +393,14 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	if !decision.Allow {
 		return errorRespData(req.ID, -32004, "policy denied", decision.Metadata())
 	}
+	// Carry the verified Execution Identity (if any) to dispatch so tools
+	// that require explicit authorization beyond the server's default
+	// policy mode — pose_validate_approve/submit (spec
+	// pose-safe-validate-orchestration R2) — can enforce it per-call. By
+	// this point any presented identity is guaranteed valid and unexpired
+	// (PolicyGate.Evaluate denies otherwise); RunID is empty when no
+	// identity was presented or identity binding is unconfigured.
+	ctx = withCallerIdentity(ctx, policyInput.RunID, policyInput.Scopes)
 	out, err := s.dispatch(ctx, p.Name, p.Arguments)
 	if err != nil {
 		var unknown unknownToolError
@@ -489,6 +508,13 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 	switch name {
 	case "conductor_run_open", "conductor_run_event", "conductor_run_close":
 		return s.dispatchReporter(ctx, name, args)
+	}
+	// Safe validation orchestration (spec pose-safe-validate-orchestration):
+	// approve/submit/status/cancel act on an already-resolved request_id and
+	// need no POSE store of their own — only pose_validate_request does.
+	switch name {
+	case "pose_validate_approve", "pose_validate_submit", "pose_validate_status", "pose_validate_cancel":
+		return s.dispatchValidateOrchestration(ctx, name, args)
 	}
 	// All other tools resolve their store from the optional project_id (multi-project).
 	var sel struct {
@@ -746,6 +772,79 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return map[string]any{"skills": items, "count": len(items)}, nil
 		}
 		return store.GetSkill(a.Name)
+	case "pose_validate_request":
+		var a struct {
+			ProjectID    string `json:"project_id"`
+			StackFilter  string `json:"stack_filter"`
+			ModuleFilter string `json:"module_filter"`
+			ChangedFrom  string `json:"changed_from"`
+			ChangedTo    string `json:"changed_to"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_validate_request: invalid arguments")
+		}
+		req, err := s.orch.request(store.Root, sel.ProjectID, a.StackFilter, a.ModuleFilter, a.ChangedFrom, a.ChangedTo)
+		if err != nil {
+			return nil, fmt.Errorf("pose_validate_request: %w", err)
+		}
+		return req, nil
+	default:
+		return nil, unknownToolError{name}
+	}
+}
+
+// dispatchValidateOrchestration handles the request-id-scoped orchestration
+// tools (spec pose-safe-validate-orchestration): approve, submit, status,
+// cancel. None resolves a POSE store — they act purely on the in-process
+// request registry created by pose_validate_request.
+func (s *Server) dispatchValidateOrchestration(ctx context.Context, name string, args json.RawMessage) (any, error) {
+	switch name {
+	case "pose_validate_approve":
+		var a struct {
+			RequestID  string `json:"request_id"`
+			PlanDigest string `json:"plan_digest"`
+			Decision   string `json:"decision"`
+			Rationale  string `json:"rationale"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.RequestID == "" || a.PlanDigest == "" || a.Decision == "" {
+			return nil, fmt.Errorf("pose_validate_approve: required arguments %q, %q and %q missing", "request_id", "plan_digest", "decision")
+		}
+		// R2: explicit authorization — a bound, verified Execution Identity
+		// is mandatory for this tool specifically, independent of the
+		// server's default policy mode (dev/allow-all still gates approval).
+		caller := callerIdentityFromContext(ctx)
+		if caller.RunID == "" {
+			return nil, fmt.Errorf("pose_validate_approve: requires a bound Execution Identity (X-MCP-Execution-Identity) — approval cannot be anonymous")
+		}
+		return s.orch.approve(a.RequestID, a.PlanDigest, a.Decision, a.Rationale, caller.RunID, caller.Scopes)
+	case "pose_validate_submit":
+		var a struct {
+			RequestID string `json:"request_id"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.RequestID == "" {
+			return nil, fmt.Errorf("pose_validate_submit: required argument %q missing", "request_id")
+		}
+		if s.harness == nil {
+			return nil, fmt.Errorf("harness executor not configured — set up a Harness client via WithHarnessExecutor")
+		}
+		return s.orch.submit(ctx, a.RequestID, s.harness)
+	case "pose_validate_status":
+		var a struct {
+			RequestID string `json:"request_id"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.RequestID == "" {
+			return nil, fmt.Errorf("pose_validate_status: required argument %q missing", "request_id")
+		}
+		return s.orch.status(a.RequestID)
+	case "pose_validate_cancel":
+		var a struct {
+			RequestID string `json:"request_id"`
+			Reason    string `json:"reason"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.RequestID == "" {
+			return nil, fmt.Errorf("pose_validate_cancel: required argument %q missing", "request_id")
+		}
+		return s.orch.cancel(a.RequestID, a.Reason)
 	default:
 		return nil, unknownToolError{name}
 	}
@@ -1258,6 +1357,128 @@ func toolDefinitions() []map[string]any {
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
+			},
+		},
+		// Safe validation orchestration (external-side-effect, spec
+		// pose-safe-validate-orchestration): request an immutable check plan,
+		// require explicit approval bound to that plan's digest, and hand the
+		// approved plan to a pluggable Harness executor. pose-mcp never runs
+		// the plan itself on tools/call — only Submit reaches outside this
+		// process, and only after project scope, policy allow and a bound
+		// Execution Identity all pass.
+		{
+			"name": "pose_validate_request",
+			"description": "Resolve an immutable, digest-pinned validation check plan (mirrors " +
+				"pose validate's stack/module/changed-scope filters) without executing anything. " +
+				"Returns {request_id, plan, state: \"pending_approval\"}. The plan's digest binds " +
+				"every subsequent step — approve with the exact digest returned here.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+					"stack_filter": map[string]any{
+						"type":        "string",
+						"description": "Optional stack filter, same values as pose validate --stack",
+					},
+					"module_filter": map[string]any{
+						"type":        "string",
+						"description": "Optional module filter, same as pose validate --module",
+					},
+					"changed_from": map[string]any{
+						"type":        "string",
+						"description": "Optional changed-scope base revision, same as pose validate --changed-from",
+					},
+					"changed_to": map[string]any{
+						"type":        "string",
+						"description": "Optional changed-scope head revision, same as pose validate --changed-to",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_validate_approve",
+			"description": "Approve or reject a pending validation request. Requires a bound " +
+				"Execution Identity (X-MCP-Execution-Identity) — approval can never be anonymous, " +
+				"regardless of the server's default policy mode. plan_digest must equal the exact " +
+				"digest pose_validate_request returned; a mismatch is rejected as plan substitution.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"request_id": map[string]any{
+						"type":        "string",
+						"description": "Request id returned by pose_validate_request",
+					},
+					"plan_digest": map[string]any{
+						"type":        "string",
+						"description": "The exact plan.digest returned by pose_validate_request — binds the approval to that immutable plan",
+					},
+					"decision": map[string]any{
+						"type":        "string",
+						"enum":        []string{"approve", "reject"},
+						"description": "Approval decision",
+					},
+					"rationale": map[string]any{
+						"type":        "string",
+						"description": "Why this decision was made; recorded on the request",
+					},
+				},
+				"required": []string{"request_id", "plan_digest", "decision"},
+			},
+		},
+		{
+			"name": "pose_validate_submit",
+			"description": "Hand an approved validation request to the configured Harness executor. " +
+				"Only valid from state \"approved\"; idempotent — resubmitting an already-submitted " +
+				"request returns the same execution_id without re-invoking the Harness. Requires a " +
+				"Harness executor to be configured; otherwise returns a configuration error.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"request_id": map[string]any{
+						"type":        "string",
+						"description": "Request id to submit",
+					},
+				},
+				"required": []string{"request_id"},
+			},
+		},
+		{
+			"name": "pose_validate_status",
+			"description": "Read the current state of a validation request: pending_approval, " +
+				"approved, rejected, submitted or cancelled, plus its plan, approver and execution_id " +
+				"when present.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"request_id": map[string]any{
+						"type":        "string",
+						"description": "Request id to inspect",
+					},
+				},
+				"required": []string{"request_id"},
+			},
+		},
+		{
+			"name": "pose_validate_cancel",
+			"description": "Cancel a validation request that has not reached a terminal state. " +
+				"Cancelling a submitted request marks it locally; propagating cancellation to a " +
+				"running Harness execution is the executor's own responsibility.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"request_id": map[string]any{
+						"type":        "string",
+						"description": "Request id to cancel",
+					},
+					"reason": map[string]any{
+						"type":        "string",
+						"description": "Why this request is being cancelled",
+					},
+				},
+				"required": []string{"request_id"},
 			},
 		},
 		// Conductor run reporter tools (external-run-reporters): open, append events to,

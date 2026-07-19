@@ -39,6 +39,11 @@ environment; no wrapper or second executable is generated.
 | `pose_list_knowledge` / `pose_get_knowledge` | Operational memory |
 | `pose_list_reports` / `pose_get_report` | Validation evidence |
 | `pose_insights` | Deterministic outcome aggregates by workflow, task or context |
+| `pose_validate_request` | Resolve an immutable, digest-pinned validation plan (no execution) |
+| `pose_validate_approve` | Approve/reject a plan, bound to its digest, requiring an Execution Identity |
+| `pose_validate_submit` | Hand an approved plan to the configured Harness executor |
+| `pose_validate_status` | Read a validation request's current state and plan |
+| `pose_validate_cancel` | Cancel a non-terminal validation request |
 
 Every tool above is classified `read` (repository-owned governance state only)
 except `pose_check` and `pose_lint_spec`, classified `gate` (deterministic
@@ -122,6 +127,50 @@ primitive risks encoding procedure outside the reviewable
 into hidden policy" — also out of scope. `capabilities` therefore advertises
 only `tools`; a tools-only client sees no unimplemented primitive to
 misconfigure.
+
+## Safe validation orchestration
+
+`pose validate` stays a local, unrestricted CLI command. Agents that need to
+*request* validation through MCP go through a separate, deliberately narrow
+state machine instead of an unsafe direct-execution passthrough:
+
+```
+pose_validate_request → pending_approval
+       │ (plan digest pins matrix + git HEAD + filters)
+       ▼
+pose_validate_approve → approved | rejected
+       │ (requires a bound Execution Identity; digest must match exactly)
+       ▼
+pose_validate_submit  → submitted (idempotent; requires a Harness executor)
+```
+
+- **The plan is immutable and digest-pinned.** `pose_validate_request` hashes
+  the exact validation matrix bytes plus git HEAD and the requested filters;
+  `pose_validate_approve` must echo that exact `plan_digest`, or the call is
+  rejected as plan substitution — the request cannot be silently widened
+  between resolution and approval.
+- **Approval is never anonymous.** `pose_validate_approve` requires a valid,
+  unexpired `X-MCP-Execution-Identity` token (ADR-007) regardless of the
+  server's default policy mode — a deployment running OPA in dev/allow-all
+  still cannot approve orchestrated validation anonymously. Because the
+  identity header only exists on the HTTP transport, orchestration approval
+  is an HTTP-transport operation; stdio deployments inherit trust from the
+  spawning client for local `pose validate`, which is unaffected by any of
+  this.
+- **pose-mcp never executes the plan.** `pose_validate_submit` hands the
+  approved, digest-pinned plan to a pluggable `HarnessExecutor` — wired with
+  `Server.WithHarnessExecutor`, the same optional-dependency pattern as
+  `WithReporter` for Conductor. Without one configured, submission returns a
+  clear configuration error; nothing runs. Submission is idempotent:
+  resubmitting an already-submitted request returns the same `execution_id`
+  without invoking the executor again.
+- **State is local and in-process**, not "centrally persisted" — a
+  production deployment centralizes run state in Conductor and plugs
+  execution in via `HarnessExecutor`, the same relationship the Conductor
+  run reporter tools already have to the Conductor board. `pose_validate_status` reads a
+  request's current state; `pose_validate_cancel` marks a non-terminal
+  request cancelled (a submitted request's cancellation reaching a running
+  Harness execution is the executor's own responsibility, not pose-mcp's).
 
 ## Security posture
 

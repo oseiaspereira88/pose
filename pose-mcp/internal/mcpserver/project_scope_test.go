@@ -15,10 +15,18 @@ import (
 
 const sharedProjectIDDescription = "Optional project to scope the .pose root (multi-project); omit for the default root"
 
+// requestScopedTools act on an already-resolved request_id (spec
+// pose-safe-validate-orchestration) and never call StoreFor — they are not
+// "project-capable" in the R1 sense, the same way conductor_run_* is not.
+var requestScopedTools = map[string]bool{
+	"pose_validate_approve": true, "pose_validate_submit": true,
+	"pose_validate_status": true, "pose_validate_cancel": true,
+}
+
 func TestProjectIDSchemaConsistencyAcrossCatalog(t *testing.T) {
 	for _, def := range toolDefinitions() {
 		name, _ := def["name"].(string)
-		if strings.HasPrefix(name, "conductor_") {
+		if strings.HasPrefix(name, "conductor_") || requestScopedTools[name] {
 			continue // no POSE store involved
 		}
 		schema, _ := def["inputSchema"].(map[string]any)
