@@ -19,6 +19,11 @@ import (
 type validationWhen struct {
 	FileExists    string `json:"fileExists"`
 	FileNotExists string `json:"fileNotExists"`
+	// FileNotExistsAny (spec pose-stack-catalog-expansion): skip when ANY of
+	// these files exist — expresses manager-priority exclusion (e.g. a pip
+	// check yields to poetry/pipenv when their lockfiles are present)
+	// without needing repeated single-field checks.
+	FileNotExistsAny []string `json:"fileNotExistsAny"`
 }
 
 type validationCheck struct {
@@ -112,8 +117,22 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 			stack = "rust"
 		case "pom.xml", "build.gradle", "build.gradle.kts":
 			stack = "java"
+		case "pyproject.toml", "requirements.txt", "Pipfile", "poetry.lock", "setup.py":
+			// spec pose-stack-catalog-expansion: manager (poetry/pipenv/pip/
+			// setuptools/pep517) is resolved by the matrix `when` predicates,
+			// not at discovery time — every marker maps to the "python" stack.
+			stack = "python"
+		default:
+			switch filepath.Ext(entry.Name()) {
+			case ".sln", ".csproj", ".fsproj", ".vbproj":
+				stack = "dotnet"
+			}
 		}
 		if stack != "" {
+			// Existing overwrite-by-walk-order semantics preserved
+			// unchanged for compatibility; `pose stacks` surfaces the full
+			// per-directory catalog resolution (including any conflicting
+			// markers) independently of what this single-stack map picks.
 			byPath[filepath.Dir(path)] = stack
 		}
 		return nil
@@ -153,6 +172,14 @@ func validationSkipReason(module string, when validationWhen) string {
 			return "when.fileNotExists violated: " + when.FileNotExists + " exists"
 		}
 	}
+	for _, excl := range when.FileNotExistsAny {
+		if !confinedRelativePath(excl) {
+			return "when.fileNotExistsAny escapes the module: " + excl
+		}
+		if _, err := os.Stat(filepath.Join(module, filepath.FromSlash(excl))); err == nil {
+			return "when.fileNotExistsAny violated: higher-priority manager marker present: " + excl
+		}
+	}
 	return ""
 }
 
@@ -162,6 +189,11 @@ func validateStructuredMatrixPaths(matrix validationMatrix) error {
 			for field, path := range map[string]string{"fileExists": check.When.FileExists, "fileNotExists": check.When.FileNotExists} {
 				if !confinedRelativePath(path) {
 					return fmt.Errorf("%s.checks[%d].when.%s must remain inside its module", scope, index, field)
+				}
+			}
+			for i, path := range check.When.FileNotExistsAny {
+				if !confinedRelativePath(path) {
+					return fmt.Errorf("%s.checks[%d].when.fileNotExistsAny[%d] must remain inside its module", scope, index, i)
 				}
 			}
 		}
@@ -253,7 +285,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 	}
-	if stackFilter != "" && !map[string]bool{"node": true, "go": true, "rust": true, "java": true, "contract": true}[stackFilter] {
+	if stackFilter != "" && !map[string]bool{"node": true, "go": true, "rust": true, "java": true, "python": true, "dotnet": true, "contract": true}[stackFilter] {
 		fmt.Fprintf(stderr, cliText(locale, "Error: invalid --stack: %s\n", "Erro: --stack inválido: %s\n"), stackFilter)
 		return 2
 	}

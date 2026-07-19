@@ -16,20 +16,19 @@ source_refs:
 
 ## Contexto
 
-Roadmaps 1 (`product-integrity`), 2 (`supply-chain-trust`) e 3
-(`governance-traceability`) do portfólio **concluídos em 2026-07-19** — 15
-specs fechadas com evidência, os três roadmaps marcados `done`. Roadmap 4
-(`validation-platform`): milestones 1 (`result-contract`) e 2
-(`safe-selection`) também concluídos — 3 specs. Além da cadeia de release
-confiável e do loop de governança fechado (ver seções anteriores deste
-handoff), `pose validate` agora emite resultado estruturado versionado
-(`--json/--junit/--sarif`), aplica guardrails de runtime (timeout, ceiling de
-output, delegação de checks `isolation: required` ao Harness via
-`--emit-plan`) e seleciona escopo alterado de forma explicável
-(`--changed-from/--changed-to`, `--explain`). Falta o milestone 3
-`ecosystem-breadth` (`pose-stack-catalog-expansion`,
-`pose-monorepo-validation-recipes`, janela 2026-10-19 → 2026-11-20) para
-fechar o roadmap 4.
+Roadmaps 1 (`product-integrity`), 2 (`supply-chain-trust`), 3
+(`governance-traceability`) e 4 (`validation-platform`) do portfólio
+**concluídos em 2026-07-19** — 20 specs fechadas com evidência, os quatro
+roadmaps marcados `done`. `pose validate` agora emite resultado estruturado
+versionado (`--json/--junit/--sarif`), aplica guardrails de runtime (timeout,
+ceiling de output, delegação `isolation: required` ao Harness via
+`--emit-plan`), seleciona escopo alterado de forma explicável
+(`--changed-from/--changed-to`, `--explain`) e cobre Python/.NET via o
+catálogo `pose stacks` — tudo comprovado com receitas docs-as-tests de
+monorepo (JS workspace, grafo declarado, mixed-language). Próximo do
+portfólio: roadmap 5 `agent-interoperability` (janela 2026-09-21 →
+2026-12-18; conformidade MCP/Agent Skills, catálogo de extensões assinado,
+canais de pacote).
 
 ## Estado atual
 
@@ -60,13 +59,15 @@ fechar o roadmap 4.
   workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
   `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
   `supported_upgrades` no `compatibility.json` com pin SHA-256.
-- Roadmap 4, milestone `ecosystem-breadth`: expandir stacks baseline
-  (Python/.NET) e receitas de monorepo, provando fixtures poliglotas sob o
-  mesmo contrato de resultado (`pose validate --json/--junit/--sarif`) já
-  entregue.
+- Roadmap 5 `agent-interoperability`: começar pelas specs de conformidade
+  project-scoped MCP e Agent Skills; reaproveitar o padrão de golden fixture
+  + ADR já usado no catálogo MCP (`pose-mcp-catalog-conformance`).
 - `dependsOn` em `module-metadata.json` ainda não foi semeado para os módulos
   reais deste repo (`pose-mcp`, `mcp-enforce`) — follow-up aberto em
   `pose-changed-scope-validation`.
+- Verificar o primeiro run do `docs.yml` após o merge: nav do mkdocs ganhou
+  `monorepo-recipes.md` — follow-up aberto em
+  `pose-monorepo-validation-recipes`.
 
 ## Riscos
 

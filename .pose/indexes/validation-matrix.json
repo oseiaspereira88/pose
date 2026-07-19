@@ -98,6 +98,69 @@
           }
         }
       ]
+    },
+    "python": {
+      "checks": [
+        {
+          "name": "poetry-test",
+          "program": "poetry",
+          "args": ["run", "pytest", "-q"],
+          "severity": "required",
+          "when": {
+            "fileExists": "poetry.lock"
+          }
+        },
+        {
+          "name": "pipenv-test",
+          "program": "pipenv",
+          "args": ["run", "pytest", "-q"],
+          "severity": "required",
+          "when": {
+            "fileExists": "Pipfile",
+            "fileNotExistsAny": ["poetry.lock"]
+          }
+        },
+        {
+          "name": "pip-test",
+          "program": "pytest",
+          "args": ["-q"],
+          "severity": "required",
+          "when": {
+            "fileExists": "requirements.txt",
+            "fileNotExistsAny": ["poetry.lock", "Pipfile"]
+          }
+        },
+        {
+          "name": "setuptools-test",
+          "program": "pytest",
+          "args": ["-q"],
+          "severity": "required",
+          "when": {
+            "fileExists": "setup.py",
+            "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt"]
+          }
+        },
+        {
+          "name": "pep517-test",
+          "program": "pytest",
+          "args": ["-q"],
+          "severity": "optional",
+          "when": {
+            "fileExists": "pyproject.toml",
+            "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt", "setup.py"]
+          }
+        }
+      ]
+    },
+    "dotnet": {
+      "checks": [
+        {
+          "name": "dotnet-test",
+          "program": "dotnet",
+          "args": ["test"],
+          "severity": "required"
+        }
+      ]
     }
   },
   "moduleOverrides": {}
