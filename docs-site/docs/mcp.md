@@ -27,6 +27,7 @@ environment; no wrapper or second executable is generated.
 |---|---|
 | `pose_list_specs` / `pose_get_spec` | Spec inventory (lifecycle frontmatter) / full spec |
 | `pose_requirement_trace` | Bidirectional requirement↔evidence trace of one spec (dispositions, refs, missing/orphans) |
+| `pose_spec_amendments` | Append-only amendment history of one spec plus unacknowledged requirement changes |
 | `pose_spec_readiness` | Is a spec eligible? Resolves `depends_on` refs (specs, milestones, roadmaps) |
 | `pose_list_roadmaps` / `pose_get_roadmap` | Governed roadmaps and their milestone DAGs |
 | `pose_get_changelog` | User-facing changelog fragments |

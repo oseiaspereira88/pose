@@ -80,6 +80,8 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdFollowups(root, args, stdout, stderr)
+	case "amend":
+		return cmdAmend(args, stdout, stderr)
 	case "report":
 		root, err := projectRoot()
 		if err != nil {
@@ -101,7 +103,7 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
-	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "reports-housekeeping", "recurrence-check", "hooks", "suggest", "stats":
+	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "hooks", "suggest", "stats":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
@@ -116,6 +118,10 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return cmdKnowledgeCheck(root, args, stdout, stderr)
 		case "knowledge-housekeeping":
 			return cmdKnowledgeHousekeeping(root, args, stdout, stderr)
+		case "knowledge-usage":
+			return cmdKnowledgeUsage(root, stdout, stderr)
+		case "knowledge-suggest":
+			return cmdKnowledgeSuggest(root, args, stdout, stderr)
 		case "reports-housekeeping":
 			return cmdReportsHousekeeping(root, args, stdout, stderr)
 		case "recurrence-check":
@@ -212,14 +218,14 @@ Scaffolds:
 
 Deterministic gates:
   check | validate | knowledge-check | recurrence-check | lint-spec |
-  followups | history-check
+  followups | amend | history-check
 
 Discovery and metrics:
   suggest | stats
 
 Artifacts and maintenance:
   index | report | upgrade [--dry-run] | knowledge-housekeeping |
-  reports-housekeeping | hooks
+  knowledge-usage | knowledge-suggest | reports-housekeeping | hooks
 
 All commands execute in the Go binary without Bash or Python fallbacks.
 `
@@ -246,7 +252,7 @@ Scaffold:
 
 Gates determinísticos:
   check | validate | knowledge-check | recurrence-check | lint-spec |
-  followups | history-check
+  followups | amend | history-check
 
 Descoberta e métricas:
   suggest | stats
@@ -255,7 +261,8 @@ Geração de artefatos:
   index | report
 
 Manutenção:
-  upgrade [--dry-run] | knowledge-housekeeping | reports-housekeeping | hooks
+  upgrade [--dry-run] | knowledge-housekeeping | knowledge-usage |
+  knowledge-suggest | reports-housekeeping | hooks
 
 Todos os comandos executam no binário Go, sem fallbacks Bash ou Python.
 'pose help' completo por comando: consulte o POSE.md da instância.

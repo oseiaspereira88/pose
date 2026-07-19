@@ -500,6 +500,29 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		trace := pose.ParseRequirementTrace(spec.Body)
 		return map[string]any{"slug": spec.Slug, "status": spec.Status, "trace": trace}, nil
+	case "pose_spec_amendments":
+		var a struct {
+			Slug string `json:"slug"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
+			return nil, fmt.Errorf("pose_spec_amendments: required argument %q missing", "slug")
+		}
+		spec, err := store.GetSpec(a.Slug)
+		if err != nil {
+			return nil, err
+		}
+		events, err := pose.LoadAmendments(pose.AmendmentsPath(spec.Path))
+		if err != nil {
+			return nil, fmt.Errorf("pose_spec_amendments: %v", err)
+		}
+		pending := pose.UnacknowledgedChanges(spec.Body, events)
+		if events == nil {
+			events = []pose.Amendment{}
+		}
+		if pending == nil {
+			pending = []string{}
+		}
+		return map[string]any{"slug": spec.Slug, "status": spec.Status, "events": events, "unacknowledged": pending}, nil
 	case "pose_list_specs":
 		var a struct {
 			Status string `json:"status"`
@@ -778,6 +801,26 @@ func toolDefinitions() []map[string]any {
 					"slug": map[string]any{
 						"type":        "string",
 						"description": "Spec slug whose requirement trace to project",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"slug"},
+			},
+		},
+		{
+			"name": "pose_spec_amendments",
+			"description": "Append-only amendment history of one POSE spec: material requirement " +
+				"changes with affected R-IDs, rationale, author/reviewer aliases and timestamps, " +
+				"plus any current requirement state not yet acknowledged by an amendment event.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"slug": map[string]any{
+						"type":        "string",
+						"description": "Spec slug whose amendment history to read",
 					},
 					"project_id": map[string]any{
 						"type":        "string",

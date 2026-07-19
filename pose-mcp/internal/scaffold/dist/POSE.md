@@ -216,6 +216,9 @@ pose hooks <install|uninstall|status> [--force]
 - `suggest` — reads [`task-map.json`](.pose/indexes/task-map.json) and prints the canonical trail (workflow + skill + rules + spec/ADR + knowledge) for a task type. `--domain` adds domain rules; `--path` infers the domain via [`repo-map.json`](.pose/indexes/repo-map.json); `--json` for agents.
 - `stats` — aggregates history JSONL outcomes by workflow, task or context. `--since-days N`; `--json`.
 - `knowledge-housekeeping` / `reports-housekeeping` — idempotent maintenance (list/archive/purge). Mutations require `--apply`. Reports housekeeping **never touches `history/`**.
+- `amend` — append-only spec amendment history (`.pose/specs/<slug>/amendments.jsonl`). `--baseline` snapshots every R-ID hash; `--ids R2 --change added|withdrawn|semantic|editorial --rationale <text> --author @alias [--reviewer @alias]` acknowledges a material change; `--list` renders history and pending acknowledgments. On `done` specs with a history, `lint-spec` rejects any requirement whose current text is not acknowledged by an event — specs cannot be silently rewritten after evidence.
+- `knowledge-usage` — projects `knowledge:<slug>` citations from specs per artifact (owner, expiry, citing specs). Usage signals inform the owner's review; TTL is never extended automatically. Dangling `knowledge:` refs fail `knowledge-check`.
+- `knowledge-suggest <query>` — deterministic, explainable lexical ranking over non-restricted knowledge (shared-term rationale exposed). Advisory only: suggestions never gate or auto-apply and require human confirmation before citing.
 - `hooks` — links the native binary into `.git/hooks/`; invocation name selects `check --tolerant` for `pre-commit` and `index` for `post-merge`.
 
 ---

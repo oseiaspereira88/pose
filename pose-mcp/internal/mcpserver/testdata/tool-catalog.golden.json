@@ -67,6 +67,9 @@
     "pose_requirement_trace": {
       "risk": "read"
     },
+    "pose_spec_amendments": {
+      "risk": "read"
+    },
     "pose_spec_readiness": {
       "risk": "read"
     },
@@ -114,6 +117,26 @@
         "type": "object"
       },
       "name": "pose_requirement_trace"
+    },
+    {
+      "description": "Append-only amendment history of one POSE spec: material requirement changes with affected R-IDs, rationale, author/reviewer aliases and timestamps, plus any current requirement state not yet acknowledged by an amendment event.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Spec slug whose amendment history to read",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_spec_amendments"
     },
     {
       "description": "List every POSE spec of the project with its lifecycle frontmatter (no body). Optionally filter by status: draft, in-progress, done, blocked, superseded or abandoned.",

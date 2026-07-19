@@ -36,6 +36,7 @@ const conductorActivation = "Conductor reporter configured (CONDUCTOR_URL, CONDU
 var catalogGovernance = map[string]toolGovernance{
 	"pose_get_spec":          {Risk: RiskRead},
 	"pose_requirement_trace": {Risk: RiskRead},
+	"pose_spec_amendments":   {Risk: RiskRead},
 	"pose_list_specs":        {Risk: RiskRead},
 	"pose_spec_readiness":    {Risk: RiskRead},
 	"pose_get_changelog":     {Risk: RiskRead},

@@ -115,7 +115,7 @@ repository-local governance is no longer enough.
 | `.pose/knowledge/` | TTL-governed handoffs, notes and decision logs |
 | `.pose/reports/` | Versionable evidence and append-only JSONL history |
 | `.pose/indexes/` | Repository, module, task, spec-graph and roadmap projections |
-| `pose serve-mcp` | 19 POSE tools over stdio or Streamable HTTP |
+| `pose serve-mcp` | 20 POSE tools over stdio or Streamable HTTP |
 | `mcp-enforce/` | Optional project/run-scoped identity, OPA decisions and audit |
 | `pose-action/` | GitHub Action adapter for deterministic gates |
 

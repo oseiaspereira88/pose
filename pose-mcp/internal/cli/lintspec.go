@@ -436,6 +436,23 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		}
 	}
 
+	// Amendment history gate (spec pose-spec-amendment-history): when the
+	// append-only event log exists, a done spec must acknowledge the current
+	// requirement state — silent post-evidence rewrites are rejected.
+	amendFailures, amendEvents := 0, 0
+	if events, aerr := posepkg.LoadAmendments(posepkg.AmendmentsPath(specPath)); aerr != nil {
+		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: amendments.jsonl: %v\n", "[ERRO] %s: amendments.jsonl: %v\n"), slug, aerr)
+		amendFailures++
+	} else if events != nil {
+		amendEvents = len(events)
+		if specStatus == "done" {
+			for _, finding := range posepkg.UnacknowledgedChanges(text, events) {
+				fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: amendment history: %s\n", "[ERRO] %s: amendment history: %s\n"), slug, finding)
+				amendFailures++
+			}
+		}
+	}
+
 	followups := extractFollowups(sections["Final Report"])
 	followupsOpen := 0
 	knownSlugs := collectSpecSlugs(specsDir)
@@ -494,8 +511,10 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	fmt.Fprintf(stdout, "spec.trace.entries=%d\n", traceEntries)
 	fmt.Fprintf(stdout, "spec.trace.missing=%d\n", len(trace.Missing))
 	fmt.Fprintf(stdout, "spec.trace.failures=%d\n", traceFailures)
+	fmt.Fprintf(stdout, "spec.amendments.events=%d\n", amendEvents)
+	fmt.Fprintf(stdout, "spec.amendments.failures=%d\n", amendFailures)
 
-	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 || traceFailures > 0 {
+	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 || traceFailures > 0 || amendFailures > 0 {
 		return 1
 	}
 	return 0
