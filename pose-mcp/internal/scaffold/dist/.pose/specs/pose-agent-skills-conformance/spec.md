@@ -90,4 +90,3 @@ Makes agent behavior a tested product surface rather than copied prompt text.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Schema-valid skills can still be semantically unsafe.
 - Follow-ups: none until implementation starts.
-

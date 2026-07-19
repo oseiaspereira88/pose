@@ -90,4 +90,3 @@ Prevents a spec from being rewritten after evidence without auditable rationale.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Over-sensitive detection can burden harmless editorial work.
 - Follow-ups: none until implementation starts.
-

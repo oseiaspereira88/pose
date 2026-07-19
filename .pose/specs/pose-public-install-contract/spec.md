@@ -90,4 +90,3 @@ Removes the highest-friction break in the freemium conversion path.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Release asset naming drift can silently break copyable commands.
 - Follow-ups: none until implementation starts.
-

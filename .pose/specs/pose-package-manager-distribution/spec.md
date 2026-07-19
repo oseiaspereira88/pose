@@ -90,4 +90,3 @@ Removes manual binary placement from mainstream freemium onboarding.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Compromised channel credentials can redirect trusted package names.
 - Follow-ups: none until implementation starts.
-

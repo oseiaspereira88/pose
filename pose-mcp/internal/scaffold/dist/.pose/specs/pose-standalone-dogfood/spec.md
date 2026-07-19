@@ -4,7 +4,7 @@ status: draft
 created_at: 2026-07-18
 completed_at:
 supersedes:
-depends_on: 
+depends_on:
 priority: 2
 ---
 
@@ -90,4 +90,3 @@ Turns an empty installed instance into proof that the freemium product works on 
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Process theater emerges if artifacts are created after implementation or never reviewed.
 - Follow-ups: none until implementation starts.
-

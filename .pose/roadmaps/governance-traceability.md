@@ -7,13 +7,13 @@ depends_on:
 
 # Roadmap: Governance traceability
 
-**Portfolio order:** 3 of 7  
+**Portfolio order:** 3 of 7
 **Outcome:** connect intent, evidence, change history, residual work and reusable knowledge into a reviewable delivery chain.
 
 This roadmap deepens POSE's strongest differentiator: closing the loop after a spec is written. It avoids turning traceability into surveillance; evidence is scoped to delivery artifacts and never used as an individual productivity score.
 
 ## Milestone: trace-core
-- after: 
+- after:
 - target_start: 2026-08-24
 - target_due: 2026-09-25
 - specs: pose-requirement-evidence-traceability, pose-followup-ownership-sla
@@ -41,4 +41,3 @@ This roadmap deepens POSE's strongest differentiator: closing the loop after a s
 - Preserve stable requirement IDs and append-only amendment events.
 - Require human confirmation for semantic duplicate or disposition decisions.
 - Minimize actor data and define retention before collecting approval identity.
-

@@ -4,7 +4,7 @@ status: draft
 created_at: 2026-07-18
 completed_at:
 supersedes:
-depends_on: 
+depends_on:
 priority: 0
 ---
 
@@ -90,4 +90,3 @@ Removes a P0 credibility defect and unlocks trustworthy release, package and com
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Build-time injection can make local and packaged binaries diverge unless tests cover both.
 - Follow-ups: none until implementation starts.
-

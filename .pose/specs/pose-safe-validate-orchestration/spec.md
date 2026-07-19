@@ -90,4 +90,3 @@ Resolves demand for `pose_validate` without unsafe subprocesses in MCP.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Mutable plan material can turn a constrained tool into remote execution.
 - Follow-ups: none until implementation starts.
-

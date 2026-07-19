@@ -7,13 +7,13 @@ depends_on:
 
 # Roadmap: Product integrity
 
-**Portfolio order:** 1 of 7  
+**Portfolio order:** 1 of 7
 **Outcome:** make every public POSE contract accurate, internally consistent and exercised by POSE itself.
 
 This roadmap is first because version, MCP, installation and dogfooding drift undermine every later distribution or ecosystem investment. It closes the P0 truth gap identified in the capability assessment.
 
 ## Milestone: contract-baseline
-- after: 
+- after:
 - target_start: 2026-07-20
 - target_due: 2026-08-01
 - specs: pose-version-contract, pose-standalone-dogfood
@@ -41,4 +41,3 @@ This roadmap is first because version, MCP, installation and dogfooding drift un
 - Block release when generated and source contracts diverge.
 - Treat undocumented public behavior as a defect, not as roadmap progress.
 - Preserve backwards compatibility until an ADR and migration path exist.
-

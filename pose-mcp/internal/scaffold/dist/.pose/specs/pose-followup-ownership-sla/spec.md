@@ -90,4 +90,3 @@ Stops residual work from becoming a permanent unowned text backlog.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Blocking every overdue item can freeze delivery; policy must be risk-based.
 - Follow-ups: none until implementation starts.
-

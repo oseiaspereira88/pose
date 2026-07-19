@@ -90,4 +90,3 @@ Adds semantic leverage while preserving deterministic authority.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Similarity can conflate related but non-equivalent obligations.
 - Follow-ups: none until implementation starts.
-

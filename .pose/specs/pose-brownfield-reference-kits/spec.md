@@ -90,4 +90,3 @@ Demonstrates incremental value without demanding a governance rewrite.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Idealized examples conceal real migration costs.
 - Follow-ups: none until implementation starts.
-

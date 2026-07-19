@@ -90,4 +90,3 @@ Eliminates known ADR/runtime/catalog drift before third-party clients depend on 
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Golden files can normalize real drift if updates are not review-gated.
 - Follow-ups: none until implementation starts.
-

@@ -90,4 +90,3 @@ Extends strong local governance to organization planning visibility.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Stale projections can misprioritize work unless freshness is prominent.
 - Follow-ups: none until implementation starts.
-

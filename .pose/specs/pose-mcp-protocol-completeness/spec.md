@@ -90,4 +90,3 @@ Makes POSE reliable across independent MCP clients without bloating tools.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Long-lived sessions can observe stale catalogs.
 - Follow-ups: none until implementation starts.
-

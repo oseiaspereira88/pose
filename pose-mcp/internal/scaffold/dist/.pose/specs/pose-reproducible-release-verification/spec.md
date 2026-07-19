@@ -90,4 +90,3 @@ Catches packaging, provenance and compatibility failures the producer can miss.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Sharing producer workflow or credentials creates circular evidence.
 - Follow-ups: none until implementation starts.
-

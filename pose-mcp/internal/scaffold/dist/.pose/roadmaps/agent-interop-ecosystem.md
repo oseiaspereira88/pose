@@ -7,13 +7,13 @@ depends_on:
 
 # Roadmap: Agent interoperability and ecosystem
 
-**Portfolio order:** 5 of 7  
+**Portfolio order:** 5 of 7
 **Outcome:** expose a protocol-complete, project-safe MCP surface and a versioned extension ecosystem without making remote agents implicit code executors.
 
 Follow the MCP and Agent Skills specifications. Add protocol features only where they improve governance use cases, and keep execution behind explicit policy and sandbox boundaries.
 
 ## Milestone: project-protocol
-- after: 
+- after:
 - target_start: 2026-09-21
 - target_due: 2026-10-23
 - specs: pose-mcp-project-scope-contract, pose-mcp-protocol-completeness
@@ -41,4 +41,3 @@ Follow the MCP and Agent Skills specifications. Add protocol features only where
 - Preserve human control for consequential tool calls.
 - Fail closed on ambiguous project selection or policy evaluation.
 - Separate read-only MCP governance from execution orchestration.
-

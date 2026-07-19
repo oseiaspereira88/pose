@@ -90,4 +90,3 @@ Prevents a nominal release from distributing mutually incompatible parts.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: An unbounded version matrix can make release latency unacceptable.
 - Follow-ups: none until implementation starts.
-

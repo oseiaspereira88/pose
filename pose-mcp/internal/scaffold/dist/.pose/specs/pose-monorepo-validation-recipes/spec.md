@@ -90,4 +90,3 @@ Turns the module model into practical complex-repo adoption guidance.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Examples rot unless executed on every relevant change.
 - Follow-ups: none until implementation starts.
-

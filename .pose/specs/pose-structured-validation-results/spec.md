@@ -90,4 +90,3 @@ Unlocks CI annotations, MCP, traceability, analytics and Harness.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Lossy projections may collapse POSE outcomes unless extensions are documented.
 - Follow-ups: none until implementation starts.
-

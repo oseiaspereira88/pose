@@ -90,4 +90,3 @@ Protects adopter-owned specs and evidence as the product evolves.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Synthetic fixtures can miss real customization patterns.
 - Follow-ups: none until implementation starts.
-

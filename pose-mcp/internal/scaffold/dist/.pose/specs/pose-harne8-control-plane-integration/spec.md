@@ -90,4 +90,3 @@ Creates the paid/enterprise path while preserving a useful free local engine.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Boundary erosion can make the free core hosted-dependent or duplicate authority.
 - Follow-ups: none until implementation starts.
-

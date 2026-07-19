@@ -90,4 +90,3 @@ Makes reliability observable without coupling users to one backend.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: High-cardinality labels or payload capture can leak structure and raise cost.
 - Follow-ups: none until implementation starts.
-

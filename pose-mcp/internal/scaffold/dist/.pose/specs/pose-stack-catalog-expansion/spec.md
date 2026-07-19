@@ -90,4 +90,3 @@ Expands addressable repositories without low-level setup.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Defaults can be expensive in large repos; expose overrides.
 - Follow-ups: none until implementation starts.
-

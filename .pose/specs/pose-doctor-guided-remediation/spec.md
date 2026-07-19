@@ -90,4 +90,3 @@ Reduces first-run abandonment and support load without hiding failures.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Overconfident fixes can damage custom setups.
 - Follow-ups: none until implementation starts.
-

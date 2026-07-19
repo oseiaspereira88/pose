@@ -90,4 +90,3 @@ Prevents ambiguous reads and policy decisions as POSE moves beyond one repositor
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Path-derived roots can bypass logical identity if authorization occurs too late.
 - Follow-ups: none until implementation starts.
-

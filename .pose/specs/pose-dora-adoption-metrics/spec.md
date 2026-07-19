@@ -90,4 +90,3 @@ Tests whether POSE creates value instead of optimizing artifact volume.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Correlation may be misrepresented as causation.
 - Follow-ups: none until implementation starts.
-

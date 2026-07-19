@@ -90,4 +90,3 @@ Turns product polish into a release-tested contract.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Generated snippets can hide editorial context.
 - Follow-ups: none until implementation starts.
-

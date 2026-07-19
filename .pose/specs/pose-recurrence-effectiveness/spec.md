@@ -90,4 +90,3 @@ Closes the feedback edge instead of treating escalation creation as success.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Small samples and task-mix changes can mislead.
 - Follow-ups: none until implementation starts.
-

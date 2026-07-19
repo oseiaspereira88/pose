@@ -90,4 +90,3 @@ Lets teams extend POSE without forks and creates an ecosystem path.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Updates can overwrite policy or create dependency confusion.
 - Follow-ups: none until implementation starts.
-

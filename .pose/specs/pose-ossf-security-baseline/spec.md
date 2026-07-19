@@ -90,4 +90,3 @@ Closes preventable supply-chain gaps before signing raises perceived trust.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Noisy scanners encourage broad waivers unless ownership is enforced.
 - Follow-ups: none until implementation starts.
-

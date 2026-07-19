@@ -7,13 +7,13 @@ depends_on:
 
 # Roadmap: Adoption and developer experience
 
-**Portfolio order:** 6 of 7  
+**Portfolio order:** 6 of 7
 **Outcome:** reduce time-to-first-governed-delivery for greenfield and brownfield teams while preserving local-first operation.
 
 Distribution channels begin only after the install and signing contracts are stable. Adoption kits prove real workflows rather than adding marketing-only examples.
 
 ## Milestone: trusted-install
-- after: 
+- after:
 - target_start: 2026-09-21
 - target_due: 2026-10-30
 - specs: pose-package-manager-distribution, pose-upgrade-compatibility-lab
@@ -41,4 +41,3 @@ Distribution channels begin only after the install and signing contracts are sta
 - Test package channels from clean machines and pin the artifact digest.
 - Keep examples executable and versioned with the release they document.
 - Never let translation lag hide a safety or compatibility warning.
-

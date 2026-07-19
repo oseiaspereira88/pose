@@ -90,4 +90,3 @@ Makes expiring memory useful without turning POSE into an opaque vector store.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Popularity can preserve stale knowledge unless owners still review it.
 - Follow-ups: none until implementation starts.
-

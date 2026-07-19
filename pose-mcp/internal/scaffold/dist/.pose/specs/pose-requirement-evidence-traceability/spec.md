@@ -90,4 +90,3 @@ Makes the closeout gate explain why each promised behavior was accepted.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Mechanical link coverage can be mistaken for evidence quality.
 - Follow-ups: none until implementation starts.
-

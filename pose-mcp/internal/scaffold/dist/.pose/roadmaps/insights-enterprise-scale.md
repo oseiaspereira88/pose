@@ -7,13 +7,13 @@ depends_on:
 
 # Roadmap: Insights and enterprise scale
 
-**Portfolio order:** 7 of 7  
+**Portfolio order:** 7 of 7
 **Outcome:** prove delivery value across repositories and compose the open core with Harne8 for durable, policy-governed operation.
 
 This roadmap intentionally follows trustworthy evidence and stable project contracts. Apply OpenTelemetry and DORA without converting team-level outcomes into individual performance rankings.
 
 ## Milestone: observability-foundation
-- after: 
+- after:
 - target_start: 2026-11-02
 - target_due: 2026-12-04
 - specs: pose-otel-observability
@@ -49,4 +49,3 @@ This roadmap intentionally follows trustworthy evidence and stable project contr
 - Keep raw source content and secrets out of telemetry.
 - Define tenancy, deletion and retention before central ingestion.
 - Keep POSE usable offline when Harne8 or an observability backend is absent.
-

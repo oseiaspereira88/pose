@@ -7,13 +7,13 @@ depends_on:
 
 # Roadmap: Validation platform
 
-**Portfolio order:** 4 of 7  
+**Portfolio order:** 4 of 7
 **Outcome:** make deterministic validation portable, machine-consumable, resource-bounded and useful in polyglot monorepositories.
 
 The result contract comes before optimization. Changed-scope selection, timeouts and broader stacks are valuable only when skipped and partial results remain explicit and reproducible.
 
 ## Milestone: result-contract
-- after: 
+- after:
 - target_start: 2026-08-24
 - target_due: 2026-09-11
 - specs: pose-structured-validation-results
@@ -41,4 +41,3 @@ The result contract comes before optimization. Changed-scope selection, timeouts
 - Never evaluate shell text or expand untrusted paths outside the project root.
 - Record every skipped check and its deterministic selection reason.
 - Keep sandbox execution in Harness rather than weakening the local CLI boundary.
-

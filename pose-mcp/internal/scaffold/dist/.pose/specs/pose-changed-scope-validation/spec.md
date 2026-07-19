@@ -90,4 +90,3 @@ Reduces monorepo feedback time without hiding skipped work.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Incomplete graphs can create false negatives; expose confidence.
 - Follow-ups: none until implementation starts.
-

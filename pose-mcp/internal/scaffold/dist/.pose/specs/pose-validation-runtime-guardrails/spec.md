@@ -90,4 +90,3 @@ Prevents hung or hostile checks while preserving POSE as governance layer.
 - Delivered scope: none; this spec defines future implementation.
 - Residual risk: Platform process semantics can leave descendants after timeout.
 - Follow-ups: none until implementation starts.
-
