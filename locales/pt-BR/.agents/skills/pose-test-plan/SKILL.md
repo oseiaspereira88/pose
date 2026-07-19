@@ -2,6 +2,9 @@
 name: pose-test-plan
 description: Use para definir plano de teste explícito ANTES de implementar mudanças de risco médio/alto, contrato sensível ou impacto cross-service — define escopo por camada, cenários negativos, comandos determinísticos e evidência esperada. Trigger keywords - test plan, plano de teste, risk-based testing, regression strategy, contract test, cross-service, e2e plan.
 when_to_use: A tarefa tem risco médio/alto (criticalidade ≥ high no module-metadata), toca contrato HTTP/schema/eventos, ou afeta múltiplos serviços. Use ANTES de codar para alinhar critério de aceite verificável e evitar "testei localmente".
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, spec-write
 ---
 
 # Skill: pose-test-plan

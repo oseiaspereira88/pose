@@ -2,6 +2,9 @@
 name: pose-recurrence-escalation
 description: Use when recurrence-check flags a recurring task above threshold to investigate systemic cause, propose a rule or workflow change, document the decision, and close the loop. Trigger keywords - recurrence, recurring pattern, recurrence-escalation, escalation, systemic debt.
 when_to_use: Manual or CI recurrence-check flags at least one key above threshold. Use before labeling the problem intermittent or suppressing the signal.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, workflow-write, rule-write
 ---
 
 # Skill: pose-recurrence-escalation

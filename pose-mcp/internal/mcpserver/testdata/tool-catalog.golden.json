@@ -19,6 +19,9 @@
     "pose_check": {
       "risk": "gate"
     },
+    "pose_extension_list": {
+      "risk": "read"
+    },
     "pose_get_changelog": {
       "risk": "read"
     },
@@ -66,6 +69,9 @@
     },
     "pose_requirement_trace": {
       "risk": "read"
+    },
+    "pose_skills_check": {
+      "risk": "gate"
     },
     "pose_spec_amendments": {
       "risk": "read"
@@ -382,6 +388,36 @@
         "type": "object"
       },
       "name": "pose_check"
+    },
+    {
+      "description": "List installed POSE extensions (skills, workflows, rules or import adapters installed via `pose extension install`): id, version, kind, installed_at, digest, managed files and whether signature verification passed at install time. Read-only — installing or removing an extension is a local CLI operation (`pose extension install/remove`), never exposed as an MCP write.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_extension_list"
+    },
+    {
+      "description": "Evaluate the Agent Skills conformance gate (pose skills-check) in read-only mode: required metadata (name/description/when_to_use plus POSE's pose_schema_range/clients/capabilities), linked-resource resolution, an offline unsafe-instruction/secret-shaped-content scan, and claude-code client cross-check. Returns the verdict (passed/exit_code) plus the full output as evidence.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "strict": {
+            "description": "Strict mode (default true); tolerant turns failures into warnings",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_skills_check"
     },
     {
       "description": "Evaluate the spec content + lifecycle gate (pose lint-spec) in read-only mode: skeletal sections, done-without-completed_at, follow-ups without disposition. Without a slug, evaluates every spec.",

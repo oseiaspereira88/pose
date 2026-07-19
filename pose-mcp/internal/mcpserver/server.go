@@ -696,6 +696,20 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_check: invalid arguments")
 		}
 		return store.Check(ctx, a.Strict == nil || *a.Strict)
+	case "pose_extension_list":
+		items, err := store.ListExtensions()
+		if err != nil {
+			return nil, err
+		}
+		return map[string]any{"extensions": items, "count": len(items)}, nil
+	case "pose_skills_check":
+		var a struct {
+			Strict *bool `json:"strict"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_skills_check: invalid arguments")
+		}
+		return store.SkillsCheck(ctx, a.Strict == nil || *a.Strict)
 	case "pose_lint_spec":
 		var a struct {
 			Slug   string `json:"slug"`
@@ -1218,6 +1232,44 @@ func toolDefinitions() []map[string]any {
 			"description": "Evaluate the POSE structural integrity gate (pose check) in " +
 				"read-only mode. Returns the verdict (passed/exit_code) plus the full output " +
 				"as evidence — a failing gate is a result, not an error.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"strict": map[string]any{
+						"type":        "boolean",
+						"description": "Strict mode (default true); tolerant turns failures into warnings",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_extension_list",
+			"description": "List installed POSE extensions (skills, workflows, rules or import " +
+				"adapters installed via `pose extension install`): id, version, kind, installed_at, " +
+				"digest, managed files and whether signature verification passed at install time. " +
+				"Read-only — installing or removing an extension is a local CLI operation " +
+				"(`pose extension install/remove`), never exposed as an MCP write.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_skills_check",
+			"description": "Evaluate the Agent Skills conformance gate (pose skills-check) in " +
+				"read-only mode: required metadata (name/description/when_to_use plus POSE's " +
+				"pose_schema_range/clients/capabilities), linked-resource resolution, an offline " +
+				"unsafe-instruction/secret-shaped-content scan, and claude-code client cross-check. " +
+				"Returns the verdict (passed/exit_code) plus the full output as evidence.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{

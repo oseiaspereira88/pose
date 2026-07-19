@@ -2,6 +2,9 @@
 name: pose-feature
 description: Use to implement a non-trivial feature under POSE when scope affects at least one module and requires a spec, incremental planning, deterministic validation, and cross-execution handoff. Trigger keywords - feature, implement, new functionality, scope change, new spec, behavior-preserving refactor.
 when_to_use: The task adds or extends observable functionality rather than fixing a bug, editing docs, or reviewing. Use before coding to establish the spec, consult knowledge, plan increments, and select proportional validation.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, spec-write, validate
 ---
 
 # Skill: pose-feature
@@ -22,7 +25,7 @@ when_to_use: The task adds or extends observable functionality rather than fixin
 5. Record executed commands and results in Validation.
 6. Create a handoff when another execution needs partial state, follow-ups, or owner transition.
 7. Complete the Final Report with delivered scope and residual risk.
-8. Use [pose-spec-closeout](.pose-spec-closeout/SKILL.md), disposition follow-ups, and pass `pose lint-spec <slug> --strict`.
+8. Use [pose-spec-closeout](../pose-spec-closeout/SKILL.md), disposition follow-ups, and pass `pose lint-spec <slug> --strict`.
 
 ## Output requirements
 

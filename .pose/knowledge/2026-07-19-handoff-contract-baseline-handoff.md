@@ -16,23 +16,20 @@ source_refs:
 
 ## Contexto
 
-Roadmaps 1-4 do portfólio **concluídos em 2026-07-19** — 20 specs fechadas,
-todos `done` (ver seções anteriores). Roadmap 5 `agent-interoperability`:
-milestones 1 `project-protocol` e 2 `controlled-execution` concluídos (3
-specs). Milestone 1: os 20 tools `pose_*` compartilham schema `project_id`;
-erros de seleção estruturados (`project_unknown`/`project_ambiguous`) sem
-vazar path; paginação por cursor opaco nos 4 `pose_list_*`; decisão de não
-implementar resources/prompts MCP. Milestone 2
-(`pose-safe-validate-orchestration`): 5 novos tools
-(`pose_validate_request/approve/submit/status/cancel`) implementam uma
-máquina de estados de orquestração — plano imutável e digest-pinned →
-aprovação exige Execution Identity vinculada (independente do modo de
-política default) e o digest exato (rejeita substituição) → submit
-idempotente para um `HarnessExecutor` plugável (nil = erro de config, nunca
-sucesso falso). `pose validate` local está 100% inalterado. Catálogo MCP
-agora com 28 tools. Falta o milestone 3 `extension-ecosystem`
-(`pose-agent-skills-conformance`, `pose-extension-catalog-lifecycle`) para
-fechar o roadmap 5.
+Roadmaps 1-5 do portfólio **concluídos em 2026-07-19** — 25 specs fechadas,
+todos `done` (ver seções anteriores). Roadmap 5 `agent-interoperability`
+fechou com 3 milestones: (1) `project-protocol` — schema `project_id`
+uniforme nos 20 tools `pose_*`, erros estruturados de seleção de projeto,
+paginação por cursor opaco; (2) `controlled-execution` — orquestração segura
+de validação (`pose_validate_request/approve/submit/status/cancel`), plano
+imutável digest-pinned, aprovação exige Execution Identity, `HarnessExecutor`
+plugável; (3) `extension-ecosystem` — `pose skills-check` (gate de
+conformidade Agent Skills, achou e corrigiu um link quebrado real) e
+`pose extension install/list/remove/verify` (lifecycle transacional de
+extensões assinadas — skill/workflow/rule/import-adapter — com rollback
+real, preservação de modificação do usuário, rejeição de pacote não
+assinado por padrão). Catálogo MCP: **30 tools**. Próximo do portfólio:
+roadmap 6 `adoption-developer-experience` (janela 2026-09-21 → 2027-01-29).
 
 ## Estado atual
 
@@ -63,15 +60,19 @@ fechar o roadmap 5.
   workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
   `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
   `supported_upgrades` no `compatibility.json` com pin SHA-256.
-- Roadmap 5 `agent-interoperability`: começar pelas specs de conformidade
-  project-scoped MCP e Agent Skills; reaproveitar o padrão de golden fixture
-  + ADR já usado no catálogo MCP (`pose-mcp-catalog-conformance`).
+- Roadmap 6 `adoption-developer-experience`: distribuição e onboarding —
+  próxima leitura é o roadmap file + specs correspondentes.
 - `dependsOn` em `module-metadata.json` ainda não foi semeado para os módulos
   reais deste repo (`pose-mcp`, `mcp-enforce`) — follow-up aberto em
   `pose-changed-scope-validation`.
 - Verificar o primeiro run do `docs.yml` após o merge: nav do mkdocs ganhou
   `monorepo-recipes.md` — follow-up aberto em
   `pose-monorepo-validation-recipes`.
+- Publicar uma extensão de referência real assinada ponta a ponta pelo
+  pipeline de release-signing — follow-up aberto em
+  `pose-extension-catalog-lifecycle`.
+- `pose skills-check` ainda não cobre os espelhos `locales/*/.agents/skills`
+  — follow-up aberto em `pose-agent-skills-conformance`.
 
 ## Riscos
 

@@ -33,12 +33,13 @@ environment; no wrapper or second executable is generated.
 | `pose_list_roadmaps` / `pose_get_roadmap` | Governed roadmaps and their milestone DAGs |
 | `pose_get_changelog` | User-facing changelog fragments |
 | `pose_get_followups` | Aggregated follow-up backlog |
-| `pose_check` / `pose_lint_spec` | Run the deterministic gates |
+| `pose_check` / `pose_lint_spec` / `pose_skills_check` | Run the deterministic gates |
 | `pose_suggest` | Canonical trail per task type |
 | `pose_get_workflow` / `pose_get_rules` / `pose_get_skill` | Operating procedure content |
 | `pose_list_knowledge` / `pose_get_knowledge` | Operational memory |
 | `pose_list_reports` / `pose_get_report` | Validation evidence |
 | `pose_insights` | Deterministic outcome aggregates by workflow, task or context |
+| `pose_extension_list` | List installed extensions (id, version, kind, digest, signature status) |
 | `pose_validate_request` | Resolve an immutable, digest-pinned validation plan (no execution) |
 | `pose_validate_approve` | Approve/reject a plan, bound to its digest, requiring an Execution Identity |
 | `pose_validate_submit` | Hand an approved plan to the configured Harness executor |

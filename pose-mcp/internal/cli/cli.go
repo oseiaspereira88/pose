@@ -103,7 +103,7 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
-	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks":
+	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks", "skills-check":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
@@ -128,6 +128,8 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return cmdRecurrenceCheck(root, args, stdout, stderr)
 		case "recurrence-effect":
 			return cmdRecurrenceEffect(root, args, stdout, stderr)
+		case "skills-check":
+			return cmdSkillsCheck(root, args, stdout, stderr)
 		case "stacks":
 			return cmdStacks(root, args, stdout, stderr)
 		case "hooks":
@@ -151,6 +153,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 	case "import":
 		defer emitTelemetry("import")
 		return cmdImport(args, stdout, stderr)
+	case "extension":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose extension: %v\n", err)
+			return 1
+		}
+		return cmdExtension(root, args, stdout, stderr)
 	case "lint-spec":
 		defer emitTelemetry("lint-spec")
 		return cmdLintSpec(args, stdout, stderr)
@@ -222,10 +231,14 @@ Scaffolds:
 
 Deterministic gates:
   check | validate | knowledge-check | recurrence-check | lint-spec |
-  followups | amend | history-check
+  followups | amend | history-check | skills-check
 
 Discovery and metrics:
   suggest | stats | recurrence-effect | stacks
+
+Extensions:
+  extension install <dir> [--dry-run] [--yes] [--force] [--allow-unsigned]
+  extension list [--json] | extension remove <id> [...] | extension verify <dir>
 
 Artifacts and maintenance:
   index | report | upgrade [--dry-run] | knowledge-housekeeping |
@@ -256,10 +269,14 @@ Scaffold:
 
 Gates determinísticos:
   check | validate | knowledge-check | recurrence-check | lint-spec |
-  followups | amend | history-check
+  followups | amend | history-check | skills-check
 
 Descoberta e métricas:
-  suggest | stats
+  suggest | stats | recurrence-effect | stacks
+
+Extensões:
+  extension install <dir> [--dry-run] [--yes] [--force] [--allow-unsigned]
+  extension list [--json] | extension remove <id> [...] | extension verify <dir>
 
 Geração de artefatos:
   index | report

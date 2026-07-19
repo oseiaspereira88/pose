@@ -34,6 +34,8 @@ jobs:
           "$RUNNER_TEMP/pose" version
       - name: Structural gate (pose check --strict)
         run: '"$RUNNER_TEMP/pose" check --strict'
+      - name: Agent Skills conformance (spec pose-agent-skills-conformance)
+        run: '"$RUNNER_TEMP/pose" skills-check --strict'
       - name: History gate (pose history-check)
         run: '"$RUNNER_TEMP/pose" history-check'
       - name: Retain governance evidence

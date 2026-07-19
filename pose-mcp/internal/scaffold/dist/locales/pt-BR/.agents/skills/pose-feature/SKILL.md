@@ -2,6 +2,9 @@
 name: pose-feature
 description: Use ao implementar uma feature não-trivial sob POSE — escopo afeta pelo menos um módulo, exige spec, planejamento incremental, validação determinística e handoff entre execuções. Trigger keywords - feature, implementar, nova funcionalidade, scope change, spec nova, refactor (sem mudança funcional).
 when_to_use: A tarefa é adicionar/estender funcionalidade observável (não bug, não doc, não review). Use ANTES de codar para garantir spec, leitura de knowledge prévia, plano incremental e validação proporcional.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, spec-write, validate
 ---
 
 # Skill: pose-feature

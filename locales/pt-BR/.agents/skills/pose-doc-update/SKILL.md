@@ -2,6 +2,9 @@
 name: pose-doc-update
 description: Use para mudanças em documentação POSE — AGENTS.md, POSE.md, workflows, rules, README de módulo, ou specs editoriais. Garante padronização editorial e que pose check continua passando. Trigger keywords - documentation, docs, doc-update, AGENTS, POSE.md, workflow, rule, README, editorial.
 when_to_use: A tarefa é editar/criar documentação operacional (não código de produto). Use ANTES de escrever para alinhar tom, evitar duplicação e garantir que referências (.pose/, .agents/skills/, local/) permaneçam válidas.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, doc-write
 ---
 
 # Skill: pose-doc-update

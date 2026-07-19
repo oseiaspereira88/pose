@@ -2,6 +2,9 @@
 name: pose-review
 description: Use para PR ou code review sob POSE — verifica escopo controlado, contratos preservados, impacto de segurança/observabilidade, validação proporcional ao risco, e propõe escalação quando aplicável. Trigger keywords - review, code review, PR review, parecer, revisar PR, code-review, ultrareview.
 when_to_use: Avaliando um diff/PR (próprio ou de outro autor) sob POSE. Use ANTES de comentar/aprovar para garantir cobertura uniforme: rules aplicáveis, evidência de validate, consulta a decision-logs prévios, decisão acionável.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read
 ---
 
 # Skill: pose-review

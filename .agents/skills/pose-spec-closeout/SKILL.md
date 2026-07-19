@@ -2,6 +2,9 @@
 name: pose-spec-closeout
 description: Use to close a completed POSE spec by setting status done, recording completion date, and dispositioning every follow-up so the backlog remains live and deduplicated. Trigger keywords - closeout, close spec, complete spec, mark done, follow-up, triage, spec lifecycle, completed_at.
 when_to_use: Feature, bugfix, or refactor implementation has passed deterministic validation and its spec needs formal closure. Use as the final workflow step before claiming delivery.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, spec-write
 ---
 
 # Skill: pose-spec-closeout

@@ -85,6 +85,14 @@ func (s Store) Check(ctx context.Context, strict bool) (*GateResult, error) {
 	return s.runGate(ctx, []string{"check", modeFlag(strict)})
 }
 
+// SkillsCheck evaluates `pose skills-check` (Agent Skills conformance gate:
+// required metadata, layout, linked resources and the offline security
+// scan — spec pose-agent-skills-conformance). A failing gate is a
+// legitimate result (Passed=false), not a tool error.
+func (s Store) SkillsCheck(ctx context.Context, strict bool) (*GateResult, error) {
+	return s.runGate(ctx, []string{"skills-check", modeFlag(strict)})
+}
+
 // LintSpec evaluates `pose lint-spec <slug>|--all` (spec content +
 // lifecycle gate). Empty slug evaluates every spec.
 func (s Store) LintSpec(ctx context.Context, slug string, strict bool) (*GateResult, error) {

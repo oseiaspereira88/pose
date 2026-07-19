@@ -49,6 +49,8 @@ var catalogGovernance = map[string]toolGovernance{
 	"pose_insights":          {Risk: RiskRead},
 	"pose_get_followups":     {Risk: RiskRead},
 	"pose_check":             {Risk: RiskGate},
+	"pose_skills_check":      {Risk: RiskGate},
+	"pose_extension_list":    {Risk: RiskRead},
 	"pose_lint_spec":         {Risk: RiskGate},
 	"pose_list_knowledge":    {Risk: RiskRead},
 	"pose_get_knowledge":     {Risk: RiskRead},

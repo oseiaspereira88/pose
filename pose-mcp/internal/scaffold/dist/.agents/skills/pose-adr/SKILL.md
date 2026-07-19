@@ -2,6 +2,9 @@
 name: pose-adr
 description: Use to record an architectural decision under POSE when choosing between structurally significant options, changing a public contract, or accepting a trade-off that may need later review. Trigger keywords - ADR, architecture decision, structural contract, technical decision, trade-off, design choice.
 when_to_use: A technical decision's rationale must outlive the original author. Typical cases include stack or library changes, HTTP or schema contracts, cross-module organization patterns, and recurring rejected alternatives.
+pose_schema_range: "1-1"
+clients: agents-skills, mcp, claude-code
+capabilities: read, adr-write
 ---
 
 # Skill: pose-adr
