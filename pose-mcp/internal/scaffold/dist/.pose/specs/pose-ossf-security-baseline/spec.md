@@ -1,8 +1,8 @@
 ---
 slug: pose-ossf-security-baseline
-status: draft
+status: done
 created_at: 2026-07-18
-completed_at:
+completed_at: 2026-07-19
 supersedes:
 depends_on: pose-version-contract
 priority: 5
@@ -58,20 +58,20 @@ Closes preventable supply-chain gaps before signing raises perceived trust.
 ## 4. Tasks
 
 ### Planning
-- [ ] Confirm baseline and fixtures against [OpenSSF Scorecard](https://scorecard.dev/).
+- [x] Confirm baseline and fixtures against [OpenSSF Scorecard](https://scorecard.dev/): no SAST, dependency review, secret scanning or Scorecard existed; third-party actions unpinned; `docs.yml` carried workflow-level `pages`/`id-token` scopes.
 
 ### Implementation
-- [ ] Establish the baseline Scorecard and threat-ranked backlog. ([reference](https://scorecard.dev/))
-- [ ] Add SAST, dependency review and secret scanning gates. ([reference](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions))
-- [ ] Pin permissions/actions and implement owned expiring exceptions. ([reference](https://scorecard.dev/))
+- [x] Establish the baseline Scorecard and threat-ranked backlog: `.github/workflows/scorecard.yml` (weekly + main, published results, SARIF upload); the known backlog — unsigned artifacts, missing SBOM/provenance — is owned by the next two milestones of this roadmap. ([reference](https://scorecard.dev/))
+- [x] Add SAST, dependency review and secret scanning gates: `.github/workflows/security.yml` runs CodeQL (Go, both modules), `govulncheck@v1.1.4`, `gitleaks@v8.21.2` (full history, redacted) and dependency review (fail on high) on every PR, plus main and weekly runs; no duplicate-coverage scanners. ([reference](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions))
+- [x] Pin permissions/actions and implement owned expiring exceptions: third-party actions SHA-pinned (goreleaser `e435ccd…`, scorecard `4eaacf0…`, verified via GitHub API); `.github/security-exceptions.json` holds the owned, expiring first-party tag-pinning exception; `TestWorkflowSecurityContract` enforces permissions blocks, SHA pinning and exception expiry; `docs.yml` scopes narrowed to job level; release workflow gains the R3 security gate. ([reference](https://scorecard.dev/))
 
 ### Validation
-- [ ] Run `go test ./... && pose check --strict` and retain the result artifact. ([reference](https://scorecard.dev/))
-- [ ] Run `pose check --strict` and inspect readiness projections. ([reference](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions))
+- [x] Run `go test ./... && pose check --strict` and retain the result artifact (see §6 and `.pose/reports/`). ([reference](https://scorecard.dev/))
+- [x] Run `pose check --strict` and inspect readiness projections. ([reference](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions))
 
 ## 5. Decisions
 
-- Create an ADR before changing this public or structural contract; compare alternatives against [OpenSSF Scorecard](https://scorecard.dev/).
+- ADR `.pose/adr/2026-07-19-security-baseline-gates-and-pinning-policy.md` (Accepted): non-overlapping scanner set; Go-module scanners invoked via `go run` at sumdb-authenticated pinned versions; third-party SHA pinning with a first-party tag exception (owned, expiring, test-enforced); least-privilege permissions with per-job elevation; unwaived critical findings block release.
 
 ## 6. Validation
 
@@ -83,10 +83,36 @@ Closes preventable supply-chain gaps before signing raises perceived trust.
 - Readiness: `pose lint-spec pose-ossf-security-baseline --ready-check`.
 
 ### Execution status
-- Not executed. This planning spec remains `draft`; delivery requires recorded gate evidence.
+Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
+
+- `go -C pose-mcp test ./internal/version -run 'WorkflowSecurity' -count=1` — SUCCESS (contract covers all six workflows).
+- `go -C pose-mcp test ./... -count=1` — SUCCESS (full suite).
+- Workflow YAML parsed cleanly (`python3 -c "yaml.safe_load"` over all six files).
+- `pose check --strict` — SUCCESS.
+- `pose lint-spec pose-ossf-security-baseline --ready-check` — SUCCESS.
+- `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
+- CodeQL, govulncheck, gitleaks, dependency review and Scorecard require network and execute in CI; their first runs happen on this branch's PR — no result is claimed for them here.
 
 ## 7. Final Report
 
-- Delivered scope: none; this spec defines future implementation.
-- Residual risk: Noisy scanners encourage broad waivers unless ownership is enforced.
-- Follow-ups: none until implementation starts.
+### Delivered scope
+
+Security workflow (CodeQL + govulncheck + gitleaks + dependency review) on
+PR/main/weekly; Scorecard workflow with published results; SHA pinning for
+third-party actions with API-verified digests; owned expiring exception model
+(`.github/security-exceptions.json`) enforced by `TestWorkflowSecurityContract`;
+least-privilege permission cleanup (`docs.yml`); release security gate (R3);
+`SECURITY.md` supply-chain section; policy ADR.
+
+### Residual risks
+
+- Scanner noise can pressure toward broad waivers; the exception schema
+  requires owner + justification + expiry, and expiry is a hard CI failure.
+- The network scanners' first execution happens in CI after push; a finding
+  there becomes a release-decision input rather than a silent pass.
+
+### Follow-ups
+
+- [open] Review the first CI runs of security.yml and scorecard.yml on this branch's PR, triage findings and record the baseline score.
+- [covered: pose-release-signing] Signed release identity on top of this baseline.
+- [covered: pose-slsa-provenance] Build provenance attestation.

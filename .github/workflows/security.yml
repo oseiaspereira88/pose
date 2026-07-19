@@ -1,0 +1,70 @@
+# Security baseline (spec pose-ossf-security-baseline): static analysis,
+# dependency review and secret detection run on every pull request; pushes to
+# main and a weekly schedule keep the baseline current. Third-party actions
+# are pinned by commit SHA; first-party tag pins are a documented, expiring
+# exception (.github/security-exceptions.json).
+name: Security
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 5 * * 1"
+permissions: { contents: read }
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26.4", cache: true, cache-dependency-path: pose-mcp/go.mod }
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: go
+          build-mode: manual
+      - name: Build for analysis
+        run: |
+          go -C pose-mcp build ./...
+          go -C mcp-enforce build ./...
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: codeql-go
+  govulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26.4", cache: true, cache-dependency-path: pose-mcp/go.mod }
+      - name: Known-vulnerability scan (module versions pinned, sumdb-authenticated)
+        run: |
+          go -C pose-mcp run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+          go -C mcp-enforce run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26.4", cache: true, cache-dependency-path: pose-mcp/go.mod }
+      - name: Secret detection over full git history (redacted output)
+        run: go -C pose-mcp run github.com/zricethezav/gitleaks/v8@v8.21.2 git --no-banner --redact ..
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+  workflow-contract:
+    # R2: permissions and action pinning are checked automatically by the
+    # same contract-test mechanism that guards the version and catalog.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26.4", cache: true, cache-dependency-path: pose-mcp/go.mod }
+      - run: go -C pose-mcp test ./internal/version -run 'WorkflowSecurity' -count=1

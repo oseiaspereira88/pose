@@ -29,7 +29,17 @@ jobs:
         run: |
           go run ./pose-mcp/cmd/pose release-notes --version "${GITHUB_REF_NAME}" --filter pose > /tmp/notes.md
           cat /tmp/notes.md
-      - uses: goreleaser/goreleaser-action@v6
+      - name: Security gate (spec pose-ossf-security-baseline)
+        # R3: unresolved critical findings are explicit release-decision
+        # inputs — known vulnerabilities, leaked secrets or a broken workflow
+        # security contract block the release unless a waiver exists in
+        # .github/security-exceptions.json (owned + expiring).
+        run: |
+          go -C pose-mcp test ./internal/version -run 'WorkflowSecurity' -count=1
+          go -C pose-mcp run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+          go -C mcp-enforce run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+          go -C pose-mcp run github.com/zricethezav/gitleaks/v8@v8.21.2 git --no-banner --redact ..
+      - uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6
         with:
           version: "~> v2"
           # Tag push → release real (exige tag no HEAD). workflow_dispatch →
