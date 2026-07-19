@@ -2,13 +2,18 @@
 
 **Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
 
-**Planning baseline:** 2026-07-18  
+**Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-07-19):** all 7 roadmaps `done`
 **Canonical execution artifacts:** `.pose/roadmaps/*.md` and `.pose/specs/*/spec.md`
 
-This portfolio converts the [capability assessment](capability-assessment.md)
-into 7 governed roadmaps and 35 implementation specs. Dates are planning
-targets, not delivery claims. A capability advances only when its spec crosses
-the documented validation and closeout gates.
+This portfolio converted the [capability assessment](capability-assessment.md)
+into 7 governed roadmaps and 35 implementation specs. All 35 specs and all 7
+roadmaps carry `status: done` as of this baseline — every capability listed
+below crossed its documented validation and closeout gates with an
+executed Final Report, not a planning intention. The target windows and wave
+structure are kept below as the historical execution record and as the
+template for the next portfolio, not as an open plan. See the
+[capability assessment](capability-assessment.md) for the current, post-delivery
+state of each mechanism.
 
 ## Prioritization model
 

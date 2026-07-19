@@ -57,11 +57,14 @@ exclusively (one active roadmap per spec).
 
 ## Validation matrix
 
-`.pose/indexes/validation-matrix.json` declares checks per stack (node, go,
-rust, java) with per-module overrides and two severities: `required` failures
-block; `optional` failures inform. Modes `strict`/`tolerant` decide whether
-structural warnings block. `pose init --wizard` seeds modules from a
-repository scan.
+`.pose/indexes/validation-matrix.json` declares checks per stack (Node.js, Go,
+Rust, Java, Python and .NET) with per-module overrides and two severities:
+`required` failures block; `optional` failures inform. Modes `strict`/`tolerant`
+decide whether structural warnings block. `--changed-from/--changed-to` selects
+the minimum safe check set from declared dependency edges and policy widening.
+Per-check timeout/output-ceiling guardrails and an `isolation: "required"`
+classification route untrusted execution to the Harness instead of running
+locally. `pose init --wizard` seeds modules from a repository scan.
 
 ## Operational memory
 
