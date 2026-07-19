@@ -103,7 +103,7 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
-	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "hooks", "suggest", "stats":
+	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
@@ -126,6 +126,8 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return cmdReportsHousekeeping(root, args, stdout, stderr)
 		case "recurrence-check":
 			return cmdRecurrenceCheck(root, args, stdout, stderr)
+		case "recurrence-effect":
+			return cmdRecurrenceEffect(root, args, stdout, stderr)
 		case "hooks":
 			return cmdHooks(root, args, stdout, stderr)
 		case "suggest":
@@ -221,7 +223,7 @@ Deterministic gates:
   followups | amend | history-check
 
 Discovery and metrics:
-  suggest | stats
+  suggest | stats | recurrence-effect
 
 Artifacts and maintenance:
   index | report | upgrade [--dry-run] | knowledge-housekeeping |

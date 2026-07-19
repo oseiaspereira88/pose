@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -34,6 +35,10 @@ type reportRecord struct {
 	OutcomeSource     string `json:"outcome_source"`
 	StableHash        string `json:"stable_hash"`
 	ReportPath        string `json:"report_path"`
+	// Optional telemetry (spec pose-recurrence-effectiveness); absent when
+	// not provided — downstream metrics stay partial, never fabricated.
+	DurationSeconds *float64 `json:"duration_seconds,omitempty"`
+	CostUSD         *float64 `json:"cost_usd,omitempty"`
 }
 
 func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
@@ -44,6 +49,7 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 		"task": true, "spec": true, "risk": true, "workflow": true, "rules": true,
 		"validate-output": true, "type": true, "context": true,
 		"validation-profile": true, "outcome": true, "since": true,
+		"duration-seconds": true, "cost-usd": true,
 	}
 	for i := 0; i < len(args); i++ {
 		if args[i] == "--git-stage" {
@@ -157,7 +163,17 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, cliText(locale, "Error: writing report: %v\n", "Erro: escrevendo relatório: %v\n"), err)
 		return 1
 	}
-	record := reportRecord{now.Format(time.RFC3339), sequence, task, slug, values["type"], values["spec"], values["workflow"], values["rules"], values["validation-profile"], values["context"], values["risk"], outcome, outcomeSource, stableHash, reportPath}
+	record := reportRecord{now.Format(time.RFC3339), sequence, task, slug, values["type"], values["spec"], values["workflow"], values["rules"], values["validation-profile"], values["context"], values["risk"], outcome, outcomeSource, stableHash, reportPath, nil, nil}
+	for flag, dst := range map[string]**float64{"duration-seconds": &record.DurationSeconds, "cost-usd": &record.CostUSD} {
+		if v := values[flag]; v != "" {
+			f, err := strconv.ParseFloat(v, 64)
+			if err != nil || f < 0 {
+				fmt.Fprintf(stderr, cliText(locale, "Error: --%s requires a number >= 0.\n", "Erro: --%s exige número >= 0.\n"), flag)
+				return 2
+			}
+			*dst = &f
+		}
+	}
 	history, err := os.OpenFile(historyPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: writing history: %v\n", "Erro: escrevendo histórico: %v\n"), err)

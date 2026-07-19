@@ -16,14 +16,20 @@ source_refs:
 
 ## Contexto
 
-Roadmaps 1 (`product-integrity`) e 2 (`supply-chain-trust`) do portfólio
-**concluídos em 2026-07-19** — 10 specs fechadas com evidência, ambos os
-roadmaps marcados `done`. Cadeia de release agora: versão autoritativa →
-catálogo/install/compatibilidade testados → CI endurecido (CodeQL,
-govulncheck, gitleaks, dependency review, Scorecard, pinning) → assinatura
-keyless + SBOM CycloneDX → proveniência SLSA L2 → verificador independente
-pós-release. Próximo do portfólio: roadmap 3 `governance-traceability`
-(janela 2026-08-24 → 2026-11-06).
+Roadmaps 1 (`product-integrity`), 2 (`supply-chain-trust`) e 3
+(`governance-traceability`) do portfólio **concluídos em 2026-07-19** — 15
+specs fechadas com evidência, os três roadmaps marcados `done`. Além da
+cadeia de release confiável (versão autoritativa → catálogo/install/
+compatibilidade → CI endurecido → assinatura keyless + SBOM → proveniência
+SLSA L2 → verificador independente), o loop de governança agora fecha por
+inteiro: requirement trace (R-ID → evidência, tool `pose_requirement_trace`),
+ownership/SLA de follow-ups (`--overdue`/`--fail-overdue`), amendment history
+append-only (`pose amend`, tool `pose_spec_amendments`), consumo de knowledge
+(`knowledge:` refs, `knowledge-usage`, `knowledge-suggest`) e efetividade de
+recorrência (`recurrence-effect`, telemetria opcional em `pose report`).
+Próximo do portfólio: roadmap 4 `validation-platform` (janela 2026-08-24 →
+2026-11-20; saída estruturada, guardrails de runtime, changed-scope, stacks e
+monorepo).
 
 ## Estado atual
 
