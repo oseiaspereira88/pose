@@ -1,15 +1,15 @@
 # mcp-enforce
 
-> Canonical authorization-enforcement library for Crisol MCP servers (ADR-004, ADR-021):
+> Canonical authorization-enforcement library for Harne8 MCP servers (ADR-004, ADR-021):
 > per-call OPA policy gate (default-deny), allow/deny auditor, and shared request-extraction
 > helpers. Stdlib only; one network dependency (OPA REST). Module:
-> github.com/crisol/mcp-enforce, package mcpenforce.
+> github.com/harne8/mcp-enforce, package mcpenforce.
 
 ## Why this module exists
 
 The policy/audit gate was duplicated between pose-mcp and graphforge/mcp-server and had begun to
 diverge (RequirePrincipal and audit-on-allow existed only in pose-mcp). This is the single
-implementation, consumed in-process by Crisol-org Go servers and embedded in the enforcement
+implementation, consumed in-process by Harne8-org Go servers and embedded in the enforcement
 sidecar that fronts foreign servers. Same code in both modes = consistency required by ADR-004.
 
 ## Core types

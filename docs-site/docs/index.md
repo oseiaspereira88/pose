@@ -43,5 +43,5 @@ and release gates.
 
 ## License
 
-Apache-2.0. POSE is developed as part of the **Crisol** platform and runs
+Apache-2.0. POSE is developed as part of the **Harne8** platform and runs
 entirely offline in your repository — the governance layer is free, forever.

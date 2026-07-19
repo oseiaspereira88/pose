@@ -33,7 +33,7 @@ specs but must not bypass dependencies to satisfy a target date.
 | 4 | Validation platform | Narrow output and runtime controls | 2026-08-24 → 2026-11-20 | Structured, bounded, polyglot validation |
 | 5 | Agent interoperability | MCP drift and manual extension lifecycle | 2026-09-21 → 2026-12-18 | Conformant project-safe protocol and ecosystem |
 | 6 | Adoption and DX | Distribution and onboarding friction | 2026-09-21 → 2027-01-29 | Trusted install, guided remediation and adoption kits |
-| 7 | Insights and scale | No outcome integrations or portfolio layer | 2026-11-02 → 2027-03-31 | OTel/DORA signals and Crisol composition |
+| 7 | Insights and scale | No outcome integrations or portfolio layer | 2026-11-02 → 2027-03-31 | OTel/DORA signals and Harne8 composition |
 
 ## Coverage of the assessed mechanisms
 
@@ -48,13 +48,13 @@ specs but must not bypass dependencies to satisfy a target date.
 | Follow-ups and recurrence | Governance traceability | `pose-followup-ownership-sla`, `pose-recurrence-effectiveness` |
 | Operational knowledge | Governance traceability | `pose-knowledge-consumption-traceability` |
 | MCP and agent interoperability | Product integrity / Agent interoperability | `pose-mcp-catalog-conformance`, `pose-mcp-project-scope-contract`, `pose-mcp-protocol-completeness` |
-| Policy, identity and audit | Agent interoperability / Insights and scale | `pose-safe-validate-orchestration`, `pose-crisol-control-plane-integration` |
+| Policy, identity and audit | Agent interoperability / Insights and scale | `pose-safe-validate-orchestration`, `pose-harne8-control-plane-integration` |
 | CI, release and supply-chain trust | Supply-chain trust | all five supply-chain specs |
 | Import and adoption interoperability | Adoption and DX | `pose-brownfield-reference-kits`, `pose-extension-catalog-lifecycle` |
 | Metrics and observability | Insights and scale | `pose-otel-observability`, `pose-dora-adoption-metrics` |
 | Documentation, localization and diagnostics | Adoption and DX | `pose-doctor-guided-remediation`, `pose-localization-docs-contract` |
 | Extensibility and ecosystem | Agent interoperability | `pose-agent-skills-conformance`, `pose-extension-catalog-lifecycle` |
-| Multi-repository and enterprise operation | Insights and scale | `pose-cross-repo-portfolio`, `pose-crisol-control-plane-integration` |
+| Multi-repository and enterprise operation | Insights and scale | `pose-cross-repo-portfolio`, `pose-harne8-control-plane-integration` |
 
 ## Wave 0 — restore product truth
 
@@ -92,7 +92,7 @@ extensions, package channels and brownfield kits.
 **Promotion gate:** independent clients and clean environments pass published
 compatibility suites without privileged manual setup.
 
-## Wave 4 — measure outcomes and scale through Crisol
+## Wave 4 — measure outcomes and scale through Harne8
 
 Add OpenTelemetry signals, DORA-compatible integrations, semantic assist with
 human confirmation, cross-repository projections and control-plane composition.

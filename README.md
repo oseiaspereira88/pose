@@ -87,9 +87,9 @@ portals change.
 
 ## The free core and the scale path
 
-POSE is the open-source entry point to the broader **Crisol** platform.
+POSE is the open-source entry point to the broader **Harne8** platform.
 
-| Start with POSE | Scale with Crisol |
+| Start with POSE | Scale with Harne8 |
 |---|---|
 | Repository-local specs and roadmaps | Visual multi-project portfolio |
 | Workflows, rules and portable skills | Durable task orchestration through Conductor |
@@ -99,7 +99,7 @@ POSE is the open-source entry point to the broader **Crisol** platform.
 | Optional OPA policy enforcement | Central identity, approvals, audit and operations |
 
 The boundary is intentional: the free core remains useful by itself, offline
-and vendor neutral. Crisol adds coordination and visual operation when
+and vendor neutral. Harne8 adds coordination and visual operation when
 repository-local governance is no longer enough.
 
 ## What is in the box
@@ -184,7 +184,7 @@ human curation.
 2. **Align:** customize module metadata, rules and the validation matrix.
 3. **Enforce:** make stable required checks blocking in CI.
 4. **Learn:** generate reports, triage follow-ups and enable recurrence checks.
-5. **Scale:** connect MCP clients or Crisol without moving the source of truth
+5. **Scale:** connect MCP clients or Harne8 without moving the source of truth
    out of the repository.
 
 Teams using pre-commit.com can enable `pose-check`, `pose-lint-spec` and
@@ -222,5 +222,5 @@ work required to reach the next maturity level.
 Apache-2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
-POSE is developed as the governance plane of the **Crisol** AI-native
+POSE is developed as the governance plane of the **Harne8** AI-native
 engineering platform.

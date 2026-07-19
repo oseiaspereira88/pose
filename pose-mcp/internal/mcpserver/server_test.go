@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/crisol/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/pose"
 )
 
 // fakeReporter implements Reporter for testing the conductor_run_* tools.
@@ -109,7 +109,7 @@ func TestInitialize(t *testing.T) {
 		t.Errorf("protocolVersion = %v", out.Result["protocolVersion"])
 	}
 	info, _ := out.Result["serverInfo"].(map[string]any)
-	if info["name"] != "crisol-pose-mcp" {
+	if info["name"] != "harne8-pose-mcp" {
 		t.Errorf("serverInfo.name = %v", info["name"])
 	}
 }

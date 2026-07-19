@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"time"
 
-	mcpenforce "github.com/crisol/mcp-enforce"
-	"github.com/crisol/pose-mcp/internal/mcpserver"
-	"github.com/crisol/pose-mcp/internal/pose"
+	mcpenforce "github.com/harne8/mcp-enforce"
+	"github.com/harne8/pose-mcp/internal/mcpserver"
+	"github.com/harne8/pose-mcp/internal/pose"
 )
 
 // opaConfigFromEnv reads OPA integration settings from the POSE_MCP_ env prefix
@@ -42,13 +42,13 @@ func Run(args []string) {
 	// Conductor's push signal after onboarding/reindex. Empty = disabled (dev).
 	adminToken := envOr("POSE_MCP_ADMIN_TOKEN", "")
 	// Multi-project (pose-mcp-multi-project): additional projects are resolved by
-	// project_id from a scan of CRISOL_PROJECTS_DIR (dirname == project_id) plus an
+	// project_id from a scan of HARNE8_PROJECTS_DIR (dirname == project_id) plus an
 	// explicit override.
 	defaultProjectID := os.Getenv("POSE_DEFAULT_PROJECT_ID")
-	projectsDir := envOr("CRISOL_PROJECTS_DIR", "")
+	projectsDir := envOr("HARNE8_PROJECTS_DIR", "")
 	// Default prefix is empty: the clone dir name IS the project_id
-	// (CRISOL_PROJECTS_DIR/<project_id>), the canonical onboarding convention.
-	projectIDPrefix := os.Getenv("CRISOL_PROJECT_ID_PREFIX")
+	// (HARNE8_PROJECTS_DIR/<project_id>), the canonical onboarding convention.
+	projectIDPrefix := os.Getenv("HARNE8_PROJECT_ID_PREFIX")
 
 	if root != "" {
 		if _, err := os.Stat(filepath.Join(root, ".pose")); err != nil {

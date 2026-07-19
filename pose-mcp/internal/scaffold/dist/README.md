@@ -1,111 +1,226 @@
 # POSE — Project Operating Standard for Engineering
 
-**Spec-driven development that closes the loop.**
+**Turn AI-assisted engineering into a repository-owned, machine-checkable
+delivery system.**
 
-POSE is a governance framework for agentic software engineering. Where most
-spec-driven-development (SDD) tools stop at scaffolding a spec, POSE governs the
-full cycle — and enforces it with deterministic gates:
+POSE is the free, Apache-2.0 governance core for teams building software with
+humans and AI agents. It installs an operating contract in the repository and
+enforces that contract with one native Go binary:
 
-```
+```text
 spec → execution → evidence → follow-ups → recurrence → knowledge
   ▲                                                        │
-  └────────────── the loop closes back into planning ──────┘
+  └────────────── learning returns to planning ─────────────┘
 ```
 
-- A spec cannot enter execution without passing a **Definition of Ready** gate
-  (`pose lint-spec --ready-check`: intent, requirements with stable acceptance
-  criteria IDs, technical plan).
-- A spec cannot be marked done without a **closeout gate** (`pose lint-spec
-  --strict`: completion date stamped, every follow-up explicitly dispositioned —
-  spawned, covered, duplicate, done, or consciously discarded).
-- Validation is **deterministic by contract**: a per-stack/per-module validation
-  matrix (`pose validate`) runs real commands (`test`, `lint`, `typecheck`,
-  `build`) and produces versionable reports with append-only JSONL history.
-- **Recurrence detection** (`pose recurrence-check`) mines that history for
-  repeated failures and escalates them into systemic fixes (new rules or
-  workflows) instead of letting them be re-fixed forever.
-- **Operational memory** (`.pose/knowledge/`) captures handoffs and decision
-  logs with TTL governance, so context survives between executions and agents.
-- Specs form a **dependency graph** (`depends_on`, `priority`) organized into
-  governed **roadmaps** with milestone DAGs — validated for existence and
-  acyclicity on every `pose check`.
-- Everything is exposed to agents through a native **MCP server** (18 read
-  tools: specs, readiness, roadmaps, knowledge, reports, insights,
-  changelogs, skills).
+POSE is not another coding agent, IDE or project board. It is the layer that
+makes work portable across those tools: what may start, which rules apply,
+which checks must pass, what evidence proves completion and what the next
+execution needs to remember.
 
-## What's in the box
+## Why POSE
 
-| Path | Purpose |
-|---|---|
-| `pose` binary | Native Go CLI: scaffolding, gates, discovery, metrics, housekeeping and MCP |
-| `.pose/workflows/` | Procedures per task type: feature, bugfix, review, refactor, docs, recurrence escalation |
-| `.pose/rules/` | Cumulative domain rules: security, backend, frontend, docs style, delivery evidence, knowledge governance |
-| `.pose/templates/` | Spec, roadmap, knowledge and changelog-fragment templates |
-| `.pose/indexes/` | Machine-readable caches: repo map, validation matrix, spec graph, roadmaps, task map |
-| `.agents/skills/` | 9 agent skills (Codex-native format; `.claude/skills/` symlinks for Claude Code) |
-| `AGENTS.md` / `POSE.md` | The short agent contract and the full operating manual |
-| `pose serve-mcp` | MCP server exposed by the same native binary |
+AI coding tools accelerate implementation, but speed alone does not solve the
+system-level problems they amplify:
 
-## Quickstart
+- requirements remain trapped in chat history;
+- agents receive inconsistent instructions;
+- “done” is declared without reproducible evidence;
+- follow-ups disappear into prose;
+- the same failures are fixed repeatedly;
+- context is lost when an agent or session changes.
 
-```bash
-# with the native binary on PATH:
-pose install /path/to/your/repo
-```
+POSE makes each of those concerns an explicit, versioned mechanism.
 
-That's it. The installer:
+| Differentiator | What POSE does | Verifiable mechanism |
+|---|---|---|
+| **Governs delivery, not only generation** | Connects planning, execution, acceptance and learning | Specs + workflows + rules + evidence + history |
+| **Gates both entry and exit** | Refuses execution without readiness and refuses done without closeout | `pose lint-spec --ready-check` / `--strict` |
+| **Uses real engineering checks** | Runs repository-native test, lint, typecheck and build commands | `validation-matrix.json` + `pose validate` |
+| **Turns evidence into memory** | Stores versionable reports and append-only history | `.pose/reports/` + `pose report` |
+| **Closes residual work** | Requires a disposition for every follow-up | `pose followups` + closeout vocabulary |
+| **Escalates systemic failure** | Detects recurring task failures and routes structural correction | `pose recurrence-check` + escalation workflow |
+| **Preserves operational context** | Gives handoffs and decisions an owner, sensitivity and TTL | `.pose/knowledge/` + `knowledge-check` |
+| **Plans from dependencies** | Validates spec and milestone DAGs and computes readiness | `depends_on`, roadmaps, `pose_spec_readiness` |
+| **Works across agents** | Exposes short instructions, portable skills and MCP tools | `AGENTS.md`, Agent Skills, `pose serve-mcp` |
+| **Keeps control local** | Runs offline and stores the source of truth in Git | One CGO-free binary; no hosted dependency |
 
-- copies workflows, rules, templates and skills, and creates the empty
-  instance directories; the runtime remains the native binary on `PATH`;
-- substitutes `{{PROJECT_NAME}}`/`{{PROJECT_ID}}` in `AGENTS.md`/`POSE.md`
-  (derived from the target directory name; override with `--project-name` /
-  `--project-id`);
-- configures the same binary as the MCP server (`pose serve-mcp`);
-- seeds `.mcp.json` if your repo has none;
-- finishes by running native `init` and `check --strict` in your repo —
-  the install is only reported successful if the gate is green.
+## Where POSE is strongest
 
-Re-running the installer updates the machinery in place and **never touches
-your instance content** (specs, ADRs, knowledge, reports, roadmaps). Your
-edited `AGENTS.md`/`POSE.md` are preserved unless you pass `--force`.
+POSE's core advantage is **closed-loop governance**. Spec authoring is only the
+first step. The system also checks whether a spec is ready, routes the correct
+workflow, executes deterministic quality gates, records the acceptance
+evidence, forces residual work to be triaged and detects when local fixes should
+become systemic improvements.
 
-Then start working: `pose new-spec my-first-feature`, fill the spec, and let
-the gates guide the rest (`pose suggest feature` prints the canonical trail:
-workflow + skill + rules).
+That combination is especially valuable for:
 
-Already use spec-kit or OpenSpec? Preview an offline migration with
-`pose import spec-kit <path> --dry-run` or
-`pose import openspec <path> --dry-run`, then rerun without `--dry-run` to
-create POSE specs. Import validates the whole batch before writing, never
-overwrites an existing spec, and prints a curation report for information the
-source format could not supply. See the [CLI reference](docs-site/docs/cli.md#import-existing-sdd-specs)
-for supported layouts and limits.
+- teams using more than one coding agent or model provider;
+- brownfield repositories where architecture and checks already exist;
+- regulated or high-accountability delivery;
+- monorepos with different stacks and module criticalities;
+- platform teams standardizing engineering without forcing one IDE;
+- organizations preparing for governed agent orchestration.
 
-Teams standardized on pre-commit.com can enable `pose-check`,
-`pose-lint-spec`, and `pose-history-check` directly from this repository. Pin
-an immutable POSE release and see the [CI guide](docs-site/docs/ci.md#use-pose-from-pre-commitcom)
-for the four-line configuration and pre-commit 4.4+ requirement.
-
-Requirements: the `pose` binary and git. No Bash or Python runtime is needed.
-Platforms: Linux, macOS and Windows.
+If you only need a prompt template or a lightweight planning folder, POSE may
+be more structure than you need. Start with Spec Kit or OpenSpec and import the
+result later; POSE includes native, safe importers for both.
 
 ## How POSE compares
 
-GitHub's spec-kit, OpenSpec and similar SDD tools generate well-structured
-specs and prompts — they govern the *entry* of work. POSE governs entry **and
-exit**: the Definition-of-Ready gate is matched by a closeout gate that refuses
-"done" until evidence is recorded and every follow-up is triaged, and the
-history those gates produce feeds recurrence detection and portfolio-level
-readiness (dependency graph + roadmaps). If you only need spec templates,
-lighter tools are fine; POSE is for teams that want the loop closed and
-machine-checkable.
+These products solve adjacent problems and can be complementary. The useful
+question is not “which tool wins?” but “which part of delivery does each tool
+make authoritative?”
+
+| Solution | Primary strength | POSE's distinction |
+|---|---|---|
+| [GitHub Spec Kit](https://github.com/github/spec-kit/blob/main/docs/reference/overview.md) | Rich SDD lifecycle with agent integrations, extensions, presets, workflows and bundles | POSE emphasizes repository-wide governance after planning: entry/exit gates, validation evidence, recurrence and expiring knowledge |
+| [OpenSpec](https://github.com/Fission-AI/OpenSpec) | Lightweight, agent-neutral brownfield change proposals, deltas and archive-to-source flow | POSE adds deterministic delivery gates, module-aware validation, governed follow-ups, operational history and portfolio readiness |
+| [Kiro](https://aws.amazon.com/documentation-overview/kiro/) | Integrated agentic service with specs, steering and event hooks | POSE is editor/model neutral, offline and owned by the repository |
+| [Backstage](https://backstage.io/docs/features/software-catalog/) | Organization-wide software catalog, templates and developer portal | POSE governs execution inside each repository and can feed a portal/control plane |
+| CI orchestrators | Execute pipelines and display job results | POSE decides the applicable trail, normalizes severity and preserves evidence as governed product data |
+| Issue trackers | Coordinate people, status and portfolio work | POSE makes the engineering contract and acceptance criteria executable beside the code |
+
+POSE does not replace the specialist strengths above. It provides the
+governance spine that remains stable while agents, editors, CI providers and
+portals change.
+
+## The free core and the scale path
+
+POSE is the open-source entry point to the broader **Harne8** platform.
+
+| Start with POSE | Scale with Harne8 |
+|---|---|
+| Repository-local specs and roadmaps | Visual multi-project portfolio |
+| Workflows, rules and portable skills | Durable task orchestration through Conductor |
+| Deterministic validation and evidence | Governed agent execution through Harness |
+| Local insights and recurrence | Central reliability, cost and policy views |
+| Native MCP governance API | Context enrichment through GraphForge |
+| Optional OPA policy enforcement | Central identity, approvals, audit and operations |
+
+The boundary is intentional: the free core remains useful by itself, offline
+and vendor neutral. Harne8 adds coordination and visual operation when
+repository-local governance is no longer enough.
+
+## What is in the box
+
+| Path or component | Purpose |
+|---|---|
+| `pose` binary | Native CLI, installer, gates, reports, metrics, housekeeping and MCP |
+| `.pose/specs/` | Living feature contracts with lifecycle and dependencies |
+| `.pose/workflows/` | Procedures for feature, bugfix, review, refactor, docs and recurrence |
+| `.pose/rules/` | Cumulative security, backend, frontend, Kubernetes, evidence and knowledge rules |
+| `.agents/skills/` | Nine portable Agent Skills; Claude-compatible links are installed |
+| `.pose/roadmaps/` | Governed roadmaps with milestone DAGs and readiness |
+| `.pose/knowledge/` | TTL-governed handoffs, notes and decision logs |
+| `.pose/reports/` | Versionable evidence and append-only JSONL history |
+| `.pose/indexes/` | Repository, module, task, spec-graph and roadmap projections |
+| `pose serve-mcp` | 18 POSE tools over stdio or Streamable HTTP |
+| `mcp-enforce/` | Optional project/run-scoped identity, OPA decisions and audit |
+| `pose-action/` | GitHub Action adapter for deterministic gates |
+
+Read the [technical architecture](docs-site/docs/architecture.md) for every
+component and mechanism. Read the
+[capability assessment](docs-site/docs/capability-assessment.md) for current
+maturity and best-of-breed gaps. The governed
+[product roadmaps](docs-site/docs/product-roadmaps.md) convert those findings
+into 7 roadmaps, 35 implementation specs and dependency-aware release gates.
+
+## Quickstart
+
+Download the native binary from the repository releases, place `pose` on
+`PATH`, then install POSE into a Git repository:
+
+```bash
+pose install /path/to/your/repo
+```
+
+The installer:
+
+- embeds workflows, rules, templates, skills and the selected locale;
+- derives project name and ID, with explicit override flags;
+- configures the same binary as the MCP server;
+- preserves existing specs, ADRs, knowledge, reports and roadmaps;
+- finishes with native `init`, `index` and `check --strict`;
+- reports success only when the structural gate passes.
+
+Requirements: Git and the native `pose` binary. Bash is needed only when using
+the optional release-bundle `install.sh`; the runtime itself needs no Bash,
+Python, Node.js or hosted service. Supported release targets are Linux, macOS
+and Windows on `amd64` and `arm64`.
+
+## Run a first governed delivery
+
+```bash
+pose init --wizard --yes
+pose new-spec customer-export
+pose suggest feature
+
+# Fill Intent, R1/R2... requirements and Technical Plan.
+pose lint-spec customer-export --ready-check
+
+# Implement, then run the repository's declared checks.
+pose validate --strict
+pose report --task "customer-export" --spec customer-export
+
+# Stamp completed_at and disposition every follow-up before done.
+pose lint-spec customer-export --strict
+```
+
+Already use another SDD format?
+
+```bash
+pose import spec-kit .specify/specs --dry-run
+pose import openspec openspec/changes/add-2fa --dry-run
+```
+
+The importer validates the complete batch before writing, rejects symlinks,
+never overwrites an existing spec and reports everything that still needs
+human curation.
+
+## Adopt progressively
+
+1. **Observe:** install POSE and run checks in tolerant mode.
+2. **Align:** customize module metadata, rules and the validation matrix.
+3. **Enforce:** make stable required checks blocking in CI.
+4. **Learn:** generate reports, triage follow-ups and enable recurrence checks.
+5. **Scale:** connect MCP clients or Harne8 without moving the source of truth
+   out of the repository.
+
+Teams using pre-commit.com can enable `pose-check`, `pose-lint-spec` and
+`pose-history-check`. See the [CI guide](docs-site/docs/ci.md) and
+[CLI reference](docs-site/docs/cli.md).
+
+## Security and privacy
+
+- Gates are offline by contract.
+- Telemetry is disabled by default and has no built-in collection endpoint.
+- Import and module paths are confined to the project root.
+- Validation uses structured program/argument arrays; legacy shell commands are
+  rejected.
+- Restricted knowledge is excluded from MCP reads.
+- OPA-backed MCP policy fails closed on evaluation errors.
+- Mutating repository work remains an execution-sandbox responsibility rather
+  than a general MCP write surface.
+
+See [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
+
+## Current product boundary
+
+POSE currently provides a strong local governance engine, not a hosted
+multi-team service. Its local reports are auditable Git artifacts, not signed
+supply-chain attestations. Roadmaps express dependency/readiness, not team
+capacity. Local insights summarize POSE outcomes, not deployment or incident
+performance.
+
+Those limits are explicit in the
+[capability assessment](docs-site/docs/capability-assessment.md), alongside the
+work required to reach the next maturity level.
 
 ## License
 
 Apache-2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
-Contributions welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
-Security reports: see [SECURITY.md](SECURITY.md).
 
-POSE is developed as part of the **Crisol** platform (AI-native engineering:
-orchestration, execution and visual operation on top of POSE governance).
-POSE itself is free and runs entirely offline in your repository.
+Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
+POSE is developed as the governance plane of the **Harne8** AI-native
+engineering platform.

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/crisol/pose-mcp/internal/scaffold"
+	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
 func TestNativeOnlyAdvertisedMaintenanceCommands(t *testing.T) {

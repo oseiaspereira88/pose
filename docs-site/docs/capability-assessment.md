@@ -49,7 +49,7 @@ delivery outcomes, public product polish and scaled team operation.
 | Metrics and observability | 2 | 4 | Local outcome counts exist; DORA, traces and product analytics do not |
 | Documentation, localization and diagnostics | 4 | 5 | Solid English/pt-BR and doctor; public onboarding still has placeholders |
 | Extensibility and ecosystem | 2 | 4 | File contracts are extensible; no formal plugin/catalog lifecycle |
-| Multi-repository and enterprise operation | 2 | 4 | MCP roots/policy exist; central UX, tenancy and durable orchestration live in Crisol |
+| Multi-repository and enterprise operation | 2 | 4 | MCP roots/policy exist; central UX, tenancy and durable orchestration live in Harne8 |
 
 ## Detailed findings
 
@@ -120,7 +120,7 @@ status alone.
 **Gap to ideal:** add impact visualization, critical-path explanation,
 cross-repository references, ownership/capacity views and drift reconciliation.
 Do not turn POSE into a transactional scheduler; expose these projections to
-Crisol or portals such as [Backstage](https://backstage.io/docs/features/software-catalog/).
+Harne8 or portals such as [Backstage](https://backstage.io/docs/features/software-catalog/).
 
 ### 5. Validation and structural integrity — 4/5
 
@@ -309,7 +309,7 @@ Conductor reporter integration.
 
 **Gap to ideal:** centralized discovery, SSO/RBAC, tenant isolation, durable
 orchestration, approvals, portfolio UX, policy distribution, retention and
-support operations. These are the natural responsibilities of Crisol; keeping
+support operations. These are the natural responsibilities of Harne8; keeping
 them out of the local CLI preserves a credible freemium boundary.
 
 ## Priority improvement plan
@@ -338,7 +338,7 @@ them out of the local CLI preserves a credible freemium boundary.
 1. Publish a versioned extension/skill catalog with provenance.
 2. Add optional semantic knowledge and follow-up adapters with human approval.
 3. Add cross-repository references and portfolio projections.
-4. Connect the open core to Crisol for durable orchestration, visual operation,
+4. Connect the open core to Harne8 for durable orchestration, visual operation,
    centralized policy and team analytics.
 
 ## Reassessment protocol

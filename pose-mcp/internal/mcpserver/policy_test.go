@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/crisol/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/pose"
 )
 
 // The PolicyGate / PolicyConfig / PolicyInput / audit logic now lives in the

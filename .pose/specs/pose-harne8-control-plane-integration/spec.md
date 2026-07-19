@@ -1,5 +1,5 @@
 ---
-slug: pose-crisol-control-plane-integration
+slug: pose-harne8-control-plane-integration
 status: draft
 created_at: 2026-07-18
 completed_at:
@@ -8,7 +8,7 @@ depends_on: pose-safe-validate-orchestration, pose-cross-repo-portfolio, pose-ot
 priority: 34
 ---
 
-# Spec: Crisol control-plane composition
+# Spec: Harne8 control-plane composition
 
 ## 1. Intent
 
@@ -35,7 +35,7 @@ Creates the paid/enterprise path while preserving a useful free local engine.
 - Use SSO/RBAC, workload identity, tenant isolation, policy bundles, audit and retention.
 
 ### Compatibility
-- The open core shall complete local workflows when Crisol is absent.
+- The open core shall complete local workflows when Harne8 is absent.
 
 ## 3. Technical Plan
 
@@ -80,7 +80,7 @@ Creates the paid/enterprise path while preserving a useful free local engine.
 ### Planned deterministic checks
 - Test: `go test ./... -run 'Conductor|Harness|Policy|Identity'`.
 - Structure: `pose check --strict`.
-- Readiness: `pose lint-spec pose-crisol-control-plane-integration --ready-check`.
+- Readiness: `pose lint-spec pose-harne8-control-plane-integration --ready-check`.
 
 ### Execution status
 - Not executed. This planning spec remains `draft`; delivery requires gate evidence.

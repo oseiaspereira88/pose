@@ -21,18 +21,6 @@
       "to": "pose-structured-validation-results"
     },
     {
-      "from": "pose-crisol-control-plane-integration",
-      "to": "pose-safe-validate-orchestration"
-    },
-    {
-      "from": "pose-crisol-control-plane-integration",
-      "to": "pose-cross-repo-portfolio"
-    },
-    {
-      "from": "pose-crisol-control-plane-integration",
-      "to": "pose-otel-observability"
-    },
-    {
       "from": "pose-cross-repo-portfolio",
       "to": "pose-mcp-project-scope-contract"
     },
@@ -67,6 +55,18 @@
     {
       "from": "pose-followup-ownership-sla",
       "to": "pose-standalone-dogfood"
+    },
+    {
+      "from": "pose-harne8-control-plane-integration",
+      "to": "pose-safe-validate-orchestration"
+    },
+    {
+      "from": "pose-harne8-control-plane-integration",
+      "to": "pose-cross-repo-portfolio"
+    },
+    {
+      "from": "pose-harne8-control-plane-integration",
+      "to": "pose-otel-observability"
     },
     {
       "from": "pose-knowledge-consumption-traceability",
@@ -233,16 +233,6 @@
       "priority": 16,
       "status": "draft"
     },
-    "pose-crisol-control-plane-integration": {
-      "depends_on": [
-        "pose-safe-validate-orchestration",
-        "pose-cross-repo-portfolio",
-        "pose-otel-observability"
-      ],
-      "path": ".pose/specs/pose-crisol-control-plane-integration/spec.md",
-      "priority": 34,
-      "status": "draft"
-    },
     "pose-cross-repo-portfolio": {
       "depends_on": [
         "pose-mcp-project-scope-contract",
@@ -292,6 +282,16 @@
       ],
       "path": ".pose/specs/pose-followup-ownership-sla/spec.md",
       "priority": 12,
+      "status": "draft"
+    },
+    "pose-harne8-control-plane-integration": {
+      "depends_on": [
+        "pose-safe-validate-orchestration",
+        "pose-cross-repo-portfolio",
+        "pose-otel-observability"
+      ],
+      "path": ".pose/specs/pose-harne8-control-plane-integration/spec.md",
+      "priority": 34,
       "status": "draft"
     },
     "pose-knowledge-consumption-traceability": {

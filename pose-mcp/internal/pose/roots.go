@@ -115,7 +115,7 @@ func (r *Roots) Projects() []string {
 // ScanProjectsDir registers each immediate subdirectory of base that contains a
 // .pose/ directory, under the convention project_id = prefix + <dirname>. With an
 // empty prefix the dirname IS the project_id (the canonical onboarding convention:
-// clones land at CRISOL_PROJECTS_DIR/<project_id>).
+// clones land at HARNE8_PROJECTS_DIR/<project_id>).
 func ScanProjectsDir(base, projectIDPrefix string) (map[string]string, error) {
 	out := map[string]string{}
 	if base == "" {

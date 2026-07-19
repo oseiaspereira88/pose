@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	posepkg "github.com/crisol/pose-mcp/internal/pose"
+	posepkg "github.com/harne8/pose-mcp/internal/pose"
 )
 
 type historyRecord struct {

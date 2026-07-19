@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	mcpenforce "github.com/crisol/mcp-enforce"
+	mcpenforce "github.com/harne8/mcp-enforce"
 )
 
 // maxPeekBytes bounds how much of a request body is buffered to inspect the
