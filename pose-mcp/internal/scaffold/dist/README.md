@@ -175,6 +175,12 @@ the optional release-bundle `install.sh`; the runtime itself needs no Bash,
 Python, Node.js or hosted service. Supported release targets are Linux, macOS
 and Windows on `amd64` and `arm64`.
 
+Every release publishes `compatibility.json` (supported engine, schema and
+upgrade pairs) and the generated `compatibility-report.md` (the release gate
+evidence) as release assets. Binary SemVer and repository schema compatibility
+are independent axes: `pose upgrade` migrates an instance forward through
+ordered idempotent migrations; downgrade is unsupported by contract.
+
 ## Run a first governed delivery
 
 ```bash

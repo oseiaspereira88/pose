@@ -1,0 +1,12 @@
+{
+  "matrix_version": 1,
+  "engine_version": "0.9.0",
+  "schema_version": 1,
+  "support_policy": {
+    "window": "Releases from 0.9.0 onward. Every entry in supported_upgrades is exercised by the release compatibility gate: install with the prior release, then upgrade with the candidate.",
+    "downgrade": "unsupported — an instance newer than its engine is always an error; upgrade the engine, never the instance",
+    "schema": "Repository schema compatibility is an independent integer sequence (.pose/schema-version); pose upgrade applies ordered idempotent migrations. SemVer of the binary never implies schema compatibility.",
+    "prior_artifact_authentication": "Each supported prior release pins the SHA-256 of its checksums.txt; the compatibility gate verifies the pin before executing any downloaded binary."
+  },
+  "supported_upgrades": []
+}

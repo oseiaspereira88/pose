@@ -16,12 +16,13 @@ source_refs:
 
 ## Contexto
 
-Roadmap `product-integrity`: milestones `contract-baseline` (1/3) e
-`public-accuracy` (2/3) entregues em 2026-07-19 — specs
-`pose-version-contract`, `pose-standalone-dogfood`,
-`pose-mcp-catalog-conformance` e `pose-public-install-contract` fechadas com
-evidência. Próximo milestone: `release-compatibility`
-(`pose-release-compatibility-matrix`), elegível após este handoff.
+Roadmap `product-integrity` (1 de 7 do portfólio) **concluído em 2026-07-19**:
+os 3 milestones e as 5 specs (`pose-version-contract`,
+`pose-standalone-dogfood`, `pose-mcp-catalog-conformance`,
+`pose-public-install-contract`, `pose-release-compatibility-matrix`) fechadas
+com evidência; roadmap marcado `done`. Próximo do portfólio: roadmap 2
+`supply-chain-trust` (janela 2026-08-03 → 2026-09-18), que depende dos
+contratos de versão/install agora estabelecidos.
 
 ## Estado atual
 
@@ -42,12 +43,15 @@ evidência. Próximo milestone: `release-compatibility`
 
 ## Próximos checks
 
-- Pós-merge: confirmar job `governance` verde e artefato
-  `pose-governance-evidence` retido no primeiro run de CI.
-- Milestone `release-compatibility`: gerar relatório de compatibilidade
-  binário×schema×scaffold×MCP×docs por release candidate
-  (`pose-release-compatibility-matrix`); reaproveitar os contract tests de
-  versão/catálogo como entrada.
+- Pós-merge: confirmar jobs `governance` e (no primeiro release) o gate
+  `tests/release/compat.sh` verdes; artefatos `pose-governance-evidence` e
+  `pose-compatibility-report` retidos.
+- Após o primeiro release pós-0.9.0: adicionar 0.9.0 a `supported_upgrades`
+  no `compatibility.json` com o pin SHA-256 do checksums.txt (follow-up
+  aberto na spec `pose-release-compatibility-matrix`).
+- Roadmap 2 `supply-chain-trust`: começar por `pose-release-signing` e
+  `pose-cyclonedx-sbom`; o gate de compatibilidade e os contract tests são a
+  base para atestar o que será assinado.
 
 ## Riscos
 

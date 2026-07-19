@@ -87,7 +87,8 @@ func skip(rel string, d fs.DirEntry) bool {
 	top := strings.SplitN(rel, string(filepath.Separator), 2)[0]
 	switch top {
 	case ".git", ".github", ".gitignore", ".docs-site-build", ".idea", "pose-mcp", "mcp-enforce", "pose-action",
-		"docs-site", "tests", ".goreleaser.yaml", "dist-release":
+		"docs-site", "tests", ".goreleaser.yaml", "dist-release",
+		"compatibility.json", "compatibility-report.md":
 		return true
 	}
 	// Append-only evidence is instance state, not scaffold: embedding it would

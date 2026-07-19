@@ -16,6 +16,15 @@ jobs:
         run: |
           go -C pose-mcp test ./... -count=1
           bash tests/install/run.sh
+      - name: Compatibility gate (spec pose-release-compatibility-matrix)
+        run: bash tests/release/compat.sh "${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}"
+      - name: Retain compatibility report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pose-compatibility-report
+          path: compatibility-report.md
+          retention-days: 400
       - name: Release notes from changelog fragments
         run: |
           go run ./pose-mcp/cmd/pose release-notes --version "${GITHUB_REF_NAME}" --filter pose > /tmp/notes.md
