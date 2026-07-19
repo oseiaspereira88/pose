@@ -59,11 +59,11 @@ func truncateForAudit(s string) string {
 // Record implements Auditor. The run_id attribute is included only when the
 // decision carries an Execution Identity, keeping anonymous-call logs unchanged.
 //
-// codeql[go/clear-text-logging]: principal/project_id are authorization
-// identifiers from the caller's own request (X-MCP-Principal / project_id),
-// not secrets — recording them is this Auditor's documented purpose (see
-// the package doc: "a complete trail of who invoked what"). Bounded via
-// truncateForAudit as defense in depth against an oversized value.
+// principal/project_id are authorization identifiers from the caller's own
+// request (X-MCP-Principal / project_id), not secrets — recording them is
+// this Auditor's documented purpose (see the package doc: "a complete
+// trail of who invoked what"). Bounded via truncateForAudit as defense in
+// depth against an oversized value.
 func (a *SlogAuditor) Record(ctx context.Context, d PolicyDecision) {
 	args := []any{"principal", truncateForAudit(d.Principal), "project_id", truncateForAudit(d.ProjectID), "tool", d.ToolName}
 	if len(d.ProjectIDs) > 0 {
@@ -73,9 +73,11 @@ func (a *SlogAuditor) Record(ctx context.Context, d PolicyDecision) {
 		args = append(args, "run_id", d.RunID)
 	}
 	if d.Allow {
+		// codeql[go/clear-text-logging] — see the Record doc comment above.
 		a.logger.InfoContext(ctx, a.component+": policy allowed", append(args, "event_type", "policy.decided")...)
 		return
 	}
+	// codeql[go/clear-text-logging] — see the Record doc comment above.
 	a.logger.WarnContext(ctx, a.component+": policy denied",
 		append(args, "violations", d.Violations, "event_type", "policy.violation")...)
 }
