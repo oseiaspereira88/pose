@@ -128,12 +128,38 @@ into 7 roadmaps, 35 implementation specs and dependency-aware release gates.
 
 ## Quickstart
 
-Download the native binary from the repository releases, place `pose` on
-`PATH`, then install POSE into a Git repository:
+Download the released archive for your platform, verify its checksum, place
+`pose` on `PATH`, then install POSE into a Git repository. Release assets are
+named `pose_<version>_<os>_<arch>` — `tar.gz` for Linux and macOS, `zip` for
+Windows — on `linux`/`darwin`/`windows` × `amd64`/`arm64`.
+
+Linux and macOS (bash or zsh; replace `linux_amd64` with your platform):
 
 ```bash
+V=0.9.0
+curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz"
+curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/checksums.txt"
+sha256sum --check --ignore-missing checksums.txt   # macOS: shasum -a 256 -c
+tar -xzf "pose_${V}_linux_amd64.tar.gz" pose
+install -m 0755 pose ~/.local/bin/pose             # any directory on PATH
 pose install /path/to/your/repo
 ```
+
+Windows (PowerShell):
+
+```powershell
+$V = "0.9.0"
+Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/pose_${V}_windows_amd64.zip" -OutFile "pose_${V}_windows_amd64.zip"
+Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/checksums.txt" -OutFile checksums.txt
+(Get-FileHash "pose_${V}_windows_amd64.zip" -Algorithm SHA256).Hash -eq ((Get-Content checksums.txt | Select-String "pose_${V}_windows_amd64.zip") -split '\s+')[0]
+Expand-Archive "pose_${V}_windows_amd64.zip" -DestinationPath .
+# move pose.exe to a directory on PATH, then:
+pose install C:\path\to\your\repo
+```
+
+Always verify the checksum before executing the binary. Never pipe downloaded
+scripts into a shell: the optional `install.sh` in the release bundle is meant
+to be downloaded next to the verified binary and run locally.
 
 The installer:
 

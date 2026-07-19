@@ -9,9 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # pre-extraction path form; after the POSE repo split this becomes
-      # uses: <owner>/pose-action@v1 (marketplace)
-      - uses: <owner>/<repo>/pose-action@main
+      # path form; pin to a release tag or commit SHA in production
+      - uses: oseiaspereira88/pose/pose-action@main
         with:
           mode: strict            # or tolerant
           lint-specs: "true"

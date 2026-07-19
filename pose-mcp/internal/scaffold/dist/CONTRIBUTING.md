@@ -51,6 +51,10 @@ ownership and review rules are:
   verifies them).
 - One cohesive change per PR; follow-ups you discover go into the spec's
   Final Report with a disposition, not into scope creep.
+- Diffs to `internal/mcpserver/testdata/tool-catalog.golden.json` are public
+  API changes: review them as such. Removals or incompatible schema changes
+  additionally require an ADR and a release note (ADR
+  `2026-07-19-mcp-tool-catalog-is-a-release-gated-contract`).
 
 ## Style
 

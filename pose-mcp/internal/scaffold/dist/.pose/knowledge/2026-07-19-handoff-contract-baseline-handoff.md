@@ -16,28 +16,38 @@ source_refs:
 
 ## Contexto
 
-Roadmap `product-integrity`, milestone `contract-baseline` (1 de 3) entregue em
-2026-07-19: specs `pose-version-contract` e `pose-standalone-dogfood` fechadas
-com evidência. Próximo milestone: `public-accuracy`
-(`pose-mcp-catalog-conformance`, `pose-public-install-contract`), elegível após
-este handoff.
+Roadmap `product-integrity`: milestones `contract-baseline` (1/3) e
+`public-accuracy` (2/3) entregues em 2026-07-19 — specs
+`pose-version-contract`, `pose-standalone-dogfood`,
+`pose-mcp-catalog-conformance` e `pose-public-install-contract` fechadas com
+evidência. Próximo milestone: `release-compatibility`
+(`pose-release-compatibility-matrix`), elegível após este handoff.
 
 ## Estado atual
 
 - `pose-mcp/internal/version` é a única autoridade de versão; CLI, MCP
   (stdio/HTTP) e telemetria derivam dela; GoReleaser estampa
-  `internal/version.Version`; `server.json` é pinado por contract test
-  (`internal/version/contract_test.go`).
+  `internal/version.Version`; `server.json`, README quickstart e docs de CI
+  são pinados por contract tests (`internal/version/contract_test.go`).
+- Catálogo MCP congelado por golden fixture
+  (`internal/mcpserver/testdata/tool-catalog.golden.json`) com risk classes e
+  ativação dos tools opcionais; docs `mcp.md` em igualdade exata com o
+  runtime (ADR `2026-07-19-mcp-tool-catalog-is-a-release-gated-contract`).
+- Install contract verificado: quickstart com checksum obrigatório,
+  Windows zip, placeholders removidos, E2E clean-host com doctor+check
+  (ADR `2026-07-19-verified-public-install-contract`).
 - Dogfood ativo: ownership em `module-metadata.json`, job `governance` no CI,
-  auditoria trimestral agendada (`governance-audit.yml`), primeira evidência
-  real em `.pose/reports/`.
+  auditoria trimestral agendada (`governance-audit.yml`), evidência real em
+  `.pose/reports/`.
 
 ## Próximos checks
 
 - Pós-merge: confirmar job `governance` verde e artefato
   `pose-governance-evidence` retido no primeiro run de CI.
-- Milestone `public-accuracy`: começar por `pose_validate` drift (ADR menciona
-  tool inexistente) e placeholders de install (`<owner>/<repo>`).
+- Milestone `release-compatibility`: gerar relatório de compatibilidade
+  binário×schema×scaffold×MCP×docs por release candidate
+  (`pose-release-compatibility-matrix`); reaproveitar os contract tests de
+  versão/catálogo como entrada.
 
 ## Riscos
 

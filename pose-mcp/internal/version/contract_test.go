@@ -76,6 +76,55 @@ func TestRegistryMetadataMatchesReleaseBase(t *testing.T) {
 	}
 }
 
+// spec pose-public-install-contract: the published quickstart and CI docs pin
+// the current release base, reference real release coordinates (no
+// placeholders) and agree with the GoReleaser asset naming template.
+func TestPublicInstallContract(t *testing.T) {
+	base := version.ReleaseBase()
+	readme, err := os.ReadFile("../../../README.md")
+	if err != nil {
+		t.Fatalf("reading README.md: %v", err)
+	}
+	rd := string(readme)
+	for _, want := range []string{
+		"V=" + base + "\n",
+		`$V = "` + base + `"`,
+		"https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz",
+		"checksums.txt",
+	} {
+		if !strings.Contains(rd, want) {
+			t.Errorf("README quickstart missing %q (asset naming or pinned version drifted)", want)
+		}
+	}
+	gorel, err := os.ReadFile("../../../.goreleaser.yaml")
+	if err != nil {
+		t.Fatalf("reading .goreleaser.yaml: %v", err)
+	}
+	gr := string(gorel)
+	for _, want := range []string{
+		`name_template: "pose_{{ .Version }}_{{ .Os }}_{{ .Arch }}"`,
+		"goos: windows",
+		"formats: [zip]",
+	} {
+		if !strings.Contains(gr, want) {
+			t.Errorf(".goreleaser.yaml missing %q (README asset commands would break)", want)
+		}
+	}
+	for _, doc := range []string{"../../../docs-site/docs/ci.md", "../../../pose-action/README.md"} {
+		raw, err := os.ReadFile(doc)
+		if err != nil {
+			t.Fatalf("reading %s: %v", doc, err)
+		}
+		if strings.Contains(string(raw), "<owner>") || strings.Contains(string(raw), "<repo>") {
+			t.Errorf("%s still contains owner/repo placeholders", doc)
+		}
+	}
+	ci, _ := os.ReadFile("../../../docs-site/docs/ci.md")
+	if !strings.Contains(string(ci), "rev: v"+base) {
+		t.Errorf("docs-site/docs/ci.md pre-commit rev is not pinned to v%s", base)
+	}
+}
+
 // R1/R3: the release pipeline stamps the authoritative symbol — and only it.
 func TestReleasePipelineStampsAuthority(t *testing.T) {
 	raw, err := os.ReadFile("../../../.goreleaser.yaml")

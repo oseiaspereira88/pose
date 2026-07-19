@@ -30,6 +30,9 @@ archives:
   - id: default
     ids: [pose]
     formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
     name_template: "pose_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     files:
       - src: LICENSE

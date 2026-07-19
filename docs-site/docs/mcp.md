@@ -37,6 +37,27 @@ environment; no wrapper or second executable is generated.
 | `pose_list_reports` / `pose_get_report` | Validation evidence |
 | `pose_insights` | Deterministic outcome aggregates by workflow, task or context |
 
+Every tool above is classified `read` (repository-owned governance state only)
+except `pose_check` and `pose_lint_spec`, classified `gate` (deterministic
+local gates — no writes, no network). The advertised catalog is a release-gated
+public contract frozen by a golden fixture
+(`pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json`); removals or
+incompatible schema changes require an ADR and a release note.
+
+## Optional tools
+
+Three `external-side-effect` tools report externally observed runs to a
+Harne8 Conductor control plane. They are always advertised in `tools/list`,
+but calls only succeed when the reporter is activated via `CONDUCTOR_URL`,
+`CONDUCTOR_RUN_TOKEN` and `CONDUCTOR_PROJECT_ID`; without activation they
+return an `isError` result with configuration guidance.
+
+| Tool | Effect |
+|---|---|
+| `conductor_run_open` | Open an observed external run (returns `run_id`, `task_id`) |
+| `conductor_run_event` | Append a progress/checkpoint event to an open run |
+| `conductor_run_close` | Close a run with its outcome and cost |
+
 ## Security posture
 
 - Default deny on OPA errors; policy decisions are audited
