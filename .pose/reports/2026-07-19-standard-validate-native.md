@@ -14,27 +14,18 @@
 - _Not provided_
 
 ## Files Changed
-- pose/reports/2026-07-19-standard-validate-native.md
-- .pose/reports/history/standard-validate-native.jsonl
-- .pose/specs/pose-cross-repo-portfolio/spec.md
-- .pose/specs/pose-semantic-governance-assist/spec.md
+- pose/specs/pose-harne8-control-plane-integration/spec.md
+- docs-site/docs/architecture.md
 - docs-site/docs/cli.md
 - pose-mcp/internal/cli/cli.go
-- pose-mcp/internal/cli/lintspec.go
-- pose-mcp/internal/scaffold/dist/.pose/specs/pose-cross-repo-portfolio/spec.md
-- pose-mcp/internal/scaffold/dist/.pose/specs/pose-semantic-governance-assist/spec.md
-- .pose/adr/2026-07-19-cross-repo-portfolio-reuses-mcp-project-authorization.md
-- .pose/adr/2026-07-19-semantic-governance-assist-lexical-only-provider.md
-- .pose/changelogs/unreleased/pose-cross-repo-portfolio.md
-- .pose/changelogs/unreleased/pose-semantic-governance-assist.md
-- pose-mcp/internal/cli/portfolio_projection.go
-- pose-mcp/internal/cli/portfolio_projection_test.go
-- pose-mcp/internal/cli/semantic_suggest.go
-- pose-mcp/internal/cli/semantic_suggest_test.go
-- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-cross-repo-portfolio-reuses-mcp-project-authorization.md
-- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-semantic-governance-assist-lexical-only-provider.md
-- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-cross-repo-portfolio.md
-- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-semantic-governance-assist.md
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-harne8-control-plane-integration/spec.md
+- .pose/adr/2026-07-19-harne8-control-plane-composition-boundaries.md
+- .pose/changelogs/unreleased/pose-harne8-control-plane-integration.md
+- pose-mcp/internal/cli/control_plane_composition_test.go
+- pose-mcp/internal/cli/harness_evidence.go
+- pose-mcp/internal/cli/harness_evidence_test.go
+- pose-mcp/internal/scaffold/dist/.pose/adr/2026-07-19-harne8-control-plane-composition-boundaries.md
+- pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-harne8-control-plane-integration.md
 
 ## Validation Commands
 - _Fill manually_
@@ -43,14 +34,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-07-19T19:44:11Z
+- Generated at (UTC): 2026-07-19T20:11:07Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 25
+- Sequence for task/spec: 26
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-07-19T19:38:14Z
+- Previous execution: 2026-07-19T19:44:11Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

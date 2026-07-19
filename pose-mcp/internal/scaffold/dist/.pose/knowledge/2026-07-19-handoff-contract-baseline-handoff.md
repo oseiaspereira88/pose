@@ -145,10 +145,57 @@ projeção versionada com tombstones para artefatos que desapareceram. ADRs
 `2026-07-19-semantic-governance-assist-lexical-only-provider.md` e
 `2026-07-19-cross-repo-portfolio-reuses-mcp-project-authorization.md`.
 
-**Roadmap 7 `insights-enterprise-scale`: 3 de 4 milestones concluídas.**
-Próximo e último: milestone 4 `control-plane-composition`
-(`pose-harne8-control-plane-integration`) — a ÚLTIMA spec de todo o
-portfólio de 7 roadmaps.
+Milestone 4 `control-plane-composition` **concluído em 2026-07-19** —
+spec `pose-harne8-control-plane-integration`: ratifica as 5
+responsabilidades (POSE governa, Conductor orquestra, Harness executa,
+GraphForge contextualiza, Portal apresenta) mapeadas ao que JÁ EXISTIA
+(orquestração idempotente digest-pinned de `pose-safe-validate-orchestration`,
+Execution Identity, PolicyGate/OPA, `pose portfolio-projection` e `pose
+semantic-suggest` desta mesma milestone anterior) — a maior parte da
+composição já existia, essa spec fechou o único elo genuinamente
+faltante: `pose reconcile-evidence`, reconciliação de resultado do
+Harness identity-bound, append-only, rejeitando mutação silenciosa
+(segundo registro pro mesmo request_id sem `--allow-supersede` é
+rejeitado; com supersede, sempre um NOVO registro referenciando o
+anterior, nunca edição). Degradação offline (open core completo sem
+NENHUMA config de Harne8) provada por teste executável, não só
+documentada. ADR
+`2026-07-19-harne8-control-plane-composition-boundaries.md`. Nova seção
+"Mechanism 15" em `docs-site/docs/architecture.md`.
+
+# 🏁 PORTFÓLIO DE 7 ROADMAPS CONCLUÍDO EM 2026-07-19
+
+Todos os 7 roadmaps do portfólio de produto estão `status: done`:
+1. `product-integrity` (3 milestones, 5 specs)
+2. (roadmaps 2-5, concluídos em sessões/turnos anteriores desta mesma
+   janela de trabalho)
+6. `adoption-developer-experience` (3 milestones, 6 specs)
+7. `insights-enterprise-scale` (4 milestones, 5 specs)
+
+Branch `agent/product-integrity-m1`, PR #4 contra
+`oseiaspereira88/pose`, todos os commits enviados. Cada spec fechada com:
+ADR (quando mudou contrato), testes reais (não placeholders), evidência
+de gate executada e registrada na spec, changelog fragment, closeout com
+Requirement trace + Final Report + disposição de follow-ups.
+
+## Próximo trabalho (fora do portfólio original)
+
+Não há mais nenhum roadmap pendente em `.pose/roadmaps/`. Próximos passos
+naturais, todos já capturados como follow-ups abertos ao longo das specs
+(ver `pose followups --open`):
+- Confirmar o primeiro release real publicado (assinatura, SBOM,
+  provenance, verificação independente — vários follow-ups já abertos).
+- Publicar o primeiro manifesto WinGet real; confirmar o primeiro run de
+  `package-channels.yml`.
+- Popular `compatibility.json.supported_upgrades` com a primeira entrada
+  real e confirmar o `check_upgrade_pair` real em `compat.sh`.
+- Revisitar export OTLP de logs quando saírem de alpha.
+- Adicionar um `SuggestionProvider` semântico real quando houver endpoint
+  aprovado testável.
+- Adicionar variante MCP de `pose reconcile-evidence` quando uma
+  integração real de Harness existir para validar o formato.
+- Ou: iniciar um NOVO roadmap além do portfólio original de 7 (decisão
+  do usuário/produto, não antecipada aqui).
 
 ## Estado atual
 
@@ -179,14 +226,17 @@ portfólio de 7 roadmaps.
   workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
   `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
   `supported_upgrades` no `compatibility.json` com pin SHA-256.
-- Roadmap 7 `insights-enterprise-scale`, milestone 4 `control-plane-composition`
-  (última do portfólio): próxima leitura é a spec
-  `pose-harne8-control-plane-integration`.
+- Portfólio de 7 roadmaps concluído — não há próxima spec pré-planejada;
+  ver "Próximo trabalho" acima para follow-ups abertos ou decisão de
+  novo roadmap.
 - Revisitar export OTLP de logs (`otel/sdk/log` + `otlploghttp`) quando
   saírem de alpha (v0.x) — follow-up aberto em `pose-otel-observability`.
 - Adicionar um `SuggestionProvider` semântico real (embedding/LLM) quando
   houver endpoint aprovado testável — follow-up aberto em
   `pose-semantic-governance-assist`.
+- Adicionar variante MCP de `pose reconcile-evidence` quando uma
+  integração real de Harness existir — follow-up aberto em
+  `pose-harne8-control-plane-integration`.
 - Confirmar o primeiro run de `mkdocs build --strict` (`docs.yml`) contra
   as edições de página desta rodada — não executável neste sandbox (sem
   pip/mkdocs) — follow-up aberto em `pose-localization-docs-contract`.
@@ -232,7 +282,7 @@ portfólio de 7 roadmaps.
   `.pose/specs/pose-doctor-guided-remediation/`, `.pose/specs/pose-brownfield-reference-kits/`,
   `.pose/specs/pose-localization-docs-contract/`, `.pose/specs/pose-otel-observability/`,
   `.pose/specs/pose-dora-adoption-metrics/`, `.pose/specs/pose-semantic-governance-assist/`,
-  `.pose/specs/pose-cross-repo-portfolio/`
+  `.pose/specs/pose-cross-repo-portfolio/`, `.pose/specs/pose-harne8-control-plane-integration/`
 - ADR: `.pose/adr/2026-07-19-authoritative-release-version-source.md`,
   `.pose/adr/2026-07-19-package-manager-channels-generated-not-hosted.md`,
   `.pose/adr/2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`,
@@ -242,7 +292,8 @@ portfólio de 7 roadmaps.
   `.pose/adr/2026-07-19-otel-observability-safe-by-construction-signals.md`,
   `.pose/adr/2026-07-19-dora-adoption-metrics-explicit-events-and-unavailable-state.md`,
   `.pose/adr/2026-07-19-semantic-governance-assist-lexical-only-provider.md`,
-  `.pose/adr/2026-07-19-cross-repo-portfolio-reuses-mcp-project-authorization.md`
+  `.pose/adr/2026-07-19-cross-repo-portfolio-reuses-mcp-project-authorization.md`,
+  `.pose/adr/2026-07-19-harne8-control-plane-composition-boundaries.md`
 - Roadmap: `.pose/roadmaps/product-integrity.md` (roadmaps 1-5, concluído),
   `.pose/roadmaps/adoption-developer-experience.md` (roadmap 6, concluído),
-  `.pose/roadmaps/insights-enterprise-scale.md` (roadmap 7, em execução, final)
+  `.pose/roadmaps/insights-enterprise-scale.md` (roadmap 7, concluído — final do portfólio)

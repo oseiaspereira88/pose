@@ -82,6 +82,19 @@ silently dropping them. Repositories remain authoritative; the
 projection is a reconciled read, never a write back to another
 repository.
 
+## Harness evidence reconciliation
+
+| Command | Purpose |
+|---|---|
+| `pose reconcile-evidence record --run-id ID --request-id ID --execution-id ID --plan-digest SHA --status success\|failure --source harness\|manual [--result-digest SHA] [--allow-supersede]` | Reconcile a Harness execution result into local evidence, identity-bound to the submitting Execution Identity |
+| `pose reconcile-evidence list [--request-id ID] [--json]` | List recorded evidence |
+| `pose reconcile-evidence housekeeping <list-expired\|purge> [--older-than-days N] [--apply]` | Retention for evidence records |
+
+A second record for a `request_id` that already has evidence is rejected
+unless `--allow-supersede` is passed — and even then the prior record is
+never edited or removed, only superseded by a new, explicitly-linked one.
+See [architecture: Harne8 control-plane composition](architecture.md#mechanism-15-harne8-control-plane-composition).
+
 ## Import existing SDD specs
 
 ```bash
