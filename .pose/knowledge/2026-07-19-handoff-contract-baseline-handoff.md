@@ -47,9 +47,28 @@ no-op estrito, instância mais nova falha com remediação explícita; corrigiu
 gap real de symlink-escape nos diretórios gerenciados (`ensureManagedDirSafe`);
 `tests/release/compat.sh` ganhou a mesma profundidade de fixture para pares
 N-minus reais (ainda 0 pares declarados). ADR
-`2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`. Próximo:
-milestone 2 `guided-adoption` (`pose-doctor-guided-remediation`,
-`pose-brownfield-reference-kits`).
+`2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`.
+
+Milestone 2 `guided-adoption` **concluído em 2026-07-19**: (1)
+`pose-doctor-guided-remediation` — findings de `pose doctor` ganharam
+código estável, evidência e `remediation_class` (fixable/detectable/
+blocked), versionado aditivamente via `doctor_schema_version` (JSON prévio
+intacto); `pose doctor --fix` prevê reparos confinados e reversíveis
+(hook pre-commit, `.mcp.json`, symlinks `.claude/skills`) sem mutar nada,
+`--fix --yes` aplica e reverifica, idempotente; redaction defensiva de
+conteúdo secret-shaped. ADR
+`2026-07-19-doctor-guided-remediation-confined-fix-registry.md`. (2)
+`pose-brownfield-reference-kits` — três kits reais e executáveis em
+`examples/brownfield-kits/` (adoção direta, import Spec Kit, import
+OpenSpec), cada um com fixture real intencionalmente incompleta (plan.md/
+design.md ausentes) para exercitar avisos de curadoria de verdade;
+verificados ponta a ponta por teste Go contra o fixture real (preservação
+byte-a-byte, avisos, readiness, rollback via git puro). `examples/`
+adicionado à lista de exclusão do scaffold. ADR
+`2026-07-19-brownfield-kits-checked-in-fixtures-git-native-rollback.md`.
+
+Próximo: milestone 3 `product-polish` (`pose-localization-docs-contract`) —
+última milestone do roadmap 6.
 
 ## Estado atual
 
@@ -80,8 +99,8 @@ milestone 2 `guided-adoption` (`pose-doctor-guided-remediation`,
   workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
   `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
   `supported_upgrades` no `compatibility.json` com pin SHA-256.
-- Roadmap 6 `adoption-developer-experience`, milestone 2 `guided-adoption`:
-  próxima leitura é `pose-doctor-guided-remediation`/`pose-brownfield-reference-kits`.
+- Roadmap 6 `adoption-developer-experience`, milestone 3 `product-polish`:
+  próxima leitura é a spec `pose-localization-docs-contract`.
 - No primeiro release publicado: rodar `pose release-package-manifests`
   real na pipeline, confirmar `package-channels.yml` (macOS/Windows) e
   submeter o primeiro manifesto WinGet ao `winget-pkgs` — follow-ups
@@ -120,9 +139,12 @@ milestone 2 `guided-adoption` (`pose-doctor-guided-remediation`,
 ## Referências
 
 - Specs: `.pose/specs/pose-version-contract/`, `.pose/specs/pose-standalone-dogfood/`,
-  `.pose/specs/pose-package-manager-distribution/`, `.pose/specs/pose-upgrade-compatibility-lab/`
+  `.pose/specs/pose-package-manager-distribution/`, `.pose/specs/pose-upgrade-compatibility-lab/`,
+  `.pose/specs/pose-doctor-guided-remediation/`, `.pose/specs/pose-brownfield-reference-kits/`
 - ADR: `.pose/adr/2026-07-19-authoritative-release-version-source.md`,
   `.pose/adr/2026-07-19-package-manager-channels-generated-not-hosted.md`,
-  `.pose/adr/2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`
+  `.pose/adr/2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`,
+  `.pose/adr/2026-07-19-doctor-guided-remediation-confined-fix-registry.md`,
+  `.pose/adr/2026-07-19-brownfield-kits-checked-in-fixtures-git-native-rollback.md`
 - Roadmap: `.pose/roadmaps/product-integrity.md` (roadmaps 1-5, concluído),
   `.pose/roadmaps/adoption-developer-experience.md` (roadmap 6, em execução)

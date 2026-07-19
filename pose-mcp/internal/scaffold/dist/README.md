@@ -210,6 +210,11 @@ The importer validates the complete batch before writing, rejects symlinks,
 never overwrites an existing spec and reports everything that still needs
 human curation.
 
+See [`examples/brownfield-kits/`](examples/brownfield-kits/) for three
+real, executable adoption journeys — direct adoption, Spec Kit import and
+OpenSpec import — each with a staged visibility-to-blocking-gate guide and
+a rollback story, exercised end to end by the test suite.
+
 ## Adopt progressively
 
 1. **Observe:** install POSE and run checks in tolerant mode.
