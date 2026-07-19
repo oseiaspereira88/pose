@@ -36,6 +36,21 @@ without Bash or Python fallbacks and works offline.
 | `pose index` | Regenerate all indexes (repo-map, spec-graph, roadmaps…) |
 | `pose report --task "..." [--outcome ...] [--since ref]` | Versionable report + history JSONL |
 
+## DORA and adoption metrics
+
+| Command | Purpose |
+|---|---|
+| `pose record-deployment --application A --environment E --status success\|failure --source manual\|ci\|webhook [--deployed-at RFC3339] [--lead-time-seconds N] [--change-ref R]` | Ingest one deployment event |
+| `pose record-incident --application A --started-at RFC3339 --severity minor\|major\|critical --source manual\|ci\|webhook [--resolved-at RFC3339] [--caused-by-deployment]` | Ingest one incident event |
+| `pose dora-metrics [--application A] [--window-days N] [--json]` | The 5 DORA metrics; each reports `unavailable` (never a fabricated zero) without real data |
+| `pose adoption-metrics [--json]` | Activation, time-to-first-gate, retention, task success — derived from specs/history POSE already owns |
+| `pose events-housekeeping <list-expired\|purge> [--older-than-days N] [--apply]` | Retention/deletion for stored deployment/incident events |
+
+Deployment and incident events are explicit input only — POSE never infers
+them from commits — and carry no identity field beyond `application` and
+`source`; every metric is a team/application aggregate, never an
+individual score. See [DORA metrics guide](https://dora.dev/guides/dora-metrics/).
+
 ## Import existing SDD specs
 
 ```bash

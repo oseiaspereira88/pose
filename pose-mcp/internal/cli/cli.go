@@ -103,7 +103,7 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
-	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks", "skills-check":
+	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks", "skills-check", "record-deployment", "record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
@@ -136,6 +136,16 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return cmdHooks(root, args, stdout, stderr)
 		case "suggest":
 			return cmdSuggest(root, args, stdout, stderr)
+		case "record-deployment":
+			return cmdRecordDeployment(root, args, stdout, stderr)
+		case "record-incident":
+			return cmdRecordIncident(root, args, stdout, stderr)
+		case "dora-metrics":
+			return cmdDORAMetrics(root, args, stdout, stderr)
+		case "adoption-metrics":
+			return cmdAdoptionMetrics(root, args, stdout, stderr)
+		case "events-housekeeping":
+			return cmdEventsHousekeeping(root, args, stdout, stderr)
 		default:
 			return cmdStats(root, args, stdout, stderr)
 		}
@@ -237,6 +247,7 @@ Deterministic gates:
 
 Discovery and metrics:
   suggest | stats | recurrence-effect | stacks
+  record-deployment | record-incident | dora-metrics | adoption-metrics
 
 Extensions:
   extension install <dir> [--dry-run] [--yes] [--force] [--allow-unsigned]
@@ -244,7 +255,7 @@ Extensions:
 
 Artifacts and maintenance:
   index | report | upgrade [--dry-run] | knowledge-housekeeping |
-  knowledge-usage | knowledge-suggest | reports-housekeeping | hooks
+  knowledge-usage | knowledge-suggest | reports-housekeeping | events-housekeeping | hooks
 
 All commands execute in the Go binary without Bash or Python fallbacks.
 `
@@ -275,6 +286,7 @@ Gates determinísticos:
 
 Descoberta e métricas:
   suggest | stats | recurrence-effect | stacks
+  record-deployment | record-incident | dora-metrics | adoption-metrics
 
 Extensões:
   extension install <dir> [--dry-run] [--yes] [--force] [--allow-unsigned]
@@ -285,7 +297,7 @@ Geração de artefatos:
 
 Manutenção:
   upgrade [--dry-run] | knowledge-housekeeping | knowledge-usage |
-  knowledge-suggest | reports-housekeeping | hooks
+  knowledge-suggest | reports-housekeeping | events-housekeeping | hooks
 
 Todos os comandos executam no binário Go, sem fallbacks Bash ou Python.
 'pose help' completo por comando: consulte o POSE.md da instância.

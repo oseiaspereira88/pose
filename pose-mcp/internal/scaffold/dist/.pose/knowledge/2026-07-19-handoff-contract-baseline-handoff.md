@@ -103,8 +103,24 @@ usam o SDK estável v1.44.0). Novo pacote `internal/observability`; SDK
 OTel adicionado como dependência real (`go.opentelemetry.io/otel` v1.44.0
 + exporters OTLP/HTTP); `internal/bootstrap.Run` ganhou shutdown gracioso
 (SIGINT/SIGTERM) que não existia antes. ADR
-`2026-07-19-otel-observability-safe-by-construction-signals.md`. Próximo:
-milestone 2 `delivery-outcomes` (`pose-dora-adoption-metrics`).
+`2026-07-19-otel-observability-safe-by-construction-signals.md`.
+
+Milestone 2 `delivery-outcomes` **concluído em 2026-07-19**: spec
+`pose-dora-adoption-metrics` — `pose record-deployment`/`record-incident`
+(ingestão explícita, nunca inferida de commits, com `source` como
+metadado de qualidade); `pose dora-metrics` calcula as 5 métricas DORA
+atuais, cada uma com estado de 3 vias (`value`/`unavailable`+motivo)
+avaliado pelo próprio denominador — nunca zero fabricado sem dado real
+(Reliability é um proxy documentado: % de dias da janela sem incidente
+major/critical em curso); `pose adoption-metrics` deriva ativação/
+time-to-first-gate/retenção/task-success inteiramente de dados que o
+POSE já possui (specs + history), sem nova ingestão. Schema de eventos
+sem NENHUM campo de identidade individual — garantido por teste de
+reflection (`TestNoDORAOrAdoptionTypeExposesIndividualIdentity`), não só
+convenção. `pose events-housekeeping` para retenção/deleção. ADR
+`2026-07-19-dora-adoption-metrics-explicit-events-and-unavailable-state.md`.
+Próximo: milestone 3 `governance-intelligence`
+(`pose-semantic-governance-assist`, `pose-cross-repo-portfolio`).
 
 ## Estado atual
 
@@ -135,8 +151,9 @@ milestone 2 `delivery-outcomes` (`pose-dora-adoption-metrics`).
   workflow `Verify release` (follow-ups abertos em `pose-slsa-provenance` e
   `pose-reproducible-release-verification`); depois adicionar 0.9.0 a
   `supported_upgrades` no `compatibility.json` com pin SHA-256.
-- Roadmap 7 `insights-enterprise-scale`, milestone 2 `delivery-outcomes`:
-  próxima leitura é a spec `pose-dora-adoption-metrics`.
+- Roadmap 7 `insights-enterprise-scale`, milestone 3 `governance-intelligence`:
+  próxima leitura são as specs `pose-semantic-governance-assist` e
+  `pose-cross-repo-portfolio`.
 - Revisitar export OTLP de logs (`otel/sdk/log` + `otlploghttp`) quando
   saírem de alpha (v0.x) — follow-up aberto em `pose-otel-observability`.
 - Confirmar o primeiro run de `mkdocs build --strict` (`docs.yml`) contra
@@ -182,14 +199,16 @@ milestone 2 `delivery-outcomes` (`pose-dora-adoption-metrics`).
 - Specs: `.pose/specs/pose-version-contract/`, `.pose/specs/pose-standalone-dogfood/`,
   `.pose/specs/pose-package-manager-distribution/`, `.pose/specs/pose-upgrade-compatibility-lab/`,
   `.pose/specs/pose-doctor-guided-remediation/`, `.pose/specs/pose-brownfield-reference-kits/`,
-  `.pose/specs/pose-localization-docs-contract/`, `.pose/specs/pose-otel-observability/`
+  `.pose/specs/pose-localization-docs-contract/`, `.pose/specs/pose-otel-observability/`,
+  `.pose/specs/pose-dora-adoption-metrics/`
 - ADR: `.pose/adr/2026-07-19-authoritative-release-version-source.md`,
   `.pose/adr/2026-07-19-package-manager-channels-generated-not-hosted.md`,
   `.pose/adr/2026-07-19-upgrade-compatibility-lab-populated-fixtures.md`,
   `.pose/adr/2026-07-19-doctor-guided-remediation-confined-fix-registry.md`,
   `.pose/adr/2026-07-19-brownfield-kits-checked-in-fixtures-git-native-rollback.md`,
   `.pose/adr/2026-07-19-localization-docs-contract-self-inspecting-tests.md`,
-  `.pose/adr/2026-07-19-otel-observability-safe-by-construction-signals.md`
+  `.pose/adr/2026-07-19-otel-observability-safe-by-construction-signals.md`,
+  `.pose/adr/2026-07-19-dora-adoption-metrics-explicit-events-and-unavailable-state.md`
 - Roadmap: `.pose/roadmaps/product-integrity.md` (roadmaps 1-5, concluído),
   `.pose/roadmaps/adoption-developer-experience.md` (roadmap 6, concluído),
   `.pose/roadmaps/insights-enterprise-scale.md` (roadmap 7, em execução, final)
