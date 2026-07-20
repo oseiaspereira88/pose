@@ -29,7 +29,7 @@ jobs:
           retention-days: 400
       - name: Release notes from changelog fragments
         run: |
-          go run ./pose-mcp/cmd/pose release-notes --version "${GITHUB_REF_NAME}" --filter pose > /tmp/notes.md
+          go -C pose-mcp run ./cmd/pose release-notes --version "${GITHUB_REF_NAME}" --filter pose > /tmp/notes.md
           cat /tmp/notes.md
       - name: Security gate (spec pose-ossf-security-baseline)
         # R3: unresolved critical findings are explicit release-decision
