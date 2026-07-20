@@ -73,10 +73,10 @@ jobs:
         # release that failed verification.
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          go run ./pose-mcp/cmd/pose release-package-manifests \
+          go -C pose-mcp run ./cmd/pose release-package-manifests \
             --version "${GITHUB_REF_NAME#v}" \
-            --checksums dist-release/checksums.txt \
-            --out package-manifests
+            --checksums ../dist-release/checksums.txt \
+            --out ../package-manifests
       - name: Retain package-manager manifests
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
