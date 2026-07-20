@@ -3,7 +3,8 @@
 **Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
 
 **Scope:** POSE open-source distribution  
-**Verified:** 2026-07-18 at repository commit `d9c0b98`
+**Verified:** 2026-07-19 at repository commit `38a248d`, after all 7
+portfolio roadmaps (35 specs) reached `status: done`
 
 POSE is a repository-local governance system for human and AI-assisted software
 delivery. It combines a versioned operating contract, a native deterministic
@@ -71,7 +72,13 @@ The installed instance is data, not another runtime. `pose install` copies the
 contract and templates into the target repository, then runs `init`, `index`
 and `check --strict`. Reinstallation updates managed machinery while preserving
 specs, ADRs, roadmaps, knowledge and reports. `.pose/schema-version` allows the
-engine to apply ordered, idempotent migrations with `pose upgrade`.
+engine to apply ordered, idempotent migrations with `pose upgrade`, verified
+against a populated instance (a real spec, knowledge note and hand-edited
+managed file) for dry-run non-mutation, schema-only apply and idempotent
+reapply. Releases publish through Homebrew and WinGet channels generated
+deterministically from the release's own checksums
+(`pose release-package-manifests`); `pose doctor --fix` turns a subset of
+diagnosable findings into confined, reversible, idempotent repairs.
 
 ## Component model
 
@@ -147,6 +154,13 @@ stateDiagram-v2
 
 The spec remains a living contract: planning, decisions, validation strategy
 and final report stay together rather than becoming disconnected tickets.
+Each `R<N>` also carries a `Requirement trace` entry — `[satisfied]` with
+evidence refs, `[waived: reason]` or `[withdrawn: reason]` — projected
+bidirectionally through `pose_requirement_trace`, so a requirement's
+satisfying checks and commits are queryable, not just asserted. Material
+intent or acceptance-criteria changes after DoR are recorded as append-only,
+reviewed amendments (`pose amend`, `amendments.jsonl`) distinguished from
+editorial edits by a deterministic hash-based gate.
 
 ## Mechanism 3: dependencies, readiness and roadmaps
 
@@ -158,6 +172,11 @@ Roadmaps add milestone DAGs, target dates and exclusive membership of specs in
 active roadmaps. `pose_spec_readiness` resolves the graph for agents and control
 planes. This provides planning eligibility, not transactional task scheduling;
 fine-grained execution state belongs in an external control plane.
+`pose portfolio-projection` extends the same eligibility model across
+repositories through an additive `xref:` reference grammar, reusing the MCP
+server's own project-authorization boundary and surfacing explicit
+`blocked`/`stale`/`unauthorized`/`unknown` states rather than a silently
+outdated view.
 
 ## Mechanism 4: workflows, rules and skills
 
@@ -165,9 +184,15 @@ fine-grained execution state belongs in an external control plane.
   refactor, documentation and recurrence escalation.
 - **Rules** accumulate constraints by domain. Security wins when rules conflict.
 - **Skills** package recurring agent behavior using the portable `SKILL.md`
-  structure defined by the [Agent Skills specification](https://agentskills.io/specification).
+  structure defined by the [Agent Skills specification](https://agentskills.io/specification),
+  continuously validated in CI (`pose skills-check`) with compatibility
+  frontmatter (`pose_schema_range`, `clients`, `capabilities`).
 - **AGENTS.md** keeps precedence and mandatory obligations short enough for
   routine agent loading.
+- **Extensions** — skills, workflows, rules and import adapters not shipped
+  in the base install — declare a versioned `extension.json` manifest (path
+  confinement, permission whitelisting, provenance); `pose extension
+  install/list/remove/verify` is dry-runnable, consent-gated and transactional.
 
 The layers are independent so a team can change a security rule without
 forking every workflow or repeating the same instruction in every prompt.
@@ -204,9 +229,20 @@ flowchart LR
     R -->|pass| E[Evidence]
 ```
 
-Supported baseline stacks are Node.js, Go, Rust and Java. The matrix delegates
-to native project tools such as `npm`, `go`, `cargo`, Maven and Gradle; POSE
-governs selection and evidence rather than replacing those ecosystems.
+Supported baseline stacks are Node.js, Go, Rust, Java, Python (five package
+managers) and .NET; `pose stacks` reports detected stacks read-only. The
+matrix delegates to native project tools such as `npm`, `go`, `cargo`, Maven,
+Gradle, `pip`/`poetry`/`pipenv`/`uv`/`conda` and `dotnet`; POSE governs
+selection and evidence rather than replacing those ecosystems.
+`--changed-from/--changed-to` selects the minimum safe check set from
+declared dependency edges and policy widening, falling back to full
+execution for root-level or unmapped changes; `--explain` prints the
+selection trace. Per-check timeout and output-ceiling guardrails cancel by
+process group on Unix (documented Windows fallback); an
+`isolation: "required"` classification routes checks that must not run
+against untrusted local state to the Harness instead. Results emit through a
+canonical, versioned model with additive `--json`/`--junit`/`--sarif`
+projections alongside the native report.
 
 ## Mechanism 7: evidence, history and insights
 
@@ -218,28 +254,48 @@ silently discarded.
 `pose stats` aggregates outcomes by workflow, task or context. MCP exposes the
 same domain through `pose_insights`. Reports can be archived by retention
 policy, but historical JSONL is preserved as the recurrence source.
+`pose record-deployment`/`record-incident` capture quality-gated delivery
+events; `pose dora-metrics` derives all five current DORA metrics (with a
+documented Reliability proxy) and `pose adoption-metrics` derives
+activation/time-to-first-gate/retention/task-success from the same local
+history — kept in separate reports so adoption is never blended into a DORA
+number as a false causal claim. `events-housekeeping` bounds retention.
 
-POSE evidence is repository-auditable, not a cryptographic build attestation.
-Signed provenance and SBOMs remain release-pipeline responsibilities.
+POSE evidence is repository-auditable, not itself a cryptographic build
+attestation — but release artifacts it produces (Mechanism 10) do carry
+signed provenance and SBOMs; per-spec closeout evidence remains
+Git-history-integrity-protected rather than independently signed.
 
 ## Mechanism 8: follow-ups and recurrence
 
 Closeout dispositions form a controlled vocabulary: open, spawned, covered,
 duplicate, done or wont-do. `pose followups` aggregates the live backlog and
 suggests lexical near-duplicates. Semantic equivalence remains a reviewed
-decision.
+decision. Open follow-ups declare ownership and a triage SLA
+(`owner:@alias crit:low|medium|high review:YYYY-MM-DD`); `pose followups
+--overdue` and opt-in closeout blocking keep unowned or stale entries
+visible instead of silent.
 
 `recurrence-check` scans historical failures by task slug and time window. The
 recurrence workflow converts repeated local fixes into a rule, workflow, spec
-or explicit exception. This is the feedback edge that closes the governance
-loop.
+or explicit exception. `pose semantic-suggest` adds advisory, cited,
+rationale-explained suggestions across knowledge, follow-ups and recurrence
+patterns (lexical similarity today, not an opaque score) with
+`pose suggest-feedback` recording accept/reject; an intervention registry
+(`interventions.jsonl`) feeds a deterministic before/after
+recurrence-effectiveness verdict once a systemic fix ships. This is the
+feedback edge that closes the governance loop.
 
 ## Mechanism 9: operational knowledge
 
 Knowledge artifacts have type, owner, sensitivity, creation/review dates and a
 bounded TTL. `knowledge-check` validates schema and overdue limits;
 housekeeping lists, archives and purges expired entries through explicit apply
-operations. Restricted entries are not returned by MCP.
+operations. Restricted entries are not returned by MCP. A stable
+`knowledge:<slug>` citation contract (dangling-reference gate) plus a derived
+`knowledge-usage` projection show when knowledge actually influenced work,
+not just that it was written; `knowledge-suggest` offers deterministic,
+sensitivity-filtered advisory retrieval.
 
 Knowledge is not a vector database. Its purpose is small, reviewable operational
 memory that survives agent and session boundaries without becoming permanent,
@@ -252,9 +308,17 @@ pipeline consolidates fragments into user-facing notes and builds six native
 platform targets through GoReleaser. GitHub Actions, pre-commit and native Git
 hooks provide progressively stronger adoption paths.
 
-The release artifacts currently include archives, SHA-256 checksums, the
-installer and license material. Cryptographic signatures, SBOMs and SLSA
-provenance are tracked as maturity gaps rather than implied guarantees.
+Every release archive is keyless-signed with Sigstore (offline-verifiable
+bundle, pinned issuer/identity policy), carries a per-archive CycloneDX SBOM
+(direct binary analysis, schema-validated) and a SLSA v1 provenance
+attestation (Build L2, with the L3 limitation stated explicitly rather than
+implied). An independent `Verify release` workflow re-derives trust from a
+clean environment — checksum, signature, SBOM and provenance, in that order —
+before ever executing the artifact; a versioned `compatibility.json`
+(engine/schema/upgrade pairs, support policy) backs a generated
+`compatibility-report.md` gate. The security workflow (CodeQL, govulncheck,
+gitleaks, dependency review) and an OpenSSF Scorecard workflow both publish
+results on every PR, push to `main` and weekly schedule.
 
 ## Mechanism 11: MCP governance API
 
@@ -293,6 +357,13 @@ multi-replica coordination belong to the deployment environment.
 POSE imports Spec Kit and OpenSpec artifacts with a dry-run, bounded file and
 byte budgets, symlink rejection, batch preflight and a curation report. Import
 is intentionally one-way: POSE becomes the lifecycle authority after review.
+Three checked-in, executable adoption kits
+(`examples/brownfield-kits/{direct-adoption,spec-kit-import,openspec-import}/`)
+walk visibility→adoption→blocking-gate staged rollout against real,
+intentionally-imperfect fixtures, each verified end to end by a dedicated
+test. Monorepo adoption gets the same docs-as-tests treatment: three
+executed recipes (JS workspace, declared dependency graph, mixed-language
+with a shared high-criticality module) in `docs-site/docs/monorepo-recipes.md`.
 
 Agents can consume the contract through repository files, Agent Skills or MCP.
 CI systems can call stable CLI commands. This keeps the core independent from
@@ -418,8 +489,14 @@ repository engine.
   are not implemented — a generic resources primitive would expose
   repository files wholesale, and prompts risk becoming policy outside
   `.pose/workflows/`, both explicitly out of scope (see [MCP server](mcp.md)).
-- The baseline validation matrix covers four stack families and relies on
-  repository overrides for other ecosystems.
+- The baseline validation matrix covers six stack families (Node.js, Go,
+  Rust, Java, Python, .NET) and relies on repository overrides for other
+  ecosystems.
+- Remote MCP deployment identity, secret management, TLS and rate limiting
+  remain deployment-environment responsibilities — no roadmap in this
+  portfolio targeted workload identity (SPIFFE) or a policy/audit-export
+  layer beyond the existing OPA decision plus bounded, non-payload audit
+  events.
 
 Use the [capability assessment](capability-assessment.md) for scored maturity,
 evidence and prioritized gaps.
