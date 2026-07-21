@@ -616,6 +616,50 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		trace := pose.ParseRequirementTrace(spec.Body)
 		return map[string]any{"slug": spec.Slug, "status": spec.Status, "trace": trace}, nil
+	case "pose_capability_state":
+		assessment, err := store.LoadCapabilityAssessment()
+		if err != nil {
+			return nil, fmt.Errorf("pose_capability_state: %v", err)
+		}
+		issues := store.ValidateCapabilityEvidence(assessment)
+		if issues == nil {
+			issues = []string{}
+		}
+		ageDays := -1
+		if assessed, err := time.Parse("2006-01-02", assessment.AssessedAt); err == nil {
+			ageDays = int(time.Since(assessed).Hours() / 24)
+		}
+		return map[string]any{
+			"schema_version":  assessment.SchemaVersion,
+			"assessed_at":     assessment.AssessedAt,
+			"baseline_commit": assessment.BaselineCommit,
+			"method":          assessment.Method,
+			"mechanisms":      assessment.Mechanisms,
+			"evidence_issues": issues,
+			"age_days":        ageDays,
+		}, nil
+	case "pose_capability_history":
+		var a struct {
+			Cursor string `json:"cursor"`
+			Limit  int    `json:"limit"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_capability_history: invalid arguments")
+		}
+		events, err := pose.LoadCapabilityHistory(store.CapabilityHistoryPath())
+		if err != nil {
+			return nil, fmt.Errorf("pose_capability_history: %v", err)
+		}
+		effective := pose.EffectiveSnapshots(events)
+		if effective == nil {
+			effective = []pose.CapabilitySnapshot{}
+		}
+		after, err := decodePageCursor(a.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("pose_capability_history: %w", err)
+		}
+		page, next := paginatePage(effective, after, a.Limit)
+		return map[string]any{"snapshots": page, "count": len(page), "next_cursor": next}, nil
 	case "pose_spec_amendments":
 		var a struct {
 			Slug string `json:"slug"`
@@ -1054,6 +1098,43 @@ func toolDefinitions() []map[string]any {
 					},
 				},
 				"required": []string{"slug"},
+			},
+		},
+		{
+			"name": "pose_capability_state",
+			"description": "Current capability assessment of the project: mechanisms with scores, " +
+				"targets, typed evidence references and named gaps, plus evidence-resolution issues " +
+				"and the assessment's age in days. Scores are human judgment; this projection never computes one.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_capability_history",
+			"description": "Append-only capability-assessment snapshots (score vectors by timestamp, " +
+				"supersede-aware), paginated — the mechanical basis for score diffs between dates or releases.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"cursor": map[string]any{
+						"type":        "string",
+						"description": "Opaque pagination cursor from a previous call's next_cursor",
+					},
+					"limit": map[string]any{
+						"type":        "integer",
+						"description": "Maximum snapshots to return; 0 or omitted returns all remaining",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
 			},
 		},
 		{

@@ -70,7 +70,7 @@ before any retrieval, never suggested.
 | `pose assess` | Validate `.pose/capabilities/assessment.md`: schema, typed evidence resolution, stable mechanism ids, staleness vs. policy |
 | `pose assess init` | Scaffold the artifact with the method's 16 default mechanisms |
 | `pose assess snapshot` | Append the current score vector to `history.jsonl` (append-only; no-op when unchanged) |
-| `pose assess diff [--from <ts>] [--to <ts>] [--json]` | Mechanical comparison between two snapshots (raised/lowered/added/retired) |
+| `pose assess diff [--from <ts>] [--to <ts>] [--against <project-id>] [--json]` | Mechanical comparison between two snapshots (raised/lowered/added/retired), or a score matrix against another authorized root |
 
 Scores are human judgment (0-5; the target is not always 5) — the mechanism
 validates structure and evidence, it never computes a score. Evidence uses

@@ -16,6 +16,12 @@
       "optional": true,
       "activation": "Conductor reporter configured (CONDUCTOR_URL, CONDUCTOR_RUN_TOKEN, CONDUCTOR_PROJECT_ID)"
     },
+    "pose_capability_history": {
+      "risk": "read"
+    },
+    "pose_capability_state": {
+      "risk": "read"
+    },
     "pose_check": {
       "risk": "gate"
     },
@@ -140,6 +146,40 @@
         "type": "object"
       },
       "name": "pose_requirement_trace"
+    },
+    {
+      "description": "Current capability assessment of the project: mechanisms with scores, targets, typed evidence references and named gaps, plus evidence-resolution issues and the assessment's age in days. Scores are human judgment; this projection never computes one.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_capability_state"
+    },
+    {
+      "description": "Append-only capability-assessment snapshots (score vectors by timestamp, supersede-aware), paginated — the mechanical basis for score diffs between dates or releases.",
+      "inputSchema": {
+        "properties": {
+          "cursor": {
+            "description": "Opaque pagination cursor from a previous call's next_cursor",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum snapshots to return; 0 or omitted returns all remaining",
+            "type": "integer"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_capability_history"
     },
     {
       "description": "Append-only amendment history of one POSE spec: material requirement changes with affected R-IDs, rationale, author/reviewer aliases and timestamps, plus any current requirement state not yet acknowledged by an amendment event.",

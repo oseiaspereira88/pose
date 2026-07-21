@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -263,12 +264,19 @@ func assessSnapshot(root string, stdout, stderr io.Writer, locale cliLocale) int
 }
 
 func assessDiff(root string, args []string, stdout, stderr io.Writer, locale cliLocale) int {
-	var fromTS, toTS string
+	var fromTS, toTS, against string
 	asJSON := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--json":
 			asJSON = true
+		case "--against":
+			if i+1 >= len(args) {
+				fmt.Fprintln(stderr, cliText(locale, "Error: --against requires a project id", "Erro: --against exige um project id"))
+				return 2
+			}
+			i++
+			against = args[i]
 		case "--from":
 			if i+1 >= len(args) {
 				fmt.Fprintln(stderr, cliText(locale, "Error: --from requires a timestamp", "Erro: --from exige um timestamp"))
@@ -287,6 +295,9 @@ func assessDiff(root string, args []string, stdout, stderr io.Writer, locale cli
 			fmt.Fprintf(stderr, cliText(locale, "Error: invalid argument: %s\n", "Erro: argumento inválido: %s\n"), args[i])
 			return 2
 		}
+	}
+	if against != "" {
+		return assessAgainst(root, against, asJSON, stdout, stderr, locale)
 	}
 	store := pose.Store{Root: root}
 	history, err := pose.LoadCapabilityHistory(store.CapabilityHistoryPath())
@@ -388,4 +399,75 @@ func capabilityTemplate(baselineCommit string) string {
 		fmt.Fprintf(&b, "\n## Mechanism: %s\n- title: %s\n- score: 0\n- target: 3\n- evidence:\n- gaps:\n\nDescribe the current state and why the score holds.\n", m.id, m.title)
 	}
 	return b.String()
+}
+
+// assessAgainst compares the local score vector with another project's,
+// resolved through the same authorization allowlist as the cross-repository
+// portfolio projection (self + scanned projects dir + POSE_PROJECT_ROOTS).
+// Scores and targets only — prose never crosses roots.
+func assessAgainst(root, projectID string, asJSON bool, stdout, stderr io.Writer, locale cliLocale) int {
+	known, err := discoverAuthorizedProjects(root, "")
+	if err != nil {
+		fmt.Fprintf(stderr, "pose assess diff --against: %v\n", err)
+		return 1
+	}
+	otherRoot, authorized := known[projectID]
+	if !authorized {
+		fmt.Fprintf(stderr, cliText(locale,
+			"Error: project %q is not an authorized root (self, HARNE8_PROJECTS_DIR scan, or POSE_PROJECT_ROOTS)\n",
+			"Erro: projeto %q não é um root autorizado (self, scan de HARNE8_PROJECTS_DIR, ou POSE_PROJECT_ROOTS)\n"), projectID)
+		return 1
+	}
+	local, err := pose.Store{Root: root}.LoadCapabilityAssessment()
+	if err != nil {
+		fmt.Fprintf(stderr, "pose assess diff --against: local: %v\n", err)
+		return 1
+	}
+	other, err := pose.Store{Root: otherRoot}.LoadCapabilityAssessment()
+	if err != nil {
+		fmt.Fprintf(stderr, "pose assess diff --against: %s: %v\n", projectID, err)
+		return 1
+	}
+	type cell struct {
+		Score  int  `json:"score"`
+		Target int  `json:"target"`
+		Has    bool `json:"present"`
+	}
+	matrix := map[string]map[string]cell{}
+	add := func(project string, a *pose.CapabilityAssessment) {
+		for _, m := range a.Mechanisms {
+			if m.Retired {
+				continue
+			}
+			if matrix[m.ID] == nil {
+				matrix[m.ID] = map[string]cell{}
+			}
+			matrix[m.ID][project] = cell{Score: m.Score, Target: m.Target, Has: true}
+		}
+	}
+	add("local", local)
+	add(projectID, other)
+	if asJSON {
+		encoded, _ := json.MarshalIndent(map[string]any{"against": projectID, "matrix": matrix}, "", "  ")
+		fmt.Fprintln(stdout, string(encoded))
+		return 0
+	}
+	var ids []string
+	for id := range matrix {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	fmt.Fprintf(stdout, "%-36s %-12s %s\n", "mechanism", "local", projectID)
+	for _, id := range ids {
+		row := matrix[id]
+		fmt.Fprintf(stdout, "%-36s %-12s %s\n", id, formatCell(row["local"].Score, row["local"].Target, row["local"].Has), formatCell(row[projectID].Score, row[projectID].Target, row[projectID].Has))
+	}
+	return 0
+}
+
+func formatCell(score, target int, present bool) string {
+	if !present {
+		return "-"
+	}
+	return fmt.Sprintf("%d/%d", score, target)
 }

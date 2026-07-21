@@ -193,3 +193,30 @@ func TestCheckCapabilitiesOptIn(t *testing.T) {
 		t.Fatalf("dangling ref must fail the check: errors=%d out=%q", checker.errors, out.String())
 	}
 }
+
+func TestAssessDiffAgainstAuthorizationBoundary(t *testing.T) {
+	local := assessTestRoot(t)
+	other := assessTestRoot(t)
+	if code, _, _ := runAssess(t, local, "init"); code != 0 {
+		t.Fatal("init local failed")
+	}
+	if code, _, _ := runAssess(t, other, "init"); code != 0 {
+		t.Fatal("init other failed")
+	}
+
+	// Unauthorized project id: nominal refusal, no read.
+	code, _, errOut := runAssess(t, local, "diff", "--against", "proj.ghost")
+	if code == 0 || !strings.Contains(errOut, "authorized") {
+		t.Fatalf("unauthorized root must refuse: code=%d stderr=%q", code, errOut)
+	}
+
+	// Authorized via POSE_PROJECT_ROOTS: matrix renders both columns.
+	t.Setenv("POSE_PROJECT_ROOTS", `{"proj.other":"`+strings.ReplaceAll(other, `\`, `\\`)+`"}`)
+	code, out, errOut := runAssess(t, local, "diff", "--against", "proj.other")
+	if code != 0 {
+		t.Fatalf("authorized --against failed: %q", errOut)
+	}
+	if !strings.Contains(out, "proj.other") || !strings.Contains(out, "0/3") {
+		t.Fatalf("matrix must show the other project's scores: %q", out)
+	}
+}

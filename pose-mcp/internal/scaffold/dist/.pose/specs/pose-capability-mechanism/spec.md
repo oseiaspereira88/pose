@@ -262,10 +262,11 @@ in Intent and stay tracked below.
 
 ### Follow-ups
 
-- [open] MCP projections `pose_capability_state`/`pose_capability_history`
+- [done] MCP projections `pose_capability_state`/`pose_capability_history`
   (pagination + project_id) with golden tool-catalog update, and multi-root
-  `pose assess diff --against <root>` reusing the portfolio-projection
-  authorization boundary — second increment of the platform-side spec.
+  `pose assess diff --against <project-id>` reusing the portfolio-projection
+  authorization allowlist — delivered as the second increment (32 tools in
+  the golden catalog; unauthorized roots refuse nominally, tested).
 - [open] Reassessment protocol automation (triggers on spec closeout) is
   the platform spec `pose-capability-assessment-triggers`, out of this
   repository until the hooks contract lands.
