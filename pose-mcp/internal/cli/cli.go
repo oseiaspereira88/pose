@@ -82,6 +82,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 		return cmdFollowups(root, args, stdout, stderr)
 	case "amend":
 		return cmdAmend(args, stdout, stderr)
+	case "assess":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose assess: %v\n", err)
+			return 1
+		}
+		return cmdAssess(root, args, stdout, stderr)
 	case "report":
 		root, err := projectRoot()
 		if err != nil {

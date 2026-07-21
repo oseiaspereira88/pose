@@ -11,6 +11,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/harne8/pose-mcp/internal/pose"
 )
 
 const nativeSchemaVersion = 1
@@ -76,6 +78,7 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	checker.checkSpecs()
 	checker.checkChangelogs()
 	checker.checkReadyTransitions()
+	checker.checkCapabilities()
 	if checker.errors > 0 {
 		fmt.Fprintf(stdout, "Resultado: FALHA — estrutura POSE com %d erro(s).\n", checker.errors)
 		return 1
@@ -813,4 +816,26 @@ func splitInlineList(value string) []string {
 	}
 	sort.Strings(result)
 	return result
+}
+
+// checkCapabilities runs the capability-assessment validation (spec
+// pose-capability-mechanism, R7) when the opt-in artifact exists. Absence is
+// not an issue; a present artifact must validate, and staleness surfaces as
+// warnings regardless of mode.
+func (checker *nativeChecker) checkCapabilities() {
+	store := pose.Store{Root: checker.root}
+	if !store.HasCapabilityAssessment() {
+		return
+	}
+	report, err := runAssessValidation(checker.root)
+	if err != nil {
+		checker.failOrWarn(checker.message("capabilities: ", "capabilities: ") + err.Error())
+		return
+	}
+	for _, issue := range report.Errors {
+		checker.failOrWarn(checker.message("capabilities: ", "capabilities: ") + issue)
+	}
+	for _, warning := range report.Warnings {
+		checker.issue("AVISO", checker.message("capabilities: ", "capabilities: ")+warning)
+	}
 }

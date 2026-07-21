@@ -9,6 +9,12 @@ golden fixture and repository checks
 **Purpose:** measure fitness against POSE's own promises and relevant
 best-of-breed practices, not manufacture a universal product ranking.
 
+> **Structured source of truth:** the scores, evidence references and gaps
+> in this document are maintained as a POSE-native artifact at
+> `.pose/capabilities/assessment.md`, validated by `pose assess` (see the
+> CLI reference). This prose remains the narrative; the artifact is the
+> data.
+
 ## Method
 
 Score each mechanism against its stated purpose:

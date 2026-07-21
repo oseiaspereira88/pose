@@ -63,6 +63,23 @@ Suggestions are advisory only — they never gate a check or mutate a spec.
 approved provider today; sensitivity-restricted knowledge is filtered
 before any retrieval, never suggested.
 
+## Capability assessment
+
+| Command | Purpose |
+|---|---|
+| `pose assess` | Validate `.pose/capabilities/assessment.md`: schema, typed evidence resolution, stable mechanism ids, staleness vs. policy |
+| `pose assess init` | Scaffold the artifact with the method's 16 default mechanisms |
+| `pose assess snapshot` | Append the current score vector to `history.jsonl` (append-only; no-op when unchanged) |
+| `pose assess diff [--from <ts>] [--to <ts>] [--json]` | Mechanical comparison between two snapshots (raised/lowered/added/retired) |
+
+Scores are human judgment (0-5; the target is not always 5) — the mechanism
+validates structure and evidence, it never computes a score. Evidence uses
+typed references (`spec:`/`report:`/`adr:`/`knowledge:`/`doc:`/`commit:`/
+`check:`/`url:`); local types must resolve, the rest are syntactic
+(offline contract). `pose check --strict` runs the same validation when the
+artifact exists (opt-in by presence). Staleness thresholds live in
+`.pose/policy/capabilities.json` (defaults: 30 days / 200 commits).
+
 ## Cross-repository portfolio
 
 | Command | Purpose |

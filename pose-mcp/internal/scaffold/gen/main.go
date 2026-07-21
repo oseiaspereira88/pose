@@ -96,6 +96,11 @@ func skip(rel string, d fs.DirEntry) bool {
 	if rel == filepath.Join(".pose", "reports") || strings.HasPrefix(rel, filepath.Join(".pose", "reports")+string(filepath.Separator)) {
 		return true
 	}
+	// Capability assessments (spec pose-capability-mechanism) are instance
+	// state too: each project runs `pose assess init` for its own artifact.
+	if rel == filepath.Join(".pose", "capabilities") || strings.HasPrefix(rel, filepath.Join(".pose", "capabilities")+string(filepath.Separator)) {
+		return true
+	}
 	base := filepath.Base(rel)
 	if base == "pose-mcp" || base == "pose-mcp-claude" {
 		return true // binaries and legacy launchers are never embedded
