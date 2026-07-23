@@ -32,18 +32,18 @@ system-level problems they amplify:
 
 POSE makes each of those concerns an explicit, versioned mechanism.
 
-| Differentiator | What POSE does | Verifiable mechanism |
-|---|---|---|
-| **Governs delivery, not only generation** | Connects planning, execution, acceptance and learning | Specs + workflows + rules + evidence + history |
-| **Gates both entry and exit** | Refuses execution without readiness and refuses done without closeout | `pose lint-spec --ready-check` / `--strict` |
-| **Uses real engineering checks** | Runs repository-native test, lint, typecheck and build commands | `validation-matrix.json` + `pose validate` |
-| **Turns evidence into memory** | Stores versionable reports and append-only history | `.pose/reports/` + `pose report` |
-| **Closes residual work** | Requires a disposition for every follow-up | `pose followups` + closeout vocabulary |
-| **Escalates systemic failure** | Detects recurring task failures and routes structural correction | `pose recurrence-check` + escalation workflow |
-| **Preserves operational context** | Gives handoffs and decisions an owner, sensitivity and TTL | `.pose/knowledge/` + `knowledge-check` |
-| **Plans from dependencies** | Validates spec and milestone DAGs and computes readiness | `depends_on`, roadmaps, `pose_spec_readiness` |
-| **Works across agents** | Exposes short instructions, portable skills and MCP tools | `AGENTS.md`, Agent Skills, `pose serve-mcp` |
-| **Keeps control local** | Runs offline and stores the source of truth in Git | One CGO-free binary; no hosted dependency |
+| Differentiator                            | What POSE does                                                        | Verifiable mechanism                           |
+|-------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------|
+| **Governs delivery, not only generation** | Connects planning, execution, acceptance and learning                 | Specs + workflows + rules + evidence + history |
+| **Gates both entry and exit**             | Refuses execution without readiness and refuses done without closeout | `pose lint-spec --ready-check` / `--strict`    |
+| **Uses real engineering checks**          | Runs repository-native test, lint, typecheck and build commands       | `validation-matrix.json` + `pose validate`     |
+| **Turns evidence into memory**            | Stores versionable reports and append-only history                    | `.pose/reports/` + `pose report`               |
+| **Closes residual work**                  | Requires a disposition for every follow-up                            | `pose followups` + closeout vocabulary         |
+| **Escalates systemic failure**            | Detects recurring task failures and routes structural correction      | `pose recurrence-check` + escalation workflow  |
+| **Preserves operational context**         | Gives handoffs and decisions an owner, sensitivity and TTL            | `.pose/knowledge/` + `knowledge-check`         |
+| **Plans from dependencies**               | Validates spec and milestone DAGs and computes readiness              | `depends_on`, roadmaps, `pose_spec_readiness`  |
+| **Works across agents**                   | Exposes short instructions, portable skills and MCP tools             | `AGENTS.md`, Agent Skills, `pose serve-mcp`    |
+| **Keeps control local**                   | Runs offline and stores the source of truth in Git                    | One CGO-free binary; no hosted dependency      |
 
 ## Where POSE is strongest
 
@@ -72,14 +72,14 @@ These products solve adjacent problems and can be complementary. The useful
 question is not “which tool wins?” but “which part of delivery does each tool
 make authoritative?”
 
-| Solution | Primary strength | POSE's distinction |
-|---|---|---|
-| [GitHub Spec Kit](https://github.com/github/spec-kit/blob/main/docs/reference/overview.md) | Rich SDD lifecycle with agent integrations, extensions, presets, workflows and bundles | POSE emphasizes repository-wide governance after planning: entry/exit gates, validation evidence, recurrence and expiring knowledge |
-| [OpenSpec](https://github.com/Fission-AI/OpenSpec) | Lightweight, agent-neutral brownfield change proposals, deltas and archive-to-source flow | POSE adds deterministic delivery gates, module-aware validation, governed follow-ups, operational history and portfolio readiness |
-| [Kiro](https://aws.amazon.com/documentation-overview/kiro/) | Integrated agentic service with specs, steering and event hooks | POSE is editor/model neutral, offline and owned by the repository |
-| [Backstage](https://backstage.io/docs/features/software-catalog/) | Organization-wide software catalog, templates and developer portal | POSE governs execution inside each repository and can feed a portal/control plane |
-| CI orchestrators | Execute pipelines and display job results | POSE decides the applicable trail, normalizes severity and preserves evidence as governed product data |
-| Issue trackers | Coordinate people, status and portfolio work | POSE makes the engineering contract and acceptance criteria executable beside the code |
+| Solution                                                                                   | Primary strength                                                                          | POSE's distinction                                                                                                                  |
+|--------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| [GitHub Spec Kit](https://github.com/github/spec-kit/blob/main/docs/reference/overview.md) | Rich SDD lifecycle with agent integrations, extensions, presets, workflows and bundles    | POSE emphasizes repository-wide governance after planning: entry/exit gates, validation evidence, recurrence and expiring knowledge |
+| [OpenSpec](https://github.com/Fission-AI/OpenSpec)                                         | Lightweight, agent-neutral brownfield change proposals, deltas and archive-to-source flow | POSE adds deterministic delivery gates, module-aware validation, governed follow-ups, operational history and portfolio readiness   |
+| [Kiro](https://aws.amazon.com/documentation-overview/kiro/)                                | Integrated agentic service with specs, steering and event hooks                           | POSE is editor/model neutral, offline and owned by the repository                                                                   |
+| [Backstage](https://backstage.io/docs/features/software-catalog/)                          | Organization-wide software catalog, templates and developer portal                        | POSE governs execution inside each repository and can feed a portal/control plane                                                   |
+| CI orchestrators                                                                           | Execute pipelines and display job results                                                 | POSE decides the applicable trail, normalizes severity and preserves evidence as governed product data                              |
+| Issue trackers                                                                             | Coordinate people, status and portfolio work                                              | POSE makes the engineering contract and acceptance criteria executable beside the code                                              |
 
 POSE does not replace the specialist strengths above. It provides the
 governance spine that remains stable while agents, editors, CI providers and
@@ -89,14 +89,14 @@ portals change.
 
 POSE is the open-source entry point to the broader **Harne8** platform.
 
-| Start with POSE | Scale with Harne8 |
-|---|---|
-| Repository-local specs and roadmaps | Visual multi-project portfolio |
-| Workflows, rules and portable skills | Durable task orchestration through Conductor |
-| Deterministic validation and evidence | Governed agent execution through Harness |
-| Local insights and recurrence | Central reliability, cost and policy views |
-| Native MCP governance API | Context enrichment through GraphForge |
-| Optional OPA policy enforcement | Central identity, approvals, audit and operations |
+| Start with POSE                       | Scale with Harne8                                 |
+|---------------------------------------|---------------------------------------------------|
+| Repository-local specs and roadmaps   | Visual multi-project portfolio                    |
+| Workflows, rules and portable skills  | Durable task orchestration through Conductor      |
+| Deterministic validation and evidence | Governed agent execution through Harness          |
+| Local insights and recurrence         | Central reliability, cost and policy views        |
+| Native MCP governance API             | Context enrichment through GraphForge             |
+| Optional OPA policy enforcement       | Central identity, approvals, audit and operations |
 
 The boundary is intentional: the free core remains useful by itself, offline
 and vendor neutral. Harne8 adds coordination and visual operation when
@@ -104,20 +104,20 @@ repository-local governance is no longer enough.
 
 ## What is in the box
 
-| Path or component | Purpose |
-|---|---|
-| `pose` binary | Native CLI, installer, gates, reports, metrics, housekeeping and MCP |
-| `.pose/specs/` | Living feature contracts with lifecycle and dependencies |
-| `.pose/workflows/` | Procedures for feature, bugfix, review, refactor, docs and recurrence |
-| `.pose/rules/` | Cumulative security, backend, frontend, Kubernetes, evidence and knowledge rules |
-| `.agents/skills/` | Nine portable Agent Skills; Claude-compatible links are installed |
-| `.pose/roadmaps/` | Governed roadmaps with milestone DAGs and readiness |
-| `.pose/knowledge/` | TTL-governed handoffs, notes and decision logs |
-| `.pose/reports/` | Versionable evidence and append-only JSONL history |
-| `.pose/indexes/` | Repository, module, task, spec-graph and roadmap projections |
-| `pose serve-mcp` | 20 POSE tools over stdio or Streamable HTTP |
-| `mcp-enforce/` | Optional project/run-scoped identity, OPA decisions and audit |
-| `pose-action/` | GitHub Action adapter for deterministic gates |
+| Path or component  | Purpose                                                                          |
+|--------------------|----------------------------------------------------------------------------------|
+| `pose` binary      | Native CLI, installer, gates, reports, metrics, housekeeping and MCP             |
+| `.pose/specs/`     | Living feature contracts with lifecycle and dependencies                         |
+| `.pose/workflows/` | Procedures for feature, bugfix, review, refactor, docs and recurrence            |
+| `.pose/rules/`     | Cumulative security, backend, frontend, Kubernetes, evidence and knowledge rules |
+| `.agents/skills/`  | Nine portable Agent Skills; Claude-compatible links are installed                |
+| `.pose/roadmaps/`  | Governed roadmaps with milestone DAGs and readiness                              |
+| `.pose/knowledge/` | TTL-governed handoffs, notes and decision logs                                   |
+| `.pose/reports/`   | Versionable evidence and append-only JSONL history                               |
+| `.pose/indexes/`   | Repository, module, task, spec-graph and roadmap projections                     |
+| `pose serve-mcp`   | 20 POSE tools over stdio or Streamable HTTP                                      |
+| `mcp-enforce/`     | Optional project/run-scoped identity, OPA decisions and audit                    |
+| `pose-action/`     | GitHub Action adapter for deterministic gates                                    |
 
 Read the [technical architecture](docs-site/docs/architecture.md) for every
 component and mechanism. Read the

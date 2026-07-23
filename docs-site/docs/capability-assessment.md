@@ -19,14 +19,14 @@ best-of-breed practices, not manufacture a universal product ranking.
 
 Score each mechanism against its stated purpose:
 
-| Score | Interpretation |
-|---:|---|
-| 0 | Absent |
-| 1 | Designed or scaffolded |
-| 2 | Functional in a narrow path |
-| 3 | Reliable for a single repository or early team adoption |
-| 4 | Strong product capability with clear operational contracts |
-| 5 | Reference-grade capability with ecosystem, scale and independently verified evidence |
+| Score | Interpretation                                                                       |
+|------:|--------------------------------------------------------------------------------------|
+|     0 | Absent                                                                               |
+|     1 | Designed or scaffolded                                                               |
+|     2 | Functional in a narrow path                                                          |
+|     3 | Reliable for a single repository or early team adoption                              |
+|     4 | Strong product capability with clear operational contracts                           |
+|     5 | Reference-grade capability with ecosystem, scale and independently verified evidence |
 
 The target is not always 5. A local engine should not become a hosted portal
 only to improve a score. Compare each mechanism with the strongest relevant
@@ -58,24 +58,24 @@ handful of specs whose own Final Reports flag a real follow-through step
 still pending (WinGet's `winget-pkgs` submission, a first real
 N-minus-1 `Verify release` run against a published tag).
 
-| Mechanism | Current | Target | Summary |
-|---|---:|---:|---|
-| Install, upgrade and local-first runtime | 5 | 5 | Two real package-manager channels; proven in-place upgrade against a populated instance |
-| Spec lifecycle and closeout | 5 | 5 | Requirement-to-check-to-commit trace and structured amendment history close the prior gap |
-| Task routing, workflows, rules and skills | 5 | 5 | Agent Skills contract is now a CI gate across all 9 skills, both locales |
-| Dependencies, readiness and roadmaps | 4 | 5 | Cross-repository portfolio projection with ownership/criticality; no capacity/time scheduling by design |
-| Validation matrix and structural checks | 5 | 5 | Python/.NET/monorepo stacks, JSON/JUnit/SARIF, timeouts and Harness isolation all delivered |
-| Evidence, history and insights | 4 | 5 | Requirement trace links checks to commits; release artifacts are signed, per-report evidence is not |
-| Follow-ups and recurrence | 5 | 5 | Owner/SLA and measured intervention effectiveness close the prior gap |
-| Knowledge governance | 4 | 5 | Usage traceability and explainable semantic-advisory retrieval delivered; RBAC mapping still open |
-| MCP and agent interoperability | 5 | 5 | Golden-fixture catalog conformance, uniform project scoping, pagination, 30 tools |
-| Policy, identity and audit | 4 | 5 | Identity-gated validation orchestration and bounded audit fields; SPIFFE/secret-mgmt/TLS still external |
-| CI, release and supply-chain trust | 5 | 5 | Signed, SBOM'd, provenance-attested releases; CodeQL/govulncheck/gitleaks/Scorecard all green |
-| Import and adoption interoperability | 4 | 5 | Three executable, end-to-end-tested brownfield kits; no plugin-based custom source schemas yet |
-| Metrics and observability | 5 | 5 | All five DORA metrics and OTel traces/metrics for server operation; log export awaits OTel Logs SDK stability |
-| Documentation, localization and diagnostics | 5 | 5 | Locale-parity bug fixed, self-inspecting docs tests, guided remediation, docs-as-tests monorepo recipes |
-| Extensibility and ecosystem | 5 | 5 | Versioned manifest, install/list/remove/verify, provenance and revocation; community catalog still to populate |
-| Multi-repository and enterprise operation | 4 | 5 | Harne8 boundary ratified and tested; durable orchestration/tenancy remain Harne8's job by design |
+| Mechanism                                   | Current | Target | Summary                                                                                                        |
+|---------------------------------------------|--------:|-------:|----------------------------------------------------------------------------------------------------------------|
+| Install, upgrade and local-first runtime    |       5 |      5 | Two real package-manager channels; proven in-place upgrade against a populated instance                        |
+| Spec lifecycle and closeout                 |       5 |      5 | Requirement-to-check-to-commit trace and structured amendment history close the prior gap                      |
+| Task routing, workflows, rules and skills   |       5 |      5 | Agent Skills contract is now a CI gate across all 9 skills, both locales                                       |
+| Dependencies, readiness and roadmaps        |       4 |      5 | Cross-repository portfolio projection with ownership/criticality; no capacity/time scheduling by design        |
+| Validation matrix and structural checks     |       5 |      5 | Python/.NET/monorepo stacks, JSON/JUnit/SARIF, timeouts and Harness isolation all delivered                    |
+| Evidence, history and insights              |       4 |      5 | Requirement trace links checks to commits; release artifacts are signed, per-report evidence is not            |
+| Follow-ups and recurrence                   |       5 |      5 | Owner/SLA and measured intervention effectiveness close the prior gap                                          |
+| Knowledge governance                        |       4 |      5 | Usage traceability and explainable semantic-advisory retrieval delivered; RBAC mapping still open              |
+| MCP and agent interoperability              |       5 |      5 | Golden-fixture catalog conformance, uniform project scoping, pagination, 30 tools                              |
+| Policy, identity and audit                  |       4 |      5 | Identity-gated validation orchestration and bounded audit fields; SPIFFE/secret-mgmt/TLS still external        |
+| CI, release and supply-chain trust          |       5 |      5 | Signed, SBOM'd, provenance-attested releases; CodeQL/govulncheck/gitleaks/Scorecard all green                  |
+| Import and adoption interoperability        |       4 |      5 | Three executable, end-to-end-tested brownfield kits; no plugin-based custom source schemas yet                 |
+| Metrics and observability                   |       5 |      5 | All five DORA metrics and OTel traces/metrics for server operation; log export awaits OTel Logs SDK stability  |
+| Documentation, localization and diagnostics |       5 |      5 | Locale-parity bug fixed, self-inspecting docs tests, guided remediation, docs-as-tests monorepo recipes        |
+| Extensibility and ecosystem                 |       5 |      5 | Versioned manifest, install/list/remove/verify, provenance and revocation; community catalog still to populate |
+| Multi-repository and enterprise operation   |       4 |      5 | Harne8 boundary ratified and tested; durable orchestration/tenancy remain Harne8's job by design               |
 
 ## Detailed findings
 

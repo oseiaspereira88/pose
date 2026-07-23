@@ -82,16 +82,16 @@ diagnosable findings into confined, reversible, idempotent repairs.
 
 ## Component model
 
-| Component | Responsibility | Primary implementation |
-|---|---|---|
-| Native CLI | Scaffold, validate, inspect, report, migrate and maintain | `pose-mcp/internal/cli/` |
-| Governance domain | Read specs, roadmaps, knowledge, reports and insights | `pose-mcp/internal/pose/` |
-| MCP server | Expose project-scoped governance tools | `pose-mcp/internal/mcpserver/` |
-| Bootstrap | Resolve roots and wire transports, auth and policy | `pose-mcp/internal/bootstrap/` |
-| Installer scaffold | Embed the repository contract and locales | `pose-mcp/internal/scaffold/` |
-| Policy enforcement | Evaluate OPA decisions, identity and audit | `mcp-enforce/` |
-| CI adapters | Run gates in GitHub Actions, pre-commit and Git hooks | `pose-action/`, `.pre-commit-hooks.yaml` |
-| Documentation | Explain operation and public contracts | `docs-site/`, `AGENTS.md`, `POSE.md` |
+| Component          | Responsibility                                            | Primary implementation                   |
+|--------------------|-----------------------------------------------------------|------------------------------------------|
+| Native CLI         | Scaffold, validate, inspect, report, migrate and maintain | `pose-mcp/internal/cli/`                 |
+| Governance domain  | Read specs, roadmaps, knowledge, reports and insights     | `pose-mcp/internal/pose/`                |
+| MCP server         | Expose project-scoped governance tools                    | `pose-mcp/internal/mcpserver/`           |
+| Bootstrap          | Resolve roots and wire transports, auth and policy        | `pose-mcp/internal/bootstrap/`           |
+| Installer scaffold | Embed the repository contract and locales                 | `pose-mcp/internal/scaffold/`            |
+| Policy enforcement | Evaluate OPA decisions, identity and audit                | `mcp-enforce/`                           |
+| CI adapters        | Run gates in GitHub Actions, pre-commit and Git hooks     | `pose-action/`, `.pre-commit-hooks.yaml` |
+| Documentation      | Explain operation and public contracts                    | `docs-site/`, `AGENTS.md`, `POSE.md`     |
 
 ## Installed contract
 
@@ -385,13 +385,13 @@ excluded by contract.
 Five responsibilities compose without moving repository authority
 (spec `pose-harne8-control-plane-integration`):
 
-| Component | Responsibility | Consumes/exposes |
-|---|---|---|
-| POSE (this repository's engine) | Governs — owns specs, gates, evidence, policy input | CLI, MCP tools |
-| Conductor | Orchestrates idempotent governed runs with approvals | `conductor_run_*`, `pose_validate_request/approve/submit/status/cancel` |
-| Harness | Executes an approved, digest-pinned plan | `HarnessExecutor.Submit`, reconciled back via `pose reconcile-evidence` |
-| GraphForge | Contextualizes (semantic code graph) | Consumes `pose portfolio-projection` and `pose semantic-suggest` output |
-| Portal | Presents (portfolio, review UI) | Consumes policy-filtered projections; never a second lifecycle authority |
+| Component                       | Responsibility                                       | Consumes/exposes                                                         |
+|---------------------------------|------------------------------------------------------|--------------------------------------------------------------------------|
+| POSE (this repository's engine) | Governs — owns specs, gates, evidence, policy input  | CLI, MCP tools                                                           |
+| Conductor                       | Orchestrates idempotent governed runs with approvals | `conductor_run_*`, `pose_validate_request/approve/submit/status/cancel`  |
+| Harness                         | Executes an approved, digest-pinned plan             | `HarnessExecutor.Submit`, reconciled back via `pose reconcile-evidence`  |
+| GraphForge                      | Contextualizes (semantic code graph)                 | Consumes `pose portfolio-projection` and `pose semantic-suggest` output  |
+| Portal                          | Presents (portfolio, review UI)                      | Consumes policy-filtered projections; never a second lifecycle authority |
 
 Every boundary already ships in the open core, testable without any Harne8
 component present: `pose_validate_submit` returns a clear configuration

@@ -16,15 +16,15 @@ spec → execution → evidence → follow-ups → recurrence → knowledge
 
 ## Why POSE
 
-| Capability | What it means |
-|---|---|
-| **Definition of Ready gate** | A spec cannot enter execution without intent, requirements with stable acceptance-criteria IDs and a technical plan (`pose lint-spec --ready-check`). |
-| **Closeout gate** | A spec cannot be marked done until its completion date is stamped and *every* follow-up is explicitly dispositioned (`pose lint-spec --strict`). |
-| **Deterministic validation** | A per-stack/per-module matrix runs real commands (`test`, `lint`, `typecheck`, `build`) and produces versionable reports with append-only JSONL history. |
-| **Recurrence detection** | `pose recurrence-check` mines that history for repeated failures and escalates them into systemic fixes instead of endless re-fixing. |
-| **Operational memory** | `.pose/knowledge/` captures handoffs and decision logs with TTL governance — context survives between executions and agents. |
-| **Portfolio graph** | Specs declare dependencies and priorities, organized into governed roadmaps with milestone DAGs, validated on every `pose check`. |
-| **Native MCP surface** | 27 governance tools (read, deterministic gates and an identity-gated validate-orchestration state machine) expose specs, readiness, requirement traces, amendment history, roadmaps, knowledge, reports, insights and changelogs to MCP-capable agents — frozen against a golden catalog fixture — plus 3 optional Conductor run reporters (30 total). |
+| Capability                   | What it means                                                                                                                                                                                                                                                                                                                                          |
+|------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Definition of Ready gate** | A spec cannot enter execution without intent, requirements with stable acceptance-criteria IDs and a technical plan (`pose lint-spec --ready-check`).                                                                                                                                                                                                  |
+| **Closeout gate**            | A spec cannot be marked done until its completion date is stamped and *every* follow-up is explicitly dispositioned (`pose lint-spec --strict`).                                                                                                                                                                                                       |
+| **Deterministic validation** | A per-stack/per-module matrix runs real commands (`test`, `lint`, `typecheck`, `build`) and produces versionable reports with append-only JSONL history.                                                                                                                                                                                               |
+| **Recurrence detection**     | `pose recurrence-check` mines that history for repeated failures and escalates them into systemic fixes instead of endless re-fixing.                                                                                                                                                                                                                  |
+| **Operational memory**       | `.pose/knowledge/` captures handoffs and decision logs with TTL governance — context survives between executions and agents.                                                                                                                                                                                                                           |
+| **Portfolio graph**          | Specs declare dependencies and priorities, organized into governed roadmaps with milestone DAGs, validated on every `pose check`.                                                                                                                                                                                                                      |
+| **Native MCP surface**       | 27 governance tools (read, deterministic gates and an identity-gated validate-orchestration state machine) expose specs, readiness, requirement traces, amendment history, roadmaps, knowledge, reports, insights and changelogs to MCP-capable agents — frozen against a golden catalog fixture — plus 3 optional Conductor run reporters (30 total). |
 
 ## How POSE compares
 
