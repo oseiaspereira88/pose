@@ -111,7 +111,7 @@ func (s Store) LoadCapabilityAssessment() (*CapabilityAssessment, error) {
 // (bad schema, malformed bullets, duplicate ids) fail here; evidence
 // resolution is a separate, root-aware step (ValidateCapabilityEvidence).
 func ParseCapabilityAssessment(content string) (*CapabilityAssessment, error) {
-	fm, body := splitFrontmatter(content)
+	fm, body := SplitFrontmatter(content)
 	assessment := &CapabilityAssessment{}
 
 	schemaRaw, ok := fm["schema_version"]
@@ -245,65 +245,16 @@ func splitSemicolonList(value string) []string {
 	return out
 }
 
-// CapabilityEvidenceTypes lists the supported typed reference prefixes.
-var CapabilityEvidenceTypes = []string{"spec", "report", "adr", "knowledge", "doc", "commit", "check", "url"}
-
 // ValidateCapabilityEvidence resolves every typed evidence reference against
 // this root. It returns one nominal issue string per unresolvable or
 // malformed reference; local file types must exist, commit/check/url are
 // syntactic only (offline contract).
 func (s Store) ValidateCapabilityEvidence(assessment *CapabilityAssessment) []string {
 	var issues []string
-	knowledgeSlugs := map[string]bool{}
-	if entries, err := s.ListKnowledge(); err == nil {
-		for _, entry := range entries {
-			knowledgeSlugs[entry.Slug] = true
-		}
-	}
 	for _, mechanism := range assessment.Mechanisms {
 		for _, ref := range mechanism.Evidence {
-			kind, value, found := strings.Cut(ref, ":")
-			if !found || value == "" {
-				issues = append(issues, fmt.Sprintf("mechanism %q: evidence %q is not a typed reference (<type>:<value>)", mechanism.ID, ref))
-				continue
-			}
-			switch kind {
-			case "spec":
-				if err := ValidateSlug(value); err != nil {
-					issues = append(issues, fmt.Sprintf("mechanism %q: spec reference %q has an invalid slug", mechanism.ID, ref))
-					continue
-				}
-				if _, err := s.GetSpec(value); err != nil {
-					issues = append(issues, fmt.Sprintf("mechanism %q: spec %q not found in .pose/specs", mechanism.ID, value))
-				}
-			case "report":
-				if !localArtifactExists(s.Root, ".pose/reports", value) {
-					issues = append(issues, fmt.Sprintf("mechanism %q: report %q not found in .pose/reports", mechanism.ID, value))
-				}
-			case "adr":
-				if !localArtifactExists(s.Root, ".pose/adr", value) {
-					issues = append(issues, fmt.Sprintf("mechanism %q: adr %q not found in .pose/adr", mechanism.ID, value))
-				}
-			case "knowledge":
-				if !knowledgeSlugs[value] {
-					issues = append(issues, fmt.Sprintf("mechanism %q: knowledge %q not found in .pose/knowledge", mechanism.ID, value))
-				}
-			case "doc":
-				if !localArtifactExists(s.Root, ".", value) {
-					issues = append(issues, fmt.Sprintf("mechanism %q: doc %q not found under the project root", mechanism.ID, value))
-				}
-			case "commit":
-				if !commitRefPattern.MatchString(value) {
-					issues = append(issues, fmt.Sprintf("mechanism %q: commit %q is not a 7-40 char lowercase hex hash", mechanism.ID, value))
-				}
-			case "check":
-				// Syntactic: any non-empty command string is acceptable.
-			case "url":
-				if !strings.HasPrefix(value, "https://") {
-					issues = append(issues, fmt.Sprintf("mechanism %q: url reference %q must start with https://", mechanism.ID, ref))
-				}
-			default:
-				issues = append(issues, fmt.Sprintf("mechanism %q: evidence type %q is not one of %s", mechanism.ID, kind, strings.Join(CapabilityEvidenceTypes, "/")))
+			if ok, reason := s.ResolvePointer(ref); !ok {
+				issues = append(issues, fmt.Sprintf("mechanism %q: %s", mechanism.ID, reason))
 			}
 		}
 	}
@@ -325,8 +276,10 @@ func localArtifactExists(root, base, value string) bool {
 	return err == nil
 }
 
-// CapabilityContentHash fingerprints the artifact content for snapshots.
-func CapabilityContentHash(content string) string {
+// ContentHash12 fingerprints artifact content as a 12-hex-char sha256
+// prefix — shared by capability snapshots and project-state section
+// tampering detection (spec pose-project-state-artifact R4).
+func ContentHash12(content string) string {
 	sum := sha256.Sum256([]byte(content))
 	return hex.EncodeToString(sum[:])[:12]
 }

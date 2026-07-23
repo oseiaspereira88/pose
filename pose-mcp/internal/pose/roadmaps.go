@@ -78,7 +78,7 @@ func parseRoadmapFile(path, slug string, includeBody bool) (*Roadmap, error) {
 	if err != nil {
 		return nil, err
 	}
-	fm, body := splitFrontmatter(string(raw))
+	fm, body := SplitFrontmatter(string(raw))
 	rm := &Roadmap{Slug: slug, Path: path, Milestones: []Milestone{}}
 	for key, value := range fm {
 		switch key {

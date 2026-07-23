@@ -73,6 +73,9 @@
     "pose_list_specs": {
       "risk": "read"
     },
+    "pose_project_state": {
+      "risk": "read"
+    },
     "pose_requirement_trace": {
       "risk": "read"
     },
@@ -245,6 +248,23 @@
         "type": "object"
       },
       "name": "pose_spec_readiness"
+    },
+    {
+      "description": "Read the project-state artifact (.pose/state/project-state.md): the current state of the project in one call instead of scanning specs, roadmaps, follow-ups, capabilities, knowledge and reports individually. Each section is either curated (human prose) or derived (counts + typed pointers, recomputed at `pose state refresh`); the response reports staleness (age/commits since the last refresh) and flags any section hand-edited since then. Returns {initialized: false, message} when the project has not run `pose state init` yet — a project without this artifact is still valid everywhere else.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "section": {
+            "description": "Optional exact section name (e.g. \"Follow-ups\") to fetch only that section — cheaper than reading the full artifact",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_project_state"
     },
     {
       "description": "Read the changelog state (pose-release-changelog): pending unreleased fragments (one per delivered spec) and consolidated release versions; pass a version to load its full body.",

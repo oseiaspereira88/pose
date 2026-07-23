@@ -228,7 +228,7 @@ func assessSnapshot(root string, stdout, stderr io.Writer, locale cliLocale) int
 		Schema:         pose.CapabilitySnapshotSchema,
 		At:             time.Now().UTC().Format(time.RFC3339),
 		BaselineCommit: assessment.BaselineCommit,
-		ContentHash:    pose.CapabilityContentHash(string(raw)),
+		ContentHash:    pose.ContentHash12(string(raw)),
 		Scores:         assessment.ScoresOf(),
 	}
 	history, err := pose.LoadCapabilityHistory(store.CapabilityHistoryPath())

@@ -89,6 +89,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdAssess(root, args, stdout, stderr)
+	case "state":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose state: %v\n", err)
+			return 1
+		}
+		return cmdState(root, args, stdout, stderr)
 	case "report":
 		root, err := projectRoot()
 		if err != nil {
@@ -260,6 +267,9 @@ Deterministic gates:
   check | validate | knowledge-check | recurrence-check | lint-spec |
   followups | amend | history-check | skills-check
 
+Project state:
+  state [init|refresh|diff]           Native project-state artifact (bare = validate)
+
 Discovery and metrics:
   suggest | stats | recurrence-effect | stacks
   record-deployment | record-incident | dora-metrics | adoption-metrics
@@ -299,6 +309,9 @@ Scaffold:
 Gates determinísticos:
   check | validate | knowledge-check | recurrence-check | lint-spec |
   followups | amend | history-check | skills-check
+
+Estado do projeto:
+  state [init|refresh|diff]           Artefato nativo de project-state (sem subcomando = validar)
 
 Descoberta e métricas:
   suggest | stats | recurrence-effect | stacks

@@ -59,6 +59,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_capability_history` | Append-only assessment snapshots (score vectors), supersede-aware and paginated |
 | `pose_spec_amendments` | Append-only amendment history of one spec plus unacknowledged requirement changes |
 | `pose_spec_readiness` | Is a spec eligible? Resolves `depends_on` refs (specs, milestones, roadmaps) |
+| `pose_project_state` | Current project state in one call: curated + derived sections (specs/roadmaps, follow-ups, capabilities, decisions/knowledge, validation evidence, architecture), staleness and tamper detection |
 | `pose_list_roadmaps` / `pose_get_roadmap` | Governed roadmaps and their milestone DAGs |
 | `pose_get_changelog` | User-facing changelog fragments |
 | `pose_get_followups` | Aggregated follow-up backlog |

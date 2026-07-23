@@ -222,7 +222,7 @@ func parseSpecFile(path, slug string, includeBody bool) (*Spec, error) {
 	if err != nil {
 		return nil, fmt.Errorf("pose: reading spec: %w", err)
 	}
-	fm, body := splitFrontmatter(string(raw))
+	fm, body := SplitFrontmatter(string(raw))
 	sp := &Spec{Slug: slug, Path: path}
 	for key, value := range fm {
 		switch key {
@@ -257,7 +257,7 @@ func parseSpecFile(path, slug string, includeBody bool) (*Spec, error) {
 // body. POSE frontmatter is deliberately flat (key: value per line) — that is
 // the whole contract — and template files carry trailing `# comments` on the
 // value, which are stripped.
-func splitFrontmatter(content string) (map[string]string, string) {
+func SplitFrontmatter(content string) (map[string]string, string) {
 	fm := map[string]string{}
 	lines := strings.Split(content, "\n")
 	if len(lines) == 0 || strings.TrimSpace(lines[0]) != "---" {

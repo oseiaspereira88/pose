@@ -9,6 +9,14 @@ capabilities: read, spec-write, validate
 
 # Skill: pose-feature
 
+## Before anything
+
+Read `pose_project_state` (MCP tool) or run `pose state` — when the artifact exists
+and is not stale, it answers "what is the current state of this project?" in one
+call (specs/roadmaps, follow-ups, capabilities, decisions/knowledge, validation
+evidence) instead of scanning the repo from scratch every session. When absent or
+stale, go straight to the reading below — the artifact is additive, never blocking.
+
 ## Required reading
 
 1. [AGENTS.md](../../../AGENTS.md).

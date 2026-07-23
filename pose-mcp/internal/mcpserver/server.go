@@ -714,6 +714,17 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_spec_readiness: required argument %q missing", "slug")
 		}
 		return store.SpecReadiness(a.Slug)
+	case "pose_project_state":
+		var a struct {
+			Section string `json:"section"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_project_state: invalid arguments")
+		}
+		if !store.HasProjectState() {
+			return map[string]any{"initialized": false, "message": "project state not initialized (run `pose state init`)"}, nil
+		}
+		return store.ProjectState(ctx, a.Section)
 	case "pose_get_changelog":
 		var a struct {
 			Version string `json:"version"`
@@ -1222,6 +1233,31 @@ func toolDefinitions() []map[string]any {
 					},
 				},
 				"required": []string{"slug"},
+			},
+		},
+		{
+			"name": "pose_project_state",
+			"description": "Read the project-state artifact (.pose/state/project-state.md): the " +
+				"current state of the project in one call instead of scanning specs, roadmaps, " +
+				"follow-ups, capabilities, knowledge and reports individually. Each section is " +
+				"either curated (human prose) or derived (counts + typed pointers, recomputed at " +
+				"`pose state refresh`); the response reports staleness (age/commits since the last " +
+				"refresh) and flags any section hand-edited since then. Returns " +
+				"{initialized: false, message} when the project has not run `pose state init` yet — " +
+				"a project without this artifact is still valid everywhere else.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"section": map[string]any{
+						"type": "string",
+						"description": "Optional exact section name (e.g. \"Follow-ups\") to fetch only " +
+							"that section — cheaper than reading the full artifact",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
 			},
 		},
 		{

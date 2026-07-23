@@ -88,7 +88,7 @@ func parseKnowledgeFile(path string, includeBody bool) (*KnowledgeEntry, error) 
 	if err != nil {
 		return nil, fmt.Errorf("pose: reading knowledge entry: %w", err)
 	}
-	fm, body := splitFrontmatter(string(raw))
+	fm, body := SplitFrontmatter(string(raw))
 	ke := &KnowledgeEntry{}
 	for key, value := range fm {
 		switch key {

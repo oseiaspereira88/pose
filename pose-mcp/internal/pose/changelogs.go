@@ -47,7 +47,7 @@ func (s Store) GetChangelog(version string) (*Changelog, error) {
 			if readErr != nil {
 				continue
 			}
-			fm, body := splitFrontmatter(string(raw))
+			fm, body := SplitFrontmatter(string(raw))
 			out.Unreleased = append(out.Unreleased, ChangelogFragment{
 				Spec:     fm["spec"],
 				Category: fm["category"],
