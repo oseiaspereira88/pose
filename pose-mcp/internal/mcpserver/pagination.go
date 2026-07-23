@@ -22,8 +22,25 @@ const pageCursorVersion = 1
 // tool the way project_id once did.
 const (
 	sharedCursorDescription = "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it."
-	sharedLimitDescription  = "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)"
+	sharedLimitDescription  = "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete."
 )
+
+// largeResultThreshold is the total-match count above which list responses
+// attach a structured `notice` (spec pose-mcp-query-ergonomics R4). The goal
+// is to surface the "this is a lot, consider filtering/paging" signal in the
+// same response that would otherwise silently grow past a client's token
+// budget — not only after the caller has already hit that wall once.
+const largeResultThreshold = 20
+
+// listNotice returns a hint string when total exceeds largeResultThreshold,
+// or "" when the result is small enough that no nudge is warranted. hint
+// names the tool-specific filter/paging levers available to narrow it.
+func listNotice(total int, hint string) string {
+	if total <= largeResultThreshold {
+		return ""
+	}
+	return fmt.Sprintf("%d items matched. Response may be large — %s.", total, hint)
+}
 
 type pageCursor struct {
 	V     int `json:"v"`

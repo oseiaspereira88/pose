@@ -701,7 +701,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_list_specs: %w", err)
 		}
 		page, next := paginatePage(specs, after, a.Limit)
-		return map[string]any{"specs": page, "count": len(page), "next_cursor": next}, nil
+		result := map[string]any{"specs": page, "count": len(page), "total": len(specs), "next_cursor": next}
+		if notice := listNotice(len(specs), `narrow with "status" (comma-separated, e.g. "draft,in-progress") or page with "limit"/"cursor"`); notice != "" {
+			result["notice"] = notice
+		}
+		return result, nil
 	case "pose_spec_readiness":
 		var a struct {
 			Slug string `json:"slug"`
@@ -735,7 +739,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_list_roadmaps: %w", err)
 		}
 		page, next := paginatePage(roadmaps, after, a.Limit)
-		return map[string]any{"roadmaps": page, "count": len(page), "next_cursor": next}, nil
+		result := map[string]any{"roadmaps": page, "count": len(page), "total": len(roadmaps), "next_cursor": next}
+		if notice := listNotice(len(roadmaps), `page with "limit"/"cursor" (no status filter exists for this tool)`); notice != "" {
+			result["notice"] = notice
+		}
+		return result, nil
 	case "pose_get_roadmap":
 		var a struct {
 			Slug string `json:"slug"`
@@ -849,7 +857,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_list_knowledge: %w", err)
 		}
 		page, next := paginatePage(items, after, a.Limit)
-		return map[string]any{"entries": page, "count": len(page), "next_cursor": next}, nil
+		result := map[string]any{"entries": page, "count": len(page), "total": len(items), "next_cursor": next}
+		if notice := listNotice(len(items), `page with "limit"/"cursor" (no filter exists for this tool)`); notice != "" {
+			result["notice"] = notice
+		}
+		return result, nil
 	case "pose_get_knowledge":
 		var a struct {
 			Slug string `json:"slug"`
@@ -875,7 +887,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_list_reports: %w", err)
 		}
 		page, next := paginatePage(reports, after, a.Limit)
-		return map[string]any{"reports": page, "count": len(page), "next_cursor": next}, nil
+		result := map[string]any{"reports": page, "count": len(page), "total": len(reports), "next_cursor": next}
+		if notice := listNotice(len(reports), `page with "limit"/"cursor" (no filter exists for this tool)`); notice != "" {
+			result["notice"] = notice
+		}
+		return result, nil
 	case "pose_get_report":
 		var a struct {
 			Filename string `json:"filename"`
@@ -1161,13 +1177,16 @@ func toolDefinitions() []map[string]any {
 			"name": "pose_list_specs",
 			"description": "List every POSE spec of the project with its lifecycle frontmatter " +
 				"(no body). Optionally filter by status: draft, in-progress, done, blocked, " +
-				"superseded or abandoned.",
+				"superseded or abandoned. Large unfiltered projects should always pass status.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
 					"status": map[string]any{
-						"type":        "string",
-						"description": "Optional lifecycle filter",
+						"type": "string",
+						"description": "Optional lifecycle filter: draft, in-progress, done, blocked, " +
+							"superseded or abandoned. Pass multiple as a comma-separated list in one " +
+							"call, e.g. \"draft,in-progress,blocked\" for everything still open — " +
+							"cheaper than one call per status.",
 					},
 					"project_id": map[string]any{
 						"type":        "string",

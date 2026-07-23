@@ -187,6 +187,43 @@ func TestListSpecs_StatusFilter(t *testing.T) {
 	}
 }
 
+// TestListSpecs_MultiStatusFilter exercises the comma-separated status
+// filter (spec pose-mcp-query-ergonomics R1): a caller wanting "everything
+// open" should get it in one call instead of one round trip per status.
+func TestListSpecs_MultiStatusFilter(t *testing.T) {
+	s := fixtureStore(t)
+
+	open, err := s.ListSpecs("draft,in-progress")
+	if err != nil {
+		t.Fatalf("ListSpecs(draft,in-progress): %v", err)
+	}
+	gotSlugs := map[string]bool{}
+	for _, sp := range open {
+		gotSlugs[sp.Slug] = true
+	}
+	if len(open) != 2 || !gotSlugs["beta"] || !gotSlugs["split-spec"] {
+		t.Errorf("multi-status filter = %+v, want [beta split-spec]", open)
+	}
+
+	// Case-insensitive and tolerant of stray whitespace around commas.
+	spaced, err := s.ListSpecs(" DRAFT , In-Progress ")
+	if err != nil {
+		t.Fatalf("ListSpecs(spaced): %v", err)
+	}
+	if len(spaced) != 2 {
+		t.Errorf("spaced multi-status filter = %+v, want 2 items", spaced)
+	}
+
+	// A single value keeps behaving exactly as before comma-splitting existed.
+	draftOnly, err := s.ListSpecs("draft")
+	if err != nil {
+		t.Fatalf("ListSpecs(draft): %v", err)
+	}
+	if len(draftOnly) != 1 || draftOnly[0].Slug != "beta" {
+		t.Errorf("single-value filter regressed: %+v", draftOnly)
+	}
+}
+
 // TestIntegration_DogfoodRepo exercises the store against the real .pose/ of
 // this repository (the platform reading its own governance).
 func TestIntegration_DogfoodRepo(t *testing.T) {

@@ -69,8 +69,12 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 }
 
 // ListSpecs returns the frontmatter of every spec (no body), sorted by slug.
-// status, when non-empty, filters case-insensitively on the lifecycle state.
+// status, when non-empty, filters case-insensitively on the lifecycle state;
+// multiple states can be requested in one call as a comma-separated list
+// (e.g. "draft,in-progress,blocked") so a caller wanting "everything open"
+// does not need one round trip per status.
 func (s Store) ListSpecs(status string) ([]Spec, error) {
+	wanted := splitStatusFilter(status)
 	entries, err := os.ReadDir(s.specsDir())
 	if err != nil {
 		return nil, fmt.Errorf("pose: reading specs dir: %w", err)
@@ -101,13 +105,43 @@ func (s Store) ListSpecs(status string) ([]Spec, error) {
 		if err != nil {
 			continue // one unparseable artifact must not break the listing
 		}
-		if status != "" && !strings.EqualFold(sp.Status, status) {
+		if len(wanted) > 0 && !statusMatchesAny(sp.Status, wanted) {
 			continue
 		}
 		specs = append(specs, *sp)
 	}
 	sort.Slice(specs, func(i, j int) bool { return specs[i].Slug < specs[j].Slug })
 	return specs, nil
+}
+
+// splitStatusFilter parses a status filter into its wanted values. A plain
+// value ("draft") behaves exactly as before; a comma-separated value
+// ("draft,in-progress") is split into multiple wanted states. Blank entries
+// (from stray commas or surrounding whitespace) are dropped. An empty input
+// returns nil, meaning "no filter" — the pre-existing behavior.
+func splitStatusFilter(status string) []string {
+	if status == "" {
+		return nil
+	}
+	parts := strings.Split(status, ",")
+	wanted := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			wanted = append(wanted, p)
+		}
+	}
+	return wanted
+}
+
+// statusMatchesAny reports whether specStatus case-insensitively equals any
+// of the wanted values.
+func statusMatchesAny(specStatus string, wanted []string) bool {
+	for _, w := range wanted {
+		if strings.EqualFold(specStatus, w) {
+			return true
+		}
+	}
+	return false
 }
 
 var splitSpecSectionFiles = []string{

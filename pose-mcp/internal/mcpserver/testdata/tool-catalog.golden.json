@@ -202,7 +202,7 @@
       "name": "pose_spec_amendments"
     },
     {
-      "description": "List every POSE spec of the project with its lifecycle frontmatter (no body). Optionally filter by status: draft, in-progress, done, blocked, superseded or abandoned.",
+      "description": "List every POSE spec of the project with its lifecycle frontmatter (no body). Optionally filter by status: draft, in-progress, done, blocked, superseded or abandoned. Large unfiltered projects should always pass status.",
       "inputSchema": {
         "properties": {
           "cursor": {
@@ -210,7 +210,7 @@
             "type": "string"
           },
           "limit": {
-            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
             "type": "integer"
           },
           "project_id": {
@@ -218,7 +218,7 @@
             "type": "string"
           },
           "status": {
-            "description": "Optional lifecycle filter",
+            "description": "Optional lifecycle filter: draft, in-progress, done, blocked, superseded or abandoned. Pass multiple as a comma-separated list in one call, e.g. \"draft,in-progress,blocked\" for everything still open — cheaper than one call per status.",
             "type": "string"
           }
         },
@@ -272,7 +272,7 @@
             "type": "string"
           },
           "limit": {
-            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
             "type": "integer"
           },
           "project_id": {
@@ -489,7 +489,7 @@
             "type": "string"
           },
           "limit": {
-            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
             "type": "integer"
           },
           "project_id": {
@@ -530,7 +530,7 @@
             "type": "string"
           },
           "limit": {
-            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape)",
+            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
             "type": "integer"
           },
           "project_id": {

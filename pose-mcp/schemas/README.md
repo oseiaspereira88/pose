@@ -17,7 +17,7 @@ do `pose-mcp`, conforme a política da
 
 | Schema | Tools |
 |---|---|
-| `v1/spec.schema.json` | `pose_get_spec`; itens de `pose_list_specs` (envelope `{specs: [...], count}`) |
+| `v1/spec.schema.json` | `pose_get_spec`; itens de `pose_list_specs` (envelope `{specs: [...], count, total, next_cursor, notice?}`) |
 | `v1/artifact.schema.json` | `pose_get_workflow`, `pose_get_rules`; itens dos envelopes de listagem (`{workflows|rules: [...], count}`) |
 | `v1/gate-result.schema.json` | `pose_check`, `pose_lint_spec` |
 | `v1/insights.schema.json` | `pose_insights`; saída JSON de `pose stats` |

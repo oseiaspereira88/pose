@@ -144,6 +144,78 @@ func TestPaginationConsistentAcrossStdioAndHTTP(t *testing.T) {
 	}
 }
 
+// mixedStatusFixture builds specs across three lifecycle states so the
+// comma-separated status filter (spec pose-mcp-query-ergonomics R1) has
+// something real to discriminate over the wire, not just at the domain layer
+// (already covered by TestListSpecs_MultiStatusFilter in internal/pose).
+func mixedStatusFixture(t *testing.T) *httptest.Server {
+	t.Helper()
+	root := t.TempDir()
+	write := func(slug, status string) {
+		path := filepath.Join(root, ".pose", "specs", slug, "spec.md")
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		body := fmt.Sprintf("---\nslug: %s\nstatus: %s\ncreated_at: 2026-06-01\n---\n\n# %s\n", slug, status, slug)
+		if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("alpha", "draft")
+	write("beta", "in-progress")
+	write("gamma", "done")
+	ts := httptest.NewServer(New(pose.Store{Root: root}).Handler("", ""))
+	t.Cleanup(ts.Close)
+	return ts
+}
+
+func TestToolsCall_ListSpecs_MultiStatusFilterOverMCP(t *testing.T) {
+	ts := mixedStatusFixture(t)
+	slugs, _ := listSpecsPage(t, ts, "", 0) // sanity: three specs exist
+	if len(slugs) != 3 {
+		t.Fatalf("fixture setup: got %d specs, want 3", len(slugs))
+	}
+
+	req := `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{"status":"draft,in-progress"}}}`
+	_, out := post(t, ts, req)
+	sc, _ := out.Result["structuredContent"].(map[string]any)
+	items, _ := sc["specs"].([]any)
+	got := map[string]bool{}
+	for _, it := range items {
+		got[it.(map[string]any)["slug"].(string)] = true
+	}
+	if len(got) != 2 || !got["alpha"] || !got["beta"] {
+		t.Fatalf("multi-status filter over MCP = %+v, want [alpha beta]", sc["specs"])
+	}
+	if sc["total"] != float64(2) {
+		t.Errorf("total = %v, want 2", sc["total"])
+	}
+}
+
+func TestToolsCall_ListSpecs_LargeResultAttachesNotice(t *testing.T) {
+	ts := paginationFixture(t, largeResultThreshold+1)
+	req := `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{}}}`
+	_, out := post(t, ts, req)
+	sc, _ := out.Result["structuredContent"].(map[string]any)
+	notice, _ := sc["notice"].(string)
+	if notice == "" {
+		t.Fatalf("expected a notice field once total (%d) exceeds the threshold (%d); got structuredContent=%+v", largeResultThreshold+1, largeResultThreshold, sc)
+	}
+	if sc["total"] != float64(largeResultThreshold+1) {
+		t.Errorf("total = %v, want %d", sc["total"], largeResultThreshold+1)
+	}
+}
+
+func TestToolsCall_ListSpecs_SmallResultHasNoNotice(t *testing.T) {
+	ts := paginationFixture(t, largeResultThreshold)
+	req := `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{}}}`
+	_, out := post(t, ts, req)
+	sc, _ := out.Result["structuredContent"].(map[string]any)
+	if _, hasNotice := sc["notice"]; hasNotice {
+		t.Errorf("did not expect a notice field at exactly the threshold (%d); got %v", largeResultThreshold, sc["notice"])
+	}
+}
+
 func TestListToolsShareThePaginationSchema(t *testing.T) {
 	paginated := map[string]bool{"pose_list_specs": true, "pose_list_roadmaps": true, "pose_list_knowledge": true, "pose_list_reports": true}
 	found := map[string]bool{}
