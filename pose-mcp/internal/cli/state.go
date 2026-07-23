@@ -18,7 +18,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/harne8/pose-mcp/internal/pose"
 )
@@ -63,11 +62,11 @@ func cmdState(root string, args []string, stdout, stderr io.Writer) int {
 	case "init":
 		return cmdStateInit(root, stdout, stderr)
 	case "refresh":
-		return cmdStateRefresh(root, stdout, stderr)
+		return cmdStateRefresh(root, args[1:], stdout, stderr)
 	case "diff":
 		return cmdStateDiff(root, stdout, stderr)
 	default:
-		return usageError(stderr, "Usage: pose state [init|refresh|diff]")
+		return usageError(stderr, "Usage: pose state [init|refresh [--if-stale]|diff]")
 	}
 }
 
@@ -77,109 +76,46 @@ func cmdStateInit(root string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "Error: project state already exists: %s\n", store.StatePath())
 		return 1
 	}
-	curated := map[string]string{
-		"Resumo executivo": curatedExecSummaryPlaceholder,
-		"Direção atual":    curatedDirectionPlaceholder,
+	if _, err := runRefresh(root, refreshOptions{Trigger: "manual"}, false); err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
-	return writeProjectState(root, curated, stdout, stderr, "Project state initialized: %s\n")
+	fmt.Fprintf(stdout, "Project state initialized: %s\n", store.StatePath())
+	return 0
 }
 
-func cmdStateRefresh(root string, stdout, stderr io.Writer) int {
+// cmdStateRefresh is the manual/CI entry point (R7): full refresh of every
+// derived section. --if-stale skips the work entirely when the artifact is
+// not yet stale — the cheap check a CI job wants to run every build without
+// paying refresh cost on every single one.
+func cmdStateRefresh(root string, args []string, stdout, stderr io.Writer) int {
+	ifStale := false
+	for _, a := range args {
+		switch a {
+		case "--if-stale":
+			ifStale = true
+		default:
+			return usageError(stderr, "Usage: pose state refresh [--if-stale]")
+		}
+	}
 	store := pose.Store{Root: root}
 	if !store.HasProjectState() {
 		fmt.Fprintf(stderr, "Error: project state not found: %s (run `pose state init` first)\n", store.StatePath())
 		return 1
 	}
-	curated, err := loadCuratedSections(store.StatePath())
-	if err != nil {
-		fmt.Fprintf(stderr, "Error: reading existing project state: %v\n", err)
-		return 1
-	}
-	return writeProjectState(root, curated, stdout, stderr, "Project state refreshed: %s\n")
-}
-
-// writeProjectState computes every derived section, renders the artifact
-// deterministically, writes it atomically and appends one history entry.
-// curated carries the section bodies to preserve verbatim (init: seeded
-// placeholders; refresh: whatever a human/agent already wrote).
-func writeProjectState(root string, curated map[string]string, stdout, stderr io.Writer, successMsg string) int {
-	store := pose.Store{Root: root}
-	baseline := gitHeadCommit(root)
-	now := time.Now().UTC()
-	policy := store.LoadStatePolicy()
-
-	type rendered struct {
-		name, kind, status, body string
-	}
-	var sections []rendered
-	historySections := map[string]stateHistorySection{}
-	for _, def := range stateSectionOrder {
-		if def.curated {
-			body := curated[def.name]
-			if body == "" {
-				body = curatedExecSummaryPlaceholder
-			}
-			sections = append(sections, rendered{name: def.name, kind: "curated", body: body})
-			continue
-		}
-		body, status := deriveSection(store, def.name)
-		hash := pose.ContentHash12(body)
-		sections = append(sections, rendered{name: def.name, kind: "derived", status: status, body: body})
-		historySections[def.name] = stateHistorySection{Hash: hash, Body: body}
-	}
-
-	var out strings.Builder
-	fmt.Fprintf(&out, "---\nschema_version: %d\ngenerated_at: %s\nbaseline_commit: %s\nstaleness_policy: %s\n---\n\n# Project State\n",
-		pose.ProjectStateSchema, now.Format(time.RFC3339), baseline, pose.FormatStalenessPolicy(policy))
-	for _, sec := range sections {
-		fmt.Fprintf(&out, "\n## %s\n", sec.name)
-		switch sec.kind {
-		case "curated":
-			fmt.Fprintf(&out, "<!-- state:curated -->\n\n%s\n", sec.body)
-		default:
-			hash := pose.ContentHash12(sec.body)
-			if sec.status != "" {
-				fmt.Fprintf(&out, "<!-- state:derived hash:%s status:%s -->\n\n%s\n", hash, sec.status, sec.body)
-			} else {
-				fmt.Fprintf(&out, "<!-- state:derived hash:%s -->\n\n%s\n", hash, sec.body)
-			}
+	if ifStale {
+		state, err := store.ProjectState(context.Background(), "")
+		if err == nil && !state.Staleness.Stale {
+			fmt.Fprintln(stdout, "Project state is not stale; --if-stale skipped the refresh. Result: SUCCESS")
+			return 0
 		}
 	}
-
-	if err := writeAtomic(store.StatePath(), []byte(out.String()), 0o644); err != nil {
-		fmt.Fprintf(stderr, "Error: writing project state: %v\n", err)
+	if _, err := runRefresh(root, refreshOptions{Trigger: "manual"}, true); err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
 		return 1
 	}
-	if err := appendStateHistory(store.StateHistoryPath(), stateHistoryEntry{
-		GeneratedAt: now.Format(time.RFC3339), BaselineCommit: baseline, Sections: historySections,
-	}); err != nil {
-		fmt.Fprintf(stderr, "Error: appending state history: %v\n", err)
-		return 1
-	}
-	fmt.Fprintf(stdout, successMsg, store.StatePath())
+	fmt.Fprintf(stdout, "Project state refreshed: %s\n", store.StatePath())
 	return 0
-}
-
-// loadCuratedSections re-reads the existing artifact and returns only its
-// curated section bodies, unchanged — refresh must never touch curated
-// prose (spec Restrições).
-func loadCuratedSections(path string) (map[string]string, error) {
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	fm, body := pose.SplitFrontmatter(string(raw))
-	state, err := pose.ParseProjectState(fm, body)
-	if state == nil {
-		return nil, err
-	}
-	curated := map[string]string{}
-	for _, sec := range state.Sections {
-		if sec.Kind == "curated" {
-			curated[sec.Name] = sec.Body
-		}
-	}
-	return curated, nil
 }
 
 func cmdStateValidate(root string, stdout, stderr io.Writer) int {
@@ -212,6 +148,9 @@ func cmdStateValidate(root string, stdout, stderr io.Writer) int {
 	}
 	for _, issue := range brokenPointers {
 		fmt.Fprintf(stdout, "[BROKEN POINTER] %s\n", issue)
+	}
+	if state.RefreshPending != "" {
+		fmt.Fprintf(stdout, "[REFRESH PENDING] a %q-triggered refresh failed and has not been retried yet — run `pose state refresh`\n", state.RefreshPending)
 	}
 
 	if tampered > 0 || len(brokenPointers) > 0 {

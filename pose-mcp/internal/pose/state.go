@@ -34,10 +34,16 @@ const (
 	DefaultStaleMaxCommits = 20
 )
 
-// StatePolicy is the staleness policy read from .pose/policy/state.json.
+// StatePolicy is the staleness/refresh policy read from
+// .pose/policy/state.json. StrictRefresh (spec
+// pose-project-state-refresh-contract R5) is refresh-mode configuration,
+// not a staleness threshold — it never appears in the frontmatter's
+// staleness_policy snapshot (FormatStalenessPolicy only serializes the two
+// staleness fields).
 type StatePolicy struct {
-	MaxAgeDays int `json:"max_age_days"`
-	MaxCommits int `json:"max_commits"`
+	MaxAgeDays    int  `json:"max_age_days"`
+	MaxCommits    int  `json:"max_commits"`
+	StrictRefresh bool `json:"strict_refresh"`
 }
 
 // ProjectStateSection is one "## <Name>" section of the artifact.
@@ -77,7 +83,12 @@ type ProjectState struct {
 	Sections                    []ProjectStateSection `json:"sections"`
 	Staleness                   ProjectStateStaleness `json:"staleness"`
 	Tampered                    bool                  `json:"tampered"`
-	Path                        string                `json:"path"`
+	// RefreshPending is the hook event kind a failed automatic refresh
+	// could not process (spec pose-project-state-refresh-contract R5) —
+	// "" when no refresh is pending. Cleared by the next successful
+	// refresh, regardless of what triggered it.
+	RefreshPending string `json:"refresh_pending,omitempty"`
+	Path           string `json:"path"`
 }
 
 func (s Store) stateDir() string { return filepath.Join(s.Root, ".pose", "state") }
@@ -118,6 +129,7 @@ func (s Store) LoadStatePolicy() StatePolicy {
 	if parsed.MaxCommits > 0 {
 		policy.MaxCommits = parsed.MaxCommits
 	}
+	policy.StrictRefresh = parsed.StrictRefresh
 	return policy
 }
 
@@ -158,7 +170,8 @@ var stateSectionMarker = regexp.MustCompile(`^<!--\s*state:(curated|derived)(?:\
 func ParseProjectState(fm map[string]string, body string) (*ProjectState, error) {
 	state := &ProjectState{SchemaVersion: atoiDefault(fm["schema_version"], 0),
 		GeneratedAt: fm["generated_at"], BaselineCommit: fm["baseline_commit"],
-		StalenessPolicyAtGeneration: parseStalenessPolicyField(fm["staleness_policy"])}
+		StalenessPolicyAtGeneration: parseStalenessPolicyField(fm["staleness_policy"]),
+		RefreshPending:              fm["refresh_pending"]}
 
 	lines := strings.Split(body, "\n")
 	var current *ProjectStateSection

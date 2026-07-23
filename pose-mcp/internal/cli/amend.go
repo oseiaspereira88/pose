@@ -194,6 +194,10 @@ func cmdAmend(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
+	if hookErr := EmitHook(root, HookEvent{Kind: "spec_amend", Target: slug, Commit: gitHeadCommit(root), At: time.Now().UTC()}); hookErr != nil {
+		fmt.Fprintf(stderr, "pose amend: %v\n", hookErr)
+		return 1
+	}
 	fmt.Fprintf(stdout, cliText(locale, "Amendment recorded: [%s] %s → %s\n", "Amendment registrado: [%s] %s → %s\n"), event.Change, strings.Join(event.IDs, ","), logPath)
 	return 0
 }

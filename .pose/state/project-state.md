@@ -1,8 +1,9 @@
 ---
 schema_version: 1
-generated_at: 2026-07-23T23:10:42Z
-baseline_commit: 9206089f088a006ad8634a77cf797d7baa099bcd
+generated_at: 2026-07-23T23:35:15Z
+baseline_commit: 3c1c9fb86abe134aede19b3c5a9653e03fdd3fbf
 staleness_policy: max_age_days=7,max_commits=20
+refresh_pending: 
 ---
 
 # Project State

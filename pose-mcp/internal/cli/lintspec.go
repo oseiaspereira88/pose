@@ -603,7 +603,9 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 				fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: no consolidated spec.md (pre-unified-template format)\n", "[AVISO] %s: sem spec.md consolidado (formato pré-template-único)\n"), name)
 			}
 		}
-	} else {
+	}
+	var closeoutHookErr error
+	if target != "--all" {
 		specMD := filepath.Join(specsDir, target, "spec.md")
 		if _, err := os.Stat(specMD); err != nil {
 			legacy := filepath.Join(specsDir, target+".md")
@@ -615,6 +617,11 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 			}
 		}
 		lintOne(specMD)
+		if totalFailed == 0 && mode == "strict" {
+			if fm, err := readFlatFrontmatter(specMD); err == nil && fm["status"] == "done" {
+				closeoutHookErr = EmitHook(root, HookEvent{Kind: "spec_closeout", Target: target, Commit: gitHeadCommit(root), At: time.Now().UTC()})
+			}
+		}
 	}
 
 	fmt.Fprintln(stdout)
@@ -628,6 +635,11 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, cliText(locale, "Tolerant mode: record a follow-up to complete specs.", "Modo tolerant: registrar follow-up para completar specs."))
 		fmt.Fprintln(stdout, "Resultado: FALHA_TOLERADA")
 		return 0
+	}
+	if closeoutHookErr != nil {
+		fmt.Fprintf(stderr, "pose lint-spec: %v\n", closeoutHookErr)
+		fmt.Fprintln(stdout, "Resultado: FALHA (state-refresh estrito falhou no pós-closeout)")
+		return 1
 	}
 	fmt.Fprintln(stdout, "Resultado: SUCESSO")
 	return 0

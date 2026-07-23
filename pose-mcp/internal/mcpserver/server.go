@@ -1240,11 +1240,14 @@ func toolDefinitions() []map[string]any {
 			"description": "Read the project-state artifact (.pose/state/project-state.md): the " +
 				"current state of the project in one call instead of scanning specs, roadmaps, " +
 				"follow-ups, capabilities, knowledge and reports individually. Each section is " +
-				"either curated (human prose) or derived (counts + typed pointers, recomputed at " +
-				"`pose state refresh`); the response reports staleness (age/commits since the last " +
-				"refresh) and flags any section hand-edited since then. Returns " +
-				"{initialized: false, message} when the project has not run `pose state init` yet — " +
-				"a project without this artifact is still valid everywhere else.",
+				"either curated (human prose) or derived (counts + typed pointers, automatically " +
+				"recomputed after spec closeout, amend, evidence reconciliation and capability " +
+				"snapshot events); the response reports staleness (age/commits since the last " +
+				"refresh), flags any section hand-edited since then, and surfaces " +
+				"`refresh_pending` when an automatic refresh failed and has not succeeded since. " +
+				"Returns {initialized: false, message} when the project has not run " +
+				"`pose state init` yet — a project without this artifact is still valid everywhere " +
+				"else.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{

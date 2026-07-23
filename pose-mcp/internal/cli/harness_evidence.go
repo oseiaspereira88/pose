@@ -170,6 +170,10 @@ func cmdReconcileEvidenceRecord(root string, args []string, stdout, stderr io.Wr
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
+	if hookErr := EmitHook(root, HookEvent{Kind: "evidence_reconciled", Target: ev.RequestID, Commit: gitHeadCommit(root), At: time.Now().UTC()}); hookErr != nil {
+		fmt.Fprintf(stderr, "pose reconcile-evidence record: %v\n", hookErr)
+		return 1
+	}
 	fmt.Fprintf(stdout, "evidence recorded: request_id=%s run_id=%s status=%s\n", ev.RequestID, ev.RunID, ev.Status)
 	return 0
 }

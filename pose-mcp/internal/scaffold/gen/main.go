@@ -101,6 +101,14 @@ func skip(rel string, d fs.DirEntry) bool {
 	if rel == filepath.Join(".pose", "capabilities") || strings.HasPrefix(rel, filepath.Join(".pose", "capabilities")+string(filepath.Separator)) {
 		return true
 	}
+	// The project-state artifact and its logs (spec pose-project-state-artifact)
+	// are this instance's own generated state, same category as reports/
+	// and capabilities/ above — .pose/policy/state.json (the policy
+	// *defaults*, sibling of dor.json) is not under this path and stays
+	// embedded normally.
+	if rel == filepath.Join(".pose", "state") || strings.HasPrefix(rel, filepath.Join(".pose", "state")+string(filepath.Separator)) {
+		return true
+	}
 	base := filepath.Base(rel)
 	if base == "pose-mcp" || base == "pose-mcp-claude" {
 		return true // binaries and legacy launchers are never embedded

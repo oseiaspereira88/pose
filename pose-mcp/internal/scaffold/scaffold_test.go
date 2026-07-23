@@ -59,7 +59,8 @@ func listSource(t *testing.T, root string) map[string][]byte {
 			return nil
 		}
 		// Mirrors gen/main.go: append-only evidence is instance state, not scaffold.
-		if strings.HasPrefix(filepath.ToSlash(rel), ".pose/reports") || strings.HasPrefix(filepath.ToSlash(rel), ".pose/capabilities") {
+		if strings.HasPrefix(filepath.ToSlash(rel), ".pose/reports") || strings.HasPrefix(filepath.ToSlash(rel), ".pose/capabilities") ||
+			strings.HasPrefix(filepath.ToSlash(rel), ".pose/state") {
 			if d.IsDir() {
 				return filepath.SkipDir
 			}

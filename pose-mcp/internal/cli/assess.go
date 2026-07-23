@@ -257,6 +257,10 @@ func assessSnapshot(root string, stdout, stderr io.Writer, locale cliLocale) int
 		fmt.Fprintf(stderr, "pose assess snapshot: %v\n", err)
 		return 1
 	}
+	if hookErr := EmitHook(root, HookEvent{Kind: "assessment_snapshot", Commit: assessment.BaselineCommit, At: time.Now().UTC()}); hookErr != nil {
+		fmt.Fprintf(stderr, "pose assess snapshot: %v\n", hookErr)
+		return 1
+	}
 	fmt.Fprintf(stdout, cliText(locale,
 		"Snapshot appended: %s (%d mechanisms, content hash %s)\n",
 		"Snapshot acrescentado: %s (%d mecanismos, content hash %s)\n"), event.At, len(event.Scores), event.ContentHash)
