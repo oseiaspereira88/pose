@@ -1,8 +1,8 @@
 ---
 schema_version: 1
-assessed_at: 2026-07-19
-baseline_commit: 38a248d
-method: local source inspection, spec Final Reports for all 35 delivered specs, pose doctor --json, MCP tools/list golden fixture and repository checks
+assessed_at: 2026-07-22
+baseline_commit: c9a08fa
+method: local source inspection, delivered-spec Final Reports, pose doctor --json, pose assess, MCP tools/list golden fixture and repository checks
 ---
 
 # Capability assessment
@@ -61,10 +61,11 @@ Python/.NET/monorepo stacks, JSON/JUnit/SARIF, timeouts and Harness isolation de
 - title: Evidence, history and insights
 - score: 4
 - target: 5
-- evidence: spec:pose-requirement-evidence-traceability, spec:pose-release-signing, spec:pose-slsa-provenance
+- evidence: spec:pose-requirement-evidence-traceability, spec:pose-release-signing, spec:pose-slsa-provenance, spec:pose-capability-mechanism
 - gaps: provenance covers release artifacts, not per-spec closeout evidence; closeout actor identity is Git identity, not a captured structured field
 
-Release artifacts signed; per-report evidence is not.
+Release artifacts are signed and capability evidence now has typed resolution
+plus append-only snapshots; per-report actor attestation is still absent.
 
 ## Mechanism: followups-recurrence
 - title: Follow-ups and recurrence
@@ -88,10 +89,10 @@ Usage traceability and explainable semantic-advisory retrieval delivered.
 - title: MCP and agent interoperability
 - score: 5
 - target: 5
-- evidence: spec:pose-mcp-catalog-conformance, spec:pose-mcp-project-scope-contract, spec:pose-mcp-protocol-completeness
+- evidence: spec:pose-mcp-catalog-conformance, spec:pose-mcp-project-scope-contract, spec:pose-mcp-protocol-completeness, spec:pose-capability-mechanism
 - gaps:
 
-Golden-fixture catalog conformance, uniform project scoping, pagination, 30 tools.
+Golden-fixture catalog conformance, uniform project scoping, pagination, 32 tools.
 
 ## Mechanism: policy-identity-audit
 - title: Policy, identity and audit
@@ -133,10 +134,11 @@ All five DORA metrics and OTel traces/metrics for server operation.
 - title: Documentation, localization and diagnostics
 - score: 5
 - target: 5
-- evidence: spec:pose-localization-docs-contract, spec:pose-doctor-guided-remediation
+- evidence: spec:pose-localization-docs-contract, spec:pose-doctor-guided-remediation, spec:pose-capability-mechanism
 - gaps:
 
-Locale-parity bug fixed, self-inspecting docs tests, guided remediation.
+Locale-parity bug fixed, self-inspecting docs tests, guided remediation and a
+structured assessment as the source behind the narrative documentation.
 
 ## Mechanism: extensibility-ecosystem
 - title: Extensibility and ecosystem
