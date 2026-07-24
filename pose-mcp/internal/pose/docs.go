@@ -49,6 +49,11 @@ type DocsEntry struct {
 	// manifest's DefaultReviewDays counted from the doc's last touching
 	// commit (same two-tier shape as the capability/project-state policies).
 	ReviewAfter string `json:"review_after,omitempty"`
+	// Sensitive excludes this doc from `pose docs-sync export` by default
+	// (spec harne8-platform-wiki-sync Restrições) — the wiki bundle never
+	// carries a sensitive doc's content unless a project explicitly
+	// allowlists it (future extension); V1 ships the exclusion half.
+	Sensitive bool `json:"sensitive,omitempty"`
 }
 
 // DocsManifest is `.pose/docs.json` (R1).

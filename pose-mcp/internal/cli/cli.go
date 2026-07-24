@@ -117,6 +117,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdDocsReview(root, args, stdout, stderr)
+	case "docs-sync":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose docs-sync: %v\n", err)
+			return 1
+		}
+		return cmdDocsSync(root, args, stdout, stderr)
 	case "report":
 		root, err := projectRoot()
 		if err != nil {
