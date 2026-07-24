@@ -6,6 +6,7 @@ completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on:          # prerequisites, inline list: other-spec, milestone:<roadmap>/<id>, roadmap:<slug>
 priority:            # integer >= 0 (lower = higher priority); ordering preference, not a blocker
+components:          # optional, inline comma-separated list: modules/components touched (e.g. mcp-server, cli) — used by pose_list_specs' `components` filter
 ---
 
 # Spec: <feature-slug>

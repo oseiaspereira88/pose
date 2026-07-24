@@ -23,6 +23,7 @@ type Spec struct {
 	Supersedes  string   `json:"supersedes,omitempty"`
 	DependsOn   []string `json:"depends_on,omitempty"`
 	Priority    *int     `json:"priority,omitempty"`
+	Components  []string `json:"components,omitempty"`
 	Title       string   `json:"title,omitempty"`
 	Path        string   `json:"path"`
 	Body        string   `json:"body,omitempty"`
@@ -72,9 +73,17 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 // status, when non-empty, filters case-insensitively on the lifecycle state;
 // multiple states can be requested in one call as a comma-separated list
 // (e.g. "draft,in-progress,blocked") so a caller wanting "everything open"
-// does not need one round trip per status.
-func (s Store) ListSpecs(status string) ([]Spec, error) {
-	wanted := splitStatusFilter(status)
+// does not need one round trip per status. components, when non-empty,
+// filters case-insensitively on the spec's `components:` frontmatter tags
+// (also comma-separated) with OR semantics: a spec is included when at
+// least one of its tags matches at least one requested value — a
+// cross-cutting spec tagged with several components stays visible from any
+// one of them. Either filter left empty applies no filtering on that axis,
+// preserving the pre-existing behavior for callers that only care about
+// status.
+func (s Store) ListSpecs(status, components string) ([]Spec, error) {
+	wantedStatus := splitStatusFilter(status)
+	wantedComponents := splitCommaFilter(components)
 	entries, err := os.ReadDir(s.specsDir())
 	if err != nil {
 		return nil, fmt.Errorf("pose: reading specs dir: %w", err)
@@ -105,7 +114,10 @@ func (s Store) ListSpecs(status string) ([]Spec, error) {
 		if err != nil {
 			continue // one unparseable artifact must not break the listing
 		}
-		if len(wanted) > 0 && !statusMatchesAny(sp.Status, wanted) {
+		if len(wantedStatus) > 0 && !statusMatchesAny(sp.Status, wantedStatus) {
+			continue
+		}
+		if len(wantedComponents) > 0 && !componentsMatchAny(sp.Components, wantedComponents) {
 			continue
 		}
 		specs = append(specs, *sp)
@@ -114,16 +126,16 @@ func (s Store) ListSpecs(status string) ([]Spec, error) {
 	return specs, nil
 }
 
-// splitStatusFilter parses a status filter into its wanted values. A plain
-// value ("draft") behaves exactly as before; a comma-separated value
-// ("draft,in-progress") is split into multiple wanted states. Blank entries
-// (from stray commas or surrounding whitespace) are dropped. An empty input
-// returns nil, meaning "no filter" — the pre-existing behavior.
-func splitStatusFilter(status string) []string {
-	if status == "" {
+// splitCommaFilter parses a comma-separated filter into its wanted values. A
+// plain value ("draft") behaves exactly as a single-element list; a
+// comma-separated value ("draft,in-progress") is split into multiple wanted
+// values. Blank entries (from stray commas or surrounding whitespace) are
+// dropped. An empty input returns nil, meaning "no filter".
+func splitCommaFilter(value string) []string {
+	if value == "" {
 		return nil
 	}
-	parts := strings.Split(status, ",")
+	parts := strings.Split(value, ",")
 	wanted := make([]string, 0, len(parts))
 	for _, p := range parts {
 		if p = strings.TrimSpace(p); p != "" {
@@ -133,11 +145,32 @@ func splitStatusFilter(status string) []string {
 	return wanted
 }
 
+// splitStatusFilter parses a status filter into its wanted values (see
+// splitCommaFilter).
+func splitStatusFilter(status string) []string { return splitCommaFilter(status) }
+
+// caseInsensitiveMatchesAny reports whether value case-insensitively equals
+// any of the wanted values.
+func caseInsensitiveMatchesAny(value string, wanted []string) bool {
+	for _, w := range wanted {
+		if strings.EqualFold(value, w) {
+			return true
+		}
+	}
+	return false
+}
+
 // statusMatchesAny reports whether specStatus case-insensitively equals any
 // of the wanted values.
 func statusMatchesAny(specStatus string, wanted []string) bool {
-	for _, w := range wanted {
-		if strings.EqualFold(specStatus, w) {
+	return caseInsensitiveMatchesAny(specStatus, wanted)
+}
+
+// componentsMatchAny reports whether specComponents shares at least one tag,
+// case-insensitively, with wanted (OR semantics).
+func componentsMatchAny(specComponents []string, wanted []string) bool {
+	for _, c := range specComponents {
+		if caseInsensitiveMatchesAny(c, wanted) {
 			return true
 		}
 	}
@@ -239,11 +272,13 @@ func parseSpecFile(path, slug string, includeBody bool) (*Spec, error) {
 		case "supersedes":
 			sp.Supersedes = value
 		case "depends_on":
-			sp.DependsOn = parseDependsOn(value)
+			sp.DependsOn = parseInlineList(value)
 		case "priority":
 			if n, err := strconv.Atoi(value); err == nil && n >= 0 {
 				sp.Priority = &n
 			}
+		case "components":
+			sp.Components = parseInlineList(value)
 		}
 	}
 	sp.Title = firstHeading(body)
@@ -287,10 +322,11 @@ func cleanValue(v string) string {
 	return strings.TrimSpace(v)
 }
 
-// parseDependsOn parses the flat inline list of dependency refs ("a, b" or
-// "[a, b]"). Refs keep their typed prefixes (milestone:/roadmap:) verbatim —
-// resolution semantics live in SpecReadiness, not in parsing.
-func parseDependsOn(value string) []string {
+// parseInlineList parses a flat inline list value ("a, b" or "[a, b]") into
+// its trimmed, non-empty items. Used for both `depends_on` (refs keep their
+// typed prefixes, e.g. milestone:/roadmap:, verbatim — resolution semantics
+// live in SpecReadiness, not in parsing) and `components` (free-form tags).
+func parseInlineList(value string) []string {
 	value = strings.TrimSpace(value)
 	if strings.HasPrefix(value, "[") && strings.HasSuffix(value, "]") {
 		value = value[1 : len(value)-1]

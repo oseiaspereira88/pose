@@ -725,14 +725,15 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		return map[string]any{"slug": spec.Slug, "status": spec.Status, "events": events, "unacknowledged": pending}, nil
 	case "pose_list_specs":
 		var a struct {
-			Status string `json:"status"`
-			Cursor string `json:"cursor"`
-			Limit  int    `json:"limit"`
+			Status     string `json:"status"`
+			Components string `json:"components"`
+			Cursor     string `json:"cursor"`
+			Limit      int    `json:"limit"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_specs: invalid arguments")
 		}
-		specs, err := store.ListSpecs(a.Status)
+		specs, err := store.ListSpecs(a.Status, a.Components)
 		if err != nil {
 			return nil, err
 		}
@@ -742,7 +743,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		page, next := paginatePage(specs, after, a.Limit)
 		result := map[string]any{"specs": page, "count": len(page), "total": len(specs), "next_cursor": next}
-		if notice := listNotice(len(specs), `narrow with "status" (comma-separated, e.g. "draft,in-progress") or page with "limit"/"cursor"`); notice != "" {
+		if notice := listNotice(len(specs), `narrow with "status" (comma-separated, e.g. "draft,in-progress"), "components" (comma-separated, matches any tag), or page with "limit"/"cursor"`); notice != "" {
 			result["notice"] = notice
 		}
 		return result, nil
@@ -1260,7 +1261,8 @@ func toolDefinitions() []map[string]any {
 			"name": "pose_list_specs",
 			"description": "List every POSE spec of the project with its lifecycle frontmatter " +
 				"(no body). Optionally filter by status: draft, in-progress, done, blocked, " +
-				"superseded or abandoned. Large unfiltered projects should always pass status.",
+				"superseded or abandoned; and/or by components (the spec's `components:` " +
+				"frontmatter tags). Large unfiltered projects should always pass status.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
@@ -1270,6 +1272,14 @@ func toolDefinitions() []map[string]any {
 							"superseded or abandoned. Pass multiple as a comma-separated list in one " +
 							"call, e.g. \"draft,in-progress,blocked\" for everything still open — " +
 							"cheaper than one call per status.",
+					},
+					"components": map[string]any{
+						"type": "string",
+						"description": "Optional filter on the spec's `components:` frontmatter tags " +
+							"(free-form, project-defined, e.g. component/module names). Comma-separated, " +
+							"case-insensitive, OR semantics: a spec matches when at least one of its " +
+							"tags matches at least one requested value. Specs without any `components:` " +
+							"tag never match a non-empty filter.",
 					},
 					"project_id": map[string]any{
 						"type":        "string",

@@ -27,6 +27,7 @@ slug: alpha
 status: done
 created_at: 2026-06-01
 completed_at: 2026-06-02
+components: semantic-enricher
 ---
 
 # Spec: alpha
@@ -38,6 +39,7 @@ Alpha body text.
 slug: beta
 status: draft
 created_at: 2026-06-03
+components: mcp-server, cli
 ---
 
 # Spec: beta
@@ -48,6 +50,7 @@ status: done        # draft | in-progress | done
 created_at: 2026-05-01
 completed_at: 2026-05-02   # stamped on done
 supersedes:          # slug da spec substituída
+components: cli
 ---
 
 # Spec: legacy-flat
@@ -100,6 +103,9 @@ func TestGetSpec_Canonical(t *testing.T) {
 	if !strings.Contains(sp.Body, "Alpha body text.") {
 		t.Errorf("body not included: %q", sp.Body)
 	}
+	if len(sp.Components) != 1 || sp.Components[0] != "semantic-enricher" {
+		t.Errorf("Components = %v, want [semantic-enricher]", sp.Components)
+	}
 }
 
 func TestGetSpec_LegacyFlatWithComments(t *testing.T) {
@@ -150,7 +156,7 @@ func TestGetSpec_NotFoundAndInvalid(t *testing.T) {
 
 func TestListSpecs_SortedNoBody(t *testing.T) {
 	s := fixtureStore(t)
-	specs, err := s.ListSpecs("")
+	specs, err := s.ListSpecs("", "")
 	if err != nil {
 		t.Fatalf("ListSpecs: %v", err)
 	}
@@ -170,18 +176,18 @@ func TestListSpecs_SortedNoBody(t *testing.T) {
 
 func TestListSpecs_StatusFilter(t *testing.T) {
 	s := fixtureStore(t)
-	done, err := s.ListSpecs("DONE") // case-insensitive
+	done, err := s.ListSpecs("DONE", "") // case-insensitive
 	if err != nil {
 		t.Fatalf("ListSpecs(done): %v", err)
 	}
 	if len(done) != 2 {
 		t.Errorf("done count = %d, want 2", len(done))
 	}
-	draft, _ := s.ListSpecs("draft")
+	draft, _ := s.ListSpecs("draft", "")
 	if len(draft) != 1 || draft[0].Slug != "beta" {
 		t.Errorf("draft filter mismatch: %+v", draft)
 	}
-	inProgress, _ := s.ListSpecs("in-progress")
+	inProgress, _ := s.ListSpecs("in-progress", "")
 	if len(inProgress) != 1 || inProgress[0].Slug != "split-spec" {
 		t.Errorf("in-progress filter mismatch: %+v", inProgress)
 	}
@@ -193,7 +199,7 @@ func TestListSpecs_StatusFilter(t *testing.T) {
 func TestListSpecs_MultiStatusFilter(t *testing.T) {
 	s := fixtureStore(t)
 
-	open, err := s.ListSpecs("draft,in-progress")
+	open, err := s.ListSpecs("draft,in-progress", "")
 	if err != nil {
 		t.Fatalf("ListSpecs(draft,in-progress): %v", err)
 	}
@@ -206,7 +212,7 @@ func TestListSpecs_MultiStatusFilter(t *testing.T) {
 	}
 
 	// Case-insensitive and tolerant of stray whitespace around commas.
-	spaced, err := s.ListSpecs(" DRAFT , In-Progress ")
+	spaced, err := s.ListSpecs(" DRAFT , In-Progress ", "")
 	if err != nil {
 		t.Fatalf("ListSpecs(spaced): %v", err)
 	}
@@ -215,12 +221,79 @@ func TestListSpecs_MultiStatusFilter(t *testing.T) {
 	}
 
 	// A single value keeps behaving exactly as before comma-splitting existed.
-	draftOnly, err := s.ListSpecs("draft")
+	draftOnly, err := s.ListSpecs("draft", "")
 	if err != nil {
 		t.Fatalf("ListSpecs(draft): %v", err)
 	}
 	if len(draftOnly) != 1 || draftOnly[0].Slug != "beta" {
 		t.Errorf("single-value filter regressed: %+v", draftOnly)
+	}
+}
+
+// TestListSpecs_ComponentsFilter exercises the `components` filter (spec
+// pose-spec-components-scope R2): OR semantics across a comma-separated
+// list, case-insensitive, composable with the status filter, and a spec
+// with no `components:` tag never matches a non-empty filter.
+func TestListSpecs_ComponentsFilter(t *testing.T) {
+	s := fixtureStore(t)
+
+	cli, err := s.ListSpecs("", "cli")
+	if err != nil {
+		t.Fatalf("ListSpecs(components=cli): %v", err)
+	}
+	gotSlugs := map[string]bool{}
+	for _, sp := range cli {
+		gotSlugs[sp.Slug] = true
+	}
+	if len(cli) != 2 || !gotSlugs["beta"] || !gotSlugs["legacy-flat"] {
+		t.Errorf("components=cli = %+v, want [beta legacy-flat]", cli)
+	}
+
+	// Case-insensitive.
+	ciCli, err := s.ListSpecs("", "CLI")
+	if err != nil {
+		t.Fatalf("ListSpecs(components=CLI): %v", err)
+	}
+	if len(ciCli) != len(cli) {
+		t.Errorf("case-insensitive components filter = %+v, want same as lowercase (%+v)", ciCli, cli)
+	}
+
+	// OR across a comma-separated list, each value matching a different spec.
+	orFilter, err := s.ListSpecs("", "mcp-server,semantic-enricher")
+	if err != nil {
+		t.Fatalf("ListSpecs(components=mcp-server,semantic-enricher): %v", err)
+	}
+	gotSlugs = map[string]bool{}
+	for _, sp := range orFilter {
+		gotSlugs[sp.Slug] = true
+	}
+	if len(orFilter) != 2 || !gotSlugs["alpha"] || !gotSlugs["beta"] {
+		t.Errorf("OR components filter = %+v, want [alpha beta]", orFilter)
+	}
+
+	// Composable with the status filter: intersection, not just an
+	// independent OR.
+	draftCli, err := s.ListSpecs("draft", "cli")
+	if err != nil {
+		t.Fatalf("ListSpecs(status=draft, components=cli): %v", err)
+	}
+	if len(draftCli) != 1 || draftCli[0].Slug != "beta" {
+		t.Errorf("status+components filter = %+v, want [beta]", draftCli)
+	}
+
+	// A spec with no components: tag never matches a non-empty filter.
+	noneMatch, err := s.ListSpecs("", "nonexistent-component")
+	if err != nil {
+		t.Fatalf("ListSpecs(components=nonexistent-component): %v", err)
+	}
+	if len(noneMatch) != 0 {
+		t.Errorf("components=nonexistent-component = %+v, want empty", noneMatch)
+	}
+
+	// Empty filter applies no filtering (regression: pre-existing behavior).
+	all, err := s.ListSpecs("", "")
+	if err != nil || len(all) != 4 {
+		t.Errorf("ListSpecs(\"\", \"\") = %+v (err=%v), want all 4 specs", all, err)
 	}
 }
 
@@ -239,7 +312,7 @@ func TestIntegration_DogfoodRepo(t *testing.T) {
 	if sp.Status != "done" {
 		t.Errorf("semql-entity-aliases status = %q, want done", sp.Status)
 	}
-	all, err := s.ListSpecs("")
+	all, err := s.ListSpecs("", "")
 	if err != nil || len(all) < 2 {
 		t.Errorf("ListSpecs on repo: len=%d err=%v, want >=2 specs", len(all), err)
 	}

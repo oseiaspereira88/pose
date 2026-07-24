@@ -41,7 +41,7 @@ func deriveSection(store pose.Store, name string) (body, status string) {
 }
 
 func provideSpecsRoadmaps(store pose.Store) string {
-	specs, err := store.ListSpecs("")
+	specs, err := store.ListSpecs("", "")
 	if err != nil {
 		return fmt.Sprintf("- specs: erro ao listar (%v)", err)
 	}

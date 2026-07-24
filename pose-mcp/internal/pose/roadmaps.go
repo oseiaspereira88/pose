@@ -91,7 +91,7 @@ func parseRoadmapFile(path, slug string, includeBody bool) (*Roadmap, error) {
 		case "created_at":
 			rm.CreatedAt = value
 		case "depends_on":
-			rm.DependsOn = parseDependsOn(value)
+			rm.DependsOn = parseInlineList(value)
 		}
 	}
 	var current *Milestone
@@ -116,13 +116,13 @@ func parseRoadmapFile(path, slug string, includeBody bool) (*Roadmap, error) {
 		value = cleanValue(value)
 		switch strings.TrimSpace(key) {
 		case "after":
-			current.After = parseDependsOn(value)
+			current.After = parseInlineList(value)
 		case "target_start":
 			current.TargetStart = value
 		case "target_due":
 			current.TargetDue = value
 		case "specs":
-			current.Specs = parseDependsOn(value)
+			current.Specs = parseInlineList(value)
 		}
 	}
 	if includeBody {

@@ -153,7 +153,7 @@ func TestParseSpecDependsOnAndPriority(t *testing.T) {
 	}
 }
 
-func TestParseDependsOnFormats(t *testing.T) {
+func TestParseInlineListFormats(t *testing.T) {
 	cases := map[string][]string{
 		"":                       nil,
 		"a":                      {"a"},
@@ -162,14 +162,14 @@ func TestParseDependsOnFormats(t *testing.T) {
 		" [ a , milestone:r/m ]": {"a", "milestone:r/m"},
 	}
 	for input, want := range cases {
-		got := parseDependsOn(input)
+		got := parseInlineList(input)
 		if len(got) != len(want) {
-			t.Errorf("parseDependsOn(%q) = %v, want %v", input, got, want)
+			t.Errorf("parseInlineList(%q) = %v, want %v", input, got, want)
 			continue
 		}
 		for i := range want {
 			if got[i] != want[i] {
-				t.Errorf("parseDependsOn(%q)[%d] = %q, want %q", input, i, got[i], want[i])
+				t.Errorf("parseInlineList(%q)[%d] = %q, want %q", input, i, got[i], want[i])
 			}
 		}
 	}

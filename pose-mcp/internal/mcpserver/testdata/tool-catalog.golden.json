@@ -237,9 +237,13 @@
       "name": "pose_spec_amendments"
     },
     {
-      "description": "List every POSE spec of the project with its lifecycle frontmatter (no body). Optionally filter by status: draft, in-progress, done, blocked, superseded or abandoned. Large unfiltered projects should always pass status.",
+      "description": "List every POSE spec of the project with its lifecycle frontmatter (no body). Optionally filter by status: draft, in-progress, done, blocked, superseded or abandoned; and/or by components (the spec's `components:` frontmatter tags). Large unfiltered projects should always pass status.",
       "inputSchema": {
         "properties": {
+          "components": {
+            "description": "Optional filter on the spec's `components:` frontmatter tags (free-form, project-defined, e.g. component/module names). Comma-separated, case-insensitive, OR semantics: a spec matches when at least one of its tags matches at least one requested value. Specs without any `components:` tag never match a non-empty filter.",
+            "type": "string"
+          },
           "cursor": {
             "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
             "type": "string"

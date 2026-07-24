@@ -73,7 +73,7 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	repo := map[string]any{"root": ".", "apps": apps, "services": services, "packages": packages, "manifests": manifests, "dockerfiles": dockers, "helmCharts": charts, "readmes": readmes, "moduleMetadata": map[string]any{"schemaVersion": 1, "source": ".pose/indexes/module-metadata.json"}}
 	store := posepkg.Store{Root: root}
-	specs, _ := store.ListSpecs("")
+	specs, _ := store.ListSpecs("", "")
 	specMap := map[string]any{}
 	edges := []map[string]string{}
 	for _, s := range specs {

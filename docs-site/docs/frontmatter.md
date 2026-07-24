@@ -17,6 +17,7 @@ completed_at:        # stamped on the transition to done
 supersedes:          # slug of the superseded spec
 depends_on: other-spec, milestone:my-roadmap/m1, roadmap:other-roadmap
 priority: 1          # integer >= 0; lower = attack first; never blocks
+components:          # optional, inline comma-separated: affected modules/components
 ---
 ```
 
@@ -27,6 +28,12 @@ Rules enforced by `pose check` / `pose lint-spec`:
 - Entering `in-progress` requires the Definition of Ready (`--ready-check`).
 - Acceptance criteria use stable IDs (`- R<N>:`); published IDs are never
   renumbered — a withdrawn criterion is marked as withdrawn.
+- `components` is free-form (no enforced vocabulary) — tag a spec with the
+  module/component names it touches (e.g. `mcp-server, cli`) to make it
+  findable with `pose_list_specs`' `components` filter (comma-separated,
+  case-insensitive, matches if any tag is shared) without fragmenting specs
+  into a separate `.pose/` per component. A cross-cutting spec lists every
+  component it touches; a spec with no tag never matches a non-empty filter.
 
 ## Roadmap (`.pose/roadmaps/<slug>.md`)
 
