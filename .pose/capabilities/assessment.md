@@ -91,7 +91,7 @@ Usage traceability and explainable semantic-advisory retrieval delivered.
 - target: 5
 - evidence: spec:pose-mcp-catalog-conformance, spec:pose-mcp-project-scope-contract, spec:pose-mcp-protocol-completeness, spec:pose-capability-mechanism
 - gaps:
-- paths: internal/mcpserver/*.go
+- paths: pose-mcp/internal/mcpserver/*.go
 
 Golden-fixture catalog conformance, uniform project scoping, pagination, 34 tools.
 
