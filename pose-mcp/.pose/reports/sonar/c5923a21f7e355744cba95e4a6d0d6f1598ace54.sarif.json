@@ -1,0 +1,3335 @@
+{
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "SonarQube",
+          "informationUri": "http://localhost:9000",
+          "rules": [
+            {
+              "id": "docker:S6471",
+              "shortDescription": {
+                "text": "The \"alpine\" image runs with \"root\" as the default user. Make sure it is safe here."
+              }
+            },
+            {
+              "id": "go:S3776",
+              "shortDescription": {
+                "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+              }
+            },
+            {
+              "id": "go:S1192",
+              "shortDescription": {
+                "text": "Define a constant instead of duplicating this literal \"spec.md\" 4 times."
+              }
+            },
+            {
+              "id": "go:S1186",
+              "shortDescription": {
+                "text": "Add a nested comment explaining why this function is empty or complete the implementation."
+              }
+            },
+            {
+              "id": "go:S107",
+              "shortDescription": {
+                "text": "This function has 14 parameters, which is greater than the 7 authorized."
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "docker:S6471",
+          "level": "note",
+          "message": {
+            "text": "The \"alpine\" image runs with \"root\" as the default user. Make sure it is safe here."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Dockerfile"
+                },
+                "region": {
+                  "startLine": 16
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/bootstrap/bootstrap.go"
+                },
+                "region": {
+                  "startLine": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 41 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/adoption_metrics.go"
+                },
+                "region": {
+                  "startLine": 62
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 80 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/amend.go"
+                },
+                "region": {
+                  "startLine": 25
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 23 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/assess.go"
+                },
+                "region": {
+                  "startLine": 205
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/assess.go"
+                },
+                "region": {
+                  "startLine": 305
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/assess_test.go"
+                },
+                "region": {
+                  "startLine": 31
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/brownfield_kits_test.go"
+                },
+                "region": {
+                  "startLine": 92
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 31 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/brownfield_kits_test.go"
+                },
+                "region": {
+                  "startLine": 162
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/brownfield_kits_test.go"
+                },
+                "region": {
+                  "startLine": 245
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/capability_triggers.go"
+                },
+                "region": {
+                  "startLine": 311
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/capability_triggers_test.go"
+                },
+                "region": {
+                  "startLine": 211
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 125
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 153
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 26 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 197
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 43 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 321
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"spec.md\" 4 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 322
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"README.md\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 325
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"in-progress\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 331
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 80 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 460
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 26 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 581
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 662
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 23 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 698
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"capabilities: \" 6 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 834
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"docs: \" 4 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/check.go"
+                },
+                "region": {
+                  "startLine": 857
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 46 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/cli.go"
+                },
+                "region": {
+                  "startLine": 20
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/cli_test.go"
+                },
+                "region": {
+                  "startLine": 168
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/cli_test.go"
+                },
+                "region": {
+                  "startLine": 208
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/cli_test.go"
+                },
+                "region": {
+                  "startLine": 248
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/cli_test.go"
+                },
+                "region": {
+                  "startLine": 304
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/cli_test.go"
+                },
+                "region": {
+                  "startLine": 353
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/cli_test.go"
+                },
+                "region": {
+                  "startLine": 414
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/cli_test.go"
+                },
+                "region": {
+                  "startLine": 482
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/cli_test.go"
+                },
+                "region": {
+                  "startLine": 520
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/docs_review.go"
+                },
+                "region": {
+                  "startLine": 217
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Error: invalid argument: %s\\n\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/docs_review.go"
+                },
+                "region": {
+                  "startLine": 288
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Erro: argumento inv\u00e1lido: %s\\n\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/docs_review.go"
+                },
+                "region": {
+                  "startLine": 288
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/docs_review.go"
+                },
+                "region": {
+                  "startLine": 293
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/docs_review.go"
+                },
+                "region": {
+                  "startLine": 360
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Error: invalid argument: %s\\n\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/docs_sync.go"
+                },
+                "region": {
+                  "startLine": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Erro: argumento inv\u00e1lido: %s\\n\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/docs_sync.go"
+                },
+                "region": {
+                  "startLine": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/docs_sync.go"
+                },
+                "region": {
+                  "startLine": 88
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"hooks.pre-commit\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 63
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"mcp.config\" 4 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 73
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"skills.symlinks\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 81
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"deps.git\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 107
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"deps.go\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 107
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 125
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 205
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"schema.version\" 5 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 256
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"run 'pose upgrade'\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 256
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"rode 'pose upgrade'\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 256
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 28 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor.go"
+                },
+                "region": {
+                  "startLine": 427
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 35 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor_remediation_test.go"
+                },
+                "region": {
+                  "startLine": 74
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/doctor_remediation_test.go"
+                },
+                "region": {
+                  "startLine": 228
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/dora_adoption_metrics_test.go"
+                },
+                "region": {
+                  "startLine": 121
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \".jsonl\" 5 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/dora_events.go"
+                },
+                "region": {
+                  "startLine": 54
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/dora_events.go"
+                },
+                "region": {
+                  "startLine": 77
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/dora_events.go"
+                },
+                "region": {
+                  "startLine": 144
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 39 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/dora_events.go"
+                },
+                "region": {
+                  "startLine": 282
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 77 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/dora_metrics.go"
+                },
+                "region": {
+                  "startLine": 54
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/dora_metrics.go"
+                },
+                "region": {
+                  "startLine": 187
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/extension.go"
+                },
+                "region": {
+                  "startLine": 69
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/extension.go"
+                },
+                "region": {
+                  "startLine": 258
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/extension.go"
+                },
+                "region": {
+                  "startLine": 335
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Result: SUCCESS\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/extension.go"
+                },
+                "region": {
+                  "startLine": 426
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/extension.go"
+                },
+                "region": {
+                  "startLine": 430
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/extension_test.go"
+                },
+                "region": {
+                  "startLine": 17
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 73 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/followups.go"
+                },
+                "region": {
+                  "startLine": 92
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/followups.go"
+                },
+                "region": {
+                  "startLine": 241
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/followups.go"
+                },
+                "region": {
+                  "startLine": 395
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \".jsonl\" 4 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/harness_evidence.go"
+                },
+                "region": {
+                  "startLine": 48
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"harness-evidence-\" 4 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/harness_evidence.go"
+                },
+                "region": {
+                  "startLine": 48
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/harness_evidence.go"
+                },
+                "region": {
+                  "startLine": 114
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/harness_evidence.go"
+                },
+                "region": {
+                  "startLine": 220
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/historycheck.go"
+                },
+                "region": {
+                  "startLine": 16
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"spec.md\" 6 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/import.go"
+                },
+                "region": {
+                  "startLine": 88
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"spec-kit\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/import.go"
+                },
+                "region": {
+                  "startLine": 130
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 37 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/import.go"
+                },
+                "region": {
+                  "startLine": 186
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"proposal.md\" 4 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/import.go"
+                },
+                "region": {
+                  "startLine": 206
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"tasks.md\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/import.go"
+                },
+                "region": {
+                  "startLine": 308
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/import.go"
+                },
+                "region": {
+                  "startLine": 320
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \" REQUIREMENTS\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/import.go"
+                },
+                "region": {
+                  "startLine": 340
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 36 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/index.go"
+                },
+                "region": {
+                  "startLine": 29
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/index.go"
+                },
+                "region": {
+                  "startLine": 110
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"2006-01-02\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/insights.go"
+                },
+                "region": {
+                  "startLine": 70
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 46 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/insights.go"
+                },
+                "region": {
+                  "startLine": 78
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 42 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/insights.go"
+                },
+                "region": {
+                  "startLine": 178
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/insights.go"
+                },
+                "region": {
+                  "startLine": 296
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 73 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/install.go"
+                },
+                "region": {
+                  "startLine": 20
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"locales/\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/install.go"
+                },
+                "region": {
+                  "startLine": 144
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/knowledge_usage.go"
+                },
+                "region": {
+                  "startLine": 134
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"wont-do\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/lintspec.go"
+                },
+                "region": {
+                  "startLine": 24
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"spec.md\" 5 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/lintspec.go"
+                },
+                "region": {
+                  "startLine": 146
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 124 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/lintspec.go"
+                },
+                "region": {
+                  "startLine": 235
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 49 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/lintspec.go"
+                },
+                "region": {
+                  "startLine": 529
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/localization_docs_test.go"
+                },
+                "region": {
+                  "startLine": 64
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/localization_docs_test.go"
+                },
+                "region": {
+                  "startLine": 148
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 14
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"--dry-run\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 20
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 33 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 97
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"list-expired\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 98
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"purge-archived\" 6 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 113
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"README.md\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 125
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"2006-01-02\" 5 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 133
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 37 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 166
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 51 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 248
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 46 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 388
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 47 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/maintenance.go"
+                },
+                "region": {
+                  "startLine": 500
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 36 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/portfolio_projection.go"
+                },
+                "region": {
+                  "startLine": 127
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"unknown-spec\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/portfolio_projection.go"
+                },
+                "region": {
+                  "startLine": 164
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 28 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/portfolio_projection.go"
+                },
+                "region": {
+                  "startLine": 244
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1186",
+          "level": "error",
+          "message": {
+            "text": "Add a nested comment explaining why this function is empty or complete the implementation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/proc_windows.go"
+                },
+                "region": {
+                  "startLine": 9
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 81 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/recurrence_effect.go"
+                },
+                "region": {
+                  "startLine": 90
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 23 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/release_manifests.go"
+                },
+                "region": {
+                  "startLine": 176
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Usage: pose release-package-manifests --version X.Y.Z --checksums <checksums.txt> --out <dir>\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/release_manifests.go"
+                },
+                "region": {
+                  "startLine": 182
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 59 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/report.go"
+                },
+                "region": {
+                  "startLine": 44
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"validation-profile\" 5 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/report.go"
+                },
+                "region": {
+                  "startLine": 46
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S107",
+          "level": "warning",
+          "message": {
+            "text": "This function has 14 parameters, which is greater than the 7 authorized."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/report.go"
+                },
+                "region": {
+                  "startLine": 273
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Erro: template ausente: %s\\n\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/scaffold.go"
+                },
+                "region": {
+                  "startLine": 36
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Error: template not found: %s\\n\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/scaffold.go"
+                },
+                "region": {
+                  "startLine": 36
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"2006-01-02\" 7 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/scaffold.go"
+                },
+                "region": {
+                  "startLine": 45
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"<created_at>\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/scaffold.go"
+                },
+                "region": {
+                  "startLine": 46
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/scaffold.go"
+                },
+                "region": {
+                  "startLine": 86
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 26 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/semantic_suggest.go"
+                },
+                "region": {
+                  "startLine": 108
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 28 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/semantic_suggest.go"
+                },
+                "region": {
+                  "startLine": 188
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/stacks_cmd.go"
+                },
+                "region": {
+                  "startLine": 18
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Valida\u00e7\u00e3o & Evid\u00eancia\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/state_hooks.go"
+                },
+                "region": {
+                  "startLine": 81
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"2006-01-02\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/state_providers.go"
+                },
+                "region": {
+                  "startLine": 91
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 49 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/state_refresh.go"
+                },
+                "region": {
+                  "startLine": 139
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"state-refresh\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/state_refresh.go"
+                },
+                "region": {
+                  "startLine": 159
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 42 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/suggest.go"
+                },
+                "region": {
+                  "startLine": 17
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/suggest.go"
+                },
+                "region": {
+                  "startLine": 134
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/telemetry.go"
+                },
+                "region": {
+                  "startLine": 46
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/upgrade_test.go"
+                },
+                "region": {
+                  "startLine": 66
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/upgrade_test.go"
+                },
+                "region": {
+                  "startLine": 138
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/validate.go"
+                },
+                "region": {
+                  "startLine": 97
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/validate.go"
+                },
+                "region": {
+                  "startLine": 186
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 155 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/validate.go"
+                },
+                "region": {
+                  "startLine": 233
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 62 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/validate_scope.go"
+                },
+                "region": {
+                  "startLine": 61
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/cli/wizard.go"
+                },
+                "region": {
+                  "startLine": 13
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/catalog_test.go"
+                },
+                "region": {
+                  "startLine": 61
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Content-Type\" 6 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/server.go"
+                },
+                "region": {
+                  "startLine": 90
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"application/json\" 5 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/server.go"
+                },
+                "region": {
+                  "startLine": 90
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Bearer \" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/server.go"
+                },
+                "region": {
+                  "startLine": 92
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Mcp-Session-Id\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/server.go"
+                },
+                "region": {
+                  "startLine": 317
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/server.go"
+                },
+                "region": {
+                  "startLine": 394
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"policy denied\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/server.go"
+                },
+                "region": {
+                  "startLine": 444
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 142 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/server.go"
+                },
+                "region": {
+                  "startLine": 572
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/server.go"
+                },
+                "region": {
+                  "startLine": 994
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/server.go"
+                },
+                "region": {
+                  "startLine": 1048
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"Optional project to scope the .pose root (multi-project); omit for the default root\" 28 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/mcpserver/server.go"
+                },
+                "region": {
+                  "startLine": 1143
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"pose-mcp\" 5 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/observability/provider.go"
+                },
+                "region": {
+                  "startLine": 68
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/amendments.go"
+                },
+                "region": {
+                  "startLine": 69
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 42 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/capabilities.go"
+                },
+                "region": {
+                  "startLine": 136
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 28 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/changelogs.go"
+                },
+                "region": {
+                  "startLine": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 38 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/docs.go"
+                },
+                "region": {
+                  "startLine": 196
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S1192",
+          "level": "error",
+          "message": {
+            "text": "Define a constant instead of duplicating this literal \"2006-01-02\" 3 times."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/docs.go"
+                },
+                "region": {
+                  "startLine": 314
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/insights.go"
+                },
+                "region": {
+                  "startLine": 71
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/insights.go"
+                },
+                "region": {
+                  "startLine": 117
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/pointers.go"
+                },
+                "region": {
+                  "startLine": 22
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/readiness.go"
+                },
+                "region": {
+                  "startLine": 118
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/reports.go"
+                },
+                "region": {
+                  "startLine": 41
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/roadmaps.go"
+                },
+                "region": {
+                  "startLine": 76
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 27 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/schema_test.go"
+                },
+                "region": {
+                  "startLine": 14
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/state.go"
+                },
+                "region": {
+                  "startLine": 170
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/state_test.go"
+                },
+                "region": {
+                  "startLine": 42
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 48 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/trace.go"
+                },
+                "region": {
+                  "startLine": 66
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/pose/trace_test.go"
+                },
+                "region": {
+                  "startLine": 32
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/scaffold/gen/main.go"
+                },
+                "region": {
+                  "startLine": 19
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 28 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/scaffold/scaffold_test.go"
+                },
+                "region": {
+                  "startLine": 34
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/scaffold/scaffold_test.go"
+                },
+                "region": {
+                  "startLine": 154
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "go:S3776",
+          "level": "error",
+          "message": {
+            "text": "Refactor this method to reduce its Cognitive Complexity from 27 to the 15 allowed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/version/workflow_security_test.go"
+                },
+                "region": {
+                  "startLine": 67
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
