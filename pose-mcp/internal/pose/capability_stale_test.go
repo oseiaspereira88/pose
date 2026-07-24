@@ -79,7 +79,7 @@ func TestStaleTriggerBullet_FormatParseRoundTrip(t *testing.T) {
 func TestParseStaleTriggerBullet_RejectsMalformed(t *testing.T) {
 	for _, value := range []string{
 		"",
-		"trigger=spec:demo", // missing since
+		"trigger=spec:demo",          // missing since
 		"since=2026-07-23T10:00:00Z", // missing trigger
 		"since=not-a-date;trigger=spec:demo",
 		"since=2026-07-23T10:00:00Z;trigger=spec:demo;unknown=x",

@@ -157,6 +157,13 @@ func printDocsCheckHuman(stdout io.Writer, result pose.DocsCheckResult, locale c
 	for _, issue := range result.Issues {
 		fmt.Fprintf(stdout, "[%s] %s: %s: %s\n", strings.ToUpper(issue.Severity), issue.Path, issue.Rule, issue.Message)
 	}
+	for _, pending := range result.ReviewPending {
+		for _, trigger := range pending.Triggers {
+			fmt.Fprintf(stdout, cliText(locale,
+				"[REVIEW_PENDING] %s: since %s, trigger %s\n",
+				"[REVISÃO_PENDENTE] %s: desde %s, gatilho %s\n"), pending.Doc, trigger.Since, trigger.Trigger)
+		}
+	}
 	if result.Totals.Errors == 0 {
 		fmt.Fprintln(stdout, cliText(locale, "Result: SUCCESS", "Resultado: SUCESSO"))
 	} else {

@@ -106,6 +106,9 @@ policy file.
 |---|---|
 | `pose docs-init [--profile library\|service\|cli\|monorepo]` | Scaffold `.pose/docs.json` with a profile's recommended `roots` — a recommendation, never mandatory |
 | `pose docs-check [--json] [--explain <rule>]` | Validate the manifest: declared docs exist, undeclared docs are flagged, frontmatter/links/typed references resolve, staleness, and a security scan |
+| `pose docs-review resolve <doc> [--no-change --reason <text>] [--commit <sha>]` | Close a doc's pending review marks: `updated` (default, captures the current commit unless `--commit` is given) or `no_change_needed` (`--reason` required) |
+| `pose docs-review request <doc> [--reason <text>]` | Manually mark one doc for review (the same path a UI-driven "flag for review" action would call over MCP) |
+| `pose docs-review request --all-stale` | Bridge every doc `docs-check` reports `stale` into an active, owned review-pending demand, in one call |
 
 Opt-in by presence of `.pose/docs.json` — a project without the manifest
 stays valid everywhere, same mechanic as the capability assessment above.
@@ -126,6 +129,31 @@ in depth, not a substitute for the dedicated gitleaks gate. `pose check
 --strict` incorporates `docs-check` when the manifest exists (opt-in by
 presence, same mechanic as capabilities); errors block, warnings surface
 without blocking. Tool MCP: `pose_docs_state`.
+
+**Review-pending triggers** (spec `pose-docs-assessment-followups`, third
+consumer of the same post-event hook registry as the capability
+reassessment triggers above — reused unmodified): a `docs-review`
+consumer, registered on `spec_closeout`, resolves which components/files a
+closeout reached (`components_hit` when configured, matched against
+`owns:` entries declared as `component:<id>`; otherwise the event's
+touched files matched against each doc's `owns:` paths/globs — a
+directory prefix like `"site"` covers every file under it) and marks
+every doc whose declared area was reached as review-pending — never
+editing the doc itself. Marks accumulate in an append-only log, never
+inside the doc's own file, and project a synthetic, owned demand into
+`pose followups --open` (origin `docs:<doc-path>`), reusing the owner
+declared on the manifest entry when present. `pose docs-review resolve`
+closes every mark currently pending on a doc at once, recording the
+outcome; `docs-check`'s own output (and `pose_docs_state`) additively
+list what's still pending. Without a component map and without any
+`owns:` declared, the event logs a visible signal instead of marking
+anything silently — same degrade-by-absence contract as the capability
+triggers, except here the path fallback is the mechanism's full-strength
+path (`owns:` is expressed as paths by default), not a lesser one.
+Anti-noise threshold (`min_hits`, hit `level`, the demand's default
+owner/review SLA) is configurable, sharing the same policy shape as the
+capability triggers in its own file (optional; absent means these same
+conservative defaults).
 
 ## Cross-repository portfolio
 

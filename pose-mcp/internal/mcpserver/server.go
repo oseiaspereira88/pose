@@ -1201,7 +1201,8 @@ func toolDefinitions() []map[string]any {
 			"name": "pose_docs_state",
 			"description": "Current docs-governance check (spec pose-docs-governance-contract): manifest " +
 				"presence/profile/roots plus the live `pose docs-check` result (declared/undeclared/stale " +
-				"counts by doc_type, and per-doc issues with rule/severity). Opt-in by presence of " +
+				"counts by doc_type, per-doc issues with rule/severity, and any currently open " +
+				"review-pending marks — spec pose-docs-assessment-followups). Opt-in by presence of " +
 				"`.pose/docs.json`; absent manifest returns manifest_present:false, never an error.",
 			"inputSchema": map[string]any{
 				"type": "object",

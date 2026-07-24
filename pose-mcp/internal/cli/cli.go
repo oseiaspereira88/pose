@@ -110,6 +110,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdDocsCheck(root, args, stdout, stderr)
+	case "docs-review":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose docs-review: %v\n", err)
+			return 1
+		}
+		return cmdDocsReview(root, args, stdout, stderr)
 	case "report":
 		root, err := projectRoot()
 		if err != nil {

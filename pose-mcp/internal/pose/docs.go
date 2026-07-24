@@ -38,6 +38,10 @@ type DocsEntry struct {
 	// the rest of this portfolio).
 	Topics []string `json:"topics,omitempty"`
 	Owns   []string `json:"owns,omitempty"`
+	// Owner is the doc's dono (spec pose-docs-assessment-followups R2):
+	// the alias a docs-review demand is assigned to when this entry
+	// declares one; empty defers to the docs-review policy default.
+	Owner string `json:"owner,omitempty"`
 	// AppliesTo is a free-text version/product range, informational only —
 	// V1 does not gate on it (see spec Decisions).
 	AppliesTo string `json:"applies_to,omitempty"`
@@ -164,6 +168,16 @@ type DocsCheckResult struct {
 	ManifestPath  string      `json:"manifest_path"`
 	Totals        DocsTotals  `json:"totals"`
 	Issues        []DocsIssue `json:"issues"`
+	// ReviewPending projects .pose/docs-review.jsonl's current state
+	// (spec pose-docs-assessment-followups R5) — additive, always
+	// populated when the log exists, empty when it doesn't.
+	ReviewPending []DocsReviewSummary `json:"review_pending,omitempty"`
+}
+
+// DocsReviewSummary is one doc's currently open review-pending triggers.
+type DocsReviewSummary struct {
+	Doc      string              `json:"doc"`
+	Triggers []DocsReviewTrigger `json:"triggers"`
 }
 
 var docsLinkRE = regexp.MustCompile(`\]\(([^)]+)\)`)
@@ -244,6 +258,18 @@ func (s Store) CheckDocs(ctx context.Context, manifest *DocsManifest) DocsCheckR
 				result.Totals.Undeclared++
 				add("undeclared", path, fmt.Sprintf("doc present under root %q but not declared in the manifest", root))
 			}
+		}
+	}
+
+	if events, err := LoadDocsReviewEvents(s.DocsReviewPath()); err == nil {
+		pending := PendingDocsReviews(events)
+		docs := make([]string, 0, len(pending))
+		for doc := range pending {
+			docs = append(docs, doc)
+		}
+		sort.Strings(docs)
+		for _, doc := range docs {
+			result.ReviewPending = append(result.ReviewPending, DocsReviewSummary{Doc: doc, Triggers: pending[doc]})
 		}
 	}
 

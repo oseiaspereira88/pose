@@ -1,0 +1,7 @@
+{
+  "_comment": "Docs review-pending policy (spec pose-docs-assessment-followups). Optional: absent means pose-mcp uses these same defaults. min_hits/level tune the docs-review hook consumer: level=\"direct\" only counts a direct components_hit hit toward a doc (\"any\" also counts transitive hits); min_hits is the minimum distinct components/paths a doc must be hit by before it is marked review-pending. default_owner/review_days size the synthetic follow-up's owner and review SLA when a manifest entry doesn't declare its own owner.",
+  "min_hits": 1,
+  "level": "direct",
+  "default_owner": "unowned",
+  "review_days": 14
+}

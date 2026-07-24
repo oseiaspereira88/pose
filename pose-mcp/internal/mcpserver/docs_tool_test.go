@@ -50,6 +50,33 @@ func TestToolsCall_DocsState_ReturnsLiveCheckResult(t *testing.T) {
 	}
 }
 
+func TestToolsCall_DocsState_IncludesReviewPending(t *testing.T) {
+	root := t.TempDir()
+	manifestPath := filepath.Join(root, ".pose", "docs.json")
+	if err := os.MkdirAll(filepath.Dir(manifestPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	manifest := `{"schema_version":1,"roots":["docs"],"entries":[{"path":"docs/a.md","doc_type":"reference"}]}`
+	if err := os.WriteFile(manifestPath, []byte(manifest), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	reviewPath := filepath.Join(root, ".pose", "docs-review.jsonl")
+	line := `{"at":"2026-07-24T00:00:00Z","doc":"docs/a.md","kind":"marked","trigger":"spec:demo","hits":["site/README.md"]}` + "\n"
+	if err := os.WriteFile(reviewPath, []byte(line), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	ts := httptest.NewServer(New(pose.Store{Root: root}).Handler("", ""))
+	t.Cleanup(ts.Close)
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_docs_state","arguments":{}}}`)
+	sc, _ := out.Result["structuredContent"].(map[string]any)
+	result, _ := sc["result"].(map[string]any)
+	pending, _ := result["review_pending"].([]any)
+	if len(pending) != 1 {
+		t.Fatalf("expected 1 review_pending entry, got result=%+v", result)
+	}
+}
+
 func TestToolsCall_DocsState_InCatalog(t *testing.T) {
 	found := false
 	for _, def := range toolDefinitions() {

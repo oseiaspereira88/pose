@@ -183,7 +183,7 @@
       "name": "pose_capability_stale"
     },
     {
-      "description": "Current docs-governance check (spec pose-docs-governance-contract): manifest presence/profile/roots plus the live `pose docs-check` result (declared/undeclared/stale counts by doc_type, and per-doc issues with rule/severity). Opt-in by presence of `.pose/docs.json`; absent manifest returns manifest_present:false, never an error.",
+      "description": "Current docs-governance check (spec pose-docs-governance-contract): manifest presence/profile/roots plus the live `pose docs-check` result (declared/undeclared/stale counts by doc_type, per-doc issues with rule/severity, and any currently open review-pending marks — spec pose-docs-assessment-followups). Opt-in by presence of `.pose/docs.json`; absent manifest returns manifest_present:false, never an error.",
       "inputSchema": {
         "properties": {
           "project_id": {
