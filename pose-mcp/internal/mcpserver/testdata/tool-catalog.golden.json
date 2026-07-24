@@ -19,6 +19,9 @@
     "pose_capability_history": {
       "risk": "read"
     },
+    "pose_capability_stale": {
+      "risk": "read"
+    },
     "pose_capability_state": {
       "risk": "read"
     },
@@ -162,6 +165,19 @@
         "type": "object"
       },
       "name": "pose_capability_state"
+    },
+    {
+      "description": "Mechanisms currently marked assessment-stale: each pending reassessment demand (since, trigger — e.g. a spec closeout or a manual request, and the components hit). Cleared by `pose assess snapshot`; never mutates a score.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_capability_stale"
     },
     {
       "description": "Append-only capability-assessment snapshots (score vectors by timestamp, supersede-aware), paginated — the mechanical basis for score diffs between dates or releases.",

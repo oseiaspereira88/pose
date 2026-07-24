@@ -71,6 +71,8 @@ before any retrieval, never suggested.
 | `pose assess init` | Scaffold the artifact with the method's 16 default mechanisms |
 | `pose assess snapshot` | Append the current score vector to `history.jsonl` (append-only; no-op when unchanged) |
 | `pose assess diff [--from <ts>] [--to <ts>] [--against <project-id>] [--json]` | Mechanical comparison between two snapshots (raised/lowered/added/retired), or a score matrix against another authorized root |
+| `pose assess stale [--json]` | List mechanisms currently marked assessment-stale, with their pending trigger(s) |
+| `pose assess request --mechanism <id> [--reason <text>]` | Manually mark one mechanism stale (the same path a UI-driven "flag for reassessment" action would call over MCP) |
 
 Scores are human judgment (0-5; the target is not always 5) — the mechanism
 validates structure and evidence, it never computes a score. Evidence uses
@@ -79,6 +81,24 @@ typed references (`spec:`/`report:`/`adr:`/`knowledge:`/`doc:`/`commit:`/
 (offline contract). `pose check --strict` runs the same validation when the
 artifact exists (opt-in by presence). Staleness thresholds live in
 `.pose/policy/capabilities.json` (defaults: 30 days / 200 commits).
+
+**Reassessment triggers** (spec `pose-capability-assessment-triggers`): a
+post-event hook consumer marks a mechanism assessment-stale whenever a spec
+closeout reaches components that materialize it — resolved via
+`components_hit` when GraphForge is configured, or by matching the event's
+touched files against a mechanism's declared `paths:` globs (a manual,
+semicolon-separated fallback field on the mechanism) when it is not. A stale
+mark never touches the score; it only records `since`/`trigger`/`hits` on
+the mechanism and projects a synthetic, owned follow-up (origin
+`capability:<mechanism>`) into `pose followups --open`, so the reassessment
+demand is cobrável without a second store. `pose assess snapshot` clears
+every pending mark on the mechanisms it scores, linking the clearance to the
+new snapshot in `history.jsonl`. Without a component map and without any
+`paths:` declared, the event logs a visible
+`capability_mapping_unavailable` outcome instead of marking anything
+silently. Anti-noise thresholds (`min_hits`, hit `level`, the follow-up's
+default owner/review SLA) share the same `.pose/policy/capabilities.json`
+policy file.
 
 ## Cross-repository portfolio
 

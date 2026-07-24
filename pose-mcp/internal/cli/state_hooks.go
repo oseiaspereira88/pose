@@ -234,6 +234,11 @@ type graphForgeHitResult struct {
 // implementation, swapped only when POSE_GRAPHFORGE_MCP_URL is set.
 type componentsHitCaller interface {
 	ComponentsHit(ctx context.Context, fromCommit, toCommit string) (result *graphForgeHitResult, ok bool, err error)
+	// ComponentsHitForSpec resolves the {spec_slug} input mode (spec
+	// graphforge-components-hit-contract R1) — the files/commits a spec's
+	// own history touched, used by pose-capability-assessment-triggers to
+	// avoid needing a from/to commit range of its own.
+	ComponentsHitForSpec(ctx context.Context, specSlug string) (result *graphForgeHitResult, ok bool, err error)
 }
 
 // resolveComponentsHitCaller returns nil (never a null struct — a plain
@@ -276,14 +281,22 @@ type jsonRPCToolCallResult struct {
 // Streamable HTTP (JSON-RPC 2.0 tools/call) — the same protocol GraphForge
 // documents for every other consumer, no bespoke wire format.
 func (c httpComponentsHitCaller) ComponentsHit(ctx context.Context, fromCommit, toCommit string) (*graphForgeHitResult, bool, error) {
+	return c.call(ctx, map[string]any{
+		"project_id": c.projectID, "from_commit": fromCommit, "to_commit": toCommit, "max_depth": 2,
+	})
+}
+
+// ComponentsHitForSpec calls components_hit in {spec_slug} mode.
+func (c httpComponentsHitCaller) ComponentsHitForSpec(ctx context.Context, specSlug string) (*graphForgeHitResult, bool, error) {
+	return c.call(ctx, map[string]any{
+		"project_id": c.projectID, "spec_slug": specSlug, "max_depth": 2,
+	})
+}
+
+func (c httpComponentsHitCaller) call(ctx context.Context, arguments map[string]any) (*graphForgeHitResult, bool, error) {
 	body, err := json.Marshal(jsonRPCRequest{
 		JSONRPC: "2.0", ID: 1, Method: "tools/call",
-		Params: map[string]any{
-			"name": "components_hit",
-			"arguments": map[string]any{
-				"project_id": c.projectID, "from_commit": fromCommit, "to_commit": toCommit, "max_depth": 2,
-			},
-		},
+		Params: map[string]any{"name": "components_hit", "arguments": arguments},
 	})
 	if err != nil {
 		return nil, false, err

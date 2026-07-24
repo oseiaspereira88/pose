@@ -58,12 +58,16 @@ func cmdAssess(root string, args []string, stdout, stderr io.Writer) int {
 			return assessSnapshot(root, stdout, stderr, locale)
 		case "diff":
 			return assessDiff(root, args[1:], stdout, stderr, locale)
+		case "stale":
+			return assessStale(root, args[1:], stdout, stderr, locale)
+		case "request":
+			return assessRequest(root, args[1:], stdout, stderr, locale)
 		case "--json":
 			return assessValidate(root, true, stdout, stderr, locale)
 		default:
 			fmt.Fprintln(stderr, cliText(locale,
-				"Usage: pose assess [init|snapshot|diff [--from <ts>] [--to <ts>] [--json]|--json]",
-				"Uso: pose assess [init|snapshot|diff [--from <ts>] [--to <ts>] [--json]|--json]"))
+				"Usage: pose assess [init|snapshot|diff [--from <ts>] [--to <ts>] [--json]|stale [--json]|request --mechanism <id> [--reason <text>]|--json]",
+				"Uso: pose assess [init|snapshot|diff [--from <ts>] [--to <ts>] [--json]|stale [--json]|request --mechanism <id> [--reason <texto>]|--json]"))
 			return 2
 		}
 	}
@@ -224,19 +228,50 @@ func assessSnapshot(root string, stdout, stderr io.Writer, locale cliLocale) int
 		fmt.Fprintf(stderr, "pose assess snapshot: %v\n", err)
 		return 1
 	}
+
+	// R4 (spec pose-capability-assessment-triggers): running a snapshot IS
+	// the human/agent's act of reassessment, so it closes every currently
+	// pending demand — clear every mechanism's stale marks before hashing,
+	// so merely accumulating a trigger (no human review yet) never fools
+	// the "no change since last snapshot" dedup check below.
+	content := string(raw)
+	var clearedStale []string
+	for _, mechanism := range assessment.Mechanisms {
+		if len(mechanism.StaleTriggers) == 0 {
+			continue
+		}
+		updated, didClear, cerr := clearStaleMarks(content, mechanism.ID)
+		if cerr != nil {
+			continue
+		}
+		if didClear {
+			content = updated
+			clearedStale = append(clearedStale, mechanism.ID)
+		}
+	}
+
 	event := pose.CapabilitySnapshot{
 		Schema:         pose.CapabilitySnapshotSchema,
 		At:             time.Now().UTC().Format(time.RFC3339),
 		BaselineCommit: assessment.BaselineCommit,
-		ContentHash:    pose.ContentHash12(string(raw)),
+		ContentHash:    pose.ContentHash12(content),
 		Scores:         assessment.ScoresOf(),
+		ClearedStale:   clearedStale,
 	}
 	history, err := pose.LoadCapabilityHistory(store.CapabilityHistoryPath())
 	if err != nil {
 		fmt.Fprintf(stderr, "pose assess snapshot: %v\n", err)
 		return 1
 	}
-	if len(history) > 0 && history[len(history)-1].ContentHash == event.ContentHash {
+	if len(clearedStale) > 0 {
+		if err := os.WriteFile(store.CapabilityAssessmentPath(), []byte(content), 0o644); err != nil {
+			fmt.Fprintf(stderr, "pose assess snapshot: %v\n", err)
+			return 1
+		}
+		fmt.Fprintf(stdout, cliText(locale,
+			"Cleared stale marks: %s\n", "Marcas de staleness limpas: %s\n"), strings.Join(clearedStale, ", "))
+	}
+	if len(clearedStale) == 0 && len(history) > 0 && history[len(history)-1].ContentHash == event.ContentHash {
 		fmt.Fprintf(stdout, cliText(locale,
 			"No change since the last snapshot (content hash %s); nothing appended\n",
 			"Sem mudança desde o último snapshot (content hash %s); nada acrescentado\n"), event.ContentHash)

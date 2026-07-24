@@ -282,6 +282,7 @@ func collectFollowups(root string) []followup {
 			}
 		}
 	}
+	entries = append(entries, collectCapabilityStaleFollowups(root)...)
 	return entries
 }
 

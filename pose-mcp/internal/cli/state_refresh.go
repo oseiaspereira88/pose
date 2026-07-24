@@ -23,10 +23,16 @@ import (
 // (R4): trigger, target, result, duration and the hash of every section
 // that actually changed — never section content (Segurança: metadata only).
 type refreshLogEntry struct {
-	At              string   `json:"at"`
-	Trigger         string   `json:"trigger"` // manual | ci | <event kind>
-	Target          string   `json:"target,omitempty"`
-	DedupKey        string   `json:"dedup_key,omitempty"`
+	At       string `json:"at"`
+	Trigger  string `json:"trigger"` // manual | ci | <event kind>
+	Target   string `json:"target,omitempty"`
+	DedupKey string `json:"dedup_key,omitempty"`
+	// Consumer disambiguates entries when more than one hook consumer logs
+	// against the same event kind (spec pose-capability-assessment-triggers)
+	// — "state-refresh" for this file's own entries, "assessment-staleness"
+	// for the sister consumer's. Empty on entries written before this field
+	// existed; readers must not assume it is always populated.
+	Consumer        string   `json:"consumer,omitempty"`
 	Result          string   `json:"result"` // ok | failed | skipped
 	DurationMS      int64    `json:"duration_ms"`
 	ChangedSections []string `json:"changed_sections,omitempty"`
@@ -150,7 +156,7 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 	key := dedupKey(opts.Trigger, opts.Target, gitHeadCommit(root))
 	if dedupable && exists && recentlyProcessed(root, key, 200) {
 		entry := refreshLogEntry{At: started.UTC().Format(time.RFC3339), Trigger: opts.Trigger,
-			Target: opts.Target, DedupKey: key, Result: "skipped", DurationMS: 0}
+			Target: opts.Target, DedupKey: key, Consumer: "state-refresh", Result: "skipped", DurationMS: 0}
 		_ = appendRefreshLog(root, entry)
 		return &entry, nil
 	}
@@ -251,7 +257,7 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 	}
 
 	entry := refreshLogEntry{At: started.UTC().Format(time.RFC3339), Trigger: opts.Trigger, Target: opts.Target,
-		DedupKey: key, Result: "ok", DurationMS: time.Since(started).Milliseconds(),
+		DedupKey: key, Consumer: "state-refresh", Result: "ok", DurationMS: time.Since(started).Milliseconds(),
 		ChangedSections: changed, Directed: opts.Directed != nil}
 	if err := appendRefreshLog(root, entry); err != nil {
 		return &entry, err // artifact already written successfully; log append failure is secondary
@@ -261,7 +267,7 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 
 func failedRefresh(root string, opts refreshOptions, key string, started time.Time, cause error) (*refreshLogEntry, error) {
 	entry := refreshLogEntry{At: started.UTC().Format(time.RFC3339), Trigger: opts.Trigger, Target: opts.Target,
-		DedupKey: key, Result: "failed", DurationMS: time.Since(started).Milliseconds(), Error: cause.Error()}
+		DedupKey: key, Consumer: "state-refresh", Result: "failed", DurationMS: time.Since(started).Milliseconds(), Error: cause.Error()}
 	_ = appendRefreshLog(root, entry)
 	return &entry, cause
 }

@@ -638,6 +638,23 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			"evidence_issues": issues,
 			"age_days":        ageDays,
 		}, nil
+	case "pose_capability_stale":
+		assessment, err := store.LoadCapabilityAssessment()
+		if err != nil {
+			return nil, fmt.Errorf("pose_capability_stale: %v", err)
+		}
+		type staleMechanism struct {
+			Mechanism string              `json:"mechanism"`
+			Triggers  []pose.StaleTrigger `json:"triggers"`
+		}
+		mechanisms := []staleMechanism{}
+		for _, m := range assessment.Mechanisms {
+			if len(m.StaleTriggers) == 0 {
+				continue
+			}
+			mechanisms = append(mechanisms, staleMechanism{Mechanism: m.ID, Triggers: m.StaleTriggers})
+		}
+		return map[string]any{"mechanisms": mechanisms, "count": len(mechanisms)}, nil
 	case "pose_capability_history":
 		var a struct {
 			Cursor string `json:"cursor"`
@@ -1132,6 +1149,21 @@ func toolDefinitions() []map[string]any {
 			"description": "Current capability assessment of the project: mechanisms with scores, " +
 				"targets, typed evidence references and named gaps, plus evidence-resolution issues " +
 				"and the assessment's age in days. Scores are human judgment; this projection never computes one.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_capability_stale",
+			"description": "Mechanisms currently marked assessment-stale: each pending reassessment " +
+				"demand (since, trigger — e.g. a spec closeout or a manual request, and the components " +
+				"hit). Cleared by `pose assess snapshot`; never mutates a score.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{

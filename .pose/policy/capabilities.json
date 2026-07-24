@@ -1,0 +1,9 @@
+{
+  "_comment": "Capability assessment policy (specs pose-capability-mechanism, pose-capability-assessment-triggers). Optional: absent means pose-mcp uses these same defaults. stale_after_days/stale_after_commits gate the age-based staleness check `pose assess` already reports. min_hits/level/default_owner/review_days tune the assessment-staleness hook consumer (R7): level=\"direct\" only counts a direct components_hit hit toward a mechanism (\"any\" also counts transitive hits); min_hits is the minimum distinct components a mechanism must be hit by before it is marked stale; default_owner/review_days size the synthetic follow-up's owner and review SLA when the project hasn't opted into per-capability ownership.",
+  "stale_after_days": 30,
+  "stale_after_commits": 200,
+  "min_hits": 1,
+  "level": "direct",
+  "default_owner": "unowned",
+  "review_days": 14
+}

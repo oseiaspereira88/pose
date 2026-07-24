@@ -39,6 +39,24 @@ type CapabilityMechanism struct {
 	Retired  bool     `json:"retired,omitempty"`
 	Evidence []string `json:"evidence,omitempty"`
 	Gaps     []string `json:"gaps,omitempty"`
+	// Paths is the manual glob fallback (spec
+	// pose-capability-assessment-triggers R1) used to resolve which
+	// mechanisms a changed file affects when GraphForge's component map
+	// is unavailable. Semicolon-separated, same convention as Gaps.
+	Paths []string `json:"paths,omitempty"`
+	// StaleTriggers are pending reassessment demands (R2): one entry per
+	// distinct (mechanism, trigger) pair, accumulated across events until
+	// `pose assess snapshot` clears them (R4). Never mutates Score/Target.
+	StaleTriggers []StaleTrigger `json:"stale_triggers,omitempty"`
+}
+
+// StaleTrigger is one pending "this mechanism may need reassessment"
+// demand, stamped by the assessment-staleness hook consumer or by
+// `pose assess request` (R5).
+type StaleTrigger struct {
+	Since   string   `json:"since"`   // RFC3339
+	Trigger string   `json:"trigger"` // e.g. "spec:closeout-demo" or "manual:@alias"
+	Hits    []string `json:"hits,omitempty"`
 }
 
 // CapabilityAssessment is the parsed artifact.
@@ -66,6 +84,11 @@ type CapabilitySnapshot struct {
 	ContentHash    string                     `json:"content_hash"`
 	Scores         map[string]CapabilityScore `json:"scores"`
 	SupersedesTS   string                     `json:"supersedes_ts,omitempty"`
+	// ClearedStale lists the mechanism IDs whose pending StaleTriggers this
+	// snapshot resolved (spec pose-capability-assessment-triggers R4) —
+	// the audit link between a reassessment demand and the snapshot that
+	// closed it, in the existing history entry rather than a new one.
+	ClearedStale []string `json:"cleared_stale,omitempty"`
 }
 
 // CapabilitiesDir returns the artifact directory for a root.
@@ -201,6 +224,14 @@ func ParseCapabilityAssessment(content string) (*CapabilityAssessment, error) {
 			current.Evidence = splitInlineList(value)
 		case "gaps":
 			current.Gaps = splitSemicolonList(value)
+		case "paths":
+			current.Paths = splitSemicolonList(value)
+		case "stale":
+			trigger, err := ParseStaleTriggerBullet(value)
+			if err != nil {
+				return nil, fmt.Errorf("pose: mechanism %q stale bullet: %w", current.ID, err)
+			}
+			current.StaleTriggers = appendUniqueStaleTrigger(current.StaleTriggers, trigger)
 		}
 	}
 	if err := flush(); err != nil {
@@ -243,6 +274,59 @@ func splitSemicolonList(value string) []string {
 		}
 	}
 	return out
+}
+
+// FormatStaleTriggerBullet renders a StaleTrigger as the `- stale: ...`
+// bullet value (spec pose-capability-assessment-triggers R2) — kept in
+// package pose so the writer (internal/cli) and reader share one format.
+func FormatStaleTriggerBullet(t StaleTrigger) string {
+	value := fmt.Sprintf("since=%s;trigger=%s", t.Since, t.Trigger)
+	if len(t.Hits) > 0 {
+		value += ";hits=" + strings.Join(t.Hits, ",")
+	}
+	return value
+}
+
+// ParseStaleTriggerBullet parses a `- stale: since=...;trigger=...;hits=...`
+// bullet value. since and trigger are required; hits is optional.
+func ParseStaleTriggerBullet(value string) (StaleTrigger, error) {
+	var t StaleTrigger
+	for _, field := range strings.Split(value, ";") {
+		key, v, ok := strings.Cut(strings.TrimSpace(field), "=")
+		if !ok {
+			return StaleTrigger{}, fmt.Errorf("malformed field %q (use key=value)", field)
+		}
+		switch strings.TrimSpace(key) {
+		case "since":
+			t.Since = strings.TrimSpace(v)
+		case "trigger":
+			t.Trigger = strings.TrimSpace(v)
+		case "hits":
+			t.Hits = splitInlineList(v)
+		default:
+			return StaleTrigger{}, fmt.Errorf("unknown field %q (use since|trigger|hits)", key)
+		}
+	}
+	if t.Since == "" || t.Trigger == "" {
+		return StaleTrigger{}, fmt.Errorf("stale bullet needs both since and trigger")
+	}
+	if _, err := time.Parse(time.RFC3339, t.Since); err != nil {
+		return StaleTrigger{}, fmt.Errorf("since %q is not RFC3339", t.Since)
+	}
+	return t, nil
+}
+
+// appendUniqueStaleTrigger dedups by Trigger (R7: one entry per distinct
+// (mechanism, trigger) pair) — a repeated trigger replaces the earlier
+// entry's hits/timestamp rather than accumulating a duplicate.
+func appendUniqueStaleTrigger(triggers []StaleTrigger, next StaleTrigger) []StaleTrigger {
+	for i, existing := range triggers {
+		if existing.Trigger == next.Trigger {
+			triggers[i] = next
+			return triggers
+		}
+	}
+	return append(triggers, next)
 }
 
 // ValidateCapabilityEvidence resolves every typed evidence reference against
