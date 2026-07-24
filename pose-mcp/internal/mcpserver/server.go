@@ -639,6 +639,10 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			"age_days":        ageDays,
 		}, nil
 	case "pose_capability_stale":
+		// Read-only projection of pending StaleTrigger marks (spec
+		// pose-capability-assessment-triggers) — marking/clearing stays a
+		// write-layer act (`pose assess snapshot`/`pose assess request`);
+		// this tool never mutates the assessment.
 		assessment, err := store.LoadCapabilityAssessment()
 		if err != nil {
 			return nil, fmt.Errorf("pose_capability_stale: %v", err)
