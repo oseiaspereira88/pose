@@ -16,31 +16,18 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
 var skillLinkRE = regexp.MustCompile(`\]\(([^)]+)\)`)
 
-// unsafeSkillPatterns flag instructions that would push an agent toward
-// unreviewed remote code execution — a schema-valid skill can still tell an
-// agent to do something unsafe (spec's own stated technical risk).
-var unsafeSkillPatterns = []*regexp.Regexp{
-	regexp.MustCompile(`curl[^\n]*\|\s*(sudo\s+)?(sh|bash|zsh)\b`),
-	regexp.MustCompile(`wget[^\n]*\|\s*(sudo\s+)?(sh|bash|zsh)\b`),
-	regexp.MustCompile(`\brm\s+-rf\s+/(\s|$)`),
-	regexp.MustCompile(`--no-verify\b`),
-	regexp.MustCompile(`(?i)\bdisable\s+(ssl|tls)\s+verif`),
-}
-
-// secretLikePatterns are a deterministic, offline, defense-in-depth scan —
-// not a substitute for the dedicated gitleaks gate in CI (spec
-// pose-ossf-security-baseline); it exists because a skill file is prose an
-// author can paste a real credential into just as easily as code.
-var secretLikePatterns = []*regexp.Regexp{
-	regexp.MustCompile(`AKIA[0-9A-Z]{16}`),                   // AWS access key id
-	regexp.MustCompile(`-----BEGIN [A-Z ]*PRIVATE KEY-----`), // PEM private key
-	regexp.MustCompile(`(?i)\bgh[pousr]_[A-Za-z0-9]{20,}`),   // GitHub token shapes
-}
+// unsafeSkillPatterns and secretLikePatterns alias the shared, deterministic
+// scan in internal/pose (extended to governed docs by spec
+// pose-docs-governance-contract) — kept as local names so existing call
+// sites and tests are untouched by the move.
+var unsafeSkillPatterns = pose.UnsafeContentPatterns
+var secretLikePatterns = pose.SecretLikePatterns
 
 type skillIssue struct {
 	Skill    string `json:"skill"`

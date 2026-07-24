@@ -28,6 +28,9 @@
     "pose_check": {
       "risk": "gate"
     },
+    "pose_docs_state": {
+      "risk": "read"
+    },
     "pose_extension_list": {
       "risk": "read"
     },
@@ -178,6 +181,19 @@
         "type": "object"
       },
       "name": "pose_capability_stale"
+    },
+    {
+      "description": "Current docs-governance check (spec pose-docs-governance-contract): manifest presence/profile/roots plus the live `pose docs-check` result (declared/undeclared/stale counts by doc_type, and per-doc issues with rule/severity). Opt-in by presence of `.pose/docs.json`; absent manifest returns manifest_present:false, never an error.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_docs_state"
     },
     {
       "description": "Append-only capability-assessment snapshots (score vectors by timestamp, supersede-aware), paginated — the mechanical basis for score diffs between dates or releases.",

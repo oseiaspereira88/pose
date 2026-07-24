@@ -659,6 +659,25 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			mechanisms = append(mechanisms, staleMechanism{Mechanism: m.ID, Triggers: m.StaleTriggers})
 		}
 		return map[string]any{"mechanisms": mechanisms, "count": len(mechanisms)}, nil
+	case "pose_docs_state":
+		// Read-only projection of `pose docs-check`'s live result (spec
+		// pose-docs-governance-contract) — opt-in by presence of
+		// .pose/docs.json, same degrade-by-absence contract as
+		// pose_capability_state.
+		if !store.HasDocsManifest() {
+			return map[string]any{"manifest_present": false}, nil
+		}
+		manifest, err := store.LoadDocsManifest()
+		if err != nil {
+			return nil, fmt.Errorf("pose_docs_state: %v", err)
+		}
+		result := store.CheckDocs(ctx, manifest)
+		return map[string]any{
+			"manifest_present": true,
+			"profile":          manifest.Profile,
+			"roots":            manifest.Roots,
+			"result":           result,
+		}, nil
 	case "pose_capability_history":
 		var a struct {
 			Cursor string `json:"cursor"`
@@ -1168,6 +1187,22 @@ func toolDefinitions() []map[string]any {
 			"description": "Mechanisms currently marked assessment-stale: each pending reassessment " +
 				"demand (since, trigger — e.g. a spec closeout or a manual request, and the components " +
 				"hit). Cleared by `pose assess snapshot`; never mutates a score.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_docs_state",
+			"description": "Current docs-governance check (spec pose-docs-governance-contract): manifest " +
+				"presence/profile/roots plus the live `pose docs-check` result (declared/undeclared/stale " +
+				"counts by doc_type, and per-doc issues with rule/severity). Opt-in by presence of " +
+				"`.pose/docs.json`; absent manifest returns manifest_present:false, never an error.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{

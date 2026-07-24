@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -79,6 +80,7 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	checker.checkChangelogs()
 	checker.checkReadyTransitions()
 	checker.checkCapabilities()
+	checker.checkDocs()
 	if checker.errors > 0 {
 		fmt.Fprintf(stdout, "Resultado: FALHA — estrutura POSE com %d erro(s).\n", checker.errors)
 		return 1
@@ -837,5 +839,31 @@ func (checker *nativeChecker) checkCapabilities() {
 	}
 	for _, warning := range report.Warnings {
 		checker.issue("AVISO", checker.message("capabilities: ", "capabilities: ")+warning)
+	}
+}
+
+// checkDocs incorporates `pose docs-check` (spec pose-docs-governance-contract
+// R7) — opt-in by presence of the manifest, same mechanic as checkCapabilities
+// above. Only errors gate the outer `pose check` result; docs warnings (e.g.
+// undeclared, stale) surface but never block strict mode by themselves —
+// the same warning/error split docs-check itself uses.
+func (checker *nativeChecker) checkDocs() {
+	store := pose.Store{Root: checker.root}
+	if !store.HasDocsManifest() {
+		return
+	}
+	manifest, err := store.LoadDocsManifest()
+	if err != nil {
+		checker.failOrWarn(checker.message("docs: ", "docs: ") + err.Error())
+		return
+	}
+	result := store.CheckDocs(context.Background(), manifest)
+	for _, issue := range result.Issues {
+		text := checker.message("docs: ", "docs: ") + fmt.Sprintf("%s: %s: %s", issue.Path, issue.Rule, issue.Message)
+		if issue.Severity == "error" {
+			checker.failOrWarn(text)
+		} else {
+			checker.issue("AVISO", text)
+		}
 	}
 }

@@ -57,6 +57,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_requirement_trace` | Bidirectional requirement↔evidence trace of one spec (dispositions, refs, missing/orphans) |
 | `pose_capability_state` | Current capability assessment: mechanisms with scores/targets, typed evidence, gaps, evidence-resolution issues and age |
 | `pose_capability_stale` | Mechanisms currently marked assessment-stale: pending reassessment demands (since, trigger, components hit), cleared by `pose assess snapshot` |
+| `pose_docs_state` | Docs-governance check: manifest presence/profile/roots plus the live `pose docs-check` result (declared/undeclared/stale by doc_type, per-doc issues) |
 | `pose_capability_history` | Append-only assessment snapshots (score vectors), supersede-aware and paginated |
 | `pose_spec_amendments` | Append-only amendment history of one spec plus unacknowledged requirement changes |
 | `pose_spec_readiness` | Is a spec eligible? Resolves `depends_on` refs (specs, milestones, roadmaps) |

@@ -96,6 +96,20 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdState(root, args, stdout, stderr)
+	case "docs-init":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose docs-init: %v\n", err)
+			return 1
+		}
+		return cmdDocsInit(root, args, stdout, stderr)
+	case "docs-check":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose docs-check: %v\n", err)
+			return 1
+		}
+		return cmdDocsCheck(root, args, stdout, stderr)
 	case "report":
 		root, err := projectRoot()
 		if err != nil {

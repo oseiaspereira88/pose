@@ -36,6 +36,7 @@ var stateSectionOrder = []struct {
 	{"Decisões & Conhecimento", false},
 	{"Validação & Evidência", false},
 	{"Arquitetura", false},
+	{"Docs", false},
 }
 
 const (

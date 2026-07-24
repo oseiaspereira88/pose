@@ -5,6 +5,7 @@ package cli
 // typed pointers only — never copied artifact content (spec Restrições).
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -32,6 +33,8 @@ func deriveSection(store pose.Store, name string) (body, status string) {
 		return provideValidationEvidence(store), ""
 	case "Arquitetura":
 		return provideArchitecture(), "unavailable"
+	case "Docs":
+		return provideDocs(store), ""
 	default:
 		return fmt.Sprintf("(no provider registered for section %q)", name), ""
 	}
@@ -251,6 +254,26 @@ func newestReportsFirst(root string) []string {
 		names[i] = e.name
 	}
 	return names
+}
+
+// provideDocs projects `pose docs-check`'s live result (spec
+// pose-docs-governance-contract R8) — opt-in by presence of the manifest,
+// same degrade-by-absence contract as provideCapabilities above.
+func provideDocs(store pose.Store) string {
+	if !store.HasDocsManifest() {
+		return "- manifest: ausente (rode `pose docs-init`)"
+	}
+	manifest, err := store.LoadDocsManifest()
+	if err != nil {
+		return fmt.Sprintf("- manifest: erro ao carregar (%v)", err)
+	}
+	result := store.CheckDocs(context.Background(), manifest)
+	lines := []string{
+		fmt.Sprintf("- manifest: presente, profile=%s, roots=%s", manifest.Profile, strings.Join(manifest.Roots, ",")),
+		fmt.Sprintf("- docs: declaradas=%d não-declaradas=%d vencidas=%d erros=%d avisos=%d",
+			result.Totals.Declared, result.Totals.Undeclared, result.Totals.Stale, result.Totals.Errors, result.Totals.Warnings),
+	}
+	return strings.Join(lines, "\n")
 }
 
 // provideArchitecture always degrades openly (status "unavailable"): no

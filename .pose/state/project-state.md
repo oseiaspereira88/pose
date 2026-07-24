@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-07-24T04:16:03Z
-baseline_commit: 3d1f257e2d69c401f93801071a4a86f4049b207b
+generated_at: 2026-07-24T04:51:18Z
+baseline_commit: 3605d93821b076476ffc48b12d110c813d39899d
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -40,10 +40,10 @@ capacidade.
   - ... e mais 31 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:74200c82ddce -->
+<!-- state:derived hash:7af64d34d2f1 -->
 
-- abertos: 34
-- por criticidade: high=5 medium=13 low=15 sem-classificação=1
+- abertos: 33
+- por criticidade: high=5 medium=12 low=15 sem-classificação=1
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -77,3 +77,8 @@ capacidade.
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
 
 GraphForge export local ainda não é publicado por nenhum produtor neste repositório; seção indisponível nesta versão (spec pose-project-state-artifact, Não-objetivos e Compatibilidade).
+
+## Docs
+<!-- state:derived hash:d5892e1cac69 -->
+
+- manifest: ausente (rode `pose docs-init`)

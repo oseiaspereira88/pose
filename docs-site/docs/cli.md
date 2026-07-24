@@ -100,6 +100,33 @@ silently. Anti-noise thresholds (`min_hits`, hit `level`, the follow-up's
 default owner/review SLA) share the same `.pose/policy/capabilities.json`
 policy file.
 
+## Docs governance
+
+| Command | Purpose |
+|---|---|
+| `pose docs-init [--profile library\|service\|cli\|monorepo]` | Scaffold `.pose/docs.json` with a profile's recommended `roots` — a recommendation, never mandatory |
+| `pose docs-check [--json] [--explain <rule>]` | Validate the manifest: declared docs exist, undeclared docs are flagged, frontmatter/links/typed references resolve, staleness, and a security scan |
+
+Opt-in by presence of `.pose/docs.json` — a project without the manifest
+stays valid everywhere, same mechanic as the capability assessment above.
+The manifest declares `roots` (governed doc directories) and `entries`
+(one per doc: `path`, `doc_type` — Diátaxis `tutorial`/`howto`/`reference`/
+`explanation`, or a custom value — `topics`, `owns`, `applies_to`,
+optional `review_after`). Each declared doc needs a YAML frontmatter block
+with at least `title` and `doc_type`. Seven deterministic, offline rules —
+`missing`, `undeclared`, `missing_frontmatter`, `broken_link`,
+`broken_reference`, `stale`, `security` — each with a configurable
+severity (`error`/`warning`/`off`) in the manifest's `severities` field;
+`pose docs-check --explain <rule>` documents the rationale. Staleness
+compares an entry's own `review_after` (an absolute date) or, when unset,
+the manifest's `default_review_days` counted from the doc's last touching
+commit. The security scan reuses the same deterministic, offline
+unsafe-instruction/secret-shaped pattern scan skills already run — defense
+in depth, not a substitute for the dedicated gitleaks gate. `pose check
+--strict` incorporates `docs-check` when the manifest exists (opt-in by
+presence, same mechanic as capabilities); errors block, warnings surface
+without blocking. Tool MCP: `pose_docs_state`.
+
 ## Cross-repository portfolio
 
 | Command | Purpose |
