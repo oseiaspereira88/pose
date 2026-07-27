@@ -90,8 +90,9 @@ func (id Identity) Apply(in PolicyInput) PolicyInput {
 	in.RunID = id.RunID
 	in.Scopes = id.Scopes
 	in.ExpiresAt = id.ExpiresAt
+	in.IdentityProjectID = strings.TrimSpace(id.ProjectID)
 	if in.ProjectID == "" {
-		in.ProjectID = id.ProjectID
+		in.ProjectID = in.IdentityProjectID
 	}
 	return in
 }

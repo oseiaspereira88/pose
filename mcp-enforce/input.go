@@ -16,6 +16,7 @@ type PolicyInput struct {
 	ProjectID           string   // project scope resolved from argument or header
 	ProjectIDs          []string // aggregate project scope from project_ids
 	InvalidProjectScope bool     // malformed project scope must be denied before OPA
+	IdentityProjectID   string   // immutable project carried by the signed Execution Identity
 	Method              string   // JSON-RPC method, e.g. "tools/call"
 	ToolName            string   // MCP tool name, e.g. "pose_get_spec"
 

@@ -35,6 +35,11 @@ type PolicyConfig struct {
 	// run-bound identity at the tool-call boundary.
 	RequireIdentity bool
 
+	// RequireProjectScope denies a tool call that has neither project_id nor
+	// project_ids after identity binding. It is intended for tenant-facing
+	// sidecars even when OPA is not configured.
+	RequireProjectScope bool
+
 	// HTTPClient overrides the HTTP client used for OPA queries (for testing).
 	HTTPClient *http.Client
 
@@ -98,6 +103,22 @@ func (g *PolicyGate) Evaluate(ctx context.Context, input PolicyInput) (PolicyDec
 		d.Violations = []string{"missing_identity"}
 		return d, nil
 	}
+	if g.cfg.RequireProjectScope && strings.TrimSpace(input.ProjectID) == "" && len(input.ProjectIDs) == 0 {
+		d.Violations = []string{"missing_project_scope"}
+		return d, nil
+	}
+	if identityProject := strings.TrimSpace(input.IdentityProjectID); identityProject != "" && !hasCrossProjectGrant(input.Scopes) {
+		if projectID := strings.TrimSpace(input.ProjectID); projectID != "" && projectID != identityProject {
+			d.Violations = []string{"identity_project_mismatch"}
+			return d, nil
+		}
+		for _, projectID := range input.ProjectIDs {
+			if strings.TrimSpace(projectID) != identityProject {
+				d.Violations = []string{"identity_project_mismatch"}
+				return d, nil
+			}
+		}
+	}
 	// Time-box: a presented identity that has expired is denied regardless of
 	// OPA or RequireIdentity (a single clock governs expiry, ADR-007).
 	if !input.ExpiresAt.IsZero() && g.now().After(input.ExpiresAt) {
@@ -117,4 +138,14 @@ func (g *PolicyGate) Evaluate(ctx context.Context, input PolicyInput) (PolicyDec
 	d.Allow = allow
 	d.Violations = violations
 	return d, nil
+}
+
+func hasCrossProjectGrant(scopes []string) bool {
+	for _, scope := range scopes {
+		switch strings.TrimSpace(scope) {
+		case "project:*", "tenant:cross-project":
+			return true
+		}
+	}
+	return false
 }

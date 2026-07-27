@@ -87,6 +87,9 @@ func TestIdentity_Apply(t *testing.T) {
 	if out.RunID != "run-123" || len(out.Scopes) != 2 || out.ProjectID != "proj.a" {
 		t.Errorf("apply did not bind scope fields: %+v", out)
 	}
+	if out.IdentityProjectID != "proj.a" {
+		t.Errorf("identity project not retained separately: %+v", out)
+	}
 	if out.ExpiresAt.IsZero() {
 		t.Error("apply did not set ExpiresAt")
 	}

@@ -71,12 +71,14 @@ func ProjectIDFromArguments(args json.RawMessage) string {
 //   - <prefix>REQUIRE_PRINCIPAL  "1"/"true"/"yes"/"on" → deny anonymous callers
 //   - <prefix>REQUIRE_IDENTITY   "1"/"true"/"yes"/"on" → deny calls without a
 //     run-bound Execution Identity (ADR-007)
+//   - <prefix>REQUIRE_PROJECT_SCOPE → deny calls without project_id/project_ids
 func ConfigFromEnv(prefix, defaultOPAPath string) PolicyConfig {
 	cfg := PolicyConfig{
-		OPAURL:           os.Getenv(prefix + "OPA_URL"),
-		OPAPath:          os.Getenv(prefix + "OPA_PATH"),
-		RequirePrincipal: isTruthy(os.Getenv(prefix + "REQUIRE_PRINCIPAL")),
-		RequireIdentity:  isTruthy(os.Getenv(prefix + "REQUIRE_IDENTITY")),
+		OPAURL:              os.Getenv(prefix + "OPA_URL"),
+		OPAPath:             os.Getenv(prefix + "OPA_PATH"),
+		RequirePrincipal:    isTruthy(os.Getenv(prefix + "REQUIRE_PRINCIPAL")),
+		RequireIdentity:     isTruthy(os.Getenv(prefix + "REQUIRE_IDENTITY")),
+		RequireProjectScope: isTruthy(os.Getenv(prefix + "REQUIRE_PROJECT_SCOPE")),
 	}
 	if cfg.OPAPath == "" {
 		cfg.OPAPath = defaultOPAPath

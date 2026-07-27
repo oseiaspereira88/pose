@@ -177,6 +177,46 @@ func TestPolicyGate_TimeBox_DeniesExpiredIdentity(t *testing.T) {
 	}
 }
 
+func TestPolicyGate_RequiresProjectScopeWithoutOPA(t *testing.T) {
+	g := NewPolicyGate(PolicyConfig{RequireProjectScope: true})
+	d, err := g.Evaluate(context.Background(), PolicyInput{Principal: "portal", ToolName: "analytics_query"})
+	if err != nil || d.Allow || len(d.Violations) != 1 || d.Violations[0] != "missing_project_scope" {
+		t.Fatalf("decision=%+v err=%v", d, err)
+	}
+}
+
+func TestPolicyGate_SignedIdentityCannotExpandProjectScopeWithoutOPA(t *testing.T) {
+	g := NewPolicyGate(PolicyConfig{RequireIdentity: true, RequireProjectScope: true, Clock: func() time.Time {
+		return time.Date(2026, 6, 25, 11, 0, 0, 0, time.UTC)
+	}})
+	base := sampleIdentity().Apply(PolicyInput{Principal: "portal", ToolName: "analytics_query"})
+	if d, err := g.Evaluate(context.Background(), base); err != nil || !d.Allow {
+		t.Fatalf("own project denied: decision=%+v err=%v", d, err)
+	}
+
+	for _, in := range []PolicyInput{
+		sampleIdentity().Apply(PolicyInput{Principal: "portal", ProjectID: "proj.b", ToolName: "fetch_edges"}),
+		sampleIdentity().Apply(PolicyInput{Principal: "portal", ProjectIDs: []string{"proj.a", "proj.b"}, ToolName: "analytics_query"}),
+	} {
+		d, err := g.Evaluate(context.Background(), in)
+		if err != nil || d.Allow || len(d.Violations) != 1 || d.Violations[0] != "identity_project_mismatch" {
+			t.Fatalf("expanded scope allowed: decision=%+v err=%v input=%+v", d, err, in)
+		}
+	}
+}
+
+func TestPolicyGate_CrossProjectRequiresExplicitSystemGrant(t *testing.T) {
+	g := NewPolicyGate(PolicyConfig{RequireIdentity: true, RequireProjectScope: true, Clock: func() time.Time {
+		return time.Date(2026, 6, 25, 11, 0, 0, 0, time.UTC)
+	}})
+	in := sampleIdentity().Apply(PolicyInput{Principal: "service:indexer", ProjectIDs: []string{"proj.a", "proj.b"}, ToolName: "analytics_query"})
+	in.Scopes = append(in.Scopes, "project:*")
+	d, err := g.Evaluate(context.Background(), in)
+	if err != nil || !d.Allow {
+		t.Fatalf("explicit system grant denied: decision=%+v err=%v", d, err)
+	}
+}
+
 func TestDenyDecision_Fields(t *testing.T) {
 	input := PolicyInput{Principal: "alice", ProjectID: "proj.a", ToolName: "pose_get_spec"}
 	d := DenyDecision(input, "policy_error")

@@ -259,6 +259,29 @@ func TestSidecar_Identity_InvalidDenied(t *testing.T) {
 	}
 }
 
+func TestSidecar_Identity_ProjectArgumentMismatchDeniedBeforeUpstream(t *testing.T) {
+	secret := []byte("sek")
+	up := newFakeUpstream(t)
+	gate := mcpenforce.NewPolicyGate(mcpenforce.PolicyConfig{
+		RequireIdentity: true, RequireProjectScope: true,
+		Clock: func() time.Time { return time.Date(2026, 6, 25, 11, 0, 0, 0, time.UTC) },
+	})
+	sc := New(Config{Gate: gate, Upstream: mustURL(t, up.server.URL), IdentitySecret: secret})
+	tok, _ := mcpenforce.MintToken(mcpenforce.Identity{
+		RunID: "run-1", ProjectID: "proj.a", Scopes: []string{"graph:read"},
+		ExpiresAt: time.Date(2026, 6, 25, 12, 0, 0, 0, time.UTC),
+	}, secret)
+	body := `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"analytics_query","arguments":{"project_id":"proj.b"}}}`
+	resp := postIdentity(t, sc, body, tok)
+	defer resp.Body.Close()
+	if code, hasData := decodeRPCError(t, resp); code != -32004 || !hasData {
+		t.Fatalf("error code=%d hasData=%v", code, hasData)
+	}
+	if up.hit {
+		t.Fatal("mismatched project reached upstream")
+	}
+}
+
 func TestSidecar_RequireIdentity_NoTokenDenied(t *testing.T) {
 	up := newFakeUpstream(t)
 	gate := mcpenforce.NewPolicyGate(mcpenforce.PolicyConfig{RequireIdentity: true})
