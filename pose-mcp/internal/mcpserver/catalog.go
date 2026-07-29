@@ -70,4 +70,11 @@ var catalogGovernance = map[string]toolGovernance{
 	"conductor_run_open":      {Risk: RiskExternal, Optional: true, Activation: conductorActivation},
 	"conductor_run_event":     {Risk: RiskExternal, Optional: true, Activation: conductorActivation},
 	"conductor_run_close":     {Risk: RiskExternal, Optional: true, Activation: conductorActivation},
+	"pose_component_discover":    {Risk: RiskRead},
+	"pose_list_assessments":      {Risk: RiskRead},
+	"pose_get_assessment":        {Risk: RiskRead},
+	"pose_integration_check":     {Risk: RiskRead},
+	"pose_get_integration_matrix": {Risk: RiskRead},
+	"pose_tech_debt_check":        {Risk: RiskRead},
+	"pose_get_tech_debt_report":   {Risk: RiskRead},
 }

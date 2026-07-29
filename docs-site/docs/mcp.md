@@ -70,6 +70,10 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_get_workflow` / `pose_get_rules` / `pose_get_skill` | Operating procedure content |
 | `pose_list_knowledge` / `pose_get_knowledge` | Operational memory |
 | `pose_list_reports` / `pose_get_report` | Validation evidence |
+| `pose_component_discover` | Deep discovery audit of a component: LOC count (prod vs test), debt markers (TODO/FIXME/stub/panic), languages and submodules |
+| `pose_list_assessments` / `pose_get_assessment` | Component assessment markdown inventory (.pose/assessments/) / full assessment markdown content |
+| `pose_integration_check` / `pose_get_integration_matrix` | Cross-component integration assessment (Protobuf, Kafka, REST, MCP) and provider vs consumer matrix |
+| `pose_tech_debt_check` / `pose_get_tech_debt_report` | Codebase technical debt audit (TODO, FIXME, stub, panic) with file links and recommended POSE backlog actions |
 | `pose_insights` | Deterministic outcome aggregates by workflow, task or context |
 | `pose_extension_list` | List installed extensions (id, version, kind, digest, signature status) |
 | `pose_validate_request` | Resolve an immutable, digest-pinned validation plan (no execution) |

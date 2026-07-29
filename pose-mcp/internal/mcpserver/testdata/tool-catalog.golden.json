@@ -28,16 +28,25 @@
     "pose_check": {
       "risk": "gate"
     },
+    "pose_component_discover": {
+      "risk": "read"
+    },
     "pose_docs_state": {
       "risk": "read"
     },
     "pose_extension_list": {
       "risk": "read"
     },
+    "pose_get_assessment": {
+      "risk": "read"
+    },
     "pose_get_changelog": {
       "risk": "read"
     },
     "pose_get_followups": {
+      "risk": "read"
+    },
+    "pose_get_integration_matrix": {
       "risk": "read"
     },
     "pose_get_knowledge": {
@@ -58,14 +67,23 @@
     "pose_get_spec": {
       "risk": "read"
     },
+    "pose_get_tech_debt_report": {
+      "risk": "read"
+    },
     "pose_get_workflow": {
       "risk": "read"
     },
     "pose_insights": {
       "risk": "read"
     },
+    "pose_integration_check": {
+      "risk": "read"
+    },
     "pose_lint_spec": {
       "risk": "gate"
+    },
+    "pose_list_assessments": {
+      "risk": "read"
     },
     "pose_list_knowledge": {
       "risk": "read"
@@ -95,6 +113,9 @@
       "risk": "read"
     },
     "pose_suggest": {
+      "risk": "read"
+    },
+    "pose_tech_debt_check": {
       "risk": "read"
     },
     "pose_validate_approve": {
@@ -826,6 +847,111 @@
         "type": "object"
       },
       "name": "conductor_run_close"
+    },
+    {
+      "description": "Perform a deep discovery audit of a repository component: LOC count (prod vs test), technical debt markers (TODO, FIXME, stub, panic), detected languages, and submodules. Persists JSON state to .pose/state/components/\u003cslug\u003e.json.",
+      "inputSchema": {
+        "properties": {
+          "component_path": {
+            "description": "Relative path of the component to audit, e.g. \"graphforge/ast-engine\"",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "required": [
+          "component_path"
+        ],
+        "type": "object"
+      },
+      "name": "pose_component_discover"
+    },
+    {
+      "description": "List all component assessment markdown reports available in .pose/assessments/.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_list_assessments"
+    },
+    {
+      "description": "Read the full markdown content of a component assessment report from .pose/assessments/\u003cslug\u003e.md.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Assessment slug or filename, e.g. \"ast-engine\" or \"ast-engine.md\"",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_get_assessment"
+    },
+    {
+      "description": "Perform an integration assessment across repository components: evaluates contracts (Protobuf, Kafka, REST, MCP tools) and reports integration gaps and unused capabilities.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_integration_check"
+    },
+    {
+      "description": "Get the current structured provider-consumer integration matrix and gaps state.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_get_integration_matrix"
+    },
+    {
+      "description": "Audit technical debt markers (TODO, FIXME, stub, panic) across codebase with file links and recommended POSE backlog actions.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_tech_debt_check"
+    },
+    {
+      "description": "Get the structured technical debt report state and items.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_get_tech_debt_report"
     }
   ]
 }
