@@ -74,9 +74,13 @@ capacidade.
   - report:README.md
 
 ## Arquitetura
-<!-- state:derived hash:26bc9a5cafff status:unavailable -->
+<!-- state:derived hash:a8f9c10d3e21 status:active -->
 
-GraphForge export local ainda não é publicado por nenhum produtor neste repositório; seção indisponível nesta versão (spec pose-project-state-artifact, Não-objetivos e Compatibilidade).
+- componentes: total=1 verificados=1 completude=100%
+- linhas_de_codigo: producao=275140 testes=18111 total=293251
+- linguagens: Rust (ast-engine), Go (graph-core, mcp-server, indexers, collector, enricher, planner, cli, pkg), TypeScript/React (web), WASM
+- saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
+- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/components/
 
 ## Docs
 <!-- state:derived hash:d5892e1cac69 -->

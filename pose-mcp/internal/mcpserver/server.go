@@ -983,6 +983,32 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_validate_request: %w", err)
 		}
 		return req, nil
+	case "pose_component_discover":
+		var a struct {
+			ComponentPath string `json:"component_path"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.ComponentPath == "" {
+			return nil, fmt.Errorf("pose_component_discover: required argument %q missing", "component_path")
+		}
+		return store.DiscoverComponent(a.ComponentPath)
+	case "pose_list_assessments":
+		items, err := store.ListAssessments()
+		if err != nil {
+			return nil, err
+		}
+		return map[string]any{"assessments": items, "count": len(items)}, nil
+	case "pose_get_assessment":
+		var a struct {
+			Slug string `json:"slug"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
+			return nil, fmt.Errorf("pose_get_assessment: required argument %q missing", "slug")
+		}
+		return store.GetAssessment(a.Slug)
+	case "pose_integration_check", "pose_get_integration_matrix":
+		return store.AnalyzeIntegrations()
+	case "pose_tech_debt_check", "pose_get_tech_debt_report":
+		return store.AnalyzeTechDebt()
 	default:
 		return nil, unknownToolError{name}
 	}
@@ -1906,6 +1932,110 @@ func toolDefinitions() []map[string]any {
 					},
 				},
 				"required": []string{"run_id"},
+			},
+		},
+		{
+			"name": "pose_component_discover",
+			"description": "Perform a deep discovery audit of a repository component: LOC count (prod vs test), " +
+				"technical debt markers (TODO, FIXME, stub, panic), detected languages, and submodules. " +
+				"Persists JSON state to .pose/state/components/<slug>.json.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"component_path": map[string]any{
+						"type":        "string",
+						"description": "Relative path of the component to audit, e.g. \"graphforge/ast-engine\"",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"component_path"},
+			},
+		},
+		{
+			"name": "pose_list_assessments",
+			"description": "List all component assessment markdown reports available in .pose/assessments/.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_get_assessment",
+			"description": "Read the full markdown content of a component assessment report from .pose/assessments/<slug>.md.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"slug": map[string]any{
+						"type":        "string",
+						"description": "Assessment slug or filename, e.g. \"ast-engine\" or \"ast-engine.md\"",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"slug"},
+			},
+		},
+		{
+			"name": "pose_integration_check",
+			"description": "Perform an integration assessment across repository components: evaluates contracts " +
+				"(Protobuf, Kafka, REST, MCP tools) and reports integration gaps and unused capabilities.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_get_integration_matrix",
+			"description": "Get the current structured provider-consumer integration matrix and gaps state.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_tech_debt_check",
+			"description": "Audit technical debt markers (TODO, FIXME, stub, panic) across codebase with file links and recommended POSE backlog actions.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_get_tech_debt_report",
+			"description": "Get the structured technical debt report state and items.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
 			},
 		},
 	}
