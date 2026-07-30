@@ -6,6 +6,7 @@ completed_at:        # carimbado na transição para status: done
 supersedes:          # slug da spec substituída (quando aplicável)
 depends_on:          # pré-requisitos, lista inline: outra-spec, milestone:<roadmap>/<id>, roadmap:<slug>
 priority:            # inteiro >= 0 (menor = mais prioritário); preferência de ordem, não pré-requisito
+components:          # opcional, lista inline separada por vírgula: módulos/componentes afetados (ex: mcp-server, cli) — usado pelo filtro `components` do `pose_list_specs`
 ---
 
 # Spec: <feature-slug>
@@ -42,6 +43,9 @@ priority:            # inteiro >= 0 (menor = mais prioritário); preferência de
 > requisitos funcionais devem ter **acceptance criteria com IDs estáveis**
 > (`- R<N>: ...`). IDs publicados não são renumerados; critério removido é
 > marcado como retirado. Verifique com `pose lint-spec <slug> --ready-check`.
+>
+> Forma EARS opcional: `- R1: When <gatilho>, the <sistema> shall <comportamento>.`
+> Valide specs com opt-in EARS via `pose lint-spec <slug> --ears`.
 
 ### Funcionais
 - R1: 
