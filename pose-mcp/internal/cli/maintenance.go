@@ -1,61 +1,109 @@
 package cli
 
 import (
+	"archive/tar"
+	"archive/zip"
+	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
 func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
+	commandLocale := cliLocaleValue()
+	text := func(english, portuguese string) string { return cliText(commandLocale, english, portuguese) }
+	localeFlag := ""
 	dry := false
-	if len(args) > 1 {
-		return usageError(stderr, "Usage: pose upgrade [--dry-run]")
-	}
-	if len(args) == 1 {
-		if args[0] != "--dry-run" {
-			return usageError(stderr, "Usage: pose upgrade [--dry-run]")
+	force := false
+	selfUpdate := false
+
+	i := 0
+	for i < len(args) {
+		a := args[i]
+		switch a {
+		case "--dry-run":
+			dry = true
+			i++
+		case "--force":
+			force = true
+			i++
+		case "--self":
+			selfUpdate = true
+			i++
+		case "--locale":
+			if i+1 >= len(args) {
+				fmt.Fprintf(stderr, text("pose upgrade: %s requires a value\n", "pose upgrade: %s exige um valor\n"), a)
+				return 2
+			}
+			localeFlag = args[i+1]
+			if localeFlag == "pt-BR" {
+				commandLocale = localePtBR
+			} else {
+				commandLocale = localeEN
+			}
+			i += 2
+		default:
+			return usageError(stderr, text("Usage: pose upgrade [--dry-run] [--force] [--self] [--locale tag]", "Uso: pose upgrade [--dry-run] [--force] [--self] [--locale tag]"))
 		}
-		dry = true
 	}
+
+	if selfUpdate && !dry {
+		if err := performSelfUpdate(stdout, stderr); err != nil {
+			fmt.Fprintf(stderr, "pose upgrade --self: %v\n", err)
+			return 1
+		}
+	}
+
 	if _, e := os.Stat(filepath.Join(root, ".git")); e != nil {
-		fmt.Fprintln(stderr, "pose upgrade: a git repository is required")
+		fmt.Fprintln(stderr, text("pose upgrade: a git repository is required", "pose upgrade: um repositório git é obrigatório"))
 		return 1
 	}
 	poseDir := filepath.Join(root, ".pose")
 	if fi, e := os.Lstat(poseDir); e != nil {
-		fmt.Fprintln(stderr, "pose upgrade: .pose not found")
+		fmt.Fprintln(stderr, text("pose upgrade: .pose not found", "pose upgrade: .pose não encontrado"))
 		return 1
 	} else if fi.Mode()&os.ModeSymlink != 0 {
-		fmt.Fprintln(stderr, "pose upgrade: refusing to follow symlink at .pose")
+		fmt.Fprintln(stderr, text("pose upgrade: refusing to follow symlink at .pose", "pose upgrade: recusando seguir symlink em .pose"))
 		return 1
 	}
+
 	current := 0
 	if b, e := os.ReadFile(filepath.Join(poseDir, "schema-version")); e == nil {
 		current, e = strconv.Atoi(strings.TrimSpace(string(b)))
 		if e != nil {
-			fmt.Fprintln(stderr, "pose upgrade: invalid schema-version")
+			fmt.Fprintln(stderr, text("pose upgrade: invalid schema-version", "pose upgrade: schema-version inválido"))
 			return 1
 		}
 	}
 	if current > nativeSchemaVersion {
-		fmt.Fprintf(stderr, "pose upgrade: instance v%d is newer than engine v%d; downgrade is unsupported\n", current, nativeSchemaVersion)
+		fmt.Fprintf(stderr, text("pose upgrade: instance v%d is newer than engine v%d; downgrade is unsupported\n", "pose upgrade: instância v%d é mais recente que engine v%d; downgrade não é suportado\n"), current, nativeSchemaVersion)
 		return 1
 	}
-	if current == nativeSchemaVersion {
-		fmt.Fprintf(stdout, "[INFO] instance already at schema v%d. Nothing to do.\n", current)
-		return 0
-	}
-	fmt.Fprintf(stdout, "[INFO] schema upgrade: v%d -> v%d\n", current, nativeSchemaVersion)
+
 	if dry {
-		fmt.Fprintln(stdout, "[DRY-RUN] would apply: 001-baseline")
-		fmt.Fprintln(stdout, "Result: DRY-RUN — no changes applied.")
+		if current < nativeSchemaVersion {
+			fmt.Fprintf(stdout, text("[INFO] schema upgrade: v%d -> v%d\n", "[INFO] atualização de schema: v%d -> v%d\n"), current, nativeSchemaVersion)
+			fmt.Fprintln(stdout, text("[DRY-RUN] would apply: 001-baseline", "[DRY-RUN] aplicaria: 001-baseline"))
+		} else {
+			fmt.Fprintf(stdout, text("[INFO] instance already at schema v%d. Nothing to do.\n", "[INFO] instância já está no schema v%d. Nada a fazer.\n"), current)
+		}
+		if force {
+			fmt.Fprintln(stdout, text("[DRY-RUN] would refresh scaffolds and rules (--force)", "[DRY-RUN] atualizaria scaffolds e regras (--force)"))
+		}
+		fmt.Fprintln(stdout, text("Result: DRY-RUN — no changes applied.", "Resultado: DRY-RUN — nenhuma alteração aplicada."))
 		return 0
 	}
+
 	for _, rel := range []string{".pose/roadmaps", ".pose/changelogs/unreleased", ".pose/reports/history"} {
 		if e := ensureManagedDirSafe(root, rel); e != nil {
 			fmt.Fprintf(stderr, "pose upgrade: %v\n", e)
@@ -66,8 +114,206 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, e)
 		return 1
 	}
-	fmt.Fprintf(stdout, "Result: SUCCESS — schema v%d.\n", nativeSchemaVersion)
+
+	if force {
+		fmt.Fprintln(stdout, text("[INFO] refreshing scaffolds, rules, workflows and MCP config...", "[INFO] atualizando scaffolds, regras, workflows e configuração MCP..."))
+		installArgs := []string{root, "--force"}
+		if localeFlag != "" {
+			installArgs = append(installArgs, "--locale", localeFlag)
+		} else if commandLocale == localePtBR {
+			installArgs = append(installArgs, "--locale", "pt-BR")
+		}
+		if code := cmdInstall(installArgs, stdout, stderr); code != 0 {
+			fmt.Fprintln(stderr, text("pose upgrade: scaffold refresh failed", "pose upgrade: falha na atualização de scaffolds"))
+			return code
+		}
+	}
+
+	if current == nativeSchemaVersion && !force {
+		fmt.Fprintf(stdout, text("[INFO] instance already at schema v%d. Nothing to do.\n", "[INFO] instância já está no schema v%d. Nada a fazer.\n"), current)
+		return 0
+	}
+
+	fmt.Fprintf(stdout, text("Result: SUCCESS — POSE upgraded (schema v%d).\n", "Resultado: SUCESSO — POSE atualizado (schema v%d).\n"), nativeSchemaVersion)
 	return 0
+}
+
+func performSelfUpdate(stdout, stderr io.Writer) error {
+	execPath, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("finding current binary path: %w", err)
+	}
+	execPath, err = filepath.EvalSymlinks(execPath)
+	if err != nil {
+		return fmt.Errorf("resolving binary symlink: %w", err)
+	}
+
+	fmt.Fprintf(stdout, "[INFO] checking latest release from github.com/%s...\n", releaseRepo)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", releaseRepo), nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("User-Agent", "pose-cli/"+version.ReleaseBase())
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Fprintf(stdout, "[INFO] offline or network unreachable; skipping binary self-update: %v\n", err)
+		return nil
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Fprintf(stdout, "[INFO] GitHub release check returned status %d; skipping binary self-update\n", resp.StatusCode)
+		return nil
+	}
+
+	var relData struct {
+		TagName string `json:"tag_name"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&relData); err != nil {
+		return fmt.Errorf("parsing release JSON: %w", err)
+	}
+
+	latestVer := strings.TrimPrefix(relData.TagName, "v")
+	currentVer := version.ReleaseBase()
+
+	if latestVer == currentVer {
+		fmt.Fprintf(stdout, "[INFO] pose binary is already at latest release (v%s)\n", latestVer)
+		return nil
+	}
+
+	fmt.Fprintf(stdout, "[INFO] updating pose binary: v%s -> v%s...\n", currentVer, latestVer)
+	goos := runtime.GOOS
+	goarch := runtime.GOARCH
+
+	assetName := fmt.Sprintf("pose_%s_%s_%s.tar.gz", latestVer, goos, goarch)
+	if goos == "windows" {
+		assetName = fmt.Sprintf("pose_%s_%s_%s.zip", latestVer, goos, goarch)
+	}
+
+	assetURL := fmt.Sprintf("https://github.com/%s/releases/download/v%s/%s", releaseRepo, latestVer, assetName)
+	fmt.Fprintf(stdout, "[INFO] downloading %s...\n", assetURL)
+
+	assetResp, err := client.Get(assetURL)
+	if err != nil || assetResp.StatusCode != http.StatusOK {
+		return fmt.Errorf("downloading release asset failed")
+	}
+	defer assetResp.Body.Close()
+
+	tmpFile, err := os.CreateTemp("", "pose-update-*")
+	if err != nil {
+		return fmt.Errorf("creating temp file: %w", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	if _, err := io.Copy(tmpFile, assetResp.Body); err != nil {
+		tmpFile.Close()
+		return fmt.Errorf("writing release archive: %w", err)
+	}
+	_ = tmpFile.Close()
+
+	extractedBin, err := extractPoseBinary(tmpFile.Name(), goos)
+	if err != nil {
+		return fmt.Errorf("extracting pose binary: %w", err)
+	}
+	defer os.Remove(extractedBin)
+
+	backupPath := execPath + ".old"
+	_ = os.Remove(backupPath)
+	if err := os.Rename(execPath, backupPath); err != nil {
+		return fmt.Errorf("backing up current binary: %w", err)
+	}
+
+	if err := copyDiskFile(extractedBin, execPath, 0o755); err != nil {
+		_ = os.Rename(backupPath, execPath)
+		return fmt.Errorf("replacing binary: %w", err)
+	}
+	_ = os.Remove(backupPath)
+
+	fmt.Fprintf(stdout, "[INFO] pose binary updated successfully to v%s at %s\n", latestVer, execPath)
+	return nil
+}
+
+func extractPoseBinary(archivePath, goos string) (string, error) {
+	if strings.HasSuffix(archivePath, ".zip") || goos == "windows" {
+		r, err := zip.OpenReader(archivePath)
+		if err != nil {
+			return "", err
+		}
+		defer r.Close()
+		for _, f := range r.File {
+			if f.Name == "pose" || f.Name == "pose.exe" {
+				rc, err := f.Open()
+				if err != nil {
+					return "", err
+				}
+				tmp, err := os.CreateTemp("", "pose-bin-*")
+				if err != nil {
+					rc.Close()
+					return "", err
+				}
+				_, err = io.Copy(tmp, rc)
+				rc.Close()
+				tmp.Close()
+				return tmp.Name(), err
+			}
+		}
+		return "", fmt.Errorf("pose binary not found in zip archive")
+	}
+
+	f, err := os.Open(archivePath)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	gzr, err := gzip.NewReader(f)
+	if err != nil {
+		return "", err
+	}
+	defer gzr.Close()
+
+	tr := tar.NewReader(gzr)
+	for {
+		header, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return "", err
+		}
+		if filepath.Base(header.Name) == "pose" || filepath.Base(header.Name) == "pose.exe" {
+			tmp, err := os.CreateTemp("", "pose-bin-*")
+			if err != nil {
+				return "", err
+			}
+			if _, err := io.Copy(tmp, tr); err != nil {
+				tmp.Close()
+				_ = os.Remove(tmp.Name())
+				return "", err
+			}
+			tmp.Close()
+			return tmp.Name(), nil
+		}
+	}
+	return "", fmt.Errorf("pose binary not found in tar.gz archive")
+}
+
+func copyDiskFile(src, dst string, mode os.FileMode) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, mode)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, in)
+	return err
 }
 
 // ensureManagedDirSafe creates root/rel like os.MkdirAll, but first Lstat's

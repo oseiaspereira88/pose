@@ -329,11 +329,18 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	for rel, override := range matrix.ModuleOverrides {
 		clean := filepath.ToSlash(filepath.Clean(rel))
-		if clean == "." || clean == ".." || strings.HasPrefix(clean, "../") || filepath.IsAbs(rel) {
+		if clean == ".." || strings.HasPrefix(clean, "../") || filepath.IsAbs(rel) {
 			fmt.Fprintf(stderr, cliText(locale, "Error: moduleOverrides contains a path outside the project: %s\n", "Erro: moduleOverrides contém path fora do projeto: %s\n"), rel)
 			return 2
 		}
 		if knownModules[clean] {
+			if override.Stack != "" {
+				for idx := range modules {
+					if modules[idx].Rel == clean {
+						modules[idx].Stack = override.Stack
+					}
+				}
+			}
 			continue
 		}
 		abs := filepath.Join(root, filepath.FromSlash(clean))
@@ -471,7 +478,8 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 			capture := &tailBuffer{capacity: 4096}
 			limiter := &outputLimiter{limit: maxOutput, cancel: cancel}
-			cmd := exec.CommandContext(ctx, check.Program, check.Args...)
+			execArgs := sanitizeGoCheckArgs(module.Abs, check.Program, check.Args)
+			cmd := exec.CommandContext(ctx, check.Program, execArgs...)
 			setProcessGroup(cmd)
 			cmd.Cancel = func() error { return killProcessGroup(cmd) }
 			cmd.Dir = module.Abs
@@ -605,4 +613,63 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	return 0
+}
+
+func sanitizeGoCheckArgs(dir, program string, args []string) []string {
+	if program != "go" || len(args) == 0 {
+		return args
+	}
+
+	hasWildcard := false
+	for _, a := range args {
+		if a == "./..." || strings.HasSuffix(a, "/...") {
+			hasWildcard = true
+			break
+		}
+	}
+	if !hasWildcard {
+		return args
+	}
+
+	hasNodeModules := false
+	_ = filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
+		if err == nil && d.IsDir() && d.Name() == "node_modules" {
+			hasNodeModules = true
+			return filepath.SkipDir
+		}
+		return nil
+	})
+	if !hasNodeModules {
+		return args
+	}
+
+	cmd := exec.Command("go", "list", "./...")
+	cmd.Dir = dir
+	out, err := cmd.Output()
+	if err != nil {
+		return args
+	}
+
+	var filteredPkgs []string
+	lines := strings.Split(string(out), "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed != "" && !strings.Contains(trimmed, "/node_modules/") {
+			filteredPkgs = append(filteredPkgs, trimmed)
+		}
+	}
+
+	if len(filteredPkgs) == 0 {
+		return args
+	}
+
+	var newArgs []string
+	for _, a := range args {
+		if a == "./..." || strings.HasSuffix(a, "/...") {
+			newArgs = append(newArgs, filteredPkgs...)
+		} else {
+			newArgs = append(newArgs, a)
+		}
+	}
+	return newArgs
 }
