@@ -7,7 +7,14 @@ title = "POSE gitleaks config"
 useDefault = true
 
 [allowlist]
-description = "b6d4a72: TestSecretsRedaction (internal/observability, spec pose-otel-observability) used an inline PEM-shaped literal to test the redaction function. Not a real key — the body is the literal placeholder 'MIIB...'. The literal was split across concatenated strings in a later commit so the shape no longer appears in the file, but the original commit remains in history."
+description = "Two documented, owned exceptions. (1) b6d4a72: TestSecretsRedaction (internal/observability, spec pose-otel-observability) used an inline PEM-shaped literal to test the redaction function. Not a real key — the body is the literal placeholder 'MIIB...'. The literal was split across concatenated strings in a later commit so the shape no longer appears in the file, but the original commit remains in history. (2) The regexes below exempt non-secret identifiers that the generic-api-key rule matches on the word 'key': the public SonarQube project identifier (sonar-project.properties and the scanner logs that echo it, spec pose-sonarqube-validation) and the project-state refresh dedup hash (.pose/state/refresh-log.jsonl, spec pose-project-state-refresh-contract). Both are content-scoped, not path-scoped: any other finding in those files still fails the gate."
 commits = [
   "b6d4a72534fa8834c7dd67888f48a1eb8efd3966",
+]
+regexTarget = "line"
+regexes = [
+  '''sonar\.projectKey=proj\.harne8\.[a-z0-9._-]+''',
+  '''[Pp]roject key: proj\.harne8\.[a-z0-9._-]+''',
+  '''component key: 'proj\.harne8\.[a-z0-9._-]+''',
+  '''"dedup_key":"[0-9a-f]{16}"''',
 ]
