@@ -1,0 +1,38 @@
+name: POSE Engine Limitation Report
+description: Report a known limitation, boundary or bug in the POSE engine/CLI
+title: "[LIMITATION] "
+labels: ["engine-limitation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a POSE engine limitation! This helps mature POSE organically.
+  - type: input
+    id: title
+    attributes:
+      label: Summary / Title
+      description: Brief one-line summary of the limitation.
+      placeholder: e.g. `moduleOverrides` fails to target root directory `.`
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Detailed Description & Behavior
+      description: Describe what happened, expected vs actual behavior, and error tracebacks.
+      placeholder: |
+        When running `pose validate ...`
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce / Reproduction Spec
+      description: Minimum reproducible commands or repository layout.
+  - type: input
+    id: pose_version
+    attributes:
+      label: POSE Engine Version
+      placeholder: e.g., 0.14.0
+    validations:
+      required: true

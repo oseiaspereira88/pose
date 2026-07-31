@@ -285,11 +285,11 @@ por feature em specs ativas.
 
 ## 9) Limitações da instância
 
-<!-- Mantenha aqui as limitações REAIS da sua instância, com evidência.
+<!-- Mantenha aqui as limitações REAIS da sua instância neste repositório, com evidência.
      Exemplos do que documentar:
      - módulos sem cobertura em module-metadata.json (caem em defaulted/partial)
      - stacks fora da matriz de validação
-     - gates ainda em modo tolerant e o porquê -->
+     - gates ainda em modo tolerant e o porquê. Nota: esta seção documenta a instância do repositório, NÃO bugs do motor POSE. -->
 
 - Documente limitações conforme a instância evolui.
 
@@ -307,7 +307,19 @@ por feature em specs ativas.
 
 ---
 
-## 11) Resumo executivo
+## 11) Limitações conhecidas do POSE (engine) e Feedback
+
+<!-- Mantenha aqui as limitações REAIS do POSE motor/CLI identificadas durante o uso.
+     Submeta novas limitações ou sugestões diretamente à comunidade via:
+     - `pose report-limitation --title "..." --kind limitation|bug|suggestion [--submit]`
+     - ou diretamente no GitHub: https://github.com/oseiaspereira88/pose/issues -->
+
+- Documente limitações do motor Go ou fronteiras de CLI encontradas pela equipe.
+- Relatos e sugestões são salvos em `.pose/feedback/` e sincronizados com a comunidade no GitHub em `oseiaspereira88/pose`.
+
+---
+
+## 12) Resumo executivo
 
 POSE é a camada operacional para tornar uso de agentes mais confiável no repositório:
 

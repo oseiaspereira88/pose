@@ -1,0 +1,29 @@
+name: POSE Feature / Workflow Suggestion
+description: Propose an enhancement, new CLI command, rule, or workflow for POSE
+title: "[PROPOSAL] "
+labels: ["feature-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggest an enhancement or new capability for POSE!
+  - type: input
+    id: title
+    attributes:
+      label: Proposal Title
+      description: Brief one-line title of the suggestion.
+      placeholder: e.g. Add `pose report-limitation` command
+    validations:
+      required: true
+  - type: textarea
+    id: Rationale
+    attributes:
+      label: Problem & Rationale
+      description: What problem does this proposal solve?
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Proposed Solution / Workflow
+      description: How should this feature work in the CLI, MCP, or POSE contracts?

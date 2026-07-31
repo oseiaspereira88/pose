@@ -291,9 +291,9 @@ as degraded and block functional expansion until it recovers.
 
 ## 9) Instance limitations
 
-<!-- Keep the REAL limitations of your instance here, with evidence:
+<!-- Keep the REAL limitations of your repository instance here, with evidence:
      modules missing from module-metadata.json, stacks outside the matrix,
-     gates still tolerant and why. -->
+     gates still tolerant and why. Note: this tracks instance setup, NOT engine bugs. -->
 
 - Document limitations as the instance evolves.
 
@@ -310,7 +310,19 @@ as degraded and block functional expansion until it recovers.
 
 ---
 
-## 11) Executive summary
+## 11) POSE engine limitations & community feedback
+
+<!-- Keep real limitations of the POSE CLI / Engine itself here.
+     Report new engine limitations or proposals upstream via:
+     - `pose report-limitation --title "..." --kind limitation|bug|suggestion [--submit]`
+     - or directly on GitHub: https://github.com/oseiaspereira88/pose/issues -->
+
+- Document engine-level boundaries or bugs discovered during repository maintenance.
+- Community reports and feature proposals are automatically tracked at `.pose/feedback/` and upstream at `oseiaspereira88/pose`.
+
+---
+
+## 12) Executive summary
 
 POSE is the operational layer that makes agent work reliable in the repository:
 

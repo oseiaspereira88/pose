@@ -124,6 +124,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdDocsSync(root, args, stdout, stderr)
+	case "report-limitation", "feedback":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose report-limitation: %v\n", err)
+			return 1
+		}
+		return cmdReportLimitation(root, args, stdout, stderr)
 	case "report":
 		root, err := projectRoot()
 		if err != nil {

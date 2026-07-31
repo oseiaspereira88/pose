@@ -25,7 +25,7 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 	localeFlag := ""
 	dry := false
 	force := false
-	selfUpdate := false
+	skipSelf := false
 
 	i := 0
 	for i < len(args) {
@@ -34,11 +34,14 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		case "--dry-run":
 			dry = true
 			i++
-		case "--force":
+		case "--force", "-f":
 			force = true
 			i++
+		case "--no-self":
+			skipSelf = true
+			i++
 		case "--self":
-			selfUpdate = true
+			// Accepted for backward compatibility
 			i++
 		case "--locale":
 			if i+1 >= len(args) {
@@ -53,14 +56,16 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 			}
 			i += 2
 		default:
-			return usageError(stderr, text("Usage: pose upgrade [--dry-run] [--force] [--self] [--locale tag]", "Uso: pose upgrade [--dry-run] [--force] [--self] [--locale tag]"))
+			return usageError(stderr, text("Usage: pose upgrade [--dry-run] [--force] [--no-self] [--locale tag]", "Uso: pose upgrade [--dry-run] [--force] [--no-self] [--locale tag]"))
 		}
 	}
 
-	if selfUpdate && !dry {
+	if !dry && !skipSelf {
 		if err := performSelfUpdate(stdout, stderr); err != nil {
-			fmt.Fprintf(stderr, "pose upgrade --self: %v\n", err)
-			return 1
+			// Don't treat missing binary or offline dev environment as fatal
+			if !strings.Contains(err.Error(), "404") && !strings.Contains(err.Error(), "no such file") {
+				fmt.Fprintf(stderr, text("[WARN] self-update check: %v\n", "[WARN] checagem de auto-atualização: %v\n"), err)
+			}
 		}
 	}
 
@@ -104,7 +109,7 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 
-	for _, rel := range []string{".pose/roadmaps", ".pose/changelogs/unreleased", ".pose/reports/history"} {
+	for _, rel := range []string{".pose/roadmaps", ".pose/changelogs/unreleased", ".pose/reports/history", ".pose/feedback"} {
 		if e := ensureManagedDirSafe(root, rel); e != nil {
 			fmt.Fprintf(stderr, "pose upgrade: %v\n", e)
 			return 1
@@ -134,7 +139,7 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 
-	fmt.Fprintf(stdout, text("Result: SUCCESS — POSE upgraded (schema v%d).\n", "Resultado: SUCESSO — POSE atualizado (schema v%d).\n"), nativeSchemaVersion)
+	fmt.Fprintf(stdout, text("Result: SUCCESS — POSE upgraded to engine v%s (schema v%d).\n", "Resultado: SUCESSO — POSE atualizado para engine v%s (schema v%d).\n"), version.Version, nativeSchemaVersion)
 	return 0
 }
 
