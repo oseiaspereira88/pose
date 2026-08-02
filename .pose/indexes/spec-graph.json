@@ -5,6 +5,10 @@
       "to": "pose-standalone-dogfood"
     },
     {
+      "from": "pose-artifact-provenance-ledger",
+      "to": "pose-hierarchical-review-closeout"
+    },
+    {
       "from": "pose-brownfield-reference-kits",
       "to": "pose-standalone-dogfood"
     },
@@ -31,6 +35,10 @@
     {
       "from": "pose-cyclonedx-sbom",
       "to": "pose-version-contract"
+    },
+    {
+      "from": "pose-delivery-surface-assurance",
+      "to": "pose-artifact-provenance-ledger"
     },
     {
       "from": "pose-doctor-guided-remediation",
@@ -141,6 +149,18 @@
       "to": "pose-public-install-contract"
     },
     {
+      "from": "pose-release-lifecycle-closure",
+      "to": "pose-hierarchical-review-closeout"
+    },
+    {
+      "from": "pose-release-lifecycle-closure",
+      "to": "pose-version-contract"
+    },
+    {
+      "from": "pose-release-lifecycle-closure",
+      "to": "pose-release-compatibility-matrix"
+    },
+    {
       "from": "pose-release-signing",
       "to": "pose-version-contract"
     },
@@ -213,7 +233,15 @@
       ],
       "path": ".pose/specs/pose-agent-skills-conformance/spec.md",
       "priority": 23,
-      "status": "draft"
+      "status": "done"
+    },
+    "pose-artifact-provenance-ledger": {
+      "depends_on": [
+        "pose-hierarchical-review-closeout"
+      ],
+      "path": ".pose/specs/pose-artifact-provenance-ledger/spec.md",
+      "priority": 1,
+      "status": "in-progress"
     },
     "pose-brownfield-reference-kits": {
       "depends_on": [
@@ -223,7 +251,13 @@
       ],
       "path": ".pose/specs/pose-brownfield-reference-kits/spec.md",
       "priority": 28,
-      "status": "draft"
+      "status": "done"
+    },
+    "pose-capability-mechanism": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-capability-mechanism/spec.md",
+      "priority": 0,
+      "status": "done"
     },
     "pose-changed-scope-validation": {
       "depends_on": [
@@ -231,7 +265,7 @@
       ],
       "path": ".pose/specs/pose-changed-scope-validation/spec.md",
       "priority": 16,
-      "status": "draft"
+      "status": "done"
     },
     "pose-cross-repo-portfolio": {
       "depends_on": [
@@ -240,7 +274,7 @@
       ],
       "path": ".pose/specs/pose-cross-repo-portfolio/spec.md",
       "priority": 33,
-      "status": "draft"
+      "status": "done"
     },
     "pose-cyclonedx-sbom": {
       "depends_on": [
@@ -248,6 +282,14 @@
       ],
       "path": ".pose/specs/pose-cyclonedx-sbom/spec.md",
       "priority": 7,
+      "status": "done"
+    },
+    "pose-delivery-surface-assurance": {
+      "depends_on": [
+        "pose-artifact-provenance-ledger"
+      ],
+      "path": ".pose/specs/pose-delivery-surface-assurance/spec.md",
+      "priority": 2,
       "status": "draft"
     },
     "pose-doctor-guided-remediation": {
@@ -256,7 +298,7 @@
       ],
       "path": ".pose/specs/pose-doctor-guided-remediation/spec.md",
       "priority": 27,
-      "status": "draft"
+      "status": "done"
     },
     "pose-dora-adoption-metrics": {
       "depends_on": [
@@ -265,7 +307,7 @@
       ],
       "path": ".pose/specs/pose-dora-adoption-metrics/spec.md",
       "priority": 31,
-      "status": "draft"
+      "status": "done"
     },
     "pose-extension-catalog-lifecycle": {
       "depends_on": [
@@ -274,7 +316,7 @@
       ],
       "path": ".pose/specs/pose-extension-catalog-lifecycle/spec.md",
       "priority": 24,
-      "status": "draft"
+      "status": "done"
     },
     "pose-followup-ownership-sla": {
       "depends_on": [
@@ -282,7 +324,7 @@
       ],
       "path": ".pose/specs/pose-followup-ownership-sla/spec.md",
       "priority": 12,
-      "status": "draft"
+      "status": "done"
     },
     "pose-harne8-control-plane-integration": {
       "depends_on": [
@@ -292,7 +334,13 @@
       ],
       "path": ".pose/specs/pose-harne8-control-plane-integration/spec.md",
       "priority": 34,
-      "status": "draft"
+      "status": "done"
+    },
+    "pose-hierarchical-review-closeout": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-hierarchical-review-closeout/spec.md",
+      "priority": 0,
+      "status": "done"
     },
     "pose-knowledge-consumption-traceability": {
       "depends_on": [
@@ -300,7 +348,7 @@
       ],
       "path": ".pose/specs/pose-knowledge-consumption-traceability/spec.md",
       "priority": 14,
-      "status": "draft"
+      "status": "done"
     },
     "pose-localization-docs-contract": {
       "depends_on": [
@@ -309,7 +357,7 @@
       ],
       "path": ".pose/specs/pose-localization-docs-contract/spec.md",
       "priority": 29,
-      "status": "draft"
+      "status": "done"
     },
     "pose-mcp-catalog-conformance": {
       "depends_on": [
@@ -317,7 +365,7 @@
       ],
       "path": ".pose/specs/pose-mcp-catalog-conformance/spec.md",
       "priority": 1,
-      "status": "draft"
+      "status": "done"
     },
     "pose-mcp-project-scope-contract": {
       "depends_on": [
@@ -325,7 +373,7 @@
       ],
       "path": ".pose/specs/pose-mcp-project-scope-contract/spec.md",
       "priority": 20,
-      "status": "draft"
+      "status": "done"
     },
     "pose-mcp-protocol-completeness": {
       "depends_on": [
@@ -333,7 +381,7 @@
       ],
       "path": ".pose/specs/pose-mcp-protocol-completeness/spec.md",
       "priority": 21,
-      "status": "draft"
+      "status": "done"
     },
     "pose-monorepo-validation-recipes": {
       "depends_on": [
@@ -342,7 +390,7 @@
       ],
       "path": ".pose/specs/pose-monorepo-validation-recipes/spec.md",
       "priority": 19,
-      "status": "draft"
+      "status": "done"
     },
     "pose-ossf-security-baseline": {
       "depends_on": [
@@ -350,7 +398,7 @@
       ],
       "path": ".pose/specs/pose-ossf-security-baseline/spec.md",
       "priority": 5,
-      "status": "draft"
+      "status": "done"
     },
     "pose-otel-observability": {
       "depends_on": [
@@ -359,7 +407,7 @@
       ],
       "path": ".pose/specs/pose-otel-observability/spec.md",
       "priority": 30,
-      "status": "draft"
+      "status": "done"
     },
     "pose-package-manager-distribution": {
       "depends_on": [
@@ -369,7 +417,7 @@
       ],
       "path": ".pose/specs/pose-package-manager-distribution/spec.md",
       "priority": 25,
-      "status": "draft"
+      "status": "done"
     },
     "pose-public-install-contract": {
       "depends_on": [
@@ -377,7 +425,7 @@
       ],
       "path": ".pose/specs/pose-public-install-contract/spec.md",
       "priority": 3,
-      "status": "draft"
+      "status": "done"
     },
     "pose-recurrence-effectiveness": {
       "depends_on": [
@@ -385,7 +433,7 @@
       ],
       "path": ".pose/specs/pose-recurrence-effectiveness/spec.md",
       "priority": 13,
-      "status": "draft"
+      "status": "done"
     },
     "pose-release-compatibility-matrix": {
       "depends_on": [
@@ -394,6 +442,16 @@
       ],
       "path": ".pose/specs/pose-release-compatibility-matrix/spec.md",
       "priority": 4,
+      "status": "done"
+    },
+    "pose-release-lifecycle-closure": {
+      "depends_on": [
+        "pose-hierarchical-review-closeout",
+        "pose-version-contract",
+        "pose-release-compatibility-matrix"
+      ],
+      "path": ".pose/specs/pose-release-lifecycle-closure/spec.md",
+      "priority": 3,
       "status": "draft"
     },
     "pose-release-signing": {
@@ -402,7 +460,7 @@
       ],
       "path": ".pose/specs/pose-release-signing/spec.md",
       "priority": 6,
-      "status": "draft"
+      "status": "done"
     },
     "pose-reproducible-release-verification": {
       "depends_on": [
@@ -411,7 +469,7 @@
       ],
       "path": ".pose/specs/pose-reproducible-release-verification/spec.md",
       "priority": 9,
-      "status": "draft"
+      "status": "done"
     },
     "pose-requirement-evidence-traceability": {
       "depends_on": [
@@ -419,7 +477,7 @@
       ],
       "path": ".pose/specs/pose-requirement-evidence-traceability/spec.md",
       "priority": 10,
-      "status": "draft"
+      "status": "done"
     },
     "pose-safe-validate-orchestration": {
       "depends_on": [
@@ -429,7 +487,7 @@
       ],
       "path": ".pose/specs/pose-safe-validate-orchestration/spec.md",
       "priority": 22,
-      "status": "draft"
+      "status": "done"
     },
     "pose-semantic-governance-assist": {
       "depends_on": [
@@ -438,7 +496,7 @@
       ],
       "path": ".pose/specs/pose-semantic-governance-assist/spec.md",
       "priority": 32,
-      "status": "draft"
+      "status": "done"
     },
     "pose-slsa-provenance": {
       "depends_on": [
@@ -447,7 +505,7 @@
       ],
       "path": ".pose/specs/pose-slsa-provenance/spec.md",
       "priority": 8,
-      "status": "draft"
+      "status": "done"
     },
     "pose-spec-amendment-history": {
       "depends_on": [
@@ -455,7 +513,7 @@
       ],
       "path": ".pose/specs/pose-spec-amendment-history/spec.md",
       "priority": 11,
-      "status": "draft"
+      "status": "done"
     },
     "pose-stack-catalog-expansion": {
       "depends_on": [
@@ -463,13 +521,13 @@
       ],
       "path": ".pose/specs/pose-stack-catalog-expansion/spec.md",
       "priority": 18,
-      "status": "draft"
+      "status": "done"
     },
     "pose-standalone-dogfood": {
       "depends_on": null,
       "path": ".pose/specs/pose-standalone-dogfood/spec.md",
       "priority": 2,
-      "status": "in-progress"
+      "status": "done"
     },
     "pose-structured-validation-results": {
       "depends_on": [
@@ -477,7 +535,7 @@
       ],
       "path": ".pose/specs/pose-structured-validation-results/spec.md",
       "priority": 15,
-      "status": "draft"
+      "status": "done"
     },
     "pose-upgrade-compatibility-lab": {
       "depends_on": [
@@ -485,7 +543,7 @@
       ],
       "path": ".pose/specs/pose-upgrade-compatibility-lab/spec.md",
       "priority": 26,
-      "status": "draft"
+      "status": "done"
     },
     "pose-validation-runtime-guardrails": {
       "depends_on": [
@@ -493,13 +551,13 @@
       ],
       "path": ".pose/specs/pose-validation-runtime-guardrails/spec.md",
       "priority": 17,
-      "status": "draft"
+      "status": "done"
     },
     "pose-version-contract": {
       "depends_on": null,
       "path": ".pose/specs/pose-version-contract/spec.md",
       "priority": 0,
-      "status": "in-progress"
+      "status": "done"
     }
   }
 }

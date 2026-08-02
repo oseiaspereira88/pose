@@ -274,6 +274,16 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "pose close: %v\n", err)
 			return 1
 		}
+		if policy, err := posemodel.LoadArtifactPolicy(root); err != nil {
+			fmt.Fprintf(stderr, "pose close: %v\n", err)
+			return 1
+		} else if policy.Enabled && sp.CreatedAt >= policy.AdoptedAt {
+			claims, found, err := posemodel.ParseArtifactClaims(*sp, policy)
+			if err != nil || !found || len(claims) == 0 {
+				fmt.Fprintf(stderr, "pose close: artifact declaration gate failed: %v\n", err)
+				return 1
+			}
+		}
 		path = sp.Path
 	} else {
 		path = filepath.Join(root, ".pose", "roadmaps", scope.Slug+".md")

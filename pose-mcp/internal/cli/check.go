@@ -78,6 +78,7 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	checker.checkTaskMap()
 	checker.checkSpecs()
 	checker.checkReviewCloseout()
+	checker.checkArtifactContracts()
 	checker.checkChangelogs()
 	checker.checkReadyTransitions()
 	checker.checkCapabilities()
@@ -92,6 +93,35 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "Resultado: SUCESSO — estrutura POSE válida (modo %s).\n", mode)
 	return 0
+}
+
+func (checker *nativeChecker) checkArtifactContracts() {
+	policy, err := pose.LoadArtifactPolicy(checker.root)
+	if err != nil {
+		checker.failOrWarn("artifact contract: " + err.Error())
+		return
+	}
+	if !policy.Enabled {
+		return
+	}
+	store := pose.Store{Root: checker.root}
+	paths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*", "spec.md"))
+	for _, path := range paths {
+		fm := simpleFrontmatter(path)
+		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
+			continue
+		}
+		slug := filepath.Base(filepath.Dir(path))
+		spec, err := store.GetSpec(slug)
+		if err != nil {
+			checker.failOrWarn("artifact contract: spec:" + slug + ": " + err.Error())
+			continue
+		}
+		claims, found, err := pose.ParseArtifactClaims(*spec, policy)
+		if err != nil || !found || len(claims) == 0 {
+			checker.failOrWarn(fmt.Sprintf("artifact contract: spec:%s requires one structured claim or none reason: %v", slug, err))
+		}
+	}
 }
 
 func (checker *nativeChecker) checkReviewCloseout() {

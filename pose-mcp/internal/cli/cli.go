@@ -152,7 +152,7 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
-	case "review", "review-check", "closeout-check", "close", "continuous-closeout":
+	case "review", "review-check", "closeout-check", "close", "continuous-closeout", "artifact-check", "artifact-backfill":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
@@ -167,6 +167,10 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return cmdCloseoutCheck(root, args, stdout, stderr)
 		case "continuous-closeout":
 			return cmdContinuousCloseout(root, args, stdout, stderr)
+		case "artifact-check":
+			return cmdArtifactCheck(root, args, stdout, stderr)
+		case "artifact-backfill":
+			return cmdArtifactBackfill(root, args, stdout, stderr)
 		default:
 			return cmdClose(root, args, stdout, stderr)
 		}
@@ -318,12 +322,14 @@ Scaffolds:
 
 Deterministic gates:
   check | validate | knowledge-check | recurrence-check | lint-spec |
-  followups | amend | history-check | skills-check | review-check | closeout-check
+  followups | amend | history-check | skills-check | review-check | closeout-check |
+  artifact-check
 
 Governed closeout:
   review record <scope> [...]           Record an immutable review attempt
   close <scope>                         Apply a review-gated lifecycle transition
   continuous-closeout <action>          Persist and project a terminal scope
+  artifact-backfill --from-git          Propose explicit historical provenance
 
 Project state:
   state [init|refresh|diff]           Native project-state artifact (bare = validate)
@@ -366,12 +372,14 @@ Scaffold:
 
 Gates determinísticos:
   check | validate | knowledge-check | recurrence-check | lint-spec |
-  followups | amend | history-check | skills-check | review-check | closeout-check
+  followups | amend | history-check | skills-check | review-check | closeout-check |
+  artifact-check
 
 Fechamento governado:
   review record <escopo> [...]          Registra tentativa imutável de review
   close <escopo>                        Aplica transição de ciclo de vida governada
   continuous-closeout <ação>            Persiste e projeta um escopo terminal
+  artifact-backfill --from-git          Propõe proveniência histórica explícita
 
 Estado do projeto:
   state [init|refresh|diff]           Artefato nativo de project-state (sem subcomando = validar)

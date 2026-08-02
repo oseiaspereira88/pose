@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "enabled": true,
+  "adopted_at": "2026-08-03",
+  "governed_roots": [
+    ".agents/skills",
+    ".github/workflows",
+    ".pose/templates",
+    ".pose/workflows",
+    "docs-site/docs",
+    "pose-mcp/internal",
+    "scripts"
+  ],
+  "exclusions": [
+    "pose-mcp/internal/scaffold/dist",
+    "pose-mcp/internal/mcpserver/testdata",
+    "pose-mcp/internal/pose/testdata"
+  ],
+  "none_reasons": ["release", "migration"],
+  "severities": {
+    "resolvability": "error",
+    "existence": "error",
+    "action-mismatch": "error",
+    "undeclared": "error",
+    "orphan": "warning",
+    "legacy-narrative": "info"
+  }
+}

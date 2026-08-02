@@ -66,6 +66,11 @@ components:          # opcional, lista inline separada por vírgula: módulos/co
 ### Áreas afetadas
 - 
 
+### Artifacts
+<!-- Declare paths exatos relativos ao projeto: created, modified, renamed
+     (antigo -> novo), removed, ou uma entrada `none: <motivo>`. -->
+- modified: caminho/do/arquivo
+
 ### Mudanças de API/contrato
 - 
 

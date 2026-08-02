@@ -774,6 +774,14 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_closeout_state: required argument %q missing", "scope")
 		}
 		return store.GetCloseoutState(a.Scope)
+	case "pose_delivery_integrity":
+		var a struct {
+			Path string `json:"path"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_delivery_integrity: invalid arguments")
+		}
+		return store.GetDeliveryIntegrity(a.Path)
 	case "pose_get_changelog":
 		var a struct {
 			Version string `json:"version"`
@@ -1397,6 +1405,25 @@ func toolDefinitions() []map[string]any {
 					},
 				},
 				"required": []string{"scope"},
+			},
+		},
+		{
+			"name": "pose_delivery_integrity",
+			"description": "Read the project-scoped delivery-integrity graph: separate spec artifact " +
+				"claims, Git-observed change sets, typed edges, reverse path provenance and stable " +
+				"findings. Optionally narrow results to one exact path.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"path": map[string]any{
+						"type":        "string",
+						"description": "Optional exact project-relative artifact path",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
 			},
 		},
 		{

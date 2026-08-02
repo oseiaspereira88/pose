@@ -466,6 +466,18 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: status: done requires populated 'completed_at' frontmatter\n", "[ERRO] %s: status: done exige 'completed_at' preenchido no frontmatter\n"), slug)
 			lifecycle++
 		}
+		if root, err := projectRoot(); err == nil {
+			if policy, err := posepkg.LoadArtifactPolicy(root); err != nil {
+				fmt.Fprintf(stderr, "[ERROR] %s: artifact policy: %v\n", slug, err)
+				lifecycle++
+			} else if policy.Enabled && strings.TrimSpace(frontmatter["completed_at"]) >= policy.AdoptedAt {
+				claims, found, err := posepkg.ParseArtifactClaims(posepkg.Spec{Slug: slug, Body: text}, policy)
+				if err != nil || !found || len(claims) == 0 {
+					fmt.Fprintf(stderr, "[ERROR] %s: structured Artifacts declaration required after %s: %v\n", slug, policy.AdoptedAt, err)
+					lifecycle++
+				}
+			}
+		}
 		for _, content := range followups {
 			disposition, errMsg := lintFollowupDisposition(content, knownSlugs, slug, locale)
 			if errMsg != "" {

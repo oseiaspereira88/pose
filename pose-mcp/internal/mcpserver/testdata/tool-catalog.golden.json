@@ -34,6 +34,9 @@
     "pose_component_discover": {
       "risk": "read"
     },
+    "pose_delivery_integrity": {
+      "risk": "read"
+    },
     "pose_docs_state": {
       "risk": "read"
     },
@@ -345,6 +348,23 @@
         "type": "object"
       },
       "name": "pose_closeout_state"
+    },
+    {
+      "description": "Read the project-scoped delivery-integrity graph: separate spec artifact claims, Git-observed change sets, typed edges, reverse path provenance and stable findings. Optionally narrow results to one exact path.",
+      "inputSchema": {
+        "properties": {
+          "path": {
+            "description": "Optional exact project-relative artifact path",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_delivery_integrity"
     },
     {
       "description": "Read the changelog state (pose-release-changelog): pending unreleased fragments (one per delivered spec) and consolidated release versions; pass a version to load its full body.",

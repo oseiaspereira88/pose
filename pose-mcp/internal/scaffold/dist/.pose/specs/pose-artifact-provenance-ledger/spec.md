@@ -1,6 +1,6 @@
 ---
 slug: pose-artifact-provenance-ledger
-status: draft
+status: in-progress
 created_at: 2026-08-02
 completed_at:
 supersedes:
@@ -130,6 +130,40 @@ delivery graph required by issue #7.
   contract.
 - `.pose/templates`, locales, workflows, rules, POSE manual and embedded
   scaffold mirrors.
+
+### Consulted context
+- `knowledge:contract-baseline-handoff` for current index, report, MCP and
+  release contracts.
+- `adr:2026-08-02-delivery-integrity-graph-and-git-observed-provenance` for the
+  shared graph, witness separation and selector precedence.
+
+### Artifacts
+- modified: .pose/rules/delivery-evidence.md
+- modified: .pose/specs/pose-artifact-provenance-ledger/spec.md
+- modified: .pose/templates/spec.md
+- modified: .pose/workflows/feature.md
+- modified: POSE.md
+- modified: docs-site/docs/mcp.md
+- modified: locales/pt-BR/.pose/templates/spec.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/cli/report.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/mcpserver/catalog.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/server_test.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- created: .pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md
+- created: .pose/policy/artifacts.json
+- created: .pose/indexes/delivery-integrity.json
+- created: pose-mcp/internal/cli/artifact_integrity.go
+- created: pose-mcp/internal/cli/artifact_integrity_test.go
+- created: pose-mcp/internal/mcpserver/delivery_integrity_tool_test.go
+- created: pose-mcp/internal/pose/delivery_integrity.go
+- created: pose-mcp/internal/pose/delivery_integrity_test.go
 
 ### API/contract changes
 - Add a strict artifact bullet grammar:
@@ -261,6 +295,17 @@ surface spec proves the complementary failure.
 - Spec readiness: `pose lint-spec pose-artifact-provenance-ledger --ready-check`.
 - Spec lint: `pose lint-spec pose-artifact-provenance-ledger --strict`.
 - Delivery gate: `pose validate --strict --module pose-mcp --report`.
+
+### Risk-based test plan
+
+| Scenario | Command | Expected evidence |
+|---|---|---|
+| Unit — artifact grammar and canonical paths | `go -C pose-mcp test ./internal/pose -run 'Artifact|DeliveryIntegrity' -count=1` | Closed actions parse; traversal, globs, directories and contradictory claims fail. |
+| Integration — real Git actions and selectors | `go -C pose-mcp test ./internal/cli -run 'Artifact|ChangeSet' -count=1` | Create/modify/rename/remove match a bounded diff and unsafe revisions fail before Git invocation. |
+| Contract — index and report history | `go -C pose-mcp test ./internal/cli -run 'DeliveryIntegrity|ReportChangeSet' -count=1` | Byte-stable graph/reverse traversal and change-set fields participate in stable hashes. |
+| Contract — MCP projection | `go -C pose-mcp test ./internal/mcpserver -run 'DeliveryIntegrity' -count=1` | Project-scoped read model matches CLI schema and leaks no contents or absolute roots. |
+| Migration — legacy/backfill | `go -C pose-mcp test ./internal/cli -run 'ArtifactBackfill|LegacyArtifact' -count=1` | Dry-run is non-mutating and ambiguity remains an unresolved finding. |
+| Required module gate | `pose validate --strict --module pose-mcp --report` | Full Go validation and evidence report pass. |
 
 ### Execution log
 - 2026-08-02, planning: repository discovery completed with

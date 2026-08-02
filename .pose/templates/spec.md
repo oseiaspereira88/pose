@@ -66,6 +66,11 @@ components:          # optional, inline comma-separated list: modules/components
 ### Affected areas
 - 
 
+### Artifacts
+<!-- Declare exact project-relative source-tree paths: created, modified,
+     renamed (old -> new), removed, or one `none: <reason>` entry. -->
+- modified: path/to/file
+
 ### API/contract changes
 - 
 

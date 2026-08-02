@@ -16,6 +16,10 @@ current-state sections in specs or proposals, and messages that say something is
   A plan describes intent; do not present that intent as current reality.
 - Reference the report or evidence that crossed the spec exit gate before using `done`.
 - Convert relative dates to absolute dates and stamp the verification date.
+- Declare exact source-tree artifact actions in the spec and reconcile them
+  against an immutable Git change set before claiming delivery.
+- Treat artifact declarations, Git observations and delivery verification as
+  separate evidence; none proves the others by itself.
 
 ## Blocking anti-patterns
 
@@ -30,6 +34,7 @@ current-state sections in specs or proposals, and messages that say something is
 - Run `pose check --strict` for structure and spec status enums.
 - Run `pose validate --strict` for every module the document claims to deliver.
 - Run `pose lint-spec` when the document is a spec.
+- Run `pose artifact-check --strict` when the scope changes governed source-tree paths.
 
 ## Precedence in multi-domain conflicts
 

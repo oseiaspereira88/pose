@@ -89,7 +89,12 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	for _, r := range roadmaps {
 		roadmapMap[r.Slug] = map[string]any{"status": r.Status, "created_at": r.CreatedAt, "depends_on": r.DependsOn, "milestones": r.Milestones, "path": relativePath(root, r.Path)}
 	}
-	outputs := map[string]any{"repo-map.json": repo, "services.json": services, "packages.json": packages, "spec-graph.json": map[string]any{"schemaVersion": 1, "specs": specMap, "edges": edges}, "roadmaps.json": map[string]any{"schemaVersion": 1, "roadmaps": roadmapMap}}
+	deliveryGraph, err := buildCurrentDeliveryGraph(root)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose index: delivery integrity: %v\n", err)
+		return 1
+	}
+	outputs := map[string]any{"repo-map.json": repo, "services.json": services, "packages.json": packages, "spec-graph.json": map[string]any{"schemaVersion": 1, "specs": specMap, "edges": edges}, "roadmaps.json": map[string]any{"schemaVersion": 1, "roadmaps": roadmapMap}, "delivery-integrity.json": deliveryGraph}
 	dir := filepath.Join(root, ".pose", "indexes")
 	for name, value := range outputs {
 		b, e := json.MarshalIndent(value, "", "  ")

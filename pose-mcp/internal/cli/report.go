@@ -15,26 +15,29 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 var reportSlugChars = regexp.MustCompile(`[^a-z0-9]+`)
 
 type reportRecord struct {
-	GeneratedAt       string `json:"generated_at"`
-	Sequence          int    `json:"sequence"`
-	Task              string `json:"task"`
-	TaskSlug          string `json:"task_slug"`
-	ReportType        string `json:"report_type"`
-	Spec              string `json:"spec"`
-	Workflow          string `json:"workflow"`
-	Rules             string `json:"rules"`
-	ValidationProfile string `json:"validation_profile"`
-	Context           string `json:"context"`
-	Risk              string `json:"risk"`
-	Outcome           string `json:"outcome"`
-	OutcomeSource     string `json:"outcome_source"`
-	StableHash        string `json:"stable_hash"`
-	ReportPath        string `json:"report_path"`
+	GeneratedAt       string               `json:"generated_at"`
+	Sequence          int                  `json:"sequence"`
+	Task              string               `json:"task"`
+	TaskSlug          string               `json:"task_slug"`
+	ReportType        string               `json:"report_type"`
+	Spec              string               `json:"spec"`
+	Workflow          string               `json:"workflow"`
+	Rules             string               `json:"rules"`
+	ValidationProfile string               `json:"validation_profile"`
+	Context           string               `json:"context"`
+	Risk              string               `json:"risk"`
+	Outcome           string               `json:"outcome"`
+	OutcomeSource     string               `json:"outcome_source"`
+	StableHash        string               `json:"stable_hash"`
+	ReportPath        string               `json:"report_path"`
+	ChangeSet         *posemodel.ChangeSet `json:"change_set,omitempty"`
 	// Optional telemetry (spec pose-recurrence-effectiveness); absent when
 	// not provided — downstream metrics stay partial, never fabricated.
 	DurationSeconds *float64 `json:"duration_seconds,omitempty"`
@@ -49,7 +52,7 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 		"task": true, "spec": true, "risk": true, "workflow": true, "rules": true,
 		"validate-output": true, "type": true, "context": true,
 		"validation-profile": true, "outcome": true, "since": true,
-		"duration-seconds": true, "cost-usd": true,
+		"duration-seconds": true, "cost-usd": true, "change-from": true, "change-to": true,
 	}
 	for i := 0; i < len(args); i++ {
 		if args[i] == "--git-stage" {
@@ -119,6 +122,19 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, cliText(locale, "Error: --task does not produce a valid slug.", "Erro: --task não produz um slug válido."))
 		return 2
 	}
+	var changeSet *posemodel.ChangeSet
+	if values["change-from"] != "" || values["change-to"] != "" {
+		if values["spec"] == "" {
+			fmt.Fprintln(stderr, "Error: --change-from/--change-to require --spec.")
+			return 2
+		}
+		resolved, err := resolveGitChangeSet(root, values["spec"], values["change-from"], values["change-to"])
+		if err != nil {
+			fmt.Fprintf(stderr, "Error: resolving report change set: %v\n", err)
+			return 1
+		}
+		changeSet = &resolved
+	}
 	now := time.Now().UTC()
 	reports := filepath.Join(root, ".pose", "reports")
 	historyDir := filepath.Join(reports, "history")
@@ -133,6 +149,9 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 		"task_slug": slug, "spec": values["spec"], "report_type": values["type"],
 		"workflow": values["workflow"], "rules": values["rules"],
 		"validation_profile": values["validation-profile"], "context": values["context"],
+	}
+	if changeSet != nil {
+		stable["change_set"] = changeSet.DiffDigest + ":" + changeSet.ResolvedBase + ":" + changeSet.ResolvedHead
 	}
 	stableJSON := stableReportJSON(stable)
 	digest := sha256.Sum256(stableJSON)
@@ -158,12 +177,12 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	filesChanged := reportChangedFiles(root, values["since"])
-	markdown := renderReportMarkdown(now, values, task, slug, outcome, outcomeSource, filesChanged, validationCommands, validationResults, sequence, stableHash, compareStatus, previousAt, changes)
+	markdown := renderReportMarkdown(now, values, task, slug, outcome, outcomeSource, filesChanged, validationCommands, validationResults, sequence, stableHash, compareStatus, previousAt, changes, changeSet)
 	if err := os.WriteFile(reportPath, []byte(markdown), 0o644); err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: writing report: %v\n", "Erro: escrevendo relatório: %v\n"), err)
 		return 1
 	}
-	record := reportRecord{now.Format(time.RFC3339), sequence, task, slug, values["type"], values["spec"], values["workflow"], values["rules"], values["validation-profile"], values["context"], values["risk"], outcome, outcomeSource, stableHash, reportPath, nil, nil}
+	record := reportRecord{GeneratedAt: now.Format(time.RFC3339), Sequence: sequence, Task: task, TaskSlug: slug, ReportType: values["type"], Spec: values["spec"], Workflow: values["workflow"], Rules: values["rules"], ValidationProfile: values["validation-profile"], Context: values["context"], Risk: values["risk"], Outcome: outcome, OutcomeSource: outcomeSource, StableHash: stableHash, ReportPath: reportPath, ChangeSet: changeSet}
 	for flag, dst := range map[string]**float64{"duration-seconds": &record.DurationSeconds, "cost-usd": &record.CostUSD} {
 		if v := values[flag]; v != "" {
 			f, err := strconv.ParseFloat(v, 64)
@@ -270,7 +289,7 @@ func reportChangedFiles(root, since string) []string {
 	return files
 }
 
-func renderReportMarkdown(now time.Time, values map[string]string, task, slug, outcome, outcomeSource string, files, commands, results []string, sequence int, hash, compareStatus, previousAt string, changes []string) string {
+func renderReportMarkdown(now time.Time, values map[string]string, task, slug, outcome, outcomeSource string, files, commands, results []string, sequence int, hash, compareStatus, previousAt string, changes []string, changeSet *posemodel.ChangeSet) string {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "# POSE Report - %s\n\n## Report Type\n- %s\n\n## Task\n- %s\n- Task slug: %s\n", now.Format("2006-01-02"), values["type"], task, slug)
 	if values["spec"] != "" {
@@ -287,6 +306,16 @@ func renderReportMarkdown(now time.Time, values map[string]string, task, slug, o
 	writeReportList(&builder, commands, "_Fill manually_")
 	builder.WriteString("\n## Results\n")
 	writeReportList(&builder, results, "_No validation output detected_")
+	if changeSet != nil {
+		fmt.Fprintf(&builder, "\n## Change Set\n- ID: %s\n- Selector: %s\n- Base: %s (%s)\n- Head: %s (%s)\n- Diff digest: %s\n- Paths:\n", changeSet.ID, changeSet.Selector, changeSet.Base, changeSet.ResolvedBase, changeSet.Head, changeSet.ResolvedHead, changeSet.DiffDigest)
+		for _, path := range changeSet.Paths {
+			value := path.Path
+			if path.Action == "renamed" {
+				value = path.OldPath + " -> " + path.NewPath
+			}
+			fmt.Fprintf(&builder, "  - %s: %s\n", path.Action, value)
+		}
+	}
 	fmt.Fprintf(&builder, "\n## Execution Metadata\n- Generated at (UTC): %s\n- Context: %s\n- Validation profile: %s\n- Sequence for task/spec: %d\n- Stable comparison hash: %s\n", now.Format(time.RFC3339), values["context"], values["validation-profile"], sequence, hash)
 	if previousAt == "" {
 		previousAt = "_No previous execution_"

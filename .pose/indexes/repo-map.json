@@ -6,6 +6,7 @@
   ],
   "helmCharts": [],
   "manifests": [
+    "examples/brownfield-kits/direct-adoption/fixture/service/go.mod",
     "mcp-enforce/go.mod",
     "pose-mcp/go.mod"
   ],
@@ -61,14 +62,50 @@
   ],
   "readmes": [
     ".agents/skills/README.md",
+    ".pose/assessments/README.md",
     ".pose/knowledge/README.md",
     ".pose/reports/README.md",
     "README.md",
+    "examples/brownfield-kits/README.md",
+    "examples/brownfield-kits/direct-adoption/README.md",
+    "examples/brownfield-kits/direct-adoption/fixture/README.md",
+    "examples/brownfield-kits/openspec-import/README.md",
+    "examples/brownfield-kits/openspec-import/fixture/README.md",
+    "examples/brownfield-kits/spec-kit-import/README.md",
+    "examples/brownfield-kits/spec-kit-import/fixture/README.md",
     "locales/pt-BR/.agents/skills/README.md",
     "mcp-enforce/README.md",
     "pose-action/README.md",
     "pose-mcp/schemas/README.md"
   ],
   "root": ".",
-  "services": []
+  "services": [
+    {
+      "name": "service",
+      "path": "examples/brownfield-kits/direct-adoption/fixture/service",
+      "language": "go",
+      "hasDockerfile": false,
+      "hasHelmChart": false,
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "domain": "developer-tooling",
+      "validationProfile": "baseline",
+      "metadata": {
+        "criticality": "medium",
+        "domain": "developer-tooling",
+        "owner": "@pose-maintainers",
+        "validationProfile": "baseline"
+      },
+      "metadataStatus": {
+        "isComplete": false,
+        "missingFields": [
+          "criticality",
+          "domain",
+          "owner",
+          "validationProfile"
+        ],
+        "source": "defaulted"
+      }
+    }
+  ]
 }

@@ -38,7 +38,7 @@
         }
       ],
       "path": ".pose/roadmaps/adoption-developer-experience.md",
-      "status": "active"
+      "status": "done"
     },
     "agent-interop-ecosystem": {
       "created_at": "2026-07-18",
@@ -78,6 +78,47 @@
         }
       ],
       "path": ".pose/roadmaps/agent-interop-ecosystem.md",
+      "status": "done"
+    },
+    "delivery-integrity": {
+      "created_at": "2026-08-02",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "governed-closeout",
+          "specs": [
+            "pose-hierarchical-review-closeout"
+          ]
+        },
+        {
+          "id": "provenance-foundation",
+          "after": [
+            "governed-closeout"
+          ],
+          "specs": [
+            "pose-artifact-provenance-ledger"
+          ]
+        },
+        {
+          "id": "composed-delivery",
+          "after": [
+            "provenance-foundation"
+          ],
+          "specs": [
+            "pose-delivery-surface-assurance"
+          ]
+        },
+        {
+          "id": "release-closure",
+          "after": [
+            "composed-delivery"
+          ],
+          "specs": [
+            "pose-release-lifecycle-closure"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/delivery-integrity.md",
       "status": "active"
     },
     "governance-traceability": {
@@ -118,7 +159,7 @@
         }
       ],
       "path": ".pose/roadmaps/governance-traceability.md",
-      "status": "active"
+      "status": "done"
     },
     "insights-enterprise-scale": {
       "created_at": "2026-07-18",
@@ -168,7 +209,7 @@
         }
       ],
       "path": ".pose/roadmaps/insights-enterprise-scale.md",
-      "status": "active"
+      "status": "done"
     },
     "product-integrity": {
       "created_at": "2026-07-18",
@@ -208,7 +249,7 @@
         }
       ],
       "path": ".pose/roadmaps/product-integrity.md",
-      "status": "active"
+      "status": "done"
     },
     "supply-chain-trust": {
       "created_at": "2026-07-18",
@@ -248,7 +289,7 @@
         }
       ],
       "path": ".pose/roadmaps/supply-chain-trust.md",
-      "status": "active"
+      "status": "done"
     },
     "validation-platform": {
       "created_at": "2026-07-18",
@@ -288,7 +329,7 @@
         }
       ],
       "path": ".pose/roadmaps/validation-platform.md",
-      "status": "active"
+      "status": "done"
     }
   },
   "schemaVersion": 1
