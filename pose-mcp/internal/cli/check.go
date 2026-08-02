@@ -77,6 +77,7 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	checker.checkValidationMatrix()
 	checker.checkTaskMap()
 	checker.checkSpecs()
+	checker.checkReviewCloseout()
 	checker.checkChangelogs()
 	checker.checkReadyTransitions()
 	checker.checkCapabilities()
@@ -91,6 +92,62 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "Resultado: SUCESSO — estrutura POSE válida (modo %s).\n", mode)
 	return 0
+}
+
+func (checker *nativeChecker) checkReviewCloseout() {
+	policyPath := filepath.Join(checker.root, ".pose", "policy", "review.json")
+	raw, err := os.ReadFile(policyPath)
+	if os.IsNotExist(err) {
+		return
+	}
+	if err != nil {
+		checker.failOrWarn("review closeout: cannot read policy: " + err.Error())
+		return
+	}
+	var policy struct {
+		Enabled   bool   `json:"enabled"`
+		AdoptedAt string `json:"adopted_at"`
+	}
+	if err := json.Unmarshal(raw, &policy); err != nil || policy.AdoptedAt == "" {
+		checker.failOrWarn("review closeout: invalid review policy")
+		return
+	}
+	if !policy.Enabled {
+		return
+	}
+	store := pose.Store{Root: checker.root}
+	specPaths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*", "spec.md"))
+	for _, path := range specPaths {
+		fm := simpleFrontmatter(path)
+		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
+			continue
+		}
+		slug := filepath.Base(filepath.Dir(path))
+		state, err := store.GetCloseoutState("spec:" + slug)
+		if err != nil {
+			checker.failOrWarn("review closeout: spec:" + slug + ": " + err.Error())
+			continue
+		}
+		if !state.Terminal {
+			checker.failOrWarn("review closeout: spec:" + slug + ": " + state.NextAction)
+		}
+	}
+	roadmapPaths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
+	for _, path := range roadmapPaths {
+		fm := simpleFrontmatter(path)
+		if fm["status"] != "done" || fm["created_at"] < policy.AdoptedAt {
+			continue
+		}
+		slug := strings.TrimSuffix(filepath.Base(path), ".md")
+		state, err := store.GetCloseoutState("roadmap:" + slug)
+		if err != nil {
+			checker.failOrWarn("review closeout: roadmap:" + slug + ": " + err.Error())
+			continue
+		}
+		if !state.Terminal {
+			checker.failOrWarn("review closeout: roadmap:" + slug + ": " + state.NextAction)
+		}
+	}
 }
 
 func (checker *nativeChecker) checkRequiredStructure() {

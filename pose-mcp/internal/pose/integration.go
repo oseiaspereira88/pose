@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -24,7 +25,7 @@ type IntegrationContract struct {
 	Protocol string `json:"protocol"` // kafka, protobuf, rest, mcp, library
 	Provider string `json:"provider"`
 	Consumer string `json:"consumer"`
-	Status   string `json:"status"`   // active, degraded, gap
+	Status   string `json:"status"` // active, degraded, gap
 }
 
 // IntegrationSummary holds high-level integration metrics.
@@ -281,5 +282,5 @@ func (s Store) SaveIntegrationMatrix(matrix *IntegrationMatrix) error {
 			g.GapID, g.Title, g.Severity, g.Provider, g.Consumer, g.Description)
 	}
 
-	return os.WriteFile(s.IntegrationReportPath(), []byte(md), 0o644)
+	return os.WriteFile(s.IntegrationReportPath(), []byte(strings.TrimRight(md, "\n")+"\n"), 0o644)
 }

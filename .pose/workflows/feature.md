@@ -23,7 +23,9 @@ Deliver a production feature with clear scope, incremental implementation, and d
 8. Review security, observability, and operational-documentation impact.
 9. Create a reusable handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, a pending decision, or a follow-up; link the spec through `source_refs`.
 10. Summarize the result, residual risks, and next steps.
-11. Close the spec with `pose-spec-closeout`: set `status: done` and `completed_at`, disposition every follow-up, and pass `pose lint-spec <slug> --strict`.
+11. Run a separate review pass and record its immutable attempt with `pose review record spec:<slug> ... --apply`.
+12. Require `pose closeout-check spec:<slug>` before applying `pose close spec:<slug>`; remediate and re-review when the digest or findings block closure.
+13. Complete follow-up and changelog disposition, then pass `pose lint-spec <slug> --strict`.
 
 ## Required outputs
 
@@ -38,7 +40,7 @@ Deliver a production feature with clear scope, incremental implementation, and d
 - Preserve public contracts or document intentional changes.
 - Pass every relevant deterministic check.
 - Keep scope controlled and exclude unrelated refactors.
-- Close the spec with `status: done`, `completed_at`, and dispositioned follow-ups.
+- Close the spec with a current approved review, `status: done`, `completed_at`, and dispositioned follow-ups.
 
 ## Planner mode
 

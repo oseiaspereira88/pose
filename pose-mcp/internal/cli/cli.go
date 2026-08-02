@@ -152,6 +152,24 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
+	case "review", "review-check", "closeout-check", "close", "continuous-closeout":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
+			return 1
+		}
+		switch cmd {
+		case "review":
+			return cmdReview(root, args, stdout, stderr)
+		case "review-check":
+			return cmdReviewCheck(root, args, stdout, stderr)
+		case "closeout-check":
+			return cmdCloseoutCheck(root, args, stdout, stderr)
+		case "continuous-closeout":
+			return cmdContinuousCloseout(root, args, stdout, stderr)
+		default:
+			return cmdClose(root, args, stdout, stderr)
+		}
 	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks", "skills-check", "record-deployment", "record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping", "semantic-suggest", "suggest-feedback", "portfolio-projection", "reconcile-evidence":
 		root, err := projectRoot()
 		if err != nil {
@@ -300,7 +318,12 @@ Scaffolds:
 
 Deterministic gates:
   check | validate | knowledge-check | recurrence-check | lint-spec |
-  followups | amend | history-check | skills-check
+  followups | amend | history-check | skills-check | review-check | closeout-check
+
+Governed closeout:
+  review record <scope> [...]           Record an immutable review attempt
+  close <scope>                         Apply a review-gated lifecycle transition
+  continuous-closeout <action>          Persist and project a terminal scope
 
 Project state:
   state [init|refresh|diff]           Native project-state artifact (bare = validate)
@@ -343,7 +366,12 @@ Scaffold:
 
 Gates determinísticos:
   check | validate | knowledge-check | recurrence-check | lint-spec |
-  followups | amend | history-check | skills-check
+  followups | amend | history-check | skills-check | review-check | closeout-check
+
+Fechamento governado:
+  review record <escopo> [...]          Registra tentativa imutável de review
+  close <escopo>                        Aplica transição de ciclo de vida governada
+  continuous-closeout <ação>            Persiste e projeta um escopo terminal
 
 Estado do projeto:
   state [init|refresh|diff]           Artefato nativo de project-state (sem subcomando = validar)

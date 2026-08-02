@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "evaluated_at": "2026-08-02T17:09:55Z",
+  "baseline_commit": "3eaa7db815cf",
+  "summary": {
+    "total_integrations": 11,
+    "active_contracts": 10,
+    "identified_gaps": 8
+  },
+  "contracts": [
+    {
+      "name": "GraphMutationEvent (Protobuf)",
+      "protocol": "protobuf",
+      "provider": "ast-engine, indexers, collector, enricher, planner",
+      "consumer": "graph-core",
+      "status": "active"
+    },
+    {
+      "name": "Kafka Mutation Topics (ast/git/infra/test/runtime/semantic/plan.mutations)",
+      "protocol": "kafka",
+      "provider": "ast-engine, indexers, collector, enricher, planner",
+      "consumer": "graph-core",
+      "status": "active"
+    },
+    {
+      "name": "NodeKinds (74) \u0026 EdgeKinds (87)",
+      "protocol": "library",
+      "provider": "graphforge/pkg/models",
+      "consumer": "ast-engine, graph-core, mcp-server, indexers, collector, enricher, planner",
+      "status": "active"
+    },
+    {
+      "name": "MCP Protocol (52 Tools)",
+      "protocol": "mcp",
+      "provider": "graphforge/mcp-server",
+      "consumer": "cli, graphforge-web, ai-agents",
+      "status": "active"
+    },
+    {
+      "name": "Curation HTTP API (Port 8090)",
+      "protocol": "rest",
+      "provider": "graphforge/semantic-enricher",
+      "consumer": "graphforge-web",
+      "status": "active"
+    },
+    {
+      "name": "Planning HTTP API (Port 8095)",
+      "protocol": "rest",
+      "provider": "graphforge/planning-engine",
+      "consumer": "cli, graphforge-web",
+      "status": "degraded"
+    },
+    {
+      "name": "Conductor Run Reporter \u0026 Fleet State (38 MCP Tools)",
+      "protocol": "mcp/http",
+      "provider": "conductor",
+      "consumer": "harne8-pose-mcp, harness, portal",
+      "status": "active"
+    },
+    {
+      "name": "Harness Execution Engine Sandbox (gRPC/REST)",
+      "protocol": "grpc",
+      "provider": "harness",
+      "consumer": "conductor",
+      "status": "active"
+    },
+    {
+      "name": "Portal Session Bridge \u0026 Edge Gateway",
+      "protocol": "rest/jwt",
+      "provider": "workers/app",
+      "consumer": "portal, conductor, site",
+      "status": "active"
+    },
+    {
+      "name": "OPA Policy Enforcement Engine (egress-policy.json)",
+      "protocol": "opa",
+      "provider": "pose-dist/mcp-enforce",
+      "consumer": "harne8-pose-mcp",
+      "status": "active"
+    },
+    {
+      "name": "Harne8 Open API \u0026 Protobuf Shared Contracts",
+      "protocol": "openapi/protobuf",
+      "provider": "contracts",
+      "consumer": "workers/app, conductor, harness, site",
+      "status": "active"
+    }
+  ],
+  "gaps": [
+    {
+      "gap_id": "GAP-01",
+      "title": "pkg/componentshit Subaproveitado no mcp-server",
+      "severity": "medium",
+      "provider": "graphforge/pkg/componentshit",
+      "consumer": "graphforge/mcp-server",
+      "description": "Nenhuma tool MCP exporta a travessia transitiva de impacto de capabilities POSE. Apenas o CLI Go possui o comando 'components-hit'."
+    },
+    {
+      "gap_id": "GAP-02",
+      "title": "runtime-collector Anomalias/Impacto vs. Dashboard no graphforge-web",
+      "severity": "high",
+      "provider": "graphforge/runtime-collector",
+      "consumer": "graphforge/graphforge-web",
+      "description": "Os dashboards de saude utilizam mocks/simulacoes no Zustand store em vez de assinar em tempo real a stream de anomalias/latencia OTel."
+    },
+    {
+      "gap_id": "GAP-03",
+      "title": "planning-engine Shadow Graph (SAGA \u0026 Approval) vs. cli e graphforge-web",
+      "severity": "high",
+      "provider": "graphforge/planning-engine",
+      "consumer": "graphforge/cli, graphforge/graphforge-web",
+      "description": "A CLI nao possui subcomandos para aprovacao de planos (Lead Signoff / Emergency) ou acionamento de rollback SAGA. O Web nao renderiza o Shadow Graph."
+    },
+    {
+      "gap_id": "GAP-04",
+      "title": "Desconexao do semantic-enricher em Ambientes POSE Remotos/Multi-Projeto",
+      "severity": "medium",
+      "provider": "harne8-pose-mcp / .pose",
+      "consumer": "graphforge/semantic-enricher",
+      "description": "O semantic-enricher le arquivos .pose/ do disco local via os.ReadFile em vez de consumir a API do pose-mcp, impedindo uso distribuido."
+    },
+    {
+      "gap_id": "GAP-05",
+      "title": "Bytecode JVM no ast-engine vs. Mapeamento de Atributos no graph-core",
+      "severity": "low",
+      "provider": "graphforge/ast-engine (bytecode parser)",
+      "consumer": "graphforge/graph-core",
+      "description": "O graph-core aceita nos com node_type=Class, mas as tabelas relacionais do Postgres nao possuem colunas para instrucoes bytecode JVM."
+    },
+    {
+      "gap_id": "GAP-06",
+      "title": "Conductor Tenancy Bridge vs. Harness Sandbox Execution Isolation",
+      "severity": "critical",
+      "provider": "conductor",
+      "consumer": "harness",
+      "description": "O runner de sandbox do Harness no modo dev (docker-compose.dev.yaml) nao propaga o tenant-id isolado do Conductor em execucoes concorrentes de agentes."
+    },
+    {
+      "gap_id": "GAP-07",
+      "title": "Portal Session Bridge em workers/app vs. Autenticacao GraphForge Web",
+      "severity": "high",
+      "provider": "workers/app (Cloudflare Worker)",
+      "consumer": "graphforge/graphforge-web",
+      "description": "O graphforge-web utiliza sessoes de streaming anonimas com Neo4j, enquanto o workers/app exige JWT Bearer tokens na borda, exigindo um header mapping no gateway."
+    },
+    {
+      "gap_id": "GAP-08",
+      "title": "mcp-enforce Sincronizacao de Politicas em Tempo Real",
+      "severity": "medium",
+      "provider": "pose-dist/mcp-enforce",
+      "consumer": "harne8-pose-mcp",
+      "description": "As politicas OPA sao carregadas na inicializacao do processo, porem falta um file-watcher para recarregar alteracoes em .pose/policy/*.json em tempo real."
+    }
+  ]
+}

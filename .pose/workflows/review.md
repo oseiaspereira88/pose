@@ -25,6 +25,8 @@ Verify that a change is correct, production-safe, and aligned with its approved 
 10. Classify findings by severity and propose objective actions.
 11. Create and link a handoff when findings result in accepted risk, post-merge monitoring, or deferred work.
 12. Issue a final decision: approved, approved with reservations, or rejected.
+13. Record the decision against the canonical scope digest with `pose review record <scope> ... --apply`.
+14. Run `pose review-check <scope>` and reject stale, incomplete or conflicting attempts.
 
 ## Required rule selection
 
@@ -96,6 +98,7 @@ Attach this section to the review:
 ## Required outputs
 
 - A review decision with rationale.
+- An immutable review attempt whose digest matches the reviewed scope.
 - A completed rule-selection section.
 - Findings with severity, evidence, and recommendation.
 - Recurrence classification by domain and cause with preventive actions.

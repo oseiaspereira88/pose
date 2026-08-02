@@ -22,24 +22,24 @@ type ComponentDiscoveryMetrics struct {
 
 // TechnicalDebtMetrics tracks debt markers found in code.
 type TechnicalDebtMetrics struct {
-	TODOs   int `json:"todos"`
-	FIXMEs  int `json:"fixmes"`
-	Panics  int `json:"panics"`
-	Stubs   int `json:"stubs"`
+	TODOs  int `json:"todos"`
+	FIXMEs int `json:"fixmes"`
+	Panics int `json:"panics"`
+	Stubs  int `json:"stubs"`
 }
 
 // ComponentDiscoveryState represents the machine-readable state of a component discovery.
 type ComponentDiscoveryState struct {
-	SchemaVersion   int                       `json:"schema_version"`
-	ComponentSlug   string                    `json:"component_slug"`
-	Path            string                    `json:"path"`
-	DiscoveredAt    string                    `json:"discovered_at"`
-	BaselineCommit  string                    `json:"baseline_commit"`
-	Metrics         ComponentDiscoveryMetrics `json:"metrics"`
-	TechnicalDebt   TechnicalDebtMetrics      `json:"technical_debt"`
-	Metadata        map[string]string         `json:"metadata,omitempty"`
-	Status          string                    `json:"status"`
-	CompletenessScore float64                 `json:"completeness_score"`
+	SchemaVersion     int                       `json:"schema_version"`
+	ComponentSlug     string                    `json:"component_slug"`
+	Path              string                    `json:"path"`
+	DiscoveredAt      string                    `json:"discovered_at"`
+	BaselineCommit    string                    `json:"baseline_commit"`
+	Metrics           ComponentDiscoveryMetrics `json:"metrics"`
+	TechnicalDebt     TechnicalDebtMetrics      `json:"technical_debt"`
+	Metadata          map[string]string         `json:"metadata,omitempty"`
+	Status            string                    `json:"status"`
+	CompletenessScore float64                   `json:"completeness_score"`
 }
 
 // AssessmentsDir returns the path to .pose/assessments
@@ -377,11 +377,11 @@ func (s Store) GenerateComponentAssessmentMarkdown(state *ComponentDiscoveryStat
 
 	md := fmt.Sprintf(`# Component Assessment: %s (`+"`%s`"+`)
 
-> **Mapeamento de Módulo POSE**: `+"`%s`"+`  
-> **Data de Avaliação**: %s | **Baseline Commit**: %s  
-> **Métricas**: %d LOC Produção | %d LOC Testes | %d Arquivos Totais  
-> **Linguagens**: %s  
-> **Saúde de Código**: %d TODOs | %d FIXMEs | %d Panics | %d Stubs  
+> **Mapeamento de Módulo POSE**: `+"`%s`"+`
+> **Data de Avaliação**: %s | **Baseline Commit**: %s
+> **Métricas**: %d LOC Produção | %d LOC Testes | %d Arquivos Totais
+> **Linguagens**: %s
+> **Saúde de Código**: %d TODOs | %d FIXMEs | %d Panics | %d Stubs
 
 ---
 

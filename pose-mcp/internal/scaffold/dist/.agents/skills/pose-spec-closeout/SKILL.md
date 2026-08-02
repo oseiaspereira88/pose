@@ -46,12 +46,14 @@ when transitioning to `done`.
 ## Steps
 
 1. Confirm strict deterministic validation passed for affected modules.
-2. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
-3. Propose each consequential disposition and obtain confirmation before writing it.
-4. Set `status: done` and the real `completed_at` date.
-5. Run `pose lint-spec <slug> --strict`.
-6. Create any confirmed successor spec and revalidate its intent instead of copying follow-up text verbatim.
-7. Inspect residual live backlog with `pose followups --open --json`.
+2. Run a separate review pass and record it with `pose review record spec:<slug> ... --apply`.
+3. Require `pose review-check spec:<slug>`; remediate, revalidate and supersede stale or rejected attempts.
+4. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
+5. Propose each consequential disposition and obtain confirmation before writing it.
+6. Apply `pose close spec:<slug>`; use a manual lifecycle edit only when the Git workflow requires it and preserve the same gate.
+7. Run `pose lint-spec <slug> --strict`.
+8. Create any confirmed successor spec and revalidate its intent instead of copying follow-up text verbatim.
+9. Inspect residual live backlog with `pose followups --open --json`.
 
 ## Output requirements
 

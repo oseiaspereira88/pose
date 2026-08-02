@@ -28,6 +28,9 @@
     "pose_check": {
       "risk": "gate"
     },
+    "pose_closeout_state": {
+      "risk": "read"
+    },
     "pose_component_discover": {
       "risk": "read"
     },
@@ -322,6 +325,26 @@
         "type": "object"
       },
       "name": "pose_project_state"
+    },
+    {
+      "description": "Read the evidence-backed hierarchical closeout projection for a typed spec, milestone or roadmap scope. Returns current or stale review state, child blockers, the smallest next governed action and terminal status.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "scope": {
+            "description": "Typed scope: spec:\u003cslug\u003e, milestone:\u003croadmap\u003e/\u003cid\u003e, or roadmap:\u003cslug\u003e",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope"
+        ],
+        "type": "object"
+      },
+      "name": "pose_closeout_state"
     },
     {
       "description": "Read the changelog state (pose-release-changelog): pending unreleased fragments (one per delivered spec) and consolidated release versions; pass a version to load its full body.",

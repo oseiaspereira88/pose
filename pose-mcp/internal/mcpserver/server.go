@@ -766,6 +766,14 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return map[string]any{"initialized": false, "message": "project state not initialized (run `pose state init`)"}, nil
 		}
 		return store.ProjectState(ctx, a.Section)
+	case "pose_closeout_state":
+		var a struct {
+			Scope string `json:"scope"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.Scope == "" {
+			return nil, fmt.Errorf("pose_closeout_state: required argument %q missing", "scope")
+		}
+		return store.GetCloseoutState(a.Scope)
 	case "pose_get_changelog":
 		var a struct {
 			Version string `json:"version"`
@@ -1372,6 +1380,26 @@ func toolDefinitions() []map[string]any {
 			},
 		},
 		{
+			"name": "pose_closeout_state",
+			"description": "Read the evidence-backed hierarchical closeout projection for a typed " +
+				"spec, milestone or roadmap scope. Returns current or stale review state, child " +
+				"blockers, the smallest next governed action and terminal status.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"scope": map[string]any{
+						"type":        "string",
+						"description": "Typed scope: spec:<slug>, milestone:<roadmap>/<id>, or roadmap:<slug>",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"scope"},
+			},
+		},
+		{
 			"name": "pose_get_changelog",
 			"description": "Read the changelog state (pose-release-changelog): pending unreleased " +
 				"fragments (one per delivered spec) and consolidated release versions; pass a " +
@@ -1955,7 +1983,7 @@ func toolDefinitions() []map[string]any {
 			},
 		},
 		{
-			"name": "pose_list_assessments",
+			"name":        "pose_list_assessments",
 			"description": "List all component assessment markdown reports available in .pose/assessments/.",
 			"inputSchema": map[string]any{
 				"type": "object",
@@ -1968,7 +1996,7 @@ func toolDefinitions() []map[string]any {
 			},
 		},
 		{
-			"name": "pose_get_assessment",
+			"name":        "pose_get_assessment",
 			"description": "Read the full markdown content of a component assessment report from .pose/assessments/<slug>.md.",
 			"inputSchema": map[string]any{
 				"type": "object",
@@ -2000,7 +2028,7 @@ func toolDefinitions() []map[string]any {
 			},
 		},
 		{
-			"name": "pose_get_integration_matrix",
+			"name":        "pose_get_integration_matrix",
 			"description": "Get the current structured provider-consumer integration matrix and gaps state.",
 			"inputSchema": map[string]any{
 				"type": "object",
@@ -2013,7 +2041,7 @@ func toolDefinitions() []map[string]any {
 			},
 		},
 		{
-			"name": "pose_tech_debt_check",
+			"name":        "pose_tech_debt_check",
 			"description": "Audit technical debt markers (TODO, FIXME, stub, panic) across codebase with file links and recommended POSE backlog actions.",
 			"inputSchema": map[string]any{
 				"type": "object",
@@ -2026,7 +2054,7 @@ func toolDefinitions() []map[string]any {
 			},
 		},
 		{
-			"name": "pose_get_tech_debt_report",
+			"name":        "pose_get_tech_debt_report",
 			"description": "Get the structured technical debt report state and items.",
 			"inputSchema": map[string]any{
 				"type": "object",

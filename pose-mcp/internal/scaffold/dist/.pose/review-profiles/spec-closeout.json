@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "spec-closeout",
+  "version": 1,
+  "scope": "spec",
+  "criteria": [
+    {"id": "scope", "description": "The implementation matches the approved spec scope.", "rules": ["documentation-style"]},
+    {"id": "requirements", "description": "Every requirement has current, relevant evidence.", "evidence_classes": ["requirement-trace", "test"]},
+    {"id": "correctness", "description": "Functional and negative behavior is correct.", "evidence_classes": ["test", "validation"]},
+    {"id": "security", "description": "Inputs, paths, evidence and authority boundaries are safe.", "rules": ["security"]},
+    {"id": "compatibility", "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated."},
+    {"id": "operability", "description": "Errors, explanations and remediation are actionable."},
+    {"id": "documentation", "description": "Operational docs, templates and scaffold match runtime behavior.", "rules": ["documentation-style"]}
+  ]
+}

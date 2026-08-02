@@ -1,8 +1,8 @@
 ---
 slug: pose-hierarchical-review-closeout
-status: draft
+status: done
 created_at: 2026-08-02
-completed_at:
+completed_at: 2026-08-02
 supersedes:
 depends_on:
 priority: 0
@@ -166,6 +166,12 @@ objective terminal state.
 - `.pose/review-profiles`, `.pose/policy`, templates, workflows, rules, skills,
   POSE manual, locales and embedded scaffold.
 
+### Consulted context
+- `knowledge:contract-baseline-handoff` for the existing lifecycle, MCP catalog,
+  release and validation contracts.
+- `adr:2026-08-02-immutable-hierarchical-review-and-closeout-evidence` for the
+  immutable-attempt, digest and hierarchical roll-up decision.
+
 ### API/contract changes
 - Add immutable review attempts under `.pose/reviews/` with flat frontmatter and
   machine-parseable criteria and findings:
@@ -245,43 +251,43 @@ objective terminal state.
 ## 4. Tasks
 
 ### Planning
-- [ ] Record an ADR for immutable review attempts, canonical scope digests,
+- [x] Record an ADR for immutable review attempts, canonical scope digests,
   derived milestone closure and autonomous remediation boundaries before this
   spec becomes `in-progress`.
-- [ ] Convert current false-closeout behavior into fixtures: done spec without
+- [x] Convert current false-closeout behavior into fixtures: done spec without
   review, all-done milestone without macro review, manually done roadmap without
   outcome review and stale approval after remediation.
-- [ ] Freeze review artifact, profile, policy and closeout-state schemas with
+- [x] Freeze review artifact, profile, policy and closeout-state schemas with
   golden files.
-- [ ] Define the bootstrap review used to close this first mechanism before its
+- [x] Define the bootstrap review used to close this first mechanism before its
   own strict policy becomes active.
 
 ### Implementation
-- [ ] Implement review/profile parsers, typed scope validation and immutable
+- [x] Implement review/profile parsers, typed scope validation and immutable
   supersession chains.
-- [ ] Implement canonical scope digests with explicit include/exclude fixtures.
-- [ ] Implement criterion, finding, accepted-risk and independence-policy gates.
-- [ ] Implement `pose review-check` with human and JSON explanations.
-- [ ] Implement hierarchical `pose closeout-check` for specs, milestones and
+- [x] Implement canonical scope digests with explicit include/exclude fixtures.
+- [x] Implement criterion, finding, accepted-risk and independence-policy gates.
+- [x] Implement `pose review-check` with human and JSON explanations.
+- [x] Implement hierarchical `pose closeout-check` for specs, milestones and
   roadmaps.
-- [ ] Change milestone readiness from “all specs done” to derived reviewed
+- [x] Change milestone readiness from “all specs done” to derived reviewed
   closure and guard roadmap `status: done`.
-- [ ] Implement optional atomic `pose close` transitions without weakening Git
+- [x] Implement optional atomic `pose close` transitions without weakening Git
   review workflows.
-- [ ] Implement `continuous-closeout` policy and next-action projection with
+- [x] Implement `continuous-closeout` policy and next-action projection with
   bounded remediation semantics.
-- [ ] Add project-scoped MCP closeout state and golden catalog parity.
-- [ ] Update review/feature/closeout workflows and skills, templates, rules,
+- [x] Add project-scoped MCP closeout state and golden catalog parity.
+- [x] Update review/feature/closeout workflows and skills, templates, rules,
   POSE manual, locales, changelog and embedded scaffold.
 
 ### Validation
-- [ ] Run focused parser, digest, finding, lifecycle, readiness and MCP tests.
-- [ ] Run negative tests for path escape, evidence execution, forged reviewer
+- [x] Run focused parser, digest, finding, lifecycle, readiness and MCP tests.
+- [x] Run negative tests for path escape, evidence execution, forged reviewer
   overrides, stale digests, scope drift and unauthorized project refs.
-- [ ] Run an end-to-end loop that requests changes, adds bounded remediation,
+- [x] Run an end-to-end loop that requests changes, adds bounded remediation,
   revalidates, supersedes the stale review and closes each hierarchy level.
-- [ ] Run the full Go suite and embedded-distribution parity test.
-- [ ] Run strict POSE structure, spec lint and module validation gates.
+- [x] Run the full Go suite and embedded-distribution parity test.
+- [x] Run strict POSE structure, spec lint and module validation gates.
 
 ## 5. Decisions
 
@@ -341,6 +347,17 @@ different-actor policies.
 - Spec lint: `pose lint-spec pose-hierarchical-review-closeout --strict`.
 - Delivery gate: `pose validate --strict --module pose-mcp --report`.
 
+### Risk-based test plan
+
+| Scenario | Command | Expected evidence |
+|---|---|---|
+| Unit — profile, attempt and typed-scope parsing | `go -C pose-mcp test ./internal/pose -run 'Review|Closeout|ScopeDigest' -count=1` | Stable digest and structured blockers; malformed criteria, refs and paths rejected. |
+| Contract — CLI state and transitions | `go -C pose-mcp test ./internal/cli -run 'Review|Closeout|Continuous' -count=1` | Human/JSON parity, dry-run-safe close and deterministic next action. |
+| Contract — MCP projection | `go -C pose-mcp test ./internal/mcpserver -run 'Closeout' -count=1` | Project authorization and golden tool schema preserved. |
+| Negative — stale/rejected/forged approval | `go -C pose-mcp test ./internal/pose ./internal/cli -run 'Stale|Rejected|Independence|Traversal' -count=1` | Closeout remains blocked with smallest actionable reason. |
+| E2E — hierarchical remediation loop | `go -C pose-mcp test ./internal/cli -run 'HierarchicalCloseoutEndToEnd' -count=1` | Spec, milestone and roadmap close only after fresh reviews in dependency order. |
+| Required module gate | `pose validate --strict --module pose-mcp --report` | Go tests pass and report records the governed module result. |
+
 ### Execution log
 - 2026-08-02, planning: current review workflow, report template, spec closeout,
   milestone readiness and roadmap structural checks inspected; implementation
@@ -348,49 +365,72 @@ different-actor policies.
 - 2026-08-02, planning validation: readiness and strict lint passed;
   `pose validate --strict --module pose-mcp`, the full Go checks and embedded
   scaffold parity passed after regeneration.
+- 2026-08-02, implementation: added profile/policy parsers, immutable review
+  attempts, typed scope digests, hierarchical projection, guarded lifecycle
+  transition, persistent continuous-closeout state and CLI/MCP parity.
+- 2026-08-02, gap remediation: the first full-suite run found a missing pt-BR
+  overlay for the new review template; the overlay was added and the complete
+  suite passed on the rerun.
+- 2026-08-02, gates: `go test ./... -count=1`, `pose check --strict`, `pose
+  validate --strict --module pose-mcp --report` and scaffold parity passed.
 
 ### Results summary
-- Successes: The planning contract separates validation from review, defines
-  hierarchical freshness, persists the autonomous terminal condition and passes
-  readiness, strict spec lint, module validation and scaffold parity.
-- Failures: None claimed as implementation evidence.
-- Warnings: Current project state is stale by age and reports a hand-edited
-  Architecture section; refresh is outside this planning-only change.
+- Successes: Runtime and scaffold now separate validation from review, reject
+  stale or incomplete decisions, roll closure through all three hierarchy
+  levels and expose one deterministic next action to CLI and MCP consumers.
+- Failures remediated: JSON gates initially returned success for blocked state,
+  and the pt-BR template overlay was initially absent; tests exposed both gaps
+  and both were corrected before closeout.
+- Warnings: Review depth remains a judgment concern; the mechanism guarantees
+  current, complete and policy-conformant evidence, not insight by itself.
 
 ### Requirement trace
-Requirement trace will be populated only after implementation evidence exists;
-this draft does not claim any requirement as satisfied.
+- R1 [satisfied] test:TestReviewRejectsTraversalOpenFindingsAndIncompleteCriteria.
+- R2 [satisfied] check:.pose/review-profiles/spec-closeout.json.
+- R3 [satisfied] test:TestReviewRecordIsDryRunByDefaultAndCloseIsReviewGated.
+- R4 [satisfied] test:TestReviewRejectsTraversalOpenFindingsAndIncompleteCriteria.
+- R5 [satisfied] test:TestReviewRejectsTraversalOpenFindingsAndIncompleteCriteria.
+- R6 [satisfied] test:ReviewCheck policy decision fixtures.
+- R7 [satisfied] test:TestReviewBecomesStaleAfterScopeChangeButNotLifecycleEdit.
+- R8 [satisfied] test:ScopeDigest spec fixture.
+- R9 [satisfied] test:TestHierarchicalCloseoutRequiresFreshReviewsAtEveryLevel.
+- R10 [satisfied] test:TestHierarchicalCloseoutRequiresFreshReviewsAtEveryLevel.
+- R11 [satisfied] test:TestCloseoutCheckJSONUsesTheSameProjection.
+- R12 [satisfied] test:TestHierarchicalCloseoutRequiresFreshReviewsAtEveryLevel.
+- R13 [satisfied] test:TestHierarchicalCloseoutRequiresFreshReviewsAtEveryLevel.
+- R14 [satisfied] test:stale review and next-action remediation fixtures.
+- R15 [satisfied] test:TestContinuousCloseoutPersistsTerminalScopeAndRefusesEarlyCompletion.
+- R16 [satisfied] test:TestContinuousCloseoutPersistsTerminalScopeAndRefusesEarlyCompletion.
+- R17 [satisfied] check:.pose/policy/review.json independence modes.
+- R18 [satisfied] test:TestCloseoutStateToolUsesProjectScopedProjection.
+- R19 [satisfied] test:TestReviewRecordIsDryRunByDefaultAndCloseIsReviewGated.
 
 ### Known gaps
-- Exact profile criterion IDs and the bootstrap-review exception must be frozen
-  in the implementation ADR.
-- The first delivery-integrity graph schema must decide whether review artifacts
-  are embedded or referenced while preserving this spec's independent rollout.
+- The delivery-integrity graph will reference, not duplicate, review attempts;
+  that schema is delivered by the next spec in this roadmap.
 
 ## 7. Final Report
 
 ### Delivered scope
-Planning artifact only: this draft defines hierarchical review and autonomous
-closeout as a future POSE mechanism. No runtime capability or closure guarantee
-is claimed.
+Implemented hierarchical, digest-bound review and guarded closeout across the
+Go domain model, native CLI, strict structure gate, MCP projection, workflows,
+profiles, templates, localization and embedded distribution.
 
 ### Files and modules changed
-- `.pose/specs/pose-hierarchical-review-closeout/spec.md`.
-- `.pose/roadmaps/delivery-integrity.md` membership and ordering.
+- `pose-mcp/internal/pose/review_closeout.go` and focused tests.
+- `pose-mcp/internal/cli/review_closeout.go`, strict-check integration and tests.
+- MCP catalog/server, docs, review profiles/policy/templates/workflows/skills,
+  localization and embedded scaffold.
 
 ### Validation executed
-- Commands: repository review/closeout contract inspection; `pose lint-spec
-  pose-hierarchical-review-closeout --ready-check`; `pose lint-spec
-  pose-hierarchical-review-closeout --strict`; `pose validate --strict --module
-  pose-mcp`; embedded scaffold parity test.
-- Result: spec, Go test, vet, module validation and parity checks passed; global
-  `pose check --strict` remains blocked by the pre-existing broken POSE.md
-  reference to absent `.pose/feedback`.
+- Passed: focused review/closeout tests, full `go test ./... -count=1`, `go vet`,
+  `pose check --strict`, `pose validate --strict --module pose-mcp --report`,
+  MCP catalog golden conformance and embedded scaffold parity.
 
 ### Residual risks
 - A mechanically complete review can still be shallow; profiles, independence
   policy and evidence quality remain essential review concerns.
 
 ### Follow-ups
-No follow-up is opened by this planning revision; implementation tasks remain
-inside this draft spec.
+No residual follow-up; delivery graph integration is already owned by the next
+roadmap spec.

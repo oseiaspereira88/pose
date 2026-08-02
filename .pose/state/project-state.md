@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-07-24T04:51:18Z
-baseline_commit: 3605d93821b076476ffc48b12d110c813d39899d
+generated_at: 2026-08-02T17:07:36Z
+baseline_commit: 3eaa7db815cff2d50e49c30cfc53c29afd187eba
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:b31925459089 -->
+<!-- state:derived hash:88d9737acd92 -->
 
-- specs: total=36 draft=0 in-progress=0 blocked=0 done=36 superseded=0 abandoned=0
-- roadmaps: total=7 active=0 done=7
+- specs: total=40 draft=3 in-progress=0 blocked=0 done=37 superseded=0 abandoned=0
+- roadmaps: total=8 active=1 done=7
 - últimos closeouts:
+  - spec:pose-hierarchical-review-closeout (2026-08-02)
   - spec:pose-capability-mechanism (2026-07-21)
+  - spec:pose-ossf-security-baseline (2026-07-19)
   - spec:pose-otel-observability (2026-07-19)
-  - spec:pose-agent-skills-conformance (2026-07-19)
-  - spec:pose-changed-scope-validation (2026-07-19)
   - spec:pose-cross-repo-portfolio (2026-07-19)
-  - ... e mais 31 (ver `pose_list_specs status:done`)
+  - ... e mais 32 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:7af64d34d2f1 -->
@@ -64,11 +64,13 @@ capacidade.
 - knowledge: total=1 ativo=1 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:fe9ec417d781 -->
+<!-- state:derived hash:bb0d43541813 -->
 
-- último registro: task=validate-native outcome=pass (2026-07-19T20:11:07Z)
-- últimos 30 dias: total=26 outcome_ok=25 outcome_outro=1
-- reports revisados (.md): total=3
+- último registro: task=validate-native outcome=pass (2026-08-02T15:14:05Z)
+- últimos 30 dias: total=27 outcome_ok=26 outcome_outro=1
+- reports revisados (.md): total=5
+  - report:2026-08-02-pose-hierarchical-review-closeout-review.md
+  - report:2026-08-02-standard-validate-native.md
   - report:2026-07-19-standard-validate-native.md
   - report:2026-07-18-doc-audit-product-roadmap-portfolio.md
   - report:README.md
@@ -76,8 +78,8 @@ capacidade.
 ## Arquitetura
 <!-- state:derived hash:a8f9c10d3e21 status:active -->
 
-- componentes: total=1 verificados=1 completude=100%
-- linhas_de_codigo: producao=275140 testes=18111 total=293251
+- componentes: total=2 verificados=2 completude=100%
+- linhas_de_codigo: producao=27441 testes=14955 total=42396
 - linguagens: Rust (ast-engine), Go (graph-core, mcp-server, indexers, collector, enricher, planner, cli, pkg), TypeScript/React (web), WASM
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/components/
