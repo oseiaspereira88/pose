@@ -90,6 +90,37 @@ func TestArtifactCheckFindsUndeclaredAndActionMismatch(t *testing.T) {
 	}
 }
 
+func TestArtifactCheckMatchesRenameWithEditAndRemoval(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	writeArtifactTestFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-03","governed_roots":["internal"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
+	writeArtifactTestFile(t, root, ".pose/specs/rename/spec.md", "---\nslug: rename\nstatus: in-progress\ncreated_at: 2026-08-03\n---\n\n# Spec: rename\n\n## 3. Technical Plan\n\n### Artifacts\n- renamed: internal/old.go -> internal/new.go\n- removed: internal/obsolete.go\n\n## 4. Tasks\nwork\n")
+	writeArtifactTestFile(t, root, "internal/old.go", "package internal\n\nfunc preservedOne() {}\nfunc preservedTwo() {}\nfunc preservedThree() {}\n")
+	writeArtifactTestFile(t, root, "internal/obsolete.go", "package internal\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "baseline")
+	base := artifactGit(t, root, "rev-parse", "HEAD")
+	artifactGit(t, root, "mv", "--", "internal/old.go", "internal/new.go")
+	writeArtifactTestFile(t, root, "internal/new.go", "package internal\n\nfunc preservedOne() {}\nfunc preservedTwo() {}\nfunc preservedThree() {}\n// edited after rename\n")
+	artifactGit(t, root, "rm", "-q", "--", "internal/obsolete.go")
+	artifactGit(t, root, "add", "--", "internal/new.go")
+	artifactGit(t, root, "commit", "-q", "-m", "rename and remove", "-m", "POSE-Spec: rename")
+	head := artifactGit(t, root, "rev-parse", "HEAD")
+	var out, errOut bytes.Buffer
+	if code := cmdArtifactCheck(root, []string{"--spec", "rename", "--from", base, "--to", head, "--strict", "--json"}, &out, &errOut); code != 0 {
+		t.Fatalf("rename/remove check code=%d err=%s out=%s", code, errOut.String(), out.String())
+	}
+	var graph posemodel.DeliveryIntegrityGraph
+	if err := json.Unmarshal(out.Bytes(), &graph); err != nil {
+		t.Fatal(err)
+	}
+	if got := graph.ChangeSets[0].Paths; len(got) != 2 || got[0].Action != "removed" || got[1].Action != "renamed" {
+		t.Fatalf("unexpected rename/remove observations: %+v", got)
+	}
+}
+
 func TestArtifactBackfillDryRunDoesNotMutateSpecs(t *testing.T) {
 	root, _, _ := artifactGitFixture(t)
 	path := filepath.Join(root, ".pose/specs/alpha/spec.md")
@@ -130,6 +161,14 @@ func TestReportChangeSetPersistsImmutableGitEvidence(t *testing.T) {
 	}
 	if record.StableHash == "" {
 		t.Fatal("change-set did not participate in stable record")
+	}
+}
+
+func TestMalformedReportHistoryCannotFabricateChangeSet(t *testing.T) {
+	root, _, _ := artifactGitFixture(t)
+	writeArtifactTestFile(t, root, ".pose/reports/history/broken.jsonl", "{not-json}\n")
+	if sets := loadRecordedChangeSets(root); len(sets) != 0 {
+		t.Fatalf("malformed history produced evidence: %+v", sets)
 	}
 }
 
