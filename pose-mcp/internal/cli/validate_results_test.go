@@ -222,3 +222,14 @@ func TestValidateOutputPathConfined(t *testing.T) {
 		t.Fatalf("escaping output path must be rejected: code=%d out=%s", code, out)
 	}
 }
+
+func TestValidateCreatesConfinedNestedResultDirectory(t *testing.T) {
+	root := resultFixture(t)
+	code, out := runValidate(t, root, "--json", ".pose/results/current.json")
+	if code != 0 {
+		t.Fatalf("validate code=%d out=%s", code, out)
+	}
+	if _, err := os.Stat(filepath.Join(root, ".pose/results/current.json")); err != nil {
+		t.Fatalf("nested result missing: %v", err)
+	}
+}

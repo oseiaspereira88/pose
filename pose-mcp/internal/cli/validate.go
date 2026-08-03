@@ -643,6 +643,10 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			continue
 		}
 		target := filepath.Join(root, filepath.FromSlash(writer.path))
+		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			fmt.Fprintf(stderr, cliText(locale, "Error: creating %s result directory: %v\n", "Erro: criando diretório do resultado %s: %v\n"), name, err)
+			return 1
+		}
 		if err := writer.write(target, run); err != nil {
 			fmt.Fprintf(stderr, cliText(locale, "Error: writing %s result: %v\n", "Erro: escrevendo resultado %s: %v\n"), name, err)
 			return 1

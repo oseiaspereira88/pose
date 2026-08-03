@@ -218,6 +218,7 @@ preventing spec-local success from rolling up to a false roadmap completion.
 - modified: pose-mcp/internal/cli/skills_check_test.go
 - modified: pose-mcp/internal/cli/validate.go
 - modified: pose-mcp/internal/cli/validate_results.go
+- modified: pose-mcp/internal/cli/validate_results_test.go
 - modified: pose-mcp/internal/mcpserver/catalog.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/server_test.go
