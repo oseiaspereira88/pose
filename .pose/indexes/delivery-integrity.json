@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:d14eecd4215193dcda5e492b66b107446185d9f7c9f1be310b3247986cf1a4fe",
-  "provenance_digest": "sha256:338a8c199a0727a34f0e03894cee81c1dc0dd0a70f22bd670d379e1775755530",
+  "input_digest": "sha256:0e1978c7d29b69c28854d194f32f8bd0798d95d4c0317a84b02b5c81e2fdd134",
+  "provenance_digest": "sha256:650e1dc562099c35cd696359e7a1f8b13fde2fb89e3a6b302c2e14a6cf507be0",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -99,6 +99,20 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/reports/2026-08-02-standard-validate-native.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/reports/2026-08-03-standard-delivery-surface-implementation.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/2026-08-03-standard-delivery-surface-implementation.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/reports/history/standard-delivery-surface-implementation.jsonl",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/history/standard-delivery-surface-implementation.jsonl"
       }
     },
     {
@@ -316,6 +330,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/cli/validate_results.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/cli/validate_results_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/validate_results_test.go"
       }
     },
     {
@@ -603,6 +624,22 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/scaffold/scaffold.go"
+      }
+    },
+    {
+      "id": "change-set:cs-07f1c01f78f0",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:2b7007a39cb9bcc316ae7c1e9d3fc1de6cacaace16fa2d4a4ae4c50a96b0b627",
+        "selector": "range:2f55664..HEAD"
+      }
+    },
+    {
+      "id": "change-set:cs-0fd4bd613f8d",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:b296ec489b9f786a84be19ac95f62739271a82e98fcfb1fa90f83697aaf2c592",
+        "selector": "range:2f55664..b6b0c10"
       }
     },
     {
@@ -938,6 +975,42 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validation-result",
+      "attributes": {
+        "check": "delivery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass"
+      }
+    },
+    {
+      "id": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validation-result",
+      "attributes": {
+        "check": "delivery-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass"
+      }
+    },
+    {
+      "id": "validation-result:pose-mcp/go/test",
+      "type": "validation-result",
+      "attributes": {
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass"
+      }
+    },
+    {
+      "id": "validation-result:pose-mcp/go/vet",
+      "type": "validation-result",
+      "attributes": {
+        "check": "vet",
+        "evidence_class": "build",
+        "outcome": "pass"
       }
     }
   ],
@@ -1468,6 +1541,21 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/cli/validate_results_test.go",
+      "to": "delivery:capability:delivery-integrity-graph",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate_results_test.go",
+      "to": "delivery:contract:delivery-integrity-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate_results_test.go",
+      "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/mcpserver/catalog.go",
       "to": "delivery:capability:delivery-integrity-graph",
       "type": "implemented-by"
@@ -1631,6 +1719,726 @@
       "from": "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "to": "delivery:surface:delivery-integrity-cli",
       "type": "implemented-by"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.agents/skills/README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.agents/skills/pose-surface-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/indexes/module-metadata.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/indexes/task-map.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/policy/delivery.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/reports/2026-08-03-standard-delivery-surface-implementation.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/reports/history/standard-delivery-surface-implementation.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/rules/delivery-evidence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/rules/delivery-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/specs/pose-delivery-surface-assurance/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/templates/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/workflows/feature.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:.pose/workflows/ui-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:docs-site/docs/cli.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:docs-site/docs/mcp.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:locales/pt-BR/.pose/rules/delivery-evidence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:locales/pt-BR/.pose/rules/delivery-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:locales/pt-BR/.pose/templates/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:locales/pt-BR/.pose/workflows/feature.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:locales/pt-BR/.pose/workflows/ui-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:locales/pt-BR/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/check.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/cli.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/lintspec.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/review_closeout.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/skills_check_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/surface_check.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/surface_check_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/validate.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/validate_results.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/cli/validate_results_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/mcpserver/server.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/mcpserver/surface_assurance_tool_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/pose/delivery_integrity.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/pose/delivery_surface.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/pose/delivery_surface_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/pose/spec.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/pose/trace.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-surface-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/module-metadata.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/task-map.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/delivery.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/rules/delivery-evidence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/rules/delivery-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-delivery-surface-assurance/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/workflows/ui-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-evidence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/templates/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/ui-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-07f1c01f78f0",
+      "to": "artifact:pose-mcp/internal/scaffold/scaffold.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.agents/skills/README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.agents/skills/pose-surface-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/indexes/module-metadata.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/indexes/task-map.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/policy/delivery.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/reports/2026-08-03-standard-delivery-surface-implementation.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/reports/history/standard-delivery-surface-implementation.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/rules/delivery-evidence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/rules/delivery-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/specs/pose-delivery-surface-assurance/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/templates/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/workflows/feature.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:.pose/workflows/ui-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:docs-site/docs/cli.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:docs-site/docs/mcp.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:locales/pt-BR/.pose/rules/delivery-evidence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:locales/pt-BR/.pose/rules/delivery-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:locales/pt-BR/.pose/templates/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:locales/pt-BR/.pose/workflows/feature.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:locales/pt-BR/.pose/workflows/ui-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:locales/pt-BR/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/check.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/cli.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/lintspec.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/review_closeout.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/skills_check_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/surface_check.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/surface_check_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/validate.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/validate_results.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/cli/validate_results_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/mcpserver/server.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/mcpserver/surface_assurance_tool_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/pose/delivery_integrity.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/pose/delivery_surface.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/pose/delivery_surface_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/pose/spec.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/pose/trace.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-surface-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/module-metadata.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/task-map.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/delivery.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/rules/delivery-evidence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/rules/delivery-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-delivery-surface-assurance/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/workflows/ui-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-evidence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/templates/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/ui-surface.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-0fd4bd613f8d",
+      "to": "artifact:pose-mcp/internal/scaffold/scaffold.go",
+      "type": "changes"
     },
     {
       "from": "change-set:cs-3cdf716fb989",
@@ -2769,6 +3577,11 @@
     },
     {
       "from": "spec:pose-delivery-surface-assurance",
+      "to": "artifact:pose-mcp/internal/cli/validate_results_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-delivery-surface-assurance",
       "to": "artifact:pose-mcp/internal/mcpserver/catalog.go",
       "type": "declares"
     },
@@ -2836,6 +3649,16 @@
       "from": "spec:pose-delivery-surface-assurance",
       "to": "delivery:surface:delivery-integrity-cli",
       "type": "delivers"
+    },
+    {
+      "from": "spec:pose-delivery-surface-assurance",
+      "to": "change-set:cs-07f1c01f78f0",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-delivery-surface-assurance",
+      "to": "change-set:cs-0fd4bd613f8d",
+      "type": "observed-by"
     },
     {
       "from": "spec:pose-delivery-surface-assurance",
@@ -3167,6 +3990,11 @@
     {
       "spec": "pose-delivery-surface-assurance",
       "action": "modified",
+      "path": "pose-mcp/internal/cli/validate_results_test.go"
+    },
+    {
+      "spec": "pose-delivery-surface-assurance",
+      "action": "modified",
       "path": "pose-mcp/internal/mcpserver/catalog.go"
     },
     {
@@ -3206,6 +4034,615 @@
     }
   ],
   "change_sets": [
+    {
+      "id": "cs-07f1c01f78f0",
+      "spec": "pose-delivery-surface-assurance",
+      "selector": "range:2f55664..HEAD",
+      "base": "2f55664",
+      "head": "HEAD",
+      "resolved_base": "2f556645823c6c1c6c692316cd0116356c31ff59",
+      "resolved_head": "42cbbc98dc2fe5b0fc4194acf46fac38d16d05ec",
+      "commits": [
+        "de21445112491b82682f06beb36c29d76fbed5ab",
+        "42cbbc98dc2fe5b0fc4194acf46fac38d16d05ec"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".agents/skills/pose-surface-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/policy/delivery.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-08-03-standard-delivery-surface-implementation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/history/standard-delivery-surface-implementation.jsonl"
+        },
+        {
+          "action": "created",
+          "path": ".pose/rules/delivery-surface.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/workflows/ui-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": "locales/pt-BR/.pose/rules/delivery-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "locales/pt-BR/.pose/workflows/ui-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/surface_check.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/surface_check_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/mcpserver/surface_assurance_tool_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delivery_surface.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delivery_surface_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-surface-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/policy/delivery.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/rules/delivery-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/ui-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/ui-surface.md"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/README.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/module-metadata.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/task-map.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-delivery-surface-assurance/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/templates/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/cli.md"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/templates/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/cli.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/lintspec.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/skills_check_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_results.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_results_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/server.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/server_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/trace.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/README.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/module-metadata.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/task-map.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-delivery-surface-assurance/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/templates/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/templates/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/scaffold.go"
+        }
+      ],
+      "diff_digest": "sha256:2b7007a39cb9bcc316ae7c1e9d3fc1de6cacaace16fa2d4a4ae4c50a96b0b627"
+    },
+    {
+      "id": "cs-0fd4bd613f8d",
+      "spec": "pose-delivery-surface-assurance",
+      "selector": "range:2f55664..b6b0c10",
+      "base": "2f55664",
+      "head": "b6b0c10",
+      "resolved_base": "2f556645823c6c1c6c692316cd0116356c31ff59",
+      "resolved_head": "b6b0c10afdfc2eae05cc9bdfeae96f124e1557e8",
+      "commits": [
+        "de21445112491b82682f06beb36c29d76fbed5ab",
+        "42cbbc98dc2fe5b0fc4194acf46fac38d16d05ec",
+        "b6b0c10afdfc2eae05cc9bdfeae96f124e1557e8"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".agents/skills/pose-surface-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/policy/delivery.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-08-03-standard-delivery-surface-implementation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/history/standard-delivery-surface-implementation.jsonl"
+        },
+        {
+          "action": "created",
+          "path": ".pose/rules/delivery-surface.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/workflows/ui-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": "locales/pt-BR/.pose/rules/delivery-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "locales/pt-BR/.pose/workflows/ui-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/surface_check.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/surface_check_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/mcpserver/surface_assurance_tool_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delivery_surface.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delivery_surface_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-surface-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/policy/delivery.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/rules/delivery-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/ui-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-surface.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/ui-surface.md"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/README.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/module-metadata.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/task-map.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-delivery-surface-assurance/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/templates/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/cli.md"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/templates/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/cli.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/lintspec.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/skills_check_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_results.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_results_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/server.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/server_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/trace.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/README.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/module-metadata.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/task-map.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-delivery-surface-assurance/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/templates/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/delivery-evidence.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/templates/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/scaffold.go"
+        }
+      ],
+      "diff_digest": "sha256:b296ec489b9f786a84be19ac95f62739271a82e98fcfb1fa90f83697aaf2c592"
+    },
     {
       "id": "cs-3cdf716fb989",
       "spec": "pose-artifact-provenance-ledger",
@@ -4036,6 +5473,9 @@
     "pose-mcp/internal/cli/validate_results.go": [
       "pose-delivery-surface-assurance"
     ],
+    "pose-mcp/internal/cli/validate_results_test.go": [
+      "pose-delivery-surface-assurance"
+    ],
     "pose-mcp/internal/mcpserver/catalog.go": [
       "pose-artifact-provenance-ledger",
       "pose-delivery-surface-assurance"
@@ -4714,6 +6154,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-49006dd1c2b2",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-delivery-surface-assurance",
+      "path": "capability:delivery-integrity-graph",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different provenance digest",
+      "remediation": "rerun the registered validation check for the current source provenance"
+    },
+    {
       "id": "dif-49918be9cfc8",
       "code": "orphan",
       "severity": "warning",
@@ -4810,6 +6260,22 @@
       "code": "roadmap-criterion",
       "severity": "warning",
       "path": "delivery-integrity",
+      "message": "C7: cut criterion requires a registered delivery, check or manual-review ref",
+      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
+    },
+    {
+      "id": "dif-587714dcd435",
+      "code": "roadmap-criterion",
+      "severity": "warning",
+      "path": "delivery-integrity",
+      "message": "C3: cut criterion requires a registered delivery, check or manual-review ref",
+      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
+    },
+    {
+      "id": "dif-587714dcd435",
+      "code": "roadmap-criterion",
+      "severity": "warning",
+      "path": "delivery-integrity",
       "message": "C8: cut criterion requires a registered delivery, check or manual-review ref",
       "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
@@ -4834,39 +6300,7 @@
       "code": "roadmap-criterion",
       "severity": "warning",
       "path": "delivery-integrity",
-      "message": "C3: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C4: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C5: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C6: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C7: cut criterion requires a registered delivery, check or manual-review ref",
+      "message": "malformed or executable cut criterion: - C10: Historical backfill reports the real `v0.9.0` directory and later tags",
       "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
     {
@@ -4882,7 +6316,23 @@
       "code": "roadmap-criterion",
       "severity": "warning",
       "path": "delivery-integrity",
-      "message": "malformed or executable cut criterion: - C10: Historical backfill reports the real `v0.9.0` directory and later tags",
+      "message": "C6: cut criterion requires a registered delivery, check or manual-review ref",
+      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
+    },
+    {
+      "id": "dif-587714dcd435",
+      "code": "roadmap-criterion",
+      "severity": "warning",
+      "path": "delivery-integrity",
+      "message": "C5: cut criterion requires a registered delivery, check or manual-review ref",
+      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
+    },
+    {
+      "id": "dif-587714dcd435",
+      "code": "roadmap-criterion",
+      "severity": "warning",
+      "path": "delivery-integrity",
+      "message": "C4: cut criterion requires a registered delivery, check or manual-review ref",
       "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
     {
@@ -5002,6 +6452,16 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-671ee82c71a4",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-delivery-surface-assurance",
+      "path": "contract:delivery-integrity-mcp",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different provenance digest",
+      "remediation": "rerun the registered validation check for the current source provenance"
     },
     {
       "id": "dif-676e29dd5c90",
@@ -5836,6 +7296,16 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-b49f93dc26ed",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-delivery-surface-assurance",
+      "path": "pose-mcp/internal/cli/validate_results_test.go",
+      "change_set": "cs-b3da559b8e6a",
+      "message": "declared artifact action is absent from the selected Git change set",
+      "remediation": "correct the action or select the exact attributed revisions"
+    },
+    {
       "id": "dif-b5a98739a772",
       "code": "orphan",
       "severity": "warning",
@@ -5912,14 +7382,6 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-bfeee444984b",
-      "code": "orphan",
-      "severity": "warning",
-      "path": "pose-mcp/internal/cli/validate_results_test.go",
-      "message": "governed tracked path has no spec provenance claim",
-      "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
       "id": "dif-c065795f7827",
@@ -6506,6 +7968,16 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-fce8968fe6f1",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-delivery-surface-assurance",
+      "path": "surface:delivery-integrity-cli",
+      "change_set": "pose-mcp/go/delivery-reachability",
+      "message": "passed reachability evidence is bound to a different provenance digest",
+      "remediation": "rerun the registered validation check for the current source provenance"
+    },
+    {
       "id": "dif-fd1d33d69a64",
       "code": "orphan",
       "severity": "warning",
@@ -6575,6 +8047,56 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     }
   ],
+  "validation_results": [
+    {
+      "id": "pose-mcp/go/delivery-integration",
+      "module": "pose-mcp",
+      "check": "delivery-integration",
+      "evidence_class": "integration",
+      "severity": "required",
+      "outcome": "pass",
+      "git_head": "42cbbc98dc2fe5b0fc4194acf46fac38d16d05ec",
+      "generated_at": "2026-08-03T05:12:25Z",
+      "provenance_digest": "sha256:b84f689ec406444018075358813ee469e77624ab40681f172beb01b847357812",
+      "report": ".pose/results/delivery-validation.json"
+    },
+    {
+      "id": "pose-mcp/go/delivery-reachability",
+      "module": "pose-mcp",
+      "check": "delivery-reachability",
+      "evidence_class": "reachability",
+      "severity": "required",
+      "outcome": "pass",
+      "git_head": "42cbbc98dc2fe5b0fc4194acf46fac38d16d05ec",
+      "generated_at": "2026-08-03T05:12:25Z",
+      "provenance_digest": "sha256:b84f689ec406444018075358813ee469e77624ab40681f172beb01b847357812",
+      "report": ".pose/results/delivery-validation.json"
+    },
+    {
+      "id": "pose-mcp/go/test",
+      "module": "pose-mcp",
+      "check": "test",
+      "evidence_class": "unit",
+      "severity": "required",
+      "outcome": "pass",
+      "git_head": "42cbbc98dc2fe5b0fc4194acf46fac38d16d05ec",
+      "generated_at": "2026-08-03T05:12:25Z",
+      "provenance_digest": "sha256:b84f689ec406444018075358813ee469e77624ab40681f172beb01b847357812",
+      "report": ".pose/results/delivery-validation.json"
+    },
+    {
+      "id": "pose-mcp/go/vet",
+      "module": "pose-mcp",
+      "check": "vet",
+      "evidence_class": "build",
+      "severity": "optional",
+      "outcome": "pass",
+      "git_head": "42cbbc98dc2fe5b0fc4194acf46fac38d16d05ec",
+      "generated_at": "2026-08-03T05:12:25Z",
+      "provenance_digest": "sha256:b84f689ec406444018075358813ee469e77624ab40681f172beb01b847357812",
+      "report": ".pose/results/delivery-validation.json"
+    }
+  ],
   "paths": {
     "capability:delivery-integrity-graph": [
       "spec:pose-delivery-surface-assurance",
@@ -6616,6 +8138,7 @@
       "artifact:pose-mcp/internal/cli/skills_check_test.go",
       "artifact:pose-mcp/internal/cli/validate.go",
       "artifact:pose-mcp/internal/cli/validate_results.go",
+      "artifact:pose-mcp/internal/cli/validate_results_test.go",
       "artifact:pose-mcp/internal/mcpserver/catalog.go",
       "artifact:pose-mcp/internal/mcpserver/server.go",
       "artifact:pose-mcp/internal/mcpserver/server_test.go",
@@ -6667,6 +8190,7 @@
       "artifact:pose-mcp/internal/cli/skills_check_test.go",
       "artifact:pose-mcp/internal/cli/validate.go",
       "artifact:pose-mcp/internal/cli/validate_results.go",
+      "artifact:pose-mcp/internal/cli/validate_results_test.go",
       "artifact:pose-mcp/internal/mcpserver/catalog.go",
       "artifact:pose-mcp/internal/mcpserver/server.go",
       "artifact:pose-mcp/internal/mcpserver/server_test.go",
@@ -6718,6 +8242,7 @@
       "artifact:pose-mcp/internal/cli/skills_check_test.go",
       "artifact:pose-mcp/internal/cli/validate.go",
       "artifact:pose-mcp/internal/cli/validate_results.go",
+      "artifact:pose-mcp/internal/cli/validate_results_test.go",
       "artifact:pose-mcp/internal/mcpserver/catalog.go",
       "artifact:pose-mcp/internal/mcpserver/server.go",
       "artifact:pose-mcp/internal/mcpserver/server_test.go",

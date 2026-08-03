@@ -13,14 +13,21 @@
 - Outcome: pass (source: manual)
 
 ## Rules Applied
-- backend-go
-- security
-- documentation-style
 - delivery-evidence
 - delivery-surface
 
 ## Files Changed
-- _No files detected_
+- pose/assessments/integrations.md
+- .pose/assessments/technical-debt.md
+- .pose/indexes/delivery-integrity.json
+- .pose/reports/2026-08-03-standard-delivery-surface-implementation.md
+- .pose/reports/history/standard-delivery-surface-implementation.jsonl
+- .pose/state/integrations.json
+- .pose/state/technical-debt.json
+- pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
+- .pose/reports/2026-08-03-standard-delivery-surface-validation.md
+- .pose/reports/history/standard-delivery-surface-validation.jsonl
+- .pose/results/
 
 ## Validation Commands
 - _Fill manually_
@@ -29,14 +36,16 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-b3da559b8e6a
-- Selector: range:2f55664..HEAD
+- ID: cs-0fd4bd613f8d
+- Selector: range:2f55664..b6b0c10
 - Base: 2f55664 (2f556645823c6c1c6c692316cd0116356c31ff59)
-- Head: HEAD (de21445112491b82682f06beb36c29d76fbed5ab)
-- Diff digest: sha256:cc0367c484355f761c1606d4274c42adbadaff09b9cc4aefa5eb60c359b30e3e
+- Head: b6b0c10 (b6b0c10afdfc2eae05cc9bdfeae96f124e1557e8)
+- Diff digest: sha256:b296ec489b9f786a84be19ac95f62739271a82e98fcfb1fa90f83697aaf2c592
 - Paths:
   - created: .agents/skills/pose-surface-closeout/SKILL.md
   - created: .pose/policy/delivery.json
+  - created: .pose/reports/2026-08-03-standard-delivery-surface-implementation.md
+  - created: .pose/reports/history/standard-delivery-surface-implementation.jsonl
   - created: .pose/rules/delivery-surface.md
   - created: .pose/workflows/ui-surface.md
   - created: locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md
@@ -80,6 +89,7 @@
   - modified: pose-mcp/internal/cli/skills_check_test.go
   - modified: pose-mcp/internal/cli/validate.go
   - modified: pose-mcp/internal/cli/validate_results.go
+  - modified: pose-mcp/internal/cli/validate_results_test.go
   - modified: pose-mcp/internal/mcpserver/catalog.go
   - modified: pose-mcp/internal/mcpserver/server.go
   - modified: pose-mcp/internal/mcpserver/server_test.go
@@ -106,17 +116,20 @@
   - modified: pose-mcp/internal/scaffold/scaffold.go
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-03T05:01:42Z
-- Context: manual
-- Validation profile: strict
-- Sequence for task/spec: 1
-- Stable comparison hash: 37ec1fa91fb709f8b633a6b2f22fb501223c2351764d6bc9a0e6e4cbec04e27d
+- Generated at (UTC): 2026-08-03T05:17:00Z
+- Context: not-provided
+- Validation profile: not-provided
+- Sequence for task/spec: 3
+- Stable comparison hash: 81972a7bf214459d732291e9fceaebd8e8ddca158ba6be5a6f65f040d23b1791
 
 ## Historical Comparison
-- Previous execution: _No previous execution_
-- Status: first-run
+- Previous execution: 2026-08-03T05:12:23Z
+- Status: changed
 - Stable field diffs:
-- _No changes in stable fields_
+- change_set: "" -> "sha256:b296ec489b9f786a84be19ac95f62739271a82e98fcfb1fa90f83697aaf2c592:2f556645823c6c1c6c692316cd0116356c31ff59:b6b0c10afdfc2eae05cc9bdfeae96f124e1557e8"
+- context: "manual" -> "not-provided"
+- rules: "backend-go,security,documentation-style,delivery-evidence,delivery-surface" -> "delivery-evidence,delivery-surface"
+- validation_profile: "strict" -> "not-provided"
 
 ## Risks
 - _No risks provided_

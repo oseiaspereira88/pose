@@ -1,8 +1,8 @@
 # GraphForge Cross-Component Integration & Gap Analysis Report
 
 > **Gerado por**: POSE Integration Engine (`pose assess integrate`)
-> **Data de Avaliação**: 2026-08-03T04:07:49Z
-> **Baseline Commit**: a69466b51c4f
+> **Data de Avaliação**: 2026-08-03T05:16:34Z
+> **Baseline Commit**: b6b0c10afdfc
 
 ---
 

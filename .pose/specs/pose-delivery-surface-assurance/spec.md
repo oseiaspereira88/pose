@@ -224,6 +224,7 @@ preventing spec-local success from rolling up to a false roadmap completion.
 - modified: pose-mcp/internal/mcpserver/server_test.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: pose-mcp/internal/pose/delivery_integrity.go
+- modified: pose-mcp/internal/pose/delivery_integrity_test.go
 - modified: pose-mcp/internal/pose/spec.go
 - modified: pose-mcp/internal/pose/trace.go
 - modified: pose-mcp/internal/scaffold/scaffold.go
@@ -264,38 +265,38 @@ preventing spec-local success from rolling up to a false roadmap completion.
 ## 4. Tasks
 
 ### Planning
-- [ ] Reuse the shared delivery-integrity ADR created by
+- [x] Reuse the shared delivery-integrity ADR created by
   `pose-artifact-provenance-ledger` and add the exact evidence-class, graph-edge
   and roadmap-cut semantics before moving to `in-progress`.
-- [ ] Convert issue #7's dead UI, unconstructed services, absent modules and
+- [x] Convert issue #7's dead UI, unconstructed services, absent modules and
   prose-only roadmap criterion into checked-in failing fixtures.
-- [ ] Define a control fixture where artifact-check passes but surface-check
+- [x] Define a control fixture where artifact-check passes but surface-check
   fails, plus the reciprocal provenance failure.
 
 ### Implementation
-- [ ] Extend spec parsing and linting for typed `delivers` refs and exact target
+- [x] Extend spec parsing and linting for typed `delivers` refs and exact target
   declarations.
-- [ ] Extend validation-matrix checks and structured results with
+- [x] Extend validation-matrix checks and structured results with
   `evidenceClass` and delivery profiles.
-- [ ] Extend requirement trace with evidence levels and delivery/artifact refs.
-- [ ] Implement delivery-root detection from module metadata plus observed
+- [x] Extend requirement trace with evidence levels and delivery/artifact refs.
+- [x] Implement delivery-root detection from module metadata plus observed
   artifact changes.
-- [ ] Extend the combined graph and implement cross-findings with full paths.
-- [ ] Implement `pose surface-check` and freshness binding to change-set digests.
-- [ ] Add roadmap cut-criterion parsing and `pose roadmap-check --strict` without
+- [x] Extend the combined graph and implement cross-findings with full paths.
+- [x] Implement `pose surface-check` and freshness binding to change-set digests.
+- [x] Add roadmap cut-criterion parsing and `pose roadmap-check --strict` without
   raw command execution.
-- [ ] Add CLI/MCP schema parity, golden fixtures and project-scoped read views.
-- [ ] Add UI-surface workflow, rule, closeout skill, reference checks, locale
+- [x] Add CLI/MCP schema parity, golden fixtures and project-scoped read views.
+- [x] Add UI-surface workflow, rule, closeout skill, reference checks, locale
   parity, POSE manual, changelog and embedded scaffold updates.
 
 ### Validation
-- [ ] Run focused delivery-ref, trace, matrix, graph, surface and roadmap tests.
-- [ ] Run negative security tests for raw commands, traversal, unknown classes,
+- [x] Run focused delivery-ref, trace, matrix, graph, surface and roadmap tests.
+- [x] Run negative security tests for raw commands, traversal, unknown classes,
   stale evidence and unauthorized project refs.
-- [ ] Run an end-to-end fixture where all build checks and artifact checks pass
+- [x] Run an end-to-end fixture where all build checks and artifact checks pass
   while unreachable UI and uncomposed services fail the new gate.
-- [ ] Run the full Go suite, catalog golden test and embedded-distribution parity.
-- [ ] Run strict POSE structure, both spec lints and module validation gates.
+- [x] Run the full Go suite, catalog golden test and embedded-distribution parity.
+- [x] Run strict POSE structure, both spec lints and module validation gates.
 
 ## 5. Decisions
 
@@ -353,6 +354,16 @@ framework.
 - 2026-08-03, implementation start: dependency milestone
   `provenance-foundation` is terminal; the shared ADR was selected and the
   risk-based plan below activated before code changes.
+- 2026-08-03, implementation: added typed delivery declarations, profiles,
+  evidence classes, combined graph paths/findings, strict surface/roadmap gates,
+  CLI/MCP parity and the UI-surface governance kit.
+- 2026-08-03, review remediation: required Git-observed artifacts for delivery
+  edges, made validation freshness independent of generated evidence commits,
+  created missing result directories, preserved true deferred-integration
+  semantics and reconciled evolving declarations across immutable change sets.
+- 2026-08-03, final validation: focused and full Go suites, four-class module
+  validation, strict surface assurance, scaffold parity, POSE structural gates,
+  assessments and vulnerability analysis passed.
 
 ### Risk-based test plan
 
@@ -366,41 +377,54 @@ framework.
 | Required module gate | `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json --report` | Unit/build/integration/reachability results are current and reusable by surface closeout. |
 
 ### Results summary
-- Successes: The plan composes surface assurance with the artifact ledger,
-  makes roadmap closure consume the same evidence graph, and passes readiness,
-  strict spec lint, the full Go suite and scaffold parity.
-- Failures: None claimed as implementation evidence.
-- Warnings: The current engine cannot yet enforce the cut criteria documented by
-  this draft; roadmap status must remain `active` until implementation evidence
-  exists.
+- Successes: all thirteen requirements are implemented. The real negative
+  fixtures keep artifact/unit evidence green while rejecting unreachable or
+  uncomposed delivery; the corrected graph exposes current, digest-bound paths.
+- Failures: review found four semantic gaps; each was remediated and covered by
+  regression before approval.
+- Warnings: legacy orphan and pre-adoption roadmap findings remain observable
+  warnings. They do not weaken strict gates for adopted specs or new criteria.
 
 ### Requirement trace
-Requirement trace will be populated only after implementation evidence exists;
-this draft does not claim any requirement as satisfied.
+- R1 [satisfied] test:TestDeliveryTargetsRequireExactTypedFrontmatterAndBodyRefs.
+- R2 [satisfied] test:TestDeliveryTargetsRequireExactTypedFrontmatterAndBodyRefs.
+- R3 [satisfied] test:TestSurfaceCheckFailsUnreachableDelivery; report:.pose/reports/2026-08-03-pose-delivery-surface-assurance-review.md.
+- R4 [satisfied] test:TestValidateWritesEvidenceClassAndProvenanceDigest.
+- R5 [satisfied] test:TestDeliverySurfaceFailsGreenArtifactWithUnreachableSurface; evidence:integration evidence:e2e.
+- R6 [satisfied] test:TestTraceAcceptsDeliveryAndEvidenceRefs; evidence:unit evidence:integration.
+- R7 [satisfied] test:TestDeferredIntegrationDoesNotAssertDeliveryOrSatisfyRoadmapCriterion; surface:delivery-integrity-cli evidence:integration.
+- R8 [satisfied] check:delivery-reachability; surface:delivery-integrity-cli evidence:e2e.
+- R9 [satisfied] test:TestDeliverySurfaceFailsGreenArtifactWithUnreachableSurface; capability:delivery-integrity-graph evidence:integration.
+- R10 [satisfied] test:TestRoadmapCriteriaRejectRawCommandsAndRequireRegisteredRefs.
+- R11 [satisfied] test:TestRoadmapCheckRejectsIncompleteMemberAndMissingEvidence.
+- R12 [satisfied] test:TestSurfaceAssuranceToolReadsProjectScopedGraph; contract:delivery-integrity-mcp evidence:integration.
+- R13 [satisfied] check:skills-check-strict; report:.pose/reports/2026-08-03-pose-delivery-surface-assurance-review.md.
 
 ### Known gaps
-- Minimum reference implementations for web, CLI/API and Go composition checks
-  must be selected during implementation without making them engine
-  dependencies.
-- Evidence freshness defaults require calibration on the source repository from
-  issue #7.
+- POSE proves registered check execution, freshness and graph composition; the
+  semantic strength of a repository-authored reachability check remains a
+  review responsibility documented by the new workflow and skill.
 
 ## 7. Final Report
 
 ### Delivered scope
-Planning artifact only: this draft defines the composition, surface and roadmap
-half of the combined solution. No runtime capability or delivery claim is made.
+Implemented stack-neutral delivery targets, profile-driven evidence,
+Git-observed composition paths, strict surface and roadmap assurance, and
+matching CLI/MCP projections plus a default UI-surface governance kit.
 
 ### Files and modules changed
-- `.pose/specs/pose-delivery-surface-assurance/spec.md`.
+- `pose-mcp/internal/pose`, `internal/cli` and `internal/mcpserver`: model,
+  deterministic gates, validation results and project-scoped projections.
+- `.pose`, manuals, docs, locales and embedded scaffold: policy, profiles,
+  templates, workflow, rule and closeout skill.
 
 ### Validation executed
-- Commands: `pose lint-spec pose-delivery-surface-assurance --ready-check`;
-  `pose lint-spec pose-delivery-surface-assurance --strict`; `go test ./...
-  -count=1`; scaffold parity test.
-- Result: all spec/Go/parity checks passed; global `pose check --strict` remains
-  blocked by the pre-existing broken POSE.md reference to absent
-  `.pose/feedback`.
+- Commands: focused negative/positive delivery suites; `go test ./...
+  -count=1`; catalog and scaffold parity; `pose check --strict`; ready/strict
+  lint; `pose validate --strict --module pose-mcp`; `pose surface-check
+  --strict`; assessments; `govulncheck ./...`.
+- Result: all blocking gates passed with current provenance-bound unit,
+  integration and reachability evidence.
 
 ### Residual risks
 - The engine can guarantee evidence shape and freshness, not the semantic depth
@@ -408,5 +432,5 @@ half of the combined solution. No runtime capability or delivery claim is made.
   review remain necessary.
 
 ### Follow-ups
-No follow-up is opened by this planning revision; implementation tasks remain
-inside this draft spec.
+No deferred implementation follow-up. Release consumption and publication are
+owned by `pose-release-lifecycle-closure`, the next ordered roadmap spec.
