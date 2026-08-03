@@ -1,8 +1,8 @@
 # Harne8 Technical Debt & Governed Backlog Report
 
 > **Gerado por**: POSE Technical Debt Engine (`pose assess tech-debt`)
-> **Data de Avaliação**: 2026-08-02T17:09:55Z
-> **Baseline Commit**: 3eaa7db815cf
+> **Data de Avaliação**: 2026-08-03T04:07:50Z
+> **Baseline Commit**: a69466b51c4f
 
 ---
 
@@ -34,17 +34,17 @@
 | DEBT-012 | `TODO` | `pose-mcp-internal-cli` | [assess.go:607](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/cli/assess.go#L607) | `- saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0` | 📌 Sugere Follow-up |
 | DEBT-013 | `TODO` | `pose-mcp-internal-cli` | [assess.go:703](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/cli/assess.go#L703) | `fmt.Fprintf(stdout, "  - Total Debt Markers: %d (TODOs: %d, FIXMEs:...` | 📌 Sugere Follow-up |
 | DEBT-014 | `TODO` | `pose-mcp-internal-cli` | [assess.go:704](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/cli/assess.go#L704) | `report.Summary.TotalMarkers, report.Summary.TODOs, report.Summary.F...` | 📌 Sugere Follow-up |
-| DEBT-015 | `TODO` | `pose-mcp-internal-cli` | [cli.go:395](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/cli/cli.go#L395) | `Todos os comandos executam no binário Go, sem fallbacks Bash ou Py...` | 📌 Sugere Follow-up |
+| DEBT-015 | `TODO` | `pose-mcp-internal-cli` | [cli.go:403](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/cli/cli.go#L403) | `Todos os comandos executam no binário Go, sem fallbacks Bash ou Py...` | 📌 Sugere Follow-up |
 | DEBT-016 | `TODO` | `pose-mcp-internal-cli` | [doctor.go:497](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/cli/doctor.go#L497) | `fmt.Fprintln(stdout, cliText(locale, "Result: SUCCESS — recheck c...` | 📌 Sugere Follow-up |
 | DEBT-017 | `STUB` | `pose-mcp-internal-cli` | [extension_test.go:74](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/cli/extension_test.go#L74) | `// fakeSignedInstall stubs signature verification to always succeed...` | 📌 Sugere Follow-up |
 | DEBT-018 | `PANIC` | `pose-mcp-internal-cli` | [state_hooks_test.go:36](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/cli/state_hooks_test.go#L36) | `panic("boom")` | 📌 Sugere Follow-up |
 | DEBT-019 | `STUB` | `pose-mcp-internal-mcpserver` | [policy_test.go:18](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/policy_test.go#L18) | `// opaFixture starts a minimal OPA-compatible HTTP stub that return...` | 📌 Sugere Follow-up |
 | DEBT-020 | `STUB` | `pose-mcp-internal-mcpserver` | [policy_test.go:40](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/policy_test.go#L40) | `stub := opaFixture(t, http.StatusOK, map[string]any{` | 📌 Sugere Follow-up |
 | DEBT-021 | `STUB` | `pose-mcp-internal-mcpserver` | [policy_test.go:46](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/policy_test.go#L46) | `g := NewPolicyGate(PolicyConfig{OPAURL: stub.URL, HTTPClient: stub....` | 📌 Sugere Follow-up |
-| DEBT-022 | `TODO` | `pose-mcp-internal-mcpserver` | [server.go:1968](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/server.go#L1968) | `"technical debt markers (TODO, FIXME, stub, panic), detected langua...` | 📌 Sugere Follow-up |
-| DEBT-023 | `TODO` | `pose-mcp-internal-mcpserver` | [server.go:2045](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/server.go#L2045) | `"description": "Audit technical debt markers (TODO, FIXME, stub, pa...` | 📌 Sugere Follow-up |
-| DEBT-024 | `TODO` | `pose-mcp-internal-mcpserver-testdata` | [tool-catalog.golden.json:875](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json#L875) | `"description": "Perform a deep discovery audit of a repository comp...` | 📌 Sugere Follow-up |
-| DEBT-025 | `TODO` | `pose-mcp-internal-mcpserver-testdata` | [tool-catalog.golden.json:954](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json#L954) | `"description": "Audit technical debt markers (TODO, FIXME, stub, pa...` | 📌 Sugere Follow-up |
+| DEBT-022 | `TODO` | `pose-mcp-internal-mcpserver` | [server.go:1995](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/server.go#L1995) | `"technical debt markers (TODO, FIXME, stub, panic), detected langua...` | 📌 Sugere Follow-up |
+| DEBT-023 | `TODO` | `pose-mcp-internal-mcpserver` | [server.go:2072](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/server.go#L2072) | `"description": "Audit technical debt markers (TODO, FIXME, stub, pa...` | 📌 Sugere Follow-up |
+| DEBT-024 | `TODO` | `pose-mcp-internal-mcpserver-testdata` | [tool-catalog.golden.json:895](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json#L895) | `"description": "Perform a deep discovery audit of a repository comp...` | 📌 Sugere Follow-up |
+| DEBT-025 | `TODO` | `pose-mcp-internal-mcpserver-testdata` | [tool-catalog.golden.json:974](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json#L974) | `"description": "Audit technical debt markers (TODO, FIXME, stub, pa...` | 📌 Sugere Follow-up |
 | DEBT-026 | `STUB` | `pose-mcp-internal-mcpserver` | [validate_orchestration_test.go:36](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/validate_orchestration_test.go#L36) | `// stubExecutor counts Submit calls and returns a fixed execution i...` | 📌 Sugere Follow-up |
 | DEBT-027 | `STUB` | `pose-mcp-internal-mcpserver` | [validate_orchestration_test.go:38](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/validate_orchestration_test.go#L38) | `type stubExecutor struct {` | 📌 Sugere Follow-up |
 | DEBT-028 | `STUB` | `pose-mcp-internal-mcpserver` | [validate_orchestration_test.go:44](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/mcpserver/validate_orchestration_test.go#L44) | `func (s *stubExecutor) Submit(_ context.Context, _ ApprovedValidati...` | 📌 Sugere Follow-up |

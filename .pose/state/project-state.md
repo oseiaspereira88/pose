@@ -79,7 +79,7 @@ capacidade.
 <!-- state:derived hash:a8f9c10d3e21 status:active -->
 
 - componentes: total=2 verificados=2 completude=100%
-- linhas_de_codigo: producao=27441 testes=14955 total=42396
+- linhas_de_codigo: producao=28427 testes=15267 total=43694
 - linguagens: Rust (ast-engine), Go (graph-core, mcp-server, indexers, collector, enricher, planner, cli, pkg), TypeScript/React (web), WASM
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/components/

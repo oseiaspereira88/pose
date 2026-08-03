@@ -7,7 +7,7 @@
 | #  | Componente Slug | Módulo / Path | Linguagens | LOC Produção | LOC Testes | Arquivos | Status | Relatório Markdown |
 |----|------------|---------------|-----------|--------------|------------|----------|--------|--------------------|
 | 01 | `mcp-enforce` | `mcp-enforce` | `go` | 1036 | 943 | 24 | `in_progress` | [mcp-enforce.md](./mcp-enforce.md) |
-| 02 | `pose-mcp` | `pose-mcp` | `go` | 26405 | 14012 | 176 | `needs_attention` | [pose-mcp.md](./pose-mcp.md) |
+| 02 | `pose-mcp` | `pose-mcp` | `go` | 27391 | 14324 | 181 | `needs_attention` | [pose-mcp.md](./pose-mcp.md) |
 
 ## Assessments Consolidados & Governança Global
 

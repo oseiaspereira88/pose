@@ -1,8 +1,8 @@
 ---
 slug: pose-artifact-provenance-ledger
-status: in-progress
+status: done
 created_at: 2026-08-02
-completed_at:
+completed_at: 2026-08-03
 supersedes:
 depends_on: pose-hierarchical-review-closeout
 priority: 1
@@ -222,34 +222,34 @@ delivery graph required by issue #7.
 ## 4. Tasks
 
 ### Planning
-- [ ] Record one shared ADR for the delivery-integrity graph, declaration versus
+- [x] Record one shared ADR for the delivery-integrity graph, declaration versus
   observation boundary, Git selector precedence and staged migration before
   either provenance or surface implementation becomes `in-progress`.
-- [ ] Turn issue #8's measured cases into checked-in positive and negative
+- [x] Turn issue #8's measured cases into checked-in positive and negative
   fixtures, including ambiguous basename, rename-with-edit, removed path,
   mixed-spec range, excluded fixture and legacy narrative.
-- [ ] Freeze artifact grammar, policy and ledger JSON schemas with golden files.
+- [x] Freeze artifact grammar, policy and ledger JSON schemas with golden files.
 
 ### Implementation
-- [ ] Implement the artifact parser, canonical path validator and typed findings
+- [x] Implement the artifact parser, canonical path validator and typed findings
   in `internal/pose`.
-- [ ] Extend report/history with immutable change-set evidence and stable hashing.
-- [ ] Implement Git selector resolution and `pose artifact-check` without shell
+- [x] Extend report/history with immutable change-set evidence and stable hashing.
+- [x] Implement Git selector resolution and `pose artifact-check` without shell
   evaluation.
-- [ ] Add closeout lint rules and tolerant/strict migration behavior.
-- [ ] Extend `pose index` with the artifact portion of
+- [x] Add closeout lint rules and tolerant/strict migration behavior.
+- [x] Extend `pose index` with the artifact portion of
   `delivery-integrity.json` and deterministic reverse traversal.
-- [ ] Implement dry-run-first backfill with explicit conflict output.
-- [ ] Add the project-scoped MCP projection, CLI/MCP golden parity and docs.
-- [ ] Update English and pt-BR templates, workflow/rule guidance, POSE manual,
+- [x] Implement dry-run-first backfill with explicit conflict output.
+- [x] Add the project-scoped MCP projection, CLI/MCP golden parity and docs.
+- [x] Update English and pt-BR templates, workflow/rule guidance, POSE manual,
   changelog and embedded scaffold.
 
 ### Validation
-- [ ] Run focused parser, Git fixture, lint, report-history, index and MCP tests.
-- [ ] Run negative tests for traversal, unsafe revisions, symlink escape,
+- [x] Run focused parser, Git fixture, lint, report-history, index and MCP tests.
+- [x] Run negative tests for traversal, unsafe revisions, symlink escape,
   conflicting claims, malformed history and sensitive output.
-- [ ] Run the full Go suite and embedded-distribution parity test.
-- [ ] Run strict POSE structure, spec lint and module validation gates.
+- [x] Run the full Go suite and embedded-distribution parity test.
+- [x] Run strict POSE structure, spec lint and module validation gates.
 
 ## 5. Decisions
 
@@ -312,48 +312,77 @@ surface spec proves the complementary failure.
   `pose assess discover --component .`; implementation checks remain pending.
 - 2026-08-02, planning validation: readiness and strict lint passed; the full Go
   suite and embedded-scaffold parity passed after regenerating the mirror.
+- 2026-08-03, implementation: added the closed artifact grammar, confined path
+  validator, declaration/observation graph, immutable Git change sets, report
+  hashing, index, CLI checks/backfill and read-only MCP projection.
+- 2026-08-03, review remediation: made spec parsing independent of the process
+  working directory, required the explicit `--from-git` selector, exposed
+  per-spec backfill confidence and added real rename-with-edit plus malformed
+  history regression tests.
+- 2026-08-03, final validation: focused and full Go suites, strict structure,
+  ready/strict spec lint, module validation, scaffold parity, artifact-to-Git
+  reconciliation and `govulncheck` passed.
 
 ### Results summary
-- Successes: Issue evidence, current parser/index/report contracts and related
-  ADRs were inspected; readiness, strict spec lint, the full Go suite and
-  scaffold parity passed.
-- Failures: None claimed as implementation evidence.
-- Warnings: Current project state is stale by age and reports a hand-edited
-  Architecture section; refresh is outside this planning-only change.
+- Successes: all ten requirements are implemented and traced. The final
+  `artifact-check` resolved the implementation range to immutable commits and a
+  diff digest with zero error or critical findings. CLI and MCP share schema 1.
+- Failures: the first full-suite review found assessment mirror drift; the
+  scaffold was regenerated and the full suite then passed. A rename fixture
+  initially fell below Git's similarity threshold; the fixture was corrected
+  to exercise an actual rename-with-edit and now passes.
+- Warnings: 192 historical governed files have no structured spec attribution.
+  They remain visible `orphan` warnings under the staged policy and do not
+  weaken action-mismatch, undeclared or path-confinement enforcement for this
+  adopted spec.
 
 ### Requirement trace
-Requirement trace will be populated only after implementation evidence exists;
-this draft does not claim any requirement as satisfied.
+- R1 [satisfied] test:TestArtifactClaimsClosedGrammarAndContradictions.
+- R2 [satisfied] test:TestArtifactPathRejectsSymlinkEscapeAndDirectory.
+- R3 [satisfied] check:artifact-aware strict spec lint and guarded closeout.
+- R4 [satisfied] test:TestArtifactCheckFindsUndeclaredAndActionMismatch.
+- R5 [satisfied] test:TestArtifactCheckMatchesExplicitGitChangeSetAndRejectsUnsafeRevision.
+- R6 [satisfied] test:TestReportChangeSetPersistsImmutableGitEvidence.
+- R7 [satisfied] test:TestIndexWritesDeliveryIntegrityGraphAndReverseLookup.
+- R8 [satisfied] check:.pose/policy/artifacts.json.
+- R9 [satisfied] test:TestArtifactBackfillDryRunDoesNotMutateSpecs.
+- R10 [satisfied] test:TestDeliveryIntegrityToolReadsProjectScopedGraphAndReversePath.
 
 ### Known gaps
-- The shared ADR and exact repository-schema bump number remain implementation
-  entry tasks.
-- The backfill confidence threshold must be calibrated against the issue #8
-  source repository before enforcement.
+- Historical orphan attribution is intentionally not fabricated. Repositories
+  can use the deterministic backfill proposal and review ambiguous ownership
+  before raising orphan severity.
+- Reachability and user-visible delivery remain intentionally outside this
+  ledger and are owned by dependent spec `pose-delivery-surface-assurance`.
 
 ## 7. Final Report
 
 ### Delivered scope
-Planning artifact only: this draft defines the artifact half of the combined
-solution. No runtime capability or delivery claim is made.
+Implemented the Git-verifiable artifact half of POSE's delivery-integrity
+graph: structured claims, immutable observations, reconciliation findings,
+policy, strict lifecycle gates, dry-run backfill, reverse index and MCP parity.
 
 ### Files and modules changed
-- `.pose/specs/pose-artifact-provenance-ledger/spec.md`.
+- `pose-mcp/internal/pose`: grammar, policy, graph, findings and reverse query.
+- `pose-mcp/internal/cli`: Git evidence, report history, check/backfill/index and lifecycle gates.
+- `pose-mcp/internal/mcpserver`: project-scoped read projection and golden catalog.
+- `.pose/`, `POSE.md`, locales and docs: policy, ADR, templates and operating contract.
 
 ### Validation executed
-- Commands: `pose assess discover --component .`; `pose lint-spec
-  pose-artifact-provenance-ledger --ready-check`; `pose lint-spec
-  pose-artifact-provenance-ledger --strict`; `go test ./... -count=1`; scaffold
-  parity test.
-- Result: discovery completed and all spec/Go/parity checks passed; global
-  `pose check --strict` remains blocked by the pre-existing broken POSE.md
-  reference to absent `.pose/feedback`.
+- Commands: focused artifact/change-set/report/MCP tests; `go test ./...
+  -count=1`; scaffold parity; `pose artifact-check --spec
+  pose-artifact-provenance-ledger --from 5403f56 --to HEAD --strict`; `pose
+  check --strict`; ready/strict spec lint; `pose validate --strict --module
+  pose-mcp --report`; integration and tech-debt assessments; `govulncheck ./...`.
+- Result: all blocking gates passed; no called Go vulnerability was found and
+  the implementation change set has no error or critical provenance finding.
 
 ### Residual risks
-- Implementation can still weaken the contract if it treats trailers as
-  infallible or auto-assigns ambiguous history; the planned ADR and negative
-  fixtures are blocking controls.
+- Rewritten Git history can stale selectors. POSE retains resolved commit IDs
+  and diff digest so the mismatch is explicit and requires new evidence.
+- Mature repositories need reviewed orphan-policy migration; warnings are not
+  interpreted as automatic ownership.
 
 ### Follow-ups
-No follow-up is opened by this planning revision; implementation tasks remain
-inside this draft spec.
+No deferred implementation follow-up. Surface and release completeness are
+already represented by the dependent specs in the active roadmap.
