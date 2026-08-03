@@ -215,9 +215,10 @@ func TestAttestedReleaseContract(t *testing.T) {
 	for _, want := range []string{
 		"release:",
 		"workflow_dispatch:",
+		"workflow_run:",
 		"cache: false",
 		"tests/release/independent-verify.sh",
-		"permissions: { contents: read }",
+		"permissions: { contents: read, attestations: read }",
 	} {
 		if !strings.Contains(vw, want) {
 			t.Errorf("verify-release.yml missing %q (verifier isolation contract)", want)

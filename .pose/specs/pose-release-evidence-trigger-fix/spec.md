@@ -56,6 +56,7 @@ internal files not present in the public release. Both produce false confidence.
 ### Artifacts
 - modified: .github/workflows/release.yml
 - modified: .github/workflows/verify-release.yml
+- modified: pose-mcp/internal/version/contract_test.go
 - modified: .pose/specs/pose-release-evidence-trigger-fix/spec.md
 
 ### Delivery targets

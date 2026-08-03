@@ -149,6 +149,10 @@
       "to": "pose-public-install-contract"
     },
     {
+      "from": "pose-release-evidence-trigger-fix",
+      "to": "pose-release-lifecycle-closure"
+    },
+    {
       "from": "pose-release-lifecycle-closure",
       "to": "pose-hierarchical-review-closeout"
     },
@@ -443,6 +447,14 @@
       "path": ".pose/specs/pose-release-compatibility-matrix/spec.md",
       "priority": 4,
       "status": "done"
+    },
+    "pose-release-evidence-trigger-fix": {
+      "depends_on": [
+        "pose-release-lifecycle-closure"
+      ],
+      "path": ".pose/specs/pose-release-evidence-trigger-fix/spec.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-release-lifecycle-closure": {
       "depends_on": [
