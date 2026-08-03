@@ -47,7 +47,7 @@ func TestDeliverySurfaceFailsGreenArtifactWithUnreachableSurface(t *testing.T) {
 }
 
 func TestDeliverySurfacePassesCurrentReachabilityAndIntegration(t *testing.T) {
-	base := BuildDeliveryIntegrity([]Spec{{Slug: "alpha"}}, []ArtifactClaim{{Spec: "alpha", Action: "modified", Path: "web/view.go"}}, []ChangeSet{{ID:"cs-1",Spec:"alpha",Paths:[]ObservedPath{{Action:"modified",Path:"web/view.go"}}}}, []string{"web/view.go"}, ArtifactPolicy{})
+	base := BuildDeliveryIntegrity([]Spec{{Slug: "alpha"}}, []ArtifactClaim{{Spec: "alpha", Action: "modified", Path: "web/view.go"}}, []ChangeSet{{ID: "cs-1", Spec: "alpha", Paths: []ObservedPath{{Action: "modified", Path: "web/view.go"}}}}, []string{"web/view.go"}, ArtifactPolicy{})
 	target := DeliveryTarget{Spec: "alpha", Ref: "surface:dashboard", Kind: "surface", ID: "dashboard", Module: "web", Profile: "web-ui", Entrypoint: "cmd/app/main.go"}
 	profiles := map[string]DeliveryProfile{"web-ui": {Kind: "surface", RequiredEvidenceClasses: []string{"reachability"}, AnyEvidenceClasses: []string{"integration", "e2e"}}}
 	results := []DeliveryValidationResult{{ID: "reach", Module: "web", Check: "web-reach", EvidenceClass: "reachability", Severity: "required", Outcome: "pass", ProvenanceDigest: base.ProvenanceDigest}, {ID: "e2e", Module: "web", Check: "web-e2e", EvidenceClass: "e2e", Severity: "required", Outcome: "pass", ProvenanceDigest: base.ProvenanceDigest}}
@@ -59,5 +59,30 @@ func TestDeliverySurfacePassesCurrentReachabilityAndIntegration(t *testing.T) {
 	}
 	if len(graph.Paths[target.Ref]) < 4 {
 		t.Fatalf("missing explainable path: %v", graph.Paths)
+	}
+}
+
+func TestDeferredIntegrationDoesNotAssertDeliveryOrSatisfyRoadmapCriterion(t *testing.T) {
+	specs := []Spec{
+		{Slug: "alpha", Status: "in-progress", Body: "## 2. Requirements\n- R1: defer the dashboard integration.\n\n## 6. Validation\n\n### Requirement trace\n- R1 [deferred-integration: spec:beta] surface:dashboard\n"},
+		{Slug: "beta", Status: "planned"},
+	}
+	base := BuildDeliveryIntegrity(specs, nil, nil, nil, ArtifactPolicy{})
+	target := DeliveryTarget{Spec: "alpha", Ref: "surface:dashboard", Kind: "surface", ID: "dashboard", Module: "web", Profile: "web-ui", Entrypoint: "cmd/app/main.go"}
+	profiles := map[string]DeliveryProfile{"web-ui": {Kind: "surface", RequiredEvidenceClasses: []string{"reachability"}}}
+	roadmaps := []Roadmap{{Slug: "release", Body: "## Cut criteria\n- C1: surface:dashboard\n"}}
+	graph := BuildDeliverySurface(base, specs, []DeliveryTarget{target}, nil, roadmaps, profiles, DeliveryPolicy{})
+	for _, edge := range graph.Edges {
+		if edge.From == "spec:alpha" && edge.To == "delivery:surface:dashboard" && edge.Type == "delivers" {
+			t.Fatal("deferred surface was asserted as delivered")
+		}
+	}
+	if len(graph.RoadmapCriteria) != 1 || graph.RoadmapCriteria[0].Passed || !strings.Contains(strings.Join(graph.RoadmapCriteria[0].Reasons, " "), "deferred delivery ref") {
+		t.Fatalf("deferred surface satisfied roadmap criterion: %+v", graph.RoadmapCriteria)
+	}
+	for _, finding := range graph.Findings {
+		if finding.Code == "surface-without-reachability" || finding.Code == "surface-without-provenance" {
+			t.Fatalf("valid deferral produced delivery finding: %+v", graph.Findings)
+		}
 	}
 }

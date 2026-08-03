@@ -278,6 +278,32 @@ func containsDeliveryRef(refs []string, wanted string) bool {
 	return false
 }
 
+func deferredDeliveryTargets(specs []Spec) map[string]bool {
+	statuses := map[string]string{}
+	for _, spec := range specs {
+		statuses[spec.Slug] = spec.Status
+	}
+	deferred := map[string]bool{}
+	for _, spec := range specs {
+		for _, requirement := range ParseRequirementTrace(spec.Body).Requirements {
+			if requirement.Entry == nil || requirement.Entry.Disposition != "deferred-integration" {
+				continue
+			}
+			owner := strings.TrimPrefix(strings.TrimSpace(requirement.Entry.Reason), "spec:")
+			status, exists := statuses[owner]
+			if !strings.HasPrefix(strings.TrimSpace(requirement.Entry.Reason), "spec:") || !exists || status == "done" {
+				continue
+			}
+			for _, ref := range requirement.Entry.Refs {
+				if deliveryRefRE.MatchString(ref) {
+					deferred[spec.Slug+"\x00"+ref] = true
+				}
+			}
+		}
+	}
+	return deferred
+}
+
 func ParseRoadmapCriteria(roadmap Roadmap) ([]RoadmapCriterion, []string) {
 	criteria := []RoadmapCriterion{}
 	errors := []string{}
@@ -323,6 +349,7 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 	observedBySpecPath := map[string]bool{}
 	targetsBySpec := map[string][]DeliveryTarget{}
 	targetByRef := map[string]DeliveryTarget{}
+	deferredTargets := deferredDeliveryTargets(specs)
 	for _, claim := range graph.Claims {
 		claimsBySpec[claim.Spec] = append(claimsBySpec[claim.Spec], claim)
 	}
@@ -331,7 +358,11 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 	}
 	for _, set := range graph.ChangeSets {
 		setsBySpec[set.Spec] = append(setsBySpec[set.Spec], set)
-		for _, observed := range set.Paths { for _, path := range observedPaths(observed) { observedBySpecPath[set.Spec+"\x00"+path] = true } }
+		for _, observed := range set.Paths {
+			for _, path := range observedPaths(observed) {
+				observedBySpecPath[set.Spec+"\x00"+path] = true
+			}
+		}
 	}
 	for _, result := range graph.ValidationResults {
 		graph.Nodes = appendNode(graph.Nodes, DeliveryIntegrityNode{ID: "validation-result:" + result.ID, Type: "validation-result", Attributes: map[string]string{"check": result.Check, "evidence_class": result.EvidenceClass, "outcome": result.Outcome}})
@@ -342,6 +373,11 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 		targetNode := "delivery:" + target.Ref
 		entryNode := "entrypoint:" + target.Entrypoint
 		graph.Nodes = appendNode(graph.Nodes, DeliveryIntegrityNode{ID: targetNode, Type: target.Kind, Attributes: map[string]string{"module": target.Module, "profile": target.Profile}})
+		if deferredTargets[target.Spec+"\x00"+target.Ref] {
+			graph.Edges = append(graph.Edges, DeliveryIntegrityEdge{From: "spec:" + target.Spec, To: targetNode, Type: "defers"})
+			graph.Paths[target.Ref] = []string{"spec:" + target.Spec, targetNode}
+			continue
+		}
 		graph.Nodes = appendNode(graph.Nodes, DeliveryIntegrityNode{ID: entryNode, Type: "entrypoint", Attributes: map[string]string{"path": target.Entrypoint}})
 		graph.Edges = append(graph.Edges, DeliveryIntegrityEdge{From: "spec:" + target.Spec, To: targetNode, Type: "delivers"})
 		graph.Edges = append(graph.Edges, DeliveryIntegrityEdge{From: targetNode, To: entryNode, Type: map[bool]string{true: "reaches", false: "composes"}[target.Kind == "surface"]})
@@ -355,7 +391,9 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 			if claim.Action == "renamed" {
 				artifact = claim.NewPath
 			}
-			if !observedBySpecPath[target.Spec+"\x00"+artifact] { continue }
+			if !observedBySpecPath[target.Spec+"\x00"+artifact] {
+				continue
+			}
 			graph.Edges = append(graph.Edges, DeliveryIntegrityEdge{From: "artifact:" + artifact, To: targetNode, Type: "implemented-by"})
 			path = append(path, "artifact:"+artifact)
 			provenanceLinks++
@@ -444,9 +482,13 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 			for _, ref := range criterion.Refs {
 				switch {
 				case deliveryRefRE.MatchString(ref):
-					if _, ok := targetByRef[ref]; !ok {
+					target, ok := targetByRef[ref]
+					if !ok {
 						criterion.Passed = false
 						criterion.Reasons = append(criterion.Reasons, "unknown delivery ref "+ref)
+					} else if deferredTargets[target.Spec+"\x00"+ref] {
+						criterion.Passed = false
+						criterion.Reasons = append(criterion.Reasons, "deferred delivery ref "+ref)
 					}
 				case strings.HasPrefix(ref, "check:"):
 					name := strings.TrimPrefix(ref, "check:")
