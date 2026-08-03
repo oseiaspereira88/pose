@@ -8,21 +8,19 @@
 - Task slug: release-trigger-fix-validation
 
 ## Outcome
-- Outcome: fail (source: manual)
+- Outcome: pass (source: manual)
 
 ## Rules Applied
 - _Not provided_
 
 ## Files Changed
 - pose/indexes/delivery-integrity.json
-- .pose/indexes/releases.json
-- .pose/indexes/spec-graph.json
-- .pose/results/delivery-validation.json
-- pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
-- pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
-- pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
 - .pose/reports/2026-08-03-standard-release-evidence-trigger-fix.md
 - .pose/reports/history/standard-release-evidence-trigger-fix.jsonl
+- .pose/results/delivery-validation.json
+- pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
+- pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json
+- pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-evidence-trigger-fix/spec.md
 
 ## Validation Commands
 - _Fill manually_
@@ -31,15 +29,15 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-03T14:27:53Z
+- Generated at (UTC): 2026-08-03T14:28:39Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 1
+- Sequence for task/spec: 2
 - Stable comparison hash: a69834cada61c2ece9f6d4df19edd16baed73f556bdd593ed6b471cef6064599
 
 ## Historical Comparison
-- Previous execution: _No previous execution_
-- Status: first-run
+- Previous execution: 2026-08-03T14:27:53Z
+- Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
 
