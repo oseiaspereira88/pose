@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:d3ad85fcc7fc246d93d934533da448dcc9630f13dbea3d59e92ee879e5e2d8db",
-  "provenance_digest": "sha256:c4daf92212976a9d2cb91cab54d32682e79254b8ea241b0198885f68cc3346ae",
+  "input_digest": "sha256:73499946de8567aab8612e20d1dc678e54be417f82d543d7de7231665d3e3afc",
+  "provenance_digest": "sha256:9ea199a39a8bf2382b7926ef9363ec62d2902f53084edc58ca7f0ae55c091ab6",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -64,6 +64,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-delivery-surface-assurance.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-release-lifecycle-closure.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-release-lifecycle-closure.md"
       }
     },
     {
@@ -172,6 +179,13 @@
       }
     },
     {
+      "id": "artifact:.pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md"
+      }
+    },
+    {
       "id": "artifact:.pose/reports/2026-08-03-standard-delivery-surface-implementation.md",
       "type": "artifact",
       "attributes": {
@@ -183,6 +197,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/reports/2026-08-03-standard-delivery-surface-validation.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/reports/2026-08-03-standard-release-lifecycle-implementation.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/2026-08-03-standard-release-lifecycle-implementation.md"
       }
     },
     {
@@ -200,10 +221,24 @@
       }
     },
     {
+      "id": "artifact:.pose/reports/history/standard-release-lifecycle-implementation.jsonl",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/history/standard-release-lifecycle-implementation.jsonl"
+      }
+    },
+    {
       "id": "artifact:.pose/reports/history/standard-validate-native.jsonl",
       "type": "artifact",
       "attributes": {
         "path": ".pose/reports/history/standard-validate-native.jsonl"
+      }
+    },
+    {
+      "id": "artifact:.pose/reports/release-backfill.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/release-backfill.json"
       }
     },
     {
@@ -697,6 +732,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/repo-map.json",
       "type": "artifact",
       "attributes": {
@@ -971,6 +1013,14 @@
       "attributes": {
         "diff_digest": "sha256:0184bd863fce7f3d6b8eae7ee5497a456e6a46b591f4906055e71594e0ed6c1d",
         "selector": "range:5403f56..HEAD"
+      }
+    },
+    {
+      "id": "change-set:cs-6ff266a7d37e",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:04293d2b5230803a0d0061bdc815709d95db80654315e14b154156911b2c1807",
+        "selector": "range:13689f7..d2f3a85"
       }
     },
     {
@@ -1506,6 +1556,21 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/indexes/releases.json",
+      "to": "delivery:contract:release-lifecycle-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/releases.json",
+      "to": "delivery:governance:release-integrity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/releases.json",
+      "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/indexes/spec-graph.json",
       "to": "delivery:capability:delivery-integrity-graph",
       "type": "implemented-by"
@@ -2072,6 +2137,21 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/cli.go",
+      "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/index.go",
+      "to": "delivery:contract:release-lifecycle-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/index.go",
+      "to": "delivery:governance:release-integrity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/index.go",
       "to": "delivery:surface:release-lifecycle-cli",
       "type": "implemented-by"
     },
@@ -3778,6 +3858,341 @@
     {
       "from": "change-set:cs-5ba3b2d3828c",
       "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.agents/skills/README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.agents/skills/pose-release-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.github/workflows/release.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/assessments/integrations.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/assessments/technical-debt.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/changelogs/unreleased/pose-release-lifecycle-closure.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/indexes/task-map.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/policy/changelog.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/release-policy.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/reports/2026-08-03-standard-release-lifecycle-implementation.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/reports/history/standard-release-lifecycle-implementation.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/reports/release-backfill.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/rules/release-integrity.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/state/integrations.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/state/technical-debt.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:.pose/workflows/release.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:docs-site/docs/cli.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:docs-site/docs/mcp.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:locales/pt-BR/.pose/workflows/release.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/cli/check.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/cli/cli.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/cli/index.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/cli/maintenance.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/cli/native_only_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/cli/release_lifecycle.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/cli/skills_check_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/mcpserver/server.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/pose/changelogs.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/pose/release_lifecycle.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-release-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-03-immutable-release-ledger.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/integrations.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/technical-debt.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/task-map.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/changelog.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/release-policy.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/rules/release-integrity.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-lifecycle-closure/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/workflows/release.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/release-integrity.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/release.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/scripts/release.sh",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:pose-mcp/internal/scaffold/scaffold.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-6ff266a7d37e",
+      "to": "artifact:scripts/release.sh",
       "type": "changes"
     },
     {
@@ -5442,6 +5857,11 @@
     },
     {
       "from": "spec:pose-release-lifecycle-closure",
+      "to": "change-set:cs-6ff266a7d37e",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-release-lifecycle-closure",
       "to": "change-set:cs-98c54f07fd6c",
       "type": "observed-by"
     }
@@ -7012,6 +7432,291 @@
       "diff_digest": "sha256:0184bd863fce7f3d6b8eae7ee5497a456e6a46b591f4906055e71594e0ed6c1d"
     },
     {
+      "id": "cs-6ff266a7d37e",
+      "spec": "pose-release-lifecycle-closure",
+      "selector": "range:13689f7..d2f3a85",
+      "base": "13689f7",
+      "head": "d2f3a85",
+      "resolved_base": "13689f758b322a0d79ee3485e4b5572166eba30f",
+      "resolved_head": "d2f3a854c858d516e964efa23393e5cc5f337f49",
+      "commits": [
+        "369130a1d236b3b3480f2a54731b80c911a45a1a",
+        "c25d403c74656bc31885619c0bfbf33dd06f733c",
+        "d2f3a854c858d516e964efa23393e5cc5f337f49"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".agents/skills/pose-release-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-08-03-immutable-release-ledger.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-release-lifecycle-closure.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/policy/changelog.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/release-policy.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/2026-08-03-standard-release-lifecycle-implementation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/history/standard-release-lifecycle-implementation.jsonl"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/release-backfill.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/rules/release-integrity.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/workflows/release.md"
+        },
+        {
+          "action": "created",
+          "path": "locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": "locales/pt-BR/.pose/rules/release-integrity.md"
+        },
+        {
+          "action": "created",
+          "path": "locales/pt-BR/.pose/workflows/release.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/release_lifecycle.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/release_lifecycle_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/mcpserver/release_status_tool_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/release_lifecycle.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/release_lifecycle_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-release-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-03-immutable-release-ledger.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/policy/changelog.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/release-policy.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/rules/release-integrity.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/release.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/release-integrity.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/release.md"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/README.md"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/release.yml"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/integrations.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/technical-debt.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/task-map.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-release-lifecycle-closure/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/integrations.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/technical-debt.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/cli.md"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/cli.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/index.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/maintenance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/native_only_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/skills_check_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/server.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/server_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/changelogs.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/README.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/integrations.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/technical-debt.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/task-map.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-lifecycle-closure/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/scripts/release.sh"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/scaffold.go"
+        },
+        {
+          "action": "modified",
+          "path": "scripts/release.sh"
+        }
+      ],
+      "diff_digest": "sha256:04293d2b5230803a0d0061bdc815709d95db80654315e14b154156911b2c1807"
+    },
+    {
       "id": "cs-98c54f07fd6c",
       "spec": "pose-release-lifecycle-closure",
       "selector": "range:13689f7..369130a",
@@ -8543,15 +9248,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-2d5e4af7a868",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-release-lifecycle-closure",
-      "path": "pose-mcp/internal/cli/index.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-2fd39cf54f18",
       "code": "legacy-narrative",
       "severity": "info",
@@ -8882,7 +9578,7 @@
       "code": "roadmap-criterion",
       "severity": "warning",
       "path": "delivery-integrity",
-      "message": "C9: cut criterion requires a registered delivery, check or manual-review ref",
+      "message": "C8: cut criterion requires a registered delivery, check or manual-review ref",
       "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
     {
@@ -8914,7 +9610,7 @@
       "code": "roadmap-criterion",
       "severity": "warning",
       "path": "delivery-integrity",
-      "message": "C8: cut criterion requires a registered delivery, check or manual-review ref",
+      "message": "C9: cut criterion requires a registered delivery, check or manual-review ref",
       "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
     {
@@ -9696,15 +10392,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-9d35f3bc76f5",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-release-lifecycle-closure",
-      "path": ".pose/indexes/releases.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-9da19ede934f",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -9808,15 +10495,6 @@
       "path": "pose-mcp/internal/scaffold/gen/main.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-a7e2a1f6ce3e",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-release-lifecycle-closure",
-      "path": ".pose/indexes/releases.json",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-a87dbcd53a46",
@@ -10879,6 +11557,7 @@
       "spec:pose-release-lifecycle-closure",
       "artifact:.agents/skills/pose-release-closeout/SKILL.md",
       "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
+      "artifact:.pose/indexes/releases.json",
       "artifact:.pose/policy/changelog.json",
       "artifact:.pose/release-policy.json",
       "artifact:.pose/rules/release-integrity.md",
@@ -10901,6 +11580,7 @@
       "artifact:docs-site/docs/mcp.md",
       "artifact:pose-mcp/internal/cli/check.go",
       "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/index.go",
       "artifact:pose-mcp/internal/cli/maintenance.go",
       "artifact:pose-mcp/internal/cli/native_only_test.go",
       "artifact:pose-mcp/internal/cli/skills_check_test.go",
@@ -10918,6 +11598,7 @@
       "spec:pose-release-lifecycle-closure",
       "artifact:.agents/skills/pose-release-closeout/SKILL.md",
       "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
+      "artifact:.pose/indexes/releases.json",
       "artifact:.pose/policy/changelog.json",
       "artifact:.pose/release-policy.json",
       "artifact:.pose/rules/release-integrity.md",
@@ -10940,6 +11621,7 @@
       "artifact:docs-site/docs/mcp.md",
       "artifact:pose-mcp/internal/cli/check.go",
       "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/index.go",
       "artifact:pose-mcp/internal/cli/maintenance.go",
       "artifact:pose-mcp/internal/cli/native_only_test.go",
       "artifact:pose-mcp/internal/cli/skills_check_test.go",
@@ -11010,6 +11692,7 @@
       "spec:pose-release-lifecycle-closure",
       "artifact:.agents/skills/pose-release-closeout/SKILL.md",
       "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
+      "artifact:.pose/indexes/releases.json",
       "artifact:.pose/policy/changelog.json",
       "artifact:.pose/release-policy.json",
       "artifact:.pose/rules/release-integrity.md",
@@ -11032,6 +11715,7 @@
       "artifact:docs-site/docs/mcp.md",
       "artifact:pose-mcp/internal/cli/check.go",
       "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/index.go",
       "artifact:pose-mcp/internal/cli/maintenance.go",
       "artifact:pose-mcp/internal/cli/native_only_test.go",
       "artifact:pose-mcp/internal/cli/skills_check_test.go",
