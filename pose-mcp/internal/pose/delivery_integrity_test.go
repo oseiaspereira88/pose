@@ -79,3 +79,20 @@ func TestDeliveryIntegrityFindingIDsAndInputDigestAreStable(t *testing.T) {
 		}
 	}
 }
+
+func TestDeliveryIntegrityReconcilesEvolvingClaimsAcrossImmutableChangeSets(t *testing.T) {
+	claims := []ArtifactClaim{
+		{Spec: "alpha", Action: "modified", Path: "internal/first.go"},
+		{Spec: "alpha", Action: "created", Path: "internal/later.go"},
+	}
+	sets := []ChangeSet{
+		{ID: "cs-early", Spec: "alpha", Paths: []ObservedPath{{Action: "modified", Path: "internal/first.go"}}},
+		{ID: "cs-final", Spec: "alpha", Paths: []ObservedPath{{Action: "modified", Path: "internal/first.go"}, {Action: "created", Path: "internal/later.go"}}},
+	}
+	graph := BuildDeliveryIntegrity([]Spec{{Slug: "alpha"}}, claims, sets, []string{"internal/first.go", "internal/later.go"}, ArtifactPolicy{})
+	for _, finding := range graph.Findings {
+		if finding.Code == "action-mismatch" {
+			t.Fatalf("an intermediate immutable change set invalidated final coverage: %+v", graph.Findings)
+		}
+	}
+}

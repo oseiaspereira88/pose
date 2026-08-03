@@ -266,6 +266,27 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("legacy-narrative", severity(policy, "legacy-narrative"), spec.Slug, "", "", "spec has no structured Artifacts section", "add a machine-parseable ### Artifacts section"))
 		}
 	}
+	observedBySpec := map[string]map[string]bool{}
+	for _, set := range graph.ChangeSets {
+		if observedBySpec[set.Spec] == nil {
+			observedBySpec[set.Spec] = map[string]bool{}
+		}
+		for _, path := range set.Paths {
+			observedBySpec[set.Spec][observedKey(path)] = true
+		}
+	}
+	for spec, declared := range claimBySpec {
+		for _, claim := range declared {
+			if claim.Action == "none" || observedBySpec[spec][claimKeyNoSpec(claim)] {
+				continue
+			}
+			path := claim.Path
+			if claim.Action == "renamed" {
+				path = claim.OldPath + " -> " + claim.NewPath
+			}
+			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("action-mismatch", severity(policy, "action-mismatch"), spec, path, "", "declared artifact action is absent from the attributed Git change sets", "correct the action or record the exact attributed revisions"))
+		}
+	}
 	for _, set := range graph.ChangeSets {
 		graph.Nodes = appendNode(graph.Nodes, DeliveryIntegrityNode{ID: "change-set:" + set.ID, Type: "change-set", Attributes: map[string]string{"selector": set.Selector, "diff_digest": set.DiffDigest}})
 		if set.Spec != "" {
@@ -281,18 +302,6 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 			}
 		}
 		declared := claimBySpec[set.Spec]
-		for _, claim := range declared {
-			if claim.Action == "none" {
-				continue
-			}
-			if _, ok := observed[claimKeyNoSpec(claim)]; !ok {
-				path := claim.Path
-				if claim.Action == "renamed" {
-					path = claim.OldPath + " -> " + claim.NewPath
-				}
-				graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("action-mismatch", severity(policy, "action-mismatch"), set.Spec, path, set.ID, "declared artifact action is absent from the selected Git change set", "correct the action or select the exact attributed revisions"))
-			}
-		}
 		for _, path := range set.Paths {
 			if !claimMatchesObserved(declared, path) && governedPath(firstObservedPath(path), policy) {
 				graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("undeclared", severity(policy, "undeclared"), set.Spec, firstObservedPath(path), set.ID, "Git observed a governed path not declared by the spec", "declare the exact action or narrow the attributed change set"))
@@ -325,8 +334,8 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 	sum := sha256.Sum256(raw)
 	graph.InputDigest = "sha256:" + hex.EncodeToString(sum[:])
 	provenanceRaw, _ := json.Marshal(struct {
-		Claims []ArtifactClaim `json:"claims"`
-		ChangeSets []ChangeSet `json:"change_sets"`
+		Claims     []ArtifactClaim `json:"claims"`
+		ChangeSets []ChangeSet     `json:"change_sets"`
 	}{graph.Claims, graph.ChangeSets})
 	provenanceSum := sha256.Sum256(provenanceRaw)
 	graph.ProvenanceDigest = "sha256:" + hex.EncodeToString(provenanceSum[:])
