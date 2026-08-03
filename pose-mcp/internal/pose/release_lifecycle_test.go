@@ -3,6 +3,7 @@ package pose
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -18,8 +19,17 @@ func TestReleaseManifestAndNotesAreDeterministic(t *testing.T) {
 	}
 }
 
-func TestReleaseFragmentsRejectSymlinkEscape(t *testing.T) {
+func TestReleaseFragmentsRejectMalformedDuplicateAndSymlink(t *testing.T) {
 	dir, outside := t.TempDir(), t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "bad.md"), []byte("missing frontmatter"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadReleaseFragments(dir); err == nil {
+		t.Fatal("malformed fragment accepted")
+	}
+	if err := os.Remove(filepath.Join(dir, "bad.md")); err != nil {
+		t.Fatal(err)
+	}
 	if err := os.WriteFile(filepath.Join(outside, "secret.md"), []byte("secret"), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -28,6 +38,12 @@ func TestReleaseFragmentsRejectSymlinkEscape(t *testing.T) {
 	}
 	if _, err := LoadReleaseFragments(dir); err == nil {
 		t.Fatal("symlink release fragment escaped confinement")
+	}
+}
+
+func TestMissingReleasePolicyIsActionable(t *testing.T) {
+	if _, err := LoadReleasePolicy(t.TempDir()); err == nil || !strings.Contains(err.Error(), ".pose/release-policy.json") {
+		t.Fatalf("missing policy error=%v", err)
 	}
 }
 

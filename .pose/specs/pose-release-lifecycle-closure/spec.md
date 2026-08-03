@@ -326,46 +326,46 @@ and publication confidence mechanically distinguishable.
 ## 4. Tasks
 
 ### Planning
-- [ ] Record an ADR for immutable release snapshots, append-only lifecycle
+- [x] Record an ADR for immutable release snapshots, append-only lifecycle
   events, tag-versus-publication semantics and provider-evidence reconciliation.
-- [ ] Capture the repository's tags, `v0.9.0` fragment directory, missing later
+- [x] Capture the repository's tags, `v0.9.0` fragment directory, missing later
   manifests and current unreleased fragment as a migration fixture.
-- [ ] Freeze release policy, manifest, event, provider evidence and status JSON
+- [x] Freeze release policy, manifest, event, provider evidence and status JSON
   schemas with golden files.
-- [ ] Define how publication evidence returns to the default branch without a
+- [x] Define how publication evidence returns to the default branch without a
   privileged direct push from the tagged workflow.
 
 ### Implementation
-- [ ] Implement dual-format changelog discovery and fix released-version MCP
+- [x] Implement dual-format changelog discovery and fix released-version MCP
   projection.
-- [ ] Implement release policy parsing and non-silent adoption findings.
-- [ ] Implement deterministic plan, prepare, notes and input-digest generation.
-- [ ] Implement atomic fragment archival with rollback and idempotency.
-- [ ] Implement append-only release events and legal transition validation.
-- [ ] Implement Git tag reconciliation without force operations.
-- [ ] Implement provider-neutral publication/verification evidence import.
-- [ ] Implement status, check, open-next and dry-run backfill commands.
-- [ ] Integrate release lifecycle into `pose check --strict` and hierarchical
+- [x] Implement release policy parsing and non-silent adoption findings.
+- [x] Implement deterministic plan, prepare, notes and input-digest generation.
+- [x] Implement atomic fragment archival with rollback and idempotency.
+- [x] Implement append-only release events and legal transition validation.
+- [x] Implement Git tag reconciliation without force operations.
+- [x] Implement provider-neutral publication/verification evidence import.
+- [x] Implement status, check, open-next and dry-run backfill commands.
+- [x] Integrate release lifecycle into `pose check --strict` and hierarchical
   closeout/review evidence.
-- [ ] Update the release workflow to consume prepared notes and retain evidence.
-- [ ] Replace broad staging/force-tag behavior in `scripts/release.sh` with
+- [x] Update the release workflow to consume prepared notes and retain evidence.
+- [x] Replace broad staging/force-tag behavior in `scripts/release.sh` with
   fail-closed preparation validation.
-- [ ] Add project-scoped MCP release state, CLI/MCP golden parity and docs.
-- [ ] Update templates, release workflow/skill, POSE manual, docs, locales,
+- [x] Add project-scoped MCP release state, CLI/MCP golden parity and docs.
+- [x] Update templates, release workflow/skill, POSE manual, docs, locales,
   changelog and embedded scaffold.
 
 ### Validation
-- [ ] Run focused changelog, manifest, lifecycle, Git fixture, backfill and MCP
+- [x] Run focused changelog, manifest, lifecycle, Git fixture, backfill and MCP
   tests.
-- [ ] Run negative tests for traversal, option injection, duplicate fragments,
+- [x] Run negative tests for traversal, option injection, duplicate fragments,
   stale candidates, conflicting events, tag reuse and forged provider evidence.
-- [ ] Run a full fixture from unreleased specs through prepared, tagged,
+- [x] Run a full fixture from unreleased specs through prepared, tagged,
   published and verified, then prove the next release starts with an empty
   pending queue and prior immutable history.
-- [ ] Run failure fixtures for provider publication failure and yanked release.
-- [ ] Run the full Go suite, release shell syntax/security contract and embedded
+- [x] Run failure fixtures for provider publication failure and yanked release.
+- [x] Run the full Go suite, release shell syntax/security contract and embedded
   distribution parity.
-- [ ] Run strict POSE structure, spec lint and module validation gates.
+- [x] Run strict POSE structure, spec lint and module validation gates.
 
 ## 5. Decisions
 
@@ -437,51 +437,83 @@ relabeling prior work as pending.
 - 2026-08-02, structure: `pose check --strict` reached the repository-wide
   pre-existing broken `.pose/feedback` reference in `POSE.md`; this planning
   change neither introduces nor resolves that unrelated baseline error.
+- 2026-08-03, implementation: added immutable manifests/notes/archives,
+  append-only events, provider-neutral evidence, plan/prepare/check/notes/
+  record/status/open-next/backfill commands, release index and MCP projection.
+- 2026-08-03, automation: tagged CI now consumes prepared notes and retains
+  publication evidence; the local script refuses dirty trees, existing tags,
+  broad staging, force-tag and force-push paths.
+- 2026-08-03, review remediation: rejected symlink escapes, unknown evidence
+  fields, credential-bearing URLs and unsafe asset names; bound evidence to the
+  actual immutable tag and made historical backfill non-fabricating.
+- 2026-08-03, final validation: focused and full Go suites, shell/workflow
+  security, strict POSE, skills, scaffold, release backfill, surface assurance,
+  module validation, assessments and vulnerability scan passed.
 
 ### Results summary
-- Successes: The review identifies the missing lifecycle boundary, defines a
-  provider-neutral, evidence-backed release closure plan, passes spec readiness
-  and strict lint, passes strict module validation and preserves scaffold
-  parity.
-- Failures: The repository-wide structure gate remains red on the pre-existing
-  `POSE.md` reference to absent `.pose/feedback`; no new spec or scaffold
-  failure was observed.
-- Warnings: Current project state is stale by age and reports a hand-edited
-  Architecture section; refresh is outside this planning-only change.
+- Successes: all 25 requirements are implemented and the lifecycle fixture
+  proves immutable prior notes, an emptied selected queue, legal transitions,
+  publication-bound verification and honest failure/yank projections.
+- Failures: the first full run exposed only expected scaffold drift; review
+  then found four security/identity gaps, all remediated with regressions.
+- Warnings: historical tags through `v0.15.0` intentionally retain low/medium
+  confidence without fabricated manifests or publication evidence.
 
 ### Requirement trace
-Requirement trace will be populated only after implementation evidence exists;
-this draft does not claim any requirement as satisfied.
+- R1 [satisfied] test:TestReleaseProjectionRequiresPublicationBoundVerification.
+- R2 [satisfied] test:TestReleasePrepareConsumesOnlyPendingSnapshotAndIsIdempotent; evidence:unit.
+- R3 [satisfied] test:TestReleasePrepareConsumesOnlyPendingSnapshotAndIsIdempotent.
+- R4 [satisfied] test:TestReleaseManifestAndNotesAreDeterministic.
+- R5 [satisfied] test:TestReleasePrepareConsumesOnlyPendingSnapshotAndIsIdempotent.
+- R6 [satisfied] test:TestReleaseFragmentsRejectMalformedDuplicateAndSymlink.
+- R7 [satisfied] check:release-check-strict.
+- R8 [satisfied] check:immutable-release-notes-alias.
+- R9 [satisfied] test:TestReleaseManifestAndNotesAreDeterministic.
+- R10 [satisfied] check:release-check-strict; evidence:integration.
+- R11 [satisfied] test:TestReleaseProjectionRequiresPublicationBoundVerification.
+- R12 [satisfied] check:publication-evidence-schema.
+- R13 [satisfied] test:TestReleaseProjectionRequiresPublicationBoundVerification; check:release-record-append-only.
+- R14 [satisfied] test:TestReleaseProjectionRequiresPublicationBoundVerification.
+- R15 [satisfied] contract:release-lifecycle-mcp evidence:integration.
+- R16 [satisfied] test:TestReleaseProjectionRequiresPublicationBoundVerification; check:release-status-json.
+- R17 [satisfied] test:TestReleaseStatusToolReadsProjectScopedLedger.
+- R18 [satisfied] check:pose-check-strict; governance:release-integrity evidence:integration.
+- R19 [satisfied] test:TestMissingReleasePolicyIsActionable.
+- R20 [satisfied] report:.pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md.
+- R21 [satisfied] check:workflow-security; report:.pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md.
+- R22 [satisfied] check:release-open-next.
+- R23 [satisfied] test:TestReleaseBackfillReportsArchiveWithoutFabricatingManifest.
+- R24 [satisfied] report:.pose/reports/release-backfill.json.
+- R25 [satisfied] test:TestReleasePrepareConsumesOnlyPendingSnapshotAndIsIdempotent.
 
 ### Known gaps
-- The evidence-return path from GitHub publication to the default branch needs an
-  ADR decision and least-privilege implementation.
-- Historical provider publication evidence for existing tags has not been
-  imported; backfill must not infer it from tag presence.
+- Historical provider evidence was not available locally and remains an
+  explicit backfill gap. The new release will demonstrate the complete path.
 
 ## 7. Final Report
 
 ### Delivered scope
-Planning artifact only: this draft defines complete release lifecycle closure as
-a future POSE mechanism. No current changelog, tag or published release state is
-rewritten or claimed.
+Implemented immutable changelog consumption and an evidence-backed release
+ledger from planning through verification, including safe Git/provider
+automation, offline status/check/backfill and CLI/MCP parity.
 
 ### Files and modules changed
-- `.pose/specs/pose-release-lifecycle-closure/spec.md`.
-- `.pose/roadmaps/delivery-integrity.md` membership, ordering and cut criteria.
+- `pose-mcp/internal/pose`, `internal/cli` and `internal/mcpserver`: release
+  model, commands, index, structural gates and read-only projection.
+- `.github/workflows/release.yml` and `scripts/release.sh`: prepared-note
+  publication, retained evidence and fail-closed tag behavior.
+- `.pose`, docs, locales and scaffold: ADR, policy, workflow, rule and skill.
 
 ### Validation executed
-- Passed: release-contract inspection; `pose assess discover --component
-  pose-mcp`; spec readiness and strict lint for all four roadmap specs; `pose
-  validate --strict --module pose-mcp`; release-script shell syntax; embedded
-  scaffold parity; and `git diff --check`.
-- Known repository baseline failure: `pose check --strict` reports the tracked
-  `POSE.md` reference to absent `.pose/feedback`.
+- Passed: focused release/changelog/Git/MCP/security tests; full `go test
+  ./...`; `bash -n`; workflow security contract; scaffold/catalog parity;
+  strict POSE/spec/skills; `pose validate --strict --module pose-mcp`;
+  artifact/surface assurance; backfill fixture; assessments and `govulncheck`.
 
 ### Residual risks
 - Release truth spans Git and an external provider; completeness depends on a
   secure, reviewable evidence reconciliation path rather than local inference.
 
 ### Follow-ups
-No follow-up is opened by this planning revision; implementation tasks remain
-inside this draft spec.
+No deferred implementation follow-up. Historical tags remain explicitly
+unverified migration records and are not prerequisites for the new lifecycle.
