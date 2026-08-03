@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:73499946de8567aab8612e20d1dc678e54be417f82d543d7de7231665d3e3afc",
+  "input_digest": "sha256:9300268572324b08342a1c3d56116138058fabd741ec9a58d908d5df536f9f45",
   "provenance_digest": "sha256:9ea199a39a8bf2382b7926ef9363ec62d2902f53084edc58ca7f0ae55c091ab6",
   "nodes": [
     {
@@ -1103,6 +1103,76 @@
       }
     },
     {
+      "id": "roadmap-criterion:delivery-integrity/C1",
+      "type": "roadmap-criterion",
+      "attributes": {
+        "passed": "true"
+      }
+    },
+    {
+      "id": "roadmap-criterion:delivery-integrity/C10",
+      "type": "roadmap-criterion",
+      "attributes": {
+        "passed": "true"
+      }
+    },
+    {
+      "id": "roadmap-criterion:delivery-integrity/C2",
+      "type": "roadmap-criterion",
+      "attributes": {
+        "passed": "true"
+      }
+    },
+    {
+      "id": "roadmap-criterion:delivery-integrity/C3",
+      "type": "roadmap-criterion",
+      "attributes": {
+        "passed": "true"
+      }
+    },
+    {
+      "id": "roadmap-criterion:delivery-integrity/C4",
+      "type": "roadmap-criterion",
+      "attributes": {
+        "passed": "true"
+      }
+    },
+    {
+      "id": "roadmap-criterion:delivery-integrity/C5",
+      "type": "roadmap-criterion",
+      "attributes": {
+        "passed": "true"
+      }
+    },
+    {
+      "id": "roadmap-criterion:delivery-integrity/C6",
+      "type": "roadmap-criterion",
+      "attributes": {
+        "passed": "true"
+      }
+    },
+    {
+      "id": "roadmap-criterion:delivery-integrity/C7",
+      "type": "roadmap-criterion",
+      "attributes": {
+        "passed": "true"
+      }
+    },
+    {
+      "id": "roadmap-criterion:delivery-integrity/C8",
+      "type": "roadmap-criterion",
+      "attributes": {
+        "passed": "true"
+      }
+    },
+    {
+      "id": "roadmap-criterion:delivery-integrity/C9",
+      "type": "roadmap-criterion",
+      "attributes": {
+        "passed": "true"
+      }
+    },
+    {
       "id": "spec:pose-agent-skills-conformance",
       "type": "spec",
       "attributes": {
@@ -1288,7 +1358,7 @@
       "id": "spec:pose-release-lifecycle-closure",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -5221,9 +5291,19 @@
       "type": "composes"
     },
     {
+      "from": "delivery:capability:delivery-integrity-graph",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:contract:delivery-integrity-mcp",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
+    },
+    {
+      "from": "delivery:contract:delivery-integrity-mcp",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
     },
     {
       "from": "delivery:contract:release-lifecycle-mcp",
@@ -5231,9 +5311,19 @@
       "type": "composes"
     },
     {
+      "from": "delivery:contract:release-lifecycle-mcp",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:release-integrity",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
+    },
+    {
+      "from": "delivery:governance:release-integrity",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
     },
     {
       "from": "delivery:surface:delivery-integrity-cli",
@@ -5241,9 +5331,149 @@
       "type": "reaches"
     },
     {
+      "from": "delivery:surface:delivery-integrity-cli",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "reaches"
+    },
+    {
+      "from": "delivery:surface:release-lifecycle-cli",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C1",
+      "to": "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C1",
+      "to": "validation-check:test",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C10",
+      "to": "manual-review:.pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C10",
+      "to": "manual-review:.pose/reports/release-backfill.json",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C2",
+      "to": "validation-check:delivery-integration",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C2",
+      "to": "validation-check:delivery-reachability",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C2",
+      "to": "validation-check:test",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C3",
+      "to": "delivery:capability:delivery-integrity-graph",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C3",
+      "to": "manual-review:.pose/reports/2026-08-03-pose-artifact-provenance-ledger-review.md",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C4",
+      "to": "delivery:surface:delivery-integrity-cli",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C4",
+      "to": "validation-check:delivery-reachability",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C5",
+      "to": "delivery:capability:delivery-integrity-graph",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C5",
+      "to": "delivery:surface:delivery-integrity-cli",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C5",
+      "to": "validation-check:delivery-integration",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C6",
+      "to": "manual-review:.pose/reports/release-backfill.json",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C7",
+      "to": "delivery:contract:delivery-integrity-mcp",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C7",
+      "to": "delivery:contract:release-lifecycle-mcp",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C8",
+      "to": "manual-review:.pose/reports/2026-08-02-pose-hierarchical-review-closeout-review.md",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C9",
+      "to": "delivery:governance:release-integrity",
+      "type": "gates"
+    },
+    {
+      "from": "roadmap-criterion:delivery-integrity/C9",
+      "to": "validation-check:delivery-integration",
+      "type": "gates"
     },
     {
       "from": "spec:pose-artifact-provenance-ledger",
@@ -8926,30 +9156,12 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-06b2e9e7f755",
-      "code": "surface-without-reachability",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "surface:delivery-integrity-cli",
-      "message": "required current evidence is missing: reachability, one-of:integration|e2e",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
-    },
-    {
       "id": "dif-0724c915668e",
       "code": "orphan",
       "severity": "warning",
       "path": "pose-mcp/internal/cli/review_closeout_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-07c806f1aae2",
-      "code": "unconsumed-capability",
-      "severity": "error",
-      "spec": "pose-release-lifecycle-closure",
-      "path": "governance:release-integrity",
-      "message": "required current evidence is missing: integration",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-07ce539ac6de",
@@ -9266,16 +9478,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-312b857260fb",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-release-lifecycle-closure",
-      "path": "governance:release-integrity",
-      "change_set": "pose-mcp/go/delivery-integration",
-      "message": "passed integration evidence is bound to a different provenance digest",
-      "remediation": "rerun the registered validation check for the current source provenance"
-    },
-    {
       "id": "dif-324fb64bf903",
       "code": "orphan",
       "severity": "warning",
@@ -9472,16 +9674,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-49006dd1c2b2",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "capability:delivery-integrity-graph",
-      "change_set": "pose-mcp/go/delivery-integration",
-      "message": "passed integration evidence is bound to a different provenance digest",
-      "remediation": "rerun the registered validation check for the current source provenance"
-    },
-    {
       "id": "dif-49918be9cfc8",
       "code": "orphan",
       "severity": "warning",
@@ -9572,86 +9764,6 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C8: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C3: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C4: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "malformed or executable cut criterion: - C10: Historical backfill reports the real `v0.9.0` directory and later tags",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C9: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C5: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C7: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C6: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "malformed or executable cut criterion: - C1: All four specs are `done`, each requirement has current trace evidence,",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "malformed or executable cut criterion: - C2: `pose check --strict`, the full Go suite, embedded-scaffold parity and",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
     {
       "id": "dif-5a6056f73fe2",
@@ -9770,16 +9882,6 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-671ee82c71a4",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "contract:delivery-integrity-mcp",
-      "change_set": "pose-mcp/go/delivery-integration",
-      "message": "passed integration evidence is bound to a different provenance digest",
-      "remediation": "rerun the registered validation check for the current source provenance"
     },
     {
       "id": "dif-676e29dd5c90",
@@ -9908,24 +10010,6 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-6f1be76aee76",
-      "code": "unconsumed-capability",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "contract:delivery-integrity-mcp",
-      "message": "required current evidence is missing: integration",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
-    },
-    {
-      "id": "dif-6f99b2968655",
-      "code": "unconsumed-capability",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "capability:delivery-integrity-graph",
-      "message": "required current evidence is missing: integration",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-703dd562372a",
@@ -10150,16 +10234,6 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-87fb364db319",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-release-lifecycle-closure",
-      "path": "contract:release-lifecycle-mcp",
-      "change_set": "pose-mcp/go/delivery-integration",
-      "message": "passed integration evidence is bound to a different provenance digest",
-      "remediation": "rerun the registered validation check for the current source provenance"
     },
     {
       "id": "dif-884781cc3282",
@@ -10410,15 +10484,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-9dd098cf61fb",
-      "code": "unconsumed-capability",
-      "severity": "error",
-      "spec": "pose-release-lifecycle-closure",
-      "path": "contract:release-lifecycle-mcp",
-      "message": "required current evidence is missing: integration",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
-    },
-    {
       "id": "dif-9fae1a1e6f95",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -10547,16 +10612,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-ac519f379ffe",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-release-lifecycle-closure",
-      "path": "surface:release-lifecycle-cli",
-      "change_set": "pose-mcp/go/delivery-reachability",
-      "message": "passed reachability evidence is bound to a different provenance digest",
-      "remediation": "rerun the registered validation check for the current source provenance"
-    },
-    {
       "id": "dif-ac92ca5bffd0",
       "code": "legacy-narrative",
       "severity": "info",
@@ -10649,15 +10704,6 @@
       "spec": "pose-mcp-protocol-completeness",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-b8bd6c8173d5",
-      "code": "surface-without-reachability",
-      "severity": "error",
-      "spec": "pose-release-lifecycle-closure",
-      "path": "surface:release-lifecycle-cli",
-      "message": "required current evidence is missing: reachability, one-of:integration|e2e",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-b9e4f794969d",
@@ -11290,16 +11336,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-fce8968fe6f1",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "surface:delivery-integrity-cli",
-      "change_set": "pose-mcp/go/delivery-reachability",
-      "message": "passed reachability evidence is bound to a different provenance digest",
-      "remediation": "rerun the registered validation check for the current source provenance"
-    },
-    {
       "id": "dif-fd1d33d69a64",
       "code": "orphan",
       "severity": "warning",
@@ -11404,9 +11440,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "f62f58ad1da381e9c59338cec9f3b6e1116325ea",
-      "generated_at": "2026-08-03T05:20:42Z",
-      "provenance_digest": "sha256:4fb66a2e5b32b71db99f8dc89a47a5df8bd81da1a379651ff2a6711b7fb86f40",
+      "git_head": "d2f3a854c858d516e964efa23393e5cc5f337f49",
+      "generated_at": "2026-08-03T06:46:56Z",
+      "provenance_digest": "sha256:9ea199a39a8bf2382b7926ef9363ec62d2902f53084edc58ca7f0ae55c091ab6",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -11416,9 +11452,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "f62f58ad1da381e9c59338cec9f3b6e1116325ea",
-      "generated_at": "2026-08-03T05:20:42Z",
-      "provenance_digest": "sha256:4fb66a2e5b32b71db99f8dc89a47a5df8bd81da1a379651ff2a6711b7fb86f40",
+      "git_head": "d2f3a854c858d516e964efa23393e5cc5f337f49",
+      "generated_at": "2026-08-03T06:46:56Z",
+      "provenance_digest": "sha256:9ea199a39a8bf2382b7926ef9363ec62d2902f53084edc58ca7f0ae55c091ab6",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -11428,9 +11464,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "f62f58ad1da381e9c59338cec9f3b6e1116325ea",
-      "generated_at": "2026-08-03T05:20:42Z",
-      "provenance_digest": "sha256:4fb66a2e5b32b71db99f8dc89a47a5df8bd81da1a379651ff2a6711b7fb86f40",
+      "git_head": "d2f3a854c858d516e964efa23393e5cc5f337f49",
+      "generated_at": "2026-08-03T06:46:56Z",
+      "provenance_digest": "sha256:9ea199a39a8bf2382b7926ef9363ec62d2902f53084edc58ca7f0ae55c091ab6",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -11440,10 +11476,112 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "f62f58ad1da381e9c59338cec9f3b6e1116325ea",
-      "generated_at": "2026-08-03T05:20:42Z",
-      "provenance_digest": "sha256:4fb66a2e5b32b71db99f8dc89a47a5df8bd81da1a379651ff2a6711b7fb86f40",
+      "git_head": "d2f3a854c858d516e964efa23393e5cc5f337f49",
+      "generated_at": "2026-08-03T06:46:56Z",
+      "provenance_digest": "sha256:9ea199a39a8bf2382b7926ef9363ec62d2902f53084edc58ca7f0ae55c091ab6",
       "report": ".pose/results/delivery-validation.json"
+    }
+  ],
+  "roadmap_criteria": [
+    {
+      "roadmap": "delivery-integrity",
+      "id": "C1",
+      "refs": [
+        "check:test",
+        "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
+      ],
+      "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
+      "passed": true
+    },
+    {
+      "roadmap": "delivery-integrity",
+      "id": "C10",
+      "refs": [
+        "manual-review:.pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md",
+        "manual-review:.pose/reports/release-backfill.json"
+      ],
+      "raw": "manual-review:.pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md manual-review:.pose/reports/release-backfill.json",
+      "passed": true
+    },
+    {
+      "roadmap": "delivery-integrity",
+      "id": "C2",
+      "refs": [
+        "check:test",
+        "check:delivery-integration",
+        "check:delivery-reachability"
+      ],
+      "raw": "check:test check:delivery-integration check:delivery-reachability",
+      "passed": true
+    },
+    {
+      "roadmap": "delivery-integrity",
+      "id": "C3",
+      "refs": [
+        "capability:delivery-integrity-graph",
+        "manual-review:.pose/reports/2026-08-03-pose-artifact-provenance-ledger-review.md"
+      ],
+      "raw": "capability:delivery-integrity-graph manual-review:.pose/reports/2026-08-03-pose-artifact-provenance-ledger-review.md",
+      "passed": true
+    },
+    {
+      "roadmap": "delivery-integrity",
+      "id": "C4",
+      "refs": [
+        "surface:delivery-integrity-cli",
+        "check:delivery-reachability"
+      ],
+      "raw": "surface:delivery-integrity-cli check:delivery-reachability",
+      "passed": true
+    },
+    {
+      "roadmap": "delivery-integrity",
+      "id": "C5",
+      "refs": [
+        "surface:delivery-integrity-cli",
+        "capability:delivery-integrity-graph",
+        "check:delivery-integration"
+      ],
+      "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
+      "passed": true
+    },
+    {
+      "roadmap": "delivery-integrity",
+      "id": "C6",
+      "refs": [
+        "manual-review:.pose/reports/release-backfill.json"
+      ],
+      "raw": "manual-review:.pose/reports/release-backfill.json",
+      "passed": true
+    },
+    {
+      "roadmap": "delivery-integrity",
+      "id": "C7",
+      "refs": [
+        "contract:delivery-integrity-mcp",
+        "contract:release-lifecycle-mcp"
+      ],
+      "raw": "contract:delivery-integrity-mcp contract:release-lifecycle-mcp",
+      "passed": true
+    },
+    {
+      "roadmap": "delivery-integrity",
+      "id": "C8",
+      "refs": [
+        "manual-review:.pose/reports/2026-08-02-pose-hierarchical-review-closeout-review.md"
+      ],
+      "raw": "manual-review:.pose/reports/2026-08-02-pose-hierarchical-review-closeout-review.md",
+      "passed": true
+    },
+    {
+      "roadmap": "delivery-integrity",
+      "id": "C9",
+      "refs": [
+        "governance:release-integrity",
+        "check:delivery-integration"
+      ],
+      "raw": "governance:release-integrity check:delivery-integration",
+      "passed": true
     }
   ],
   "paths": {
@@ -11498,7 +11636,8 @@
       "artifact:pose-mcp/internal/pose/trace.go",
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "delivery:capability:delivery-integrity-graph",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
     ],
     "contract:delivery-integrity-mcp": [
       "spec:pose-delivery-surface-assurance",
@@ -11551,7 +11690,8 @@
       "artifact:pose-mcp/internal/pose/trace.go",
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "delivery:contract:delivery-integrity-mcp",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
     ],
     "contract:release-lifecycle-mcp": [
       "spec:pose-release-lifecycle-closure",
@@ -11592,7 +11732,8 @@
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "artifact:scripts/release.sh",
       "delivery:contract:release-lifecycle-mcp",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
     ],
     "governance:release-integrity": [
       "spec:pose-release-lifecycle-closure",
@@ -11633,7 +11774,8 @@
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "artifact:scripts/release.sh",
       "delivery:governance:release-integrity",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
     ],
     "surface:delivery-integrity-cli": [
       "spec:pose-delivery-surface-assurance",
@@ -11686,7 +11828,8 @@
       "artifact:pose-mcp/internal/pose/trace.go",
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "delivery:surface:delivery-integrity-cli",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-reachability"
     ],
     "surface:release-lifecycle-cli": [
       "spec:pose-release-lifecycle-closure",
@@ -11727,7 +11870,8 @@
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "artifact:scripts/release.sh",
       "delivery:surface:release-lifecycle-cli",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-reachability"
     ]
   }
 }

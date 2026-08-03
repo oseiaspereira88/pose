@@ -1,6 +1,6 @@
 ---
 slug: delivery-integrity
-status: active
+status: done
 created_at: 2026-08-02
 depends_on:
 ---
@@ -70,31 +70,16 @@ unreleased queue.
 
 ## Cut criteria
 
-- C1: All four specs are `done`, each requirement has current trace evidence,
-  current scope-appropriate review approval, and strict spec lint passing.
-- C2: `pose check --strict`, the full Go suite, embedded-scaffold parity and
-  `pose validate --strict --module pose-mcp --report` pass on the final tree.
-- C3: A real Git fixture rejects a false artifact claim, an undeclared changed
-  path, an unsafe revision and an ambiguous legacy attribution.
-- C4: A composed-delivery fixture keeps artifact and build checks green while
-  rejecting a tested-but-unreachable UI surface and a service absent from the
-  production composition root.
-- C5: The corrected fixture exposes an explainable path from spec to artifact to
-  capability or surface to entrypoint to fresh check result, and both
-  `surface-check` and `roadmap-check --strict` pass.
-- C6: Legacy specs and roadmaps remain readable, migration is observable before
-  enforcement, and dry-run backfill performs no mutation.
-- C7: CLI JSON and project-scoped MCP projections match golden schemas and do
-  not expose source contents, secrets or unrestricted absolute paths.
-- C8: A review fixture keeps a spec, milestone and roadmap open when approval is
-  missing, rejected or stale, then reaches terminal success only after bounded
-  remediation, revalidation and fresh hierarchical review.
-- C9: A release fixture progresses from unreleased fragments through prepared,
-  tagged, published and verified states using immutable manifests and evidence;
-  new fragments cannot alter prior notes.
-- C10: Historical backfill reports the real `v0.9.0` directory and later tags
-  without fabricating manifests, notes or publication proof, and the release
-  script contains no broad staging, tag overwrite or force-push path.
+- C1: check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md
+- C2: check:test check:delivery-integration check:delivery-reachability
+- C3: capability:delivery-integrity-graph manual-review:.pose/reports/2026-08-03-pose-artifact-provenance-ledger-review.md
+- C4: surface:delivery-integrity-cli check:delivery-reachability
+- C5: surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration
+- C6: manual-review:.pose/reports/release-backfill.json
+- C7: contract:delivery-integrity-mcp contract:release-lifecycle-mcp
+- C8: manual-review:.pose/reports/2026-08-02-pose-hierarchical-review-closeout-review.md
+- C9: governance:release-integrity check:delivery-integration
+- C10: manual-review:.pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md manual-review:.pose/reports/release-backfill.json
 
 ## Architectural boundaries
 
