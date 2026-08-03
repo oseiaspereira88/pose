@@ -10,7 +10,7 @@ echo "[pose-installer] fetching latest release version from GitHub (${REPO})..."
 LATEST_TAG=$(curl -s "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name":' | head -n1 | sed -E 's/.*"([^"]+)".*/\1/' || true)
 
 if [[ -z "$LATEST_TAG" ]]; then
-  LATEST_TAG="v0.16.2"
+  LATEST_TAG="v0.16.3"
 fi
 
 VERSION="${LATEST_TAG#v}"

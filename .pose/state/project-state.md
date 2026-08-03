@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-03T15:49:09Z
-baseline_commit: 275188124a7f8d299b155eee56e7f919f958ae24
+generated_at: 2026-08-03T16:24:57Z
+baseline_commit: a1448d20bb4f09a3b1a2241ba6412be9b71beca3
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,9 +27,9 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:8d0e91b6fc07 -->
+<!-- state:derived hash:6bae770a7f4a -->
 
-- specs: total=42 draft=0 in-progress=0 blocked=0 done=42 superseded=0 abandoned=0
+- specs: total=43 draft=0 in-progress=0 blocked=0 done=43 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
   - spec:pose-delivery-surface-assurance (2026-08-03)
@@ -37,7 +37,7 @@ capacidade.
   - spec:pose-release-lifecycle-closure (2026-08-03)
   - spec:pose-release-evidence-trigger-fix (2026-08-03)
   - spec:pose-project-agnostic-assessment-engines (2026-08-03)
-  - ... e mais 37 (ver `pose_list_specs status:done`)
+  - ... e mais 38 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:7af64d34d2f1 -->
@@ -64,22 +64,22 @@ capacidade.
 - knowledge: total=1 ativo=1 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:3bb7cec3c78c -->
+<!-- state:derived hash:a0f5573b012f -->
 
 - último registro: task=release-trigger-fix-validation outcome=pass (2026-08-03T14:29:22Z)
 - últimos 30 dias: total=49 outcome_ok=46 outcome_outro=3
-- reports revisados (.md): total=23
+- reports revisados (.md): total=24
+  - report:2026-08-03-pose-debt-marker-lexical-precision-review.md
   - report:2026-08-03-pose-project-agnostic-assessment-engines-review.md
   - report:2026-08-03-standard-release-trigger-fix-validation.md
   - report:2026-08-03-standard-release-evidence-trigger-fix.md
   - report:2026-08-03-release-evidence-trigger-fix-review.md
-  - report:2026-08-03-delivery-integrity-roadmap-review.md
 
 ## Arquitetura
-<!-- state:derived hash:43d6af1ce90c status:active -->
+<!-- state:derived hash:2f094f7386e0 status:active -->
 
 - componentes: total=2 verificados=2 completude=99.0%
-- linhas_de_codigo: producao=26198 testes=16050 total=42248
+- linhas_de_codigo: producao=26201 testes=16054 total=42255
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=1 stubs=0
 - integracoes: contratos=49 ativos=1 gaps=48

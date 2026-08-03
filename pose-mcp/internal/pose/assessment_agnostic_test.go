@@ -81,6 +81,7 @@ var _ WidgetService
 `)
 	writeAssessmentFixture(t, root, "service-b/untracked.go", "package serviceb\n// FIXME: no active backlog reference\n")
 	writeAssessmentFixture(t, root, "service-b/labels.go", "package serviceb\nvar markerLabels = `TODO FIXME HACK panic( unimplemented!(`\n")
+	writeAssessmentFixture(t, root, "service-b/prose.go", "package serviceb\n// todo projeto usa um test stub durante exemplos\n")
 	writeAssessmentFixture(t, root, "contracts/widget.proto", "syntax = \"proto3\";\nservice WidgetService {}\nmessage Widget {}\n")
 	// This directory is deliberately absent from module-metadata: repository
 	// assessment must still observe it and derive a fallback component identity.
@@ -168,6 +169,9 @@ func TestProjectAgnosticAssessmentEngines(t *testing.T) {
 		t.Fatalf("debt reconciliation summary = %#v", report.Summary)
 	}
 	for _, item := range report.Items {
+		if item.File == "service-b/prose.go" {
+			t.Fatalf("ordinary lowercase prose misclassified as debt: %#v", item)
+		}
 		switch item.File {
 		case "service-a/debt.go":
 			if item.Coverage != "covered_by_spec" || item.CoverageRef != "spec:widget-maintenance" || item.Recommendation != "none" {

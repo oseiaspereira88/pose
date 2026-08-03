@@ -56,7 +56,10 @@ type debtCoverageDocument struct {
 }
 
 var (
-	debtCommentMarkerRE = regexp.MustCompile(`(?i)\b(TODO|FIXME|HACK|STUB)\b`)
+	// Comment markers are intentionally case-sensitive. Lowercase words such as
+	// Portuguese "todo" and explanatory prose such as "test stub" are not debt
+	// declarations; executable stub constructs remain case-insensitive below.
+	debtCommentMarkerRE = regexp.MustCompile(`\b(TODO|FIXME|HACK|STUB)\b`)
 	debtPanicRE         = regexp.MustCompile(`(?i)\bpanic\s*\(`)
 	debtStubRE          = regexp.MustCompile(`(?i)\b(?:notimplementederror|notimplementedexception)\b|\b(?:unimplemented|todo)\s*!\s*\(`)
 )
