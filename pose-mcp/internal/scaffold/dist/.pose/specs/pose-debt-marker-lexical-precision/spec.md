@@ -90,7 +90,7 @@ ordinary explanations containing `stub` cannot create fictitious backlog.
 - [x] Pass focused and full Go tests/vet.
 - [x] Re-run assessments on Harne8.
 - [x] Review and close the patch implementation.
-- [ ] Publish and independently verify the patch release.
+- [x] Publish and independently verify the patch release.
 
 ## 5. Decisions
 
@@ -129,10 +129,12 @@ the existing exact total and executable Rust coverage.
   `pose validate` and `govulncheck` passed.
 - 2026-08-03: Harne8 dogfooding now reports two real markers instead of nine;
   lowercase prose no longer appears.
+- 2026-08-03: `v0.16.3` published by workflow `30832362547` and independently
+  verified by workflow `30832724504`; release ledger reached `verified`.
 
 ### Resumo de resultados
-- Classifier corrected with no public contract change; all implementation and
-  review gates passed. Release verification remains the publication gate.
+- Classifier corrected with no public contract change; all implementation,
+  review, publication and independent verification gates passed.
 
 ### Gaps conhecidos
 - None accepted; spec remains open until the replacement patch is verified.
