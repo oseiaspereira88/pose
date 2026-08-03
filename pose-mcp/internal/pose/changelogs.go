@@ -61,10 +61,16 @@ func (s Store) GetChangelog(version string) (*Changelog, error) {
 	sort.Slice(out.Unreleased, func(i, j int) bool { return out.Unreleased[i].Spec < out.Unreleased[j].Spec })
 	if entries, err := os.ReadDir(s.changelogsDir()); err == nil {
 		for _, e := range entries {
-			if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") || strings.EqualFold(e.Name(), "README.md") {
-				continue
+			name := ""
+			switch {
+			case e.IsDir() && validVersionName(e.Name()) && strings.HasPrefix(e.Name(), "v"):
+				name = e.Name()
+			case !e.IsDir() && strings.HasSuffix(e.Name(), ".md") && !strings.EqualFold(e.Name(), "README.md"):
+				name = strings.TrimSuffix(e.Name(), ".md")
 			}
-			out.Releases = append(out.Releases, strings.TrimSuffix(e.Name(), ".md"))
+			if name != "" && !containsString(out.Releases, name) {
+				out.Releases = append(out.Releases, name)
+			}
 		}
 	}
 	sort.Strings(out.Releases)
@@ -93,6 +99,15 @@ func (s Store) GetChangelog(version string) (*Changelog, error) {
 		out.VersionBody = string(raw)
 	}
 	return out, nil
+}
+
+func containsString(values []string, wanted string) bool {
+	for _, value := range values {
+		if value == wanted {
+			return true
+		}
+	}
+	return false
 }
 
 // validVersionName accepts vX.Y.Z-ish names without path separators.

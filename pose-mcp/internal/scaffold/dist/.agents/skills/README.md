@@ -14,6 +14,7 @@ Each `SKILL.md` uses YAML frontmatter with `name`, `description`, and
 | [pose-feature](pose-feature/SKILL.md) | Feature or non-trivial refactor | [feature.md](../../.pose/workflows/feature.md) | security, documentation-style, and domain rules |
 | [pose-spec-closeout](pose-spec-closeout/SKILL.md) | Close a completed spec | [feature.md](../../.pose/workflows/feature.md) | documentation-style |
 | [pose-surface-closeout](pose-surface-closeout/SKILL.md) | Close composed delivery | [ui-surface.md](../../.pose/workflows/ui-surface.md) | delivery-surface, security |
+| [pose-release-closeout](pose-release-closeout/SKILL.md) | Close and verify a release | [release.md](../../.pose/workflows/release.md) | release-integrity, security |
 | [pose-bugfix](pose-bugfix/SKILL.md) | Defect correction | [bugfix.md](../../.pose/workflows/bugfix.md) | security, documentation-style, and domain rules |
 | [pose-review](pose-review/SKILL.md) | PR or code review | [review.md](../../.pose/workflows/review.md) | security, documentation-style, and domain rules |
 | [pose-adr](pose-adr/SKILL.md) | Architectural decision | Motivating workflow | security and documentation-style |

@@ -1,0 +1,36 @@
+package pose
+
+import (
+	"testing"
+	"time"
+)
+
+func TestReleaseManifestAndNotesAreDeterministic(t *testing.T) {
+	fragments := []ReleaseFragment{{Spec: "alpha", Category: "added", Body: "Adds alpha.", Path: "alpha.md", Digest: "sha256:a"}, {Spec: "beta", Category: "fixed", Body: "Fixes beta.", Path: "beta.md", Digest: "sha256:b"}}
+	policy := ReleasePolicy{SchemaVersion: 1, AdoptedAt: "2026-08-03", Provider: "github", Repository: "owner/repo"}
+	evidence := map[string]string{"source": "version.go", "value": "v1.2.0"}
+	a := NewReleaseManifest("v1.2.0", "v1.1.0", "2026-08-03T00:00:00Z", fragments, policy, evidence)
+	b := NewReleaseManifest("v1.2.0", "v1.1.0", "2026-08-03T00:00:00Z", fragments, policy, evidence)
+	if ReleaseDigest(a) != ReleaseDigest(b) || a.NotesDigest != ReleaseDigest(RenderReleaseNotes("v1.2.0", fragments)) {
+		t.Fatalf("release snapshot is not deterministic: %+v %+v", a, b)
+	}
+}
+
+func TestReleaseProjectionRequiresPublicationBoundVerification(t *testing.T) {
+	manifest := &ReleaseManifest{Version: "v1.2.0"}
+	evidence := ReleaseEvidence{SchemaVersion: 1, Provider: "github", Repository: "owner/repo", Version: "v1.2.0", Tag: "v1.2.0", Commit: "0123456789012345678901234567890123456789"}
+	tagged := NewReleaseEvent("v1.2.0", "tagged", evidence, time.Unix(1, 0))
+	published := NewReleaseEvent("v1.2.0", "published", evidence, time.Unix(2, 0))
+	verifiedEvidence := evidence
+	verifiedEvidence.Publication = "sha256:not-the-publication"
+	verified := NewReleaseEvent("v1.2.0", "verified", verifiedEvidence, time.Unix(3, 0))
+	projection := ProjectRelease(manifest, []ReleaseEvent{tagged, published, verified})
+	if projection.State == "verified" || len(projection.Gaps) == 0 {
+		t.Fatalf("forged verification advanced release: %+v", projection)
+	}
+	verified.Evidence.Publication = published.EvidenceDigest
+	projection = ProjectRelease(manifest, []ReleaseEvent{tagged, published, verified})
+	if projection.State != "verified" || len(projection.Gaps) != 0 {
+		t.Fatalf("bound verification did not advance release: %+v", projection)
+	}
+}

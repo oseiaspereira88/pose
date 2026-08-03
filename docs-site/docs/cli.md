@@ -228,3 +228,11 @@ behavioral/change layout.
 
 Every gate is offline by design — no network calls, stdlib only. A gate
 observed doing network I/O is a reportable bug (see SECURITY.md).
+# Release lifecycle
+
+`pose release plan --version vX.Y.Z` previews a cut. `pose release prepare
+--version vX.Y.Z --apply` freezes selected fragments, canonical notes and a
+manifest. `check`, `notes`, `record`, `status`, `open-next` and `backfill`
+reconcile the candidate through tagged, published and verified states. The
+compatibility alias `release-notes --version` reads only the prepared snapshot;
+use `--preview` explicitly for the pending queue.

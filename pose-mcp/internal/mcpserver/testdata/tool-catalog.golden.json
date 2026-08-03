@@ -106,6 +106,9 @@
     "pose_project_state": {
       "risk": "read"
     },
+    "pose_release_status": {
+      "risk": "read"
+    },
     "pose_requirement_trace": {
       "risk": "read"
     },
@@ -406,6 +409,23 @@
         "type": "object"
       },
       "name": "pose_get_changelog"
+    },
+    {
+      "description": "Read pending fragments and immutable prepared, tagged, published, verified, failed or yanked release projections from the project-scoped release ledger.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "version": {
+            "description": "Optional exact release version, e.g. v0.16.0",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_release_status"
     },
     {
       "description": "List every governed roadmap (pose-roadmap-artifact): status, depends_on and milestones (id, after, target dates, specs). The order of N specs lives here.",

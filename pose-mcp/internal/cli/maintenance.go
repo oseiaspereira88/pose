@@ -749,6 +749,23 @@ func writeAtomic(path string, data []byte, perm os.FileMode) error {
 }
 
 func cmdReleaseNotes(root string, args []string, stdout, stderr io.Writer) int {
+	preview := false
+	normalized := make([]string, 0, len(args))
+	for _, arg := range args {
+		if arg == "--preview" {
+			preview = true
+			continue
+		}
+		normalized = append(normalized, arg)
+	}
+	args = normalized
+	if !preview {
+		version, found, err := releaseArg(args, "--version")
+		if err != nil || !found || len(args) != 2 {
+			return usageError(stderr, "Usage: pose release-notes --version vX.Y.Z | --preview [--filter prefix] [--dir path]")
+		}
+		return cmdReleaseNotesSnapshot(root, []string{"--version", version}, stdout, stderr)
+	}
 	version, filter, dir := "", "", filepath.Join(root, ".pose", "changelogs", "unreleased")
 	for i := 0; i < len(args); i++ {
 		switch args[i] {

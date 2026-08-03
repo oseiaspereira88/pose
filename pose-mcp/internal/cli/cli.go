@@ -239,6 +239,13 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdReleaseNotes(root, args, stdout, stderr)
+	case "release":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose release: %v\n", err)
+			return 1
+		}
+		return cmdRelease(root, args, stdout, stderr)
 	case "release-package-manifests":
 		return cmdReleasePackageManifests(args, stdout, stderr)
 	case "install":
@@ -335,6 +342,10 @@ Governed closeout:
   continuous-closeout <action>          Persist and project a terminal scope
   artifact-backfill --from-git          Propose explicit historical provenance
 
+Release lifecycle:
+  release <plan|prepare|check|notes|record|status|open-next|backfill>
+  release-notes --version vX.Y.Z        Compatibility alias for immutable notes
+
 Project state:
   state [init|refresh|diff]           Native project-state artifact (bare = validate)
 
@@ -384,6 +395,10 @@ Fechamento governado:
   close <escopo>                        Aplica transição de ciclo de vida governada
   continuous-closeout <ação>            Persiste e projeta um escopo terminal
   artifact-backfill --from-git          Propõe proveniência histórica explícita
+
+Ciclo de release:
+  release <plan|prepare|check|notes|record|status|open-next|backfill>
+  release-notes --version vX.Y.Z        Alias para notas imutáveis
 
 Estado do projeto:
   state [init|refresh|diff]           Artefato nativo de project-state (sem subcomando = validar)

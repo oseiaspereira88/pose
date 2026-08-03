@@ -67,6 +67,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_surface_assurance` | Typed delivery targets, production entrypoints, current evidence, explainable composition paths and roadmap criteria from the same graph |
 | `pose_list_roadmaps` / `pose_get_roadmap` | Governed roadmaps and their milestone DAGs |
 | `pose_get_changelog` | User-facing changelog fragments |
+| `pose_release_status` | Pending queue and evidence-backed immutable release lifecycle |
 | `pose_get_followups` | Aggregated follow-up backlog |
 | `pose_check` / `pose_lint_spec` / `pose_skills_check` | Run the deterministic gates |
 | `pose_suggest` | Canonical trail per task type |

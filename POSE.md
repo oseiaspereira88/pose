@@ -39,7 +39,8 @@ the operating manual (structure, CLI, per-type flows, CI, governance).
   knowledge/     # handoffs and notes with active governance
   adr/           # architectural decisions
   roadmaps/      # governed roadmaps (milestone DAGs)
-  changelogs/    # user-facing fragments per spec (unreleased/ until the release cut)
+  changelogs/    # pending fragments plus immutable version archives/notes
+  releases/      # version manifests and append-only lifecycle evidence
   indexes/       # repo-map, services, packages, validation-matrix, module-metadata, task-map, spec-graph, roadmaps
   reports/       # versionable reports + history JSONL + archive/
   specs/         # living specs per feature
@@ -63,6 +64,11 @@ POSE.md          # this manual
 - [`.pose/templates/spec.md`](.pose/templates/spec.md): the single per-feature spec template.
 - [`.pose/templates/roadmap.md`](.pose/templates/roadmap.md): governed roadmap template.
 - [`.pose/templates/changelog-fragment.md`](.pose/templates/changelog-fragment.md): user-facing fragment per spec (written at closeout).
+- [`.pose/workflows/release.md`](.pose/workflows/release.md): immutable release preparation, publication reconciliation and verification.
+
+Release cuts use `pose release plan`, `prepare`, `check`, `notes`, `record`,
+`status`, `open-next` and `backfill`. A tag is not publication; terminal release
+confidence comes only from provider and independent-verification evidence.
 - [`.pose/templates/doc-audit-report.md`](.pose/templates/doc-audit-report.md): template for editorial reviews and documentation audits.
 - `pose` binary: native scaffold/check/validate/report automation and MCP server.
 - [`.pose/specs/*/spec.md`](.pose/specs/): living specs per feature.

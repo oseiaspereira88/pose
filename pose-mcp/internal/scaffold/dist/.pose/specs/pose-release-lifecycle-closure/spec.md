@@ -1,12 +1,13 @@
 ---
 slug: pose-release-lifecycle-closure
-status: draft
+status: in-progress
 created_at: 2026-08-02
 completed_at:
 supersedes:
 depends_on: pose-hierarchical-review-closeout, pose-version-contract, pose-release-compatibility-matrix
 priority: 3
 components: pose-mcp, cli, changelogs, release, mcp, workflows, scaffold
+delivers: surface:release-lifecycle-cli, contract:release-lifecycle-mcp, governance:release-integrity
 ---
 
 # Spec: Release lifecycle closure
@@ -245,6 +246,47 @@ and publication confidence mechanically distinguishable.
 - Generate a release index with pending counts, version/state/evidence summary
   and gaps; the later delivery-integrity graph may ingest release nodes without
   replacing this canonical ledger.
+
+### Artifacts
+- modified: .agents/skills/README.md
+- created: .agents/skills/pose-release-closeout/SKILL.md
+- modified: .github/workflows/release.yml
+- created: .pose/adr/2026-08-03-immutable-release-ledger.md
+- modified: .pose/indexes/task-map.json
+- modified: .pose/indexes/validation-matrix.json
+- created: .pose/release-policy.json
+- created: .pose/policy/changelog.json
+- created: .pose/rules/release-integrity.md
+- modified: .pose/specs/pose-release-lifecycle-closure/spec.md
+- created: .pose/workflows/release.md
+- modified: POSE.md
+- modified: docs-site/docs/cli.md
+- modified: docs-site/docs/mcp.md
+- created: locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md
+- created: locales/pt-BR/.pose/rules/release-integrity.md
+- created: locales/pt-BR/.pose/workflows/release.md
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/native_only_test.go
+- created: pose-mcp/internal/cli/release_lifecycle.go
+- created: pose-mcp/internal/cli/release_lifecycle_test.go
+- modified: pose-mcp/internal/cli/skills_check_test.go
+- modified: pose-mcp/internal/mcpserver/catalog.go
+- created: pose-mcp/internal/mcpserver/release_status_tool_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/server_test.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- modified: pose-mcp/internal/pose/changelogs.go
+- created: pose-mcp/internal/pose/release_lifecycle.go
+- created: pose-mcp/internal/pose/release_lifecycle_test.go
+- modified: pose-mcp/internal/scaffold/scaffold.go
+- modified: scripts/release.sh
+
+### Delivery targets
+- surface:release-lifecycle-cli module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- contract:release-lifecycle-mcp module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
+- governance:release-integrity module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Release state machine
 1. `plan`: inspect target, fragments, policy and prior release without mutation.

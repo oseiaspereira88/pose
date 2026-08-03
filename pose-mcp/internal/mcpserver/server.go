@@ -799,6 +799,14 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_get_changelog: invalid arguments")
 		}
 		return store.GetChangelog(a.Version)
+	case "pose_release_status":
+		var a struct {
+			Version string `json:"version"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_release_status: invalid arguments")
+		}
+		return store.GetReleaseStatus(a.Version)
 	case "pose_list_roadmaps":
 		var a struct {
 			Cursor string `json:"cursor"`
@@ -1463,6 +1471,17 @@ func toolDefinitions() []map[string]any {
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
+				},
+			},
+		},
+		{
+			"name":        "pose_release_status",
+			"description": "Read pending fragments and immutable prepared, tagged, published, verified, failed or yanked release projections from the project-scoped release ledger.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"version":    map[string]any{"type": "string", "description": "Optional exact release version, e.g. v0.16.0"},
+					"project_id": map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
 			},
 		},

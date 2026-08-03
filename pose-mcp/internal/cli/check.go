@@ -81,6 +81,7 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	checker.checkArtifactContracts()
 	checker.checkDeliveryContracts()
 	checker.checkChangelogs()
+	appendReleasePolicyChecks(checker)
 	checker.checkReadyTransitions()
 	checker.checkCapabilities()
 	checker.checkDocs()
@@ -764,12 +765,16 @@ func (checker *nativeChecker) checkChangelogs() {
 	policyPath := filepath.Join(checker.root, ".pose", "policy", "changelog.json")
 	policyRaw, err := os.ReadFile(policyPath)
 	if err != nil {
+		if _, releaseErr := os.Stat(filepath.Join(checker.root, ".pose", "release-policy.json")); releaseErr == nil {
+			checker.failOrWarn("changelog: adopted repository is missing .pose/policy/changelog.json")
+		}
 		return
 	}
 	var policy struct {
 		AdoptedAt string `json:"adopted_at"`
 	}
 	if json.Unmarshal(policyRaw, &policy) != nil || policy.AdoptedAt == "" {
+		checker.failOrWarn("changelog: invalid policy; adopted_at is required")
 		return
 	}
 	specPaths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*", "spec.md"))

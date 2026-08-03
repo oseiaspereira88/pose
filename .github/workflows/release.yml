@@ -29,7 +29,8 @@ jobs:
           retention-days: 400
       - name: Release notes from changelog fragments
         run: |
-          go -C pose-mcp run ./cmd/pose release-notes --version "${GITHUB_REF_NAME}" --filter pose > /tmp/notes.md
+          go -C pose-mcp run ./cmd/pose release check --version "${GITHUB_REF_NAME}" --strict
+          go -C pose-mcp run ./cmd/pose release notes --version "${GITHUB_REF_NAME}" > /tmp/notes.md
           cat /tmp/notes.md
       - name: Security gate (spec pose-ossf-security-baseline)
         # R3: unresolved critical findings are explicit release-decision
@@ -83,4 +84,29 @@ jobs:
         with:
           name: pose-package-manifests
           path: package-manifests
+          retention-days: 400
+      - name: Emit provider-neutral publication evidence
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          assets="$(find dist-release -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum | jq -Rn '[inputs | capture("^(?<digest>[0-9a-f]{64})  (?<path>.+)$") | {key:(.path|split("/")|last),value:("sha256:"+.digest)}] | from_entries')"
+          jq -n \
+            --arg provider github \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg version "$GITHUB_REF_NAME" \
+            --arg commit "$GITHUB_SHA" \
+            --arg published_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg url "https://github.com/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF_NAME" \
+            --arg workflow_run "$GITHUB_RUN_ID" \
+            --argjson assets "$assets" \
+            '{schema_version:1,provider:$provider,repository:$repository,version:$version,tag:$version,commit:$commit,published_at:$published_at,url:$url,workflow_run:$workflow_run,assets:$assets}' \
+            > publication-evidence.json
+          gh release upload "$GITHUB_REF_NAME" publication-evidence.json
+      - name: Retain publication evidence for reconciliation
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: pose-publication-evidence
+          path: publication-evidence.json
           retention-days: 400

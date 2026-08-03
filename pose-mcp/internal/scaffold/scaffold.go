@@ -37,5 +37,6 @@ var ClaudeSkillLinks = map[string]string{
 	"pose-review":                "../../.agents/skills/pose-review",
 	"pose-spec-closeout":         "../../.agents/skills/pose-spec-closeout",
 	"pose-surface-closeout":      "../../.agents/skills/pose-surface-closeout",
+	"pose-release-closeout":      "../../.agents/skills/pose-release-closeout",
 	"pose-test-plan":             "../../.agents/skills/pose-test-plan",
 }

@@ -151,6 +151,18 @@
       "knowledge_consume": true,
       "knowledge_produce": "handoff quando composição permanecer bloqueada",
       "validation": "pose surface-check --spec <slug> --strict; pose roadmap-check <roadmap> --strict"
+    },
+    "release-closeout": {
+      "description": "Preparação imutável, publicação reconciliada e verificação independente de uma release.",
+      "workflow": ".pose/workflows/release.md",
+      "skill": "pose-release-closeout",
+      "rules": ["security", "documentation-style", "delivery-evidence", "release-integrity"],
+      "rules_by_domain": {"backend-go": ["backend-go"]},
+      "requires_spec": true,
+      "requires_adr": true,
+      "knowledge_consume": true,
+      "knowledge_produce": "decision-log em falha ou yank recorrente",
+      "validation": "pose release check --version vX.Y.Z --strict; pose release status --version vX.Y.Z"
     }
   }
 }
