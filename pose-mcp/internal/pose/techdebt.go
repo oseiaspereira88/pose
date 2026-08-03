@@ -2,32 +2,36 @@ package pose
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
+	"sort"
 	"strings"
 	"time"
+	"unicode"
 )
 
-// TechDebtItem represents one technical debt marker found in source code.
 type TechDebtItem struct {
 	ID             string `json:"id"`
-	Marker         string `json:"marker"` // TODO, FIXME, HACK, PANIC, STUB
-	File           string `json:"file"`   // Relative path
+	Marker         string `json:"marker"`
+	File           string `json:"file"`
 	Line           int    `json:"line"`
 	Snippet        string `json:"snippet"`
 	Component      string `json:"component"`
-	Coverage       string `json:"coverage"`       // covered_by_spec, covered_by_followup, covered_by_roadmap, uncovered
-	Recommendation string `json:"recommendation"` // create_followup, create_spec, add_to_roadmap, none
-	Link           string `json:"link"`           // file:///abs/path#L123
+	Coverage       string `json:"coverage"`
+	CoverageRef    string `json:"coverage_ref,omitempty"`
+	Recommendation string `json:"recommendation"`
+	Link           string `json:"link"`
 }
 
-// TechDebtSummary holds high-level technical debt counts.
 type TechDebtSummary struct {
 	TotalMarkers         int `json:"total_markers"`
 	TODOs                int `json:"todos"`
 	FIXMEs               int `json:"fixmes"`
+	Hacks                int `json:"hacks,omitempty"`
 	Panics               int `json:"panics"`
 	Stubs                int `json:"stubs"`
 	CoveredCount         int `json:"covered_count"`
@@ -37,7 +41,6 @@ type TechDebtSummary struct {
 	RecommendedRoadmaps  int `json:"recommended_roadmaps"`
 }
 
-// TechDebtReportState is the machine-readable technical debt report state.
 type TechDebtReportState struct {
 	SchemaVersion  int             `json:"schema_version"`
 	EvaluatedAt    string          `json:"evaluated_at"`
@@ -46,258 +49,356 @@ type TechDebtReportState struct {
 	Items          []TechDebtItem  `json:"items"`
 }
 
-// TechDebtStatePath returns .pose/state/technical-debt.json
+type debtCoverageDocument struct {
+	Coverage string
+	Ref      string
+	Text     string
+}
+
+var (
+	debtCommentMarkerRE = regexp.MustCompile(`(?i)\b(TODO|FIXME|HACK|STUB)\b`)
+	debtPanicRE         = regexp.MustCompile(`(?i)\bpanic\s*\(`)
+	debtStubRE          = regexp.MustCompile(`(?i)\b(?:notimplementederror|notimplementedexception)\b|\b(?:unimplemented|todo)\s*!\s*\(`)
+)
+
+type debtLexState struct {
+	blockEnd string
+	quote    byte
+	rust     bool
+}
+
+func rustLifetimeStart(line string, index int) bool {
+	if index+1 >= len(line) || !(unicode.IsLetter(rune(line[index+1])) || line[index+1] == '_') {
+		return false
+	}
+	end := index + 2
+	for end < len(line) && (unicode.IsLetter(rune(line[end])) || unicode.IsDigit(rune(line[end])) || line[end] == '_') {
+		end++
+	}
+	return end >= len(line) || line[end] != '\''
+}
+
+// split strips string literals while retaining comment text. The small lexical
+// state prevents marker-shaped strings and multi-line comments from being
+// mistaken for executable debt without depending on one project's language.
+func (state *debtLexState) split(line string) (string, string) {
+	var code, comments strings.Builder
+	for i := 0; i < len(line); {
+		if state.blockEnd != "" {
+			end := strings.Index(line[i:], state.blockEnd)
+			if end < 0 {
+				comments.WriteString(line[i:])
+				break
+			}
+			comments.WriteString(line[i : i+end])
+			i += end + len(state.blockEnd)
+			state.blockEnd = ""
+			continue
+		}
+		if state.quote != 0 {
+			quote := state.quote
+			escaped := false
+			for i < len(line) {
+				current := line[i]
+				i++
+				if quote != '`' && current == '\\' && !escaped {
+					escaped = true
+					continue
+				}
+				if current == quote && !escaped {
+					state.quote = 0
+					break
+				}
+				escaped = false
+			}
+			continue
+		}
+		switch {
+		case strings.HasPrefix(line[i:], "/*"):
+			state.blockEnd = "*/"
+			i += 2
+		case strings.HasPrefix(line[i:], "<!--"):
+			state.blockEnd = "-->"
+			i += 4
+		case strings.HasPrefix(line[i:], "//"):
+			comments.WriteString(line[i+2:])
+			return code.String(), comments.String()
+		case line[i] == '#' && (i == 0 || unicode.IsSpace(rune(line[i-1]))):
+			comments.WriteString(line[i+1:])
+			return code.String(), comments.String()
+		case strings.HasPrefix(line[i:], "--") && (i == 0 || unicode.IsSpace(rune(line[i-1]))):
+			comments.WriteString(line[i+2:])
+			return code.String(), comments.String()
+		case line[i] == '\'' && state.rust && rustLifetimeStart(line, i):
+			code.WriteByte(line[i])
+			i++
+		case line[i] == '\'' || line[i] == '"' || line[i] == '`':
+			state.quote = line[i]
+			i++
+		default:
+			code.WriteByte(line[i])
+			i++
+		}
+	}
+	return code.String(), comments.String()
+}
+
+func (state *debtLexState) markers(line string) []string {
+	code, comments := state.split(line)
+	seen := make(map[string]bool)
+	markers := []string{}
+	for _, match := range debtCommentMarkerRE.FindAllStringSubmatch(comments, -1) {
+		marker := strings.ToUpper(match[1])
+		if !seen[marker] {
+			markers = append(markers, marker)
+			seen[marker] = true
+		}
+	}
+	if debtPanicRE.MatchString(code) {
+		markers = append(markers, "PANIC")
+	}
+	if debtStubRE.MatchString(code) && !seen["STUB"] {
+		markers = append(markers, "STUB")
+	}
+	return markers
+}
+
 func (s Store) TechDebtStatePath() string {
 	return filepath.Join(s.Root, ".pose", "state", "technical-debt.json")
 }
 
-// TechDebtReportPath returns .pose/assessments/technical-debt.md
 func (s Store) TechDebtReportPath() string {
 	return filepath.Join(s.Root, ".pose", "assessments", "technical-debt.md")
 }
 
-// AnalyzeTechDebt performs a deep code scan for technical debt and cross-checks POSE backlog.
-func (s Store) AnalyzeTechDebt() (*TechDebtReportState, error) {
-	commit := s.resolveGitCommit()
-	var items []TechDebtItem
-	idCounter := 1
-
-	// Dynamically find component directories to scan
-	scanRoots := s.FindComponentDirectories()
-	if len(scanRoots) == 0 {
-		scanRoots = []string{"."}
+func activeAssessmentStatus(status string) bool {
+	switch strings.ToLower(strings.ReplaceAll(strings.TrimSpace(status), "_", "-")) {
+	case "done", "superseded", "abandoned":
+		return false
+	default:
+		return true
 	}
+}
 
-	for _, relDir := range scanRoots {
-		absDir := filepath.Join(s.Root, relDir)
-		if _, err := os.Stat(absDir); err != nil {
+func (s Store) debtCoverageDocuments() []debtCoverageDocument {
+	var documents []debtCoverageDocument
+	if specs, err := s.ListSpecs("", ""); err == nil {
+		for _, item := range specs {
+			if !activeAssessmentStatus(item.Status) {
+				continue
+			}
+			spec, err := s.GetSpec(item.Slug)
+			if err == nil {
+				documents = append(documents, debtCoverageDocument{
+					Coverage: "covered_by_spec", Ref: "spec:" + item.Slug, Text: strings.ToLower(spec.Body),
+				})
+			}
+		}
+	}
+	if roadmaps, err := s.ListRoadmaps(); err == nil {
+		for _, item := range roadmaps {
+			if !activeAssessmentStatus(item.Status) {
+				continue
+			}
+			roadmap, err := s.GetRoadmap(item.Slug)
+			if err == nil {
+				documents = append(documents, debtCoverageDocument{
+					Coverage: "covered_by_roadmap", Ref: "roadmap:" + item.Slug, Text: strings.ToLower(roadmap.Body),
+				})
+			}
+		}
+	}
+	if state, err := s.ProjectState(context.Background(), "Follow-ups"); err == nil {
+		for _, section := range state.Sections {
+			if section.Name == "Follow-ups" {
+				documents = append(documents, debtCoverageDocument{
+					Coverage: "covered_by_followup", Ref: "state:follow-ups", Text: strings.ToLower(section.Body),
+				})
+			}
+		}
+	}
+	sort.Slice(documents, func(i, j int) bool { return documents[i].Ref < documents[j].Ref })
+	return documents
+}
+
+func documentCoversDebt(document string, item TechDebtItem) bool {
+	file := strings.ToLower(filepath.ToSlash(item.File))
+	if file != "" && strings.Contains(document, file) {
+		return true
+	}
+	component := strings.ToLower(item.Component)
+	if component == "" || component == "root" {
+		return false
+	}
+	patterns := []string{
+		"`" + component + "`", "component:" + component, "components: " + component,
+		"module:" + component, "module: " + component,
+	}
+	for _, pattern := range patterns {
+		if strings.Contains(document, pattern) {
+			return true
+		}
+	}
+	return false
+}
+
+func scanAssessmentFileForDebt(file assessmentFile, counter *int) []TechDebtItem {
+	handle, err := os.Open(file.AbsPath)
+	if err != nil {
+		return nil
+	}
+	defer handle.Close()
+
+	var result []TechDebtItem
+	scanner := bufio.NewScanner(handle)
+	lex := debtLexState{rust: file.Ext == ".rs"}
+	lineNumber := 0
+	for scanner.Scan() {
+		lineNumber++
+		line := scanner.Text()
+		trimmed := strings.TrimSpace(line)
+		for _, marker := range lex.markers(line) {
+			result = append(result, TechDebtItem{
+				ID: fmt.Sprintf("DEBT-%03d", *counter), Marker: marker,
+				File: file.RelPath, Line: lineNumber, Snippet: trimmed, Component: file.Component,
+				Coverage: "uncovered", Recommendation: "create_followup",
+				Link: fmt.Sprintf("file://%s#L%d", file.AbsPath, lineNumber),
+			})
+			*counter++
+		}
+	}
+	return result
+}
+
+// AnalyzeTechDebt scans project source once and reconciles markers with active POSE backlog evidence.
+func (s Store) AnalyzeTechDebt() (*TechDebtReportState, error) {
+	files, err := s.assessmentFiles()
+	if err != nil {
+		return nil, err
+	}
+	items := []TechDebtItem{}
+	counter := 1
+	for _, file := range files {
+		if !isDebtSourceExt(file.Ext) || isIntegrationTestFile(file.RelPath) {
 			continue
 		}
-
-		_ = filepath.Walk(absDir, func(path string, f os.FileInfo, err error) error {
-			if err != nil || f.IsDir() {
-				if f != nil {
-					name := f.Name()
-					if name == "node_modules" || name == "vendor" || name == "target" || name == ".git" || name == "dist" || name == ".docs-site-build" {
-						return filepath.SkipDir
-					}
-				}
-				return nil
-			}
-
-			relFile, _ := filepath.Rel(s.Root, path)
-			ext := strings.ToLower(filepath.Ext(path))
-			if !isScannableExt(ext) {
-				return nil
-			}
-
-			fileItems := scanFileForDebt(s.Root, path, relFile, &idCounter)
-			items = append(items, fileItems...)
-			return nil
-		})
+		items = append(items, scanAssessmentFileForDebt(file, &counter)...)
+	}
+	documents := s.debtCoverageDocuments()
+	componentCounts := make(map[string]int)
+	componentFiles := make(map[string]map[string]bool)
+	for _, item := range items {
+		componentCounts[item.Component]++
+		if componentFiles[item.Component] == nil {
+			componentFiles[item.Component] = make(map[string]bool)
+		}
+		componentFiles[item.Component][item.File] = true
 	}
 
-	// Summarize counts
 	var summary TechDebtSummary
-	summary.TotalMarkers = len(items)
-
-	// Component debt counter to decide recommendations
-	compDebtCount := make(map[string]int)
-
-	for i := range items {
-		item := &items[i]
-		compDebtCount[item.Component]++
-
+	for index := range items {
+		item := &items[index]
+		summary.TotalMarkers++
 		switch item.Marker {
 		case "TODO":
 			summary.TODOs++
 		case "FIXME":
 			summary.FIXMEs++
+		case "HACK":
+			summary.Hacks++
 		case "PANIC":
 			summary.Panics++
 		case "STUB":
 			summary.Stubs++
 		}
-
-		// Simple coverage check against specs / followups
-		item.Coverage = "uncovered"
+		for _, document := range documents {
+			if documentCoversDebt(document.Text, *item) {
+				item.Coverage, item.CoverageRef, item.Recommendation = document.Coverage, document.Ref, "none"
+				break
+			}
+		}
+		if item.Coverage != "uncovered" {
+			summary.CoveredCount++
+			continue
+		}
 		summary.UncoveredCount++
-	}
-
-	// Assign smart recommendations based on component debt density
-	for i := range items {
-		item := &items[i]
-		if compDebtCount[item.Component] > 15 {
+		switch {
+		case componentCounts[item.Component] > 50 && len(componentFiles[item.Component]) > 5:
+			item.Recommendation = "add_to_roadmap"
+			summary.RecommendedRoadmaps++
+		case componentCounts[item.Component] > 15:
 			item.Recommendation = "create_spec"
 			summary.RecommendedSpecs++
-		} else if item.Marker == "FIXME" || item.Marker == "PANIC" {
-			item.Recommendation = "create_followup"
-			summary.RecommendedFollowups++
-		} else {
+		default:
 			item.Recommendation = "create_followup"
 			summary.RecommendedFollowups++
 		}
 	}
 
-	report := &TechDebtReportState{
-		SchemaVersion:  1,
-		EvaluatedAt:    time.Now().UTC().Format(time.RFC3339),
-		BaselineCommit: commit,
-		Summary:        summary,
-		Items:          items,
-	}
-
-	return report, nil
+	return &TechDebtReportState{
+		SchemaVersion: 1, EvaluatedAt: time.Now().UTC().Format(time.RFC3339),
+		BaselineCommit: s.resolveGitCommit(), Summary: summary, Items: items,
+	}, nil
 }
 
-func isScannableExt(ext string) bool {
-	switch ext {
-	case ".go", ".rs", ".ts", ".tsx", ".js", ".jsx", ".py", ".java", ".kt", ".proto", ".json", ".yaml", ".yml", ".md":
-		return true
-	default:
-		return false
-	}
-}
-
-func scanFileForDebt(root, absPath, relFile string, counter *int) []TechDebtItem {
-	f, err := os.Open(absPath)
-	if err != nil {
-		return nil
-	}
-	defer f.Close()
-
-	comp := deriveComponentFromPath(relFile)
-	var results []TechDebtItem
-
-	scanner := bufio.NewScanner(f)
-	lineNo := 0
-
-	for scanner.Scan() {
-		lineNo++
-		line := scanner.Text()
-		trimmed := strings.TrimSpace(line)
-		upper := strings.ToUpper(trimmed)
-
-		var marker string
-		if strings.Contains(upper, "TODO") {
-			marker = "TODO"
-		} else if strings.Contains(upper, "FIXME") {
-			marker = "FIXME"
-		} else if strings.Contains(line, "panic(") {
-			marker = "PANIC"
-		} else if strings.Contains(line, "unimplemented!") || strings.Contains(line, "stub") {
-			marker = "STUB"
-		}
-
-		if marker != "" {
-			item := TechDebtItem{
-				ID:        fmt.Sprintf("DEBT-%03d", *counter),
-				Marker:    marker,
-				File:      relFile,
-				Line:      lineNo,
-				Snippet:   trimmed,
-				Component: comp,
-				Link:      fmt.Sprintf("file://%s#L%d", absPath, lineNo),
-			}
-			*counter++
-			results = append(results, item)
-		}
-	}
-
-	return results
-}
-
-func deriveComponentFromPath(relFile string) string {
-	dir := filepath.Dir(relFile)
-	if dir == "." || dir == "" {
-		return "root"
-	}
-	slug := strings.Trim(strings.ReplaceAll(dir, "/", "-"), "-")
-	return slug
-}
-
-// SaveTechDebtReport writes technical-debt.json and technical-debt.md in .pose/
+// SaveTechDebtReport writes technical-debt.json and technical-debt.md in .pose/.
 func (s Store) SaveTechDebtReport(report *TechDebtReportState) error {
-	stateDir := filepath.Join(s.Root, ".pose", "state")
-	if err := os.MkdirAll(stateDir, 0o755); err != nil {
+	if report == nil {
+		return fmt.Errorf("technical-debt report is required")
+	}
+	if err := os.MkdirAll(filepath.Dir(s.TechDebtStatePath()), 0o755); err != nil {
 		return err
 	}
-	assessDir := s.AssessmentsDir()
-	if err := os.MkdirAll(assessDir, 0o755); err != nil {
+	if err := os.MkdirAll(s.AssessmentsDir(), 0o755); err != nil {
 		return err
 	}
-
-	// Write JSON
 	jsonData, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(s.TechDebtStatePath(), jsonData, 0o644); err != nil {
+	if err := os.WriteFile(s.TechDebtStatePath(), append(jsonData, '\n'), 0o644); err != nil {
 		return err
 	}
 
-	// Write Markdown Report with file links
-	md := fmt.Sprintf(`# Harne8 Technical Debt & Governed Backlog Report
+	md := fmt.Sprintf(`# Technical Debt Assessment: %s
 
 > **Gerado por**: POSE Technical Debt Engine (`+"`pose assess tech-debt`"+`)
 > **Data de Avaliação**: %s
 > **Baseline Commit**: %s
 
----
+## 1. Resumo Executivo
 
-## 1. Resumo Executivo da Dívida Técnica
-
-- **Total de Marcadores Encontrados**: %d
-- **TODOs**: %d | **FIXMEs**: %d | **Panics**: %d | **Stubs**: %d
-- **Dívidas Cobertas por Specs/Follow-ups**: %d
-- **Dívidas Não-cobertas (Pendentes de Atribuição)**: %d
+- **Total de Marcadores**: %d
+- **TODOs**: %d | **FIXMEs**: %d | **HACKs**: %d | **Panics**: %d | **Stubs**: %d
+- **Cobertos por Backlog Ativo**: %d
+- **Não Cobertos**: %d
 - **Recomendações**: %d Follow-ups | %d Specs | %d Roadmaps
 
----
+## 2. Ocorrências
 
-## 2. Detalhamento das Ocorrências e Links de Código-Fonte
-
-| ID | Marcador | Componente | Arquivo e Linha | Trecho do Código | Recomendação POSE |
-|---|---|---|---|---|---|
-`, report.EvaluatedAt, report.BaselineCommit, report.Summary.TotalMarkers, report.Summary.TODOs, report.Summary.FIXMEs, report.Summary.Panics, report.Summary.Stubs, report.Summary.CoveredCount, report.Summary.UncoveredCount, report.Summary.RecommendedFollowups, report.Summary.RecommendedSpecs, report.Summary.RecommendedRoadmaps)
-
-	// Display first 100 items in table for clean rendering
+| ID | Marcador | Componente | Arquivo e Linha | Cobertura | Evidência | Recomendação |
+|---|---|---|---|---|---|---|
+`, s.projectLabel(), report.EvaluatedAt, report.BaselineCommit, report.Summary.TotalMarkers,
+		report.Summary.TODOs, report.Summary.FIXMEs, report.Summary.Hacks, report.Summary.Panics,
+		report.Summary.Stubs, report.Summary.CoveredCount, report.Summary.UncoveredCount,
+		report.Summary.RecommendedFollowups, report.Summary.RecommendedSpecs, report.Summary.RecommendedRoadmaps)
 	limit := len(report.Items)
 	if limit > 100 {
 		limit = 100
 	}
-
-	for i := 0; i < limit; i++ {
-		item := report.Items[i]
-		basename := filepath.Base(item.File)
-		fileLink := fmt.Sprintf("[%s:%d](%s)", basename, item.Line, item.Link)
-		cleanSnippet := strings.ReplaceAll(item.Snippet, "|", "\\|")
-		if len(cleanSnippet) > 70 {
-			cleanSnippet = cleanSnippet[:67] + "..."
-		}
-
-		recText := item.Recommendation
-		switch item.Recommendation {
-		case "create_followup":
-			recText = "📌 Sugere Follow-up"
-		case "create_spec":
-			recText = "📜 Sugere Spec"
-		case "add_to_roadmap":
-			recText = "🗺️ Sugere Roadmap"
-		}
-
-		md += fmt.Sprintf("| %s | `%s` | `%s` | %s | `%s` | %s |\n",
-			item.ID, item.Marker, item.Component, fileLink, cleanSnippet, recText)
+	for _, item := range report.Items[:limit] {
+		fileLink := fmt.Sprintf("[%s:%d](%s)", filepath.Base(item.File), item.Line, item.Link)
+		md += fmt.Sprintf("| %s | `%s` | `%s` | %s | `%s` | `%s` | `%s` |\n",
+			item.ID, item.Marker, markdownCell(item.Component), fileLink,
+			item.Coverage, markdownCell(item.CoverageRef), item.Recommendation)
 	}
-
-	if len(report.Items) > 100 {
-		md += fmt.Sprintf("\n> *Nota: Exibindo as primeiras 100 ocorrências de %d totais. Veja .pose/state/technical-debt.json para a lista completa.*\n", len(report.Items))
+	if len(report.Items) > limit {
+		md += fmt.Sprintf("\n> Exibindo %d de %d ocorrências; consulte `.pose/state/technical-debt.json` para o conjunto completo.\n", limit, len(report.Items))
 	}
-
-	md += "\n---\n\n## 3. Matriz de Recomendações de Ação POSE\n\n" +
-		"1. **Follow-ups Rápidos**: Para marcações locais (como TODOs em componentes como `graphforge-web` e `site`), registrar itens no backlog de follow-ups POSE (`project-state.md`).\n" +
-		"2. **Novas Specs**: Para componentes com alta densidade de TODOs (como `graphforge-graphforge-web`), criar specs dedicadas em `.pose/specs/`.\n" +
-		"3. **Roadmap Extensions**: Para dívidas arquiteturais ou acoplamentos sistêmicos, registrar novos marcos em `.pose/roadmaps/`.\n"
-
+	md += "\n## 3. Política de Ação\n\n" +
+		"- Registre dívida local não coberta como follow-up.\n" +
+		"- Abra uma spec quando um componente concentrar dívida recorrente.\n" +
+		"- Estenda o roadmap quando a dívida atravessar vários arquivos e exigir coordenação sistêmica.\n" +
+		"- Não crie recomendação nova quando uma spec, roadmap ou follow-up ativo já cobrir a ocorrência.\n"
 	return os.WriteFile(s.TechDebtReportPath(), []byte(md), 0o644)
 }

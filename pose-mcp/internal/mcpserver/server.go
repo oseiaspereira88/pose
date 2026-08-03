@@ -2032,14 +2032,14 @@ func toolDefinitions() []map[string]any {
 		{
 			"name": "pose_component_discover",
 			"description": "Perform a deep discovery audit of a repository component: LOC count (prod vs test), " +
-				"technical debt markers (TODO, FIXME, stub, panic), detected languages, and submodules. " +
+				"technical debt markers (TODO, FIXME, stub, panic), detected languages, and source metrics. " +
 				"Persists JSON state to .pose/state/components/<slug>.json.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
 					"component_path": map[string]any{
 						"type":        "string",
-						"description": "Relative path of the component to audit, e.g. \"graphforge/ast-engine\"",
+						"description": "Relative path of the component to audit, e.g. \"services/catalog\"",
 					},
 					"project_id": map[string]any{
 						"type":        "string",

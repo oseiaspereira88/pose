@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-02T17:07:36Z
-baseline_commit: 3eaa7db815cff2d50e49c30cfc53c29afd187eba
+generated_at: 2026-08-03T15:49:09Z
+baseline_commit: 275188124a7f8d299b155eee56e7f919f958ae24
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:88d9737acd92 -->
+<!-- state:derived hash:8d0e91b6fc07 -->
 
-- specs: total=40 draft=3 in-progress=0 blocked=0 done=37 superseded=0 abandoned=0
-- roadmaps: total=8 active=1 done=7
+- specs: total=42 draft=0 in-progress=0 blocked=0 done=42 superseded=0 abandoned=0
+- roadmaps: total=8 active=0 done=8
 - últimos closeouts:
-  - spec:pose-hierarchical-review-closeout (2026-08-02)
-  - spec:pose-capability-mechanism (2026-07-21)
-  - spec:pose-ossf-security-baseline (2026-07-19)
-  - spec:pose-otel-observability (2026-07-19)
-  - spec:pose-cross-repo-portfolio (2026-07-19)
-  - ... e mais 32 (ver `pose_list_specs status:done`)
+  - spec:pose-delivery-surface-assurance (2026-08-03)
+  - spec:pose-artifact-provenance-ledger (2026-08-03)
+  - spec:pose-release-lifecycle-closure (2026-08-03)
+  - spec:pose-release-evidence-trigger-fix (2026-08-03)
+  - spec:pose-project-agnostic-assessment-engines (2026-08-03)
+  - ... e mais 37 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:7af64d34d2f1 -->
@@ -64,25 +64,27 @@ capacidade.
 - knowledge: total=1 ativo=1 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:bb0d43541813 -->
+<!-- state:derived hash:3bb7cec3c78c -->
 
-- último registro: task=validate-native outcome=pass (2026-08-02T15:14:05Z)
-- últimos 30 dias: total=27 outcome_ok=26 outcome_outro=1
-- reports revisados (.md): total=5
-  - report:2026-08-02-pose-hierarchical-review-closeout-review.md
-  - report:2026-08-02-standard-validate-native.md
-  - report:2026-07-19-standard-validate-native.md
-  - report:2026-07-18-doc-audit-product-roadmap-portfolio.md
-  - report:README.md
+- último registro: task=release-trigger-fix-validation outcome=pass (2026-08-03T14:29:22Z)
+- últimos 30 dias: total=49 outcome_ok=46 outcome_outro=3
+- reports revisados (.md): total=23
+  - report:2026-08-03-pose-project-agnostic-assessment-engines-review.md
+  - report:2026-08-03-standard-release-trigger-fix-validation.md
+  - report:2026-08-03-standard-release-evidence-trigger-fix.md
+  - report:2026-08-03-release-evidence-trigger-fix-review.md
+  - report:2026-08-03-delivery-integrity-roadmap-review.md
 
 ## Arquitetura
-<!-- state:derived hash:a8f9c10d3e21 status:active -->
+<!-- state:derived hash:43d6af1ce90c status:active -->
 
-- componentes: total=2 verificados=2 completude=100%
-- linhas_de_codigo: producao=29588 testes=15550 total=45138
-- linguagens: Rust (ast-engine), Go (graph-core, mcp-server, indexers, collector, enricher, planner, cli, pkg), TypeScript/React (web), WASM
-- saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
-- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/components/
+- componentes: total=2 verificados=2 completude=99.0%
+- linhas_de_codigo: producao=26198 testes=16050 total=42248
+- linguagens: go
+- saude_de_codigo: TODOs=0 FIXMEs=0 panics=1 stubs=0
+- integracoes: contratos=49 ativos=1 gaps=48
+- divida_tecnica: total=1 coberta=0 descoberta=1
+- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 
 ## Docs
 <!-- state:derived hash:d5892e1cac69 -->

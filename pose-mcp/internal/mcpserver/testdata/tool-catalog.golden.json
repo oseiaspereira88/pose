@@ -936,11 +936,11 @@
       "name": "conductor_run_close"
     },
     {
-      "description": "Perform a deep discovery audit of a repository component: LOC count (prod vs test), technical debt markers (TODO, FIXME, stub, panic), detected languages, and submodules. Persists JSON state to .pose/state/components/\u003cslug\u003e.json.",
+      "description": "Perform a deep discovery audit of a repository component: LOC count (prod vs test), technical debt markers (TODO, FIXME, stub, panic), detected languages, and source metrics. Persists JSON state to .pose/state/components/\u003cslug\u003e.json.",
       "inputSchema": {
         "properties": {
           "component_path": {
-            "description": "Relative path of the component to audit, e.g. \"graphforge/ast-engine\"",
+            "description": "Relative path of the component to audit, e.g. \"services/catalog\"",
             "type": "string"
           },
           "project_id": {

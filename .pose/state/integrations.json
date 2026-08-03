@@ -1,155 +1,741 @@
 {
   "schema_version": 1,
-  "evaluated_at": "2026-08-03T06:34:47Z",
-  "baseline_commit": "369130a1d236",
+  "evaluated_at": "2026-08-03T15:48:39Z",
+  "baseline_commit": "275188124a7f",
   "summary": {
-    "total_integrations": 11,
-    "active_contracts": 10,
-    "identified_gaps": 8
+    "total_integrations": 49,
+    "active_contracts": 1,
+    "identified_gaps": 48
   },
   "contracts": [
     {
-      "name": "GraphMutationEvent (Protobuf)",
-      "protocol": "protobuf",
-      "provider": "ast-engine, indexers, collector, enricher, planner",
-      "consumer": "graph-core",
-      "status": "active"
-    },
-    {
-      "name": "Kafka Mutation Topics (ast/git/infra/test/runtime/semantic/plan.mutations)",
-      "protocol": "kafka",
-      "provider": "ast-engine, indexers, collector, enricher, planner",
-      "consumer": "graph-core",
-      "status": "active"
-    },
-    {
-      "name": "NodeKinds (74) \u0026 EdgeKinds (87)",
-      "protocol": "library",
-      "provider": "graphforge/pkg/models",
-      "consumer": "ast-engine, graph-core, mcp-server, indexers, collector, enricher, planner",
-      "status": "active"
-    },
-    {
-      "name": "MCP Protocol (52 Tools)",
+      "name": "MCP tool conductor_run_close",
       "protocol": "mcp",
-      "provider": "graphforge/mcp-server",
-      "consumer": "cli, graphforge-web, ai-agents",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool conductor_run_event",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool conductor_run_open",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_capability_history",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_capability_stale",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_capability_state",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_check",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_closeout_state",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_component_discover",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_delivery_integrity",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_docs_state",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_extension_list",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_assessment",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_changelog",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_followups",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_integration_matrix",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_knowledge",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_report",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_roadmap",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_rules",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_skill",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_spec",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "mcp-enforce",
       "status": "active"
     },
     {
-      "name": "Curation HTTP API (Port 8090)",
+      "name": "MCP tool pose_get_tech_debt_report",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_get_workflow",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_insights",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_integration_check",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_lint_spec",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_list_assessments",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_list_knowledge",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_list_reports",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_list_roadmaps",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_list_specs",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_project_state",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_release_status",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_requirement_trace",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_skills_check",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_spec_amendments",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_spec_readiness",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_suggest",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_surface_assurance",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_tech_debt_check",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_validate_approve",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_validate_cancel",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_validate_request",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_validate_status",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_validate_submit",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "HTTP /admin/refresh",
       "protocol": "rest",
-      "provider": "graphforge/semantic-enricher",
-      "consumer": "graphforge-web",
-      "status": "active"
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
     },
     {
-      "name": "Planning HTTP API (Port 8095)",
+      "name": "HTTP /healthz",
       "protocol": "rest",
-      "provider": "graphforge/planning-engine",
-      "consumer": "cli, graphforge-web",
-      "status": "degraded"
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
     },
     {
-      "name": "Conductor Run Reporter \u0026 Fleet State (38 MCP Tools)",
-      "protocol": "mcp/http",
-      "provider": "conductor",
-      "consumer": "harne8-pose-mcp, harness, portal",
-      "status": "active"
-    },
-    {
-      "name": "Harness Execution Engine Sandbox (gRPC/REST)",
-      "protocol": "grpc",
-      "provider": "harness",
-      "consumer": "conductor",
-      "status": "active"
-    },
-    {
-      "name": "Portal Session Bridge \u0026 Edge Gateway",
-      "protocol": "rest/jwt",
-      "provider": "workers/app",
-      "consumer": "portal, conductor, site",
-      "status": "active"
-    },
-    {
-      "name": "OPA Policy Enforcement Engine (egress-policy.json)",
-      "protocol": "opa",
-      "provider": "pose-dist/mcp-enforce",
-      "consumer": "harne8-pose-mcp",
-      "status": "active"
-    },
-    {
-      "name": "Harne8 Open API \u0026 Protobuf Shared Contracts",
-      "protocol": "openapi/protobuf",
-      "provider": "contracts",
-      "consumer": "workers/app, conductor, harness, site",
-      "status": "active"
+      "name": "HTTP /mcp",
+      "protocol": "rest",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
     }
   ],
   "gaps": [
     {
-      "gap_id": "GAP-01",
-      "title": "pkg/componentshit Subaproveitado no mcp-server",
+      "gap_id": "GAP-001",
+      "title": "No consumer observed for MCP tool conductor_run_close",
       "severity": "medium",
-      "provider": "graphforge/pkg/componentshit",
-      "consumer": "graphforge/mcp-server",
-      "description": "Nenhuma tool MCP exporta a travessia transitiva de impacto de capabilities POSE. Apenas o CLI Go possui o comando 'components-hit'."
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
     },
     {
-      "gap_id": "GAP-02",
-      "title": "runtime-collector Anomalias/Impacto vs. Dashboard no graphforge-web",
-      "severity": "high",
-      "provider": "graphforge/runtime-collector",
-      "consumer": "graphforge/graphforge-web",
-      "description": "Os dashboards de saude utilizam mocks/simulacoes no Zustand store em vez de assinar em tempo real a stream de anomalias/latencia OTel."
-    },
-    {
-      "gap_id": "GAP-03",
-      "title": "planning-engine Shadow Graph (SAGA \u0026 Approval) vs. cli e graphforge-web",
-      "severity": "high",
-      "provider": "graphforge/planning-engine",
-      "consumer": "graphforge/cli, graphforge/graphforge-web",
-      "description": "A CLI nao possui subcomandos para aprovacao de planos (Lead Signoff / Emergency) ou acionamento de rollback SAGA. O Web nao renderiza o Shadow Graph."
-    },
-    {
-      "gap_id": "GAP-04",
-      "title": "Desconexao do semantic-enricher em Ambientes POSE Remotos/Multi-Projeto",
+      "gap_id": "GAP-002",
+      "title": "No consumer observed for MCP tool conductor_run_event",
       "severity": "medium",
-      "provider": "harne8-pose-mcp / .pose",
-      "consumer": "graphforge/semantic-enricher",
-      "description": "O semantic-enricher le arquivos .pose/ do disco local via os.ReadFile em vez de consumir a API do pose-mcp, impedindo uso distribuido."
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
     },
     {
-      "gap_id": "GAP-05",
-      "title": "Bytecode JVM no ast-engine vs. Mapeamento de Atributos no graph-core",
-      "severity": "low",
-      "provider": "graphforge/ast-engine (bytecode parser)",
-      "consumer": "graphforge/graph-core",
-      "description": "O graph-core aceita nos com node_type=Class, mas as tabelas relacionais do Postgres nao possuem colunas para instrucoes bytecode JVM."
-    },
-    {
-      "gap_id": "GAP-06",
-      "title": "Conductor Tenancy Bridge vs. Harness Sandbox Execution Isolation",
-      "severity": "critical",
-      "provider": "conductor",
-      "consumer": "harness",
-      "description": "O runner de sandbox do Harness no modo dev (docker-compose.dev.yaml) nao propaga o tenant-id isolado do Conductor em execucoes concorrentes de agentes."
-    },
-    {
-      "gap_id": "GAP-07",
-      "title": "Portal Session Bridge em workers/app vs. Autenticacao GraphForge Web",
-      "severity": "high",
-      "provider": "workers/app (Cloudflare Worker)",
-      "consumer": "graphforge/graphforge-web",
-      "description": "O graphforge-web utiliza sessoes de streaming anonimas com Neo4j, enquanto o workers/app exige JWT Bearer tokens na borda, exigindo um header mapping no gateway."
-    },
-    {
-      "gap_id": "GAP-08",
-      "title": "mcp-enforce Sincronizacao de Politicas em Tempo Real",
+      "gap_id": "GAP-003",
+      "title": "No consumer observed for MCP tool conductor_run_open",
       "severity": "medium",
-      "provider": "pose-dist/mcp-enforce",
-      "consumer": "harne8-pose-mcp",
-      "description": "As politicas OPA sao carregadas na inicializacao do processo, porem falta um file-watcher para recarregar alteracoes em .pose/policy/*.json em tempo real."
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-004",
+      "title": "No consumer observed for MCP tool pose_capability_history",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-005",
+      "title": "No consumer observed for MCP tool pose_capability_stale",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-006",
+      "title": "No consumer observed for MCP tool pose_capability_state",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-007",
+      "title": "No consumer observed for MCP tool pose_check",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-008",
+      "title": "No consumer observed for MCP tool pose_closeout_state",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-009",
+      "title": "No consumer observed for MCP tool pose_component_discover",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-010",
+      "title": "No consumer observed for MCP tool pose_delivery_integrity",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-011",
+      "title": "No consumer observed for MCP tool pose_docs_state",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-012",
+      "title": "No consumer observed for MCP tool pose_extension_list",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-013",
+      "title": "No consumer observed for MCP tool pose_get_assessment",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-014",
+      "title": "No consumer observed for MCP tool pose_get_changelog",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-015",
+      "title": "No consumer observed for MCP tool pose_get_followups",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-016",
+      "title": "No consumer observed for MCP tool pose_get_integration_matrix",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-017",
+      "title": "No consumer observed for MCP tool pose_get_knowledge",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-018",
+      "title": "No consumer observed for MCP tool pose_get_report",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-019",
+      "title": "No consumer observed for MCP tool pose_get_roadmap",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-020",
+      "title": "No consumer observed for MCP tool pose_get_rules",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-021",
+      "title": "No consumer observed for MCP tool pose_get_skill",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-022",
+      "title": "No consumer observed for MCP tool pose_get_tech_debt_report",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-023",
+      "title": "No consumer observed for MCP tool pose_get_workflow",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-024",
+      "title": "No consumer observed for MCP tool pose_insights",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-025",
+      "title": "No consumer observed for MCP tool pose_integration_check",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-026",
+      "title": "No consumer observed for MCP tool pose_lint_spec",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-027",
+      "title": "No consumer observed for MCP tool pose_list_assessments",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-028",
+      "title": "No consumer observed for MCP tool pose_list_knowledge",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-029",
+      "title": "No consumer observed for MCP tool pose_list_reports",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-030",
+      "title": "No consumer observed for MCP tool pose_list_roadmaps",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-031",
+      "title": "No consumer observed for MCP tool pose_list_specs",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-032",
+      "title": "No consumer observed for MCP tool pose_project_state",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-033",
+      "title": "No consumer observed for MCP tool pose_release_status",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-034",
+      "title": "No consumer observed for MCP tool pose_requirement_trace",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-035",
+      "title": "No consumer observed for MCP tool pose_skills_check",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-036",
+      "title": "No consumer observed for MCP tool pose_spec_amendments",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-037",
+      "title": "No consumer observed for MCP tool pose_spec_readiness",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-038",
+      "title": "No consumer observed for MCP tool pose_suggest",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-039",
+      "title": "No consumer observed for MCP tool pose_surface_assurance",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-040",
+      "title": "No consumer observed for MCP tool pose_tech_debt_check",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-041",
+      "title": "No consumer observed for MCP tool pose_validate_approve",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-042",
+      "title": "No consumer observed for MCP tool pose_validate_cancel",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-043",
+      "title": "No consumer observed for MCP tool pose_validate_request",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-044",
+      "title": "No consumer observed for MCP tool pose_validate_status",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-045",
+      "title": "No consumer observed for MCP tool pose_validate_submit",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-046",
+      "title": "No consumer observed for HTTP /admin/refresh",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-047",
+      "title": "No consumer observed for HTTP /healthz",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-048",
+      "title": "No consumer observed for HTTP /mcp",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
     }
   ]
 }

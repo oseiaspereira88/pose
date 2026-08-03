@@ -555,16 +555,25 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 		state, err := store.DiscoverComponent(t)
 		if err != nil {
 			fmt.Fprintf(stderr, "pose assess discover %s: %v\n", t, err)
-			continue
+			return 1
 		}
-		_ = store.SaveComponentState(state)
+		if err := store.SaveComponentState(state); err != nil {
+			fmt.Fprintf(stderr, "pose assess discover save %s: %v\n", t, err)
+			return 1
+		}
 		results = append(results, state)
 	}
 
-	_ = store.GenerateConsolidatedAssessment(results)
+	if err := store.GenerateConsolidatedAssessment(results); err != nil {
+		fmt.Fprintf(stderr, "pose assess discover consolidate: %v\n", err)
+		return 1
+	}
 
 	if updateState {
-		updateProjectStateArchitecture(root, results)
+		if err := updateProjectStateArchitecture(root, results); err != nil {
+			fmt.Fprintf(stderr, "pose assess discover update-state: %v\n", err)
+			return 1
+		}
 	}
 
 	if asJSON {
@@ -581,38 +590,101 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 	return 0
 }
 
-func updateProjectStateArchitecture(root string, states []*pose.ComponentDiscoveryState) {
+func updateProjectStateArchitecture(root string, current []*pose.ComponentDiscoveryState) error {
 	statePath := filepath.Join(root, ".pose", "state", "project-state.md")
 	raw, err := os.ReadFile(statePath)
 	if err != nil {
-		return
+		return err
 	}
 
 	content := string(raw)
 	if !strings.Contains(content, "## Arquitetura") {
-		return
+		return fmt.Errorf("project-state.md has no Arquitetura section")
 	}
 
-	var totalProd, totalTests int
-	for _, s := range states {
-		totalProd += s.Metrics.LOCProduction
-		totalTests += s.Metrics.LOCTests
+	var totalProd, totalTests, verified int
+	var todos, fixmes, panics, stubs int
+	var completeness float64
+	languages := make(map[string]bool)
+	components := 0
+	if current == nil {
+		entries, _ := os.ReadDir(filepath.Join(root, ".pose", "state", "components"))
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") || entry.Name() == "..json" {
+				continue
+			}
+			componentRaw, readErr := os.ReadFile(filepath.Join(root, ".pose", "state", "components", entry.Name()))
+			if readErr != nil {
+				continue
+			}
+			var state pose.ComponentDiscoveryState
+			if json.Unmarshal(componentRaw, &state) == nil && state.ComponentSlug != "" {
+				current = append(current, &state)
+			}
+		}
 	}
-
-	archBody := fmt.Sprintf(`<!-- state:derived hash:a8f9c10d3e21 status:active -->
-
-- componentes: total=%d verificados=%d completude=100%%
-- linhas_de_codigo: producao=%d testes=%d total=%d
-- linguagens: Rust (ast-engine), Go (graph-core, mcp-server, indexers, collector, enricher, planner, cli, pkg), TypeScript/React (web), WASM
-- saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
-- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/components/
-`, len(states), len(states), totalProd, totalTests, totalProd+totalTests)
-
-	// Replace ## Arquitetura section
-	archRegex := regexp.MustCompile(`(?s)## Arquitetura\n<!-- state:derived [^\n]+ -->\n.*?\n(\n## |$)`)
-	updated := archRegex.ReplaceAllString(content, "## Arquitetura\n"+archBody+"$1")
-
-	_ = os.WriteFile(statePath, []byte(updated), 0o644)
+	for _, state := range current {
+		if state == nil || state.ComponentSlug == "" {
+			continue
+		}
+		components++
+		totalProd += state.Metrics.LOCProduction
+		totalTests += state.Metrics.LOCTests
+		todos += state.TechnicalDebt.TODOs
+		fixmes += state.TechnicalDebt.FIXMEs
+		panics += state.TechnicalDebt.Panics
+		stubs += state.TechnicalDebt.Stubs
+		completeness += state.CompletenessScore
+		if state.Status == "verified" {
+			verified++
+		}
+		for _, language := range state.Metrics.Languages {
+			languages[language] = true
+		}
+	}
+	orderedLanguages := make([]string, 0, len(languages))
+	for language := range languages {
+		orderedLanguages = append(orderedLanguages, language)
+	}
+	sort.Strings(orderedLanguages)
+	if len(orderedLanguages) == 0 {
+		orderedLanguages = []string{"n/a"}
+	}
+	average := 0.0
+	if components > 0 {
+		average = completeness / float64(components) * 100
+	}
+	lines := []string{
+		fmt.Sprintf("- componentes: total=%d verificados=%d completude=%.1f%%", components, verified, average),
+		fmt.Sprintf("- linhas_de_codigo: producao=%d testes=%d total=%d", totalProd, totalTests, totalProd+totalTests),
+		"- linguagens: " + strings.Join(orderedLanguages, ", "),
+		fmt.Sprintf("- saude_de_codigo: TODOs=%d FIXMEs=%d panics=%d stubs=%d", todos, fixmes, panics, stubs),
+	}
+	if integrationRaw, readErr := os.ReadFile(filepath.Join(root, ".pose", "state", "integrations.json")); readErr == nil {
+		var matrix pose.IntegrationMatrix
+		if json.Unmarshal(integrationRaw, &matrix) == nil {
+			lines = append(lines, fmt.Sprintf("- integracoes: contratos=%d ativos=%d gaps=%d", matrix.Summary.TotalIntegrations, matrix.Summary.ActiveContracts, matrix.Summary.IdentifiedGaps))
+		}
+	}
+	if debtRaw, readErr := os.ReadFile(filepath.Join(root, ".pose", "state", "technical-debt.json")); readErr == nil {
+		var report pose.TechDebtReportState
+		if json.Unmarshal(debtRaw, &report) == nil {
+			lines = append(lines, fmt.Sprintf("- divida_tecnica: total=%d coberta=%d descoberta=%d", report.Summary.TotalMarkers, report.Summary.CoveredCount, report.Summary.UncoveredCount))
+		}
+	}
+	lines = append(lines, "- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/")
+	body := strings.Join(lines, "\n")
+	status := "active"
+	if components == 0 {
+		status = "unavailable"
+	}
+	section := fmt.Sprintf("## Arquitetura\n<!-- state:derived hash:%s status:%s -->\n\n%s", pose.ContentHash12(body), status, body)
+	archRegex := regexp.MustCompile(`(?s)## Arquitetura\n<!-- state:derived [^\n]+ -->\n.*?(\n\n## |\z)`)
+	if !archRegex.MatchString(content) {
+		return fmt.Errorf("project-state.md Arquitetura section is malformed")
+	}
+	updated := archRegex.ReplaceAllString(content, section+"$1")
+	return os.WriteFile(statePath, []byte(updated), 0o644)
 }
 
 func assessIntegrate(root string, args []string, stdout, stderr io.Writer, locale cliLocale) int {
@@ -641,7 +713,10 @@ func assessIntegrate(root string, args []string, stdout, stderr io.Writer, local
 	}
 
 	if updateState {
-		// Append integration findings to project-state.md if needed
+		if err := updateProjectStateArchitecture(root, nil); err != nil {
+			fmt.Fprintf(stderr, "pose assess integrate update-state: %v\n", err)
+			return 1
+		}
 	}
 
 	if asJSON {
@@ -690,7 +765,10 @@ func assessTechDebt(root string, args []string, stdout, stderr io.Writer, locale
 	}
 
 	if updateState {
-		// Update state if needed
+		if err := updateProjectStateArchitecture(root, nil); err != nil {
+			fmt.Fprintf(stderr, "pose assess tech-debt update-state: %v\n", err)
+			return 1
+		}
 	}
 
 	if asJSON {

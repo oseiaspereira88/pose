@@ -84,6 +84,9 @@ func (s Store) GetAssessment(slugOrFile string) (map[string]any, error) {
 	if !strings.HasSuffix(filename, ".md") {
 		filename = slugOrFile + ".md"
 	}
+	if filepath.Base(filename) != filename || filename == ".md" {
+		return nil, fmt.Errorf("assessment filename must not escape .pose/assessments")
+	}
 	path := filepath.Join(s.AssessmentsDir(), filename)
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -110,11 +113,8 @@ func (s Store) FindComponentDirectories() []string {
 		}
 		if err := json.Unmarshal(data, &meta); err == nil && len(meta.Modules) > 0 {
 			for modPath := range meta.Modules {
-				relPath := modPath
-				if _, err := os.Stat(filepath.Join(s.Root, relPath)); err != nil {
-					relPath = strings.ToLower(modPath)
-				}
-				if _, err := os.Stat(filepath.Join(s.Root, relPath)); err == nil && !seen[relPath] {
+				relPath, ok := resolveDeclaredModulePath(s.Root, modPath)
+				if ok && !seen[relPath] {
 					targets = append(targets, relPath)
 					seen[relPath] = true
 				}
@@ -155,6 +155,42 @@ func (s Store) FindComponentDirectories() []string {
 	return targets
 }
 
+func resolveDeclaredModulePath(root, declared string) (string, bool) {
+	if filepath.IsAbs(declared) {
+		return "", false
+	}
+	clean := filepath.Clean(declared)
+	if clean == "." {
+		return ".", true
+	}
+	if clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
+		return "", false
+	}
+	current := root
+	var actual []string
+	for _, segment := range strings.Split(filepath.ToSlash(clean), "/") {
+		entries, err := os.ReadDir(current)
+		if err != nil {
+			return "", false
+		}
+		match := ""
+		for _, entry := range entries {
+			if entry.IsDir() && strings.EqualFold(entry.Name(), segment) {
+				match = entry.Name()
+				if entry.Name() == segment {
+					break
+				}
+			}
+		}
+		if match == "" {
+			return "", false
+		}
+		actual = append(actual, match)
+		current = filepath.Join(current, match)
+	}
+	return filepath.ToSlash(filepath.Join(actual...)), true
+}
+
 func hasProjectManifest(dir string) bool {
 	manifests := []string{
 		"go.mod", "Cargo.toml", "package.json", "pyproject.toml",
@@ -179,36 +215,32 @@ func (s Store) DiscoverAllComponents() ([]*ComponentDiscoveryState, error) {
 	for _, t := range targets {
 		state, err := s.DiscoverComponent(t)
 		if err != nil {
-			continue
+			return nil, err
 		}
-		_ = s.SaveComponentState(state)
+		if err := s.SaveComponentState(state); err != nil {
+			return nil, err
+		}
 		results = append(results, state)
 	}
 
-	_ = s.GenerateConsolidatedAssessment(results)
+	if err := s.GenerateConsolidatedAssessment(results); err != nil {
+		return nil, err
+	}
 	return results, nil
 }
 
 // DiscoverComponent scans a directory under root and produces a ComponentDiscoveryState.
 func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, error) {
-	absPath := filepath.Join(s.Root, relPath)
-	info, err := os.Stat(absPath)
+	cleanPath, absPath, err := s.resolveComponentDir(relPath)
 	if err != nil {
 		return nil, fmt.Errorf("discover component %q: %w", relPath, err)
 	}
-	if !info.IsDir() {
-		return nil, fmt.Errorf("discover component %q: path is not a directory", relPath)
-	}
-
-	slug := strings.Trim(strings.ReplaceAll(relPath, "/", "-"), "-")
-	if slug == "" {
-		slug = "root"
-	}
+	slug := slugifyAssessmentPath(cleanPath)
 
 	state := &ComponentDiscoveryState{
 		SchemaVersion:     1,
 		ComponentSlug:     slug,
-		Path:              relPath,
+		Path:              cleanPath,
 		DiscoveredAt:      time.Now().UTC().Format(time.RFC3339),
 		BaselineCommit:    s.resolveGitCommit(),
 		Status:            "verified",
@@ -218,17 +250,33 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 
 	langMap := make(map[string]bool)
 
-	_ = filepath.Walk(absPath, func(path string, f os.FileInfo, err error) error {
-		if err != nil || f.IsDir() {
-			name := f.Name()
-			if name == "node_modules" || name == "vendor" || name == "target" || name == ".git" || name == "dist" {
+	_ = filepath.WalkDir(absPath, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return nil
+		}
+		if entry.IsDir() {
+			if path != absPath && shouldSkipAssessmentDir(entry.Name()) {
 				return filepath.SkipDir
 			}
 			return nil
 		}
+		if entry.Type()&os.ModeSymlink != 0 {
+			return nil
+		}
 
 		ext := strings.ToLower(filepath.Ext(path))
-		name := strings.ToLower(f.Name())
+		if !isDebtSourceExt(ext) {
+			return nil
+		}
+		info, err := entry.Info()
+		if err != nil || !info.Mode().IsRegular() || info.Size() > maxAssessmentFileSize {
+			return nil
+		}
+		name := strings.ToLower(entry.Name())
+		loc, isTest, generated, debt := inspectCodeFile(path)
+		if generated {
+			return nil
+		}
 
 		// Determine language
 		switch ext {
@@ -244,10 +292,23 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 			langMap["python"] = true
 		case ".java", ".kt":
 			langMap["jvm"] = true
+		case ".cs":
+			langMap["csharp"] = true
+		case ".c", ".cc", ".cpp", ".h", ".hpp":
+			langMap["c-cpp"] = true
+		case ".rb":
+			langMap["ruby"] = true
+		case ".php":
+			langMap["php"] = true
+		case ".swift":
+			langMap["swift"] = true
+		case ".scala":
+			langMap["scala"] = true
+		case ".sh":
+			langMap["shell"] = true
 		}
 
 		// Count LOC & debt
-		loc, isTest, debt := inspectCodeFile(path)
 		state.Metrics.TotalFiles++
 		if isTest || strings.Contains(name, "_test.") || strings.Contains(name, ".test.") || strings.Contains(name, "spec.") {
 			state.Metrics.LOCTests += loc
@@ -262,6 +323,7 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 
 		return nil
 	})
+	state.Metadata = s.componentMetadata(cleanPath)
 
 	for l := range langMap {
 		state.Metrics.Languages = append(state.Metrics.Languages, l)
@@ -291,6 +353,33 @@ func (s Store) DiscoverComponent(relPath string) (*ComponentDiscoveryState, erro
 	return state, nil
 }
 
+func (s Store) componentMetadata(componentPath string) map[string]string {
+	result := make(map[string]string)
+	raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "module-metadata.json"))
+	if err != nil {
+		return result
+	}
+	var document struct {
+		Modules map[string]map[string]string `json:"modules"`
+	}
+	if json.Unmarshal(raw, &document) != nil {
+		return result
+	}
+	for path, values := range document.Modules {
+		resolved, ok := resolveDeclaredModulePath(s.Root, path)
+		if !ok || filepath.ToSlash(resolved) != filepath.ToSlash(componentPath) {
+			continue
+		}
+		for key, value := range values {
+			if strings.TrimSpace(value) != "" {
+				result[key] = value
+			}
+		}
+		break
+	}
+	return result
+}
+
 func (s Store) resolveGitCommit() string {
 	cmd := exec.Command("git", "-C", s.Root, "rev-parse", "--short=12", "HEAD")
 	out, err := cmd.Output()
@@ -304,41 +393,51 @@ func (s Store) resolveGitCommit() string {
 	return res
 }
 
-func inspectCodeFile(path string) (loc int, isTest bool, debt TechnicalDebtMetrics) {
-	f, err := os.Open(path)
+func inspectCodeFile(path string) (loc int, isTest, generated bool, debt TechnicalDebtMetrics) {
+	raw, err := os.ReadFile(path)
 	if err != nil {
-		return 0, false, debt
+		return 0, false, false, debt
 	}
-	defer f.Close()
+	if strings.IndexByte(string(raw), 0) >= 0 || hasGeneratedAssessmentHeader(raw) {
+		return 0, false, true, debt
+	}
+	isTest = isIntegrationTestFile(filepath.ToSlash(path))
 
-	scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(strings.NewReader(string(raw)))
+	lex := debtLexState{rust: strings.EqualFold(filepath.Ext(path), ".rs")}
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
 		loc++
+		if isTest {
+			continue
+		}
 
-		upper := strings.ToUpper(line)
-		if strings.Contains(upper, "TODO") {
-			debt.TODOs++
-		}
-		if strings.Contains(upper, "FIXME") {
-			debt.FIXMEs++
-		}
-		if strings.Contains(line, "panic(") {
-			debt.Panics++
-		}
-		if strings.Contains(line, "stub") || strings.Contains(line, "unimplemented!") {
-			debt.Stubs++
+		for _, marker := range lex.markers(line) {
+			switch marker {
+			case "TODO":
+				debt.TODOs++
+			case "FIXME", "HACK":
+				debt.FIXMEs++
+			case "PANIC":
+				debt.Panics++
+			case "STUB":
+				debt.Stubs++
+			}
 		}
 	}
-	return loc, false, debt
+	return loc, isTest, false, debt
 }
 
 // SaveComponentState writes ComponentDiscoveryState JSON to .pose/state/components/<slug>.json
 // and automatically generates the corresponding .pose/assessments/<slug>.md report.
 func (s Store) SaveComponentState(state *ComponentDiscoveryState) error {
+	if state == nil {
+		return fmt.Errorf("component state is required")
+	}
+	state.ComponentSlug = slugifyAssessmentPath(state.ComponentSlug)
 	dir := s.ComponentStateDir()
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
@@ -362,13 +461,7 @@ func (s Store) GenerateComponentAssessmentMarkdown(state *ComponentDiscoveryStat
 		return err
 	}
 
-	filename := state.ComponentSlug + ".md"
-	// Normalize slug if starts with graphforge-
-	if strings.HasPrefix(state.ComponentSlug, "graphforge-") {
-		filename = strings.TrimPrefix(state.ComponentSlug, "graphforge-") + ".md"
-	} else if strings.HasPrefix(state.ComponentSlug, "pose-dist-") {
-		filename = strings.TrimPrefix(state.ComponentSlug, "pose-dist-") + ".md"
-	}
+	filename := slugifyAssessmentPath(state.ComponentSlug) + ".md"
 
 	langs := strings.Join(state.Metrics.Languages, ", ")
 	if langs == "" {
@@ -387,7 +480,7 @@ func (s Store) GenerateComponentAssessmentMarkdown(state *ComponentDiscoveryStat
 
 ## 1. Visão Geral e Estrutura do Módulo
 
-O componente **%s** reside no caminho `+"`%s`"+` no repositório Harne8.
+O componente **%s** reside no caminho `+"`%s`"+` do projeto **%s**.
 
 - **Status de Verificação POSE**: `+"`%s`"+`
 - **Pontuação de Completude**: %.0f%%
@@ -400,7 +493,7 @@ O componente **%s** reside no caminho `+"`%s`"+` no repositório Harne8.
 - **FIXMEs**: %d
 - **Panics**: %d
 - **Stubs**: %d
-`, state.ComponentSlug, state.Path, state.Path, state.DiscoveredAt, state.BaselineCommit, state.Metrics.LOCProduction, state.Metrics.LOCTests, state.Metrics.TotalFiles, langs, state.TechnicalDebt.TODOs, state.TechnicalDebt.FIXMEs, state.TechnicalDebt.Panics, state.TechnicalDebt.Stubs, state.ComponentSlug, state.Path, state.Status, state.CompletenessScore*100, state.TechnicalDebt.TODOs, state.TechnicalDebt.FIXMEs, state.TechnicalDebt.Panics, state.TechnicalDebt.Stubs)
+`, state.ComponentSlug, state.Path, state.Path, state.DiscoveredAt, state.BaselineCommit, state.Metrics.LOCProduction, state.Metrics.LOCTests, state.Metrics.TotalFiles, langs, state.TechnicalDebt.TODOs, state.TechnicalDebt.FIXMEs, state.TechnicalDebt.Panics, state.TechnicalDebt.Stubs, state.ComponentSlug, state.Path, s.projectLabel(), state.Status, state.CompletenessScore*100, state.TechnicalDebt.TODOs, state.TechnicalDebt.FIXMEs, state.TechnicalDebt.Panics, state.TechnicalDebt.Stubs)
 
 	file := filepath.Join(dir, filename)
 	return os.WriteFile(file, []byte(md), 0o644)
@@ -408,7 +501,11 @@ O componente **%s** reside no caminho `+"`%s`"+` no repositório Harne8.
 
 // LoadComponentState reads ComponentDiscoveryState JSON from .pose/state/components/<slug>.json
 func (s Store) LoadComponentState(slug string) (*ComponentDiscoveryState, error) {
-	file := filepath.Join(s.ComponentStateDir(), slug+".json")
+	canonical := slugifyAssessmentPath(slug)
+	if canonical == "root" && slug != "root" {
+		return nil, fmt.Errorf("invalid component slug")
+	}
+	file := filepath.Join(s.ComponentStateDir(), canonical+".json")
 	data, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -420,7 +517,7 @@ func (s Store) LoadComponentState(slug string) (*ComponentDiscoveryState, error)
 	return &state, nil
 }
 
-// GenerateConsolidatedAssessment builds .pose/assessments/consolidated.md for the Harne8 platform.
+// GenerateConsolidatedAssessment builds a project-derived consolidated report.
 func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState) error {
 	dir := s.AssessmentsDir()
 	if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -468,7 +565,8 @@ func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState)
 	commit := s.resolveGitCommit()
 	now := time.Now().UTC().Format(time.RFC3339)
 
-	md := fmt.Sprintf(`# Harne8 Platform Macro Assessment & Monorepo Consolidation
+	project := s.projectLabel()
+	md := fmt.Sprintf(`# Project Assessment: %s
 
 > **Gerado por**: POSE Discovery Engine (`+"`pose assess discover`"+`)
 > **Data de Avaliação**: %s
@@ -476,7 +574,7 @@ func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState)
 
 ---
 
-## 1. Resumo Executivo da Plataforma Harne8
+## 1. Resumo Executivo do Projeto
 
 - **Total de Componentes Auditados**: %d
 - **Linhas de Código de Produção**: %d
@@ -490,11 +588,11 @@ func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState)
 
 ---
 
-## 2. Inventário e Métricas dos Componentes Harne8
+## 2. Inventário e Métricas dos Componentes
 
 | # | Componente Slug | Caminho do Módulo | Linguagens | LOC Produção | LOC Testes | Arquivos | TODOs | Completude | Status |
 |---|---|---|---|---|---|---|---|---|---|
-`, now, commit, len(states), totalProd, totalTests, totalProd+totalTests, totalFiles, platformCompleteness*100, totalTODOs, totalFIXMEs, totalPanics, totalStubs, openSpecsCount, gapsCount)
+`, project, now, commit, len(states), totalProd, totalTests, totalProd+totalTests, totalFiles, platformCompleteness*100, totalTODOs, totalFIXMEs, totalPanics, totalStubs, openSpecsCount, gapsCount)
 
 	for i, st := range states {
 		langs := strings.Join(st.Metrics.Languages, ", ")
@@ -505,15 +603,18 @@ func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState)
 			i+1, st.ComponentSlug, st.Path, langs, st.Metrics.LOCProduction, st.Metrics.LOCTests, st.Metrics.TotalFiles, st.TechnicalDebt.TODOs, st.CompletenessScore*100, st.Status)
 	}
 
-	md += "\n---\n\n## 3. Arquitetura dos Subsistemas Harne8\n\n" +
-		"1. **Conductor & Harness Control Plane (`conductor`, `harness`)**:\n" +
-		"   - Orquestração de frota de agentes de IA, acompanhamento de execuções de runs e execução de sandboxes com suporte a SAGAs.\n" +
-		"2. **GraphForge Knowledge Subsystem (`graphforge/*`)**:\n" +
-		"   - Compilação de código AST (Rust/Go), indexadores (Git/Infra/Test), correlation engine OTel, enricher semântico LLM, motor de planejamento shadow graph e interface tri-engine Canvas 2D/3D (React 19).\n" +
-		"3. **Edge Gateway & Portal (`workers/app`, `site`)**:\n" +
-		"   - Gateway Cloudflare Workers, autenticação de sessão Portal, distribuição de magic links e site oficial Harne8.\n" +
-		"4. **Governança POSE & Enforce (`pose-dist/pose-mcp`, `pose-dist/mcp-enforce`, `contracts`)**:\n" +
-		"   - Servidor nativo `harne8-pose-mcp`, motor de aplicação de política OPA `mcp-enforce` e esquemas compartilhados Protobuf/OpenAPI.\n"
+	md += "\n---\n\n## 3. Topologia Observada\n\n"
+	if len(states) == 0 {
+		md += "Nenhum componente com manifesto ou metadado POSE foi observado.\n"
+	} else {
+		for _, st := range states {
+			langs := strings.Join(st.Metrics.Languages, ", ")
+			if langs == "" {
+				langs = "n/a"
+			}
+			md += fmt.Sprintf("- `%s`: caminho `%s`; linguagens %s; status `%s`.\n", st.ComponentSlug, st.Path, langs, st.Status)
+		}
+	}
 
 	file := filepath.Join(dir, "consolidated.md")
 	if err := os.WriteFile(file, []byte(md), 0o644); err != nil {
@@ -530,23 +631,18 @@ func (s Store) GenerateAssessmentsIndex(states []*ComponentDiscoveryState) error
 		return err
 	}
 
-	md := `# Harne8 Platform — Component Assessments Index
+	md := fmt.Sprintf(`# Component Assessments: %s
 
-> **Gerado Automaticamente por**: POSE Discovery Engine (` + "`pose assess discover`" + `)
+> **Gerado Automaticamente por**: POSE Discovery Engine (`+"`pose assess discover`"+`)
 
-## Assessments por Componente (` + fmt.Sprintf("%d Módulos", len(states)) + `)
+## Assessments por Componente (`+fmt.Sprintf("%d Módulos", len(states))+`)
 
 | #  | Componente Slug | Módulo / Path | Linguagens | LOC Produção | LOC Testes | Arquivos | Status | Relatório Markdown |
 |----|------------|---------------|-----------|--------------|------------|----------|--------|--------------------|
-`
+`, s.projectLabel())
 
 	for i, st := range states {
-		filename := st.ComponentSlug + ".md"
-		if strings.HasPrefix(st.ComponentSlug, "graphforge-") {
-			filename = strings.TrimPrefix(st.ComponentSlug, "graphforge-") + ".md"
-		} else if strings.HasPrefix(st.ComponentSlug, "pose-dist-") {
-			filename = strings.TrimPrefix(st.ComponentSlug, "pose-dist-") + ".md"
-		}
+		filename := slugifyAssessmentPath(st.ComponentSlug) + ".md"
 
 		langs := strings.Join(st.Metrics.Languages, ", ")
 		if langs == "" {
@@ -558,7 +654,7 @@ func (s Store) GenerateAssessmentsIndex(states []*ComponentDiscoveryState) error
 	}
 
 	md += "\n## Assessments Consolidados & Governança Global\n\n" +
-		"- **[Assessment Macro Consolidado da Plataforma Harne8](./consolidated.md)**\n" +
+		"- **[Assessment Consolidado do Projeto](./consolidated.md)**\n" +
 		"- **[Matriz de Integrações Inter-Componentes](./integrations.md)**\n" +
 		"- **[Relatório de Dívida Técnica & Backlog POSE](./technical-debt.md)**\n"
 
