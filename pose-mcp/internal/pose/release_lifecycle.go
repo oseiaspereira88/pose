@@ -131,6 +131,9 @@ func LoadReleaseFragments(dir string) ([]ReleaseFragment, error) {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") || entry.Name() == "README.md" || entry.Name() == ".gitkeep" {
 			continue
 		}
+		if entry.Type()&os.ModeSymlink != 0 {
+			return nil, fmt.Errorf("release fragment %s must not be a symlink", entry.Name())
+		}
 		path := filepath.Join(dir, entry.Name())
 		raw, err := os.ReadFile(path)
 		if err != nil {
@@ -252,6 +255,11 @@ func ProjectRelease(manifest *ReleaseManifest, events []ReleaseEvent) ReleasePro
 }
 
 func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
+	if version != "" {
+		if err := ValidateReleaseVersion(version); err != nil {
+			return nil, err
+		}
+	}
 	pending, err := LoadReleaseFragments(filepath.Join(s.Root, ".pose", "changelogs", "unreleased"))
 	if err != nil {
 		return nil, err

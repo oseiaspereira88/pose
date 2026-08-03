@@ -2,9 +2,11 @@ package cli
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -400,9 +402,13 @@ func validateReleaseEvidence(event, target string, e posemodel.ReleaseEvidence) 
 			return fmt.Errorf("publication/verification evidence requires URL, time and assets")
 		}
 		for name, digest := range e.Assets {
-			if name == "" || !assetDigestRE.MatchString(digest) {
+			if name == "" || filepath.Base(name) != name || !assetDigestRE.MatchString(digest) {
 				return fmt.Errorf("invalid asset digest for %s", name)
 			}
+		}
+		parsed, err := url.Parse(e.URL)
+		if err != nil || parsed.Scheme != "https" || parsed.Host == "" || parsed.User != nil {
+			return fmt.Errorf("publication URL must be canonical HTTPS without credentials")
 		}
 	}
 	if event == "verified" && e.Publication == "" {
@@ -438,7 +444,9 @@ func cmdReleaseRecord(root string, args []string, stdout, stderr io.Writer) int 
 		return 1
 	}
 	var evidence posemodel.ReleaseEvidence
-	if err := json.Unmarshal(raw, &evidence); err != nil {
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&evidence); err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
@@ -502,6 +510,14 @@ func confinedProjectPath(root, path string) (string, error) {
 	rel, err := filepath.Rel(root, full)
 	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
 		return "", fmt.Errorf("escape")
+	}
+	resolved, err := filepath.EvalSymlinks(full)
+	if err != nil {
+		return "", err
+	}
+	resolvedRel, err := filepath.Rel(root, resolved)
+	if err != nil || resolvedRel == ".." || strings.HasPrefix(resolvedRel, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("symlink escape")
 	}
 	return full, nil
 }
@@ -601,8 +617,13 @@ func cmdReleaseBackfill(root string, args []string, stdout, stderr io.Writer) in
 		rows = append(rows, r)
 	}
 	if releaseFlag(args, "--apply") {
-		fmt.Fprintln(stderr, "pose release backfill: apply cannot fabricate historical manifests; review the dry-run inventory")
-		return 1
+		path := filepath.Join(root, ".pose", "reports", "release-backfill.json")
+		if err := writeAtomic(path, posemodel.CanonicalJSON(rows), 0o644); err != nil {
+			fmt.Fprintln(stderr, err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "Recorded reviewed backfill inventory at %s; no release facts were fabricated.\n", path)
+		return 0
 	}
 	if releaseFlag(args, "--json") {
 		out, _ := json.MarshalIndent(rows, "", "  ")

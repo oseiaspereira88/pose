@@ -268,6 +268,7 @@ and publication confidence mechanically distinguishable.
 - modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/index.go
 - modified: pose-mcp/internal/cli/native_only_test.go
 - created: pose-mcp/internal/cli/release_lifecycle.go
 - created: pose-mcp/internal/cli/release_lifecycle_test.go
@@ -282,6 +283,7 @@ and publication confidence mechanically distinguishable.
 - created: pose-mcp/internal/pose/release_lifecycle_test.go
 - modified: pose-mcp/internal/scaffold/scaffold.go
 - modified: scripts/release.sh
+- created: .pose/indexes/releases.json
 
 ### Delivery targets
 - surface:release-lifecycle-cli module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go

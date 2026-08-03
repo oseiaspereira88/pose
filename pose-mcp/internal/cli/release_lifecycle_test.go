@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/version"
 )
 
@@ -81,5 +82,12 @@ func TestReleaseBackfillReportsArchiveWithoutFabricatingManifest(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, ".pose/releases/v0.9.0/manifest.json")); !os.IsNotExist(err) {
 		t.Fatal("backfill fabricated manifest")
+	}
+}
+
+func TestReleaseEvidenceRejectsCredentialsAndUnsafeAssetNames(t *testing.T) {
+	evidence := posemodel.ReleaseEvidence{SchemaVersion: 1, Provider: "github", Repository: "owner/repo", Version: "v1.0.0", Tag: "v1.0.0", Commit: strings.Repeat("a", 40), PublishedAt: "2026-08-03T00:00:00Z", URL: "https://token@example.com/release", Assets: map[string]string{"../pose": "sha256:" + strings.Repeat("b", 64)}}
+	if err := validateReleaseEvidence("published", "v1.0.0", evidence); err == nil {
+		t.Fatal("unsafe provider evidence accepted")
 	}
 }

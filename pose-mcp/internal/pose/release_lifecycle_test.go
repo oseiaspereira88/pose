@@ -1,6 +1,8 @@
 package pose
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -13,6 +15,19 @@ func TestReleaseManifestAndNotesAreDeterministic(t *testing.T) {
 	b := NewReleaseManifest("v1.2.0", "v1.1.0", "2026-08-03T00:00:00Z", fragments, policy, evidence)
 	if ReleaseDigest(a) != ReleaseDigest(b) || a.NotesDigest != ReleaseDigest(RenderReleaseNotes("v1.2.0", fragments)) {
 		t.Fatalf("release snapshot is not deterministic: %+v %+v", a, b)
+	}
+}
+
+func TestReleaseFragmentsRejectSymlinkEscape(t *testing.T) {
+	dir, outside := t.TempDir(), t.TempDir()
+	if err := os.WriteFile(filepath.Join(outside, "secret.md"), []byte("secret"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(filepath.Join(outside, "secret.md"), filepath.Join(dir, "escape.md")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadReleaseFragments(dir); err == nil {
+		t.Fatal("symlink release fragment escaped confinement")
 	}
 }
 
