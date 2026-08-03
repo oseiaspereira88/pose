@@ -111,12 +111,9 @@ func LoadArtifactPolicy(root string) (ArtifactPolicy, error) {
 }
 
 func ValidateArtifactPath(root, value string, allowDirectory bool) error {
-	if value == "" || filepath.IsAbs(value) || strings.ContainsAny(value, "*?[]{}") {
-		return fmt.Errorf("path must be an exact project-relative path")
-	}
-	clean := filepath.Clean(filepath.FromSlash(value))
-	if clean == "." || clean == ".." || strings.HasPrefix(clean, ".."+string(os.PathSeparator)) {
-		return fmt.Errorf("path escapes project root")
+	clean, err := validateArtifactPathSyntax(value)
+	if err != nil {
+		return err
 	}
 	joined := filepath.Join(root, clean)
 	rel, err := filepath.Rel(root, joined)
@@ -139,6 +136,17 @@ func ValidateArtifactPath(root, value string, allowDirectory bool) error {
 		}
 	}
 	return nil
+}
+
+func validateArtifactPathSyntax(value string) (string, error) {
+	if value == "" || filepath.IsAbs(value) || strings.ContainsAny(value, "*?[]{}") {
+		return "", fmt.Errorf("path must be an exact project-relative path")
+	}
+	clean := filepath.Clean(filepath.FromSlash(value))
+	if clean == "." || clean == ".." || strings.HasPrefix(clean, ".."+string(os.PathSeparator)) {
+		return "", fmt.Errorf("path escapes project root")
+	}
+	return clean, nil
 }
 
 func ParseArtifactClaims(spec Spec, policy ArtifactPolicy) ([]ArtifactClaim, bool, error) {
@@ -174,7 +182,7 @@ func ParseArtifactClaims(spec Spec, policy ArtifactPolicy) ([]ArtifactClaim, boo
 			if hasNone {
 				return nil, found, fmt.Errorf("pose: spec %s mixes none with artifact actions", spec.Slug)
 			}
-			if err := ValidateArtifactPath(".", value, false); err != nil {
+			if _, err := validateArtifactPathSyntax(value); err != nil {
 				return nil, found, fmt.Errorf("pose: spec %s artifact %q: %w", spec.Slug, value, err)
 			}
 			claim.Path = filepath.ToSlash(filepath.Clean(value))
@@ -187,7 +195,9 @@ func ParseArtifactClaims(spec Spec, policy ArtifactPolicy) ([]ArtifactClaim, boo
 				return nil, found, fmt.Errorf("pose: spec %s rename requires old/path -> new/path", spec.Slug)
 			}
 			claim.OldPath, claim.NewPath = filepath.ToSlash(filepath.Clean(strings.TrimSpace(pair[0]))), filepath.ToSlash(filepath.Clean(strings.TrimSpace(pair[1])))
-			if ValidateArtifactPath(".", claim.OldPath, false) != nil || ValidateArtifactPath(".", claim.NewPath, false) != nil || claim.OldPath == claim.NewPath {
+			_, oldErr := validateArtifactPathSyntax(claim.OldPath)
+			_, newErr := validateArtifactPathSyntax(claim.NewPath)
+			if oldErr != nil || newErr != nil || claim.OldPath == claim.NewPath {
 				return nil, found, fmt.Errorf("pose: spec %s has invalid rename paths", spec.Slug)
 			}
 		case "none":

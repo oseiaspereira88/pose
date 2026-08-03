@@ -99,8 +99,13 @@ func TestArtifactBackfillDryRunDoesNotMutateSpecs(t *testing.T) {
 		t.Fatalf("backfill code=%d err=%s", code, errOut.String())
 	}
 	after, _ := os.ReadFile(path)
-	if !bytes.Equal(before, after) || !strings.Contains(out.String(), `"dry_run": true`) {
+	if !bytes.Equal(before, after) || !strings.Contains(out.String(), `"dry_run": true`) || !strings.Contains(out.String(), `"confidence"`) {
 		t.Fatalf("dry run mutated spec or omitted marker")
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdArtifactBackfill(root, nil, &out, &errOut); code != 2 {
+		t.Fatalf("backfill without selector should be usage error: code=%d err=%s", code, errOut.String())
 	}
 }
 
@@ -123,7 +128,7 @@ func TestReportChangeSetPersistsImmutableGitEvidence(t *testing.T) {
 	if record.ChangeSet == nil || record.ChangeSet.ResolvedBase != base || record.ChangeSet.ResolvedHead != head || record.ChangeSet.DiffDigest == "" {
 		t.Fatalf("missing change-set evidence: %+v", record)
 	}
-	if !strings.Contains(record.StableHash, "") || record.StableHash == "" {
+	if record.StableHash == "" {
 		t.Fatal("change-set did not participate in stable record")
 	}
 }

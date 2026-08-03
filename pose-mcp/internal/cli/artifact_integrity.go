@@ -344,14 +344,16 @@ type artifactBackfillProposal struct {
 	SchemaVersion int                                 `json:"schema_version"`
 	DryRun        bool                                `json:"dry_run"`
 	Specs         map[string][]posemodel.ObservedPath `json:"specs"`
+	Confidence    map[string]string                   `json:"confidence"`
 	Conflicts     map[string][]string                 `json:"conflicts"`
 }
 
 func cmdArtifactBackfill(root string, args []string, stdout, stderr io.Writer) int {
-	apply, confirm := false, false
+	apply, confirm, fromGit := false, false, false
 	for _, arg := range args {
 		switch arg {
 		case "--from-git":
+			fromGit = true
 		case "--apply":
 			apply = true
 		case "--confirm-spec-edits":
@@ -359,6 +361,9 @@ func cmdArtifactBackfill(root string, args []string, stdout, stderr io.Writer) i
 		default:
 			return usageError(stderr, "Usage: pose artifact-backfill --from-git [--apply --confirm-spec-edits]")
 		}
+	}
+	if !fromGit {
+		return usageError(stderr, "Usage: pose artifact-backfill --from-git [--apply --confirm-spec-edits]")
 	}
 	if apply && !confirm {
 		fmt.Fprintln(stderr, "pose artifact-backfill: --apply requires --confirm-spec-edits")
@@ -370,7 +375,7 @@ func cmdArtifactBackfill(root string, args []string, stdout, stderr io.Writer) i
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
-	proposal := artifactBackfillProposal{SchemaVersion: 1, DryRun: !apply, Specs: map[string][]posemodel.ObservedPath{}, Conflicts: map[string][]string{}}
+	proposal := artifactBackfillProposal{SchemaVersion: 1, DryRun: !apply, Specs: map[string][]posemodel.ObservedPath{}, Confidence: map[string]string{}, Conflicts: map[string][]string{}}
 	pathOwners := map[string][]string{}
 	for _, spec := range specs {
 		set, err := resolveGitChangeSet(root, spec.Slug, "", "")
@@ -390,6 +395,15 @@ func cmdArtifactBackfill(root string, args []string, stdout, stderr io.Writer) i
 		if len(owners) > 1 {
 			sort.Strings(owners)
 			proposal.Conflicts[path] = owners
+		}
+	}
+	for slug, paths := range proposal.Specs {
+		proposal.Confidence[slug] = "high"
+		for _, observed := range paths {
+			if len(proposal.Conflicts[firstObservedCLIPath(observed)]) > 0 {
+				proposal.Confidence[slug] = "ambiguous"
+				break
+			}
 		}
 	}
 	if !apply {
