@@ -7,6 +7,7 @@ supersedes:          # slug da spec substituída (quando aplicável)
 depends_on:          # pré-requisitos, lista inline: outra-spec, milestone:<roadmap>/<id>, roadmap:<slug>
 priority:            # inteiro >= 0 (menor = mais prioritário); preferência de ordem, não pré-requisito
 components:          # opcional, lista inline separada por vírgula: módulos/componentes afetados (ex: mcp-server, cli) — usado pelo filtro `components` do `pose_list_specs`
+delivers:            # refs tipadas opcionais: surface:id, contract:id, capability:id, infrastructure:id, governance:id
 ---
 
 # Spec: <feature-slug>
@@ -70,6 +71,11 @@ components:          # opcional, lista inline separada por vírgula: módulos/co
 <!-- Declare paths exatos relativos ao projeto: created, modified, renamed
      (antigo -> novo), removed, ou uma entrada `none: <motivo>`. -->
 - modified: caminho/do/arquivo
+
+### Delivery targets
+<!-- Quando `delivers` estiver preenchido, declare exatamente as mesmas refs.
+     Profiles e evidenceClass vêm de validation-matrix.json. -->
+- surface:exemplo module:caminho/do/modulo profile:web-ui entrypoint:caminho/do/entrypoint-de-producao
 
 ### Mudanças de API/contrato
 - 
@@ -155,6 +161,8 @@ components:          # opcional, lista inline separada por vírgula: módulos/co
 ### Requirement trace
 <!-- No closeout, um bullet por R-ID declarado (spec pose-requirement-evidence-traceability):
 - R<N> [satisfied] <caso de verificação; refs estruturadas: check:<nome> test:<id> report:<arquivo> commit:<sha>>
+- R<N> [satisfied] surface:<id> evidence:integration check:<reachability-check>
+- R<N> [deferred-integration: spec:<slug-nao-terminal>] surface:<id>
 - R<N> [waived: <motivo>]
 - R<N> [withdrawn: <motivo>]
 IDs ausentes ou órfãos falham `pose lint-spec --strict` em specs done. -->

@@ -14,6 +14,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 type validationWhen struct {
@@ -27,13 +29,14 @@ type validationWhen struct {
 }
 
 type validationCheck struct {
-	Name     string            `json:"name"`
-	Command  string            `json:"command"`
-	Program  string            `json:"program"`
-	Args     []string          `json:"args"`
-	Env      map[string]string `json:"env"`
-	Severity string            `json:"severity"`
-	When     validationWhen    `json:"when"`
+	Name          string            `json:"name"`
+	Command       string            `json:"command"`
+	Program       string            `json:"program"`
+	Args          []string          `json:"args"`
+	Env           map[string]string `json:"env"`
+	Severity      string            `json:"severity"`
+	EvidenceClass string            `json:"evidenceClass,omitempty"`
+	When          validationWhen    `json:"when"`
 	// Runtime guardrails (spec pose-validation-runtime-guardrails).
 	TimeoutSeconds int    `json:"timeoutSeconds"` // 0 = defaults.timeoutSeconds (600)
 	Isolation      string `json:"isolation"`      // "" | "required" — required never runs locally
@@ -56,8 +59,9 @@ type validationMatrix struct {
 		TimeoutSeconds int    `json:"timeoutSeconds"` // safe default 600 when 0
 		MaxOutputBytes int    `json:"maxOutputBytes"` // safe default 1 MiB when 0
 	} `json:"defaults"`
-	Stacks          map[string]validationStack    `json:"stacks"`
-	ModuleOverrides map[string]validationOverride `json:"moduleOverrides"`
+	Stacks           map[string]validationStack           `json:"stacks"`
+	ModuleOverrides  map[string]validationOverride        `json:"moduleOverrides"`
+	DeliveryProfiles map[string]posemodel.DeliveryProfile `json:"deliveryProfiles,omitempty"`
 }
 
 func parseValidationMatrix(raw []byte) (validationMatrix, error) {
@@ -212,6 +216,62 @@ func validateStructuredMatrixPaths(matrix validationMatrix) error {
 	return nil
 }
 
+func validateDeliveryMatrixContract(matrix validationMatrix) error {
+	for scope, checks := range matrix.Stacks {
+		for _, check := range checks.Checks {
+			if check.EvidenceClass != "" && !posemodel.ValidEvidenceClasses[check.EvidenceClass] {
+				return fmt.Errorf("stacks.%s check %s has unknown evidenceClass %q", scope, check.Name, check.EvidenceClass)
+			}
+		}
+	}
+	for scope, override := range matrix.ModuleOverrides {
+		for _, check := range override.Checks {
+			if check.EvidenceClass != "" && !posemodel.ValidEvidenceClasses[check.EvidenceClass] {
+				return fmt.Errorf("moduleOverrides.%s check %s has unknown evidenceClass %q", scope, check.Name, check.EvidenceClass)
+			}
+		}
+	}
+	for name, profile := range matrix.DeliveryProfiles {
+		if _, _, err := posemodel.ParseDeliveryRef(profile.Kind + ":profile"); err != nil {
+			return fmt.Errorf("deliveryProfiles.%s has invalid kind %q", name, profile.Kind)
+		}
+		for _, class := range append(append([]string{}, profile.RequiredEvidenceClasses...), profile.AnyEvidenceClasses...) {
+			if !posemodel.ValidEvidenceClasses[class] {
+				return fmt.Errorf("deliveryProfiles.%s has unknown evidence class %q", name, class)
+			}
+		}
+		if profile.Kind == "surface" {
+			requiresReachability := false
+			for _, class := range profile.RequiredEvidenceClasses {
+				if class == "reachability" {
+					requiresReachability = true
+				}
+			}
+			hasIntegrationLevel := false
+			for _, class := range append(append([]string{}, profile.RequiredEvidenceClasses...), profile.AnyEvidenceClasses...) {
+				if class == "integration" || class == "e2e" {
+					hasIntegrationLevel = true
+				}
+			}
+			if !requiresReachability || !hasIntegrationLevel {
+				return fmt.Errorf("deliveryProfiles.%s surface profile requires reachability and integration/e2e evidence", name)
+			}
+		}
+		if profile.Kind == "capability" {
+			hasIntegration := false
+			for _, class := range append(append([]string{}, profile.RequiredEvidenceClasses...), profile.AnyEvidenceClasses...) {
+				if class == "integration" {
+					hasIntegration = true
+				}
+			}
+			if !hasIntegration {
+				return fmt.Errorf("deliveryProfiles.%s capability profile requires integration evidence", name)
+			}
+		}
+	}
+	return nil
+}
+
 func matrixHasLegacyChecks(matrix validationMatrix) bool {
 	for _, stack := range matrix.Stacks {
 		for _, check := range stack.Checks {
@@ -308,6 +368,10 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, cliText(locale, "Error: invalid validation matrix path: %v\n", "Erro: path inválido na matriz de validação: %v\n"), err)
 		return 2
 	}
+	if err := validateDeliveryMatrixContract(matrix); err != nil {
+		fmt.Fprintf(stderr, cliText(locale, "Error: invalid delivery validation contract: %v\n", "Erro: contrato de validação de delivery inválido: %v\n"), err)
+		return 2
+	}
 	if matrixHasLegacyChecks(matrix) {
 		fmt.Fprintln(stderr, cliText(locale, "Error: legacy shell 'command' checks are unsupported; migrate each check to program + args + env.", "Erro: checks shell legados em 'command' não são suportados; migre cada check para program + args + env."))
 		return 2
@@ -385,6 +449,14 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		ModuleFilter:  moduleFilter,
 		Checks:        []checkResult{},
 	}
+	matrixDigest := sha256.Sum256(raw)
+	run.MatrixSHA256 = "sha256:" + hex.EncodeToString(matrixDigest[:])
+	if head, err := gitOutputBounded(root, 1024, "rev-parse", "HEAD"); err == nil {
+		run.GitHead = strings.TrimSpace(string(head))
+	}
+	if graph, err := buildCurrentDeliveryGraph(root); err == nil {
+		run.ProvenanceDigest = graph.ProvenanceDigest
+	}
 	failures := 0
 	optionalFailures := 0
 	executed := 0
@@ -418,7 +490,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 					run.Checks = append(run.Checks, checkResult{
 						ID: module.Rel + "/" + stack + "/" + check.Name, Module: module.Rel,
 						Stack: stack, Name: check.Name, Program: check.Program,
-						Args: check.Args, Env: redactedEnv(check.Env), Severity: severity,
+						Args: check.Args, Env: redactedEnv(check.Env), Severity: severity, EvidenceClass: check.EvidenceClass,
 						Outcome: "skipped", SkipReason: reason,
 					})
 				}
@@ -441,7 +513,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			result := checkResult{
 				ID: module.Rel + "/" + stack + "/" + check.Name, Module: module.Rel,
 				Stack: stack, Name: check.Name, Program: check.Program,
-				Args: check.Args, Env: redactedEnv(check.Env), Severity: severity,
+				Args: check.Args, Env: redactedEnv(check.Env), Severity: severity, EvidenceClass: check.EvidenceClass,
 			}
 			if check.Isolation == "required" {
 				// The local CLI never weakens its boundary: isolated

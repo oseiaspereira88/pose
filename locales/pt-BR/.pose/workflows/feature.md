@@ -17,13 +17,15 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 2. Mapear módulos impactados e ler instruções locais relevantes.
 3. **Consultar `.pose/knowledge/`** por handoffs/notas/decision-logs relevantes ao escopo (busque pelo slug do módulo afetado e por temas correlatos). Cite os artefatos consultados na spec.
 4. Revisar spec existente (ou criar/atualizar) com intenção e tarefas.
-5. Planejar entregas em passos pequenos e reversíveis.
-6. Implementar incrementalmente, validando cada etapa.
-7. Rodar checks determinísticos aplicáveis (`test`, `lint`, `typecheck`, `build`).
-8. Verificar impacto em segurança, observabilidade e documentação operacional.
-9. **Produzir handoff** em `.pose/knowledge/` se houver contexto reaproveitável entre execuções (estado parcial, decisão pendente, follow-up para próximo owner). Use `./pose new-knowledge handoff <slug>` e referencie a spec em `source_refs`.
-10. Consolidar resultado final com riscos residuais e próximos passos.
-11. **Fechar a spec** (skill `pose-spec-closeout`): definir `status: done` e `completed_at` no frontmatter; dar disposição a cada follow-up (`./pose followups --all` mostra o backlog cruzado e colisões); passar o gate `./pose lint-spec <slug> --strict`.
+5. Declarar ações exatas em `### Artifacts` e reconciliar com `pose artifact-check`.
+6. Planejar entregas em passos pequenos e reversíveis.
+7. Implementar incrementalmente, validando cada etapa.
+8. Quando houver `delivers`, gerar resultado estruturado e exigir `pose surface-check --spec <slug> --strict`.
+9. Rodar checks determinísticos aplicáveis (`test`, `lint`, `typecheck`, `build`).
+10. Verificar impacto em segurança, observabilidade e documentação operacional.
+11. **Produzir handoff** em `.pose/knowledge/` se houver contexto reaproveitável entre execuções (estado parcial, decisão pendente, follow-up para próximo owner). Use `./pose new-knowledge handoff <slug>` e referencie a spec em `source_refs`.
+12. Consolidar resultado final com riscos residuais e próximos passos.
+13. **Fechar a spec** (skill `pose-spec-closeout`): definir `status: done` e `completed_at` no frontmatter; dar disposição a cada follow-up (`./pose followups --all` mostra o backlog cruzado e colisões); passar o gate `./pose lint-spec <slug> --strict`.
 
 ## Saídas obrigatórias
 

@@ -782,6 +782,15 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_delivery_integrity: invalid arguments")
 		}
 		return store.GetDeliveryIntegrity(a.Path)
+	case "pose_surface_assurance":
+		var a struct {
+			Ref     string `json:"ref"`
+			Roadmap string `json:"roadmap"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_surface_assurance: invalid arguments")
+		}
+		return store.GetSurfaceAssurance(a.Ref, a.Roadmap)
 	case "pose_get_changelog":
 		var a struct {
 			Version string `json:"version"`
@@ -1423,6 +1432,18 @@ func toolDefinitions() []map[string]any {
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
+				},
+			},
+		},
+		{
+			"name":        "pose_surface_assurance",
+			"description": "Read the project-scoped surface and composition projection from the shared delivery-integrity graph, including typed targets, entrypoints, current evidence, explainable paths, roadmap criteria and findings.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"ref":        map[string]any{"type": "string", "description": "Optional typed delivery ref, e.g. surface:dashboard"},
+					"roadmap":    map[string]any{"type": "string", "description": "Optional roadmap slug for cut-criterion status"},
+					"project_id": map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
 			},
 		},

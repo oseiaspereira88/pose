@@ -152,7 +152,7 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
-	case "review", "review-check", "closeout-check", "close", "continuous-closeout", "artifact-check", "artifact-backfill":
+	case "review", "review-check", "closeout-check", "close", "continuous-closeout", "artifact-check", "artifact-backfill", "surface-check", "roadmap-check":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
@@ -171,6 +171,10 @@ func Main(args []string, stdout, stderr io.Writer) int {
 			return cmdArtifactCheck(root, args, stdout, stderr)
 		case "artifact-backfill":
 			return cmdArtifactBackfill(root, args, stdout, stderr)
+		case "surface-check":
+			return cmdSurfaceCheck(root, args, stdout, stderr)
+		case "roadmap-check":
+			return cmdRoadmapCheck(root, args, stdout, stderr)
 		default:
 			return cmdClose(root, args, stdout, stderr)
 		}
@@ -323,7 +327,7 @@ Scaffolds:
 Deterministic gates:
   check | validate | knowledge-check | recurrence-check | lint-spec |
   followups | amend | history-check | skills-check | review-check | closeout-check |
-  artifact-check
+  artifact-check | surface-check | roadmap-check
 
 Governed closeout:
   review record <scope> [...]           Record an immutable review attempt
@@ -373,7 +377,7 @@ Scaffold:
 Gates determinísticos:
   check | validate | knowledge-check | recurrence-check | lint-spec |
   followups | amend | history-check | skills-check | review-check | closeout-check |
-  artifact-check
+  artifact-check | surface-check | roadmap-check
 
 Fechamento governado:
   review record <escopo> [...]          Registra tentativa imutável de review

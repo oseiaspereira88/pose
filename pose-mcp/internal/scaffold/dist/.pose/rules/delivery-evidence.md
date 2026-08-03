@@ -20,6 +20,10 @@ current-state sections in specs or proposals, and messages that say something is
   against an immutable Git change set before claiming delivery.
 - Treat artifact declarations, Git observations and delivery verification as
   separate evidence; none proves the others by itself.
+- For typed delivery targets, require a path from reconciled artifacts through
+  a production entrypoint to current structured validation results. A surface
+  requires reachability plus integration/e2e evidence; a composed capability
+  requires integration evidence.
 
 ## Blocking anti-patterns
 
@@ -35,6 +39,8 @@ current-state sections in specs or proposals, and messages that say something is
 - Run `pose validate --strict` for every module the document claims to deliver.
 - Run `pose lint-spec` when the document is a spec.
 - Run `pose artifact-check --strict` when the scope changes governed source-tree paths.
+- Run `pose surface-check --strict` for specs with `delivers` and `pose
+  roadmap-check --strict` before a roadmap claims completion.
 
 ## Precedence in multi-domain conflicts
 

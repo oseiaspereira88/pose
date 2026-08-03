@@ -248,7 +248,7 @@ func buildCurrentDeliveryGraph(root string) (posemodel.DeliveryIntegrityGraph, e
 	if err != nil {
 		return posemodel.DeliveryIntegrityGraph{}, err
 	}
-	return posemodel.BuildDeliveryIntegrity(specs, claims, sets, tracked, policy), nil
+	return extendCurrentDeliveryGraph(root, posemodel.BuildDeliveryIntegrity(specs, claims, sets, tracked, policy))
 }
 
 func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int {

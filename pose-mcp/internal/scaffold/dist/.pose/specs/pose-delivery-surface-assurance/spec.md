@@ -1,12 +1,13 @@
 ---
 slug: pose-delivery-surface-assurance
-status: draft
+status: in-progress
 created_at: 2026-08-02
 completed_at:
 supersedes:
 depends_on: pose-artifact-provenance-ledger
 priority: 2
 components: pose-mcp, cli, validation, roadmaps, mcp, scaffold
+delivers: surface:delivery-integrity-cli, capability:delivery-integrity-graph, contract:delivery-integrity-mcp
 ---
 
 # Spec: Delivery surface and composition assurance
@@ -185,6 +186,59 @@ preventing spec-local success from rolling up to a false roadmap completion.
 - Add policy for delivery-root detection, profile requirements, evidence
   freshness and staged enforcement.
 
+### Delivery targets
+- surface:delivery-integrity-cli module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:delivery-integrity-graph module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+- contract:delivery-integrity-mcp module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
+
+### Artifacts
+- modified: .agents/skills/README.md
+- modified: .pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/module-metadata.json
+- modified: .pose/indexes/spec-graph.json
+- modified: .pose/indexes/task-map.json
+- modified: .pose/indexes/validation-matrix.json
+- modified: .pose/rules/delivery-evidence.md
+- modified: .pose/specs/pose-delivery-surface-assurance/spec.md
+- modified: .pose/templates/spec.md
+- modified: .pose/workflows/feature.md
+- modified: POSE.md
+- modified: docs-site/docs/cli.md
+- modified: docs-site/docs/mcp.md
+- modified: locales/pt-BR/.pose/rules/delivery-evidence.md
+- modified: locales/pt-BR/.pose/templates/spec.md
+- modified: locales/pt-BR/.pose/workflows/feature.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/skills_check_test.go
+- modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/cli/validate_results.go
+- modified: pose-mcp/internal/mcpserver/catalog.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/server_test.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- modified: pose-mcp/internal/pose/delivery_integrity.go
+- modified: pose-mcp/internal/pose/spec.go
+- modified: pose-mcp/internal/pose/trace.go
+- modified: pose-mcp/internal/scaffold/scaffold.go
+- created: .agents/skills/pose-surface-closeout/SKILL.md
+- created: .pose/policy/delivery.json
+- created: .pose/rules/delivery-surface.md
+- created: .pose/workflows/ui-surface.md
+- created: locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md
+- created: locales/pt-BR/.pose/rules/delivery-surface.md
+- created: locales/pt-BR/.pose/workflows/ui-surface.md
+- created: pose-mcp/internal/cli/surface_check.go
+- created: pose-mcp/internal/cli/surface_check_test.go
+- created: pose-mcp/internal/mcpserver/surface_assurance_tool_test.go
+- created: pose-mcp/internal/pose/delivery_surface.go
+- created: pose-mcp/internal/pose/delivery_surface_test.go
+
 ### Technical risks
 - A weak repository-authored reachability test can still pass; reference kits
   and negative fixtures must define minimum production-entrypoint semantics.
@@ -295,6 +349,20 @@ framework.
   report, index and roadmap contracts inspected; implementation checks pending.
 - 2026-08-02, planning validation: readiness and strict lint passed; the full Go
   suite and embedded-scaffold parity passed after regenerating the mirror.
+- 2026-08-03, implementation start: dependency milestone
+  `provenance-foundation` is terminal; the shared ADR was selected and the
+  risk-based plan below activated before code changes.
+
+### Risk-based test plan
+
+| Scenario | Command | Expected evidence |
+|---|---|---|
+| Unit — typed refs, targets and profiles | `go -C pose-mcp test ./internal/pose -run 'Delivery|Surface' -count=1` | Frontmatter/body equality, closed refs and profile invariants pass; drift and unknown classes fail. |
+| Integration — false-green composition | `go -C pose-mcp test ./internal/cli -run 'SurfaceCheck|RoadmapCheck' -count=1` | Green artifact/unit evidence cannot satisfy unreachable surfaces or uncomposed capabilities. |
+| Contract — structured validation | `go -C pose-mcp test ./internal/cli -run 'EvidenceClass|ValidationResult' -count=1` | Evidence classes persist with provenance digest and stale results fail. |
+| Contract — CLI/MCP graph parity | `go -C pose-mcp test ./internal/mcpserver -run 'SurfaceAssurance|DeliveryIntegrity' -count=1` | Same graph, paths, criteria and findings are project-scoped. |
+| Security — confined criteria | `go -C pose-mcp test ./internal/pose ./internal/cli -run 'RoadmapCriteria|SurfaceSecurity' -count=1` | Raw commands, traversal and unknown refs/classes are rejected without execution. |
+| Required module gate | `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json --report` | Unit/build/integration/reachability results are current and reusable by surface closeout. |
 
 ### Results summary
 - Successes: The plan composes surface assurance with the artifact ledger,

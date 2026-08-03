@@ -439,6 +439,32 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: done without a '### Requirement trace' subsection in Validation (legacy spec; new closeouts must trace every R-ID)\n", "[AVISO] %s: done sem subseção '### Requirement trace' em Validation (spec legada; novos closeouts devem rastrear cada R-ID)\n"), slug)
 		}
 	}
+	if root, err := projectRoot(); err == nil {
+		if deliveryPolicy, err := posepkg.LoadDeliveryPolicy(root); err != nil {
+			fmt.Fprintf(stderr, "[ERROR] %s: delivery policy: %v\n", slug, err)
+			traceFailures++
+		} else if deliveryPolicy.Enabled {
+			store := posepkg.Store{Root: root}
+			if full, err := store.GetSpec(slug); err == nil {
+				targets, found, parseErr := posepkg.ParseDeliveryTargets(*full)
+				if parseErr != nil {
+					fmt.Fprintf(stderr, "[ERROR] %s: delivery targets: %v\n", slug, parseErr)
+					traceFailures++
+				} else if (found || len(full.Delivers) > 0) && specStatus == "done" {
+					statuses := map[string]string{}
+					if summaries, err := store.ListSpecs("", ""); err == nil {
+						for _, item := range summaries {
+							statuses[item.Slug] = item.Status
+						}
+					}
+					for _, message := range posepkg.ValidateDeliveryTrace(*full, targets, statuses) {
+						fmt.Fprintf(stderr, "[ERROR] %s: delivery trace: %s\n", slug, message)
+						traceFailures++
+					}
+				}
+			}
+		}
+	}
 
 	// Amendment history gate (spec pose-spec-amendment-history): when the
 	// append-only event log exists, a done spec must acknowledge the current

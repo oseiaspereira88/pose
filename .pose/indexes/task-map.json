@@ -139,6 +139,18 @@
       "knowledge_consume": false,
       "knowledge_produce": "handoff (quando follow-up [open] precisar de owner futuro)",
       "validation": "./pose lint-spec <slug> --strict"
+    },
+    "surface-closeout": {
+      "description": "Fechamento de delivery tipado com composição, reachability, evidência atual e critérios de roadmap.",
+      "workflow": ".pose/workflows/ui-surface.md",
+      "skill": "pose-surface-closeout",
+      "rules": ["security", "documentation-style", "delivery-evidence", "delivery-surface"],
+      "rules_by_domain": {"frontend": ["frontend-react"], "backend-go": ["backend-go"]},
+      "requires_spec": true,
+      "requires_adr": false,
+      "knowledge_consume": true,
+      "knowledge_produce": "handoff quando composição permanecer bloqueada",
+      "validation": "pose surface-check --spec <slug> --strict; pose roadmap-check <roadmap> --strict"
     }
   }
 }

@@ -2,6 +2,21 @@
   "defaults": {
     "mode": "strict"
   },
+  "deliveryProfiles": {
+    "cli-surface": {
+      "kind": "surface",
+      "requiredEvidenceClasses": ["reachability"],
+      "anyEvidenceClasses": ["integration", "e2e"]
+    },
+    "composed-capability": {
+      "kind": "capability",
+      "requiredEvidenceClasses": ["integration"]
+    },
+    "api-contract": {
+      "kind": "contract",
+      "requiredEvidenceClasses": ["integration"]
+    }
+  },
   "stacks": {
     "node": {
       "checks": [
@@ -37,13 +52,15 @@
           "name": "test",
           "program": "go",
           "args": ["test", "./..."],
-          "severity": "required"
+          "severity": "required",
+          "evidenceClass": "unit"
         },
         {
           "name": "vet",
           "program": "go",
           "args": ["vet", "./..."],
-          "severity": "optional"
+          "severity": "optional",
+          "evidenceClass": "build"
         }
       ]
     },
@@ -163,5 +180,25 @@
       ]
     }
   },
-  "moduleOverrides": {}
+  "moduleOverrides": {
+    "pose-mcp": {
+      "stack": "go",
+      "checks": [
+        {
+          "name": "delivery-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "Delivery|Surface|RoadmapCheck", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "delivery-reachability",
+          "program": "go",
+          "args": ["test", "./internal/cli", "./internal/mcpserver", "-run", "Surface|DeliveryIntegrity|RoadmapCheck", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "reachability"
+        }
+      ]
+    }
+  }
 }

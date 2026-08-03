@@ -16,6 +16,9 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
   descreve intenção; não afirme que a intenção é realidade.
 - Para `done`, referencie o report ou a evidência que cruzou o gate de saída da spec.
 - Converta datas relativas em absolutas; carimbe a data da verificação.
+- Separe artifact declarado, mudança Git observada e composição verificada.
+- Para delivery targets, exija path até entrypoint de produção e resultado atual:
+  surfaces usam reachability + integration/e2e; capabilities usam integration.
 
 ## Anti-padrões bloqueadores
 
@@ -31,6 +34,8 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 - `./pose check --strict` (estrutura + enum de status das specs).
 - `./pose validate --strict` no(s) módulo(s) que o documento afirma entregar.
 - `./pose lint-spec` quando o documento for uma spec.
+- `pose artifact-check --strict` para source-tree governada e `pose
+  surface-check --strict` quando houver `delivers`.
 
 ## Precedência em conflito multi-domínio
 

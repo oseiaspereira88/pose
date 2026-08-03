@@ -79,6 +79,7 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	checker.checkSpecs()
 	checker.checkReviewCloseout()
 	checker.checkArtifactContracts()
+	checker.checkDeliveryContracts()
 	checker.checkChangelogs()
 	checker.checkReadyTransitions()
 	checker.checkCapabilities()
@@ -93,6 +94,39 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "Resultado: SUCESSO — estrutura POSE válida (modo %s).\n", mode)
 	return 0
+}
+
+func (checker *nativeChecker) checkDeliveryContracts() {
+	policy, err := pose.LoadDeliveryPolicy(checker.root)
+	if err != nil {
+		checker.failOrWarn("delivery contract: " + err.Error())
+		return
+	}
+	if !policy.Enabled {
+		return
+	}
+	store := pose.Store{Root: checker.root}
+	paths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*", "spec.md"))
+	for _, path := range paths {
+		fm := simpleFrontmatter(path)
+		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
+			continue
+		}
+		slug := filepath.Base(filepath.Dir(path))
+		full, err := store.GetSpec(slug)
+		if err != nil {
+			checker.failOrWarn("delivery contract: spec:" + slug + ": " + err.Error())
+			continue
+		}
+		targets, found, err := pose.ParseDeliveryTargets(*full)
+		if err != nil || len(full.Delivers) > 0 && (!found || len(targets) == 0) {
+			checker.failOrWarn(fmt.Sprintf("delivery contract: spec:%s: %v", slug, err))
+			continue
+		}
+		for _, blocker := range deliverySpecBlockers(checker.root, slug) {
+			checker.failOrWarn("delivery contract: spec:" + slug + ": " + blocker)
+		}
+	}
 }
 
 func (checker *nativeChecker) checkArtifactContracts() {
@@ -248,7 +282,7 @@ func (checker *nativeChecker) checkValidationMatrix() {
 		checker.failOrWarn(checker.message("validation-matrix.json: invalid JSON: ", "validation-matrix.json: JSON inválido: ") + err.Error())
 		return
 	}
-	allowedTop := map[string]bool{"defaults": true, "stacks": true, "moduleOverrides": true}
+	allowedTop := map[string]bool{"defaults": true, "stacks": true, "moduleOverrides": true, "deliveryProfiles": true}
 	for key := range document {
 		if !allowedTop[key] {
 			checker.failOrWarn(checker.message("validation-matrix.json: root: unknown key '", "validation-matrix.json: root: chave desconhecida '") + key + "'")
@@ -264,10 +298,33 @@ func (checker *nativeChecker) checkValidationMatrix() {
 	}
 	checker.validateMatrixObjects(document, "stacks", map[string]bool{"checks": true})
 	checker.validateMatrixObjects(document, "moduleOverrides", map[string]bool{"stack": true, "mode": true, "checks": true, "replaceDefaultChecks": true})
+	if profiles, exists := document["deliveryProfiles"]; exists {
+		objects, ok := profiles.(map[string]any)
+		if !ok {
+			checker.failOrWarn("validation-matrix.json: deliveryProfiles: must be an object")
+		} else {
+			allowed := map[string]bool{"kind": true, "requiredEvidenceClasses": true, "anyEvidenceClasses": true}
+			for name, raw := range objects {
+				profile, ok := raw.(map[string]any)
+				if !ok {
+					checker.failOrWarn("validation-matrix.json: deliveryProfiles." + name + ": must be an object")
+					continue
+				}
+				for key := range profile {
+					if !allowed[key] {
+						checker.failOrWarn("validation-matrix.json: deliveryProfiles." + name + ": unknown key '" + key + "'")
+					}
+				}
+			}
+		}
+	}
 	matrix, err := parseValidationMatrix(raw)
 	if err != nil {
 		checker.failOrWarn("validation-matrix.json: " + err.Error())
 		return
+	}
+	if err := validateDeliveryMatrixContract(matrix); err != nil {
+		checker.failOrWarn("validation-matrix.json: " + err.Error())
 	}
 	for stackName, stack := range matrix.Stacks {
 		for index, check := range stack.Checks {
@@ -291,7 +348,7 @@ func (checker *nativeChecker) validateMatrixObjects(document map[string]any, fie
 		checker.failOrWarn("validation-matrix.json: " + field + checker.message(": must be an object", ": deve ser objeto"))
 		return
 	}
-	allowedCheck := map[string]bool{"name": true, "command": true, "program": true, "args": true, "env": true, "severity": true, "when": true}
+	allowedCheck := map[string]bool{"name": true, "command": true, "program": true, "args": true, "env": true, "severity": true, "when": true, "timeoutSeconds": true, "isolation": true, "evidenceClass": true}
 	for name, rawObject := range objects {
 		object, ok := rawObject.(map[string]any)
 		if !ok {

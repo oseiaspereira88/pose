@@ -21,13 +21,14 @@ Deliver a production feature with clear scope, incremental implementation, and d
 6. Plan small, reversible delivery increments.
 7. Implement incrementally and validate each meaningful step.
 8. Run `pose artifact-check --spec <slug> --from <base> --to <head> --strict` against an immutable attributed change set.
-9. Run applicable deterministic checks: test, lint, typecheck, and build.
-10. Review security, observability, and operational-documentation impact.
-11. Create a reusable handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, a pending decision, or a follow-up; link the spec through `source_refs`.
-12. Summarize the result, residual risks, and next steps.
-13. Run a separate review pass and record its immutable attempt with `pose review record spec:<slug> ... --apply`.
-14. Require `pose closeout-check spec:<slug>` before applying `pose close spec:<slug>`; remediate and re-review when the digest or findings block closure.
-15. Complete follow-up and changelog disposition, then pass `pose lint-spec <slug> --strict`.
+9. When the spec declares `delivers`, run validation to a structured result and require `pose surface-check --spec <slug> --strict`; build/unit alone never prove composition or reachability.
+10. Run applicable deterministic checks: test, lint, typecheck, and build.
+11. Review security, observability, and operational-documentation impact.
+12. Create a reusable handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, a pending decision, or a follow-up; link the spec through `source_refs`.
+13. Summarize the result, residual risks, and next steps.
+14. Run a separate review pass and record its immutable attempt with `pose review record spec:<slug> ... --apply`.
+15. Require `pose closeout-check spec:<slug>` before applying `pose close spec:<slug>`; remediate and re-review when the digest or findings block closure.
+16. Complete follow-up and changelog disposition, then pass `pose lint-spec <slug> --strict`.
 
 ## Required outputs
 

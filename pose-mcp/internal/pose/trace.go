@@ -54,11 +54,11 @@ var (
 	traceReqLineRE   = regexp.MustCompile(`^\s*-\s*(R\d+)\s*(?:\[(\w+)\])?\s*[:—-]\s*(.*\S)?\s*$`)
 	traceEntryRE     = regexp.MustCompile(`^\s*-\s*(R\d+)\s*\[\s*([a-z-]+)\s*(?::\s*([^\]]+?)\s*)?\]\s*(.*?)\s*$`)
 	traceBulletRE    = regexp.MustCompile(`^\s*-\s*R\d+`)
-	traceRefRE       = regexp.MustCompile(`\b(check|test|report|commit):[^\s,;)\]]+`)
+	traceRefRE       = regexp.MustCompile(`\b(check|test|report|commit|evidence|surface|contract|capability|infrastructure|governance|artifact):[^\s,;)\]]+`)
 	traceHeadingRE   = regexp.MustCompile(`^##\s+\d+\.\s+(.+?)\s*$`)
 	traceSubheadRE   = regexp.MustCompile(`^###\s+(.+?)\s*$`)
 	traceCommentRE   = regexp.MustCompile(`(?s)<!--.*?-->`)
-	validTraceStatus = map[string]bool{"satisfied": true, "waived": true, "withdrawn": true}
+	validTraceStatus = map[string]bool{"satisfied": true, "waived": true, "withdrawn": true, "deferred-integration": true}
 )
 
 // ParseRequirementTrace extracts requirements (section 2) and trace entries
@@ -104,7 +104,7 @@ func ParseRequirementTrace(body string) RequirementTrace {
 			}
 			id, disposition, reason, evidence := m[1], m[2], strings.TrimSpace(m[3]), strings.TrimSpace(m[4])
 			if !validTraceStatus[disposition] {
-				trace.Errors = append(trace.Errors, id+": invalid trace disposition ["+disposition+"] (use satisfied|waived|withdrawn)")
+				trace.Errors = append(trace.Errors, id+": invalid trace disposition ["+disposition+"] (use satisfied|waived|withdrawn|deferred-integration)")
 				continue
 			}
 			if disposition != "satisfied" && reason == "" {

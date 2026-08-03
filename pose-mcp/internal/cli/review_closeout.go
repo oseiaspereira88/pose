@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -284,8 +285,27 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 				return 1
 			}
 		}
+		if policy, err := posemodel.LoadDeliveryPolicy(root); err != nil {
+			fmt.Fprintf(stderr, "pose close: %v\n", err)
+			return 1
+		} else if policy.Enabled && sp.CreatedAt >= policy.AdoptedAt {
+			if blockers := deliverySpecBlockers(root, sp.Slug); len(blockers) > 0 {
+				fmt.Fprintf(stderr, "pose close: delivery assurance gate failed: %s\n", strings.Join(blockers, "; "))
+				return 1
+			}
+		}
 		path = sp.Path
 	} else {
+		if policy, err := posemodel.LoadDeliveryPolicy(root); err != nil {
+			fmt.Fprintf(stderr, "pose close: %v\n", err)
+			return 1
+		} else if policy.Enabled {
+			var gateOut, gateErr bytes.Buffer
+			if code := cmdRoadmapCheck(root, []string{scope.Slug, "--strict"}, &gateOut, &gateErr); code != 0 {
+				fmt.Fprintf(stderr, "pose close: roadmap delivery gate failed: %s%s", gateErr.String(), gateOut.String())
+				return 1
+			}
+		}
 		path = filepath.Join(root, ".pose", "roadmaps", scope.Slug+".md")
 	}
 	if err := applyLifecycleDone(path, scope.Kind == "spec"); err != nil {

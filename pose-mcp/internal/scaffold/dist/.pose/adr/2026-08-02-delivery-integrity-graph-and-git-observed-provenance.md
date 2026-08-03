@@ -39,6 +39,20 @@ Adopt the schema additively. Legacy narratives produce migration findings;
 policy activation dates and governed roots control enforcement. Surface
 assurance extends the graph without changing provenance node or edge semantics.
 
+Delivery refs use the closed kinds `surface`, `contract`, `capability`,
+`infrastructure` and `governance`. Their declaration creates `delivers`,
+`implemented-by`, `composes` or `reaches`, and `validated-by` edges. Validation
+checks carry a closed `evidenceClass`; profiles require classes while results
+remain a distinct witness bound to the provenance digest. Surface profiles
+always require `reachability` and one of `integration` or `e2e`; composed
+capabilities require `integration` from the production composition root.
+
+Roadmap cut criteria may reference only typed delivery refs, registered
+`check:` names, `evidence:` levels or confined `manual-review:` reports. Raw
+command text is rejected and never reaches the executor. A criterion is a
+`gates` edge, not executable content, and roadmap success requires current
+member closeout plus passing referenced evidence and no required graph finding.
+
 ## Consequences
 
 - Positive: spec→artifact and artifact→spec traversal share one reproducible

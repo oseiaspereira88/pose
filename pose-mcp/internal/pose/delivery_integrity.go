@@ -76,14 +76,19 @@ type DeliveryIntegrityEdge struct {
 }
 
 type DeliveryIntegrityGraph struct {
-	SchemaVersion int                        `json:"schema_version"`
-	InputDigest   string                     `json:"input_digest"`
-	Nodes         []DeliveryIntegrityNode    `json:"nodes"`
-	Edges         []DeliveryIntegrityEdge    `json:"edges"`
-	Claims        []ArtifactClaim            `json:"claims"`
-	ChangeSets    []ChangeSet                `json:"change_sets"`
-	Reverse       map[string][]string        `json:"reverse"`
-	Findings      []DeliveryIntegrityFinding `json:"findings"`
+	SchemaVersion     int                        `json:"schema_version"`
+	InputDigest       string                     `json:"input_digest"`
+	ProvenanceDigest  string                     `json:"provenance_digest,omitempty"`
+	Nodes             []DeliveryIntegrityNode    `json:"nodes"`
+	Edges             []DeliveryIntegrityEdge    `json:"edges"`
+	Claims            []ArtifactClaim            `json:"claims"`
+	ChangeSets        []ChangeSet                `json:"change_sets"`
+	Reverse           map[string][]string        `json:"reverse"`
+	Findings          []DeliveryIntegrityFinding `json:"findings"`
+	Deliveries        []DeliveryTarget           `json:"deliveries,omitempty"`
+	ValidationResults []DeliveryValidationResult `json:"validation_results,omitempty"`
+	RoadmapCriteria   []RoadmapCriterion         `json:"roadmap_criteria,omitempty"`
+	Paths             map[string][]string        `json:"paths,omitempty"`
 }
 
 func LoadArtifactPolicy(root string) (ArtifactPolicy, error) {
@@ -319,6 +324,12 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 	raw, _ := json.Marshal(input)
 	sum := sha256.Sum256(raw)
 	graph.InputDigest = "sha256:" + hex.EncodeToString(sum[:])
+	provenanceRaw, _ := json.Marshal(struct {
+		Claims []ArtifactClaim `json:"claims"`
+		ChangeSets []ChangeSet `json:"change_sets"`
+	}{graph.Claims, graph.ChangeSets})
+	provenanceSum := sha256.Sum256(provenanceRaw)
+	graph.ProvenanceDigest = "sha256:" + hex.EncodeToString(provenanceSum[:])
 	return graph
 }
 

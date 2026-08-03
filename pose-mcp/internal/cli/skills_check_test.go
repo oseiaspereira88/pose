@@ -178,8 +178,8 @@ func TestSkillsCheckDiscoveryAndBoundedWorkflowFixture(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("this repository's own skills must pass conformance (dogfood): %s\n%s", out.String(), errB.String())
 	}
-	if !strings.Contains(out.String(), "skills.checked=9") {
-		t.Errorf("expected exactly 9 discovered skills, got: %s", out.String())
+	if !strings.Contains(out.String(), "skills.checked=10") {
+		t.Errorf("expected exactly 10 discovered skills, got: %s", out.String())
 	}
 }
 

@@ -64,6 +64,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_project_state` | Current project state in one call: curated + derived sections (specs/roadmaps, follow-ups, capabilities, decisions/knowledge, validation evidence, architecture), staleness and tamper detection |
 | `pose_closeout_state` | Hierarchical review state, child blockers, next governed action and terminal closeout for a typed scope |
 | `pose_delivery_integrity` | Artifact claims, Git-observed change sets, reverse path provenance and stable findings from one project-scoped graph |
+| `pose_surface_assurance` | Typed delivery targets, production entrypoints, current evidence, explainable composition paths and roadmap criteria from the same graph |
 | `pose_list_roadmaps` / `pose_get_roadmap` | Governed roadmaps and their milestone DAGs |
 | `pose_get_changelog` | User-facing changelog fragments |
 | `pose_get_followups` | Aggregated follow-up backlog |

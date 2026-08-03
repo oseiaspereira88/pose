@@ -30,7 +30,8 @@ type checkResult struct {
 	Args            []string          `json:"args,omitempty"`
 	Env             map[string]string `json:"env,omitempty"` // configured only, secret values redacted
 	Severity        string            `json:"severity"`      // required | optional
-	Outcome         string            `json:"outcome"`       // pass | fail | error | skipped
+	EvidenceClass   string            `json:"evidence_class,omitempty"`
+	Outcome         string            `json:"outcome"` // pass | fail | error | skipped
 	SkipReason      string            `json:"skip_reason,omitempty"`
 	ExitCode        *int              `json:"exit_code,omitempty"`
 	DurationSeconds float64           `json:"duration_seconds"`
@@ -59,11 +60,14 @@ func (l *outputLimiter) Write(p []byte) (int, error) {
 }
 
 type validationRunResult struct {
-	SchemaVersion int    `json:"schema_version"`
-	GeneratedAt   string `json:"generated_at"`
-	Mode          string `json:"mode"`
-	StackFilter   string `json:"stack_filter,omitempty"`
-	ModuleFilter  string `json:"module_filter,omitempty"`
+	SchemaVersion    int    `json:"schema_version"`
+	GeneratedAt      string `json:"generated_at"`
+	Mode             string `json:"mode"`
+	StackFilter      string `json:"stack_filter,omitempty"`
+	ModuleFilter     string `json:"module_filter,omitempty"`
+	GitHead          string `json:"git_head,omitempty"`
+	MatrixSHA256     string `json:"matrix_sha256,omitempty"`
+	ProvenanceDigest string `json:"provenance_digest,omitempty"`
 	// Outcome semantics (R3): fail = required check failed; partial =
 	// tolerated (optional or infra-only) failures; pass = everything green.
 	Outcome string        `json:"outcome"`

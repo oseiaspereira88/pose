@@ -121,6 +121,9 @@
     "pose_suggest": {
       "risk": "read"
     },
+    "pose_surface_assurance": {
+      "risk": "read"
+    },
     "pose_tech_debt_check": {
       "risk": "read"
     },
@@ -365,6 +368,27 @@
         "type": "object"
       },
       "name": "pose_delivery_integrity"
+    },
+    {
+      "description": "Read the project-scoped surface and composition projection from the shared delivery-integrity graph, including typed targets, entrypoints, current evidence, explainable paths, roadmap criteria and findings.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "ref": {
+            "description": "Optional typed delivery ref, e.g. surface:dashboard",
+            "type": "string"
+          },
+          "roadmap": {
+            "description": "Optional roadmap slug for cut-criterion status",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_surface_assurance"
     },
     {
       "description": "Read the changelog state (pose-release-changelog): pending unreleased fragments (one per delivered spec) and consolidated release versions; pass a version to load its full body.",

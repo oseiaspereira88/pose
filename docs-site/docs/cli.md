@@ -26,6 +26,9 @@ without Bash or Python fallbacks and works offline.
 | `pose knowledge-check [--max-overdue N]` | Knowledge schema + overdue backlog |
 | `pose recurrence-check [--window-days N] [--threshold T]` | Recurring failing task slugs |
 | `pose history-check` | All history JSONL must be git-tracked |
+| `pose artifact-check --spec S [--from A --to B]` | Reconcile declared artifacts with an immutable Git change set |
+| `pose surface-check [--spec S] [--results P]` | Prove composition/reachability with current typed validation evidence |
+| `pose roadmap-check <slug>` | Evaluate member closeout, registered cut criteria and required delivery findings |
 
 ## Discovery, metrics, artifacts
 

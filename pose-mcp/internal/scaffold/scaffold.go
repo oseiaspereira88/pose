@@ -36,5 +36,6 @@ var ClaudeSkillLinks = map[string]string{
 	"pose-recurrence-escalation": "../../.agents/skills/pose-recurrence-escalation",
 	"pose-review":                "../../.agents/skills/pose-review",
 	"pose-spec-closeout":         "../../.agents/skills/pose-spec-closeout",
+	"pose-surface-closeout":      "../../.agents/skills/pose-surface-closeout",
 	"pose-test-plan":             "../../.agents/skills/pose-test-plan",
 }

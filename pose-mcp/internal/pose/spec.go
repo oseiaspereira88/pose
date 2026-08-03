@@ -24,6 +24,7 @@ type Spec struct {
 	DependsOn   []string `json:"depends_on,omitempty"`
 	Priority    *int     `json:"priority,omitempty"`
 	Components  []string `json:"components,omitempty"`
+	Delivers    []string `json:"delivers,omitempty"`
 	Title       string   `json:"title,omitempty"`
 	Path        string   `json:"path"`
 	Body        string   `json:"body,omitempty"`
@@ -279,6 +280,8 @@ func parseSpecFile(path, slug string, includeBody bool) (*Spec, error) {
 			}
 		case "components":
 			sp.Components = parseInlineList(value)
+		case "delivers":
+			sp.Delivers = parseInlineList(value)
 		}
 	}
 	sp.Title = firstHeading(body)
