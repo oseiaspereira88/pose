@@ -90,7 +90,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          assets="$(find dist-release -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum | jq -Rn '[inputs | capture("^(?<digest>[0-9a-f]{64})  (?<path>.+)$") | {key:(.path|split("/")|last),value:("sha256:"+.digest)}] | from_entries')"
+          assets="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$GITHUB_REF_NAME" --jq '[.assets[] | select(.name != "publication-evidence.json") | {key:.name,value:.digest}] | from_entries')"
           jq -n \
             --arg provider github \
             --arg repository "$GITHUB_REPOSITORY" \
