@@ -1,21 +1,21 @@
 # Harne8 Platform Macro Assessment & Monorepo Consolidation
 
 > **Gerado por**: POSE Discovery Engine (`pose assess discover`)
-> **Data de Avaliação**: 2026-08-03T04:07:50Z
-> **Baseline Commit**: a69466b51c4f
+> **Data de Avaliação**: 2026-08-03T05:22:06Z
+> **Baseline Commit**: 45b6bfd70d66
 
 ---
 
 ## 1. Resumo Executivo da Plataforma Harne8
 
 - **Total de Componentes Auditados**: 2
-- **Linhas de Código de Produção**: 28427
-- **Linhas de Código de Testes**: 15267
-- **Total Geral de Linhas de Código**: 43694
-- **Total de Arquivos Auditados**: 205
-- **Completude Dinâmica da Plataforma**: 35.2%
+- **Linhas de Código de Produção**: 29588
+- **Linhas de Código de Testes**: 15550
+- **Total Geral de Linhas de Código**: 45138
+- **Total de Arquivos Auditados**: 210
+- **Completude Dinâmica da Plataforma**: 37.2%
 - **Dívidas Técnicas em Aberto**: 38 TODOs | 30 FIXMEs | 4 Panics | 27 Stubs
-- **Especificações (Specs) em Aberto**: 2
+- **Especificações (Specs) em Aberto**: 1
 - **Gaps de Integração Identificados**: 8
 
 ---
@@ -25,7 +25,7 @@
 | # | Componente Slug | Caminho do Módulo | Linguagens | LOC Produção | LOC Testes | Arquivos | TODOs | Completude | Status |
 |---|---|---|---|---|---|---|---|---|---|
 | 01 | `mcp-enforce` | `mcp-enforce` | `go` | 1036 | 943 | 24 | 0 | 86% | `in_progress` |
-| 02 | `pose-mcp` | `pose-mcp` | `go` | 27391 | 14324 | 181 | 38 | 16% | `needs_attention` |
+| 02 | `pose-mcp` | `pose-mcp` | `go` | 28552 | 14607 | 186 | 38 | 16% | `needs_attention` |
 
 ---
 

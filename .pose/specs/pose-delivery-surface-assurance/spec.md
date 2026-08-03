@@ -1,8 +1,8 @@
 ---
 slug: pose-delivery-surface-assurance
-status: in-progress
+status: done
 created_at: 2026-08-02
-completed_at:
+completed_at: 2026-08-03
 supersedes:
 depends_on: pose-artifact-provenance-ledger
 priority: 2

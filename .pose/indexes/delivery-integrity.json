@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:2d378c3328939c58d8cc03eea90ad6712051dac0793dc2247b5a19b9225deddb",
+  "input_digest": "sha256:c7638e1a74a2a5c99212c9f2dce8e2a234a00b82c6e5e1fc5e774589de57dd56",
   "provenance_digest": "sha256:4fb66a2e5b32b71db99f8dc89a47a5df8bd81da1a379651ff2a6711b7fb86f40",
   "nodes": [
     {
@@ -849,7 +849,7 @@
       "id": "spec:pose-delivery-surface-assurance",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -3795,14 +3795,44 @@
       "type": "composes"
     },
     {
+      "from": "delivery:capability:delivery-integrity-graph",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:contract:delivery-integrity-mcp",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
     },
     {
+      "from": "delivery:contract:delivery-integrity-mcp",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:surface:delivery-integrity-cli",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "reaches"
+    },
+    {
+      "from": "delivery:surface:delivery-integrity-cli",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
     },
     {
       "from": "spec:pose-artifact-provenance-ledger",
@@ -6534,15 +6564,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-06b2e9e7f755",
-      "code": "surface-without-reachability",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "surface:delivery-integrity-cli",
-      "message": "required current evidence is missing: reachability, one-of:integration|e2e",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
-    },
-    {
       "id": "dif-0724c915668e",
       "code": "orphan",
       "severity": "warning",
@@ -7077,16 +7098,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-49006dd1c2b2",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "capability:delivery-integrity-graph",
-      "change_set": "pose-mcp/go/delivery-integration",
-      "message": "passed integration evidence is bound to a different provenance digest",
-      "remediation": "rerun the registered validation check for the current source provenance"
-    },
-    {
       "id": "dif-49918be9cfc8",
       "code": "orphan",
       "severity": "warning",
@@ -7183,7 +7194,7 @@
       "code": "roadmap-criterion",
       "severity": "warning",
       "path": "delivery-integrity",
-      "message": "C5: cut criterion requires a registered delivery, check or manual-review ref",
+      "message": "C6: cut criterion requires a registered delivery, check or manual-review ref",
       "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
     {
@@ -7191,23 +7202,7 @@
       "code": "roadmap-criterion",
       "severity": "warning",
       "path": "delivery-integrity",
-      "message": "C9: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C4: cut criterion requires a registered delivery, check or manual-review ref",
-      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
-    },
-    {
-      "id": "dif-587714dcd435",
-      "code": "roadmap-criterion",
-      "severity": "warning",
-      "path": "delivery-integrity",
-      "message": "C3: cut criterion requires a registered delivery, check or manual-review ref",
+      "message": "malformed or executable cut criterion: - C1: All four specs are `done`, each requirement has current trace evidence,",
       "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
     {
@@ -7223,7 +7218,23 @@
       "code": "roadmap-criterion",
       "severity": "warning",
       "path": "delivery-integrity",
-      "message": "malformed or executable cut criterion: - C1: All four specs are `done`, each requirement has current trace evidence,",
+      "message": "C3: cut criterion requires a registered delivery, check or manual-review ref",
+      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
+    },
+    {
+      "id": "dif-587714dcd435",
+      "code": "roadmap-criterion",
+      "severity": "warning",
+      "path": "delivery-integrity",
+      "message": "C4: cut criterion requires a registered delivery, check or manual-review ref",
+      "remediation": "reference registered delivery refs, checks or confined manual-review reports"
+    },
+    {
+      "id": "dif-587714dcd435",
+      "code": "roadmap-criterion",
+      "severity": "warning",
+      "path": "delivery-integrity",
+      "message": "C5: cut criterion requires a registered delivery, check or manual-review ref",
       "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
     {
@@ -7247,7 +7258,7 @@
       "code": "roadmap-criterion",
       "severity": "warning",
       "path": "delivery-integrity",
-      "message": "malformed or executable cut criterion: - C10: Historical backfill reports the real `v0.9.0` directory and later tags",
+      "message": "C9: cut criterion requires a registered delivery, check or manual-review ref",
       "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
     {
@@ -7255,7 +7266,7 @@
       "code": "roadmap-criterion",
       "severity": "warning",
       "path": "delivery-integrity",
-      "message": "C6: cut criterion requires a registered delivery, check or manual-review ref",
+      "message": "malformed or executable cut criterion: - C10: Historical backfill reports the real `v0.9.0` directory and later tags",
       "remediation": "reference registered delivery refs, checks or confined manual-review reports"
     },
     {
@@ -7375,16 +7386,6 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-671ee82c71a4",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "contract:delivery-integrity-mcp",
-      "change_set": "pose-mcp/go/delivery-integration",
-      "message": "passed integration evidence is bound to a different provenance digest",
-      "remediation": "rerun the registered validation check for the current source provenance"
     },
     {
       "id": "dif-676e29dd5c90",
@@ -7513,24 +7514,6 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-6f1be76aee76",
-      "code": "unconsumed-capability",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "contract:delivery-integrity-mcp",
-      "message": "required current evidence is missing: integration",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
-    },
-    {
-      "id": "dif-6f99b2968655",
-      "code": "unconsumed-capability",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "capability:delivery-integrity-graph",
-      "message": "required current evidence is missing: integration",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-703dd562372a",
@@ -8881,16 +8864,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-fce8968fe6f1",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-delivery-surface-assurance",
-      "path": "surface:delivery-integrity-cli",
-      "change_set": "pose-mcp/go/delivery-reachability",
-      "message": "passed reachability evidence is bound to a different provenance digest",
-      "remediation": "rerun the registered validation check for the current source provenance"
-    },
-    {
       "id": "dif-fd1d33d69a64",
       "code": "orphan",
       "severity": "warning",
@@ -8968,9 +8941,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "b6b0c10afdfc2eae05cc9bdfeae96f124e1557e8",
-      "generated_at": "2026-08-03T05:17:12Z",
-      "provenance_digest": "sha256:650e1dc562099c35cd696359e7a1f8b13fde2fb89e3a6b302c2e14a6cf507be0",
+      "git_head": "f62f58ad1da381e9c59338cec9f3b6e1116325ea",
+      "generated_at": "2026-08-03T05:20:42Z",
+      "provenance_digest": "sha256:4fb66a2e5b32b71db99f8dc89a47a5df8bd81da1a379651ff2a6711b7fb86f40",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -8980,9 +8953,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "b6b0c10afdfc2eae05cc9bdfeae96f124e1557e8",
-      "generated_at": "2026-08-03T05:17:12Z",
-      "provenance_digest": "sha256:650e1dc562099c35cd696359e7a1f8b13fde2fb89e3a6b302c2e14a6cf507be0",
+      "git_head": "f62f58ad1da381e9c59338cec9f3b6e1116325ea",
+      "generated_at": "2026-08-03T05:20:42Z",
+      "provenance_digest": "sha256:4fb66a2e5b32b71db99f8dc89a47a5df8bd81da1a379651ff2a6711b7fb86f40",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -8992,9 +8965,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "b6b0c10afdfc2eae05cc9bdfeae96f124e1557e8",
-      "generated_at": "2026-08-03T05:17:12Z",
-      "provenance_digest": "sha256:650e1dc562099c35cd696359e7a1f8b13fde2fb89e3a6b302c2e14a6cf507be0",
+      "git_head": "f62f58ad1da381e9c59338cec9f3b6e1116325ea",
+      "generated_at": "2026-08-03T05:20:42Z",
+      "provenance_digest": "sha256:4fb66a2e5b32b71db99f8dc89a47a5df8bd81da1a379651ff2a6711b7fb86f40",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -9004,9 +8977,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "b6b0c10afdfc2eae05cc9bdfeae96f124e1557e8",
-      "generated_at": "2026-08-03T05:17:12Z",
-      "provenance_digest": "sha256:650e1dc562099c35cd696359e7a1f8b13fde2fb89e3a6b302c2e14a6cf507be0",
+      "git_head": "f62f58ad1da381e9c59338cec9f3b6e1116325ea",
+      "generated_at": "2026-08-03T05:20:42Z",
+      "provenance_digest": "sha256:4fb66a2e5b32b71db99f8dc89a47a5df8bd81da1a379651ff2a6711b7fb86f40",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -9062,7 +9035,8 @@
       "artifact:pose-mcp/internal/pose/trace.go",
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "delivery:capability:delivery-integrity-graph",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
     ],
     "contract:delivery-integrity-mcp": [
       "spec:pose-delivery-surface-assurance",
@@ -9115,7 +9089,8 @@
       "artifact:pose-mcp/internal/pose/trace.go",
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "delivery:contract:delivery-integrity-mcp",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
     ],
     "surface:delivery-integrity-cli": [
       "spec:pose-delivery-surface-assurance",
@@ -9168,7 +9143,8 @@
       "artifact:pose-mcp/internal/pose/trace.go",
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "delivery:surface:delivery-integrity-cli",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-reachability"
     ]
   }
 }
