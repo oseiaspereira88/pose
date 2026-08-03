@@ -1,8 +1,8 @@
 ---
 slug: pose-release-evidence-trigger-fix
-status: in-progress
+status: done
 created_at: 2026-08-03
-completed_at:
+completed_at: 2026-08-03
 supersedes:
 depends_on: pose-release-lifecycle-closure
 priority: 0

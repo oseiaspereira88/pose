@@ -26,11 +26,11 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-a48b875a0fc7
-- Selector: range:3ee2b03..6bdd0f9
+- ID: cs-5bde4dcd0cda
+- Selector: range:3ee2b03..cada81e
 - Base: 3ee2b03 (3ee2b03c38a768d9922465d274c289fde813dfa1)
-- Head: 6bdd0f9 (6bdd0f95b46544a8b90abcba0713fdbb977cf8e4)
-- Diff digest: sha256:0fff30cdbf0ba47f067bd318cec50717a857ad378db57b3bbead4dec38108165
+- Head: cada81e (cada81ebe0fb3171b07e6ff5387d624dcfb46920)
+- Diff digest: sha256:ba5044e520e0f0dc2033ce4a1954f48dcc8161e8647159b3ee407448089597b1
 - Paths:
   - created: .pose/changelogs/unreleased/pose-release-evidence-trigger-fix.md
   - created: .pose/reports/2026-08-03-release-evidence-trigger-fix-review.md
@@ -54,6 +54,7 @@
   - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
   - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
   - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
+  - modified: pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json
   - modified: pose-mcp/internal/scaffold/dist/README.md
   - modified: pose-mcp/internal/scaffold/dist/install.sh
   - modified: pose-mcp/internal/version/contract_test.go
@@ -61,17 +62,17 @@
   - modified: pose-mcp/server.json
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-03T14:28:21Z
+- Generated at (UTC): 2026-08-03T14:29:08Z
 - Context: not-provided
 - Validation profile: not-provided
-- Sequence for task/spec: 2
-- Stable comparison hash: 03000eadfdd97644daae9f4478cf60a43b108c393efd886345f523a6394a6401
+- Sequence for task/spec: 3
+- Stable comparison hash: 7ea5ed2b7da56ed2ded48375b4674cf22092f32238268d58666ca41b9d8f8d1c
 
 ## Historical Comparison
-- Previous execution: 2026-08-03T14:27:19Z
+- Previous execution: 2026-08-03T14:28:21Z
 - Status: changed
 - Stable field diffs:
-- change_set: "" -> "sha256:0fff30cdbf0ba47f067bd318cec50717a857ad378db57b3bbead4dec38108165:3ee2b03c38a768d9922465d274c289fde813dfa1:6bdd0f95b46544a8b90abcba0713fdbb977cf8e4"
+- change_set: "" -> "sha256:ba5044e520e0f0dc2033ce4a1954f48dcc8161e8647159b3ee407448089597b1:3ee2b03c38a768d9922465d274c289fde813dfa1:cada81ebe0fb3171b07e6ff5387d624dcfb46920"
 
 ## Risks
 - _No risks provided_

@@ -1,8 +1,8 @@
 ---
 slug: pose-release-evidence-trigger-fix
-status: in-progress
+status: done
 created_at: 2026-08-03
-completed_at:
+completed_at: 2026-08-03
 supersedes:
 depends_on: pose-release-lifecycle-closure
 priority: 0
@@ -57,7 +57,9 @@ internal files not present in the public release. Both produce false confidence.
 - modified: .github/workflows/release.yml
 - modified: .github/workflows/verify-release.yml
 - modified: pose-mcp/internal/version/contract_test.go
-- modified: .pose/specs/pose-release-evidence-trigger-fix/spec.md
+- created: .pose/specs/pose-release-evidence-trigger-fix/spec.md
+- modified: docs-site/docs/ci.md
+- modified: pose-mcp/internal/version/version.go
 
 ### Delivery targets
 - governance:release-integrity module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
