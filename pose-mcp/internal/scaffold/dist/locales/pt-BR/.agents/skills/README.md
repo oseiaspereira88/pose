@@ -27,11 +27,11 @@ seções `Required reading`, `Steps`, `Output requirements`.
 Para descobrir a skill canônica + rules adicionais por domínio:
 
 ```bash
-./pose suggest <tipo-de-tarefa> [--path <dir>] [--json]
+pose suggest <tipo-de-tarefa> [--path <dir>] [--json]
 ```
 
 Fonte de verdade: [`.pose/indexes/task-map.json`](../../.pose/indexes/task-map.json).
-Mudanças em workflows/skills/rules referenciados são validadas por `./pose check`.
+Mudanças em workflows/skills/rules referenciados são validadas por `pose check`.
 
 ## Regra de escopo
 

@@ -10,6 +10,7 @@ source_refs:
   spec: ""
   workflow: ""
   commands: []
+  external_sources: []  # [{url: "", accessed_at: "YYYY-MM-DD"}]
 ---
 
 # <type>: <slug>
@@ -36,4 +37,4 @@ source_refs:
 
 ## References
 
-<!-- Links to spec, ADR, commits, incidents, dashboards. -->
+<!-- Links to spec, ADR, commits, incidents, dashboards. Cite external sources with URL and access date. -->

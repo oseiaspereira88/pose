@@ -22,11 +22,13 @@ Verify that a change is correct, production-safe, and aligned with its approved 
 7. Evaluate security, observability, and performance risks.
 8. Require validation evidence from `.pose/indexes/validation-matrix.json` proportional to risk.
 9. Identify regression and rollout or rollback risks.
-10. Classify findings by severity and propose objective actions.
-11. Create and link a handoff when findings result in accepted risk, post-merge monitoring, or deferred work.
-12. Issue a final decision: approved, approved with reservations, or rejected.
-13. Record the decision against the canonical scope digest with `pose review record <scope> ... --apply`.
-14. Run `pose review-check <scope>` and reject stale, incomplete or conflicting attempts.
+10. **Run `pose assess tech-debt`**: inspect whether the diff introduced markers (`TODO`, `FIXME`, `stub`, `panic`) without coverage by follow-up or spec.
+11. **Run `pose assess integrate`**: verify whether the change broke inter-component integration contracts or introduced new gaps.
+12. Classify findings by severity and propose objective actions.
+13. Create and link a handoff when findings result in accepted risk, post-merge monitoring, or deferred work.
+14. Issue a final decision: approved, approved with reservations, or rejected.
+15. Record the decision against the canonical scope digest with `pose review record <scope> ... --apply`.
+16. Run `pose review-check <scope>` and reject stale, incomplete or conflicting attempts.
 
 ## Required rule selection
 

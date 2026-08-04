@@ -26,7 +26,7 @@ Fluxo POSE para registrar decisões arquiteturais.
    ```
 3. Criar ADR com título conciso e descritivo:
    ```bash
-   ./pose new-adr "<título da decisão>"
+   pose new-adr "<título da decisão>"
    ```
 4. Preencher seções no arquivo gerado em `.pose/adr/<data>-<slug>.md`:
    - **Status**: `Proposed` | `Accepted` | `Superseded by <adr>`
@@ -36,7 +36,7 @@ Fluxo POSE para registrar decisões arquiteturais.
 5. Linkar módulos/serviços impactados e trade-offs descartados.
 6. Se a decisão cria gatilho de revisão futura (ex.: "rever em 6m"), criar decision-log para rastreio:
    ```bash
-   ./pose new-knowledge decision-log adr-<slug>-revisita --owner @<squad> --ttl-days 90
+   pose new-knowledge decision-log adr-<slug>-revisita --owner @<squad> --ttl-days 90
    ```
 7. Atualizar spec relacionada (se houver) referenciando a ADR em `Decisions`.
 

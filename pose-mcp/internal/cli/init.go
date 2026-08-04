@@ -21,6 +21,8 @@ var instanceDirs = []string{
 	".pose/roadmaps",
 	".pose/changelogs/unreleased",
 	".pose/feedback",
+	".pose/assessments",
+	".pose/state",
 	".agents/skills",
 }
 

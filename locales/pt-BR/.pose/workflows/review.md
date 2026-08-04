@@ -8,7 +8,7 @@ Validar se a mudança está correta, segura para produção e alinhada ao escopo
 
 - Diff final está disponível e legível por commits/lotes coesos.
 - Contexto de requisito/spec da mudança está acessível.
-- Evidências de validação do implementador estão anexadas (incluindo saída de `./pose validate`).
+- Evidências de validação do implementador estão anexadas (incluindo saída de `pose validate`).
 - Critérios de aceite e risco esperado foram definidos.
 
 ## Checklist de execução
@@ -20,11 +20,13 @@ Validar se a mudança está correta, segura para produção e alinhada ao escopo
 4. Revisar aderência às specs, contratos e instruções locais.
 5. Checar correção funcional e consistência de casos limite.
 6. Avaliar riscos de segurança, observabilidade e performance.
-7. Exigir evidência do `check` `./pose validate` conforme matriz `.pose/indexes/validation-matrix.json` e cobertura proporcional ao risco.
-8. Identificar regressões potenciais e impactos de rollout/rollback.
-9. Classificar achados por severidade e sugerir ações objetivas.
-10. **Produzir handoff** em `.pose/knowledge/` quando achados resultarem em risco aceito, monitoramento pós-merge ou ação postergada (`./pose new-knowledge handoff <slug>`); link no parecer.
-11. Emitir decisão final: aprovado, aprovado com ressalvas ou reprovado.
+7. **Executar `pose assess tech-debt` (`pose_tech_debt_check`)**: Inspecionar se o diff introduziu marcadores (`TODO`, `FIXME`, `stub`, `panic`) sem a devida cobertura de follow-up ou spec.
+8. **Executar `pose assess integrate` (`pose_integration_check`)**: Verificar se a alteração quebrou contratos de integração inter-componentes ou introduziu novos gaps.
+9. Exigir evidência do `check` `pose validate` conforme matriz `.pose/indexes/validation-matrix.json` e cobertura proporcional ao risco.
+10. Identificar regressões potenciais e impactos de rollout/rollback.
+11. Classificar achados por severidade e sugerir ações objetivas.
+12. **Produzir handoff** em `.pose/knowledge/` quando achados resultarem em risco aceito, monitoramento pós-merge ou ação postergada (`pose new-knowledge handoff <slug>`); link no parecer.
+13. Emitir decisão final: aprovado, aprovado com ressalvas ou reprovado.
 
 ## Seleção obrigatória de `rules` por PR/tarefa
 
@@ -98,7 +100,7 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 ### Validação
 
 - Confirmar cobertura de `check` proporcional ao risco: `lint`, `typecheck`, `test`, `build`.
-- Exigir evidência de execução de `./pose validate` e resultados relevantes.
+- Exigir evidência de execução de `pose validate` e resultados relevantes.
 - Registrar limitações de ambiente e riscos residuais de validação.
 
 ## Checklist rápido de aderência editorial
@@ -134,7 +136,7 @@ Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais re
 - `.pose/rules/documentation-style.md`: validada consistência editorial em docs/spec.
 
 ## Checks e evidências
-- `check`: `./pose validate` (ok)
+- `check`: `pose validate` (ok)
 - `check`: `go test ./...` no módulo backend (ok)
 - `check`: `pnpm lint && pnpm test` no módulo frontend (ok)
 - `check`: `helm template` + `kubectl apply --dry-run=client` (ok)

@@ -51,13 +51,22 @@ when transitioning to `done`.
 4. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
 5. Propose each consequential disposition and obtain confirmation before writing it.
 6. Apply `pose close spec:<slug>`; use a manual lifecycle edit only when the Git workflow requires it and preserve the same gate.
-7. Run `pose lint-spec <slug> --strict`.
-8. Create any confirmed successor spec and revalidate its intent instead of copying follow-up text verbatim.
-9. Inspect residual live backlog with `pose followups --open --json`.
+7. Produce a **changelog fragment** for the delivered spec:
+   ```bash
+   cp .pose/templates/changelog-fragment.md .pose/changelogs/unreleased/<slug>.md
+   # fill category/breaking and the user-facing summary (derive from Intent, not implementation)
+   ```
+   Internal work with no user-facing effect: set `changelog: none` in the spec
+   frontmatter instead of creating a fragment. `pose check` warns on done specs
+   without a fragment (post-adoption).
+8. Run `pose lint-spec <slug> --strict`.
+9. Create any confirmed successor spec and revalidate its intent instead of copying follow-up text verbatim.
+10. Inspect residual live backlog with `pose followups --open --json`.
 
 ## Output requirements
 
 - `status: done` and populated `completed_at`.
+- Changelog fragment in `.pose/changelogs/unreleased/<slug>.md` (or `changelog: none` in the spec frontmatter).
 - Valid disposition on every Final Report follow-up.
 - User confirmation before `spawned`, `covered`, or `duplicate`.
 - Successful strict spec lint.

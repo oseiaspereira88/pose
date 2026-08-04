@@ -9,7 +9,7 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 ## Convenções obrigatórias
 
 - Declare entrega apenas com **evidência de gate verificável** anexada: comando + saída
-  (`./pose validate`, `go test`, `tsc`, `vitest`) ou link ao report POSE correspondente.
+  (`pose validate`, `go test`, `tsc`, `vitest`) ou link ao report POSE correspondente.
 - Use o vocabulário de estado do POSE: `draft` · `in-progress` · `done` · `blocked` ·
   `superseded` · `abandoned`. Não invente rótulos (`completed`, `100% COMPLETE`).
 - Separe **implementado e verificado** de **planejado/documentado**. Documento de plano
@@ -22,7 +22,7 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 
 ## Anti-padrões bloqueadores
 
-- Declarar "100% COMPLETE"/"pronto para produção" sem `./pose validate --strict` verde
+- Declarar "100% COMPLETE"/"pronto para produção" sem `pose validate --strict` verde
   no(s) módulo(s) afetado(s).
 - Doc de entrega que contradiz outro doc do mesmo escopo (ex.: "delivery report" diz
   completo e "gaps analysis" diz incompleto) — reconcilie antes de publicar.
@@ -31,9 +31,10 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 
 ## Checks mínimos
 
-- `./pose check --strict` (estrutura + enum de status das specs).
-- `./pose validate --strict` no(s) módulo(s) que o documento afirma entregar.
-- `./pose lint-spec` quando o documento for uma spec.
+- `pose check --strict` (estrutura + enum de status das specs).
+- `pose validate --strict` no(s) módulo(s) que o documento afirma entregar.
+- `pose lint-spec` quando o documento for uma spec.
+- `pose assess discover --update-state` ao fechar specs para atualizar métricas de completude, dívida técnica e relatórios sob `.pose/assessments/` e `.pose/state/`.
 - `pose artifact-check --strict` para source-tree governada e `pose
   surface-check --strict` quando houver `delivers`.
 

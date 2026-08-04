@@ -37,6 +37,18 @@ On conflict: (1) direct instruction of the current task; (2) the most specific
 - Skills for recurring tasks: [`.agents/skills/`](.agents/skills/)
 - Native automation entrypoint: the `pose` Go binary (`pose help`).
 
+## Assessment Tool Execution Timing
+
+AI agents must use assessment tools at specific points in the flow:
+
+1. **Task / Spec Start (`pose-feature`)**:
+   - Run `pose assess discover [--component <dir>]` to obtain LOC metrics, debts, and module structure before modifying code.
+2. **Inter-Module Contract Change / PR Review (`pose-review`)**:
+   - Run `pose assess integrate` when touching Protobuf, Kafka, REST APIs, or MCP tools.
+   - Run `pose assess tech-debt` during code review to ensure markers (`TODO`, `FIXME`, `stub`, `panic`) are covered by follow-ups or specs.
+3. **Spec Closure (`pose-spec-closeout`)**:
+   - Run `pose assess discover --update-state` upon delivery completion to recalculate dynamic platform completeness and update `.pose/assessments/` and `.pose/state/`.
+
 ## Domain rules
 
 Apply the rules relevant to the scope, cumulatively:

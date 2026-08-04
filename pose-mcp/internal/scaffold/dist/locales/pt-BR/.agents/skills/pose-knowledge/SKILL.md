@@ -29,7 +29,7 @@ TTL padrão 30 dias (`--ttl-days N`, máximo 90 conforme rule).
 ### Criar artefato
 
 ```bash
-./pose new-knowledge handoff <slug-do-tema> --owner @<squad> --ttl-days 30
+pose new-knowledge handoff <slug-do-tema> --owner @<squad> --ttl-days 30
 ```
 
 Edite o arquivo gerado em `.pose/knowledge/<data>-<type>-<slug>.md`:
@@ -40,7 +40,7 @@ Edite o arquivo gerado em `.pose/knowledge/<data>-<type>-<slug>.md`:
 ### Validar
 
 ```bash
-./pose knowledge-check --strict
+pose knowledge-check --strict
 ```
 
 Falha em strict se: frontmatter inválido (type, sensitivity, datas, TTL > 90d) ou backlog vencido.
@@ -54,9 +54,9 @@ find .pose/knowledge -name "*<modulo-ou-tema>*.md" -type f -not -path '*/archive
 ### Housekeeping (manutenção)
 
 ```bash
-./pose knowledge-housekeeping list-expired
-./pose knowledge-housekeeping archive-expired --apply
-./pose knowledge-housekeeping purge-archived --apply   # após 180d arquivado
+pose knowledge-housekeeping list-expired
+pose knowledge-housekeeping archive-expired --apply
+pose knowledge-housekeeping purge-archived --apply   # após 180d arquivado
 ```
 
 ## Restrições
@@ -68,5 +68,5 @@ find .pose/knowledge -name "*<modulo-ou-tema>*.md" -type f -not -path '*/archive
 ## Output requirements
 
 - Arquivo criado em `.pose/knowledge/` com frontmatter completo e seções preenchidas (não apenas placeholders).
-- `./pose knowledge-check --strict` em SUCESSO.
+- `pose knowledge-check --strict` em SUCESSO.
 - Referência ao artefato no spec/PR que motivou sua criação.

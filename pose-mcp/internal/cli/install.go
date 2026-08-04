@@ -5,6 +5,7 @@ package cli
 // MCP configuration that invokes this same binary through `pose serve-mcp`.
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -22,7 +23,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	text := func(english, portuguese string) string { return cliText(commandLocale, english, portuguese) }
 	var target, projectName, projectID, locale string
 	locale = "en"
-	force, skipMCP, allowNonGit := false, false, false
+	force, skipMCP, allowNonGit, noBackup := false, false, false, false
 
 	i := 0
 	for i < len(args) {
@@ -52,8 +53,11 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		case "--allow-non-git":
 			allowNonGit = true
 			i++
+		case "--no-backup":
+			noBackup = true
+			i++
 		case "-h", "--help":
-			fmt.Fprintln(stdout, text("Usage: pose install <target-dir> [--project-name n] [--project-id id] [--locale tag] [--force] [--skip-mcp] [--allow-non-git]", "Uso: pose install <target-dir> [--project-name n] [--project-id id] [--locale tag] [--force] [--skip-mcp] [--allow-non-git]"))
+			fmt.Fprintln(stdout, text("Usage: pose install <target-dir> [--project-name n] [--project-id id] [--locale tag] [--force] [--skip-mcp] [--allow-non-git] [--no-backup]", "Uso: pose install <target-dir> [--project-name n] [--project-id id] [--locale tag] [--force] [--skip-mcp] [--allow-non-git] [--no-backup]"))
 			return 0
 		default:
 			if strings.HasPrefix(a, "-") {
@@ -101,7 +105,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 
 	// 1. Native machinery: this binary is the runtime.
 	for _, dir := range []string{".pose/workflows", ".pose/rules", ".pose/templates", ".agents/skills"} {
-		if err := copyTree(dist, dir, target); err != nil {
+		if err := copyTree(dist, dir, target, noBackup, stderr, target); err != nil {
 			fmt.Fprintf(stderr, text("pose install: merging %s: %v\n", "pose install: mesclando %s: %v\n"), dir, err)
 			return 1
 		}
@@ -153,7 +157,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 				if _, err := fs.Stat(dist, source); err != nil {
 					continue
 				}
-				if err := copyTreeInto(dist, source, filepath.Join(target, filepath.FromSlash(editorialDir))); err != nil {
+				if err := copyTreeInto(dist, source, filepath.Join(target, filepath.FromSlash(editorialDir)), noBackup, stderr, target); err != nil {
 					fmt.Fprintf(stderr, text("pose install: locale overlay %s: %v\n", "pose install: overlay de locale %s: %v\n"), editorialDir, err)
 					return 1
 				}
@@ -325,7 +329,7 @@ func isDir(p string) bool {
 	return err == nil && fi.IsDir()
 }
 
-func copyTree(src fs.FS, root, targetBase string) error {
+func copyTree(src fs.FS, root, targetBase string, noBackup bool, stderr io.Writer, target string) error {
 	return fs.WalkDir(src, root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -334,11 +338,11 @@ func copyTree(src fs.FS, root, targetBase string) error {
 		if d.IsDir() {
 			return os.MkdirAll(dst, 0o755)
 		}
-		return copyFile(src, path, dst, filePerm(path))
+		return copyFileWithBackup(src, path, dst, filePerm(path), noBackup, stderr, target)
 	})
 }
 
-func copyTreeInto(src fs.FS, sourceRoot, destinationRoot string) error {
+func copyTreeInto(src fs.FS, sourceRoot, destinationRoot string, noBackup bool, stderr io.Writer, target string) error {
 	return fs.WalkDir(src, sourceRoot, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -351,8 +355,36 @@ func copyTreeInto(src fs.FS, sourceRoot, destinationRoot string) error {
 		if entry.IsDir() {
 			return os.MkdirAll(destination, 0o755)
 		}
-		return copyFile(src, path, destination, filePerm(path))
+		return copyFileWithBackup(src, path, destination, filePerm(path), noBackup, stderr, target)
 	})
+}
+
+func copyFileWithBackup(src fs.FS, path, dst string, perm os.FileMode, noBackup bool, stderr io.Writer, target string) error {
+	b, err := fs.ReadFile(src, path)
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(dst); err == nil {
+		existing, err := os.ReadFile(dst)
+		if err == nil {
+			if bytes.Equal(existing, b) {
+				return nil
+			}
+			if !noBackup {
+				backupDst := dst + ".pose-backup"
+				if err := os.WriteFile(backupDst, existing, perm); err == nil {
+					relDst, _ := filepath.Rel(target, dst)
+					fmt.Fprintf(stderr, "[pose-install] backed up customized: %s → %s.pose-backup\n", relDst, relDst)
+				}
+			}
+		}
+	}
+
+	return os.WriteFile(dst, b, perm)
 }
 
 func copyFile(src fs.FS, path, dst string, perm os.FileMode) error {

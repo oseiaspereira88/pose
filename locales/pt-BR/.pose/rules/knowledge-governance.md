@@ -42,7 +42,7 @@ Consulte este guia em tarefas que criam, atualizam, revisam ou removem artefatos
 
 ## Check mínimo operacional
 
-- Execute `./pose knowledge-check --strict` em rotina quinzenal para validar backlog vencido.
+- Execute `pose knowledge-check --strict` em rotina quinzenal para validar backlog vencido.
 - Execute `pose knowledge-housekeeping list-expired` para triagem detalhada.
 - Execute `pose knowledge-housekeeping archive-expired --dry-run` antes de aplicar mudanças.
 - Execute ações destrutivas apenas com `--apply` explícito.

@@ -31,13 +31,13 @@ Fluxo POSE para construir plano de teste risk-based antes da implementação.
 4. Listar comandos determinísticos por camada, separando obrigatórios vs. opcionais para o risco atual:
    ```bash
    # Reusar o que já está na matriz:
-   ./pose validate --module <path> --report --report-task test-plan-baseline-<slug>
+   pose validate --module <path> --report --report-task test-plan-baseline-<slug>
    ```
 5. Definir critério de evidência esperada para cada comando (output, métrica, schema).
 6. Anexar o plano à seção `Validation` da spec antes de iniciar implementação.
 7. Atualizar [`validation-matrix.json`](../../../.pose/indexes/validation-matrix.json) se a tarefa justifica adicionar/promover check ao módulo (caso novo cenário deva virar gate permanente). Após editar a matrix:
    ```bash
-   ./pose check --strict  # valida schema da matrix
+   pose check --strict  # valida schema da matrix
    ```
 
 ## Output requirements

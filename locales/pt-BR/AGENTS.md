@@ -37,6 +37,18 @@ profundo no diretório afetado); (3) `AGENTS.md` mais abrangente (raiz). Leia ap
 - Skills por tarefa recorrente: [`.agents/skills/`](.agents/skills/)
 - Entry point nativo de automação: binário Go `pose` (`pose help`).
 
+## Momento de Execução das Tools de Assessment POSE
+
+Agentes de IA devem utilizar as ferramentas de assessment em momentos específicos do fluxo:
+
+1. **Início de Task / Spec (`pose-feature`)**:
+   - Executar `pose assess discover [--component <dir>]` / `pose_component_discover` para obter métricas de LOC, dívidas e estrutura do módulo afetado antes de modificar código.
+2. **Alteração de Contrato Inter-Módulo / PR Review (`pose-review`)**:
+   - Executar `pose assess integrate` / `pose_integration_check` quando tocar em Protobuf, Kafka, APIs REST ou ferramentas MCP.
+   - Executar `pose assess tech-debt` / `pose_tech_debt_check` durante code review para garantir que marcadores (`TODO`, `FIXME`, `stub`, `panic`) foram cobertos por follow-ups ou specs.
+3. **Fechamento de Spec (`pose-spec-closeout`)**:
+   - Executar `pose assess discover --update-state` ao concluir a entrega para recalcular a completude dinâmica da plataforma e atualizar `.pose/assessments/` e `.pose/state/`.
+
 ## Rules por domínio
 
 Aplique cumulativamente as rules relevantes ao escopo:

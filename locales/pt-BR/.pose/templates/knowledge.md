@@ -10,6 +10,7 @@ source_refs:
   spec: ""
   workflow: ""
   commands: []
+  external_sources: []  # [{url: "", accessed_at: "YYYY-MM-DD"}] — preencha quando conteúdo recuperado de fonte externa influenciou este registro
 ---
 
 # <type>: <slug>
@@ -36,4 +37,4 @@ source_refs:
 
 ## Referências
 
-<!-- Links para spec, ADR, commits, incidents, dashboards. -->
+<!-- Links para spec, ADR, commits, incidents, dashboards. Fonte externa que influenciou este registro: cite com URL + data de acesso (também no frontmatter, source_refs.external_sources), ex.: "Fonte /microsoft/playwright, consultado em 2026-07-24: confirma outputFile do reporter junit". -->

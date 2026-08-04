@@ -41,6 +41,7 @@ current-state sections in specs or proposals, and messages that say something is
 - Run `pose artifact-check --strict` when the scope changes governed source-tree paths.
 - Run `pose surface-check --strict` for specs with `delivers` and `pose
   roadmap-check --strict` before a roadmap claims completion.
+- `pose assess discover --update-state` when closing specs to update completeness metrics, technical debt, and reports under `.pose/assessments/` and `.pose/state/`.
 
 ## Precedence in multi-domain conflicts
 

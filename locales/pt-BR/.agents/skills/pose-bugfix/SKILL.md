@@ -16,7 +16,7 @@ Fluxo POSE para correção cirúrgica de defeito.
 1. [AGENTS.md](../../../AGENTS.md) — precedência e obrigatoriedade de spec/ADR/checks.
 2. [`.pose/workflows/bugfix.md`](../../../.pose/workflows/bugfix.md) — checklist completo.
 3. `AGENTS.md` específico do módulo afetado (quando existir).
-4. `.pose/rules/` das rules cumulativas (use `./pose suggest bugfix --path <dir-afetado>` para inferir).
+4. `.pose/rules/` das rules cumulativas (use `pose suggest bugfix --path <dir-afetado>` para inferir).
 
 ## Steps
 
@@ -30,11 +30,11 @@ Fluxo POSE para correção cirúrgica de defeito.
 5. Adicionar/ajustar teste de regressão.
 6. Rodar validação determinística do módulo:
    ```bash
-   ./pose validate --tolerant --module <path-afetado> --report
+   pose validate --tolerant --module <path-afetado> --report
    ```
 7. Se a causa raiz revelar dívida sistêmica ou trade-off relevante, produzir decision-log:
    ```bash
-   ./pose new-knowledge decision-log <slug-do-tema> --owner @<squad>
+   pose new-knowledge decision-log <slug-do-tema> --owner @<squad>
    ```
 
 ## Output requirements
@@ -42,5 +42,5 @@ Fluxo POSE para correção cirúrgica de defeito.
 - Descrição da causa raiz e abordagem.
 - Diff cirúrgico, sem mudanças não relacionadas.
 - Evidência de regressão coberta (teste novo/ajustado).
-- Saída do `./pose validate` com `Resultado: SUCESSO`.
+- Saída do `pose validate` com `Resultado: SUCESSO`.
 - Decision-log opcional em `.pose/knowledge/` quando aplicável.

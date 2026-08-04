@@ -11,18 +11,26 @@ capabilities: read, spec-write, validate
 
 Fluxo POSE para implementação de feature ou refactor não-trivial.
 
+## Antes de tudo
+
+Leia `pose_project_state` (tool MCP) ou rode `pose state` — se o artefato existir e
+não estiver stale, ele responde "qual o estado atual deste projeto?" numa chamada só
+(specs/roadmaps, follow-ups, capabilities, decisões/knowledge, evidência de
+validação), no lugar de varrer o repo do zero a cada sessão. Quando ausente ou stale,
+siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
+
 ## Required reading (na ordem)
 
 1. [AGENTS.md](../../../AGENTS.md) — precedência e obrigatoriedade.
 2. [`.pose/workflows/feature.md`](../../../.pose/workflows/feature.md) — checklist + modos planejador/implementador.
 3. `AGENTS.md` específico do módulo afetado (quando existir).
-4. Rules cumulativas em `.pose/rules/`. Para descobrir quais: `./pose suggest feature --path <dir-afetado>`.
+4. Rules cumulativas em `.pose/rules/`. Para descobrir quais: `pose suggest feature --path <dir-afetado>`.
 
 ## Steps
 
 1. Identificar slug curto e verificar/criar spec:
    ```bash
-   ls .pose/specs/<slug>/spec.md 2>/dev/null || ./pose new-spec <slug>
+   ls .pose/specs/<slug>/spec.md 2>/dev/null || pose new-spec <slug>
    ```
 2. Consultar knowledge relacionada (handoffs anteriores, decision-logs do módulo):
    ```bash
@@ -31,24 +39,24 @@ Fluxo POSE para implementação de feature ou refactor não-trivial.
 3. Preencher seções `Intent → Requirements → Technical Plan → Tasks` da spec antes de codar.
 4. Implementar incrementalmente, validando cada passo:
    ```bash
-   ./pose validate --strict --module <path-afetado> --report
+   pose validate --strict --module <path-afetado> --report
    ```
 5. Atualizar seção `Validation` da spec com os comandos executados e resultado.
 6. Se houver contexto reaproveitável para próxima execução (estado parcial, follow-up, transição de owner), criar handoff:
    ```bash
-   ./pose new-knowledge handoff <slug>-handoff --owner @<squad>
+   pose new-knowledge handoff <slug>-handoff --owner @<squad>
    ```
 7. Preencher seção `Final Report` da spec com escopo entregue, riscos residuais e follow-ups.
 8. **Fechar a spec** (skill [pose-spec-closeout](../pose-spec-closeout/SKILL.md)): `status: done` + `completed_at` no frontmatter, disposição em cada follow-up, e gate de saída:
    ```bash
-   ./pose followups --all          # backlog cruzado + colisões antes de triar
-   ./pose lint-spec <slug> --strict
+   pose followups --all          # backlog cruzado + colisões antes de triar
+   pose lint-spec <slug> --strict
    ```
 
 ## Output requirements
 
 - `.pose/specs/<slug>/spec.md` com todas as seções obrigatórias preenchidas (zero placeholders restantes).
-- `./pose validate --strict` em SUCESSO para o(s) módulo(s) afetado(s).
+- `pose validate --strict` em SUCESSO para o(s) módulo(s) afetado(s).
 - Frontmatter com `status: done` + `completed_at`; follow-ups com disposição.
-- `./pose lint-spec <slug> --strict` em SUCESSO.
+- `pose lint-spec <slug> --strict` em SUCESSO.
 - Handoff opcional em `.pose/knowledge/` quando aplicável.

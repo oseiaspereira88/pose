@@ -29,16 +29,16 @@ Fluxo POSE para atualização de documentação operacional.
    - [`.pose/templates/doc-audit-report.md`](../../../.pose/templates/doc-audit-report.md)
 4. Validar que referências adicionadas/removidas continuam coerentes:
    ```bash
-   ./pose check --strict
+   pose check --strict
    ```
 5. Gerar relatório de tipo `doc-audit` quando a mudança for ampla:
    ```bash
-   ./pose report --task "doc-update-<tema>" --type doc-audit --context manual --outcome pass
+   pose report --task "doc-update-<tema>" --type doc-audit --context manual --outcome pass
    ```
 
 ## Output requirements
 
 - Diff legível e coeso (uma intenção editorial por commit).
 - Zero duplicação verbatim entre arquivos.
-- `./pose check --strict` passando.
+- `pose check --strict` passando.
 - Relatório opcional `doc-audit` para mudanças amplas.
