@@ -12,7 +12,7 @@ const devSuffix = "-dev"
 // Version is the authoritative public version. Release builds stamp it from
 // the git tag via -ldflags (see .goreleaser.yaml); development builds keep the
 // devSuffix so they never impersonate a release.
-var Version = "0.16.4" + devSuffix
+var Version = "0.16.5" + devSuffix
 
 // IsDevelopment reports whether this binary is an unstamped development build.
 func IsDevelopment() bool { return strings.HasSuffix(Version, devSuffix) }
