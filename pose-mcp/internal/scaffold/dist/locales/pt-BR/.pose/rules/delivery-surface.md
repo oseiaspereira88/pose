@@ -1,16 +1,21 @@
 # Rule: Garantia de delivery surface
 
+## Aplicar quando
+
+Uma spec altera uma superfície de produto configurada ou raiz de composição, declara um alvo de entrega tipado, ou participa de critérios de corte de roadmap.
+
 ## Obrigatório
 
-- Manter refs idênticas entre `delivers` e `### Delivery targets`.
-- Usar apenas checks registrados e evidence classes fechadas.
-- Exigir `reachability` mais `integration`/`e2e` para surfaces.
-- Exigir `integration` para capabilities e contracts compostos.
-- Vincular resultados ao provenance digest atual.
-- Manter critérios de roadmap declarativos e sem comandos crus.
+- Manter os conjuntos de referências `delivers` e `### Delivery targets` idênticos.
+- Usar apenas checagens registradas na `validation-matrix` e classes de evidência fechadas.
+- Exigir `reachability` mais `integration` ou `e2e` para superfícies de entrega.
+- Exigir `integration` para capacidades compostas e contratos.
+- Vincular resultados aprovados ao digest de procedência atual; re-executar quando obsoleto.
+- Manter critérios de roadmap declarativos: apenas refs tipados, nomes de checagem ou relatórios manuais confinados.
 
 ## Bloquear
 
-- Build/unit apresentado como prova de composição.
-- Resultado stale ou manual usado no lugar de reachability.
-- Delivery root alterado sem declaração tipada.
+- Comandos brutos em specs ou critérios de roadmap.
+- Sucesso de build/unit apresentado como prova de composição.
+- Evidência manual usada para satisfazer reachability obrigatório.
+- Uma raiz de entrega alterada sem declaração tipada.
