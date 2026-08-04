@@ -37,6 +37,10 @@
       "to": "pose-version-contract"
     },
     {
+      "from": "pose-debt-marker-lexical-precision",
+      "to": "pose-project-agnostic-assessment-engines"
+    },
+    {
       "from": "pose-delivery-surface-assurance",
       "to": "pose-artifact-provenance-ledger"
     },
@@ -131,6 +135,10 @@
     {
       "from": "pose-package-manager-distribution",
       "to": "pose-release-compatibility-matrix"
+    },
+    {
+      "from": "pose-project-agnostic-assessment-engines",
+      "to": "pose-capability-mechanism"
     },
     {
       "from": "pose-public-install-contract",
@@ -288,6 +296,14 @@
       "priority": 7,
       "status": "done"
     },
+    "pose-debt-marker-lexical-precision": {
+      "depends_on": [
+        "pose-project-agnostic-assessment-engines"
+      ],
+      "path": ".pose/specs/pose-debt-marker-lexical-precision/spec.md",
+      "priority": 0,
+      "status": "done"
+    },
     "pose-delivery-surface-assurance": {
       "depends_on": [
         "pose-artifact-provenance-ledger"
@@ -353,6 +369,12 @@
       "path": ".pose/specs/pose-knowledge-consumption-traceability/spec.md",
       "priority": 14,
       "status": "done"
+    },
+    "pose-locales-alignment": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-locales-alignment/spec.md",
+      "priority": 10,
+      "status": "draft"
     },
     "pose-localization-docs-contract": {
       "depends_on": [
@@ -421,6 +443,14 @@
       ],
       "path": ".pose/specs/pose-package-manager-distribution/spec.md",
       "priority": 25,
+      "status": "done"
+    },
+    "pose-project-agnostic-assessment-engines": {
+      "depends_on": [
+        "pose-capability-mechanism"
+      ],
+      "path": ".pose/specs/pose-project-agnostic-assessment-engines/spec.md",
+      "priority": 0,
       "status": "done"
     },
     "pose-public-install-contract": {
