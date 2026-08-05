@@ -1,7 +1,9 @@
 ---
 slug: pose-locales-alignment
-status: draft
+status: done
 created_at: 2026-08-04
+completed_at: 2026-08-04
+changelog: none
 supersedes:
 depends_on:
 priority: 10
@@ -54,6 +56,12 @@ Guarantees zero scope loss when upgrading localized POSE instances and ensures s
 
 ### Primary references
 - [POSE Architecture](../../POSE.md)
+
+### Artifacts
+- none: documentation
+
+### Risk mitigation
+- None.
 
 ## 4. Tasks
 
