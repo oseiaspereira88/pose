@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-06T22:56:54Z
-baseline_commit: 6c07f15bb9bd0a76d2e39ed05a6141ee9be1f5bd
+generated_at: 2026-08-06T22:57:56Z
+baseline_commit: 3848c4de316c2d1d1faf53614aff87ccbd40cc82
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -64,10 +64,10 @@ capacidade.
 - knowledge: total=1 ativo=1 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:90d1cf3321dd -->
+<!-- state:derived hash:1d83b106d2cc -->
 
-- último registro: task=test-plan-baseline-pose-mcp-active-context outcome=pass (2026-08-06T22:56:28Z)
-- últimos 30 dias: total=57 outcome_ok=52 outcome_outro=5
+- último registro: task=test-plan-baseline-pose-mcp-active-context outcome=pass (2026-08-06T22:57:30Z)
+- últimos 30 dias: total=58 outcome_ok=53 outcome_outro=5
 - reports revisados (.md): total=25
   - report:2026-08-06-standard-test-plan-baseline-pose-mcp-active-context.md
   - report:2026-08-03-pose-debt-marker-lexical-precision-review.md
