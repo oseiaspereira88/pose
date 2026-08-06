@@ -1,8 +1,8 @@
 ---
 slug: pose-mcp-active-context
-status: in-progress
+status: done
 created_at: 2026-08-06
-completed_at:
+completed_at: 2026-08-06
 supersedes:
 depends_on: pose-mcp-project-scope-contract, pose-mcp-catalog-conformance
 priority: 1

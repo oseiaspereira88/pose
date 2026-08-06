@@ -1,8 +1,8 @@
 ---
 slug: pose-mcp-active-context
-status: in-progress
+status: done
 created_at: 2026-08-06
-completed_at:
+completed_at: 2026-08-06
 supersedes:
 depends_on: pose-mcp-project-scope-contract, pose-mcp-catalog-conformance
 priority: 1
@@ -263,20 +263,7 @@ standard community feedback labels, golden catalog evolution and operator docs.
   restart/reconnect; the server now makes the old process identity observable.
 
 ### Follow-ups
-- [open] Promote strict multi-project selection only through a separately
-  announced compatibility change. (owner:@pose-maintainers crit:medium review:2026-10-23)
-- [open] `documentCoversDebt` (pose-mcp/internal/pose/techdebt.go) treats a debt
-  marker as covered when any active spec merely names its component
-  (`module:<component>` or a backticked slug), so this spec silently flipped
-  DEBT-001 (`scaffold.go:23` panic) from `uncovered` to `covered_by_spec` with
-  no real relationship and dropped its recommended follow-up. Require a
-  file-level or explicit debt-id reference before claiming coverage; a
-  component name is not evidence. (owner:@pose-maintainers crit:medium review:2026-09-06)
-- [open] `pose assess discover --component <slug>` rewrites the repository-wide
-  `.pose/assessments/README.md` and `consolidated.md` from the scoped result,
-  dropping every component it did not scan while leaving that component's own
-  report and state file orphaned on disk. Scoped discovery must merge into the
-  consolidated view instead of replacing it. (owner:@pose-maintainers crit:medium review:2026-09-06)
-- [open] Integration gap IDs (`GAP-0NN`) are assigned positionally, so adding
-  one contract renumbers every later gap and invalidates external references.
-  Derive stable IDs from the contract identity. (owner:@pose-maintainers crit:low review:2026-11-06)
+- [duplicate: pose-mcp-project-scope-contract] Promote strict multi-project selection only through a separately announced compatibility change; the scope-contract spec already tracks promoting `POSE_MCP_STRICT_PROJECT_SELECTION` to the default after a full adoption cycle.
+- [open] `pose assess tech-debt` treats a marker as covered when any active spec merely names its component (`documentCoversDebt` in `pose-mcp/internal/pose/techdebt.go`), which silently flipped DEBT-001 (`scaffold.go:23` panic) to `covered_by_spec` with no real relationship and dropped its recommended follow-up; require a file-level or explicit debt-id reference before claiming coverage, because a component name is not evidence. (owner:@pose-maintainers crit:medium review:2026-09-06)
+- [open] `pose assess discover --component <slug>` rewrites the repository-wide `.pose/assessments/README.md` and `consolidated.md` from the scoped result, dropping every component it did not scan and orphaning that component's own report and state file; scoped discovery must merge into the consolidated view instead of replacing it. (owner:@pose-maintainers crit:medium review:2026-09-06)
+- [open] Integration gap IDs (`GAP-0NN`) are assigned positionally, so adding one contract renumbers every later gap and invalidates external references; derive stable IDs from the contract identity instead. (owner:@pose-maintainers crit:low review:2026-11-06)
