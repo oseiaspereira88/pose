@@ -1,6 +1,6 @@
 ---
 spec: pose-mcp-active-context
-category: changed
+category: added
 breaking: false
 refs:
 ---
