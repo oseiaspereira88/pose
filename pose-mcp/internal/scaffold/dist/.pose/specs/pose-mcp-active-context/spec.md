@@ -69,14 +69,12 @@ wrong repository and restore a reliable community-feedback submission path.
 
 ### Artifacts
 - created: .pose/adr/2026-08-06-mcp-active-context-authorized-discovery.md
-- created: .pose/changelogs/unreleased/pose-mcp-active-context.md
 - created: .pose/reports/2026-08-06-standard-test-plan-baseline-pose-mcp-active-context.md
 - created: .pose/reports/history/standard-test-plan-baseline-pose-mcp-active-context.jsonl
 - created: .pose/specs/pose-mcp-active-context/spec.md
 - created: pose-mcp/internal/cli/report_limitation_test.go
 - created: pose-mcp/internal/mcpserver/mcp_context_test.go
 - created: pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-06-mcp-active-context-authorized-discovery.md
-- created: pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-mcp-active-context.md
 - created: pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210330Z-31f2f3fc.md
 - created: pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210330Z-ac29cb2f.md
 - created: pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210418Z-0a42db04.md
@@ -267,3 +265,4 @@ standard community feedback labels, golden catalog evolution and operator docs.
 - [open] `pose assess tech-debt` treats a marker as covered when any active spec merely names its component (`documentCoversDebt` in `pose-mcp/internal/pose/techdebt.go`), which silently flipped DEBT-001 (`scaffold.go:23` panic) to `covered_by_spec` with no real relationship and dropped its recommended follow-up; require a file-level or explicit debt-id reference before claiming coverage, because a component name is not evidence. (owner:@pose-maintainers crit:medium review:2026-09-06)
 - [open] `pose assess discover --component <slug>` rewrites the repository-wide `.pose/assessments/README.md` and `consolidated.md` from the scoped result, dropping every component it did not scan and orphaning that component's own report and state file; scoped discovery must merge into the consolidated view instead of replacing it. (owner:@pose-maintainers crit:medium review:2026-09-06)
 - [open] Integration gap IDs (`GAP-0NN`) are assigned positionally, so adding one contract renumbers every later gap and invalidates external references; derive stable IDs from the contract identity instead. (owner:@pose-maintainers crit:low review:2026-11-06)
+- [open] `pose release prepare` archives unreleased changelog fragments into the cut directory without updating the artifact claims of the closed specs that produced them, so every release breaks the structural gate for the specs it consumes (`existence: declared current artifact is not tracked at the selected head`). Narrowing the change set is no fix either: the archived path then falls outside the attributed range while the cut's own version bump reads as undeclared. Either rewrite consumed claims during prepare or exclude release-cycle fragments from artifact provenance. (owner:@pose-maintainers crit:medium review:2026-09-06)
