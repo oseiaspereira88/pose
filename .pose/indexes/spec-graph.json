@@ -93,6 +93,14 @@
       "to": "pose-release-compatibility-matrix"
     },
     {
+      "from": "pose-mcp-active-context",
+      "to": "pose-mcp-project-scope-contract"
+    },
+    {
+      "from": "pose-mcp-active-context",
+      "to": "pose-mcp-catalog-conformance"
+    },
+    {
       "from": "pose-mcp-catalog-conformance",
       "to": "pose-version-contract"
     },
@@ -316,7 +324,7 @@
       "depends_on": null,
       "path": ".pose/specs/pose-doc-command-reference/spec.md",
       "priority": 10,
-      "status": "draft"
+      "status": "done"
     },
     "pose-doctor-guided-remediation": {
       "depends_on": [
@@ -380,7 +388,7 @@
       "depends_on": null,
       "path": ".pose/specs/pose-locales-alignment/spec.md",
       "priority": 10,
-      "status": "draft"
+      "status": "done"
     },
     "pose-localization-docs-contract": {
       "depends_on": [
@@ -390,6 +398,15 @@
       "path": ".pose/specs/pose-localization-docs-contract/spec.md",
       "priority": 29,
       "status": "done"
+    },
+    "pose-mcp-active-context": {
+      "depends_on": [
+        "pose-mcp-project-scope-contract",
+        "pose-mcp-catalog-conformance"
+      ],
+      "path": ".pose/specs/pose-mcp-active-context/spec.md",
+      "priority": 1,
+      "status": "in-progress"
     },
     "pose-mcp-catalog-conformance": {
       "depends_on": [

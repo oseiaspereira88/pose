@@ -162,7 +162,7 @@ wrong repository and restore a reliable community-feedback submission path.
 - [x] Run focused unit, authorization, contract and CLI tests.
 - [x] Run full Go tests, race coverage and vet for `pose-mcp`.
 - [x] Run MCP integration and technical-debt assessments.
-- [ ] Run strict POSE validation and closeout gates.
+- [x] Run strict POSE validation and closeout gates.
 
 ## 5. Decisions
 
@@ -204,6 +204,16 @@ fail-closed through `PolicyGate.Evaluate` and is covered by its existing tests.
 - Notes: Focused and full suites passed. The first structured delivery result
   correctly remained bound to the pre-change Git HEAD; immutable attribution
   and closeout are pending the implementation commit.
+- Date: 2026-08-06 (post-implementation review pass)
+- Notes: Corrected the changelog fragment frontmatter (`kind` -> `category`),
+  which was failing `pose check --strict`. Aligned the engine-limitation issue
+  template with the same standard label as the CLI and extended the label test
+  to cover both intake templates. Regenerated indexes and assessments without
+  `--component`, restoring the `mcp-enforce` component that a scoped
+  `pose assess discover` had dropped from the consolidated view. Resynced the
+  embedded scaffold via `go generate ./internal/scaffold` after the first
+  strict run failed on dist drift; the repeat run passed and the structured
+  delivery result is now bound to the implementation commit.
 
 ### Results summary
 - Successes: focused units/integration/security, full `go test ./...`, race
@@ -247,3 +257,18 @@ standard community feedback labels, golden catalog evolution and operator docs.
 ### Follow-ups
 - [open] Promote strict multi-project selection only through a separately
   announced compatibility change. (owner:@pose-maintainers crit:medium review:2026-10-23)
+- [open] `documentCoversDebt` (pose-mcp/internal/pose/techdebt.go) treats a debt
+  marker as covered when any active spec merely names its component
+  (`module:<component>` or a backticked slug), so this spec silently flipped
+  DEBT-001 (`scaffold.go:23` panic) from `uncovered` to `covered_by_spec` with
+  no real relationship and dropped its recommended follow-up. Require a
+  file-level or explicit debt-id reference before claiming coverage; a
+  component name is not evidence. (owner:@pose-maintainers crit:medium review:2026-09-06)
+- [open] `pose assess discover --component <slug>` rewrites the repository-wide
+  `.pose/assessments/README.md` and `consolidated.md` from the scoped result,
+  dropping every component it did not scan while leaving that component's own
+  report and state file orphaned on disk. Scoped discovery must merge into the
+  consolidated view instead of replacing it. (owner:@pose-maintainers crit:medium review:2026-09-06)
+- [open] Integration gap IDs (`GAP-0NN`) are assigned positionally, so adding
+  one contract renumbers every later gap and invalidates external references.
+  Derive stable IDs from the contract identity. (owner:@pose-maintainers crit:low review:2026-11-06)

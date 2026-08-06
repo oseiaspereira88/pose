@@ -76,14 +76,14 @@ capacidade.
   - report:2026-08-03-release-evidence-trigger-fix-review.md
 
 ## Arquitetura
-<!-- state:derived hash:2f094f7386e0 status:active -->
+<!-- state:derived hash:0eb4621066bb status:active -->
 
 - componentes: total=2 verificados=2 completude=99.0%
-- linhas_de_codigo: producao=26201 testes=16054 total=42255
+- linhas_de_codigo: producao=26453 testes=16337 total=42790
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=1 stubs=0
-- integracoes: contratos=49 ativos=1 gaps=48
-- divida_tecnica: total=1 coberta=0 descoberta=1
+- integracoes: contratos=50 ativos=1 gaps=49
+- divida_tecnica: total=1 coberta=1 descoberta=0
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 
 ## Docs

@@ -1,5 +1,14 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-mcp-active-context",
+      "category": "changed",
+      "breaking": false,
+      "body": "Agents can now verify which MCP server process and project registry they are\nactually connected to through the policy-filtered `pose_mcp_context` tool,\nwhich never exposes filesystem roots. `pose doctor` now states explicitly that\nit only inspects static configuration, and unknown project selections return\nstructured reconnect remediation. Community feedback submissions use the\nrepository's standard issue labels.",
+      "path": "pose-mcp-active-context.md",
+      "digest": "sha256:417c49afc22bbb2fd7831a7f69be1a7180e3e3a8271929601dfadd43cc4bea18"
+    }
+  ],
   "releases": [
     {
       "version": "v0.16.6",
