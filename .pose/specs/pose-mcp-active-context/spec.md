@@ -214,6 +214,14 @@ fail-closed through `PolicyGate.Evaluate` and is covered by its existing tests.
   embedded scaffold via `go generate ./internal/scaffold` after the first
   strict run failed on dist drift; the repeat run passed and the structured
   delivery result is now bound to the implementation commit.
+- Date: 2026-08-06 (code review hardening)
+- Notes: Bounded policy-backed discovery to 64 probes per call with explicit
+  truncation reporting, since `project_unknown` remediation is an implicit
+  error path a client can trigger repeatedly. Added selection remediation for
+  connections with no default root, assembled the context response once
+  instead of mirroring the remediation slice, and replaced the local helpers
+  with `slices.Contains`/`slices.Sort`. Documented the no-OPA discovery
+  posture in the ADR and public MCP reference.
 
 ### Results summary
 - Successes: focused units/integration/security, full `go test ./...`, race

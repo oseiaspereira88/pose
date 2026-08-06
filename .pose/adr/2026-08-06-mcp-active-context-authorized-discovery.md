@@ -51,6 +51,10 @@ Extend ordinary `project_unknown` tool results additively with the authorized
 IDs visible to that caller plus structured remediation. Preserve existing
 `error_code` and `project_id` fields.
 
+Bound one discovery call to a fixed number of per-project authorization
+decisions and report truncation to the caller rather than silently returning a
+partial registry as if it were complete.
+
 ## Consequences
 
 - Positive: agents can prove which server process and project registry they are
@@ -60,8 +64,16 @@ IDs visible to that caller plus structured remediation. Preserve existing
 - Positive: discovery reuses the existing authorization and audit boundary and
   does not expose host topology.
 - Trade-off: policy-backed discovery may evaluate one authorization decision
-  per registered project; this is bounded by the in-memory registry and occurs
-  only on explicit diagnostics or unknown-project remediation.
+  per registered project. Since `project_unknown` remediation is an implicit
+  error path, a client repeatedly guessing project IDs would otherwise amplify
+  each mistake across the whole registry, so discovery carries an explicit
+  probe ceiling and reports truncation.
+- Trade-off: with no OPA endpoint configured, `PolicyGate` allows by default,
+  so discovery returns every registered project. That is the pre-existing
+  dev-mode posture of every other tool — the same caller could already read
+  those projects directly — but `pose_mcp_context` is the first tool whose
+  purpose is enumeration, so deployments that treat registry membership as
+  confidential must configure a policy endpoint.
 - Trade-off: a policy that requires an explicit project scope may require the
   caller to probe a known `project_id`; POSE does not bypass that policy to make
   discovery more convenient.

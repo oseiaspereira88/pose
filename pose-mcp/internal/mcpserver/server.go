@@ -18,6 +18,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -533,20 +534,24 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 		var ambiguousProj pose.ProjectAmbiguousError
 		switch {
 		case errors.As(err, &unknownProj):
-			available := s.authorizedProjectIDs(ctx, policyInput)
-			return result(req.ID, map[string]any{
-				"content": []map[string]any{{"type": "text", "text": err.Error()}},
-				"structuredContent": map[string]any{
-					"error_code":            "project_unknown",
-					"project_id":            unknownProj.ProjectID,
-					"available_project_ids": available,
-					"remediation": map[string]any{
-						"action":       "reload_or_restart_connection",
-						"context_tool": "pose_mcp_context",
-						"retry_with":   "an authorized project_id returned by pose_mcp_context",
-					},
+			available, truncated := s.authorizedProjectIDs(ctx, policyInput)
+			structured := map[string]any{
+				"error_code":            "project_unknown",
+				"project_id":            unknownProj.ProjectID,
+				"available_project_ids": available,
+				"remediation": map[string]any{
+					"action":       "reload_or_restart_connection",
+					"context_tool": "pose_mcp_context",
+					"retry_with":   "an authorized project_id returned by pose_mcp_context",
 				},
-				"isError": true,
+			}
+			if truncated {
+				structured["available_project_ids_truncated"] = true
+			}
+			return result(req.ID, map[string]any{
+				"content":           []map[string]any{{"type": "text", "text": err.Error()}},
+				"structuredContent": structured,
+				"isError":           true,
 			})
 		case errors.As(err, &ambiguousProj):
 			return result(req.ID, map[string]any{
@@ -1113,12 +1118,28 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 	}
 }
 
-func (s *Server) authorizedProjectIDs(ctx context.Context, base PolicyInput) []string {
+// maxDiscoveryProbes bounds how many per-project authorization decisions one
+// discovery call may trigger. Discovery also runs on the implicit
+// project_unknown error path, so without a ceiling a client that keeps guessing
+// project IDs would amplify each mistake into one policy evaluation and one
+// audit record per registered project. Truncation is always reported to the
+// caller (available_project_ids_truncated) — never silent.
+const maxDiscoveryProbes = 64
+
+// authorizedProjectIDs filters the registry through the caller's own policy
+// input, one project at a time, auditing every decision as the ADR requires.
+// Note that with no OPA endpoint configured PolicyGate allows by default, so
+// this returns every registered project — the same dev-mode posture that
+// already applies to every other tool.
+func (s *Server) authorizedProjectIDs(ctx context.Context, base PolicyInput) (authorized []string, truncated bool) {
 	if s.roots == nil || s.policy == nil {
-		return []string{}
+		return []string{}, false
 	}
 	ids := s.roots.Context().ProjectIDs
-	authorized := make([]string, 0, len(ids))
+	if len(ids) > maxDiscoveryProbes {
+		ids, truncated = ids[:maxDiscoveryProbes], true
+	}
+	authorized = make([]string, 0, len(ids))
 	for _, id := range ids {
 		candidate := base
 		candidate.ProjectID = id
@@ -1134,7 +1155,7 @@ func (s *Server) authorizedProjectIDs(ctx context.Context, base PolicyInput) []s
 			authorized = append(authorized, id)
 		}
 	}
-	return authorized
+	return authorized, truncated
 }
 
 func rootsSelectionMode(snapshot pose.RootsContext) string {
@@ -1152,15 +1173,6 @@ func rootsSelectionMode(snapshot pose.RootsContext) string {
 	}
 }
 
-func containsString(values []string, target string) bool {
-	for _, value := range values {
-		if value == target {
-			return true
-		}
-	}
-	return false
-}
-
 func (s *Server) dispatchMCPContext(ctx context.Context, args json.RawMessage) (any, error) {
 	var request struct {
 		ProjectID string `json:"project_id"`
@@ -1173,27 +1185,15 @@ func (s *Server) dispatchMCPContext(ctx context.Context, args json.RawMessage) (
 	}
 
 	snapshot := s.roots.Context()
-	authorized := s.authorizedProjectIDs(ctx, policyInputFromContext(ctx))
+	selectionMode := rootsSelectionMode(snapshot)
+	authorized, truncated := s.authorizedProjectIDs(ctx, policyInputFromContext(ctx))
 	startedAt, instanceID := s.runtimeMetadata()
-	remediation := []map[string]string{}
-	response := map[string]any{
-		"schema_version":           1,
-		"connection_active":        true,
-		"server_name":              serverName,
-		"server_version":           serverVersion,
-		"protocol_version":         protocolVersion,
-		"server_instance_id":       instanceID,
-		"server_started_at":        startedAt.Format(time.RFC3339Nano),
-		"transport":                mcpTransportFromContext(ctx),
-		"registry_refreshed_at":    snapshot.RefreshedAt.UTC().Format(time.RFC3339Nano),
-		"strict_project_selection": snapshot.StrictSelection,
-		"selection_mode":           rootsSelectionMode(snapshot),
-		"available_project_ids":    authorized,
-		"remediation":              remediation,
-	}
-	if snapshot.DefaultProjectID != "" && containsString(authorized, snapshot.DefaultProjectID) {
-		response["default_project_id"] = snapshot.DefaultProjectID
-	}
+
+	// Build remediation and the optional probe first, then assemble the
+	// response once: an append that forgets to write the slice back would
+	// otherwise drop guidance silently.
+	remediation := make([]map[string]string, 0, 3)
+	var requestedProject map[string]string
 	if request.ProjectID != "" {
 		status := "resolved"
 		if _, err := s.roots.StoreFor(request.ProjectID); err != nil {
@@ -1206,19 +1206,45 @@ func (s *Server) dispatchMCPContext(ctx context.Context, args json.RawMessage) (
 				map[string]string{"code": "verify-project-id", "action": "select an ID from available_project_ids"},
 				map[string]string{"code": "reload-connection", "action": "restart or reconnect the MCP client after changing .mcp.json"},
 			)
-			response["remediation"] = remediation
 		}
-		response["requested_project"] = map[string]string{
-			"project_id": request.ProjectID,
-			"status":     status,
-		}
+		requestedProject = map[string]string{"project_id": request.ProjectID, "status": status}
 	}
-	if rootsSelectionMode(snapshot) == "legacy-default-multi-project" {
+	switch selectionMode {
+	case "legacy-default-multi-project":
 		remediation = append(remediation, map[string]string{
 			"code":   "enable-strict-selection",
 			"action": "set POSE_MCP_STRICT_PROJECT_SELECTION and pass project_id explicitly",
 		})
-		response["remediation"] = remediation
+	case "explicit-required":
+		remediation = append(remediation, map[string]string{
+			"code":   "select-project-explicitly",
+			"action": "pass project_id on every call; this connection has no default root configured",
+		})
+	}
+
+	response := map[string]any{
+		"schema_version":           1,
+		"connection_active":        true,
+		"server_name":              serverName,
+		"server_version":           serverVersion,
+		"protocol_version":         protocolVersion,
+		"server_instance_id":       instanceID,
+		"server_started_at":        startedAt.Format(time.RFC3339Nano),
+		"transport":                mcpTransportFromContext(ctx),
+		"registry_refreshed_at":    snapshot.RefreshedAt.UTC().Format(time.RFC3339Nano),
+		"strict_project_selection": snapshot.StrictSelection,
+		"selection_mode":           selectionMode,
+		"available_project_ids":    authorized,
+		"remediation":              remediation,
+	}
+	if snapshot.DefaultProjectID != "" && slices.Contains(authorized, snapshot.DefaultProjectID) {
+		response["default_project_id"] = snapshot.DefaultProjectID
+	}
+	if requestedProject != nil {
+		response["requested_project"] = requestedProject
+	}
+	if truncated {
+		response["available_project_ids_truncated"] = true
 	}
 	return response, nil
 }

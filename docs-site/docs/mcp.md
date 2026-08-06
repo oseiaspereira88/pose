@@ -150,6 +150,13 @@ Treat static configuration and the connected process as separate states:
 The context response contains process metadata and authorized logical IDs only.
 It never returns project roots, configuration contents or environment values.
 
+Two limits are worth knowing. Project IDs are filtered through the same policy
+as any other call, so with no OPA endpoint configured — the default dev-mode
+posture for every tool — discovery returns every registered project; configure
+a policy endpoint when registry membership is itself confidential. And one
+discovery call evaluates at most 64 projects; a larger registry sets
+`available_project_ids_truncated: true` rather than looking complete.
+
 **Compatibility / deprecation window:** with `POSE_MCP_STRICT_PROJECT_SELECTION`
 unset (default), an empty `project_id` always resolves to the configured
 default root, even once a deployment has onboarded more than one project —

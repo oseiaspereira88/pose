@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"sync"
 	"time"
 )
@@ -170,7 +170,7 @@ func (r *Roots) Context() RootsContext {
 	for id := range r.byProject {
 		ids = append(ids, id)
 	}
-	sort.Strings(ids)
+	slices.Sort(ids)
 	return RootsContext{
 		DefaultProjectID:  r.cfg.DefaultProjectID,
 		DefaultConfigured: r.cfg.DefaultRoot != "",

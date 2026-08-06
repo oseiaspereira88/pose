@@ -3,6 +3,7 @@ package mcpserver
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -168,6 +169,46 @@ func TestMCPContextIdentityFiltersProjectsAndDeniesAnonymous(t *testing.T) {
 	raw, _ := json.Marshal(structured)
 	if strings.Contains(string(raw), "proj.b") {
 		t.Fatalf("unauthorized project leaked through context: %s", raw)
+	}
+}
+
+func TestMCPContextWithoutDefaultRootDemandsExplicitSelection(t *testing.T) {
+	roots := pose.NewRoots(pose.RootsConfig{Explicit: map[string]string{"proj.a": t.TempDir()}})
+	ts := httptest.NewServer(NewWithRoots(roots).Handler("", ""))
+	t.Cleanup(ts.Close)
+
+	structured := contextStructured(t, callMCPContext(t, ts, "", ""))
+	if structured["selection_mode"] != "explicit-required" {
+		t.Fatalf("selection_mode = %v, want explicit-required", structured["selection_mode"])
+	}
+	remediation, _ := structured["remediation"].([]any)
+	for _, raw := range remediation {
+		if entry, _ := raw.(map[string]any); entry["code"] == "select-project-explicitly" {
+			return
+		}
+	}
+	t.Fatalf("a connection without a default root must tell the caller to pass project_id: %+v", structured)
+}
+
+func TestMCPContextBoundsDiscoveryProbesAndReportsTruncation(t *testing.T) {
+	explicit := map[string]string{}
+	for i := range maxDiscoveryProbes + 6 {
+		explicit[fmt.Sprintf("proj.%03d", i)] = t.TempDir()
+	}
+	roots := pose.NewRoots(pose.RootsConfig{DefaultRoot: t.TempDir(), Explicit: explicit})
+	ts := httptest.NewServer(NewWithRoots(roots).Handler("", ""))
+	t.Cleanup(ts.Close)
+
+	structured := contextStructured(t, callMCPContext(t, ts, "", ""))
+	ids, _ := structured["available_project_ids"].([]any)
+	if len(ids) != maxDiscoveryProbes {
+		t.Fatalf("discovery evaluated %d projects, want the %d ceiling", len(ids), maxDiscoveryProbes)
+	}
+	if structured["available_project_ids_truncated"] != true {
+		t.Fatalf("a truncated registry must say so instead of looking complete: %+v", structured)
+	}
+	if ids[0] != "proj.000" {
+		t.Fatalf("truncation must stay deterministic, got first id %v", ids[0])
 	}
 }
 
