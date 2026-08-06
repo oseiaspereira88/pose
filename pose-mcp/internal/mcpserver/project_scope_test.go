@@ -62,6 +62,13 @@ func TestUnknownProjectIDReturnsStructuredError(t *testing.T) {
 	if sc["error_code"] != "project_unknown" || sc["project_id"] != "proj.ghost" {
 		t.Errorf("structuredContent = %+v, want error_code=project_unknown project_id=proj.ghost", sc)
 	}
+	remediation, _ := sc["remediation"].(map[string]any)
+	if remediation["context_tool"] != "pose_mcp_context" || remediation["action"] != "reload_or_restart_connection" {
+		t.Errorf("project_unknown remediation = %+v", remediation)
+	}
+	if _, ok := sc["available_project_ids"]; !ok {
+		t.Errorf("project_unknown must include authorized alternatives: %+v", sc)
+	}
 }
 
 func TestAmbiguousProjectSelectionReturnsStructuredError(t *testing.T) {

@@ -116,6 +116,36 @@ func TestDoctorFindingsHaveEvidenceAndRemediationClass(t *testing.T) {
 	})
 }
 
+func TestDoctorMCPFindingIsExplicitlyStatic(t *testing.T) {
+	repo := doctorFixture(t)
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		if code := Main([]string{"doctor", "--json"}, &out, &errB); code != 0 {
+			t.Fatalf("doctor --json exit=%d out=%s err=%s", code, out.String(), errB.String())
+		}
+		var report doctorJSON
+		if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+			t.Fatalf("invalid JSON: %v\n%s", err, out.String())
+		}
+		for _, finding := range report.Findings {
+			if finding.Check != "mcp.config" {
+				continue
+			}
+			if finding.DiagnosticScope != "static-configuration" {
+				t.Errorf("diagnostic_scope = %q, want static-configuration", finding.DiagnosticScope)
+			}
+			if finding.ConnectionChecked == nil || *finding.ConnectionChecked {
+				t.Errorf("connection_checked = %v, want explicit false", finding.ConnectionChecked)
+			}
+			if !strings.Contains(finding.Hint, "pose_mcp_context") {
+				t.Errorf("hint must point to active context probe: %q", finding.Hint)
+			}
+			return
+		}
+		t.Fatal("mcp.config finding not found")
+	})
+}
+
 func TestDoctorFixPreviewIsNonMutating(t *testing.T) {
 	repo := doctorFixture(t)
 	before := snapshotTree(t, repo)

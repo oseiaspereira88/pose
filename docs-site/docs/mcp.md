@@ -61,6 +61,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_capability_history` | Append-only assessment snapshots (score vectors), supersede-aware and paginated |
 | `pose_spec_amendments` | Append-only amendment history of one spec plus unacknowledged requirement changes |
 | `pose_spec_readiness` | Is a spec eligible? Resolves `depends_on` refs (specs, milestones, roadmaps) |
+| `pose_mcp_context` | Active server identity, transport, selection mode, policy-filtered logical project IDs and an optional project-resolution probe; never host paths |
 | `pose_project_state` | Current project state in one call: curated + derived sections (specs/roadmaps, follow-ups, capabilities, decisions/knowledge, validation evidence, architecture), staleness and tamper detection |
 | `pose_closeout_state` | Hierarchical review state, child blockers, next governed action and terminal closeout for a typed scope |
 | `pose_delivery_integrity` | Artifact claims, Git-observed change sets, reverse path provenance and stable findings from one project-scoped graph |
@@ -109,22 +110,45 @@ return an `isError` result with configuration guidance.
 
 ## Project scope contract
 
-Every `pose_*` tool advertises the same `project_id` schema and resolution
-rule — a default is convenience only, never a silent guess. `tools/call`
-resolves the project from, in order: the `project_id` argument, then the
+Every `pose_*` tool advertises the same `project_id` schema. A default is
+convenience only, never a silent guess. Project-backed tools resolve the
+project from, in order, the `project_id` argument, then the
 `X-MCP-Project`/`X-Project-Id` header, then the configured default root.
+`pose_mcp_context` is deliberately evaluated before store resolution so it can
+diagnose an absent, ambiguous or stale selection; its project IDs are filtered
+through the caller's policy and Execution Identity.
 Resolution failures are distinct, structured errors (`isError: true`,
 `structuredContent.error_code`) that never include the resolved filesystem
 root — only the caller-supplied logical identifier:
 
 | `error_code` | Meaning | `structuredContent` |
 |---|---|---|
-| `project_unknown` | `project_id` does not resolve to any registered root, even after a rescan | `project_id` |
+| `project_unknown` | `project_id` does not resolve to any registered root, even after a rescan | `project_id`, authorized `available_project_ids`, reconnect `remediation` |
 | `project_ambiguous` | `project_id` was omitted and the server cannot pick one unambiguously | `reason`: `no-default` or `multi-project-implicit` |
 
 A third case — the resolved project exists but policy denies it — surfaces
 through the existing JSON-RPC error `-32004` with `decision.Metadata()`
 (`policy denied`), not through `structuredContent`.
+
+### Connection verification
+
+Treat static configuration and the connected process as separate states:
+
+1. Run `pose doctor --json` to validate the local `.mcp.json`. Its
+   `mcp.config` finding reports `diagnostic_scope: static-configuration` and
+   `connection_checked: false`; it never claims to inspect a client-owned stdio
+   process.
+2. Call `pose_mcp_context` before the first governed read. Pass `project_id`
+   explicitly to probe the repository expected by the current task.
+3. Restart or reconnect the MCP client after changing `.mcp.json`, switching
+   repositories, or upgrading the binary. Call `pose_mcp_context` again and
+   require a new/expected server instance and a `resolved` project probe.
+4. Enable `POSE_MCP_STRICT_PROJECT_SELECTION` when more than one project is
+   registered. Do not continue after `project_unknown` or
+   `project_ambiguous`; use the returned logical IDs and remediation.
+
+The context response contains process metadata and authorized logical IDs only.
+It never returns project roots, configuration contents or environment values.
 
 **Compatibility / deprecation window:** with `POSE_MCP_STRICT_PROJECT_SELECTION`
 unset (default), an empty `project_id` always resolves to the configured

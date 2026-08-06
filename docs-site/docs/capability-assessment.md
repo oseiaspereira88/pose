@@ -68,7 +68,7 @@ N-minus-1 `Verify release` run against a published tag).
 | Evidence, history and insights              |       4 |      5 | Requirement trace links checks to commits; release artifacts are signed, per-report evidence is not            |
 | Follow-ups and recurrence                   |       5 |      5 | Owner/SLA and measured intervention effectiveness close the prior gap                                          |
 | Knowledge governance                        |       4 |      5 | Usage traceability and explainable semantic-advisory retrieval delivered; RBAC mapping still open              |
-| MCP and agent interoperability              |       5 |      5 | Golden-fixture catalog conformance, uniform project scoping, pagination, 30 tools                              |
+| MCP and agent interoperability              |       5 |      5 | Golden-fixture catalog conformance, active connection context, uniform project scoping, pagination, 47 tools  |
 | Policy, identity and audit                  |       4 |      5 | Identity-gated validation orchestration and bounded audit fields; SPIFFE/secret-mgmt/TLS still external        |
 | CI, release and supply-chain trust          |       5 |      5 | Signed, SBOM'd, provenance-attested releases; CodeQL/govulncheck/gitleaks/Scorecard all green                  |
 | Import and adoption interoperability        |       4 |      5 | Three executable, end-to-end-tested brownfield kits; no plugin-based custom source schemas yet                 |
@@ -273,7 +273,7 @@ beyond POSE's own sensitivity field.
 
 **Delivered now:** a versioned golden catalog fixture
 (`testdata/tool-catalog.golden.json`) freezing the exact `tools/list` payload
-— 30 tools — with bijection and negative-path tests against source registry,
+— 47 tools — with bijection and negative-path tests against source registry,
 runtime and documentation; a uniform `project_id` schema across every
 multi-root tool with typed `ProjectUnknownError`/`ProjectAmbiguousError` and
 structured `error_code` fields; opaque cursor pagination

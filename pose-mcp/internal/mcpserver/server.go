@@ -8,7 +8,9 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"crypto/rand"
 	"crypto/subtle"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,6 +19,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
@@ -126,6 +129,47 @@ type Server struct {
 	harness        HarnessExecutor    // nil = pose_validate_submit returns config error
 	orch           *orchestrator      // safe validation orchestration state (spec pose-safe-validate-orchestration)
 	obs            *observability.Provider
+	runtimeOnce    sync.Once
+	startedAt      time.Time
+	instanceID     string
+}
+
+type mcpTransportContextKey struct{}
+
+type policyInputContextKey struct{}
+
+func withMCPTransport(ctx context.Context, transport string) context.Context {
+	return context.WithValue(ctx, mcpTransportContextKey{}, transport)
+}
+
+func mcpTransportFromContext(ctx context.Context) string {
+	transport, _ := ctx.Value(mcpTransportContextKey{}).(string)
+	if transport == "" {
+		return "unknown"
+	}
+	return transport
+}
+
+func withPolicyInput(ctx context.Context, input PolicyInput) context.Context {
+	return context.WithValue(ctx, policyInputContextKey{}, input)
+}
+
+func policyInputFromContext(ctx context.Context) PolicyInput {
+	input, _ := ctx.Value(policyInputContextKey{}).(PolicyInput)
+	return input
+}
+
+func (s *Server) runtimeMetadata() (time.Time, string) {
+	s.runtimeOnce.Do(func() {
+		s.startedAt = time.Now().UTC()
+		var raw [12]byte
+		if _, err := rand.Read(raw[:]); err == nil {
+			s.instanceID = "mcp_" + hex.EncodeToString(raw[:])
+		} else {
+			s.instanceID = fmt.Sprintf("mcp_%d", s.startedAt.UnixNano())
+		}
+	})
+	return s.startedAt, s.instanceID
 }
 
 // WithIdentitySecret sets the HMAC secret used to verify the Execution Identity
@@ -182,7 +226,9 @@ var sharedNoopObservability = defaultObservability()
 // New builds a single-root server (legacy / dev): every request resolves to this
 // store regardless of project_id only when project_id is empty.
 func New(store pose.Store) *Server {
-	return &Server{roots: pose.NewRoots(pose.RootsConfig{DefaultRoot: store.Root}), policy: NewPolicyGate(PolicyConfig{}), auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability()}
+	server := &Server{roots: pose.NewRoots(pose.RootsConfig{DefaultRoot: store.Root}), policy: NewPolicyGate(PolicyConfig{}), auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability()}
+	server.runtimeMetadata()
+	return server
 }
 
 // NewWithRoots builds a project-aware server backed by a roots registry.
@@ -195,7 +241,9 @@ func NewWithRootsAndPolicy(roots *pose.Roots, policy *PolicyGate) *Server {
 	if policy == nil {
 		policy = NewPolicyGate(PolicyConfig{})
 	}
-	return &Server{roots: roots, policy: policy, auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability()}
+	server := &Server{roots: roots, policy: policy, auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability()}
+	server.runtimeMetadata()
+	return server
 }
 
 // TokenAuth wraps next with Bearer token authentication. When token is empty
@@ -382,7 +430,7 @@ type toolCallParams struct {
 // callTool is the HTTP-aware entry point for tools/call: reads principal and
 // project_id from headers before delegating to callToolCtx.
 func (s *Server) callTool(ctx context.Context, r *http.Request, req rpcRequest) rpcResponse {
-	return s.callToolCtx(ctx,
+	return s.callToolCtx(withMCPTransport(ctx, "streamable-http"),
 		headerValue(r, "X-MCP-Principal", "X-Principal"),
 		headerValue(r, "X-MCP-Project", "X-Project-Id", "X-Project-ID"),
 		headerValue(r, mcpenforce.IdentityHeader),
@@ -466,6 +514,7 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 	// (PolicyGate.Evaluate denies otherwise); RunID is empty when no
 	// identity was presented or identity binding is unconfigured.
 	ctx = withCallerIdentity(ctx, policyInput.RunID, policyInput.Scopes)
+	ctx = withPolicyInput(ctx, policyInput)
 	out, err := s.dispatch(ctx, p.Name, p.Arguments)
 	if err != nil {
 		outcome = "error"
@@ -484,10 +533,20 @@ func (s *Server) callToolCtx(ctx context.Context, principal, projectIDFromHeader
 		var ambiguousProj pose.ProjectAmbiguousError
 		switch {
 		case errors.As(err, &unknownProj):
+			available := s.authorizedProjectIDs(ctx, policyInput)
 			return result(req.ID, map[string]any{
-				"content":           []map[string]any{{"type": "text", "text": err.Error()}},
-				"structuredContent": map[string]any{"error_code": "project_unknown", "project_id": unknownProj.ProjectID},
-				"isError":           true,
+				"content": []map[string]any{{"type": "text", "text": err.Error()}},
+				"structuredContent": map[string]any{
+					"error_code":            "project_unknown",
+					"project_id":            unknownProj.ProjectID,
+					"available_project_ids": available,
+					"remediation": map[string]any{
+						"action":       "reload_or_restart_connection",
+						"context_tool": "pose_mcp_context",
+						"retry_with":   "an authorized project_id returned by pose_mcp_context",
+					},
+				},
+				"isError": true,
 			})
 		case errors.As(err, &ambiguousProj):
 			return result(req.ID, map[string]any{
@@ -530,7 +589,7 @@ func (s *Server) dispatchRPC(ctx context.Context, req rpcRequest) rpcResponse {
 	case "tools/list":
 		return result(req.ID, map[string]any{"tools": toolDefinitions()})
 	case "tools/call":
-		return s.callToolCtx(ctx, "", "", "", req)
+		return s.callToolCtx(withMCPTransport(ctx, "stdio"), "", "", "", req)
 	default:
 		return errorResp(req.ID, -32601, fmt.Sprintf("method %q not found", req.Method))
 	}
@@ -584,6 +643,13 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 	switch name {
 	case "pose_validate_approve", "pose_validate_submit", "pose_validate_status", "pose_validate_cancel":
 		return s.dispatchValidateOrchestration(ctx, name, args)
+	}
+	// Active connection context is intentionally handled before StoreFor. Its
+	// purpose is to diagnose an absent, ambiguous or stale selection, so making
+	// it depend on successful project resolution would reproduce the failure it
+	// is meant to explain.
+	if name == "pose_mcp_context" {
+		return s.dispatchMCPContext(ctx, args)
 	}
 	// All other tools resolve their store from the optional project_id (multi-project).
 	var sel struct {
@@ -1047,6 +1113,116 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 	}
 }
 
+func (s *Server) authorizedProjectIDs(ctx context.Context, base PolicyInput) []string {
+	if s.roots == nil || s.policy == nil {
+		return []string{}
+	}
+	ids := s.roots.Context().ProjectIDs
+	authorized := make([]string, 0, len(ids))
+	for _, id := range ids {
+		candidate := base
+		candidate.ProjectID = id
+		candidate.ProjectIDs = nil
+		decision, err := s.policy.Evaluate(ctx, candidate)
+		if err != nil {
+			decision = mcpenforce.DenyDecision(candidate, "policy_error")
+		}
+		if s.auditor != nil {
+			s.auditor.Record(ctx, decision)
+		}
+		if decision.Allow {
+			authorized = append(authorized, id)
+		}
+	}
+	return authorized
+}
+
+func rootsSelectionMode(snapshot pose.RootsContext) string {
+	switch {
+	case !snapshot.DefaultConfigured:
+		return "explicit-required"
+	case snapshot.StrictSelection && len(snapshot.ProjectIDs) > 1:
+		return "strict-multi-project"
+	case len(snapshot.ProjectIDs) > 1:
+		return "legacy-default-multi-project"
+	case snapshot.DefaultProjectID == "":
+		return "single-root-default"
+	default:
+		return "single-project-default"
+	}
+}
+
+func containsString(values []string, target string) bool {
+	for _, value := range values {
+		if value == target {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Server) dispatchMCPContext(ctx context.Context, args json.RawMessage) (any, error) {
+	var request struct {
+		ProjectID string `json:"project_id"`
+	}
+	if err := json.Unmarshal(args, &request); err != nil {
+		return nil, fmt.Errorf("pose_mcp_context: invalid arguments")
+	}
+	if s.roots == nil {
+		return nil, fmt.Errorf("pose_mcp_context: project registry unavailable")
+	}
+
+	snapshot := s.roots.Context()
+	authorized := s.authorizedProjectIDs(ctx, policyInputFromContext(ctx))
+	startedAt, instanceID := s.runtimeMetadata()
+	remediation := []map[string]string{}
+	response := map[string]any{
+		"schema_version":           1,
+		"connection_active":        true,
+		"server_name":              serverName,
+		"server_version":           serverVersion,
+		"protocol_version":         protocolVersion,
+		"server_instance_id":       instanceID,
+		"server_started_at":        startedAt.Format(time.RFC3339Nano),
+		"transport":                mcpTransportFromContext(ctx),
+		"registry_refreshed_at":    snapshot.RefreshedAt.UTC().Format(time.RFC3339Nano),
+		"strict_project_selection": snapshot.StrictSelection,
+		"selection_mode":           rootsSelectionMode(snapshot),
+		"available_project_ids":    authorized,
+		"remediation":              remediation,
+	}
+	if snapshot.DefaultProjectID != "" && containsString(authorized, snapshot.DefaultProjectID) {
+		response["default_project_id"] = snapshot.DefaultProjectID
+	}
+	if request.ProjectID != "" {
+		status := "resolved"
+		if _, err := s.roots.StoreFor(request.ProjectID); err != nil {
+			var unknown pose.ProjectUnknownError
+			if !errors.As(err, &unknown) {
+				return nil, err
+			}
+			status = "unknown"
+			remediation = append(remediation,
+				map[string]string{"code": "verify-project-id", "action": "select an ID from available_project_ids"},
+				map[string]string{"code": "reload-connection", "action": "restart or reconnect the MCP client after changing .mcp.json"},
+			)
+			response["remediation"] = remediation
+		}
+		response["requested_project"] = map[string]string{
+			"project_id": request.ProjectID,
+			"status":     status,
+		}
+	}
+	if rootsSelectionMode(snapshot) == "legacy-default-multi-project" {
+		remediation = append(remediation, map[string]string{
+			"code":   "enable-strict-selection",
+			"action": "set POSE_MCP_STRICT_PROJECT_SELECTION and pass project_id explicitly",
+		})
+		response["remediation"] = remediation
+	}
+	return response, nil
+}
+
 // dispatchValidateOrchestration handles the request-id-scoped orchestration
 // tools (spec pose-safe-validate-orchestration): approve, submit, status,
 // cancel. None resolves a POSE store — they act purely on the in-process
@@ -1374,6 +1550,23 @@ func toolDefinitions() []map[string]any {
 					},
 				},
 				"required": []string{"slug"},
+			},
+		},
+		{
+			"name": "pose_mcp_context",
+			"description": "Inspect the active MCP server process and its authorized logical project context " +
+				"without exposing filesystem roots. Returns server/version/instance/transport metadata, " +
+				"registry refresh time, strict-selection mode, authorized project IDs and optional " +
+				"requested-project resolution with reconnect remediation. Use before the first governed " +
+				"read and after switching workspaces or changing .mcp.json.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
 			},
 		},
 		{

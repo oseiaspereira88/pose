@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "evaluated_at": "2026-08-03T15:48:39Z",
-  "baseline_commit": "275188124a7f",
+  "evaluated_at": "2026-08-06T21:44:22Z",
+  "baseline_commit": "fec57babb87b",
   "summary": {
-    "total_integrations": 49,
+    "total_integrations": 50,
     "active_contracts": 1,
-    "identified_gaps": 48
+    "identified_gaps": 49
   },
   "contracts": [
     {
@@ -227,6 +227,13 @@
     },
     {
       "name": "MCP tool pose_list_specs",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_mcp_context",
       "protocol": "mcp",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -603,7 +610,7 @@
     },
     {
       "gap_id": "GAP-032",
-      "title": "No consumer observed for MCP tool pose_project_state",
+      "title": "No consumer observed for MCP tool pose_mcp_context",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -611,7 +618,7 @@
     },
     {
       "gap_id": "GAP-033",
-      "title": "No consumer observed for MCP tool pose_release_status",
+      "title": "No consumer observed for MCP tool pose_project_state",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -619,7 +626,7 @@
     },
     {
       "gap_id": "GAP-034",
-      "title": "No consumer observed for MCP tool pose_requirement_trace",
+      "title": "No consumer observed for MCP tool pose_release_status",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -627,7 +634,7 @@
     },
     {
       "gap_id": "GAP-035",
-      "title": "No consumer observed for MCP tool pose_skills_check",
+      "title": "No consumer observed for MCP tool pose_requirement_trace",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -635,7 +642,7 @@
     },
     {
       "gap_id": "GAP-036",
-      "title": "No consumer observed for MCP tool pose_spec_amendments",
+      "title": "No consumer observed for MCP tool pose_skills_check",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -643,7 +650,7 @@
     },
     {
       "gap_id": "GAP-037",
-      "title": "No consumer observed for MCP tool pose_spec_readiness",
+      "title": "No consumer observed for MCP tool pose_spec_amendments",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -651,7 +658,7 @@
     },
     {
       "gap_id": "GAP-038",
-      "title": "No consumer observed for MCP tool pose_suggest",
+      "title": "No consumer observed for MCP tool pose_spec_readiness",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -659,7 +666,7 @@
     },
     {
       "gap_id": "GAP-039",
-      "title": "No consumer observed for MCP tool pose_surface_assurance",
+      "title": "No consumer observed for MCP tool pose_suggest",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -667,7 +674,7 @@
     },
     {
       "gap_id": "GAP-040",
-      "title": "No consumer observed for MCP tool pose_tech_debt_check",
+      "title": "No consumer observed for MCP tool pose_surface_assurance",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -675,7 +682,7 @@
     },
     {
       "gap_id": "GAP-041",
-      "title": "No consumer observed for MCP tool pose_validate_approve",
+      "title": "No consumer observed for MCP tool pose_tech_debt_check",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -683,7 +690,7 @@
     },
     {
       "gap_id": "GAP-042",
-      "title": "No consumer observed for MCP tool pose_validate_cancel",
+      "title": "No consumer observed for MCP tool pose_validate_approve",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -691,7 +698,7 @@
     },
     {
       "gap_id": "GAP-043",
-      "title": "No consumer observed for MCP tool pose_validate_request",
+      "title": "No consumer observed for MCP tool pose_validate_cancel",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -699,7 +706,7 @@
     },
     {
       "gap_id": "GAP-044",
-      "title": "No consumer observed for MCP tool pose_validate_status",
+      "title": "No consumer observed for MCP tool pose_validate_request",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -707,7 +714,7 @@
     },
     {
       "gap_id": "GAP-045",
-      "title": "No consumer observed for MCP tool pose_validate_submit",
+      "title": "No consumer observed for MCP tool pose_validate_status",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -715,7 +722,7 @@
     },
     {
       "gap_id": "GAP-046",
-      "title": "No consumer observed for HTTP /admin/refresh",
+      "title": "No consumer observed for MCP tool pose_validate_submit",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -723,7 +730,7 @@
     },
     {
       "gap_id": "GAP-047",
-      "title": "No consumer observed for HTTP /healthz",
+      "title": "No consumer observed for HTTP /admin/refresh",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -731,6 +738,14 @@
     },
     {
       "gap_id": "GAP-048",
+      "title": "No consumer observed for HTTP /healthz",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-049",
       "title": "No consumer observed for HTTP /mcp",
       "severity": "medium",
       "provider": "pose-mcp",

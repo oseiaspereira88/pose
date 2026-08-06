@@ -114,12 +114,7 @@ reported_at: %s
 
 	// Submit remotely via gh CLI or GITHUB_TOKEN if requested or gh is available
 	if submitRemote {
-		label := "engine-limitation"
-		if kind == "suggestion" {
-			label = "feature-proposal"
-		} else if kind == "bug" {
-			label = "bug"
-		}
+		label := feedbackIssueLabel(kind)
 
 		fmt.Fprintln(stdout, text("[INFO] Submitting report upstream to oseiaspereira88/pose on GitHub...", "[INFO] Submetendo relato ao repositório upstream oseiaspereira88/pose no GitHub..."))
 
@@ -142,6 +137,17 @@ reported_at: %s
 	}
 
 	return 0
+}
+
+// feedbackIssueLabel intentionally uses only labels installed by GitHub's
+// standard repository contract. Custom labels previously made --submit fail
+// before the issue could be created when upstream lacked feature-proposal or
+// engine-limitation.
+func feedbackIssueLabel(kind string) string {
+	if kind == "bug" {
+		return "bug"
+	}
+	return "enhancement"
 }
 
 func slugify(s string) string {

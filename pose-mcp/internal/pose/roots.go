@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 	"time"
 )
@@ -58,6 +59,17 @@ type Roots struct {
 	byProject    map[string]string
 	lastScan     time.Time
 	rescanWindow time.Duration
+}
+
+// RootsContext is the path-free runtime view exposed to MCP diagnostics. It
+// deliberately contains only logical identifiers and selection behavior; the
+// project_id -> filesystem-root map remains private to Roots.
+type RootsContext struct {
+	DefaultProjectID  string    `json:"default_project_id,omitempty"`
+	DefaultConfigured bool      `json:"default_configured"`
+	StrictSelection   bool      `json:"strict_project_selection"`
+	ProjectIDs        []string  `json:"project_ids"`
+	RefreshedAt       time.Time `json:"refreshed_at"`
 }
 
 // NewRoots builds and primes the registry.
@@ -145,13 +157,27 @@ func (r *Roots) Refresh() {
 
 // Projects returns the currently known project_ids (for diagnostics/logging).
 func (r *Roots) Projects() []string {
+	return r.Context().ProjectIDs
+}
+
+// Context returns a deterministic, path-free snapshot of the active registry.
+// It is safe for diagnostics but still requires caller authorization before
+// any ProjectIDs are returned over a transport.
+func (r *Roots) Context() RootsContext {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	ids := make([]string, 0, len(r.byProject))
 	for id := range r.byProject {
 		ids = append(ids, id)
 	}
-	return ids
+	sort.Strings(ids)
+	return RootsContext{
+		DefaultProjectID:  r.cfg.DefaultProjectID,
+		DefaultConfigured: r.cfg.DefaultRoot != "",
+		StrictSelection:   r.cfg.StrictSelection,
+		ProjectIDs:        ids,
+		RefreshedAt:       r.lastScan,
+	}
 }
 
 // ScanProjectsDir registers each immediate subdirectory of base that contains a

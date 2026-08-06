@@ -255,6 +255,21 @@ pose hooks <install|uninstall|status> [--force]
 - `knowledge-suggest <query>` — deterministic, explainable lexical ranking over non-restricted knowledge (shared-term rationale exposed). Advisory only: suggestions never gate or auto-apply and require human confirmation before citing.
 - `hooks` — links the native binary into `.git/hooks/`; invocation name selects `check --tolerant` for `pre-commit` and `index` for `post-merge`.
 
+### MCP connection contract
+
+- Treat `.mcp.json`, the connected server process and the selected project as
+  separate states.
+- Run `pose doctor --json` only for local static configuration; its
+  `mcp.config` finding reports `connection_checked: false`.
+- Call `pose_mcp_context` with an explicit `project_id` before the first
+  governed read and after changing workspaces, configuration or binary version.
+- Restart or reconnect the MCP client after changing `.mcp.json`; a running
+  stdio process does not reload client configuration automatically.
+- Enable `POSE_MCP_STRICT_PROJECT_SELECTION` for multi-project connections and
+  stop on `project_unknown` or `project_ambiguous` instead of falling back.
+- Use only authorized logical IDs returned by `pose_mcp_context`; the tool never
+  exposes filesystem roots.
+
 ---
 
 ## 7) CI policy

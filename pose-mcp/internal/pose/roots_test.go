@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -143,6 +144,42 @@ func TestRoots_RescanThrottled(t *testing.T) {
 	// First miss just rebuilt at construction (<2s ago), so maybeRescan is a no-op.
 	if _, err := roots.StoreFor("fast"); err == nil {
 		t.Fatal("want throttle to suppress immediate rescan")
+	}
+}
+
+func TestRoots_ContextIsDeterministicAndPathFree(t *testing.T) {
+	roots := NewRoots(RootsConfig{
+		DefaultRoot:      "/secret/default/root",
+		DefaultProjectID: "proj.default",
+		Explicit: map[string]string{
+			"proj.z": "/secret/z",
+			"proj.a": "/secret/a",
+		},
+		StrictSelection: true,
+	})
+
+	ctx := roots.Context()
+	want := []string{"proj.a", "proj.default", "proj.z"}
+	if strings.Join(ctx.ProjectIDs, ",") != strings.Join(want, ",") {
+		t.Fatalf("ProjectIDs = %v, want %v", ctx.ProjectIDs, want)
+	}
+	if ctx.DefaultProjectID != "proj.default" || !ctx.DefaultConfigured || !ctx.StrictSelection {
+		t.Fatalf("unexpected context metadata: %+v", ctx)
+	}
+	if ctx.RefreshedAt.IsZero() {
+		t.Fatal("RefreshedAt must identify the active registry snapshot")
+	}
+	raw, err := json.Marshal(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, secretPath := range []string{"/secret/default/root", "/secret/z", "/secret/a"} {
+		if strings.Contains(string(raw), secretPath) {
+			t.Errorf("context leaked filesystem root %q: %s", secretPath, raw)
+		}
+	}
+	if got := roots.Projects(); strings.Join(got, ",") != strings.Join(want, ",") {
+		t.Fatalf("Projects() = %v, want sorted %v", got, want)
 	}
 }
 

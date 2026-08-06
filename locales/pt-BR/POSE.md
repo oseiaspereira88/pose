@@ -243,6 +243,21 @@ pose hooks <install|uninstall|status> [--force]
 - `reports-housekeeping` — espelha o housekeeping de knowledge sobre `.pose/reports/`. **Não toca em `history/`**: o JSONL é a fonte de verdade para `recurrence-check` e comparações temporais de `report`. Defaults: stale = 120d, archive purge = 365d.
 - `hooks` — gerencia symlinks do binário nativo em `.git/hooks/`. `pre-commit` roda `pose check --tolerant` e `post-merge` roda `pose index`; `install --force` preserva backup de hooks preexistentes.
 
+### Contrato de conexão MCP
+
+- Trate `.mcp.json`, o processo de servidor conectado e o projeto selecionado
+  como estados distintos.
+- Rode `pose doctor --json` apenas para a configuração estática local; o finding
+  `mcp.config` informa `connection_checked: false`.
+- Chame `pose_mcp_context` com `project_id` explícito antes da primeira leitura
+  governada e após mudar workspace, configuração ou versão do binário.
+- Reinicie ou reconecte o cliente MCP após alterar `.mcp.json`; um processo
+  stdio em execução não recarrega automaticamente a configuração do cliente.
+- Ative `POSE_MCP_STRICT_PROJECT_SELECTION` em conexões multi-projeto e pare em
+  `project_unknown` ou `project_ambiguous`, sem fallback.
+- Use somente IDs lógicos autorizados retornados por `pose_mcp_context`; a tool
+  nunca expõe roots do filesystem.
+
 ---
 
 ## 7) Política de CI

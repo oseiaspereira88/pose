@@ -1,0 +1,13 @@
+---
+spec: pose-mcp-active-context
+category: changed
+breaking: false
+refs:
+---
+
+Agents can now verify which MCP server process and project registry they are
+actually connected to through the policy-filtered `pose_mcp_context` tool,
+which never exposes filesystem roots. `pose doctor` now states explicitly that
+it only inspects static configuration, and unknown project selections return
+structured reconnect remediation. Community feedback submissions use the
+repository's standard issue labels.

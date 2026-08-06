@@ -40,13 +40,15 @@ const (
 )
 
 type doctorFinding struct {
-	Check            string `json:"check"`
-	Level            string `json:"level"` // ok | warn | error
-	Message          string `json:"message"`
-	Hint             string `json:"hint,omitempty"`
-	Evidence         string `json:"evidence,omitempty"`
-	RemediationClass string `json:"remediation_class"`
-	FixCode          string `json:"fix_code,omitempty"`
+	Check             string `json:"check"`
+	Level             string `json:"level"` // ok | warn | error
+	Message           string `json:"message"`
+	Hint              string `json:"hint,omitempty"`
+	Evidence          string `json:"evidence,omitempty"`
+	RemediationClass  string `json:"remediation_class"`
+	FixCode           string `json:"fix_code,omitempty"`
+	DiagnosticScope   string `json:"diagnostic_scope,omitempty"`
+	ConnectionChecked *bool  `json:"connection_checked,omitempty"`
 }
 
 // doctorFix is a confined, reversible, idempotent remediation action. Every
@@ -216,6 +218,11 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 			FixCode:          fixCode,
 		})
 	}
+	markStaticMCPConfig := func() {
+		checked := false
+		findings[len(findings)-1].DiagnosticScope = "static-configuration"
+		findings[len(findings)-1].ConnectionChecked = &checked
+	}
 
 	// 1. Binary + toolchain deps.
 	add("binary", "ok", fmt.Sprintf("pose %s", Version), "")
@@ -295,11 +302,14 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 
 	// 6. MCP uses the same native binary directly.
 	if b, err := os.ReadFile(filepath.Join(root, ".mcp.json")); err != nil {
-		add("mcp.config", "warn", text(".mcp.json not found", ".mcp.json ausente"), text("run 'pose install' to seed the native server configuration", "rode 'pose install' para criar a configuração do servidor nativo"))
+		add("mcp.config", "warn", text("static .mcp.json configuration not found", "configuração estática .mcp.json ausente"), text("run 'pose install', then restart/reconnect the client and call pose_mcp_context", "rode 'pose install', reinicie/reconecte o cliente e chame pose_mcp_context"))
+		markStaticMCPConfig()
 	} else if strings.Contains(string(b), `"command": "pose"`) {
-		add("mcp.config", "ok", text("MCP points to the native pose binary", "MCP aponta para o binário pose nativo"), "")
+		add("mcp.config", "ok", text("static MCP configuration points to the native pose binary", "configuração estática MCP aponta para o binário pose nativo"), text("active connection not checked; call pose_mcp_context after workspace or configuration changes", "conexão ativa não verificada; chame pose_mcp_context após mudar workspace ou configuração"))
+		markStaticMCPConfig()
 	} else {
-		add("mcp.config", "warn", text("MCP configuration does not use the native pose command", "configuração MCP não usa o comando pose nativo"), text("regenerate .mcp.json with 'pose install'", "regenere .mcp.json com 'pose install'"))
+		add("mcp.config", "warn", text("static MCP configuration does not use the native pose command", "configuração estática MCP não usa o comando pose nativo"), text("regenerate .mcp.json with 'pose install', restart/reconnect, then call pose_mcp_context", "regenere .mcp.json com 'pose install', reinicie/reconecte e chame pose_mcp_context"))
+		markStaticMCPConfig()
 	}
 
 	// 7. Git hooks.
