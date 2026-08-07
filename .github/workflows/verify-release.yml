@@ -22,9 +22,24 @@ jobs:
     if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v'))
     runs-on: ubuntu-latest
     steps:
+      # Under workflow_run this job runs in the base-repository context, so
+      # checking out an event-supplied ref is the pattern Scorecard flags as a
+      # dangerous workflow. The job holds only read scopes and no secrets, but
+      # the ref is still attacker-influenceable, so it is resolved to a tag that
+      # matches the release pattern and nothing else
+      # (spec pose-release-workflow-hardening).
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}
+      - name: Resolve and check out the release tag
+        env:
+          RAW_REF: ${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}
+        run: |
+          set -euo pipefail
+          case "$RAW_REF" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *) echo "refusing to verify a ref that is not a release tag: $RAW_REF" >&2; exit 1 ;;
+          esac
+          git fetch --depth 1 origin "refs/tags/$RAW_REF:refs/tags/$RAW_REF"
+          git checkout --detach "refs/tags/$RAW_REF"
       - uses: actions/setup-go@v5
         with:
           go-version: "1.26.5"

@@ -5,9 +5,15 @@ on:
   workflow_dispatch:
 # id-token: write enables keyless Sigstore signing (spec pose-release-signing);
 # attestations: write publishes SLSA build provenance (spec pose-slsa-provenance)
-permissions: { contents: write, id-token: write, attestations: write }
+# Least privilege at the top; the release job raises what it needs
+# (spec pose-release-workflow-hardening).
+permissions: { contents: read }
 jobs:
   release:
+    # contents: write publishes the release; id-token: write enables keyless
+    # Sigstore signing (spec pose-release-signing); attestations: write
+    # publishes SLSA build provenance (spec pose-slsa-provenance).
+    permissions: { contents: write, id-token: write, attestations: write }
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
