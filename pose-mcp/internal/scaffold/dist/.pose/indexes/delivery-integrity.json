@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:a947ac198dade7954a786c83eaebbde1d3876e56e940ed2d13df7f5be31c14f8",
-  "provenance_digest": "sha256:477598a3069ba33eeed7755eb4700e1f7de90d6318963d6ea8671cb184d8200d",
+  "input_digest": "sha256:060352113a6ecac4ff9e3a5db52080432534e523f53ed61a48bd1f1e61384e04",
+  "provenance_digest": "sha256:42ff70bca53804d061f4e0376603bfa7b40668c7faa52f742a5c257f4856f10a",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -666,6 +666,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-compat-gate-candidate-integrity/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md"
       }
     },
     {
@@ -2835,6 +2842,14 @@
       }
     },
     {
+      "id": "delivery:governance:compat-gate-manual-assertion",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
       "id": "delivery:governance:extension-reference",
       "type": "governance",
       "attributes": {
@@ -3042,6 +3057,13 @@
     },
     {
       "id": "spec:pose-compat-gate-candidate-integrity",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-compat-gate-manual-refresh-assertion",
       "type": "spec",
       "attributes": {
         "status": "done"
@@ -3407,7 +3429,7 @@
       "attributes": {
         "check": "test",
         "evidence_class": "unit",
-        "outcome": "pass"
+        "outcome": "fail"
       }
     },
     {
@@ -10062,6 +10084,11 @@
       "type": "composes"
     },
     {
+      "from": "delivery:governance:compat-gate-manual-assertion",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
       "from": "delivery:governance:extension-reference",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -10495,6 +10522,21 @@
       "from": "spec:pose-compat-gate-candidate-integrity",
       "to": "change-set:cs-6b153fe9345a",
       "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-compat-gate-manual-refresh-assertion",
+      "to": "artifact:.pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-compat-gate-manual-refresh-assertion",
+      "to": "artifact:tests/release/compat.sh",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-compat-gate-manual-refresh-assertion",
+      "to": "delivery:governance:compat-gate-manual-assertion",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-debt-marker-lexical-precision",
@@ -11970,6 +12012,16 @@
     },
     {
       "spec": "pose-compat-gate-candidate-integrity",
+      "action": "modified",
+      "path": "tests/release/compat.sh"
+    },
+    {
+      "spec": "pose-compat-gate-manual-refresh-assertion",
+      "action": "created",
+      "path": ".pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md"
+    },
+    {
+      "spec": "pose-compat-gate-manual-refresh-assertion",
       "action": "modified",
       "path": "tests/release/compat.sh"
     },
@@ -17294,6 +17346,9 @@
     ".pose/specs/pose-compat-gate-candidate-integrity/spec.md": [
       "pose-compat-gate-candidate-integrity"
     ],
+    ".pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md": [
+      "pose-compat-gate-manual-refresh-assertion"
+    ],
     ".pose/specs/pose-debt-marker-lexical-precision/spec.md": [
       "pose-debt-marker-lexical-precision",
       "pose-release-cycle-debt-closure"
@@ -17777,7 +17832,8 @@
       "pose-release-cycle-debt-closure"
     ],
     "tests/release/compat.sh": [
-      "pose-compat-gate-candidate-integrity"
+      "pose-compat-gate-candidate-integrity",
+      "pose-compat-gate-manual-refresh-assertion"
     ],
     "tests/release/independent-verify.sh": [
       "pose-extension-reference-publication"
@@ -17875,6 +17931,16 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
+      "id": "dif-07d0213d2f48",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-compat-gate-manual-refresh-assertion",
+      "path": "governance:compat-gate-manual-assertion",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different provenance digest",
+      "remediation": "rerun the registered validation check for the current source provenance"
+    },
+    {
       "id": "dif-0943b2449d2a",
       "code": "orphan",
       "severity": "warning",
@@ -17955,6 +18021,15 @@
       "path": "pose-mcp/internal/cli/insights.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-10679daa85a8",
+      "code": "unconnected-artifact",
+      "severity": "error",
+      "spec": "pose-compat-gate-manual-refresh-assertion",
+      "path": "governance:compat-gate-manual-assertion",
+      "message": "delivery target has no structured artifact provenance",
+      "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
       "id": "dif-113bf6cecb76",
@@ -18810,6 +18885,15 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
+      "id": "dif-694d992bd1bb",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-compat-gate-manual-refresh-assertion",
+      "path": "governance:compat-gate-manual-assertion",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-6a02cb19e7c8",
       "code": "orphan",
       "severity": "warning",
@@ -19546,6 +19630,15 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-ade5cf050c89",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-compat-gate-manual-refresh-assertion",
+      "path": "tests/release/compat.sh",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-af7f09e4e23a",
       "code": "orphan",
       "severity": "warning",
@@ -20170,6 +20263,15 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
+      "id": "dif-ee9be13007b7",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-compat-gate-manual-refresh-assertion",
+      "path": ".pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-f08f12cf9dde",
       "code": "orphan",
       "severity": "warning",
@@ -20477,6 +20579,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-compat-gate-manual-refresh-assertion",
+      "ref": "governance:compat-gate-manual-assertion",
+      "kind": "governance",
+      "id": "compat-gate-manual-assertion",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-extension-reference-publication",
       "ref": "governance:extension-reference",
       "kind": "governance",
@@ -20593,9 +20704,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "81b83f96b51b78ff0afcf1ee7c741ca7f796d7ab",
-      "generated_at": "2026-08-07T18:42:53Z",
-      "provenance_digest": "sha256:33fcbbdc0d366dd3236d1f5bf57ad1c7aeaf704ecedc2ca5e87bb2f27ee9d62f",
+      "git_head": "95fc5e769c688e2a0163db3802621951444ddb12",
+      "generated_at": "2026-08-07T18:43:23Z",
+      "provenance_digest": "sha256:477598a3069ba33eeed7755eb4700e1f7de90d6318963d6ea8671cb184d8200d",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -20605,9 +20716,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "81b83f96b51b78ff0afcf1ee7c741ca7f796d7ab",
-      "generated_at": "2026-08-07T18:42:53Z",
-      "provenance_digest": "sha256:33fcbbdc0d366dd3236d1f5bf57ad1c7aeaf704ecedc2ca5e87bb2f27ee9d62f",
+      "git_head": "95fc5e769c688e2a0163db3802621951444ddb12",
+      "generated_at": "2026-08-07T18:43:23Z",
+      "provenance_digest": "sha256:477598a3069ba33eeed7755eb4700e1f7de90d6318963d6ea8671cb184d8200d",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -20616,10 +20727,10 @@
       "check": "test",
       "evidence_class": "unit",
       "severity": "required",
-      "outcome": "pass",
-      "git_head": "81b83f96b51b78ff0afcf1ee7c741ca7f796d7ab",
-      "generated_at": "2026-08-07T18:42:53Z",
-      "provenance_digest": "sha256:33fcbbdc0d366dd3236d1f5bf57ad1c7aeaf704ecedc2ca5e87bb2f27ee9d62f",
+      "outcome": "fail",
+      "git_head": "95fc5e769c688e2a0163db3802621951444ddb12",
+      "generated_at": "2026-08-07T18:43:23Z",
+      "provenance_digest": "sha256:477598a3069ba33eeed7755eb4700e1f7de90d6318963d6ea8671cb184d8200d",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -20629,9 +20740,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "81b83f96b51b78ff0afcf1ee7c741ca7f796d7ab",
-      "generated_at": "2026-08-07T18:42:53Z",
-      "provenance_digest": "sha256:33fcbbdc0d366dd3236d1f5bf57ad1c7aeaf704ecedc2ca5e87bb2f27ee9d62f",
+      "git_head": "95fc5e769c688e2a0163db3802621951444ddb12",
+      "generated_at": "2026-08-07T18:43:23Z",
+      "provenance_digest": "sha256:477598a3069ba33eeed7755eb4700e1f7de90d6318963d6ea8671cb184d8200d",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -21008,6 +21119,11 @@
       "artifact:pose-mcp/internal/cli/managed_docs_test.go",
       "artifact:tests/release/compat.sh",
       "delivery:governance:compat-gate-candidate-integrity",
+      "entrypoint:pose-mcp/cmd/pose/main.go"
+    ],
+    "governance:compat-gate-manual-assertion": [
+      "spec:pose-compat-gate-manual-refresh-assertion",
+      "delivery:governance:compat-gate-manual-assertion",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "governance:extension-reference": [

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "version": "v0.20.0",
+  "previous_version": "v0.19.0",
+  "prepared_at": "2026-08-07T18:58:55Z",
+  "specs": [
+    "pose-compat-gate-manual-refresh-assertion",
+    "pose-extension-reference-publication"
+  ],
+  "categories": {
+    "changed": 1,
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-compat-gate-manual-refresh-assertion",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The release compatibility gate no longer fails an upgrade whose managed manual\nlegitimately changed. It asserted that `AGENTS.md` was byte-identical before and\nafter, which contradicted the upgrade contract adopted in 0.18.0 — canonical\nmanual content is supposed to reach installed repositories. The check now\nrequires what the contract actually promises: whatever the instance wrote\nsurvives, in the manual or in its `.pose-backup`.",
+      "path": "pose-compat-gate-manual-refresh-assertion.md",
+      "digest": "sha256:a4c2ba4c4884011b9589d07f15de9bcd19ae0d24f4ca1f6996f85aaaf6265665"
+    },
+    {
+      "spec": "pose-extension-reference-publication",
+      "category": "changed",
+      "breaking": true,
+      "body": "The Kubernetes review rule is no longer embedded in every instance. It ships as\n`pose-rule-kubernetes`, the project's first signed reference extension, and is\ninstalled with `pose extension install` by repositories that actually deploy to\na cluster. Fresh installs no longer receive `.pose/rules/kubernetes.md`;\nexisting instances keep their copy, but it stops being refreshed by `pose\nupgrade` because the engine no longer ships it.\n\nThis also gives the extension chain its first real artifact. The release\nworkflow signs the extension with cosign and publishes it beside the engine's\nown assets, and the independent verification job now fetches it as a consumer,\nchecks the signature before executing anything, installs it, and requires a\ntampered copy to be rejected. Until now every test of that path substituted a\nfake for cosign.",
+      "path": "pose-extension-reference-publication.md",
+      "digest": "sha256:478f54875897fa1e1ad39bd7793386dbf5e3343dc8b8f19d43acc6e3b670ed24"
+    }
+  ],
+  "breaking": true,
+  "notes_digest": "sha256:013fd05aca4f719d3d373707d1da73271ad7f506068d4f24b23d9a47673fa20c",
+  "release_input_digest": "sha256:d7d13722c2d9870b02ce1a0402fac05a629cd8c9a6490711f42e8bd1fa6d4ce3",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v0.20.0"
+  }
+}

@@ -29,6 +29,14 @@
       "to": "pose-installer-local-binary-precedence"
     },
     {
+      "from": "pose-compat-gate-manual-refresh-assertion",
+      "to": "pose-manual-distribution-merge"
+    },
+    {
+      "from": "pose-compat-gate-manual-refresh-assertion",
+      "to": "pose-compat-gate-candidate-integrity"
+    },
+    {
       "from": "pose-cross-repo-portfolio",
       "to": "pose-mcp-project-scope-contract"
     },
@@ -340,6 +348,15 @@
         "pose-installer-local-binary-precedence"
       ],
       "path": ".pose/specs/pose-compat-gate-candidate-integrity/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
+    "pose-compat-gate-manual-refresh-assertion": {
+      "depends_on": [
+        "pose-manual-distribution-merge",
+        "pose-compat-gate-candidate-integrity"
+      ],
+      "path": ".pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md",
       "priority": 1,
       "status": "done"
     },
