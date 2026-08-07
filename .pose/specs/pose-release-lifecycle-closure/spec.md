@@ -461,7 +461,7 @@ relabeling prior work as pending.
 
 ### Requirement trace
 - R1 [satisfied] test:TestReleaseProjectionRequiresPublicationBoundVerification.
-- R2 [satisfied] test:TestReleasePrepareConsumesOnlyPendingSnapshotAndIsIdempotent; evidence:unit.
+- R2 [satisfied] test:TestReleasePrepareConsumesOnlyPendingSnapshotAndIsIdempotent; evidence:unit
 - R3 [satisfied] test:TestReleasePrepareConsumesOnlyPendingSnapshotAndIsIdempotent.
 - R4 [satisfied] test:TestReleaseManifestAndNotesAreDeterministic.
 - R5 [satisfied] test:TestReleasePrepareConsumesOnlyPendingSnapshotAndIsIdempotent.
@@ -469,15 +469,15 @@ relabeling prior work as pending.
 - R7 [satisfied] check:release-check-strict.
 - R8 [satisfied] check:immutable-release-notes-alias.
 - R9 [satisfied] test:TestReleaseManifestAndNotesAreDeterministic.
-- R10 [satisfied] check:release-check-strict; evidence:integration.
+- R10 [satisfied] check:release-check-strict; surface:release-lifecycle-cli evidence:integration
 - R11 [satisfied] test:TestReleaseProjectionRequiresPublicationBoundVerification.
 - R12 [satisfied] check:publication-evidence-schema.
 - R13 [satisfied] test:TestReleaseProjectionRequiresPublicationBoundVerification; check:release-record-append-only.
 - R14 [satisfied] test:TestReleaseProjectionRequiresPublicationBoundVerification.
-- R15 [satisfied] contract:release-lifecycle-mcp evidence:integration.
+- R15 [satisfied] contract:release-lifecycle-mcp evidence:integration
 - R16 [satisfied] test:TestReleaseProjectionRequiresPublicationBoundVerification; check:release-status-json.
 - R17 [satisfied] test:TestReleaseStatusToolReadsProjectScopedLedger.
-- R18 [satisfied] check:pose-check-strict; governance:release-integrity evidence:integration.
+- R18 [satisfied] check:pose-check-strict; governance:release-integrity evidence:integration
 - R19 [satisfied] test:TestMissingReleasePolicyIsActionable.
 - R20 [satisfied] report:.pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md.
 - R21 [satisfied] check:workflow-security; report:.pose/reports/2026-08-03-pose-release-lifecycle-closure-review.md.

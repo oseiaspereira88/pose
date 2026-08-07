@@ -390,14 +390,14 @@ framework.
 - R2 [satisfied] test:TestDeliveryTargetsRequireExactTypedFrontmatterAndBodyRefs.
 - R3 [satisfied] test:TestSurfaceCheckFailsUnreachableDelivery; report:.pose/reports/2026-08-03-pose-delivery-surface-assurance-review.md.
 - R4 [satisfied] test:TestValidateWritesEvidenceClassAndProvenanceDigest.
-- R5 [satisfied] test:TestDeliverySurfaceFailsGreenArtifactWithUnreachableSurface; evidence:integration evidence:e2e.
-- R6 [satisfied] test:TestTraceAcceptsDeliveryAndEvidenceRefs; evidence:unit evidence:integration.
-- R7 [satisfied] test:TestDeferredIntegrationDoesNotAssertDeliveryOrSatisfyRoadmapCriterion; surface:delivery-integrity-cli evidence:integration.
-- R8 [satisfied] check:delivery-reachability; surface:delivery-integrity-cli evidence:e2e.
-- R9 [satisfied] test:TestDeliverySurfaceFailsGreenArtifactWithUnreachableSurface; capability:delivery-integrity-graph evidence:integration.
+- R5 [satisfied] test:TestDeliverySurfaceFailsGreenArtifactWithUnreachableSurface; evidence:integration evidence:e2e
+- R6 [satisfied] test:TestTraceAcceptsDeliveryAndEvidenceRefs; evidence:unit evidence:integration
+- R7 [satisfied] test:TestDeferredIntegrationDoesNotAssertDeliveryOrSatisfyRoadmapCriterion; surface:delivery-integrity-cli evidence:integration
+- R8 [satisfied] check:delivery-reachability; surface:delivery-integrity-cli evidence:e2e
+- R9 [satisfied] test:TestDeliverySurfaceFailsGreenArtifactWithUnreachableSurface; capability:delivery-integrity-graph evidence:integration
 - R10 [satisfied] test:TestRoadmapCriteriaRejectRawCommandsAndRequireRegisteredRefs.
 - R11 [satisfied] test:TestRoadmapCheckRejectsIncompleteMemberAndMissingEvidence.
-- R12 [satisfied] test:TestSurfaceAssuranceToolReadsProjectScopedGraph; contract:delivery-integrity-mcp evidence:integration.
+- R12 [satisfied] test:TestSurfaceAssuranceToolReadsProjectScopedGraph; contract:delivery-integrity-mcp evidence:integration
 - R13 [satisfied] check:skills-check-strict; report:.pose/reports/2026-08-03-pose-delivery-surface-assurance-review.md.
 
 ### Known gaps
