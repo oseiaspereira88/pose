@@ -1,8 +1,8 @@
 ---
 slug: pose-first-release-evidence-confirmation
-status: in-progress
+status: done
 created_at: 2026-08-07
-completed_at:
+completed_at: 2026-08-07
 supersedes:
 depends_on:
 priority: 1
@@ -87,8 +87,8 @@ recording of the result.
 - The nine originating specs — each follow-up gets its disposition.
 
 ### Artifacts
-<!-- Declared at closeout, once the evidence files exist. -->
 - created: .pose/specs/pose-first-release-evidence-confirmation/spec.md
+- created: pose-mcp/internal/scaffold/dist/.pose/specs/pose-first-release-evidence-confirmation/spec.md
 
 ### API/contract changes
 - None.
