@@ -156,6 +156,15 @@ deploys to a cluster, alongside `frontend-react.md` and `backend-go.md`. Making
 it the reference extension corrects that for one of the three; the other two
 remain embedded and have the same shape of problem.
 
+**F3 — the signing step left the working tree dirty and goreleaser refused
+(severity: high, fixed in the v0.20.1 cut).** The packaged extension and its
+bundle are written to the repository root before goreleaser runs, so `git`
+reported them untracked and the release aborted with "git is in a dirty state".
+The v0.20.0 run died there, after the signing step itself succeeded. The
+`.gitignore` already carried the same fix for `compatibility-report.md`, with a
+comment describing this exact failure from the pipeline's first full run — the
+lesson was recorded and then not applied to the next generated artifact.
+
 **F2 — installing an extension into this repository is easy to do by accident
 (severity: low).** While testing, a manual `extension install` ran against the
 working tree and wrote a real entry into `.pose/indexes/extensions.lock.json`.
@@ -163,9 +172,9 @@ It was reverted with `extension remove`, but nothing about the command warns
 that the target is the repository you are standing in.
 
 ### Known gaps
-- The signing legs (R1) and the consumer verification against a *published*
-  artifact (R2) execute for the first time on the next release cut. Locally the
-  chain is proven only up to the default-reject and opt-in paths.
+- The signing leg (R1) executed for the first time in the v0.20.0 run and
+  passed; the run then failed at goreleaser for the reason in F3, so consumer
+  verification against a *published* artifact (R2) still has not run.
 - `frontend-react.md` and `backend-go.md` stay embedded, so the mis-shipping F1
   describes is only one third fixed.
 

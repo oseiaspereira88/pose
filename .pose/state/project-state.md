@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-07T18:58:36Z
-baseline_commit: d9ee1375c6e54f6fc365528faf573264fc389d63
+generated_at: 2026-08-07T19:04:53Z
+baseline_commit: 63903e607d60c82380d1194c009e5bc47ce48fc3
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:155544471498 -->
+<!-- state:derived hash:ba0a02e7697e -->
 
-- último registro: task=validate-native outcome=fail (2026-08-07T18:43:29Z)
-- últimos 30 dias: total=101 outcome_ok=88 outcome_outro=13
-- reports revisados (.md): total=44
+- último registro: task=release-v0-20-0 outcome=pass (2026-08-07T19:00:38Z)
+- últimos 30 dias: total=105 outcome_ok=91 outcome_outro=14
+- reports revisados (.md): total=46
+  - report:2026-08-07-standard-release-v0-20-0.md
   - report:2026-08-07-standard-validate-native.md
+  - report:2026-08-07-standard-closeout-pose-compat-gate-manual-refresh-assertion.md
   - report:2026-08-07-standard-closeout-pose-extension-reference-publication.md
   - report:2026-08-07-standard-release-v0-19-0.md
-  - report:2026-08-07-standard-closeout-pose-release-cycle-debt-closure.md
-  - report:2026-08-07-standard-closeout-pose-governance-gate-activation.md
 
 ## Arquitetura
 <!-- state:derived hash:0a483847335f status:active -->
