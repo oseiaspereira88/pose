@@ -186,10 +186,19 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		// repository at all; --force still resets the file wholesale.
 		if existing, readErr := os.ReadFile(dst); readErr == nil && !force {
 			merged, preserved := MergeManagedDoc(content, string(existing))
+			dropsContent := MergeDropsLocalContent(content, string(existing))
 			content = merged
 			if string(existing) == content {
 				log("unchanged: %s", "inalterado: %s", doc)
 				continue
+			}
+			// Text the instance wrote inside an engine-owned section body has no
+			// heading of its own, so the refresh overwrites it. Keep a copy
+			// rather than lose it silently.
+			if dropsContent && !noBackup {
+				if err := os.WriteFile(dst+".pose-backup", existing, 0o644); err == nil {
+					fmt.Fprintf(stderr, "[pose-install] backed up customized: %s → %s.pose-backup\n", doc, doc)
+				}
 			}
 			if err := os.WriteFile(dst, []byte(content), 0o644); err != nil {
 				fmt.Fprintf(stderr, "pose install: %v\n", err)

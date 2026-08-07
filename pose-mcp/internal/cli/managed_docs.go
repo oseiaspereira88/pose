@@ -66,6 +66,22 @@ func splitDocSections(doc string) (preamble []string, sections []docSection) {
 // The second return value reports whether anything was preserved from the
 // local copy, which lets the caller log a merge instead of an overwrite.
 func MergeManagedDoc(canonical, local string) (string, bool) {
+	merged, preserved, _ := mergeManagedDoc(canonical, local)
+	return merged, preserved
+}
+
+// MergeDropsLocalContent reports whether merging would drop a non-blank line the
+// instance wrote. Text written inside an engine-owned section body — a note
+// appended to the end of the file, for instance — belongs to no local heading,
+// so the refresh legitimately overwrites it. Losing it silently is what is not
+// acceptable: the caller keeps a `.pose-backup` copy when this returns true
+// (spec pose-managed-doc-content-preservation).
+func MergeDropsLocalContent(canonical, local string) bool {
+	_, _, dropped := mergeManagedDoc(canonical, local)
+	return dropped
+}
+
+func mergeManagedDoc(canonical, local string) (string, bool, bool) {
 	canonicalPre, canonicalSections := splitDocSections(canonical)
 	_, localSections := splitDocSections(local)
 
@@ -110,7 +126,30 @@ func MergeManagedDoc(canonical, local string) (string, bool) {
 		out = append(out, section.Heading)
 		out = append(out, section.Body...)
 	}
-	return strings.Join(out, "\n"), preserved
+	result := strings.Join(out, "\n")
+	return result, preserved, droppedLocalContent(local, result)
+}
+
+// droppedLocalContent reports whether a non-blank line present in the local
+// manual is absent from the merged result. Comparing line multisets is enough
+// here: the merge only ever reorders, refreshes or appends whole sections, so a
+// local line that survives appears verbatim.
+func droppedLocalContent(local, merged string) bool {
+	remaining := map[string]int{}
+	for _, line := range strings.Split(merged, "\n") {
+		remaining[strings.TrimSpace(line)]++
+	}
+	for _, line := range strings.Split(local, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
+			continue
+		}
+		if remaining[trimmed] == 0 {
+			return true
+		}
+		remaining[trimmed]--
+	}
+	return false
 }
 
 // sectionIsInstanceOwned reports whether the canonical manual tags this

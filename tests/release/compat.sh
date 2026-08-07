@@ -99,10 +99,14 @@ else
     ) || return 1
     local before after
     before="$($sha_cmd "$fixture/AGENTS.md" | awk '{print $1}')"
-    (cd "$fixture" && "$candidate" upgrade >/dev/null) || return 1
+    # --no-self is mandatory here: a bare `upgrade` self-updates to the latest
+    # *published* release, which would overwrite the candidate binary mid-gate
+    # and leave every later pair validating the previous release instead of the
+    # one being cut (spec pose-compat-gate-candidate-integrity).
+    (cd "$fixture" && "$candidate" upgrade --no-self >/dev/null) || return 1
     (cd "$fixture" && "$candidate" check --strict >/dev/null) || return 1
     local reapply
-    reapply="$(cd "$fixture" && "$candidate" upgrade)"
+    reapply="$(cd "$fixture" && "$candidate" upgrade --no-self)"
     [[ "$reapply" == *"already at schema"* ]] || return 1
     after="$($sha_cmd "$fixture/AGENTS.md" | awk '{print $1}')"
     [[ "$before" == "$after" ]] || return 1

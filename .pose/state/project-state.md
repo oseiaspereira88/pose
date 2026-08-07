@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-07T04:20:07Z
-baseline_commit: 964086bd9b152d560e7e681941676d77b5b1293f
+generated_at: 2026-08-07T04:36:42Z
+baseline_commit: fd66001edeb29c10bbdeed6457b90bcc96b391bf
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:47bd584bf3d7 -->
+<!-- state:derived hash:ae15b01bb54c -->
 
-- specs: total=50 draft=0 in-progress=0 blocked=0 done=50 superseded=0 abandoned=0
+- specs: total=51 draft=0 in-progress=0 blocked=0 done=51 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
-  - spec:pose-installer-local-binary-precedence (2026-08-07)
   - spec:pose-assessment-engine-precision (2026-08-07)
   - spec:pose-manual-distribution-merge (2026-08-07)
+  - spec:pose-installer-local-binary-precedence (2026-08-07)
   - spec:pose-command-reference-parity (2026-08-07)
-  - spec:pose-mcp-active-context (2026-08-06)
-  - ... e mais 45 (ver `pose_list_specs status:done`)
+  - spec:pose-compat-gate-candidate-integrity (2026-08-07)
+  - ... e mais 46 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:2baebec4a47e -->
+<!-- state:derived hash:32d527283bad -->
 
-- abertos: 37
-- por criticidade: high=5 medium=13 low=16 sem-classificação=3
+- abertos: 39
+- por criticidade: high=5 medium=13 low=16 sem-classificação=5
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=1 ativo=1 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:d3bdae5a6daa -->
+<!-- state:derived hash:0508593bec4e -->
 
-- último registro: task=closeout-pose-installer-local-binary-precedence outcome=fail (2026-08-07T04:18:46Z)
-- últimos 30 dias: total=75 outcome_ok=68 outcome_outro=7
-- reports revisados (.md): total=35
-  - report:2026-08-07-standard-closeout-pose-installer-local-binary-precedence.md
+- último registro: task=release-v0-18-1 outcome=pass (2026-08-07T04:23:39Z)
+- últimos 30 dias: total=79 outcome_ok=70 outcome_outro=9
+- reports revisados (.md): total=36
+  - report:2026-08-07-standard-release-v0-18-1.md
   - report:2026-08-07-standard-validate-native.md
+  - report:2026-08-07-standard-closeout-pose-installer-local-binary-precedence.md
   - report:2026-08-07-standard-release-v0-18-0.md
   - report:2026-08-07-standard-closeout-pose-release-lifecycle-closure.md
-  - report:2026-08-07-standard-closeout-pose-delivery-surface-assurance.md
 
 ## Arquitetura
 <!-- state:derived hash:0a483847335f status:active -->

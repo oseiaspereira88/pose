@@ -196,3 +196,22 @@ func TestRefreshManagedDocsIgnoresAbsentManual(t *testing.T) {
 		t.Error("refresh must not create a manual where none existed")
 	}
 }
+
+func TestMergeDropsLocalContentDetectsTextWithoutItsOwnHeading(t *testing.T) {
+	// A note appended to the end of the file lands in an engine-owned section
+	// body, so the refresh legitimately overwrites it — the caller must be told
+	// so it can keep a backup instead of losing it silently.
+	local := canonicalManual + "\n<!-- an instance note with no heading of its own -->\n"
+	if !MergeDropsLocalContent(canonicalManual, local) {
+		t.Error("a note inside an engine-owned section body must be reported as dropped")
+	}
+
+	withOwnSection := canonicalManual + "\n## Instance-only section\n\nkept verbatim\n"
+	if MergeDropsLocalContent(canonicalManual, withOwnSection) {
+		t.Error("a section the engine does not know is appended, never dropped")
+	}
+
+	if MergeDropsLocalContent(canonicalManual, canonicalManual) {
+		t.Error("an untouched manual drops nothing")
+	}
+}
