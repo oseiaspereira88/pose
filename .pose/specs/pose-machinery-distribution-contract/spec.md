@@ -82,7 +82,7 @@ it has never been exercised end to end through the signing pipeline.
 - Release-signing pipeline — first reference extension (R4).
 
 ### Artifacts
-- created: .pose/specs/pose-machinery-distribution-contract/spec.md
+- modified: .pose/specs/pose-machinery-distribution-contract/spec.md
 - created: pose-mcp/internal/cli/machinery.go
 - created: pose-mcp/internal/cli/machinery_test.go
 - modified: pose-mcp/internal/cli/install.go
