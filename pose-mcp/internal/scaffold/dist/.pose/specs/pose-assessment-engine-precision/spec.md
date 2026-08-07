@@ -133,8 +133,8 @@ repository and confirm the observable corrections.
 
 ### Requirement trace
 - R1 [satisfied] check:pose-check-strict test:TestDocumentCoversDebtRequiresMarkerEvidence
-- R2 [satisfied] check:pose-check-strict evidence:behavioral — `assess discover --component pose-mcp` keeps `mcp-enforce` in `.pose/assessments/README.md`
-- R3 [satisfied] check:pose-check-strict evidence:behavioral — regenerated `gap_id` values are content-derived hashes
+- R2 [satisfied] governance:assessment-engine-precision evidence:integration check:delivery-integration — `assess discover --component pose-mcp` keeps `mcp-enforce` in `.pose/assessments/README.md`
+- R3 [satisfied] governance:assessment-engine-precision evidence:integration check:delivery-integration — regenerated `gap_id` values are content-derived hashes
 
 ### Known gaps
 - Debt coverage accepts a debt id, but ids are themselves positional
