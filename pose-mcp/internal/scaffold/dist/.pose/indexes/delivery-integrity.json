@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:2b8e81cb952b994602a39552e5f93e5a0fe5c6bcca0fdcd98b907b00a4e74b85",
-  "provenance_digest": "sha256:ed4b60ad8be0689fe16ce9047341e52034b08b88fbacc4fc1559316330abd16f",
+  "input_digest": "sha256:d248d797055599d678d516686fc87bed1f44456f45254cecf5292a1ae2c7f830",
+  "provenance_digest": "sha256:60e85e9a0b9cb2d3dd863b620b444c4b36f4eaa86f254069a9b258a507a26ced",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -3207,7 +3207,7 @@
       "attributes": {
         "check": "test",
         "evidence_class": "unit",
-        "outcome": "fail"
+        "outcome": "pass"
       }
     },
     {
@@ -3249,6 +3249,16 @@
     {
       "from": "artifact:.agents/skills/README.md",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.agents/skills/pose-bugfix/SKILL.md",
+      "to": "delivery:governance:gate-activation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.agents/skills/pose-feature/SKILL.md",
+      "to": "delivery:governance:gate-activation",
       "type": "implemented-by"
     },
     {
@@ -10323,6 +10333,16 @@
     },
     {
       "from": "spec:pose-governance-gate-activation",
+      "to": "artifact:.agents/skills/pose-bugfix/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-governance-gate-activation",
+      "to": "artifact:.agents/skills/pose-feature/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-governance-gate-activation",
       "to": "artifact:.github/workflows/governance-audit.yml",
       "type": "declares"
     },
@@ -11632,6 +11652,16 @@
       "spec": "pose-first-release-evidence-confirmation",
       "action": "created",
       "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-first-release-evidence-confirmation/spec.md"
+    },
+    {
+      "spec": "pose-governance-gate-activation",
+      "action": "modified",
+      "path": ".agents/skills/pose-bugfix/SKILL.md"
+    },
+    {
+      "spec": "pose-governance-gate-activation",
+      "action": "modified",
+      "path": ".agents/skills/pose-feature/SKILL.md"
     },
     {
       "spec": "pose-governance-gate-activation",
@@ -16258,6 +16288,12 @@
       "pose-delivery-surface-assurance",
       "pose-release-lifecycle-closure"
     ],
+    ".agents/skills/pose-bugfix/SKILL.md": [
+      "pose-governance-gate-activation"
+    ],
+    ".agents/skills/pose-feature/SKILL.md": [
+      "pose-governance-gate-activation"
+    ],
     ".agents/skills/pose-release-closeout/SKILL.md": [
       "pose-release-lifecycle-closure"
     ],
@@ -17823,14 +17859,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-6787204d16c9",
-      "code": "orphan",
-      "severity": "warning",
-      "path": ".agents/skills/pose-feature/SKILL.md",
-      "message": "governed tracked path has no spec provenance claim",
-      "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
       "id": "dif-67e61b8d2ffa",
       "code": "legacy-narrative",
       "severity": "info",
@@ -17897,16 +17925,6 @@
       "path": "pose-mcp/internal/cli/import.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-6a251a125e8d",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-governance-gate-activation",
-      "path": ".agents/skills/pose-bugfix/SKILL.md",
-      "change_set": "cs-dccd9f6dd0d3",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-6bc7f24712f2",
@@ -18343,16 +18361,6 @@
       "path": "pose-mcp/internal/pose/artifacts.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-9451a8ec7e6d",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-governance-gate-activation",
-      "path": ".agents/skills/pose-feature/SKILL.md",
-      "change_set": "cs-dccd9f6dd0d3",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-9539281186d5",
@@ -19032,14 +19040,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-d48311875dd2",
-      "code": "orphan",
-      "severity": "warning",
-      "path": ".agents/skills/pose-bugfix/SKILL.md",
-      "message": "governed tracked path has no spec provenance claim",
-      "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
       "id": "dif-d49faa20ae71",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -19698,9 +19698,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e523368db91adfa4ac3012dc40d771ed00880f90",
-      "generated_at": "2026-08-07T17:09:32Z",
-      "provenance_digest": "sha256:16027849995a8ee2ce591ce0469ce94e888893af39fdb067ef155886486af3e0",
+      "git_head": "fc4ac744648eb1e8a07e158319983aa3cb2c3877",
+      "generated_at": "2026-08-07T17:29:30Z",
+      "provenance_digest": "sha256:ed4b60ad8be0689fe16ce9047341e52034b08b88fbacc4fc1559316330abd16f",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -19710,9 +19710,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e523368db91adfa4ac3012dc40d771ed00880f90",
-      "generated_at": "2026-08-07T17:09:32Z",
-      "provenance_digest": "sha256:16027849995a8ee2ce591ce0469ce94e888893af39fdb067ef155886486af3e0",
+      "git_head": "fc4ac744648eb1e8a07e158319983aa3cb2c3877",
+      "generated_at": "2026-08-07T17:29:30Z",
+      "provenance_digest": "sha256:ed4b60ad8be0689fe16ce9047341e52034b08b88fbacc4fc1559316330abd16f",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -19721,10 +19721,10 @@
       "check": "test",
       "evidence_class": "unit",
       "severity": "required",
-      "outcome": "fail",
-      "git_head": "e523368db91adfa4ac3012dc40d771ed00880f90",
-      "generated_at": "2026-08-07T17:09:32Z",
-      "provenance_digest": "sha256:16027849995a8ee2ce591ce0469ce94e888893af39fdb067ef155886486af3e0",
+      "outcome": "pass",
+      "git_head": "fc4ac744648eb1e8a07e158319983aa3cb2c3877",
+      "generated_at": "2026-08-07T17:29:30Z",
+      "provenance_digest": "sha256:ed4b60ad8be0689fe16ce9047341e52034b08b88fbacc4fc1559316330abd16f",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -19734,9 +19734,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "e523368db91adfa4ac3012dc40d771ed00880f90",
-      "generated_at": "2026-08-07T17:09:32Z",
-      "provenance_digest": "sha256:16027849995a8ee2ce591ce0469ce94e888893af39fdb067ef155886486af3e0",
+      "git_head": "fc4ac744648eb1e8a07e158319983aa3cb2c3877",
+      "generated_at": "2026-08-07T17:29:30Z",
+      "provenance_digest": "sha256:ed4b60ad8be0689fe16ce9047341e52034b08b88fbacc4fc1559316330abd16f",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -20124,6 +20124,8 @@
     ],
     "governance:gate-activation": [
       "spec:pose-governance-gate-activation",
+      "artifact:.agents/skills/pose-bugfix/SKILL.md",
+      "artifact:.agents/skills/pose-feature/SKILL.md",
       "artifact:.github/workflows/governance-audit.yml",
       "artifact:.github/workflows/security.yml",
       "artifact:.pose/specs/pose-governance-gate-activation/spec.md",
