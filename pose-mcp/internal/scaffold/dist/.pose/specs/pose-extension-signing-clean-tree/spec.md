@@ -66,6 +66,11 @@ which is the part worth fixing beyond the two filenames.
 ### Artifacts
 - created: .pose/specs/pose-extension-signing-clean-tree/spec.md
 - modified: .gitignore
+- modified: compatibility.json
+- modified: pose-mcp/internal/version/version.go
+- modified: pose-mcp/server.json
+- modified: README.md
+- modified: docs-site/docs/ci.md
 
 ### Delivery targets
 - governance:extension-signing-clean-tree module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
