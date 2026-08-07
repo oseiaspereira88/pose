@@ -29,26 +29,49 @@ jobs:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
+      # Under workflow_run this job runs in the base-repository context, so the
+      # event-supplied ref is attacker-influenceable: checking it out, or
+      # interpolating it into a shell script, is what Scorecard flags as a
+      # dangerous workflow. It is resolved once, against the release-tag
+      # pattern, and reaches every later step as an environment variable
+      # instead of as template text (spec pose-package-channel-workflow-safety).
+      - name: Resolve the release tag
+        shell: bash
+        env:
+          RAW_REF: ${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}
+        run: |
+          set -euo pipefail
+          case "$RAW_REF" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *) echo "refusing to build channels for a ref that is not a release tag: $RAW_REF" >&2; exit 1 ;;
+          esac
+          echo "RELEASE_TAG=$RAW_REF" >> "$GITHUB_ENV"
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}
+      - name: Check out the release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --depth 1 origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+          git checkout --detach "refs/tags/$RELEASE_TAG"
       - uses: actions/setup-go@v7
         with:
           go-version: "1.26.5"
           cache: false
       - name: Download release checksums
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release download "${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}" --repo "${{ github.repository }}" --pattern checksums.txt
+          REPO: ${{ github.repository }}
+        run: gh release download "$RELEASE_TAG" --repo "$REPO" --pattern checksums.txt
       - name: Generate package-manager manifests
         shell: bash
         run: |
-          TAG="${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}"
+          set -euo pipefail
           # The Go module lives in pose-mcp/, not at the repository root: the
           # previous form failed in 26s on both runners with "cannot find main
           # module" the one time this gate was ever dispatched.
           go -C pose-mcp run ./cmd/pose release-package-manifests \
-            --version "${TAG#v}" \
+            --version "${RELEASE_TAG#v}" \
             --checksums ../checksums.txt \
             --out ../package-manifests
       - name: Install via Homebrew
