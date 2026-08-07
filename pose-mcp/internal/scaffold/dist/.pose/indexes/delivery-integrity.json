@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:ff2d1d22e05022c7e1d6eaccf169e5fab78dd056943f371674404ca801777af4",
-  "provenance_digest": "sha256:9cde89e7e30dfb4dbbd6cc0dbca555fc60bbcfcb7a4fb973cfb3e158475ef618",
+  "input_digest": "sha256:0ee80a9ab989d46e4441894282ba16300bb521dc90c360b4b237b5d54d2e2324",
+  "provenance_digest": "sha256:0b458933e7e54ee881e045fe8169020322f57af2b12ea97b1320b79a851c9e9d",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -1938,6 +1938,14 @@
       }
     },
     {
+      "id": "delivery:governance:installer-bootstrap-integrity",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
       "id": "delivery:governance:project-assessment",
       "type": "governance",
       "attributes": {
@@ -2835,6 +2843,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/specs/pose-installer-local-binary-precedence/spec.md",
+      "to": "delivery:governance:installer-bootstrap-integrity",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/specs/pose-manual-distribution-merge/spec.md",
       "to": "delivery:capability:manual-distribution",
       "type": "implemented-by"
@@ -3067,6 +3080,11 @@
     {
       "from": "artifact:docs-site/docs/mcp.md",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:install.sh",
+      "to": "delivery:governance:installer-bootstrap-integrity",
       "type": "implemented-by"
     },
     {
@@ -4020,6 +4038,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-installer-local-binary-precedence/spec.md",
+      "to": "delivery:governance:installer-bootstrap-integrity",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-locales-alignment/spec.md",
       "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
@@ -4037,6 +4060,11 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
       "to": "delivery:governance:command-reference-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/install.sh",
+      "to": "delivery:governance:installer-bootstrap-integrity",
       "type": "implemented-by"
     },
     {
@@ -4102,6 +4130,11 @@
     {
       "from": "artifact:scripts/release.sh",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:tests/install/run.sh",
+      "to": "delivery:governance:installer-bootstrap-integrity",
       "type": "implemented-by"
     },
     {
@@ -7785,6 +7818,11 @@
       "type": "composes"
     },
     {
+      "from": "delivery:governance:installer-bootstrap-integrity",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
       "from": "delivery:governance:project-assessment",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -8451,13 +8489,33 @@
     },
     {
       "from": "spec:pose-installer-local-binary-precedence",
+      "to": "artifact:.pose/specs/pose-installer-local-binary-precedence/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-installer-local-binary-precedence",
       "to": "artifact:install.sh",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-installer-local-binary-precedence",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-installer-local-binary-precedence/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-installer-local-binary-precedence",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/install.sh",
       "type": "declares"
     },
     {
       "from": "spec:pose-installer-local-binary-precedence",
       "to": "artifact:tests/install/run.sh",
       "type": "declares"
+    },
+    {
+      "from": "spec:pose-installer-local-binary-precedence",
+      "to": "delivery:governance:installer-bootstrap-integrity",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-installer-local-binary-precedence",
@@ -9583,8 +9641,23 @@
     },
     {
       "spec": "pose-installer-local-binary-precedence",
+      "action": "created",
+      "path": ".pose/specs/pose-installer-local-binary-precedence/spec.md"
+    },
+    {
+      "spec": "pose-installer-local-binary-precedence",
+      "action": "created",
+      "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-installer-local-binary-precedence/spec.md"
+    },
+    {
+      "spec": "pose-installer-local-binary-precedence",
       "action": "modified",
       "path": "install.sh"
+    },
+    {
+      "spec": "pose-installer-local-binary-precedence",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/install.sh"
     },
     {
       "spec": "pose-installer-local-binary-precedence",
@@ -13479,6 +13552,9 @@
     ".pose/specs/pose-delivery-surface-assurance/spec.md": [
       "pose-delivery-surface-assurance"
     ],
+    ".pose/specs/pose-installer-local-binary-precedence/spec.md": [
+      "pose-installer-local-binary-precedence"
+    ],
     ".pose/specs/pose-manual-distribution-merge/spec.md": [
       "pose-manual-distribution-merge"
     ],
@@ -13837,6 +13913,9 @@
     "pose-mcp/internal/scaffold/dist/.pose/specs/pose-doc-command-reference/spec.md": [
       "pose-mcp-active-context"
     ],
+    "pose-mcp/internal/scaffold/dist/.pose/specs/pose-installer-local-binary-precedence/spec.md": [
+      "pose-installer-local-binary-precedence"
+    ],
     "pose-mcp/internal/scaffold/dist/.pose/specs/pose-locales-alignment/spec.md": [
       "pose-mcp-active-context"
     ],
@@ -13846,6 +13925,9 @@
     "pose-mcp/internal/scaffold/dist/POSE.md": [
       "pose-command-reference-parity",
       "pose-mcp-active-context"
+    ],
+    "pose-mcp/internal/scaffold/dist/install.sh": [
+      "pose-installer-local-binary-precedence"
     ],
     "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md": [
       "pose-command-reference-parity",
@@ -13869,16 +13951,6 @@
     ]
   },
   "findings": [
-    {
-      "id": "dif-004b0731f169",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-installer-local-binary-precedence",
-      "path": "pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json",
-      "change_set": "cs-211d56f0088f",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
     {
       "id": "dif-00f2b48b3bbd",
       "code": "orphan",
@@ -14032,6 +14104,15 @@
       "path": "pose-mcp/internal/cli/docs_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-0e3c0bac1749",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-installer-local-binary-precedence",
+      "path": "governance:installer-bootstrap-integrity",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-0f8db18f4672",
@@ -14405,16 +14486,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-3dfadc5a973c",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-installer-local-binary-precedence",
-      "path": "pose-mcp/internal/scaffold/dist/install.sh",
-      "change_set": "cs-211d56f0088f",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-3e266c5cbc83",
       "code": "unconnected-artifact",
       "severity": "error",
@@ -14598,16 +14669,6 @@
       "path": ".github/workflows/package-channels.yml",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-4b351a5f3f9c",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-installer-local-binary-precedence",
-      "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-installer-local-binary-precedence/spec.md",
-      "change_set": "cs-211d56f0088f",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-4b49933ea99a",
@@ -15765,6 +15826,16 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-b880d577a6e9",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-installer-local-binary-precedence",
+      "path": "governance:installer-bootstrap-integrity",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different provenance digest",
+      "remediation": "rerun the registered validation check for the current source provenance"
+    },
+    {
       "id": "dif-b8bd6c8173d5",
       "code": "surface-without-reachability",
       "severity": "error",
@@ -16336,16 +16407,6 @@
       "remediation": "correct the action or record the exact attributed revisions"
     },
     {
-      "id": "dif-f5d69a9173cb",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-installer-local-binary-precedence",
-      "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-installer-local-binary-precedence.md",
-      "change_set": "cs-211d56f0088f",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-f5e8ecd500bc",
       "code": "orphan",
       "severity": "warning",
@@ -16566,7 +16627,16 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-installer-local-binary-precedence",
+      "ref": "governance:installer-bootstrap-integrity",
+      "kind": "governance",
+      "id": "installer-bootstrap-integrity",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -16575,7 +16645,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -17033,8 +17103,18 @@
       "delivery:governance:command-reference-parity",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
+    "governance:installer-bootstrap-integrity": [
+      "spec:pose-installer-local-binary-precedence",
+      "artifact:.pose/specs/pose-installer-local-binary-precedence/spec.md",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-installer-local-binary-precedence/spec.md",
+      "artifact:install.sh",
+      "artifact:pose-mcp/internal/scaffold/dist/install.sh",
+      "artifact:tests/install/run.sh",
+      "delivery:governance:installer-bootstrap-integrity",
+      "entrypoint:pose-mcp/cmd/pose/main.go"
+    ],
     "governance:project-assessment": [
-      "spec:pose-project-agnostic-assessment-engines",
+      "spec:pose-debt-marker-lexical-precision",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],

@@ -14,7 +14,11 @@
 - _Not provided_
 
 ## Files Changed
-- pose/results/delivery-validation.json
+- pose/reports/2026-08-07-standard-validate-native.md
+- .pose/reports/history/standard-validate-native.jsonl
+- .pose/results/delivery-validation.json
+- pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
+- pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json
 
 ## Validation Commands
 - _Fill manually_
@@ -23,17 +27,17 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-07T04:16:00Z
+- Generated at (UTC): 2026-08-07T04:21:46Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 31
+- Sequence for task/spec: 34
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-07T04:13:16Z
-- Status: changed
+- Previous execution: 2026-08-07T04:21:26Z
+- Status: stable
 - Stable field diffs:
-- validation_profile: "tolerant" -> "strict"
+- _No changes in stable fields_
 
 ## Risks
 - _No risks provided_
