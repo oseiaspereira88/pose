@@ -33,15 +33,25 @@ fi
 "$binary" install "$non_git" --skip-mcp --allow-non-git >/dev/null
 
 # Release bootstrap: install.sh must prefer a native binary beside itself and
-# work without a source tree or Go on PATH.
+# work without a source tree or Go on PATH. A poisoned `curl` shadows the real
+# one, so any attempt to reach the provider fails the scenario instead of
+# silently installing the previously published release (spec
+# pose-installer-local-binary-precedence).
 bundle="$work/release-bundle"
 bundle_target="$work/release-project"
 mkdir -p "$bundle" "$bundle_target"
 cp "$binary" "$bundle/pose"
 cp "$repo_root/install.sh" "$bundle/install.sh"
 git -C "$bundle_target" init -q
-PATH="$(dirname "$(command -v git)")" bash "$bundle/install.sh" "$bundle_target" --skip-mcp >/dev/null
-(cd "$bundle_target" && PATH="$(dirname "$(command -v git)")" "$bundle/pose" check --strict >/dev/null)
+offline_path="$work/offline-bin"
+mkdir -p "$offline_path"
+printf '#!/usr/bin/env bash\necho "installer reached the network" >&2\nexit 1\n' > "$offline_path/curl"
+chmod +x "$offline_path/curl"
+offline_env="$offline_path:$(dirname "$(command -v git)")"
+PATH="$offline_env" bash "$bundle/install.sh" "$bundle_target" --skip-mcp >/dev/null
+# `check --strict` here is the regression that matters: it includes the
+# manual-parity gate, which is what a provider-downloaded (older) engine failed.
+(cd "$bundle_target" && PATH="$offline_env" "$bundle/pose" check --strict >/dev/null)
 
 # Verified-download contract (spec pose-public-install-contract): archive named
 # per the goreleaser template, checksum verified before the binary reaches
