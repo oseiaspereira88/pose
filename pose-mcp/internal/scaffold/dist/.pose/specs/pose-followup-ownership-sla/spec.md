@@ -112,4 +112,4 @@ ownership contracts in its own §6/§7.
 
 ### Follow-ups
 
-- [open] Adopt `--fail-overdue` in the quarterly governance audit once the first review cycle completes. (owner:@pose-maintainers crit:low review:2026-10-08)
+- [spawned: pose-governance-gate-activation] Adopt `--fail-overdue` in the quarterly governance audit once the first review cycle completes. (owner:@pose-maintainers crit:low review:2026-10-08)

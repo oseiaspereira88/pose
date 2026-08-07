@@ -114,5 +114,5 @@ final edge — "did the systemic fix work?" — is now measured, not assumed.
 
 ### Follow-ups
 
-- [open] Register the first real intervention when recurrence-check next flags a task, and review its verdict after the window. (owner:@pose-maintainers crit:medium review:2026-11-06)
+- [spawned: pose-governance-gate-activation] Register the first real intervention when recurrence-check next flags a task, and review its verdict after the window. (owner:@pose-maintainers crit:medium review:2026-11-06)
 - [covered: pose-otel-observability] Export effectiveness signals via OpenTelemetry in the insights roadmap.

@@ -117,4 +117,4 @@ evidence instead of prose claims.
 
 ### Follow-ups
 
-- [open] Verify mkdocs build --strict picks up the new nav entry and internal links cleanly on the next docs.yml CI run. (owner:@pose-maintainers crit:low review:2026-08-14)
+- [spawned: pose-first-release-evidence-confirmation] Verify mkdocs build --strict picks up the new nav entry and internal links cleanly on the next docs.yml CI run. (owner:@pose-maintainers crit:low review:2026-08-14)

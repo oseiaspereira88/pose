@@ -159,4 +159,4 @@ identity-derived integration gap ids.
 
 ### Follow-ups
 
-- [open] Debt marker ids are positional (`DEBT-001`), the same defect this spec fixed for integration gaps, so citing one in a spec is evidence that silently retargets when a marker is added earlier in the scan. Derive debt ids from file and marker identity too. (owner:@pose-maintainers crit:low review:2026-11-07)
+- [spawned: pose-governance-gate-activation] Debt marker ids are positional (`DEBT-001`), the same defect this spec fixed for integration gaps, so citing one in a spec is evidence that silently retargets when a marker is added earlier in the scan. Derive debt ids from file and marker identity too. (owner:@pose-maintainers crit:low review:2026-11-07)

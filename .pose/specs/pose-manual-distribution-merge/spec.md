@@ -169,4 +169,4 @@ locales, merge-on-install and manual refresh on every upgrade.
 
 ### Follow-ups
 
-- [open] Rules, workflows, templates and skills still reach an instance only under `pose upgrade --force`, which overwrites local edits wholesale. Machinery needs the same distinction between engine-owned and instance-owned content that the manuals now have, so a plain upgrade can deliver them safely. (owner:@pose-maintainers crit:medium review:2026-10-07)
+- [spawned: pose-machinery-distribution-contract] Rules, workflows, templates and skills still reach an instance only under `pose upgrade --force`, which overwrites local edits wholesale. Machinery needs the same distinction between engine-owned and instance-owned content that the manuals now have, so a plain upgrade can deliver them safely. (owner:@pose-maintainers crit:medium review:2026-10-07)

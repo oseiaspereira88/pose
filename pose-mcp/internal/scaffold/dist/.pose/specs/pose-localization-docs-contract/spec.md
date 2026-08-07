@@ -107,4 +107,4 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 
 ### Follow-ups
 
-- [open] Confirm the first `mkdocs build --strict` CI run (`docs.yml`) against this spec's page edits — not executable in this sandbox (no `pip`/`mkdocs`). (owner:@pose-maintainers crit:medium review:2026-08-19)
+- [spawned: pose-first-release-evidence-confirmation] Confirm the first `mkdocs build --strict` CI run (`docs.yml`) against this spec's page edits — not executable in this sandbox (no `pip`/`mkdocs`). (owner:@pose-maintainers crit:medium review:2026-08-19)

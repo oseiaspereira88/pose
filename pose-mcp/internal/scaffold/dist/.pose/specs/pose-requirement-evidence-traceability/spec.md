@@ -111,4 +111,4 @@ legacy migration and ADR. This spec dogfoods its own contract in §6.
 
 ### Follow-ups
 
-- [open] Flip the legacy done-without-trace warning to an error once the 10 pre-contract specs gain trace sections or are archived. (owner:@pose-maintainers crit:medium review:2026-10-23)
+- [spawned: pose-governance-gate-activation] Flip the legacy done-without-trace warning to an error once the 10 pre-contract specs gain trace sections or are archived. (owner:@pose-maintainers crit:medium review:2026-10-23)

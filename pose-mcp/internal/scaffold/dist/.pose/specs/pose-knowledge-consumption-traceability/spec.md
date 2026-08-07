@@ -114,4 +114,4 @@ documentation; ADR. Fully offline — no semantic backend shipped or required.
 
 ### Follow-ups
 
-- [open] Cite knowledge refs from the feature/bugfix workflows and skills so citation becomes routine, then review usage in the first quarterly audit. (owner:@pose-maintainers crit:low review:2026-10-08)
+- [spawned: pose-governance-gate-activation] Cite knowledge refs from the feature/bugfix workflows and skills so citation becomes routine, then review usage in the first quarterly audit. (owner:@pose-maintainers crit:low review:2026-10-08)

@@ -121,5 +121,5 @@ operating-manual documentation; ADR.
 
 ### Follow-ups
 
-- [open] Publish a first real, signed reference extension (e.g. a community skill) end-to-end through the release-signing pipeline to prove the full chain outside unit tests. (owner:@pose-maintainers crit:medium review:2026-11-20)
-- [open] Consider a lightweight `pose extension search <catalog-dir>` once a first real catalog directory convention is adopted by an operator. (owner:@pose-maintainers crit:low review:2026-12-18)
+- [spawned: pose-machinery-distribution-contract] Publish a first real, signed reference extension (e.g. a community skill) end-to-end through the release-signing pipeline to prove the full chain outside unit tests. (owner:@pose-maintainers crit:medium review:2026-11-20)
+- [spawned: pose-machinery-distribution-contract] Consider a lightweight `pose extension search <catalog-dir>` once a first real catalog directory convention is adopted by an operator. (owner:@pose-maintainers crit:low review:2026-12-18)

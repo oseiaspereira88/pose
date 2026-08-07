@@ -116,4 +116,4 @@ discovery/workflow dogfood fixture; operating-manual documentation; ADR.
 
 ### Follow-ups
 
-- [open] Extend skills-check to also scan the locales/*/.agents/skills mirror trees, not just the installed .agents/skills/. (owner:@pose-maintainers crit:low review:2026-11-20)
+- [spawned: pose-machinery-distribution-contract] Extend skills-check to also scan the locales/*/.agents/skills mirror trees, not just the installed .agents/skills/. (owner:@pose-maintainers crit:low review:2026-11-20)

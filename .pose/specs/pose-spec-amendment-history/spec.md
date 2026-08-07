@@ -113,4 +113,4 @@ ADR. Adoption is opt-in per spec via the first baseline.
 
 ### Follow-ups
 
-- [open] Record baselines for the active-roadmap specs as they enter execution, making the gate effective beyond fixtures. (owner:@pose-maintainers crit:medium review:2026-10-23)
+- [spawned: pose-governance-gate-activation] Record baselines for the active-roadmap specs as they enter execution, making the gate effective beyond fixtures. (owner:@pose-maintainers crit:medium review:2026-10-23)

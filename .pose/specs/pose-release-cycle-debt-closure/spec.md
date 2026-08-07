@@ -10,14 +10,15 @@ components: release, installer
 delivers:
 ---
 
-# Spec: Close the three debts the 0.18 release cycle exposed
+# Spec: Close the debts the 0.18 release cycle exposed
 
 ## 1. Intent
 
 ### Goal
-Make the release cycle stop paying the same three tolls: an upgrade-pair gate
-with nothing to exercise, a `release prepare` that breaks the structural gate of
-every spec it consumes, and an installer download path no test covers.
+Make the release cycle stop paying the same tolls: an upgrade-pair gate with
+nothing to exercise, a `release prepare` that breaks the structural gate of
+every spec it consumes, an installer download path no test covers, and follow-up
+metadata that disappears on a line break.
 
 ### Business value
 Cutting 0.18.0 through 0.18.2 took three tagged releases, two of which never
@@ -25,8 +26,11 @@ published. Each of these three items contributed: the compatibility gate could
 not catch a real defect because its pair machinery had no entry to run, the
 structural gate broke after every cut and cost several reindex-and-review cycles
 to restore, and the installer's provider-download branch — the one every public
-`curl | bash` user hits — is still only covered indirectly. None is urgent on
-its own; together they are what makes a routine cut expensive.
+`curl | bash` user hits — is still only covered indirectly. A fourth item joined
+them from the same cycle: follow-up metadata is parsed only on an item's first
+line, so five wrapped items silently lost their owner and review date with no
+gate objecting. None is urgent on its own; together they are what makes a
+routine cut expensive.
 
 ### Constraints
 - `pose release prepare` archives fragments as an immutable operation. Rewriting
@@ -53,6 +57,11 @@ its own; together they are what makes a routine cut expensive.
 - R3: The installer's provider-download branch shall be covered by a test that
   serves the archive from a local origin, asserting both the success path and
   rejection of a malformed or truncated asset.
+- R4: Follow-up metadata shall be recognised regardless of where it sits inside
+  the item, or a malformed item shall fail `pose lint-spec --strict` naming the
+  spec and the text. Today `(owner:… crit:… review:…)` is only parsed on the
+  first line: a wrapped item silently loses its owner and review date, and no
+  gate says so.
 
 ### Non-functional
 - The added coverage must not make `tests/install/run.sh` depend on the network.
@@ -73,6 +82,7 @@ its own; together they are what makes a routine cut expensive.
 - `compatibility.json` and `tests/release/compat.sh` — first real pair (R1).
 - `pose-mcp/internal/cli/release_lifecycle.go` — claim rewriting on prepare (R2).
 - `install.sh` and `tests/install/run.sh` — download-branch coverage (R3).
+- `pose-mcp/internal/cli/followups.go` — follow-up metadata parsing (R4).
 
 ### Artifacts
 <!-- Declare exact paths at closeout, once the change set is known. -->
@@ -85,6 +95,9 @@ its own; together they are what makes a routine cut expensive.
 ### Technical risks
 - R2 is the delicate one: the claim rewrite must be part of the same atomic
   prepare, or a partial failure leaves specs pointing at a half-archived path.
+- R4 has a migration edge: existing wrapped items across the repository would
+  start parsing, which changes `pose followups` counts in one step. Preferable
+  to a silent loss, but worth announcing.
 - R1 cannot be validated until a release after 0.18.2 exists, so its check runs
   for the first time during that cut.
 
@@ -102,6 +115,7 @@ its own; together they are what makes a routine cut expensive.
 - [ ] R1: add the 0.18.2 pair with its checksum pin at the next cut
 - [ ] R2: rewrite consumed specs' claims inside the prepare transaction
 - [ ] R3: serve the archive from a loopback origin and cover the bad-asset case
+- [ ] R4: parse follow-up metadata anywhere in the item, or fail the lint loudly
 
 ### Validation
 - [ ] Run the compatibility gate and confirm the pair is exercised, not skipped
@@ -121,8 +135,9 @@ exercised. R3 is proven offline by the stub origin, including the negative case.
 ### Deterministic checks
 
 #### Test
-- Command: `go -C pose-mcp test ./internal/cli -run "Release|Prepare" -count=1`
-- Scope: prepare keeps consumed specs' claims resolvable
+- Command: `go -C pose-mcp test ./internal/cli -run "Release|Prepare|Followup" -count=1`
+- Scope: prepare keeps consumed specs' claims resolvable; wrapped follow-up
+  metadata is parsed or rejected
 - Expected: ok
 
 #### Security / Contract
@@ -145,4 +160,4 @@ exercised. R3 is proven offline by the stub origin, including the negative case.
 
 ### Follow-ups
 
-- [open] Reassess whether the three items belonged together once they are done: if R2 turns out to be substantially larger than R1 and R3, split it out rather than letting this spec stay open across several cycles. (owner:@pose-maintainers crit:low review:2026-10-02)
+- [open] Reassess whether these items belonged together once they are done: if R2 turns out to be substantially larger than R1, R3 and R4, split it out rather than letting this spec stay open across several cycles. (owner:@pose-maintainers crit:low review:2026-10-02)

@@ -115,4 +115,4 @@ unchanged for humans.
 
 - [covered: pose-validation-runtime-guardrails] Per-check timeout and resource ceilings emitting the `error` outcome with timing.
 - [covered: pose-changed-scope-validation] Selection reasons for scope-filtered skips on top of this contract.
-- [open] Adopt --sarif in the CI security surface once code-scanning upload is wired for validation results. (owner:@pose-maintainers crit:low review:2026-10-16)
+- [spawned: pose-governance-gate-activation] Adopt --sarif in the CI security surface once code-scanning upload is wired for validation results. (owner:@pose-maintainers crit:low review:2026-10-16)
