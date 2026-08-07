@@ -145,7 +145,4 @@ exercised. R3 is proven offline by the stub origin, including the negative case.
 
 ### Follow-ups
 
-- [open] Reassess whether the three items belonged together once they are done:
-  if R2 turns out to be substantially larger than R1 and R3, split it out rather
-  than letting this spec stay open across several cycles.
-  (owner:@pose-maintainers crit:low review:2026-10-02)
+- [open] Reassess whether the three items belonged together once they are done: if R2 turns out to be substantially larger than R1 and R3, split it out rather than letting this spec stay open across several cycles. (owner:@pose-maintainers crit:low review:2026-10-02)

@@ -177,6 +177,4 @@ E2E gained a network-free assertion for the bundle path.
 
 ### Follow-ups
 
-- [spawned: pose-release-cycle-debt-closure] Cover the provider-download branch
-  of `install.sh` with a stubbed HTTP origin so a malformed or truncated asset
-  is a test failure rather than a production discovery. (owner:@pose-maintainers crit:medium review:2026-09-04)
+- [spawned: pose-release-cycle-debt-closure] Cover the provider-download branch of `install.sh` with a stubbed HTTP origin so a malformed or truncated asset is a test failure rather than a production discovery. (owner:@pose-maintainers crit:medium review:2026-09-04)
