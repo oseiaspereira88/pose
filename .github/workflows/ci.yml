@@ -14,9 +14,19 @@ jobs:
       - name: Go tests (engine drift guard included)
         run: go -C pose-mcp test ./... -count=1
       - name: Shellcheck
+        # Covers every shipped or executed script, not just the installer.
+        # tests/release/ was outside this list until v0.20.2, and three
+        # consecutive releases failed on defects there — two of them SC2154,
+        # a variable referenced but never assigned, which aborts under set -u
+        # after the expensive gates have already run
+        # (spec pose-shellcheck-ci-gate).
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
-          shellcheck --severity=warning install.sh tests/install/run.sh
+          shellcheck --severity=warning \
+            install.sh \
+            scripts/*.sh \
+            tests/*.sh \
+            tests/*/*.sh
       - name: Installer E2E
         run: bash tests/install/run.sh
   governance:
