@@ -3,11 +3,12 @@ slug: pose-first-release-evidence-confirmation
 status: done
 created_at: 2026-08-07
 completed_at: 2026-08-07
+changelog: none        # confirmation and evidence only; no product behaviour changed
 supersedes:
 depends_on:
 priority: 1
 components: release, security, docs
-delivers:
+delivers: governance:first-release-evidence
 ---
 
 # Spec: Confirm on a real release what nine follow-ups were waiting for
@@ -90,6 +91,9 @@ recording of the result.
 - created: .pose/specs/pose-first-release-evidence-confirmation/spec.md
 - created: pose-mcp/internal/scaffold/dist/.pose/specs/pose-first-release-evidence-confirmation/spec.md
 
+### Delivery targets
+- governance:first-release-evidence module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
+
 ### API/contract changes
 - None.
 
@@ -157,7 +161,7 @@ negative, which become their own follow-ups rather than blockers here.
 - R1 [satisfied] check:attestation-verify report:.pose/reports/2026-08-07-standard-first-release-evidence-confirmation.md — `gh attestation verify` passes for all six archives and checksums.txt; SLSA v1 predicate, signer `release.yml@refs/tags/v0.18.2`, source digest f62c014
 - R2 [satisfied] check:verify-release-run — run 31148431844: checksums, Sigstore+SBOM pinned identity, SLSA provenance (archive and checksums), version match, install→doctor→check, and a bit-identical rebuild (sha256 7b5e82da…)
 - R3 [waived: dispatching the Release workflow was denied by this session's policy; it needs a maintainer to run it] — the workflow_dispatch path is already the snapshot rehearsal (`release --clean --snapshot --skip=publish`), so the rehearsal is one manual dispatch away
-- R4 [satisfied] check:openssf-scorecard — baseline recorded: aggregate 4.2 on 2026-08-07. Zeroes triaged below; two are real hardening findings, two are artefacts of repository age and review model
+- R4 [satisfied] governance:first-release-evidence evidence:integration check:delivery-integration check:openssf-scorecard — baseline recorded: aggregate 4.2 on 2026-08-07. Zeroes triaged below; two are real hardening findings, two are artefacts of repository age and review model
 - R5 [satisfied] check:sbom-inspection — syft resolves the replaced module path `github.com/harne8/mcp-enforce` but not its version (`UNKNOWN`, no license), and only 1 of 27 components carries a license at all. Reconciliation against NOTICE is therefore vacuous today
 - R6 [withdrawn: the confirmation cannot be performed as written — the gate has never run and fails immediately when forced] — see the finding below; a new spec has to repair the workflow before this confirmation means anything
 - R7 [satisfied] check:mkdocs-strict — run 31148183904 built the site with `--strict` and no warning; the `Monorepo recipes` nav entry resolves (mkdocs.yml:36)

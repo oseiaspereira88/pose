@@ -101,6 +101,14 @@
       "to": "pose-release-compatibility-matrix"
     },
     {
+      "from": "pose-machinery-distribution-contract",
+      "to": "pose-manual-distribution-merge"
+    },
+    {
+      "from": "pose-machinery-distribution-contract",
+      "to": "pose-compat-gate-candidate-integrity"
+    },
+    {
       "from": "pose-manual-distribution-merge",
       "to": "pose-command-reference-parity"
     },
@@ -175,6 +183,14 @@
     {
       "from": "pose-release-compatibility-matrix",
       "to": "pose-public-install-contract"
+    },
+    {
+      "from": "pose-release-cycle-debt-closure",
+      "to": "pose-compat-gate-candidate-integrity"
+    },
+    {
+      "from": "pose-release-cycle-debt-closure",
+      "to": "pose-installer-local-binary-precedence"
     },
     {
       "from": "pose-release-evidence-trigger-fix",
@@ -384,6 +400,12 @@
       "priority": 24,
       "status": "done"
     },
+    "pose-first-release-evidence-confirmation": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-first-release-evidence-confirmation/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
     "pose-followup-ownership-sla": {
       "depends_on": [
         "pose-standalone-dogfood"
@@ -391,6 +413,12 @@
       "path": ".pose/specs/pose-followup-ownership-sla/spec.md",
       "priority": 12,
       "status": "done"
+    },
+    "pose-governance-gate-activation": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-governance-gate-activation/spec.md",
+      "priority": 3,
+      "status": "draft"
     },
     "pose-harne8-control-plane-integration": {
       "depends_on": [
@@ -438,6 +466,15 @@
       "path": ".pose/specs/pose-localization-docs-contract/spec.md",
       "priority": 29,
       "status": "done"
+    },
+    "pose-machinery-distribution-contract": {
+      "depends_on": [
+        "pose-manual-distribution-merge",
+        "pose-compat-gate-candidate-integrity"
+      ],
+      "path": ".pose/specs/pose-machinery-distribution-contract/spec.md",
+      "priority": 2,
+      "status": "draft"
     },
     "pose-manual-distribution-merge": {
       "depends_on": [
@@ -548,6 +585,15 @@
       "path": ".pose/specs/pose-release-compatibility-matrix/spec.md",
       "priority": 4,
       "status": "done"
+    },
+    "pose-release-cycle-debt-closure": {
+      "depends_on": [
+        "pose-compat-gate-candidate-integrity",
+        "pose-installer-local-binary-precedence"
+      ],
+      "path": ".pose/specs/pose-release-cycle-debt-closure/spec.md",
+      "priority": 1,
+      "status": "draft"
     },
     "pose-release-evidence-trigger-fix": {
       "depends_on": [
