@@ -94,6 +94,8 @@ defect for integration gaps and left debt ids untouched.
 - modified: .github/workflows/security.yml
 - modified: .pose/workflows/feature.md
 - modified: .pose/workflows/bugfix.md
+- modified: .agents/skills/pose-feature/SKILL.md
+- modified: .agents/skills/pose-bugfix/SKILL.md
 
 ### Delivery targets
 - governance:gate-activation module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
