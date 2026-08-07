@@ -154,6 +154,15 @@ func checkSkillClients(slug string, clients []string) []skillIssue {
 
 // checkOneSkill runs every conformance check for a single skill directory.
 func checkOneSkill(root, slug, dir string) []skillIssue {
+	return checkOneSkillAt(root, slug, dir, dir)
+}
+
+// checkOneSkillAt validates a skill whose files live in dir but whose relative
+// links resolve from linkBase. They differ only for the locale mirrors, whose
+// skills are written for the position they occupy once installed
+// (.agents/skills/<slug>), not for where they sit in the distribution
+// (spec pose-machinery-distribution-contract, R3).
+func checkOneSkillAt(root, slug, dir, linkBase string) []skillIssue {
 	path := filepath.Join(dir, "SKILL.md")
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -165,7 +174,7 @@ func checkOneSkill(root, slug, dir string) []skillIssue {
 		return []skillIssue{{slug, "error", fmt.Sprintf("frontmatter: %v", ferr)}}
 	}
 	issues := checkSkillFrontmatter(slug, fm)
-	issues = append(issues, checkSkillLinks(root, slug, dir, body)...)
+	issues = append(issues, checkSkillLinks(root, slug, linkBase, body)...)
 	issues = append(issues, checkSkillSecurity(slug, body)...)
 	issues = append(issues, checkSkillClients(slug, splitCSVList(fm["clients"]))...)
 	return issues
@@ -199,6 +208,29 @@ func cmdSkillsCheck(root string, args []string, stdout, stderr io.Writer) int {
 	var all []skillIssue
 	for _, slug := range slugs {
 		all = append(all, checkOneSkill(root, slug, filepath.Join(skillsDir, slug))...)
+	}
+	// Translated skills are shipped machinery too: leaving the locale mirrors
+	// unchecked let a pt-BR skill drift out of contract while the English one
+	// stayed green (spec pose-machinery-distribution-contract, R3).
+	for _, mirror := range localeSkillMirrors(root) {
+		mirrorEntries, err := os.ReadDir(mirror)
+		if err != nil {
+			continue
+		}
+		label, _ := filepath.Rel(root, mirror)
+		for _, e := range mirrorEntries {
+			if !e.IsDir() {
+				continue
+			}
+			slugs = append(slugs, filepath.ToSlash(filepath.Join(label, e.Name())))
+			// A mirrored skill is validated as it will be installed: its links
+			// are relative to .agents/skills/<slug>, not to the mirror path.
+			installedBase := filepath.Join(root, ".agents", "skills", e.Name())
+			for _, iss := range checkOneSkillAt(root, e.Name(), filepath.Join(mirror, e.Name()), installedBase) {
+				iss.Skill = filepath.ToSlash(filepath.Join(label, e.Name()))
+				all = append(all, iss)
+			}
+		}
 	}
 	errors, warnings := 0, 0
 	for _, iss := range all {

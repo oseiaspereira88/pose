@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/harne8/pose-mcp/internal/scaffold"
 	"github.com/harne8/pose-mcp/internal/version"
 )
 
@@ -131,6 +132,18 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		if e := refreshManagedDocs(root, docLocale, stdout, commandLocale); e != nil {
 			fmt.Fprintf(stderr, text("pose upgrade: refreshing managed docs: %v\n", "pose upgrade: atualizando docs gerenciados: %v\n"), e)
+			return 1
+		}
+		// Machinery refreshes on a plain upgrade for the same reason the
+		// manuals do: the whole-file contract backs up anything the instance
+		// changed, so skipping protected nothing and only guaranteed drift
+		// (spec pose-machinery-distribution-contract).
+		machineryLog := func(english, portuguese string, a ...any) {
+			fmt.Fprintf(stdout, "[INFO] "+text(english, portuguese)+"\n", a...)
+		}
+		dist := scaffold.Dist()
+		if e := deliverMachinery(dist, root, machineryLocale(dist, root, docLocale), false, false, stderr, machineryLog); e != nil {
+			fmt.Fprintf(stderr, text("pose upgrade: delivering machinery: %v\n", "pose upgrade: entregando maquinário: %v\n"), e)
 			return 1
 		}
 	}

@@ -14,7 +14,7 @@ Fluxo POSE para o subsistema de memória entre execuções.
 ## Required reading
 
 1. [`.pose/rules/knowledge-governance.md`](../../../.pose/rules/knowledge-governance.md) — TTL, ownership, sensitivity, expurgo.
-2. [`.pose/specs/pose-knowledge-governance.md`](../../../.pose/specs/pose-knowledge-governance.md) — governança detalhada.
+2. A spec de knowledge-governance presente na instalação.
 
 ## Tipos de artefato
 

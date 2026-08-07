@@ -1,13 +1,13 @@
 ---
 slug: pose-machinery-distribution-contract
-status: draft
+status: done
 created_at: 2026-08-07
-completed_at:
+completed_at: 2026-08-07
 supersedes:
 depends_on: pose-manual-distribution-merge, pose-compat-gate-candidate-integrity
 priority: 2
 components: installer, extensions
-delivers:
+delivers: governance:machinery-distribution
 ---
 
 # Spec: Machinery reaches an instance the way manuals now do
@@ -82,8 +82,17 @@ it has never been exercised end to end through the signing pipeline.
 - Release-signing pipeline — first reference extension (R4).
 
 ### Artifacts
-<!-- Declared at closeout. -->
 - created: .pose/specs/pose-machinery-distribution-contract/spec.md
+- created: pose-mcp/internal/cli/machinery.go
+- created: pose-mcp/internal/cli/machinery_test.go
+- modified: pose-mcp/internal/cli/install.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/skills_check.go
+- modified: pose-mcp/internal/cli/skills_check_test.go
+- modified: locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md
+
+### Delivery targets
+- governance:machinery-distribution module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 - `pose upgrade` starts delivering files it previously skipped. That is the
@@ -103,21 +112,21 @@ it has never been exercised end to end through the signing pipeline.
 ## 4. Tasks
 
 ### Planning
-- [ ] Decide the ownership unit for machinery: whole file, marker-tagged
-      region, or a manifest of engine-owned paths
-- [ ] Check whether any shipped machinery is already locally edited in this
+- [x] Decide the ownership unit for machinery: whole file, with a delivery
+      manifest to tell a deliberate deletion from unseen new content
+- [x] Check whether any shipped machinery is already locally edited in this
       repository, as a real fixture
 
 ### Implementation
-- [ ] R1: deliver machinery on a plain upgrade under the chosen contract
-- [ ] R2: back up before any lossy machinery write
-- [ ] R3: extend skills-check to the locale mirror trees
+- [x] R1: deliver machinery on a plain upgrade under the chosen contract
+- [x] R2: back up before any lossy machinery write
+- [x] R3: extend skills-check to the locale mirror trees
 - [ ] R4: publish the first signed reference extension
 
 ### Validation
-- [ ] Upgrade a fixture instance with edited machinery and confirm both
+- [x] Upgrade a fixture instance with edited machinery and confirm both
       delivery and preservation
-- [ ] Run the mandatory checks
+- [x] Run the mandatory checks
 
 ---
 
@@ -136,19 +145,86 @@ backed up. R4 is proven by an actual signed artifact, not a unit test.
 - Scope: machinery delivery, preservation and backup
 - Expected: ok
 
+### Execution log
+- Date: 2026-08-07
+- Environment: linux/amd64, Go 1.26.5, pose 0.18.2-dev; end-to-end fixture built
+  from the published v0.18.2 release.
+- Notes: the design question the spec left open resolved to *whole file*. The
+  manuals negotiate sections because they have headings; machinery does not, and
+  `copyFileWithBackup` already implemented exactly the file-level contract
+  needed — identical is a no-op, divergent is backed up then refreshed. Almost
+  no new merge logic was required. What did need building was the delivery
+  manifest, because delivering on every upgrade raises a question the manuals
+  never faced: a file the instance deleted would silently return.
+
+### Results summary
+- Successes: R1, R2, R3 with regressions; full `go test ./...`, `go vet`,
+  `pose check --strict`
+- Failures: none
+- Warnings: the first delivery into an instance created before the manifest
+  existed restores files that instance had deleted — see Known gaps
+- Deferred: R4
+
 ### Requirement trace
-<!-- Filled at closeout. -->
+- R1 [satisfied] governance:machinery-distribution evidence:integration check:delivery-integration test:TestDeliverMachineryRefreshesBacksUpAndRespectsDeletion test:TestDeliverMachineryHonoursTheInstanceLocale — a plain `pose upgrade` now delivers all four machinery trees; verified end to end against an instance installed from published v0.18.2
+- R2 [satisfied] test:TestDeliverMachineryRefreshesBacksUpAndRespectsDeletion — an edited rule is refreshed and its content kept as `.pose-backup`, reported on stderr exactly as the manuals do
+- R3 [satisfied] test:TestSkillsCheckDiscoveryAndBoundedWorkflowFixture — `skills-check` now covers 22 skills (11 installed + 11 mirrored) and immediately caught real drift: the pt-BR `pose-knowledge` skill linked `.pose/specs/pose-knowledge-governance.md`, a path that does not exist, while the English original had already been corrected
+- R4 [deferred-integration: spec:pose-extension-reference-publication] — no artifact exists that is worth publishing as the first reference extension; publishing one is its own piece of work, not a rider on this contract
+
+### Findings
+
+**F1 — the pt-BR skill mirror had drifted (severity: medium, fixed here).**
+`locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md` pointed at a spec path
+that does not exist. The English skill had been corrected to stop linking it;
+the translation kept the dead link. Nothing caught this because the mirrors were
+never checked — which is precisely what R3 was for. Fixed in this change.
+
+**F2 — a mirrored skill must be validated where it will live (severity: low).**
+Resolving a mirror's relative links from the mirror's own directory reports
+every link as broken: those links are written for `.agents/skills/<slug>`, the
+position the file occupies once installed. `checkOneSkillAt` takes the link base
+separately for this reason.
 
 ### Known gaps
-- R4 depends on having something worth publishing as a reference extension; if
-  none exists, it should be split out rather than blocking R1–R3.
+- R4 is deferred, not abandoned: it needs a real artifact to publish.
+- The delivery manifest cannot reconstruct history it never had. On the first
+  upgrade of an instance created before this change, a machinery file that
+  instance had deleted comes back once, because an absent path is indistinguish-
+  able from engine content the instance has not seen yet. From the second
+  upgrade on, deletions are respected. Verified both halves of that behaviour.
 
 ---
 
 ## 7. Final Report
 
-<!-- Filled at closeout. -->
+### Delivered scope
+Machinery — rules, workflows, templates and skills — now reaches an instance on
+a plain `pose upgrade`, under a whole-file contract that backs up anything the
+instance edited and respects anything it deleted. `--force` keeps its wholesale
+meaning. `skills-check` holds the locale mirrors to the same contract as the
+installed tree. R4 is deferred to its own spec.
+
+### Files and modules changed
+- pose-mcp/internal/cli/machinery.go (new)
+- pose-mcp/internal/cli/machinery_test.go (new)
+- pose-mcp/internal/cli/install.go
+- pose-mcp/internal/cli/maintenance.go
+- pose-mcp/internal/cli/skills_check.go
+- locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md
+
+### Validation executed
+- Command: `go -C pose-mcp test ./... -count=1`
+- Result: PASS
+
+### Residual risks
+- Instances that edited many shipped files will see a burst of `.pose-backup`
+  files on their first upgrade after this change. Nothing is lost, but it will
+  look alarming the first time and is worth a release-note sentence.
+- The manifest is instance state. Deleting `.pose/state/machinery-manifest.json`
+  resets the deletion record and restores everything on the next upgrade.
 
 ### Follow-ups
 
+- [spawned: pose-extension-reference-publication] R4: publish a first real signed reference extension end to end through the release-signing pipeline. Deferred from this spec because no artifact worth publishing exists yet, and inventing one to satisfy a checkbox would prove nothing. (owner:@pose-maintainers crit:medium review:2026-10-19)
 - [open] Once machinery delivery lands, revisit whether `pose upgrade --force` still has a legitimate use, or whether it only exists because plain upgrade used to be incapable. (owner:@pose-maintainers crit:low review:2026-12-18)
+- [open] The machinery manifest cannot tell a deliberate deletion from unseen content on its first run, so one deleted file returns once per pre-existing instance. If that proves to matter, seed the manifest during the schema migration instead. (owner:@pose-maintainers crit:low review:2026-11-20)

@@ -103,13 +103,12 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 
 	dist := scaffold.Dist()
 
-	// 1. Native machinery: this binary is the runtime.
-	for _, dir := range []string{".pose/workflows", ".pose/rules", ".pose/templates", ".agents/skills"} {
-		if err := copyTree(dist, dir, target, noBackup, stderr, target); err != nil {
-			fmt.Fprintf(stderr, text("pose install: merging %s: %v\n", "pose install: mesclando %s: %v\n"), dir, err)
-			return 1
-		}
-		log("machinery (merged): %s", "maquinário (mesclado): %s", dir)
+	// 1. Native machinery: this binary is the runtime. Delivery is shared with
+	// `pose upgrade` (spec pose-machinery-distribution-contract), which is why
+	// it lives in deliverMachinery rather than inline here.
+	if err := deliverMachinery(dist, target, locale, force, noBackup, stderr, log); err != nil {
+		fmt.Fprintf(stderr, text("pose install: merging machinery: %v\n", "pose install: mesclando maquinário: %v\n"), err)
+		return 1
 	}
 
 	// .claude/skills symlinks (embed cannot carry them).
@@ -148,21 +147,9 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		if _, err := fs.Stat(dist, "locales/"+locale); err == nil {
 			docsPrefix = "locales/" + locale + "/"
 			log("locale: %s (docs/templates localized)", "locale: %s (docs/templates localizados)", locale)
-			// Every locale overlay directory mirrors its English path exactly
-			// under locales/<locale>/ — no per-directory path convention
-			// (spec pose-localization-docs-contract fixed a pre-existing
-			// inconsistency where templates used a stripped ".pose/" prefix).
-			for _, editorialDir := range []string{".pose/templates", ".pose/workflows", ".pose/rules", ".agents/skills"} {
-				source := "locales/" + locale + "/" + editorialDir
-				if _, err := fs.Stat(dist, source); err != nil {
-					continue
-				}
-				if err := copyTreeInto(dist, source, filepath.Join(target, filepath.FromSlash(editorialDir)), noBackup, stderr, target); err != nil {
-					fmt.Fprintf(stderr, text("pose install: locale overlay %s: %v\n", "pose install: overlay de locale %s: %v\n"), editorialDir, err)
-					return 1
-				}
-				log("machinery (locale override): %s", "maquinário (override de locale): %s", editorialDir)
-			}
+			// Machinery already resolved this locale per file in step 1; every
+			// overlay directory mirrors its English path exactly under
+			// locales/<locale>/ (spec pose-localization-docs-contract).
 		} else {
 			log("locale '%s' not available — falling back to en", "locale '%s' indisponível — fallback para en", locale)
 		}
@@ -356,19 +343,6 @@ func writeMCPJSON(path string, payload map[string]any) error {
 func isDir(p string) bool {
 	fi, err := os.Stat(p)
 	return err == nil && fi.IsDir()
-}
-
-func copyTree(src fs.FS, root, targetBase string, noBackup bool, stderr io.Writer, target string) error {
-	return fs.WalkDir(src, root, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		dst := filepath.Join(targetBase, filepath.FromSlash(path))
-		if d.IsDir() {
-			return os.MkdirAll(dst, 0o755)
-		}
-		return copyFileWithBackup(src, path, dst, filePerm(path), noBackup, stderr, target)
-	})
 }
 
 func copyTreeInto(src fs.FS, sourceRoot, destinationRoot string, noBackup bool, stderr io.Writer, target string) error {

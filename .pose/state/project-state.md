@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-07T16:55:56Z
-baseline_commit: 39fa5db9afae274986e297a898546604e47a2623
+generated_at: 2026-08-07T17:08:07Z
+baseline_commit: c8e0d7f5cec70e5209c93304ee59fb4a6dee7f4a
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:af137f7c70d7 -->
+<!-- state:derived hash:1b8eb430c467 -->
 
-- specs: total=55 draft=3 in-progress=0 blocked=0 done=52 superseded=0 abandoned=0
+- specs: total=56 draft=3 in-progress=0 blocked=0 done=53 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
   - spec:pose-assessment-engine-precision (2026-08-07)
+  - spec:pose-manual-distribution-merge (2026-08-07)
+  - spec:pose-machinery-distribution-contract (2026-08-07)
   - spec:pose-command-reference-parity (2026-08-07)
   - spec:pose-compat-gate-candidate-integrity (2026-08-07)
-  - spec:pose-first-release-evidence-confirmation (2026-08-07)
-  - spec:pose-installer-local-binary-precedence (2026-08-07)
-  - ... e mais 47 (ver `pose_list_specs status:done`)
+  - ... e mais 48 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:1eec50fbeb76 -->
+<!-- state:derived hash:3f09c99fb80b -->
 
-- abertos: 24
-- por criticidade: high=3 medium=8 low=13 sem-classificação=0
+- abertos: 26
+- por criticidade: high=3 medium=9 low=14 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,13 +64,13 @@ capacidade.
 - knowledge: total=1 ativo=1 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:0decd26a29f8 -->
+<!-- state:derived hash:af850bdf339c -->
 
-- último registro: task=first-release-evidence-confirmation outcome=pass (2026-08-07T16:55:39Z)
-- últimos 30 dias: total=87 outcome_ok=77 outcome_outro=10
+- último registro: task=validate-native outcome=pass (2026-08-07T16:57:22Z)
+- últimos 30 dias: total=89 outcome_ok=79 outcome_outro=10
 - reports revisados (.md): total=39
-  - report:2026-08-07-standard-first-release-evidence-confirmation.md
   - report:2026-08-07-standard-validate-native.md
+  - report:2026-08-07-standard-first-release-evidence-confirmation.md
   - report:2026-08-07-standard-release-v0-18-2.md
   - report:2026-08-07-standard-closeout-pose-compat-gate-candidate-integrity.md
   - report:2026-08-07-standard-release-v0-18-1.md
