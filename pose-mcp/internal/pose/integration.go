@@ -1,6 +1,8 @@
 package pose
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -10,6 +12,17 @@ import (
 	"strings"
 	"time"
 )
+
+// integrationGapID derives a gap identifier from the contract it describes, so
+// the same contract keeps the same id across runs.
+//
+// The ids used to be positional (`GAP-001`, `GAP-002`, …), which meant adding
+// one contract renumbered every later gap: a report, ticket or review comment
+// citing `GAP-032` silently came to mean a different contract.
+func integrationGapID(protocol, name string) string {
+	sum := sha256.Sum256([]byte(strings.ToLower(strings.TrimSpace(protocol)) + "\x00" + strings.ToLower(strings.TrimSpace(name))))
+	return "GAP-" + hex.EncodeToString(sum[:4])
+}
 
 // IntegrationGap describes a missing provider or consumer observed in the repository.
 type IntegrationGap struct {
@@ -366,7 +379,7 @@ func (s Store) AnalyzeIntegrations() (*IntegrationMatrix, error) {
 			continue
 		}
 		gap := IntegrationGap{
-			GapID: fmt.Sprintf("GAP-%03d", len(matrix.Gaps)+1), Provider: provider, Consumer: consumer,
+			GapID: integrationGapID(observation.Protocol, observation.Name), Provider: provider, Consumer: consumer,
 		}
 		if hasProvider {
 			gap.Title = "No consumer observed for " + observation.Name

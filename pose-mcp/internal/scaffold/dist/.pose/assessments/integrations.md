@@ -1,8 +1,8 @@
 # Integration Assessment: pose-dist
 
 > **Gerado por**: POSE Integration Engine (`pose assess integrate`)
-> **Data de Avaliação**: 2026-08-06T22:57:10Z
-> **Baseline Commit**: 6c07f15bb9bd
+> **Data de Avaliação**: 2026-08-07T00:44:20Z
+> **Baseline Commit**: bb82100ced72
 
 ## 1. Resumo Executivo
 
@@ -67,295 +67,295 @@
 
 ## 3. Gaps Observados
 
-### [GAP-001] No consumer observed for MCP tool conductor_run_close
+### [GAP-3dcadd4f] No consumer observed for MCP tool conductor_run_close
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-002] No consumer observed for MCP tool conductor_run_event
+### [GAP-253d911d] No consumer observed for MCP tool conductor_run_event
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-003] No consumer observed for MCP tool conductor_run_open
+### [GAP-96ba2db7] No consumer observed for MCP tool conductor_run_open
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-004] No consumer observed for MCP tool pose_capability_history
+### [GAP-42f38156] No consumer observed for MCP tool pose_capability_history
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-005] No consumer observed for MCP tool pose_capability_stale
+### [GAP-526d5db1] No consumer observed for MCP tool pose_capability_stale
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-006] No consumer observed for MCP tool pose_capability_state
+### [GAP-1723b6ee] No consumer observed for MCP tool pose_capability_state
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-007] No consumer observed for MCP tool pose_check
+### [GAP-3b191a46] No consumer observed for MCP tool pose_check
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-008] No consumer observed for MCP tool pose_closeout_state
+### [GAP-d83dfa41] No consumer observed for MCP tool pose_closeout_state
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-009] No consumer observed for MCP tool pose_component_discover
+### [GAP-2b269c89] No consumer observed for MCP tool pose_component_discover
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-010] No consumer observed for MCP tool pose_delivery_integrity
+### [GAP-4d3323ce] No consumer observed for MCP tool pose_delivery_integrity
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-011] No consumer observed for MCP tool pose_docs_state
+### [GAP-a0de8c4e] No consumer observed for MCP tool pose_docs_state
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-012] No consumer observed for MCP tool pose_extension_list
+### [GAP-28319ba1] No consumer observed for MCP tool pose_extension_list
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-013] No consumer observed for MCP tool pose_get_assessment
+### [GAP-6beb18b0] No consumer observed for MCP tool pose_get_assessment
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-014] No consumer observed for MCP tool pose_get_changelog
+### [GAP-4591b983] No consumer observed for MCP tool pose_get_changelog
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-015] No consumer observed for MCP tool pose_get_followups
+### [GAP-c243e080] No consumer observed for MCP tool pose_get_followups
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-016] No consumer observed for MCP tool pose_get_integration_matrix
+### [GAP-5c88244f] No consumer observed for MCP tool pose_get_integration_matrix
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-017] No consumer observed for MCP tool pose_get_knowledge
+### [GAP-6184cb5e] No consumer observed for MCP tool pose_get_knowledge
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-018] No consumer observed for MCP tool pose_get_report
+### [GAP-ca59e900] No consumer observed for MCP tool pose_get_report
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-019] No consumer observed for MCP tool pose_get_roadmap
+### [GAP-49656cfd] No consumer observed for MCP tool pose_get_roadmap
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-020] No consumer observed for MCP tool pose_get_rules
+### [GAP-2c4566b3] No consumer observed for MCP tool pose_get_rules
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-021] No consumer observed for MCP tool pose_get_skill
+### [GAP-bcb0d677] No consumer observed for MCP tool pose_get_skill
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-022] No consumer observed for MCP tool pose_get_tech_debt_report
+### [GAP-c631ddfd] No consumer observed for MCP tool pose_get_tech_debt_report
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-023] No consumer observed for MCP tool pose_get_workflow
+### [GAP-6e11b88a] No consumer observed for MCP tool pose_get_workflow
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-024] No consumer observed for MCP tool pose_insights
+### [GAP-52b62b39] No consumer observed for MCP tool pose_insights
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-025] No consumer observed for MCP tool pose_integration_check
+### [GAP-efbf903c] No consumer observed for MCP tool pose_integration_check
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-026] No consumer observed for MCP tool pose_lint_spec
+### [GAP-de0a1bcc] No consumer observed for MCP tool pose_lint_spec
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-027] No consumer observed for MCP tool pose_list_assessments
+### [GAP-b30f7eaf] No consumer observed for MCP tool pose_list_assessments
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-028] No consumer observed for MCP tool pose_list_knowledge
+### [GAP-a92d9477] No consumer observed for MCP tool pose_list_knowledge
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-029] No consumer observed for MCP tool pose_list_reports
+### [GAP-c74bb593] No consumer observed for MCP tool pose_list_reports
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-030] No consumer observed for MCP tool pose_list_roadmaps
+### [GAP-3546aaa0] No consumer observed for MCP tool pose_list_roadmaps
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-031] No consumer observed for MCP tool pose_list_specs
+### [GAP-c158e52d] No consumer observed for MCP tool pose_list_specs
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-032] No consumer observed for MCP tool pose_mcp_context
+### [GAP-d2b3bba3] No consumer observed for MCP tool pose_mcp_context
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-033] No consumer observed for MCP tool pose_project_state
+### [GAP-95c9942d] No consumer observed for MCP tool pose_project_state
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-034] No consumer observed for MCP tool pose_release_status
+### [GAP-4be1e8a3] No consumer observed for MCP tool pose_release_status
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-035] No consumer observed for MCP tool pose_requirement_trace
+### [GAP-8c1171f0] No consumer observed for MCP tool pose_requirement_trace
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-036] No consumer observed for MCP tool pose_skills_check
+### [GAP-e0b19772] No consumer observed for MCP tool pose_skills_check
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-037] No consumer observed for MCP tool pose_spec_amendments
+### [GAP-c478d47e] No consumer observed for MCP tool pose_spec_amendments
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-038] No consumer observed for MCP tool pose_spec_readiness
+### [GAP-3337a34d] No consumer observed for MCP tool pose_spec_readiness
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-039] No consumer observed for MCP tool pose_suggest
+### [GAP-47837534] No consumer observed for MCP tool pose_suggest
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-040] No consumer observed for MCP tool pose_surface_assurance
+### [GAP-4e92b6ec] No consumer observed for MCP tool pose_surface_assurance
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-041] No consumer observed for MCP tool pose_tech_debt_check
+### [GAP-2a822d27] No consumer observed for MCP tool pose_tech_debt_check
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-042] No consumer observed for MCP tool pose_validate_approve
+### [GAP-c8c850e8] No consumer observed for MCP tool pose_validate_approve
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-043] No consumer observed for MCP tool pose_validate_cancel
+### [GAP-5424a827] No consumer observed for MCP tool pose_validate_cancel
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-044] No consumer observed for MCP tool pose_validate_request
+### [GAP-bb4e7fbb] No consumer observed for MCP tool pose_validate_request
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-045] No consumer observed for MCP tool pose_validate_status
+### [GAP-e32ba49c] No consumer observed for MCP tool pose_validate_status
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-046] No consumer observed for MCP tool pose_validate_submit
+### [GAP-4b014c9c] No consumer observed for MCP tool pose_validate_submit
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-047] No consumer observed for HTTP /admin/refresh
+### [GAP-7baa2119] No consumer observed for HTTP /admin/refresh
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-048] No consumer observed for HTTP /healthz
+### [GAP-61862039] No consumer observed for HTTP /healthz
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
-### [GAP-049] No consumer observed for HTTP /mcp
+### [GAP-0338c2bf] No consumer observed for HTTP /mcp
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`

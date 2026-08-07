@@ -14,14 +14,17 @@
 - _Not provided_
 
 ## Files Changed
-- pose/results/delivery-validation.json
-- POSE.md
-- docs-site/docs/mcp.md
-- locales/pt-BR/POSE.md
-- pose-mcp/internal/scaffold/dist/POSE.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
-- .pose/specs/pose-command-reference-parity/
-- pose-mcp/internal/scaffold/dist/.pose/specs/pose-command-reference-parity/
+- pose/indexes/delivery-integrity.json
+- .pose/indexes/spec-graph.json
+- .pose/reports/2026-08-07-standard-closeout-pose-command-reference-parity.md
+- .pose/reports/2026-08-07-standard-closeout-pose-manual-distribution-merge.md
+- .pose/reports/history/standard-closeout-pose-command-reference-parity.jsonl
+- .pose/reports/history/standard-closeout-pose-manual-distribution-merge.jsonl
+- .pose/results/delivery-validation.json
+- pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
+- pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
+- .pose/reports/2026-08-07-standard-closeout-pose-assessment-engine-precision.md
+- .pose/reports/history/standard-closeout-pose-assessment-engine-precision.jsonl
 
 ## Validation Commands
 - _Fill manually_
@@ -30,14 +33,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-07T00:22:18Z
+- Generated at (UTC): 2026-08-07T00:50:22Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 14
+- Sequence for task/spec: 16
 - Stable comparison hash: cda1b9630fa06c11ede4f06bc580d23149b0f2732edd9728ac9e6fe256f93554
 
 ## Historical Comparison
-- Previous execution: 2026-08-06T23:36:15Z
+- Previous execution: 2026-08-07T00:44:37Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

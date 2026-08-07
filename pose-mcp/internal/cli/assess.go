@@ -518,6 +518,46 @@ func formatCell(score, target int, present bool) string {
 	return fmt.Sprintf("%d/%d", score, target)
 }
 
+// mergeWithPersistedComponentStates completes a scoped discovery result with
+// the components this run did not scan, read back from their persisted state.
+// Freshly scanned components win; the rest keep their last known state so the
+// consolidated view stays repository-wide. Ordering is by slug so the generated
+// artifacts stay deterministic.
+func mergeWithPersistedComponentStates(store pose.Store, scanned []*pose.ComponentDiscoveryState) []*pose.ComponentDiscoveryState {
+	bySlug := make(map[string]*pose.ComponentDiscoveryState, len(scanned))
+	for _, state := range scanned {
+		bySlug[state.ComponentSlug] = state
+	}
+	entries, err := os.ReadDir(store.ComponentStateDir())
+	if err != nil {
+		return scanned
+	}
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+			continue
+		}
+		slug := strings.TrimSuffix(entry.Name(), ".json")
+		if _, fresh := bySlug[slug]; fresh {
+			continue
+		}
+		state, err := store.LoadComponentState(slug)
+		if err != nil || state == nil {
+			continue
+		}
+		bySlug[slug] = state
+	}
+	slugs := make([]string, 0, len(bySlug))
+	for slug := range bySlug {
+		slugs = append(slugs, slug)
+	}
+	sort.Strings(slugs)
+	merged := make([]*pose.ComponentDiscoveryState, 0, len(slugs))
+	for _, slug := range slugs {
+		merged = append(merged, bySlug[slug])
+	}
+	return merged
+}
+
 func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale cliLocale) int {
 	var targetComp string
 	var asJSON bool
@@ -564,7 +604,15 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 		results = append(results, state)
 	}
 
-	if err := store.GenerateConsolidatedAssessment(results); err != nil {
+	// The consolidated view is repository-wide even when discovery is scoped to
+	// one component. Rebuilding it from the scanned subset alone used to drop
+	// every other component from README.md/consolidated.md while leaving its
+	// per-component report and state file orphaned on disk.
+	consolidated := results
+	if targetComp != "" {
+		consolidated = mergeWithPersistedComponentStates(store, results)
+	}
+	if err := store.GenerateConsolidatedAssessment(consolidated); err != nil {
 		fmt.Fprintf(stderr, "pose assess discover consolidate: %v\n", err)
 		return 1
 	}

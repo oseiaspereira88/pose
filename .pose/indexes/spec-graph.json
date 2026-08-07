@@ -93,6 +93,10 @@
       "to": "pose-release-compatibility-matrix"
     },
     {
+      "from": "pose-manual-distribution-merge",
+      "to": "pose-command-reference-parity"
+    },
+    {
       "from": "pose-mcp-active-context",
       "to": "pose-mcp-project-scope-contract"
     },
@@ -263,6 +267,12 @@
       "priority": 1,
       "status": "done"
     },
+    "pose-assessment-engine-precision": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-assessment-engine-precision/spec.md",
+      "priority": 2,
+      "status": "in-progress"
+    },
     "pose-brownfield-reference-kits": {
       "depends_on": [
         "pose-standalone-dogfood",
@@ -286,6 +296,12 @@
       "path": ".pose/specs/pose-changed-scope-validation/spec.md",
       "priority": 16,
       "status": "done"
+    },
+    "pose-command-reference-parity": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-command-reference-parity/spec.md",
+      "priority": 2,
+      "status": "in-progress"
     },
     "pose-cross-repo-portfolio": {
       "depends_on": [
@@ -398,6 +414,14 @@
       "path": ".pose/specs/pose-localization-docs-contract/spec.md",
       "priority": 29,
       "status": "done"
+    },
+    "pose-manual-distribution-merge": {
+      "depends_on": [
+        "pose-command-reference-parity"
+      ],
+      "path": ".pose/specs/pose-manual-distribution-merge/spec.md",
+      "priority": 1,
+      "status": "in-progress"
     },
     "pose-mcp-active-context": {
       "depends_on": [

@@ -224,23 +224,20 @@ func (s Store) debtCoverageDocuments() []debtCoverageDocument {
 	return documents
 }
 
+// documentCoversDebt reports whether a backlog document actually addresses this
+// debt marker. Coverage requires evidence that identifies the marker itself —
+// its file path or its stable id — never merely its component.
+//
+// Naming a component used to be enough, which meant any active spec touching a
+// module silently marked every debt marker in it as covered and dropped the
+// recommended follow-up. A component name is a location, not a commitment.
 func documentCoversDebt(document string, item TechDebtItem) bool {
 	file := strings.ToLower(filepath.ToSlash(item.File))
 	if file != "" && strings.Contains(document, file) {
 		return true
 	}
-	component := strings.ToLower(item.Component)
-	if component == "" || component == "root" {
-		return false
-	}
-	patterns := []string{
-		"`" + component + "`", "component:" + component, "components: " + component,
-		"module:" + component, "module: " + component,
-	}
-	for _, pattern := range patterns {
-		if strings.Contains(document, pattern) {
-			return true
-		}
+	if id := strings.ToLower(strings.TrimSpace(item.ID)); id != "" && strings.Contains(document, id) {
+		return true
 	}
 	return false
 }
