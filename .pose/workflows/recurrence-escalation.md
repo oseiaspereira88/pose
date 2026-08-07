@@ -43,7 +43,7 @@ Select rules cumulatively for every affected domain:
 - `.pose/rules/security.md`
 - `.pose/rules/backend-go.md`
 - `.pose/rules/frontend-react.md`
-- `.pose/rules/kubernetes.md`
+- `.pose/rules/kubernetes.md` (extension `pose-rule-kubernetes`, when installed)
 - `.pose/rules/documentation-style.md`
 - `.pose/rules/knowledge-governance.md` when knowledge or process artifacts change
 

@@ -87,3 +87,8 @@ release:
     - glob: install.sh
     - glob: compatibility.json
     - glob: compatibility-report.md
+    # Reference extension + its Sigstore bundle (spec
+    # pose-extension-reference-publication): consumers verify the bundle against
+    # extension.json before installing.
+    - glob: pose-rule-kubernetes.tar.gz
+    - glob: pose-rule-kubernetes.sigstore.json

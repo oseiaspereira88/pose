@@ -55,7 +55,7 @@ Aplique cumulativamente as rules relevantes ao escopo:
 
 - Backend Go: [`.pose/rules/backend-go.md`](.pose/rules/backend-go.md)
 - Frontend React: [`.pose/rules/frontend-react.md`](.pose/rules/frontend-react.md)
-- Kubernetes: [`.pose/rules/kubernetes.md`](.pose/rules/kubernetes.md)
+- Kubernetes: distribuída como a extensão de referência `pose-rule-kubernetes`, não embutida — instale com `pose extension install` quando o repositório faz deploy em cluster.
 - Security: [`.pose/rules/security.md`](.pose/rules/security.md)
 - Documentation / Process: [`.pose/rules/documentation-style.md`](.pose/rules/documentation-style.md)
 - Delivery evidence (declarar entrega exige gate): [`.pose/rules/delivery-evidence.md`](.pose/rules/delivery-evidence.md)

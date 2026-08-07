@@ -40,7 +40,7 @@ Antes de concluir o review, preencha e anexe a seção abaixo no parecer:
   - [ ] `.pose/rules/security.md`
   - [ ] `.pose/rules/backend-go.md`
   - [ ] `.pose/rules/frontend-react.md`
-  - [ ] `.pose/rules/kubernetes.md`
+  - [ ] `.pose/rules/kubernetes.md` (extensão `pose-rule-kubernetes`, quando instalada)
   - [ ] `.pose/rules/documentation-style.md`
   - [ ] `.pose/rules/knowledge-governance.md` (quando houver mudança em conhecimento/processo)
 - Justificativa por rule marcada: <1 linha por item>
@@ -63,7 +63,7 @@ Use a seleção como evidência obrigatória de cobertura por domínio real do m
 - `.pose/rules/security.md`
 - `.pose/rules/backend-go.md`
 - `.pose/rules/frontend-react.md`
-- `.pose/rules/kubernetes.md`
+- `.pose/rules/kubernetes.md` (extensão `pose-rule-kubernetes`, quando instalada)
 - `.pose/rules/documentation-style.md`
 - `.pose/rules/knowledge-governance.md`
 

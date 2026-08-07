@@ -42,7 +42,7 @@ Attach this section to the review:
   - [ ] `.pose/rules/security.md`
   - [ ] `.pose/rules/backend-go.md`
   - [ ] `.pose/rules/frontend-react.md`
-  - [ ] `.pose/rules/kubernetes.md`
+  - [ ] `.pose/rules/kubernetes.md` (extension `pose-rule-kubernetes`, when installed)
   - [ ] `.pose/rules/documentation-style.md`
   - [ ] `.pose/rules/knowledge-governance.md` when knowledge or process changes
 - Rationale for each selected rule: <one line per item>
@@ -119,7 +119,7 @@ Attach this section to the review:
 ## Rules applied during review
 - `.pose/rules/backend-go.md`: verified handlers, context, and error handling.
 - `.pose/rules/frontend-react.md`: verified accessibility and explicit loading and error states.
-- `.pose/rules/kubernetes.md`: verified resources, probes, and immutable images.
+- `.pose/rules/kubernetes.md` (extension `pose-rule-kubernetes`): verified resources, probes, and immutable images.
 - `.pose/rules/security.md`: verified authorization and absence of secrets.
 - `.pose/rules/documentation-style.md`: verified editorial consistency.
 

@@ -70,7 +70,7 @@ func TestDeliverMachineryRefreshesBacksUpAndRespectsDeletion(t *testing.T) {
 
 	// A deleted file stays deleted: delivering it again would undo a
 	// deliberate decision.
-	deletedPath := filepath.Join(target, ".pose", "rules", "kubernetes.md")
+	deletedPath := filepath.Join(target, ".pose", "rules", "delivery-evidence.md")
 	if err := os.Remove(deletedPath); err != nil {
 		t.Fatal(err)
 	}

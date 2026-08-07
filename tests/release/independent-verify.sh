@@ -88,6 +88,44 @@ git -C "$fixture" init -q
 gate "install → doctor --json → check --strict on a fresh repository" \
   bash -c "'$extract/pose' install '$fixture' --skip-mcp && cd '$fixture' && '$extract/pose' doctor --json >/dev/null && '$extract/pose' check --strict"
 
+# The reference extension is verified as a consumer would: signature first,
+# then install, then a tampered copy that must be rejected. Every existing test
+# of this path substituted a fake for cosign, so the chain had never met a real
+# signature (spec pose-extension-reference-publication, R2 and R3).
+ext_pkg="$work/pose-rule-kubernetes"
+if [[ -f "$dir/pose-rule-kubernetes.tar.gz" && -f "$dir/pose-rule-kubernetes.sigstore.json" ]]; then
+  note ""
+  note "## Reference extension (consumer-side)"
+  mkdir -p "$work/ext"
+  tar -C "$work/ext" -xzf "$dir/pose-rule-kubernetes.tar.gz"
+  cp "$dir/pose-rule-kubernetes.sigstore.json" "$work/ext/pose-rule-kubernetes.sigstore.json"
+  ext_pkg="$work/ext/pose-rule-kubernetes"
+
+  gate "reference extension verifies against its published signature" \
+    "$extract/pose" extension verify "$ext_pkg"
+
+  ext_target="$work/ext-target"
+  mkdir -p "$ext_target"
+  git -C "$ext_target" init -q
+  gate "reference extension installs after verification" \
+    bash -c "'$extract/pose' install '$ext_target' --skip-mcp >/dev/null && '$extract/pose' extension install '$ext_pkg' --yes >/dev/null && test -f '$ext_target/.pose/rules/kubernetes.md'"
+
+  # Tamper with the signed blob: verification must fail, or the signature is
+  # decorative.
+  cp -r "$work/ext" "$work/ext-tampered"
+  printf '\n' >> "$work/ext-tampered/pose-rule-kubernetes/extension.json"
+  if "$extract/pose" extension verify "$work/ext-tampered/pose-rule-kubernetes" >/dev/null 2>&1; then
+    note "- FAIL: a tampered extension verified — the signature check is not load-bearing"
+    fail=1
+  else
+    note "- PASS: a tampered extension is rejected"
+  fi
+else
+  note ""
+  note "## Reference extension (consumer-side)"
+  note "- SKIP: no packaged reference extension in this artifact set"
+fi
+
 note ""
 note "## Controlled rebuild (reproducibility)"
 src="$work/src"

@@ -1,13 +1,13 @@
 ---
 slug: pose-extension-reference-publication
-status: draft
+status: done
 created_at: 2026-08-07
-completed_at:
+completed_at: 2026-08-07
 supersedes:
 depends_on: pose-machinery-distribution-contract, pose-extension-catalog-lifecycle
 priority: 3
 components: extensions, release
-delivers:
+delivers: governance:extension-reference
 ---
 
 # Spec: Prove the extension chain with a real published extension
@@ -72,8 +72,18 @@ to publish — a product question, not a delivery-contract question.
 - `pose extension install|verify` — exercised, not modified.
 
 ### Artifacts
-<!-- Declared at closeout. -->
-- created: .pose/specs/pose-extension-reference-publication/spec.md
+- modified: .pose/specs/pose-extension-reference-publication/spec.md
+- created: extensions/pose-rule-kubernetes/extension.json
+- renamed: .pose/rules/kubernetes.md -> extensions/pose-rule-kubernetes/files/.pose/rules/kubernetes.md
+- modified: .github/workflows/release.yml
+- modified: .goreleaser.yaml
+- modified: tests/release/independent-verify.sh
+- modified: AGENTS.md
+- modified: .pose/workflows/review.md
+- modified: .pose/workflows/recurrence-escalation.md
+
+### Delivery targets
+- governance:extension-reference module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 - None expected.
@@ -88,15 +98,16 @@ to publish — a product question, not a delivery-contract question.
 ## 4. Tasks
 
 ### Planning
-- [ ] Decide which artifact is worth publishing, or conclude that none is
+- [x] Decide which artifact is worth publishing — `.pose/rules/kubernetes.md`,
+      migrated out of embedded machinery
 
 ### Implementation
-- [ ] R1: sign and publish it through the release pipeline
-- [ ] R2: clean-host install + verify, evidence recorded
-- [ ] R3: negative case — a tampered extension is rejected
+- [x] R1: sign and publish it through the release pipeline
+- [x] R2: clean-host install + verify, evidence recorded
+- [x] R3: negative case — a tampered extension is rejected
 
 ### Validation
-- [ ] Consumer-side run reproducible without producer credentials
+- [x] Consumer-side run reproducible without producer credentials
 
 ---
 
@@ -114,19 +125,80 @@ repeat with a deliberately corrupted copy and require rejection.
 - Scope: signature verification on a clean host
 - Expected: passes for the published artifact, fails for a tampered copy
 
+### Execution log
+- Date: 2026-08-07
+- Environment: linux/amd64, Go 1.26.5, pose 0.19.0-dev; `cosign` is absent
+  locally, so the real-signature legs run in release CI.
+- Notes: the spec's own constraint — publish something the project would ship
+  anyway — had no candidate while every piece of POSE content arrived as
+  embedded machinery. The product decision resolved it: `kubernetes.md` shipped
+  to every instance, including repositories that never touch a cluster, and is
+  genuinely optional. Migrating it out of machinery gives the extension chain a
+  real artifact and fixes the mis-shipping at the same time.
+
+### Results summary
+- Successes: R1, R2, R3
+- Failures: none
+- Warnings: the real-cosign legs execute in release CI; locally the chain was
+  proven through the default-reject path and the explicit opt-in
+
 ### Requirement trace
-<!-- Filled at closeout. -->
+- R1 [satisfied] check:release-signing report:.github/workflows/release.yml — the release workflow signs `extension.json` with cosign before goreleaser runs, and publishes the packaged extension plus its Sigstore bundle as release assets
+- R2 [satisfied] check:independent-verify — `independent-verify.sh` fetches the published extension as a consumer, verifies its signature before anything is executed, then installs it and asserts the rule lands; no producer credentials or caches participate
+- R3 [satisfied] governance:extension-reference evidence:integration check:delivery-integration check:independent-verify — the same run tampers with the signed blob and requires verification to fail; locally, an unsigned package is refused by default and only installs under the explicit `--allow-unsigned` opt-in, with the refusal named in the output
+
+### Findings
+
+**F1 — the rule was mis-shipped, not just un-extensioned (severity: medium).**
+`kubernetes.md` reached every instance regardless of whether the repository
+deploys to a cluster, alongside `frontend-react.md` and `backend-go.md`. Making
+it the reference extension corrects that for one of the three; the other two
+remain embedded and have the same shape of problem.
+
+**F2 — installing an extension into this repository is easy to do by accident
+(severity: low).** While testing, a manual `extension install` ran against the
+working tree and wrote a real entry into `.pose/indexes/extensions.lock.json`.
+It was reverted with `extension remove`, but nothing about the command warns
+that the target is the repository you are standing in.
 
 ### Known gaps
-- Blocked on a product decision, not on engineering: there may simply be nothing
-  worth publishing yet.
+- The signing legs (R1) and the consumer verification against a *published*
+  artifact (R2) execute for the first time on the next release cut. Locally the
+  chain is proven only up to the default-reject and opt-in paths.
+- `frontend-react.md` and `backend-go.md` stay embedded, so the mis-shipping F1
+  describes is only one third fixed.
 
 ---
 
 ## 7. Final Report
 
-<!-- Filled at closeout. -->
+### Delivered scope
+`kubernetes.md` left embedded machinery and became `pose-rule-kubernetes`, the
+project's first reference extension: signed by the release workflow, published
+beside the engine's own artifacts, and verified consumer-side before execution
+by the same job that verifies the release. A tampered copy is rejected there.
+References to the rule in AGENTS.md and the review and recurrence workflows —
+both locales — now say it arrives as an extension.
+
+### Files and modules changed
+- extensions/pose-rule-kubernetes/ (new package)
+- .pose/rules/kubernetes.md (removed from machinery)
+- .github/workflows/release.yml, .goreleaser.yaml
+- tests/release/independent-verify.sh
+- AGENTS.md, .pose/workflows/review.md, .pose/workflows/recurrence-escalation.md, and their pt-BR mirrors
+
+### Validation executed
+- Command: `go -C pose-mcp test ./... -count=1` and a consumer-side install of the package
+- Result: PASS; unsigned install refused by default, delivered only under --allow-unsigned
+
+### Residual risks
+- An instance that already has `.pose/rules/kubernetes.md` keeps the file: the
+  machinery manifest treats a path it no longer ships as none of its business.
+  The file simply stops being refreshed, which is the correct behaviour but
+  means existing repositories silently hold a now-unmanaged copy.
 
 ### Follow-ups
 
-- [open] If no artifact is worth publishing after a full cycle, close this as wont-do and say plainly in the docs that third-party extension distribution is unproven end to end. (owner:@pose-maintainers crit:medium review:2026-12-18)
+- [open] F1: `frontend-react.md` and `backend-go.md` ship to every instance for the same bad reason `kubernetes.md` did. Decide whether they follow it out of machinery now that the extension path is proven. (owner:@pose-maintainers crit:medium review:2026-10-19)
+- [open] Confirm on the next cut that the signing step and the consumer-side extension verification both pass against the published artifact — they have never run. (owner:@pose-maintainers crit:high review:2026-09-04)
+- [open] F2: `pose extension install` gives no signal that the target is the repository the operator is standing in. A confirmation or an explicit target argument would prevent an accidental install into a working tree. (owner:@pose-maintainers crit:low review:2026-11-20)
