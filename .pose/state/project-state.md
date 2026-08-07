@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-07T21:23:28Z
-baseline_commit: 53e4b37cfdf674ad325a0a87e149b0173459285f
+generated_at: 2026-08-07T21:29:06Z
+baseline_commit: 3182f091a14ccf9570e988b092339f3a591bc625
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:5711429a0733 -->
+<!-- state:derived hash:e3d5da0b2dd5 -->
 
-- specs: total=65 draft=0 in-progress=0 blocked=0 done=65 superseded=0 abandoned=0
+- specs: total=66 draft=0 in-progress=0 blocked=0 done=66 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-sbom-license-inventory (2026-08-07)
   - spec:pose-release-workflow-hardening (2026-08-07)
-  - spec:pose-machinery-distribution-contract (2026-08-07)
-  - spec:pose-assessment-engine-precision (2026-08-07)
-  - spec:pose-verifier-extension-install-cwd (2026-08-07)
   - spec:pose-manual-distribution-merge (2026-08-07)
-  - ... e mais 60 (ver `pose_list_specs status:done`)
+  - spec:pose-assessment-engine-precision (2026-08-07)
+  - spec:pose-verifier-assets-variable-fix (2026-08-07)
+  - ... e mais 61 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:b7e517abca6a -->
+<!-- state:derived hash:526d163f16d7 -->
 
 - abertos: 33
-- por criticidade: high=2 medium=16 low=15 sem-classificação=0
+- por criticidade: high=2 medium=15 low=16 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:d64ad4a976ab -->
+<!-- state:derived hash:01f9ac90b890 -->
 
-- último registro: task=closeout-pose-package-channel-delivery outcome=unknown (2026-08-07T20:25:07Z)
-- últimos 30 dias: total=120 outcome_ok=100 outcome_outro=20
-- reports revisados (.md): total=57
+- último registro: task=closeout-pose-actions-node24-bump outcome=unknown (2026-08-07T21:28:33Z)
+- últimos 30 dias: total=121 outcome_ok=100 outcome_outro=21
+- reports revisados (.md): total=58
+  - report:2026-08-07-standard-closeout-pose-actions-node24-bump.md
   - report:2026-08-07-standard-closeout-pose-package-channel-delivery.md
   - report:2026-08-07-standard-closeout-pose-release-workflow-hardening.md
   - report:2026-08-07-standard-closeout-pose-release-signing-rejection.md
   - report:2026-08-07-standard-closeout-pose-shellcheck-ci-gate.md
-  - report:2026-08-07-standard-closeout-pose-sbom-license-inventory.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->

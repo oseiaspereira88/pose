@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "pose-actions-node24-bump",
+      "category": "changed",
+      "breaking": false,
+      "body": "The release and CI workflows now run their first-party actions on Node.js 24.\nThey had been declaring the deprecated Node.js 20 and passing only because the\nrunner substituted a newer runtime and annotated every run — an override GitHub\ncontrols and will withdraw, at which point every workflow would have failed at\nonce. Third-party actions remain pinned to full commit SHAs.",
+      "path": "pose-actions-node24-bump.md",
+      "digest": "sha256:962a415bab264f6252da859bff05289ee3f13afb623ddfa84e6b836c3904946f"
+    },
+    {
       "spec": "pose-package-channel-delivery",
       "category": "fixed",
       "breaking": false,

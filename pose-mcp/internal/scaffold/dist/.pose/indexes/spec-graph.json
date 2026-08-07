@@ -1,6 +1,10 @@
 {
   "edges": [
     {
+      "from": "pose-actions-node24-bump",
+      "to": "pose-ossf-security-baseline"
+    },
+    {
       "from": "pose-agent-skills-conformance",
       "to": "pose-standalone-dogfood"
     },
@@ -323,6 +327,14 @@
   ],
   "schemaVersion": 1,
   "specs": {
+    "pose-actions-node24-bump": {
+      "depends_on": [
+        "pose-ossf-security-baseline"
+      ],
+      "path": ".pose/specs/pose-actions-node24-bump/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
     "pose-agent-skills-conformance": {
       "depends_on": [
         "pose-standalone-dogfood"
