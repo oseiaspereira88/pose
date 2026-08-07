@@ -75,4 +75,69 @@ PATH="$clean_path" pose install "$verified_target" --skip-mcp >/dev/null
 (cd "$verified_target" && PATH="$clean_path" pose doctor --json > "$work/doctor.json")
 grep -q '"binary"' "$work/doctor.json"
 (cd "$verified_target" && PATH="$clean_path" pose check --strict >/dev/null)
+# Provider-download branch (spec pose-release-cycle-debt-closure, R3). The only
+# branch every public `curl | bash` user takes was covered by nothing: the
+# bundle scenarios above all skip it. A curl stub serving from a local directory
+# is the local origin — it exercises the script's real logic (release lookup,
+# asset naming, extraction, install) without pointing the public installer at a
+# configurable origin it would then carry forever.
+origin="$work/origin"
+mkdir -p "$origin"
+printf '{"tag_name": "v9.9.9"}\n' > "$origin/latest.json"
+tar -C "$(dirname "$binary")" -czf "$origin/pose_9.9.9_$(go env GOOS)_$(go env GOARCH).tar.gz" pose
+
+stub_dir="$work/stub"
+mkdir -p "$stub_dir"
+cat > "$stub_dir/curl" <<'STUB'
+#!/usr/bin/env bash
+# Serves the release API and asset downloads from $POSE_TEST_ORIGIN.
+out=""; url=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -o) out="$2"; shift 2 ;;
+    -*) shift ;;
+    *) url="$1"; shift ;;
+  esac
+done
+if [[ "$url" == *"/releases/latest" ]]; then
+  cat "$POSE_TEST_ORIGIN/latest.json"; exit 0
+fi
+asset="${url##*/}"
+[[ -f "$POSE_TEST_ORIGIN/$asset" ]] || exit 22
+if [[ -n "$out" ]]; then cp "$POSE_TEST_ORIGIN/$asset" "$out"; else cat "$POSE_TEST_ORIGIN/$asset"; fi
+STUB
+chmod +x "$stub_dir/curl"
+
+download_target="$work/download-project"
+mkdir -p "$download_target"
+git -C "$download_target" init -q
+download_home="$work/download-home"
+mkdir -p "$download_home"
+# install.sh alone in its directory, so the bundle branch cannot be taken.
+solo="$work/solo"
+mkdir -p "$solo"
+cp "$repo_root/install.sh" "$solo/install.sh"
+POSE_TEST_ORIGIN="$origin" HOME="$download_home" PATH="$stub_dir:$PATH" \
+  bash "$solo/install.sh" "$download_target" --skip-mcp >/dev/null
+test -x "$download_home/.local/bin/pose"
+test -f "$download_target/.pose/schema-version"
+
+# A malformed asset must fail the install rather than leave a broken binary on
+# PATH: truncating the archive is the closest thing to a corrupted download.
+bad_origin="$work/bad-origin"
+mkdir -p "$bad_origin"
+cp "$origin/latest.json" "$bad_origin/latest.json"
+head -c 64 "$origin/pose_9.9.9_$(go env GOOS)_$(go env GOARCH).tar.gz" \
+  > "$bad_origin/pose_9.9.9_$(go env GOOS)_$(go env GOARCH).tar.gz"
+bad_target="$work/bad-project"
+mkdir -p "$bad_target"
+git -C "$bad_target" init -q
+bad_home="$work/bad-home"
+mkdir -p "$bad_home"
+if POSE_TEST_ORIGIN="$bad_origin" HOME="$bad_home" PATH="$stub_dir:$PATH" \
+     bash "$solo/install.sh" "$bad_target" --skip-mcp >/dev/null 2>&1; then
+  echo "installer accepted a truncated asset" >&2
+  exit 1
+fi
+
 echo "native installer scenarios: PASS"

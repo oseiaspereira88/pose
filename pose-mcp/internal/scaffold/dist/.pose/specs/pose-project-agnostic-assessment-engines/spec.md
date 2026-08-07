@@ -101,7 +101,7 @@ any other producer repository.
 - created: pose-mcp/internal/pose/assessment_scan.go
 - created: pose-mcp/internal/cli/assessment_agnostic_test.go
 - created: .pose/knowledge/2026-08-03-decision-log-project-agnostic-assessment-evidence.md
-- created: .pose/changelogs/unreleased/pose-project-agnostic-assessment-engines.md
+- created: .pose/changelogs/v0.16.2/pose-project-agnostic-assessment-engines.md
 - created: .pose/specs/pose-project-agnostic-assessment-engines/spec.md
 
 ### Delivery targets

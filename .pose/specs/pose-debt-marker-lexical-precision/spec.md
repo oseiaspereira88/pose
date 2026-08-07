@@ -63,7 +63,7 @@ ordinary explanations containing `stub` cannot create fictitious backlog.
 - modified: pose-mcp/internal/pose/techdebt.go
 - modified: pose-mcp/internal/pose/assessment_agnostic_test.go
 - created: .pose/specs/pose-debt-marker-lexical-precision/spec.md
-- created: .pose/changelogs/unreleased/pose-debt-marker-lexical-precision.md
+- created: .pose/changelogs/v0.16.3/pose-debt-marker-lexical-precision.md
 - created: .pose/reports/2026-08-03-pose-debt-marker-lexical-precision-review.md
 
 ### API/contract changes

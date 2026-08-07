@@ -250,25 +250,17 @@ func collectFollowups(root string) []followup {
 		body := followupHTMLComment.ReplaceAllString(string(raw), "")
 		status := frontmatterStatus(body)
 		inFinal, inFollowups := false, false
-		for _, line := range strings.Split(body, "\n") {
-			if strings.HasPrefix(line, "## ") {
-				heading := strings.TrimSpace(strings.TrimLeft(line, "#0123456789. "))
-				inFinal = strings.HasPrefix(strings.ToLower(heading), "final report")
-				inFollowups = false
-				continue
+		// A follow-up may wrap across lines. Everything until the next bullet or
+		// heading belongs to the current one: parsing line by line truncated the
+		// text and, worse, silently dropped a trailing "(owner:… review:…)"
+		// group that had wrapped, leaving the item unowned with no diagnostic
+		// (spec pose-release-cycle-debt-closure, R4).
+		var pending string
+		flush := func() {
+			if pending == "" {
+				return
 			}
-			if inFinal && strings.HasPrefix(line, "### ") {
-				inFollowups = strings.HasPrefix(strings.ToLower(strings.TrimSpace(strings.TrimPrefix(line, "###"))), "follow-up")
-				continue
-			}
-			if !inFollowups {
-				continue
-			}
-			match := followupBullet.FindStringSubmatch(line)
-			if match == nil {
-				continue
-			}
-			text, disposition, target := match[1], "", ""
+			text, disposition, target := pending, "", ""
 			if parsed := followupDisposition.FindStringSubmatch(text); parsed != nil {
 				disposition, target, text = parsed[1], strings.TrimSpace(parsed[2]), strings.TrimSpace(parsed[3])
 			}
@@ -280,7 +272,40 @@ func collectFollowups(root string) []followup {
 					Owner: owner, Criticality: crit, Review: review, By: by, MetaErr: metaErr,
 				})
 			}
+			pending = ""
 		}
+		for _, line := range strings.Split(body, "\n") {
+			if strings.HasPrefix(line, "## ") {
+				flush()
+				heading := strings.TrimSpace(strings.TrimLeft(line, "#0123456789. "))
+				inFinal = strings.HasPrefix(strings.ToLower(heading), "final report")
+				inFollowups = false
+				continue
+			}
+			if inFinal && strings.HasPrefix(line, "### ") {
+				flush()
+				inFollowups = strings.HasPrefix(strings.ToLower(strings.TrimSpace(strings.TrimPrefix(line, "###"))), "follow-up")
+				continue
+			}
+			if !inFollowups {
+				continue
+			}
+			if match := followupBullet.FindStringSubmatch(line); match != nil {
+				flush()
+				pending = match[1]
+				continue
+			}
+			// Continuation of the bullet being read: indented, non-empty, and
+			// not the start of anything else. A blank line ends the item.
+			if pending != "" {
+				if trimmed := strings.TrimSpace(line); trimmed != "" {
+					pending += " " + trimmed
+				} else {
+					flush()
+				}
+			}
+		}
+		flush()
 	}
 	entries = append(entries, collectCapabilityStaleFollowups(root)...)
 	entries = append(entries, collectDocsReviewFollowups(root)...)

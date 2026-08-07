@@ -91,3 +91,48 @@ func TestReleaseEvidenceRejectsCredentialsAndUnsafeAssetNames(t *testing.T) {
 		t.Fatal("unsafe provider evidence accepted")
 	}
 }
+
+// A spec that declared its changelog fragment as an artifact must keep pointing
+// at it after the cut. Before this, every release broke the structural gate for
+// the specs it consumed: the declared unreleased path no longer existed
+// (spec pose-release-cycle-debt-closure, R2).
+func TestReleasePrepareRepointsConsumedSpecArtifactClaims(t *testing.T) {
+	root := t.TempDir()
+	target := "v" + version.ReleaseBase()
+	writeReleaseFixture(t, root, ".pose/release-policy.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo"}`)
+	writeReleaseFixture(t, root, ".pose/specs/alpha/spec.md",
+		"---\nslug: alpha\nstatus: done\n---\n\n### Artifacts\n"+
+			"- created: .pose/changelogs/unreleased/alpha.md\n"+
+			"- modified: internal/alpha.go\n")
+	writeReleaseFixture(t, root, ".pose/changelogs/unreleased/alpha.md", "---\nspec: alpha\ncategory: added\nbreaking: false\n---\n\nAdds alpha.\n")
+	// A spec that never mentions the fragment must not be touched at all.
+	untouched := "---\nslug: beta\nstatus: done\n---\n\n### Artifacts\n- modified: internal/beta.go\n"
+	writeReleaseFixture(t, root, ".pose/specs/beta/spec.md", untouched)
+
+	var out, errOut bytes.Buffer
+	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("apply=%d %s", code, errOut.String())
+	}
+
+	claimed, err := os.ReadFile(filepath.Join(root, ".pose/specs/alpha/spec.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	archived := ".pose/changelogs/" + target + "/alpha.md"
+	if !strings.Contains(string(claimed), "- created: "+archived) {
+		t.Errorf("the consumed spec must claim the archived path, got:\n%s", claimed)
+	}
+	if strings.Contains(string(claimed), ".pose/changelogs/unreleased/alpha.md") {
+		t.Error("the stale unreleased claim must be gone")
+	}
+	if !strings.Contains(string(claimed), "- modified: internal/alpha.go") {
+		t.Error("unrelated claims must survive untouched")
+	}
+	// The claim must resolve on disk, which is the whole point.
+	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(archived))); err != nil {
+		t.Errorf("the repointed claim does not resolve: %v", err)
+	}
+	if after, _ := os.ReadFile(filepath.Join(root, ".pose/specs/beta/spec.md")); string(after) != untouched {
+		t.Error("a spec that does not claim the fragment must not be rewritten")
+	}
+}

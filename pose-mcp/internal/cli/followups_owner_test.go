@@ -141,3 +141,47 @@ Content.
 		t.Errorf("expected unowned warning, got: %s", output)
 	}
 }
+
+// A follow-up may wrap across lines. Before this was handled, only the first
+// line was read: the text was truncated and a wrapped "(owner:… review:…)"
+// group vanished, leaving the item silently unowned with no diagnostic
+// (spec pose-release-cycle-debt-closure, R4).
+func TestFollowupMetadataSurvivesLineWrapping(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, ".pose", "specs", "wrapped", "spec.md")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	body := "---\nslug: wrapped\nstatus: done\ncompleted_at: 2026-07-01\n---\n\n" +
+		"## 7. Final Report\n\n### Follow-ups\n\n" +
+		"- [open] a follow-up whose text runs on for a while and\n" +
+		"  therefore wraps onto a second line before its metadata\n" +
+		"  (owner:@core crit:high review:2999-01-01)\n" +
+		"- [open] a single-line one (owner:@core crit:low review:2999-01-01)\n"
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	entries := collectFollowups(root)
+	var wrapped *followup
+	for i := range entries {
+		if strings.HasPrefix(entries[i].Text, "a follow-up whose text runs on") {
+			wrapped = &entries[i]
+		}
+	}
+	if wrapped == nil {
+		t.Fatalf("the wrapped follow-up was not collected: %+v", entries)
+	}
+	if wrapped.Owner != "@core" {
+		t.Errorf("wrapped metadata must still be parsed, got owner=%q", wrapped.Owner)
+	}
+	if wrapped.Criticality != "high" || wrapped.Review != "2999-01-01" {
+		t.Errorf("wrapped crit/review lost: crit=%q review=%q", wrapped.Criticality, wrapped.Review)
+	}
+	if !strings.Contains(wrapped.Text, "wraps onto a second line") {
+		t.Errorf("continuation lines must join the text, got: %q", wrapped.Text)
+	}
+	if strings.Contains(wrapped.Text, "owner:") {
+		t.Errorf("the metadata group must be stripped from the text, got: %q", wrapped.Text)
+	}
+}

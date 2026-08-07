@@ -235,7 +235,15 @@ func cmdReleasePrepare(root string, args []string, stdout, stderr io.Writer) int
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
+	// Specs that declared their fragment as an artifact must keep pointing at
+	// it after the cut. Restoring them is part of the rollback, so a partial
+	// prepare never leaves a spec citing a path that exists in neither place
+	// (spec pose-release-cycle-debt-closure, R2).
+	restoreClaims := map[string][]byte{}
 	rollback := func() {
+		for path, original := range restoreClaims {
+			_ = os.WriteFile(path, original, 0o644)
+		}
 		for _, f := range fragments {
 			from := filepath.Join(archiveDir, f.Path)
 			to := filepath.Join(root, ".pose", "changelogs", "unreleased", f.Path)
@@ -251,6 +259,11 @@ func cmdReleasePrepare(root string, args []string, stdout, stderr io.Writer) int
 		from := filepath.Join(root, ".pose", "changelogs", "unreleased", f.Path)
 		to := filepath.Join(archiveDir, f.Path)
 		if err := os.Rename(from, to); err != nil {
+			rollback()
+			fmt.Fprintln(stderr, err)
+			return 1
+		}
+		if err := repointFragmentClaims(root, target, f.Path, restoreClaims); err != nil {
 			rollback()
 			fmt.Fprintln(stderr, err)
 			return 1
@@ -683,4 +696,44 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 			checker.failOrWarn("release: governed tag " + tag + " has no manifest")
 		}
 	}
+}
+
+// repointFragmentClaims rewrites any spec artifact claim naming a fragment that
+// prepare has just archived, so the claim resolves at the new path. The
+// original bytes are recorded in restore so the caller's rollback can undo it.
+//
+// Without this, every cut broke the structural gate for the specs it consumed:
+// the declared `.pose/changelogs/unreleased/<slug>.md` no longer existed, and
+// the gate reported `existence: declared current artifact is not tracked at the
+// selected head` (spec pose-release-cycle-debt-closure, R2).
+func repointFragmentClaims(root, version, fragment string, restore map[string][]byte) error {
+	oldClaim := ".pose/changelogs/unreleased/" + fragment
+	newClaim := ".pose/changelogs/" + version + "/" + fragment
+
+	specsDir := filepath.Join(root, ".pose", "specs")
+	entries, err := os.ReadDir(specsDir)
+	if err != nil {
+		return nil // no specs to repoint is not a prepare failure
+	}
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		path := filepath.Join(specsDir, e.Name(), "spec.md")
+		original, err := os.ReadFile(path)
+		if err != nil {
+			continue
+		}
+		if !strings.Contains(string(original), oldClaim) {
+			continue
+		}
+		if _, seen := restore[path]; !seen {
+			restore[path] = original
+		}
+		updated := strings.ReplaceAll(string(original), oldClaim, newClaim)
+		if err := os.WriteFile(path, []byte(updated), 0o644); err != nil {
+			return fmt.Errorf("repointing %s: %w", path, err)
+		}
+	}
+	return nil
 }
