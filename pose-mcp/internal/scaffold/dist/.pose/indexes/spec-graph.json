@@ -69,6 +69,14 @@
       "to": "pose-release-signing"
     },
     {
+      "from": "pose-extension-reference-publication",
+      "to": "pose-machinery-distribution-contract"
+    },
+    {
+      "from": "pose-extension-reference-publication",
+      "to": "pose-extension-catalog-lifecycle"
+    },
+    {
       "from": "pose-followup-ownership-sla",
       "to": "pose-standalone-dogfood"
     },
@@ -400,6 +408,15 @@
       "priority": 24,
       "status": "done"
     },
+    "pose-extension-reference-publication": {
+      "depends_on": [
+        "pose-machinery-distribution-contract",
+        "pose-extension-catalog-lifecycle"
+      ],
+      "path": ".pose/specs/pose-extension-reference-publication/spec.md",
+      "priority": 3,
+      "status": "draft"
+    },
     "pose-first-release-evidence-confirmation": {
       "depends_on": null,
       "path": ".pose/specs/pose-first-release-evidence-confirmation/spec.md",
@@ -474,7 +491,7 @@
       ],
       "path": ".pose/specs/pose-machinery-distribution-contract/spec.md",
       "priority": 2,
-      "status": "draft"
+      "status": "done"
     },
     "pose-manual-distribution-merge": {
       "depends_on": [

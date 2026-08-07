@@ -1,5 +1,14 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-machinery-distribution-contract",
+      "category": "changed",
+      "breaking": false,
+      "body": "`pose upgrade` now delivers rules, workflows, templates and skills, not just the\nmanuals. Until now they only reached an instance through `pose upgrade --force`,\nso engine improvements never arrived and instances drifted indefinitely. The\ncontract is per file: unchanged files are skipped, a file you edited is backed\nup as `\u003cfile\u003e.pose-backup` before being refreshed, and a file you deleted stays\ndeleted. Expect a burst of `.pose-backup` files on the first upgrade if you have\ncustomized shipped machinery — nothing is lost. One exception applies once: on\nan instance created before this release, a machinery file you had deleted comes\nback on the first upgrade, because the engine has no record of it having been\ndelivered; from the second upgrade on, deletions are respected.\n\n`pose skills-check` now also validates the `locales/*/.agents/skills` mirrors,\nwhich immediately caught a translated skill linking a file that does not exist.",
+      "path": "pose-machinery-distribution-contract.md",
+      "digest": "sha256:6e7693ca021f3c48450739a9abcc47607b64c25d96bf9dd5374e8e781db6ebb4"
+    }
+  ],
   "releases": [
     {
       "version": "v0.18.2",
