@@ -107,5 +107,5 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 
 ### Follow-ups
 
-- [open] Confirm the first real `check_upgrade_pair` run in `tests/release/compat.sh` once `compatibility.json.supported_upgrades` gets its first entry (0.9.0), and record the result. (owner:@pose-maintainers crit:high review:2026-08-19)
+- [spawned: pose-release-cycle-debt-closure] Confirm the first real `check_upgrade_pair` run in `tests/release/compat.sh` once `compatibility.json.supported_upgrades` gets its first entry, and record the result. Superseded in part by `pose-compat-gate-candidate-integrity`: the support window now starts at 0.18.2, so the awaited entry is no longer 0.9.0 but the release after 0.18.2. (owner:@pose-maintainers crit:high review:2026-09-04)
 

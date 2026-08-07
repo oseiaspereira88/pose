@@ -207,9 +207,11 @@ drop instance-written text writes `<doc>.pose-backup` first and reports it.
 
 ### Follow-ups
 
-- [open] Re-add an upgrade pair to `supported_upgrades` at the first release
-  after 0.18.2, so the pair machinery in `compat.sh` stops being dead code.
-- [open] `pose release prepare` archives changelog fragments without rewriting
-  the artifact claims of the specs it consumes, so every cut breaks the
-  structural gate for those specs. Seen again in this cycle; it already has a
-  follow-up on `pose-artifact-provenance-ledger`.
+- [spawned: pose-release-cycle-debt-closure] Re-add an upgrade pair to
+  `supported_upgrades` at the first release after 0.18.2, so the pair machinery
+  in `compat.sh` stops being dead code. (owner:@pose-maintainers crit:high review:2026-09-04)
+- [spawned: pose-release-cycle-debt-closure] `pose release prepare` archives
+  changelog fragments without rewriting the artifact claims of the specs it
+  consumes, so every cut breaks the structural gate for those specs. Seen again
+  in this cycle; it already has a follow-up on
+  `pose-artifact-provenance-ledger`. (owner:@pose-maintainers crit:high review:2026-09-04)

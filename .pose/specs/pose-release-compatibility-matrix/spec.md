@@ -112,6 +112,6 @@ policy section.
 
 ### Follow-ups
 
-- [open] After the first post-0.9.0 release, add 0.9.0 to supported_upgrades with its checksums.txt SHA-256 pin and verify the gate exercises it. (owner:@pose-maintainers crit:medium review:2026-10-01)
+- [wont-do: 0.9.0 left the support window] `pose-compat-gate-candidate-integrity` narrowed `support_policy.window` to 0.18.2 onward, because no release before it has an installed base. Adding 0.9.0 to supported_upgrades would make the gate exercise an upgrade path the project does not support. The live version of this item is the `pose-upgrade-compatibility-lab` follow-up, now pointing at the release after 0.18.2. (owner:@pose-maintainers crit:medium review:2026-10-01)
 - [covered: pose-release-signing] Sign the compatibility artifacts with the release.
 - [covered: pose-upgrade-compatibility-lab] Broaden upgrade coverage across OS/arch and released-version pairs.
