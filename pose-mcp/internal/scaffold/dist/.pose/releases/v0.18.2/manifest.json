@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v0.18.2",
+  "previous_version": "v0.18.1",
+  "prepared_at": "2026-08-07T04:39:51Z",
+  "specs": [
+    "pose-compat-gate-candidate-integrity"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-compat-gate-candidate-integrity",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose upgrade` no longer discards manual text a repository wrote outside a\nsection of its own: when refreshing POSE.md or AGENTS.md would drop such a line,\nthe pre-merge file is kept as `\u003cdoc\u003e.pose-backup` and the installer says so.\nThe release compatibility gate also stopped replacing the candidate binary with\nthe last published release while running, which had left most of its upgrade\npairs validating the previous version instead of the one being cut. The\nsupported-upgrade window now starts at 0.18.1; earlier releases stay published\nbut are no longer exercised.",
+      "path": "pose-compat-gate-candidate-integrity.md",
+      "digest": "sha256:9e9e21570042668eda6b50b0df0063adfda4556586b4f180f17c7853a3f723a5"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:88269c1477730685520cd8a78d9d291e2c702adf6bef7f6ad5f4b58e97fa66f3",
+  "release_input_digest": "sha256:d0727d51edc17763986fdcd647477390ff64d15bbb36e42969015fd28b0cc5b7",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v0.18.2"
+  }
+}
