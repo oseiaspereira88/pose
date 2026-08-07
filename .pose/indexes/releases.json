@@ -1,31 +1,61 @@
 {
-  "pending": [
-    {
-      "spec": "pose-governance-gate-activation",
-      "category": "changed",
-      "breaking": true,
-      "body": "Technical-debt marker ids now derive from the marker itself — its file, keyword\nand line text — instead of its position in the scan. Adding a marker earlier in\na file no longer renumbers every later one, so a spec or review citing an id\nkeeps pointing at the same debt. Existing ids change shape once, exactly as\n`gap_id` did in 0.18.0.\n\nThree governance gates that could never fail now can. A `done` spec with\nrequirements and no `### Requirement trace` section is an error rather than a\nwarning — every shipped spec was given a trace first. The quarterly governance\naudit runs `followups --all --fail-overdue`, so an overdue follow-up fails it.\nDeterministic validation results are published to GitHub code scanning as SARIF,\nnext to the CodeQL findings.\n\nThe feature and bugfix workflows and skills now name the exact `knowledge:\u003cslug\u003e`\ncitation form that `pose knowledge-usage` counts; prose naming a file was never\ncounted, so consulted knowledge could look unused and expire on TTL.",
-      "path": "pose-governance-gate-activation.md",
-      "digest": "sha256:7ae018682a6a4cccfa8e78dda56a960a1fc840bbfb1934545e7c10e254b5ecc6"
-    },
-    {
-      "spec": "pose-machinery-distribution-contract",
-      "category": "changed",
-      "breaking": false,
-      "body": "`pose upgrade` now delivers rules, workflows, templates and skills, not just the\nmanuals. Until now they only reached an instance through `pose upgrade --force`,\nso engine improvements never arrived and instances drifted indefinitely. The\ncontract is per file: unchanged files are skipped, a file you edited is backed\nup as `\u003cfile\u003e.pose-backup` before being refreshed, and a file you deleted stays\ndeleted. Expect a burst of `.pose-backup` files on the first upgrade if you have\ncustomized shipped machinery — nothing is lost. One exception applies once: on\nan instance created before this release, a machinery file you had deleted comes\nback on the first upgrade, because the engine has no record of it having been\ndelivered; from the second upgrade on, deletions are respected.\n\n`pose skills-check` now also validates the `locales/*/.agents/skills` mirrors,\nwhich immediately caught a translated skill linking a file that does not exist.",
-      "path": "pose-machinery-distribution-contract.md",
-      "digest": "sha256:6e7693ca021f3c48450739a9abcc47607b64c25d96bf9dd5374e8e781db6ebb4"
-    },
-    {
-      "spec": "pose-release-cycle-debt-closure",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose release prepare` no longer breaks the structural gate of the specs it\nconsumes: a spec that declared its changelog fragment as an artifact now has\nthat claim repointed to the archived path as part of the same transaction, so\n`pose check --strict` stays green after a cut instead of needing a manual repair\npass.\n\nA follow-up whose `(owner:… crit:… review:…)` group wrapped onto its own line\nwas parsed as if the group were absent, leaving the item silently unowned — and\nits text truncated at the first line. Wrapped follow-ups are now read whole.\n\nThe installer's provider-download path — the one every `curl | bash` user takes\n— is covered by tests for the first time, including rejection of a truncated\narchive.",
-      "path": "pose-release-cycle-debt-closure.md",
-      "digest": "sha256:7d0dac27745d38df2ba6d8cdb7f1368db2121eece798ce4cc30ca789e242411c"
-    }
-  ],
+  "pending": [],
   "releases": [
+    {
+      "version": "v0.19.0",
+      "state": "prepared",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v0.19.0",
+        "previous_version": "v0.18.2",
+        "prepared_at": "2026-08-07T18:23:55Z",
+        "specs": [
+          "pose-governance-gate-activation",
+          "pose-machinery-distribution-contract",
+          "pose-release-cycle-debt-closure"
+        ],
+        "categories": {
+          "changed": 2,
+          "fixed": 1
+        },
+        "fragments": [
+          {
+            "spec": "pose-governance-gate-activation",
+            "category": "changed",
+            "breaking": true,
+            "body": "Technical-debt marker ids now derive from the marker itself — its file, keyword\nand line text — instead of its position in the scan. Adding a marker earlier in\na file no longer renumbers every later one, so a spec or review citing an id\nkeeps pointing at the same debt. Existing ids change shape once, exactly as\n`gap_id` did in 0.18.0.\n\nThree governance gates that could never fail now can. A `done` spec with\nrequirements and no `### Requirement trace` section is an error rather than a\nwarning — every shipped spec was given a trace first. The quarterly governance\naudit runs `followups --all --fail-overdue`, so an overdue follow-up fails it.\nDeterministic validation results are published to GitHub code scanning as SARIF,\nnext to the CodeQL findings.\n\nThe feature and bugfix workflows and skills now name the exact `knowledge:\u003cslug\u003e`\ncitation form that `pose knowledge-usage` counts; prose naming a file was never\ncounted, so consulted knowledge could look unused and expire on TTL.",
+            "path": "pose-governance-gate-activation.md",
+            "digest": "sha256:7ae018682a6a4cccfa8e78dda56a960a1fc840bbfb1934545e7c10e254b5ecc6"
+          },
+          {
+            "spec": "pose-machinery-distribution-contract",
+            "category": "changed",
+            "breaking": false,
+            "body": "`pose upgrade` now delivers rules, workflows, templates and skills, not just the\nmanuals. Until now they only reached an instance through `pose upgrade --force`,\nso engine improvements never arrived and instances drifted indefinitely. The\ncontract is per file: unchanged files are skipped, a file you edited is backed\nup as `\u003cfile\u003e.pose-backup` before being refreshed, and a file you deleted stays\ndeleted. Expect a burst of `.pose-backup` files on the first upgrade if you have\ncustomized shipped machinery — nothing is lost. One exception applies once: on\nan instance created before this release, a machinery file you had deleted comes\nback on the first upgrade, because the engine has no record of it having been\ndelivered; from the second upgrade on, deletions are respected.\n\n`pose skills-check` now also validates the `locales/*/.agents/skills` mirrors,\nwhich immediately caught a translated skill linking a file that does not exist.",
+            "path": "pose-machinery-distribution-contract.md",
+            "digest": "sha256:6e7693ca021f3c48450739a9abcc47607b64c25d96bf9dd5374e8e781db6ebb4"
+          },
+          {
+            "spec": "pose-release-cycle-debt-closure",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose release prepare` no longer breaks the structural gate of the specs it\nconsumes: a spec that declared its changelog fragment as an artifact now has\nthat claim repointed to the archived path as part of the same transaction, so\n`pose check --strict` stays green after a cut instead of needing a manual repair\npass.\n\nA follow-up whose `(owner:… crit:… review:…)` group wrapped onto its own line\nwas parsed as if the group were absent, leaving the item silently unowned — and\nits text truncated at the first line. Wrapped follow-ups are now read whole.\n\nThe installer's provider-download path — the one every `curl | bash` user takes\n— is covered by tests for the first time, including rejection of a truncated\narchive.",
+            "path": "pose-release-cycle-debt-closure.md",
+            "digest": "sha256:7d0dac27745d38df2ba6d8cdb7f1368db2121eece798ce4cc30ca789e242411c"
+          }
+        ],
+        "breaking": true,
+        "notes_digest": "sha256:5b98ca016ba96323a144ef435047f57ab8990941d99a49d33dfaec89ec57ffb3",
+        "release_input_digest": "sha256:f011cd75d725b53a715aac8d4e0c1e4e524873c243f378188002f3920eb9a7e3",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v0.19.0"
+        }
+      },
+      "events": [],
+      "gaps": []
+    },
     {
       "version": "v0.18.2",
       "state": "verified",

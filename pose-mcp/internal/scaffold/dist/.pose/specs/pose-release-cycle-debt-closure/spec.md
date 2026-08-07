@@ -172,7 +172,7 @@ exercised. R3 is proven offline by the stub origin, including the negative case.
 - Deferred: R1 (blocked by version arithmetic, machinery proven)
 
 ### Requirement trace
-- R1 [waived: the candidate cannot be its own prior release] — running the gate with the pair added proved `check_upgrade_pair` executes and passes against the real published artifact, so it is no longer dead code. `TestCompatibilityMatrixContract` then rejects the entry because `from` equals `engine_version`, correctly. The pin is recorded in the follow-up so the next cut is a one-line change
+- R1 [satisfied] check:compat-gate report:compatibility.json — deferred at closeout because the candidate cannot be its own prior release; satisfied at the v0.19.0 cut, where the gate reported `PASS: 0.18.2 → 0.19.0`, the first real upgrade pair it has ever exercised
 - R2 [satisfied] governance:release-cycle-debt evidence:integration check:delivery-integration test:TestReleasePrepareRepointsConsumedSpecArtifactClaims — `prepare` repoints any spec claim naming a fragment it archives, inside the same transaction and undone by the same rollback; the two claims already broken in this repository were repointed too
 - R3 [satisfied] check:installer-e2e test:tests/install/run.sh — the provider-download branch now installs from a local origin served by a `curl` stub, and a truncated asset fails the install instead of leaving a broken binary on PATH
 - R4 [satisfied] test:TestFollowupMetadataSurvivesLineWrapping — a wrapped follow-up keeps its owner, criticality and review date, and its continuation lines join the text; verified against the real repository by wrapping an existing item and watching `unowned` stay at 0
@@ -227,6 +227,6 @@ R1 is deferred to the next cut, with its machinery proven and its pin recorded.
 
 ### Follow-ups
 
-- [open] R1: at the next cut, add `{"from": "0.18.2", "checksums_sha256": "3584471824dd27a1d48c204de099ba1c119d6966094bf80dc51ebe4cf44ba824"}` to supported_upgrades and confirm the gate reports the pair as exercised. The pin is already verified against the published checksums.txt. (owner:@pose-maintainers crit:high review:2026-09-04)
+- [done] R1: the v0.19.0 cut added the 0.18.2 pair with its verified pin, and the gate reported `PASS: 0.18.2 → 0.19.0` — the first real upgrade pair it has ever exercised. (owner:@pose-maintainers crit:high review:2026-09-04)
 - [done] Reassess whether these items belonged together: R2 was the largest but not disproportionately so, and all four shared the release cycle as their cause, so keeping them in one spec held up. (owner:@pose-maintainers crit:low review:2026-10-02)
 - [open] R3's stub proves the script's logic, not the network: a provider redirect, rate limit or partial body is still unexercised. Decide whether that is worth a real local HTTP origin. (owner:@pose-maintainers crit:low review:2026-11-20)
