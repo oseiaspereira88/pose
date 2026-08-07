@@ -17,6 +17,14 @@
       "digest": "sha256:51dcaca804776e91a889d86fc9acc1c5ea9cdff78c02d2f85177ea577ff0ee13"
     },
     {
+      "spec": "pose-package-channel-workflow-safety",
+      "category": "security",
+      "breaking": false,
+      "body": "The package-channel gate no longer checks out an event-supplied ref. It gained\na `workflow_run` trigger in the same cycle that hardened the verification\nworkflow against exactly that pattern, so the Scorecard Dangerous-Workflow\nfinding relocated instead of closing. Both workflows now resolve the release\ntag once, refuse anything that is not one, and pass it to later steps as an\nenvironment variable rather than as interpolated template text.",
+      "path": "pose-package-channel-workflow-safety.md",
+      "digest": "sha256:9f58de3505266307ea8cfeee03a30c025f2b00581aaf293cb1e402fc7a92afba"
+    },
+    {
       "spec": "pose-release-signing-rejection",
       "category": "changed",
       "breaking": false,

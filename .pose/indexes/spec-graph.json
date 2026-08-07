@@ -185,6 +185,10 @@
       "to": "pose-package-manager-distribution"
     },
     {
+      "from": "pose-package-channel-workflow-safety",
+      "to": "pose-release-workflow-hardening"
+    },
+    {
       "from": "pose-package-manager-distribution",
       "to": "pose-public-install-contract"
     },
@@ -646,6 +650,14 @@
         "pose-package-manager-distribution"
       ],
       "path": ".pose/specs/pose-package-channel-delivery/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
+    "pose-package-channel-workflow-safety": {
+      "depends_on": [
+        "pose-release-workflow-hardening"
+      ],
+      "path": ".pose/specs/pose-package-channel-workflow-safety/spec.md",
       "priority": 1,
       "status": "done"
     },
