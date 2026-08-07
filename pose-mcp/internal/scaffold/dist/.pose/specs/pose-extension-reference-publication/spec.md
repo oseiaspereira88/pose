@@ -78,6 +78,7 @@ to publish — a product question, not a delivery-contract question.
 - modified: .github/workflows/release.yml
 - modified: .goreleaser.yaml
 - modified: tests/release/independent-verify.sh
+- modified: pose-mcp/internal/cli/machinery_test.go
 - modified: AGENTS.md
 - modified: .pose/workflows/review.md
 - modified: .pose/workflows/recurrence-escalation.md
