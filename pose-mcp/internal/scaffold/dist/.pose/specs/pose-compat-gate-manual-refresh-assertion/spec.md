@@ -69,6 +69,11 @@ whose manual actually changed exposes it.
 ### Artifacts
 - created: .pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md
 - modified: tests/release/compat.sh
+- modified: compatibility.json
+- modified: pose-mcp/internal/version/version.go
+- modified: pose-mcp/server.json
+- modified: README.md
+- modified: docs-site/docs/ci.md
 
 ### Delivery targets
 - governance:compat-gate-manual-assertion module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
