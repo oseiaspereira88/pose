@@ -120,6 +120,21 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 
+	// Managed manuals refresh on every upgrade, not only under --force: the
+	// merge keeps instance-owned sections, so there is nothing to protect by
+	// skipping. Skipping was why canonical POSE.md/AGENTS.md changes never
+	// reached an installed repository (spec pose-manual-distribution-merge).
+	if !force {
+		docLocale := localeFlag
+		if docLocale == "" && commandLocale == localePtBR {
+			docLocale = "pt-BR"
+		}
+		if e := refreshManagedDocs(root, docLocale, stdout, commandLocale); e != nil {
+			fmt.Fprintf(stderr, text("pose upgrade: refreshing managed docs: %v\n", "pose upgrade: atualizando docs gerenciados: %v\n"), e)
+			return 1
+		}
+	}
+
 	if force {
 		fmt.Fprintln(stdout, text("[INFO] refreshing scaffolds, rules, workflows and MCP config...", "[INFO] atualizando scaffolds, regras, workflows e configuração MCP..."))
 		installArgs := []string{root, "--force"}

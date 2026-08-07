@@ -86,3 +86,12 @@ executed by `pose validate`.
 - Change public contracts without updating the applicable spec/ADR/docs.
 - Skip tests when an applicable test command exists in the module.
 - Expose secrets in code, docs, examples or logs.
+
+## Instance notes
+
+<!-- pose:instance-owned -->
+
+<!-- Repository-specific agent guidance. `pose upgrade` refreshes every other
+     section of this file from the shipped contract but never touches this one,
+     so put local conventions, exceptions and pointers here rather than editing
+     the engine-owned sections above. -->

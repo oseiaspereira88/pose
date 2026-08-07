@@ -358,6 +358,7 @@ por feature em specs ativas.
 
 ## 9) Limitações da instância
 
+<!-- pose:instance-owned -->
 <!-- Mantenha aqui as limitações REAIS da sua instância neste repositório, com evidência.
      Exemplos do que documentar:
      - módulos sem cobertura em module-metadata.json (caem em defaulted/partial)
@@ -370,6 +371,7 @@ por feature em specs ativas.
 
 ## 10) Próximos passos da instância
 
+<!-- pose:instance-owned -->
 <!-- Backlog operacional do POSE NESTE repositório (não das features do
      produto): ampliação de metadados, promoção de checks optional→required,
      rules de domínio novas. Cada item com dono e critério de pronto. -->
@@ -382,6 +384,7 @@ por feature em specs ativas.
 
 ## 11) Limitações conhecidas do POSE (engine) e Feedback
 
+<!-- pose:instance-owned -->
 <!-- Mantenha aqui as limitações REAIS do POSE motor/CLI identificadas durante o uso.
      Submeta novas limitações ou sugestões diretamente à comunidade via:
      - `pose report-limitation --title "..." --kind limitation|bug|suggestion [--submit]`

@@ -170,10 +170,6 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	replacer := strings.NewReplacer("{{PROJECT_NAME}}", projectName, "{{PROJECT_ID}}", projectID)
 	for _, doc := range []string{"AGENTS.md", "POSE.md"} {
 		dst := filepath.Join(target, doc)
-		if _, err := os.Stat(dst); err == nil && !force {
-			log("kept existing: %s (use --force to overwrite)", "mantido existente: %s (use --force para sobrescrever)", doc)
-			continue
-		}
 		b, err := fs.ReadFile(dist, docsPrefix+doc)
 		if err != nil {
 			b, err = fs.ReadFile(dist, doc)
@@ -182,7 +178,31 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "pose install: %s: %v\n", doc, err)
 			return 1
 		}
-		if err := os.WriteFile(dst, []byte(replacer.Replace(string(b))), 0o644); err != nil {
+		content := replacer.Replace(string(b))
+		// An existing manual is merged, never skipped: engine-owned sections
+		// refresh while the instance keeps what it wrote under the sections the
+		// canonical manual tags as instance-owned. Skipping (the pre-existing
+		// behavior) meant canonical manual content never reached an installed
+		// repository at all; --force still resets the file wholesale.
+		if existing, readErr := os.ReadFile(dst); readErr == nil && !force {
+			merged, preserved := MergeManagedDoc(content, string(existing))
+			content = merged
+			if string(existing) == content {
+				log("unchanged: %s", "inalterado: %s", doc)
+				continue
+			}
+			if err := os.WriteFile(dst, []byte(content), 0o644); err != nil {
+				fmt.Fprintf(stderr, "pose install: %v\n", err)
+				return 1
+			}
+			if preserved {
+				log("merged: %s (instance-owned sections preserved)", "mesclado: %s (seções da instância preservadas)", doc)
+			} else {
+				log("updated: %s", "atualizado: %s", doc)
+			}
+			continue
+		}
+		if err := os.WriteFile(dst, []byte(content), 0o644); err != nil {
 			fmt.Fprintf(stderr, "pose install: %v\n", err)
 			return 1
 		}

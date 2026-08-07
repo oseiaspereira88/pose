@@ -86,3 +86,12 @@ por `pose validate`.
 - Alterar contratos públicos sem atualizar spec/ADR/docs aplicáveis.
 - Pular testes quando existir comando de teste aplicável no módulo.
 - Expor segredos em código, docs, exemplos ou logs.
+
+## Notas da instância
+
+<!-- pose:instance-owned -->
+
+<!-- Orientação para agentes específica deste repositório. O `pose upgrade`
+     atualiza todas as outras seções deste arquivo a partir do contrato
+     distribuído, mas nunca toca nesta — registre aqui convenções locais,
+     exceções e ponteiros, em vez de editar as seções do motor acima. -->

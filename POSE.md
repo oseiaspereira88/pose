@@ -364,6 +364,7 @@ as degraded and block functional expansion until it recovers.
 
 ## 9) Instance limitations
 
+<!-- pose:instance-owned -->
 <!-- Keep the REAL limitations of your repository instance here, with evidence:
      modules missing from module-metadata.json, stacks outside the matrix,
      gates still tolerant and why. Note: this tracks instance setup, NOT engine bugs. -->
@@ -374,6 +375,7 @@ as degraded and block functional expansion until it recovers.
 
 ## 10) Instance next steps
 
+<!-- pose:instance-owned -->
 <!-- The operational backlog of POSE IN THIS repository (not product
      features). Each item with an owner and a done criterion. -->
 
@@ -385,6 +387,7 @@ as degraded and block functional expansion until it recovers.
 
 ## 11) POSE engine limitations & community feedback
 
+<!-- pose:instance-owned -->
 <!-- Keep real limitations of the POSE CLI / Engine itself here.
      Report new engine limitations or proposals upstream via:
      - `pose report-limitation --title "..." --kind limitation|bug|suggestion [--submit]`
