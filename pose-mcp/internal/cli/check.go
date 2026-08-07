@@ -85,6 +85,7 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	checker.checkReadyTransitions()
 	checker.checkCapabilities()
 	checker.checkDocs()
+	checker.checkCommandReference()
 	if checker.errors > 0 {
 		fmt.Fprintf(stdout, "Resultado: FALHA — estrutura POSE com %d erro(s).\n", checker.errors)
 		return 1

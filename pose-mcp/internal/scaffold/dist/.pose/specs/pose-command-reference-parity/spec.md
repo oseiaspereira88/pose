@@ -25,14 +25,15 @@ them. Agents choose commands from that block; every omission is a capability
 the engine ships and no agent will invoke.
 
 ### Constraints
-- Documentation only. No CLI behavior changes in this spec.
+- Keep the manual change documentation-only; the accompanying gate adds a
+  check but no new command behavior.
 - Keep English and Portuguese manuals section-for-section identical.
 - Keep the embedded scaffold dist byte-identical to the source tree.
 
 ### Non-goals
-- Add a deterministic gate for reference drift (recorded as a follow-up).
-- Register `report-limitation` in `pose help` (code change, follow-up).
-- Fix `pose upgrade` never distributing POSE.md (separate spec, follow-up).
+- Fix `pose upgrade` never distributing POSE.md (spec
+  `pose-manual-distribution-merge`).
+- Document commands `pose help` deliberately does not advertise.
 
 ## 2. Requirements
 
@@ -46,6 +47,9 @@ the engine ships and no agent will invoke.
   `.mcp.json` example, state that `POSE_PROJECT_ROOTS` is an allowlist that
   creates no subproject relationship, and cover the Codex `.codex/config.toml`
   overlay.
+- R4: `pose check --strict` shall fail when a shipped manual stops documenting
+  a command `pose help` advertises.
+- R5: `pose help` shall advertise `report-limitation`.
 
 ### Non-functional
 - Keep the command block readable: group headers, one line per command, short
@@ -69,6 +73,9 @@ the engine ships and no agent will invoke.
 - modified: docs-site/docs/mcp.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: pose-mcp/internal/cli/command_reference.go
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/cli.go
 
 ### API/contract changes
 - None.
@@ -77,10 +84,8 @@ the engine ships and no agent will invoke.
 - None.
 
 ### Technical risks
-- The command block is hand-maintained, so it drifts again on the next command
-  added. Mitigated only by the follow-up gate, not by this spec.
-- Documenting `report-limitation` while `pose help` omits it leaves the two
-  references inconsistent until the follow-up lands.
+- The gate compares the manual against the help text, so a command missing from
+  both stays invisible. It closes documentation drift, not help drift.
 
 ## 4. Tasks
 
@@ -118,7 +123,8 @@ repository's structural, locale-parity and embedded-scaffold gates.
 | Structure | `pose check --strict` | PASS |
 | Scaffold parity | `go -C pose-mcp test ./internal/scaffold -count=1` | dist matches source |
 | Module | `go -C pose-mcp test ./... -count=1` | all packages PASS |
-| Reference parity | documented-vs-binary command diff | no missing command |
+| Reference parity | `pose check --strict` (`checkCommandReference`) | no missing command in any locale |
+| Negative | remove a command from POSE.md, re-run `pose check --strict` | gate reports it |
 
 ### Execution log
 - Date: 2026-08-07
@@ -129,23 +135,28 @@ repository's structural, locale-parity and embedded-scaffold gates.
 ### Results summary
 - Successes: structural, scaffold, module and reference-parity checks.
 - Failures: none.
-- Warnings: `report-limitation` is a real command absent from `pose help`.
+- Warnings: none. The first gate implementation only read the first command of
+  a pipe-grouped reference line and under-reported six commands; the pattern was
+  widened to match every `pose <cmd>` on the line.
 
 ### Requirement trace
 - R1 [satisfied] check:reference-parity — documented command set equals the binary command set in both manuals
 - R2 [satisfied] check:pose-check-strict — skills count matches `.agents/skills/`
 - R3 [satisfied] check:pose-check-strict report:docs-site/docs/mcp.md — single-root and multi-root examples, allowlist semantics and Codex overlay documented
+- R4 [satisfied] check:pose-check-strict — `checkCommandReference` fails on an omitted command; verified by removing `stacks` and observing the failure
+- R5 [satisfied] check:pose-check-strict — `report-limitation` listed in `helpTextEN` and `helpTextPtBR`
 
 ### Known gaps
-- Parity is asserted once here, not enforced continuously; the next command
-  added to the binary will drift again until the gate follow-up lands.
+- Parity is enforced against `pose help`, which is itself hand-maintained; a
+  command absent from both help and manual is not detected.
 
 ## 7. Final Report
 
 ### Delivered scope
-Command reference parity in both manuals, corrected skills count, and MCP
+Command reference parity in both manuals, corrected skills count, MCP
 configuration examples absorbed from the consumer repository into the public
-reference.
+reference, a structural gate that keeps the reference honest, and
+`report-limitation` advertised in the help.
 
 ### Files and modules changed
 - Operating manuals, public MCP reference and the embedded scaffold.
@@ -155,10 +166,11 @@ reference.
 - Result: SUCCESS.
 
 ### Residual risks
-- The reference stays hand-maintained until a gate enforces it.
+- The help text remains hand-maintained; the gate anchors the manual to it, not
+  to the command dispatcher itself.
 
 ### Follow-ups
 
-- [open] `pose upgrade` never updates POSE.md or AGENTS.md on an existing instance: `install.go` skips both unless `--force`, which instead overwrites the instance-owned sections (§9 limitations, §10 next steps, §11 engine feedback). Canonical manual content therefore reaches no consumer after the first install — v0.16.6 shipped a POSE.md-only fix whose stated purpose was preventing scope loss during `pose upgrade`, and it is undistributable for exactly this reason. Needs a merge strategy that separates engine-owned sections from instance-owned ones. (owner:@pose-maintainers crit:high review:2026-09-07)
-- [open] Nothing enforces that the POSE.md command block matches the binary; the block silently drifted to 29 of 57 commands and was only noticed when a consumer hand-edited its own copy. Add a deterministic check comparing the documented command set against the registered command set, so `pose check --strict` fails on the next omission. (owner:@pose-maintainers crit:medium review:2026-09-07)
-- [open] `report-limitation` is a working command that `pose help` does not list, so it is undiscoverable from the CLI itself even once documented in POSE.md. Register it in the help output. (owner:@pose-maintainers crit:low review:2026-10-07)
+- [spawned: pose-manual-distribution-merge] `pose upgrade` never updates POSE.md or AGENTS.md on an existing instance: `install.go` skips both unless `--force`, which instead overwrites the instance-owned sections (§9 limitations, §10 next steps, §11 engine feedback). Canonical manual content therefore reaches no consumer after the first install — v0.16.6 shipped a POSE.md-only fix whose stated purpose was preventing scope loss during `pose upgrade`, and it is undistributable for exactly this reason. Needs a merge strategy that separates engine-owned sections from instance-owned ones.
+- [done] Added `checkCommandReference` to `pose check --strict`: it fails when POSE.md, in any shipped locale, stops documenting a command `pose help` advertises. The drift that motivated this spec can no longer recur silently.
+- [done] `report-limitation` is now listed in `pose help` in both locales.

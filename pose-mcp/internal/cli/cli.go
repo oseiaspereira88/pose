@@ -321,6 +321,8 @@ Native binary:
   init                                Ensure the minimum POSE repository structure
   serve-mcp [--stdio]                 Start the POSE MCP server (POSE_* environment)
   doctor [--json]                     Diagnose installation and instance health
+  report-limitation --title "..."     Report an engine limitation, bug or proposal
+                                      [--kind limitation|bug|suggestion] [--submit]
   install <dir> [--locale tag] [...]  Install embedded POSE without cloning
   import <spec-kit|openspec> <path>   Import external specs [--dry-run]
   telemetry <enable|disable|status>   Anonymous opt-in telemetry
@@ -374,6 +376,8 @@ Nativos (binário):
   init                                Garante a estrutura mínima do POSE no repo
   serve-mcp [--stdio]                 Sobe o servidor MCP do POSE (env POSE_*)
   doctor [--json]                     Diagnóstico da instalação/instância
+  report-limitation --title "..."     Relata limitação, bug ou sugestão do engine
+                                      [--kind limitation|bug|suggestion] [--submit]
   install <dir> [--locale tag] [...]  Instala o POSE embutido num repo (sem clone)
   import <spec-kit|openspec> <path>   Importa specs externas [--dry-run]
   telemetry <enable|disable|status>   Telemetria anônima OPT-IN (nada é enviado
