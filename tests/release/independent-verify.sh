@@ -92,7 +92,6 @@ gate "install → doctor --json → check --strict on a fresh repository" \
 # then install, then a tampered copy that must be rejected. Every existing test
 # of this path substituted a fake for cosign, so the chain had never met a real
 # signature (spec pose-extension-reference-publication, R2 and R3).
-ext_pkg="$work/pose-rule-kubernetes"
 if [[ -f "$assets/pose-rule-kubernetes.tar.gz" && -f "$assets/pose-rule-kubernetes.sigstore.json" ]]; then
   note ""
   note "## Reference extension (consumer-side)"
@@ -107,8 +106,12 @@ if [[ -f "$assets/pose-rule-kubernetes.tar.gz" && -f "$assets/pose-rule-kubernet
   ext_target="$work/ext-target"
   mkdir -p "$ext_target"
   git -C "$ext_target" init -q
+  # `extension install` acts on the current directory, not on a target
+  # argument: without the cd it installs into wherever the verifier happens to
+  # be standing. That is the same trap that caught a manual test earlier and is
+  # already recorded as a finding against pose-extension-reference-publication.
   gate "reference extension installs after verification" \
-    bash -c "'$extract/pose' install '$ext_target' --skip-mcp >/dev/null && '$extract/pose' extension install '$ext_pkg' --yes >/dev/null && test -f '$ext_target/.pose/rules/kubernetes.md'"
+    bash -c "'$extract/pose' install '$ext_target' --skip-mcp >/dev/null && cd '$ext_target' && '$extract/pose' extension install '$ext_pkg' --yes >/dev/null && test -f '$ext_target/.pose/rules/kubernetes.md'"
 
   # Tamper with the signed blob: verification must fail, or the signature is
   # decorative.

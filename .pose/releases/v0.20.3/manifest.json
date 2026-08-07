@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v0.20.3",
+  "previous_version": "v0.20.2",
+  "prepared_at": "2026-08-07T19:36:35Z",
+  "specs": [
+    "pose-verifier-extension-install-cwd"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-verifier-extension-install-cwd",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The independent verification's extension-install check now installs into the\ninstance it created. `pose extension install` acts on the current directory\nrather than on a target argument, so without a `cd` the check installed\nsomewhere else and then asserted the rule was missing. Signature verification\nand tamper rejection were already passing against the published artifact; this\nwas the remaining leg.",
+      "path": "pose-verifier-extension-install-cwd.md",
+      "digest": "sha256:561b80803ebeff0b515ed535bbba72fbf1a0e84ed6f539521628ee463cc6eb78"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:0f2ba1128c0d0ee30949be1b9be66c3d5040b1ec8b04747921f900ce02304be1",
+  "release_input_digest": "sha256:56a72a8b45d1320e013c7841c0a17bd25c42483c22fccadb380cfc8f08703a1d",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v0.20.3"
+  }
+}

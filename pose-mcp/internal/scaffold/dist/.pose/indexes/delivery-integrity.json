@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:8cfc89e7d26b150398c4d05cd270cc474c8553fab82e8ed00680d695a6139148",
-  "provenance_digest": "sha256:fe5512f2c15bd227ef446f7876e210c1bd18f74b8bae101366ba37a2065bd633",
+  "input_digest": "sha256:a86fb54b7e2baba9b656e3c786a54065e759cd3ca09f989f006db504d96de54c",
+  "provenance_digest": "sha256:f313913cbaa628ea11c0346119ec03dcde502043746d2275a4ff491701e893fe",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -1037,6 +1037,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-verifier-assets-variable-fix/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-verifier-extension-install-cwd/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-verifier-extension-install-cwd/spec.md"
       }
     },
     {
@@ -3178,6 +3185,14 @@
       }
     },
     {
+      "id": "delivery:governance:verifier-extension-install-cwd",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
       "id": "delivery:surface:delivery-integrity-cli",
       "type": "surface",
       "attributes": {
@@ -3677,6 +3692,13 @@
       }
     },
     {
+      "id": "spec:pose-verifier-extension-install-cwd",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
       "id": "spec:pose-version-contract",
       "type": "spec",
       "attributes": {
@@ -3707,7 +3729,7 @@
       "attributes": {
         "check": "test",
         "evidence_class": "unit",
-        "outcome": "fail"
+        "outcome": "pass"
       }
     },
     {
@@ -10952,6 +10974,11 @@
       "type": "composes"
     },
     {
+      "from": "delivery:governance:verifier-extension-install-cwd",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
       "from": "delivery:surface:delivery-integrity-cli",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "reaches"
@@ -12710,6 +12737,46 @@
       "from": "spec:pose-verifier-assets-variable-fix",
       "to": "change-set:cs-1d8befda8092",
       "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-verifier-extension-install-cwd",
+      "to": "artifact:.pose/specs/pose-verifier-extension-install-cwd/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-verifier-extension-install-cwd",
+      "to": "artifact:README.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-verifier-extension-install-cwd",
+      "to": "artifact:compatibility.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-verifier-extension-install-cwd",
+      "to": "artifact:docs-site/docs/ci.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-verifier-extension-install-cwd",
+      "to": "artifact:pose-mcp/internal/version/version.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-verifier-extension-install-cwd",
+      "to": "artifact:pose-mcp/server.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-verifier-extension-install-cwd",
+      "to": "artifact:tests/release/independent-verify.sh",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-verifier-extension-install-cwd",
+      "to": "delivery:governance:verifier-extension-install-cwd",
+      "type": "delivers"
     }
   ],
   "claims": [
@@ -14121,6 +14188,41 @@
     },
     {
       "spec": "pose-verifier-assets-variable-fix",
+      "action": "modified",
+      "path": "tests/release/independent-verify.sh"
+    },
+    {
+      "spec": "pose-verifier-extension-install-cwd",
+      "action": "created",
+      "path": ".pose/specs/pose-verifier-extension-install-cwd/spec.md"
+    },
+    {
+      "spec": "pose-verifier-extension-install-cwd",
+      "action": "modified",
+      "path": "README.md"
+    },
+    {
+      "spec": "pose-verifier-extension-install-cwd",
+      "action": "modified",
+      "path": "compatibility.json"
+    },
+    {
+      "spec": "pose-verifier-extension-install-cwd",
+      "action": "modified",
+      "path": "docs-site/docs/ci.md"
+    },
+    {
+      "spec": "pose-verifier-extension-install-cwd",
+      "action": "modified",
+      "path": "pose-mcp/internal/version/version.go"
+    },
+    {
+      "spec": "pose-verifier-extension-install-cwd",
+      "action": "modified",
+      "path": "pose-mcp/server.json"
+    },
+    {
+      "spec": "pose-verifier-extension-install-cwd",
       "action": "modified",
       "path": "tests/release/independent-verify.sh"
     }
@@ -18805,6 +18907,9 @@
     ".pose/specs/pose-verifier-assets-variable-fix/spec.md": [
       "pose-verifier-assets-variable-fix"
     ],
+    ".pose/specs/pose-verifier-extension-install-cwd/spec.md": [
+      "pose-verifier-extension-install-cwd"
+    ],
     ".pose/state/components/pose-mcp.json": [
       "pose-mcp-active-context"
     ],
@@ -18852,13 +18957,15 @@
     "README.md": [
       "pose-compat-gate-manual-refresh-assertion",
       "pose-extension-signing-clean-tree",
-      "pose-verifier-assets-variable-fix"
+      "pose-verifier-assets-variable-fix",
+      "pose-verifier-extension-install-cwd"
     ],
     "compatibility.json": [
       "pose-compat-gate-candidate-integrity",
       "pose-compat-gate-manual-refresh-assertion",
       "pose-extension-signing-clean-tree",
-      "pose-verifier-assets-variable-fix"
+      "pose-verifier-assets-variable-fix",
+      "pose-verifier-extension-install-cwd"
     ],
     "docs-site/docs/capability-assessment.md": [
       "pose-mcp-active-context"
@@ -18867,7 +18974,8 @@
       "pose-compat-gate-manual-refresh-assertion",
       "pose-extension-signing-clean-tree",
       "pose-release-evidence-trigger-fix",
-      "pose-verifier-assets-variable-fix"
+      "pose-verifier-assets-variable-fix",
+      "pose-verifier-extension-install-cwd"
     ],
     "docs-site/docs/cli.md": [
       "pose-delivery-surface-assurance",
@@ -19251,12 +19359,14 @@
       "pose-compat-gate-manual-refresh-assertion",
       "pose-extension-signing-clean-tree",
       "pose-release-evidence-trigger-fix",
-      "pose-verifier-assets-variable-fix"
+      "pose-verifier-assets-variable-fix",
+      "pose-verifier-extension-install-cwd"
     ],
     "pose-mcp/server.json": [
       "pose-compat-gate-manual-refresh-assertion",
       "pose-extension-signing-clean-tree",
-      "pose-verifier-assets-variable-fix"
+      "pose-verifier-assets-variable-fix",
+      "pose-verifier-extension-install-cwd"
     ],
     "scripts/release.sh": [
       "pose-release-lifecycle-closure"
@@ -19271,7 +19381,8 @@
     ],
     "tests/release/independent-verify.sh": [
       "pose-extension-reference-publication",
-      "pose-verifier-assets-variable-fix"
+      "pose-verifier-assets-variable-fix",
+      "pose-verifier-extension-install-cwd"
     ]
   },
   "findings": [
@@ -19376,6 +19487,15 @@
       "remediation": "rerun the registered validation check for the current source provenance"
     },
     {
+      "id": "dif-08254d290571",
+      "code": "unconnected-artifact",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": "governance:verifier-extension-install-cwd",
+      "message": "delivery target has no structured artifact provenance",
+      "remediation": "declare and reconcile exact artifacts before asserting delivery"
+    },
+    {
       "id": "dif-0943b2449d2a",
       "code": "orphan",
       "severity": "warning",
@@ -19430,6 +19550,15 @@
       "path": "pose-mcp/internal/cli/docs_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-0d8c45864b8b",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": "pose-mcp/internal/version/version.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-0e3c0bac1749",
@@ -19649,6 +19778,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-267c1d6e537e",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": "compatibility.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-273cdfab4907",
       "code": "orphan",
       "severity": "warning",
@@ -19765,6 +19903,16 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-36c734fb2c4b",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": "governance:verifier-extension-install-cwd",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different provenance digest",
+      "remediation": "rerun the registered validation check for the current source provenance"
+    },
+    {
       "id": "dif-3a51bdeb7fed",
       "code": "orphan",
       "severity": "warning",
@@ -19876,6 +20024,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-4533b158c370",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": ".pose/specs/pose-verifier-extension-install-cwd/spec.md",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-45fd2716f5a9",
       "code": "orphan",
       "severity": "warning",
@@ -19964,6 +20121,15 @@
       "change_set": "pose-mcp/go/delivery-integration",
       "message": "passed integration evidence is bound to a different provenance digest",
       "remediation": "rerun the registered validation check for the current source provenance"
+    },
+    {
+      "id": "dif-493a42a1f648",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": "tests/release/independent-verify.sh",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-49918be9cfc8",
@@ -20121,6 +20287,15 @@
       "severity": "error",
       "spec": "pose-project-agnostic-assessment-engines",
       "path": "pose-mcp/internal/mcpserver/server.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
+      "id": "dif-565202eb3d82",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": "pose-mcp/server.json",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "correct the action or record the exact attributed revisions"
     },
@@ -20622,6 +20797,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-842bdf117c8a",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": "governance:verifier-extension-install-cwd",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-8597b3cb9a40",
       "code": "orphan",
       "severity": "warning",
@@ -20681,6 +20865,15 @@
       "path": "capability:manual-distribution",
       "message": "required current evidence is missing: integration",
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
+      "id": "dif-8a7bf1095d9b",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": "README.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-8aff67b8ab47",
@@ -21252,6 +21445,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-bab8cf5cd6f0",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": ".pose/specs/pose-verifier-extension-install-cwd/spec.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-bb6629774709",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -21341,6 +21543,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-c5eb6e0ed269",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-verifier-extension-install-cwd",
+      "path": "docs-site/docs/ci.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-c6080597ac13",
@@ -22088,7 +22299,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -22097,7 +22308,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -22142,6 +22353,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-verifier-extension-install-cwd",
+      "ref": "governance:verifier-extension-install-cwd",
+      "kind": "governance",
+      "id": "verifier-extension-install-cwd",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-delivery-surface-assurance",
       "ref": "surface:delivery-integrity-cli",
       "kind": "surface",
@@ -22168,9 +22388,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "04e7b95da6c957817db733e35b6c2c9d89ebade4",
-      "generated_at": "2026-08-07T19:08:42Z",
-      "provenance_digest": "sha256:92e7ba2a044b854e926c8e33a439fcd559fe844caf595254608507ddc82e26df",
+      "git_head": "943eef86cc1a03955526c60301ce2c314e041347",
+      "generated_at": "2026-08-07T19:26:41Z",
+      "provenance_digest": "sha256:fe5512f2c15bd227ef446f7876e210c1bd18f74b8bae101366ba37a2065bd633",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -22180,9 +22400,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "04e7b95da6c957817db733e35b6c2c9d89ebade4",
-      "generated_at": "2026-08-07T19:08:42Z",
-      "provenance_digest": "sha256:92e7ba2a044b854e926c8e33a439fcd559fe844caf595254608507ddc82e26df",
+      "git_head": "943eef86cc1a03955526c60301ce2c314e041347",
+      "generated_at": "2026-08-07T19:26:41Z",
+      "provenance_digest": "sha256:fe5512f2c15bd227ef446f7876e210c1bd18f74b8bae101366ba37a2065bd633",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -22191,10 +22411,10 @@
       "check": "test",
       "evidence_class": "unit",
       "severity": "required",
-      "outcome": "fail",
-      "git_head": "04e7b95da6c957817db733e35b6c2c9d89ebade4",
-      "generated_at": "2026-08-07T19:08:42Z",
-      "provenance_digest": "sha256:92e7ba2a044b854e926c8e33a439fcd559fe844caf595254608507ddc82e26df",
+      "outcome": "pass",
+      "git_head": "943eef86cc1a03955526c60301ce2c314e041347",
+      "generated_at": "2026-08-07T19:26:41Z",
+      "provenance_digest": "sha256:fe5512f2c15bd227ef446f7876e210c1bd18f74b8bae101366ba37a2065bd633",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -22204,9 +22424,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "04e7b95da6c957817db733e35b6c2c9d89ebade4",
-      "generated_at": "2026-08-07T19:08:42Z",
-      "provenance_digest": "sha256:92e7ba2a044b854e926c8e33a439fcd559fe844caf595254608507ddc82e26df",
+      "git_head": "943eef86cc1a03955526c60301ce2c314e041347",
+      "generated_at": "2026-08-07T19:26:41Z",
+      "provenance_digest": "sha256:fe5512f2c15bd227ef446f7876e210c1bd18f74b8bae101366ba37a2065bd633",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -22671,7 +22891,7 @@
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "governance:project-assessment": [
-      "spec:pose-project-agnostic-assessment-engines",
+      "spec:pose-debt-marker-lexical-precision",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
@@ -22739,6 +22959,11 @@
       "artifact:pose-mcp/server.json",
       "artifact:tests/release/independent-verify.sh",
       "delivery:governance:verifier-assets-variable",
+      "entrypoint:pose-mcp/cmd/pose/main.go"
+    ],
+    "governance:verifier-extension-install-cwd": [
+      "spec:pose-verifier-extension-install-cwd",
+      "delivery:governance:verifier-extension-install-cwd",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "surface:delivery-integrity-cli": [
