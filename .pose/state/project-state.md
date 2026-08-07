@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-07T19:04:53Z
-baseline_commit: 63903e607d60c82380d1194c009e5bc47ce48fc3
+generated_at: 2026-08-07T19:06:56Z
+baseline_commit: 8556f9ed195bf2ddd5297da0525f8aac298a9720
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:cc34a0613ae1 -->
+<!-- state:derived hash:08167448462a -->
 
-- specs: total=57 draft=0 in-progress=0 blocked=0 done=57 superseded=0 abandoned=0
+- specs: total=58 draft=0 in-progress=0 blocked=0 done=58 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
-  - spec:pose-governance-gate-activation (2026-08-07)
+  - spec:pose-first-release-evidence-confirmation (2026-08-07)
   - spec:pose-release-cycle-debt-closure (2026-08-07)
   - spec:pose-assessment-engine-precision (2026-08-07)
   - spec:pose-extension-reference-publication (2026-08-07)
   - spec:pose-manual-distribution-merge (2026-08-07)
-  - ... e mais 52 (ver `pose_list_specs status:done`)
+  - ... e mais 53 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:4dbf2e3b8031 -->
+<!-- state:derived hash:8ad0dbea1791 -->
 
-- abertos: 30
-- por criticidade: high=4 medium=10 low=16 sem-classificação=0
+- abertos: 31
+- por criticidade: high=4 medium=11 low=16 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:ba0a02e7697e -->
+<!-- state:derived hash:d5b0394a44f6 -->
 
-- último registro: task=release-v0-20-0 outcome=pass (2026-08-07T19:00:38Z)
-- últimos 30 dias: total=105 outcome_ok=91 outcome_outro=14
-- reports revisados (.md): total=46
+- último registro: task=release-v0-20-1 outcome=pass (2026-08-07T19:05:52Z)
+- últimos 30 dias: total=106 outcome_ok=92 outcome_outro=14
+- reports revisados (.md): total=47
+  - report:2026-08-07-standard-release-v0-20-1.md
   - report:2026-08-07-standard-release-v0-20-0.md
   - report:2026-08-07-standard-validate-native.md
   - report:2026-08-07-standard-closeout-pose-compat-gate-manual-refresh-assertion.md
   - report:2026-08-07-standard-closeout-pose-extension-reference-publication.md
-  - report:2026-08-07-standard-release-v0-19-0.md
 
 ## Arquitetura
 <!-- state:derived hash:0a483847335f status:active -->

@@ -2,8 +2,44 @@
   "pending": [],
   "releases": [
     {
-      "version": "v0.20.0",
+      "version": "v0.20.1",
       "state": "prepared",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v0.20.1",
+        "previous_version": "v0.20.0",
+        "prepared_at": "2026-08-07T19:07:05Z",
+        "specs": [
+          "pose-extension-signing-clean-tree"
+        ],
+        "categories": {
+          "fixed": 1
+        },
+        "fragments": [
+          {
+            "spec": "pose-extension-signing-clean-tree",
+            "category": "fixed",
+            "breaking": false,
+            "body": "The v0.20.0 release failed to publish: the step that signs the reference\nextension writes the package and its Sigstore bundle to the repository root, and\ngoreleaser refuses to run against a dirty working tree. Both artifacts are now\nignored, exactly as the compatibility report already was.",
+            "path": "pose-extension-signing-clean-tree.md",
+            "digest": "sha256:9d7ecc978ebf2ed5c5486499023e330f59d9bc9de8a6f563ff8d433f49ea5dde"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:006cd6b674e1c40140a1f4434ff115bfd15f930f8c43dd03280f245bf8e63442",
+        "release_input_digest": "sha256:3af3f9f41fe54dd7ddc541326783729565ad5affa0a7c8e139aa867e500aa784",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v0.20.1"
+        }
+      },
+      "events": [],
+      "gaps": []
+    },
+    {
+      "version": "v0.20.0",
+      "state": "failed",
       "manifest": {
         "schema_version": 1,
         "version": "v0.20.0",
@@ -44,7 +80,44 @@
           "value": "v0.20.0"
         }
       },
-      "events": [],
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v0.20.0",
+          "state": "tagged",
+          "recorded_at": "2026-08-07T19:04:19Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v0.20.0",
+            "tag": "v0.20.0",
+            "commit": "63903e607d60c82380d1194c009e5bc47ce48fc3",
+            "published_at": "",
+            "url": "",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/31209615394"
+          },
+          "evidence_digest": "sha256:c0e9c85a69b3e7e0c919716a01092b1d39ba8d1b12d469efdca1fce9366e8861"
+        },
+        {
+          "schema_version": 1,
+          "version": "v0.20.0",
+          "state": "failed",
+          "recorded_at": "2026-08-07T19:04:19Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v0.20.0",
+            "tag": "v0.20.0",
+            "commit": "63903e607d60c82380d1194c009e5bc47ce48fc3",
+            "published_at": "",
+            "url": "",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/31209615394"
+          },
+          "evidence_digest": "sha256:c0e9c85a69b3e7e0c919716a01092b1d39ba8d1b12d469efdca1fce9366e8861"
+        }
+      ],
       "gaps": []
     },
     {

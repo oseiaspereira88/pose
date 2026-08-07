@@ -1,5 +1,5 @@
 ---
-spec: pose-extension-reference-publication
+spec: pose-extension-signing-clean-tree
 category: fixed
 breaking: false
 refs:

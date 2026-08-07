@@ -85,6 +85,10 @@
       "to": "pose-extension-catalog-lifecycle"
     },
     {
+      "from": "pose-extension-signing-clean-tree",
+      "to": "pose-extension-reference-publication"
+    },
+    {
       "from": "pose-followup-ownership-sla",
       "to": "pose-standalone-dogfood"
     },
@@ -432,6 +436,14 @@
       ],
       "path": ".pose/specs/pose-extension-reference-publication/spec.md",
       "priority": 3,
+      "status": "done"
+    },
+    "pose-extension-signing-clean-tree": {
+      "depends_on": [
+        "pose-extension-reference-publication"
+      ],
+      "path": ".pose/specs/pose-extension-signing-clean-tree/spec.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-first-release-evidence-confirmation": {

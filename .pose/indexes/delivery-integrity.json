@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:cbfd529d5112b7a4bfae403d3c64c4e0011cd35bfa975a1f1bfcfc23dd8a607b",
-  "provenance_digest": "sha256:a0bc4aaaef6238494281d4ea17da30b0cbd6652f15fba820f84360989b5f1659",
+  "input_digest": "sha256:86acd7b1d87b5adc638163886bfda5e9291228637f4d4786b8430c839ff51301",
+  "provenance_digest": "sha256:5d43b6fe29d24a0802ea2a19764db6891aca1d08074dce68c0779ca6ee7f89e0",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -78,6 +78,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".github/workflows/verify-release.yml"
+      }
+    },
+    {
+      "id": "artifact:.gitignore",
+      "type": "artifact",
+      "attributes": {
+        "path": ".gitignore"
       }
     },
     {
@@ -743,6 +750,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-extension-reference-publication/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-extension-signing-clean-tree/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-extension-signing-clean-tree/spec.md"
       }
     },
     {
@@ -2929,6 +2943,14 @@
       }
     },
     {
+      "id": "delivery:governance:extension-signing-clean-tree",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
       "id": "delivery:governance:first-release-evidence",
       "type": "governance",
       "attributes": {
@@ -3198,6 +3220,13 @@
     },
     {
       "id": "spec:pose-extension-reference-publication",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-extension-signing-clean-tree",
       "type": "spec",
       "attributes": {
         "status": "done"
@@ -3500,7 +3529,7 @@
       "attributes": {
         "check": "test",
         "evidence_class": "unit",
-        "outcome": "pass"
+        "outcome": "fail"
       }
     },
     {
@@ -10340,6 +10369,11 @@
       "type": "composes"
     },
     {
+      "from": "delivery:governance:extension-signing-clean-tree",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
       "from": "delivery:governance:first-release-evidence",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -11183,6 +11217,21 @@
       "from": "spec:pose-extension-reference-publication",
       "to": "change-set:cs-bc87444a3e57",
       "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-extension-signing-clean-tree",
+      "to": "artifact:.gitignore",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-extension-signing-clean-tree",
+      "to": "artifact:.pose/specs/pose-extension-signing-clean-tree/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-extension-signing-clean-tree",
+      "to": "delivery:governance:extension-signing-clean-tree",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-first-release-evidence-confirmation",
@@ -12646,6 +12695,16 @@
       "action": "renamed",
       "old_path": ".pose/rules/kubernetes.md",
       "new_path": "extensions/pose-rule-kubernetes/files/.pose/rules/kubernetes.md"
+    },
+    {
+      "spec": "pose-extension-signing-clean-tree",
+      "action": "created",
+      "path": ".pose/specs/pose-extension-signing-clean-tree/spec.md"
+    },
+    {
+      "spec": "pose-extension-signing-clean-tree",
+      "action": "modified",
+      "path": ".gitignore"
     },
     {
       "spec": "pose-first-release-evidence-confirmation",
@@ -17662,6 +17721,9 @@
     ".github/workflows/verify-release.yml": [
       "pose-release-evidence-trigger-fix"
     ],
+    ".gitignore": [
+      "pose-extension-signing-clean-tree"
+    ],
     ".goreleaser.yaml": [
       "pose-extension-reference-publication"
     ],
@@ -17781,6 +17843,9 @@
     ],
     ".pose/specs/pose-extension-reference-publication/spec.md": [
       "pose-extension-reference-publication"
+    ],
+    ".pose/specs/pose-extension-signing-clean-tree/spec.md": [
+      "pose-extension-signing-clean-tree"
     ],
     ".pose/specs/pose-first-release-evidence-confirmation/spec.md": [
       "pose-first-release-evidence-confirmation"
@@ -18438,6 +18503,15 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
+      "id": "dif-0ec702862aba",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-extension-signing-clean-tree",
+      "path": ".gitignore",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-0f8db18f4672",
       "code": "action-mismatch",
       "severity": "error",
@@ -18680,6 +18754,15 @@
       "path": "pose-mcp/internal/pose/readiness_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-2b012cdb7bd9",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-extension-signing-clean-tree",
+      "path": ".pose/specs/pose-extension-signing-clean-tree/spec.md",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-2c0e2b6cd92e",
@@ -19531,6 +19614,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-8056f5b27adb",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-extension-signing-clean-tree",
+      "path": "governance:extension-signing-clean-tree",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-8165d7e283e3",
       "code": "orphan",
       "severity": "warning",
@@ -19796,6 +19888,16 @@
       "path": "pose-mcp/internal/pose/docs_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-97801a32e326",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-extension-signing-clean-tree",
+      "path": "governance:extension-signing-clean-tree",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different provenance digest",
+      "remediation": "rerun the registered validation check for the current source provenance"
     },
     {
       "id": "dif-99348b54abcd",
@@ -20219,6 +20321,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-bcd073912100",
+      "code": "unconnected-artifact",
+      "severity": "error",
+      "spec": "pose-extension-signing-clean-tree",
+      "path": "governance:extension-signing-clean-tree",
+      "message": "delivery target has no structured artifact provenance",
+      "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
       "id": "dif-bdcb11ba8b26",
@@ -20833,6 +20944,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-f866d69f1d8b",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-extension-signing-clean-tree",
+      "path": ".pose/specs/pose-extension-signing-clean-tree/spec.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-fa0dea13be4f",
       "code": "orphan",
       "severity": "warning",
@@ -21002,6 +21122,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-extension-signing-clean-tree",
+      "ref": "governance:extension-signing-clean-tree",
+      "kind": "governance",
+      "id": "extension-signing-clean-tree",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-first-release-evidence-confirmation",
       "ref": "governance:first-release-evidence",
       "kind": "governance",
@@ -21038,7 +21167,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -21047,7 +21176,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -21109,9 +21238,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "4c6a8f2e407c48aa1b89dca406c5485d1add2100",
-      "generated_at": "2026-08-07T18:59:24Z",
-      "provenance_digest": "sha256:40b20577e9ebe61b1bb288c7e097ae044e2b5c914ac7abe626355ca14080c38b",
+      "git_head": "a120725d02099efbab1b5fc14311691d7c6c298e",
+      "generated_at": "2026-08-07T19:00:14Z",
+      "provenance_digest": "sha256:a0bc4aaaef6238494281d4ea17da30b0cbd6652f15fba820f84360989b5f1659",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -21121,9 +21250,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "4c6a8f2e407c48aa1b89dca406c5485d1add2100",
-      "generated_at": "2026-08-07T18:59:24Z",
-      "provenance_digest": "sha256:40b20577e9ebe61b1bb288c7e097ae044e2b5c914ac7abe626355ca14080c38b",
+      "git_head": "a120725d02099efbab1b5fc14311691d7c6c298e",
+      "generated_at": "2026-08-07T19:00:14Z",
+      "provenance_digest": "sha256:a0bc4aaaef6238494281d4ea17da30b0cbd6652f15fba820f84360989b5f1659",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -21132,10 +21261,10 @@
       "check": "test",
       "evidence_class": "unit",
       "severity": "required",
-      "outcome": "pass",
-      "git_head": "4c6a8f2e407c48aa1b89dca406c5485d1add2100",
-      "generated_at": "2026-08-07T18:59:24Z",
-      "provenance_digest": "sha256:40b20577e9ebe61b1bb288c7e097ae044e2b5c914ac7abe626355ca14080c38b",
+      "outcome": "fail",
+      "git_head": "a120725d02099efbab1b5fc14311691d7c6c298e",
+      "generated_at": "2026-08-07T19:00:14Z",
+      "provenance_digest": "sha256:a0bc4aaaef6238494281d4ea17da30b0cbd6652f15fba820f84360989b5f1659",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -21145,9 +21274,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "4c6a8f2e407c48aa1b89dca406c5485d1add2100",
-      "generated_at": "2026-08-07T18:59:24Z",
-      "provenance_digest": "sha256:40b20577e9ebe61b1bb288c7e097ae044e2b5c914ac7abe626355ca14080c38b",
+      "git_head": "a120725d02099efbab1b5fc14311691d7c6c298e",
+      "generated_at": "2026-08-07T19:00:14Z",
+      "provenance_digest": "sha256:a0bc4aaaef6238494281d4ea17da30b0cbd6652f15fba820f84360989b5f1659",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -21553,6 +21682,11 @@
       "delivery:governance:extension-reference",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
+    "governance:extension-signing-clean-tree": [
+      "spec:pose-extension-signing-clean-tree",
+      "delivery:governance:extension-signing-clean-tree",
+      "entrypoint:pose-mcp/cmd/pose/main.go"
+    ],
     "governance:first-release-evidence": [
       "spec:pose-first-release-evidence-confirmation",
       "artifact:.pose/specs/pose-first-release-evidence-confirmation/spec.md",
@@ -21600,7 +21734,7 @@
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "governance:project-assessment": [
-      "spec:pose-debt-marker-lexical-precision",
+      "spec:pose-project-agnostic-assessment-engines",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
