@@ -8,7 +8,7 @@
 - Task slug: validate-native
 
 ## Outcome
-- Outcome: pass (source: manual)
+- Outcome: fail (source: manual)
 
 ## Rules Applied
 - _Not provided_
@@ -23,14 +23,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-07T17:08:54Z
+- Generated at (UTC): 2026-08-07T17:09:38Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 41
+- Sequence for task/spec: 42
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-07T16:57:22Z
+- Previous execution: 2026-08-07T17:08:54Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
