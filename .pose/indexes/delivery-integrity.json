@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:b603d460bed4b0968d7af0c0b72a5b642ffd767e63a9995492c0d309a7fd273d",
-  "provenance_digest": "sha256:d7b519f0cf025d34fb5e027d46e4066d801c0be5d5fcb47b010746da257b1a50",
+  "input_digest": "sha256:8cfc89e7d26b150398c4d05cd270cc474c8553fab82e8ed00680d695a6139148",
+  "provenance_digest": "sha256:fe5512f2c15bd227ef446f7876e210c1bd18f74b8bae101366ba37a2065bd633",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -277,6 +277,20 @@
       }
     },
     {
+      "id": "artifact:.pose/changelogs/v0.20.2.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/v0.20.2.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/v0.20.2/pose-verifier-assets-variable-fix.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/v0.20.2/pose-verifier-assets-variable-fix.md"
+      }
+    },
+    {
       "id": "artifact:.pose/indexes/delivery-integrity.json",
       "type": "artifact",
       "attributes": {
@@ -389,10 +403,24 @@
       }
     },
     {
+      "id": "artifact:.pose/releases/v0.20.1/events.jsonl",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/releases/v0.20.1/events.jsonl"
+      }
+    },
+    {
       "id": "artifact:.pose/releases/v0.20.1/manifest.json",
       "type": "artifact",
       "attributes": {
         "path": ".pose/releases/v0.20.1/manifest.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/releases/v0.20.2/manifest.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/releases/v0.20.2/manifest.json"
       }
     },
     {
@@ -1936,6 +1964,20 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.2.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.2.md"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.2/pose-verifier-assets-variable-fix.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.2/pose-verifier-assets-variable-fix.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
       "type": "artifact",
       "attributes": {
@@ -2041,10 +2083,24 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/releases/v0.20.1/events.jsonl",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/releases/v0.20.1/events.jsonl"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/releases/v0.20.1/manifest.json",
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/scaffold/dist/.pose/releases/v0.20.1/manifest.json"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/releases/v0.20.2/manifest.json",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/releases/v0.20.2/manifest.json"
       }
     },
     {
@@ -2475,6 +2531,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-verifier-assets-variable-fix/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-verifier-assets-variable-fix/spec.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-version-contract/spec.md",
       "type": "artifact",
       "attributes": {
@@ -2784,6 +2847,14 @@
       "attributes": {
         "diff_digest": "sha256:b296ec489b9f786a84be19ac95f62739271a82e98fcfb1fa90f83697aaf2c592",
         "selector": "range:2f55664..b6b0c10"
+      }
+    },
+    {
+      "id": "change-set:cs-1d8befda8092",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:3a2fcf040340a9d8c2d03c1a8edc493254303df31d95ca0e0fd615e2929677a0",
+        "selector": "range:01d4568..HEAD"
       }
     },
     {
@@ -4171,6 +4242,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/specs/pose-verifier-assets-variable-fix/spec.md",
+      "to": "delivery:governance:verifier-assets-variable",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/state/components/pose-mcp.json",
       "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
@@ -4326,6 +4402,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:README.md",
+      "to": "delivery:governance:verifier-assets-variable",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:compatibility.json",
       "to": "delivery:governance:compat-gate-candidate-integrity",
       "type": "implemented-by"
@@ -4338,6 +4419,11 @@
     {
       "from": "artifact:compatibility.json",
       "to": "delivery:governance:extension-signing-clean-tree",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:compatibility.json",
+      "to": "delivery:governance:verifier-assets-variable",
       "type": "implemented-by"
     },
     {
@@ -4358,6 +4444,11 @@
     {
       "from": "artifact:docs-site/docs/ci.md",
       "to": "delivery:governance:release-integrity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/ci.md",
+      "to": "delivery:governance:verifier-assets-variable",
       "type": "implemented-by"
     },
     {
@@ -5596,6 +5687,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/version/version.go",
+      "to": "delivery:governance:verifier-assets-variable",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/server.json",
       "to": "delivery:governance:compat-gate-manual-assertion",
       "type": "implemented-by"
@@ -5603,6 +5699,11 @@
     {
       "from": "artifact:pose-mcp/server.json",
       "to": "delivery:governance:extension-signing-clean-tree",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/server.json",
+      "to": "delivery:governance:verifier-assets-variable",
       "type": "implemented-by"
     },
     {
@@ -5643,6 +5744,11 @@
     {
       "from": "artifact:tests/release/independent-verify.sh",
       "to": "delivery:governance:extension-reference",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:tests/release/independent-verify.sh",
+      "to": "delivery:governance:verifier-assets-variable",
       "type": "implemented-by"
     },
     {
@@ -6708,6 +6814,136 @@
     {
       "from": "change-set:cs-0fd4bd613f8d",
       "to": "artifact:pose-mcp/internal/scaffold/scaffold.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/changelogs/v0.20.2.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/changelogs/v0.20.2/pose-verifier-assets-variable-fix.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/releases/v0.20.1/events.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/releases/v0.20.2/manifest.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/specs/pose-verifier-assets-variable-fix/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/state/history.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/state/project-state.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:.pose/state/refresh-log.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:compatibility.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:docs-site/docs/ci.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.2.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.2/pose-verifier-assets-variable-fix.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/releases/v0.20.1/events.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/releases/v0.20.2/manifest.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-verifier-assets-variable-fix/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/internal/version/version.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:pose-mcp/server.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8befda8092",
+      "to": "artifact:tests/release/independent-verify.sh",
       "type": "changes"
     },
     {
@@ -12469,6 +12705,11 @@
       "from": "spec:pose-verifier-assets-variable-fix",
       "to": "delivery:governance:verifier-assets-variable",
       "type": "delivers"
+    },
+    {
+      "from": "spec:pose-verifier-assets-variable-fix",
+      "to": "change-set:cs-1d8befda8092",
+      "type": "observed-by"
     }
   ],
   "claims": [
@@ -14800,6 +15041,126 @@
         }
       ],
       "diff_digest": "sha256:b296ec489b9f786a84be19ac95f62739271a82e98fcfb1fa90f83697aaf2c592"
+    },
+    {
+      "id": "cs-1d8befda8092",
+      "spec": "pose-verifier-assets-variable-fix",
+      "selector": "range:01d4568..HEAD",
+      "base": "01d4568",
+      "head": "HEAD",
+      "resolved_base": "01d45680497ed1692694885cb5a5cf1dc2099cc3",
+      "resolved_head": "943eef86cc1a03955526c60301ce2c314e041347",
+      "commits": [
+        "715b333309ff970299f77edb48af34aa3787eb5a",
+        "943eef86cc1a03955526c60301ce2c314e041347"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/v0.20.2.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/v0.20.2/pose-verifier-assets-variable-fix.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v0.20.1/events.jsonl"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v0.20.2/manifest.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-verifier-assets-variable-fix/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.2.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.2/pose-verifier-assets-variable-fix.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/releases/v0.20.1/events.jsonl"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/releases/v0.20.2/manifest.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-verifier-assets-variable-fix/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": "README.md"
+        },
+        {
+          "action": "modified",
+          "path": "compatibility.json"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/ci.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/README.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/version/version.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/server.json"
+        },
+        {
+          "action": "modified",
+          "path": "tests/release/independent-verify.sh"
+        }
+      ],
+      "diff_digest": "sha256:3a2fcf040340a9d8c2d03c1a8edc493254303df31d95ca0e0fd615e2929677a0"
     },
     {
       "id": "cs-211d56f0088f",
@@ -19587,15 +19948,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-48b21cbeab46",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-verifier-assets-variable-fix",
-      "path": "README.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-48c72460b3aa",
       "code": "orphan",
       "severity": "warning",
@@ -19620,15 +19972,6 @@
       "path": ".pose/templates/review.md",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-4a2d53c46f56",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-verifier-assets-variable-fix",
-      "path": "compatibility.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-4a57b666c61b",
@@ -19857,15 +20200,6 @@
       "path": "pose-mcp/internal/cli/control_plane_composition_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-5f36b0c3c3d8",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-verifier-assets-variable-fix",
-      "path": "tests/release/independent-verify.sh",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-5fae4a8cfdc1",
@@ -20103,15 +20437,6 @@
       "remediation": "correct the action or record the exact attributed revisions"
     },
     {
-      "id": "dif-70a8b42d3d5e",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-verifier-assets-variable-fix",
-      "path": ".pose/specs/pose-verifier-assets-variable-fix/spec.md",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
       "id": "dif-71bec520c567",
       "code": "stale-evidence",
       "severity": "error",
@@ -20194,15 +20519,6 @@
       "path": "pose-mcp/internal/pose/extensions_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-7b78f38cc97f",
-      "code": "unconnected-artifact",
-      "severity": "error",
-      "spec": "pose-verifier-assets-variable-fix",
-      "path": "governance:verifier-assets-variable",
-      "message": "delivery target has no structured artifact provenance",
-      "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
       "id": "dif-7ca560ffa8cf",
@@ -20549,15 +20865,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-9afd3d08c1e2",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-verifier-assets-variable-fix",
-      "path": "pose-mcp/internal/version/version.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-9b83657d2679",
       "code": "orphan",
       "severity": "warning",
@@ -20654,15 +20961,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-a3cafff1a52b",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-verifier-assets-variable-fix",
-      "path": "docs-site/docs/ci.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-a3f8dc276652",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -20705,15 +21003,6 @@
       "path": "pose-mcp/internal/scaffold/gen/main.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-a660b43a5afd",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-verifier-assets-variable-fix",
-      "path": ".pose/specs/pose-verifier-assets-variable-fix/spec.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-a8539b60f0e9",
@@ -21317,15 +21606,6 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-e718f37b6fd5",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-verifier-assets-variable-fix",
-      "path": "pose-mcp/server.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-e7695f9ffd4b",
@@ -22451,6 +22731,13 @@
     ],
     "governance:verifier-assets-variable": [
       "spec:pose-verifier-assets-variable-fix",
+      "artifact:.pose/specs/pose-verifier-assets-variable-fix/spec.md",
+      "artifact:README.md",
+      "artifact:compatibility.json",
+      "artifact:docs-site/docs/ci.md",
+      "artifact:pose-mcp/internal/version/version.go",
+      "artifact:pose-mcp/server.json",
+      "artifact:tests/release/independent-verify.sh",
       "delivery:governance:verifier-assets-variable",
       "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
