@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:132c7b6e04c055a622cb730b8b5ee6f4f19309ed6479abaec45e21dae0560597",
-  "provenance_digest": "sha256:9794a316cd02f0aaac28a0a132c715ed645c29835f4651d9a669827186d9ffb9",
+  "input_digest": "sha256:7a31f37e5cbedf25241cbb380246fb8c2cda356ee446b7a94c5c8a4310d8040b",
+  "provenance_digest": "sha256:21fa8f182837105fa8730e35629414a8d14ccfd2659019ff2ef4d7a6440d06e3",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -1646,13 +1646,6 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/scaffold/dist/README.md"
-      }
-    },
-    {
-      "id": "artifact:pose-mcp/internal/scaffold/dist/compatibility.json",
-      "type": "artifact",
-      "attributes": {
-        "path": "pose-mcp/internal/scaffold/dist/compatibility.json"
       }
     },
     {
@@ -8379,11 +8372,6 @@
     },
     {
       "from": "spec:pose-compat-gate-candidate-integrity",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/compatibility.json",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-compat-gate-candidate-integrity",
       "to": "artifact:tests/release/compat.sh",
       "type": "declares"
     },
@@ -9613,11 +9601,6 @@
       "spec": "pose-compat-gate-candidate-integrity",
       "action": "modified",
       "path": "pose-mcp/internal/cli/managed_docs_test.go"
-    },
-    {
-      "spec": "pose-compat-gate-candidate-integrity",
-      "action": "modified",
-      "path": "pose-mcp/internal/scaffold/dist/compatibility.json"
     },
     {
       "spec": "pose-compat-gate-candidate-integrity",
@@ -14256,9 +14239,6 @@
       "pose-command-reference-parity",
       "pose-mcp-active-context"
     ],
-    "pose-mcp/internal/scaffold/dist/compatibility.json": [
-      "pose-compat-gate-candidate-integrity"
-    ],
     "pose-mcp/internal/scaffold/dist/install.sh": [
       "pose-installer-local-binary-precedence"
     ],
@@ -15424,15 +15404,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-72ee572dde00",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-compat-gate-candidate-integrity",
-      "path": "pose-mcp/internal/scaffold/dist/compatibility.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-733a4d8bb358",
       "code": "legacy-narrative",
       "severity": "info",
@@ -15864,15 +15835,6 @@
       "path": "pose-mcp/internal/pose/assessment_agnostic_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
-      "id": "dif-9cf53ea3370f",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-compat-gate-candidate-integrity",
-      "path": "pose-mcp/internal/scaffold/dist/compatibility.json",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-9cf9aed12599",
@@ -17080,9 +17042,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "dc27410906bbd01cef29ffc9c0de157bccdba25d",
-      "generated_at": "2026-08-07T04:21:40Z",
-      "provenance_digest": "sha256:0b458933e7e54ee881e045fe8169020322f57af2b12ea97b1320b79a851c9e9d",
+      "git_head": "848808eecd90a3325d38d5411440c19a3fe99b5c",
+      "generated_at": "2026-08-07T04:37:15Z",
+      "provenance_digest": "sha256:9794a316cd02f0aaac28a0a132c715ed645c29835f4651d9a669827186d9ffb9",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -17092,9 +17054,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "dc27410906bbd01cef29ffc9c0de157bccdba25d",
-      "generated_at": "2026-08-07T04:21:40Z",
-      "provenance_digest": "sha256:0b458933e7e54ee881e045fe8169020322f57af2b12ea97b1320b79a851c9e9d",
+      "git_head": "848808eecd90a3325d38d5411440c19a3fe99b5c",
+      "generated_at": "2026-08-07T04:37:15Z",
+      "provenance_digest": "sha256:9794a316cd02f0aaac28a0a132c715ed645c29835f4651d9a669827186d9ffb9",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -17104,9 +17066,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "dc27410906bbd01cef29ffc9c0de157bccdba25d",
-      "generated_at": "2026-08-07T04:21:40Z",
-      "provenance_digest": "sha256:0b458933e7e54ee881e045fe8169020322f57af2b12ea97b1320b79a851c9e9d",
+      "git_head": "848808eecd90a3325d38d5411440c19a3fe99b5c",
+      "generated_at": "2026-08-07T04:37:15Z",
+      "provenance_digest": "sha256:9794a316cd02f0aaac28a0a132c715ed645c29835f4651d9a669827186d9ffb9",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -17116,9 +17078,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "dc27410906bbd01cef29ffc9c0de157bccdba25d",
-      "generated_at": "2026-08-07T04:21:40Z",
-      "provenance_digest": "sha256:0b458933e7e54ee881e045fe8169020322f57af2b12ea97b1320b79a851c9e9d",
+      "git_head": "848808eecd90a3325d38d5411440c19a3fe99b5c",
+      "generated_at": "2026-08-07T04:37:15Z",
+      "provenance_digest": "sha256:9794a316cd02f0aaac28a0a132c715ed645c29835f4651d9a669827186d9ffb9",
       "report": ".pose/results/delivery-validation.json"
     }
   ],

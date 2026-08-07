@@ -8,21 +8,13 @@
 - Task slug: validate-native
 
 ## Outcome
-- Outcome: pass (source: manual)
+- Outcome: fail (source: manual)
 
 ## Rules Applied
 - _Not provided_
 
 ## Files Changed
-- pose/indexes/delivery-integrity.json
-- .pose/indexes/releases.json
-- .pose/indexes/spec-graph.json
-- .pose/results/delivery-validation.json
-- pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
-- pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
-- pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
-- .pose/reports/2026-08-07-standard-closeout-pose-compat-gate-candidate-integrity.md
-- .pose/reports/history/standard-closeout-pose-compat-gate-candidate-integrity.jsonl
+- pose/results/delivery-validation.json
 
 ## Validation Commands
 - _Fill manually_
@@ -31,14 +23,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-07T04:37:21Z
+- Generated at (UTC): 2026-08-07T04:38:08Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 35
+- Sequence for task/spec: 36
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-07T04:21:46Z
+- Previous execution: 2026-08-07T04:37:21Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
