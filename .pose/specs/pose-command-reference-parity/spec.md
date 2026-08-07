@@ -1,13 +1,13 @@
 ---
 slug: pose-command-reference-parity
-status: in-progress
+status: done
 created_at: 2026-08-07
-completed_at:
+completed_at: 2026-08-07
 supersedes:
 depends_on:
 priority: 2
 components: docs
-delivers:
+delivers: governance:command-reference-parity
 ---
 
 # Spec: Command reference parity with the shipped binary
@@ -76,6 +76,9 @@ the engine ships and no agent will invoke.
 - created: pose-mcp/internal/cli/command_reference.go
 - modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/cli/cli.go
+
+### Delivery targets
+- governance:command-reference-parity module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 - None.

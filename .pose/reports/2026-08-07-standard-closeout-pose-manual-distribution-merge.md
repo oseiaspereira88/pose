@@ -15,8 +15,12 @@
 - _Not provided_
 
 ## Files Changed
-- pose/reports/2026-08-07-standard-closeout-pose-command-reference-parity.md
+- pose/reports/2026-08-07-standard-closeout-pose-assessment-engine-precision.md
+- .pose/reports/2026-08-07-standard-closeout-pose-command-reference-parity.md
+- .pose/reports/2026-08-07-standard-closeout-pose-manual-distribution-merge.md
+- .pose/reports/history/standard-closeout-pose-assessment-engine-precision.jsonl
 - .pose/reports/history/standard-closeout-pose-command-reference-parity.jsonl
+- .pose/reports/history/standard-closeout-pose-manual-distribution-merge.jsonl
 
 ## Validation Commands
 - _Fill manually_
@@ -25,82 +29,41 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-5b5a52e0f181
-- Selector: range:373c081d608a0467684120cc7b195ad192932411..fe0f239f54393fa9615b2f1d816d86acad7fa35d
-- Base: 373c081d608a0467684120cc7b195ad192932411 (373c081d608a0467684120cc7b195ad192932411)
-- Head: fe0f239f54393fa9615b2f1d816d86acad7fa35d (fe0f239f54393fa9615b2f1d816d86acad7fa35d)
-- Diff digest: sha256:6c5a66d6104d2688a2914b102a580fdea7024b91d8c280f57fc9c317719bb6c8
+- ID: cs-4381ae6cb5f1
+- Selector: range:57b70c2206c9386848c88c3a3d57b8a85fd79e9e..2ab10590babb7b8063014cd3567ad5ca2e1c0d2b
+- Base: 57b70c2206c9386848c88c3a3d57b8a85fd79e9e (57b70c2206c9386848c88c3a3d57b8a85fd79e9e)
+- Head: 2ab10590babb7b8063014cd3567ad5ca2e1c0d2b (2ab10590babb7b8063014cd3567ad5ca2e1c0d2b)
+- Diff digest: sha256:4d3a57ff50bc97ed8c65c3f488e6263e676b435c2aeb5569c60aeb8b764b35fa
 - Paths:
-  - created: .pose/reports/2026-08-07-standard-closeout-pose-command-reference-parity.md
   - created: .pose/reports/2026-08-07-standard-closeout-pose-manual-distribution-merge.md
-  - created: .pose/reports/2026-08-07-standard-test-plan-baseline-pose-mcp-active-context.md
-  - created: .pose/reports/history/standard-closeout-pose-command-reference-parity.jsonl
   - created: .pose/reports/history/standard-closeout-pose-manual-distribution-merge.jsonl
-  - created: .pose/specs/pose-assessment-engine-precision/spec.md
-  - created: .pose/specs/pose-command-reference-parity/spec.md
   - created: .pose/specs/pose-manual-distribution-merge/spec.md
-  - created: pose-mcp/internal/cli/command_reference.go
   - created: pose-mcp/internal/cli/managed_docs.go
   - created: pose-mcp/internal/cli/managed_docs_test.go
-  - created: pose-mcp/internal/pose/techdebt_coverage_test.go
-  - created: pose-mcp/internal/scaffold/dist/.pose/specs/pose-assessment-engine-precision/spec.md
-  - created: pose-mcp/internal/scaffold/dist/.pose/specs/pose-command-reference-parity/spec.md
   - created: pose-mcp/internal/scaffold/dist/.pose/specs/pose-manual-distribution-merge/spec.md
-  - modified: .pose/assessments/README.md
-  - modified: .pose/assessments/consolidated.md
-  - modified: .pose/assessments/integrations.md
-  - modified: .pose/assessments/mcp-enforce.md
-  - modified: .pose/assessments/pose-mcp.md
-  - modified: .pose/assessments/technical-debt.md
-  - modified: .pose/indexes/delivery-integrity.json
-  - modified: .pose/indexes/spec-graph.json
-  - modified: .pose/reports/history/standard-test-plan-baseline-pose-mcp-active-context.jsonl
-  - modified: .pose/results/delivery-validation.json
-  - modified: .pose/specs/pose-mcp-active-context/spec.md
-  - modified: .pose/state/components/mcp-enforce.json
-  - modified: .pose/state/components/pose-mcp.json
-  - modified: .pose/state/integrations.json
-  - modified: .pose/state/project-state.md
-  - modified: .pose/state/technical-debt.json
   - modified: AGENTS.md
   - modified: POSE.md
-  - modified: docs-site/docs/mcp.md
   - modified: locales/pt-BR/AGENTS.md
   - modified: locales/pt-BR/POSE.md
-  - modified: pose-mcp/internal/cli/assess.go
-  - modified: pose-mcp/internal/cli/check.go
-  - modified: pose-mcp/internal/cli/cli.go
   - modified: pose-mcp/internal/cli/install.go
   - modified: pose-mcp/internal/cli/maintenance.go
-  - modified: pose-mcp/internal/pose/integration.go
-  - modified: pose-mcp/internal/pose/techdebt.go
-  - modified: pose-mcp/internal/scaffold/dist/.pose/assessments/README.md
-  - modified: pose-mcp/internal/scaffold/dist/.pose/assessments/consolidated.md
-  - modified: pose-mcp/internal/scaffold/dist/.pose/assessments/integrations.md
-  - modified: pose-mcp/internal/scaffold/dist/.pose/assessments/mcp-enforce.md
-  - modified: pose-mcp/internal/scaffold/dist/.pose/assessments/pose-mcp.md
-  - modified: pose-mcp/internal/scaffold/dist/.pose/assessments/technical-debt.md
-  - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
-  - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
-  - modified: pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json
-  - modified: pose-mcp/internal/scaffold/dist/.pose/specs/pose-mcp-active-context/spec.md
   - modified: pose-mcp/internal/scaffold/dist/AGENTS.md
   - modified: pose-mcp/internal/scaffold/dist/POSE.md
   - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/AGENTS.md
   - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-07T00:49:45Z
+- Generated at (UTC): 2026-08-07T00:53:01Z
 - Context: closeout
 - Validation profile: strict
-- Sequence for task/spec: 2
-- Stable comparison hash: d5767bbcd6fa2c1c9e50d46da916371a7e2d8275c4b03fd5f6c9d74765a6a5a5
+- Sequence for task/spec: 1
+- Stable comparison hash: ae60d517d5adfe31d3f0cf7e032e69c82fa78a8eeb083acfb2815d95ca29565b
 
 ## Historical Comparison
-- Previous execution: 2026-08-07T00:45:08Z
-- Status: changed
+- Previous execution: _No previous execution_
+- Status: first-run
 - Stable field diffs:
-- change_set: "" -> "sha256:6c5a66d6104d2688a2914b102a580fdea7024b91d8c280f57fc9c317719bb6c8:373c081d608a0467684120cc7b195ad192932411:fe0f239f54393fa9615b2f1d816d86acad7fa35d"
+- _No changes in stable fields_
 
 ## Risks
 - _No risks provided_

@@ -1,8 +1,8 @@
 ---
 slug: pose-manual-distribution-merge
-status: in-progress
+status: done
 created_at: 2026-08-07
-completed_at:
+completed_at: 2026-08-07
 supersedes:
 depends_on: pose-command-reference-parity
 priority: 1

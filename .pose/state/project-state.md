@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-06T22:57:56Z
-baseline_commit: 3848c4de316c2d1d1faf53614aff87ccbd40cc82
+generated_at: 2026-08-07T00:54:48Z
+baseline_commit: 9eff699f5108da061c04820e373dbf1812981838
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:b6f56938d157 -->
+<!-- state:derived hash:fa0b776a3c23 -->
 
-- specs: total=46 draft=0 in-progress=0 blocked=0 done=46 superseded=0 abandoned=0
+- specs: total=49 draft=0 in-progress=0 blocked=0 done=49 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-command-reference-parity (2026-08-07)
+  - spec:pose-assessment-engine-precision (2026-08-07)
+  - spec:pose-manual-distribution-merge (2026-08-07)
   - spec:pose-mcp-active-context (2026-08-06)
-  - spec:pose-doc-command-reference (2026-08-04)
   - spec:pose-locales-alignment (2026-08-04)
-  - spec:pose-artifact-provenance-ledger (2026-08-03)
-  - spec:pose-release-lifecycle-closure (2026-08-03)
-  - ... e mais 41 (ver `pose_list_specs status:done`)
+  - ... e mais 44 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:363722f628fc -->
+<!-- state:derived hash:6fab292ac8be -->
 
 - abertos: 36
-- por criticidade: high=5 medium=14 low=16 sem-classificação=1
+- por criticidade: high=5 medium=13 low=16 sem-classificação=2
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=1 ativo=1 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:1d83b106d2cc -->
+<!-- state:derived hash:1be92d214bad -->
 
-- último registro: task=test-plan-baseline-pose-mcp-active-context outcome=pass (2026-08-06T22:57:30Z)
-- últimos 30 dias: total=58 outcome_ok=53 outcome_outro=5
-- reports revisados (.md): total=25
+- último registro: task=test-plan-baseline-pose-mcp-active-context outcome=pass (2026-08-07T00:53:59Z)
+- últimos 30 dias: total=69 outcome_ok=63 outcome_outro=6
+- reports revisados (.md): total=30
+  - report:2026-08-07-standard-test-plan-baseline-pose-mcp-active-context.md
+  - report:2026-08-07-standard-closeout-pose-assessment-engine-precision.md
+  - report:2026-08-07-standard-closeout-pose-manual-distribution-merge.md
+  - report:2026-08-07-standard-closeout-pose-command-reference-parity.md
   - report:2026-08-06-standard-test-plan-baseline-pose-mcp-active-context.md
-  - report:2026-08-03-pose-debt-marker-lexical-precision-review.md
-  - report:2026-08-03-pose-project-agnostic-assessment-engines-review.md
-  - report:2026-08-03-standard-release-trigger-fix-validation.md
-  - report:2026-08-03-standard-release-evidence-trigger-fix.md
 
 ## Arquitetura
 <!-- state:derived hash:0a483847335f status:active -->

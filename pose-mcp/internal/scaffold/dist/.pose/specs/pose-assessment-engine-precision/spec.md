@@ -1,13 +1,13 @@
 ---
 slug: pose-assessment-engine-precision
-status: in-progress
+status: done
 created_at: 2026-08-07
-completed_at:
+completed_at: 2026-08-07
 supersedes:
 depends_on:
 priority: 2
 components: pose-mcp
-delivers:
+delivers: governance:assessment-engine-precision
 ---
 
 # Spec: Assessment engines report what they actually observed
@@ -68,6 +68,9 @@ the engines exist to produce, and each degrades it silently.
 - modified: pose-mcp/internal/cli/assess.go
 - modified: pose-mcp/internal/pose/integration.go
 - modified: pose-mcp/internal/pose/techdebt.go
+
+### Delivery targets
+- governance:assessment-engine-precision module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 - `gap_id` changes shape from `GAP-001` to `GAP-<hash>`.
