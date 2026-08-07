@@ -61,6 +61,13 @@ sboms:
     cmd: syft
     documents: ["${artifact}.cdx.json"]
     args: ["scan", "${artifact}", "--output", "cyclonedx-json=${document}"]
+    # Scanning a packaged binary recovers module names and versions from the Go
+    # buildinfo, but not licenses — those live in the module sources. Without
+    # this, 26 of 27 components shipped with no license field while the docs
+    # advertised an SBOM'd release; the local module cache the build just
+    # populated resolves 24 of them (spec pose-sbom-license-inventory).
+    env:
+      - SYFT_GOLANG_SEARCH_LOCAL_MOD_CACHE_LICENSES=true
 
 # spec pose-release-signing: keyless Sigstore signing of every artifact
 # (archives, SBOMs and checksums.txt) with offline-verifiable bundles.
