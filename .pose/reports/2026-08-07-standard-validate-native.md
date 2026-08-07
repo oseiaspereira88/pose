@@ -14,11 +14,7 @@
 - _Not provided_
 
 ## Files Changed
-- nstall.sh
-- pose-mcp/internal/scaffold/dist/install.sh
-- tests/install/run.sh
-- .pose/specs/pose-installer-local-binary-precedence/
-- pose-mcp/internal/scaffold/dist/.pose/specs/pose-installer-local-binary-precedence/
+- pose/results/delivery-validation.json
 
 ## Validation Commands
 - _Fill manually_
@@ -27,17 +23,17 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-07T04:13:16Z
+- Generated at (UTC): 2026-08-07T04:16:00Z
 - Context: auto-validate
-- Validation profile: tolerant
-- Sequence for task/spec: 30
-- Stable comparison hash: 5698000da1fa3d1dc09c88a5c178e5fab91c31deecd321ea182a96719596b628
+- Validation profile: strict
+- Sequence for task/spec: 31
+- Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-03T04:04:55Z
+- Previous execution: 2026-08-07T04:13:16Z
 - Status: changed
 - Stable field diffs:
-- validation_profile: "strict" -> "tolerant"
+- validation_profile: "tolerant" -> "strict"
 
 ## Risks
 - _No risks provided_
