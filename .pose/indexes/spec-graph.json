@@ -1,6 +1,10 @@
 {
   "edges": [
     {
+      "from": "pose-action-runtime-currency-gate",
+      "to": "pose-actions-node24-bump"
+    },
+    {
       "from": "pose-actions-node24-bump",
       "to": "pose-ossf-security-baseline"
     },
@@ -327,6 +331,14 @@
   ],
   "schemaVersion": 1,
   "specs": {
+    "pose-action-runtime-currency-gate": {
+      "depends_on": [
+        "pose-actions-node24-bump"
+      ],
+      "path": ".pose/specs/pose-action-runtime-currency-gate/spec.md",
+      "priority": 2,
+      "status": "draft"
+    },
     "pose-actions-node24-bump": {
       "depends_on": [
         "pose-ossf-security-baseline"

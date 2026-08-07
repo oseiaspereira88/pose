@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:dab60733333b4b958fb878b7839a44067fcea803650eed112486f787c9b516b5",
-  "provenance_digest": "sha256:a009e966835b969aa1361ceba4c9eb22276edefe97dcacf440aa99c4035604f2",
+  "input_digest": "sha256:747997acfaf3564ad799a456b6fddc2a84e735dd747223230ae32a82f114f698",
+  "provenance_digest": "sha256:4a9f916d3da2dd3f7b12cb3e96c44463384af1ec527eea103be54b43fd9a013a",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -50,6 +50,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".github/ISSUE_TEMPLATE/feature_suggestion.yml"
+      }
+    },
+    {
+      "id": "artifact:.github/action-runtimes.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".github/action-runtimes.json"
       }
     },
     {
@@ -820,6 +827,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/rules/release-integrity.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-action-runtime-currency-gate/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-action-runtime-currency-gate/spec.md"
       }
     },
     {
@@ -2965,6 +2979,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/version/workflow_security_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/version/workflow_security_test.go"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/server.json",
       "type": "artifact",
       "attributes": {
@@ -3311,6 +3332,14 @@
       }
     },
     {
+      "id": "delivery:governance:action-runtime-currency-gate",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
       "id": "delivery:governance:actions-runtime-currency",
       "type": "governance",
       "attributes": {
@@ -3569,6 +3598,13 @@
       "type": "roadmap-criterion",
       "attributes": {
         "passed": "true"
+      }
+    },
+    {
+      "id": "spec:pose-action-runtime-currency-gate",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
       }
     },
     {
@@ -11743,6 +11779,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:action-runtime-currency-gate",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:action-runtime-currency-gate",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:actions-runtime-currency",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -11990,6 +12036,11 @@
     {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -12241,6 +12292,31 @@
       "from": "roadmap-criterion:delivery-integrity/C9",
       "to": "validation-check:delivery-integration",
       "type": "gates"
+    },
+    {
+      "from": "spec:pose-action-runtime-currency-gate",
+      "to": "artifact:.github/action-runtimes.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-action-runtime-currency-gate",
+      "to": "artifact:.github/workflows/ci.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-action-runtime-currency-gate",
+      "to": "artifact:.pose/specs/pose-action-runtime-currency-gate/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-action-runtime-currency-gate",
+      "to": "artifact:pose-mcp/internal/version/workflow_security_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-action-runtime-currency-gate",
+      "to": "delivery:governance:action-runtime-currency-gate",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-actions-node24-bump",
@@ -14124,6 +14200,26 @@
     }
   ],
   "claims": [
+    {
+      "spec": "pose-action-runtime-currency-gate",
+      "action": "created",
+      "path": ".github/action-runtimes.json"
+    },
+    {
+      "spec": "pose-action-runtime-currency-gate",
+      "action": "created",
+      "path": ".pose/specs/pose-action-runtime-currency-gate/spec.md"
+    },
+    {
+      "spec": "pose-action-runtime-currency-gate",
+      "action": "modified",
+      "path": ".github/workflows/ci.yml"
+    },
+    {
+      "spec": "pose-action-runtime-currency-gate",
+      "action": "modified",
+      "path": "pose-mcp/internal/version/workflow_security_test.go"
+    },
     {
       "spec": "pose-actions-node24-bump",
       "action": "created",
@@ -20547,7 +20643,11 @@
     ".github/ISSUE_TEMPLATE/feature_suggestion.yml": [
       "pose-mcp-active-context"
     ],
+    ".github/action-runtimes.json": [
+      "pose-action-runtime-currency-gate"
+    ],
     ".github/workflows/ci.yml": [
+      "pose-action-runtime-currency-gate",
       "pose-actions-node24-bump",
       "pose-release-signing-rejection",
       "pose-shellcheck-ci-gate"
@@ -20681,6 +20781,9 @@
     ],
     ".pose/rules/release-integrity.md": [
       "pose-release-lifecycle-closure"
+    ],
+    ".pose/specs/pose-action-runtime-currency-gate/spec.md": [
+      "pose-action-runtime-currency-gate"
     ],
     ".pose/specs/pose-actions-node24-bump/spec.md": [
       "pose-actions-node24-bump"
@@ -21223,6 +21326,9 @@
       "pose-verifier-assets-variable-fix",
       "pose-verifier-extension-install-cwd"
     ],
+    "pose-mcp/internal/version/workflow_security_test.go": [
+      "pose-action-runtime-currency-gate"
+    ],
     "pose-mcp/server.json": [
       "pose-compat-gate-manual-refresh-assertion",
       "pose-extension-signing-clean-tree",
@@ -21380,6 +21486,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-0efde9ebd121",
+      "code": "unconnected-artifact",
+      "severity": "error",
+      "spec": "pose-action-runtime-currency-gate",
+      "path": "governance:action-runtime-currency-gate",
+      "message": "delivery target has no structured artifact provenance",
+      "remediation": "declare and reconcile exact artifacts before asserting delivery"
+    },
+    {
       "id": "dif-0f8db18f4672",
       "code": "action-mismatch",
       "severity": "error",
@@ -21395,6 +21510,15 @@
       "path": "pose-mcp/internal/cli/insights.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-10423237d78e",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-action-runtime-currency-gate",
+      "path": ".github/action-runtimes.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-113bf6cecb76",
@@ -21596,6 +21720,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-27e39a443801",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-action-runtime-currency-gate",
+      "path": ".github/action-runtimes.json",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-29d354ed22e1",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -21604,6 +21737,15 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-29e0b120014e",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-action-runtime-currency-gate",
+      "path": ".pose/specs/pose-action-runtime-currency-gate/spec.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-2abc27e16c83",
@@ -22075,14 +22217,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-676e29dd5c90",
-      "code": "orphan",
-      "severity": "warning",
-      "path": "pose-mcp/internal/version/workflow_security_test.go",
-      "message": "governed tracked path has no spec provenance claim",
-      "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
       "id": "dif-67e61b8d2ffa",
       "code": "legacy-narrative",
       "severity": "info",
@@ -22319,6 +22453,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-81b77eb1f400",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-action-runtime-currency-gate",
+      "path": ".pose/specs/pose-action-runtime-currency-gate/spec.md",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-81cd00ce3f0c",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -22513,6 +22656,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-95d84d437e42",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-action-runtime-currency-gate",
+      "path": ".github/workflows/ci.yml",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-968375a6b319",
@@ -22750,6 +22902,15 @@
       "spec": "pose-structured-validation-results",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-ae1441664e45",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-action-runtime-currency-gate",
+      "path": "pose-mcp/internal/version/workflow_security_test.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-af7f09e4e23a",
@@ -23505,6 +23666,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-action-runtime-currency-gate",
+      "ref": "governance:action-runtime-currency-gate",
+      "kind": "governance",
+      "id": "action-runtime-currency-gate",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-actions-node24-bump",
       "ref": "governance:actions-runtime-currency",
       "kind": "governance",
@@ -23613,7 +23783,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -23622,7 +23792,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -23738,9 +23908,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "3182f091a14ccf9570e988b092339f3a591bc625",
-      "generated_at": "2026-08-07T21:28:41Z",
-      "provenance_digest": "sha256:a009e966835b969aa1361ceba4c9eb22276edefe97dcacf440aa99c4035604f2",
+      "git_head": "658593ada61536fd55c7812f16c02557f7d0f557",
+      "generated_at": "2026-08-07T21:52:09Z",
+      "provenance_digest": "sha256:4a9f916d3da2dd3f7b12cb3e96c44463384af1ec527eea103be54b43fd9a013a",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -23750,9 +23920,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "3182f091a14ccf9570e988b092339f3a591bc625",
-      "generated_at": "2026-08-07T21:28:41Z",
-      "provenance_digest": "sha256:a009e966835b969aa1361ceba4c9eb22276edefe97dcacf440aa99c4035604f2",
+      "git_head": "658593ada61536fd55c7812f16c02557f7d0f557",
+      "generated_at": "2026-08-07T21:52:09Z",
+      "provenance_digest": "sha256:4a9f916d3da2dd3f7b12cb3e96c44463384af1ec527eea103be54b43fd9a013a",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -23762,9 +23932,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "3182f091a14ccf9570e988b092339f3a591bc625",
-      "generated_at": "2026-08-07T21:28:41Z",
-      "provenance_digest": "sha256:a009e966835b969aa1361ceba4c9eb22276edefe97dcacf440aa99c4035604f2",
+      "git_head": "658593ada61536fd55c7812f16c02557f7d0f557",
+      "generated_at": "2026-08-07T21:52:09Z",
+      "provenance_digest": "sha256:4a9f916d3da2dd3f7b12cb3e96c44463384af1ec527eea103be54b43fd9a013a",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -23774,9 +23944,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "3182f091a14ccf9570e988b092339f3a591bc625",
-      "generated_at": "2026-08-07T21:28:41Z",
-      "provenance_digest": "sha256:a009e966835b969aa1361ceba4c9eb22276edefe97dcacf440aa99c4035604f2",
+      "git_head": "658593ada61536fd55c7812f16c02557f7d0f557",
+      "generated_at": "2026-08-07T21:52:09Z",
+      "provenance_digest": "sha256:4a9f916d3da2dd3f7b12cb3e96c44463384af1ec527eea103be54b43fd9a013a",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -23786,9 +23956,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "3182f091a14ccf9570e988b092339f3a591bc625",
-      "generated_at": "2026-08-07T21:28:41Z",
-      "provenance_digest": "sha256:a009e966835b969aa1361ceba4c9eb22276edefe97dcacf440aa99c4035604f2",
+      "git_head": "658593ada61536fd55c7812f16c02557f7d0f557",
+      "generated_at": "2026-08-07T21:52:09Z",
+      "provenance_digest": "sha256:4a9f916d3da2dd3f7b12cb3e96c44463384af1ec527eea103be54b43fd9a013a",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -23798,9 +23968,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "3182f091a14ccf9570e988b092339f3a591bc625",
-      "generated_at": "2026-08-07T21:28:41Z",
-      "provenance_digest": "sha256:a009e966835b969aa1361ceba4c9eb22276edefe97dcacf440aa99c4035604f2",
+      "git_head": "658593ada61536fd55c7812f16c02557f7d0f557",
+      "generated_at": "2026-08-07T21:52:09Z",
+      "provenance_digest": "sha256:4a9f916d3da2dd3f7b12cb3e96c44463384af1ec527eea103be54b43fd9a013a",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -23810,9 +23980,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "3182f091a14ccf9570e988b092339f3a591bc625",
-      "generated_at": "2026-08-07T21:28:41Z",
-      "provenance_digest": "sha256:a009e966835b969aa1361ceba4c9eb22276edefe97dcacf440aa99c4035604f2",
+      "git_head": "658593ada61536fd55c7812f16c02557f7d0f557",
+      "generated_at": "2026-08-07T21:52:09Z",
+      "provenance_digest": "sha256:4a9f916d3da2dd3f7b12cb3e96c44463384af1ec527eea103be54b43fd9a013a",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -23822,9 +23992,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "3182f091a14ccf9570e988b092339f3a591bc625",
-      "generated_at": "2026-08-07T21:28:41Z",
-      "provenance_digest": "sha256:a009e966835b969aa1361ceba4c9eb22276edefe97dcacf440aa99c4035604f2",
+      "git_head": "658593ada61536fd55c7812f16c02557f7d0f557",
+      "generated_at": "2026-08-07T21:52:09Z",
+      "provenance_digest": "sha256:4a9f916d3da2dd3f7b12cb3e96c44463384af1ec527eea103be54b43fd9a013a",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -24155,6 +24325,12 @@
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],
+    "governance:action-runtime-currency-gate": [
+      "spec:pose-action-runtime-currency-gate",
+      "delivery:governance:action-runtime-currency-gate",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
     "governance:actions-runtime-currency": [
       "spec:pose-actions-node24-bump",
       "artifact:.pose/specs/pose-actions-node24-bump/spec.md",
@@ -24312,7 +24488,7 @@
       "validation-result:pose-mcp/go/delivery-integration"
     ],
     "governance:project-assessment": [
-      "spec:pose-debt-marker-lexical-precision",
+      "spec:pose-project-agnostic-assessment-engines",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
