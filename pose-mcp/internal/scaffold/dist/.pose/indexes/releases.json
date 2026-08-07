@@ -1,5 +1,14 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-extension-reference-publication",
+      "category": "changed",
+      "breaking": true,
+      "body": "The Kubernetes review rule is no longer embedded in every instance. It ships as\n`pose-rule-kubernetes`, the project's first signed reference extension, and is\ninstalled with `pose extension install` by repositories that actually deploy to\na cluster. Fresh installs no longer receive `.pose/rules/kubernetes.md`;\nexisting instances keep their copy, but it stops being refreshed by `pose\nupgrade` because the engine no longer ships it.\n\nThis also gives the extension chain its first real artifact. The release\nworkflow signs the extension with cosign and publishes it beside the engine's\nown assets, and the independent verification job now fetches it as a consumer,\nchecks the signature before executing anything, installs it, and requires a\ntampered copy to be rejected. Until now every test of that path substituted a\nfake for cosign.",
+      "path": "pose-extension-reference-publication.md",
+      "digest": "sha256:478f54875897fa1e1ad39bd7793386dbf5e3343dc8b8f19d43acc6e3b670ed24"
+    }
+  ],
   "releases": [
     {
       "version": "v0.19.0",
