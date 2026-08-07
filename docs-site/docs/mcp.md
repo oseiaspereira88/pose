@@ -24,6 +24,44 @@ The installer seeds `.mcp.json` when absent. It invokes the native binary
 directly and records the installed project's root and project id in the server
 environment; no wrapper or second executable is generated.
 
+### Worked examples
+
+A single repository with one default root:
+
+```json
+{
+  "POSE_DEFAULT_PROJECT_ID": "project_acme",
+  "POSE_PROJECT_ROOT": "/path/to/acme",
+  "POSE_PROJECT_ROOTS": "{\"project_acme\":\"/path/to/acme\"}"
+}
+```
+
+Several independent repositories on one server, with explicit selection
+required:
+
+```json
+{
+  "POSE_DEFAULT_PROJECT_ID": "project_acme",
+  "POSE_PROJECT_ROOT": "/path/to/acme",
+  "POSE_PROJECT_ROOTS": "{\"project_beta\":\"/path/to/beta\"}",
+  "POSE_MCP_STRICT_PROJECT_SELECTION": "1"
+}
+```
+
+`POSE_PROJECT_ROOTS` is an allowlist of `project_id → root`. The registered
+projects are independent: the map grants access, it does not create a
+subproject or parent relationship between them. Pass `project_id` on every call
+once more than one root is registered.
+
+Prefer the `stdio` transport for local agents and let the client start
+`pose serve-mcp --stdio` from `.mcp.json`; do not keep a manual daemon running
+alongside it. Reserve the HTTP transport for an explicitly configured shared
+server.
+
+In Codex, mirror the same overlay in `.codex/config.toml`. Reuse the global
+server name to override it at project scope, and neutralize inherited
+multi-project values when the repository operates on its own.
+
 ## Observability
 
 `pose serve-mcp` can emit OpenTelemetry traces, metrics and correlated logs

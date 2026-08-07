@@ -65,7 +65,7 @@ POSE.md          # este manual
 - [`.pose/templates/doc-audit-report.md`](.pose/templates/doc-audit-report.md): template para revisões editoriais e auditoria de documentação.
 - Binário `pose`: automações nativas de scaffold/check/validação/report e servidor MCP.
 - [`.pose/specs/*/spec.md`](.pose/specs/): specs vivas por feature.
-- [`.agents/skills/`](.agents/skills/): 9 skills no formato nativo Codex (frontmatter `name`/`description`, corpo com Required reading + Steps + Output requirements, metadata opcional em `agents/openai.yaml`). Use `description` como fonte única de roteamento; Claude Code consome os symlinks em [`.claude/skills/`](.claude/skills/) sem exigir `when_to_use`.
+- [`.agents/skills/`](.agents/skills/): 11 skills no formato nativo Codex (frontmatter `name`/`description`, corpo com Required reading + Steps + Output requirements, metadata opcional em `agents/openai.yaml`). Use `description` como fonte única de roteamento; Claude Code consome os symlinks em [`.claude/skills/`](.claude/skills/) sem exigir `when_to_use`.
 
 ---
 
@@ -204,9 +204,48 @@ pose report --task "..." [--outcome pass|fail|partial|skipped] [--since <ref>] [
                                       # outcome auto-derivado de --validate-output;
                                       # --git-stage faz git add do JSONL após escrita
 
+# Ciclo de release
+pose release <plan|prepare|check|notes|record|status|open-next|backfill> --version vX.Y.Z
+                                      # prepare congela manifest/notes; record importa
+                                      # evidência do provider; status projeta o estado
+pose release-notes --version vX.Y.Z # alias de compatibilidade para as notes imutáveis
+
+# Estado do projeto
+pose state [init|refresh|diff]      # artefato nativo de estado (sem args = valida)
+
+# Instalação, MCP e feedback do engine
+pose version                       # versões do binário e do schema da instância
+pose install <dir> [--locale tag]  # instala o POSE embutido sem clonar
+pose upgrade [--dry-run] [--force] [--schema-only]
+                                      # atualiza binário + maquinário + schema
+                                      # NÃO reescreve POSE.md/AGENTS.md sem --force
+pose import <spec-kit|openspec> <path> [--dry-run]
+pose serve-mcp --stdio             # transporte local gerenciado pelo cliente MCP
+pose serve-mcp                     # servidor HTTP; configure as variáveis POSE_* antes
+pose doctor [--json] [--fix]       # diagnostica binário e configuração local;
+                                      # não prova conexão ativa — use pose_mcp_context
+pose report-limitation --title "..." --kind limitation|bug|suggestion [--body "..."] [--submit]
+                                      # sem --submit, grava somente em .pose/feedback/
+pose telemetry <enable|disable|status>
+
+# Assessment e extensões
+pose assess <discover|integrate|tech-debt> [--json] [--update-state]
+pose stacks [--path dir] [--json]  # catálogo read-only de perfis detectados
+pose skills-check [--strict|--tolerant]
+pose extension <install|list|remove|verify> [...]
+
+# Métricas e descoberta avançada
+pose recurrence-effect [--register ...] [--json]
+pose semantic-suggest <query> | pose knowledge-suggest <query>
+pose suggest-feedback | pose portfolio-projection | pose reconcile-evidence
+pose record-deployment | pose record-incident | pose dora-metrics | pose adoption-metrics
+
 # Manutenção
 pose knowledge-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
+pose knowledge-usage [--json]
 pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-than N] [--dry-run|--apply]
+pose events-housekeeping [...]
+pose amend <slug> [...]            # registra emenda append-only em spec
 pose hooks <install|uninstall|status> [--force]
                                       # symlinks do binário pose em .git/hooks/<x>
 ```
