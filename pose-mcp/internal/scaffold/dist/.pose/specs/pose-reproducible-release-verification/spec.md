@@ -90,6 +90,13 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 - `pose check --strict` — SUCCESS; `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
 - The verifier's first real execution happens on the next published release (it needs live release assets and the attestation store); no verification result is claimed here.
 
+### Requirement trace
+- R1 [satisfied] check:verify-release-run — verify-release.yml runs as a separate job with `contents: read` only, no producer caches and no elevated credentials
+- R2 [satisfied] check:verify-release-run — run 31148431844 compared checksums, versions, signatures, SBOMs and provenance, each before executing anything
+- R3 [satisfied] check:verify-release-run — the same run recorded a bit-identical rebuild (sha256 7b5e82da75d6a5394ea5cc5be83a4f742208bc330d62ab9b606dc8860a757669) as an explicit MATCH
+
+---
+
 ## 7. Final Report
 
 ### Delivered scope

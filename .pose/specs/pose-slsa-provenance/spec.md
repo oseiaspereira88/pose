@@ -90,6 +90,13 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 - `pose check --strict` — SUCCESS; `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
 - Attestation generation requires the tag pipeline's OIDC environment; the first tagged release produces and the Verify release workflow consumes the real provenance — no attestation result is claimed here.
 
+### Requirement trace
+- R1 [satisfied] check:attestation-verify — all six v0.18.2 archives plus checksums.txt are provenance subjects identified by digest; `gh attestation verify` passes for each
+- R2 [satisfied] check:attestation-verify — the SLSA v1 predicate carries source repository, revision f62c014 and builder workflow `release.yml@refs/tags/v0.18.2`, with no secret material
+- R3 [satisfied] check:verify-release-run — run 31148431844 authenticates every artifact before executing it and pins the expected signer workflow; a wrong digest, repository or builder fails the same path
+
+---
+
 ## 7. Final Report
 
 ### Delivered scope

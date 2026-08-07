@@ -91,6 +91,13 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 - `pose lint-spec pose-public-install-contract --ready-check` — SUCCESS.
 - `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
 
+### Requirement trace
+- R1 [satisfied] report:README.md — the documented install resolves a published asset for linux/darwin/windows on amd64/arm64; all six exist in the v0.18.2 release
+- R2 [satisfied] check:installer-e2e test:tests/install/run.sh — the verified-download scenario checksums the archive before the binary reaches PATH
+- R3 [satisfied] check:installer-e2e — the clean-host scenario installs, initializes, then runs `pose doctor --json` and `pose check --strict`
+
+---
+
 ## 7. Final Report
 
 ### Delivered scope

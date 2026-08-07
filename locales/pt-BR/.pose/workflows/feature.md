@@ -15,7 +15,7 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 
 1. Confirmar objetivo, restrições e contratos públicos afetados.
 2. Mapear módulos impactados e rodar `pose assess discover [--component <dir>]` para inspecionar métricas, LOCs e dívidas do módulo antes da edição.
-3. **Consultar `.pose/knowledge/`** por handoffs/notas/decision-logs relevantes ao escopo (busque pelo slug do módulo afetado e por temas correlatos). Cite os artefatos consultados na spec.
+3. **Consultar `.pose/knowledge/`** por handoffs/notas/decision-logs relevantes ao escopo (busque pelo slug do módulo afetado e por temas correlatos). Cite cada artefato consultado na spec como `knowledge:<slug>`. É exatamente essa forma que `pose knowledge-usage` conta — prosa citando o arquivo é invisível para ele, então um artefato que todos leem pode parecer não usado e expirar no TTL.
 4. Revisar spec existente (ou criar/atualizar) com intenção e tarefas.
 5. Declarar ações exatas em `### Artifacts` e reconciliar com `pose artifact-check`.
 6. Planejar entregas em passos pequenos e reversíveis.

@@ -93,6 +93,13 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 - `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
 - CodeQL, govulncheck, gitleaks, dependency review and Scorecard require network and execute in CI; their first runs happen on this branch's PR — no result is claimed for them here.
 
+### Requirement trace
+- R1 [satisfied] check:security-workflow — security.yml runs govulncheck, CodeQL, secret detection and dependency review; run 31198441650 is green on main
+- R2 [satisfied] check:openssf-scorecard — Scorecard checks token permissions and action pinning automatically; the 2026-08-07 baseline records Token-Permissions at 0 and Pinned-Dependencies at 2, both now tracked as explicit findings rather than unknowns
+- R3 [satisfied] report:.pose/reports/2026-08-07-standard-first-release-evidence-confirmation.md — the baseline aggregate of 4.2 and its zeroes were triaged into named findings (F3, F4) with dispositions, making them release-decision inputs instead of noise
+
+---
+
 ## 7. Final Report
 
 ### Delivered scope

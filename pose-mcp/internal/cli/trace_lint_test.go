@@ -89,13 +89,17 @@ func TestTraceOrphanAlwaysFails(t *testing.T) {
 	}
 }
 
-func TestTraceLegacyDoneWarnsButPasses(t *testing.T) {
+// Was TestTraceLegacyDoneWarnsButPasses. The warning existed while eleven
+// pre-contract specs still had no trace; they all have one now, so a done spec
+// with requirements and no trace section is a real gap
+// (spec pose-governance-gate-activation, R2).
+func TestTraceDoneWithoutTraceSectionFails(t *testing.T) {
 	body := strings.Replace(tracedDoneSpec, "### Requirement trace\n- R1 [satisfied] unit suite; check:test\n- R2 [waived: covered upstream]\n", "Validation prose.\n", 1)
 	rc, output := lintFixture(t, body)
-	if rc != 0 {
-		t.Fatalf("legacy done spec without trace section must pass with a warning, got rc=%d output=%s", rc, output)
+	if rc == 0 {
+		t.Fatalf("a done spec with requirements and no trace section must fail, got rc=%d output=%s", rc, output)
 	}
 	if !strings.Contains(output, "Requirement trace") {
-		t.Errorf("expected legacy warning mentioning the trace section, got: %s", output)
+		t.Errorf("expected a diagnostic naming the trace section, got: %s", output)
 	}
 }

@@ -1,8 +1,8 @@
 # Technical Debt Assessment: pose-dist
 
 > **Gerado por**: POSE Technical Debt Engine (`pose assess tech-debt`)
-> **Data de Avaliação**: 2026-08-07T00:44:20Z
-> **Baseline Commit**: bb82100ced72
+> **Data de Avaliação**: 2026-08-07T17:21:07Z
+> **Baseline Commit**: adc74a086ca8
 
 ## 1. Resumo Executivo
 
@@ -16,7 +16,7 @@
 
 | ID | Marcador | Componente | Arquivo e Linha | Cobertura | Evidência | Recomendação |
 |---|---|---|---|---|---|---|
-| DEBT-001 | `PANIC` | `pose-mcp` | [scaffold.go:23](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/scaffold/scaffold.go#L23) | `uncovered` | `` | `create_followup` |
+| DEBT-05b998d4 | `PANIC` | `pose-mcp` | [scaffold.go:23](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/scaffold/scaffold.go#L23) | `uncovered` | `` | `create_followup` |
 
 ## 3. Política de Ação
 

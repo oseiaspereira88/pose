@@ -27,7 +27,7 @@ stale, go straight to the reading below — the artifact is additive, never bloc
 ## Steps
 
 1. Identify a short slug and create or locate `.pose/specs/<slug>/spec.md`.
-2. Search `.pose/knowledge/` for related handoffs and decision logs.
+2. Search `.pose/knowledge/` for related handoffs and decision logs; cite each one used as `knowledge:<slug>` in the spec, the form `pose knowledge-usage` counts.
 3. Complete Intent, Requirements, Technical Plan, and Tasks before coding.
 4. Implement incrementally and run `pose validate --strict --module <affected-path> --report`.
 5. Record executed commands and results in Validation.

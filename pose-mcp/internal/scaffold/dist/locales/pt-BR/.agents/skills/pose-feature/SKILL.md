@@ -32,7 +32,7 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
    ```bash
    ls .pose/specs/<slug>/spec.md 2>/dev/null || pose new-spec <slug>
    ```
-2. Consultar knowledge relacionada (handoffs anteriores, decision-logs do módulo):
+2. Consultar knowledge relacionada (handoffs anteriores, decision-logs do módulo), citando cada um usado como `knowledge:<slug>` na spec — a forma que `pose knowledge-usage` conta:
    ```bash
    find .pose/knowledge -name "*<modulo>*.md" -type f -not -path '*/archive/*'
    ```

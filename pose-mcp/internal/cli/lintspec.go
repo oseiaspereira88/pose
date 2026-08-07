@@ -436,7 +436,12 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 				traceFailures++
 			}
 		} else if len(trace.Requirements) > 0 {
-			fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: done without a '### Requirement trace' subsection in Validation (legacy spec; new closeouts must trace every R-ID)\n", "[AVISO] %s: done sem subseção '### Requirement trace' em Validation (spec legada; novos closeouts devem rastrear cada R-ID)\n"), slug)
+			// Was a warning while eleven pre-contract specs still lacked a
+			// trace. They now have one, so a done spec with requirements and no
+			// trace is a real gap rather than a legacy artefact
+			// (spec pose-governance-gate-activation, R2).
+			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: done without a '### Requirement trace' subsection in Validation (every done spec must trace its R-IDs)\n", "[ERRO] %s: done sem subseção '### Requirement trace' em Validation (toda spec done deve rastrear seus R-IDs)\n"), slug)
+			traceFailures++
 		}
 	}
 	if root, err := projectRoot(); err == nil {

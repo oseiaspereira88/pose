@@ -16,7 +16,7 @@ Deliver a production feature with clear scope, incremental implementation, and d
 1. Confirm the objective, constraints, and affected public contracts.
 2. Map affected modules and read relevant local instructions.
 3. Map impacted modules and run `pose assess discover [--component <dir>]` to inspect metrics, LOCs, and debts of the module before editing.
-4. Search `.pose/knowledge/` for relevant handoffs, notes, and decision logs; cite consulted artifacts in the spec.
+4. Search `.pose/knowledge/` for relevant handoffs, notes, and decision logs; cite each consulted artifact in the spec as `knowledge:<slug>`. That exact form is what `pose knowledge-usage` counts — prose naming a file is invisible to it, so an artifact everyone reads can still look unused and expire on TTL.
 5. Review or create the spec with intent, requirements, and tasks.
 6. Declare exact source-tree actions under `### Artifacts`; keep declaration separate from Git-observed evidence.
 7. Plan small, reversible delivery increments.

@@ -21,7 +21,7 @@ Fluxo POSE para correção cirúrgica de defeito.
 ## Steps
 
 1. Reproduzir o defeito e registrar modo de falha observável (comando + saída esperada vs. obtida).
-2. Consultar `.pose/knowledge/` por incidents/handoffs anteriores no mesmo módulo ou padrão:
+2. Consultar `.pose/knowledge/` por incidents/handoffs anteriores no mesmo módulo ou padrão, citando cada um usado como `knowledge:<slug>` na spec — a forma que `pose knowledge-usage` conta:
    ```bash
    find .pose/knowledge -name "*<modulo>*.md" -type f
    ```

@@ -45,7 +45,10 @@ jobs:
           }
           overall=0
           run_gate "Structural gate (strict)" check --strict
-          run_gate "Open follow-up backlog" followups --all
+          # --fail-overdue makes the backlog gate able to fail: without it the
+          # audit reported overdue follow-ups and exited 0 regardless
+          # (spec pose-governance-gate-activation, R4).
+          run_gate "Open follow-up backlog" followups --all --fail-overdue
           run_gate "Knowledge overdue gate" knowledge-check
           run_gate "History integrity" history-check
           run_gate "Outcome stats" stats

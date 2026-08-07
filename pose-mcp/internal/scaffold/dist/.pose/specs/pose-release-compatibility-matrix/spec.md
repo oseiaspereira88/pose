@@ -92,6 +92,13 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 - `pose lint-spec pose-release-compatibility-matrix --ready-check` — SUCCESS.
 - `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
 
+### Requirement trace
+- R1 [satisfied] report:compatibility.json — the matrix declares engine version, schema version and the supported upgrade window in machine-readable form
+- R2 [satisfied] check:compat-gate — release CI runs fresh install plus every declared upgrade pair; the window currently starts at 0.18.2, so the pair set is deliberately empty and reported as such rather than skipped
+- R3 [satisfied] check:compat-gate — the gate validates documented commands and MCP metadata against the same candidate tree it tested
+
+---
+
 ## 7. Final Report
 
 ### Delivered scope

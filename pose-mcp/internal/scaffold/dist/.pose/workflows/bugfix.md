@@ -14,7 +14,7 @@ Fix the root cause with the smallest possible impact, regression coverage, and o
 ## Execution checklist
 
 1. Reproduce the problem and define an observable failure mode.
-2. **Consult `.pose/knowledge/`** for earlier incidents or handoffs in the same module or failure pattern; reuse an existing diagnosis when available.
+2. **Consult `.pose/knowledge/`** for earlier incidents or handoffs in the same module or failure pattern; reuse an existing diagnosis when available and cite it in the spec as `knowledge:<slug>` — `pose knowledge-usage` counts that exact form, so an uncited artifact reads as unused and expires on TTL.
 3. Isolate the root cause and map collateral impact.
 4. Define the smallest safe fix and a rollback plan.
 5. Implement the fix as a cohesive change, without parallel refactoring.

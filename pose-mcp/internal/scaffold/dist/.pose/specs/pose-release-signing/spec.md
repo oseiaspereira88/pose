@@ -91,6 +91,13 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 - `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
 - Actual keyless signing requires the GitHub OIDC environment and executes in the release workflow; the first snapshot rehearsal (workflow_dispatch) signs and verifies without publishing — no signing result is claimed here.
 
+### Requirement trace
+- R1 [satisfied] check:attestation-verify — every v0.18.2 archive and the checksum manifest ship a Sigstore bundle alongside them
+- R2 [satisfied] report:docs-site/docs/ci.md — the documented verification pins issuer and repository identity, and the verifier run exercises exactly that pinning
+- R3 [waived: the negative path has never been exercised on a real run] — release CI signs and verifies, but no run has yet failed on an unsigned artifact or an identity mismatch, so the gate's rejection behaviour is asserted rather than demonstrated. Tracked as the open snapshot-rehearsal follow-up on this spec
+
+---
+
 ## 7. Final Report
 
 ### Delivered scope

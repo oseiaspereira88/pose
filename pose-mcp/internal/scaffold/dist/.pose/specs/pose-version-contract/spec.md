@@ -92,6 +92,13 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 - `pose lint-spec pose-version-contract --ready-check` — SUCCESS.
 - `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
 
+### Requirement trace
+- R1 [satisfied] check:version-contract test:TestVersionContractSurfaces — CLI, MCP serverInfo, registry metadata and release pipeline all derive from internal/version; confirmed on published v0.18.2, whose binary reports 0.18.2 on every surface
+- R2 [satisfied] test:TestVersionContractSurfaces — unstamped builds carry the `-dev` suffix and `IsDevelopment()` reports it, so a development build cannot impersonate a release
+- R3 [satisfied] check:version-contract — the contract test enumerates the four surfaces and fails on divergence; it is part of the compatibility gate, which reported PASS for v0.18.2
+
+---
+
 ## 7. Final Report
 
 ### Delivered scope

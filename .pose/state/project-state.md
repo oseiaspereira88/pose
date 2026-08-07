@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-07T17:08:07Z
-baseline_commit: c8e0d7f5cec70e5209c93304ee59fb4a6dee7f4a
+generated_at: 2026-08-07T17:24:35Z
+baseline_commit: adc74a086ca822f276089c95cd94337e56b64ff0
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,9 +27,9 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:1b8eb430c467 -->
+<!-- state:derived hash:4dda840b3c2a -->
 
-- specs: total=56 draft=3 in-progress=0 blocked=0 done=53 superseded=0 abandoned=0
+- specs: total=56 draft=2 in-progress=1 blocked=0 done=53 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
   - spec:pose-assessment-engine-precision (2026-08-07)
@@ -53,27 +53,27 @@ capacidade.
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:96e441203205 -->
+<!-- state:derived hash:4709d372b486 -->
 
-- ADRs: total=33
+- ADRs: total=37
+  - adr:2026-08-06-mcp-active-context-authorized-discovery.md
+  - adr:2026-08-03-immutable-release-ledger.md
+  - adr:2026-08-02-immutable-hierarchical-review-and-closeout-evidence.md
+  - adr:2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md
   - adr:2026-07-19-versioned-validation-result-contract.md
-  - adr:2026-07-19-verified-public-install-contract.md
-  - adr:2026-07-19-validation-runtime-guardrails-and-harness-delegation.md
-  - adr:2026-07-19-upgrade-compatibility-lab-populated-fixtures.md
-  - adr:2026-07-19-slsa-build-l2-provenance-claim.md
-- knowledge: total=1 ativo=1 expirado=0
+- knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:af850bdf339c -->
+<!-- state:derived hash:e89350fe98bf -->
 
-- último registro: task=validate-native outcome=pass (2026-08-07T16:57:22Z)
-- últimos 30 dias: total=89 outcome_ok=79 outcome_outro=10
-- reports revisados (.md): total=39
+- último registro: task=validate-native outcome=fail (2026-08-07T17:09:38Z)
+- últimos 30 dias: total=92 outcome_ok=81 outcome_outro=11
+- reports revisados (.md): total=40
   - report:2026-08-07-standard-validate-native.md
+  - report:2026-08-07-standard-closeout-pose-machinery-distribution-contract.md
   - report:2026-08-07-standard-first-release-evidence-confirmation.md
   - report:2026-08-07-standard-release-v0-18-2.md
   - report:2026-08-07-standard-closeout-pose-compat-gate-candidate-integrity.md
-  - report:2026-08-07-standard-release-v0-18-1.md
 
 ## Arquitetura
 <!-- state:derived hash:0a483847335f status:active -->

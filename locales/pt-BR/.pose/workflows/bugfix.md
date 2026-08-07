@@ -14,7 +14,7 @@ Corrigir a causa raiz com o menor impacto possível, cobertura de regressão e s
 ## Checklist de execução
 
 1. Reproduzir o problema e definir modo de falha observável.
-2. **Consultar `.pose/knowledge/`** por incidents/handoffs anteriores no mesmo módulo ou padrão de falha; reaproveitar diagnóstico já registrado.
+2. **Consultar `.pose/knowledge/`** por incidents/handoffs anteriores no mesmo módulo ou padrão de falha; reaproveitar diagnóstico já registrado e citá-lo na spec como `knowledge:<slug>` — `pose knowledge-usage` conta exatamente essa forma, então um artefato não citado aparece como não usado e expira no TTL.
 3. Isolar causa raiz e mapear impacto colateral.
 4. Definir correção mínima segura e plano de rollback.
 5. Implementar fix com alteração coesa e sem refactor paralelo.

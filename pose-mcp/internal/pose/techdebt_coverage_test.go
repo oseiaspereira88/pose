@@ -1,6 +1,9 @@
 package pose
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestDocumentCoversDebtRequiresMarkerEvidence(t *testing.T) {
 	item := TechDebtItem{
@@ -33,5 +36,34 @@ func TestDocumentCoversDebtRequiresMarkerEvidence(t *testing.T) {
 		if documentCoversDebt(document, item) {
 			t.Errorf("%s must not count as coverage: %q", name, document)
 		}
+	}
+}
+
+// A marker's id must come from the marker itself, so inserting another marker
+// earlier in the same file cannot make an existing citation point somewhere
+// else (spec pose-governance-gate-activation, R1).
+func TestTechDebtIDIsDerivedFromMarkerIdentityNotScanPosition(t *testing.T) {
+	first := techDebtID("internal/pose/state.go", "TODO", "// TODO: reconcile the ledger")
+	same := techDebtID("internal/pose/state.go", "TODO", "// TODO: reconcile the ledger")
+	if first != same {
+		t.Errorf("the same marker must keep the same id: %s != %s", first, same)
+	}
+
+	// Adding an unrelated marker anywhere in the scan leaves this one alone.
+	other := techDebtID("internal/pose/state.go", "FIXME", "// FIXME: drop the cache")
+	if other == first {
+		t.Error("different markers must not collide")
+	}
+
+	// The same text in another file is a different debt.
+	elsewhere := techDebtID("internal/cli/report.go", "TODO", "// TODO: reconcile the ledger")
+	if elsewhere == first {
+		t.Error("the same marker text in another file must be a different debt")
+	}
+
+	// Moving down the file is not a new debt: the line number is excluded on
+	// purpose, or an id would change whenever unrelated code is inserted above.
+	if !strings.HasPrefix(first, "DEBT-") || len(first) != len("DEBT-")+8 {
+		t.Errorf("unexpected id shape: %s", first)
 	}
 }

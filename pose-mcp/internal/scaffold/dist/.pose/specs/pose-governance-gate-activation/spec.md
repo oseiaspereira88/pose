@@ -1,13 +1,13 @@
 ---
 slug: pose-governance-gate-activation
-status: draft
+status: done
 created_at: 2026-08-07
-completed_at:
+completed_at: 2026-08-07
 supersedes:
 depends_on:
 priority: 3
 components: governance, assessment
-delivers:
+delivers: governance:gate-activation
 ---
 
 # Spec: Turn the tolerated governance warnings into gates that bite
@@ -85,8 +85,18 @@ defect for integration gaps and left debt ids untouched.
 - `.github/workflows/security.yml` — SARIF upload (R7).
 
 ### Artifacts
-<!-- Declared at closeout. -->
-- created: .pose/specs/pose-governance-gate-activation/spec.md
+- modified: .pose/specs/pose-governance-gate-activation/spec.md
+- modified: pose-mcp/internal/pose/techdebt.go
+- modified: pose-mcp/internal/pose/techdebt_coverage_test.go
+- modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/cli/trace_lint_test.go
+- modified: .github/workflows/governance-audit.yml
+- modified: .github/workflows/security.yml
+- modified: .pose/workflows/feature.md
+- modified: .pose/workflows/bugfix.md
+
+### Delivery targets
+- governance:gate-activation module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 - Debt marker ids change shape once (R1), the same one-time break
@@ -103,21 +113,22 @@ defect for integration gaps and left debt ids untouched.
 ## 4. Tasks
 
 ### Planning
-- [ ] Enumerate the ten pre-contract specs and decide trace-or-archive for each
-- [ ] Confirm which debt citations exist today, so R1's migration is bounded
+- [x] Enumerate the pre-contract specs and decide trace-or-archive for each —
+      there are eleven, not ten, and all eleven earned a trace
+- [x] Confirm which debt citations exist today, so R1's migration is bounded
 
 ### Implementation
-- [ ] R1: derive debt ids from file and marker identity, migrate citations
-- [ ] R2: cleanup then flip the legacy trace warning to an error
-- [ ] R3: record amendment baselines for active-roadmap specs
-- [ ] R4: adopt --fail-overdue in the quarterly audit
-- [ ] R5: cite knowledge refs from the workflows and skills
+- [x] R1: derive debt ids from file and marker identity
+- [x] R2: cleanup then flip the legacy trace warning to an error
+- [x] R3: record amendment baselines for the specs in execution
+- [x] R4: adopt --fail-overdue in the quarterly audit
+- [x] R5: cite knowledge refs from the workflows and skills, both locales
 - [ ] R6: review the first audit run and the first recurrence intervention
-- [ ] R7: adopt --sarif in the security surface
+- [x] R7: adopt --sarif in the security surface
 
 ### Validation
-- [ ] Each flipped gate demonstrated failing on a deliberately broken fixture
-- [ ] Run the mandatory checks
+- [x] Each flipped gate demonstrated failing on a deliberately broken fixture
+- [x] Run the mandatory checks
 
 ---
 
@@ -141,19 +152,85 @@ and asserting existing citations still resolve.
 - Scope: the repository under the newly strict gates
 - Expected: SUCCESS
 
+### Execution log
+- Date: 2026-08-07
+- Environment: linux/amd64, Go 1.26.5, pose 0.18.2-dev.
+- Notes: the spec said ten pre-contract specs; there are eleven. It also assumed
+  they might be old enough that retrofitting a trace would be dishonest. They
+  are from 2026-07-18/21 — three weeks — and every one describes behaviour that
+  still exists, several of them confirmed against published artifacts earlier
+  today. So all eleven earned a real trace and none was archived.
+
+### Results summary
+- Successes: R1, R2, R3, R4, R5, R7, each with the gate demonstrated failing
+  where a gate was flipped
+- Failures: none
+- Deferred: R6 (calendar-bound)
+
 ### Requirement trace
-<!-- Filled at closeout. -->
+- R1 [satisfied] governance:gate-activation evidence:integration check:delivery-integration test:TestTechDebtIDIsDerivedFromMarkerIdentityNotScanPosition — debt ids now derive from file, marker and line text; `DEBT-001` became `DEBT-05b998d4` and no longer moves when a marker is added earlier in the scan
+- R2 [satisfied] test:TestTraceDoneWithoutTraceSectionFails check:lint-spec-all — all eleven pre-contract specs gained a trace, then the warning became an error; proven by removing `pose-version-contract`'s trace and watching the lint fail, then restoring it
+- R3 [satisfied] check:amend-baseline — baselines recorded for the three specs currently in execution; the gate had zero baselines before, so it could only ever pass
+- R4 [satisfied] check:governance-audit — the quarterly audit now runs `followups --all --fail-overdue`; the repository passes it today (overdue=0), which is what earns the flip
+- R5 [satisfied] report:.pose/workflows/feature.md report:.pose/workflows/bugfix.md — both workflows and both skills now name the exact `knowledge:<slug>` form the counter recognises, in English and pt-BR
+- R6 [waived: calendar-bound, nothing to review yet] — the first quarterly audit is dated 2026-10-01 and the first recurrence intervention needs recurrence-check to flag something; neither can be reviewed before it happens
+- R7 [satisfied] check:security-workflow — `validate --tolerant --sarif` publishes deterministic validation findings to code scanning; inspected the generated SARIF first and confirmed it carries only repository-relative URIs and no absolute path
+
+### Findings
+
+**F1 — the gate count was wrong in the spec (severity: low).**
+Eleven specs lacked a trace, not ten. Whoever wrote the item counted from a
+stale reading. Worth noting because the same off-by-one would have left one spec
+silently exempt if the cleanup had been driven by the number instead of by the
+lint output.
+
+**F2 — one retrofitted trace could not honestly say "satisfied" (severity: medium).**
+`pose-cyclonedx-sbom` R1 requires an SBOM "with versions, hashes and known
+licenses". The published SBOMs carry versions and hashes but almost no licenses,
+which I confirmed earlier today. Its trace records `[waived]` with that reason
+rather than claiming satisfaction. `pose-release-signing` R3 is waived for the
+same kind of reason: CI signs and verifies, but no run has ever failed on an
+unsigned artifact, so the rejection path is asserted rather than demonstrated.
+Retrofitting traces surfaced two requirements that were never actually met.
 
 ### Known gaps
-- R6 is calendar-bound: the first quarterly audit is dated 2026-10-01 and cannot
-  be reviewed before it runs.
+- R6 is calendar-bound: the first quarterly audit is dated 2026-10-01.
+- Debt citations in `.pose/reviews/` still name `DEBT-001`. Reviews are
+  immutable by contract, so they were not rewritten; the id changed shape once,
+  exactly as `gap_id` did, and the changelog says so.
 
 ---
 
 ## 7. Final Report
 
-<!-- Filled at closeout. -->
+### Delivered scope
+Six of seven gates activated. Debt ids are content-derived, so a citation cannot
+retarget. Eleven pre-contract specs gained real traces and the legacy warning is
+now an error. Amendment baselines exist for the first time. The quarterly audit
+can fail on overdue follow-ups. Both workflows and both skills, in both locales,
+name the citation form the counter actually recognises. Validation findings
+reach code scanning as SARIF.
+
+### Files and modules changed
+- pose-mcp/internal/pose/techdebt.go and its test
+- pose-mcp/internal/cli/lintspec.go and trace_lint_test.go
+- eleven pre-contract specs (requirement traces)
+- .github/workflows/governance-audit.yml, .github/workflows/security.yml
+- .pose/workflows/{feature,bugfix}.md and .agents/skills/pose-{feature,bugfix}, both locales
+
+### Validation executed
+- Command: `go -C pose-mcp test ./... -count=1`
+- Result: PASS
+
+### Residual risks
+- The retrofitted traces are as good as the evidence I could verify today. Where
+  I could not verify, they say waived and why — but a reader should treat a
+  three-week-old retrofit as weaker than a trace written at closeout.
+- R7 publishes to code scanning on every security run. If validation output ever
+  starts carrying user-supplied text, the SARIF inspection should be repeated.
 
 ### Follow-ups
 
-- [open] If R2's archaeology shows most of the ten pre-contract specs describe behaviour that no longer exists, prefer archiving them over retrofitting traces — a trace invented years later is evidence of nothing. (owner:@pose-maintainers crit:medium review:2026-10-23)
+- [done] R2's archaeology found the opposite of what was feared: the eleven specs are three weeks old and all describe live behaviour, so every one earned a real trace and none was archived. (owner:@pose-maintainers crit:medium review:2026-10-23)
+- [open] R6: review the first quarterly audit run (2026-10-01) and the first real recurrence intervention, then record both verdicts. Cannot be started earlier. (owner:@pose-maintainers crit:medium review:2026-10-08)
+- [open] F2: `pose-cyclonedx-sbom` R1 and `pose-release-signing` R3 are waived in their retrofitted traces because the behaviour was never actually delivered — licenses are absent from the SBOM and the signing rejection path has never fired. Decide whether to deliver them or amend the requirements. (owner:@pose-maintainers crit:medium review:2026-09-18)

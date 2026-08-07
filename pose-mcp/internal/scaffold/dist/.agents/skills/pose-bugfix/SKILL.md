@@ -19,7 +19,7 @@ capabilities: read, spec-write, validate
 ## Steps
 
 1. Reproduce the defect and record expected and actual observable output.
-2. Search `.pose/knowledge/` for earlier incidents and handoffs in the same module.
+2. Search `.pose/knowledge/` for earlier incidents and handoffs in the same module; cite each one used as `knowledge:<slug>` in the spec, the form `pose knowledge-usage` counts.
 3. Isolate root cause and map collateral impact.
 4. Implement the smallest cohesive fix without parallel refactoring.
 5. Add or update a regression test.

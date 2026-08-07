@@ -91,6 +91,13 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 - `pose lint-spec pose-mcp-catalog-conformance --ready-check` — SUCCESS.
 - `pose validate --strict --module pose-mcp --report` — SUCCESS (report retained under `.pose/reports/`).
 
+### Requirement trace
+- R1 [satisfied] check:mcp-catalog-conformance — the suite compares canonical tool IDs and input schemas against the golden contract and fails on divergence
+- R2 [satisfied] check:mcp-catalog-conformance — optional tools declare activation conditions and are tested in both enabled and disabled states
+- R3 [satisfied] check:mcp-catalog-conformance — documentation and registry metadata are checked against the same catalog; the compatibility gate reported PASS for v0.18.2
+
+---
+
 ## 7. Final Report
 
 ### Delivered scope

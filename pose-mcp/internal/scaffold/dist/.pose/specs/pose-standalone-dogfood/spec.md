@@ -91,6 +91,13 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 - `pose validate --strict --module pose-mcp --report` — SUCCESS (first governed evidence record in `.pose/reports/`).
 - `pose knowledge-check`, `pose followups --all`, `pose stats` — SUCCESS (audit command set proven locally before scheduling).
 
+### Requirement trace
+- R1 [satisfied] check:pose-check-strict — the structural gate enforces one owned spec per change and single active roadmap membership; it is green on this repository
+- R2 [satisfied] check:ci-workflow — CI retains structural, validation and history evidence from this standalone instance on every run
+- R3 [deferred-integration: spec:pose-governance-gate-activation] — the quarterly audit is scheduled for 2026-10-01 and has not run yet; reviewing its first output is R6 of the spec that owns this trace
+
+---
+
 ## 7. Final Report
 
 ### Delivered scope

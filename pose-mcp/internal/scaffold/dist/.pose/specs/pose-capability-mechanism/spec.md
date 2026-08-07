@@ -226,6 +226,18 @@ migrated artifact.
 
 ---
 
+### Requirement trace
+- R1 [satisfied] check:pose-check-strict — the versioned assessment artifact exists and validates in this repository
+- R2 [satisfied] check:capability-evidence test:TestCapabilityEvidenceTypedRefs — typed refs (`spec:`, `check:`, `report:`) are resolved and verified rather than accepted as prose
+- R3 [satisfied] check:assess-init — `pose assess init` scaffolds from the embedded template
+- R4 [satisfied] check:assess-snapshot — `pose assess snapshot` appends to the history ledger
+- R5 [satisfied] check:assess-diff — `pose assess diff` compares two snapshots, including `--json`
+- R6 [satisfied] check:assess-validate — bare `pose assess` validates schema and stable mechanism identity
+- R7 [satisfied] check:pose-check-strict — the strict structural gate runs the R6 validation; it is green on this repository
+- R8 [satisfied] report:docs-site/docs/capability-assessment.md — the published page carries the real mechanism content and builds under `mkdocs --strict`
+
+---
+
 ## 7. Final Report
 
 ### Escopo entregue

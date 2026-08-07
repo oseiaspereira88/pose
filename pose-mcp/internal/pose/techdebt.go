@@ -3,6 +3,8 @@ package pose
 import (
 	"bufio"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -242,7 +244,27 @@ func documentCoversDebt(document string, item TechDebtItem) bool {
 	return false
 }
 
-func scanAssessmentFileForDebt(file assessmentFile, counter *int) []TechDebtItem {
+// techDebtID derives a marker identifier from the marker's own identity — the
+// file it lives in, the marker keyword and the text of the line — so the same
+// marker keeps the same id across runs.
+//
+// The ids used to be positional (`DEBT-001`, `DEBT-002`, …), which meant adding
+// a marker earlier in the scan renumbered every later one: a spec, review or
+// follow-up citing `DEBT-014` silently came to mean a different marker. This is
+// the same defect pose-assessment-engine-precision fixed for integration gaps,
+// left behind on debt markers (spec pose-governance-gate-activation, R1).
+//
+// The line number is deliberately excluded: a marker that merely moves down the
+// file when unrelated code is inserted above it is still the same debt, and an
+// id that changed on every edit would be no more citable than a positional one.
+func techDebtID(relPath, marker, snippet string) string {
+	sum := sha256.Sum256([]byte(strings.ToLower(strings.TrimSpace(relPath)) + "\x00" +
+		strings.ToLower(strings.TrimSpace(marker)) + "\x00" +
+		strings.TrimSpace(snippet)))
+	return "DEBT-" + hex.EncodeToString(sum[:4])
+}
+
+func scanAssessmentFileForDebt(file assessmentFile) []TechDebtItem {
 	handle, err := os.Open(file.AbsPath)
 	if err != nil {
 		return nil
@@ -259,12 +281,11 @@ func scanAssessmentFileForDebt(file assessmentFile, counter *int) []TechDebtItem
 		trimmed := strings.TrimSpace(line)
 		for _, marker := range lex.markers(line) {
 			result = append(result, TechDebtItem{
-				ID: fmt.Sprintf("DEBT-%03d", *counter), Marker: marker,
+				ID: techDebtID(file.RelPath, marker, trimmed), Marker: marker,
 				File: file.RelPath, Line: lineNumber, Snippet: trimmed, Component: file.Component,
 				Coverage: "uncovered", Recommendation: "create_followup",
 				Link: fmt.Sprintf("file://%s#L%d", file.AbsPath, lineNumber),
 			})
-			*counter++
 		}
 	}
 	return result
@@ -277,12 +298,11 @@ func (s Store) AnalyzeTechDebt() (*TechDebtReportState, error) {
 		return nil, err
 	}
 	items := []TechDebtItem{}
-	counter := 1
 	for _, file := range files {
 		if !isDebtSourceExt(file.Ext) || isIntegrationTestFile(file.RelPath) {
 			continue
 		}
-		items = append(items, scanAssessmentFileForDebt(file, &counter)...)
+		items = append(items, scanAssessmentFileForDebt(file)...)
 	}
 	documents := s.debtCoverageDocuments()
 	componentCounts := make(map[string]int)
