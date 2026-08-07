@@ -94,7 +94,7 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 ### Requirement trace
 - R1 [satisfied] check:attestation-verify — every v0.18.2 archive and the checksum manifest ship a Sigstore bundle alongside them
 - R2 [satisfied] report:docs-site/docs/ci.md — the documented verification pins issuer and repository identity, and the verifier run exercises exactly that pinning
-- R3 [waived: the negative path has never been exercised on a real run] — release CI signs and verifies, but no run has yet failed on an unsigned artifact or an identity mismatch, so the gate's rejection behaviour is asserted rather than demonstrated. Tracked as the open snapshot-rehearsal follow-up on this spec
+- R3 [satisfied] check:verify-negative test:tests/release/verify-negative.sh — waived at retrofit because the rejection path had never fired; `pose-release-signing-rejection` now exercises it on every CI run against four deliberately broken artifact sets (missing bundle, missing SBOM, no archives, malformed SBOM), each of which must be rejected
 
 ---
 
@@ -114,6 +114,6 @@ artifacts; snapshot rehearsal path; ADR recorded.
 
 ### Follow-ups
 
-- [open] Run a workflow_dispatch snapshot rehearsal after merge and confirm sign + verify pass in the release environment. Still pending: dispatching the Release workflow was denied by the automation session; a maintainer has to run it. Tracked on `pose-first-release-evidence-confirmation`. (owner:@pose-maintainers crit:high review:2026-08-14)
+- [covered: pose-release-signing-rejection] The rejection path is now exercised on every CI run by tests/release/verify-negative.sh, and signing has run on four real releases. Original item: run a workflow_dispatch snapshot rehearsal after merge and confirm sign + verify pass in the release environment. Still pending: dispatching the Release workflow was denied by the automation session; a maintainer has to run it. Tracked on `pose-first-release-evidence-confirmation`. (owner:@pose-maintainers crit:high review:2026-08-14)
 - [covered: pose-slsa-provenance] Build provenance attestation on top of signatures.
 - [covered: pose-reproducible-release-verification] Single consumer command verifying signature, provenance, checksum and SBOM together.

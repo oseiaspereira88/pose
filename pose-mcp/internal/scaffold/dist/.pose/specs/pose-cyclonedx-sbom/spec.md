@@ -91,7 +91,7 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 - Real SBOM generation requires syft and executes in the release workflow; the first snapshot rehearsal produces and validates the inventories — no generation result is claimed here.
 
 ### Requirement trace
-- R1 [waived: licenses are not resolved] — the published SBOMs carry component versions and hashes, but 26 of 27 components have no license field and the replaced `mcp-enforce` module has no version. The requirement says "known licenses"; what ships is structurally valid CycloneDX 1.6 with no license inventory. Recorded as F5 on pose-first-release-evidence-confirmation
+- R1 [satisfied] check:sbom-license-coverage — waived at retrofit because 26 of 27 components carried no license; `pose-sbom-license-inventory` resolved that by reading the module cache the build populates, taking coverage to 24 of 27, with the remainder being the project's own modules and the binary, covered by the repository LICENSE
 - R2 [satisfied] check:sbom-inspection — each SBOM is published as `<archive>.cdx.json`, naming the artifact it describes, and is itself a signed provenance subject
 - R3 [satisfied] check:release-gate — the release workflow generates an SBOM per archive and fails when syft cannot produce one; schema validity confirmed by inspection of the published v0.18.2 SBOMs
 

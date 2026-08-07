@@ -240,9 +240,9 @@ assumed.
 
 ### Follow-ups
 
-- [open] F1+F2: repair `package-channels.yml` — give it a trigger that actually fires (the `workflow_run` pattern `verify-release.yml` uses) and fix `go run ./pose-mcp/cmd/pose` to `go -C pose-mcp run ./cmd/pose` — then re-run this confirmation and submit the first WinGet manifest. (owner:@pose-maintainers crit:high review:2026-08-21)
-- [open] F3: narrow `verify-release.yml`'s checkout so a `workflow_run` cannot execute an arbitrary `v*` ref in the base-repository context, or document why the read-only token makes it acceptable. (owner:@pose-maintainers crit:medium review:2026-09-04)
-- [open] F4: scope `contents: write` in `release.yml` to the publishing job instead of the workflow top level. (owner:@pose-maintainers crit:low review:2026-10-02)
-- [open] F5: decide whether the SBOM is meant to carry license data — if so, configure syft to resolve licenses and give NOTICE a dependency section; if not, stop implying a license inventory in the docs. (owner:@pose-maintainers crit:medium review:2026-09-18)
+- [spawned: pose-package-channel-delivery] F1+F2: repair `package-channels.yml` — give it a trigger that actually fires (the `workflow_run` pattern `verify-release.yml` uses) and fix `go run ./pose-mcp/cmd/pose` to `go -C pose-mcp run ./cmd/pose` — then re-run this confirmation and submit the first WinGet manifest. (owner:@pose-maintainers crit:high review:2026-08-21)
+- [spawned: pose-release-workflow-hardening] F3: narrow `verify-release.yml`'s checkout so a `workflow_run` cannot execute an arbitrary `v*` ref in the base-repository context, or document why the read-only token makes it acceptable. (owner:@pose-maintainers crit:medium review:2026-09-04)
+- [spawned: pose-release-workflow-hardening] F4: scope `contents: write` in `release.yml` to the publishing job instead of the workflow top level. (owner:@pose-maintainers crit:low review:2026-10-02)
+- [spawned: pose-sbom-license-inventory] F5: decide whether the SBOM is meant to carry license data — if so, configure syft to resolve licenses and give NOTICE a dependency section; if not, stop implying a license inventory in the docs. (owner:@pose-maintainers crit:medium review:2026-09-18)
 - [open] R3: dispatch the Release workflow manually to complete the signing rehearsal, then record sign+verify in this spec. (owner:@pose-maintainers crit:high review:2026-08-21)
 - [open] If any confirmation fails, decide whether the advertised guarantee should be softened in the docs until it is fixed — an unverified claim in README or docs-site is worse than an absent one. (owner:@pose-maintainers crit:medium review:2026-09-18)

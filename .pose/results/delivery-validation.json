@@ -1,21 +1,82 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-07T19:37:04Z",
+  "generated_at": "2026-08-07T20:25:50Z",
   "mode": "strict",
-  "module_filter": "pose-mcp",
-  "git_head": "38bb47af7e4438cd3b48f913c29e0490dfc1fae2",
+  "git_head": "04944422f016721e1574176956d397821dedc663",
   "matrix_sha256": "sha256:240ab3dcc57c6755173c4b8dcefb235b03db921705fe61019844a7074895d409",
-  "provenance_digest": "sha256:45a6d687f8ce9a4858caa2a2ce422f71c034ce8c3146dffb7bc65198708d3b45",
+  "provenance_digest": "sha256:b6cc839c9f299f3d492b86435ecbfed66723d7131f4f4946d7d6c6536924cb9b",
   "outcome": "pass",
   "counts": {
-    "executed": 4,
-    "passed": 4,
+    "executed": 8,
+    "passed": 8,
     "failed": 0,
     "optional_failed": 0,
     "errored": 0,
     "skipped": 0
   },
   "checks": [
+    {
+      "id": "examples/brownfield-kits/direct-adoption/fixture/service/go/test",
+      "module": "examples/brownfield-kits/direct-adoption/fixture/service",
+      "stack": "go",
+      "name": "test",
+      "program": "go",
+      "args": [
+        "test",
+        "./..."
+      ],
+      "severity": "required",
+      "evidence_class": "unit",
+      "outcome": "pass",
+      "duration_seconds": 0.022347579,
+      "output": "?   \twidget-service\t[no test files]\n"
+    },
+    {
+      "id": "examples/brownfield-kits/direct-adoption/fixture/service/go/vet",
+      "module": "examples/brownfield-kits/direct-adoption/fixture/service",
+      "stack": "go",
+      "name": "vet",
+      "program": "go",
+      "args": [
+        "vet",
+        "./..."
+      ],
+      "severity": "optional",
+      "evidence_class": "build",
+      "outcome": "pass",
+      "duration_seconds": 0.027293213
+    },
+    {
+      "id": "mcp-enforce/go/test",
+      "module": "mcp-enforce",
+      "stack": "go",
+      "name": "test",
+      "program": "go",
+      "args": [
+        "test",
+        "./..."
+      ],
+      "severity": "required",
+      "evidence_class": "unit",
+      "outcome": "pass",
+      "duration_seconds": 0.038225427,
+      "output": "ok  \tgithub.com/harne8/mcp-enforce\t(cached)\n?   \tgithub.com/harne8/mcp-enforce/cmd/sidecar\t[no test files]\nok  \tgithub.com/harne8/mcp-enforce/sidecar\t(cached)\n"
+    },
+    {
+      "id": "mcp-enforce/go/vet",
+      "module": "mcp-enforce",
+      "stack": "go",
+      "name": "vet",
+      "program": "go",
+      "args": [
+        "vet",
+        "./..."
+      ],
+      "severity": "optional",
+      "evidence_class": "build",
+      "outcome": "pass",
+      "duration_seconds": 0.039745495
+    },
     {
       "id": "pose-mcp/go/test",
       "module": "pose-mcp",
@@ -29,7 +90,7 @@
       "severity": "required",
       "evidence_class": "unit",
       "outcome": "pass",
-      "duration_seconds": 0.379182696,
+      "duration_seconds": 0.412611424,
       "output": "?   \tgithub.com/harne8/pose-mcp/cmd/pose\t[no test files]\n?   \tgithub.com/harne8/pose-mcp/internal/bootstrap\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/observability\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/scaffold\t(cached)\n?   \tgithub.com/harne8/pose-mcp/internal/scaffold/gen\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/version\t(cached)\n"
     },
     {
@@ -45,7 +106,7 @@
       "severity": "optional",
       "evidence_class": "build",
       "outcome": "pass",
-      "duration_seconds": 0.085919819
+      "duration_seconds": 0.080999899
     },
     {
       "id": "pose-mcp/go/delivery-integration",
@@ -65,7 +126,7 @@
       "severity": "required",
       "evidence_class": "integration",
       "outcome": "pass",
-      "duration_seconds": 0.405513159,
+      "duration_seconds": 0.43175232,
       "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.003s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.023s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.006s\n"
     },
     {
@@ -85,8 +146,8 @@
       "severity": "required",
       "evidence_class": "reachability",
       "outcome": "pass",
-      "duration_seconds": 0.407440728,
-      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.026s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.007s\n"
+      "duration_seconds": 0.438330286,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.023s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.007s\n"
     }
   ]
 }

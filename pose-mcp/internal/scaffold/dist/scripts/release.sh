@@ -22,8 +22,6 @@ if [[ "$TARGET_TAG" != v* ]]; then
   TARGET_TAG="v${TARGET_TAG}"
 fi
 
-VERSION_NUM="${TARGET_TAG#v}"
-
 if [[ ! "$TARGET_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
   echo "ERRO: versão inválida: $TARGET_TAG" >&2
   exit 2

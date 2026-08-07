@@ -173,6 +173,10 @@
       "to": "pose-mcp-protocol-completeness"
     },
     {
+      "from": "pose-package-channel-delivery",
+      "to": "pose-package-manager-distribution"
+    },
+    {
       "from": "pose-package-manager-distribution",
       "to": "pose-public-install-contract"
     },
@@ -233,6 +237,14 @@
       "to": "pose-version-contract"
     },
     {
+      "from": "pose-release-signing-rejection",
+      "to": "pose-release-signing"
+    },
+    {
+      "from": "pose-release-workflow-hardening",
+      "to": "pose-ossf-security-baseline"
+    },
+    {
       "from": "pose-reproducible-release-verification",
       "to": "pose-slsa-provenance"
     },
@@ -257,12 +269,20 @@
       "to": "pose-validation-runtime-guardrails"
     },
     {
+      "from": "pose-sbom-license-inventory",
+      "to": "pose-cyclonedx-sbom"
+    },
+    {
       "from": "pose-semantic-governance-assist",
       "to": "pose-recurrence-effectiveness"
     },
     {
       "from": "pose-semantic-governance-assist",
       "to": "pose-knowledge-consumption-traceability"
+    },
+    {
+      "from": "pose-shellcheck-ci-gate",
+      "to": "pose-verifier-extension-install-cwd"
     },
     {
       "from": "pose-slsa-provenance",
@@ -597,6 +617,14 @@
       "priority": 30,
       "status": "done"
     },
+    "pose-package-channel-delivery": {
+      "depends_on": [
+        "pose-package-manager-distribution"
+      ],
+      "path": ".pose/specs/pose-package-channel-delivery/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
     "pose-package-manager-distribution": {
       "depends_on": [
         "pose-public-install-contract",
@@ -675,6 +703,22 @@
       "priority": 6,
       "status": "done"
     },
+    "pose-release-signing-rejection": {
+      "depends_on": [
+        "pose-release-signing"
+      ],
+      "path": ".pose/specs/pose-release-signing-rejection/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
+    "pose-release-workflow-hardening": {
+      "depends_on": [
+        "pose-ossf-security-baseline"
+      ],
+      "path": ".pose/specs/pose-release-workflow-hardening/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
     "pose-reproducible-release-verification": {
       "depends_on": [
         "pose-slsa-provenance",
@@ -702,6 +746,14 @@
       "priority": 22,
       "status": "done"
     },
+    "pose-sbom-license-inventory": {
+      "depends_on": [
+        "pose-cyclonedx-sbom"
+      ],
+      "path": ".pose/specs/pose-sbom-license-inventory/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
     "pose-semantic-governance-assist": {
       "depends_on": [
         "pose-recurrence-effectiveness",
@@ -709,6 +761,14 @@
       ],
       "path": ".pose/specs/pose-semantic-governance-assist/spec.md",
       "priority": 32,
+      "status": "done"
+    },
+    "pose-shellcheck-ci-gate": {
+      "depends_on": [
+        "pose-verifier-extension-install-cwd"
+      ],
+      "path": ".pose/specs/pose-shellcheck-ci-gate/spec.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-slsa-provenance": {

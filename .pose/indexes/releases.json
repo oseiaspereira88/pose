@@ -1,5 +1,46 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-package-channel-delivery",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The Homebrew formula and WinGet manifests are now published as release assets,\nso the install command in the documentation resolves. It pointed at\n`releases/download/vX.Y.Z/pose.rb`, which had never been published — the\nmanifests were only retained as a CI artifact.\n\nThe clean-host verification for those channels also runs for the first time. It\ntriggered on `release: published`, which never fires for a release created by\nthe workflow's own token, and it invoked the Go module from the repository root\ninstead of `pose-mcp/`. Both are fixed.",
+      "path": "pose-package-channel-delivery.md",
+      "digest": "sha256:51dcaca804776e91a889d86fc9acc1c5ea9cdff78c02d2f85177ea577ff0ee13"
+    },
+    {
+      "spec": "pose-release-signing-rejection",
+      "category": "changed",
+      "breaking": false,
+      "body": "The artifact-identity gate's rejection path is now exercised on every CI run.\nIt had always contained the logic — an unsigned artifact, a missing SBOM or an\nidentity mismatch fails the release — but no run had ever triggered it, so the\nbehaviour was asserted rather than demonstrated. Four deliberately broken\nartifact sets now prove it.",
+      "path": "pose-release-signing-rejection.md",
+      "digest": "sha256:40fe8a5ceb5b390dba354d5ef69bdaa9ca16d11800641d4948950e9584766a32"
+    },
+    {
+      "spec": "pose-release-workflow-hardening",
+      "category": "security",
+      "breaking": false,
+      "body": "Release workflows tightened ahead of the repository going public. The\nindependent verification no longer checks out an event-supplied ref: it accepts\nonly a release tag and refuses anything else before executing repository\ncontent. The release workflow grants `contents: read` at the top level, with the\nwrite scopes it needs declared on the publishing job.",
+      "path": "pose-release-workflow-hardening.md",
+      "digest": "sha256:cf1a1d4a60dfff2ce90eaa79af27bca4facbfc6eb0d0c298029430bec0bd5149"
+    },
+    {
+      "spec": "pose-sbom-license-inventory",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Published CycloneDX SBOMs now carry component licenses. Scanning the packaged\nbinary recovers module names and versions but no license texts, so releases\nshipped an SBOM with a license for one component out of 27 while the\ndocumentation advertised an SBOM'd release. Reading the module cache the build\nalready populates takes that to 24 of 27; the remaining three are the project's\nown modules and the binary, covered by the repository LICENSE.",
+      "path": "pose-sbom-license-inventory.md",
+      "digest": "sha256:0d6bfc96dcfbfd201d72d8ad7bb0f543a5ad478d22b1502cff70a69ec4978f8e"
+    },
+    {
+      "spec": "pose-shellcheck-ci-gate",
+      "category": "changed",
+      "breaking": false,
+      "body": "CI now runs shellcheck over every shipped or executed shell script, including\n`tests/release/` and `scripts/`, and fails on findings at warning severity. It\npreviously covered only `install.sh` and the installer E2E — leaving out exactly\nthe scripts that run during a release, where three consecutive cuts failed on\nunbound-variable defects that this check reports.",
+      "path": "pose-shellcheck-ci-gate.md",
+      "digest": "sha256:f1c4d8a38682d19bd466df6bb5e43d62e53c09d1d8d9eb05fb290e8682545741"
+    }
+  ],
   "releases": [
     {
       "version": "v0.20.3",

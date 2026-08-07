@@ -163,5 +163,5 @@ script has no unassigned reads left.
 
 ### Follow-ups
 
-- [open] Add shellcheck to CI over tests/release/*.sh and tests/install/*.sh: it catches unbound variables that `bash -n` cannot, which is precisely how this reached a release. (owner:@pose-maintainers crit:medium review:2026-09-18)
+- [spawned: pose-shellcheck-ci-gate] Add shellcheck to CI over tests/release/*.sh and tests/install/*.sh: it catches unbound variables that `bash -n` cannot, which is precisely how this reached a release. (owner:@pose-maintainers crit:medium review:2026-09-18)
 - [open] Decide whether verify-release.yml should verify published artifacts with the verifier from the tag or from the default branch. The tag-based checkout made a fixable verifier defect permanent for v0.20.1. (owner:@pose-maintainers crit:medium review:2026-10-02)
