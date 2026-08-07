@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "pose-governance-gate-activation",
+      "category": "changed",
+      "breaking": true,
+      "body": "Technical-debt marker ids now derive from the marker itself — its file, keyword\nand line text — instead of its position in the scan. Adding a marker earlier in\na file no longer renumbers every later one, so a spec or review citing an id\nkeeps pointing at the same debt. Existing ids change shape once, exactly as\n`gap_id` did in 0.18.0.\n\nThree governance gates that could never fail now can. A `done` spec with\nrequirements and no `### Requirement trace` section is an error rather than a\nwarning — every shipped spec was given a trace first. The quarterly governance\naudit runs `followups --all --fail-overdue`, so an overdue follow-up fails it.\nDeterministic validation results are published to GitHub code scanning as SARIF,\nnext to the CodeQL findings.\n\nThe feature and bugfix workflows and skills now name the exact `knowledge:\u003cslug\u003e`\ncitation form that `pose knowledge-usage` counts; prose naming a file was never\ncounted, so consulted knowledge could look unused and expire on TTL.",
+      "path": "pose-governance-gate-activation.md",
+      "digest": "sha256:7ae018682a6a4cccfa8e78dda56a960a1fc840bbfb1934545e7c10e254b5ecc6"
+    },
+    {
       "spec": "pose-machinery-distribution-contract",
       "category": "changed",
       "breaking": false,
