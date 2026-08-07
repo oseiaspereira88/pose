@@ -81,6 +81,10 @@
       "to": "pose-otel-observability"
     },
     {
+      "from": "pose-installer-local-binary-precedence",
+      "to": "pose-public-install-contract"
+    },
+    {
       "from": "pose-knowledge-consumption-traceability",
       "to": "pose-requirement-evidence-traceability"
     },
@@ -390,6 +394,14 @@
       "depends_on": null,
       "path": ".pose/specs/pose-hierarchical-review-closeout/spec.md",
       "priority": 0,
+      "status": "done"
+    },
+    "pose-installer-local-binary-precedence": {
+      "depends_on": [
+        "pose-public-install-contract"
+      ],
+      "path": ".pose/specs/pose-installer-local-binary-precedence/spec.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-knowledge-consumption-traceability": {

@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-public-install-contract
 priority: 1
 components: installer
-delivers:
+delivers: governance:installer-bootstrap-integrity
 ---
 
 # Spec: Installer prefers the binary beside it and invokes the CLI it has
@@ -71,8 +71,14 @@ recorded `failed`.
 - `tests/install/run.sh` — regression proving the bundle path is hermetic.
 
 ### Artifacts
+- created: .pose/specs/pose-installer-local-binary-precedence/spec.md
 - modified: install.sh
 - modified: tests/install/run.sh
+- modified: pose-mcp/internal/scaffold/dist/install.sh
+- created: pose-mcp/internal/scaffold/dist/.pose/specs/pose-installer-local-binary-precedence/spec.md
+
+### Delivery targets
+- governance:installer-bootstrap-integrity module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 - None. The installer is the only caller corrected.
@@ -140,7 +146,7 @@ means the release workflow can publish.
 ### Requirement trace
 - R1 [satisfied] check:installer-e2e-offline-bundle test:tests/install/run.sh — the bundle scenario installs with a failing `curl` stub first on PATH; reverting install.sh makes it fail with "installer reached the network"
 - R2 [satisfied] check:installer-e2e test:tests/install/run.sh — the download branch is untouched and still covered by the pre-existing scenarios
-- R3 [satisfied] check:installer-e2e test:tests/install/run.sh — the final gate now fails the script instead of printing a usage banner
+- R3 [satisfied] governance:installer-bootstrap-integrity evidence:integration check:delivery-integration test:tests/install/run.sh — the final gate now fails the script instead of printing a usage banner
 
 ### Known gaps
 - The download branch itself remains unexercised offline: no scenario asserts

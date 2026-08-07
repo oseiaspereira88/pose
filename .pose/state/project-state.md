@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-07T04:14:32Z
-baseline_commit: 76857a998f48c72c3ef057cb82b87a55afd89c75
+generated_at: 2026-08-07T04:20:07Z
+baseline_commit: 964086bd9b152d560e7e681941676d77b5b1293f
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=1 ativo=1 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:996e1ca26bbb -->
+<!-- state:derived hash:d3bdae5a6daa -->
 
-- último registro: task=validate-native outcome=pass (2026-08-07T04:13:16Z)
-- últimos 30 dias: total=73 outcome_ok=67 outcome_outro=6
-- reports revisados (.md): total=34
+- último registro: task=closeout-pose-installer-local-binary-precedence outcome=fail (2026-08-07T04:18:46Z)
+- últimos 30 dias: total=75 outcome_ok=68 outcome_outro=7
+- reports revisados (.md): total=35
+  - report:2026-08-07-standard-closeout-pose-installer-local-binary-precedence.md
   - report:2026-08-07-standard-validate-native.md
   - report:2026-08-07-standard-release-v0-18-0.md
   - report:2026-08-07-standard-closeout-pose-release-lifecycle-closure.md
   - report:2026-08-07-standard-closeout-pose-delivery-surface-assurance.md
-  - report:2026-08-07-standard-test-plan-baseline-pose-mcp-active-context.md
 
 ## Arquitetura
 <!-- state:derived hash:0a483847335f status:active -->
