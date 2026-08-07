@@ -16,9 +16,9 @@ jobs:
     permissions: { contents: write, id-token: write, attestations: write }
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with: { fetch-depth: 0 }
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with: { go-version: "1.26.5", cache: true, cache-dependency-path: pose-mcp/go.mod }
       - name: Tests + installer E2E
         run: |
@@ -28,7 +28,7 @@ jobs:
         run: bash tests/release/compat.sh "${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}"
       - name: Retain compatibility report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pose-compatibility-report
           path: compatibility-report.md
@@ -102,7 +102,7 @@ jobs:
             --out ../package-manifests
       - name: Retain package-manager manifests
         if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pose-package-manifests
           path: package-manifests
@@ -145,7 +145,7 @@ jobs:
           gh release upload "$GITHUB_REF_NAME" publication-evidence.json
       - name: Retain publication evidence for reconciliation
         if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pose-publication-evidence
           path: publication-evidence.json
