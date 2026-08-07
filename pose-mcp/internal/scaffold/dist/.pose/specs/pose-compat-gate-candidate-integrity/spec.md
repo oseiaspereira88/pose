@@ -82,7 +82,6 @@ upgrade.
 - modified: pose-mcp/internal/cli/managed_docs_test.go
 - modified: pose-mcp/internal/cli/install.go
 - created: pose-mcp/internal/scaffold/dist/.pose/specs/pose-compat-gate-candidate-integrity/spec.md
-- modified: pose-mcp/internal/scaffold/dist/compatibility.json
 
 ### Delivery targets
 - governance:compat-gate-candidate-integrity module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go

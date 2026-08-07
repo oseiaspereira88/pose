@@ -1,9 +1,18 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-compat-gate-candidate-integrity",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose upgrade` no longer discards manual text a repository wrote outside a\nsection of its own: when refreshing POSE.md or AGENTS.md would drop such a line,\nthe pre-merge file is kept as `\u003cdoc\u003e.pose-backup` and the installer says so.\nThe release compatibility gate also stopped replacing the candidate binary with\nthe last published release while running, which had left most of its upgrade\npairs validating the previous version instead of the one being cut. The\nsupported-upgrade window now starts at 0.18.1; earlier releases stay published\nbut are no longer exercised.",
+      "path": "pose-compat-gate-candidate-integrity.md",
+      "digest": "sha256:9e9e21570042668eda6b50b0df0063adfda4556586b4f180f17c7853a3f723a5"
+    }
+  ],
   "releases": [
     {
       "version": "v0.18.1",
-      "state": "prepared",
+      "state": "failed",
       "manifest": {
         "schema_version": 1,
         "version": "v0.18.1",
@@ -34,7 +43,44 @@
           "value": "v0.18.1"
         }
       },
-      "events": [],
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v0.18.1",
+          "state": "tagged",
+          "recorded_at": "2026-08-07T04:28:04Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v0.18.1",
+            "tag": "v0.18.1",
+            "commit": "b5fc625a5395c6ced1cbdcf98e82be95907f9973",
+            "published_at": "",
+            "url": "",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/31147297512"
+          },
+          "evidence_digest": "sha256:3b6addbc558e1917d2995f97509561f97f286b701f8337070e2e35a8dbd830c4"
+        },
+        {
+          "schema_version": 1,
+          "version": "v0.18.1",
+          "state": "failed",
+          "recorded_at": "2026-08-07T04:28:04Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v0.18.1",
+            "tag": "v0.18.1",
+            "commit": "b5fc625a5395c6ced1cbdcf98e82be95907f9973",
+            "published_at": "",
+            "url": "",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/31147297512"
+          },
+          "evidence_digest": "sha256:3b6addbc558e1917d2995f97509561f97f286b701f8337070e2e35a8dbd830c4"
+        }
+      ],
       "gaps": []
     },
     {

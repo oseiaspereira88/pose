@@ -25,6 +25,10 @@
       "to": "pose-structured-validation-results"
     },
     {
+      "from": "pose-compat-gate-candidate-integrity",
+      "to": "pose-installer-local-binary-precedence"
+    },
+    {
       "from": "pose-cross-repo-portfolio",
       "to": "pose-mcp-project-scope-contract"
     },
@@ -305,6 +309,14 @@
       "depends_on": null,
       "path": ".pose/specs/pose-command-reference-parity/spec.md",
       "priority": 2,
+      "status": "done"
+    },
+    "pose-compat-gate-candidate-integrity": {
+      "depends_on": [
+        "pose-installer-local-binary-precedence"
+      ],
+      "path": ".pose/specs/pose-compat-gate-candidate-integrity/spec.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-cross-repo-portfolio": {

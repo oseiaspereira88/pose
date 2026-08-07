@@ -14,11 +14,15 @@
 - _Not provided_
 
 ## Files Changed
-- pose/reports/2026-08-07-standard-validate-native.md
-- .pose/reports/history/standard-validate-native.jsonl
+- pose/indexes/delivery-integrity.json
+- .pose/indexes/releases.json
+- .pose/indexes/spec-graph.json
 - .pose/results/delivery-validation.json
 - pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
-- pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json
+- pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
+- pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
+- .pose/reports/2026-08-07-standard-closeout-pose-compat-gate-candidate-integrity.md
+- .pose/reports/history/standard-closeout-pose-compat-gate-candidate-integrity.jsonl
 
 ## Validation Commands
 - _Fill manually_
@@ -27,14 +31,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-07T04:21:46Z
+- Generated at (UTC): 2026-08-07T04:37:21Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 34
+- Sequence for task/spec: 35
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-07T04:21:26Z
+- Previous execution: 2026-08-07T04:21:46Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
