@@ -97,8 +97,8 @@ else
       "$prior_bin" new-knowledge handoff upgrade-lab-fixture --owner @pose-maintainers >/dev/null
       printf '\n<!-- upgrade-lab: user customization preserved across upgrade -->\n' >> AGENTS.md
     ) || return 1
-    local before after
-    before="$($sha_cmd "$fixture/AGENTS.md" | awk '{print $1}')"
+    local marker
+    marker="upgrade-lab: user customization preserved across upgrade"
     # --no-self is mandatory here: a bare `upgrade` self-updates to the latest
     # *published* release, which would overwrite the candidate binary mid-gate
     # and leave every later pair validating the previous release instead of the
@@ -108,8 +108,15 @@ else
     local reapply
     reapply="$(cd "$fixture" && "$candidate" upgrade --no-self)"
     [[ "$reapply" == *"already at schema"* ]] || return 1
-    after="$($sha_cmd "$fixture/AGENTS.md" | awk '{print $1}')"
-    [[ "$before" == "$after" ]] || return 1
+    # The upgrade is allowed — required, since pose-manual-distribution-merge —
+    # to refresh engine-owned manual content. What it may never do is lose what
+    # the instance wrote: that survives in the manual, or in the .pose-backup the
+    # merge writes when it cannot keep it in place. Asserting a byte-identical
+    # AGENTS.md contradicted the upgrade contract and blocked every pair whose
+    # manual legitimately changed (spec pose-compat-gate-manual-refresh-assertion).
+    grep -q "$marker" "$fixture/AGENTS.md" ||
+      grep -q "$marker" "$fixture/AGENTS.md.pose-backup" 2>/dev/null ||
+      return 1
     [[ -f "$fixture/.pose/specs/upgrade-lab-fixture/spec.md" ]] || return 1
     compgen -G "$fixture/.pose/knowledge/*upgrade-lab-fixture*.md" >/dev/null || return 1
   }

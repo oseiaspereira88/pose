@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-07T17:24:35Z
-baseline_commit: adc74a086ca822f276089c95cd94337e56b64ff0
+generated_at: 2026-08-07T18:58:36Z
+baseline_commit: d9ee1375c6e54f6fc365528faf573264fc389d63
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:4dda840b3c2a -->
+<!-- state:derived hash:cc34a0613ae1 -->
 
-- specs: total=56 draft=2 in-progress=1 blocked=0 done=53 superseded=0 abandoned=0
+- specs: total=57 draft=0 in-progress=0 blocked=0 done=57 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-governance-gate-activation (2026-08-07)
+  - spec:pose-release-cycle-debt-closure (2026-08-07)
   - spec:pose-assessment-engine-precision (2026-08-07)
+  - spec:pose-extension-reference-publication (2026-08-07)
   - spec:pose-manual-distribution-merge (2026-08-07)
-  - spec:pose-machinery-distribution-contract (2026-08-07)
-  - spec:pose-command-reference-parity (2026-08-07)
-  - spec:pose-compat-gate-candidate-integrity (2026-08-07)
-  - ... e mais 48 (ver `pose_list_specs status:done`)
+  - ... e mais 52 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:3f09c99fb80b -->
+<!-- state:derived hash:4dbf2e3b8031 -->
 
-- abertos: 26
-- por criticidade: high=3 medium=9 low=14 sem-classificação=0
+- abertos: 30
+- por criticidade: high=4 medium=10 low=16 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:e89350fe98bf -->
+<!-- state:derived hash:155544471498 -->
 
-- último registro: task=validate-native outcome=fail (2026-08-07T17:09:38Z)
-- últimos 30 dias: total=92 outcome_ok=81 outcome_outro=11
-- reports revisados (.md): total=40
+- último registro: task=validate-native outcome=fail (2026-08-07T18:43:29Z)
+- últimos 30 dias: total=101 outcome_ok=88 outcome_outro=13
+- reports revisados (.md): total=44
   - report:2026-08-07-standard-validate-native.md
-  - report:2026-08-07-standard-closeout-pose-machinery-distribution-contract.md
-  - report:2026-08-07-standard-first-release-evidence-confirmation.md
-  - report:2026-08-07-standard-release-v0-18-2.md
-  - report:2026-08-07-standard-closeout-pose-compat-gate-candidate-integrity.md
+  - report:2026-08-07-standard-closeout-pose-extension-reference-publication.md
+  - report:2026-08-07-standard-release-v0-19-0.md
+  - report:2026-08-07-standard-closeout-pose-release-cycle-debt-closure.md
+  - report:2026-08-07-standard-closeout-pose-governance-gate-activation.md
 
 ## Arquitetura
 <!-- state:derived hash:0a483847335f status:active -->
