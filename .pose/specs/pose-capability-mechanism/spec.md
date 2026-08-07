@@ -267,6 +267,4 @@ in Intent and stay tracked below.
   `pose assess diff --against <project-id>` reusing the portfolio-projection
   authorization allowlist — delivered as the second increment (32 tools in
   the golden catalog; unauthorized roots refuse nominally, tested).
-- [open] Reassessment protocol automation (triggers on spec closeout) is
-  the platform spec `pose-capability-assessment-triggers`, out of this
-  repository until the hooks contract lands.
+- [open] Reassessment protocol automation (triggers on spec closeout) is the platform spec `pose-capability-assessment-triggers`, out of this repository until the hooks contract lands. (owner:@pose-maintainers crit:low review:2026-11-20)
