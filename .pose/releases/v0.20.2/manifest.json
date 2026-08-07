@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v0.20.2",
+  "previous_version": "v0.20.1",
+  "prepared_at": "2026-08-07T19:26:16Z",
+  "specs": [
+    "pose-verifier-assets-variable-fix"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-verifier-assets-variable-fix",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The independent release verification no longer aborts before it checks anything.\nThe consumer-side extension check read `$dir`, a variable that script does not\ndefine — `$assets` is its name there — so the whole verification failed under\n`set -u`. v0.20.1 published correctly but could not be verified as a result.",
+      "path": "pose-verifier-assets-variable-fix.md",
+      "digest": "sha256:6393735f4064fc7ab8a790157402365bef0d2aa580211ab5593f368a63da983e"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:a8ec25a7fd9677c5fd6284858cc363485f34583ec2f1941537ff904c77c4b68a",
+  "release_input_digest": "sha256:dba627faa67a6cbb58038058f844e80af498f53f55932859454f337ee36b276b",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v0.20.2"
+  }
+}
