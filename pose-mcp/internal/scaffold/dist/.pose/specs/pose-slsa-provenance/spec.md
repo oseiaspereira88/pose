@@ -107,5 +107,5 @@ stated; consumer verification command pinned to repo + signer workflow in
 
 ### Follow-ups
 
-- [spawned: pose-first-release-evidence-confirmation] After the first tagged release, confirm `gh attestation verify` passes for all six archives and checksums.txt, and record the evidence. (owner:@pose-maintainers crit:high review:2026-09-18)
+- [done] After the first tagged release, confirm `gh attestation verify` passes for all six archives and checksums.txt, and record the evidence. Confirmed on v0.18.2: all six archives and checksums.txt verify against signer workflow `release.yml@refs/tags/v0.18.2` (SLSA v1 predicate, source digest f62c014). Evidence in `pose-first-release-evidence-confirmation`. (owner:@pose-maintainers crit:high review:2026-09-18)
 - [covered: pose-reproducible-release-verification] Consumer-side verification of provenance together with all other layers.

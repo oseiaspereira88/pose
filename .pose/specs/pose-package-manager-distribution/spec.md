@@ -106,6 +106,6 @@ Executed on 2026-07-19 with a development build (`pose 0.9.0-dev`):
 
 ### Follow-ups
 
-- [spawned: pose-first-release-evidence-confirmation] Confirm the first real `package-channels.yml` clean-host run on the first tagged release (brew/winget unavailable in this sandbox). (owner:@pose-maintainers crit:medium review:2026-08-19)
-- [spawned: pose-first-release-evidence-confirmation] Submit the first generated WinGet manifest to `winget-pkgs` and record the observed publication lag in `package-channels.md`. (owner:@pose-maintainers crit:low review:2026-08-19)
+- [open] Confirm the first real `package-channels.yml` clean-host run on the first tagged release (brew/winget unavailable in this sandbox). Attempted on v0.18.2 and found the gate has never run (trigger never fires) and fails immediately when dispatched (`go run` from a non-module root). Tracked as F1+F2 on `pose-first-release-evidence-confirmation`. (owner:@pose-maintainers crit:medium review:2026-08-19)
+- [open] Submit the first generated WinGet manifest to `winget-pkgs` and record the observed publication lag in `package-channels.md`. Blocked by F1+F2: the manifest generator has never produced a manifest, so there is nothing to submit. (owner:@pose-maintainers crit:low review:2026-08-19)
 - [open] Revisit Homebrew tap ownership once install volume justifies the maintenance cost over the formula-URL install. (owner:@pose-maintainers crit:low review:2026-10-19)

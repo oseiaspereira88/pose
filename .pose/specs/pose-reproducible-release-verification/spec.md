@@ -112,5 +112,5 @@ consumer procedure; ADR.
 
 ### Follow-ups
 
-- [spawned: pose-first-release-evidence-confirmation] Review the first Verify release run on the next published release: confirm all layers pass and record the reproducibility result (MATCH or explained delta). (owner:@pose-maintainers crit:high review:2026-09-18)
+- [done] Review the first Verify release run on the next published release: confirm all layers pass and record the reproducibility result (MATCH or explained delta). Reviewed run 31148431844 on v0.18.2: six layers PASS and a bit-identical rebuild (sha256 7b5e82da…). Recorded as MATCH. (owner:@pose-maintainers crit:high review:2026-09-18)
 - [covered: pose-upgrade-compatibility-lab] Broaden executed-target coverage (emulation/VMs) beyond the verifier's native platform.

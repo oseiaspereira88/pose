@@ -108,5 +108,5 @@ consumer guidance.
 
 ### Follow-ups
 
-- [spawned: pose-first-release-evidence-confirmation] Inspect the first snapshot rehearsal's SBOMs: confirm syft resolves the replaced `mcp-enforce` module path and review detected licenses against NOTICE. (owner:@pose-maintainers crit:medium review:2026-08-14)
+- [done] Inspect the first snapshot rehearsal's SBOMs: confirm syft resolves the replaced `mcp-enforce` module path and review detected licenses against NOTICE. Inspected the published v0.18.2 SBOMs: syft resolves the `mcp-enforce` replace path but not its version, and 26 of 27 components carry no license, so there is nothing to reconcile against NOTICE. Recorded as F5. (owner:@pose-maintainers crit:medium review:2026-08-14)
 - [covered: pose-slsa-provenance] Attest SBOM subjects in build provenance.
