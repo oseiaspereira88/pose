@@ -93,12 +93,12 @@ gate "install → doctor --json → check --strict on a fresh repository" \
 # of this path substituted a fake for cosign, so the chain had never met a real
 # signature (spec pose-extension-reference-publication, R2 and R3).
 ext_pkg="$work/pose-rule-kubernetes"
-if [[ -f "$dir/pose-rule-kubernetes.tar.gz" && -f "$dir/pose-rule-kubernetes.sigstore.json" ]]; then
+if [[ -f "$assets/pose-rule-kubernetes.tar.gz" && -f "$assets/pose-rule-kubernetes.sigstore.json" ]]; then
   note ""
   note "## Reference extension (consumer-side)"
   mkdir -p "$work/ext"
-  tar -C "$work/ext" -xzf "$dir/pose-rule-kubernetes.tar.gz"
-  cp "$dir/pose-rule-kubernetes.sigstore.json" "$work/ext/pose-rule-kubernetes.sigstore.json"
+  tar -C "$work/ext" -xzf "$assets/pose-rule-kubernetes.tar.gz"
+  cp "$assets/pose-rule-kubernetes.sigstore.json" "$work/ext/pose-rule-kubernetes.sigstore.json"
   ext_pkg="$work/ext/pose-rule-kubernetes"
 
   gate "reference extension verifies against its published signature" \
