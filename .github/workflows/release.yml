@@ -107,6 +107,24 @@ jobs:
           name: pose-package-manifests
           path: package-manifests
           retention-days: 400
+      - name: Publish package-manager manifests as release assets
+        # docs-site/docs/package-channels.md tells users to
+        # `brew install --formula .../releases/download/vX.Y.Z/pose.rb`, so the
+        # formula has to be a release asset. Until now the manifests were only
+        # retained as a CI artifact and that URL 404'd
+        # (spec pose-package-channel-delivery). Uploaded after goreleaser
+        # because they are derived from the checksums it produces.
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release upload "$GITHUB_REF_NAME" \
+            package-manifests/homebrew/pose.rb \
+            package-manifests/winget/Harne8.Pose.yaml \
+            package-manifests/winget/Harne8.Pose.installer.yaml \
+            package-manifests/winget/Harne8.Pose.locale.en-US.yaml \
+            --clobber
       - name: Emit provider-neutral publication evidence
         if: startsWith(github.ref, 'refs/tags/')
         env:

@@ -5,8 +5,15 @@
 # job, no local build shortcuts — then exercises the installed binary.
 name: Package channels
 on:
+  # `release: published` never fires for a release created by the workflow's own
+  # GITHUB_TOKEN, so this gate had zero runs across every release the project
+  # had cut. workflow_run is the trigger that actually fires, the same one
+  # verify-release.yml relies on (spec pose-package-channel-delivery).
   release:
     types: [published]
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       tag:
@@ -15,6 +22,7 @@ on:
 permissions: { contents: read }
 jobs:
   package-channels:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v'))
     strategy:
       fail-fast: false
       matrix:
@@ -23,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          ref: ${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}
       - uses: actions/setup-go@v5
         with:
           go-version: "1.26.5"
@@ -31,15 +39,18 @@ jobs:
       - name: Download release checksums
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release download "${{ github.event.release.tag_name || inputs.tag }}" --repo "${{ github.repository }}" --pattern checksums.txt
+        run: gh release download "${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}" --repo "${{ github.repository }}" --pattern checksums.txt
       - name: Generate package-manager manifests
         shell: bash
         run: |
-          TAG="${{ github.event.release.tag_name || inputs.tag }}"
-          go run ./pose-mcp/cmd/pose release-package-manifests \
+          TAG="${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}"
+          # The Go module lives in pose-mcp/, not at the repository root: the
+          # previous form failed in 26s on both runners with "cannot find main
+          # module" the one time this gate was ever dispatched.
+          go -C pose-mcp run ./cmd/pose release-package-manifests \
             --version "${TAG#v}" \
-            --checksums checksums.txt \
-            --out package-manifests
+            --checksums ../checksums.txt \
+            --out ../package-manifests
       - name: Install via Homebrew
         if: runner.os == 'macOS'
         run: |
