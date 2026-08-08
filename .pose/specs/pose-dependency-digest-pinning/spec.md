@@ -15,8 +15,9 @@ delivers: governance:dependency-digest-pinning
 ## 1. Intent
 
 ### Goal
-Pin every GitHub Action and every container base image to an immutable digest,
-so no build input can change under a reference this repository already trusts.
+Pin every GitHub Action, container base image and docs-build Python package to
+an immutable digest or hash, so no build input can change under a reference
+this repository already trusts.
 
 ### Business value
 Pinned-Dependencies was the largest open block in the OpenSSF baseline: 45
@@ -67,6 +68,9 @@ digest cannot be nonexistent, so the class of defect goes away with the form.
 - R3: The workflow security contract shall accept a digest pin from any owner
   without requiring an exception, and shall keep requiring the exception for a
   first-party tag pin.
+- R4: The docs build shall install its Python dependencies from a lock file in
+  which every package, direct or transitive, is pinned by hash, and pip shall
+  refuse anything that is not.
 
 ### Non-functional
 - Readability is preserved by the version comment; a reviewer never has to
@@ -93,6 +97,7 @@ digest cannot be nonexistent, so the class of defect goes away with the form.
 - All eight workflows under `.github/workflows/`.
 - `pose-mcp/Dockerfile`, `mcp-enforce/Dockerfile`.
 - `pose-mcp/internal/version/workflow_security_test.go` — the contract.
+- `docs-site/requirements.in` / `requirements.txt` — the docs build's lock.
 
 ### Artifacts
 - created: .pose/specs/pose-dependency-digest-pinning/spec.md
@@ -107,6 +112,8 @@ digest cannot be nonexistent, so the class of defect goes away with the form.
 - modified: pose-mcp/Dockerfile
 - modified: mcp-enforce/Dockerfile
 - modified: pose-mcp/internal/version/workflow_security_test.go
+- created: docs-site/requirements.in
+- created: docs-site/requirements.txt
 
 ### Delivery targets
 - governance:dependency-digest-pinning module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
@@ -137,6 +144,7 @@ digest cannot be nonexistent, so the class of defect goes away with the form.
 - [x] R1: digest-pin every action with a version comment
 - [x] R2: digest-pin both Dockerfiles' bases
 - [x] R3: accept digest pins from any owner in the contract
+- [x] R4: lock the docs build's Python closure by hash
 
 ### Validation
 - [x] Workflow security contract
@@ -161,17 +169,25 @@ digest fails immediately and loudly.
 - Scope: pinning form and permissions across every workflow
 - Expected: pass
 
+#### Build
+- Command: `pip install --require-hashes -r docs-site/requirements.txt` then `mkdocs build --strict -f docs-site/mkdocs.yml`
+- Scope: the docs build's locked Python closure
+- Expected: install and build both succeed
+
 ### Execution log
 - Date: 2026-08-07
 - Environment: linux/amd64. Action digests resolved via the GitHub Git ref API,
   dereferencing annotated tags to their commits; container digests read from
   the registry manifest's `Docker-Content-Digest` for the multi-arch index.
-- Notes: eleven distinct action references and two base images pinned.
-  `actions/dependency-review-action@v5` did not resolve — no major tag above v3
-  exists — and is pinned to v5.0.0's commit.
+- Notes: eleven distinct action references, two base images and 29 Python
+  packages pinned. `actions/dependency-review-action@v5` did not resolve — no
+  major tag above v3 exists — and is pinned to v5.0.0's commit. The Python lock
+  was installed into a clean 3.12 environment under `--require-hashes` and the
+  strict docs build ran against it before the workflow was changed.
 
 ### Results summary
-- Successes: every action and base image digest-pinned; contract defect fixed
+- Successes: every action, base image and docs Python package pinned; contract
+  defect fixed
 - Failures: none
 - Warnings: none
 
@@ -179,6 +195,7 @@ digest fails immediately and loudly.
 - R1 [satisfied] governance:dependency-digest-pinning evidence:integration check:delivery-integration report:.github/workflows/ci.yml — every `uses:` across the eight workflows carries a 40-character SHA and a version comment
 - R2 [satisfied] check:workflow-security-contract report:pose-mcp/Dockerfile — both Dockerfiles pin `golang:1.26.4-alpine` and `alpine:3.21` by index digest
 - R3 [satisfied] test:pose-mcp/internal/version/workflow_security_test.go — a SHA pin short-circuits before the ownership branch, so no exception is consulted; a first-party tag pin still requires the live exception
+- R4 [satisfied] check:docs-build report:.github/workflows/docs.yml — `docs-site/requirements.txt` locks all 29 packages of the mkdocs-material closure by hash and the step runs `pip install --require-hashes`; proven locally by installing into a clean Python 3.12 environment under that flag and running `mkdocs build --strict`, which succeeded
 
 ### Known gaps
 - Nothing refreshes a stale digest. The pins are correct as of 2026-08-07 and
@@ -191,15 +208,16 @@ digest fails immediately and loudly.
 ## 7. Final Report
 
 ### Delivered scope
-Every action across the eight workflows and both container base images are
-pinned to immutable digests with version comments. The workflow security
-contract accepts a digest pin from any owner and keeps the exception guard for
-tag pins.
+Every action across the eight workflows, both container base images and the
+docs build's full Python closure are pinned to immutable digests or hashes.
+The workflow security contract accepts a digest pin from any owner and keeps
+the exception guard for tag pins.
 
 ### Files and modules changed
 - .github/workflows/*.yml (eight files)
 - pose-mcp/Dockerfile, mcp-enforce/Dockerfile
 - pose-mcp/internal/version/workflow_security_test.go
+- docs-site/requirements.in, docs-site/requirements.txt
 
 ### Validation executed
 - Command: `go -C pose-mcp test ./internal/version/... -count=1`

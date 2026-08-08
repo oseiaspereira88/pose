@@ -21,7 +21,12 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-      - run: pip install mkdocs-material
+        # --require-hashes makes pip refuse any dependency, direct or
+        # transitive, that is not pinned by hash in the lock file — the same
+        # immutability the action and image digests give the rest of the build
+        # (spec pose-dependency-digest-pinning). Regenerate the lock with the
+        # command recorded at the top of requirements.txt.
+      - run: pip install --require-hashes -r docs-site/requirements.txt
       - run: mkdocs build --strict -f docs-site/mkdocs.yml
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         if: github.ref == 'refs/heads/main'
