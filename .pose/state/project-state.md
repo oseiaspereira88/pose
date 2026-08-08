@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-08T13:18:21Z
-baseline_commit: 1c91863b41a08c2450c84d293b3dbc9e6ca6af05
+generated_at: 2026-08-08T13:26:00Z
+baseline_commit: 5e2fa88dd436410df4521368a756ecf05344f8d3
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:1185f0d8682f -->
+<!-- state:derived hash:3eca1a93f10b -->
 
-- specs: total=77 draft=1 in-progress=0 blocked=0 done=76 superseded=0 abandoned=0
+- specs: total=77 draft=0 in-progress=0 blocked=0 done=77 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
   - spec:pose-skill-command-parity (2026-08-08)
-  - spec:pose-workflow-event-ref-contract (2026-08-08)
   - spec:pose-package-channel-install-repair (2026-08-08)
+  - spec:pose-action-runtime-currency-gate (2026-08-08)
   - spec:pose-release-clean-tree-attribution (2026-08-08)
   - spec:pose-manual-locale-parity (2026-08-08)
-  - ... e mais 71 (ver `pose_list_specs status:done`)
+  - ... e mais 72 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:ab4a518ab91f -->
+<!-- state:derived hash:c77c64e4e758 -->
 
-- abertos: 38
-- por criticidade: high=0 medium=13 low=25 sem-classificação=0
+- abertos: 37
+- por criticidade: high=0 medium=13 low=24 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:6f54edae99e6 -->
+<!-- state:derived hash:6462bb81a971 -->
 
-- último registro: task=closeout-pose-skill-command-parity outcome=unknown (2026-08-08T13:17:44Z)
-- últimos 30 dias: total=133 outcome_ok=100 outcome_outro=33
-- reports revisados (.md): total=70
+- último registro: task=closeout-pose-action-runtime-currency-gate-draft outcome=unknown (2026-08-08T13:25:22Z)
+- últimos 30 dias: total=135 outcome_ok=100 outcome_outro=35
+- reports revisados (.md): total=72
+  - report:2026-08-08-standard-closeout-pose-action-runtime-currency-gate-draft.md
+  - report:2026-08-08-standard-closeout-pose-action-runtime-currency-gate.md
   - report:2026-08-08-standard-closeout-pose-skill-command-parity.md
   - report:2026-08-08-standard-closeout-pose-skill-closeout-gate-parity.md
   - report:2026-08-08-standard-closeout-pose-manual-locale-parity.md
-  - report:2026-08-08-standard-closeout-pose-package-channel-install-repair-proven.md
-  - report:2026-08-08-standard-closeout-pose-package-channel-install-repair.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->

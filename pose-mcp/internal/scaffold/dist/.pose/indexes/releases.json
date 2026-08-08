@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "pose-action-runtime-currency-gate",
+      "category": "added",
+      "breaking": false,
+      "body": "A deprecated action runtime now fails the build instead of annotating a green\nrun. Every pinned action's declared runtime is recorded in\n`.github/action-runtimes.json`; an offline check fails on a deprecated runtime,\nan unrecorded action or a record left behind by a bump, and a CI step re-resolves\neach `action.yml` at its pinned ref so the record cannot quietly disagree with\nreality. Building the record immediately found what it exists for:\n`goreleaser/goreleaser-action` was still on Node.js 20, having been left out of\nthe earlier bump that covered only first-party actions. It is now on v7.2.3 and\nthe repository has no deprecated runtime left.",
+      "path": "pose-action-runtime-currency-gate.md",
+      "digest": "sha256:de1b6770fb9d3794ff1126a590879b96c55fad98d7e77b0b335ddc3b57e904e9"
+    },
+    {
       "spec": "pose-manual-locale-parity",
       "category": "fixed",
       "breaking": false,
