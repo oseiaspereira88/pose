@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-08T03:39:37Z
-baseline_commit: 9a92252825dede38fd79913e7dc779fc96523944
+generated_at: 2026-08-08T03:47:16Z
+baseline_commit: 78c97abef80e137d1872f158148cdf2b9fe8d40b
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:f9b385b8600d -->
+<!-- state:derived hash:a9d53574150b -->
 
-- specs: total=71 draft=1 in-progress=0 blocked=0 done=70 superseded=0 abandoned=0
+- specs: total=72 draft=1 in-progress=0 blocked=0 done=71 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
-  - spec:pose-sbom-license-coverage-gate (2026-08-08)
   - spec:pose-docs-asset-parity (2026-08-08)
-  - spec:pose-compat-gate-candidate-integrity (2026-08-07)
-  - spec:pose-installer-local-binary-precedence (2026-08-07)
-  - spec:pose-verifier-assets-variable-fix (2026-08-07)
-  - ... e mais 65 (ver `pose_list_specs status:done`)
+  - spec:pose-workflow-event-ref-contract (2026-08-08)
+  - spec:pose-sbom-license-coverage-gate (2026-08-08)
+  - spec:pose-compat-gate-manual-refresh-assertion (2026-08-07)
+  - spec:pose-assessment-engine-precision (2026-08-07)
+  - ... e mais 66 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:373d72e02e89 -->
+<!-- state:derived hash:2ee0855ae44e -->
 
-- abertos: 33
-- por criticidade: high=0 medium=14 low=19 sem-classificação=0
+- abertos: 34
+- por criticidade: high=0 medium=14 low=20 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
