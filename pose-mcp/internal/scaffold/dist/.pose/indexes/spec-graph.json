@@ -321,6 +321,10 @@
       "to": "pose-verifier-extension-install-cwd"
     },
     {
+      "from": "pose-skill-closeout-gate-parity",
+      "to": "pose-manual-locale-parity"
+    },
+    {
       "from": "pose-slsa-provenance",
       "to": "pose-release-signing"
     },
@@ -880,6 +884,14 @@
         "pose-verifier-extension-install-cwd"
       ],
       "path": ".pose/specs/pose-shellcheck-ci-gate/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
+    "pose-skill-closeout-gate-parity": {
+      "depends_on": [
+        "pose-manual-locale-parity"
+      ],
+      "path": ".pose/specs/pose-skill-closeout-gate-parity/spec.md",
       "priority": 1,
       "status": "done"
     },

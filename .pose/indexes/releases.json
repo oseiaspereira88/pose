@@ -15,6 +15,14 @@
       "body": "The documentation no longer offers `brew install --formula \u003curl\u003e`, which\nHomebrew rejects: a formula must be in a tap, and installing one from a path or\na URL is unsupported. The formula is still generated, published and\ninstall-tested every release — through a throwaway tap on the clean-host\nmatrix — so a tap can be stood up later without regenerating anything, but\nuntil one exists there is no `brew` command that installs POSE and the verified\ndownload is the supported path on macOS. The WinGet leg now enables\nlocal-manifest installation, which is off by default, and validates the manifest\nset before installing.",
       "path": "pose-package-channel-install-repair.md",
       "digest": "sha256:4d6f35e023e42cacfe5e462059c909fb3247a5a5d028c8095460b44326c88b25"
+    },
+    {
+      "spec": "pose-skill-closeout-gate-parity",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The pt-BR `pose-spec-closeout` skill now routes the closeout through the review\ngate. It had gone from follow-up triage straight to hand-editing `status: done`,\nnever mentioning `pose review record`, `pose review-check` or `pose close` — so\nan agent following the translated skill produced a spec that `pose check\n--strict` then rejected with an error whose cause was not visible from its text.\nThe other ten translated skills were checked the same way and teach every\ncommand their English counterparts do.",
+      "path": "pose-skill-closeout-gate-parity.md",
+      "digest": "sha256:db7235a0bcf03aea78d619105ce682c5e9edd55626e67a79de58252633cf891f"
     }
   ],
   "releases": [
