@@ -1,5 +1,14 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-package-channel-install-repair",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The documentation no longer offers `brew install --formula \u003curl\u003e`, which\nHomebrew rejects: a formula must be in a tap, and installing one from a path or\na URL is unsupported. The formula is still generated, published and\ninstall-tested every release — through a throwaway tap on the clean-host\nmatrix — so a tap can be stood up later without regenerating anything, but\nuntil one exists there is no `brew` command that installs POSE and the verified\ndownload is the supported path on macOS. The WinGet leg now enables\nlocal-manifest installation, which is off by default, and validates the manifest\nset before installing.",
+      "path": "pose-package-channel-install-repair.md",
+      "digest": "sha256:4d6f35e023e42cacfe5e462059c909fb3247a5a5d028c8095460b44326c88b25"
+    }
+  ],
   "releases": [
     {
       "version": "v0.21.0",

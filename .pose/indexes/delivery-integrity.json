@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:11a60ba56fd1f11427baa81e84afb42b45065f1d7be2eb5509bb9c6c34f1ff84",
-  "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
+  "input_digest": "sha256:b9c6d7d7ad9d2ebd4d36f3c0d28cbc06768f8435250bb97f02f8e93676f4dd7c",
+  "provenance_digest": "sha256:97703b7c479ff8dc24289ad67f2c2d39a56bed9d07cf4ef396734ec9b3c0f3fc",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -260,6 +260,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-package-channel-delivery.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-package-channel-install-repair.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-package-channel-install-repair.md"
       }
     },
     {
@@ -1096,6 +1103,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/pose-package-channel-install-repair/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-package-channel-install-repair/spec.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/pose-package-channel-workflow-safety/spec.md",
       "type": "artifact",
       "attributes": {
@@ -1443,6 +1457,13 @@
       "type": "artifact",
       "attributes": {
         "path": "docs-site/docs/mcp.md"
+      }
+    },
+    {
+      "id": "artifact:docs-site/docs/package-channels.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "docs-site/docs/package-channels.md"
       }
     },
     {
@@ -2195,6 +2216,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-package-channel-install-repair.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-package-channel-install-repair.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-package-channel-workflow-safety.md",
       "type": "artifact",
       "attributes": {
@@ -2787,6 +2815,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-ossf-security-baseline/spec.md"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-package-channel-install-repair/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-package-channel-install-repair/spec.md"
       }
     },
     {
@@ -3570,6 +3605,14 @@
       }
     },
     {
+      "id": "change-set:cs-f8196e73b2ca",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:ff405ad73bdc41d6830cb6e0b24264add441f5152f986e4f26c0a97ef9eb8d1a",
+        "selector": "range:52630b6..b21dec8"
+      }
+    },
+    {
       "id": "change-set:cs-faf157445450",
       "type": "change-set",
       "attributes": {
@@ -3739,6 +3782,14 @@
     },
     {
       "id": "delivery:governance:package-channel-delivery",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
+      "id": "delivery:governance:package-channel-install-repair",
       "type": "governance",
       "attributes": {
         "module": "pose-mcp",
@@ -4237,6 +4288,13 @@
       }
     },
     {
+      "id": "spec:pose-package-channel-install-repair",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
       "id": "spec:pose-package-channel-workflow-safety",
       "type": "spec",
       "attributes": {
@@ -4660,6 +4718,11 @@
     {
       "from": "artifact:.github/workflows/package-channels.yml",
       "to": "delivery:governance:package-channel-delivery",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.github/workflows/package-channels.yml",
+      "to": "delivery:governance:package-channel-install-repair",
       "type": "implemented-by"
     },
     {
@@ -5178,6 +5241,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/specs/pose-package-channel-install-repair/spec.md",
+      "to": "delivery:governance:package-channel-install-repair",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/specs/pose-package-channel-workflow-safety/spec.md",
       "to": "delivery:governance:package-channel-workflow-safety",
       "type": "implemented-by"
@@ -5555,6 +5623,11 @@
     {
       "from": "artifact:docs-site/docs/mcp.md",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/package-channels.md",
+      "to": "delivery:governance:package-channel-install-repair",
       "type": "implemented-by"
     },
     {
@@ -12498,6 +12571,36 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-f8196e73b2ca",
+      "to": "artifact:.github/workflows/package-channels.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-f8196e73b2ca",
+      "to": "artifact:.pose/changelogs/unreleased/pose-package-channel-install-repair.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-f8196e73b2ca",
+      "to": "artifact:.pose/specs/pose-package-channel-install-repair/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-f8196e73b2ca",
+      "to": "artifact:docs-site/docs/package-channels.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-f8196e73b2ca",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-package-channel-install-repair.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-f8196e73b2ca",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-package-channel-install-repair/spec.md",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-faf157445450",
       "to": "artifact:.github/workflows/ci.yml",
       "type": "changes"
@@ -12778,6 +12881,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:package-channel-install-repair",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:package-channel-install-repair",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:package-channel-workflow-safety",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -12945,6 +13058,11 @@
     {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -14690,6 +14808,31 @@
     {
       "from": "spec:pose-package-channel-delivery",
       "to": "change-set:cs-10bfd095c5a5",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-package-channel-install-repair",
+      "to": "artifact:.github/workflows/package-channels.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-package-channel-install-repair",
+      "to": "artifact:.pose/specs/pose-package-channel-install-repair/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-package-channel-install-repair",
+      "to": "artifact:docs-site/docs/package-channels.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-package-channel-install-repair",
+      "to": "delivery:governance:package-channel-install-repair",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-package-channel-install-repair",
+      "to": "change-set:cs-f8196e73b2ca",
       "type": "observed-by"
     },
     {
@@ -16579,6 +16722,21 @@
       "spec": "pose-package-channel-delivery",
       "action": "modified",
       "path": ".github/workflows/release.yml"
+    },
+    {
+      "spec": "pose-package-channel-install-repair",
+      "action": "created",
+      "path": ".pose/specs/pose-package-channel-install-repair/spec.md"
+    },
+    {
+      "spec": "pose-package-channel-install-repair",
+      "action": "modified",
+      "path": ".github/workflows/package-channels.yml"
+    },
+    {
+      "spec": "pose-package-channel-install-repair",
+      "action": "modified",
+      "path": "docs-site/docs/package-channels.md"
     },
     {
       "spec": "pose-package-channel-workflow-safety",
@@ -22172,6 +22330,45 @@
       "diff_digest": "sha256:3862ddfffc2008ba9301757b7c4eeff5696d3e90f28b631a3c69c9453f89059f"
     },
     {
+      "id": "cs-f8196e73b2ca",
+      "spec": "pose-package-channel-install-repair",
+      "selector": "range:52630b6..b21dec8",
+      "base": "52630b6",
+      "head": "b21dec8",
+      "resolved_base": "52630b6f7bc415e3111fad4f82373658cd62ecdc",
+      "resolved_head": "b21dec840f08bc50cb582e94d7367c97ac6235cd",
+      "commits": [
+        "b21dec840f08bc50cb582e94d7367c97ac6235cd"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-package-channel-install-repair.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-package-channel-install-repair/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-package-channel-install-repair.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-package-channel-install-repair/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/package-channels.yml"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/package-channels.md"
+        }
+      ],
+      "diff_digest": "sha256:ff405ad73bdc41d6830cb6e0b24264add441f5152f986e4f26c0a97ef9eb8d1a"
+    },
+    {
       "id": "cs-faf157445450",
       "spec": "pose-shellcheck-ci-gate",
       "selector": "range:6dd5b86..e3cc340",
@@ -22309,6 +22506,7 @@
       "pose-actions-node24-bump",
       "pose-dependency-digest-pinning",
       "pose-package-channel-delivery",
+      "pose-package-channel-install-repair",
       "pose-package-channel-workflow-safety"
     ],
     ".github/workflows/release.yml": [
@@ -22501,6 +22699,9 @@
     ".pose/specs/pose-package-channel-delivery/spec.md": [
       "pose-package-channel-delivery"
     ],
+    ".pose/specs/pose-package-channel-install-repair/spec.md": [
+      "pose-package-channel-install-repair"
+    ],
     ".pose/specs/pose-package-channel-workflow-safety/spec.md": [
       "pose-package-channel-workflow-safety"
     ],
@@ -22627,6 +22828,9 @@
       "pose-delivery-surface-assurance",
       "pose-mcp-active-context",
       "pose-release-lifecycle-closure"
+    ],
+    "docs-site/docs/package-channels.md": [
+      "pose-package-channel-install-repair"
     ],
     "docs-site/requirements.in": [
       "pose-dependency-digest-pinning"
@@ -23158,14 +23362,6 @@
       "spec": "pose-semantic-governance-assist",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-0b0fe4c9e5ca",
-      "code": "orphan",
-      "severity": "warning",
-      "path": "docs-site/docs/package-channels.md",
-      "message": "governed tracked path has no spec provenance claim",
-      "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
       "id": "dif-0b782bf62162",
@@ -25490,6 +25686,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-package-channel-install-repair",
+      "ref": "governance:package-channel-install-repair",
+      "kind": "governance",
+      "id": "package-channel-install-repair",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-package-channel-workflow-safety",
       "ref": "governance:package-channel-workflow-safety",
       "kind": "governance",
@@ -25499,7 +25704,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -25508,7 +25713,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -25535,7 +25740,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -25544,7 +25749,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -25651,9 +25856,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
-      "generated_at": "2026-08-08T03:51:49Z",
-      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
+      "git_head": "b21dec840f08bc50cb582e94d7367c97ac6235cd",
+      "generated_at": "2026-08-08T04:48:23Z",
+      "provenance_digest": "sha256:97703b7c479ff8dc24289ad67f2c2d39a56bed9d07cf4ef396734ec9b3c0f3fc",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25663,9 +25868,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
-      "generated_at": "2026-08-08T03:51:49Z",
-      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
+      "git_head": "b21dec840f08bc50cb582e94d7367c97ac6235cd",
+      "generated_at": "2026-08-08T04:48:23Z",
+      "provenance_digest": "sha256:97703b7c479ff8dc24289ad67f2c2d39a56bed9d07cf4ef396734ec9b3c0f3fc",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25675,9 +25880,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
-      "generated_at": "2026-08-08T03:51:49Z",
-      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
+      "git_head": "b21dec840f08bc50cb582e94d7367c97ac6235cd",
+      "generated_at": "2026-08-08T04:48:23Z",
+      "provenance_digest": "sha256:97703b7c479ff8dc24289ad67f2c2d39a56bed9d07cf4ef396734ec9b3c0f3fc",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25687,9 +25892,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
-      "generated_at": "2026-08-08T03:51:49Z",
-      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
+      "git_head": "b21dec840f08bc50cb582e94d7367c97ac6235cd",
+      "generated_at": "2026-08-08T04:48:23Z",
+      "provenance_digest": "sha256:97703b7c479ff8dc24289ad67f2c2d39a56bed9d07cf4ef396734ec9b3c0f3fc",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25699,9 +25904,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
-      "generated_at": "2026-08-08T03:51:49Z",
-      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
+      "git_head": "b21dec840f08bc50cb582e94d7367c97ac6235cd",
+      "generated_at": "2026-08-08T04:48:23Z",
+      "provenance_digest": "sha256:97703b7c479ff8dc24289ad67f2c2d39a56bed9d07cf4ef396734ec9b3c0f3fc",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25711,9 +25916,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
-      "generated_at": "2026-08-08T03:51:49Z",
-      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
+      "git_head": "b21dec840f08bc50cb582e94d7367c97ac6235cd",
+      "generated_at": "2026-08-08T04:48:23Z",
+      "provenance_digest": "sha256:97703b7c479ff8dc24289ad67f2c2d39a56bed9d07cf4ef396734ec9b3c0f3fc",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25723,9 +25928,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
-      "generated_at": "2026-08-08T03:51:49Z",
-      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
+      "git_head": "b21dec840f08bc50cb582e94d7367c97ac6235cd",
+      "generated_at": "2026-08-08T04:48:23Z",
+      "provenance_digest": "sha256:97703b7c479ff8dc24289ad67f2c2d39a56bed9d07cf4ef396734ec9b3c0f3fc",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25735,9 +25940,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
-      "generated_at": "2026-08-08T03:51:49Z",
-      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
+      "git_head": "b21dec840f08bc50cb582e94d7367c97ac6235cd",
+      "generated_at": "2026-08-08T04:48:23Z",
+      "provenance_digest": "sha256:97703b7c479ff8dc24289ad67f2c2d39a56bed9d07cf4ef396734ec9b3c0f3fc",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -26259,6 +26464,15 @@
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],
+    "governance:package-channel-install-repair": [
+      "spec:pose-package-channel-install-repair",
+      "artifact:.pose/specs/pose-package-channel-install-repair/spec.md",
+      "artifact:.github/workflows/package-channels.yml",
+      "artifact:docs-site/docs/package-channels.md",
+      "delivery:governance:package-channel-install-repair",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
     "governance:package-channel-workflow-safety": [
       "spec:pose-package-channel-workflow-safety",
       "artifact:.pose/specs/pose-package-channel-workflow-safety/spec.md",
@@ -26269,7 +26483,7 @@
       "validation-result:pose-mcp/go/delivery-integration"
     ],
     "governance:project-assessment": [
-      "spec:pose-project-agnostic-assessment-engines",
+      "spec:pose-debt-marker-lexical-precision",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
@@ -26298,13 +26512,43 @@
       "validation-result:pose-mcp/go/delivery-integration"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-evidence-trigger-fix",
-      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
+      "spec:pose-release-lifecycle-closure",
+      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
+      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
+      "artifact:.pose/indexes/releases.json",
+      "artifact:.pose/policy/changelog.json",
+      "artifact:.pose/release-policy.json",
+      "artifact:.pose/rules/release-integrity.md",
+      "artifact:.pose/workflows/release.md",
+      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
+      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
+      "artifact:locales/pt-BR/.pose/workflows/release.md",
+      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
+      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
+      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
+      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
+      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
+      "artifact:.agents/skills/README.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.github/workflows/verify-release.yml",
-      "artifact:docs-site/docs/ci.md",
-      "artifact:pose-mcp/internal/version/contract_test.go",
-      "artifact:pose-mcp/internal/version/version.go",
+      "artifact:.pose/indexes/task-map.json",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
+      "artifact:POSE.md",
+      "artifact:docs-site/docs/cli.md",
+      "artifact:docs-site/docs/mcp.md",
+      "artifact:pose-mcp/internal/cli/check.go",
+      "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/maintenance.go",
+      "artifact:pose-mcp/internal/cli/native_only_test.go",
+      "artifact:pose-mcp/internal/cli/skills_check_test.go",
+      "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "artifact:pose-mcp/internal/pose/changelogs.go",
+      "artifact:pose-mcp/internal/scaffold/scaffold.go",
+      "artifact:scripts/release.sh",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"

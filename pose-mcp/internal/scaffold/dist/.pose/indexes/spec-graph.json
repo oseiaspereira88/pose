@@ -193,6 +193,10 @@
       "to": "pose-package-manager-distribution"
     },
     {
+      "from": "pose-package-channel-install-repair",
+      "to": "pose-package-channel-delivery"
+    },
+    {
       "from": "pose-package-channel-workflow-safety",
       "to": "pose-release-workflow-hardening"
     },
@@ -686,6 +690,14 @@
         "pose-package-manager-distribution"
       ],
       "path": ".pose/specs/pose-package-channel-delivery/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
+    "pose-package-channel-install-repair": {
+      "depends_on": [
+        "pose-package-channel-delivery"
+      ],
+      "path": ".pose/specs/pose-package-channel-install-repair/spec.md",
       "priority": 1,
       "status": "done"
     },

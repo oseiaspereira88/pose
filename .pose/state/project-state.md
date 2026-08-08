@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-08T04:31:48Z
-baseline_commit: 12da4e9cc3f254b94bcb22c000eba2c969ca19e8
+generated_at: 2026-08-08T04:48:38Z
+baseline_commit: b21dec840f08bc50cb582e94d7367c97ac6235cd
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:6e7190ab8aa2 -->
+<!-- state:derived hash:9a9c5f3cc1ea -->
 
-- specs: total=73 draft=1 in-progress=0 blocked=0 done=72 superseded=0 abandoned=0
+- specs: total=74 draft=1 in-progress=0 blocked=0 done=73 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-docs-asset-parity (2026-08-08)
   - spec:pose-workflow-event-ref-contract (2026-08-08)
+  - spec:pose-package-channel-install-repair (2026-08-08)
   - spec:pose-release-clean-tree-attribution (2026-08-08)
   - spec:pose-sbom-license-coverage-gate (2026-08-08)
-  - spec:pose-docs-asset-parity (2026-08-08)
-  - spec:pose-release-workflow-hardening (2026-08-07)
-  - ... e mais 67 (ver `pose_list_specs status:done`)
+  - ... e mais 68 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:c87e5b20b11c -->
+<!-- state:derived hash:fff337a3ed18 -->
 
-- abertos: 33
-- por criticidade: high=0 medium=12 low=21 sem-classificação=0
+- abertos: 35
+- por criticidade: high=0 medium=13 low=22 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:52894419bde5 -->
+<!-- state:derived hash:95b5736879e2 -->
 
-- último registro: task=closeout-pose-release-clean-tree-attribution outcome=unknown (2026-08-08T03:51:49Z)
-- últimos 30 dias: total=128 outcome_ok=100 outcome_outro=28
-- reports revisados (.md): total=65
+- último registro: task=closeout-pose-package-channel-install-repair outcome=unknown (2026-08-08T04:48:23Z)
+- últimos 30 dias: total=129 outcome_ok=100 outcome_outro=29
+- reports revisados (.md): total=66
+  - report:2026-08-08-standard-closeout-pose-package-channel-install-repair.md
   - report:2026-08-08-standard-closeout-pose-release-clean-tree-attribution.md
   - report:2026-08-08-standard-closeout-pose-workflow-event-ref-contract.md
   - report:2026-08-08-standard-closeout-pose-sbom-license-coverage-gate.md
   - report:2026-08-08-standard-closeout-pose-docs-asset-parity.md
-  - report:2026-08-08-standard-closeout-pose-dependency-digest-pinning-docs-lock.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
