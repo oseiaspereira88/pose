@@ -9,6 +9,14 @@
       "digest": "sha256:de1b6770fb9d3794ff1126a590879b96c55fad98d7e77b0b335ddc3b57e904e9"
     },
     {
+      "spec": "pose-dependency-pin-refresh",
+      "category": "added",
+      "breaking": false,
+      "body": "Pinned dependencies now have a refresh path. Making every action, container base\nand Python package immutable closed 84 Scorecard findings and, deliberately,\ntraded silent drift for silent staleness: an upstream security fix arrived only\nwhen someone updated a SHA by hand. Dependabot now covers all four pinned\necosystems with grouped monthly updates, and `scripts/refresh-action-runtimes.sh`\nturns the runtime-manifest edit that a bump forces into one idempotent command.",
+      "path": "pose-dependency-pin-refresh.md",
+      "digest": "sha256:5c5bafa4954067b05bbb48253795d5c64d47c5194eb0e8b78b260002a670cfce"
+    },
+    {
       "spec": "pose-manual-locale-parity",
       "category": "fixed",
       "breaking": false,

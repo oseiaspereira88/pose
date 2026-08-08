@@ -69,6 +69,10 @@
       "to": "pose-actions-node24-bump"
     },
     {
+      "from": "pose-dependency-pin-refresh",
+      "to": "pose-dependency-digest-pinning"
+    },
+    {
       "from": "pose-docs-asset-parity",
       "to": "pose-package-channel-delivery"
     },
@@ -498,6 +502,14 @@
         "pose-actions-node24-bump"
       ],
       "path": ".pose/specs/pose-dependency-digest-pinning/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
+    "pose-dependency-pin-refresh": {
+      "depends_on": [
+        "pose-dependency-digest-pinning"
+      ],
+      "path": ".pose/specs/pose-dependency-pin-refresh/spec.md",
       "priority": 1,
       "status": "done"
     },

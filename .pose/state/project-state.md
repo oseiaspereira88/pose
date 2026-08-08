@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-08T22:05:45Z
-baseline_commit: 612243c61145740dc8d4e158b2ccc4e88e809183
+generated_at: 2026-08-08T22:09:22Z
+baseline_commit: af710b6e12478e32ecfcf1d4c20eac53d6e0a4b8
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:0ce0752bd74d -->
+<!-- state:derived hash:ef944652f523 -->
 
-- specs: total=78 draft=0 in-progress=0 blocked=0 done=78 superseded=0 abandoned=0
+- specs: total=79 draft=0 in-progress=0 blocked=0 done=79 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
   - spec:pose-skill-command-parity (2026-08-08)
   - spec:pose-release-clean-tree-attribution (2026-08-08)
-  - spec:pose-action-runtime-currency-gate (2026-08-08)
+  - spec:pose-workflow-event-ref-contract (2026-08-08)
   - spec:pose-manual-locale-parity (2026-08-08)
   - spec:pose-sbom-license-coverage-gate (2026-08-08)
-  - ... e mais 73 (ver `pose_list_specs status:done`)
+  - ... e mais 74 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:91be8df3f894 -->
+<!-- state:derived hash:25aee9a1e727 -->
 
-- abertos: 37
-- por criticidade: high=0 medium=12 low=25 sem-classificação=0
+- abertos: 38
+- por criticidade: high=0 medium=12 low=26 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:520e3e913bcb -->
+<!-- state:derived hash:a2c023e7f7cd -->
 
-- último registro: task=closeout-pose-sbom-negative-coverage outcome=unknown (2026-08-08T22:05:26Z)
-- últimos 30 dias: total=136 outcome_ok=100 outcome_outro=36
-- reports revisados (.md): total=73
+- último registro: task=closeout-pose-dependency-pin-refresh outcome=unknown (2026-08-08T22:09:04Z)
+- últimos 30 dias: total=137 outcome_ok=100 outcome_outro=37
+- reports revisados (.md): total=74
+  - report:2026-08-08-standard-closeout-pose-dependency-pin-refresh.md
   - report:2026-08-08-standard-closeout-pose-sbom-negative-coverage.md
   - report:2026-08-08-standard-closeout-pose-action-runtime-currency-gate-draft.md
   - report:2026-08-08-standard-closeout-pose-action-runtime-currency-gate.md
   - report:2026-08-08-standard-closeout-pose-skill-command-parity.md
-  - report:2026-08-08-standard-closeout-pose-skill-closeout-gate-parity.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
