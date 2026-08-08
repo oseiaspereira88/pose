@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:49bb55568d07e05005f3024fbd791b56a6ddd8a377ff02d8b54b011cdf0d3977",
-  "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
+  "input_digest": "sha256:720cafdf51ee09f9b3a3ad4011ccd8468038cb5441cdf914607d0142b059e5a7",
+  "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -1387,6 +1387,20 @@
       "type": "artifact",
       "attributes": {
         "path": "docs-site/docs/mcp.md"
+      }
+    },
+    {
+      "id": "artifact:docs-site/requirements.in",
+      "type": "artifact",
+      "attributes": {
+        "path": "docs-site/requirements.in"
+      }
+    },
+    {
+      "id": "artifact:docs-site/requirements.txt",
+      "type": "artifact",
+      "attributes": {
+        "path": "docs-site/requirements.txt"
       }
     },
     {
@@ -3103,6 +3117,14 @@
       "attributes": {
         "diff_digest": "sha256:2b7007a39cb9bcc316ae7c1e9d3fc1de6cacaace16fa2d4a4ae4c50a96b0b627",
         "selector": "range:2f55664..HEAD"
+      }
+    },
+    {
+      "id": "change-set:cs-08769463bdbf",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:dedc7a037f9bd70aeaeeaaf3cf21e6c7bd5b3ab64dd98b29274a181b8ad7a60a",
+        "selector": "range:66d5209..218468a"
       }
     },
     {
@@ -5260,6 +5282,16 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:docs-site/requirements.in",
+      "to": "delivery:governance:dependency-digest-pinning",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/requirements.txt",
+      "to": "delivery:governance:dependency-digest-pinning",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:extensions/pose-rule-kubernetes/extension.json",
       "to": "delivery:governance:extension-reference",
       "type": "implemented-by"
@@ -6882,6 +6914,46 @@
     {
       "from": "change-set:cs-07f1c01f78f0",
       "to": "artifact:pose-mcp/internal/scaffold/scaffold.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-08769463bdbf",
+      "to": "artifact:.github/workflows/docs.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-08769463bdbf",
+      "to": "artifact:.pose/specs/pose-dependency-digest-pinning/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-08769463bdbf",
+      "to": "artifact:.pose/state/history.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-08769463bdbf",
+      "to": "artifact:.pose/state/project-state.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-08769463bdbf",
+      "to": "artifact:.pose/state/refresh-log.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-08769463bdbf",
+      "to": "artifact:docs-site/requirements.in",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-08769463bdbf",
+      "to": "artifact:docs-site/requirements.txt",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-08769463bdbf",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-dependency-digest-pinning/spec.md",
       "type": "changes"
     },
     {
@@ -13386,6 +13458,16 @@
     },
     {
       "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:docs-site/requirements.in",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:docs-site/requirements.txt",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
       "to": "artifact:mcp-enforce/Dockerfile",
       "type": "declares"
     },
@@ -13403,6 +13485,11 @@
       "from": "spec:pose-dependency-digest-pinning",
       "to": "delivery:governance:dependency-digest-pinning",
       "type": "delivers"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "change-set:cs-08769463bdbf",
+      "type": "observed-by"
     },
     {
       "from": "spec:pose-dependency-digest-pinning",
@@ -15243,6 +15330,16 @@
     },
     {
       "spec": "pose-dependency-digest-pinning",
+      "action": "created",
+      "path": "docs-site/requirements.in"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "created",
+      "path": "docs-site/requirements.txt"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
       "action": "modified",
       "path": ".github/workflows/ci.yml"
     },
@@ -16602,6 +16699,53 @@
         }
       ],
       "diff_digest": "sha256:2b7007a39cb9bcc316ae7c1e9d3fc1de6cacaace16fa2d4a4ae4c50a96b0b627"
+    },
+    {
+      "id": "cs-08769463bdbf",
+      "spec": "pose-dependency-digest-pinning",
+      "selector": "range:66d5209..218468a",
+      "base": "66d5209",
+      "head": "218468a",
+      "resolved_base": "66d5209d5196efabcff8cc8630d868a4d8c7b284",
+      "resolved_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
+      "commits": [
+        "218468a75b110fcf09b0eb819e4db8738b2f3cf6"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": "docs-site/requirements.in"
+        },
+        {
+          "action": "created",
+          "path": "docs-site/requirements.txt"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/docs.yml"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-dependency-digest-pinning/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-dependency-digest-pinning/spec.md"
+        }
+      ],
+      "diff_digest": "sha256:dedc7a037f9bd70aeaeeaaf3cf21e6c7bd5b3ab64dd98b29274a181b8ad7a60a"
     },
     {
       "id": "cs-08b850d6eeb4",
@@ -21599,6 +21743,12 @@
       "pose-mcp-active-context",
       "pose-release-lifecycle-closure"
     ],
+    "docs-site/requirements.in": [
+      "pose-dependency-digest-pinning"
+    ],
+    "docs-site/requirements.txt": [
+      "pose-dependency-digest-pinning"
+    ],
     "extensions/pose-rule-kubernetes/extension.json": [
       "pose-extension-reference-publication"
     ],
@@ -24568,9 +24718,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
-      "generated_at": "2026-08-08T02:37:36Z",
-      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
+      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
+      "generated_at": "2026-08-08T02:45:05Z",
+      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24580,9 +24730,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
-      "generated_at": "2026-08-08T02:37:36Z",
-      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
+      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
+      "generated_at": "2026-08-08T02:45:05Z",
+      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24592,9 +24742,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
-      "generated_at": "2026-08-08T02:37:36Z",
-      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
+      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
+      "generated_at": "2026-08-08T02:45:05Z",
+      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24604,9 +24754,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
-      "generated_at": "2026-08-08T02:37:36Z",
-      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
+      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
+      "generated_at": "2026-08-08T02:45:05Z",
+      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24616,9 +24766,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
-      "generated_at": "2026-08-08T02:37:36Z",
-      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
+      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
+      "generated_at": "2026-08-08T02:45:05Z",
+      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24628,9 +24778,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
-      "generated_at": "2026-08-08T02:37:36Z",
-      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
+      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
+      "generated_at": "2026-08-08T02:45:05Z",
+      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24640,9 +24790,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
-      "generated_at": "2026-08-08T02:37:36Z",
-      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
+      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
+      "generated_at": "2026-08-08T02:45:05Z",
+      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24652,9 +24802,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
-      "generated_at": "2026-08-08T02:37:36Z",
-      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
+      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
+      "generated_at": "2026-08-08T02:45:05Z",
+      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -25062,6 +25212,8 @@
     "governance:dependency-digest-pinning": [
       "spec:pose-dependency-digest-pinning",
       "artifact:.pose/specs/pose-dependency-digest-pinning/spec.md",
+      "artifact:docs-site/requirements.in",
+      "artifact:docs-site/requirements.txt",
       "artifact:.github/workflows/ci.yml",
       "artifact:.github/workflows/docs.yml",
       "artifact:.github/workflows/governance-audit.yml",

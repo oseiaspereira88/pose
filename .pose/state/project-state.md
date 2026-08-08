@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-08T02:43:31Z
-baseline_commit: 66d5209d5196efabcff8cc8630d868a4d8c7b284
+generated_at: 2026-08-08T02:45:34Z
+baseline_commit: 218468a75b110fcf09b0eb819e4db8738b2f3cf6
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:92593c61cf1f -->
+<!-- state:derived hash:f04d9cc82157 -->
 
-- último registro: task=closeout-pose-dependency-digest-pinning outcome=unknown (2026-08-08T02:37:36Z)
-- últimos 30 dias: total=123 outcome_ok=100 outcome_outro=23
-- reports revisados (.md): total=60
+- último registro: task=closeout-pose-dependency-digest-pinning-docs-lock outcome=unknown (2026-08-08T02:43:40Z)
+- últimos 30 dias: total=124 outcome_ok=100 outcome_outro=24
+- reports revisados (.md): total=61
+  - report:2026-08-08-standard-closeout-pose-dependency-digest-pinning-docs-lock.md
   - report:2026-08-08-standard-closeout-pose-dependency-digest-pinning.md
   - report:2026-08-07-standard-closeout-pose-package-channel-workflow-safety.md
   - report:2026-08-07-standard-closeout-pose-actions-node24-bump.md
   - report:2026-08-07-standard-closeout-pose-package-channel-delivery.md
-  - report:2026-08-07-standard-closeout-pose-release-workflow-hardening.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->

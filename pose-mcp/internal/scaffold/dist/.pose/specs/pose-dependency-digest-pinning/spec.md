@@ -131,6 +131,13 @@ digest cannot be nonexistent, so the class of defect goes away with the form.
   first-party action whenever the exception was missing, including one pinned
   by SHA, because the branch never checked whether the pin was actually a tag.
   It would have blocked exactly this change. Fixed as part of R3.
+- Adding `requirements.txt` made stack detection classify `docs-site/` as a
+  Python module, so `pose validate` began requiring a pytest suite there and
+  failed on "no tests ran". `docs-site/` is an MkDocs site, not an application
+  module: its build is validated by `docs.yml`, and the lock file exists only
+  to pin the closure. A `moduleOverrides` entry replaces the default Python
+  checks with none. The uncomfortable part is that a lock file is now enough to
+  conjure a module — the marker is the dependency manifest, not any code.
 
 ---
 
@@ -200,6 +207,9 @@ digest fails immediately and loudly.
 ### Known gaps
 - Nothing refreshes a stale digest. The pins are correct as of 2026-08-07 and
   will drift from upstream security fixes until someone updates them.
+- `docs-site/` is exempted from Python validation by an override rather than by
+  the detector understanding what it is. A future Python module added there
+  would inherit the exemption silently.
 - The version comments are unverified prose: nothing checks that the comment
   beside a SHA names the version that SHA actually is.
 
