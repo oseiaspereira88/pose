@@ -1,0 +1,67 @@
+# Digest pins do not refresh themselves (spec pose-dependency-pin-refresh).
+#
+# pose-dependency-digest-pinning traded silent drift for explicit staleness:
+# an immutable pin cannot be repointed at attacker-controlled code, but an
+# upstream security fix now arrives only when someone updates a SHA by hand,
+# and nothing reported that a pin had fallen behind.
+#
+# A check that only warns would move that manual work rather than remove it, so
+# the refresh is delegated to Dependabot, which opens the PR with the new digest
+# and the updated version comment.
+#
+# Note the deliberate interaction with the runtime-currency gate: a Dependabot
+# PR fails CI until `.github/action-runtimes.json` is refreshed for the new ref.
+# That is the two-file edit that spec accepted by construction — run
+# `bash scripts/refresh-action-runtimes.sh` on the PR branch and commit the
+# result.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    # One PR per ecosystem rather than per action: every bump needs the runtime
+    # manifest refreshed anyway, so batching keeps that to one edit per cycle.
+    groups:
+      actions:
+        patterns: ["*"]
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: docker
+    directories:
+      - /pose-mcp
+      - /mcp-enforce
+    schedule:
+      interval: monthly
+    groups:
+      images:
+        patterns: ["*"]
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "chore(deps)"
+
+  # The docs lock is hash-pinned with --require-hashes, so a bump must
+  # regenerate the whole closure. Dependabot writes the hashes itself.
+  - package-ecosystem: pip
+    directory: /docs-site
+    schedule:
+      interval: monthly
+    groups:
+      docs:
+        patterns: ["*"]
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: gomod
+    directory: /pose-mcp
+    schedule:
+      interval: monthly
+    groups:
+      go:
+        patterns: ["*"]
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
