@@ -23,6 +23,14 @@
       "body": "The pt-BR `pose-spec-closeout` skill now routes the closeout through the review\ngate. It had gone from follow-up triage straight to hand-editing `status: done`,\nnever mentioning `pose review record`, `pose review-check` or `pose close` — so\nan agent following the translated skill produced a spec that `pose check\n--strict` then rejected with an error whose cause was not visible from its text.\nThe other ten translated skills were checked the same way and teach every\ncommand their English counterparts do.",
       "path": "pose-skill-closeout-gate-parity.md",
       "digest": "sha256:db7235a0bcf03aea78d619105ce682c5e9edd55626e67a79de58252633cf891f"
+    },
+    {
+      "spec": "pose-skill-command-parity",
+      "category": "added",
+      "breaking": false,
+      "body": "A contract test now fails when an English skill and its translation teach\ndifferent POSE commands, comparing only the commands each side tells an agent to\nrun — flags, wording and format are deliberately out of scope, because English\nskills are terse and translations example-rich by design. Applying it settled\nthat open question with evidence: the terse rewrite had dropped nine commands\nthe translations still taught, including `pose new-spec` from the feature skill\nand `pose validate` from the closeout skill. They are restored.",
+      "path": "pose-skill-command-parity.md",
+      "digest": "sha256:a2c4f49a570769fd3beaa6696f1e77ce8d9c6b83bbe73992d3cafca29ea3c9a4"
     }
   ],
   "releases": [
