@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-08T02:50:21Z
-baseline_commit: 1444db06e7d336b75775054a714f2b76ffc3c6b4
+generated_at: 2026-08-08T02:55:50Z
+baseline_commit: e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:076e9172db07 -->
+<!-- state:derived hash:f9b385b8600d -->
 
-- specs: total=69 draft=1 in-progress=0 blocked=0 done=68 superseded=0 abandoned=0
+- specs: total=71 draft=1 in-progress=0 blocked=0 done=70 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
-  - spec:pose-release-signing-rejection (2026-08-07)
-  - spec:pose-actions-node24-bump (2026-08-07)
-  - spec:pose-manual-distribution-merge (2026-08-07)
-  - spec:pose-assessment-engine-precision (2026-08-07)
+  - spec:pose-sbom-license-coverage-gate (2026-08-08)
+  - spec:pose-docs-asset-parity (2026-08-08)
+  - spec:pose-compat-gate-candidate-integrity (2026-08-07)
+  - spec:pose-installer-local-binary-precedence (2026-08-07)
   - spec:pose-verifier-assets-variable-fix (2026-08-07)
-  - ... e mais 63 (ver `pose_list_specs status:done`)
+  - ... e mais 65 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:dbb6c93bfa28 -->
+<!-- state:derived hash:8e8269d6b0e7 -->
 
-- abertos: 35
-- por criticidade: high=0 medium=17 low=18 sem-classificação=0
+- abertos: 37
+- por criticidade: high=0 medium=18 low=19 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:f04d9cc82157 -->
+<!-- state:derived hash:421c63be46ed -->
 
-- último registro: task=closeout-pose-dependency-digest-pinning-docs-lock outcome=unknown (2026-08-08T02:43:40Z)
-- últimos 30 dias: total=124 outcome_ok=100 outcome_outro=24
-- reports revisados (.md): total=61
+- último registro: task=closeout-pose-sbom-license-coverage-gate outcome=unknown (2026-08-08T02:55:33Z)
+- últimos 30 dias: total=126 outcome_ok=100 outcome_outro=26
+- reports revisados (.md): total=63
+  - report:2026-08-08-standard-closeout-pose-sbom-license-coverage-gate.md
+  - report:2026-08-08-standard-closeout-pose-docs-asset-parity.md
   - report:2026-08-08-standard-closeout-pose-dependency-digest-pinning-docs-lock.md
   - report:2026-08-08-standard-closeout-pose-dependency-digest-pinning.md
   - report:2026-08-07-standard-closeout-pose-package-channel-workflow-safety.md
-  - report:2026-08-07-standard-closeout-pose-actions-node24-bump.md
-  - report:2026-08-07-standard-closeout-pose-package-channel-delivery.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->

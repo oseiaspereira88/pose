@@ -289,6 +289,10 @@
       "to": "pose-validation-runtime-guardrails"
     },
     {
+      "from": "pose-sbom-license-coverage-gate",
+      "to": "pose-sbom-license-inventory"
+    },
+    {
       "from": "pose-sbom-license-inventory",
       "to": "pose-cyclonedx-sbom"
     },
@@ -804,6 +808,14 @@
       ],
       "path": ".pose/specs/pose-safe-validate-orchestration/spec.md",
       "priority": 22,
+      "status": "done"
+    },
+    "pose-sbom-license-coverage-gate": {
+      "depends_on": [
+        "pose-sbom-license-inventory"
+      ],
+      "path": ".pose/specs/pose-sbom-license-coverage-gate/spec.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-sbom-license-inventory": {

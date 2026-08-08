@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:362e9077c5ab5a32d01436d11eae597e9b9bac59c77740fd2be0bf2c45202963",
-  "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
+  "input_digest": "sha256:b10bbfee25c8ca7ea001943cbc3fbbd6ec34adfe3b18ee787633494b71d8a8f0",
+  "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -302,6 +302,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-release-workflow-hardening.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-sbom-license-coverage-gate.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-sbom-license-coverage-gate.md"
       }
     },
     {
@@ -1177,6 +1184,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-requirement-evidence-traceability/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-sbom-license-coverage-gate/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-sbom-license-coverage-gate/spec.md"
       }
     },
     {
@@ -2174,6 +2188,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-sbom-license-coverage-gate.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-sbom-license-coverage-gate.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.0.md",
       "type": "artifact",
       "attributes": {
@@ -2458,6 +2479,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260807T163649Z-24c35886.md"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260808T025244Z-6068a8d6.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260808T025244Z-6068a8d6.md"
       }
     },
     {
@@ -2804,6 +2832,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-sbom-license-coverage-gate/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-sbom-license-coverage-gate/spec.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-slsa-provenance/spec.md",
       "type": "artifact",
       "attributes": {
@@ -3147,6 +3182,13 @@
       }
     },
     {
+      "id": "artifact:tests/release/verify.sh",
+      "type": "artifact",
+      "attributes": {
+        "path": "tests/release/verify.sh"
+      }
+    },
+    {
       "id": "change-set:cs-07f1c01f78f0",
       "type": "change-set",
       "attributes": {
@@ -3288,6 +3330,14 @@
       "attributes": {
         "diff_digest": "sha256:79da9698bdf7fe47f035431b29329ac0027ad4bfd64c0730585c1451fb6e829a",
         "selector": "range:3ee2b03..c6e8841"
+      }
+    },
+    {
+      "id": "change-set:cs-93ff611496ba",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:017ccb86492e64613ddf4219c5b81431f8ff898d5228657e4a8c28eb39426764",
+        "selector": "range:1e47b25..e1e0e81"
       }
     },
     {
@@ -3644,6 +3694,14 @@
     },
     {
       "id": "delivery:governance:release-workflow-hardening",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
+      "id": "delivery:governance:sbom-license-coverage-gate",
       "type": "governance",
       "attributes": {
         "module": "pose-mcp",
@@ -4169,6 +4227,13 @@
     },
     {
       "id": "spec:pose-safe-validate-orchestration",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-sbom-license-coverage-gate",
       "type": "spec",
       "attributes": {
         "status": "done"
@@ -5032,6 +5097,11 @@
     {
       "from": "artifact:.pose/specs/pose-release-workflow-hardening/spec.md",
       "to": "delivery:governance:release-workflow-hardening",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/pose-sbom-license-coverage-gate/spec.md",
+      "to": "delivery:governance:sbom-license-coverage-gate",
       "type": "implemented-by"
     },
     {
@@ -6627,6 +6697,11 @@
     {
       "from": "artifact:tests/release/verify-negative.sh",
       "to": "delivery:governance:release-signing-rejection-proof",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:tests/release/verify.sh",
+      "to": "delivery:governance:sbom-license-coverage-gate",
       "type": "implemented-by"
     },
     {
@@ -9342,6 +9417,56 @@
     {
       "from": "change-set:cs-8ef8e6216691",
       "to": "artifact:pose-mcp/server.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-93ff611496ba",
+      "to": "artifact:.pose/changelogs/unreleased/pose-sbom-license-coverage-gate.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-93ff611496ba",
+      "to": "artifact:.pose/specs/pose-sbom-license-coverage-gate/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-93ff611496ba",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-sbom-license-coverage-gate.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-93ff611496ba",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-93ff611496ba",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-93ff611496ba",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-93ff611496ba",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-93ff611496ba",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260808T025244Z-6068a8d6.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-93ff611496ba",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-sbom-license-coverage-gate/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-93ff611496ba",
+      "to": "artifact:tests/release/verify.sh",
       "type": "changes"
     },
     {
@@ -12490,6 +12615,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:sbom-license-coverage-gate",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:sbom-license-coverage-gate",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:sbom-license-inventory",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -12547,6 +12682,11 @@
     {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -14725,6 +14865,26 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-sbom-license-coverage-gate",
+      "to": "artifact:.pose/specs/pose-sbom-license-coverage-gate/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-sbom-license-coverage-gate",
+      "to": "artifact:tests/release/verify.sh",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-sbom-license-coverage-gate",
+      "to": "delivery:governance:sbom-license-coverage-gate",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-sbom-license-coverage-gate",
+      "to": "change-set:cs-93ff611496ba",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-sbom-license-inventory",
       "to": "artifact:.goreleaser.yaml",
       "type": "declares"
@@ -16456,6 +16616,16 @@
       "spec": "pose-release-workflow-hardening",
       "action": "modified",
       "path": ".github/workflows/verify-release.yml"
+    },
+    {
+      "spec": "pose-sbom-license-coverage-gate",
+      "action": "created",
+      "path": ".pose/specs/pose-sbom-license-coverage-gate/spec.md"
+    },
+    {
+      "spec": "pose-sbom-license-coverage-gate",
+      "action": "modified",
+      "path": "tests/release/verify.sh"
     },
     {
       "spec": "pose-sbom-license-inventory",
@@ -19005,6 +19175,61 @@
         }
       ],
       "diff_digest": "sha256:79da9698bdf7fe47f035431b29329ac0027ad4bfd64c0730585c1451fb6e829a"
+    },
+    {
+      "id": "cs-93ff611496ba",
+      "spec": "pose-sbom-license-coverage-gate",
+      "selector": "range:1e47b25..e1e0e81",
+      "base": "1e47b25",
+      "head": "e1e0e81",
+      "resolved_base": "1e47b25b272803c286f7d7fef87f305d4adf316c",
+      "resolved_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
+      "commits": [
+        "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-sbom-license-coverage-gate.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-sbom-license-coverage-gate/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-sbom-license-coverage-gate.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260808T025244Z-6068a8d6.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-sbom-license-coverage-gate/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "tests/release/verify.sh"
+        }
+      ],
+      "diff_digest": "sha256:017ccb86492e64613ddf4219c5b81431f8ff898d5228657e4a8c28eb39426764"
     },
     {
       "id": "cs-98c54f07fd6c",
@@ -21851,6 +22076,9 @@
     ".pose/specs/pose-release-workflow-hardening/spec.md": [
       "pose-release-workflow-hardening"
     ],
+    ".pose/specs/pose-sbom-license-coverage-gate/spec.md": [
+      "pose-sbom-license-coverage-gate"
+    ],
     ".pose/specs/pose-sbom-license-inventory/spec.md": [
       "pose-sbom-license-inventory"
     ],
@@ -22359,6 +22587,9 @@
     ],
     "tests/release/verify-negative.sh": [
       "pose-release-signing-rejection"
+    ],
+    "tests/release/verify.sh": [
+      "pose-sbom-license-coverage-gate"
     ]
   },
   "findings": [
@@ -24869,6 +25100,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-sbom-license-coverage-gate",
+      "ref": "governance:sbom-license-coverage-gate",
+      "kind": "governance",
+      "id": "sbom-license-coverage-gate",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-sbom-license-inventory",
       "ref": "governance:sbom-license-inventory",
       "kind": "governance",
@@ -24931,9 +25171,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
-      "generated_at": "2026-08-08T02:52:38Z",
-      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
+      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
+      "generated_at": "2026-08-08T02:55:33Z",
+      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24943,9 +25183,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
-      "generated_at": "2026-08-08T02:52:38Z",
-      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
+      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
+      "generated_at": "2026-08-08T02:55:33Z",
+      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24955,9 +25195,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
-      "generated_at": "2026-08-08T02:52:38Z",
-      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
+      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
+      "generated_at": "2026-08-08T02:55:33Z",
+      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24967,9 +25207,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
-      "generated_at": "2026-08-08T02:52:38Z",
-      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
+      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
+      "generated_at": "2026-08-08T02:55:33Z",
+      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24979,9 +25219,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
-      "generated_at": "2026-08-08T02:52:38Z",
-      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
+      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
+      "generated_at": "2026-08-08T02:55:33Z",
+      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24991,9 +25231,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
-      "generated_at": "2026-08-08T02:52:38Z",
-      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
+      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
+      "generated_at": "2026-08-08T02:55:33Z",
+      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25003,9 +25243,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
-      "generated_at": "2026-08-08T02:52:38Z",
-      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
+      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
+      "generated_at": "2026-08-08T02:55:33Z",
+      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25015,9 +25255,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
-      "generated_at": "2026-08-08T02:52:38Z",
-      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
+      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
+      "generated_at": "2026-08-08T02:55:33Z",
+      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -25596,6 +25836,14 @@
       "artifact:.github/workflows/release.yml",
       "artifact:.github/workflows/verify-release.yml",
       "delivery:governance:release-workflow-hardening",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
+    "governance:sbom-license-coverage-gate": [
+      "spec:pose-sbom-license-coverage-gate",
+      "artifact:.pose/specs/pose-sbom-license-coverage-gate/spec.md",
+      "artifact:tests/release/verify.sh",
+      "delivery:governance:sbom-license-coverage-gate",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],

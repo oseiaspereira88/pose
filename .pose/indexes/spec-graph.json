@@ -69,6 +69,10 @@
       "to": "pose-actions-node24-bump"
     },
     {
+      "from": "pose-docs-asset-parity",
+      "to": "pose-package-channel-delivery"
+    },
+    {
       "from": "pose-doctor-guided-remediation",
       "to": "pose-public-install-contract"
     },
@@ -285,6 +289,10 @@
       "to": "pose-validation-runtime-guardrails"
     },
     {
+      "from": "pose-sbom-license-coverage-gate",
+      "to": "pose-sbom-license-inventory"
+    },
+    {
       "from": "pose-sbom-license-inventory",
       "to": "pose-cyclonedx-sbom"
     },
@@ -469,6 +477,14 @@
       "depends_on": null,
       "path": ".pose/specs/pose-doc-command-reference/spec.md",
       "priority": 10,
+      "status": "done"
+    },
+    "pose-docs-asset-parity": {
+      "depends_on": [
+        "pose-package-channel-delivery"
+      ],
+      "path": ".pose/specs/pose-docs-asset-parity/spec.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-doctor-guided-remediation": {
@@ -792,6 +808,14 @@
       ],
       "path": ".pose/specs/pose-safe-validate-orchestration/spec.md",
       "priority": 22,
+      "status": "done"
+    },
+    "pose-sbom-license-coverage-gate": {
+      "depends_on": [
+        "pose-sbom-license-inventory"
+      ],
+      "path": ".pose/specs/pose-sbom-license-coverage-gate/spec.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-sbom-license-inventory": {

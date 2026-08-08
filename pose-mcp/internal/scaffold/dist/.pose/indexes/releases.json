@@ -57,6 +57,14 @@
       "digest": "sha256:cf1a1d4a60dfff2ce90eaa79af27bca4facbfc6eb0d0c298029430bec0bd5149"
     },
     {
+      "spec": "pose-sbom-license-coverage-gate",
+      "category": "added",
+      "breaking": false,
+      "body": "The artifact-identity gate now fails a release whose SBOM resolves licenses for\nfewer than 75% of its components, reporting the observed ratio. License\nresolution depends on a syft setting and a populated module cache, either of\nwhich can stop working without any step failing — which is how four releases\nshipped an SBOM advertised as carrying licenses and carrying exactly one. The\nfloor is overridable through `SBOM_MIN_LICENSE_PCT`.",
+      "path": "pose-sbom-license-coverage-gate.md",
+      "digest": "sha256:7176d311fef9de50778228377d7a72c04d7c4b51506c56054f2988d74141f73d"
+    },
+    {
       "spec": "pose-sbom-license-inventory",
       "category": "fixed",
       "breaking": false,
