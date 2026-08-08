@@ -76,14 +76,32 @@ jobs:
             --out ../package-manifests
       - name: Install via Homebrew
         if: runner.os == 'macOS'
+        shell: bash
+        # Homebrew rejects a formula that is not in a tap — installing from a
+        # path or a URL is no longer supported, and HOMEBREW_DEVELOPER is
+        # explicitly unsupported too. The formula therefore goes into a
+        # throwaway local tap, which is the same shape a published tap has, so
+        # the gate exercises the formula the release actually ships
+        # (spec pose-package-channel-install-repair).
         run: |
-          brew install --formula ./package-manifests/homebrew/pose.rb
+          set -euo pipefail
+          brew tap-new --no-git harne8/local
+          tap="$(brew --repository harne8/local)"
+          mkdir -p "$tap/Formula"
+          cp package-manifests/homebrew/pose.rb "$tap/Formula/pose.rb"
+          brew install --formula harne8/local/pose
           pose doctor --json
           brew uninstall pose
       - name: Install via WinGet
         if: runner.os == 'Windows'
         shell: pwsh
+        # Installing from a local manifest is off by default and has to be
+        # enabled by an administrator; without it winget prints its help and
+        # exits 1, which reads like a usage error rather than a disabled
+        # feature (spec pose-package-channel-install-repair).
         run: |
+          winget settings --enable LocalManifestFiles
+          winget validate --manifest .\package-manifests\winget
           winget install --manifest .\package-manifests\winget --accept-package-agreements --accept-source-agreements --disable-interactivity
           pose doctor --json
           winget uninstall --id Harne8.Pose --disable-interactivity

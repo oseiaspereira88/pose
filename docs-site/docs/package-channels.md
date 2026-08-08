@@ -12,38 +12,58 @@ gate, the security gate and artifact-identity verification have all passed
 
 ## Channels and support tiers
 
+The supported install path on every platform is the verified download: fetch the
+archive and `checksums.txt` from the release, verify the checksum, extract — see
+[Quickstart](quickstart.md#install). The package-manager channels below are
+additive, and neither is currently a one-command install.
+
 | Channel | Format | Publication mechanism | Publication lag | Support tier |
 |---|---|---|---|---|
-| Homebrew | `pose.rb` formula | Attached to the GitHub release; `brew install --formula <url>` reads it directly — no upstream tap review | None — available the moment the release publishes | Maintained: exercised on every tagged release by the clean-host matrix |
-| WinGet | 3-file manifest set (`version`/`installer`/`locale.en-US`) | Generated in CI as a release artifact (`pose-package-manifests`); a maintainer submits it as a PR to `microsoft/winget-pkgs` | Days, gated by upstream Microsoft review — tracked per release in the closing spec's follow-ups until publication is automated | Maintained: manifest generation exercised on every tagged release; upstream publication is a manual, tracked step |
+| Homebrew | `pose.rb` formula | Attached to the GitHub release as an asset. **No install channel:** Homebrew requires a formula to be in a tap, and installing one from a path or URL is rejected — so the published formula is consumable only by a tap that does not exist yet | n/a | Generated and install-tested on every tagged release, through a throwaway tap on the clean-host matrix; not consumable by an end user |
+| WinGet | 3-file manifest set (`version`/`installer`/`locale.en-US`) | Generated in CI and attached to the release; a maintainer submits it as a PR to `microsoft/winget-pkgs` | Days, gated by upstream Microsoft review — tracked per release in the closing spec's follow-ups until publication is automated | Maintained: manifest generation and local install exercised on every tagged release; upstream publication is a manual, tracked step |
 
 Install commands:
 
 ```bash
-# Homebrew (macOS, Linux)
-brew install --formula https://github.com/oseiaspereira88/pose/releases/download/vX.Y.Z/pose.rb
+# Every platform: the verified download (see the install contract)
 
 # WinGet (Windows), once published to winget-pkgs
 winget install Harne8.Pose
 ```
+
+!!! warning "Homebrew is not an install channel"
+
+    Earlier versions of this page offered
+    `brew install --formula <url>`. Homebrew rejects that: a formula must be in
+    a tap, and installing from a path or a URL is unsupported. The formula is
+    still generated, published and install-tested every release, so a tap can
+    be stood up without regenerating anything — but until one exists there is
+    no `brew` command that installs POSE, and the verified download is the
+    supported path on macOS.
 
 ## Verification
 
 The `Package channels` CI workflow (`.github/workflows/package-channels.yml`)
 installs, runs `pose doctor --json` and uninstalls through each channel on
 an unmodified macOS and Windows runner for every published release (spec
-`pose-package-manager-distribution`, R3). A channel that fails this matrix
-blocks that release's support-tier claim, not the release itself — package
-channels are additive to the [verified download-and-checksum
-contract](quickstart.md#install), never a replacement for it.
+`pose-package-manager-distribution`, R3). On macOS the formula is installed
+through a throwaway local tap, since that is the only supported way to install
+a formula file — the artifact under test is the published `pose.rb`, not the
+tap. A channel that fails this matrix blocks that release's support-tier claim,
+not the release itself — package channels are additive to the verified
+download-and-checksum contract, never a replacement for it.
+
+That matrix ran for the first time on v0.21.0 and failed on both runners: it
+had never executed before, because its trigger never fired. Both failures were
+in how the gate installed, not in the artifacts — and the Homebrew one is why
+this page no longer advertises a `brew` command.
 
 ## Rollback
 
 Every channel installs a specific pinned version. To roll back:
 
-- **Homebrew:** re-run `brew install --formula` against the prior tag's
-  `pose.rb` URL (release archives and formulas for all supported prior
-  versions remain attached to their GitHub releases).
+- **Homebrew:** not applicable — there is no install channel to roll back.
+  Re-run the verified download against the prior tag.
 - **WinGet:** `winget install Harne8.Pose --version <prior-version>`, or
   uninstall and reinstall from the prior release's manifest artifact.
 
