@@ -1,7 +1,12 @@
 // Workflow security contract (spec pose-ossf-security-baseline R2):
-// every GitHub workflow declares explicit permissions, every third-party
-// action is pinned to a full commit SHA, and first-party tag pinning is only
-// allowed while its owned exception has not expired.
+// every GitHub workflow declares explicit permissions and every action is
+// pinned to a full commit SHA, whoever owns it.
+//
+// A first-party action may fall back to a version tag only while the owned
+// `first-party-actions-tag-pinning` exception is live. No workflow relies on
+// that fallback since pose-dependency-digest-pinning; the branch is kept
+// because the exception has not expired and removing it would silently drop
+// the guard if an action is ever added back by tag.
 package version_test
 
 import (
@@ -60,8 +65,9 @@ var (
 	tagRefRe = regexp.MustCompile(`^v\d+[\w.-]*$`)
 )
 
-// firstPartyOwners are GitHub-platform orgs covered by the
-// first-party-actions-tag-pinning exception while it remains valid.
+// firstPartyOwners are GitHub-platform orgs eligible for the
+// first-party-actions-tag-pinning exception while it remains valid. No
+// workflow currently uses it: every action is digest-pinned.
 var firstPartyOwners = map[string]bool{"actions": true, "github": true}
 
 func TestWorkflowSecurityContract(t *testing.T) {
@@ -90,18 +96,21 @@ func TestWorkflowSecurityContract(t *testing.T) {
 				t.Errorf("%s: action %q has no version pin at all", name, ref)
 				continue
 			}
-			owner := strings.SplitN(action, "/", 2)[0]
+			if shaRefRe.MatchString(version) {
+				continue // digest-pinned: the strongest form, whoever owns it
+			}
+			owner, _, _ := strings.Cut(action, "/")
 			if firstPartyOwners[owner] {
+				// A first-party action may be tag-pinned only while the owned
+				// exception is live. Reaching here means it is not SHA-pinned.
 				if !valid["first-party-actions-tag-pinning"] {
 					t.Errorf("%s: %s is tag-pinned but the first-party-actions-tag-pinning exception is missing or expired", name, ref)
-				} else if !tagRefRe.MatchString(version) && !shaRefRe.MatchString(version) {
+				} else if !tagRefRe.MatchString(version) {
 					t.Errorf("%s: %s must be pinned to a version tag or commit SHA", name, ref)
 				}
 				continue
 			}
-			if !shaRefRe.MatchString(version) {
-				t.Errorf("%s: third-party action %s must be pinned to a full commit SHA", name, ref)
-			}
+			t.Errorf("%s: third-party action %s must be pinned to a full commit SHA", name, ref)
 		}
 	}
 }

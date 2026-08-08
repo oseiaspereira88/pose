@@ -28,7 +28,7 @@ jobs:
       # the ref is still attacker-influenceable, so it is resolved to a tag that
       # matches the release pattern and nothing else
       # (spec pose-release-workflow-hardening).
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Resolve and check out the release tag
         env:
           RAW_REF: ${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}
@@ -43,7 +43,7 @@ jobs:
           # Every later step reads the validated tag from the environment; the
           # raw event value is never interpolated into a script again.
           echo "RELEASE_TAG=$RAW_REF" >> "$GITHUB_ENV"
-      - uses: actions/setup-go@v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.26.5"
           cache: false # verifier must not reuse producer caches
@@ -54,7 +54,7 @@ jobs:
         run: bash tests/release/independent-verify.sh "$RELEASE_TAG"
       - name: Retain verification report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pose-verification-report
           path: verification-report.md
