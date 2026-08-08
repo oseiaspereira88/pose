@@ -99,11 +99,12 @@ of any kind.
 - None.
 
 ### Technical risks
-- **The configuration is unverified until GitHub processes it.** YAML validity
-  is checkable here; whether Dependabot accepts every field — `directories` for
-  the two Dockerfiles in particular — is only visible once the file is on the
-  default branch and the service has parsed it. Recorded as a follow-up rather
-  than asserted.
+- **The configuration was unverifiable at authoring time.** YAML validity was
+  checkable here; whether Dependabot accepted every field — `directories` for the
+  two Dockerfiles in particular — was only visible once the file reached the
+  default branch. It did, minutes later, and all three grouped PRs opened. The
+  risk is retained in this record because it was real when the decision was
+  made, not because it remains open.
 - Grouped monthly updates mean a security fix published the day after a run
   waits up to a month. The alternative — daily, ungrouped — produces a manifest
   refresh per PR, which is the friction this spec exists to bound. The trade is
@@ -138,8 +139,10 @@ runtime gate must still pass afterwards. Idempotence is the property that
 matters — a regenerator that rewrites its input differently each run would make
 every Dependabot PR carry an unreviewable diff.
 
-The Dependabot configuration itself cannot be validated locally beyond YAML
-syntax, and the spec says so rather than implying otherwise.
+The Dependabot configuration cannot be validated locally beyond YAML syntax, so
+it was pushed and observed rather than asserted — and the observation turned out
+to be the strongest evidence in this spec: a real bump PR exercised the gate, the
+message and the remedy in sequence.
 
 ### Deterministic checks
 
@@ -160,25 +163,35 @@ syntax, and the spec says so rather than implying otherwise.
   to the reviewed one, with the deprecated-runtime list preserved;
   `TestActionRuntimeCurrency` passes against the regenerated file. The
   configuration parses as YAML and declares four ecosystems.
+- **Settled by the service within minutes of the push**, so the risk this spec
+  recorded as unverifiable was verified after all: Dependabot accepted the
+  configuration and opened three grouped PRs — go modules (#11), container
+  images across both directories (#10, confirming `directories` is valid) and
+  actions (#12). The go PR passed CI unchanged. The actions PR failed exactly as
+  designed, with `ossf/scorecard-action: pinned at 2d1146689b8c but recorded at
+  4eaacf0543bb`. Running `scripts/refresh-action-runtimes.sh` on that branch
+  produced a one-line diff and CI went green (run 31281336580, after 31281261083
+  failed). The friction, the message and the remedy all behaved as specified.
 
 ### Results summary
 - Successes: every pinned ecosystem has a refresh path; the manifest edit a
-  bump forces is one command and provably idempotent
+  bump forces is one command and provably idempotent; the whole loop —
+  configuration accepted, PRs opened, gate fires, one-command remedy, CI green —
+  demonstrated end to end on a real Dependabot PR
 - Failures: none
-- Warnings: Dependabot's own acceptance of the configuration is unverified until
-  it lands on the default branch
+- Warnings: none
 
 ### Requirement trace
-- R1 [satisfied] governance:dependency-pin-refresh evidence:integration check:delivery-integration report:.github/dependabot.yml — github-actions, docker (both Dockerfiles), pip (the hash-pinned docs lock) and gomod are declared
+- R1 [satisfied] governance:dependency-pin-refresh evidence:integration check:delivery-integration report:.github/dependabot.yml — github-actions, docker (both Dockerfiles), pip (the hash-pinned docs lock) and gomod are declared; the service accepted all four and opened PRs #10, #11 and #12
 - R2 [satisfied] report:.github/dependabot.yml — each ecosystem declares a group matching `*` on a monthly interval
 - R3 [satisfied] test:scripts/refresh-action-runtimes.sh — the script rebuilds `runtimes` from the workflows and carries `deprecated_runtimes` and the schema comment across unchanged
-- R4 [satisfied] check:action-runtime-currency — regenerating the reviewed manifest produced no diff, and the offline gate passes against the result
+- R4 [satisfied] check:action-runtime-currency — regenerating the reviewed manifest produced no diff, and the offline gate passes against the result; on PR #12 the same command produced exactly the one-line diff the bump required
 
 ### Known gaps
-- Whether Dependabot accepts this configuration is settled by GitHub, not here.
 - A monthly cadence bounds how fast a published fix can arrive.
-- Nothing verifies that a Dependabot PR actually refreshes the manifest; the
-  gate fails the PR, which is the signal, but the fix is still a human step.
+- Nothing refreshes the manifest on the PR automatically; the gate fails it,
+  which is the signal, but the fix is still a human step. Demonstrated to be a
+  one-command step, not a small one that stays undone.
 
 ---
 
@@ -197,9 +210,9 @@ bump forces is a single idempotent command.
 - Result: identical manifest, gate green, no findings
 
 ### Residual risks
-- The configuration's acceptance is confirmed only once GitHub parses it.
+- Monthly grouping is a deliberate ceiling on how fast a published fix arrives.
 
 ### Follow-ups
 
-- [open] Confirm on the default branch that Dependabot accepted the configuration — particularly `directories` for the two Dockerfiles — and that the first grouped run opens the PRs it should. A rejected configuration fails silently from this repository's point of view: no PRs is indistinguishable from nothing to update. (owner:@pose-maintainers crit:medium review:2026-09-18)
-- [open] A Dependabot PR fails CI until `.github/action-runtimes.json` is refreshed, and nothing automates that step on the PR branch. Consider a workflow that runs `scripts/refresh-action-runtimes.sh` and commits the result when the actor is Dependabot, which would turn the gate's deliberate friction into a self-healing one. (owner:@pose-maintainers crit:low review:2026-11-06)
+- [done] Confirmed within minutes of the push: Dependabot accepted the configuration and opened PRs #10 (images across both directories, validating `directories`), #11 (go modules) and #12 (actions). Original item: confirm on the default branch that Dependabot accepted the configuration and that the first grouped run opens the PRs it should. (owner:@pose-maintainers crit:medium review:2026-09-18)
+- [open] A Dependabot PR fails CI until `.github/action-runtimes.json` is refreshed, and nothing automates that step on the PR branch — observed on PR #12, fixed by one command. Consider a workflow that runs `scripts/refresh-action-runtimes.sh` and commits the result when the actor is Dependabot, which would turn the gate's deliberate friction into a self-healing one. Worth weighing against the argument for keeping a human in the loop on every dependency bump. (owner:@pose-maintainers crit:low review:2026-11-06)
