@@ -31,6 +31,13 @@ jobs:
         run: bash tests/install/run.sh
       - name: Artifact-identity gate rejects what it must (spec pose-release-signing R3)
         run: bash tests/release/verify-negative.sh
+      - name: Recorded action runtimes match the actions themselves
+        # The offline check reads the runtime record; this resolves each action
+        # at its pinned ref, so the record cannot quietly disagree with reality
+        # (spec pose-action-runtime-currency-gate).
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash tests/release/action-runtime-verify.sh
   governance:
     # Dogfood gate (spec pose-standalone-dogfood): the standalone instance
     # must pass its own structural/validation gates with an explicitly

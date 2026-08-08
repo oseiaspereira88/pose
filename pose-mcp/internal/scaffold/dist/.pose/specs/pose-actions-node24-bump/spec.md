@@ -205,4 +205,4 @@ actions remain SHA-pinned.
 
 ### Follow-ups
 
-- [open] Runtime currency is detected by reading annotations on passing runs, which is how the Node 20 deprecation went unnoticed until it was already being forced. Consider a check that fails when a referenced first-party action declares a runtime GitHub has deprecated — the data is in each action's `action.yml` at its pinned tag. (owner:@pose-maintainers crit:low review:2026-11-06)
+- [covered: pose-action-runtime-currency-gate] Runtime currency is detected by reading annotations on passing runs, which is how the Node 20 deprecation went unnoticed until it was already being forced. Consider a check that fails when a referenced first-party action declares a runtime GitHub has deprecated — the data is in each action's `action.yml` at its pinned tag. (owner:@pose-maintainers crit:low review:2026-11-06)

@@ -1,8 +1,8 @@
 ---
 slug: pose-action-runtime-currency-gate
-status: draft
+status: done
 created_at: 2026-08-07
-completed_at:
+completed_at: 2026-08-08
 supersedes:
 depends_on: pose-actions-node24-bump
 priority: 2
@@ -15,7 +15,7 @@ delivers: governance:action-runtime-currency-gate
 ## 1. Intent
 
 ### Goal
-Fail CI when a workflow references a first-party action whose `action.yml`
+Fail CI when a workflow references an action whose `action.yml`
 declares a runtime GitHub has deprecated, so the next deprecation is caught by a
 gate rather than by someone reading an annotation on a green run.
 
@@ -51,22 +51,28 @@ release blocked at the worst moment, which is exactly the failure mode that
 - Auto-bumping actions. The gate reports; a human decides the target major,
   because a major bump can carry behaviour changes (as `setup-go@v6`'s
   toolchain handling and `checkout@v7`'s fork-PR block both did).
-- Covering third-party actions' runtimes. They are SHA-pinned and reviewed on
-  the pinning exception's schedule; widening scope here dilutes the signal.
 - Detecting deprecations GitHub has not announced. The gate enforces a declared
   list; it does not predict.
+
+**Scope changed during implementation.** The draft excluded third-party actions,
+reasoning that they are SHA-pinned and reviewed on their own schedule. That was
+reversed, and the first run showed why: `goreleaser/goreleaser-action` was still
+on node20 — the only remaining deprecated runtime in the repository — precisely
+because the Node 24 bump had covered first-party actions only. Excluding
+third-party would have shipped a currency gate blind to the single thing it had
+to find.
 
 ---
 
 ## 2. Requirements
 
 ### Functional
-- R1: A deterministic offline check shall fail when any workflow references a
-  first-party action whose recorded runtime appears in the declared deprecated
-  set.
-- R2: Every first-party `uses:` reference in `.github/workflows/` shall have a
-  recorded runtime; a reference with no record shall fail the same check, so
-  adding an action cannot silently bypass the gate.
+- R1: A deterministic offline check shall fail when any workflow references an
+  action whose recorded runtime appears in the declared deprecated set.
+- R2: Every non-local `uses:` reference in `.github/workflows/` shall have a
+  recorded runtime pinned at the same ref; a reference with no record, or a
+  record whose ref is stale, shall fail the same check — so neither adding an
+  action nor bumping one can silently bypass the gate.
 - R3: A CI step shall resolve each referenced action's `action.yml` at its
   pinned ref and fail when the real `runs.using` differs from the recorded one,
   so the record cannot drift from reality unnoticed.
@@ -96,8 +102,10 @@ release blocked at the worst moment, which is exactly the failure mode that
 ## 3. Technical Plan
 
 ### Affected areas
-- `pose-mcp/internal/version/workflow_security_test.go` — or a sibling file in
-  the same package, reusing `usesRe` and `firstPartyOwners`.
+- `pose-mcp/internal/version/action_runtime_test.go` — a sibling of the pinning
+  contract in the same package, so a pinning failure and a runtime failure stay
+  distinguishable.
+- `tests/release/action-runtime-verify.sh` — the online half.
 - `.github/action-runtimes.json` — new: the recorded runtime per action
   reference plus the deprecated set.
 - `.github/workflows/ci.yml` — the R3 step.
@@ -105,8 +113,10 @@ release blocked at the worst moment, which is exactly the failure mode that
 ### Artifacts
 - created: .pose/specs/pose-action-runtime-currency-gate/spec.md
 - created: .github/action-runtimes.json
-- modified: pose-mcp/internal/version/workflow_security_test.go
+- created: pose-mcp/internal/version/action_runtime_test.go
+- created: tests/release/action-runtime-verify.sh
 - modified: .github/workflows/ci.yml
+- modified: .github/workflows/release.yml
 
 ### Delivery targets
 - governance:action-runtime-currency-gate module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
@@ -141,20 +151,21 @@ release blocked at the worst moment, which is exactly the failure mode that
 ## 4. Tasks
 
 ### Planning
-- [ ] Confirm `runs.using` is present in every referenced action's manifest,
+- [x] Confirm `runs.using` is present in every referenced action's manifest,
       including the composite ones, and decide their representation
-- [ ] Decide whether the check lives with the pinning contract or beside it
+- [x] Decide whether the check lives with the pinning contract or beside it
 
 ### Implementation
-- [ ] R1: fail on a recorded runtime in the deprecated set
-- [ ] R2: fail on a first-party reference with no record
-- [ ] R4: manifest schema with owner + announced date; actionable message
-- [ ] R3: CI step resolving each `action.yml` at its pinned ref
+- [x] R1: fail on a recorded runtime in the deprecated set
+- [x] R2: fail on a reference with no record
+- [x] R4: manifest schema with owner + announced date; actionable message
+- [x] R3: CI step resolving each `action.yml` at its pinned ref
 
 ### Validation
-- [ ] Prove R1 against a known-bad fixture: a workflow pinning a node20 major
-- [ ] Prove R3 catches a deliberately wrong record
-- [ ] Run the mandatory checks
+- [x] Prove R1 against a known-bad record
+- [x] Prove R2 against a removed record and R3 against a stale ref
+- [x] Prove the online half catches a deliberately wrong record
+- [x] Run the mandatory checks
 
 ---
 
@@ -175,42 +186,77 @@ itself introduces.
 
 #### Test
 - Command: `go -C pose-mcp test ./internal/version/... -run ActionRuntime -count=1`
-- Scope: offline manifest and deprecated-set enforcement, with negative fixtures
-- Expected: pass, including both rejection cases
+- Scope: offline manifest, deprecated set, unrecorded references and stale refs
+- Expected: pass
 
 #### Security / Contract
-- Command: `go -C pose-mcp test ./internal/version/... -run WorkflowSecurity -count=1`
-- Scope: the existing pinning contract, unchanged by this work
+- Command: `bash tests/release/action-runtime-verify.sh`
+- Scope: each recorded runtime against the action's own action.yml at its pinned ref
 - Expected: pass
 
 ### Execution log
-<!-- Filled at implementation; nothing has been executed. -->
+- Date: 2026-08-08
+- Environment: linux/amd64; runtimes resolved through the GitHub contents API at
+  each action's pinned ref.
+- Notes: building the manifest immediately found the defect the gate exists for
+  — `goreleaser/goreleaser-action` was pinned at v6, which declares node20. Its
+  v7.0.0 release is literally "node 24, update deps, rm yarn, ESM", so it was
+  bumped to v7.2.3 and the repository now has no deprecated runtime. Fifteen
+  actions are recorded: 11 node24, 3 composite, 1 docker.
+- Each failure path was exercised against the real manifest rather than a
+  fixture: recording node20 for goreleaser reports the deprecation and its
+  announcement date; deleting the `actions/checkout` record reports it as
+  unchecked; replacing `actions/setup-go`'s ref with zeros reports the record as
+  describing a different version. The online half, given a record claiming
+  node20 for `actions/checkout`, reports that the action declares node24 at its
+  pinned ref.
 
 ### Results summary
-<!-- Filled at implementation. -->
+- Successes: every failure path demonstrated; the only deprecated runtime in the
+  repository found and removed
+- Failures: none
+- Warnings: none
 
 ### Requirement trace
-<!-- Filled at implementation; R3's evidence is a real CI run, not a local command. -->
+- R1 [satisfied] governance:action-runtime-currency-gate evidence:integration check:delivery-integration test:pose-mcp/internal/version/action_runtime_test.go — recording node20 for goreleaser produces a failure naming the action, the runtime and the 2025-09-19 announcement date
+- R2 [satisfied] test:pose-mcp/internal/version/action_runtime_test.go — a removed record reports the action as unchecked and names the file to edit; a stale ref reports that the record describes a different version; a record for an unreferenced action is reported as stale bookkeeping
+- R3 [satisfied] check:action-runtime-verify report:.github/workflows/ci.yml — the CI step resolves each action.yml at its pinned ref; run locally it confirms all 15 records and, given a deliberately wrong one, reports the disagreement
+- R4 [satisfied] report:.github/action-runtimes.json — each deprecated entry carries runtime, owner, announced date and justification, and the check fails when any is missing
 
 ### Known gaps
-<!-- Filled at implementation. Expected to record that the deprecated set is a
-     declared input and the gate cannot discover a new deprecation on its own. -->
+- The deprecated set is a declared input. The gate cannot discover that a
+  runtime became deprecated; it enforces what someone wrote down. That narrows
+  the window from "nobody noticed" to "nobody updated the list" — an
+  improvement, not a solution.
+- The offline half trusts the record. Only the online step compares it to
+  reality, and it needs network and a token, so a local `go test` run proves
+  internal consistency rather than truth.
+- A bump is a two-file edit by construction: the ref check fails until the
+  record is refreshed. That is deliberate noise, but it is friction.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-<!-- Filled at closeout. -->
+A deprecated action runtime now fails the build. The offline check enforces the
+declared deprecated set, the recorded ref and full coverage of referenced
+actions; the CI step keeps the record honest against each action's own
+action.yml.
 
 ### Files and modules changed
-<!-- Filled at closeout. -->
+- .github/action-runtimes.json
+- pose-mcp/internal/version/action_runtime_test.go
+- tests/release/action-runtime-verify.sh
+- .github/workflows/ci.yml, .github/workflows/release.yml
 
 ### Validation executed
-<!-- Filled at closeout. -->
+- Command: the offline test with three injected failures; the online verifier
+  against all 15 actions and against a deliberately wrong record
+- Result: pass; every failure path named its cause
 
 ### Residual risks
-<!-- Filled at closeout. -->
+- The gate is only as current as its deprecated list, which is human input.
 
 ### Follow-ups
 
