@@ -61,6 +61,23 @@ for artifact in "${archives[@]}"; do
       err "SBOM $sbom is missing direct production dependency $dep"
     fi
   done
+  # License coverage (spec pose-sbom-license-coverage-gate). Resolution depends
+  # on a syft setting and a populated module cache, either of which can stop
+  # working without failing the build: before that setting was added, releases
+  # shipped 1 component of 27 with a license while the docs advertised an SBOM'd
+  # release. Measured coverage is 24/27 (88%); the floor sits well below that so
+  # ordinary dependency churn does not trip it, and far above the ~4% an outright
+  # collapse of the mechanism produces.
+  min_pct="${SBOM_MIN_LICENSE_PCT:-75}"
+  read -r licensed total < <(jq -r '[.components[]] as $c
+    | "\([$c[] | select(.licenses and (.licenses | length > 0))] | length) \($c | length)"' "$sbom")
+  if [[ "$total" -eq 0 ]]; then
+    err "SBOM $sbom has no components to measure license coverage against"
+  elif (( licensed * 100 < min_pct * total )); then
+    err "SBOM $sbom resolves licenses for $licensed/$total components, below the $min_pct% floor"
+  else
+    say "SBOM license coverage OK: $licensed/$total"
+  fi
   say "SBOM OK: $(basename "$sbom")"
 done
 

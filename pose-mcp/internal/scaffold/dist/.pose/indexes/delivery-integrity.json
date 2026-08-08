@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:720cafdf51ee09f9b3a3ad4011ccd8468038cb5441cdf914607d0142b059e5a7",
-  "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
+  "input_digest": "sha256:362e9077c5ab5a32d01436d11eae597e9b9bac59c77740fd2be0bf2c45202963",
+  "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -211,6 +211,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-dependency-digest-pinning.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-docs-asset-parity.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-docs-asset-parity.md"
       }
     },
     {
@@ -932,6 +939,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-dependency-digest-pinning/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-docs-asset-parity/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-docs-asset-parity/spec.md"
       }
     },
     {
@@ -2097,6 +2111,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-docs-asset-parity.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-docs-asset-parity.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-extension-reference-publication.md",
       "type": "artifact",
       "attributes": {
@@ -2556,6 +2577,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-doc-command-reference/spec.md"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-docs-asset-parity/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-docs-asset-parity/spec.md"
       }
     },
     {
@@ -3098,6 +3126,13 @@
       }
     },
     {
+      "id": "artifact:tests/release/docs-asset-parity.sh",
+      "type": "artifact",
+      "attributes": {
+        "path": "tests/release/docs-asset-parity.sh"
+      }
+    },
+    {
       "id": "artifact:tests/release/independent-verify.sh",
       "type": "artifact",
       "attributes": {
@@ -3368,6 +3403,14 @@
       }
     },
     {
+      "id": "change-set:cs-e90e8701eca9",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:37e34647e4422c1678c179b2f7933434423fe5dae14c4438727c32e81123b842",
+        "selector": "range:caa600c..1e47b25"
+      }
+    },
+    {
       "id": "change-set:cs-eef769b1c79f",
       "type": "change-set",
       "attributes": {
@@ -3489,6 +3532,14 @@
     },
     {
       "id": "delivery:governance:dependency-digest-pinning",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
+      "id": "delivery:governance:docs-asset-parity",
       "type": "governance",
       "attributes": {
         "module": "pose-mcp",
@@ -3838,6 +3889,13 @@
     },
     {
       "id": "spec:pose-doc-command-reference",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-docs-asset-parity",
       "type": "spec",
       "attributes": {
         "status": "done"
@@ -4503,6 +4561,11 @@
     },
     {
       "from": "artifact:.github/workflows/verify-release.yml",
+      "to": "delivery:governance:docs-asset-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.github/workflows/verify-release.yml",
       "to": "delivery:governance:package-channel-workflow-safety",
       "type": "implemented-by"
     },
@@ -4864,6 +4927,11 @@
     {
       "from": "artifact:.pose/specs/pose-dependency-digest-pinning/spec.md",
       "to": "delivery:governance:dependency-digest-pinning",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/pose-docs-asset-parity/spec.md",
+      "to": "delivery:governance:docs-asset-parity",
       "type": "implemented-by"
     },
     {
@@ -6534,6 +6602,11 @@
     {
       "from": "artifact:tests/release/compat.sh",
       "to": "delivery:governance:compat-gate-manual-assertion",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:tests/release/docs-asset-parity.sh",
+      "to": "delivery:governance:docs-asset-parity",
       "type": "implemented-by"
     },
     {
@@ -11837,6 +11910,36 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-e90e8701eca9",
+      "to": "artifact:.github/workflows/verify-release.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e90e8701eca9",
+      "to": "artifact:.pose/changelogs/unreleased/pose-docs-asset-parity.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e90e8701eca9",
+      "to": "artifact:.pose/specs/pose-docs-asset-parity/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e90e8701eca9",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-docs-asset-parity.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e90e8701eca9",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-docs-asset-parity/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e90e8701eca9",
+      "to": "artifact:tests/release/docs-asset-parity.sh",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-eef769b1c79f",
       "to": "artifact:.github/workflows/ci.yml",
       "type": "changes"
@@ -12227,6 +12330,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:docs-asset-parity",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:docs-asset-parity",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:extension-reference",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -12434,6 +12547,11 @@
     {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -13494,6 +13612,31 @@
     {
       "from": "spec:pose-dependency-digest-pinning",
       "to": "change-set:cs-eef769b1c79f",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-docs-asset-parity",
+      "to": "artifact:.github/workflows/verify-release.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-docs-asset-parity",
+      "to": "artifact:.pose/specs/pose-docs-asset-parity/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-docs-asset-parity",
+      "to": "artifact:tests/release/docs-asset-parity.sh",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-docs-asset-parity",
+      "to": "delivery:governance:docs-asset-parity",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-docs-asset-parity",
+      "to": "change-set:cs-e90e8701eca9",
       "type": "observed-by"
     },
     {
@@ -15397,6 +15540,21 @@
       "spec": "pose-doc-command-reference",
       "action": "none",
       "reason": "documentation"
+    },
+    {
+      "spec": "pose-docs-asset-parity",
+      "action": "created",
+      "path": ".pose/specs/pose-docs-asset-parity/spec.md"
+    },
+    {
+      "spec": "pose-docs-asset-parity",
+      "action": "created",
+      "path": "tests/release/docs-asset-parity.sh"
+    },
+    {
+      "spec": "pose-docs-asset-parity",
+      "action": "modified",
+      "path": ".github/workflows/verify-release.yml"
     },
     {
       "spec": "pose-extension-reference-publication",
@@ -21118,6 +21276,45 @@
       "diff_digest": "sha256:78931741bb810f62474a8c06c06e870127c0191ca8d07301e80f47168f835f10"
     },
     {
+      "id": "cs-e90e8701eca9",
+      "spec": "pose-docs-asset-parity",
+      "selector": "range:caa600c..1e47b25",
+      "base": "caa600c",
+      "head": "1e47b25",
+      "resolved_base": "caa600c72c73b7050be69b77f93ed2ab34f62f5d",
+      "resolved_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
+      "commits": [
+        "1e47b25b272803c286f7d7fef87f305d4adf316c"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-docs-asset-parity.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-docs-asset-parity/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-docs-asset-parity.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-docs-asset-parity/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "tests/release/docs-asset-parity.sh"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/verify-release.yml"
+        }
+      ],
+      "diff_digest": "sha256:37e34647e4422c1678c179b2f7933434423fe5dae14c4438727c32e81123b842"
+    },
+    {
       "id": "cs-eef769b1c79f",
       "spec": "pose-dependency-digest-pinning",
       "selector": "range:963902e..ae00255",
@@ -21461,6 +21658,7 @@
     ".github/workflows/verify-release.yml": [
       "pose-actions-node24-bump",
       "pose-dependency-digest-pinning",
+      "pose-docs-asset-parity",
       "pose-package-channel-workflow-safety",
       "pose-release-evidence-trigger-fix",
       "pose-release-workflow-hardening"
@@ -21594,6 +21792,9 @@
     ],
     ".pose/specs/pose-dependency-digest-pinning/spec.md": [
       "pose-dependency-digest-pinning"
+    ],
+    ".pose/specs/pose-docs-asset-parity/spec.md": [
+      "pose-docs-asset-parity"
     ],
     ".pose/specs/pose-extension-reference-publication/spec.md": [
       "pose-extension-reference-publication"
@@ -22147,6 +22348,9 @@
     "tests/release/compat.sh": [
       "pose-compat-gate-candidate-integrity",
       "pose-compat-gate-manual-refresh-assertion"
+    ],
+    "tests/release/docs-asset-parity.sh": [
+      "pose-docs-asset-parity"
     ],
     "tests/release/independent-verify.sh": [
       "pose-extension-reference-publication",
@@ -24521,6 +24725,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-docs-asset-parity",
+      "ref": "governance:docs-asset-parity",
+      "kind": "governance",
+      "id": "docs-asset-parity",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-extension-reference-publication",
       "ref": "governance:extension-reference",
       "kind": "governance",
@@ -24718,9 +24931,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
-      "generated_at": "2026-08-08T02:45:05Z",
-      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
+      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
+      "generated_at": "2026-08-08T02:52:38Z",
+      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24730,9 +24943,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
-      "generated_at": "2026-08-08T02:45:05Z",
-      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
+      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
+      "generated_at": "2026-08-08T02:52:38Z",
+      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24742,9 +24955,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
-      "generated_at": "2026-08-08T02:45:05Z",
-      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
+      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
+      "generated_at": "2026-08-08T02:52:38Z",
+      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24754,9 +24967,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
-      "generated_at": "2026-08-08T02:45:05Z",
-      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
+      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
+      "generated_at": "2026-08-08T02:52:38Z",
+      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24766,9 +24979,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
-      "generated_at": "2026-08-08T02:45:05Z",
-      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
+      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
+      "generated_at": "2026-08-08T02:52:38Z",
+      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24778,9 +24991,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
-      "generated_at": "2026-08-08T02:45:05Z",
-      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
+      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
+      "generated_at": "2026-08-08T02:52:38Z",
+      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24790,9 +25003,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
-      "generated_at": "2026-08-08T02:45:05Z",
-      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
+      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
+      "generated_at": "2026-08-08T02:52:38Z",
+      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24802,9 +25015,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
-      "generated_at": "2026-08-08T02:45:05Z",
-      "provenance_digest": "sha256:88e67a662113a818875aec49ec08dfb7f0f4acbd775d3f8aeae850eff4c42c26",
+      "git_head": "1e47b25b272803c286f7d7fef87f305d4adf316c",
+      "generated_at": "2026-08-08T02:52:38Z",
+      "provenance_digest": "sha256:50bbfabe1eddb6e27376f144ce5506a1efe87301f49ed55076784824a1ca0b37",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -25226,6 +25439,15 @@
       "artifact:pose-mcp/Dockerfile",
       "artifact:pose-mcp/internal/version/workflow_security_test.go",
       "delivery:governance:dependency-digest-pinning",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
+    "governance:docs-asset-parity": [
+      "spec:pose-docs-asset-parity",
+      "artifact:.pose/specs/pose-docs-asset-parity/spec.md",
+      "artifact:tests/release/docs-asset-parity.sh",
+      "artifact:.github/workflows/verify-release.yml",
+      "delivery:governance:docs-asset-parity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],

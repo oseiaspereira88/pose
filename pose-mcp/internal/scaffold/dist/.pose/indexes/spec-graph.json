@@ -69,6 +69,10 @@
       "to": "pose-actions-node24-bump"
     },
     {
+      "from": "pose-docs-asset-parity",
+      "to": "pose-package-channel-delivery"
+    },
+    {
       "from": "pose-doctor-guided-remediation",
       "to": "pose-public-install-contract"
     },
@@ -469,6 +473,14 @@
       "depends_on": null,
       "path": ".pose/specs/pose-doc-command-reference/spec.md",
       "priority": 10,
+      "status": "done"
+    },
+    "pose-docs-asset-parity": {
+      "depends_on": [
+        "pose-package-channel-delivery"
+      ],
+      "path": ".pose/specs/pose-docs-asset-parity/spec.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-doctor-guided-remediation": {
