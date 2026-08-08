@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-08T04:48:38Z
-baseline_commit: b21dec840f08bc50cb582e94d7367c97ac6235cd
+generated_at: 2026-08-08T05:00:12Z
+baseline_commit: 0e108f4f19f592d3fc693df8d31b739e2e06c278
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:95b5736879e2 -->
+<!-- state:derived hash:51b47dcb29d0 -->
 
-- último registro: task=closeout-pose-package-channel-install-repair outcome=unknown (2026-08-08T04:48:23Z)
-- últimos 30 dias: total=129 outcome_ok=100 outcome_outro=29
-- reports revisados (.md): total=66
+- último registro: task=closeout-pose-package-channel-install-repair-proven outcome=unknown (2026-08-08T04:59:46Z)
+- últimos 30 dias: total=130 outcome_ok=100 outcome_outro=30
+- reports revisados (.md): total=67
+  - report:2026-08-08-standard-closeout-pose-package-channel-install-repair-proven.md
   - report:2026-08-08-standard-closeout-pose-package-channel-install-repair.md
   - report:2026-08-08-standard-closeout-pose-release-clean-tree-attribution.md
   - report:2026-08-08-standard-closeout-pose-workflow-event-ref-contract.md
   - report:2026-08-08-standard-closeout-pose-sbom-license-coverage-gate.md
-  - report:2026-08-08-standard-closeout-pose-docs-asset-parity.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
