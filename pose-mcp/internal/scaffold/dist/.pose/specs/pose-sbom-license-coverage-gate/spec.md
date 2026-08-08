@@ -177,4 +177,4 @@ fewer than 75% of components, reporting the ratio and the floor.
 
 ### Follow-ups
 
-- [open] The coverage gate's rejection path is not exercised by any standing check, because verify-negative.sh's fixtures fail signature verification before reaching it. Splitting verify.sh's SBOM assertions into a separately callable path would let the negative harness cover them, and would close the same gap for any future SBOM assertion. (owner:@pose-maintainers crit:medium review:2026-10-02)
+- [covered: pose-sbom-negative-coverage] The coverage gate's rejection path is not exercised by any standing check, because verify-negative.sh's fixtures fail signature verification before reaching it. Splitting verify.sh's SBOM assertions into a separately callable path would let the negative harness cover them, and would close the same gap for any future SBOM assertion. (owner:@pose-maintainers crit:medium review:2026-10-02)
