@@ -108,11 +108,23 @@ jobs:
           winget source remove --name msstore
           if ($LASTEXITCODE -ne 0) { Write-Host "msstore source already absent" }
           $global:LASTEXITCODE = 0
+
+          # Each guarantee is asserted on its own, so a failure names which one
+          # broke rather than surfacing as the step's last exit code.
           winget validate --manifest .\package-manifests\winget
+          if ($LASTEXITCODE -ne 0) { throw "manifest set failed winget validation" }
+
           winget install --manifest .\package-manifests\winget --accept-package-agreements --accept-source-agreements --disable-interactivity
+          if ($LASTEXITCODE -ne 0) { throw "install from the published manifest failed" }
+
           pose doctor --json
-          # Uninstall by the same manifest that installed it: a package
-          # installed from a local manifest is not resolvable by --id, so
-          # that form reports "no installed package found" after a successful
-          # install.
+          if ($LASTEXITCODE -ne 0) { throw "the installed binary failed doctor" }
+
+          # Cleanup, not a guarantee: winget does not track an archive package
+          # installed from a local manifest, so neither --id nor --manifest
+          # resolves it afterwards and it reports "no installed package found"
+          # straight after a successful install. The runner is ephemeral, so
+          # this is tolerated rather than allowed to fail the channel claim.
           winget uninstall --manifest .\package-manifests\winget --disable-interactivity
+          if ($LASTEXITCODE -ne 0) { Write-Host "note: locally-installed archive package is not resolvable for uninstall; skipping cleanup" }
+          $global:LASTEXITCODE = 0
