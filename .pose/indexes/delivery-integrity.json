@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:d8959d48f5b60c22a87816ec3e5d899544c0d922942d09ba1ef78809a8ba4823",
-  "provenance_digest": "sha256:4fc17a300195a226680b975e94da25f10e90c239bf79e22bc10214f8d8d1fa7b",
+  "input_digest": "sha256:27daeedbac5e32244cb94a8a901e76357c9723c86466a5610ed2a4633ea11910",
+  "provenance_digest": "sha256:e962a966ace3c9941771a69e6decfbfdd6c3faa1483fac2931423e0c787e6f62",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -246,6 +246,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-machinery-distribution-contract.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-manual-locale-parity.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-manual-locale-parity.md"
       }
     },
     {
@@ -1065,6 +1072,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-manual-distribution-merge/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-manual-locale-parity/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-manual-locale-parity/spec.md"
       }
     },
     {
@@ -2209,6 +2223,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-manual-locale-parity.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-manual-locale-parity.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-mcp-active-context.md",
       "type": "artifact",
       "attributes": {
@@ -2790,6 +2811,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-manual-locale-parity/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-manual-locale-parity/spec.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-mcp-active-context/spec.md",
       "type": "artifact",
       "attributes": {
@@ -3203,6 +3231,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/manual_locale_parity_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/manual_locale_parity_test.go"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "type": "artifact",
       "attributes": {
@@ -3533,6 +3568,14 @@
       }
     },
     {
+      "id": "change-set:cs-c520197c369c",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:e6cabd0ce36ad48b2a9717756015f004cc60418112f31db0667b988924dae1ba",
+        "selector": "range:9da4fbb..10f1846"
+      }
+    },
+    {
       "id": "change-set:cs-caccd0b93a75",
       "type": "change-set",
       "attributes": {
@@ -3782,6 +3825,14 @@
     },
     {
       "id": "delivery:governance:machinery-distribution",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
+      "id": "delivery:governance:manual-locale-parity",
       "type": "governance",
       "attributes": {
         "module": "pose-mcp",
@@ -4234,6 +4285,13 @@
     },
     {
       "id": "spec:pose-manual-distribution-merge",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-manual-locale-parity",
       "type": "spec",
       "attributes": {
         "status": "done"
@@ -5234,6 +5292,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/specs/pose-manual-locale-parity/spec.md",
+      "to": "delivery:governance:manual-locale-parity",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/specs/pose-mcp-active-context/spec.md",
       "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
@@ -5439,6 +5502,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:AGENTS.md",
+      "to": "delivery:governance:manual-locale-parity",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:POSE.md",
       "to": "delivery:capability:delivery-integrity-graph",
       "type": "implemented-by"
@@ -5466,6 +5534,11 @@
     {
       "from": "artifact:POSE.md",
       "to": "delivery:governance:command-reference-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:POSE.md",
+      "to": "delivery:governance:manual-locale-parity",
       "type": "implemented-by"
     },
     {
@@ -5826,6 +5899,11 @@
     {
       "from": "artifact:locales/pt-BR/POSE.md",
       "to": "delivery:governance:command-reference-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:locales/pt-BR/POSE.md",
+      "to": "delivery:governance:manual-locale-parity",
       "type": "implemented-by"
     },
     {
@@ -6766,6 +6844,11 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "to": "delivery:governance:command-reference-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/manual_locale_parity_test.go",
+      "to": "delivery:governance:manual-locale-parity",
       "type": "implemented-by"
     },
     {
@@ -11259,6 +11342,61 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:.pose/changelogs/unreleased/pose-manual-locale-parity.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:.pose/specs/pose-manual-locale-parity/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:AGENTS.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:locales/pt-BR/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-manual-locale-parity.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-manual-locale-parity/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/AGENTS.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c520197c369c",
+      "to": "artifact:pose-mcp/internal/scaffold/manual_locale_parity_test.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-caccd0b93a75",
       "to": "artifact:.github/workflows/package-channels.yml",
       "type": "changes"
@@ -12894,6 +13032,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:manual-locale-parity",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:manual-locale-parity",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:package-channel-delivery",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -13081,6 +13229,11 @@
     {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -14521,6 +14674,41 @@
     {
       "from": "spec:pose-manual-distribution-merge",
       "to": "change-set:cs-4381ae6cb5f1",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-manual-locale-parity",
+      "to": "artifact:.pose/specs/pose-manual-locale-parity/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-manual-locale-parity",
+      "to": "artifact:AGENTS.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-manual-locale-parity",
+      "to": "artifact:POSE.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-manual-locale-parity",
+      "to": "artifact:locales/pt-BR/POSE.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-manual-locale-parity",
+      "to": "artifact:pose-mcp/internal/scaffold/manual_locale_parity_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-manual-locale-parity",
+      "to": "delivery:governance:manual-locale-parity",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-manual-locale-parity",
+      "to": "change-set:cs-c520197c369c",
       "type": "observed-by"
     },
     {
@@ -16460,6 +16648,31 @@
       "spec": "pose-manual-distribution-merge",
       "action": "modified",
       "path": "pose-mcp/internal/cli/maintenance.go"
+    },
+    {
+      "spec": "pose-manual-locale-parity",
+      "action": "created",
+      "path": ".pose/specs/pose-manual-locale-parity/spec.md"
+    },
+    {
+      "spec": "pose-manual-locale-parity",
+      "action": "created",
+      "path": "pose-mcp/internal/scaffold/manual_locale_parity_test.go"
+    },
+    {
+      "spec": "pose-manual-locale-parity",
+      "action": "modified",
+      "path": "AGENTS.md"
+    },
+    {
+      "spec": "pose-manual-locale-parity",
+      "action": "modified",
+      "path": "POSE.md"
+    },
+    {
+      "spec": "pose-manual-locale-parity",
+      "action": "modified",
+      "path": "locales/pt-BR/POSE.md"
     },
     {
       "spec": "pose-mcp-active-context",
@@ -21161,6 +21374,65 @@
       "diff_digest": "sha256:dde4124e87067545b1791f442e286dc8f8eb924e6180e771a4efdf8cadc876bf"
     },
     {
+      "id": "cs-c520197c369c",
+      "spec": "pose-manual-locale-parity",
+      "selector": "range:9da4fbb..10f1846",
+      "base": "9da4fbb",
+      "head": "10f1846",
+      "resolved_base": "9da4fbb2bdd0068daf106c40254ead24345a4846",
+      "resolved_head": "10f1846517b330add115b8786e3c152958855eb2",
+      "commits": [
+        "10f1846517b330add115b8786e3c152958855eb2"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-manual-locale-parity.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-manual-locale-parity/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-manual-locale-parity.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-manual-locale-parity/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/manual_locale_parity_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "AGENTS.md"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/AGENTS.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:e6cabd0ce36ad48b2a9717756015f004cc60418112f31db0667b988924dae1ba"
+    },
+    {
       "id": "cs-caccd0b93a75",
       "spec": "pose-package-channel-workflow-safety",
       "selector": "range:9920067..27050aa",
@@ -22748,6 +23020,9 @@
     ".pose/specs/pose-manual-distribution-merge/spec.md": [
       "pose-manual-distribution-merge"
     ],
+    ".pose/specs/pose-manual-locale-parity/spec.md": [
+      "pose-manual-locale-parity"
+    ],
     ".pose/specs/pose-mcp-active-context/spec.md": [
       "pose-mcp-active-context"
     ],
@@ -22840,13 +23115,15 @@
       "pose-delivery-surface-assurance"
     ],
     "AGENTS.md": [
-      "pose-extension-reference-publication"
+      "pose-extension-reference-publication",
+      "pose-manual-locale-parity"
     ],
     "POSE.md": [
       "pose-artifact-provenance-ledger",
       "pose-command-reference-parity",
       "pose-delivery-surface-assurance",
       "pose-manual-distribution-merge",
+      "pose-manual-locale-parity",
       "pose-mcp-active-context",
       "pose-release-lifecycle-closure"
     ],
@@ -22941,6 +23218,7 @@
       "pose-command-reference-parity",
       "pose-delivery-surface-assurance",
       "pose-manual-distribution-merge",
+      "pose-manual-locale-parity",
       "pose-mcp-active-context"
     ],
     "mcp-enforce/Dockerfile": [
@@ -23258,6 +23536,9 @@
     "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md": [
       "pose-command-reference-parity",
       "pose-mcp-active-context"
+    ],
+    "pose-mcp/internal/scaffold/manual_locale_parity_test.go": [
+      "pose-manual-locale-parity"
     ],
     "pose-mcp/internal/scaffold/scaffold.go": [
       "pose-delivery-surface-assurance",
@@ -25735,6 +26016,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-manual-locale-parity",
+      "ref": "governance:manual-locale-parity",
+      "kind": "governance",
+      "id": "manual-locale-parity",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-package-channel-delivery",
       "ref": "governance:package-channel-delivery",
       "kind": "governance",
@@ -25762,7 +26052,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -25771,7 +26061,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -25914,9 +26204,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "0e108f4f19f592d3fc693df8d31b739e2e06c278",
-      "generated_at": "2026-08-08T04:59:54Z",
-      "provenance_digest": "sha256:4fc17a300195a226680b975e94da25f10e90c239bf79e22bc10214f8d8d1fa7b",
+      "git_head": "10f1846517b330add115b8786e3c152958855eb2",
+      "generated_at": "2026-08-08T08:08:14Z",
+      "provenance_digest": "sha256:e962a966ace3c9941771a69e6decfbfdd6c3faa1483fac2931423e0c787e6f62",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25926,9 +26216,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "0e108f4f19f592d3fc693df8d31b739e2e06c278",
-      "generated_at": "2026-08-08T04:59:54Z",
-      "provenance_digest": "sha256:4fc17a300195a226680b975e94da25f10e90c239bf79e22bc10214f8d8d1fa7b",
+      "git_head": "10f1846517b330add115b8786e3c152958855eb2",
+      "generated_at": "2026-08-08T08:08:14Z",
+      "provenance_digest": "sha256:e962a966ace3c9941771a69e6decfbfdd6c3faa1483fac2931423e0c787e6f62",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25938,9 +26228,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "0e108f4f19f592d3fc693df8d31b739e2e06c278",
-      "generated_at": "2026-08-08T04:59:54Z",
-      "provenance_digest": "sha256:4fc17a300195a226680b975e94da25f10e90c239bf79e22bc10214f8d8d1fa7b",
+      "git_head": "10f1846517b330add115b8786e3c152958855eb2",
+      "generated_at": "2026-08-08T08:08:14Z",
+      "provenance_digest": "sha256:e962a966ace3c9941771a69e6decfbfdd6c3faa1483fac2931423e0c787e6f62",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25950,9 +26240,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "0e108f4f19f592d3fc693df8d31b739e2e06c278",
-      "generated_at": "2026-08-08T04:59:54Z",
-      "provenance_digest": "sha256:4fc17a300195a226680b975e94da25f10e90c239bf79e22bc10214f8d8d1fa7b",
+      "git_head": "10f1846517b330add115b8786e3c152958855eb2",
+      "generated_at": "2026-08-08T08:08:14Z",
+      "provenance_digest": "sha256:e962a966ace3c9941771a69e6decfbfdd6c3faa1483fac2931423e0c787e6f62",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25962,9 +26252,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "0e108f4f19f592d3fc693df8d31b739e2e06c278",
-      "generated_at": "2026-08-08T04:59:54Z",
-      "provenance_digest": "sha256:4fc17a300195a226680b975e94da25f10e90c239bf79e22bc10214f8d8d1fa7b",
+      "git_head": "10f1846517b330add115b8786e3c152958855eb2",
+      "generated_at": "2026-08-08T08:08:14Z",
+      "provenance_digest": "sha256:e962a966ace3c9941771a69e6decfbfdd6c3faa1483fac2931423e0c787e6f62",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25974,9 +26264,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "0e108f4f19f592d3fc693df8d31b739e2e06c278",
-      "generated_at": "2026-08-08T04:59:54Z",
-      "provenance_digest": "sha256:4fc17a300195a226680b975e94da25f10e90c239bf79e22bc10214f8d8d1fa7b",
+      "git_head": "10f1846517b330add115b8786e3c152958855eb2",
+      "generated_at": "2026-08-08T08:08:14Z",
+      "provenance_digest": "sha256:e962a966ace3c9941771a69e6decfbfdd6c3faa1483fac2931423e0c787e6f62",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25986,9 +26276,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "0e108f4f19f592d3fc693df8d31b739e2e06c278",
-      "generated_at": "2026-08-08T04:59:54Z",
-      "provenance_digest": "sha256:4fc17a300195a226680b975e94da25f10e90c239bf79e22bc10214f8d8d1fa7b",
+      "git_head": "10f1846517b330add115b8786e3c152958855eb2",
+      "generated_at": "2026-08-08T08:08:14Z",
+      "provenance_digest": "sha256:e962a966ace3c9941771a69e6decfbfdd6c3faa1483fac2931423e0c787e6f62",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25998,9 +26288,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "0e108f4f19f592d3fc693df8d31b739e2e06c278",
-      "generated_at": "2026-08-08T04:59:54Z",
-      "provenance_digest": "sha256:4fc17a300195a226680b975e94da25f10e90c239bf79e22bc10214f8d8d1fa7b",
+      "git_head": "10f1846517b330add115b8786e3c152958855eb2",
+      "generated_at": "2026-08-08T08:08:14Z",
+      "provenance_digest": "sha256:e962a966ace3c9941771a69e6decfbfdd6c3faa1483fac2931423e0c787e6f62",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -26513,6 +26803,17 @@
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],
+    "governance:manual-locale-parity": [
+      "spec:pose-manual-locale-parity",
+      "artifact:.pose/specs/pose-manual-locale-parity/spec.md",
+      "artifact:pose-mcp/internal/scaffold/manual_locale_parity_test.go",
+      "artifact:AGENTS.md",
+      "artifact:POSE.md",
+      "artifact:locales/pt-BR/POSE.md",
+      "delivery:governance:manual-locale-parity",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
     "governance:package-channel-delivery": [
       "spec:pose-package-channel-delivery",
       "artifact:.pose/specs/pose-package-channel-delivery/spec.md",
@@ -26541,7 +26842,7 @@
       "validation-result:pose-mcp/go/delivery-integration"
     ],
     "governance:project-assessment": [
-      "spec:pose-debt-marker-lexical-precision",
+      "spec:pose-project-agnostic-assessment-engines",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"

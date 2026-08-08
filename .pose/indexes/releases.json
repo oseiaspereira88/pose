@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "pose-manual-locale-parity",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The pt-BR manual is back in parity with the English one. `pose upgrade` ships\nthe manual matching each instance's locale, so thirteen feature commits that\nnever crossed into the translation had been distributing a POSE without the\nrelease lifecycle, `pose state`, docs governance or the signed extension\necosystem to every pt-BR instance. The drift ran both ways: the translation\ncarried rationale the English manual had lost, and documented three real MCP\ntools that appeared in no English file. A symmetric check now fails on either\nkind of drift, closing for the manuals the same gap that was already closed for\ntranslated skills.",
+      "path": "pose-manual-locale-parity.md",
+      "digest": "sha256:cd5dace1a0e410c72621042d3f33311c66ba68a275f595e54a675e35f2331138"
+    },
+    {
       "spec": "pose-package-channel-install-repair",
       "category": "fixed",
       "breaking": false,

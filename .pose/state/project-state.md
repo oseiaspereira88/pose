@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-08T05:00:12Z
-baseline_commit: 0e108f4f19f592d3fc693df8d31b739e2e06c278
+generated_at: 2026-08-08T08:08:34Z
+baseline_commit: 10f1846517b330add115b8786e3c152958855eb2
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:9a9c5f3cc1ea -->
+<!-- state:derived hash:9eafa3502bbe -->
 
-- specs: total=74 draft=1 in-progress=0 blocked=0 done=73 superseded=0 abandoned=0
+- specs: total=75 draft=1 in-progress=0 blocked=0 done=74 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
   - spec:pose-docs-asset-parity (2026-08-08)
   - spec:pose-workflow-event-ref-contract (2026-08-08)
   - spec:pose-package-channel-install-repair (2026-08-08)
   - spec:pose-release-clean-tree-attribution (2026-08-08)
-  - spec:pose-sbom-license-coverage-gate (2026-08-08)
-  - ... e mais 68 (ver `pose_list_specs status:done`)
+  - spec:pose-manual-locale-parity (2026-08-08)
+  - ... e mais 69 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:fff337a3ed18 -->
+<!-- state:derived hash:c77c64e4e758 -->
 
-- abertos: 35
-- por criticidade: high=0 medium=13 low=22 sem-classificação=0
+- abertos: 37
+- por criticidade: high=0 medium=13 low=24 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:51b47dcb29d0 -->
+<!-- state:derived hash:e6932de71788 -->
 
-- último registro: task=closeout-pose-package-channel-install-repair-proven outcome=unknown (2026-08-08T04:59:46Z)
-- últimos 30 dias: total=130 outcome_ok=100 outcome_outro=30
-- reports revisados (.md): total=67
+- último registro: task=closeout-pose-manual-locale-parity outcome=unknown (2026-08-08T08:08:14Z)
+- últimos 30 dias: total=131 outcome_ok=100 outcome_outro=31
+- reports revisados (.md): total=68
+  - report:2026-08-08-standard-closeout-pose-manual-locale-parity.md
   - report:2026-08-08-standard-closeout-pose-package-channel-install-repair-proven.md
   - report:2026-08-08-standard-closeout-pose-package-channel-install-repair.md
   - report:2026-08-08-standard-closeout-pose-release-clean-tree-attribution.md
   - report:2026-08-08-standard-closeout-pose-workflow-event-ref-contract.md
-  - report:2026-08-08-standard-closeout-pose-sbom-license-coverage-gate.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
