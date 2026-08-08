@@ -70,6 +70,8 @@ feature.
   state why, and shall name the verified download as the supported path.
 - R4: The Homebrew row shall describe the channel's real status: formula
   published and install-tested, not consumable by an end user.
+- R5: Each Windows guarantee shall be asserted individually and name itself on
+  failure; only the uninstall cleanup may be skipped.
 
 ### Non-functional
 - The gate keeps its clean-host property: no shared state with the release job.
@@ -126,6 +128,7 @@ feature.
 - [x] R2: enable local manifests, validate, install
 - [x] R3: remove the brew command and state why
 - [x] R4: describe the channel's real status
+- [x] R5: assert each Windows guarantee by name; tolerate only the cleanup
 
 ### Validation
 - [x] Strict docs build
@@ -157,22 +160,43 @@ first real execution is the release is a gate nobody has run.
 
 ### Execution log
 - Date: 2026-08-08
-- Environment: linux/amd64.
+- Environment: linux/amd64 for the docs; GitHub-hosted macOS and Windows
+  runners for the matrix, dispatched against the published v0.21.0.
 - Notes: the first strict build failed on a `../../README.md#install` link
   pointing outside the docs directory; it now points at `quickstart.md#install`
   and builds clean. The parity gate passes with three documented downloads,
   `pose.rb` having left the documented set. Homebrew's position was taken from
   its own discussion thread, where maintainers confirm the rejection is
   intentional and `HOMEBREW_DEVELOPER` is unsupported.
+- The matrix took four dispatched runs, each surfacing a distinct defect the
+  previous one had hidden behind it:
+  1. macOS fixed by the local tap; Windows still blocked on `LocalManifestFiles`.
+  2. Windows enabled it, validated the manifest and downloaded 3.28 MB, then
+     cancelled: the `msstore` source demands its own agreements even for an
+     install that never touches it, and `--accept-source-agreements` does not
+     cover them. Removed the source.
+  3. Install then succeeded — hash verified, archive extracted, "Successfully
+     installed", `doctor --json` with zero errors — and the *uninstall* failed
+     with "no installed package found". Switching it to `--manifest` did not
+     help.
+  4. winget does not track an archive package installed from a local manifest
+     at all, so the cleanup is untrackable by construction. Made each guarantee
+     assert itself by name and tolerated only the cleanup. Both runners green.
+- Final run 31240578941: macOS created `harne8/local`, trusted and installed
+  `harne8/local/pose`, `doctor --json` reported zero errors; Windows validated
+  the manifest, verified the installer hash, extracted, installed and reported
+  zero errors.
 
 ### Results summary
-- Successes: docs build strictly; parity gate passes; both legs repaired
-- Failures: none locally
-- Warnings: the workflow legs are proven by the dispatched run, not by this host
+- Successes: docs build strictly; parity gate passes; both channel legs green
+  on the published v0.21.0 — the first time the matrix has ever passed
+- Failures: none remaining; four intermediate failures are logged above
+- Warnings: the WinGet cleanup is skipped by design, not achieved
 
 ### Requirement trace
-- R1 [satisfied] governance:package-channel-install-repair evidence:integration check:delivery-integration report:.github/workflows/package-channels.yml — the macOS leg creates a throwaway tap, copies the published formula into it and installs `harne8/local/pose`
-- R2 [satisfied] report:.github/workflows/package-channels.yml — the Windows leg enables `LocalManifestFiles`, runs `winget validate`, then installs from the manifest set
+- R1 [satisfied] governance:package-channel-install-repair evidence:integration check:delivery-integration check:package-channels — the macOS leg creates a throwaway tap, copies the published formula into it and installs `harne8/local/pose`; run 31240578941 shows the tap created, the formula trusted and installed, and `doctor --json` reporting zero errors
+- R2 [satisfied] check:package-channels report:.github/workflows/package-channels.yml — the Windows leg enables `LocalManifestFiles`, removes the `msstore` source, validates the manifest set and installs from it; run 31240578941 reports validation succeeded, installer hash verified, archive extracted and successfully installed
+- R5 [satisfied] check:package-channels — validation, install and doctor each throw with their own message; only the uninstall is tolerated, and it prints why
 - R3 [satisfied] check:docs-build report:docs-site/docs/package-channels.md — the `brew` command is gone, a warning admonition states why, and the verified download is named as the supported path
 - R4 [satisfied] report:docs-site/docs/package-channels.md — the Homebrew row reads "No install channel", with the reason and the real support tier
 
@@ -180,6 +204,10 @@ first real execution is the release is a gate nobody has run.
 - `pose.rb` is no longer covered by the docs-parity check, because the docs no
   longer reference it. Only the `package-channels` matrix would notice it
   disappearing.
+- The WinGet leg installs but never uninstalls: winget cannot resolve an
+  archive package installed from a local manifest. The gate therefore proves
+  installation, not the full install/uninstall lifecycle the page describes.
+  Nothing would catch an uninstall regression.
 - There is no Homebrew install channel at all until a tap exists. The
   documentation now says so rather than implying otherwise.
 
@@ -200,7 +228,9 @@ what it is — a published, install-tested formula with no consumer path.
 - Result: build clean, parity passes
 
 ### Residual risks
-- The macOS leg's exact tap interaction is proven only by the dispatched run.
+- Both legs are proven against v0.21.0 by dispatch. The `workflow_run` path
+  that fires automatically after a release has still only ever run once, and it
+  failed; the repaired version has not yet run through that trigger.
 
 ### Follow-ups
 
