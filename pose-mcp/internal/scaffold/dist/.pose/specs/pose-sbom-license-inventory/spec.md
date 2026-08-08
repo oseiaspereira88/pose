@@ -160,4 +160,4 @@ twenty-seven, with the remainder being the project's own code.
 
 ### Follow-ups
 
-- [open] Assert a minimum license coverage in the artifact-identity gate, so an SBOM that silently stops resolving licenses fails the release instead of shipping empty. (owner:@pose-maintainers crit:medium review:2026-10-02)
+- [covered: pose-sbom-license-coverage-gate] Assert a minimum license coverage in the artifact-identity gate, so an SBOM that silently stops resolving licenses fails the release instead of shipping empty. (owner:@pose-maintainers crit:medium review:2026-10-02)

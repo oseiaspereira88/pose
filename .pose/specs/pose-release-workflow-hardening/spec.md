@@ -153,5 +153,5 @@ the top level with the write scopes on the publishing job.
 
 ### Follow-ups
 
-- [open] Re-read the OpenSSF score after the next Scorecard run and confirm Dangerous-Workflow and Token-Permissions moved off zero. (owner:@pose-maintainers crit:medium review:2026-09-18)
-- [open] Pinned-Dependencies is 2: GitHub-owned actions are still referenced by tag rather than digest. Decide whether to pin them before the repository goes public. (owner:@pose-maintainers crit:medium review:2026-09-18)
+- [done] Read after the 2026-08-08 runs: Token-Permissions has zero alerts in any state, so it closed. Dangerous-Workflow did not — it relocated to package-channels.yml, which acquired the same event-supplied checkout from a sibling spec on the same day; `pose-package-channel-workflow-safety` closed it and the finding now reports `fixed` for both files. Original item: re-read the OpenSSF score after the next Scorecard run and confirm Dangerous-Workflow and Token-Permissions moved off zero. (owner:@pose-maintainers crit:medium review:2026-09-18)
+- [covered: pose-dependency-digest-pinning] Decided: pinned. Every action and both container bases now carry an immutable digest, and Pinned-Dependencies reports 84 alerts fixed with none open. Original item: Pinned-Dependencies is 2: GitHub-owned actions are still referenced by tag rather than digest. Decide whether to pin them before the repository goes public. (owner:@pose-maintainers crit:medium review:2026-09-18)

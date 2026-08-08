@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-08T02:55:50Z
-baseline_commit: e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e
+generated_at: 2026-08-08T03:39:37Z
+baseline_commit: 9a92252825dede38fd79913e7dc779fc96523944
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -40,10 +40,10 @@ capacidade.
   - ... e mais 65 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:8e8269d6b0e7 -->
+<!-- state:derived hash:373d72e02e89 -->
 
-- abertos: 37
-- por criticidade: high=0 medium=18 low=19 sem-classificação=0
+- abertos: 33
+- por criticidade: high=0 medium=14 low=19 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities

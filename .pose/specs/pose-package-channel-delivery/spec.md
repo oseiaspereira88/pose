@@ -165,4 +165,4 @@ the clean-host verification has a trigger that fires and a command that runs.
 
 ### Follow-ups
 
-- [open] Assert in CI that every install command in docs-site/docs/package-channels.md resolves to an asset the release actually publishes. The drift that made pose.rb a 404 went unnoticed because nothing compared the two. (owner:@pose-maintainers crit:medium review:2026-10-02)
+- [covered: pose-docs-asset-parity] Assert in CI that every install command in docs-site/docs/package-channels.md resolves to an asset the release actually publishes. The drift that made pose.rb a 404 went unnoticed because nothing compared the two. (owner:@pose-maintainers crit:medium review:2026-10-02)
