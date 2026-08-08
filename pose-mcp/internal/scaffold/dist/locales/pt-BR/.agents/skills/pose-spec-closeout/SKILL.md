@@ -77,19 +77,35 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    ```bash
    pose validate --strict --module <path-afetado>
    ```
-2. Triagem dos follow-ups (ver "Triagem em duas camadas" acima):
+2. Rodar uma passagem de review separada e registrá-la — a review é uma
+   tentativa imutável, não uma edição do frontmatter:
+   ```bash
+   pose review record spec:<slug> --reviewer <execução> --decision approved \
+     --evidence report:<relatório>.md --evidence requirement-trace:spec --apply
+   ```
+   Sem `--apply` o comando é dry-run. A independência exigida é
+   `same-actor-separate-execution`: a mesma pessoa/agente pode revisar, desde
+   que numa execução distinta da implementação.
+3. Exigir o gate de review antes de qualquer transição:
+   ```bash
+   pose review-check spec:<slug>   # review.fresh + review.approved precisam ser true
+   ```
+   Tentativas obsoletas (a spec mudou depois da review) ou rejeitadas precisam
+   ser remediadas e supersedidas por uma nova tentativa — nunca editadas.
+4. Triagem dos follow-ups (ver "Triagem em duas camadas" acima):
    ```bash
    pose followups --all                 # backlog + candidatos a near-duplicate
    pose followups --all --similarity 45  # afrouxa o limiar para ver mais candidatos
    ```
    Para cada follow-up da spec: julgue semanticamente, proponha a disposição e
    **confirme com o usuário antes de gravar** `spawned`/`covered`/`duplicate`.
-3. Atualizar o frontmatter da spec:
-   ```yaml
-   status: done
-   completed_at: <YYYY-MM-DD>   # data real de conclusão
+5. Aplicar a transição de ciclo de vida pelo gate, não à mão:
+   ```bash
+   pose close spec:<slug>   # exige review aprovada e fresca; preenche a transição
    ```
-4. Produzir o **changelog fragment** (pose-release-changelog) — o registro
+   Edição manual do frontmatter (`status: done`, `completed_at: <YYYY-MM-DD>`)
+   só quando o fluxo Git exigir — e preservando o mesmo gate, nunca contornando-o.
+6. Produzir o **changelog fragment** (pose-release-changelog) — o registro
    user-facing da entrega, consolidado por release no corte:
    ```bash
    cp .pose/templates/changelog-fragment.md .pose/changelogs/unreleased/<slug>.md
@@ -98,22 +114,23 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    Trabalho interno sem efeito user-facing: marque `changelog: none` no
    frontmatter da spec em vez de criar fragment. O `pose check` avisa specs
    done sem fragment (pós-adoção).
-5. Gate de saída — bloqueia "done com follow-up sem disposição" e "done sem completed_at":
+7. Gate de saída — bloqueia "done com follow-up sem disposição" e "done sem completed_at":
    ```bash
    pose lint-spec <slug> --strict
    ```
-6. Se algum follow-up `[spawned: <slug>]` exigir nova spec, criá-la e referenciar a origem:
+8. Se algum follow-up `[spawned: <slug>]` exigir nova spec, criá-la e referenciar a origem:
    ```bash
    pose new-spec <nova-slug>     # mencione a spec de origem na seção Intent
    ```
-7. Confirmar o backlog residual da spec fechada:
+9. Confirmar o backlog residual da spec fechada:
    ```bash
    pose followups --open --json  # quantos [open] sobraram nesta e nas demais
    ```
 
 ## Output requirements
 
-- Frontmatter da spec com `status: done` e `completed_at` preenchido.
+- Tentativa de review registrada e `pose review-check spec:<slug>` reportando `fresh` e `approved`.
+- Frontmatter da spec com `status: done` e `completed_at` preenchido, aplicado por `pose close` sempre que o fluxo permitir.
 - Todo follow-up de `Final Report > Follow-ups` com disposição válida.
 - `spawned`/`covered`/`duplicate` gravados **somente após confirmação** do usuário.
 - Changelog fragment em `.pose/changelogs/unreleased/<slug>.md` (ou `changelog: none` no frontmatter da spec).
@@ -123,6 +140,7 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
 ## Anti-padrões
 
 - Marcar `done` sem rodar a validação determinística.
+- Editar `status: done` à mão pulando `pose review record`/`pose close`: o `pose check --strict` reprova com `review closeout: record or remediate a fresh review` e a causa não fica óbvia no erro.
 - Reaproveitar follow-up automaticamente (`spawned`/`covered`/`duplicate`) sem confirmar com o usuário — propaga premissa obsoleta em cascata.
 - Tratar os candidatos do `pose followups` como veredito — eles são pistas léxicas; a equivalência de intenção é julgamento seu + confirmação humana.
 - Deixar follow-up sem tag (o gate bloqueia, mas a tentação é remover o follow-up — registre-o como `[wont-do: …]` em vez de apagar o histórico).
