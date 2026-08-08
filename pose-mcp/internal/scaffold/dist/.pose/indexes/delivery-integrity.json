@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:59fec70a056f18e64a502fb0bd728117a3ef4e45e06ea110efaa0610a4b1833a",
-  "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
+  "input_digest": "sha256:11a60ba56fd1f11427baa81e84afb42b45065f1d7be2eb5509bb9c6c34f1ff84",
+  "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -267,6 +267,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-package-channel-workflow-safety.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-release-clean-tree-attribution.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-release-clean-tree-attribution.md"
       }
     },
     {
@@ -1121,6 +1128,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-recurrence-effectiveness/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-release-clean-tree-attribution/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-release-clean-tree-attribution/spec.md"
       }
     },
     {
@@ -2188,6 +2202,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-release-clean-tree-attribution.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-release-clean-tree-attribution.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-release-cycle-debt-closure.md",
       "type": "artifact",
       "attributes": {
@@ -2510,6 +2531,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260808T034753Z-755f83ee.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260808T034753Z-755f83ee.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/rules/delivery-evidence.md",
       "type": "artifact",
       "attributes": {
@@ -2794,6 +2822,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-recurrence-effectiveness/spec.md"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-clean-tree-attribution/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-clean-tree-attribution/spec.md"
       }
     },
     {
@@ -3189,6 +3224,13 @@
       }
     },
     {
+      "id": "artifact:tests/release/assert-clean-tree.sh",
+      "type": "artifact",
+      "attributes": {
+        "path": "tests/release/assert-clean-tree.sh"
+      }
+    },
+    {
       "id": "artifact:tests/release/compat.sh",
       "type": "artifact",
       "attributes": {
@@ -3536,6 +3578,14 @@
       }
     },
     {
+      "id": "change-set:cs-fbf9cbc5e9ce",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:5c61405710ab1f9f0202399e3b162dd7d289409d454ad473527979a97682ad5a",
+        "selector": "range:6699569..9f02041"
+      }
+    },
+    {
       "id": "delivery:capability:delivery-integrity-graph",
       "type": "capability",
       "attributes": {
@@ -3709,6 +3759,14 @@
       "attributes": {
         "module": "pose-mcp",
         "profile": "backend-go"
+      }
+    },
+    {
+      "id": "delivery:governance:release-clean-tree-attribution",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
       }
     },
     {
@@ -4214,6 +4272,13 @@
       }
     },
     {
+      "id": "spec:pose-release-clean-tree-attribution",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
       "id": "spec:pose-release-compatibility-matrix",
       "type": "spec",
       "attributes": {
@@ -4625,6 +4690,11 @@
     {
       "from": "artifact:.github/workflows/release.yml",
       "to": "delivery:governance:package-channel-delivery",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.github/workflows/release.yml",
+      "to": "delivery:governance:release-clean-tree-attribution",
       "type": "implemented-by"
     },
     {
@@ -5115,6 +5185,11 @@
     {
       "from": "artifact:.pose/specs/pose-project-agnostic-assessment-engines/spec.md",
       "to": "delivery:governance:release-cycle-debt",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/pose-release-clean-tree-attribution/spec.md",
+      "to": "delivery:governance:release-clean-tree-attribution",
       "type": "implemented-by"
     },
     {
@@ -6730,6 +6805,11 @@
     {
       "from": "artifact:tests/install/run.sh",
       "to": "delivery:governance:release-cycle-debt",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:tests/release/assert-clean-tree.sh",
+      "to": "delivery:governance:release-clean-tree-attribution",
       "type": "implemented-by"
     },
     {
@@ -12443,6 +12523,61 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:.github/workflows/release.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:.pose/changelogs/unreleased/pose-release-clean-tree-attribution.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:.pose/specs/pose-release-clean-tree-attribution/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-release-clean-tree-attribution.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260808T034753Z-755f83ee.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-clean-tree-attribution/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-fbf9cbc5e9ce",
+      "to": "artifact:tests/release/assert-clean-tree.sh",
+      "type": "changes"
+    },
+    {
       "from": "delivery:capability:delivery-integrity-graph",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -12673,6 +12808,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:release-clean-tree-attribution",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:release-clean-tree-attribution",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:release-cycle-debt",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -12800,6 +12945,11 @@
     {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -14626,6 +14776,31 @@
       "from": "spec:pose-project-agnostic-assessment-engines",
       "to": "delivery:governance:project-assessment",
       "type": "delivers"
+    },
+    {
+      "from": "spec:pose-release-clean-tree-attribution",
+      "to": "artifact:.github/workflows/release.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-release-clean-tree-attribution",
+      "to": "artifact:.pose/specs/pose-release-clean-tree-attribution/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-release-clean-tree-attribution",
+      "to": "artifact:tests/release/assert-clean-tree.sh",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-release-clean-tree-attribution",
+      "to": "delivery:governance:release-clean-tree-attribution",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-release-clean-tree-attribution",
+      "to": "change-set:cs-fbf9cbc5e9ce",
+      "type": "observed-by"
     },
     {
       "from": "spec:pose-release-cycle-debt-closure",
@@ -16474,6 +16649,21 @@
       "spec": "pose-project-agnostic-assessment-engines",
       "action": "modified",
       "path": "pose-mcp/internal/pose/techdebt.go"
+    },
+    {
+      "spec": "pose-release-clean-tree-attribution",
+      "action": "created",
+      "path": ".pose/specs/pose-release-clean-tree-attribution/spec.md"
+    },
+    {
+      "spec": "pose-release-clean-tree-attribution",
+      "action": "created",
+      "path": "tests/release/assert-clean-tree.sh"
+    },
+    {
+      "spec": "pose-release-clean-tree-attribution",
+      "action": "modified",
+      "path": ".github/workflows/release.yml"
     },
     {
       "spec": "pose-release-cycle-debt-closure",
@@ -22015,6 +22205,65 @@
         }
       ],
       "diff_digest": "sha256:8713b937cfe7c6fa21ccf62dd516b69c802a130a11e17b29e7eb9fa50966aa96"
+    },
+    {
+      "id": "cs-fbf9cbc5e9ce",
+      "spec": "pose-release-clean-tree-attribution",
+      "selector": "range:6699569..9f02041",
+      "base": "6699569",
+      "head": "9f02041",
+      "resolved_base": "66995693270455868e1b1e8de080048ce9c7f1b2",
+      "resolved_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
+      "commits": [
+        "9f0204191b1593e0dd8dc6e9b8174736fd51d59a"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-release-clean-tree-attribution.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-release-clean-tree-attribution/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-release-clean-tree-attribution.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260808T034753Z-755f83ee.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-clean-tree-attribution/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "tests/release/assert-clean-tree.sh"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/release.yml"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json"
+        }
+      ],
+      "diff_digest": "sha256:5c61405710ab1f9f0202399e3b162dd7d289409d454ad473527979a97682ad5a"
     }
   ],
   "reverse": {
@@ -22067,6 +22316,7 @@
       "pose-dependency-digest-pinning",
       "pose-extension-reference-publication",
       "pose-package-channel-delivery",
+      "pose-release-clean-tree-attribution",
       "pose-release-evidence-trigger-fix",
       "pose-release-lifecycle-closure",
       "pose-release-workflow-hardening"
@@ -22257,6 +22507,9 @@
     ".pose/specs/pose-project-agnostic-assessment-engines/spec.md": [
       "pose-project-agnostic-assessment-engines",
       "pose-release-cycle-debt-closure"
+    ],
+    ".pose/specs/pose-release-clean-tree-attribution/spec.md": [
+      "pose-release-clean-tree-attribution"
     ],
     ".pose/specs/pose-release-cycle-debt-closure/spec.md": [
       "pose-release-cycle-debt-closure"
@@ -22778,6 +23031,9 @@
     "tests/install/run.sh": [
       "pose-installer-local-binary-precedence",
       "pose-release-cycle-debt-closure"
+    ],
+    "tests/release/assert-clean-tree.sh": [
+      "pose-release-clean-tree-attribution"
     ],
     "tests/release/compat.sh": [
       "pose-compat-gate-candidate-integrity",
@@ -25261,6 +25517,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-release-clean-tree-attribution",
+      "ref": "governance:release-clean-tree-attribution",
+      "kind": "governance",
+      "id": "release-clean-tree-attribution",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-release-cycle-debt-closure",
       "ref": "governance:release-cycle-debt",
       "kind": "governance",
@@ -25386,9 +25651,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
-      "generated_at": "2026-08-08T03:47:48Z",
-      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
+      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
+      "generated_at": "2026-08-08T03:51:49Z",
+      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25398,9 +25663,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
-      "generated_at": "2026-08-08T03:47:48Z",
-      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
+      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
+      "generated_at": "2026-08-08T03:51:49Z",
+      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25410,9 +25675,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
-      "generated_at": "2026-08-08T03:47:48Z",
-      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
+      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
+      "generated_at": "2026-08-08T03:51:49Z",
+      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25422,9 +25687,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
-      "generated_at": "2026-08-08T03:47:48Z",
-      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
+      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
+      "generated_at": "2026-08-08T03:51:49Z",
+      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25434,9 +25699,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
-      "generated_at": "2026-08-08T03:47:48Z",
-      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
+      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
+      "generated_at": "2026-08-08T03:51:49Z",
+      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25446,9 +25711,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
-      "generated_at": "2026-08-08T03:47:48Z",
-      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
+      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
+      "generated_at": "2026-08-08T03:51:49Z",
+      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25458,9 +25723,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
-      "generated_at": "2026-08-08T03:47:48Z",
-      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
+      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
+      "generated_at": "2026-08-08T03:51:49Z",
+      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25470,9 +25735,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
-      "generated_at": "2026-08-08T03:47:48Z",
-      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
+      "git_head": "9f0204191b1593e0dd8dc6e9b8174736fd51d59a",
+      "generated_at": "2026-08-08T03:51:49Z",
+      "provenance_digest": "sha256:2b3ee69a5a85b490a5ec35e117ba77d2febf8b0d93e6926914aa59e92704c52c",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -26006,6 +26271,15 @@
     "governance:project-assessment": [
       "spec:pose-project-agnostic-assessment-engines",
       "delivery:governance:project-assessment",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
+    "governance:release-clean-tree-attribution": [
+      "spec:pose-release-clean-tree-attribution",
+      "artifact:.pose/specs/pose-release-clean-tree-attribution/spec.md",
+      "artifact:tests/release/assert-clean-tree.sh",
+      "artifact:.github/workflows/release.yml",
+      "delivery:governance:release-clean-tree-attribution",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],

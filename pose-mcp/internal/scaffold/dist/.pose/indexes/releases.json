@@ -41,6 +41,14 @@
       "digest": "sha256:9f58de3505266307ea8cfeee03a30c025f2b00581aaf293cb1e402fc7a92afba"
     },
     {
+      "spec": "pose-release-clean-tree-attribution",
+      "category": "changed",
+      "breaking": false,
+      "body": "The release pipeline now asserts a clean worktree after each step that could\nwrite, failing immediately and naming the step. goreleaser refuses to build from\na dirty tree but is the last thing that would notice, so the failure used to\narrive after the tests, the compatibility matrix, the security gate and the\nextension signing had all run — listing files rather than the step that wrote\nthem. Legitimate build outputs are declared at the call site.",
+      "path": "pose-release-clean-tree-attribution.md",
+      "digest": "sha256:aebb895836fd15670cf70d585e954e291e034ccd318fb74ed16ec6c60bb3e7d3"
+    },
+    {
       "spec": "pose-release-signing-rejection",
       "category": "changed",
       "breaking": false,

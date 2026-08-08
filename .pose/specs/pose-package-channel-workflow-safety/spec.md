@@ -188,4 +188,4 @@ stops interpolating the raw event value into its verification script.
 
 ### Follow-ups
 
-- [open] A check should fail when a workflow triggered by `workflow_run` or `pull_request_target` checks out an event-supplied ref or interpolates one into a `run:` script. This recurred within a day of being fixed, by a sibling spec, with the correct pattern already in the repository — review caught it only because Scorecard was consulted afterwards. `TestWorkflowSecurityContract` already parses every workflow and is the natural home. (owner:@pose-maintainers crit:medium review:2026-09-18)
+- [covered: pose-workflow-event-ref-contract] A check should fail when a workflow triggered by `workflow_run` or `pull_request_target` checks out an event-supplied ref or interpolates one into a `run:` script. This recurred within a day of being fixed, by a sibling spec, with the correct pattern already in the repository — review caught it only because Scorecard was consulted afterwards. `TestWorkflowSecurityContract` already parses every workflow and is the natural home. (owner:@pose-maintainers crit:medium review:2026-09-18)

@@ -221,6 +221,10 @@
       "to": "pose-followup-ownership-sla"
     },
     {
+      "from": "pose-release-clean-tree-attribution",
+      "to": "pose-extension-signing-clean-tree"
+    },
+    {
       "from": "pose-release-compatibility-matrix",
       "to": "pose-version-contract"
     },
@@ -343,6 +347,10 @@
     {
       "from": "pose-verifier-extension-install-cwd",
       "to": "pose-verifier-assets-variable-fix"
+    },
+    {
+      "from": "pose-workflow-event-ref-contract",
+      "to": "pose-package-channel-workflow-safety"
     }
   ],
   "schemaVersion": 1,
@@ -723,6 +731,14 @@
       "priority": 13,
       "status": "done"
     },
+    "pose-release-clean-tree-attribution": {
+      "depends_on": [
+        "pose-extension-signing-clean-tree"
+      ],
+      "path": ".pose/specs/pose-release-clean-tree-attribution/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
     "pose-release-compatibility-matrix": {
       "depends_on": [
         "pose-version-contract",
@@ -918,6 +934,14 @@
       "depends_on": null,
       "path": ".pose/specs/pose-version-contract/spec.md",
       "priority": 0,
+      "status": "done"
+    },
+    "pose-workflow-event-ref-contract": {
+      "depends_on": [
+        "pose-package-channel-workflow-safety"
+      ],
+      "path": ".pose/specs/pose-workflow-event-ref-contract/spec.md",
+      "priority": 1,
       "status": "done"
     }
   }

@@ -41,6 +41,14 @@
       "digest": "sha256:9f58de3505266307ea8cfeee03a30c025f2b00581aaf293cb1e402fc7a92afba"
     },
     {
+      "spec": "pose-release-clean-tree-attribution",
+      "category": "changed",
+      "breaking": false,
+      "body": "The release pipeline now asserts a clean worktree after each step that could\nwrite, failing immediately and naming the step. goreleaser refuses to build from\na dirty tree but is the last thing that would notice, so the failure used to\narrive after the tests, the compatibility matrix, the security gate and the\nextension signing had all run — listing files rather than the step that wrote\nthem. Legitimate build outputs are declared at the call site.",
+      "path": "pose-release-clean-tree-attribution.md",
+      "digest": "sha256:aebb895836fd15670cf70d585e954e291e034ccd318fb74ed16ec6c60bb3e7d3"
+    },
+    {
       "spec": "pose-release-signing-rejection",
       "category": "changed",
       "breaking": false,
@@ -79,6 +87,14 @@
       "body": "CI now runs shellcheck over every shipped or executed shell script, including\n`tests/release/` and `scripts/`, and fails on findings at warning severity. It\npreviously covered only `install.sh` and the installer E2E — leaving out exactly\nthe scripts that run during a release, where three consecutive cuts failed on\nunbound-variable defects that this check reports.",
       "path": "pose-shellcheck-ci-gate.md",
       "digest": "sha256:f1c4d8a38682d19bd466df6bb5e43d62e53c09d1d8d9eb05fb290e8682545741"
+    },
+    {
+      "spec": "pose-workflow-event-ref-contract",
+      "category": "added",
+      "breaking": false,
+      "body": "A contract test now fails the build when a workflow triggered by `workflow_run`\nor `pull_request_target` checks out an event-supplied ref or interpolates one\ninto a shell script. The pattern was removed from one workflow and reintroduced\nin another the same day, by a sibling change, with the corrected form already in\nthe repository — review read each diff on its own merits and both were\nindividually defensible. Validated `if:` guards and `env:` bindings stay\nallowed.",
+      "path": "pose-workflow-event-ref-contract.md",
+      "digest": "sha256:782d88d6ac302b1beb0f0828eeeddf06126433b743bda6a202fc30e7036dd2e5"
     }
   ],
   "releases": [

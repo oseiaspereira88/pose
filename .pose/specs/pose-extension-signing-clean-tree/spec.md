@@ -152,4 +152,4 @@ the failure that made it necessary.
 
 ### Follow-ups
 
-- [open] Make the release workflow fail loudly and early on an unexpectedly dirty tree, naming the step that dirtied it, instead of letting goreleaser report it after the expensive gates have already run. (owner:@pose-maintainers crit:medium review:2026-10-02)
+- [covered: pose-release-clean-tree-attribution] Make the release workflow fail loudly and early on an unexpectedly dirty tree, naming the step that dirtied it, instead of letting goreleaser report it after the expensive gates have already run. (owner:@pose-maintainers crit:medium review:2026-10-02)
