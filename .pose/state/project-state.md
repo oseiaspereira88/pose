@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-08T22:09:22Z
-baseline_commit: af710b6e12478e32ecfcf1d4c20eac53d6e0a4b8
+generated_at: 2026-08-08T22:20:01Z
+baseline_commit: 997c7d2e2c406e8aa502556c449913076a035977
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -40,10 +40,10 @@ capacidade.
   - ... e mais 74 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:25aee9a1e727 -->
+<!-- state:derived hash:6d931a874ff7 -->
 
-- abertos: 38
-- por criticidade: high=0 medium=12 low=26 sem-classificação=0
+- abertos: 37
+- por criticidade: high=0 medium=11 low=26 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:a2c023e7f7cd -->
+<!-- state:derived hash:5cf00cc4976f -->
 
-- último registro: task=closeout-pose-dependency-pin-refresh outcome=unknown (2026-08-08T22:09:04Z)
-- últimos 30 dias: total=137 outcome_ok=100 outcome_outro=37
-- reports revisados (.md): total=74
+- último registro: task=closeout-pose-dependency-pin-refresh-proven outcome=unknown (2026-08-08T22:19:54Z)
+- últimos 30 dias: total=138 outcome_ok=100 outcome_outro=38
+- reports revisados (.md): total=75
+  - report:2026-08-08-standard-closeout-pose-dependency-pin-refresh-proven.md
   - report:2026-08-08-standard-closeout-pose-dependency-pin-refresh.md
   - report:2026-08-08-standard-closeout-pose-sbom-negative-coverage.md
   - report:2026-08-08-standard-closeout-pose-action-runtime-currency-gate-draft.md
   - report:2026-08-08-standard-closeout-pose-action-runtime-currency-gate.md
-  - report:2026-08-08-standard-closeout-pose-skill-command-parity.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
