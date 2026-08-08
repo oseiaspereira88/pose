@@ -52,6 +52,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash tests/release/independent-verify.sh "$RELEASE_TAG"
+      - name: Documented installs resolve to published assets
+        # pose.rb was a copyable brew command in the docs for four releases
+        # while never being uploaded, so the URL 404'd and nothing compared the
+        # two sides (spec pose-docs-asset-parity).
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash tests/release/docs-asset-parity.sh "$RELEASE_TAG"
       - name: Retain verification report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
