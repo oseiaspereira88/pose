@@ -24,7 +24,7 @@ capabilities: read, spec-write, validate
 4. Implement the smallest cohesive fix without parallel refactoring.
 5. Add or update a regression test.
 6. Run `pose validate --tolerant --module <affected-path> --report`.
-7. Create a decision log when root cause exposes systemic debt or a significant trade-off.
+7. Create a decision log with `pose new-knowledge decision-log <slug>` when root cause exposes systemic debt or a significant trade-off.
 
 ## Output requirements
 

@@ -45,7 +45,7 @@ when transitioning to `done`.
 
 ## Steps
 
-1. Confirm strict deterministic validation passed for affected modules.
+1. Confirm strict deterministic validation passed for affected modules (`pose validate --strict --module <affected-path>`).
 2. Run a separate review pass and record it with `pose review record spec:<slug> ... --apply`.
 3. Require `pose review-check spec:<slug>`; remediate, revalidate and supersede stale or rejected attempts.
 4. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
@@ -60,7 +60,7 @@ when transitioning to `done`.
    frontmatter instead of creating a fragment. `pose check` warns on done specs
    without a fragment (post-adoption).
 8. Run `pose lint-spec <slug> --strict`.
-9. Create any confirmed successor spec and revalidate its intent instead of copying follow-up text verbatim.
+9. Create any confirmed successor spec with `pose new-spec <slug>` and revalidate its intent instead of copying follow-up text verbatim.
 10. Inspect residual live backlog with `pose followups --open --json`.
 
 ## Output requirements

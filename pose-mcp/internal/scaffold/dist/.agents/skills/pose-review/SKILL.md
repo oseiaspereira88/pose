@@ -24,7 +24,7 @@ capabilities: read
 5. Evaluate functional correctness, public contracts, security, observability, performance, and regression.
 6. Classify findings as critical, high, medium, or low with evidence and expected action.
 7. Run `pose recurrence-check --tolerant --window-days 14`; use recurrence escalation for a matching systemic signal.
-8. Create a handoff for accepted residual risk, monitoring, or deferred action.
+8. Create a handoff with `pose new-knowledge handoff <slug>` for accepted residual risk, monitoring, or deferred action.
 9. Decide: approved, approved with reservations, or rejected.
 
 ## Output requirements

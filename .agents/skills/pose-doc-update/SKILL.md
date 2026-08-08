@@ -21,7 +21,7 @@ capabilities: read, doc-write
 2. Use imperative language, short bullets, consistent terms, and links to a single source of truth.
 3. Use [`.pose/templates/doc-audit-report.md`](../../../.pose/templates/doc-audit-report.md) for broad editorial audits.
 4. Run `pose check --strict` after reference changes.
-5. Generate a `doc-audit` report for broad changes.
+5. Generate a `doc-audit` report for broad changes with `pose report --type doc-audit --task "<audit>"`.
 
 ## Output requirements
 
