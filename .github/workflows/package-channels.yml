@@ -111,4 +111,8 @@ jobs:
           winget validate --manifest .\package-manifests\winget
           winget install --manifest .\package-manifests\winget --accept-package-agreements --accept-source-agreements --disable-interactivity
           pose doctor --json
-          winget uninstall --id Harne8.Pose --disable-interactivity
+          # Uninstall by the same manifest that installed it: a package
+          # installed from a local manifest is not resolvable by --id, so
+          # that form reports "no installed package found" after a successful
+          # install.
+          winget uninstall --manifest .\package-manifests\winget --disable-interactivity
