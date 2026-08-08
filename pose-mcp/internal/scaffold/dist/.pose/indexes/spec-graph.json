@@ -343,6 +343,10 @@
     {
       "from": "pose-verifier-extension-install-cwd",
       "to": "pose-verifier-assets-variable-fix"
+    },
+    {
+      "from": "pose-workflow-event-ref-contract",
+      "to": "pose-package-channel-workflow-safety"
     }
   ],
   "schemaVersion": 1,
@@ -918,6 +922,14 @@
       "depends_on": null,
       "path": ".pose/specs/pose-version-contract/spec.md",
       "priority": 0,
+      "status": "done"
+    },
+    "pose-workflow-event-ref-contract": {
+      "depends_on": [
+        "pose-package-channel-workflow-safety"
+      ],
+      "path": ".pose/specs/pose-workflow-event-ref-contract/spec.md",
+      "priority": 1,
       "status": "done"
     }
   }

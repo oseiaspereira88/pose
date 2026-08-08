@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:b10bbfee25c8ca7ea001943cbc3fbbd6ec34adfe3b18ee787633494b71d8a8f0",
-  "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
+  "input_digest": "sha256:59fec70a056f18e64a502fb0bd728117a3ef4e45e06ea110efaa0610a4b1833a",
+  "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -323,6 +323,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-shellcheck-ci-gate.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-workflow-event-ref-contract.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-workflow-event-ref-contract.md"
       }
     },
     {
@@ -1254,6 +1261,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-version-contract/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-workflow-event-ref-contract/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-workflow-event-ref-contract/spec.md"
       }
     },
     {
@@ -2195,6 +2209,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-workflow-event-ref-contract.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-workflow-event-ref-contract.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.0.md",
       "type": "artifact",
       "attributes": {
@@ -2888,6 +2909,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-workflow-event-ref-contract/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-workflow-event-ref-contract/spec.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
       "type": "artifact",
       "attributes": {
@@ -3126,6 +3154,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/version/workflow_event_ref_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/version/workflow_event_ref_test.go"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/version/workflow_security_test.go",
       "type": "artifact",
       "attributes": {
@@ -3346,6 +3381,14 @@
       "attributes": {
         "diff_digest": "sha256:7e20f44ca9690f0ad19816177a53e0bec48530c3fc08facdc06e65d80dcd6452",
         "selector": "range:13689f7..369130a"
+      }
+    },
+    {
+      "id": "change-set:cs-9fa006f6985c",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:263b1f6fa08415c260d6efd7e20a27c616484f87278c07e8e2162a16eca58d86",
+        "selector": "range:78c97ab..6699569"
       }
     },
     {
@@ -3734,6 +3777,14 @@
     },
     {
       "id": "delivery:governance:verifier-extension-install-cwd",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
+      "id": "delivery:governance:workflow-event-ref-contract",
       "type": "governance",
       "attributes": {
         "module": "pose-mcp",
@@ -4325,6 +4376,13 @@
     },
     {
       "id": "spec:pose-version-contract",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-workflow-event-ref-contract",
       "type": "spec",
       "attributes": {
         "status": "done"
@@ -5122,6 +5180,11 @@
     {
       "from": "artifact:.pose/specs/pose-verifier-extension-install-cwd/spec.md",
       "to": "delivery:governance:verifier-extension-install-cwd",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/pose-workflow-event-ref-contract/spec.md",
+      "to": "delivery:governance:workflow-event-ref-contract",
       "type": "implemented-by"
     },
     {
@@ -6607,6 +6670,11 @@
     {
       "from": "artifact:pose-mcp/internal/version/version.go",
       "to": "delivery:governance:verifier-extension-install-cwd",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/version/workflow_event_ref_test.go",
+      "to": "delivery:governance:workflow-event-ref-contract",
       "type": "implemented-by"
     },
     {
@@ -9715,6 +9783,46 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-9fa006f6985c",
+      "to": "artifact:.pose/changelogs/unreleased/pose-workflow-event-ref-contract.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9fa006f6985c",
+      "to": "artifact:.pose/specs/pose-workflow-event-ref-contract/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9fa006f6985c",
+      "to": "artifact:.pose/state/history.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9fa006f6985c",
+      "to": "artifact:.pose/state/project-state.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9fa006f6985c",
+      "to": "artifact:.pose/state/refresh-log.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9fa006f6985c",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-workflow-event-ref-contract.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9fa006f6985c",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-workflow-event-ref-contract/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9fa006f6985c",
+      "to": "artifact:pose-mcp/internal/version/workflow_event_ref_test.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-a425b67fc8c7",
       "to": "artifact:.pose/changelogs/v0.20.3.md",
       "type": "changes"
@@ -12665,6 +12773,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:workflow-event-ref-contract",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:workflow-event-ref-contract",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:surface:delivery-integrity-cli",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "reaches"
@@ -12682,6 +12800,11 @@
     {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -15018,6 +15141,26 @@
       "from": "spec:pose-verifier-extension-install-cwd",
       "to": "change-set:cs-a425b67fc8c7",
       "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-workflow-event-ref-contract",
+      "to": "artifact:.pose/specs/pose-workflow-event-ref-contract/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-workflow-event-ref-contract",
+      "to": "artifact:pose-mcp/internal/version/workflow_event_ref_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-workflow-event-ref-contract",
+      "to": "delivery:governance:workflow-event-ref-contract",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-workflow-event-ref-contract",
+      "to": "change-set:cs-9fa006f6985c",
+      "type": "observed-by"
     }
   ],
   "claims": [
@@ -16721,6 +16864,16 @@
       "spec": "pose-verifier-extension-install-cwd",
       "action": "modified",
       "path": "tests/release/independent-verify.sh"
+    },
+    {
+      "spec": "pose-workflow-event-ref-contract",
+      "action": "created",
+      "path": ".pose/specs/pose-workflow-event-ref-contract/spec.md"
+    },
+    {
+      "spec": "pose-workflow-event-ref-contract",
+      "action": "created",
+      "path": "pose-mcp/internal/version/workflow_event_ref_test.go"
     }
   ],
   "change_sets": [
@@ -19443,6 +19596,53 @@
       "diff_digest": "sha256:7e20f44ca9690f0ad19816177a53e0bec48530c3fc08facdc06e65d80dcd6452"
     },
     {
+      "id": "cs-9fa006f6985c",
+      "spec": "pose-workflow-event-ref-contract",
+      "selector": "range:78c97ab..6699569",
+      "base": "78c97ab",
+      "head": "6699569",
+      "resolved_base": "78c97abef80e137d1872f158148cdf2b9fe8d40b",
+      "resolved_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
+      "commits": [
+        "66995693270455868e1b1e8de080048ce9c7f1b2"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-workflow-event-ref-contract.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-workflow-event-ref-contract/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-workflow-event-ref-contract.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-workflow-event-ref-contract/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/version/workflow_event_ref_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        }
+      ],
+      "diff_digest": "sha256:263b1f6fa08415c260d6efd7e20a27c616484f87278c07e8e2162a16eca58d86"
+    },
+    {
       "id": "cs-a425b67fc8c7",
       "spec": "pose-verifier-extension-install-cwd",
       "selector": "range:5d11753..HEAD",
@@ -22091,6 +22291,9 @@
     ".pose/specs/pose-verifier-extension-install-cwd/spec.md": [
       "pose-verifier-extension-install-cwd"
     ],
+    ".pose/specs/pose-workflow-event-ref-contract/spec.md": [
+      "pose-workflow-event-ref-contract"
+    ],
     ".pose/state/components/pose-mcp.json": [
       "pose-mcp-active-context"
     ],
@@ -22554,6 +22757,9 @@
       "pose-release-evidence-trigger-fix",
       "pose-verifier-assets-variable-fix",
       "pose-verifier-extension-install-cwd"
+    ],
+    "pose-mcp/internal/version/workflow_event_ref_test.go": [
+      "pose-workflow-event-ref-contract"
     ],
     "pose-mcp/internal/version/workflow_security_test.go": [
       "pose-action-runtime-currency-gate",
@@ -25145,6 +25351,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-workflow-event-ref-contract",
+      "ref": "governance:workflow-event-ref-contract",
+      "kind": "governance",
+      "id": "workflow-event-ref-contract",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-delivery-surface-assurance",
       "ref": "surface:delivery-integrity-cli",
       "kind": "surface",
@@ -25171,9 +25386,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
-      "generated_at": "2026-08-08T02:55:33Z",
-      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
+      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
+      "generated_at": "2026-08-08T03:47:48Z",
+      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25183,9 +25398,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
-      "generated_at": "2026-08-08T02:55:33Z",
-      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
+      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
+      "generated_at": "2026-08-08T03:47:48Z",
+      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25195,9 +25410,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
-      "generated_at": "2026-08-08T02:55:33Z",
-      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
+      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
+      "generated_at": "2026-08-08T03:47:48Z",
+      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25207,9 +25422,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
-      "generated_at": "2026-08-08T02:55:33Z",
-      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
+      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
+      "generated_at": "2026-08-08T03:47:48Z",
+      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25219,9 +25434,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
-      "generated_at": "2026-08-08T02:55:33Z",
-      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
+      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
+      "generated_at": "2026-08-08T03:47:48Z",
+      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25231,9 +25446,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
-      "generated_at": "2026-08-08T02:55:33Z",
-      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
+      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
+      "generated_at": "2026-08-08T03:47:48Z",
+      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25243,9 +25458,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
-      "generated_at": "2026-08-08T02:55:33Z",
-      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
+      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
+      "generated_at": "2026-08-08T03:47:48Z",
+      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -25255,9 +25470,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "e1e0e81f8e1908a58daf23ccd4fcf58d0dd3424e",
-      "generated_at": "2026-08-08T02:55:33Z",
-      "provenance_digest": "sha256:58517c95a4a4910a8cfce74ec89e84730a1f9bbfc9ba1a82f6920d2f7d111eac",
+      "git_head": "66995693270455868e1b1e8de080048ce9c7f1b2",
+      "generated_at": "2026-08-08T03:47:48Z",
+      "provenance_digest": "sha256:9ace003c609988ee9f9206cd6d785a1b82450eb12adf54ffcaa2f3eef3082fd8",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -25887,6 +26102,14 @@
       "artifact:pose-mcp/server.json",
       "artifact:tests/release/independent-verify.sh",
       "delivery:governance:verifier-extension-install-cwd",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
+    "governance:workflow-event-ref-contract": [
+      "spec:pose-workflow-event-ref-contract",
+      "artifact:.pose/specs/pose-workflow-event-ref-contract/spec.md",
+      "artifact:pose-mcp/internal/version/workflow_event_ref_test.go",
+      "delivery:governance:workflow-event-ref-contract",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],
