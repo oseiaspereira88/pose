@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:8eae72986668108e8ae059a338db7e2fc1d70d9ce65d26cc0eda5fa2b82b8462",
-  "provenance_digest": "sha256:36d15498e88fc0b10a4dd4d88427fb2c5d995ee631cac0634117c40192984d2d",
+  "input_digest": "sha256:49bb55568d07e05005f3024fbd791b56a6ddd8a377ff02d8b54b011cdf0d3977",
+  "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -204,6 +204,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-delivery-surface-assurance.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-dependency-digest-pinning.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-dependency-digest-pinning.md"
       }
     },
     {
@@ -921,6 +928,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/pose-dependency-digest-pinning/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-dependency-digest-pinning/spec.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/pose-extension-catalog-lifecycle/spec.md",
       "type": "artifact",
       "attributes": {
@@ -1516,6 +1530,20 @@
       }
     },
     {
+      "id": "artifact:mcp-enforce/Dockerfile",
+      "type": "artifact",
+      "attributes": {
+        "path": "mcp-enforce/Dockerfile"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/Dockerfile",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/Dockerfile"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
       "type": "artifact",
       "attributes": {
@@ -2048,6 +2076,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-dependency-digest-pinning.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-dependency-digest-pinning.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-extension-reference-publication.md",
       "type": "artifact",
       "attributes": {
@@ -2493,6 +2528,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-delivery-surface-assurance/spec.md"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-dependency-digest-pinning/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-dependency-digest-pinning/spec.md"
       }
     },
     {
@@ -3304,6 +3346,14 @@
       }
     },
     {
+      "id": "change-set:cs-eef769b1c79f",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:aef53e35c177a7414ad771cbd8de9e48b8880185b322c89714a4b40a7f720676",
+        "selector": "range:963902e..ae00255"
+      }
+    },
+    {
       "id": "change-set:cs-f155f269c31a",
       "type": "change-set",
       "attributes": {
@@ -3409,6 +3459,14 @@
     },
     {
       "id": "delivery:governance:compat-gate-manual-assertion",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
+      "id": "delivery:governance:dependency-digest-pinning",
       "type": "governance",
       "attributes": {
         "module": "pose-mcp",
@@ -3744,6 +3802,13 @@
     },
     {
       "id": "spec:pose-delivery-surface-assurance",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-dependency-digest-pinning",
       "type": "spec",
       "attributes": {
         "status": "done"
@@ -4276,6 +4341,11 @@
     },
     {
       "from": "artifact:.github/workflows/ci.yml",
+      "to": "delivery:governance:dependency-digest-pinning",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.github/workflows/ci.yml",
       "to": "delivery:governance:release-signing-rejection-proof",
       "type": "implemented-by"
     },
@@ -4290,8 +4360,18 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.github/workflows/docs.yml",
+      "to": "delivery:governance:dependency-digest-pinning",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.github/workflows/governance-audit.yml",
       "to": "delivery:governance:actions-runtime-currency",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.github/workflows/governance-audit.yml",
+      "to": "delivery:governance:dependency-digest-pinning",
       "type": "implemented-by"
     },
     {
@@ -4302,6 +4382,11 @@
     {
       "from": "artifact:.github/workflows/package-channels.yml",
       "to": "delivery:governance:actions-runtime-currency",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.github/workflows/package-channels.yml",
+      "to": "delivery:governance:dependency-digest-pinning",
       "type": "implemented-by"
     },
     {
@@ -4322,6 +4407,11 @@
     {
       "from": "artifact:.github/workflows/release.yml",
       "to": "delivery:governance:actions-runtime-currency",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.github/workflows/release.yml",
+      "to": "delivery:governance:dependency-digest-pinning",
       "type": "implemented-by"
     },
     {
@@ -4360,8 +4450,18 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.github/workflows/scorecard.yml",
+      "to": "delivery:governance:dependency-digest-pinning",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.github/workflows/security.yml",
       "to": "delivery:governance:actions-runtime-currency",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.github/workflows/security.yml",
+      "to": "delivery:governance:dependency-digest-pinning",
       "type": "implemented-by"
     },
     {
@@ -4372,6 +4472,11 @@
     {
       "from": "artifact:.github/workflows/verify-release.yml",
       "to": "delivery:governance:actions-runtime-currency",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.github/workflows/verify-release.yml",
+      "to": "delivery:governance:dependency-digest-pinning",
       "type": "implemented-by"
     },
     {
@@ -4732,6 +4837,11 @@
     {
       "from": "artifact:.pose/specs/pose-delivery-surface-assurance/spec.md",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/pose-dependency-digest-pinning/spec.md",
+      "to": "delivery:governance:dependency-digest-pinning",
       "type": "implemented-by"
     },
     {
@@ -5332,6 +5442,16 @@
     {
       "from": "artifact:locales/pt-BR/POSE.md",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:mcp-enforce/Dockerfile",
+      "to": "delivery:governance:dependency-digest-pinning",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/Dockerfile",
+      "to": "delivery:governance:dependency-digest-pinning",
       "type": "implemented-by"
     },
     {
@@ -6317,6 +6437,11 @@
     {
       "from": "artifact:pose-mcp/internal/version/version.go",
       "to": "delivery:governance:verifier-extension-install-cwd",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/version/workflow_security_test.go",
+      "to": "delivery:governance:dependency-digest-pinning",
       "type": "implemented-by"
     },
     {
@@ -11640,6 +11765,81 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:.github/workflows/ci.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:.github/workflows/docs.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:.github/workflows/governance-audit.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:.github/workflows/package-channels.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:.github/workflows/release.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:.github/workflows/scorecard.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:.github/workflows/security.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:.github/workflows/verify-release.yml",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:.pose/changelogs/unreleased/pose-dependency-digest-pinning.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:.pose/specs/pose-dependency-digest-pinning/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:mcp-enforce/Dockerfile",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:pose-mcp/Dockerfile",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-dependency-digest-pinning.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-dependency-digest-pinning/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-eef769b1c79f",
+      "to": "artifact:pose-mcp/internal/version/workflow_security_test.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-f155f269c31a",
       "to": "artifact:.pose/specs/pose-cyclonedx-sbom/spec.md",
       "type": "changes"
@@ -11945,6 +12145,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:dependency-digest-pinning",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:dependency-digest-pinning",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:extension-reference",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -12152,6 +12362,11 @@
     {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -13122,6 +13337,76 @@
     {
       "from": "spec:pose-delivery-surface-assurance",
       "to": "change-set:cs-b3da559b8e6a",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:.github/workflows/ci.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:.github/workflows/docs.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:.github/workflows/governance-audit.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:.github/workflows/package-channels.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:.github/workflows/release.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:.github/workflows/scorecard.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:.github/workflows/security.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:.github/workflows/verify-release.yml",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:.pose/specs/pose-dependency-digest-pinning/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:mcp-enforce/Dockerfile",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:pose-mcp/Dockerfile",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "artifact:pose-mcp/internal/version/workflow_security_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "delivery:governance:dependency-digest-pinning",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-dependency-digest-pinning",
+      "to": "change-set:cs-eef769b1c79f",
       "type": "observed-by"
     },
     {
@@ -14950,6 +15235,66 @@
       "spec": "pose-delivery-surface-assurance",
       "action": "modified",
       "path": "pose-mcp/internal/scaffold/scaffold.go"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "created",
+      "path": ".pose/specs/pose-dependency-digest-pinning/spec.md"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": ".github/workflows/ci.yml"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": ".github/workflows/docs.yml"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": ".github/workflows/governance-audit.yml"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": ".github/workflows/package-channels.yml"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": ".github/workflows/release.yml"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": ".github/workflows/scorecard.yml"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": ".github/workflows/security.yml"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": ".github/workflows/verify-release.yml"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": "mcp-enforce/Dockerfile"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": "pose-mcp/Dockerfile"
+    },
+    {
+      "spec": "pose-dependency-digest-pinning",
+      "action": "modified",
+      "path": "pose-mcp/internal/version/workflow_security_test.go"
     },
     {
       "spec": "pose-doc-command-reference",
@@ -20629,6 +20974,81 @@
       "diff_digest": "sha256:78931741bb810f62474a8c06c06e870127c0191ca8d07301e80f47168f835f10"
     },
     {
+      "id": "cs-eef769b1c79f",
+      "spec": "pose-dependency-digest-pinning",
+      "selector": "range:963902e..ae00255",
+      "base": "963902e",
+      "head": "ae00255",
+      "resolved_base": "963902ef732363334be904d471f76aa8afcb89b2",
+      "resolved_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
+      "commits": [
+        "ae002558bd80b61eb2649bb1f256aeb19aabccad"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-dependency-digest-pinning.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-dependency-digest-pinning/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-dependency-digest-pinning.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-dependency-digest-pinning/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/ci.yml"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/docs.yml"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/governance-audit.yml"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/package-channels.yml"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/release.yml"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/scorecard.yml"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/security.yml"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/verify-release.yml"
+        },
+        {
+          "action": "modified",
+          "path": "mcp-enforce/Dockerfile"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/Dockerfile"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/version/workflow_security_test.go"
+        }
+      ],
+      "diff_digest": "sha256:aef53e35c177a7414ad771cbd8de9e48b8880185b322c89714a4b40a7f720676"
+    },
+    {
       "id": "cs-f155f269c31a",
       "spec": "pose-first-release-evidence-confirmation",
       "selector": "range:01af76ee0385461c0dc4b717241215c9743a560c..39fa5db",
@@ -20857,23 +21277,28 @@
     ".github/workflows/ci.yml": [
       "pose-action-runtime-currency-gate",
       "pose-actions-node24-bump",
+      "pose-dependency-digest-pinning",
       "pose-release-signing-rejection",
       "pose-shellcheck-ci-gate"
     ],
     ".github/workflows/docs.yml": [
-      "pose-actions-node24-bump"
+      "pose-actions-node24-bump",
+      "pose-dependency-digest-pinning"
     ],
     ".github/workflows/governance-audit.yml": [
       "pose-actions-node24-bump",
+      "pose-dependency-digest-pinning",
       "pose-governance-gate-activation"
     ],
     ".github/workflows/package-channels.yml": [
       "pose-actions-node24-bump",
+      "pose-dependency-digest-pinning",
       "pose-package-channel-delivery",
       "pose-package-channel-workflow-safety"
     ],
     ".github/workflows/release.yml": [
       "pose-actions-node24-bump",
+      "pose-dependency-digest-pinning",
       "pose-extension-reference-publication",
       "pose-package-channel-delivery",
       "pose-release-evidence-trigger-fix",
@@ -20881,14 +21306,17 @@
       "pose-release-workflow-hardening"
     ],
     ".github/workflows/scorecard.yml": [
-      "pose-actions-node24-bump"
+      "pose-actions-node24-bump",
+      "pose-dependency-digest-pinning"
     ],
     ".github/workflows/security.yml": [
       "pose-actions-node24-bump",
+      "pose-dependency-digest-pinning",
       "pose-governance-gate-activation"
     ],
     ".github/workflows/verify-release.yml": [
       "pose-actions-node24-bump",
+      "pose-dependency-digest-pinning",
       "pose-package-channel-workflow-safety",
       "pose-release-evidence-trigger-fix",
       "pose-release-workflow-hardening"
@@ -21019,6 +21447,9 @@
     ],
     ".pose/specs/pose-delivery-surface-assurance/spec.md": [
       "pose-delivery-surface-assurance"
+    ],
+    ".pose/specs/pose-dependency-digest-pinning/spec.md": [
+      "pose-dependency-digest-pinning"
     ],
     ".pose/specs/pose-extension-reference-publication/spec.md": [
       "pose-extension-reference-publication"
@@ -21214,6 +21645,12 @@
       "pose-delivery-surface-assurance",
       "pose-manual-distribution-merge",
       "pose-mcp-active-context"
+    ],
+    "mcp-enforce/Dockerfile": [
+      "pose-dependency-digest-pinning"
+    ],
+    "pose-mcp/Dockerfile": [
+      "pose-dependency-digest-pinning"
     ],
     "pose-mcp/internal/cli/artifact_integrity.go": [
       "pose-artifact-provenance-ledger",
@@ -21540,7 +21977,8 @@
       "pose-verifier-extension-install-cwd"
     ],
     "pose-mcp/internal/version/workflow_security_test.go": [
-      "pose-action-runtime-currency-gate"
+      "pose-action-runtime-currency-gate",
+      "pose-dependency-digest-pinning"
     ],
     "pose-mcp/server.json": [
       "pose-compat-gate-manual-refresh-assertion",
@@ -23924,6 +24362,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-dependency-digest-pinning",
+      "ref": "governance:dependency-digest-pinning",
+      "kind": "governance",
+      "id": "dependency-digest-pinning",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-extension-reference-publication",
       "ref": "governance:extension-reference",
       "kind": "governance",
@@ -24023,7 +24470,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -24032,7 +24479,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -24121,9 +24568,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "27050aa6afae68920e2817b3d2f630fd1084071e",
-      "generated_at": "2026-08-07T22:00:38Z",
-      "provenance_digest": "sha256:36d15498e88fc0b10a4dd4d88427fb2c5d995ee631cac0634117c40192984d2d",
+      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
+      "generated_at": "2026-08-08T02:37:36Z",
+      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24133,9 +24580,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "27050aa6afae68920e2817b3d2f630fd1084071e",
-      "generated_at": "2026-08-07T22:00:38Z",
-      "provenance_digest": "sha256:36d15498e88fc0b10a4dd4d88427fb2c5d995ee631cac0634117c40192984d2d",
+      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
+      "generated_at": "2026-08-08T02:37:36Z",
+      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24145,9 +24592,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "27050aa6afae68920e2817b3d2f630fd1084071e",
-      "generated_at": "2026-08-07T22:00:38Z",
-      "provenance_digest": "sha256:36d15498e88fc0b10a4dd4d88427fb2c5d995ee631cac0634117c40192984d2d",
+      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
+      "generated_at": "2026-08-08T02:37:36Z",
+      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24157,9 +24604,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "27050aa6afae68920e2817b3d2f630fd1084071e",
-      "generated_at": "2026-08-07T22:00:38Z",
-      "provenance_digest": "sha256:36d15498e88fc0b10a4dd4d88427fb2c5d995ee631cac0634117c40192984d2d",
+      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
+      "generated_at": "2026-08-08T02:37:36Z",
+      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24169,9 +24616,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "27050aa6afae68920e2817b3d2f630fd1084071e",
-      "generated_at": "2026-08-07T22:00:38Z",
-      "provenance_digest": "sha256:36d15498e88fc0b10a4dd4d88427fb2c5d995ee631cac0634117c40192984d2d",
+      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
+      "generated_at": "2026-08-08T02:37:36Z",
+      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24181,9 +24628,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "27050aa6afae68920e2817b3d2f630fd1084071e",
-      "generated_at": "2026-08-07T22:00:38Z",
-      "provenance_digest": "sha256:36d15498e88fc0b10a4dd4d88427fb2c5d995ee631cac0634117c40192984d2d",
+      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
+      "generated_at": "2026-08-08T02:37:36Z",
+      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24193,9 +24640,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "27050aa6afae68920e2817b3d2f630fd1084071e",
-      "generated_at": "2026-08-07T22:00:38Z",
-      "provenance_digest": "sha256:36d15498e88fc0b10a4dd4d88427fb2c5d995ee631cac0634117c40192984d2d",
+      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
+      "generated_at": "2026-08-08T02:37:36Z",
+      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -24205,9 +24652,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "27050aa6afae68920e2817b3d2f630fd1084071e",
-      "generated_at": "2026-08-07T22:00:38Z",
-      "provenance_digest": "sha256:36d15498e88fc0b10a4dd4d88427fb2c5d995ee631cac0634117c40192984d2d",
+      "git_head": "ae002558bd80b61eb2649bb1f256aeb19aabccad",
+      "generated_at": "2026-08-08T02:37:36Z",
+      "provenance_digest": "sha256:7426a9ad76678582e68ee52efcc7d63bae77263f53d211baf963f1f4b3f3c102",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -24612,6 +25059,24 @@
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],
+    "governance:dependency-digest-pinning": [
+      "spec:pose-dependency-digest-pinning",
+      "artifact:.pose/specs/pose-dependency-digest-pinning/spec.md",
+      "artifact:.github/workflows/ci.yml",
+      "artifact:.github/workflows/docs.yml",
+      "artifact:.github/workflows/governance-audit.yml",
+      "artifact:.github/workflows/package-channels.yml",
+      "artifact:.github/workflows/release.yml",
+      "artifact:.github/workflows/scorecard.yml",
+      "artifact:.github/workflows/security.yml",
+      "artifact:.github/workflows/verify-release.yml",
+      "artifact:mcp-enforce/Dockerfile",
+      "artifact:pose-mcp/Dockerfile",
+      "artifact:pose-mcp/internal/version/workflow_security_test.go",
+      "delivery:governance:dependency-digest-pinning",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
     "governance:extension-reference": [
       "spec:pose-extension-reference-publication",
       "artifact:extensions/pose-rule-kubernetes/extension.json",
@@ -24730,43 +25195,13 @@
       "validation-result:pose-mcp/go/delivery-integration"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-lifecycle-closure",
-      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
-      "artifact:.pose/indexes/releases.json",
-      "artifact:.pose/policy/changelog.json",
-      "artifact:.pose/release-policy.json",
-      "artifact:.pose/rules/release-integrity.md",
-      "artifact:.pose/workflows/release.md",
-      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
-      "artifact:locales/pt-BR/.pose/workflows/release.md",
-      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
-      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
-      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
-      "artifact:.agents/skills/README.md",
+      "spec:pose-release-evidence-trigger-fix",
+      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.pose/indexes/task-map.json",
-      "artifact:.pose/indexes/validation-matrix.json",
-      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
-      "artifact:POSE.md",
-      "artifact:docs-site/docs/cli.md",
-      "artifact:docs-site/docs/mcp.md",
-      "artifact:pose-mcp/internal/cli/check.go",
-      "artifact:pose-mcp/internal/cli/cli.go",
-      "artifact:pose-mcp/internal/cli/index.go",
-      "artifact:pose-mcp/internal/cli/maintenance.go",
-      "artifact:pose-mcp/internal/cli/native_only_test.go",
-      "artifact:pose-mcp/internal/cli/skills_check_test.go",
-      "artifact:pose-mcp/internal/mcpserver/catalog.go",
-      "artifact:pose-mcp/internal/mcpserver/server.go",
-      "artifact:pose-mcp/internal/mcpserver/server_test.go",
-      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "artifact:pose-mcp/internal/pose/changelogs.go",
-      "artifact:pose-mcp/internal/scaffold/scaffold.go",
-      "artifact:scripts/release.sh",
+      "artifact:.github/workflows/verify-release.yml",
+      "artifact:docs-site/docs/ci.md",
+      "artifact:pose-mcp/internal/version/contract_test.go",
+      "artifact:pose-mcp/internal/version/version.go",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"

@@ -9,6 +9,14 @@
       "digest": "sha256:962a415bab264f6252da859bff05289ee3f13afb623ddfa84e6b836c3904946f"
     },
     {
+      "spec": "pose-dependency-digest-pinning",
+      "category": "security",
+      "breaking": false,
+      "body": "Every GitHub Action and both container base images are now pinned to immutable\ndigests, with the version they correspond to recorded beside each one. The\nGitHub-owned actions had been tag-pinned under an owned exception and the\ncontainer bases carried no digest at all, which together were the largest open\nblock in the OpenSSF baseline. A moving tag meant a release build executed\nwhatever that tag pointed at that morning, which is not something the published\nprovenance could describe.",
+      "path": "pose-dependency-digest-pinning.md",
+      "digest": "sha256:42acd2e2c2a6a22de237b2a07913a7c0e77e1fce5f7b7b3ce56297fd12bd5d75"
+    },
+    {
       "spec": "pose-package-channel-delivery",
       "category": "fixed",
       "breaking": false,

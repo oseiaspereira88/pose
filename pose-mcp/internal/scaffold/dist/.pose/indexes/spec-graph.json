@@ -65,6 +65,10 @@
       "to": "pose-artifact-provenance-ledger"
     },
     {
+      "from": "pose-dependency-digest-pinning",
+      "to": "pose-actions-node24-bump"
+    },
+    {
       "from": "pose-doctor-guided-remediation",
       "to": "pose-public-install-contract"
     },
@@ -451,6 +455,14 @@
       ],
       "path": ".pose/specs/pose-delivery-surface-assurance/spec.md",
       "priority": 2,
+      "status": "done"
+    },
+    "pose-dependency-digest-pinning": {
+      "depends_on": [
+        "pose-actions-node24-bump"
+      ],
+      "path": ".pose/specs/pose-dependency-digest-pinning/spec.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-doc-command-reference": {

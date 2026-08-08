@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-07T22:00:54Z
-baseline_commit: 27050aa6afae68920e2817b3d2f630fd1084071e
+generated_at: 2026-08-08T02:38:19Z
+baseline_commit: ae002558bd80b61eb2649bb1f256aeb19aabccad
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,29 +27,29 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:6ab6926c72cf -->
+<!-- state:derived hash:076e9172db07 -->
 
-- specs: total=68 draft=1 in-progress=0 blocked=0 done=67 superseded=0 abandoned=0
+- specs: total=69 draft=1 in-progress=0 blocked=0 done=68 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-release-signing-rejection (2026-08-07)
   - spec:pose-actions-node24-bump (2026-08-07)
-  - spec:pose-governance-gate-activation (2026-08-07)
   - spec:pose-manual-distribution-merge (2026-08-07)
   - spec:pose-assessment-engine-precision (2026-08-07)
   - spec:pose-verifier-assets-variable-fix (2026-08-07)
-  - ... e mais 62 (ver `pose_list_specs status:done`)
+  - ... e mais 63 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:4f70f06ed854 -->
+<!-- state:derived hash:9078e99efd1c -->
 
-- abertos: 35
-- por criticidade: high=2 medium=16 low=17 sem-classificação=0
+- abertos: 37
+- por criticidade: high=2 medium=17 low=18 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
-<!-- state:derived hash:10b03320f9c1 -->
+<!-- state:derived hash:78115c60373b -->
 
-- assessment: presente, baseline_commit=commit:c9a08fa, assessed_at=2026-07-22 (16 dias atrás)
+- assessment: presente, baseline_commit=commit:c9a08fa, assessed_at=2026-07-22 (17 dias atrás)
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:f390bd158d8b -->
+<!-- state:derived hash:92593c61cf1f -->
 
-- último registro: task=closeout-pose-package-channel-workflow-safety outcome=unknown (2026-08-07T22:00:38Z)
-- últimos 30 dias: total=122 outcome_ok=100 outcome_outro=22
-- reports revisados (.md): total=59
+- último registro: task=closeout-pose-dependency-digest-pinning outcome=unknown (2026-08-08T02:37:36Z)
+- últimos 30 dias: total=123 outcome_ok=100 outcome_outro=23
+- reports revisados (.md): total=60
+  - report:2026-08-08-standard-closeout-pose-dependency-digest-pinning.md
   - report:2026-08-07-standard-closeout-pose-package-channel-workflow-safety.md
   - report:2026-08-07-standard-closeout-pose-actions-node24-bump.md
   - report:2026-08-07-standard-closeout-pose-package-channel-delivery.md
   - report:2026-08-07-standard-closeout-pose-release-workflow-hardening.md
-  - report:2026-08-07-standard-closeout-pose-release-signing-rejection.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
