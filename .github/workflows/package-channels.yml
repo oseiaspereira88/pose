@@ -101,6 +101,13 @@ jobs:
         # feature (spec pose-package-channel-install-repair).
         run: |
           winget settings --enable LocalManifestFiles
+          # The msstore source demands its own agreements even for an install
+          # that never touches it, and cancels the operation after the download
+          # has already succeeded. This install reads a local manifest, so the
+          # source is removed rather than agreed to.
+          winget source remove --name msstore
+          if ($LASTEXITCODE -ne 0) { Write-Host "msstore source already absent" }
+          $global:LASTEXITCODE = 0
           winget validate --manifest .\package-manifests\winget
           winget install --manifest .\package-manifests\winget --accept-package-agreements --accept-source-agreements --disable-interactivity
           pose doctor --json
