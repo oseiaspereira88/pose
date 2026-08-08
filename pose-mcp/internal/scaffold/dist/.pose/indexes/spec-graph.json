@@ -309,6 +309,10 @@
       "to": "pose-cyclonedx-sbom"
     },
     {
+      "from": "pose-sbom-negative-coverage",
+      "to": "pose-sbom-license-coverage-gate"
+    },
+    {
       "from": "pose-semantic-governance-assist",
       "to": "pose-recurrence-effectiveness"
     },
@@ -871,6 +875,14 @@
         "pose-cyclonedx-sbom"
       ],
       "path": ".pose/specs/pose-sbom-license-inventory/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
+    "pose-sbom-negative-coverage": {
+      "depends_on": [
+        "pose-sbom-license-coverage-gate"
+      ],
+      "path": ".pose/specs/pose-sbom-negative-coverage/spec.md",
       "priority": 1,
       "status": "done"
     },

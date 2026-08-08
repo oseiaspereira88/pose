@@ -25,6 +25,14 @@
       "digest": "sha256:4d6f35e023e42cacfe5e462059c909fb3247a5a5d028c8095460b44326c88b25"
     },
     {
+      "spec": "pose-sbom-negative-coverage",
+      "category": "changed",
+      "breaking": false,
+      "body": "The SBOM assertions are now exercised on every CI run, including the\nlicense-coverage floor. They had been unreachable by the negative harness:\ninside the artifact-identity gate they sit behind signature verification, and\nthe synthetic fixtures are unsigned by construction, so every run died before\nany SBOM assertion was evaluated. They are their own script now, and the harness\nrejects an inventory with no licenses, one below the floor, and one with no\ncomponents — then accepts a compliant inventory, so the rejections are not the\nharness refusing everything.",
+      "path": "pose-sbom-negative-coverage.md",
+      "digest": "sha256:eb51611d36fee6d169dd4cbfc2413e9881b6e6108685b4a6e6b81899ea988cd9"
+    },
+    {
       "spec": "pose-skill-closeout-gate-parity",
       "category": "fixed",
       "breaking": false,
