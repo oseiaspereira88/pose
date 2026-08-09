@@ -45,6 +45,10 @@
       "to": "pose-compat-gate-candidate-integrity"
     },
     {
+      "from": "pose-container-build-gate",
+      "to": "pose-dependency-pin-refresh"
+    },
+    {
       "from": "pose-cross-repo-portfolio",
       "to": "pose-mcp-project-scope-contract"
     },
@@ -463,6 +467,14 @@
       "path": ".pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md",
       "priority": 1,
       "status": "done"
+    },
+    "pose-container-build-gate": {
+      "depends_on": [
+        "pose-dependency-pin-refresh"
+      ],
+      "path": ".pose/specs/pose-container-build-gate/spec.md",
+      "priority": 1,
+      "status": "draft"
     },
     "pose-cross-repo-portfolio": {
       "depends_on": [
