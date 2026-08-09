@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "version": "v0.22.0",
+  "previous_version": "v0.21.0",
+  "prepared_at": "2026-08-09T21:48:05Z",
+  "specs": [
+    "pose-action-runtime-currency-gate",
+    "pose-dependency-pin-refresh",
+    "pose-manual-locale-parity",
+    "pose-package-channel-install-repair",
+    "pose-sbom-negative-coverage",
+    "pose-skill-closeout-gate-parity",
+    "pose-skill-command-parity"
+  ],
+  "categories": {
+    "added": 3,
+    "changed": 1,
+    "fixed": 3
+  },
+  "fragments": [
+    {
+      "spec": "pose-action-runtime-currency-gate",
+      "category": "added",
+      "breaking": false,
+      "body": "A deprecated action runtime now fails the build instead of annotating a green\nrun. Every pinned action's declared runtime is recorded in\n`.github/action-runtimes.json`; an offline check fails on a deprecated runtime,\nan unrecorded action or a record left behind by a bump, and a CI step re-resolves\neach `action.yml` at its pinned ref so the record cannot quietly disagree with\nreality. Building the record immediately found what it exists for:\n`goreleaser/goreleaser-action` was still on Node.js 20, having been left out of\nthe earlier bump that covered only first-party actions. It is now on v7.2.3 and\nthe repository has no deprecated runtime left.",
+      "path": "pose-action-runtime-currency-gate.md",
+      "digest": "sha256:de1b6770fb9d3794ff1126a590879b96c55fad98d7e77b0b335ddc3b57e904e9"
+    },
+    {
+      "spec": "pose-dependency-pin-refresh",
+      "category": "added",
+      "breaking": false,
+      "body": "Pinned dependencies now have a refresh path. Making every action, container base\nand Python package immutable closed 84 Scorecard findings and, deliberately,\ntraded silent drift for silent staleness: an upstream security fix arrived only\nwhen someone updated a SHA by hand. Dependabot now covers all four pinned\necosystems with grouped monthly updates, and `scripts/refresh-action-runtimes.sh`\nturns the runtime-manifest edit that a bump forces into one idempotent command.",
+      "path": "pose-dependency-pin-refresh.md",
+      "digest": "sha256:5c5bafa4954067b05bbb48253795d5c64d47c5194eb0e8b78b260002a670cfce"
+    },
+    {
+      "spec": "pose-manual-locale-parity",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The pt-BR manual is back in parity with the English one. `pose upgrade` ships\nthe manual matching each instance's locale, so thirteen feature commits that\nnever crossed into the translation had been distributing a POSE without the\nrelease lifecycle, `pose state`, docs governance or the signed extension\necosystem to every pt-BR instance. The drift ran both ways: the translation\ncarried rationale the English manual had lost, and documented three real MCP\ntools that appeared in no English file. A symmetric check now fails on either\nkind of drift, closing for the manuals the same gap that was already closed for\ntranslated skills.",
+      "path": "pose-manual-locale-parity.md",
+      "digest": "sha256:cd5dace1a0e410c72621042d3f33311c66ba68a275f595e54a675e35f2331138"
+    },
+    {
+      "spec": "pose-package-channel-install-repair",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The documentation no longer offers `brew install --formula \u003curl\u003e`, which\nHomebrew rejects: a formula must be in a tap, and installing one from a path or\na URL is unsupported. The formula is still generated, published and\ninstall-tested every release — through a throwaway tap on the clean-host\nmatrix — so a tap can be stood up later without regenerating anything, but\nuntil one exists there is no `brew` command that installs POSE and the verified\ndownload is the supported path on macOS. The WinGet leg now enables\nlocal-manifest installation, which is off by default, and validates the manifest\nset before installing.",
+      "path": "pose-package-channel-install-repair.md",
+      "digest": "sha256:4d6f35e023e42cacfe5e462059c909fb3247a5a5d028c8095460b44326c88b25"
+    },
+    {
+      "spec": "pose-sbom-negative-coverage",
+      "category": "changed",
+      "breaking": false,
+      "body": "The SBOM assertions are now exercised on every CI run, including the\nlicense-coverage floor. They had been unreachable by the negative harness:\ninside the artifact-identity gate they sit behind signature verification, and\nthe synthetic fixtures are unsigned by construction, so every run died before\nany SBOM assertion was evaluated. They are their own script now, and the harness\nrejects an inventory with no licenses, one below the floor, and one with no\ncomponents — then accepts a compliant inventory, so the rejections are not the\nharness refusing everything.",
+      "path": "pose-sbom-negative-coverage.md",
+      "digest": "sha256:eb51611d36fee6d169dd4cbfc2413e9881b6e6108685b4a6e6b81899ea988cd9"
+    },
+    {
+      "spec": "pose-skill-closeout-gate-parity",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The pt-BR `pose-spec-closeout` skill now routes the closeout through the review\ngate. It had gone from follow-up triage straight to hand-editing `status: done`,\nnever mentioning `pose review record`, `pose review-check` or `pose close` — so\nan agent following the translated skill produced a spec that `pose check\n--strict` then rejected with an error whose cause was not visible from its text.\nThe other ten translated skills were checked the same way and teach every\ncommand their English counterparts do.",
+      "path": "pose-skill-closeout-gate-parity.md",
+      "digest": "sha256:db7235a0bcf03aea78d619105ce682c5e9edd55626e67a79de58252633cf891f"
+    },
+    {
+      "spec": "pose-skill-command-parity",
+      "category": "added",
+      "breaking": false,
+      "body": "A contract test now fails when an English skill and its translation teach\ndifferent POSE commands, comparing only the commands each side tells an agent to\nrun — flags, wording and format are deliberately out of scope, because English\nskills are terse and translations example-rich by design. Applying it settled\nthat open question with evidence: the terse rewrite had dropped nine commands\nthe translations still taught, including `pose new-spec` from the feature skill\nand `pose validate` from the closeout skill. They are restored.",
+      "path": "pose-skill-command-parity.md",
+      "digest": "sha256:a2c4f49a570769fd3beaa6696f1e77ce8d9c6b83bbe73992d3cafca29ea3c9a4"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:5fd4e4544c789fde2ec8bf9891bc54ccf2df275745d367a3c5f9fc58a43fa17a",
+  "release_input_digest": "sha256:df5e5ac6100705363fa3f36ce58e58a53383650ec8c553740fa7f2c230031c03",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v0.22.0"
+  }
+}
