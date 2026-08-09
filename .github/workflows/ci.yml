@@ -31,6 +31,12 @@ jobs:
         run: bash tests/install/run.sh
       - name: Artifact-identity gate rejects what it must (spec pose-release-signing R3)
         run: bash tests/release/verify-negative.sh
+      - name: Delivery images build and start
+        # pose-mcp/Dockerfile and mcp-enforce/Dockerfile are composed in
+        # production by the harne8 monorepo and were built by nothing here, so a
+        # broken Dockerfile surfaced when that stack came up. The contexts match
+        # docker-compose.prod.yaml (spec pose-container-build-gate).
+        run: bash tests/release/container-build.sh
       - name: Recorded action runtimes match the actions themselves
         # The offline check reads the runtime record; this resolves each action
         # at its pinned ref, so the record cannot quietly disagree with reality

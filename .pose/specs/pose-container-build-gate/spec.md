@@ -1,8 +1,8 @@
 ---
 slug: pose-container-build-gate
-status: draft
+status: done
 created_at: 2026-08-09
-completed_at:
+completed_at: 2026-08-09
 supersedes:
 depends_on: pose-dependency-pin-refresh
 priority: 1
@@ -101,12 +101,12 @@ delivery surface currently outside that discipline.
 ## 3. Technical Plan
 
 ### Affected areas
-- `.github/workflows/ci.yml` — the build-and-smoke step.
-- possibly `tests/release/` — a script, if the smoke test is more than two
-  `docker run` invocations.
+- `tests/release/container-build.sh` — the gate.
+- `.github/workflows/ci.yml` — the step that runs it.
 
 ### Artifacts
 - created: .pose/specs/pose-container-build-gate/spec.md
+- created: tests/release/container-build.sh
 - modified: .github/workflows/ci.yml
 
 ### Delivery targets
@@ -134,19 +134,19 @@ delivery surface currently outside that discipline.
 ## 4. Tasks
 
 ### Planning
-- [ ] Confirm both build contexts against the production compose file
-- [ ] Decide where the smoke test lives: inline steps or a script
+- [x] Confirm both build contexts against the production compose file
+- [x] Decide where the smoke test lives: inline steps or a script
 
 ### Implementation
-- [ ] R1: build both images with their correct contexts
-- [ ] R2: exercise both entrypoints
-- [ ] R3: attribute failures to a named image
-- [ ] R4: run on every push
+- [x] R1: build both images with their correct contexts
+- [x] R2: exercise both entrypoints
+- [x] R3: attribute failures to a named image
+- [x] R4: run on every push
 
 ### Validation
-- [ ] Prove the gate fails on a deliberately broken Dockerfile
-- [ ] Prove it fails on an image that builds but cannot start
-- [ ] Run the mandatory checks
+- [x] Prove the gate fails on a deliberately broken Dockerfile
+- [x] Prove it fails on an image that builds but cannot start
+- [x] Run the mandatory checks
 
 ---
 
@@ -175,35 +175,67 @@ to a real run.
 - Expected: `pose-mcp` reports its listening address; the sidecar starts
 
 ### Execution log
-<!-- Filled at implementation. The prior manual validation is evidence that the
-     images build today, not that the gate works. -->
+- Date: 2026-08-09
+- Environment: linux/amd64, Docker via /usr/local/bin/docker.
+- Notes: both images build and start on the current tree. Each failure path was
+  injected into the real Dockerfile rather than a fixture:
+  1. **Does not build** — building `./cmd/does-not-exist` reports
+     `FAIL: pose-mcp does not build from .` and re-runs the build without `-q`
+     so the compiler error reaches the log.
+  2. **Builds and does not start** — an entrypoint of `pose
+     definitely-not-a-command` reports `FAIL: pose-mcp exited instead of
+     starting`, while `mcp-enforce` still reports OK in the same run, which is
+     R3's attribution working.
+  3. The wrong-context error is real and confirmed: building
+     `mcp-enforce/Dockerfile` from the repository root produces
+     `"/go.mod": not found`.
+- One fixture of mine was invalid and is worth recording: the first attempt at
+  case 2 passed `--bogus-flag-that-aborts` to `serve-mcp`, which the binary
+  accepts, so the server started and the gate correctly said nothing. The gate
+  was right and the test was wrong.
 
 ### Results summary
-<!-- Filled at implementation. -->
+- Successes: both images built and exercised; both failure paths demonstrated
+  with attribution
+- Failures: none
+- Warnings: none
 
 ### Requirement trace
-<!-- Filled at implementation. -->
+- R1 [satisfied] governance:container-build-gate evidence:integration check:delivery-integration test:tests/release/container-build.sh — `pose-mcp` builds from the repository root and `mcp-enforce` from its own directory, the contexts `docker-compose.prod.yaml` uses
+- R2 [satisfied] check:container-build — each container is started and required to log `listening addr=`; the poll reports a crash-loop immediately instead of waiting out a fixed timeout
+- R3 [satisfied] check:container-build — every failure names the image and which of build or start failed; in the injected start failure `mcp-enforce` still reported OK in the same run
+- R4 [satisfied] report:.github/workflows/ci.yml — the step runs in the ordinary `ci` job on every push, not gated on Dockerfile changes
 
 ### Known gaps
-<!-- Filled at implementation. Expected to record that the build contexts are
-     duplicated between this gate and the monorepo's compose file, with no
-     mechanism keeping them in agreement. -->
+- The build contexts are written down independently here and in the monorepo's
+  compose file, and nothing keeps them in agreement — a context change on either
+  side is invisible to the other.
+- The gate proves each image starts alone. Whether the two talk to each other,
+  and whether `pose-mcp` serves a mounted project correctly, remains the
+  composition's integration concern.
+- Startup is asserted by a log line. A container that logs `listening` and then
+  fails to serve would pass.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-<!-- Filled at closeout. -->
+Both delivery images are built in CI with the contexts production uses, and each
+entrypoint is started and required to announce itself. A failure names the image
+and whether it was the build or the start.
 
 ### Files and modules changed
-<!-- Filled at closeout. -->
+- tests/release/container-build.sh
+- .github/workflows/ci.yml
 
 ### Validation executed
-<!-- Filled at closeout. -->
+- Command: `bash tests/release/container-build.sh`, plus two injected failures
+- Result: pass on the current tree; both failure paths named their cause
 
 ### Residual risks
-<!-- Filled at closeout. -->
+- The contexts are duplicated across two repositories with nothing reconciling
+  them, which is the follow-up this spec opens.
 
 ### Follow-ups
 
