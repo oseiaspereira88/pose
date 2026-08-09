@@ -1,5 +1,14 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-container-build-gate",
+      "category": "added",
+      "breaking": false,
+      "body": "CI now builds both delivery container images and starts them. They are composed\nin production by the harne8 monorepo from this repository, and nothing here built\neither one — so a broken Dockerfile surfaced when that stack came up, in a\ndifferent repository. The gate uses the same build contexts the production\ncompose file uses, which are not interchangeable, and requires each entrypoint to\nannounce itself: an image that builds and cannot start is the failure that\nreaches a compose stack as a crash-loop.",
+      "path": "pose-container-build-gate.md",
+      "digest": "sha256:67c658fa64eac0844ba2c592b94b7567d8b7080b9c7d223a528467beaef81012"
+    }
+  ],
   "releases": [
     {
       "version": "v0.22.0",
