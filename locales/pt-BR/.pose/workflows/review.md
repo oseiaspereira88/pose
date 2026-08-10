@@ -26,7 +26,9 @@ Validar se a mudança está correta, segura para produção e alinhada ao escopo
 10. Identificar regressões potenciais e impactos de rollout/rollback.
 11. Classificar achados por severidade e sugerir ações objetivas.
 12. **Produzir handoff** em `.pose/knowledge/` quando achados resultarem em risco aceito, monitoramento pós-merge ou ação postergada (`pose new-knowledge handoff <slug>`); link no parecer.
-13. Emitir decisão final: aprovado, aprovado com ressalvas ou reprovado.
+13. Registrar a decisão contra o digest canônico do escopo com `pose review record <escopo> ... --apply`.
+14. Rodar `pose review-check <escopo>` e rejeitar tentativas obsoletas, incompletas ou conflitantes.
+15. Emitir decisão final: aprovado, aprovado com ressalvas ou reprovado.
 
 ## Seleção obrigatória de `rules` por PR/tarefa
 
@@ -57,17 +59,6 @@ Use a seleção como evidência obrigatória de cobertura por domínio real do m
 - Exija evidência da métrica `recurrence_rework_uncovered` e do período de 30 dias no parecer de review.
 - Exija vínculo explícito entre o workflow especializado criado e as `rules` de domínio aplicáveis.
 - Exija revisão pós-piloto (45 dias) com decisão formal: `manter`, `ajustar` ou `descartar`.
-
-## Referências explícitas de rules adotadas neste workflow
-
-- `.pose/rules/security.md`
-- `.pose/rules/backend-go.md`
-- `.pose/rules/frontend-react.md`
-- `.pose/rules/kubernetes.md` (extensão `pose-rule-kubernetes`, quando instalada)
-- `.pose/rules/documentation-style.md`
-- `.pose/rules/knowledge-governance.md`
-
-Aplique cumulativamente por domínio e, em conflito, preserve a decisão mais restritiva documentada no parecer.
 
 ## Mapeamento mínimo de cobertura por domínio
 

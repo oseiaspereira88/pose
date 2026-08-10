@@ -37,6 +37,7 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 - `pose assess discover --update-state` ao fechar specs para atualizar métricas de completude, dívida técnica e relatórios sob `.pose/assessments/` e `.pose/state/`.
 - `pose artifact-check --strict` para source-tree governada e `pose
   surface-check --strict` quando houver `delivers`.
+- `pose roadmap-check --strict` antes de um roadmap declarar conclusão.
 
 ## Precedência em conflito multi-domínio
 

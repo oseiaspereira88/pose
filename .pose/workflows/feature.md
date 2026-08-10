@@ -30,7 +30,7 @@ Deliver a production feature with clear scope, incremental implementation, and d
 15. Summarize the result, residual risks, and next steps.
 16. Run a separate review pass and record its immutable attempt with `pose review record spec:<slug> ... --apply`.
 17. Require `pose closeout-check spec:<slug>` before applying `pose close spec:<slug>`; remediate and re-review when the digest or findings block closure.
-18. Complete follow-up and changelog disposition, run `pose assess discover --update-state` to recalculate platform completeness; then pass `pose lint-spec <slug> --strict`.
+18. Complete follow-up and changelog disposition (`pose followups --all` shows the cross-spec backlog and its collisions), run `pose assess discover --update-state` to recalculate platform completeness; then pass `pose lint-spec <slug> --strict`.
 
 ## Required outputs
 

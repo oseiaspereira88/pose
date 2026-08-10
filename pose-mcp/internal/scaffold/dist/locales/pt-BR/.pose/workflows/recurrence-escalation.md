@@ -53,11 +53,24 @@ Em conflito, aplique a alternativa mais restritiva.
 
 ## Revisão de adoção (piloto)
 
+Registre a intervenção quando a escalação for entregue, para que a revisão seja
+medida e não lembrada (spec pose-recurrence-effectiveness):
+
+```bash
+pose recurrence-effect --register --task <slug-da-tarefa> \
+  --ref rule:<nome>|workflow:<nome>|spec:<slug> \
+  --window-days 45 --rationale "<por que esta intervenção>" --author @<alias>
+```
+
 Execute revisão após 45 dias de piloto:
 
-- Compare volume de recorrência pré/pós ativação por domínio.
+- Rode `pose recurrence-effect` — ele compara a taxa de recorrência (e a
+  duração/custo registrados) antes e depois da intervenção a partir do
+  histórico append-only, com avisos de qualidade de dados para amostras
+  esparsas ou janelas incompletas.
 - Validar taxa de redução mínima de 30% no domínio alvo.
-- Avaliar custo operacional (tempo de execução e qualidade de evidência).
+- Avaliar custo operacional (tempo de execução e qualidade de evidência)
+  (`pose report --duration-seconds/--cost-usd` alimenta a telemetria).
 - Emitir decisão formal: `manter`, `ajustar` ou `descartar`.
 - Se `ajustar`/`descartar`, abrir follow-up com owner, prazo e critério de saída.
 

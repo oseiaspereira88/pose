@@ -41,6 +41,12 @@ var (
 // to run. Flags and arguments are deliberately excluded: a translation is free
 // to show more or fewer options, but not a different set of commands.
 func taughtCommands(content string) map[string]bool {
+	// A wrapped code span puts `pose` and its subcommand on different lines, so
+	// matching line by line reports a command as untaught because a paragraph was
+	// reflowed. That is a false negative in the gate, and it disarms it silently:
+	// the translation still teaches the command, and the check still passes.
+	content = strings.Join(strings.Fields(content), " ")
+
 	out := map[string]bool{}
 	for _, m := range poseCommandRe.FindAllStringSubmatch(content, -1) {
 		cmd := m[1]
