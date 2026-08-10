@@ -102,7 +102,6 @@ wrong repository and restore a reliable community-feedback submission path.
 - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
 - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
 - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
-- modified: pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
