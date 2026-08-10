@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "description": "Mapa machine-readable de tipo-de-tarefa → trilha canônica POSE. Consumido por ./pose suggest e validado por ./pose check.",
+  "description": "Mapa machine-readable de tipo-de-tarefa → trilha canônica POSE. Consumido por pose suggest e validado por pose check.",
   "tasks": {
     "feature": {
       "description": "Implementação de feature não-trivial com escopo afetando >=1 módulo.",
@@ -16,7 +16,7 @@
       "requires_adr": "se houver mudança arquitetural",
       "knowledge_consume": true,
       "knowledge_produce": "handoff (quando houver contexto reaproveitável)",
-      "validation": "./pose validate --strict --module <path-afetado>"
+      "validation": "pose validate --strict --module <path-afetado>"
     },
     "bugfix": {
       "description": "Correção de defeito com causa raiz isolada e regressão coberta.",
@@ -32,7 +32,7 @@
       "requires_adr": false,
       "knowledge_consume": true,
       "knowledge_produce": "decision-log (quando revelar dívida sistêmica)",
-      "validation": "./pose validate --tolerant --module <path-afetado>"
+      "validation": "pose validate --tolerant --module <path-afetado>"
     },
     "review": {
       "description": "Avaliação técnica de PR/diff: escopo, contratos, segurança, validação.",
@@ -48,7 +48,7 @@
       "requires_adr": false,
       "knowledge_consume": true,
       "knowledge_produce": "handoff (quando aceitar risco residual ou condicionar merge)",
-      "validation": "exigir evidência de ./pose validate do implementador"
+      "validation": "exigir evidência de pose validate do implementador"
     },
     "refactor": {
       "description": "Refactor cirúrgico sem mudança funcional observável.",
@@ -63,7 +63,7 @@
       "requires_adr": "se mudar contrato estrutural",
       "knowledge_consume": true,
       "knowledge_produce": false,
-      "validation": "./pose validate --strict no escopo afetado"
+      "validation": "pose validate --strict no escopo afetado"
     },
     "documentation": {
       "description": "Mudança em docs, AGENTS, POSE, workflows, rules ou specs editoriais.",
@@ -75,7 +75,7 @@
       "requires_adr": false,
       "knowledge_consume": false,
       "knowledge_produce": false,
-      "validation": "./pose check --strict"
+      "validation": "pose check --strict"
     },
     "adr": {
       "description": "Registro de decisão arquitetural ou mudança de contrato estrutural.",
@@ -87,7 +87,7 @@
       "requires_adr": true,
       "knowledge_consume": false,
       "knowledge_produce": "decision-log",
-      "validation": "./pose check --strict"
+      "validation": "pose check --strict"
     },
     "test-plan": {
       "description": "Plano de teste explícito para mudanças de risco médio/alto antes da implementação.",
@@ -114,7 +114,7 @@
       "requires_adr": false,
       "knowledge_consume": false,
       "knowledge_produce": "handoff|note|decision-log",
-      "validation": "./pose knowledge-check --strict"
+      "validation": "pose knowledge-check --strict"
     },
     "recurrence-escalation": {
       "description": "Escalação quando recurrence-check sinaliza padrão recorrente.",
@@ -126,7 +126,7 @@
       "requires_adr": false,
       "knowledge_consume": true,
       "knowledge_produce": "decision-log",
-      "validation": "./pose recurrence-check --strict e revisão humana do escopo"
+      "validation": "pose recurrence-check --strict e revisão humana do escopo"
     },
     "spec-closeout": {
       "description": "Fechamento do ciclo de vida da spec: status done + completed_at + disposição de cada follow-up.",
@@ -138,7 +138,7 @@
       "requires_adr": false,
       "knowledge_consume": false,
       "knowledge_produce": "handoff (quando follow-up [open] precisar de owner futuro)",
-      "validation": "./pose lint-spec <slug> --strict"
+      "validation": "pose lint-spec <slug> --strict"
     },
     "surface-closeout": {
       "description": "Fechamento de delivery tipado com composição, reachability, evidência atual e critérios de roadmap.",
