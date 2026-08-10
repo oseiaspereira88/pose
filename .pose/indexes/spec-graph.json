@@ -121,6 +121,10 @@
       "to": "pose-standalone-dogfood"
     },
     {
+      "from": "pose-fragment-error-clarity",
+      "to": "pose-release-lifecycle-closure"
+    },
+    {
       "from": "pose-harne8-control-plane-integration",
       "to": "pose-safe-validate-orchestration"
     },
@@ -351,6 +355,10 @@
     {
       "from": "pose-skill-command-parity",
       "to": "pose-skill-closeout-gate-parity"
+    },
+    {
+      "from": "pose-skill-index-parity",
+      "to": "pose-skill-command-parity"
     },
     {
       "from": "pose-slsa-provenance",
@@ -614,6 +622,14 @@
       ],
       "path": ".pose/specs/pose-followup-ownership-sla/spec.md",
       "priority": 12,
+      "status": "done"
+    },
+    "pose-fragment-error-clarity": {
+      "depends_on": [
+        "pose-release-lifecycle-closure"
+      ],
+      "path": ".pose/specs/pose-fragment-error-clarity/spec.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-governance-gate-activation": {
@@ -976,6 +992,14 @@
         "pose-skill-closeout-gate-parity"
       ],
       "path": ".pose/specs/pose-skill-command-parity/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
+    "pose-skill-index-parity": {
+      "depends_on": [
+        "pose-skill-command-parity"
+      ],
+      "path": ".pose/specs/pose-skill-index-parity/spec.md",
       "priority": 1,
       "status": "done"
     },

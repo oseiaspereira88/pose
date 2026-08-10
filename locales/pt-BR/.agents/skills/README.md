@@ -14,6 +14,8 @@ seções `Required reading`, `Steps`, `Output requirements`.
 |---|---|---|---|
 | [pose-feature](pose-feature/SKILL.md) | Feature / refactor não-trivial | [feature.md](../../.pose/workflows/feature.md) | security, documentation-style + domínio |
 | [pose-spec-closeout](pose-spec-closeout/SKILL.md) | Fechar spec concluída (status + data + triagem de follow-ups) | [feature.md](../../.pose/workflows/feature.md) | documentation-style |
+| [pose-surface-closeout](pose-surface-closeout/SKILL.md) | Fechar entrega composta (alcançabilidade e evidência) | [ui-surface.md](../../.pose/workflows/ui-surface.md) | delivery-surface, security |
+| [pose-release-closeout](pose-release-closeout/SKILL.md) | Cortar e verificar uma release | [release.md](../../.pose/workflows/release.md) | release-integrity, security |
 | [pose-bugfix](pose-bugfix/SKILL.md) | Correção de defeito | [bugfix.md](../../.pose/workflows/bugfix.md) | security, documentation-style + domínio |
 | [pose-review](pose-review/SKILL.md) | PR / code review | [review.md](../../.pose/workflows/review.md) | security (prevalece), documentation-style + domínio |
 | [pose-adr](pose-adr/SKILL.md) | Decisão arquitetural | tipo motivador | security, documentation-style |

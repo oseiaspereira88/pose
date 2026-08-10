@@ -138,3 +138,55 @@ func TestSkillParityRejectsAndAllows(t *testing.T) {
 		t.Errorf("extra flags in the verbose form were reported as drift (%v) — flags are deliberately out of scope", extra)
 	}
 }
+
+// TestSkillIndexParity covers .agents/skills/README.md, the routing table that
+// lists every skill. TestSkillLocaleParity compares SKILL.md files and walked
+// straight past it: the pt-BR index was missing pose-surface-closeout and
+// pose-release-closeout entirely, so an agent reading the translated index
+// could not discover two skills that exist. A gate that checks the entries and
+// not the index is checking the wrong half.
+func TestSkillIndexParity(t *testing.T) {
+	root := poseDistDir(t)
+	entryRe := regexp.MustCompile(`(?m)^\|\s*\[(pose-[a-z0-9-]+)\]`)
+	source := filepath.Join(root, ".agents", "skills", "README.md")
+	localesDir := filepath.Join(root, "locales")
+	locales, err := os.ReadDir(localesDir)
+	if err != nil {
+		t.Fatalf("reading locales/: %v", err)
+	}
+	listed := func(path string) map[string]bool {
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading %s: %v", path, err)
+		}
+		out := map[string]bool{}
+		for _, m := range entryRe.FindAllStringSubmatch(string(raw), -1) {
+			out[m[1]] = true
+		}
+		return out
+	}
+	src := listed(source)
+	if len(src) == 0 {
+		t.Fatal("no skills listed in .agents/skills/README.md — the extraction is broken, not the index")
+	}
+	compared := 0
+	for _, loc := range locales {
+		translated := filepath.Join(localesDir, loc.Name(), ".agents", "skills", "README.md")
+		if _, err := os.Stat(translated); err != nil {
+			continue
+		}
+		compared++
+		tgt := listed(translated)
+		if missing := diffTokens(src, tgt); len(missing) > 0 {
+			t.Errorf("%s skill index omits %d skill(s) the English index lists — an agent reading it cannot discover them: %s",
+				loc.Name(), len(missing), strings.Join(capTokens(missing), ", "))
+		}
+		if extra := diffTokens(tgt, src); len(extra) > 0 {
+			t.Errorf("%s skill index lists %d skill(s) absent from the English index: %s",
+				loc.Name(), len(extra), strings.Join(capTokens(extra), ", "))
+		}
+	}
+	if compared == 0 {
+		t.Error("no translated skill index was compared — the discovery is broken, not the indexes")
+	}
+}
