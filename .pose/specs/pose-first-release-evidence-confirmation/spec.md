@@ -89,7 +89,6 @@ recording of the result.
 
 ### Artifacts
 - created: .pose/specs/pose-first-release-evidence-confirmation/spec.md
-- created: pose-mcp/internal/scaffold/dist/.pose/specs/pose-first-release-evidence-confirmation/spec.md
 
 ### Delivery targets
 - governance:first-release-evidence module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
