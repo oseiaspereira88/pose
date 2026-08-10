@@ -74,7 +74,6 @@ recorded `failed`.
 - created: .pose/specs/pose-installer-local-binary-precedence/spec.md
 - modified: install.sh
 - modified: tests/install/run.sh
-- modified: pose-mcp/internal/scaffold/dist/install.sh
 
 ### Delivery targets
 - governance:installer-bootstrap-integrity module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
