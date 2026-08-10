@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "version": "v0.23.0",
+  "previous_version": "v0.22.0",
+  "prepared_at": "2026-08-10T02:41:30Z",
+  "specs": [
+    "pose-composition-contract",
+    "pose-container-build-gate",
+    "pose-scaffold-allowlist",
+    "pose-scaffold-exclusion-policy"
+  ],
+  "categories": {
+    "added": 2,
+    "changed": 1,
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-composition-contract",
+      "category": "added",
+      "breaking": false,
+      "body": "`composition-contract.json` publishes how this repository's images are built and\nconfigured — build context, Dockerfile, port and the full environment surface of\neach service — so a consumer composing them can derive those facts instead of\nrestating them. The environment names are derived from the source rather than\nlisted by hand, including the keys built by prefix concatenation that appear\nnowhere as literals; a check fails when the published contract and the\nrepository disagree, which is the silent failure a rename used to produce.",
+      "path": "pose-composition-contract.md",
+      "digest": "sha256:580a51933e3bd54c676b42421a5b4784d24faecb773eb70f09d0122daa554755"
+    },
+    {
+      "spec": "pose-container-build-gate",
+      "category": "added",
+      "breaking": false,
+      "body": "CI now builds both delivery container images and starts them. They are composed\nin production by the harne8 monorepo from this repository, and nothing here built\neither one — so a broken Dockerfile surfaced when that stack came up, in a\ndifferent repository. The gate uses the same build contexts the production\ncompose file uses, which are not interchangeable, and requires each entrypoint to\nannounce itself: an image that builds and cannot start is the failure that\nreaches a compose stack as a crash-loop.",
+      "path": "pose-container-build-gate.md",
+      "digest": "sha256:67c658fa64eac0844ba2c592b94b7567d8b7080b9c7d223a528467beaef81012"
+    },
+    {
+      "spec": "pose-scaffold-allowlist",
+      "category": "changed",
+      "breaking": false,
+      "body": "The embedded scaffold is now an allowlist: only what `pose install` and\n`pose upgrade` actually read is carried in the binary. It included by default,\nwhich is why a published product contract nearly shipped to every instance — and\nwhy the binary carried this project's own specs, ADRs, reviews, changelogs and\nrelease manifests, megabytes it never opened. The embedded tree drops from 514\nfiles to 104 and the binary from 27.5 MB to 26.2 MB, with the installed instance\nbyte-identical to before.",
+      "path": "pose-scaffold-allowlist.md",
+      "digest": "sha256:46f0b73bfb9c04b32264d61d59ecd67a45f0a42d6f3e3bf83e544e8ff33a2db0"
+    },
+    {
+      "spec": "pose-scaffold-exclusion-policy",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The published composition contract is no longer embedded in the scaffold, so it\nwill not be distributed to instances that do not run the services it describes.\nThe scaffold generator includes by default, which is why a new product-level file\nat the repository root became distribution without anyone deciding it. Fixing it\nsurfaced that the exclusion list existed twice — in the generator and in the\ndrift guard, the latter annotated as mirroring the former — so an exclusion added\non one side made the generator emit a tree the guard rejected. The list now has a\nsingle home that both consume.",
+      "path": "pose-scaffold-exclusion-policy.md",
+      "digest": "sha256:758abf7e9560117a0ce9b9535823530ea99eb47125a9bf726672abc01b5a11d3"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:18776263d3cd43695800c0aac7167fc8950b335b467786ec407c682608e52f0d",
+  "release_input_digest": "sha256:973d163cd6faebc35aff7984cc1427cb6b2fb3c50ce7659eb08a0a01a28ec377",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v0.23.0"
+  }
+}
