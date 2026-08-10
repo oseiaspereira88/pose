@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-10T03:03:24Z
-baseline_commit: 9676d48661ea16fabe14fc945675db318a7afdca
+generated_at: 2026-08-10T19:03:05Z
+baseline_commit: fa2d6262dddfd73af835437a0233730c624a4d0f
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -40,10 +40,10 @@ capacidade.
   - ... e mais 78 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:7e57490ce4f7 -->
+<!-- state:derived hash:25aee9a1e727 -->
 
-- abertos: 39
-- por criticidade: high=0 medium=12 low=27 sem-classificação=0
+- abertos: 38
+- por criticidade: high=0 medium=12 low=26 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -76,15 +76,9 @@ capacidade.
   - report:2026-08-09-standard-closeout-pose-container-build-gate-draft.md
 
 ## Arquitetura
-<!-- state:derived hash:87850227ce2e status:active -->
+<!-- state:derived hash:26bc9a5cafff status:unavailable -->
 
-- componentes: total=2 verificados=2 completude=99.0%
-- linhas_de_codigo: producao=27347 testes=17795 total=45142
-- linguagens: go
-- saude_de_codigo: TODOs=0 FIXMEs=0 panics=1 stubs=0
-- integracoes: contratos=50 ativos=1 gaps=49
-- divida_tecnica: total=1 coberta=0 descoberta=1
-- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
+GraphForge export local ainda não é publicado por nenhum produtor neste repositório; seção indisponível nesta versão (spec pose-project-state-artifact, Não-objetivos e Compatibilidade).
 
 ## Docs
 <!-- state:derived hash:d5892e1cac69 -->
