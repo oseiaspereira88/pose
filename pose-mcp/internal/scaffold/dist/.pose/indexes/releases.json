@@ -1,5 +1,22 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-fragment-error-clarity",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A malformed changelog fragment now says which file and which field. It reported\nonly `malformed release fragment \u003cname\u003e`, leaving an operator to guess between a\nmissing `spec:`, an invalid `category:` and an empty body — in a file the message\ndid not locate. It surfaced during `pose upgrade`, where the failure aborts the\nscaffold refresh, so the least useful moment to be given a riddle.",
+      "path": "pose-fragment-error-clarity.md",
+      "digest": "sha256:a013d0801e32c727bfcbe49a15fd5bedc50423ee035e15474e031adc89f4872f"
+    },
+    {
+      "spec": "pose-skill-index-parity",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The pt-BR skill index lists every skill again. `.agents/skills/README.md` is the\nrouting table an agent reads to discover what exists, and the translation was\nmissing `pose-surface-closeout` and `pose-release-closeout` entirely — two\nskills a pt-BR reader had no way to find. The command-parity gate compared\n`SKILL.md` files and walked straight past the index that points at them; it now\ncovers both.",
+      "path": "pose-skill-index-parity.md",
+      "digest": "sha256:fe4da8852fd86ea3f9baa6a4064d4c8531c984721d4309c6e72d51e809171389"
+    }
+  ],
   "releases": [
     {
       "version": "v0.23.0",

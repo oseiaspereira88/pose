@@ -24,36 +24,28 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-e204a3f8bd4e
-- Selector: range:7406fa0..a9b4636
+- ID: cs-893177771522
+- Selector: range:7406fa0..f2563d0
 - Base: 7406fa0 (7406fa06342e5de658b7ecfa9d8b5864c080da8a)
-- Head: a9b4636 (a9b46364ff0ac07cbc5f6e856b3d27650bd98238)
-- Diff digest: sha256:12c1aed86406634ce3fcc35aa60134fc6756734d29b1658eb873a4d01a04d5e7
+- Head: f2563d0 (f2563d03378c661a6fe921c2e4e179cdf2ad1062)
+- Diff digest: sha256:2e4a7f31a562e4eb3fb8a57c470fee13be87e4a272ac5882564e604afc4af6d7
 - Paths:
   - created: .pose/changelogs/unreleased/pose-fragment-error-clarity.md
-  - created: .pose/changelogs/unreleased/pose-skill-index-parity.md
   - created: .pose/specs/pose-fragment-error-clarity/spec.md
-  - created: .pose/specs/pose-skill-index-parity/spec.md
-  - modified: .pose/state/history.jsonl
-  - modified: .pose/state/project-state.md
-  - modified: .pose/state/refresh-log.jsonl
-  - modified: locales/pt-BR/.agents/skills/README.md
   - modified: pose-mcp/internal/pose/release_lifecycle.go
-  - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/README.md
-  - modified: pose-mcp/internal/scaffold/skill_locale_parity_test.go
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-10T20:15:43Z
+- Generated at (UTC): 2026-08-10T20:16:28Z
 - Context: closeout
 - Validation profile: strict
-- Sequence for task/spec: 1
-- Stable comparison hash: 32297d4be988464762c9fa9d18a1a405097b1b7dccdc89f94da6de09b80835cd
+- Sequence for task/spec: 2
+- Stable comparison hash: 08d312c89b3b107da1d9253821ba26169fc817ce6643f7cbf5e92abb05e19864
 
 ## Historical Comparison
-- Previous execution: _No previous execution_
-- Status: first-run
+- Previous execution: 2026-08-10T20:15:43Z
+- Status: changed
 - Stable field diffs:
-- _No changes in stable fields_
+- change_set: "" -> "sha256:2e4a7f31a562e4eb3fb8a57c470fee13be87e4a272ac5882564e604afc4af6d7:7406fa06342e5de658b7ecfa9d8b5864c080da8a:f2563d03378c661a6fe921c2e4e179cdf2ad1062"
 
 ## Risks
 - _No risks provided_
