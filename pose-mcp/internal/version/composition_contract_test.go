@@ -19,6 +19,7 @@ package version_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -184,4 +185,36 @@ func repoRoot(t *testing.T) string {
 		t.Fatal(err)
 	}
 	return filepath.Clean(filepath.Join(wd, "..", "..", ".."))
+}
+
+// TestDockerfilePortIsSingleSourced pins EXPOSE as the authoritative port.
+//
+// The internal port was written down four times: the Dockerfile's ENV, its
+// EXPOSE, the compose mapping in the monorepo, and — once the contract shipped —
+// a fourth copy. Adding a declaration that merely agrees today is how the
+// duplication this project keeps closing gets created.
+//
+// EXPOSE is the source: the contract derives from it, and the ENV default in the
+// same file must agree with it. The compose mapping is the consumer's copy and
+// is the reason the contract exists.
+func TestDockerfilePortIsSingleSourced(t *testing.T) {
+	root := repoRoot(t)
+	addrRe := regexp.MustCompile(`(?m)^ENV\s+\w*_ADDR=:(\d+)`)
+	for _, df := range []string{"pose-mcp/Dockerfile", "mcp-enforce/Dockerfile"} {
+		path := filepath.Join(root, df)
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading %s: %v", df, err)
+		}
+		m := addrRe.FindStringSubmatch(string(raw))
+		if m == nil {
+			t.Errorf("%s declares no ENV *_ADDR default — the port would live only in EXPOSE and the consumer's mapping", df)
+			continue
+		}
+		exposed := exposedPort(t, path)
+		if fmt.Sprintf("%d", exposed) != m[1] {
+			t.Errorf("%s: ENV *_ADDR is :%s but EXPOSE is %d — the image advertises one port and defaults to another, and the published contract derives from EXPOSE",
+				df, m[1], exposed)
+		}
+	}
 }
