@@ -2,13 +2,14 @@
   "schema_version": 1,
   "version": "v0.23.1",
   "previous_version": "v0.23.0",
-  "prepared_at": "2026-08-10T20:24:53Z",
+  "prepared_at": "2026-08-10T20:58:59Z",
   "specs": [
     "pose-fragment-error-clarity",
+    "pose-locale-coverage-contract",
     "pose-skill-index-parity"
   ],
   "categories": {
-    "fixed": 2
+    "fixed": 3
   },
   "fragments": [
     {
@@ -20,6 +21,14 @@
       "digest": "sha256:a013d0801e32c727bfcbe49a15fd5bedc50423ee035e15474e031adc89f4872f"
     },
     {
+      "spec": "pose-locale-coverage-contract",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Translation coverage is now a property of the locale tree rather than a list of\ndocuments someone remembered. Every file under `locales/` is discovered by\nwalking it, must have an English source, and must have a declared comparison —\nso a new translated document is guarded by default instead of guarded after\nsomeone reads it and notices the drift.\n\nThat default found nine real disparities. The pt-BR review and feature workflows\ndid not teach the closeout gates they describe (`pose review record`,\n`pose review-check`, `pose closeout-check`, `pose close`), the recurrence\nworkflow did not name `pose recurrence-effect`, and the delivery-evidence rule\nomitted `pose roadmap-check`. Three findings ran the other way and corrected the\nEnglish, which now names the MCP tools and the handoff command the translation\nalready did.\n\nOne finding was not drift but deletion: `locales/pt-BR/.pose/rules/kubernetes.md`\ntranslated a rule the engine no longer owns. It left the tree when the Kubernetes\nrule became a signed extension, and the translation shipped to every instance for\neight releases after. It is withdrawn.\n\nThe command extractor also matched line by line, so a code span wrapped across\ntwo lines read as untaught — reflowing a paragraph disarmed the check silently.\nFixing that immediately surfaced an omission the false negative had been hiding.",
+      "path": "pose-locale-coverage-contract.md",
+      "digest": "sha256:d52fac1346227b13d6f4a0ce5467c059908174ed46938507453f9cff6e0253cc"
+    },
+    {
       "spec": "pose-skill-index-parity",
       "category": "fixed",
       "breaking": false,
@@ -29,8 +38,8 @@
     }
   ],
   "breaking": false,
-  "notes_digest": "sha256:ec88845cd0dec7ef96fe9275c38781ad5161759b2f2c163f3fd6a04b742542a1",
-  "release_input_digest": "sha256:435d7f42e9390d66b55e8db597cb350b3e4ce96edcfa533beb35ba2b65bc0103",
+  "notes_digest": "sha256:30da2a6abaf0a66fbd587d4b2c17d6566be39bea2b02ac4589069df1bf42e0a6",
+  "release_input_digest": "sha256:12d36747d76f44d0fb6565afeb279032d9b80183aabf8158132fa9bf03a565bb",
   "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
   "version_evidence": {
     "source": "pose-mcp/internal/version/version.go",
