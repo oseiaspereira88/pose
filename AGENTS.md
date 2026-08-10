@@ -1,4 +1,4 @@
-# AGENTS.md — {{PROJECT_NAME}}
+# AGENTS.md — pose-dist
 
 This repository uses **POSE** (Project Operating Standard for Engineering) to
 govern agent work. This file is the short contract. For the operating manual
@@ -11,7 +11,7 @@ govern agent work. This file is the short contract. For the operating manual
      live (vision, backlog, decisions). Point to subproject AGENTS.md files
      when they exist. -->
 
-{{PROJECT_NAME}}: describe the repository's purpose and its main components.
+pose-dist: describe the repository's purpose and its main components.
 
 ## Instruction precedence
 

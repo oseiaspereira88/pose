@@ -2,7 +2,7 @@
 
 ## 1) What it is
 
-POSE is the operating standard for agent work in **{{PROJECT_NAME}}**.
+POSE is the operating standard for agent work in **pose-dist**.
 
 Primary goals:
 
