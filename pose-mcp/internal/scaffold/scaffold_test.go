@@ -6,6 +6,7 @@ package scaffold
 
 import (
 	"bytes"
+	"github.com/harne8/pose-mcp/internal/scaffold/distpolicy"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -48,19 +49,11 @@ func listSource(t *testing.T, root string) map[string][]byte {
 			}
 			return nil
 		}
+		// Exclusions come from distpolicy, the same source the generator uses.
+		// This file used to carry its own copy annotated "Mirrors gen/main.go",
+		// which drifted the moment an exclusion was added to one side only.
 		top := strings.SplitN(filepath.ToSlash(rel), "/", 2)[0]
-		switch top {
-		case ".git", ".github", ".gitignore", ".docs-site-build", ".idea", "pose-mcp", "mcp-enforce", "pose-action",
-			"docs-site", "tests", "examples", ".goreleaser.yaml", ".gitleaks.toml", "dist-release",
-			"compatibility.json", "compatibility-report.md":
-			if d.IsDir() {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-		// Mirrors gen/main.go: append-only evidence is instance state, not scaffold.
-		if strings.HasPrefix(filepath.ToSlash(rel), ".pose/reports") || strings.HasPrefix(filepath.ToSlash(rel), ".pose/capabilities") ||
-			strings.HasPrefix(filepath.ToSlash(rel), ".pose/state") {
+		if distpolicy.IsExcludedTop(top) || distpolicy.IsExcludedPath(filepath.ToSlash(rel)) {
 			if d.IsDir() {
 				return filepath.SkipDir
 			}

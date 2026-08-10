@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-10T01:49:16Z
-baseline_commit: e9033455aadedff24d0289c0cb08aab6c17c08f6
+generated_at: 2026-08-10T01:58:56Z
+baseline_commit: 4a550c1198e30296a44d71c8d34c91f0c66f76ad
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:8cb7f2592d0e -->
+<!-- state:derived hash:312e7a468eb9 -->
 
-- specs: total=81 draft=0 in-progress=0 blocked=0 done=81 superseded=0 abandoned=0
+- specs: total=82 draft=0 in-progress=0 blocked=0 done=82 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-scaffold-exclusion-policy (2026-08-10)
   - spec:pose-composition-contract (2026-08-09)
   - spec:pose-container-build-gate (2026-08-09)
-  - spec:pose-sbom-negative-coverage (2026-08-08)
-  - spec:pose-sbom-license-coverage-gate (2026-08-08)
-  - spec:pose-manual-locale-parity (2026-08-08)
-  - ... e mais 76 (ver `pose_list_specs status:done`)
+  - spec:pose-skill-closeout-gate-parity (2026-08-08)
+  - spec:pose-package-channel-install-repair (2026-08-08)
+  - ... e mais 77 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:7e57490ce4f7 -->
+<!-- state:derived hash:d79ccc955a94 -->
 
-- abertos: 39
-- por criticidade: high=0 medium=12 low=27 sem-classificação=0
+- abertos: 41
+- por criticidade: high=0 medium=13 low=28 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities

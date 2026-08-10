@@ -10,6 +10,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/scaffold/distpolicy"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -83,30 +84,16 @@ func skip(rel string, d fs.DirEntry) bool {
 		return true
 	}
 	// Dual-home: no repo standalone do POSE a raiz do dist também contém o
-	// código do produto — nada disso entra no scaffold embutido.
+	// código do produto — nada disso entra no scaffold embutido. A lista é
+	// compartilhada com o drift guard via distpolicy: mantê-la em dois lugares
+	// deixava o gerador produzir uma árvore que o guard rejeitava.
 	top := strings.SplitN(rel, string(filepath.Separator), 2)[0]
-	switch top {
-	case ".git", ".github", ".gitignore", ".docs-site-build", ".idea", "pose-mcp", "mcp-enforce", "pose-action",
-		"docs-site", "tests", "examples", ".goreleaser.yaml", ".gitleaks.toml", "dist-release",
-		"compatibility.json", "compatibility-report.md":
+	if distpolicy.IsExcludedTop(top) {
 		return true
 	}
-	// Append-only evidence is instance state, not scaffold: embedding it would
-	// make every `pose validate --report` run drift the embed it was tested by.
-	if rel == filepath.Join(".pose", "reports") || strings.HasPrefix(rel, filepath.Join(".pose", "reports")+string(filepath.Separator)) {
-		return true
-	}
-	// Capability assessments (spec pose-capability-mechanism) are instance
-	// state too: each project runs `pose assess init` for its own artifact.
-	if rel == filepath.Join(".pose", "capabilities") || strings.HasPrefix(rel, filepath.Join(".pose", "capabilities")+string(filepath.Separator)) {
-		return true
-	}
-	// The project-state artifact and its logs (spec pose-project-state-artifact)
-	// are this instance's own generated state, same category as reports/
-	// and capabilities/ above — .pose/policy/state.json (the policy
-	// *defaults*, sibling of dor.json) is not under this path and stays
-	// embedded normally.
-	if rel == filepath.Join(".pose", "state") || strings.HasPrefix(rel, filepath.Join(".pose", "state")+string(filepath.Separator)) {
+	// Estado da instância (reports, capabilities, project-state), não scaffold:
+	// embuti-lo faria uma execução comum derivar o embed que a testou.
+	if distpolicy.IsExcludedPath(filepath.ToSlash(rel)) {
 		return true
 	}
 	base := filepath.Base(rel)
