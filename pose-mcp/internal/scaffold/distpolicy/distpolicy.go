@@ -15,41 +15,62 @@ import (
 	"strings"
 )
 
-// ExcludedTopLevel are repository-root entries that never enter the embedded
-// scaffold. In the standalone repository the dist root is also the product's
-// own source tree, so the product's code, CI, docs and published contracts are
-// all excluded — an instance that installed POSE runs none of it.
-var ExcludedTopLevel = []string{
-	".git", ".github", ".gitignore", ".docs-site-build", ".idea",
-	"pose-mcp", "mcp-enforce", "pose-action",
-	"docs-site", "tests", "examples",
-	".goreleaser.yaml", ".gitleaks.toml", "dist-release",
-	// Contracts this repository publishes about itself, for consumers of the
-	// product rather than for an instance of it.
-	"compatibility.json", "compatibility-report.md", "composition-contract.json",
+// IncludedTopLevel is the allowlist: only these repository-root entries enter
+// the embedded scaffold.
+//
+// It was a denylist until a published product contract nearly shipped to every
+// instance because nobody remembered to exclude it. Inclusion-by-default makes
+// the failure silent — a new product file becomes distribution — while
+// exclusion-by-default makes it loud: a new scaffold file is simply missing, and
+// the drift guard says so.
+//
+// The list is what `pose install` and `pose upgrade` actually read. Everything
+// else in this repository is the product's own material: its specs, ADRs,
+// reviews, changelogs, release manifests, CI, tests and tooling. An instance
+// runs none of it, and embedding it made the binary carry megabytes it never
+// opened.
+var IncludedTopLevel = []string{
+	// Managed manuals, plus their translations.
+	"AGENTS.md",
+	"POSE.md",
+	"locales",
+	// Machinery the engine owns and delivers (machineryRoots).
+	".agents",
+	// MCP client configuration seeded into an instance.
+	".mcp.json",
+	// Legal texts, vendored under .pose/ by the installer.
+	"LICENSE",
+	"NOTICE",
+	".pose",
 }
 
-// ExcludedPrefixes are paths whose whole subtree is instance state rather than
-// scaffold: embedding them would make an ordinary run drift the embed it was
-// tested against.
-var ExcludedPrefixes = []string{
-	".pose/reports",
-	".pose/capabilities",
-	".pose/state",
+// IncludedPoseSubtrees narrows `.pose/` to the machinery and contract files an
+// instance needs. The rest of `.pose/` is this project's own governance record.
+var IncludedPoseSubtrees = []string{
+	"workflows",
+	"rules",
+	"templates",
+	"indexes",
+	"policy",
+	"review-profiles",
+	"schema-version",
+	"release-policy.json",
+	"LICENSE",
+	"NOTICE",
 }
 
-// IsExcludedTop reports whether a repository-root entry is excluded.
-func IsExcludedTop(top string) bool {
-	return slices.Contains(ExcludedTopLevel, top)
-}
-
-// IsExcludedPath reports whether a slash-separated relative path falls inside
-// an excluded subtree.
-func IsExcludedPath(rel string) bool {
-	for _, prefix := range ExcludedPrefixes {
-		if rel == prefix || strings.HasPrefix(rel, prefix+"/") {
-			return true
-		}
+// IsIncluded reports whether a slash-separated repository-relative path belongs
+// in the embedded scaffold.
+func IsIncluded(rel string) bool {
+	if rel == "" || rel == "." {
+		return true
 	}
-	return false
+	parts := strings.SplitN(rel, "/", 3)
+	if !slices.Contains(IncludedTopLevel, parts[0]) {
+		return false
+	}
+	if parts[0] != ".pose" || len(parts) == 1 {
+		return true
+	}
+	return slices.Contains(IncludedPoseSubtrees, parts[1])
 }

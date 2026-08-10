@@ -83,17 +83,11 @@ func skip(rel string, d fs.DirEntry) bool {
 	if strings.HasPrefix(rel, ".claude") {
 		return true
 	}
-	// Dual-home: no repo standalone do POSE a raiz do dist também contém o
-	// código do produto — nada disso entra no scaffold embutido. A lista é
-	// compartilhada com o drift guard via distpolicy: mantê-la em dois lugares
-	// deixava o gerador produzir uma árvore que o guard rejeitava.
-	top := strings.SplitN(rel, string(filepath.Separator), 2)[0]
-	if distpolicy.IsExcludedTop(top) {
-		return true
-	}
-	// Estado da instância (reports, capabilities, project-state), não scaffold:
-	// embuti-lo faria uma execução comum derivar o embed que a testou.
-	if distpolicy.IsExcludedPath(filepath.ToSlash(rel)) {
+	// Allowlist (distpolicy): only what an instance actually reads is embedded.
+	// Inclusion-by-default is what let a published product contract reach the
+	// scaffold, and what made the binary carry the project's own specs,
+	// reviews and release manifests.
+	if !distpolicy.IsIncluded(filepath.ToSlash(rel)) {
 		return true
 	}
 	base := filepath.Base(rel)

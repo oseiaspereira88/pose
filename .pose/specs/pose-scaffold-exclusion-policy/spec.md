@@ -164,7 +164,7 @@ adding an exclusion in the shared package has to change the generator's output
 
 ### Requirement trace
 - R1 [satisfied] governance:scaffold-exclusion-policy evidence:integration check:delivery-integration test:pose-mcp/internal/scaffold/scaffold_test.go — the file is absent from the embedded tree and present at the repository root, where the composition contract check still reads it
-- R2 [satisfied] test:pose-mcp/internal/scaffold/scaffold_test.go — `distpolicy.IsExcludedTop`/`IsExcludedPath` are called by both the generator and the guard; the guard's own copy, and its "Mirrors gen/main.go" comment, are gone
+- R2 [satisfied] test:pose-mcp/internal/scaffold/scaffold_test.go — the shared `distpolicy` package is called by both the generator and the guard; the guard's own copy, and its "Mirrors gen/main.go" comment, are gone. (`pose-scaffold-allowlist` later replaced the exclusion helpers with `IsIncluded`; the single-source property this requirement asserts is unchanged.)
 - R3 [satisfied] check:embedded-dist-drift — adding `README.md` to the shared list changed the generator's output and kept the guard green without editing either file
 
 ### Known gaps
@@ -197,5 +197,5 @@ exclusion list is one shared package instead of two copies annotated as mirrors.
 
 ### Follow-ups
 
-- [open] The scaffold generator is a denylist: everything at the repository root is embedded unless named. That default is why a published product contract nearly shipped to every instance, and why `frontend-react.md`/`backend-go.md` still do. Consider inverting it to an allowlist, where a new scaffold file must be registered to be distributed — the failure mode becomes "a new scaffold file is missing" rather than "a product file was silently distributed". (owner:@pose-maintainers crit:medium review:2026-10-10)
-- [open] Audit the product-level files already embedded — `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE` and `scripts/` — and decide which an instance actually needs. `scripts/` in particular now carries release and maintenance tooling for this product (`release.sh`, `refresh-action-runtimes.sh`) that no instance runs. (owner:@pose-maintainers crit:low review:2026-11-13)
+- [covered: pose-scaffold-allowlist] The scaffold generator is a denylist: everything at the repository root is embedded unless named. That default is why a published product contract nearly shipped to every instance, and why `frontend-react.md`/`backend-go.md` still do. Consider inverting it to an allowlist, where a new scaffold file must be registered to be distributed — the failure mode becomes "a new scaffold file is missing" rather than "a product file was silently distributed". (owner:@pose-maintainers crit:medium review:2026-10-10)
+- [covered: pose-scaffold-allowlist] Audit the product-level files already embedded — `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE` and `scripts/` — and decide which an instance actually needs. `scripts/` in particular now carries release and maintenance tooling for this product (`release.sh`, `refresh-action-runtimes.sh`) that no instance runs. (owner:@pose-maintainers crit:low review:2026-11-13)

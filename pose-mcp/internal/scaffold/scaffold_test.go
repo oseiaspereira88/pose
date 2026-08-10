@@ -49,11 +49,10 @@ func listSource(t *testing.T, root string) map[string][]byte {
 			}
 			return nil
 		}
-		// Exclusions come from distpolicy, the same source the generator uses.
-		// This file used to carry its own copy annotated "Mirrors gen/main.go",
-		// which drifted the moment an exclusion was added to one side only.
-		top := strings.SplitN(filepath.ToSlash(rel), "/", 2)[0]
-		if distpolicy.IsExcludedTop(top) || distpolicy.IsExcludedPath(filepath.ToSlash(rel)) {
+		// The allowlist comes from distpolicy, the same source the generator
+		// uses. This file used to carry its own copy annotated "Mirrors
+		// gen/main.go", which drifted the moment one side was edited alone.
+		if !distpolicy.IsIncluded(filepath.ToSlash(rel)) {
 			if d.IsDir() {
 				return filepath.SkipDir
 			}
