@@ -76,9 +76,15 @@ capacidade.
   - report:2026-08-09-standard-closeout-pose-container-build-gate-draft.md
 
 ## Arquitetura
-<!-- state:derived hash:26bc9a5cafff status:unavailable -->
+<!-- state:derived hash:87850227ce2e status:active -->
 
-GraphForge export local ainda não é publicado por nenhum produtor neste repositório; seção indisponível nesta versão (spec pose-project-state-artifact, Não-objetivos e Compatibilidade).
+- componentes: total=2 verificados=2 completude=99.0%
+- linhas_de_codigo: producao=27347 testes=17795 total=45142
+- linguagens: go
+- saude_de_codigo: TODOs=0 FIXMEs=0 panics=1 stubs=0
+- integracoes: contratos=50 ativos=1 gaps=49
+- divida_tecnica: total=1 coberta=0 descoberta=1
+- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 
 ## Docs
 <!-- state:derived hash:d5892e1cac69 -->

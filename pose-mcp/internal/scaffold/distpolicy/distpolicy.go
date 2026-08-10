@@ -38,8 +38,6 @@ var IncludedTopLevel = []string{
 	".agents",
 	// MCP client configuration seeded into an instance.
 	".mcp.json",
-	// Read by the installer for redistribution.
-	"install.sh",
 	// Legal texts, vendored under .pose/ by the installer.
 	"LICENSE",
 	"NOTICE",
