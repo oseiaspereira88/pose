@@ -15,6 +15,14 @@
       "body": "CI now builds both delivery container images and starts them. They are composed\nin production by the harne8 monorepo from this repository, and nothing here built\neither one — so a broken Dockerfile surfaced when that stack came up, in a\ndifferent repository. The gate uses the same build contexts the production\ncompose file uses, which are not interchangeable, and requires each entrypoint to\nannounce itself: an image that builds and cannot start is the failure that\nreaches a compose stack as a crash-loop.",
       "path": "pose-container-build-gate.md",
       "digest": "sha256:67c658fa64eac0844ba2c592b94b7567d8b7080b9c7d223a528467beaef81012"
+    },
+    {
+      "spec": "pose-scaffold-exclusion-policy",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The published composition contract is no longer embedded in the scaffold, so it\nwill not be distributed to instances that do not run the services it describes.\nThe scaffold generator includes by default, which is why a new product-level file\nat the repository root became distribution without anyone deciding it. Fixing it\nsurfaced that the exclusion list existed twice — in the generator and in the\ndrift guard, the latter annotated as mirroring the former — so an exclusion added\non one side made the generator emit a tree the guard rejected. The list now has a\nsingle home that both consume.",
+      "path": "pose-scaffold-exclusion-policy.md",
+      "digest": "sha256:758abf7e9560117a0ce9b9535823530ea99eb47125a9bf726672abc01b5a11d3"
     }
   ],
   "releases": [

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:4ac14fcb4a1aed181dc6088f41e90b1e024ab91d1d12e9da3a1b28b77a6d09db",
-  "provenance_digest": "sha256:12d6b474d3b5ea1b640336738bc09932f3cb9a5451361b38a6446141dacfb618",
+  "input_digest": "sha256:e2c3b4836723c50fe2f2b770b63c0b8ba62ac4f9dd000f0dba7892abde39d31a",
+  "provenance_digest": "sha256:414c5c4967f9cfb3921018ea963882b2d003b3c0fdd6ab5c69d324f5738e2d4e",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -407,6 +407,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-sbom-negative-coverage.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-scaffold-exclusion-policy.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-scaffold-exclusion-policy.md"
       }
     },
     {
@@ -1457,6 +1464,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-sbom-negative-coverage/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-scaffold-exclusion-policy/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-scaffold-exclusion-policy/spec.md"
       }
     },
     {
@@ -2594,6 +2608,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-scaffold-exclusion-policy.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-scaffold-exclusion-policy.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-skill-closeout-gate-parity.md",
       "type": "artifact",
       "attributes": {
@@ -3378,6 +3399,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-scaffold-exclusion-policy/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-scaffold-exclusion-policy/spec.md"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-skill-closeout-gate-parity/spec.md",
       "type": "artifact",
       "attributes": {
@@ -3686,6 +3714,20 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/scaffold/gen/main.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/gen/main.go"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/scaffold/manual_locale_parity_test.go",
       "type": "artifact",
       "attributes": {
@@ -3697,6 +3739,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/scaffold/scaffold.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/scaffold/scaffold_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/scaffold/scaffold_test.go"
       }
     },
     {
@@ -4136,6 +4185,14 @@
       }
     },
     {
+      "id": "change-set:cs-c46adf528cec",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:e783a9c4eb4f1fc35208a697dd6382ea3d5f330ef03c4474da52cb668450c1eb",
+        "selector": "range:4a550c1..f404e4f"
+      }
+    },
+    {
       "id": "change-set:cs-c4ba7cc64fbb",
       "type": "change-set",
       "attributes": {
@@ -4545,6 +4602,14 @@
     },
     {
       "id": "delivery:governance:sbom-negative-coverage",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
+      "id": "delivery:governance:scaffold-exclusion-policy",
       "type": "governance",
       "attributes": {
         "module": "pose-mcp",
@@ -5149,6 +5214,13 @@
     },
     {
       "id": "spec:pose-sbom-negative-coverage",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-scaffold-exclusion-policy",
       "type": "spec",
       "attributes": {
         "status": "done"
@@ -6141,6 +6213,11 @@
     {
       "from": "artifact:.pose/specs/pose-sbom-negative-coverage/spec.md",
       "to": "delivery:governance:sbom-negative-coverage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/pose-scaffold-exclusion-policy/spec.md",
+      "to": "delivery:governance:scaffold-exclusion-policy",
       "type": "implemented-by"
     },
     {
@@ -7639,6 +7716,16 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+      "to": "delivery:governance:scaffold-exclusion-policy",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/gen/main.go",
+      "to": "delivery:governance:scaffold-exclusion-policy",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/manual_locale_parity_test.go",
       "to": "delivery:governance:manual-locale-parity",
       "type": "implemented-by"
@@ -7671,6 +7758,11 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/scaffold_test.go",
+      "to": "delivery:governance:scaffold-exclusion-policy",
       "type": "implemented-by"
     },
     {
@@ -12714,6 +12806,61 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:.pose/changelogs/unreleased/pose-scaffold-exclusion-policy.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:.pose/specs/pose-scaffold-exclusion-policy/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:.pose/state/history.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:.pose/state/project-state.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:.pose/state/refresh-log.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-scaffold-exclusion-policy.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-scaffold-exclusion-policy/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/composition-contract.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:pose-mcp/internal/scaffold/gen/main.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c46adf528cec",
+      "to": "artifact:pose-mcp/internal/scaffold/scaffold_test.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-c4ba7cc64fbb",
       "to": "artifact:.github/dependabot.yml",
       "type": "changes"
@@ -14809,6 +14956,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:scaffold-exclusion-policy",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:scaffold-exclusion-policy",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:shellcheck-coverage",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -14886,6 +15043,11 @@
     {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -17399,6 +17561,36 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-scaffold-exclusion-policy",
+      "to": "artifact:.pose/specs/pose-scaffold-exclusion-policy/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-scaffold-exclusion-policy",
+      "to": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-scaffold-exclusion-policy",
+      "to": "artifact:pose-mcp/internal/scaffold/gen/main.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-scaffold-exclusion-policy",
+      "to": "artifact:pose-mcp/internal/scaffold/scaffold_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-scaffold-exclusion-policy",
+      "to": "delivery:governance:scaffold-exclusion-policy",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-scaffold-exclusion-policy",
+      "to": "change-set:cs-c46adf528cec",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-shellcheck-ci-gate",
       "to": "artifact:.github/workflows/ci.yml",
       "type": "declares"
@@ -19360,6 +19552,26 @@
       "spec": "pose-sbom-negative-coverage",
       "action": "modified",
       "path": "tests/release/verify.sh"
+    },
+    {
+      "spec": "pose-scaffold-exclusion-policy",
+      "action": "created",
+      "path": ".pose/specs/pose-scaffold-exclusion-policy/spec.md"
+    },
+    {
+      "spec": "pose-scaffold-exclusion-policy",
+      "action": "created",
+      "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go"
+    },
+    {
+      "spec": "pose-scaffold-exclusion-policy",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/gen/main.go"
+    },
+    {
+      "spec": "pose-scaffold-exclusion-policy",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/scaffold_test.go"
     },
     {
       "spec": "pose-shellcheck-ci-gate",
@@ -23966,6 +24178,65 @@
       "diff_digest": "sha256:dde4124e87067545b1791f442e286dc8f8eb924e6180e771a4efdf8cadc876bf"
     },
     {
+      "id": "cs-c46adf528cec",
+      "spec": "pose-scaffold-exclusion-policy",
+      "selector": "range:4a550c1..f404e4f",
+      "base": "4a550c1",
+      "head": "f404e4f",
+      "resolved_base": "4a550c1198e30296a44d71c8d34c91f0c66f76ad",
+      "resolved_head": "f404e4f911c60959670cbe44b469423a469e788b",
+      "commits": [
+        "f404e4f911c60959670cbe44b469423a469e788b"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-scaffold-exclusion-policy.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-scaffold-exclusion-policy/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-scaffold-exclusion-policy.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-scaffold-exclusion-policy/spec.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/gen/main.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/scaffold_test.go"
+        },
+        {
+          "action": "removed",
+          "path": "pose-mcp/internal/scaffold/dist/composition-contract.json"
+        }
+      ],
+      "diff_digest": "sha256:e783a9c4eb4f1fc35208a697dd6382ea3d5f330ef03c4474da52cb668450c1eb"
+    },
+    {
       "id": "cs-c4ba7cc64fbb",
       "spec": "pose-dependency-pin-refresh",
       "selector": "range:612243c..af710b6",
@@ -25918,6 +26189,9 @@
     ".pose/specs/pose-sbom-negative-coverage/spec.md": [
       "pose-sbom-negative-coverage"
     ],
+    ".pose/specs/pose-scaffold-exclusion-policy/spec.md": [
+      "pose-scaffold-exclusion-policy"
+    ],
     ".pose/specs/pose-shellcheck-ci-gate/spec.md": [
       "pose-shellcheck-ci-gate"
     ],
@@ -26404,12 +26678,21 @@
       "pose-command-reference-parity",
       "pose-mcp-active-context"
     ],
+    "pose-mcp/internal/scaffold/distpolicy/distpolicy.go": [
+      "pose-scaffold-exclusion-policy"
+    ],
+    "pose-mcp/internal/scaffold/gen/main.go": [
+      "pose-scaffold-exclusion-policy"
+    ],
     "pose-mcp/internal/scaffold/manual_locale_parity_test.go": [
       "pose-manual-locale-parity"
     ],
     "pose-mcp/internal/scaffold/scaffold.go": [
       "pose-delivery-surface-assurance",
       "pose-release-lifecycle-closure"
+    ],
+    "pose-mcp/internal/scaffold/scaffold_test.go": [
+      "pose-scaffold-exclusion-policy"
     ],
     "pose-mcp/internal/scaffold/skill_locale_parity_test.go": [
       "pose-skill-command-parity"
@@ -26967,14 +27250,6 @@
       "spec": "pose-package-manager-distribution",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-442ac1729dcf",
-      "code": "orphan",
-      "severity": "warning",
-      "path": "pose-mcp/internal/scaffold/scaffold_test.go",
-      "message": "governed tracked path has no spec provenance claim",
-      "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
       "id": "dif-448a83b3f971",
@@ -27878,14 +28153,6 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-a6069b29a9e5",
-      "code": "orphan",
-      "severity": "warning",
-      "path": "pose-mcp/internal/scaffold/gen/main.go",
-      "message": "governed tracked path has no spec provenance claim",
-      "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
       "id": "dif-a87dbcd53a46",
@@ -28981,6 +29248,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-scaffold-exclusion-policy",
+      "ref": "governance:scaffold-exclusion-policy",
+      "kind": "governance",
+      "id": "scaffold-exclusion-policy",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-shellcheck-ci-gate",
       "ref": "governance:shellcheck-coverage",
       "kind": "governance",
@@ -29061,9 +29337,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e9033455aadedff24d0289c0cb08aab6c17c08f6",
-      "generated_at": "2026-08-10T01:49:11Z",
-      "provenance_digest": "sha256:12d6b474d3b5ea1b640336738bc09932f3cb9a5451361b38a6446141dacfb618",
+      "git_head": "f404e4f911c60959670cbe44b469423a469e788b",
+      "generated_at": "2026-08-10T01:59:16Z",
+      "provenance_digest": "sha256:414c5c4967f9cfb3921018ea963882b2d003b3c0fdd6ab5c69d324f5738e2d4e",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -29073,9 +29349,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "e9033455aadedff24d0289c0cb08aab6c17c08f6",
-      "generated_at": "2026-08-10T01:49:11Z",
-      "provenance_digest": "sha256:12d6b474d3b5ea1b640336738bc09932f3cb9a5451361b38a6446141dacfb618",
+      "git_head": "f404e4f911c60959670cbe44b469423a469e788b",
+      "generated_at": "2026-08-10T01:59:16Z",
+      "provenance_digest": "sha256:414c5c4967f9cfb3921018ea963882b2d003b3c0fdd6ab5c69d324f5738e2d4e",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -29085,9 +29361,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e9033455aadedff24d0289c0cb08aab6c17c08f6",
-      "generated_at": "2026-08-10T01:49:11Z",
-      "provenance_digest": "sha256:12d6b474d3b5ea1b640336738bc09932f3cb9a5451361b38a6446141dacfb618",
+      "git_head": "f404e4f911c60959670cbe44b469423a469e788b",
+      "generated_at": "2026-08-10T01:59:16Z",
+      "provenance_digest": "sha256:414c5c4967f9cfb3921018ea963882b2d003b3c0fdd6ab5c69d324f5738e2d4e",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -29097,9 +29373,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "e9033455aadedff24d0289c0cb08aab6c17c08f6",
-      "generated_at": "2026-08-10T01:49:11Z",
-      "provenance_digest": "sha256:12d6b474d3b5ea1b640336738bc09932f3cb9a5451361b38a6446141dacfb618",
+      "git_head": "f404e4f911c60959670cbe44b469423a469e788b",
+      "generated_at": "2026-08-10T01:59:16Z",
+      "provenance_digest": "sha256:414c5c4967f9cfb3921018ea963882b2d003b3c0fdd6ab5c69d324f5738e2d4e",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -29109,9 +29385,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e9033455aadedff24d0289c0cb08aab6c17c08f6",
-      "generated_at": "2026-08-10T01:49:11Z",
-      "provenance_digest": "sha256:12d6b474d3b5ea1b640336738bc09932f3cb9a5451361b38a6446141dacfb618",
+      "git_head": "f404e4f911c60959670cbe44b469423a469e788b",
+      "generated_at": "2026-08-10T01:59:16Z",
+      "provenance_digest": "sha256:414c5c4967f9cfb3921018ea963882b2d003b3c0fdd6ab5c69d324f5738e2d4e",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -29121,9 +29397,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e9033455aadedff24d0289c0cb08aab6c17c08f6",
-      "generated_at": "2026-08-10T01:49:11Z",
-      "provenance_digest": "sha256:12d6b474d3b5ea1b640336738bc09932f3cb9a5451361b38a6446141dacfb618",
+      "git_head": "f404e4f911c60959670cbe44b469423a469e788b",
+      "generated_at": "2026-08-10T01:59:16Z",
+      "provenance_digest": "sha256:414c5c4967f9cfb3921018ea963882b2d003b3c0fdd6ab5c69d324f5738e2d4e",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -29133,9 +29409,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e9033455aadedff24d0289c0cb08aab6c17c08f6",
-      "generated_at": "2026-08-10T01:49:11Z",
-      "provenance_digest": "sha256:12d6b474d3b5ea1b640336738bc09932f3cb9a5451361b38a6446141dacfb618",
+      "git_head": "f404e4f911c60959670cbe44b469423a469e788b",
+      "generated_at": "2026-08-10T01:59:16Z",
+      "provenance_digest": "sha256:414c5c4967f9cfb3921018ea963882b2d003b3c0fdd6ab5c69d324f5738e2d4e",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -29145,9 +29421,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "e9033455aadedff24d0289c0cb08aab6c17c08f6",
-      "generated_at": "2026-08-10T01:49:11Z",
-      "provenance_digest": "sha256:12d6b474d3b5ea1b640336738bc09932f3cb9a5451361b38a6446141dacfb618",
+      "git_head": "f404e4f911c60959670cbe44b469423a469e788b",
+      "generated_at": "2026-08-10T01:59:16Z",
+      "provenance_digest": "sha256:414c5c4967f9cfb3921018ea963882b2d003b3c0fdd6ab5c69d324f5738e2d4e",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -29846,6 +30122,16 @@
       "artifact:tests/release/verify-negative.sh",
       "artifact:tests/release/verify.sh",
       "delivery:governance:sbom-negative-coverage",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
+    "governance:scaffold-exclusion-policy": [
+      "spec:pose-scaffold-exclusion-policy",
+      "artifact:.pose/specs/pose-scaffold-exclusion-policy/spec.md",
+      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+      "artifact:pose-mcp/internal/scaffold/gen/main.go",
+      "artifact:pose-mcp/internal/scaffold/scaffold_test.go",
+      "delivery:governance:scaffold-exclusion-policy",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],
