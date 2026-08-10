@@ -158,4 +158,4 @@ addition to the entries.
 
 ### Follow-ups
 
-- [open] The parity work has now been extended twice after a miss — first from manuals to skills, then from skill entries to the skill index — each time because someone noticed by reading. Rather than adding a check per document, consider enumerating the translated files under `locales/` and requiring each to have a declared comparison, so a new translated document is guarded by default instead of when it is missed. (owner:@pose-maintainers crit:medium review:2026-10-10)
+- [covered: pose-locale-coverage-contract] The parity work has now been extended twice after a miss — first from manuals to skills, then from skill entries to the skill index — each time because someone noticed by reading. Rather than adding a check per document, consider enumerating the translated files under `locales/` and requiring each to have a declared comparison, so a new translated document is guarded by default instead of when it is missed. (owner:@pose-maintainers crit:medium review:2026-10-10)
