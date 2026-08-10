@@ -325,6 +325,10 @@
       "to": "pose-sbom-license-coverage-gate"
     },
     {
+      "from": "pose-scaffold-allowlist",
+      "to": "pose-scaffold-exclusion-policy"
+    },
+    {
       "from": "pose-scaffold-exclusion-policy",
       "to": "pose-composition-contract"
     },
@@ -923,6 +927,14 @@
         "pose-sbom-license-coverage-gate"
       ],
       "path": ".pose/specs/pose-sbom-negative-coverage/spec.md",
+      "priority": 1,
+      "status": "done"
+    },
+    "pose-scaffold-allowlist": {
+      "depends_on": [
+        "pose-scaffold-exclusion-policy"
+      ],
+      "path": ".pose/specs/pose-scaffold-allowlist/spec.md",
       "priority": 1,
       "status": "done"
     },

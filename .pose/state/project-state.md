@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-10T02:25:46Z
-baseline_commit: 6879ec102fb3498c6c68484fd8516c8e84a2a4f3
+generated_at: 2026-08-10T02:26:29Z
+baseline_commit: 5e13156473b4386686e00c35ed4f16f8f7cda15c
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:6549d844b942 -->
+<!-- state:derived hash:de13873aedcd -->
 
-- último registro: task=closeout-pose-scaffold-exclusion-policy outcome=unknown (2026-08-10T01:59:02Z)
-- últimos 30 dias: total=143 outcome_ok=100 outcome_outro=43
-- reports revisados (.md): total=80
+- último registro: task=closeout-pose-scaffold-allowlist outcome=unknown (2026-08-10T02:26:08Z)
+- últimos 30 dias: total=144 outcome_ok=100 outcome_outro=44
+- reports revisados (.md): total=81
+  - report:2026-08-10-standard-closeout-pose-scaffold-allowlist.md
   - report:2026-08-10-standard-closeout-pose-scaffold-exclusion-policy.md
   - report:2026-08-10-standard-closeout-pose-composition-contract-draft.md
   - report:2026-08-10-standard-closeout-pose-composition-contract.md
   - report:2026-08-09-standard-closeout-pose-container-build-gate-draft.md
-  - report:2026-08-09-standard-closeout-pose-container-build-gate.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
