@@ -45,6 +45,10 @@
       "to": "pose-compat-gate-candidate-integrity"
     },
     {
+      "from": "pose-composition-contract",
+      "to": "pose-container-build-gate"
+    },
+    {
       "from": "pose-container-build-gate",
       "to": "pose-dependency-pin-refresh"
     },
@@ -467,6 +471,14 @@
       "path": ".pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md",
       "priority": 1,
       "status": "done"
+    },
+    "pose-composition-contract": {
+      "depends_on": [
+        "pose-container-build-gate"
+      ],
+      "path": ".pose/specs/pose-composition-contract/spec.md",
+      "priority": 1,
+      "status": "draft"
     },
     "pose-container-build-gate": {
       "depends_on": [

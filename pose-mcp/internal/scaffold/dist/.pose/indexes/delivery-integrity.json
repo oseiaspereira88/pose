@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:9512da44d9b2326c40f00175fcad792323528a2a5677d2ced81b1bcbf48ca9e7",
-  "provenance_digest": "sha256:2504ac313aefb580db4f1f62dd89a85118011609e51b3c80f7222ff0234d1d1c",
+  "input_digest": "sha256:82019c8d644c1f959ea212812e90414052e13b4242286cec6cb5a4a87f7bff6a",
+  "provenance_digest": "sha256:f7524a45a5f074f66f076f3f50f513432a833a4d8fc6fd73eae416f4fb56d929",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -1117,6 +1117,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/pose-composition-contract/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-composition-contract/spec.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/pose-container-build-gate/spec.md",
       "type": "artifact",
       "attributes": {
@@ -1639,6 +1646,13 @@
       "type": "artifact",
       "attributes": {
         "path": "compatibility.json"
+      }
+    },
+    {
+      "id": "artifact:composition-contract.json",
+      "type": "artifact",
+      "attributes": {
+        "path": "composition-contract.json"
       }
     },
     {
@@ -3637,6 +3651,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/version (or a sibling package) — the check",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/version (or a sibling package) — the check"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/version/action_runtime_test.go",
       "type": "artifact",
       "attributes": {
@@ -4267,6 +4288,14 @@
       }
     },
     {
+      "id": "delivery:governance:composition-contract",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
       "id": "delivery:governance:container-build-gate",
       "type": "governance",
       "attributes": {
@@ -4666,6 +4695,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-composition-contract",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
       }
     },
     {
@@ -14311,6 +14347,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:composition-contract",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:composition-contract",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:container-build-gate",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -14638,6 +14684,11 @@
     {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -15384,6 +15435,26 @@
       "from": "spec:pose-compat-gate-manual-refresh-assertion",
       "to": "change-set:cs-5a03d8ddd0af",
       "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-composition-contract",
+      "to": "artifact:.pose/specs/pose-composition-contract/spec.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-composition-contract",
+      "to": "artifact:composition-contract.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-composition-contract",
+      "to": "artifact:pose-mcp/internal/version (or a sibling package) — the check",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-composition-contract",
+      "to": "delivery:governance:composition-contract",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-container-build-gate",
@@ -17661,6 +17732,21 @@
       "spec": "pose-compat-gate-manual-refresh-assertion",
       "action": "modified",
       "path": "tests/release/compat.sh"
+    },
+    {
+      "spec": "pose-composition-contract",
+      "action": "created",
+      "path": ".pose/specs/pose-composition-contract/spec.md"
+    },
+    {
+      "spec": "pose-composition-contract",
+      "action": "created",
+      "path": "composition-contract.json"
+    },
+    {
+      "spec": "pose-composition-contract",
+      "action": "modified",
+      "path": "pose-mcp/internal/version (or a sibling package) — the check"
     },
     {
       "spec": "pose-container-build-gate",
@@ -25391,6 +25477,9 @@
     ".pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md": [
       "pose-compat-gate-manual-refresh-assertion"
     ],
+    ".pose/specs/pose-composition-contract/spec.md": [
+      "pose-composition-contract"
+    ],
     ".pose/specs/pose-container-build-gate/spec.md": [
       "pose-container-build-gate"
     ],
@@ -25559,6 +25648,9 @@
       "pose-extension-signing-clean-tree",
       "pose-verifier-assets-variable-fix",
       "pose-verifier-extension-install-cwd"
+    ],
+    "composition-contract.json": [
+      "pose-composition-contract"
     ],
     "docs-site/docs/capability-assessment.md": [
       "pose-mcp-active-context"
@@ -25969,6 +26061,9 @@
     ],
     "pose-mcp/internal/scaffold/skill_locale_parity_test.go": [
       "pose-skill-command-parity"
+    ],
+    "pose-mcp/internal/version (or a sibling package) — the check": [
+      "pose-composition-contract"
     ],
     "pose-mcp/internal/version/action_runtime_test.go": [
       "pose-action-runtime-currency-gate"
@@ -26455,6 +26550,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-3c6a293647a2",
+      "code": "unconnected-artifact",
+      "severity": "error",
+      "spec": "pose-composition-contract",
+      "path": "governance:composition-contract",
+      "message": "delivery target has no structured artifact provenance",
+      "remediation": "declare and reconcile exact artifacts before asserting delivery"
+    },
+    {
       "id": "dif-3d2c73d3fb32",
       "code": "orphan",
       "severity": "warning",
@@ -26520,6 +26624,15 @@
       "spec": "pose-package-manager-distribution",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-435441ead50a",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-composition-contract",
+      "path": "composition-contract.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-442ac1729dcf",
@@ -26976,6 +27089,15 @@
       "path": "pose-mcp/internal/mcpserver/docs_tool_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-76c65c2af36b",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-composition-contract",
+      "path": ".pose/specs/pose-composition-contract/spec.md",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-7807e58d2c91",
@@ -27441,6 +27563,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-a879aaae0f7e",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-composition-contract",
+      "path": "pose-mcp/internal/version (or a sibling package) — the check",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-a87dbcd53a46",
       "code": "orphan",
       "severity": "warning",
@@ -27581,6 +27712,15 @@
       "remediation": "correct the action or record the exact attributed revisions"
     },
     {
+      "id": "dif-b61db4104fea",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-composition-contract",
+      "path": "composition-contract.json",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-b670786d404b",
       "code": "legacy-narrative",
       "severity": "info",
@@ -27595,6 +27735,15 @@
       "spec": "pose-mcp-protocol-completeness",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-b9a07a2f536b",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-composition-contract",
+      "path": "pose-mcp/internal/version (or a sibling package) — the check",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-ba0db4ef399c",
@@ -27813,6 +27962,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-d52ef3d26f08",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-composition-contract",
+      "path": ".pose/specs/pose-composition-contract/spec.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-d75da855ea8d",
@@ -28300,6 +28458,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-composition-contract",
+      "ref": "governance:composition-contract",
+      "kind": "governance",
+      "id": "composition-contract",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-container-build-gate",
       "ref": "governance:container-build-gate",
       "kind": "governance",
@@ -28605,9 +28772,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "838c2fd3f4a44c87224c9e5c72ec575de116c110",
-      "generated_at": "2026-08-09T22:15:39Z",
-      "provenance_digest": "sha256:2504ac313aefb580db4f1f62dd89a85118011609e51b3c80f7222ff0234d1d1c",
+      "git_head": "aeec5e1177cc6d163cbd5070447dbd7cdaddef8c",
+      "generated_at": "2026-08-10T01:42:30Z",
+      "provenance_digest": "sha256:f7524a45a5f074f66f076f3f50f513432a833a4d8fc6fd73eae416f4fb56d929",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -28617,9 +28784,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "838c2fd3f4a44c87224c9e5c72ec575de116c110",
-      "generated_at": "2026-08-09T22:15:39Z",
-      "provenance_digest": "sha256:2504ac313aefb580db4f1f62dd89a85118011609e51b3c80f7222ff0234d1d1c",
+      "git_head": "aeec5e1177cc6d163cbd5070447dbd7cdaddef8c",
+      "generated_at": "2026-08-10T01:42:30Z",
+      "provenance_digest": "sha256:f7524a45a5f074f66f076f3f50f513432a833a4d8fc6fd73eae416f4fb56d929",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -28629,9 +28796,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "838c2fd3f4a44c87224c9e5c72ec575de116c110",
-      "generated_at": "2026-08-09T22:15:39Z",
-      "provenance_digest": "sha256:2504ac313aefb580db4f1f62dd89a85118011609e51b3c80f7222ff0234d1d1c",
+      "git_head": "aeec5e1177cc6d163cbd5070447dbd7cdaddef8c",
+      "generated_at": "2026-08-10T01:42:30Z",
+      "provenance_digest": "sha256:f7524a45a5f074f66f076f3f50f513432a833a4d8fc6fd73eae416f4fb56d929",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -28641,9 +28808,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "838c2fd3f4a44c87224c9e5c72ec575de116c110",
-      "generated_at": "2026-08-09T22:15:39Z",
-      "provenance_digest": "sha256:2504ac313aefb580db4f1f62dd89a85118011609e51b3c80f7222ff0234d1d1c",
+      "git_head": "aeec5e1177cc6d163cbd5070447dbd7cdaddef8c",
+      "generated_at": "2026-08-10T01:42:30Z",
+      "provenance_digest": "sha256:f7524a45a5f074f66f076f3f50f513432a833a4d8fc6fd73eae416f4fb56d929",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -28653,9 +28820,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "838c2fd3f4a44c87224c9e5c72ec575de116c110",
-      "generated_at": "2026-08-09T22:15:39Z",
-      "provenance_digest": "sha256:2504ac313aefb580db4f1f62dd89a85118011609e51b3c80f7222ff0234d1d1c",
+      "git_head": "aeec5e1177cc6d163cbd5070447dbd7cdaddef8c",
+      "generated_at": "2026-08-10T01:42:30Z",
+      "provenance_digest": "sha256:f7524a45a5f074f66f076f3f50f513432a833a4d8fc6fd73eae416f4fb56d929",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -28665,9 +28832,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "838c2fd3f4a44c87224c9e5c72ec575de116c110",
-      "generated_at": "2026-08-09T22:15:39Z",
-      "provenance_digest": "sha256:2504ac313aefb580db4f1f62dd89a85118011609e51b3c80f7222ff0234d1d1c",
+      "git_head": "aeec5e1177cc6d163cbd5070447dbd7cdaddef8c",
+      "generated_at": "2026-08-10T01:42:30Z",
+      "provenance_digest": "sha256:f7524a45a5f074f66f076f3f50f513432a833a4d8fc6fd73eae416f4fb56d929",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -28677,9 +28844,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "838c2fd3f4a44c87224c9e5c72ec575de116c110",
-      "generated_at": "2026-08-09T22:15:39Z",
-      "provenance_digest": "sha256:2504ac313aefb580db4f1f62dd89a85118011609e51b3c80f7222ff0234d1d1c",
+      "git_head": "aeec5e1177cc6d163cbd5070447dbd7cdaddef8c",
+      "generated_at": "2026-08-10T01:42:30Z",
+      "provenance_digest": "sha256:f7524a45a5f074f66f076f3f50f513432a833a4d8fc6fd73eae416f4fb56d929",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -28689,9 +28856,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "838c2fd3f4a44c87224c9e5c72ec575de116c110",
-      "generated_at": "2026-08-09T22:15:39Z",
-      "provenance_digest": "sha256:2504ac313aefb580db4f1f62dd89a85118011609e51b3c80f7222ff0234d1d1c",
+      "git_head": "aeec5e1177cc6d163cbd5070447dbd7cdaddef8c",
+      "generated_at": "2026-08-10T01:42:30Z",
+      "provenance_digest": "sha256:f7524a45a5f074f66f076f3f50f513432a833a4d8fc6fd73eae416f4fb56d929",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -29099,6 +29266,12 @@
       "artifact:pose-mcp/server.json",
       "artifact:tests/release/compat.sh",
       "delivery:governance:compat-gate-manual-assertion",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
+    "governance:composition-contract": [
+      "spec:pose-composition-contract",
+      "delivery:governance:composition-contract",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],
