@@ -142,8 +142,25 @@ func LoadReleaseFragments(dir string) ([]ReleaseFragment, error) {
 		fm, body := SplitFrontmatter(string(raw))
 		body = strings.TrimSpace(stripHTMLComments(body))
 		spec, category := strings.TrimSpace(fm["spec"]), strings.TrimSpace(fm["category"])
-		if spec == "" || body == "" || !map[string]bool{"added": true, "changed": true, "fixed": true, "removed": true, "security": true, "deprecated": true}[category] {
-			return nil, fmt.Errorf("malformed release fragment %s", entry.Name())
+		// Name the defect and the path: "malformed" alone left an operator
+		// guessing which of three fields was wrong, in a file the message did
+		// not locate.
+		var problems []string
+		if spec == "" {
+			problems = append(problems, "missing `spec:` in frontmatter")
+		}
+		if !map[string]bool{"added": true, "changed": true, "fixed": true, "removed": true, "security": true, "deprecated": true}[category] {
+			if category == "" {
+				problems = append(problems, "missing `category:` (added|changed|fixed|removed|security|deprecated)")
+			} else {
+				problems = append(problems, fmt.Sprintf("invalid `category: %s` (want added|changed|fixed|removed|security|deprecated)", category))
+			}
+		}
+		if body == "" {
+			problems = append(problems, "empty body below the frontmatter")
+		}
+		if len(problems) > 0 {
+			return nil, fmt.Errorf("malformed release fragment %s: %s", path, strings.Join(problems, "; "))
 		}
 		if seen[spec] {
 			return nil, fmt.Errorf("duplicate release fragment for spec %s", spec)
