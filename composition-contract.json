@@ -1,0 +1,52 @@
+{
+  "comment": "Facts this repository owns about composing its images: build context, Dockerfile, exposed port and the environment variables each service reads. A consumer (harne8's docker-compose) should derive from this rather than restate it. Environment names are derived from the source, including the prefixed keys that exist nowhere as literals; regenerate with UPDATE_COMPOSITION_CONTRACT=1 (spec pose-composition-contract).",
+  "images": [
+    {
+      "build_context": ".",
+      "dockerfile": "pose-mcp/Dockerfile",
+      "environment": [
+        "HARNE8_PROJECTS_DIR",
+        "HARNE8_PROJECT_ID_PREFIX",
+        "POSE_DEFAULT_PROJECT_ID",
+        "POSE_EXECUTABLE",
+        "POSE_FOLLOWUP_TODAY",
+        "POSE_GRAPHFORGE_MCP_URL",
+        "POSE_GRAPHFORGE_PROJECT_ID",
+        "POSE_LOCALE",
+        "POSE_MCP_ADDR",
+        "POSE_MCP_IDENTITY_SECRET",
+        "POSE_MCP_OPA_PATH",
+        "POSE_MCP_OPA_TIMEOUT",
+        "POSE_MCP_OPA_URL",
+        "POSE_MCP_REQUIRE_IDENTITY",
+        "POSE_MCP_REQUIRE_PRINCIPAL",
+        "POSE_MCP_REQUIRE_PROJECT_SCOPE",
+        "POSE_MCP_STDIO",
+        "POSE_OTEL_ENABLED",
+        "POSE_PROJECT_ROOT",
+        "POSE_PROJECT_ROOTS",
+        "POSE_TELEMETRY_URL"
+      ],
+      "name": "pose-mcp",
+      "port": 8799
+    },
+    {
+      "build_context": "mcp-enforce",
+      "dockerfile": "mcp-enforce/Dockerfile",
+      "environment": [
+        "GF_SIDECAR_ADDR",
+        "GF_SIDECAR_EXCHANGE_LOG",
+        "GF_SIDECAR_IDENTITY_SECRET",
+        "GF_SIDECAR_OPA_PATH",
+        "GF_SIDECAR_OPA_TIMEOUT",
+        "GF_SIDECAR_OPA_URL",
+        "GF_SIDECAR_REQUIRE_IDENTITY",
+        "GF_SIDECAR_REQUIRE_PRINCIPAL",
+        "GF_SIDECAR_REQUIRE_PROJECT_SCOPE"
+      ],
+      "name": "mcp-enforce-sidecar",
+      "port": 8770
+    }
+  ],
+  "schema_version": 1
+}

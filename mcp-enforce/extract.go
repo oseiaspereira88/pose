@@ -72,6 +72,21 @@ func ProjectIDFromArguments(args json.RawMessage) string {
 //   - <prefix>REQUIRE_IDENTITY   "1"/"true"/"yes"/"on" → deny calls without a
 //     run-bound Execution Identity (ADR-007)
 //   - <prefix>REQUIRE_PROJECT_SCOPE → deny calls without project_id/project_ids
+//
+// ConfigEnvSuffixes are the environment keys ConfigFromEnv reads, each appended
+// to the caller's prefix. Exported because the full names exist nowhere as
+// literals: a consumer composing this service — or an audit of its
+// configuration surface — cannot recover them from the source otherwise
+// (spec pose-composition-contract).
+var ConfigEnvSuffixes = []string{
+	"OPA_URL",
+	"OPA_PATH",
+	"OPA_TIMEOUT",
+	"REQUIRE_PRINCIPAL",
+	"REQUIRE_IDENTITY",
+	"REQUIRE_PROJECT_SCOPE",
+}
+
 func ConfigFromEnv(prefix, defaultOPAPath string) PolicyConfig {
 	cfg := PolicyConfig{
 		OPAURL:              os.Getenv(prefix + "OPA_URL"),

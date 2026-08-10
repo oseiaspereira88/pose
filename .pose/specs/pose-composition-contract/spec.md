@@ -1,8 +1,8 @@
 ---
 slug: pose-composition-contract
-status: draft
+status: done
 created_at: 2026-08-09
-completed_at:
+completed_at: 2026-08-09
 supersedes:
 depends_on: pose-container-build-gate
 priority: 1
@@ -74,8 +74,11 @@ configuration is the same relationship seen from outside the process boundary.
 
 ### Functional
 - R1: This repository shall publish a versioned, machine-readable composition
-  contract declaring, per image: build context, Dockerfile path, exposed port,
-  required volume mounts and the environment variables it reads.
+  contract declaring, per image: build context, Dockerfile path, exposed port
+  and the environment variables it reads. Volume *paths* are excluded: the
+  container reads `HARNE8_PROJECTS_DIR`, which this repository owns, but where a
+  consumer mounts it is the consumer's decision — declaring `/harne8-projects`
+  here would restate a monorepo fact and reintroduce the duplication.
 - R2: The environment-variable list shall be derived from the code, including
   the prefix-concatenated names that no literal search finds, so the contract
   cannot claim a surface the binary does not have.
@@ -104,17 +107,19 @@ configuration is the same relationship seen from outside the process boundary.
 ## 3. Technical Plan
 
 ### Affected areas
-- A new published artifact — likely `composition-contract.json` at the
-  repository root, beside `compatibility.json`, which is the existing precedent
-  for a contract this repository publishes for consumers.
-- `pose-mcp/internal/bootstrap` or the enforcement library — to expose the
-  environment surface it derives, rather than having a test re-derive it.
-- A check, sibling to the workflow contracts in `pose-mcp/internal/version`.
+- `composition-contract.json` — the published artifact, at the repository root
+  beside `compatibility.json`.
+- `mcp-enforce/extract.go` — exports `ConfigEnvSuffixes`, the list
+  `ConfigFromEnv` itself reads.
+- `mcp-enforce/config_env_test.go` — keeps that list from becoming inert.
+- `pose-mcp/internal/version/composition_contract_test.go` — derives and checks.
 
 ### Artifacts
 - created: .pose/specs/pose-composition-contract/spec.md
 - created: composition-contract.json
-- modified: pose-mcp/internal/version (or a sibling package) — the check
+- created: mcp-enforce/config_env_test.go
+- created: pose-mcp/internal/version/composition_contract_test.go
+- modified: mcp-enforce/extract.go
 
 ### Delivery targets
 - governance:composition-contract module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
@@ -144,19 +149,20 @@ configuration is the same relationship seen from outside the process boundary.
 ## 4. Tasks
 
 ### Planning
-- [ ] Decide where the environment surface is declared so it is derived, not restated
-- [ ] Confirm `compatibility.json` is the right precedent for the artifact's shape and location
+- [x] Decide where the environment surface is declared so it is derived, not restated
+- [x] Confirm `compatibility.json` is the right precedent for the artifact's shape and location
 
 ### Implementation
-- [ ] R1: publish the contract with build, port, volume and environment facts
-- [ ] R2: derive the environment list from the enforcement library's own keys
-- [ ] R3: check the contract against the repository
-- [ ] R4: schema version
+- [x] R1: publish the contract with build, port and environment facts
+- [x] R2: derive the environment list from the enforcement library's own keys
+- [x] R3: check the contract against the repository
+- [x] R4: schema version
 
 ### Validation
-- [ ] Prove the check fails when a declared variable stops being read
-- [ ] Prove it fails on a port or context that no longer matches
-- [ ] Run the mandatory checks
+- [x] Prove the check fails when a declared variable stops being read
+- [x] Prove it fails on a port that no longer matches
+- [x] Prove the derived list cannot go inert or silently grow
+- [x] Run the mandatory checks
 
 ---
 
@@ -187,33 +193,74 @@ today while missing exactly the class that made this spec necessary.
 - Expected: pass
 
 ### Execution log
-<!-- Filled at implementation. -->
+- Date: 2026-08-09
+- Environment: linux/amd64.
+- The derivation was made honest before the contract was written.
+  `ConfigFromEnv` now builds its reads from an exported `ConfigEnvSuffixes`, and
+  two tests keep that list from being decorative: one sets each declared suffix
+  and requires the resulting config to change; the other parses `extract.go` and
+  compares the declared list against the `prefix + "X"` reads found there. Both
+  were proven by injection — a declared `GHOST_OPTION` is reported as declared
+  but unread, and a `SECRET_BACKDOOR` read added without declaring it is
+  reported as undeclared.
+- The derivation immediately found more than the manual audit that motivated
+  this spec had: `HARNE8_PROJECT_ID_PREFIX` and `GF_SIDECAR_EXCHANGE_LOG` are
+  part of the surface and appeared in no earlier hand-made list, including mine.
+- The contract check was proven on the failure that matters. Renaming
+  `REQUIRE_PRINCIPAL` to `REQUIRE_CALLER` in the source — the silent rename this
+  spec exists for — reports the contract as disagreeing with the repository, as
+  does changing the Dockerfile's `EXPOSE`.
+- Final surface: 21 variables for `pose-mcp`, 9 for the sidecar, ports 8799 and
+  8770 read from the Dockerfiles.
 
 ### Results summary
-<!-- Filled at implementation. -->
+- Successes: the contract is published, derived rather than restated, and both
+  its own drift and the derivation's decay are caught
+- Failures: none
+- Warnings: publication is not consumption — the monorepo still restates these
+  facts until it adopts the artifact
 
 ### Requirement trace
-<!-- Filled at implementation. -->
+- R1 [satisfied] governance:composition-contract evidence:integration check:delivery-integration report:composition-contract.json — build context, Dockerfile path, port and environment surface are published per image, schema-versioned
+- R2 [satisfied] test:pose-mcp/internal/version/composition_contract_test.go — the prefixed keys come from `mcpenforce.ConfigEnvSuffixes` rather than a literal search, which is why the published surface includes names no `grep` of this repository would find
+- R3 [satisfied] check:composition-contract — a renamed variable and a changed `EXPOSE` both report the contract as disagreeing, naming the regeneration command
+- R4 [satisfied] report:composition-contract.json — `schema_version: 1`, so a consumer can detect a shape change instead of misreading it
 
 ### Known gaps
-<!-- Filled at implementation. Expected to record that publication does not imply
-     consumption, and that the monorepo's adoption is outside this repository. -->
+- **Publication is not consumption.** The monorepo still restates every one of
+  these facts; until its compose derives from this file, both sides can still
+  drift and the contract is documentation with a test attached. That is the
+  first follow-up and it is outside this repository.
+- Volumes are not declared. The container reads `HARNE8_PROJECTS_DIR`, which is
+  ours, but where the consumer mounts it is the consumer's decision — so the
+  contract names the variable and not the path.
+- The literal derivation matches `os.Getenv("PREFIX_...")`. A read constructed
+  some other way, in a package that does not use `ConfigFromEnv`, would be
+  missed the same way the prefixed keys originally were.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-<!-- Filled at closeout. -->
+`composition-contract.json` publishes, per image, the build context, Dockerfile,
+port and full environment surface — derived from the source, including the
+prefixed keys that exist nowhere as literals — and a check fails when the file
+and the repository disagree.
 
 ### Files and modules changed
-<!-- Filled at closeout. -->
+- composition-contract.json
+- mcp-enforce/extract.go, mcp-enforce/config_env_test.go
+- pose-mcp/internal/version/composition_contract_test.go
 
 ### Validation executed
-<!-- Filled at closeout. -->
+- Command: the contract check plus injected drift; the suffix-list tests plus
+  injected decay
+- Result: all four injections reported; clean tree passes
 
 ### Residual risks
-<!-- Filled at closeout. -->
+- The contract is only half the loop. Nothing changes for the composition until
+  the monorepo consumes it.
 
 ### Follow-ups
 
