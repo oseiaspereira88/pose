@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-10T02:31:45Z",
+  "generated_at": "2026-08-10T02:40:49Z",
   "mode": "strict",
-  "git_head": "b6f5a06dd87efd2f7b988f3c691eae0d697a58e4",
+  "git_head": "1fd58f7ad29159bd7d1b4d1b16031e8fff620737",
   "matrix_sha256": "sha256:bcac545bc1489769aad0ef1e8b1a211c7deaf2e6ebdb729b0bb5f40d960f0ab3",
   "provenance_digest": "sha256:b0e3ceab167a141d9e4573cebeee9e1d2aa2efa5e72bd80369094e2c0bb3b715",
-  "outcome": "fail",
+  "outcome": "pass",
   "counts": {
     "executed": 8,
-    "passed": 7,
-    "failed": 1,
+    "passed": 8,
+    "failed": 0,
     "optional_failed": 0,
     "errored": 0,
     "skipped": 0
@@ -28,7 +28,7 @@
       "severity": "required",
       "evidence_class": "unit",
       "outcome": "pass",
-      "duration_seconds": 0.024546452,
+      "duration_seconds": 0.02529106,
       "output": "?   \twidget-service\t[no test files]\n"
     },
     {
@@ -44,7 +44,7 @@
       "severity": "optional",
       "evidence_class": "build",
       "outcome": "pass",
-      "duration_seconds": 0.029127168
+      "duration_seconds": 0.029490868
     },
     {
       "id": "mcp-enforce/go/test",
@@ -59,7 +59,7 @@
       "severity": "required",
       "evidence_class": "unit",
       "outcome": "pass",
-      "duration_seconds": 0.040282934,
+      "duration_seconds": 0.040509807,
       "output": "ok  \tgithub.com/harne8/mcp-enforce\t(cached)\n?   \tgithub.com/harne8/mcp-enforce/cmd/sidecar\t[no test files]\nok  \tgithub.com/harne8/mcp-enforce/sidecar\t(cached)\n"
     },
     {
@@ -75,7 +75,7 @@
       "severity": "optional",
       "evidence_class": "build",
       "outcome": "pass",
-      "duration_seconds": 0.039548428
+      "duration_seconds": 0.044861693
     },
     {
       "id": "pose-mcp/go/test",
@@ -89,10 +89,9 @@
       ],
       "severity": "required",
       "evidence_class": "unit",
-      "outcome": "fail",
-      "exit_code": 1,
-      "duration_seconds": 3.5399661719999997,
-      "output": "?   \tgithub.com/harne8/pose-mcp/cmd/pose\t[no test files]\n?   \tgithub.com/harne8/pose-mcp/internal/bootstrap\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t2.834s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/observability\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t(cached)\n--- FAIL: TestEmbeddedDistMatchesPoseDist (0.00s)\n    scaffold_test.go:116: embedded dist drifted from pose-dist — run `go generate ./internal/scaffold`\n        missing: []\n        extra: []\n        differs: [.pose/indexes/delivery-integrity.json]\nFAIL\nFAIL\tgithub.com/harne8/pose-mcp/internal/scaffold\t0.019s\n?   \tgithub.com/harne8/pose-mcp/internal/scaffold/distpolicy\t[no test files]\n?   \tgithub.com/harne8/pose-mcp/internal/scaffold/gen\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/version\t0.010s\nFAIL\n"
+      "outcome": "pass",
+      "duration_seconds": 3.5446478150000003,
+      "output": "?   \tgithub.com/harne8/pose-mcp/cmd/pose\t[no test files]\n?   \tgithub.com/harne8/pose-mcp/internal/bootstrap\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t2.853s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/observability\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/scaffold\t0.021s\n?   \tgithub.com/harne8/pose-mcp/internal/scaffold/distpolicy\t[no test files]\n?   \tgithub.com/harne8/pose-mcp/internal/scaffold/gen\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/version\t0.010s\n"
     },
     {
       "id": "pose-mcp/go/vet",
@@ -107,7 +106,7 @@
       "severity": "optional",
       "evidence_class": "build",
       "outcome": "pass",
-      "duration_seconds": 0.22211222
+      "duration_seconds": 0.215434261
     },
     {
       "id": "pose-mcp/go/delivery-integration",
@@ -127,8 +126,8 @@
       "severity": "required",
       "evidence_class": "integration",
       "outcome": "pass",
-      "duration_seconds": 0.42052151,
-      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.003s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.023s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.006s\n"
+      "duration_seconds": 0.452869502,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.003s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.029s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.008s\n"
     },
     {
       "id": "pose-mcp/go/delivery-reachability",
@@ -147,8 +146,8 @@
       "severity": "required",
       "evidence_class": "reachability",
       "outcome": "pass",
-      "duration_seconds": 0.435056776,
-      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.026s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.007s\n"
+      "duration_seconds": 0.503136738,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.026s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.009s\n"
     }
   ]
 }
