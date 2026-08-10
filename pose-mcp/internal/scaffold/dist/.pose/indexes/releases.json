@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "pose-composition-contract",
+      "category": "added",
+      "breaking": false,
+      "body": "`composition-contract.json` publishes how this repository's images are built and\nconfigured — build context, Dockerfile, port and the full environment surface of\neach service — so a consumer composing them can derive those facts instead of\nrestating them. The environment names are derived from the source rather than\nlisted by hand, including the keys built by prefix concatenation that appear\nnowhere as literals; a check fails when the published contract and the\nrepository disagree, which is the silent failure a rename used to produce.",
+      "path": "pose-composition-contract.md",
+      "digest": "sha256:580a51933e3bd54c676b42421a5b4784d24faecb773eb70f09d0122daa554755"
+    },
+    {
       "spec": "pose-container-build-gate",
       "category": "added",
       "breaking": false,

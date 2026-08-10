@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-09T22:15:58Z
-baseline_commit: 838c2fd3f4a44c87224c9e5c72ec575de116c110
+generated_at: 2026-08-10T01:49:16Z
+baseline_commit: e9033455aadedff24d0289c0cb08aab6c17c08f6
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,29 +27,29 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:44c0bae2d5e8 -->
+<!-- state:derived hash:8cb7f2592d0e -->
 
-- specs: total=80 draft=0 in-progress=0 blocked=0 done=80 superseded=0 abandoned=0
+- specs: total=81 draft=0 in-progress=0 blocked=0 done=81 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-composition-contract (2026-08-09)
   - spec:pose-container-build-gate (2026-08-09)
-  - spec:pose-skill-command-parity (2026-08-08)
-  - spec:pose-release-clean-tree-attribution (2026-08-08)
-  - spec:pose-action-runtime-currency-gate (2026-08-08)
+  - spec:pose-sbom-negative-coverage (2026-08-08)
+  - spec:pose-sbom-license-coverage-gate (2026-08-08)
   - spec:pose-manual-locale-parity (2026-08-08)
-  - ... e mais 75 (ver `pose_list_specs status:done`)
+  - ... e mais 76 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:25aee9a1e727 -->
+<!-- state:derived hash:7e57490ce4f7 -->
 
-- abertos: 38
-- por criticidade: high=0 medium=12 low=26 sem-classificação=0
+- abertos: 39
+- por criticidade: high=0 medium=12 low=27 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
-<!-- state:derived hash:665af9c69b7c -->
+<!-- state:derived hash:700fe5db143b -->
 
-- assessment: presente, baseline_commit=commit:c9a08fa, assessed_at=2026-07-22 (18 dias atrás)
+- assessment: presente, baseline_commit=commit:c9a08fa, assessed_at=2026-07-22 (19 dias atrás)
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:4242d30b2d31 -->
+<!-- state:derived hash:3d788305ec97 -->
 
-- último registro: task=closeout-pose-container-build-gate-draft outcome=unknown (2026-08-09T22:15:27Z)
-- últimos 30 dias: total=140 outcome_ok=100 outcome_outro=40
-- reports revisados (.md): total=77
+- último registro: task=closeout-pose-composition-contract-draft outcome=unknown (2026-08-10T01:48:58Z)
+- últimos 30 dias: total=142 outcome_ok=100 outcome_outro=42
+- reports revisados (.md): total=79
+  - report:2026-08-10-standard-closeout-pose-composition-contract-draft.md
+  - report:2026-08-10-standard-closeout-pose-composition-contract.md
   - report:2026-08-09-standard-closeout-pose-container-build-gate-draft.md
   - report:2026-08-09-standard-closeout-pose-container-build-gate.md
   - report:2026-08-08-standard-closeout-pose-dependency-pin-refresh-proven.md
-  - report:2026-08-08-standard-closeout-pose-dependency-pin-refresh.md
-  - report:2026-08-08-standard-closeout-pose-sbom-negative-coverage.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
