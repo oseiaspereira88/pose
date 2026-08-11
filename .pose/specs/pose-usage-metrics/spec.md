@@ -105,6 +105,7 @@ Show which POSE capabilities agents actually use and which gates detect, resolve
 - created: .pose/reports/2026-08-10-standard-pose-usage-metrics-baseline.md
 - created: .pose/reports/history/standard-pose-usage-metrics-baseline.jsonl
 - created: .pose/reports/2026-08-10-standard-pose-usage-metrics.md
+- created: .pose/reports/2026-08-11-standard-pose-usage-metrics.md
 - created: .pose/reports/history/standard-pose-usage-metrics.jsonl
 - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
 - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
