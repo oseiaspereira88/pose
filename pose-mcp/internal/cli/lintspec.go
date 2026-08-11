@@ -613,11 +613,13 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 	specsDir := filepath.Join(root, ".pose", "specs")
 
 	totalLinted, totalFailed := 0, 0
+	var failedSpecs []string
 	lintOne := func(path string) {
 		totalLinted++
 		fmt.Fprintln(stdout, "---")
 		if rc := lintOneSpec(path, requiredOnly, readyCheck, stdout, stderr); rc != 0 {
 			totalFailed++
+			failedSpecs = append(failedSpecs, filepath.Base(filepath.Dir(path)))
 		}
 	}
 
@@ -671,6 +673,11 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 	fmt.Fprintf(stdout, "lint.specs.checked=%d\n", totalLinted)
 	fmt.Fprintf(stdout, "lint.specs.failed=%d\n", totalFailed)
 	if totalFailed > 0 {
+		findings := make([]usageFinding, 0, len(failedSpecs))
+		for _, slug := range failedSpecs {
+			findings = append(findings, usageFinding{ID: "spec:" + slug, Severity: "error"})
+		}
+		noteUsageFindings(stdout, "fail", findings, true)
 		fmt.Fprintf(stdout, "Resultado: FALHA (%d spec(s) com seção obrigatória vazia/esquelética ou gate de ciclo de vida violado)\n", totalFailed)
 		if mode == "strict" {
 			return 1
@@ -684,6 +691,7 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, "Resultado: FALHA (state-refresh estrito falhou no pós-closeout)")
 		return 1
 	}
+	noteUsageFindings(stdout, "pass", nil, true)
 	fmt.Fprintln(stdout, "Resultado: SUCESSO")
 	return 0
 }

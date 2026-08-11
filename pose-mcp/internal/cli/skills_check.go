@@ -233,14 +233,23 @@ func cmdSkillsCheck(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	errors, warnings := 0, 0
+	usageFindings := make([]usageFinding, 0, len(all))
 	for _, iss := range all {
 		if iss.Severity == "error" {
 			errors++
 		} else {
 			warnings++
 		}
+		usageFindings = append(usageFindings, usageFinding{ID: iss.Skill + "\x00" + iss.Message, Severity: iss.Severity})
 		fmt.Fprintf(stdout, "[%s] %s: %s\n", strings.ToUpper(iss.Severity), iss.Skill, iss.Message)
 	}
+	semantic := "pass"
+	if errors > 0 {
+		semantic = "fail"
+	} else if warnings > 0 {
+		semantic = "partial"
+	}
+	noteUsageFindings(stdout, semantic, usageFindings, true)
 	fmt.Fprintf(stdout, "skills.checked=%d\nskills.errors=%d\nskills.warnings=%d\n", len(slugs), errors, warnings)
 	if errors > 0 {
 		fmt.Fprintln(stdout, "Result: FAILURE")

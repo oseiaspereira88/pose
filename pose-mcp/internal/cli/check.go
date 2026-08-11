@@ -87,13 +87,16 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	checker.checkDocs()
 	checker.checkCommandReference()
 	if checker.errors > 0 {
+		noteCommandUsage(stdout, countedUsageResult("fail", checker.errors, checker.warnings, false))
 		fmt.Fprintf(stdout, "Resultado: FALHA — estrutura POSE com %d erro(s).\n", checker.errors)
 		return 1
 	}
 	if checker.warnings > 0 {
+		noteCommandUsage(stdout, countedUsageResult("partial", 0, checker.warnings, false))
 		fmt.Fprintf(stdout, "Resultado: SUCESSO (modo tolerant) com %d aviso(s).\n", checker.warnings)
 		return 0
 	}
+	noteCommandUsage(stdout, countedUsageResult("pass", 0, 0, false))
 	fmt.Fprintf(stdout, "Resultado: SUCESSO — estrutura POSE válida (modo %s).\n", mode)
 	return 0
 }

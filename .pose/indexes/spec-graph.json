@@ -97,6 +97,10 @@
       "to": "pose-otel-observability"
     },
     {
+      "from": "pose-dora-five-metrics-v2",
+      "to": "pose-dora-adoption-metrics"
+    },
+    {
       "from": "pose-extension-catalog-lifecycle",
       "to": "pose-agent-skills-conformance"
     },
@@ -163,6 +167,10 @@
     {
       "from": "pose-machinery-distribution-contract",
       "to": "pose-compat-gate-candidate-integrity"
+    },
+    {
+      "from": "pose-managed-doc-project-identity-regression",
+      "to": "pose-manual-distribution-merge"
     },
     {
       "from": "pose-manual-distribution-merge",
@@ -389,6 +397,18 @@
       "to": "pose-release-compatibility-matrix"
     },
     {
+      "from": "pose-usage-metrics",
+      "to": "pose-structured-validation-results"
+    },
+    {
+      "from": "pose-usage-metrics",
+      "to": "pose-otel-observability"
+    },
+    {
+      "from": "pose-usage-metrics",
+      "to": "pose-dora-adoption-metrics"
+    },
+    {
       "from": "pose-validation-runtime-guardrails",
       "to": "pose-structured-validation-results"
     },
@@ -588,6 +608,14 @@
       "priority": 31,
       "status": "done"
     },
+    "pose-dora-five-metrics-v2": {
+      "depends_on": [
+        "pose-dora-adoption-metrics"
+      ],
+      "path": ".pose/specs/pose-dora-five-metrics-v2/spec.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
     "pose-extension-catalog-lifecycle": {
       "depends_on": [
         "pose-agent-skills-conformance",
@@ -705,6 +733,14 @@
       "path": ".pose/specs/pose-machinery-distribution-contract/spec.md",
       "priority": 2,
       "status": "done"
+    },
+    "pose-managed-doc-project-identity-regression": {
+      "depends_on": [
+        "pose-manual-distribution-merge"
+      ],
+      "path": ".pose/specs/pose-managed-doc-project-identity-regression/spec.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-manual-distribution-merge": {
       "depends_on": [
@@ -1061,6 +1097,16 @@
       "path": ".pose/specs/pose-upgrade-compatibility-lab/spec.md",
       "priority": 26,
       "status": "done"
+    },
+    "pose-usage-metrics": {
+      "depends_on": [
+        "pose-structured-validation-results",
+        "pose-otel-observability",
+        "pose-dora-adoption-metrics"
+      ],
+      "path": ".pose/specs/pose-usage-metrics/spec.md",
+      "priority": 32,
+      "status": "in-progress"
     },
     "pose-validation-runtime-guardrails": {
       "depends_on": [

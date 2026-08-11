@@ -11,6 +11,11 @@ import (
 	"testing"
 )
 
+func TestMain(m *testing.M) {
+	_ = os.Setenv("POSE_USAGE_DISABLED", "1")
+	os.Exit(m.Run())
+}
+
 // newGitRepo creates a temp dir initialized as a git repository and returns
 // its path. Tests chdir into it so projectRoot() resolves there.
 func newGitRepo(t *testing.T) string {

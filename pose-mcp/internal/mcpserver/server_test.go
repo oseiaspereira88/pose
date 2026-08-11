@@ -13,8 +13,14 @@ import (
 	"testing"
 
 	"github.com/harne8/pose-mcp/internal/pose"
+	usagepkg "github.com/harne8/pose-mcp/internal/usage"
 	"github.com/harne8/pose-mcp/internal/version"
 )
+
+func TestMain(m *testing.M) {
+	_ = os.Setenv("POSE_USAGE_DISABLED", "1")
+	os.Exit(m.Run())
+}
 
 // fakeReporter implements Reporter for testing the conductor_run_* tools.
 type fakeReporter struct {
@@ -142,8 +148,8 @@ func TestToolsList(t *testing.T) {
 	ts := newTestServer(t, "")
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}`)
 	tools, _ := out.Result["tools"].([]any)
-	if len(tools) != 47 {
-		t.Fatalf("tools = %d, want 47", len(tools))
+	if len(tools) != 48 {
+		t.Fatalf("tools = %d, want 48", len(tools))
 	}
 	names := map[string]bool{}
 	for _, raw := range tools {
@@ -155,12 +161,52 @@ func TestToolsList(t *testing.T) {
 	}
 	for _, want := range []string{"pose_get_spec", "pose_list_specs", "pose_spec_readiness",
 		"pose_list_roadmaps", "pose_get_roadmap", "pose_get_changelog", "pose_release_status", "pose_closeout_state", "pose_delivery_integrity",
-		"pose_suggest", "pose_get_workflow", "pose_get_rules", "pose_insights", "pose_get_followups", "pose_check",
+		"pose_suggest", "pose_get_workflow", "pose_get_rules", "pose_insights", "pose_usage", "pose_get_followups", "pose_check",
 		"pose_lint_spec", "pose_list_knowledge", "pose_get_knowledge", "pose_list_reports",
 		"pose_get_report"} {
 		if !names[want] {
 			t.Errorf("missing tool %s (got %v)", want, names)
 		}
+	}
+}
+
+func TestUsageRecordsMCPDispatchAndExcludesItsOwnQuery(t *testing.T) {
+	root := t.TempDir()
+	usageDir := t.TempDir()
+	t.Setenv("POSE_USAGE_DIR", usageDir)
+	t.Setenv("POSE_USAGE_DISABLED", "")
+	workflow := filepath.Join(root, ".pose", "workflows", "feature.md")
+	if err := os.MkdirAll(filepath.Dir(workflow), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(workflow, []byte("# Feature\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	server := New(pose.Store{Root: root})
+	if _, err := server.dispatch(context.Background(), "pose_get_workflow", json.RawMessage(`{"name":"feature"}`)); err != nil {
+		t.Fatalf("dispatch workflow: %v", err)
+	}
+	out, err := server.dispatch(context.Background(), "pose_usage", json.RawMessage(`{"since_days":0,"surface":"mcp"}`))
+	if err != nil {
+		t.Fatalf("dispatch usage: %v", err)
+	}
+	report, ok := out.(usagepkg.Report)
+	if !ok {
+		t.Fatalf("usage type = %T", out)
+	}
+	if len(report.Rows) != 1 || report.Rows[0].Tool != "pose_get_workflow" || report.Rows[0].Calls != 1 {
+		t.Fatalf("unexpected usage rows: %+v", report.Rows)
+	}
+}
+
+func TestMCPUsageKeepsUnstructuredGateFailureConservative(t *testing.T) {
+	summary := summarizeMCPUsage(&pose.GateResult{
+		Command: "pose check --strict",
+		Passed:  false,
+		Output:  "[ERRO] missing workflow\n[ERRO] invalid spec\nResultado: FALHA",
+	})
+	if summary.Semantic != "fail" || len(summary.Findings) != 1 || summary.Complete {
+		t.Fatalf("summary = %+v", summary)
 	}
 }
 

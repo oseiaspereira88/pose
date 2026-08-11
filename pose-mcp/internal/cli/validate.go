@@ -631,6 +631,18 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, "Result: SUCCESS")
 	}
 	run.Outcome = result
+	usageFindings := make([]usageFinding, 0, run.Counts.Failed+run.Counts.OptionalFailed+run.Counts.Errored)
+	for _, check := range run.Checks {
+		if check.Outcome != "fail" && check.Outcome != "error" {
+			continue
+		}
+		severity := check.Severity
+		if check.Outcome == "error" {
+			severity = "error"
+		}
+		usageFindings = append(usageFindings, usageFinding{ID: check.ID + "\x00" + check.Outcome, Severity: severity})
+	}
+	noteUsageFindings(stdout, result, usageFindings, true)
 	for name, writer := range map[string]struct {
 		path  string
 		write func(string, validationRunResult) error

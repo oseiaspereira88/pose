@@ -31,6 +31,7 @@ import (
 	mcpenforce "github.com/harne8/mcp-enforce"
 	"github.com/harne8/pose-mcp/internal/observability"
 	"github.com/harne8/pose-mcp/internal/pose"
+	usagepkg "github.com/harne8/pose-mcp/internal/usage"
 	"github.com/harne8/pose-mcp/internal/version"
 )
 
@@ -633,7 +634,7 @@ type unknownToolError struct{ name string }
 
 func (e unknownToolError) Error() string { return fmt.Sprintf("unknown tool %q", e.name) }
 
-func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage) (any, error) {
+func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage) (out any, err error) {
 	if len(args) == 0 {
 		args = json.RawMessage("{}")
 	}
@@ -664,6 +665,26 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 	store, err := s.roots.StoreFor(sel.ProjectID)
 	if err != nil {
 		return nil, err
+	}
+	usageStarted := time.Now()
+	_, knownUsageTool := catalogGovernance[name]
+	if name != "pose_usage" && knownUsageTool {
+		defer func() {
+			execution := "completed"
+			summary := mcpUsageSummary{Semantic: "unknown"}
+			if err != nil {
+				execution = "error"
+			} else {
+				summary = summarizeMCPUsage(out)
+			}
+			_ = usagepkg.Record(store.Root, usagepkg.Observation{
+				At: time.Now().UTC(), Tool: name, Surface: "mcp",
+				DurationMS:       float64(time.Since(usageStarted).Microseconds()) / 1000,
+				ExecutionOutcome: execution, SemanticOutcome: summary.Semantic,
+				Findings: summary.Findings, FindingCount: summary.FindingCount, FindingsBySeverity: summary.FindingsBySeverity,
+				FindingSetComplete: summary.Complete, Scope: canonicalUsageScope(args), Version: serverVersion,
+			})
+		}()
 	}
 	switch name {
 	case "pose_get_spec":
@@ -957,6 +978,24 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_insights: invalid arguments")
 		}
 		return store.Insights(a.GroupBy, a.SinceDays)
+	case "pose_usage":
+		var a struct {
+			SinceDays *int   `json:"since_days"`
+			Tool      string `json:"tool"`
+			Surface   string `json:"surface"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_usage: invalid arguments")
+		}
+		sinceDays := 30
+		if a.SinceDays != nil {
+			sinceDays = *a.SinceDays
+		}
+		report, err := usagepkg.Aggregate(store.Root, usagepkg.Query{SinceDays: sinceDays, Tool: a.Tool, Surface: a.Surface})
+		if err != nil {
+			return nil, fmt.Errorf("pose_usage: %w", err)
+		}
+		return report, nil
 	case "pose_get_followups":
 		var a struct {
 			All bool `json:"all"`
@@ -1116,6 +1155,82 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 	default:
 		return nil, unknownToolError{name}
 	}
+}
+
+type mcpUsageSummary struct {
+	Semantic           string
+	Findings           []usagepkg.Finding
+	FindingCount       int
+	FindingsBySeverity map[string]int
+	Complete           bool
+}
+
+func summarizeMCPUsage(out any) mcpUsageSummary {
+	switch value := out.(type) {
+	case *pose.GateResult:
+		if value.Passed {
+			return mcpUsageSummary{Semantic: "pass"}
+		}
+		// GateResult intentionally exposes human evidence rather than a stable
+		// finding array. Do not turn output lines into fabricated identities;
+		// record one conservative failed observation until that gate publishes a
+		// typed finding contract.
+		return mcpUsageSummary{Semantic: "fail", Findings: []usagepkg.Finding{{ID: value.Command, Severity: "error"}}, FindingCount: 1}
+	case *pose.IntegrationMatrix:
+		findings := make([]usagepkg.Finding, 0, len(value.Gaps))
+		for _, gap := range value.Gaps {
+			findings = append(findings, usagepkg.Finding{ID: gap.GapID, Severity: gap.Severity})
+		}
+		if len(findings) > 0 {
+			return mcpUsageSummary{Semantic: "fail", Findings: findings, FindingCount: len(findings), Complete: true}
+		}
+		return mcpUsageSummary{Semantic: "pass", Complete: true}
+	case *pose.TechDebtReportState:
+		findings := make([]usagepkg.Finding, 0, value.Summary.UncoveredCount)
+		for _, item := range value.Items {
+			if item.Coverage != "covered" {
+				findings = append(findings, usagepkg.Finding{ID: item.ID, Severity: "warning"})
+			}
+		}
+		if len(findings) > 0 {
+			return mcpUsageSummary{Semantic: "partial", Findings: findings, FindingCount: len(findings), Complete: true}
+		}
+		return mcpUsageSummary{Semantic: "pass", Complete: true}
+	case *pose.ComponentDiscoveryState:
+		count := value.TechnicalDebt.TODOs + value.TechnicalDebt.FIXMEs + value.TechnicalDebt.Panics + value.TechnicalDebt.Stubs
+		if count > 0 {
+			return mcpUsageSummary{Semantic: "partial", FindingCount: count, FindingsBySeverity: map[string]int{"warning": count}}
+		}
+		return mcpUsageSummary{Semantic: "pass"}
+	case map[string]any:
+		if docs, ok := value["result"].(pose.DocsCheckResult); ok {
+			findings := make([]usagepkg.Finding, 0, len(docs.Issues))
+			for _, issue := range docs.Issues {
+				findings = append(findings, usagepkg.Finding{ID: issue.Rule + "\x00" + issue.Path + "\x00" + issue.Message, Severity: issue.Severity})
+			}
+			semantic := "pass"
+			if docs.Totals.Errors > 0 {
+				semantic = "fail"
+			} else if docs.Totals.Warnings > 0 {
+				semantic = "partial"
+			}
+			return mcpUsageSummary{Semantic: semantic, Findings: findings, FindingCount: len(findings), Complete: true}
+		}
+	default:
+	}
+	return mcpUsageSummary{Semantic: "unknown"}
+}
+
+func canonicalUsageScope(args json.RawMessage) string {
+	var value any
+	if len(args) == 0 || json.Unmarshal(args, &value) != nil {
+		return string(args)
+	}
+	canonical, err := json.Marshal(value)
+	if err != nil {
+		return string(args)
+	}
+	return string(canonical)
 }
 
 // maxDiscoveryProbes bounds how many per-project authorization decisions one
@@ -1830,6 +1945,36 @@ func toolDefinitions() []map[string]any {
 						"minimum":     0,
 						"default":     0,
 						"description": "Optional rolling window in days; zero includes all history",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_usage",
+			"description": "Aggregate privacy-bounded local POSE tool usage and outcome events. " +
+				"Shows which CLI/MCP tools are used, gate value signals, finding lifecycle and latency; " +
+				"never returns command arguments, paths, output, source content or identities.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"since_days": map[string]any{
+						"type":        "integer",
+						"minimum":     0,
+						"default":     30,
+						"description": "Rolling window in days; zero includes all history",
+					},
+					"tool": map[string]any{
+						"type":        "string",
+						"description": "Optional exact POSE command or MCP tool name",
+					},
+					"surface": map[string]any{
+						"type":        "string",
+						"enum":        []string{"cli", "mcp"},
+						"description": "Optional invocation surface filter",
 					},
 					"project_id": map[string]any{
 						"type":        "string",

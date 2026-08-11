@@ -133,6 +133,9 @@
     "pose_tech_debt_check": {
       "risk": "read"
     },
+    "pose_usage": {
+      "risk": "read"
+    },
     "pose_validate_approve": {
       "risk": "gate"
     },
@@ -574,6 +577,37 @@
         "type": "object"
       },
       "name": "pose_insights"
+    },
+    {
+      "description": "Aggregate privacy-bounded local POSE tool usage and outcome events. Shows which CLI/MCP tools are used, gate value signals, finding lifecycle and latency; never returns command arguments, paths, output, source content or identities.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "since_days": {
+            "default": 30,
+            "description": "Rolling window in days; zero includes all history",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "surface": {
+            "description": "Optional invocation surface filter",
+            "enum": [
+              "cli",
+              "mcp"
+            ],
+            "type": "string"
+          },
+          "tool": {
+            "description": "Optional exact POSE command or MCP tool name",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_usage"
     },
     {
       "description": "Live backlog of spec follow-ups (pose followups --json): open items with their source spec, disposition and lexical near-duplicate candidates. Input for planning the next specs.",

@@ -138,6 +138,7 @@ func (s Store) runCLI(ctx context.Context, args []string) ([]byte, error) {
 
 	cmd := exec.CommandContext(ctx, executable, args...)
 	cmd.Dir = s.Root
+	cmd.Env = append(os.Environ(), "POSE_USAGE_SUPPRESS_CLI=1")
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	if err := cmd.Run(); err != nil {
@@ -166,6 +167,7 @@ func (s Store) runCLIExit(ctx context.Context, args []string) ([]byte, int, erro
 
 	cmd := exec.CommandContext(ctx, executable, args...)
 	cmd.Dir = s.Root
+	cmd.Env = append(os.Environ(), "POSE_USAGE_SUPPRESS_CLI=1")
 	var combined bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &combined, &combined
 	if err := cmd.Run(); err != nil {

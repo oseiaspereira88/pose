@@ -19,6 +19,8 @@ default `:8790`).
 | `POSE_MCP_REQUIRE_PRINCIPAL` | Deny anonymous `tools/call` even without OPA |
 | `POSE_MCP_IDENTITY_SECRET` | Verifies run-bound execution identities |
 | `POSE_MCP_STRICT_PROJECT_SELECTION` | Non-empty = fail closed on empty `project_id` when more than one project is registered (see below) |
+| `POSE_USAGE_DISABLED` | `1`/`true` disables local usage event collection; aggregate reads remain available for existing events |
+| `POSE_USAGE_DIR` | Optional absolute local state directory override, useful for a persistent container mount |
 
 The installer seeds `.mcp.json` when absent. It invokes the native binary
 directly and records the installed project's root and project id in the server
@@ -118,6 +120,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_integration_check` / `pose_get_integration_matrix` | Cross-component integration assessment (Protobuf, Kafka, REST, MCP) and provider vs consumer matrix |
 | `pose_tech_debt_check` / `pose_get_tech_debt_report` | Codebase technical debt audit (TODO, FIXME, stub, panic) with file links and recommended POSE backlog actions |
 | `pose_insights` | Deterministic outcome aggregates by workflow, task or context |
+| `pose_usage` | Privacy-bounded local CLI/MCP usage, semantic outcomes, finding lifecycle and latency; supports `since_days`, `tool` and `surface` filters |
 | `pose_extension_list` | List installed extensions (id, version, kind, digest, signature status) |
 | `pose_validate_request` | Resolve an immutable, digest-pinned validation plan (no execution) |
 | `pose_validate_approve` | Approve/reject a plan, bound to its digest, requiring an Execution Identity |
@@ -131,6 +134,14 @@ local gates — no writes, no network). The advertised catalog is a release-gate
 public contract frozen by a golden fixture
 (`pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json`); removals or
 incompatible schema changes require an ADR and a release note.
+
+`pose_usage` reads the same project-local aggregate as `pose usage --json` and
+does not count its own query. Collection occurs automatically for project-backed
+tool calls and is best-effort: a storage failure never changes the MCP result.
+Only bounded outcomes, counts, duration and HMAC fingerprints are persisted;
+arguments, tool output, paths, repository/project names, principals, run IDs,
+source content and raw finding IDs are excluded. No usage event is transmitted
+over the network.
 
 ## Optional tools
 
