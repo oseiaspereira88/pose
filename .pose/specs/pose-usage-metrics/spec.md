@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-structured-validation-results, pose-otel-observability, pose-dora-adoption-metrics
 priority: 32
 components: pose-mcp
-delivers:
+delivers: surface:pose-usage-cli, capability:pose-usage-analytics, contract:pose-usage-mcp
 ---
 
 # Spec: POSE usage metrics
@@ -65,6 +65,11 @@ Show which POSE capabilities agents actually use and which gates detect, resolve
 - `pose-mcp/internal/cli`: central command wrapper, exact gate enrichment and `pose usage`.
 - `pose-mcp/internal/mcpserver`: outcome-aware call recording and `pose_usage` tool.
 - Public CLI/MCP docs, golden catalog and embedded scaffold.
+
+### Delivery targets
+- surface:pose-usage-cli module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:pose-usage-analytics module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+- contract:pose-usage-mcp module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Artifacts
 - modified: .pose/assessments/README.md

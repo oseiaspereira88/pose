@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-dora-adoption-metrics
 priority: 1
 components: pose-mcp
-delivers:
+delivers: surface:dora-five-metrics-v2
 ---
 
 # Spec: DORA five-metric contract v2
@@ -58,6 +58,9 @@ Prevent optimistic or misleading delivery metrics while giving teams a comparabl
 - `pose-mcp/internal/cli`: event validation, versioned schemas, production filtering and DORA aggregation.
 - Public CLI documentation and embedded manuals.
 - DORA/usage specs, ADR and release fragment.
+
+### Delivery targets
+- surface:dora-five-metrics-v2 module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Artifacts
 - created: .pose/adr/2026-08-10-production-scoped-dora-five-metric-contract.md
