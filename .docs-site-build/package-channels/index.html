@@ -744,10 +744,11 @@ deterministically from <code>checksums.txt</code> and the release tag by
 gate, the security gate and artifact-identity verification have all passed
 (spec <code>pose-package-manager-distribution</code>, R2).</p>
 <h2 id="channels-and-support-tiers">Channels and support tiers</h2>
-<p>The supported install path on every platform is the verified download: fetch the
-archive and <code>checksums.txt</code> from the release, verify the checksum, extract — see
+<p>Linux and macOS have a one-line fast path through the release <code>install.sh</code>; the
+reproducible path on every platform remains the verified download: fetch the
+archive and <code>checksums.txt</code>, verify and extract — see
 <a href="../quickstart/#install">Quickstart</a>. The package-manager channels below are
-additive, and neither is currently a one-command install.</p>
+additive; Homebrew is not currently an end-user install channel.</p>
 <table>
 <thead>
 <tr>
@@ -776,7 +777,10 @@ additive, and neither is currently a one-command install.</p>
 </tbody>
 </table>
 <p>Install commands:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Every platform: the verified download (see the install contract)</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Linux/macOS fast path</span>
+curl<span class="w"> </span>-fsSL<span class="w"> </span>https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+
+<span class="c1"># Every platform verified path: see the install contract</span>
 
 <span class="c1"># WinGet (Windows), once published to winget-pkgs</span>
 winget<span class="w"> </span>install<span class="w"> </span>Harne8.Pose

@@ -87,6 +87,7 @@ func TestPublicInstallContract(t *testing.T) {
 	}
 	rd := string(readme)
 	for _, want := range []string{
+		"curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash",
 		"V=" + base + "\n",
 		`$V = "` + base + `"`,
 		"https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz",
@@ -94,6 +95,18 @@ func TestPublicInstallContract(t *testing.T) {
 	} {
 		if !strings.Contains(rd, want) {
 			t.Errorf("README quickstart missing %q (asset naming or pinned version drifted)", want)
+		}
+	}
+	quickstart, err := os.ReadFile("../../../docs-site/docs/quickstart.md")
+	if err != nil {
+		t.Fatalf("reading docs-site/docs/quickstart.md: %v", err)
+	}
+	for _, want := range []string{
+		"curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash",
+		"### Verified install",
+	} {
+		if !strings.Contains(string(quickstart), want) {
+			t.Errorf("docs quickstart missing %q", want)
 		}
 	}
 	gorel, err := os.ReadFile("../../../.goreleaser.yaml")
@@ -105,6 +118,7 @@ func TestPublicInstallContract(t *testing.T) {
 		`name_template: "pose_{{ .Version }}_{{ .Os }}_{{ .Arch }}"`,
 		"goos: windows",
 		"formats: [zip]",
+		"glob: install.sh",
 	} {
 		if !strings.Contains(gr, want) {
 			t.Errorf(".goreleaser.yaml missing %q (README asset commands would break)", want)

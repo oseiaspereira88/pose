@@ -12,10 +12,11 @@ gate, the security gate and artifact-identity verification have all passed
 
 ## Channels and support tiers
 
-The supported install path on every platform is the verified download: fetch the
-archive and `checksums.txt` from the release, verify the checksum, extract — see
+Linux and macOS have a one-line fast path through the release `install.sh`; the
+reproducible path on every platform remains the verified download: fetch the
+archive and `checksums.txt`, verify and extract — see
 [Quickstart](quickstart.md#install). The package-manager channels below are
-additive, and neither is currently a one-command install.
+additive; Homebrew is not currently an end-user install channel.
 
 | Channel | Format | Publication mechanism | Publication lag | Support tier |
 |---|---|---|---|---|
@@ -25,7 +26,10 @@ additive, and neither is currently a one-command install.
 Install commands:
 
 ```bash
-# Every platform: the verified download (see the install contract)
+# Linux/macOS fast path
+curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
+
+# Every platform verified path: see the install contract
 
 # WinGet (Windows), once published to winget-pkgs
 winget install Harne8.Pose

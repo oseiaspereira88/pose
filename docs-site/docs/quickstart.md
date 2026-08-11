@@ -4,6 +4,32 @@
 
 ## Install
 
+### Fast path — Linux and macOS
+
+Run the installer from the root of the Git repository that should receive the
+POSE contract:
+
+```bash
+curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
+```
+
+The script resolves the latest release for the current OS and architecture,
+installs `pose` into `~/.local/bin` and runs `pose install .` plus the final
+strict gate when the current directory is a Git repository. Ensure
+`~/.local/bin` is on `PATH`, then confirm the installation:
+
+```bash
+pose version
+pose doctor
+```
+
+The one-liner tracks `latest` and optimizes first-time adoption. It relies on
+HTTPS but does not independently verify the downloaded archive's checksum or
+Sigstore identity. Use the pinned flow below when reproducibility or
+supply-chain verification is required.
+
+### Verified install
+
 ```bash
 # with the native binary on PATH:
 pose install /path/to/your/repo
@@ -18,13 +44,6 @@ The installer copies workflows, rules, templates and skills, derives
 server, stamps the contract schema version and finishes with native `init`,
 `index` and `check --strict` — installation only reports success if the gate
 is green.
-
-Confirm the binary and instance before continuing:
-
-```bash
-pose version
-pose doctor
-```
 
 The v1 release archive is accompanied by SHA-256 checksums, keyless Sigstore
 signatures, a CycloneDX SBOM and SLSA provenance. Use the release's own
@@ -96,5 +115,6 @@ pose upgrade              # migrate the contract after engine updates
 pose hooks install        # pre-commit check + post-merge reindex
 ```
 
-Requirements: the native `pose` binary and git. No Bash or Python runtime is
-needed. Platforms: Linux, macOS and Windows.
+Requirements: Git plus Bash for the one-liner, or the native `pose` binary for
+the verified/manual path. The POSE runtime itself needs no Bash or Python.
+Platforms: Linux, macOS and Windows.

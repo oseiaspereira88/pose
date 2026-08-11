@@ -128,6 +128,18 @@ into 7 roadmaps, 35 implementation specs and dependency-aware release gates.
 
 ## Quickstart
 
+Fast path for Linux and macOS (run it from the Git repository that should
+receive the POSE contract):
+
+```bash
+curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
+```
+
+This path follows the latest release and installs the native binary into
+`~/.local/bin`. It relies on HTTPS but does not independently verify the
+archive checksum or Sigstore identity. Use the pinned flow below when
+reproducibility or supply-chain verification is required.
+
 Download the released archive for your platform, verify its checksum, place
 `pose` on `PATH`, then install POSE into a Git repository. Release assets are
 named `pose_<version>_<os>_<arch>` — `tar.gz` for Linux and macOS, `zip` for
@@ -157,9 +169,9 @@ Expand-Archive "pose_${V}_windows_amd64.zip" -DestinationPath .
 pose install C:\path\to\your\repo
 ```
 
-Always verify the checksum before executing the binary. Never pipe downloaded
-scripts into a shell: the optional `install.sh` in the release bundle is meant
-to be downloaded next to the verified binary and run locally.
+For the verified path, always check the archive before executing the binary.
+The release-bundle `install.sh` can also be downloaded next to that verified
+binary and run locally.
 
 The installer:
 

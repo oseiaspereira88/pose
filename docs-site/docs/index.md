@@ -56,6 +56,15 @@ tool activity never masquerades as delivery performance. See
 
 ## Start here
 
+Install the latest Linux/macOS release from the root of your Git repository:
+
+```bash
+curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
+```
+
+For a pinned, checksum- and Sigstore-verified installation, use the
+[Quickstart](quickstart.md#verified-install).
+
 1. Follow the [Quickstart](quickstart.md) to install v1 and close a first loop.
 2. Read [Concepts](concepts.md) for lifecycle, evidence and knowledge semantics.
 3. Use the [CLI reference](cli.md) or [MCP reference](mcp.md) for exact surfaces.
