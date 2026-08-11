@@ -51,7 +51,6 @@ Prevent a POSE upgrade from rewriting every consuming repository as `pose-dist`.
 - governance:managed-doc-project-identity module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Artifacts
-- created: .pose/changelogs/v1.0.0/pose-managed-doc-project-identity-regression.md
 - created: .pose/reports/2026-08-10-standard-pose-managed-doc-project-identity-regression.md
 - created: .pose/reports/history/standard-pose-managed-doc-project-identity-regression.jsonl
 - created: .pose/specs/pose-managed-doc-project-identity-regression/spec.md
