@@ -1,8 +1,8 @@
 ---
 slug: pose-managed-doc-project-identity-regression
-status: in-progress
+status: done
 created_at: 2026-08-10
-completed_at:
+completed_at: 2026-08-11
 supersedes:
 depends_on: pose-manual-distribution-merge
 priority: 0
@@ -127,7 +127,7 @@ Run the previously failing refresh test, adjacent locale/placeholder tests and e
 - Warnings: none.
 
 ### Requirement trace
-- R1 [satisfied] test:TestEmbeddedDistMatchesPoseDist test:TestRefreshManagedDocsUpdatesAnInstalledManual — canonical and embedded manuals retain the project placeholder until target rendering.
+- R1 [satisfied] governance:managed-doc-project-identity evidence:integration test:TestEmbeddedDistMatchesPoseDist test:TestRefreshManagedDocsUpdatesAnInstalledManual — canonical and embedded manuals retain the project placeholder until target rendering.
 - R2 [satisfied] test:TestRefreshManagedDocsUpdatesAnInstalledManual test:TestRefreshManagedDocsKeepsTheInstalledLocale — project identity, instance-owned body and locale survive refresh.
 
 ### Known gaps

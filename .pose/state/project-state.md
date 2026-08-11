@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-10T20:44:41Z
-baseline_commit: 9ac7df29d1c18f02601cd3afe35719e87d8a4a76
+generated_at: 2026-08-11T01:05:22Z
+baseline_commit: 54f96a86748fe1f6b4a49c8a78f6cf6ee1a1acca
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:7450f6976ac3 -->
+<!-- state:derived hash:a443296c9e67 -->
 
-- specs: total=86 draft=0 in-progress=0 blocked=0 done=86 superseded=0 abandoned=0
+- specs: total=89 draft=0 in-progress=0 blocked=0 done=89 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-managed-doc-project-identity-regression (2026-08-11)
+  - spec:pose-dora-five-metrics-v2 (2026-08-11)
+  - spec:pose-usage-metrics (2026-08-11)
   - spec:pose-scaffold-exclusion-policy (2026-08-10)
-  - spec:pose-skill-index-parity (2026-08-10)
-  - spec:pose-scaffold-allowlist (2026-08-10)
   - spec:pose-fragment-error-clarity (2026-08-10)
-  - spec:pose-locale-coverage-contract (2026-08-10)
-  - ... e mais 81 (ver `pose_list_specs status:done`)
+  - ... e mais 84 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:236438ffd70a -->
+<!-- state:derived hash:003cc85f278e -->
 
-- abertos: 41
-- por criticidade: high=1 medium=13 low=27 sem-classificação=0
+- abertos: 42
+- por criticidade: high=1 medium=14 low=27 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:26b7c622c31e -->
+<!-- state:derived hash:3a5ea7f0c0c3 -->
 
-- último registro: task=closeout-pose-fragment-error-clarity outcome=unknown (2026-08-10T20:16:28Z)
-- últimos 30 dias: total=146 outcome_ok=100 outcome_outro=46
-- reports revisados (.md): total=83
-  - report:2026-08-10-standard-closeout-pose-skill-index-parity.md
-  - report:2026-08-10-standard-closeout-pose-fragment-error-clarity.md
-  - report:2026-08-10-standard-closeout-pose-scaffold-allowlist.md
-  - report:2026-08-10-standard-closeout-pose-scaffold-exclusion-policy.md
-  - report:2026-08-10-standard-closeout-pose-composition-contract-draft.md
+- último registro: task=pose-analytics-final-closeout outcome=pass (2026-08-11T01:03:21Z)
+- últimos 30 dias: total=164 outcome_ok=114 outcome_outro=50
+- reports revisados (.md): total=93
+  - report:2026-08-11-standard-pose-analytics-final-closeout.md
+  - report:2026-08-11-standard-pose-analytics-delivery-targets.md
+  - report:2026-08-11-standard-pose-dora-five-metrics-v2.md
+  - report:2026-08-11-standard-pose-managed-doc-project-identity-regression.md
+  - report:2026-08-11-standard-pose-usage-metrics.md
 
 ## Arquitetura
 <!-- state:derived hash:cb25d685317d status:active -->

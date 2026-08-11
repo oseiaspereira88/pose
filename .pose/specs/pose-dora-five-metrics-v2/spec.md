@@ -1,8 +1,8 @@
 ---
 slug: pose-dora-five-metrics-v2
-status: in-progress
+status: done
 created_at: 2026-08-10
-completed_at:
+completed_at: 2026-08-11
 supersedes:
 depends_on: pose-dora-adoption-metrics
 priority: 1
@@ -157,7 +157,7 @@ Validate parsing first, then compute each metric against a fixed synthetic histo
 - R1 [satisfied] test:TestRecordDeploymentValidation test:TestRecordedEventsCarrySchemaV2Dimensions — schema-v2 deployment events require and persist `planned|rework`.
 - R2 [satisfied] test:TestRecordIncidentValidation test:TestRecordedEventsCarrySchemaV2Dimensions — schema-v2 incidents require and persist environment and the causal flag.
 - R3 [satisfied] test:TestDORAMetricsDefaultsToProductionEnvironment test:TestDORAMetricsComputesFromSyntheticHistory — JSON/text scope is explicit and denominators exclude staging.
-- R4 [satisfied] test:TestDORAMetricsComputesFromSyntheticHistory report:.pose/reports/2026-08-10-standard-pose-dora-five-metrics-v2.md — exactly five current metrics are emitted and `reliability` is absent.
+- R4 [satisfied] surface:dora-five-metrics-v2 evidence:integration test:TestDORAMetricsComputesFromSyntheticHistory report:.pose/reports/2026-08-10-standard-pose-dora-five-metrics-v2.md — exactly five current metrics are emitted and `reliability` is absent.
 - R5 [satisfied] test:TestDORAMetricsComputesFromSyntheticHistory — unrelated and staging incidents are excluded; one deployment-caused production incident yields the expected recovery median.
 - R6 [satisfied] test:TestDORAReworkRateUnavailableForLegacyUnknownClassification — rework is exact for classified events and explicitly unavailable for unknown legacy classification.
 

@@ -1,8 +1,8 @@
 ---
 slug: pose-usage-metrics
-status: in-progress
+status: done
 created_at: 2026-08-10
-completed_at:
+completed_at: 2026-08-11
 supersedes:
 depends_on: pose-structured-validation-results, pose-otel-observability, pose-dora-adoption-metrics
 priority: 32
@@ -199,9 +199,9 @@ Validate storage and aggregation independently, then validate CLI and MCP adapte
 - Warnings: integration assessment recognizes `pose_usage` and reports it as an unobserved consumer gap, consistent with other read tools in this repository. Repository-wide historical delivery evidence still requires current index projection; no evidence was fabricated.
 
 ### Requirement trace
-- R1 [satisfied] — central CLI wrapper plus invalid/unknown/introspection exclusions; `TestUsageRecordsKnownCLICommandAndExcludesQuery`.
-- R2 [satisfied] — authorized project-backed MCP dispatch wrapper, child CLI suppression and best-effort event recording; `TestUsageRecordsMCPDispatchAndExcludesItsOwnQuery`.
-- R3 [satisfied] — shared aggregator, filters, outcomes, severity counts, latency percentiles and lifecycle metrics; `TestUsageFindingLifecycleAndFilters` plus compiled-binary smoke.
+- R1 [satisfied] surface:pose-usage-cli evidence:integration — central CLI wrapper plus invalid/unknown/introspection exclusions; `TestUsageRecordsKnownCLICommandAndExcludesQuery`.
+- R2 [satisfied] contract:pose-usage-mcp evidence:integration — authorized project-backed MCP dispatch wrapper, child CLI suppression and best-effort event recording; `TestUsageRecordsMCPDispatchAndExcludesItsOwnQuery`.
+- R3 [satisfied] capability:pose-usage-analytics evidence:integration — shared aggregator, filters, outcomes, severity counts, latency percentiles and lifecycle metrics; `TestUsageFindingLifecycleAndFilters` plus compiled-binary smoke.
 - R4 [satisfied] — validation uses stable check IDs; check/skills/lint adapters provide bounded structured or conservative counts; `TestValidateUsageUsesStructuredCheckFindings`.
 - R5 [satisfied] — additive read-only `pose_usage` catalog/schema/golden/docs contract and self-query exclusion; MCP usage and catalog conformance tests.
 - R6 [satisfied] — complete-set, equal-scope transitions only; lifecycle unit test covers new/resolved/reopened behavior.

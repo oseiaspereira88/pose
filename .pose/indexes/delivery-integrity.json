@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:1f8b930689f3b5d4eb69c4f6f4d6cad9bf1a5846638e25fec5e9fa8f1ded1603",
-  "provenance_digest": "sha256:0bb6538e101771c8e663bf432ed21546bb884e7e13048a4abc42af6f34c81b5c",
+  "input_digest": "sha256:4caa8588a22519a1cadd9c0c1bf733c0c87a68c0c351181b6d9c78be93649402",
+  "provenance_digest": "sha256:4da9228d6a587ef828f86c1dcb32007b87b9e401e1bbe4908eec411e2ca6a454",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -918,20 +918,6 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/reports/2026-08-11-standard-pose-dora-five-metrics-v2.md"
-      }
-    },
-    {
-      "id": "artifact:.pose/reports/2026-08-11-standard-pose-managed-doc-project-identity-regression.md",
-      "type": "artifact",
-      "attributes": {
-        "path": ".pose/reports/2026-08-11-standard-pose-managed-doc-project-identity-regression.md"
-      }
-    },
-    {
-      "id": "artifact:.pose/reports/2026-08-11-standard-pose-usage-metrics.md",
-      "type": "artifact",
-      "attributes": {
-        "path": ".pose/reports/2026-08-11-standard-pose-usage-metrics.md"
       }
     },
     {
@@ -6814,6 +6800,14 @@
       }
     },
     {
+      "id": "delivery:capability:pose-usage-analytics",
+      "type": "capability",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "composed-capability"
+      }
+    },
+    {
       "id": "delivery:contract:delivery-integrity-mcp",
       "type": "contract",
       "attributes": {
@@ -6823,6 +6817,14 @@
     },
     {
       "id": "delivery:contract:mcp-active-context",
+      "type": "contract",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "api-contract"
+      }
+    },
+    {
+      "id": "delivery:contract:pose-usage-mcp",
       "type": "contract",
       "attributes": {
         "module": "pose-mcp",
@@ -6983,6 +6985,14 @@
     },
     {
       "id": "delivery:governance:machinery-distribution",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
+      "id": "delivery:governance:managed-doc-project-identity",
       "type": "governance",
       "attributes": {
         "module": "pose-mcp",
@@ -7167,6 +7177,22 @@
     },
     {
       "id": "delivery:surface:delivery-integrity-cli",
+      "type": "surface",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "cli-surface"
+      }
+    },
+    {
+      "id": "delivery:surface:dora-five-metrics-v2",
+      "type": "surface",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "cli-surface"
+      }
+    },
+    {
+      "id": "delivery:surface:pose-usage-cli",
       "type": "surface",
       "attributes": {
         "module": "pose-mcp",
@@ -7423,7 +7449,7 @@
       "id": "spec:pose-dora-five-metrics-v2",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -7535,7 +7561,7 @@
       "id": "spec:pose-managed-doc-project-identity-regression",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -7843,7 +7869,7 @@
       "id": "spec:pose-usage-metrics",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -8275,8 +8301,48 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/adr/2026-08-10-local-usage-events-and-outcome-aware-aggregation.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/adr/2026-08-10-local-usage-events-and-outcome-aware-aggregation.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/adr/2026-08-10-local-usage-events-and-outcome-aware-aggregation.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/adr/2026-08-10-production-scoped-dora-five-metric-contract.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/README.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/assessments/README.md",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/README.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/README.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/consolidated.md",
+      "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
     {
@@ -8285,8 +8351,38 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/assessments/consolidated.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/consolidated.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/integrations.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/assessments/integrations.md",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/integrations.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/integrations.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/pose-mcp.md",
+      "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
     {
@@ -8295,13 +8391,68 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/assessments/pose-mcp.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/pose-mcp.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/technical-debt.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/assessments/technical-debt.md",
       "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/assessments/technical-debt.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/technical-debt.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/changelogs/unreleased/pose-dora-five-metrics-v2.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/changelogs/unreleased/pose-managed-doc-project-identity-regression.md",
+      "to": "delivery:governance:managed-doc-project-identity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/changelogs/unreleased/pose-usage-metrics.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/changelogs/unreleased/pose-usage-metrics.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/changelogs/unreleased/pose-usage-metrics.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/indexes/delivery-integrity.json",
       "to": "delivery:capability:delivery-integrity-graph",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/delivery-integrity.json",
+      "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
     {
@@ -8311,7 +8462,17 @@
     },
     {
       "from": "artifact:.pose/indexes/delivery-integrity.json",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/delivery-integrity.json",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/delivery-integrity.json",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -8327,6 +8488,16 @@
     {
       "from": "artifact:.pose/indexes/module-metadata.json",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/releases.json",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/releases.json",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -8341,6 +8512,11 @@
     },
     {
       "from": "artifact:.pose/indexes/releases.json",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/releases.json",
       "to": "delivery:surface:release-lifecycle-cli",
       "type": "implemented-by"
     },
@@ -8351,12 +8527,27 @@
     },
     {
       "from": "artifact:.pose/indexes/spec-graph.json",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/spec-graph.json",
       "to": "delivery:contract:delivery-integrity-mcp",
       "type": "implemented-by"
     },
     {
       "from": "artifact:.pose/indexes/spec-graph.json",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/spec-graph.json",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/spec-graph.json",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -8470,13 +8661,113 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/reports/2026-08-10-standard-pose-dora-five-metrics-v2.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/2026-08-10-standard-pose-managed-doc-project-identity-regression.md",
+      "to": "delivery:governance:managed-doc-project-identity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics-baseline.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics-baseline.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics-baseline.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/2026-08-11-standard-pose-dora-five-metrics-v2.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/history/standard-pose-dora-five-metrics-v2.jsonl",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/history/standard-pose-managed-doc-project-identity-regression.jsonl",
+      "to": "delivery:governance:managed-doc-project-identity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/history/standard-pose-usage-metrics-baseline.jsonl",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/history/standard-pose-usage-metrics-baseline.jsonl",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/history/standard-pose-usage-metrics-baseline.jsonl",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/history/standard-pose-usage-metrics.jsonl",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/history/standard-pose-usage-metrics.jsonl",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/history/standard-pose-usage-metrics.jsonl",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/reports/history/standard-test-plan-baseline-pose-mcp-active-context.jsonl",
       "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
     },
     {
       "from": "artifact:.pose/results/delivery-validation.json",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/results/delivery-validation.json",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/results/delivery-validation.json",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/results/delivery-validation.json",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -8600,6 +8891,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/specs/pose-dora-five-metrics-v2/spec.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/specs/pose-extension-reference-publication/spec.md",
       "to": "delivery:governance:extension-reference",
       "type": "implemented-by"
@@ -8637,6 +8933,11 @@
     {
       "from": "artifact:.pose/specs/pose-machinery-distribution-contract/spec.md",
       "to": "delivery:governance:machinery-distribution",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/pose-managed-doc-project-identity-regression/spec.md",
+      "to": "delivery:governance:managed-doc-project-identity",
       "type": "implemented-by"
     },
     {
@@ -8786,7 +9087,27 @@
     },
     {
       "from": "artifact:.pose/state/components/pose-mcp.json",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/components/pose-mcp.json",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/components/pose-mcp.json",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/components/pose-mcp.json",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/integrations.json",
+      "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
     {
@@ -8795,8 +9116,48 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/state/integrations.json",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/integrations.json",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/project-state.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/project-state.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/project-state.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/technical-debt.json",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/state/technical-debt.json",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/technical-debt.json",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/technical-debt.json",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -8896,6 +9257,11 @@
     },
     {
       "from": "artifact:AGENTS.md",
+      "to": "delivery:governance:managed-doc-project-identity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:AGENTS.md",
       "to": "delivery:governance:manual-locale-parity",
       "type": "implemented-by"
     },
@@ -8911,6 +9277,11 @@
     },
     {
       "from": "artifact:POSE.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:POSE.md",
       "to": "delivery:contract:delivery-integrity-mcp",
       "type": "implemented-by"
     },
@@ -8921,12 +9292,22 @@
     },
     {
       "from": "artifact:POSE.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:POSE.md",
       "to": "delivery:contract:release-lifecycle-mcp",
       "type": "implemented-by"
     },
     {
       "from": "artifact:POSE.md",
       "to": "delivery:governance:command-reference-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:POSE.md",
+      "to": "delivery:governance:managed-doc-project-identity",
       "type": "implemented-by"
     },
     {
@@ -8942,6 +9323,16 @@
     {
       "from": "artifact:POSE.md",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:POSE.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:POSE.md",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -8996,12 +9387,37 @@
     },
     {
       "from": "artifact:composition-contract.json",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:composition-contract.json",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:composition-contract.json",
       "to": "delivery:governance:composition-contract",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:composition-contract.json",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/architecture.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
       "type": "implemented-by"
     },
     {
       "from": "artifact:docs-site/docs/capability-assessment.md",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/capability-assessment.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
       "type": "implemented-by"
     },
     {
@@ -9036,7 +9452,17 @@
     },
     {
       "from": "artifact:docs-site/docs/cli.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/cli.md",
       "to": "delivery:contract:delivery-integrity-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/cli.md",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -9056,6 +9482,16 @@
     },
     {
       "from": "artifact:docs-site/docs/cli.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/cli.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/cli.md",
       "to": "delivery:surface:release-lifecycle-cli",
       "type": "implemented-by"
     },
@@ -9071,12 +9507,22 @@
     },
     {
       "from": "artifact:docs-site/docs/mcp.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/mcp.md",
       "to": "delivery:contract:delivery-integrity-mcp",
       "type": "implemented-by"
     },
     {
       "from": "artifact:docs-site/docs/mcp.md",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/mcp.md",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -9097,6 +9543,11 @@
     {
       "from": "artifact:docs-site/docs/mcp.md",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/mcp.md",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -9321,12 +9772,22 @@
     },
     {
       "from": "artifact:locales/pt-BR/POSE.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:locales/pt-BR/POSE.md",
       "to": "delivery:contract:delivery-integrity-mcp",
       "type": "implemented-by"
     },
     {
       "from": "artifact:locales/pt-BR/POSE.md",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:locales/pt-BR/POSE.md",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -9342,6 +9803,16 @@
     {
       "from": "artifact:locales/pt-BR/POSE.md",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:locales/pt-BR/POSE.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:locales/pt-BR/POSE.md",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -9391,7 +9862,17 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/check.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/check.go",
       "to": "delivery:contract:delivery-integrity-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/check.go",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -9412,6 +9893,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/check.go",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/check.go",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -9426,7 +9912,17 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/cli.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli.go",
       "to": "delivery:contract:delivery-integrity-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli.go",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -9451,7 +9947,27 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/cli.go",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli.go",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -9467,6 +9983,21 @@
     {
       "from": "artifact:pose-mcp/internal/cli/doctor_remediation_test.go",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/dora_adoption_metrics_test.go",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/dora_events.go",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/dora_metrics.go",
+      "to": "delivery:surface:dora-five-metrics-v2",
       "type": "implemented-by"
     },
     {
@@ -9516,7 +10047,17 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/lintspec.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/lintspec.go",
       "to": "delivery:contract:delivery-integrity-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/lintspec.go",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -9527,6 +10068,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/lintspec.go",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/lintspec.go",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -9671,7 +10217,22 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/skills_check.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/skills_check.go",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/skills_check.go",
       "to": "delivery:governance:machinery-distribution",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/skills_check.go",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -9745,8 +10306,43 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/cli/usage.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/usage.go",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/usage.go",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/usage_test.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/usage_test.go",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/usage_test.go",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/cli/validate.go",
       "to": "delivery:capability:delivery-integrity-graph",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate.go",
+      "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
     {
@@ -9756,7 +10352,17 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/validate.go",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate.go",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate.go",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -9792,6 +10398,11 @@
     {
       "from": "artifact:pose-mcp/internal/mcpserver/catalog.go",
       "to": "delivery:capability:delivery-integrity-graph",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
     {
@@ -9802,6 +10413,11 @@
     {
       "from": "artifact:pose-mcp/internal/mcpserver/catalog.go",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -9817,6 +10433,11 @@
     {
       "from": "artifact:pose-mcp/internal/mcpserver/catalog.go",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -9856,12 +10477,22 @@
     },
     {
       "from": "artifact:pose-mcp/internal/mcpserver/server.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/server.go",
       "to": "delivery:contract:delivery-integrity-mcp",
       "type": "implemented-by"
     },
     {
       "from": "artifact:pose-mcp/internal/mcpserver/server.go",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/server.go",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -9877,6 +10508,11 @@
     {
       "from": "artifact:pose-mcp/internal/mcpserver/server.go",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/server.go",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -9891,12 +10527,22 @@
     },
     {
       "from": "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/server_test.go",
       "to": "delivery:contract:delivery-integrity-mcp",
       "type": "implemented-by"
     },
     {
       "from": "artifact:pose-mcp/internal/mcpserver/server_test.go",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -9912,6 +10558,11 @@
     {
       "from": "artifact:pose-mcp/internal/mcpserver/server_test.go",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -9941,12 +10592,22 @@
     },
     {
       "from": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
       "to": "delivery:contract:delivery-integrity-mcp",
       "type": "implemented-by"
     },
     {
       "from": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "to": "delivery:contract:pose-usage-mcp",
       "type": "implemented-by"
     },
     {
@@ -9966,6 +10627,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
       "to": "delivery:surface:release-lifecycle-cli",
       "type": "implemented-by"
     },
@@ -9982,6 +10648,21 @@
     {
       "from": "artifact:pose-mcp/internal/pose/changelogs.go",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/cli.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/cli.go",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/cli.go",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -10146,7 +10827,27 @@
     },
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
       "to": "delivery:contract:mcp-active-context",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
     {
@@ -10155,18 +10856,68 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
       "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
       "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
     },
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
       "to": "delivery:governance:command-reference-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
     {
@@ -10176,7 +10927,22 @@
     },
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "to": "delivery:governance:command-reference-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -10262,6 +11028,36 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/skill_locale_parity_test.go",
       "to": "delivery:governance:skill-index-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/usage/usage.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/usage/usage.go",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/usage/usage.go",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/usage/usage_test.go",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/usage/usage_test.go",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/usage/usage_test.go",
+      "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
     {
@@ -19745,6 +20541,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:capability:pose-usage-analytics",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:capability:pose-usage-analytics",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:contract:delivery-integrity-mcp",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -19761,6 +20567,16 @@
     },
     {
       "from": "delivery:contract:mcp-active-context",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:pose-usage-mcp",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:contract:pose-usage-mcp",
       "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
@@ -19961,6 +20777,16 @@
     },
     {
       "from": "delivery:governance:machinery-distribution",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:governance:managed-doc-project-identity",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:managed-doc-project-identity",
       "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
@@ -20215,6 +21041,26 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:surface:dora-five-metrics-v2",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "reaches"
+    },
+    {
+      "from": "delivery:surface:dora-five-metrics-v2",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:surface:pose-usage-cli",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "reaches"
+    },
+    {
+      "from": "delivery:surface:pose-usage-cli",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:surface:release-lifecycle-cli",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "reaches"
@@ -20462,6 +21308,31 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
       "type": "validated-by"
     },
     {
@@ -21591,6 +22462,11 @@
     },
     {
       "from": "spec:pose-dora-five-metrics-v2",
+      "to": "delivery:surface:dora-five-metrics-v2",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-dora-five-metrics-v2",
       "to": "change-set:cs-0cea649dc268",
       "type": "observed-by"
     },
@@ -21966,11 +22842,6 @@
     },
     {
       "from": "spec:pose-managed-doc-project-identity-regression",
-      "to": "artifact:.pose/reports/2026-08-11-standard-pose-managed-doc-project-identity-regression.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-managed-doc-project-identity-regression",
       "to": "artifact:.pose/reports/history/standard-pose-managed-doc-project-identity-regression.jsonl",
       "type": "declares"
     },
@@ -21991,8 +22862,8 @@
     },
     {
       "from": "spec:pose-managed-doc-project-identity-regression",
-      "to": "artifact:docs-site/docs/cli.md",
-      "type": "declares"
+      "to": "delivery:governance:managed-doc-project-identity",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-managed-doc-project-identity-regression",
@@ -23111,11 +23982,6 @@
     },
     {
       "from": "spec:pose-usage-metrics",
-      "to": "artifact:.pose/reports/2026-08-11-standard-pose-usage-metrics.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-usage-metrics",
       "to": "artifact:.pose/reports/history/standard-pose-usage-metrics-baseline.jsonl",
       "type": "declares"
     },
@@ -23161,16 +24027,6 @@
     },
     {
       "from": "spec:pose-usage-metrics",
-      "to": "artifact:docs-site/docs/architecture.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-usage-metrics",
-      "to": "artifact:docs-site/docs/capability-assessment.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-usage-metrics",
       "to": "artifact:docs-site/docs/cli.md",
       "type": "declares"
     },
@@ -23197,21 +24053,6 @@
     {
       "from": "spec:pose-usage-metrics",
       "to": "artifact:pose-mcp/internal/cli/cli_test.go",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-usage-metrics",
-      "to": "artifact:pose-mcp/internal/cli/dora_adoption_metrics_test.go",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-usage-metrics",
-      "to": "artifact:pose-mcp/internal/cli/dora_events.go",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-usage-metrics",
-      "to": "artifact:pose-mcp/internal/cli/dora_metrics.go",
       "type": "declares"
     },
     {
@@ -23298,6 +24139,21 @@
       "from": "spec:pose-usage-metrics",
       "to": "artifact:pose-mcp/internal/usage/usage_test.go",
       "type": "declares"
+    },
+    {
+      "from": "spec:pose-usage-metrics",
+      "to": "delivery:capability:pose-usage-analytics",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-usage-metrics",
+      "to": "delivery:contract:pose-usage-mcp",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-usage-metrics",
+      "to": "delivery:surface:pose-usage-cli",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-usage-metrics",
@@ -24540,11 +25396,6 @@
     {
       "spec": "pose-managed-doc-project-identity-regression",
       "action": "created",
-      "path": ".pose/reports/2026-08-11-standard-pose-managed-doc-project-identity-regression.md"
-    },
-    {
-      "spec": "pose-managed-doc-project-identity-regression",
-      "action": "created",
       "path": ".pose/reports/history/standard-pose-managed-doc-project-identity-regression.jsonl"
     },
     {
@@ -24561,11 +25412,6 @@
       "spec": "pose-managed-doc-project-identity-regression",
       "action": "modified",
       "path": "POSE.md"
-    },
-    {
-      "spec": "pose-managed-doc-project-identity-regression",
-      "action": "modified",
-      "path": "docs-site/docs/cli.md"
     },
     {
       "spec": "pose-manual-distribution-merge",
@@ -25390,11 +26236,6 @@
     {
       "spec": "pose-usage-metrics",
       "action": "created",
-      "path": ".pose/reports/2026-08-11-standard-pose-usage-metrics.md"
-    },
-    {
-      "spec": "pose-usage-metrics",
-      "action": "created",
       "path": ".pose/reports/history/standard-pose-usage-metrics-baseline.jsonl"
     },
     {
@@ -25500,16 +26341,6 @@
     {
       "spec": "pose-usage-metrics",
       "action": "modified",
-      "path": "docs-site/docs/architecture.md"
-    },
-    {
-      "spec": "pose-usage-metrics",
-      "action": "modified",
-      "path": "docs-site/docs/capability-assessment.md"
-    },
-    {
-      "spec": "pose-usage-metrics",
-      "action": "modified",
       "path": "docs-site/docs/cli.md"
     },
     {
@@ -25536,21 +26367,6 @@
       "spec": "pose-usage-metrics",
       "action": "modified",
       "path": "pose-mcp/internal/cli/cli_test.go"
-    },
-    {
-      "spec": "pose-usage-metrics",
-      "action": "modified",
-      "path": "pose-mcp/internal/cli/dora_adoption_metrics_test.go"
-    },
-    {
-      "spec": "pose-usage-metrics",
-      "action": "modified",
-      "path": "pose-mcp/internal/cli/dora_events.go"
-    },
-    {
-      "spec": "pose-usage-metrics",
-      "action": "modified",
-      "path": "pose-mcp/internal/cli/dora_metrics.go"
     },
     {
       "spec": "pose-usage-metrics",
@@ -34367,12 +35183,6 @@
     ".pose/reports/2026-08-11-standard-pose-dora-five-metrics-v2.md": [
       "pose-dora-five-metrics-v2"
     ],
-    ".pose/reports/2026-08-11-standard-pose-managed-doc-project-identity-regression.md": [
-      "pose-managed-doc-project-identity-regression"
-    ],
-    ".pose/reports/2026-08-11-standard-pose-usage-metrics.md": [
-      "pose-usage-metrics"
-    ],
     ".pose/reports/history/standard-pose-dora-five-metrics-v2.jsonl": [
       "pose-dora-five-metrics-v2"
     ],
@@ -34636,13 +35446,11 @@
       "pose-usage-metrics"
     ],
     "docs-site/docs/architecture.md": [
-      "pose-dora-five-metrics-v2",
-      "pose-usage-metrics"
+      "pose-dora-five-metrics-v2"
     ],
     "docs-site/docs/capability-assessment.md": [
       "pose-dora-five-metrics-v2",
-      "pose-mcp-active-context",
-      "pose-usage-metrics"
+      "pose-mcp-active-context"
     ],
     "docs-site/docs/ci.md": [
       "pose-compat-gate-manual-refresh-assertion",
@@ -34654,7 +35462,6 @@
     "docs-site/docs/cli.md": [
       "pose-delivery-surface-assurance",
       "pose-dora-five-metrics-v2",
-      "pose-managed-doc-project-identity-regression",
       "pose-release-lifecycle-closure",
       "pose-usage-metrics"
     ],
@@ -34798,16 +35605,13 @@
       "pose-mcp-active-context"
     ],
     "pose-mcp/internal/cli/dora_adoption_metrics_test.go": [
-      "pose-dora-five-metrics-v2",
-      "pose-usage-metrics"
+      "pose-dora-five-metrics-v2"
     ],
     "pose-mcp/internal/cli/dora_events.go": [
-      "pose-dora-five-metrics-v2",
-      "pose-usage-metrics"
+      "pose-dora-five-metrics-v2"
     ],
     "pose-mcp/internal/cli/dora_metrics.go": [
-      "pose-dora-five-metrics-v2",
-      "pose-usage-metrics"
+      "pose-dora-five-metrics-v2"
     ],
     "pose-mcp/internal/cli/followups.go": [
       "pose-release-cycle-debt-closure"
@@ -35234,16 +36038,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-09b87c0b7c73",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/mcpserver/catalog.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-0a3058a39182",
       "code": "legacy-narrative",
       "severity": "info",
@@ -35276,15 +36070,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-0cd3ce94fc5a",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/dora_events.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-0f8db18f4672",
       "code": "action-mismatch",
       "severity": "error",
@@ -35308,16 +36093,6 @@
       "spec": "pose-artifact-provenance-ledger",
       "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/templates/spec.md",
       "change_set": "cs-5ba3b2d3828c",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-1433122c645a",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-dora-five-metrics-v2",
-      "path": "pose-mcp/internal/cli/dora_metrics.go",
-      "change_set": "cs-1d9c2d95cece",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
@@ -35362,16 +36137,6 @@
       "spec": "pose-artifact-provenance-ledger",
       "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-artifact-provenance-ledger/spec.md",
       "change_set": "cs-3cdf716fb989",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-1822edcc888b",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/mcpserver/server.go",
-      "change_set": "cs-8494ab2081e9",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
@@ -35426,31 +36191,12 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-1a01297fdf2f",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-1a81fdc75729",
       "code": "legacy-narrative",
       "severity": "info",
       "spec": "pose-cross-repo-portfolio",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-1ac0916f17ae",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "docs-site/docs/capability-assessment.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-1bd2e8a20fac",
@@ -35476,15 +36222,6 @@
       "path": ".pose/workflows/documentation-update.md",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-1cce078cf58e",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-managed-doc-project-identity-regression",
-      "path": "docs-site/docs/cli.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-1dfa145489d4",
@@ -35595,16 +36332,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-30cb01f1c63a",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/cli_test.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-338f2a4679a5",
       "code": "legacy-narrative",
       "severity": "info",
@@ -35627,25 +36354,6 @@
       "path": "docs-site/docs/quickstart.md",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-3c60a872c892",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/pose/cli.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-3cff10f484b6",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/dora_adoption_metrics_test.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-3d2c73d3fb32",
@@ -35681,16 +36389,6 @@
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
-      "id": "dif-3f3f1e6c367c",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-dora-five-metrics-v2",
-      "path": "pose-mcp/internal/scaffold/dist/POSE.md",
-      "change_set": "cs-d9cc5d98eff8",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-4087026c6b42",
       "code": "orphan",
       "severity": "warning",
@@ -35723,16 +36421,6 @@
       "spec": "pose-package-manager-distribution",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-4349544aa21b",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/usage/usage.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-448a83b3f971",
@@ -35801,16 +36489,6 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
-      "id": "dif-487e94f86169",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-dora-five-metrics-v2",
-      "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
-      "change_set": "cs-0cea649dc268",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-487ebf424e82",
       "code": "orphan",
       "severity": "warning",
@@ -35825,16 +36503,6 @@
       "path": "pose-mcp/internal/cli/localization_docs_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-4912df855e5c",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/lintspec.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-49918be9cfc8",
@@ -35939,16 +36607,6 @@
       "remediation": "correct the action or record the exact attributed revisions"
     },
     {
-      "id": "dif-55f68906b25b",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
-      "change_set": "cs-04958d9fe4cb",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-5a6056f73fe2",
       "code": "orphan",
       "severity": "warning",
@@ -36039,16 +36697,6 @@
       "path": "pose-mcp/internal/pose/insights.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-659d96064d8d",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/mcpserver/server_test.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-65deb4287d53",
@@ -36341,16 +36989,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-863e868f5700",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/usage_test.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-87108fc84844",
       "code": "legacy-narrative",
       "severity": "info",
@@ -36383,15 +37021,6 @@
       "spec": "pose-release-compatibility-matrix",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-89aa8eddc45c",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": ".pose/reports/2026-08-11-standard-pose-usage-metrics.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-8aff67b8ab47",
@@ -36442,16 +37071,6 @@
       "path": "pose-mcp/internal/pose/security_scan.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-90ab762b74b9",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-managed-doc-project-identity-regression",
-      "path": "pose-mcp/internal/scaffold/dist/POSE.md",
-      "change_set": "cs-b6950e218f8b",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-915e91e196a0",
@@ -36639,15 +37258,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-a179dd9da4a7",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-managed-doc-project-identity-regression",
-      "path": ".pose/reports/2026-08-11-standard-pose-managed-doc-project-identity-regression.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-a270a4b3d63d",
       "code": "legacy-narrative",
       "severity": "info",
@@ -36688,16 +37298,6 @@
       "spec": "pose-artifact-provenance-ledger",
       "path": "pose-mcp/internal/scaffold/dist/.pose/policy/artifacts.json",
       "change_set": "cs-5ba3b2d3828c",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-a776fed6560d",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "change_set": "cs-8494ab2081e9",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
@@ -36789,16 +37389,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-b15dfda92fe5",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/usage.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-b33c7916857f",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -36858,16 +37448,6 @@
       "spec": "pose-hierarchical-review-closeout",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-b7f5224650cc",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/check.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-b863985db102",
@@ -37078,32 +37658,12 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-d483c945e5b6",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-d49faa20ae71",
       "code": "undeclared-delivery",
       "severity": "warning",
       "spec": "pose-artifact-provenance-ledger",
       "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/services.json",
       "change_set": "cs-3cdf716fb989",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-d6eef512215b",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/scaffold/dist/POSE.md",
-      "change_set": "cs-7ee9f5e4110d",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
@@ -37229,16 +37789,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-ea86f330b645",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/cli.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-eae6598a04e2",
       "code": "orphan",
       "severity": "warning",
@@ -37271,16 +37821,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-eca8d3450133",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/usage/usage_test.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-ed43bd23061e",
       "code": "legacy-narrative",
       "severity": "info",
@@ -37299,44 +37839,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-ee8329f00ffe",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/validate.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-eff60b7ba1cb",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "docs-site/docs/architecture.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
-      "id": "dif-f0119e536435",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-dora-five-metrics-v2",
-      "path": "pose-mcp/internal/cli/dora_adoption_metrics_test.go",
-      "change_set": "cs-1d9c2d95cece",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-f065d73d82b9",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/dora_metrics.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-f08f12cf9dde",
       "code": "orphan",
       "severity": "warning",
@@ -37353,32 +37855,12 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-f2328e05e8e0",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-f3181e84ea77",
       "code": "legacy-narrative",
       "severity": "info",
       "spec": "pose-spec-amendment-history",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-f33d1669a648",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-usage-metrics",
-      "path": "pose-mcp/internal/cli/skills_check.go",
-      "change_set": "cs-8494ab2081e9",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-f34f8e034b16",
@@ -37474,16 +37956,6 @@
       "spec": "pose-artifact-provenance-ledger",
       "path": "pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
       "change_set": "cs-5ba3b2d3828c",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-f6f55f706cc3",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-dora-five-metrics-v2",
-      "path": "pose-mcp/internal/cli/dora_events.go",
-      "change_set": "cs-1d9c2d95cece",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
@@ -37592,6 +38064,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-usage-metrics",
+      "ref": "capability:pose-usage-analytics",
+      "kind": "capability",
+      "id": "pose-usage-analytics",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-delivery-surface-assurance",
       "ref": "contract:delivery-integrity-mcp",
       "kind": "contract",
@@ -37605,6 +38086,15 @@
       "ref": "contract:mcp-active-context",
       "kind": "contract",
       "id": "mcp-active-context",
+      "module": "pose-mcp",
+      "profile": "api-contract",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-usage-metrics",
+      "ref": "contract:pose-usage-mcp",
+      "kind": "contract",
+      "id": "pose-usage-mcp",
       "module": "pose-mcp",
       "profile": "api-contract",
       "entrypoint": "pose-mcp/cmd/pose/main.go"
@@ -37790,6 +38280,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-managed-doc-project-identity-regression",
+      "ref": "governance:managed-doc-project-identity",
+      "kind": "governance",
+      "id": "managed-doc-project-identity",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-manual-locale-parity",
       "ref": "governance:manual-locale-parity",
       "kind": "governance",
@@ -37826,7 +38325,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -37835,7 +38334,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -38015,6 +38514,24 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-dora-five-metrics-v2",
+      "ref": "surface:dora-five-metrics-v2",
+      "kind": "surface",
+      "id": "dora-five-metrics-v2",
+      "module": "pose-mcp",
+      "profile": "cli-surface",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-usage-metrics",
+      "ref": "surface:pose-usage-cli",
+      "kind": "surface",
+      "id": "pose-usage-cli",
+      "module": "pose-mcp",
+      "profile": "cli-surface",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-release-lifecycle-closure",
       "ref": "surface:release-lifecycle-cli",
       "kind": "surface",
@@ -38032,9 +38549,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "a224c12272a2dd89eee8ab7782b58c3a689a58cc",
-      "generated_at": "2026-08-11T00:56:58Z",
-      "provenance_digest": "sha256:0bb6538e101771c8e663bf432ed21546bb884e7e13048a4abc42af6f34c81b5c",
+      "git_head": "54f96a86748fe1f6b4a49c8a78f6cf6ee1a1acca",
+      "generated_at": "2026-08-11T01:03:19Z",
+      "provenance_digest": "sha256:4da9228d6a587ef828f86c1dcb32007b87b9e401e1bbe4908eec411e2ca6a454",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -38044,9 +38561,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "a224c12272a2dd89eee8ab7782b58c3a689a58cc",
-      "generated_at": "2026-08-11T00:56:58Z",
-      "provenance_digest": "sha256:0bb6538e101771c8e663bf432ed21546bb884e7e13048a4abc42af6f34c81b5c",
+      "git_head": "54f96a86748fe1f6b4a49c8a78f6cf6ee1a1acca",
+      "generated_at": "2026-08-11T01:03:19Z",
+      "provenance_digest": "sha256:4da9228d6a587ef828f86c1dcb32007b87b9e401e1bbe4908eec411e2ca6a454",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -38056,9 +38573,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "a224c12272a2dd89eee8ab7782b58c3a689a58cc",
-      "generated_at": "2026-08-11T00:56:58Z",
-      "provenance_digest": "sha256:0bb6538e101771c8e663bf432ed21546bb884e7e13048a4abc42af6f34c81b5c",
+      "git_head": "54f96a86748fe1f6b4a49c8a78f6cf6ee1a1acca",
+      "generated_at": "2026-08-11T01:03:19Z",
+      "provenance_digest": "sha256:4da9228d6a587ef828f86c1dcb32007b87b9e401e1bbe4908eec411e2ca6a454",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -38068,9 +38585,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "a224c12272a2dd89eee8ab7782b58c3a689a58cc",
-      "generated_at": "2026-08-11T00:56:58Z",
-      "provenance_digest": "sha256:0bb6538e101771c8e663bf432ed21546bb884e7e13048a4abc42af6f34c81b5c",
+      "git_head": "54f96a86748fe1f6b4a49c8a78f6cf6ee1a1acca",
+      "generated_at": "2026-08-11T01:03:19Z",
+      "provenance_digest": "sha256:4da9228d6a587ef828f86c1dcb32007b87b9e401e1bbe4908eec411e2ca6a454",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
@@ -38244,6 +38761,56 @@
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],
+    "capability:pose-usage-analytics": [
+      "spec:pose-usage-metrics",
+      "artifact:.pose/adr/2026-08-10-local-usage-events-and-outcome-aware-aggregation.md",
+      "artifact:.pose/changelogs/unreleased/pose-usage-metrics.md",
+      "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics-baseline.md",
+      "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics.md",
+      "artifact:.pose/reports/history/standard-pose-usage-metrics-baseline.jsonl",
+      "artifact:.pose/reports/history/standard-pose-usage-metrics.jsonl",
+      "artifact:pose-mcp/internal/cli/usage.go",
+      "artifact:pose-mcp/internal/cli/usage_test.go",
+      "artifact:pose-mcp/internal/usage/usage.go",
+      "artifact:pose-mcp/internal/usage/usage_test.go",
+      "artifact:.pose/assessments/README.md",
+      "artifact:.pose/assessments/consolidated.md",
+      "artifact:.pose/assessments/integrations.md",
+      "artifact:.pose/assessments/pose-mcp.md",
+      "artifact:.pose/assessments/technical-debt.md",
+      "artifact:.pose/indexes/delivery-integrity.json",
+      "artifact:.pose/indexes/releases.json",
+      "artifact:.pose/indexes/spec-graph.json",
+      "artifact:.pose/results/delivery-validation.json",
+      "artifact:.pose/state/components/pose-mcp.json",
+      "artifact:.pose/state/integrations.json",
+      "artifact:.pose/state/project-state.md",
+      "artifact:.pose/state/technical-debt.json",
+      "artifact:POSE.md",
+      "artifact:composition-contract.json",
+      "artifact:docs-site/docs/cli.md",
+      "artifact:docs-site/docs/mcp.md",
+      "artifact:locales/pt-BR/POSE.md",
+      "artifact:pose-mcp/internal/cli/check.go",
+      "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/cli_test.go",
+      "artifact:pose-mcp/internal/cli/lintspec.go",
+      "artifact:pose-mcp/internal/cli/skills_check.go",
+      "artifact:pose-mcp/internal/cli/validate.go",
+      "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "artifact:pose-mcp/internal/pose/cli.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "delivery:capability:pose-usage-analytics",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
     "contract:delivery-integrity-mcp": [
       "spec:pose-delivery-surface-assurance",
       "artifact:.agents/skills/pose-surface-closeout/SKILL.md",
@@ -38337,6 +38904,56 @@
       "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "delivery:contract:mcp-active-context",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
+    "contract:pose-usage-mcp": [
+      "spec:pose-usage-metrics",
+      "artifact:.pose/adr/2026-08-10-local-usage-events-and-outcome-aware-aggregation.md",
+      "artifact:.pose/changelogs/unreleased/pose-usage-metrics.md",
+      "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics-baseline.md",
+      "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics.md",
+      "artifact:.pose/reports/history/standard-pose-usage-metrics-baseline.jsonl",
+      "artifact:.pose/reports/history/standard-pose-usage-metrics.jsonl",
+      "artifact:pose-mcp/internal/cli/usage.go",
+      "artifact:pose-mcp/internal/cli/usage_test.go",
+      "artifact:pose-mcp/internal/usage/usage.go",
+      "artifact:pose-mcp/internal/usage/usage_test.go",
+      "artifact:.pose/assessments/README.md",
+      "artifact:.pose/assessments/consolidated.md",
+      "artifact:.pose/assessments/integrations.md",
+      "artifact:.pose/assessments/pose-mcp.md",
+      "artifact:.pose/assessments/technical-debt.md",
+      "artifact:.pose/indexes/delivery-integrity.json",
+      "artifact:.pose/indexes/releases.json",
+      "artifact:.pose/indexes/spec-graph.json",
+      "artifact:.pose/results/delivery-validation.json",
+      "artifact:.pose/state/components/pose-mcp.json",
+      "artifact:.pose/state/integrations.json",
+      "artifact:.pose/state/project-state.md",
+      "artifact:.pose/state/technical-debt.json",
+      "artifact:POSE.md",
+      "artifact:composition-contract.json",
+      "artifact:docs-site/docs/cli.md",
+      "artifact:docs-site/docs/mcp.md",
+      "artifact:locales/pt-BR/POSE.md",
+      "artifact:pose-mcp/internal/cli/check.go",
+      "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/cli_test.go",
+      "artifact:pose-mcp/internal/cli/lintspec.go",
+      "artifact:pose-mcp/internal/cli/skills_check.go",
+      "artifact:pose-mcp/internal/cli/validate.go",
+      "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "artifact:pose-mcp/internal/pose/cli.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "delivery:contract:pose-usage-mcp",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],
@@ -38619,6 +39236,18 @@
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
     ],
+    "governance:managed-doc-project-identity": [
+      "spec:pose-managed-doc-project-identity-regression",
+      "artifact:.pose/changelogs/unreleased/pose-managed-doc-project-identity-regression.md",
+      "artifact:.pose/reports/2026-08-10-standard-pose-managed-doc-project-identity-regression.md",
+      "artifact:.pose/reports/history/standard-pose-managed-doc-project-identity-regression.jsonl",
+      "artifact:.pose/specs/pose-managed-doc-project-identity-regression/spec.md",
+      "artifact:AGENTS.md",
+      "artifact:POSE.md",
+      "delivery:governance:managed-doc-project-identity",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration"
+    ],
     "governance:manual-locale-parity": [
       "spec:pose-manual-locale-parity",
       "artifact:.pose/specs/pose-manual-locale-parity/spec.md",
@@ -38658,7 +39287,7 @@
       "validation-result:pose-mcp/go/delivery-integration"
     ],
     "governance:project-assessment": [
-      "spec:pose-project-agnostic-assessment-engines",
+      "spec:pose-debt-marker-lexical-precision",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration"
@@ -38918,6 +39547,78 @@
       "artifact:pose-mcp/internal/pose/trace.go",
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "delivery:surface:delivery-integrity-cli",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-reachability"
+    ],
+    "surface:dora-five-metrics-v2": [
+      "spec:pose-dora-five-metrics-v2",
+      "artifact:.pose/adr/2026-08-10-production-scoped-dora-five-metric-contract.md",
+      "artifact:.pose/changelogs/unreleased/pose-dora-five-metrics-v2.md",
+      "artifact:.pose/reports/2026-08-10-standard-pose-dora-five-metrics-v2.md",
+      "artifact:.pose/reports/2026-08-11-standard-pose-dora-five-metrics-v2.md",
+      "artifact:.pose/reports/history/standard-pose-dora-five-metrics-v2.jsonl",
+      "artifact:.pose/specs/pose-dora-five-metrics-v2/spec.md",
+      "artifact:POSE.md",
+      "artifact:docs-site/docs/architecture.md",
+      "artifact:docs-site/docs/capability-assessment.md",
+      "artifact:docs-site/docs/cli.md",
+      "artifact:locales/pt-BR/POSE.md",
+      "artifact:pose-mcp/internal/cli/dora_adoption_metrics_test.go",
+      "artifact:pose-mcp/internal/cli/dora_events.go",
+      "artifact:pose-mcp/internal/cli/dora_metrics.go",
+      "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "delivery:surface:dora-five-metrics-v2",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-reachability"
+    ],
+    "surface:pose-usage-cli": [
+      "spec:pose-usage-metrics",
+      "artifact:.pose/adr/2026-08-10-local-usage-events-and-outcome-aware-aggregation.md",
+      "artifact:.pose/changelogs/unreleased/pose-usage-metrics.md",
+      "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics-baseline.md",
+      "artifact:.pose/reports/2026-08-10-standard-pose-usage-metrics.md",
+      "artifact:.pose/reports/history/standard-pose-usage-metrics-baseline.jsonl",
+      "artifact:.pose/reports/history/standard-pose-usage-metrics.jsonl",
+      "artifact:pose-mcp/internal/cli/usage.go",
+      "artifact:pose-mcp/internal/cli/usage_test.go",
+      "artifact:pose-mcp/internal/usage/usage.go",
+      "artifact:pose-mcp/internal/usage/usage_test.go",
+      "artifact:.pose/assessments/README.md",
+      "artifact:.pose/assessments/consolidated.md",
+      "artifact:.pose/assessments/integrations.md",
+      "artifact:.pose/assessments/pose-mcp.md",
+      "artifact:.pose/assessments/technical-debt.md",
+      "artifact:.pose/indexes/delivery-integrity.json",
+      "artifact:.pose/indexes/releases.json",
+      "artifact:.pose/indexes/spec-graph.json",
+      "artifact:.pose/results/delivery-validation.json",
+      "artifact:.pose/state/components/pose-mcp.json",
+      "artifact:.pose/state/integrations.json",
+      "artifact:.pose/state/project-state.md",
+      "artifact:.pose/state/technical-debt.json",
+      "artifact:POSE.md",
+      "artifact:composition-contract.json",
+      "artifact:docs-site/docs/cli.md",
+      "artifact:docs-site/docs/mcp.md",
+      "artifact:locales/pt-BR/POSE.md",
+      "artifact:pose-mcp/internal/cli/check.go",
+      "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/cli_test.go",
+      "artifact:pose-mcp/internal/cli/lintspec.go",
+      "artifact:pose-mcp/internal/cli/skills_check.go",
+      "artifact:pose-mcp/internal/cli/validate.go",
+      "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "artifact:pose-mcp/internal/pose/cli.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "delivery:surface:pose-usage-cli",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-reachability"
     ],
