@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Project Operating Standard for Engineering — spec-driven development that closes the loop.">
+        <meta name="description" content="Repository-owned governance for agentic engineering — intent, policy, execution, evidence and learning in one verifiable loop.">
       
       
       
@@ -14,7 +14,7 @@
         <link rel="prev" href="../product-roadmaps/">
       
       
-        <link rel="next" href="../mcp/">
+        <link rel="next" href="../monorepo-recipes/">
       
       
         
@@ -288,6 +288,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../package-channels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package channels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../concepts/" class="md-nav__link">
         
   
@@ -296,6 +323,33 @@
     
   
     Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analytics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Analytics and DORA
   
 
     
@@ -489,6 +543,72 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dora-and-adoption-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DORA and adoption metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#semantic-governance-assist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Semantic governance assist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#capability-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability assessment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docs-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docs governance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-repository-portfolio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-repository portfolio
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#harness-evidence-reconciliation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Harness evidence reconciliation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#import-existing-sdd-specs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -514,6 +634,33 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monorepo-recipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monorepo recipes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -659,6 +806,72 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dora-and-adoption-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DORA and adoption metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#semantic-governance-assist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Semantic governance assist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#capability-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability assessment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docs-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docs governance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-repository-portfolio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-repository portfolio
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#harness-evidence-reconciliation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Harness evidence reconciliation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#import-existing-sdd-specs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -698,6 +911,7 @@
 
 
 <h1 id="cli-reference">CLI reference</h1>
+<p><strong>Doc type:</strong> Reference &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.0.x</p>
 <p>The <code>pose</code> CLI is a single native Go binary. Every command below executes
 without Bash or Python fallbacks and works offline.</p>
 <h2 id="scaffold">Scaffold</h2>
@@ -768,6 +982,18 @@ without Bash or Python fallbacks and works offline.</p>
 <td><code>pose history-check</code></td>
 <td>All history JSONL must be git-tracked</td>
 </tr>
+<tr>
+<td><code>pose artifact-check --spec S [--from A --to B]</code></td>
+<td>Reconcile declared artifacts with an immutable Git change set</td>
+</tr>
+<tr>
+<td><code>pose surface-check [--spec S] [--results P]</code></td>
+<td>Prove composition/reachability with current typed validation evidence</td>
+</tr>
+<tr>
+<td><code>pose roadmap-check &lt;slug&gt;</code></td>
+<td>Evaluate member closeout, registered cut criteria and required delivery findings</td>
+</tr>
 </tbody>
 </table>
 <h2 id="discovery-metrics-artifacts">Discovery, metrics, artifacts</h2>
@@ -788,6 +1014,10 @@ without Bash or Python fallbacks and works offline.</p>
 <td>Outcome aggregation from history</td>
 </tr>
 <tr>
+<td><code>pose usage [--since-days N] [--tool NAME] [--surface cli\|mcp] [--json]</code></td>
+<td>Automatic local tool calls, outcomes, finding lifecycle and latency by CLI/MCP surface</td>
+</tr>
+<tr>
 <td><code>pose index</code></td>
 <td>Regenerate all indexes (repo-map, spec-graph, roadmaps…)</td>
 </tr>
@@ -797,6 +1027,280 @@ without Bash or Python fallbacks and works offline.</p>
 </tr>
 </tbody>
 </table>
+<p><code>pose usage</code> needs no counters from agents. POSE records recognized terminal
+CLI commands and project-backed MCP tool calls at their execution boundaries;
+the query itself is excluded. Exact structured gates contribute their stable
+findings, so the report can distinguish total observations from unique, new,
+resolved and reopened findings. Generic failures remain conservative instead
+of parsing arbitrary terminal output.</p>
+<p>The journal is best-effort and local-only, outside the tracked worktree. Its
+allowlisted event schema never persists command arguments, output, repository
+paths/names, source content, project/user identity or raw finding IDs; scope
+and finding identities are project-local HMAC fingerprints. Recording failure
+never changes the wrapped command's output or exit code. Use
+<code>POSE_USAGE_DISABLED=1</code> to disable collection. These are POSE product-usage
+signals, separate from DORA delivery metrics and unsuitable for individual
+productivity scoring.
+Set <code>POSE_USAGE_DIR</code> only when an operator needs an explicit absolute local
+state directory (for example, a persistent container mount); the default Git
+common-dir/user-cache resolution is preferred.</p>
+<p>POSE 1.0.0 does not infer the future human adjudication states <code>valid</code>,
+<code>wont-fix</code> or <code>false-positive</code>; that evolution remains an owned follow-up and
+will stay separate from automatic observation counts. See
+<a href="../analytics/">Analytics and delivery metrics</a> for interpretation and examples.</p>
+<h2 id="dora-and-adoption-metrics">DORA and adoption metrics</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pose record-deployment --application A --environment E --deployment-kind planned\|rework --status success\|failure --source manual\|ci\|webhook [--deployed-at RFC3339] [--lead-time-seconds N] [--change-ref R]</code></td>
+<td>Ingest one schema-v2 deployment event</td>
+</tr>
+<tr>
+<td><code>pose record-incident --application A --environment E --started-at RFC3339 --severity minor\|major\|critical --source manual\|ci\|webhook [--resolved-at RFC3339] [--caused-by-deployment]</code></td>
+<td>Ingest one schema-v2 incident event</td>
+</tr>
+<tr>
+<td><code>pose dora-metrics [--application A] [--environment E] [--window-days N] [--json]</code></td>
+<td>The current 5 DORA metrics for one production environment; <code>E</code> defaults to <code>production</code></td>
+</tr>
+<tr>
+<td><code>pose adoption-metrics [--json]</code></td>
+<td>Activation, time-to-first-gate, retention, task success — derived from specs/history POSE already owns</td>
+</tr>
+<tr>
+<td><code>pose events-housekeeping &lt;list-expired\|purge&gt; [--older-than-days N] [--apply]</code></td>
+<td>Retention/deletion for stored deployment/incident events</td>
+</tr>
+</tbody>
+</table>
+<p>Deployment and incident events are explicit input only — POSE never infers
+them from commits — and carry no identity field beyond <code>application</code> and
+<code>source</code>; every metric is a team/application aggregate, never an
+individual score. The five metrics are deployment frequency, lead time for
+changes, change failure rate, failed deployment recovery time and deployment
+rework rate. Recovery includes only resolved incidents explicitly marked
+<code>caused_by_deployment</code>; rework requires every scoped deployment to declare
+<code>deployment_kind</code>, otherwise that metric reports <code>unavailable</code> instead of
+guessing that legacy events were planned. Schema-v1 JSONL remains readable.
+See <a href="https://dora.dev/guides/dora-metrics/">DORA metrics guide</a>.
+For a side-by-side model of usage, adoption and delivery signals, see
+<a href="../analytics/">Analytics and delivery metrics</a>.</p>
+<h2 id="semantic-governance-assist">Semantic governance assist</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pose semantic-suggest (--for &lt;spec-slug&gt;\|--query "text") [--top N] [--provider lexical] [--json]</code></td>
+<td>Advisory suggestions: related follow-ups, recurrence patterns and knowledge, each cited with score/rationale/provider</td>
+</tr>
+<tr>
+<td><code>pose suggest-feedback --for &lt;spec-slug&gt; --ref &lt;artifact-ref&gt; --kind knowledge\|followup\|recurrence --decision accept\|reject [--score N]</code></td>
+<td>Record a minimized accept/reject decision (never the candidate's content)</td>
+</tr>
+</tbody>
+</table>
+<p>Suggestions are advisory only — they never gate a check or mutate a spec.
+<code>lexical</code> (deterministic, offline token/sequence similarity) is the only
+approved provider today; sensitivity-restricted knowledge is filtered
+before any retrieval, never suggested.</p>
+<h2 id="capability-assessment">Capability assessment</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pose assess</code></td>
+<td>Validate <code>.pose/capabilities/assessment.md</code>: schema, typed evidence resolution, stable mechanism ids, staleness vs. policy</td>
+</tr>
+<tr>
+<td><code>pose assess init</code></td>
+<td>Scaffold the artifact with the method's 16 default mechanisms</td>
+</tr>
+<tr>
+<td><code>pose assess snapshot</code></td>
+<td>Append the current score vector to <code>history.jsonl</code> (append-only; no-op when unchanged)</td>
+</tr>
+<tr>
+<td><code>pose assess diff [--from &lt;ts&gt;] [--to &lt;ts&gt;] [--against &lt;project-id&gt;] [--json]</code></td>
+<td>Mechanical comparison between two snapshots (raised/lowered/added/retired), or a score matrix against another authorized root</td>
+</tr>
+<tr>
+<td><code>pose assess stale [--json]</code></td>
+<td>List mechanisms currently marked assessment-stale, with their pending trigger(s)</td>
+</tr>
+<tr>
+<td><code>pose assess request --mechanism &lt;id&gt; [--reason &lt;text&gt;]</code></td>
+<td>Manually mark one mechanism stale (the same path a UI-driven "flag for reassessment" action would call over MCP)</td>
+</tr>
+</tbody>
+</table>
+<p>Scores are human judgment (0-5; the target is not always 5) — the mechanism
+validates structure and evidence, it never computes a score. Evidence uses
+typed references (<code>spec:</code>/<code>report:</code>/<code>adr:</code>/<code>knowledge:</code>/<code>doc:</code>/<code>commit:</code>/
+<code>check:</code>/<code>url:</code>); local types must resolve, the rest are syntactic
+(offline contract). <code>pose check --strict</code> runs the same validation when the
+artifact exists (opt-in by presence). Staleness thresholds live in
+<code>.pose/policy/capabilities.json</code> (defaults: 30 days / 200 commits).</p>
+<p><strong>Reassessment triggers</strong> (spec <code>pose-capability-assessment-triggers</code>): a
+post-event hook consumer marks a mechanism assessment-stale whenever a spec
+closeout reaches components that materialize it — resolved via
+<code>components_hit</code> when GraphForge is configured, or by matching the event's
+touched files against a mechanism's declared <code>paths:</code> globs (a manual,
+semicolon-separated fallback field on the mechanism) when it is not. A stale
+mark never touches the score; it only records <code>since</code>/<code>trigger</code>/<code>hits</code> on
+the mechanism and projects a synthetic, owned follow-up (origin
+<code>capability:&lt;mechanism&gt;</code>) into <code>pose followups --open</code>, so the reassessment
+demand is cobrável without a second store. <code>pose assess snapshot</code> clears
+every pending mark on the mechanisms it scores, linking the clearance to the
+new snapshot in <code>history.jsonl</code>. Without a component map and without any
+<code>paths:</code> declared, the event logs a visible
+<code>capability_mapping_unavailable</code> outcome instead of marking anything
+silently. Anti-noise thresholds (<code>min_hits</code>, hit <code>level</code>, the follow-up's
+default owner/review SLA) share the same <code>.pose/policy/capabilities.json</code>
+policy file.</p>
+<h2 id="docs-governance">Docs governance</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pose docs-init [--profile library\|service\|cli\|monorepo]</code></td>
+<td>Scaffold <code>.pose/docs.json</code> with a profile's recommended <code>roots</code> — a recommendation, never mandatory</td>
+</tr>
+<tr>
+<td><code>pose docs-check [--json] [--explain &lt;rule&gt;]</code></td>
+<td>Validate the manifest: declared docs exist, undeclared docs are flagged, frontmatter/links/typed references resolve, staleness, and a security scan</td>
+</tr>
+<tr>
+<td><code>pose docs-review resolve &lt;doc&gt; [--no-change --reason &lt;text&gt;] [--commit &lt;sha&gt;]</code></td>
+<td>Close a doc's pending review marks: <code>updated</code> (default, captures the current commit unless <code>--commit</code> is given) or <code>no_change_needed</code> (<code>--reason</code> required)</td>
+</tr>
+<tr>
+<td><code>pose docs-review request &lt;doc&gt; [--reason &lt;text&gt;]</code></td>
+<td>Manually mark one doc for review (the same path a UI-driven "flag for review" action would call over MCP)</td>
+</tr>
+<tr>
+<td><code>pose docs-review request --all-stale</code></td>
+<td>Bridge every doc <code>docs-check</code> reports <code>stale</code> into an active, owned review-pending demand, in one call</td>
+</tr>
+</tbody>
+</table>
+<p>Opt-in by presence of <code>.pose/docs.json</code> — a project without the manifest
+stays valid everywhere, same mechanic as the capability assessment above.
+The manifest declares <code>roots</code> (governed doc directories) and <code>entries</code>
+(one per doc: <code>path</code>, <code>doc_type</code> — Diátaxis <code>tutorial</code>/<code>howto</code>/<code>reference</code>/
+<code>explanation</code>, or a custom value — <code>topics</code>, <code>owns</code>, <code>applies_to</code>,
+optional <code>review_after</code>). Each declared doc needs a YAML frontmatter block
+with at least <code>title</code> and <code>doc_type</code>. Seven deterministic, offline rules —
+<code>missing</code>, <code>undeclared</code>, <code>missing_frontmatter</code>, <code>broken_link</code>,
+<code>broken_reference</code>, <code>stale</code>, <code>security</code> — each with a configurable
+severity (<code>error</code>/<code>warning</code>/<code>off</code>) in the manifest's <code>severities</code> field;
+<code>pose docs-check --explain &lt;rule&gt;</code> documents the rationale. Staleness
+compares an entry's own <code>review_after</code> (an absolute date) or, when unset,
+the manifest's <code>default_review_days</code> counted from the doc's last touching
+commit. The security scan reuses the same deterministic, offline
+unsafe-instruction/secret-shaped pattern scan skills already run — defense
+in depth, not a substitute for the dedicated gitleaks gate. <code>pose check
+--strict</code> incorporates <code>docs-check</code> when the manifest exists (opt-in by
+presence, same mechanic as capabilities); errors block, warnings surface
+without blocking. Tool MCP: <code>pose_docs_state</code>.</p>
+<p><strong>Review-pending triggers</strong> (spec <code>pose-docs-assessment-followups</code>, third
+consumer of the same post-event hook registry as the capability
+reassessment triggers above — reused unmodified): a <code>docs-review</code>
+consumer, registered on <code>spec_closeout</code>, resolves which components/files a
+closeout reached (<code>components_hit</code> when configured, matched against
+<code>owns:</code> entries declared as <code>component:&lt;id&gt;</code>; otherwise the event's
+touched files matched against each doc's <code>owns:</code> paths/globs — a
+directory prefix like <code>"site"</code> covers every file under it) and marks
+every doc whose declared area was reached as review-pending — never
+editing the doc itself. Marks accumulate in an append-only log, never
+inside the doc's own file, and project a synthetic, owned demand into
+<code>pose followups --open</code> (origin <code>docs:&lt;doc-path&gt;</code>), reusing the owner
+declared on the manifest entry when present. <code>pose docs-review resolve</code>
+closes every mark currently pending on a doc at once, recording the
+outcome; <code>docs-check</code>'s own output (and <code>pose_docs_state</code>) additively
+list what's still pending. Without a component map and without any
+<code>owns:</code> declared, the event logs a visible signal instead of marking
+anything silently — same degrade-by-absence contract as the capability
+triggers, except here the path fallback is the mechanism's full-strength
+path (<code>owns:</code> is expressed as paths by default), not a lesser one.
+Anti-noise threshold (<code>min_hits</code>, hit <code>level</code>, the demand's default
+owner/review SLA) is configurable, sharing the same policy shape as the
+capability triggers in its own file (optional; absent means these same
+conservative defaults).</p>
+<h2 id="cross-repository-portfolio">Cross-repository portfolio</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pose portfolio-projection [--projects-dir DIR] [--max-staleness-days N] [--json]</code></td>
+<td>Reconcile dependencies, readiness, ownership and criticality across authorized repositories</td>
+</tr>
+</tbody>
+</table>
+<p>Only repositories registered via <code>HARNE8_PROJECTS_DIR</code> (or explicit
+<code>POSE_PROJECT_ROOTS</code>) — the same allowlist the MCP server already uses —
+ever enter a projection; nothing is discovered by an open filesystem
+walk. Add <code>depends_on: xref:&lt;project_id&gt;/&lt;spec-slug&gt;</code> to a spec to
+declare a cross-repository dependency (additive to the existing
+<code>other-spec</code> / <code>milestone:...</code> / <code>roadmap:...</code> forms). The projection is
+persisted to <code>.pose/reports/portfolio-projection.json</code>, explains every
+blocked, stale or unauthorized/unknown cross-reference explicitly, and
+tombstones artifacts that disappeared since the last run rather than
+silently dropping them. Repositories remain authoritative; the
+projection is a reconciled read, never a write back to another
+repository.</p>
+<h2 id="harness-evidence-reconciliation">Harness evidence reconciliation</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pose reconcile-evidence record --run-id ID --request-id ID --execution-id ID --plan-digest SHA --status success\|failure --source harness\|manual [--result-digest SHA] [--allow-supersede]</code></td>
+<td>Reconcile a Harness execution result into local evidence, identity-bound to the submitting Execution Identity</td>
+</tr>
+<tr>
+<td><code>pose reconcile-evidence list [--request-id ID] [--json]</code></td>
+<td>List recorded evidence</td>
+</tr>
+<tr>
+<td><code>pose reconcile-evidence housekeeping &lt;list-expired\|purge&gt; [--older-than-days N] [--apply]</code></td>
+<td>Retention for evidence records</td>
+</tr>
+</tbody>
+</table>
+<p>A second record for a <code>request_id</code> that already has evidence is rejected
+unless <code>--allow-supersede</code> is passed — and even then the prior record is
+never edited or removed, only superseded by a new, explicitly-linked one.
+See <a href="../architecture/#mechanism-15-harne8-control-plane-composition">architecture: Harne8 control-plane composition</a>.</p>
 <h2 id="import-existing-sdd-specs">Import existing SDD specs</h2>
 <div class="highlight"><pre><span></span><code><span class="c1"># Preview every spec-kit feature under the tree without writing files.</span>
 pose<span class="w"> </span>import<span class="w"> </span>spec-kit<span class="w"> </span>.specify/specs<span class="w"> </span>--dry-run
@@ -830,6 +1334,10 @@ behavioral/change layout.</p>
 <td>Migrate the instance contract to the engine version</td>
 </tr>
 <tr>
+<td><code>pose doctor [--json] [--fix [--yes] [--only &lt;check&gt;]]</code></td>
+<td>Read-only diagnostics; <code>--fix</code> previews confined remediation, <code>--fix --yes</code> applies and rechecks it</td>
+</tr>
+<tr>
 <td><code>pose knowledge-housekeeping &lt;op&gt; [--apply]</code></td>
 <td>List/archive/purge expired knowledge</td>
 </tr>
@@ -853,6 +1361,13 @@ behavioral/change layout.</p>
 </table>
 <p>Every gate is offline by design — no network calls, stdlib only. A gate
 observed doing network I/O is a reportable bug (see SECURITY.md).</p>
+<h1 id="release-lifecycle">Release lifecycle</h1>
+<p><code>pose release plan --version vX.Y.Z</code> previews a cut. <code>pose release prepare
+--version vX.Y.Z --apply</code> freezes selected fragments, canonical notes and a
+manifest. <code>check</code>, <code>notes</code>, <code>record</code>, <code>status</code>, <code>open-next</code> and <code>backfill</code>
+reconcile the candidate through tagged, published and verified states. The
+compatibility alias <code>release-notes --version</code> reads only the prepared snapshot;
+use <code>--preview</code> explicitly for the pending queue.</p>
 
 
 

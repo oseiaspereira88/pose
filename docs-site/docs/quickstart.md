@@ -1,6 +1,6 @@
 # Quickstart
 
-**Doc type:** Tutorial &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** Tutorial &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
 ## Install
 
@@ -18,6 +18,18 @@ The installer copies workflows, rules, templates and skills, derives
 server, stamps the contract schema version and finishes with native `init`,
 `index` and `check --strict` — installation only reports success if the gate
 is green.
+
+Confirm the binary and instance before continuing:
+
+```bash
+pose version
+pose doctor
+```
+
+The v1 release archive is accompanied by SHA-256 checksums, keyless Sigstore
+signatures, a CycloneDX SBOM and SLSA provenance. Use the release's own
+`checksums.txt` before placing the binary on `PATH`; package-manager channel
+support and its current limits are documented in [Package channels](package-channels.md).
 
 Useful flags:
 
@@ -50,8 +62,29 @@ pose suggest feature             # canonical trail: workflow + skill + rules
 # fill Intent / Requirements (R-IDs!) / Technical Plan, then:
 pose lint-spec my-first-feature --ready-check   # entry gate
 # ... implement, validate ...
-pose lint-spec my-first-feature --strict        # closeout gate
+pose validate --strict --report                 # project checks + evidence
+pose lint-spec my-first-feature --strict        # lifecycle closeout gate
 ```
+
+The task trail is repository-owned: `pose suggest feature --path <module>`
+resolves the applicable workflow, skill, cumulative rules and validation
+command before an agent edits code. For medium/high-risk work, write the test
+plan in the spec before implementation; after delivery, link each requirement
+to current evidence and explicitly disposition every follow-up.
+
+## See the first analytics
+
+Recognized CLI/MCP activity is observed automatically and locally. The query
+does not count itself:
+
+```bash
+pose usage --since-days 30
+pose adoption-metrics --json
+```
+
+These are product usage and adoption signals. They do not infer deployment
+outcomes. To measure delivery, ingest explicit deployment/incident events and
+run `pose dora-metrics`; see [Analytics and delivery metrics](analytics.md).
 
 ## Keep it healthy
 

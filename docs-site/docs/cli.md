@@ -1,6 +1,6 @@
 # CLI reference
 
-**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
 The `pose` CLI is a single native Go binary. Every command below executes
 without Bash or Python fallbacks and works offline.
@@ -59,6 +59,11 @@ Set `POSE_USAGE_DIR` only when an operator needs an explicit absolute local
 state directory (for example, a persistent container mount); the default Git
 common-dir/user-cache resolution is preferred.
 
+POSE 1.0.0 does not infer the future human adjudication states `valid`,
+`wont-fix` or `false-positive`; that evolution remains an owned follow-up and
+will stay separate from automatic observation counts. See
+[Analytics and delivery metrics](analytics.md) for interpretation and examples.
+
 ## DORA and adoption metrics
 
 | Command | Purpose |
@@ -79,6 +84,8 @@ rework rate. Recovery includes only resolved incidents explicitly marked
 `deployment_kind`, otherwise that metric reports `unavailable` instead of
 guessing that legacy events were planned. Schema-v1 JSONL remains readable.
 See [DORA metrics guide](https://dora.dev/guides/dora-metrics/).
+For a side-by-side model of usage, adoption and delivery signals, see
+[Analytics and delivery metrics](analytics.md).
 
 ## Semantic governance assist
 

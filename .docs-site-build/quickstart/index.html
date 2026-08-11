@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Project Operating Standard for Engineering — spec-driven development that closes the loop.">
+        <meta name="description" content="Repository-owned governance for agentic engineering — intent, policy, execution, evidence and learning in one verifiable loop.">
       
       
       
@@ -14,7 +14,7 @@
         <link rel="prev" href="..">
       
       
-        <link rel="next" href="../concepts/">
+        <link rel="next" href="../package-channels/">
       
       
         
@@ -354,6 +354,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#see-the-first-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See the first analytics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#keep-it-healthy" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -379,6 +390,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../package-channels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package channels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../concepts/" class="md-nav__link">
         
   
@@ -387,6 +425,33 @@
     
   
     Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analytics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Analytics and DORA
   
 
     
@@ -495,6 +560,33 @@
     
   
     CLI reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monorepo-recipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monorepo recipes
   
 
     
@@ -648,6 +740,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#see-the-first-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See the first analytics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#keep-it-healthy" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -676,6 +779,7 @@
 
 
 <h1 id="quickstart">Quickstart</h1>
+<p><strong>Doc type:</strong> Tutorial &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.0.x</p>
 <h2 id="install">Install</h2>
 <div class="highlight"><pre><span></span><code><span class="c1"># with the native binary on PATH:</span>
 pose<span class="w"> </span>install<span class="w"> </span>/path/to/your/repo
@@ -689,6 +793,14 @@ bash<span class="w"> </span>install.sh<span class="w"> </span>/path/to/your/repo
 server, stamps the contract schema version and finishes with native <code>init</code>,
 <code>index</code> and <code>check --strict</code> — installation only reports success if the gate
 is green.</p>
+<p>Confirm the binary and instance before continuing:</p>
+<div class="highlight"><pre><span></span><code>pose<span class="w"> </span>version
+pose<span class="w"> </span>doctor
+</code></pre></div>
+<p>The v1 release archive is accompanied by SHA-256 checksums, keyless Sigstore
+signatures, a CycloneDX SBOM and SLSA provenance. Use the release's own
+<code>checksums.txt</code> before placing the binary on <code>PATH</code>; package-manager channel
+support and its current limits are documented in <a href="../package-channels/">Package channels</a>.</p>
 <p>Useful flags:</p>
 <table>
 <thead>
@@ -731,8 +843,23 @@ pose<span class="w"> </span>suggest<span class="w"> </span>feature<span class="w
 <span class="c1"># fill Intent / Requirements (R-IDs!) / Technical Plan, then:</span>
 pose<span class="w"> </span>lint-spec<span class="w"> </span>my-first-feature<span class="w"> </span>--ready-check<span class="w">   </span><span class="c1"># entry gate</span>
 <span class="c1"># ... implement, validate ...</span>
-pose<span class="w"> </span>lint-spec<span class="w"> </span>my-first-feature<span class="w"> </span>--strict<span class="w">        </span><span class="c1"># closeout gate</span>
+pose<span class="w"> </span>validate<span class="w"> </span>--strict<span class="w"> </span>--report<span class="w">                 </span><span class="c1"># project checks + evidence</span>
+pose<span class="w"> </span>lint-spec<span class="w"> </span>my-first-feature<span class="w"> </span>--strict<span class="w">        </span><span class="c1"># lifecycle closeout gate</span>
 </code></pre></div>
+<p>The task trail is repository-owned: <code>pose suggest feature --path &lt;module&gt;</code>
+resolves the applicable workflow, skill, cumulative rules and validation
+command before an agent edits code. For medium/high-risk work, write the test
+plan in the spec before implementation; after delivery, link each requirement
+to current evidence and explicitly disposition every follow-up.</p>
+<h2 id="see-the-first-analytics">See the first analytics</h2>
+<p>Recognized CLI/MCP activity is observed automatically and locally. The query
+does not count itself:</p>
+<div class="highlight"><pre><span></span><code>pose<span class="w"> </span>usage<span class="w"> </span>--since-days<span class="w"> </span><span class="m">30</span>
+pose<span class="w"> </span>adoption-metrics<span class="w"> </span>--json
+</code></pre></div>
+<p>These are product usage and adoption signals. They do not infer deployment
+outcomes. To measure delivery, ingest explicit deployment/incident events and
+run <code>pose dora-metrics</code>; see <a href="../analytics/">Analytics and delivery metrics</a>.</p>
 <h2 id="keep-it-healthy">Keep it healthy</h2>
 <div class="highlight"><pre><span></span><code>pose<span class="w"> </span>check<span class="w"> </span>--strict<span class="w">       </span><span class="c1"># structural integrity + graphs + schema version</span>
 pose<span class="w"> </span>validate<span class="w"> </span>--tolerant<span class="w">  </span><span class="c1"># run the validation matrix</span>

@@ -1,6 +1,6 @@
 # CI integration
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
 ## GitHub Action
 
@@ -53,8 +53,10 @@ delivery authority and should not skip required gates.
 
 ## Releases
 
-Tagging `v*` triggers the release pipeline: POSE gates + Go tests + installer
-E2E, then goreleaser publishes the multi-platform `pose` binary
-with SHA-256 checksums, the installer script, and release notes consolidated
-from the POSE changelog fragments. See `docs/RELEASE.md` in the repository for
-the full process and ownership of the remaining manual steps.
+`pose release plan` previews a version, and `pose release prepare --apply`
+freezes the exact changelog fragments, canonical notes and candidate manifest.
+Tagging that prepared candidate triggers POSE gates, Go tests, installer E2E
+and GoReleaser. Publication emits the multi-platform binary, SHA-256 checksums,
+Sigstore bundles, per-archive CycloneDX SBOMs and SLSA provenance; the release
+lifecycle then records tagged/published/verified evidence without rewriting
+the tag or mutable notes. See `docs/RELEASE.md` for the full process.

@@ -1,6 +1,6 @@
 # Concepts
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
 ## The closed loop
 
@@ -20,6 +20,11 @@ finish.** Every stage of the cycle emits an artifact the next stage consumes:
    failing; the escalation workflow turns them into new rules/workflows.
 6. **Knowledge** — handoffs and decision logs with TTL governance carry
    context to the next execution — then the loop feeds planning again.
+
+The loop separates deterministic enforcement from judgment. The engine can
+prove that a requirement has a current check, that a surface is reachable or
+that a finding reappeared. Humans and agents still decide intent, trade-offs,
+waivers and whether an observed finding is valid or accepted debt.
 
 ## Spec lifecycle
 
@@ -65,6 +70,31 @@ the minimum safe check set from declared dependency edges and policy widening.
 Per-check timeout/output-ceiling guardrails and an `isolation: "required"`
 classification route untrusted execution to the Harness instead of running
 locally. `pose init --wizard` seeds modules from a repository scan.
+
+## Evidence has two levels
+
+**Lifecycle evidence** lives with the spec: requirement trace, validation
+results, immutable review attempts, follow-up dispositions and Git history.
+It answers “why was this change accepted?”
+
+**Delivery composition evidence** proves that an implementation claim reaches
+a production entrypoint. `artifact-check` reconciles declared files against an
+immutable Git change set; `surface-check` combines typed delivery targets with
+fresh validation evidence and a composition path; `roadmap-check` applies the
+same model to release-level criteria. It answers “is this capability really
+delivered, rather than merely present in a file?”
+
+## Three measurement planes
+
+- `pose usage` observes local CLI/MCP usage, outcomes, latency and structured
+  finding lifecycle without manual agent counters.
+- `pose adoption-metrics` derives activation, time-to-first-gate, retention and
+  task success from governed POSE history.
+- `pose dora-metrics` derives five delivery metrics only from explicit
+  deployment and incident events scoped to an application/environment.
+
+The planes are intentionally independent. High tool usage is neither a deploy
+nor proof of delivery performance. See [Analytics and delivery metrics](analytics.md).
 
 ## Operational memory
 

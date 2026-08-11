@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Project Operating Standard for Engineering — spec-driven development that closes the loop.">
+        <meta name="description" content="Repository-owned governance for agentic engineering — intent, policy, execution, evidence and learning in one verifiable loop.">
       
       
       
@@ -288,6 +288,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../package-channels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package channels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../concepts/" class="md-nav__link">
         
   
@@ -296,6 +323,33 @@
     
   
     Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analytics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Analytics and DORA
   
 
     
@@ -404,6 +458,33 @@
     
   
     CLI reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monorepo-recipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monorepo recipes
   
 
     
@@ -698,6 +779,7 @@
 
 
 <h1 id="frontmatter-contracts">Frontmatter contracts</h1>
+<p><strong>Doc type:</strong> Reference &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.0.x</p>
 <p>POSE frontmatter is <strong>flat by contract</strong> — inline comma-separated lists, never
 multi-line YAML lists. This keeps every artifact parseable by simple
 deterministic tooling (and by agents) without a YAML edge-case zoo.</p>
@@ -710,6 +792,7 @@ deterministic tooling (and by agents) without a YAML edge-case zoo.</p>
 <span class="nt">supersedes</span><span class="p">:</span><span class="w">          </span><span class="c1"># slug of the superseded spec</span>
 <span class="nt">depends_on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">other-spec, milestone:my-roadmap/m1, roadmap:other-roadmap</span>
 <span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">          </span><span class="c1"># integer &gt;= 0; lower = attack first; never blocks</span>
+<span class="nt">components</span><span class="p">:</span><span class="w">          </span><span class="c1"># optional, inline comma-separated: affected modules/components</span>
 <span class="nn">---</span>
 </code></pre></div>
 <p>Rules enforced by <code>pose check</code> / <code>pose lint-spec</code>:</p>
@@ -719,6 +802,12 @@ deterministic tooling (and by agents) without a YAML edge-case zoo.</p>
 <li>Entering <code>in-progress</code> requires the Definition of Ready (<code>--ready-check</code>).</li>
 <li>Acceptance criteria use stable IDs (<code>- R&lt;N&gt;:</code>); published IDs are never
   renumbered — a withdrawn criterion is marked as withdrawn.</li>
+<li><code>components</code> is free-form (no enforced vocabulary) — tag a spec with the
+  module/component names it touches (e.g. <code>mcp-server, cli</code>) to make it
+  findable with <code>pose_list_specs</code>' <code>components</code> filter (comma-separated,
+  case-insensitive, matches if any tag is shared) without fragmenting specs
+  into a separate <code>.pose/</code> per component. A cross-cutting spec lists every
+  component it touches; a spec with no tag never matches a non-empty filter.</li>
 </ul>
 <h2 id="roadmap-poseroadmapsslugmd">Roadmap (<code>.pose/roadmaps/&lt;slug&gt;.md</code>)</h2>
 <div class="highlight"><pre><span></span><code><span class="nn">---</span>

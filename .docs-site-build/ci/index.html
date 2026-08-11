@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Project Operating Standard for Engineering — spec-driven development that closes the loop.">
+        <meta name="description" content="Repository-owned governance for agentic engineering — intent, policy, execution, evidence and learning in one verifiable loop.">
       
       
       
@@ -286,6 +286,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../package-channels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package channels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../concepts/" class="md-nav__link">
         
   
@@ -294,6 +321,33 @@
     
   
     Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analytics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Analytics and DORA
   
 
     
@@ -402,6 +456,33 @@
     
   
     CLI reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monorepo-recipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monorepo recipes
   
 
     
@@ -674,6 +755,7 @@
 
 
 <h1 id="ci-integration">CI integration</h1>
+<p><strong>Doc type:</strong> How-to &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.0.x</p>
 <h2 id="github-action">GitHub Action</h2>
 <p>The distribution ships a composite action (<code>pose-action/</code>):</p>
 <div class="highlight"><pre><span></span><code><span class="nt">jobs</span><span class="p">:</span>
@@ -681,7 +763,7 @@
 <span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
 <span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;owner&gt;/&lt;repo&gt;/pose-action@main</span><span class="w">   </span><span class="c1"># marketplace name after the repo split</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oseiaspereira88/pose/pose-action@main</span><span class="w">   </span><span class="c1"># pin to a release tag or commit SHA in production</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">strict</span><span class="w">            </span><span class="c1"># or tolerant</span>
 <span class="w">          </span><span class="nt">lint-specs</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
@@ -695,7 +777,7 @@
 the POSE repository to an immutable release tag or commit:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">repos</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/oseiaspereira88/pose</span>
-<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.2.0</span><span class="w">  </span><span class="c1"># replace with the first release containing these hooks</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.0.0</span><span class="w">  </span><span class="c1"># pin to an immutable release tag</span>
 <span class="w">    </span><span class="nt">hooks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[{</span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="nv">pose-check</span><span class="p p-Indicator">},</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="nv">pose-lint-spec</span><span class="p p-Indicator">},</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="nv">pose-history-check</span><span class="p p-Indicator">}]</span>
 </code></pre></div>
 <p>Run <code>pre-commit install</code>, then use <code>pre-commit run --all-files</code> in CI. The
@@ -714,11 +796,13 @@ delivery authority and should not skip required gates.</p>
 <li><strong>Harden</strong>: review the matrix periodically; remove temporary exceptions.</li>
 </ol>
 <h2 id="releases">Releases</h2>
-<p>Tagging <code>v*</code> triggers the release pipeline: POSE gates + Go tests + installer
-E2E, then goreleaser publishes the multi-platform <code>pose</code> binary
-with SHA-256 checksums, the installer script, and release notes consolidated
-from the POSE changelog fragments. See <code>docs/RELEASE.md</code> in the repository for
-the full process and ownership of the remaining manual steps.</p>
+<p><code>pose release plan</code> previews a version, and <code>pose release prepare --apply</code>
+freezes the exact changelog fragments, canonical notes and candidate manifest.
+Tagging that prepared candidate triggers POSE gates, Go tests, installer E2E
+and GoReleaser. Publication emits the multi-platform binary, SHA-256 checksums,
+Sigstore bundles, per-archive CycloneDX SBOMs and SLSA provenance; the release
+lifecycle then records tagged/published/verified evidence without rewriting
+the tag or mutable notes. See <code>docs/RELEASE.md</code> for the full process.</p>
 
 
 

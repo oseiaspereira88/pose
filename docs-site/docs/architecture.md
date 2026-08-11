@@ -1,10 +1,11 @@
 # Technical architecture
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
 **Scope:** POSE open-source distribution  
-**Verified:** 2026-07-19 at repository commit `38a248d`, after all 7
-portfolio roadmaps (35 specs) reached `status: done`
+**Verified:** 2026-08-11 against the published `v1.0.0` contract and current
+mainline source, after the analytics and immutable-release lifecycle specs
+reached `status: done`
 
 POSE is a repository-local governance system for human and AI-assisted software
 delivery. It combines a versioned operating contract, a native deterministic
@@ -254,6 +255,15 @@ silently discarded.
 `pose stats` aggregates outcomes by workflow, task or context. MCP exposes the
 same domain through `pose_insights`. Reports can be archived by retention
 policy, but historical JSONL is preserved as the recurrence source.
+`pose usage` and MCP `pose_usage` read a separate best-effort journal outside
+the worktree. Recognized CLI commands and authorized project-backed MCP calls
+are observed automatically at their execution boundaries; the allowlisted
+schema keeps bounded outcomes, timing, counts and project-local HMAC
+fingerprints while excluding arguments, output, paths, source content and
+identity. Complete comparable finding sets support new/resolved/reopened
+transitions without agent-maintained counters. Human adjudication remains an
+explicit follow-up rather than an inferred state.
+
 `pose record-deployment`/`record-incident` capture quality-gated delivery
 events; `pose dora-metrics` derives all five current, production-scoped DORA
 metrics, including deployment rework rate and deployment-caused recovery,
@@ -304,10 +314,13 @@ ownerless documentation.
 
 ## Mechanism 10: change and release traceability
 
-One changelog fragment is associated with each delivered spec. The release
-pipeline consolidates fragments into user-facing notes and builds six native
-platform targets through GoReleaser. GitHub Actions, pre-commit and native Git
-hooks provide progressively stronger adoption paths.
+One changelog fragment is associated with each delivered spec. `pose release
+prepare --apply` consumes the selected queue exactly once and freezes canonical
+notes plus a candidate manifest; later tagged, published and verified records
+reconcile external facts against that immutable candidate rather than editing
+the tag or regenerating mutable notes. The pipeline builds six native platform
+targets through GoReleaser. GitHub Actions, pre-commit and native Git hooks
+provide progressively stronger adoption paths.
 
 Every release archive is keyless-signed with Sigstore (offline-verifiable
 bundle, pinned issuer/identity policy), carries a per-archive CycloneDX SBOM
@@ -327,7 +340,8 @@ results on every PR, push to `main` and weekly schedule.
 full POSE governance surface — specs, readiness, roadmaps, changelogs,
 follow-ups, structural gates, task routing, workflows, rules, skills,
 knowledge, reports, insights and safe validation orchestration — frozen by a
-golden catalog fixture with an explicit risk class per tool. Optional
+golden catalog fixture with an explicit risk class per tool. The v1.0.0
+catalog contains 45 POSE tools plus 3 optional Conductor reporters. Optional
 `pose_validate_submit` and `conductor_run_*` tools report external runs or
 submit to a Harness only when the corresponding Harne8 endpoints are
 configured.

@@ -1,11 +1,15 @@
 # MCP server
 
-**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
 `pose serve-mcp` exposes a read-heavy governance view of a POSE instance to
 MCP-capable agents. Transports: stdio
 (`--stdio`, ideal for agent runtimes) and Streamable HTTP (`POSE_MCP_ADDR`,
 default `:8790`).
+
+The v1.0.0 golden catalog contains **48 tools**: 45 project-scoped POSE
+governance tools and 3 optional Conductor run reporters. The count is a
+release contract, not a hand-maintained marketing number.
 
 ## Configuration
 
@@ -142,6 +146,10 @@ Only bounded outcomes, counts, duration and HMAC fingerprints are persisted;
 arguments, tool output, paths, repository/project names, principals, run IDs,
 source content and raw finding IDs are excluded. No usage event is transmitted
 over the network.
+
+Human confirmation of a finding as `valid`, `wont-fix` or `false-positive` is
+not part of v1.0.0 and is never inferred from repeated calls. It remains a
+tracked evolution; see [Analytics and delivery metrics](analytics.md).
 
 ## Optional tools
 

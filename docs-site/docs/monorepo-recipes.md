@@ -1,6 +1,6 @@
 # Monorepo validation recipes
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
 POSE does not implement a monorepo orchestrator. It composes with whatever
 build graph a repository already has — real Bazel, Nx, npm/yarn workspaces,

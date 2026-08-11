@@ -6,12 +6,12 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Project Operating Standard for Engineering — spec-driven development that closes the loop.">
+        <meta name="description" content="Repository-owned governance for agentic engineering — intent, policy, execution, evidence and learning in one verifiable loop.">
       
       
       
       
-        <link rel="prev" href="../concepts/">
+        <link rel="prev" href="../analytics/">
       
       
         <link rel="next" href="../capability-assessment/">
@@ -288,6 +288,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../package-channels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package channels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../concepts/" class="md-nav__link">
         
   
@@ -296,6 +323,33 @@
     
   
     Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analytics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Analytics and DORA
   
 
     
@@ -584,6 +638,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#mechanism-15-harne8-control-plane-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mechanism 15: Harne8 control-plane composition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#primary-data-flows" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -721,6 +786,33 @@
     
   
     CLI reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monorepo-recipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monorepo recipes
   
 
     
@@ -1050,6 +1142,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#mechanism-15-harne8-control-plane-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mechanism 15: Harne8 control-plane composition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#primary-data-flows" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1128,8 +1231,11 @@
 
 
 <h1 id="technical-architecture">Technical architecture</h1>
+<p><strong>Doc type:</strong> Explanation &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.0.x</p>
 <p><strong>Scope:</strong> POSE open-source distribution<br />
-<strong>Verified:</strong> 2026-07-18 at repository commit <code>d9c0b98</code></p>
+<strong>Verified:</strong> 2026-08-11 against the published <code>v1.0.0</code> contract and current
+mainline source, after the analytics and immutable-release lifecycle specs
+reached <code>status: done</code></p>
 <p>POSE is a repository-local governance system for human and AI-assisted software
 delivery. It combines a versioned operating contract, a native deterministic
 engine and an MCP adapter. It does not implement an IDE, an agent runtime or a
@@ -1190,7 +1296,13 @@ macOS and Windows on <code>amd64</code> and <code>arm64</code>. The binary conta
 contract and templates into the target repository, then runs <code>init</code>, <code>index</code>
 and <code>check --strict</code>. Reinstallation updates managed machinery while preserving
 specs, ADRs, roadmaps, knowledge and reports. <code>.pose/schema-version</code> allows the
-engine to apply ordered, idempotent migrations with <code>pose upgrade</code>.</p>
+engine to apply ordered, idempotent migrations with <code>pose upgrade</code>, verified
+against a populated instance (a real spec, knowledge note and hand-edited
+managed file) for dry-run non-mutation, schema-only apply and idempotent
+reapply. Releases publish through Homebrew and WinGet channels generated
+deterministically from the release's own checksums
+(<code>pose release-package-manifests</code>); <code>pose doctor --fix</code> turns a subset of
+diagnosable findings into confined, reversible, idempotent repairs.</p>
 <h2 id="component-model">Component model</h2>
 <table>
 <thead>
@@ -1293,7 +1405,14 @@ sections. The lifecycle is intentionally asymmetric:</p>
 <li><code>check</code> validates status transitions and references at repository scope.</li>
 </ul>
 <p>The spec remains a living contract: planning, decisions, validation strategy
-and final report stay together rather than becoming disconnected tickets.</p>
+and final report stay together rather than becoming disconnected tickets.
+Each <code>R&lt;N&gt;</code> also carries a <code>Requirement trace</code> entry — <code>[satisfied]</code> with
+evidence refs, <code>[waived: reason]</code> or <code>[withdrawn: reason]</code> — projected
+bidirectionally through <code>pose_requirement_trace</code>, so a requirement's
+satisfying checks and commits are queryable, not just asserted. Material
+intent or acceptance-criteria changes after DoR are recorded as append-only,
+reviewed amendments (<code>pose amend</code>, <code>amendments.jsonl</code>) distinguished from
+editorial edits by a deterministic hash-based gate.</p>
 <h2 id="mechanism-3-dependencies-readiness-and-roadmaps">Mechanism 3: dependencies, readiness and roadmaps</h2>
 <p><code>depends_on</code> accepts spec, milestone and roadmap references. <code>priority</code> orders
 eligible work without creating false dependencies. <code>pose check</code> verifies
@@ -1301,16 +1420,27 @@ existence and acyclicity, while <code>pose index</code> builds the cached graph.
 <p>Roadmaps add milestone DAGs, target dates and exclusive membership of specs in
 active roadmaps. <code>pose_spec_readiness</code> resolves the graph for agents and control
 planes. This provides planning eligibility, not transactional task scheduling;
-fine-grained execution state belongs in an external control plane.</p>
+fine-grained execution state belongs in an external control plane.
+<code>pose portfolio-projection</code> extends the same eligibility model across
+repositories through an additive <code>xref:</code> reference grammar, reusing the MCP
+server's own project-authorization boundary and surfacing explicit
+<code>blocked</code>/<code>stale</code>/<code>unauthorized</code>/<code>unknown</code> states rather than a silently
+outdated view.</p>
 <h2 id="mechanism-4-workflows-rules-and-skills">Mechanism 4: workflows, rules and skills</h2>
 <ul>
 <li><strong>Workflows</strong> define ordered procedures for feature, bugfix, review,
   refactor, documentation and recurrence escalation.</li>
 <li><strong>Rules</strong> accumulate constraints by domain. Security wins when rules conflict.</li>
 <li><strong>Skills</strong> package recurring agent behavior using the portable <code>SKILL.md</code>
-  structure defined by the <a href="https://agentskills.io/specification">Agent Skills specification</a>.</li>
+  structure defined by the <a href="https://agentskills.io/specification">Agent Skills specification</a>,
+  continuously validated in CI (<code>pose skills-check</code>) with compatibility
+  frontmatter (<code>pose_schema_range</code>, <code>clients</code>, <code>capabilities</code>).</li>
 <li><strong>AGENTS.md</strong> keeps precedence and mandatory obligations short enough for
   routine agent loading.</li>
+<li><strong>Extensions</strong> — skills, workflows, rules and import adapters not shipped
+  in the base install — declare a versioned <code>extension.json</code> manifest (path
+  confinement, permission whitelisting, provenance); <code>pose extension
+  install/list/remove/verify</code> is dry-runnable, consent-gated and transactional.</li>
 </ul>
 <p>The layers are independent so a team can change a security rule without
 forking every workflow or repeating the same instruction in every prompt.</p>
@@ -1340,9 +1470,20 @@ Checks are selected by stack and refined through module overrides.</p>
     R --&gt;|optional failure| W[Risk warning]
     R --&gt;|pass| E[Evidence]
 </code></pre></div>
-<p>Supported baseline stacks are Node.js, Go, Rust and Java. The matrix delegates
-to native project tools such as <code>npm</code>, <code>go</code>, <code>cargo</code>, Maven and Gradle; POSE
-governs selection and evidence rather than replacing those ecosystems.</p>
+<p>Supported baseline stacks are Node.js, Go, Rust, Java, Python (five package
+managers) and .NET; <code>pose stacks</code> reports detected stacks read-only. The
+matrix delegates to native project tools such as <code>npm</code>, <code>go</code>, <code>cargo</code>, Maven,
+Gradle, <code>pip</code>/<code>poetry</code>/<code>pipenv</code>/<code>uv</code>/<code>conda</code> and <code>dotnet</code>; POSE governs
+selection and evidence rather than replacing those ecosystems.
+<code>--changed-from/--changed-to</code> selects the minimum safe check set from
+declared dependency edges and policy widening, falling back to full
+execution for root-level or unmapped changes; <code>--explain</code> prints the
+selection trace. Per-check timeout and output-ceiling guardrails cancel by
+process group on Unix (documented Windows fallback); an
+<code>isolation: "required"</code> classification routes checks that must not run
+against untrusted local state to the Harness instead. Results emit through a
+canonical, versioned model with additive <code>--json</code>/<code>--junit</code>/<code>--sarif</code>
+projections alongside the native report.</p>
 <h2 id="mechanism-7-evidence-history-and-insights">Mechanism 7: evidence, history and insights</h2>
 <p><code>pose report</code> persists a Markdown report and an append-only JSONL record. Each
 record includes task identity, workflow, validation profile, outcome, sequence
@@ -1350,40 +1491,84 @@ and a stable-field hash. <code>history-check</code> prevents untracked history f
 silently discarded.</p>
 <p><code>pose stats</code> aggregates outcomes by workflow, task or context. MCP exposes the
 same domain through <code>pose_insights</code>. Reports can be archived by retention
-policy, but historical JSONL is preserved as the recurrence source.</p>
-<p>POSE evidence is repository-auditable, not a cryptographic build attestation.
-Signed provenance and SBOMs remain release-pipeline responsibilities.</p>
+policy, but historical JSONL is preserved as the recurrence source.
+<code>pose usage</code> and MCP <code>pose_usage</code> read a separate best-effort journal outside
+the worktree. Recognized CLI commands and authorized project-backed MCP calls
+are observed automatically at their execution boundaries; the allowlisted
+schema keeps bounded outcomes, timing, counts and project-local HMAC
+fingerprints while excluding arguments, output, paths, source content and
+identity. Complete comparable finding sets support new/resolved/reopened
+transitions without agent-maintained counters. Human adjudication remains an
+explicit follow-up rather than an inferred state.</p>
+<p><code>pose record-deployment</code>/<code>record-incident</code> capture quality-gated delivery
+events; <code>pose dora-metrics</code> derives all five current, production-scoped DORA
+metrics, including deployment rework rate and deployment-caused recovery,
+while <code>pose adoption-metrics</code> derives
+activation/time-to-first-gate/retention/task-success from the same local
+history — kept in separate reports so adoption is never blended into a DORA
+number as a false causal claim. <code>events-housekeeping</code> bounds retention.</p>
+<p>POSE evidence is repository-auditable, not itself a cryptographic build
+attestation — but release artifacts it produces (Mechanism 10) do carry
+signed provenance and SBOMs; per-spec closeout evidence remains
+Git-history-integrity-protected rather than independently signed.</p>
 <h2 id="mechanism-8-follow-ups-and-recurrence">Mechanism 8: follow-ups and recurrence</h2>
 <p>Closeout dispositions form a controlled vocabulary: open, spawned, covered,
 duplicate, done or wont-do. <code>pose followups</code> aggregates the live backlog and
 suggests lexical near-duplicates. Semantic equivalence remains a reviewed
-decision.</p>
+decision. Open follow-ups declare ownership and a triage SLA
+(<code>owner:@alias crit:low|medium|high review:YYYY-MM-DD</code>); <code>pose followups
+--overdue</code> and opt-in closeout blocking keep unowned or stale entries
+visible instead of silent.</p>
 <p><code>recurrence-check</code> scans historical failures by task slug and time window. The
 recurrence workflow converts repeated local fixes into a rule, workflow, spec
-or explicit exception. This is the feedback edge that closes the governance
-loop.</p>
+or explicit exception. <code>pose semantic-suggest</code> adds advisory, cited,
+rationale-explained suggestions across knowledge, follow-ups and recurrence
+patterns (lexical similarity today, not an opaque score) with
+<code>pose suggest-feedback</code> recording accept/reject; an intervention registry
+(<code>interventions.jsonl</code>) feeds a deterministic before/after
+recurrence-effectiveness verdict once a systemic fix ships. This is the
+feedback edge that closes the governance loop.</p>
 <h2 id="mechanism-9-operational-knowledge">Mechanism 9: operational knowledge</h2>
 <p>Knowledge artifacts have type, owner, sensitivity, creation/review dates and a
 bounded TTL. <code>knowledge-check</code> validates schema and overdue limits;
 housekeeping lists, archives and purges expired entries through explicit apply
-operations. Restricted entries are not returned by MCP.</p>
+operations. Restricted entries are not returned by MCP. A stable
+<code>knowledge:&lt;slug&gt;</code> citation contract (dangling-reference gate) plus a derived
+<code>knowledge-usage</code> projection show when knowledge actually influenced work,
+not just that it was written; <code>knowledge-suggest</code> offers deterministic,
+sensitivity-filtered advisory retrieval.</p>
 <p>Knowledge is not a vector database. Its purpose is small, reviewable operational
 memory that survives agent and session boundaries without becoming permanent,
 ownerless documentation.</p>
 <h2 id="mechanism-10-change-and-release-traceability">Mechanism 10: change and release traceability</h2>
-<p>One changelog fragment is associated with each delivered spec. The release
-pipeline consolidates fragments into user-facing notes and builds six native
-platform targets through GoReleaser. GitHub Actions, pre-commit and native Git
-hooks provide progressively stronger adoption paths.</p>
-<p>The release artifacts currently include archives, SHA-256 checksums, the
-installer and license material. Cryptographic signatures, SBOMs and SLSA
-provenance are tracked as maturity gaps rather than implied guarantees.</p>
+<p>One changelog fragment is associated with each delivered spec. <code>pose release
+prepare --apply</code> consumes the selected queue exactly once and freezes canonical
+notes plus a candidate manifest; later tagged, published and verified records
+reconcile external facts against that immutable candidate rather than editing
+the tag or regenerating mutable notes. The pipeline builds six native platform
+targets through GoReleaser. GitHub Actions, pre-commit and native Git hooks
+provide progressively stronger adoption paths.</p>
+<p>Every release archive is keyless-signed with Sigstore (offline-verifiable
+bundle, pinned issuer/identity policy), carries a per-archive CycloneDX SBOM
+(direct binary analysis, schema-validated) and a SLSA v1 provenance
+attestation (Build L2, with the L3 limitation stated explicitly rather than
+implied). An independent <code>Verify release</code> workflow re-derives trust from a
+clean environment — checksum, signature, SBOM and provenance, in that order —
+before ever executing the artifact; a versioned <code>compatibility.json</code>
+(engine/schema/upgrade pairs, support policy) backs a generated
+<code>compatibility-report.md</code> gate. The security workflow (CodeQL, govulncheck,
+gitleaks, dependency review) and an OpenSSF Scorecard workflow both publish
+results on every PR, push to <code>main</code> and weekly schedule.</p>
 <h2 id="mechanism-11-mcp-governance-api">Mechanism 11: MCP governance API</h2>
-<p><code>pose serve-mcp</code> supports stdio and Streamable HTTP. The server currently
-advertises 18 POSE tools for specs, readiness, roadmaps, changelogs, follow-ups,
-structural gates, task routing, workflows, rules, skills, knowledge, reports
-and insights. Three optional <code>conductor_run_*</code> tools report external runs when
-Harne8 endpoints are configured.</p>
+<p><code>pose serve-mcp</code> supports stdio and Streamable HTTP. The server advertises the
+full POSE governance surface — specs, readiness, roadmaps, changelogs,
+follow-ups, structural gates, task routing, workflows, rules, skills,
+knowledge, reports, insights and safe validation orchestration — frozen by a
+golden catalog fixture with an explicit risk class per tool. The v1.0.0
+catalog contains 45 POSE tools plus 3 optional Conductor reporters. Optional
+<code>pose_validate_submit</code> and <code>conductor_run_*</code> tools report external runs or
+submit to a Harness only when the corresponding Harne8 endpoints are
+configured.</p>
 <p>MCP tools use JSON schemas and project-scoped root resolution. The server
 supports a default project plus explicit or directory-discovered roots. The
 <a href="https://modelcontextprotocol.io/specification/2025-06-18/server/tools">MCP tools contract</a>
@@ -1405,7 +1590,14 @@ multi-replica coordination belong to the deployment environment.</p>
 <h2 id="mechanism-13-interoperability-and-adoption">Mechanism 13: interoperability and adoption</h2>
 <p>POSE imports Spec Kit and OpenSpec artifacts with a dry-run, bounded file and
 byte budgets, symlink rejection, batch preflight and a curation report. Import
-is intentionally one-way: POSE becomes the lifecycle authority after review.</p>
+is intentionally one-way: POSE becomes the lifecycle authority after review.
+Three checked-in, executable adoption kits
+(<code>examples/brownfield-kits/{direct-adoption,spec-kit-import,openspec-import}/</code>)
+walk visibility→adoption→blocking-gate staged rollout against real,
+intentionally-imperfect fixtures, each verified end to end by a dedicated
+test. Monorepo adoption gets the same docs-as-tests treatment: three
+executed recipes (JS workspace, declared dependency graph, mixed-language
+with a shared high-criticality module) in <code>docs-site/docs/monorepo-recipes.md</code>.</p>
 <p>Agents can consume the contract through repository files, Agent Skills or MCP.
 CI systems can call stable CLI commands. This keeps the core independent from
 one editor, model provider or hosted service.</p>
@@ -1417,6 +1609,68 @@ dependencies, instance, schema, skill links, MCP configuration and Git hooks.</p
 endpoint is explicitly configured. The payload is limited to anonymous ID,
 binary version and command name; repository names, paths and content are
 excluded by contract.</p>
+<h2 id="mechanism-15-harne8-control-plane-composition">Mechanism 15: Harne8 control-plane composition</h2>
+<p>Five responsibilities compose without moving repository authority
+(spec <code>pose-harne8-control-plane-integration</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Responsibility</th>
+<th>Consumes/exposes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POSE (this repository's engine)</td>
+<td>Governs — owns specs, gates, evidence, policy input</td>
+<td>CLI, MCP tools</td>
+</tr>
+<tr>
+<td>Conductor</td>
+<td>Orchestrates idempotent governed runs with approvals</td>
+<td><code>conductor_run_*</code>, <code>pose_validate_request/approve/submit/status/cancel</code></td>
+</tr>
+<tr>
+<td>Harness</td>
+<td>Executes an approved, digest-pinned plan</td>
+<td><code>HarnessExecutor.Submit</code>, reconciled back via <code>pose reconcile-evidence</code></td>
+</tr>
+<tr>
+<td>GraphForge</td>
+<td>Contextualizes (semantic code graph)</td>
+<td>Consumes <code>pose portfolio-projection</code> and <code>pose semantic-suggest</code> output</td>
+</tr>
+<tr>
+<td>Portal</td>
+<td>Presents (portfolio, review UI)</td>
+<td>Consumes policy-filtered projections; never a second lifecycle authority</td>
+</tr>
+</tbody>
+</table>
+<p>Every boundary already ships in the open core, testable without any Harne8
+component present: <code>pose_validate_submit</code> returns a clear configuration
+error (not a crash) when no Harness is wired; <code>pose reconcile-evidence</code>
+rejects a second, silent record for an already-reconciled request unless
+<code>--allow-supersede</code> is passed explicitly, and even then appends a new,
+identity-bound record rather than editing the prior one;
+<code>pose portfolio-projection</code> and <code>pose semantic-suggest</code> are exactly the
+policy-filtered, tenant-scoped projections Portal/GraphForge would
+consume. <code>pose_validate_submit</code>'s idempotent resubmit (same execution_id,
+no re-invocation) is the durable-state contract Conductor composes with,
+not replaces — the in-process registry is a local reference
+implementation; a real multi-replica deployment centralizes run state in
+Conductor itself.</p>
+<p><strong>Offline degradation is structural, not a fallback mode</strong>: no open-core
+command requires <code>CONDUCTOR_URL</code>, <code>POSE_MCP_IDENTITY_SECRET</code>,
+<code>HARNE8_PROJECTS_DIR</code> or any other Harne8-related environment variable —
+every one of them is optional, and their absence degrades a specific
+optional tool to a configuration error rather than blocking anything
+else. SLOs, backpressure, retry policy and disaster recovery for the
+<em>hosted</em> components (Conductor, Harness, GraphForge, Portal) are Harne8's
+own operational responsibility, out of this repository's scope by design
+(Non-goal: never move repository authority into a required hosted
+service).</p>
 <h2 id="primary-data-flows">Primary data flows</h2>
 <h3 id="feature-delivery">Feature delivery</h3>
 <div class="highlight"><pre><span></span><code>sequenceDiagram
@@ -1470,12 +1724,23 @@ repository engine.</p>
 <ul>
 <li>POSE does not execute or schedule AI agents by itself.</li>
 <li>Roadmaps model eligibility and ordering, not capacity or transactional work.</li>
-<li>Local insights do not yet implement DORA delivery metrics.</li>
+<li>Cross-repository portfolio projections and DORA/adoption metrics never
+  fabricate capacity, velocity or an ETA — only what was explicitly
+  recorded or already governed locally.</li>
 <li>Reports are auditable Git artifacts but are not signed attestations.</li>
-<li>MCP is tool-oriented; resources, prompts and live catalog refresh are not yet
-  part of the public surface.</li>
-<li>The baseline validation matrix covers four stack families and relies on
-  repository overrides for other ecosystems.</li>
+<li>MCP is deliberately tool-only: list tools paginate with opaque cursors and
+  the catalog is stable within a process lifetime, but resources and prompts
+  are not implemented — a generic resources primitive would expose
+  repository files wholesale, and prompts risk becoming policy outside
+  <code>.pose/workflows/</code>, both explicitly out of scope (see <a href="../mcp/">MCP server</a>).</li>
+<li>The baseline validation matrix covers six stack families (Node.js, Go,
+  Rust, Java, Python, .NET) and relies on repository overrides for other
+  ecosystems.</li>
+<li>Remote MCP deployment identity, secret management, TLS and rate limiting
+  remain deployment-environment responsibilities — no roadmap in this
+  portfolio targeted workload identity (SPIFFE) or a policy/audit-export
+  layer beyond the existing OPA decision plus bounded, non-payload audit
+  events.</li>
 </ul>
 <p>Use the <a href="../capability-assessment/">capability assessment</a> for scored maturity,
 evidence and prioritized gaps.</p>

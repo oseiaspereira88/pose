@@ -1,6 +1,6 @@
 # Product roadmaps
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
 **Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-07-19):** all 7 roadmaps `done`
 **Canonical execution artifacts:** `.pose/roadmaps/*.md` and `.pose/specs/*/spec.md`
@@ -14,6 +14,13 @@ structure are kept below as the historical execution record and as the
 template for the next portfolio, not as an open plan. See the
 [capability assessment](capability-assessment.md) for the current, post-delivery
 state of each mechanism.
+
+!!! note "Historical portfolio, current product"
+
+    The wave dates below are retained as execution history. POSE 1.0.0 has
+    since added automatic usage analytics, the revised five-metric DORA
+    contract and an exercised immutable release lifecycle. Current capability
+    truth lives in the assessment, not in these historical target windows.
 
 ## Prioritization model
 

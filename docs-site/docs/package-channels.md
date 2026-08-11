@@ -1,6 +1,6 @@
 # Package-manager channels
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
 Every channel below installs the exact same signed release artifact used by
 the [verified install contract](quickstart.md#install) — no channel ever
@@ -53,10 +53,13 @@ tap. A channel that fails this matrix blocks that release's support-tier claim,
 not the release itself — package channels are additive to the verified
 download-and-checksum contract, never a replacement for it.
 
-That matrix ran for the first time on v0.21.0 and failed on both runners: it
-had never executed before, because its trigger never fired. Both failures were
-in how the gate installed, not in the artifacts — and the Homebrew one is why
-this page no longer advertises a `brew` command.
+That matrix ran for the first time on v0.21.0 and exposed two install-path
+defects: Homebrew requires a tap, and WinGet requires local-manifest policy to
+be enabled. The repaired clean-host run (`31240578941`) then passed artifact
+validation, install and `pose doctor --json` on both macOS and Windows. This is
+why the formula remains release-tested while this page still does not present
+it as an end-user Homebrew channel: a throwaway CI tap is proof of the artifact,
+not a maintained public tap.
 
 ## Rollback
 

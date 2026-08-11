@@ -1,10 +1,10 @@
 # Capability assessment
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
-**Assessment date:** 2026-07-19
-**Evidence baseline:** commit `38a248d`, local source inspection, spec Final
-Reports for all 35 delivered specs, `pose doctor --json`, MCP `tools/list`
+**Assessment date:** 2026-08-11
+**Evidence baseline:** published `v1.0.0`, current mainline source inspection,
+closed spec Final Reports, `pose doctor --json`, the 48-tool MCP `tools/list`
 golden fixture and repository checks
 **Purpose:** measure fitness against POSE's own promises and relevant
 best-of-breed practices, not manufacture a universal product ranking.
@@ -45,22 +45,22 @@ design.
 
 POSE has moved from "credible open-source, single-repo governance engine
 with a large distance to reference-grade" to a governance engine that is
-reference-grade across most of its own claimed surface: distribution trust
-(signed, SBOM'd, provenance-attested releases on two real package-manager
-channels), delivery-outcome measurement (DORA + OpenTelemetry), MCP protocol
-completeness, structured validation output, extension lifecycle and
-cross-repository portfolio projection are no longer gaps. The remaining
-distance is concentrated in a smaller set of things that were never fully
-targeted by this portfolio: production-grade identity/secret management for
-remote MCP deployments, a populated third-party extension ecosystem (the
-lifecycle mechanism exists; the community catalog does not yet), and the
-handful of specs whose own Final Reports flag a real follow-through step
-still pending (WinGet's `winget-pkgs` submission, a first real
-N-minus-1 `Verify release` run against a published tag).
+reference-grade across most of its own claimed surface. v1.0.0 adds automatic,
+privacy-bounded CLI/MCP usage analytics and completes the production-scoped
+five-metric DORA contract; the immutable release lifecycle was also exercised
+through tagged, published and independently verified states. Distribution
+trust, structured validation, MCP protocol completeness, extension lifecycle
+and cross-repository portfolio projection are no longer design-only claims.
+
+The remaining distance is concentrated in production-grade identity/secret
+management for shared MCP deployments, a populated third-party extension
+ecosystem, upstream WinGet publication/a Homebrew tap, and human adjudication
+of observed usage findings. These are stated boundaries or owned follow-ups,
+not capabilities silently presented as complete.
 
 | Mechanism                                   | Current | Target | Summary                                                                                                        |
 |---------------------------------------------|--------:|-------:|----------------------------------------------------------------------------------------------------------------|
-| Install, upgrade and local-first runtime    |       5 |      5 | Two real package-manager channels; proven in-place upgrade against a populated instance                        |
+| Install, upgrade and local-first runtime    |       5 |      5 | Verified multi-platform download and proven in-place upgrade; package-manager channel limits are explicit      |
 | Spec lifecycle and closeout                 |       5 |      5 | Requirement-to-check-to-commit trace and structured amendment history close the prior gap                      |
 | Task routing, workflows, rules and skills   |       5 |      5 | Agent Skills contract is now a CI gate across all 9 skills, both locales                                       |
 | Dependencies, readiness and roadmaps        |       4 |      5 | Cross-repository portfolio projection with ownership/criticality; no capacity/time scheduling by design        |
@@ -68,11 +68,11 @@ N-minus-1 `Verify release` run against a published tag).
 | Evidence, history and insights              |       4 |      5 | Requirement trace links checks to commits; release artifacts are signed, per-report evidence is not            |
 | Follow-ups and recurrence                   |       5 |      5 | Owner/SLA and measured intervention effectiveness close the prior gap                                          |
 | Knowledge governance                        |       4 |      5 | Usage traceability and explainable semantic-advisory retrieval delivered; RBAC mapping still open              |
-| MCP and agent interoperability              |       5 |      5 | Golden-fixture catalog conformance, active connection context, uniform project scoping, pagination, 47 tools  |
+| MCP and agent interoperability              |       5 |      5 | Golden-fixture catalog conformance, active connection context, uniform project scoping, pagination, 48 tools  |
 | Policy, identity and audit                  |       4 |      5 | Identity-gated validation orchestration and bounded audit fields; SPIFFE/secret-mgmt/TLS still external        |
 | CI, release and supply-chain trust          |       5 |      5 | Signed, SBOM'd, provenance-attested releases; CodeQL/govulncheck/gitleaks/Scorecard all green                  |
 | Import and adoption interoperability        |       4 |      5 | Three executable, end-to-end-tested brownfield kits; no plugin-based custom source schemas yet                 |
-| Metrics and observability                   |       5 |      5 | All five DORA metrics and OTel traces/metrics for server operation; log export awaits OTel Logs SDK stability  |
+| Metrics and observability                   |       5 |      5 | Automatic local usage, five scoped DORA metrics and OTel server signals; human finding adjudication is open    |
 | Documentation, localization and diagnostics |       5 |      5 | Locale-parity bug fixed, self-inspecting docs tests, guided remediation, docs-as-tests monorepo recipes        |
 | Extensibility and ecosystem                 |       5 |      5 | Versioned manifest, install/list/remove/verify, provenance and revocation; community catalog still to populate |
 | Multi-repository and enterprise operation   |       4 |      5 | Harne8 boundary ratified and tested; durable orchestration/tenancy remain Harne8's job by design               |
@@ -273,8 +273,9 @@ beyond POSE's own sensitivity field.
 
 **Delivered now:** a versioned golden catalog fixture
 (`testdata/tool-catalog.golden.json`) freezing the exact `tools/list` payload
-— 47 tools — with bijection and negative-path tests against source registry,
-runtime and documentation; a uniform `project_id` schema across every
+— 48 tools (45 POSE tools + 3 optional reporters) — with bijection and
+negative-path tests against source registry, runtime and documentation; a
+uniform `project_id` schema across every
 multi-root tool with typed `ProjectUnknownError`/`ProjectAmbiguousError` and
 structured `error_code` fields; opaque cursor pagination
 (`cursor`/`limit`/`next_cursor`) on all four `pose_list_*` tools, fully
@@ -341,13 +342,11 @@ SBOM, provenance, Scorecard, dependency/secret/static-analysis scanning,
 public placeholders — is closed with running, green CI evidence, not a
 documented intention.
 
-**Gap to ideal:** the reproducible-release-verification spec's own Final
-Report notes its real N-minus-1 comparison path remains unexercised until a
-real prior published release exists to compare against — the mechanism is
-built and tested against synthetic fixtures, but its first real production
-run is still pending. [OpenSSF Scorecard](https://scorecard.dev/) results are
-now published and visible; further score improvement is routine maintenance,
-not a structural gap.
+**Gap to ideal:** the v1.0.0 release exercised the immutable candidate,
+published-artifact and independent-verification lifecycle, including a clean
+rebuild. A higher SLSA build level, broader OpenSSF Scorecard improvement and
+upstream package-channel automation remain hardening work, not missing
+evidence for the current release contract.
 
 ### 12. Import and adoption interoperability — 4/5
 
@@ -378,23 +377,23 @@ quality-gated event ingestion; `pose dora-metrics` computing all five current
 DORA metrics for an explicit production environment, with deployment rework
 rate and recovery restricted to deployment-caused incidents;
 `pose adoption-metrics` deriving activation, time-to-first-gate, retention
-and task-success from existing spec/history data; `pose events-housekeeping`
-for retention; opt-in OpenTelemetry traces and metrics (stable SDK,
+and task-success from existing spec/history data; automatic `pose usage` and
+`pose_usage` analytics for tool calls, semantic outcomes, latency and
+structured finding lifecycle without manual counters; `pose events-housekeeping`
+for delivery-event retention; opt-in OpenTelemetry traces and metrics (stable SDK,
 OTLP/HTTP) plus a trace-correlated, redacted structured logger wired through
 every MCP `tools/call`, with graceful startup/shutdown including
 SIGINT/SIGTERM handling.
 
-**Strength:** both gaps this document previously named explicitly by
-standard name — "the five DORA delivery metrics" and "OpenTelemetry-compatible
-traces, metrics and logs" — are delivered, and the two metric families are
-kept in genuinely separate reports so adoption data is never blended with
-DORA numbers into a false causal claim.
+**Strength:** usage, adoption and delivery are three explicit planes. Product
+activity is not blended with DORA into a false causal claim, and finding counts
+come from structured gates rather than agent-maintained counters or stderr
+line parsing.
 
-**Gap to ideal:** logs are a local structured writer, not yet OTLP-exported —
-deferred deliberately until the OTel Logs SDK reaches a stable release, per
-the delivering spec's own documented risk. DORA event ingestion is manual or
-CI-driven with no automatic collector, a stated scope boundary rather than an
-oversight.
+**Gap to ideal:** human confirmation of an observed finding as `valid`,
+`wont-fix` or `false-positive` remains an owned follow-up. Logs are a local
+structured writer rather than OTLP-exported, and DORA ingestion is manual or
+CI/webhook-driven rather than inferred — both are stated boundaries.
 
 ### 14. Documentation, localization and diagnostics — 5/5
 
@@ -404,7 +403,7 @@ actionable.
 **Delivered now:** a real, previously undetected locale-parity bug fixed
 (English default templates that were actually Portuguese, with no `pt-BR`
 translation on file); a self-inspecting documented-commands contract test
-that reads the CLI's own dispatch table instead of duplicating it; all 12
+that reads the CLI's own dispatch table instead of duplicating it; all 13
 docs-site pages classified by Diátaxis type with a visible
 version-applicability line; a docs security scan reusing the skills
 conformance patterns; `pose doctor --fix` turning diagnosable failures into

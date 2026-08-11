@@ -1,6 +1,6 @@
 # Frontmatter contracts
 
-**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE ≥ 0.9.0
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
 
 POSE frontmatter is **flat by contract** — inline comma-separated lists, never
 multi-line YAML lists. This keeps every artifact parseable by simple
