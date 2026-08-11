@@ -36,23 +36,49 @@ without Bash or Python fallbacks and works offline.
 |---|---|
 | `pose suggest [<type>] [--domain d] [--path p] [--json]` | Canonical trail: workflow + skill + rules |
 | `pose stats [workflows\|tasks\|contexts] [--since-days N]` | Outcome aggregation from history |
+| `pose usage [--since-days N] [--tool NAME] [--surface cli\|mcp] [--json]` | Automatic local tool calls, outcomes, finding lifecycle and latency by CLI/MCP surface |
 | `pose index` | Regenerate all indexes (repo-map, spec-graph, roadmaps…) |
 | `pose report --task "..." [--outcome ...] [--since ref]` | Versionable report + history JSONL |
+
+`pose usage` needs no counters from agents. POSE records recognized terminal
+CLI commands and project-backed MCP tool calls at their execution boundaries;
+the query itself is excluded. Exact structured gates contribute their stable
+findings, so the report can distinguish total observations from unique, new,
+resolved and reopened findings. Generic failures remain conservative instead
+of parsing arbitrary terminal output.
+
+The journal is best-effort and local-only, outside the tracked worktree. Its
+allowlisted event schema never persists command arguments, output, repository
+paths/names, source content, project/user identity or raw finding IDs; scope
+and finding identities are project-local HMAC fingerprints. Recording failure
+never changes the wrapped command's output or exit code. Use
+`POSE_USAGE_DISABLED=1` to disable collection. These are POSE product-usage
+signals, separate from DORA delivery metrics and unsuitable for individual
+productivity scoring.
+Set `POSE_USAGE_DIR` only when an operator needs an explicit absolute local
+state directory (for example, a persistent container mount); the default Git
+common-dir/user-cache resolution is preferred.
 
 ## DORA and adoption metrics
 
 | Command | Purpose |
 |---|---|
-| `pose record-deployment --application A --environment E --status success\|failure --source manual\|ci\|webhook [--deployed-at RFC3339] [--lead-time-seconds N] [--change-ref R]` | Ingest one deployment event |
-| `pose record-incident --application A --started-at RFC3339 --severity minor\|major\|critical --source manual\|ci\|webhook [--resolved-at RFC3339] [--caused-by-deployment]` | Ingest one incident event |
-| `pose dora-metrics [--application A] [--window-days N] [--json]` | The 5 DORA metrics; each reports `unavailable` (never a fabricated zero) without real data |
+| `pose record-deployment --application A --environment E --deployment-kind planned\|rework --status success\|failure --source manual\|ci\|webhook [--deployed-at RFC3339] [--lead-time-seconds N] [--change-ref R]` | Ingest one schema-v2 deployment event |
+| `pose record-incident --application A --environment E --started-at RFC3339 --severity minor\|major\|critical --source manual\|ci\|webhook [--resolved-at RFC3339] [--caused-by-deployment]` | Ingest one schema-v2 incident event |
+| `pose dora-metrics [--application A] [--environment E] [--window-days N] [--json]` | The current 5 DORA metrics for one production environment; `E` defaults to `production` |
 | `pose adoption-metrics [--json]` | Activation, time-to-first-gate, retention, task success — derived from specs/history POSE already owns |
 | `pose events-housekeeping <list-expired\|purge> [--older-than-days N] [--apply]` | Retention/deletion for stored deployment/incident events |
 
 Deployment and incident events are explicit input only — POSE never infers
 them from commits — and carry no identity field beyond `application` and
 `source`; every metric is a team/application aggregate, never an
-individual score. See [DORA metrics guide](https://dora.dev/guides/dora-metrics/).
+individual score. The five metrics are deployment frequency, lead time for
+changes, change failure rate, failed deployment recovery time and deployment
+rework rate. Recovery includes only resolved incidents explicitly marked
+`caused_by_deployment`; rework requires every scoped deployment to declare
+`deployment_kind`, otherwise that metric reports `unavailable` instead of
+guessing that legacy events were planned. Schema-v1 JSONL remains readable.
+See [DORA metrics guide](https://dora.dev/guides/dora-metrics/).
 
 ## Semantic governance assist
 
