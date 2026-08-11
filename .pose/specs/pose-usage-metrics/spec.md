@@ -95,9 +95,6 @@ Show which POSE capabilities agents actually use and which gates detect, resolve
 - modified: pose-mcp/internal/cli/skills_check.go
 - modified: pose-mcp/internal/cli/lintspec.go
 - modified: pose-mcp/internal/cli/validate.go
-- modified: pose-mcp/internal/cli/dora_adoption_metrics_test.go
-- modified: pose-mcp/internal/cli/dora_events.go
-- modified: pose-mcp/internal/cli/dora_metrics.go
 - modified: pose-mcp/internal/pose/cli.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/catalog.go
@@ -105,8 +102,6 @@ Show which POSE capabilities agents actually use and which gates detect, resolve
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: docs-site/docs/cli.md
 - modified: docs-site/docs/mcp.md
-- modified: docs-site/docs/architecture.md
-- modified: docs-site/docs/capability-assessment.md
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: composition-contract.json
@@ -115,7 +110,6 @@ Show which POSE capabilities agents actually use and which gates detect, resolve
 - created: .pose/reports/2026-08-10-standard-pose-usage-metrics-baseline.md
 - created: .pose/reports/history/standard-pose-usage-metrics-baseline.jsonl
 - created: .pose/reports/2026-08-10-standard-pose-usage-metrics.md
-- created: .pose/reports/2026-08-11-standard-pose-usage-metrics.md
 - created: .pose/reports/history/standard-pose-usage-metrics.jsonl
 - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
 - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
