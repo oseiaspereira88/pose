@@ -55,6 +55,7 @@ Prevent a POSE upgrade from rewriting every consuming repository as `pose-dist`.
 - created: .pose/specs/pose-managed-doc-project-identity-regression/spec.md
 - modified: AGENTS.md
 - modified: POSE.md
+- modified: docs-site/docs/cli.md
 
 ### API/contract changes
 - None; restore the documented template contract.
