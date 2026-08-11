@@ -27,11 +27,13 @@ func TestRecordDeploymentValidation(t *testing.T) {
 		want int
 	}{
 		{"missing-required", []string{"--status", "success", "--source", "ci"}, 2},
-		{"invalid-status", []string{"--application", "a", "--environment", "prod", "--status", "maybe", "--source", "ci"}, 2},
-		{"invalid-source", []string{"--application", "a", "--environment", "prod", "--status", "success", "--source", "vibes"}, 2},
-		{"invalid-deployed-at", []string{"--application", "a", "--environment", "prod", "--status", "success", "--source", "ci", "--deployed-at", "not-a-date"}, 2},
-		{"invalid-lead-time", []string{"--application", "a", "--environment", "prod", "--status", "success", "--source", "ci", "--lead-time-seconds", "-5"}, 2},
-		{"valid", []string{"--application", "a", "--environment", "prod", "--status", "success", "--source", "ci", "--deployed-at", "2026-06-01T10:00:00Z", "--lead-time-seconds", "3600"}, 0},
+		{"missing-deployment-kind", []string{"--application", "a", "--environment", "prod", "--status", "success", "--source", "ci"}, 2},
+		{"invalid-deployment-kind", []string{"--application", "a", "--environment", "prod", "--deployment-kind", "emergency", "--status", "success", "--source", "ci"}, 2},
+		{"invalid-status", []string{"--application", "a", "--environment", "prod", "--deployment-kind", "planned", "--status", "maybe", "--source", "ci"}, 2},
+		{"invalid-source", []string{"--application", "a", "--environment", "prod", "--deployment-kind", "planned", "--status", "success", "--source", "vibes"}, 2},
+		{"invalid-deployed-at", []string{"--application", "a", "--environment", "prod", "--deployment-kind", "planned", "--status", "success", "--source", "ci", "--deployed-at", "not-a-date"}, 2},
+		{"invalid-lead-time", []string{"--application", "a", "--environment", "prod", "--deployment-kind", "planned", "--status", "success", "--source", "ci", "--lead-time-seconds", "-5"}, 2},
+		{"valid", []string{"--application", "a", "--environment", "prod", "--deployment-kind", "rework", "--status", "success", "--source", "ci", "--deployed-at", "2026-06-01T10:00:00Z", "--lead-time-seconds", "3600"}, 0},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -51,10 +53,11 @@ func TestRecordIncidentValidation(t *testing.T) {
 		want int
 	}{
 		{"missing-required", []string{"--severity", "major", "--source", "ci"}, 2},
-		{"invalid-severity", []string{"--application", "a", "--started-at", "2026-06-01T10:00:00Z", "--severity", "yikes", "--source", "ci"}, 2},
-		{"invalid-source", []string{"--application", "a", "--started-at", "2026-06-01T10:00:00Z", "--severity", "major", "--source", "vibes"}, 2},
-		{"resolved-before-started", []string{"--application", "a", "--started-at", "2026-06-01T10:00:00Z", "--resolved-at", "2026-06-01T09:00:00Z", "--severity", "major", "--source", "ci"}, 2},
-		{"valid", []string{"--application", "a", "--started-at", "2026-06-01T10:00:00Z", "--resolved-at", "2026-06-01T11:00:00Z", "--severity", "major", "--source", "ci"}, 0},
+		{"missing-environment", []string{"--application", "a", "--started-at", "2026-06-01T10:00:00Z", "--severity", "major", "--source", "ci"}, 2},
+		{"invalid-severity", []string{"--application", "a", "--environment", "prod", "--started-at", "2026-06-01T10:00:00Z", "--severity", "yikes", "--source", "ci"}, 2},
+		{"invalid-source", []string{"--application", "a", "--environment", "prod", "--started-at", "2026-06-01T10:00:00Z", "--severity", "major", "--source", "vibes"}, 2},
+		{"resolved-before-started", []string{"--application", "a", "--environment", "prod", "--started-at", "2026-06-01T10:00:00Z", "--resolved-at", "2026-06-01T09:00:00Z", "--severity", "major", "--source", "ci"}, 2},
+		{"valid", []string{"--application", "a", "--environment", "prod", "--started-at", "2026-06-01T10:00:00Z", "--resolved-at", "2026-06-01T11:00:00Z", "--severity", "major", "--source", "ci", "--caused-by-deployment"}, 0},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -71,7 +74,7 @@ func TestEventsAreAppendOnlyMonthlyJSONL(t *testing.T) {
 	record := func(deployedAt string) {
 		var out, errB bytes.Buffer
 		if code := cmdRecordDeployment(repo, []string{
-			"--application", "a", "--environment", "prod", "--status", "success", "--source", "ci", "--deployed-at", deployedAt,
+			"--application", "a", "--environment", "prod", "--deployment-kind", "planned", "--status", "success", "--source", "ci", "--deployed-at", deployedAt,
 		}, &out, &errB); code != 0 {
 			t.Fatalf("record exit=%d err=%s", code, errB.String())
 		}
@@ -94,8 +97,55 @@ func TestEventsAreAppendOnlyMonthlyJSONL(t *testing.T) {
 	}
 }
 
+func TestRecordedEventsCarrySchemaV2Dimensions(t *testing.T) {
+	repo := newGitRepo(t)
+	var out, errB bytes.Buffer
+	if code := cmdRecordDeployment(repo, []string{
+		"--application", "checkout", "--environment", "production", "--deployment-kind", "rework",
+		"--status", "success", "--source", "ci", "--deployed-at", "2026-06-01T10:00:00Z",
+	}, &out, &errB); code != 0 {
+		t.Fatalf("record deployment exit=%d err=%s", code, errB.String())
+	}
+	if code := cmdRecordIncident(repo, []string{
+		"--application", "checkout", "--environment", "production", "--started-at", "2026-06-01T10:05:00Z",
+		"--resolved-at", "2026-06-01T11:05:00Z", "--severity", "major", "--source", "ci", "--caused-by-deployment",
+	}, &out, &errB); code != 0 {
+		t.Fatalf("record incident exit=%d err=%s", code, errB.String())
+	}
+
+	deployments, invalidDeployments := readDeploymentEvents(repo, &errB)
+	incidents, invalidIncidents := readIncidentEvents(repo, &errB)
+	if invalidDeployments != 0 || len(deployments) != 1 {
+		t.Fatalf("deployment read = %d invalid=%d", len(deployments), invalidDeployments)
+	}
+	if invalidIncidents != 0 || len(incidents) != 1 {
+		t.Fatalf("incident read = %d invalid=%d", len(incidents), invalidIncidents)
+	}
+	if deployments[0].SchemaVersion != 2 || deployments[0].DeploymentKind != "rework" {
+		t.Fatalf("deployment = %+v, want schema v2 rework", deployments[0])
+	}
+	if incidents[0].SchemaVersion != 2 || incidents[0].Environment != "production" || !incidents[0].CausedByDeployment {
+		t.Fatalf("incident = %+v, want schema v2 production deployment-caused", incidents[0])
+	}
+}
+
+func TestDORAMetricsDefaultsToProductionEnvironment(t *testing.T) {
+	repo := newGitRepo(t)
+	var out, errB bytes.Buffer
+	if code := cmdDORAMetrics(repo, []string{"--json"}, &out, &errB); code != 0 {
+		t.Fatalf("dora-metrics exit=%d err=%s", code, errB.String())
+	}
+	var report doraReport
+	if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+		t.Fatalf("decode report: %v", err)
+	}
+	if report.Environment != "production" || report.SchemaVersion != 2 {
+		t.Fatalf("default report = %+v, want schema v2 production scope", report)
+	}
+}
+
 func TestDORAMetricsUnavailableWithNoData(t *testing.T) {
-	report := computeDORA(nil, nil, "", 30)
+	report := computeDORA(nil, nil, "", "production", 30)
 	if len(report.Metrics) != 5 {
 		t.Fatalf("expected 5 DORA metrics, got %d", len(report.Metrics))
 	}
@@ -121,14 +171,16 @@ func mustTime(t *testing.T, s string) time.Time {
 func TestDORAMetricsComputesFromSyntheticHistory(t *testing.T) {
 	lead1, lead2 := 3600.0, 7200.0
 	deployments := []deploymentEvent{
-		{Application: "checkout", DeployedAt: "2026-06-02T10:00:00Z", Status: "success", LeadTimeSeconds: &lead1, Source: "ci"},
-		{Application: "checkout", DeployedAt: "2026-06-05T10:00:00Z", Status: "success", LeadTimeSeconds: &lead2, Source: "ci"},
-		{Application: "checkout", DeployedAt: "2026-06-10T10:00:00Z", Status: "failure", Source: "ci"},
-		{Application: "checkout", DeployedAt: "2026-06-20T10:00:00Z", Status: "success", Source: "manual"}, // no lead time
+		{SchemaVersion: 2, Application: "checkout", Environment: "prod", DeploymentKind: "planned", DeployedAt: "2026-06-02T10:00:00Z", Status: "success", LeadTimeSeconds: &lead1, Source: "ci"},
+		{SchemaVersion: 2, Application: "checkout", Environment: "prod", DeploymentKind: "planned", DeployedAt: "2026-06-05T10:00:00Z", Status: "success", LeadTimeSeconds: &lead2, Source: "ci"},
+		{SchemaVersion: 2, Application: "checkout", Environment: "prod", DeploymentKind: "planned", DeployedAt: "2026-06-10T10:00:00Z", Status: "failure", Source: "ci"},
+		{SchemaVersion: 2, Application: "checkout", Environment: "prod", DeploymentKind: "rework", DeployedAt: "2026-06-20T10:00:00Z", Status: "success", Source: "manual"}, // no lead time
+		{SchemaVersion: 2, Application: "checkout", Environment: "staging", DeploymentKind: "rework", DeployedAt: "2026-06-21T10:00:00Z", Status: "success", Source: "ci"},
 	}
 	incidents := []incidentEvent{
-		{Application: "checkout", StartedAt: "2026-06-10T10:05:00Z", ResolvedAt: "2026-06-10T11:05:00Z", Severity: "major", CausedByDeployment: true, Source: "manual"},
-		{Application: "checkout", StartedAt: "2026-06-25T00:00:00Z", Severity: "minor", Source: "manual"}, // unresolved, minor: excluded from reliability
+		{SchemaVersion: 2, Application: "checkout", Environment: "prod", StartedAt: "2026-06-10T10:05:00Z", ResolvedAt: "2026-06-10T11:05:00Z", Severity: "major", CausedByDeployment: true, Source: "manual"},
+		{SchemaVersion: 2, Application: "checkout", Environment: "prod", StartedAt: "2026-06-12T10:00:00Z", ResolvedAt: "2026-06-12T20:00:00Z", Severity: "major", Source: "manual"}, // unrelated: excluded from recovery
+		{SchemaVersion: 2, Application: "checkout", Environment: "staging", StartedAt: "2026-06-14T10:00:00Z", ResolvedAt: "2026-06-15T10:00:00Z", Severity: "major", CausedByDeployment: true, Source: "manual"},
 	}
 
 	// Fixed "now" via a 30-day window ending 2026-07-01 by construction:
@@ -136,7 +188,10 @@ func TestDORAMetricsComputesFromSyntheticHistory(t *testing.T) {
 	// days) to guarantee every fixture event falls inside it regardless
 	// of when the test runs, and assert ratios/medians rather than
 	// day-bucketed reliability (which does depend on "now").
-	report := computeDORA(deployments, incidents, "checkout", 3650) // ~10 years: everything in-window
+	report := computeDORA(deployments, incidents, "checkout", "prod", 3650) // ~10 years: everything in-window
+	if report.SchemaVersion != 2 || report.Environment != "prod" {
+		t.Fatalf("report contract = %+v, want schema v2 scoped to prod", report)
+	}
 
 	byName := map[string]doraMetric{}
 	for _, m := range report.Metrics {
@@ -176,24 +231,45 @@ func TestDORAMetricsComputesFromSyntheticHistory(t *testing.T) {
 		t.Errorf("failed_deployment_recovery_time = %v, want 3600 (1h resolved incident)", *mttr.Value)
 	}
 
-	rel := byName["reliability"]
-	if !rel.Available {
-		t.Fatalf("reliability = %+v, want available (deployment activity exists)", rel)
+	rework := byName["deployment_rework_rate"]
+	if !rework.Available || rework.SampleSize != 4 || *rework.Value != 0.25 {
+		t.Fatalf("deployment_rework_rate = %+v, want 0.25 (1 of 4 production deployments)", rework)
 	}
-	if *rel.Value <= 0 || *rel.Value >= 100 {
-		t.Errorf("reliability = %v, want strictly between 0 and 100 (one major incident day exists in a large window)", *rel.Value)
+	if _, exists := byName["reliability"]; exists {
+		t.Fatal("schema v2 must not expose the former reliability proxy")
 	}
 }
 
 func TestDORAMetricsApplicationFilterIsolatesData(t *testing.T) {
 	deployments := []deploymentEvent{
-		{Application: "checkout", DeployedAt: "2026-06-01T10:00:00Z", Status: "success", Source: "ci"},
-		{Application: "search", DeployedAt: "2026-06-01T10:00:00Z", Status: "failure", Source: "ci"},
+		{SchemaVersion: 2, Application: "checkout", Environment: "prod", DeploymentKind: "planned", DeployedAt: "2026-06-01T10:00:00Z", Status: "success", Source: "ci"},
+		{SchemaVersion: 2, Application: "search", Environment: "prod", DeploymentKind: "planned", DeployedAt: "2026-06-01T10:00:00Z", Status: "failure", Source: "ci"},
 	}
-	report := computeDORA(deployments, nil, "checkout", 3650)
+	report := computeDORA(deployments, nil, "checkout", "prod", 3650)
 	cfr := report.Metrics[2] // change_failure_rate
 	if cfr.Name != "change_failure_rate" || !cfr.Available || *cfr.Value != 0 {
 		t.Fatalf("checkout-scoped change_failure_rate = %+v, want 0 (only its own successful deploy counted)", cfr)
+	}
+}
+
+func TestDORAReworkRateUnavailableForLegacyUnknownClassification(t *testing.T) {
+	deployments := []deploymentEvent{
+		{Application: "checkout", Environment: "prod", DeployedAt: "2026-06-01T10:00:00Z", Status: "success", Source: "ci"},
+		{SchemaVersion: 2, Application: "checkout", Environment: "prod", DeploymentKind: "rework", DeployedAt: "2026-06-02T10:00:00Z", Status: "success", Source: "ci"},
+	}
+	report := computeDORA(deployments, nil, "checkout", "prod", 3650)
+	byName := map[string]doraMetric{}
+	for _, metric := range report.Metrics {
+		byName[metric.Name] = metric
+	}
+	if byName["deployment_rework_rate"].Available || !strings.Contains(byName["deployment_rework_rate"].Reason, "unknown deployment_kind") {
+		t.Fatalf("legacy rework metric = %+v, want explicit unavailable state", byName["deployment_rework_rate"])
+	}
+	if report.DataQuality.DeploymentsUnknownKind != 1 {
+		t.Fatalf("data quality = %+v, want one unknown deployment kind", report.DataQuality)
+	}
+	if !byName["deployment_frequency"].Available {
+		t.Fatalf("legacy kind must not suppress unrelated valid metrics: %+v", byName["deployment_frequency"])
 	}
 }
 
@@ -327,11 +403,11 @@ func TestDORAAndAdoptionMetricsCLIEndToEnd(t *testing.T) {
 	repo := newGitRepo(t)
 	inDir(t, repo, func() {
 		var out, errB bytes.Buffer
-		if code := Main([]string{"record-deployment", "--application", "checkout", "--environment", "prod", "--status", "success", "--source", "ci", "--lead-time-seconds", "120"}, &out, &errB); code != 0 {
+		if code := Main([]string{"record-deployment", "--application", "checkout", "--environment", "prod", "--deployment-kind", "planned", "--status", "success", "--source", "ci", "--lead-time-seconds", "120"}, &out, &errB); code != 0 {
 			t.Fatalf("record-deployment exit=%d err=%s", code, errB.String())
 		}
 		out.Reset()
-		if code := Main([]string{"dora-metrics", "--application", "checkout", "--json"}, &out, &errB); code != 0 {
+		if code := Main([]string{"dora-metrics", "--application", "checkout", "--environment", "prod", "--json"}, &out, &errB); code != 0 {
 			t.Fatalf("dora-metrics exit=%d err=%s", code, errB.String())
 		}
 		var report doraReport
@@ -340,6 +416,9 @@ func TestDORAAndAdoptionMetricsCLIEndToEnd(t *testing.T) {
 		}
 		if report.Application != "checkout" {
 			t.Errorf("expected application filter to round-trip: %+v", report)
+		}
+		if report.SchemaVersion != 2 || report.Environment != "prod" {
+			t.Errorf("expected schema-v2 production scope to round-trip: %+v", report)
 		}
 
 		out.Reset()

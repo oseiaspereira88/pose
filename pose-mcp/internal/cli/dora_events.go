@@ -22,9 +22,11 @@ import (
 )
 
 type deploymentEvent struct {
+	SchemaVersion   int      `json:"schema_version,omitempty"`
 	RecordedAt      string   `json:"recorded_at"`
 	Application     string   `json:"application"`
 	Environment     string   `json:"environment"`
+	DeploymentKind  string   `json:"deployment_kind,omitempty"` // planned | rework; empty only on legacy v1 events
 	DeployedAt      string   `json:"deployed_at"`
 	Status          string   `json:"status"` // success | failure
 	LeadTimeSeconds *float64 `json:"lead_time_seconds,omitempty"`
@@ -33,8 +35,10 @@ type deploymentEvent struct {
 }
 
 type incidentEvent struct {
+	SchemaVersion      int    `json:"schema_version,omitempty"`
 	RecordedAt         string `json:"recorded_at"`
 	Application        string `json:"application"`
+	Environment        string `json:"environment,omitempty"` // empty only on legacy v1 events
 	StartedAt          string `json:"started_at"`
 	ResolvedAt         string `json:"resolved_at,omitempty"` // empty = still open
 	Severity           string `json:"severity"`              // minor | major | critical
@@ -43,6 +47,7 @@ type incidentEvent struct {
 }
 
 var validDeploymentStatus = map[string]bool{"success": true, "failure": true}
+var validDeploymentKind = map[string]bool{"planned": true, "rework": true}
 var validSeverity = map[string]bool{"minor": true, "major": true, "critical": true}
 var validEventSource = map[string]bool{"manual": true, "ci": true, "webhook": true}
 
@@ -75,11 +80,11 @@ func parseEventTime(value string) (time.Time, error) {
 }
 
 func cmdRecordDeployment(root string, args []string, stdout, stderr io.Writer) int {
-	var ev deploymentEvent
+	ev := deploymentEvent{SchemaVersion: 2}
 	var leadTime string
 	for i := 0; i < len(args); i++ {
 		if i+1 >= len(args) {
-			return usageError(stderr, "Usage: pose record-deployment --application A --environment E --status success|failure --source manual|ci|webhook [--deployed-at RFC3339] [--lead-time-seconds N] [--change-ref R]")
+			return usageError(stderr, "Usage: pose record-deployment --application A --environment E --deployment-kind planned|rework --status success|failure --source manual|ci|webhook [--deployed-at RFC3339] [--lead-time-seconds N] [--change-ref R]")
 		}
 		v := args[i+1]
 		switch args[i] {
@@ -87,6 +92,8 @@ func cmdRecordDeployment(root string, args []string, stdout, stderr io.Writer) i
 			ev.Application = v
 		case "--environment":
 			ev.Environment = v
+		case "--deployment-kind":
+			ev.DeploymentKind = v
 		case "--status":
 			ev.Status = v
 		case "--source":
@@ -104,6 +111,10 @@ func cmdRecordDeployment(root string, args []string, stdout, stderr io.Writer) i
 	}
 	if ev.Application == "" || ev.Environment == "" {
 		fmt.Fprintln(stderr, "pose record-deployment: --application and --environment are required")
+		return 2
+	}
+	if !validDeploymentKind[ev.DeploymentKind] {
+		fmt.Fprintln(stderr, "pose record-deployment: --deployment-kind must be planned|rework")
 		return 2
 	}
 	if !validDeploymentStatus[ev.Status] {
@@ -137,12 +148,12 @@ func cmdRecordDeployment(root string, args []string, stdout, stderr io.Writer) i
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
-	fmt.Fprintf(stdout, "deployment recorded: application=%s environment=%s status=%s\n", ev.Application, ev.Environment, ev.Status)
+	fmt.Fprintf(stdout, "deployment recorded: application=%s environment=%s deployment_kind=%s status=%s\n", ev.Application, ev.Environment, ev.DeploymentKind, ev.Status)
 	return 0
 }
 
 func cmdRecordIncident(root string, args []string, stdout, stderr io.Writer) int {
-	var ev incidentEvent
+	ev := incidentEvent{SchemaVersion: 2}
 	causedByDeployment := false
 	for i := 0; i < len(args); i++ {
 		if args[i] == "--caused-by-deployment" {
@@ -150,12 +161,14 @@ func cmdRecordIncident(root string, args []string, stdout, stderr io.Writer) int
 			continue
 		}
 		if i+1 >= len(args) {
-			return usageError(stderr, "Usage: pose record-incident --application A --started-at RFC3339 --severity minor|major|critical --source manual|ci|webhook [--resolved-at RFC3339] [--caused-by-deployment]")
+			return usageError(stderr, "Usage: pose record-incident --application A --environment E --started-at RFC3339 --severity minor|major|critical --source manual|ci|webhook [--resolved-at RFC3339] [--caused-by-deployment]")
 		}
 		v := args[i+1]
 		switch args[i] {
 		case "--application":
 			ev.Application = v
+		case "--environment":
+			ev.Environment = v
 		case "--started-at":
 			ev.StartedAt = v
 		case "--resolved-at":
@@ -170,8 +183,8 @@ func cmdRecordIncident(root string, args []string, stdout, stderr io.Writer) int
 		i++
 	}
 	ev.CausedByDeployment = causedByDeployment
-	if ev.Application == "" || ev.StartedAt == "" {
-		fmt.Fprintln(stderr, "pose record-incident: --application and --started-at are required")
+	if ev.Application == "" || ev.Environment == "" || ev.StartedAt == "" {
+		fmt.Fprintln(stderr, "pose record-incident: --application, --environment and --started-at are required")
 		return 2
 	}
 	if !validSeverity[ev.Severity] {
@@ -204,7 +217,7 @@ func cmdRecordIncident(root string, args []string, stdout, stderr io.Writer) int
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
-	fmt.Fprintf(stdout, "incident recorded: application=%s severity=%s\n", ev.Application, ev.Severity)
+	fmt.Fprintf(stdout, "incident recorded: application=%s environment=%s severity=%s caused_by_deployment=%t\n", ev.Application, ev.Environment, ev.Severity, ev.CausedByDeployment)
 	return 0
 }
 

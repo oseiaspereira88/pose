@@ -375,7 +375,8 @@ adoption.
 
 **Delivered now:** `pose record-deployment`/`record-incident` for
 quality-gated event ingestion; `pose dora-metrics` computing all five current
-DORA metrics with a three-state result and a documented Reliability proxy;
+DORA metrics for an explicit production environment, with deployment rework
+rate and recovery restricted to deployment-caused incidents;
 `pose adoption-metrics` deriving activation, time-to-first-gate, retention
 and task-success from existing spec/history data; `pose events-housekeeping`
 for retention; opt-in OpenTelemetry traces and metrics (stable SDK,

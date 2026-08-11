@@ -255,8 +255,9 @@ silently discarded.
 same domain through `pose_insights`. Reports can be archived by retention
 policy, but historical JSONL is preserved as the recurrence source.
 `pose record-deployment`/`record-incident` capture quality-gated delivery
-events; `pose dora-metrics` derives all five current DORA metrics (with a
-documented Reliability proxy) and `pose adoption-metrics` derives
+events; `pose dora-metrics` derives all five current, production-scoped DORA
+metrics, including deployment rework rate and deployment-caused recovery,
+while `pose adoption-metrics` derives
 activation/time-to-first-gate/retention/task-success from the same local
 history — kept in separate reports so adoption is never blended into a DORA
 number as a false causal claim. `events-housekeeping` bounds retention.
