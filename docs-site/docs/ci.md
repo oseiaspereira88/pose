@@ -31,7 +31,7 @@ the POSE repository to an immutable release tag or commit:
 ```yaml
 repos:
   - repo: https://github.com/oseiaspereira88/pose
-    rev: v0.23.1  # pin to an immutable release tag
+    rev: v1.0.0  # pin to an immutable release tag
     hooks: [{id: pose-check}, {id: pose-lint-spec}, {id: pose-history-check}]
 ```
 

@@ -64,7 +64,7 @@ Prevent optimistic or misleading delivery metrics while giving teams a comparabl
 
 ### Artifacts
 - created: .pose/adr/2026-08-10-production-scoped-dora-five-metric-contract.md
-- created: .pose/changelogs/unreleased/pose-dora-five-metrics-v2.md
+- created: .pose/changelogs/v1.0.0/pose-dora-five-metrics-v2.md
 - created: .pose/reports/2026-08-10-standard-pose-dora-five-metrics-v2.md
 - created: .pose/reports/2026-08-11-standard-pose-dora-five-metrics-v2.md
 - created: .pose/reports/history/standard-pose-dora-five-metrics-v2.jsonl

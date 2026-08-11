@@ -105,7 +105,7 @@ Show which POSE capabilities agents actually use and which gates detect, resolve
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: composition-contract.json
-- created: .pose/changelogs/unreleased/pose-usage-metrics.md
+- created: .pose/changelogs/v1.0.0/pose-usage-metrics.md
 - created: .pose/adr/2026-08-10-local-usage-events-and-outcome-aware-aggregation.md
 - created: .pose/reports/2026-08-10-standard-pose-usage-metrics-baseline.md
 - created: .pose/reports/history/standard-pose-usage-metrics-baseline.jsonl

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "version": "v1.0.0",
+  "previous_version": "v0.23.1",
+  "prepared_at": "2026-08-11T01:09:07Z",
+  "specs": [
+    "pose-dora-five-metrics-v2",
+    "pose-managed-doc-project-identity-regression",
+    "pose-usage-metrics"
+  ],
+  "categories": {
+    "added": 1,
+    "changed": 1,
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-dora-five-metrics-v2",
+      "category": "changed",
+      "breaking": true,
+      "refs": "[]",
+      "body": "`pose dora-metrics` now reports the current five production delivery metrics,\nreplacing the former Reliability proxy with deployment rework rate and limiting\nrecovery time to resolved incidents explicitly caused by a deployment. New\ndeployment and incident events require rework/environment classification;\nschema-v1 JSONL remains readable without guessed values.",
+      "path": "pose-dora-five-metrics-v2.md",
+      "digest": "sha256:9d2e2e1df950a668f4277dd6ff8a367aa3438c0ae2de3589d8f0bc917c497f27"
+    },
+    {
+      "spec": "pose-managed-doc-project-identity-regression",
+      "category": "fixed",
+      "breaking": false,
+      "refs": "[]",
+      "body": "Managed manual refreshes once again preserve each installed repository's own\nproject name instead of replacing it with the POSE source repository name.",
+      "path": "pose-managed-doc-project-identity-regression.md",
+      "digest": "sha256:dd4eda27973014f0214f9df378d4b065ce8e711fa7457be0497960aa62b3a852"
+    },
+    {
+      "spec": "pose-usage-metrics",
+      "category": "added",
+      "breaking": false,
+      "refs": "[]",
+      "body": "POSE now measures local CLI and MCP tool usage automatically and exposes\nprivacy-bounded aggregates through `pose usage` and `pose_usage`, including\nsemantic outcomes, finding lifecycle and latency without agent-maintained\ncounters or individual tracking.",
+      "path": "pose-usage-metrics.md",
+      "digest": "sha256:751bbfaf90b4da699ad77a827bb7e4b4aec02d29095c6cb77807c9ea69f9174d"
+    }
+  ],
+  "breaking": true,
+  "notes_digest": "sha256:f9fe691b2a920c534db05fec121b306756285b4d9a9cb82b36775eaecdc0c124",
+  "release_input_digest": "sha256:b6f2300d8965ae6fdd84b7eb24d843514cf84a578803828cb3dcf4c671159b2a",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.0.0"
+  }
+}
