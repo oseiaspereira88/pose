@@ -5,6 +5,8 @@
 
 <div align="center">
 
+<img src="docs-site/docs/assets/logo.svg" alt="Logo do POSE" width="128">
+
 # POSE — Project Operating Standard for Engineering
 
 **Transforme a engenharia assistida por IA em um sistema de entrega

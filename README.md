@@ -2,6 +2,8 @@
 
 <div align="center">
 
+<img src="docs-site/docs/assets/logo.svg" alt="POSE logo" width="128">
+
 # POSE — Project Operating Standard for Engineering
 
 **Turn AI-assisted engineering into a repository-owned, machine-checkable
