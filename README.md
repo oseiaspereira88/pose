@@ -104,27 +104,29 @@ repository-local governance is no longer enough.
 
 ## What is in the box
 
-| Path or component  | Purpose                                                                          |
-|--------------------|----------------------------------------------------------------------------------|
-| `pose` binary      | Native CLI, installer, gates, reports, metrics, housekeeping and MCP             |
-| `.pose/specs/`     | Living feature contracts with lifecycle and dependencies                         |
-| `.pose/workflows/` | Procedures for feature, bugfix, review, refactor, docs and recurrence            |
-| `.pose/rules/`     | Cumulative security, backend, frontend, Kubernetes, evidence and knowledge rules |
-| `.agents/skills/`  | Nine portable Agent Skills; Claude-compatible links are installed                |
-| `.pose/roadmaps/`  | Governed roadmaps with milestone DAGs and readiness                              |
-| `.pose/knowledge/` | TTL-governed handoffs, notes and decision logs                                   |
-| `.pose/reports/`   | Versionable evidence and append-only JSONL history                               |
-| `.pose/indexes/`   | Repository, module, task, spec-graph and roadmap projections                     |
-| `pose serve-mcp`   | 20 POSE tools over stdio or Streamable HTTP                                      |
-| `mcp-enforce/`     | Optional project/run-scoped identity, OPA decisions and audit                    |
-| `pose-action/`     | GitHub Action adapter for deterministic gates                                    |
+| Path or component   | Purpose                                                                                        |
+|---------------------|------------------------------------------------------------------------------------------------|
+| `pose` binary       | Native CLI, installer, gates, reports, metrics, housekeeping and MCP                           |
+| `.pose/specs/`      | Living feature contracts with lifecycle and dependencies                                       |
+| `.pose/workflows/`  | Procedures for feature, bugfix, review, refactor, docs, recurrence, release and UI surfaces    |
+| `.pose/rules/`      | Cumulative security, backend, frontend, Kubernetes, evidence and knowledge rules               |
+| `.agents/skills/`   | Eleven portable Agent Skills; Claude-compatible links are installed                            |
+| `.pose/roadmaps/`   | Governed roadmaps with milestone DAGs and readiness                                            |
+| `.pose/knowledge/`  | TTL-governed handoffs, notes and decision logs                                                 |
+| `.pose/reports/`    | Versionable evidence and append-only JSONL history                                             |
+| `.pose/indexes/`    | Repository, module, task, spec-graph and roadmap projections                                   |
+| `pose serve-mcp`    | 45 POSE governance tools and 3 optional Conductor run reporters over stdio or Streamable HTTP  |
+| `mcp-enforce/`      | Optional project/run-scoped identity, OPA decisions and audit                                  |
+| `pose-action/`      | GitHub Action adapter for deterministic gates                                                  |
 
 Read the [technical architecture](docs-site/docs/architecture.md) for every
 component and mechanism. Read the
 [capability assessment](docs-site/docs/capability-assessment.md) for current
 maturity and best-of-breed gaps. The governed
 [product roadmaps](docs-site/docs/product-roadmaps.md) convert those findings
-into 7 roadmaps, 35 implementation specs and dependency-aware release gates.
+into roadmaps, implementation specs and dependency-aware release gates —
+8 roadmaps and 89 specs today, tracked under `.pose/roadmaps/` and
+`.pose/specs/`.
 
 ## Quickstart
 
