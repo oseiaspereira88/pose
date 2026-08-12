@@ -1,22 +1,142 @@
+**English** | [Português (Brasil)](README.pt-BR.md)
+
+<div align="center">
+
 # POSE — Project Operating Standard for Engineering
 
 **Turn AI-assisted engineering into a repository-owned, machine-checkable
 delivery system.**
 
+[![Release](https://img.shields.io/github/v/release/oseiaspereira88/pose?label=release&color=009688)](https://github.com/oseiaspereira88/pose/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/oseiaspereira88/pose/ci.yml?label=CI)](https://github.com/oseiaspereira88/pose/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/oseiaspereira88/pose?label=license)](LICENSE)
+![Platforms](https://img.shields.io/badge/platforms-linux%20%7C%20macOS%20%7C%20windows-lightgrey)
+[![Docs](https://img.shields.io/badge/docs-online-009688)](https://oseiaspereira88.github.io/pose/)
+
+</div>
+
 POSE is the free, Apache-2.0 governance core for teams building software with
 humans and AI agents. It installs an operating contract in the repository and
 enforces that contract with one native Go binary:
 
-```text
-spec → execution → evidence → follow-ups → recurrence → knowledge
-  ▲                                                        │
-  └────────────── learning returns to planning ─────────────┘
+```mermaid
+flowchart LR
+  S[spec] --> E[execution] --> V[evidence] --> F[follow-ups] --> R[recurrence] --> K[knowledge]
+  K -. learning returns to planning .-> S
 ```
 
 POSE is not another coding agent, IDE or project board. It is the layer that
 makes work portable across those tools: what may start, which rules apply,
 which checks must pass, what evidence proves completion and what the next
 execution needs to remember.
+
+## Quickstart
+
+Fast path for Linux and macOS (run it from the Git repository that should
+receive the POSE contract):
+
+```bash
+curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
+```
+
+This path follows the latest release and installs the native binary into
+`~/.local/bin`. It relies on HTTPS but does not independently verify the
+archive checksum or Sigstore identity. Use the pinned flow below when
+reproducibility or supply-chain verification is required.
+
+<details>
+<summary><strong>Verified install: checksum-pinned archive (Linux, macOS, Windows)</strong></summary>
+
+Download the released archive for your platform, verify its checksum, place
+`pose` on `PATH`, then install POSE into a Git repository. Release assets are
+named `pose_<version>_<os>_<arch>` — `tar.gz` for Linux and macOS, `zip` for
+Windows — on `linux`/`darwin`/`windows` × `amd64`/`arm64`.
+
+Linux and macOS (bash or zsh; replace `linux_amd64` with your platform):
+
+```bash
+V=1.0.0
+curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz"
+curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/checksums.txt"
+sha256sum --check --ignore-missing checksums.txt   # macOS: shasum -a 256 -c
+tar -xzf "pose_${V}_linux_amd64.tar.gz" pose
+install -m 0755 pose ~/.local/bin/pose             # any directory on PATH
+pose install /path/to/your/repo
+```
+
+Windows (PowerShell):
+
+```powershell
+$V = "1.0.0"
+Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/pose_${V}_windows_amd64.zip" -OutFile "pose_${V}_windows_amd64.zip"
+Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/checksums.txt" -OutFile checksums.txt
+(Get-FileHash "pose_${V}_windows_amd64.zip" -Algorithm SHA256).Hash -eq ((Get-Content checksums.txt | Select-String "pose_${V}_windows_amd64.zip") -split '\s+')[0]
+Expand-Archive "pose_${V}_windows_amd64.zip" -DestinationPath .
+# move pose.exe to a directory on PATH, then:
+pose install C:\path\to\your\repo
+```
+
+For the verified path, always check the archive before executing the binary.
+The release-bundle `install.sh` can also be downloaded next to that verified
+binary and run locally.
+
+</details>
+
+The installer:
+
+- embeds workflows, rules, templates, skills and the selected locale;
+- derives project name and ID, with explicit override flags;
+- configures the same binary as the MCP server;
+- preserves existing specs, ADRs, knowledge, reports and roadmaps;
+- finishes with native `init`, `index` and `check --strict`;
+- reports success only when the structural gate passes.
+
+Requirements: Git and the native `pose` binary. Bash is needed only when using
+the optional release-bundle `install.sh`; the runtime itself needs no Bash,
+Python, Node.js or hosted service. Supported release targets are Linux, macOS
+and Windows on `amd64` and `arm64`.
+
+Every release publishes `compatibility.json` (supported engine, schema and
+upgrade pairs) and the generated `compatibility-report.md` (the release gate
+evidence) as release assets. Binary SemVer and repository schema compatibility
+are independent axes: `pose upgrade` migrates an instance forward through
+ordered idempotent migrations; downgrade is unsupported by contract.
+
+### Run a first governed delivery
+
+```bash
+pose init --wizard --yes
+pose new-spec customer-export
+pose suggest feature
+
+# Fill Intent, R1/R2... requirements and Technical Plan.
+pose lint-spec customer-export --ready-check
+
+# Implement, then run the repository's declared checks.
+pose validate --strict
+pose report --task "customer-export" --spec customer-export
+
+# Stamp completed_at and disposition every follow-up before done.
+pose lint-spec customer-export --strict
+```
+
+### Bring specs from another SDD tool
+
+Already use another SDD format?
+
+```bash
+pose import spec-kit .specify/specs --dry-run
+pose import openspec openspec/changes/add-2fa --dry-run
+```
+
+The importer validates the complete batch before writing, rejects symlinks,
+never overwrites an existing spec and reports everything that still needs
+human curation.
+
+See [`examples/brownfield-kits/`](examples/brownfield-kits/) for three
+real, executable adoption journeys — direct adoption, Spec Kit import and
+OpenSpec import — each with a staged visibility-to-blocking-gate guide and
+a rollback story, exercised end to end by the test suite.
 
 ## Why POSE
 
@@ -44,6 +164,32 @@ POSE makes each of those concerns an explicit, versioned mechanism.
 | **Plans from dependencies**               | Validates spec and milestone DAGs and computes readiness              | `depends_on`, roadmaps, `pose_spec_readiness`  |
 | **Works across agents**                   | Exposes short instructions, portable skills and MCP tools             | `AGENTS.md`, Agent Skills, `pose serve-mcp`    |
 | **Keeps control local**                   | Runs offline and stores the source of truth in Git                    | One CGO-free binary; no hosted dependency      |
+
+## What is in the box
+
+| Path or component   | Purpose                                                                                        |
+|---------------------|------------------------------------------------------------------------------------------------|
+| `pose` binary       | Native CLI, installer, gates, reports, metrics, housekeeping and MCP                           |
+| `.pose/specs/`      | Living feature contracts with lifecycle and dependencies                                       |
+| `.pose/workflows/`  | Procedures for feature, bugfix, review, refactor, docs, recurrence, release and UI surfaces    |
+| `.pose/rules/`      | Cumulative security, backend, frontend, Kubernetes, evidence and knowledge rules               |
+| `.agents/skills/`   | Eleven portable Agent Skills; Claude-compatible links are installed                            |
+| `.pose/roadmaps/`   | Governed roadmaps with milestone DAGs and readiness                                            |
+| `.pose/knowledge/`  | TTL-governed handoffs, notes and decision logs                                                 |
+| `.pose/reports/`    | Versionable evidence and append-only JSONL history                                             |
+| `.pose/indexes/`    | Repository, module, task, spec-graph and roadmap projections                                   |
+| `pose serve-mcp`    | 45 POSE governance tools and 3 optional Conductor run reporters over stdio or Streamable HTTP  |
+| `mcp-enforce/`      | Optional project/run-scoped identity, OPA decisions and audit                                  |
+| `pose-action/`      | GitHub Action adapter for deterministic gates                                                  |
+
+Read the [technical architecture](docs-site/docs/architecture.md) for every
+component and mechanism. Read the
+[capability assessment](docs-site/docs/capability-assessment.md) for current
+maturity and best-of-breed gaps. The governed
+[product roadmaps](docs-site/docs/product-roadmaps.md) convert those findings
+into roadmaps, implementation specs and dependency-aware release gates —
+8 roadmaps and 89 specs today, tracked under `.pose/roadmaps/` and
+`.pose/specs/`.
 
 ## Where POSE is strongest
 
@@ -102,133 +248,6 @@ The boundary is intentional: the free core remains useful by itself, offline
 and vendor neutral. Harne8 adds coordination and visual operation when
 repository-local governance is no longer enough.
 
-## What is in the box
-
-| Path or component   | Purpose                                                                                        |
-|---------------------|------------------------------------------------------------------------------------------------|
-| `pose` binary       | Native CLI, installer, gates, reports, metrics, housekeeping and MCP                           |
-| `.pose/specs/`      | Living feature contracts with lifecycle and dependencies                                       |
-| `.pose/workflows/`  | Procedures for feature, bugfix, review, refactor, docs, recurrence, release and UI surfaces    |
-| `.pose/rules/`      | Cumulative security, backend, frontend, Kubernetes, evidence and knowledge rules               |
-| `.agents/skills/`   | Eleven portable Agent Skills; Claude-compatible links are installed                            |
-| `.pose/roadmaps/`   | Governed roadmaps with milestone DAGs and readiness                                            |
-| `.pose/knowledge/`  | TTL-governed handoffs, notes and decision logs                                                 |
-| `.pose/reports/`    | Versionable evidence and append-only JSONL history                                             |
-| `.pose/indexes/`    | Repository, module, task, spec-graph and roadmap projections                                   |
-| `pose serve-mcp`    | 45 POSE governance tools and 3 optional Conductor run reporters over stdio or Streamable HTTP  |
-| `mcp-enforce/`      | Optional project/run-scoped identity, OPA decisions and audit                                  |
-| `pose-action/`      | GitHub Action adapter for deterministic gates                                                  |
-
-Read the [technical architecture](docs-site/docs/architecture.md) for every
-component and mechanism. Read the
-[capability assessment](docs-site/docs/capability-assessment.md) for current
-maturity and best-of-breed gaps. The governed
-[product roadmaps](docs-site/docs/product-roadmaps.md) convert those findings
-into roadmaps, implementation specs and dependency-aware release gates —
-8 roadmaps and 89 specs today, tracked under `.pose/roadmaps/` and
-`.pose/specs/`.
-
-## Quickstart
-
-Fast path for Linux and macOS (run it from the Git repository that should
-receive the POSE contract):
-
-```bash
-curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
-```
-
-This path follows the latest release and installs the native binary into
-`~/.local/bin`. It relies on HTTPS but does not independently verify the
-archive checksum or Sigstore identity. Use the pinned flow below when
-reproducibility or supply-chain verification is required.
-
-Download the released archive for your platform, verify its checksum, place
-`pose` on `PATH`, then install POSE into a Git repository. Release assets are
-named `pose_<version>_<os>_<arch>` — `tar.gz` for Linux and macOS, `zip` for
-Windows — on `linux`/`darwin`/`windows` × `amd64`/`arm64`.
-
-Linux and macOS (bash or zsh; replace `linux_amd64` with your platform):
-
-```bash
-V=1.0.0
-curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz"
-curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/checksums.txt"
-sha256sum --check --ignore-missing checksums.txt   # macOS: shasum -a 256 -c
-tar -xzf "pose_${V}_linux_amd64.tar.gz" pose
-install -m 0755 pose ~/.local/bin/pose             # any directory on PATH
-pose install /path/to/your/repo
-```
-
-Windows (PowerShell):
-
-```powershell
-$V = "1.0.0"
-Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/pose_${V}_windows_amd64.zip" -OutFile "pose_${V}_windows_amd64.zip"
-Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/checksums.txt" -OutFile checksums.txt
-(Get-FileHash "pose_${V}_windows_amd64.zip" -Algorithm SHA256).Hash -eq ((Get-Content checksums.txt | Select-String "pose_${V}_windows_amd64.zip") -split '\s+')[0]
-Expand-Archive "pose_${V}_windows_amd64.zip" -DestinationPath .
-# move pose.exe to a directory on PATH, then:
-pose install C:\path\to\your\repo
-```
-
-For the verified path, always check the archive before executing the binary.
-The release-bundle `install.sh` can also be downloaded next to that verified
-binary and run locally.
-
-The installer:
-
-- embeds workflows, rules, templates, skills and the selected locale;
-- derives project name and ID, with explicit override flags;
-- configures the same binary as the MCP server;
-- preserves existing specs, ADRs, knowledge, reports and roadmaps;
-- finishes with native `init`, `index` and `check --strict`;
-- reports success only when the structural gate passes.
-
-Requirements: Git and the native `pose` binary. Bash is needed only when using
-the optional release-bundle `install.sh`; the runtime itself needs no Bash,
-Python, Node.js or hosted service. Supported release targets are Linux, macOS
-and Windows on `amd64` and `arm64`.
-
-Every release publishes `compatibility.json` (supported engine, schema and
-upgrade pairs) and the generated `compatibility-report.md` (the release gate
-evidence) as release assets. Binary SemVer and repository schema compatibility
-are independent axes: `pose upgrade` migrates an instance forward through
-ordered idempotent migrations; downgrade is unsupported by contract.
-
-## Run a first governed delivery
-
-```bash
-pose init --wizard --yes
-pose new-spec customer-export
-pose suggest feature
-
-# Fill Intent, R1/R2... requirements and Technical Plan.
-pose lint-spec customer-export --ready-check
-
-# Implement, then run the repository's declared checks.
-pose validate --strict
-pose report --task "customer-export" --spec customer-export
-
-# Stamp completed_at and disposition every follow-up before done.
-pose lint-spec customer-export --strict
-```
-
-Already use another SDD format?
-
-```bash
-pose import spec-kit .specify/specs --dry-run
-pose import openspec openspec/changes/add-2fa --dry-run
-```
-
-The importer validates the complete batch before writing, rejects symlinks,
-never overwrites an existing spec and reports everything that still needs
-human curation.
-
-See [`examples/brownfield-kits/`](examples/brownfield-kits/) for three
-real, executable adoption journeys — direct adoption, Spec Kit import and
-OpenSpec import — each with a staged visibility-to-blocking-gate guide and
-a rollback story, exercised end to end by the test suite.
-
 ## Adopt progressively
 
 1. **Observe:** install POSE and run checks in tolerant mode.
@@ -239,8 +258,9 @@ a rollback story, exercised end to end by the test suite.
    out of the repository.
 
 Teams using pre-commit.com can enable `pose-check`, `pose-lint-spec` and
-`pose-history-check`. See the [CI guide](docs-site/docs/ci.md) and
-[CLI reference](docs-site/docs/cli.md).
+`pose-history-check`. See the [CI guide](docs-site/docs/ci.md), the
+[CLI reference](docs-site/docs/cli.md) and the
+[docs site](https://oseiaspereira88.github.io/pose/) for the rest.
 
 ## Security and privacy
 
