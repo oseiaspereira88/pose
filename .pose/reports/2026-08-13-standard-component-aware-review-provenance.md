@@ -19,9 +19,7 @@
 - delivery-surface
 
 ## Files Changed
-- pose/reports/2026-08-13-standard-validate-native.md
-- .pose/reports/history/standard-validate-native.jsonl
-- .pose/results/delivery-validation.json
+- _No files detected_
 
 ## Validation Commands
 - _Fill manually_
@@ -30,16 +28,17 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-e79d77dad327
-- Selector: range:504fdf3c8de09c7136775d33829446d608561483..b9807d23681323bc3b9fcfd3ca1dfad98491553d
+- ID: cs-b476b3c4827c
+- Selector: range:504fdf3c8de09c7136775d33829446d608561483..12e58f3
 - Base: 504fdf3c8de09c7136775d33829446d608561483 (504fdf3c8de09c7136775d33829446d608561483)
-- Head: b9807d23681323bc3b9fcfd3ca1dfad98491553d (b9807d23681323bc3b9fcfd3ca1dfad98491553d)
-- Diff digest: sha256:2d1aa6edf20cb9e5074dba29453762527ad471e5d4e89146bb0a7879df03098e
+- Head: 12e58f3 (12e58f39b91176bcddc52f4fbb577c066b3ee4c5)
+- Diff digest: sha256:9f4748ab60fcfa6ebf8b65edd9ce8f4ce7f60451dbad4da1d197f95c1a91b20f
 - Paths:
   - created: .pose/reviews/rvw-20260813T151403Z-93bc61c6.md
   - modified: .pose/assessments/README.md
   - modified: .pose/assessments/consolidated.md
   - modified: .pose/assessments/integrations.md
+  - modified: .pose/assessments/mcp-enforce.md
   - modified: .pose/assessments/pose-mcp.md
   - modified: .pose/assessments/technical-debt.md
   - modified: .pose/indexes/delivery-integrity.json
@@ -50,6 +49,7 @@
   - modified: .pose/reports/history/standard-validate-native.jsonl
   - modified: .pose/results/delivery-validation.json
   - modified: .pose/specs/pose-component-aware-review-plans/spec.md
+  - modified: .pose/state/components/mcp-enforce.json
   - modified: .pose/state/components/pose-mcp.json
   - modified: .pose/state/history.jsonl
   - modified: .pose/state/integrations.json
@@ -60,18 +60,18 @@
   - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T15:53:31Z
-- Context: spec-closeout-merge-ref-reconciliation
+- Generated at (UTC): 2026-08-13T16:00:31Z
+- Context: spec-closeout-retained-ancestry
 - Validation profile: strict
-- Sequence for task/spec: 6
-- Stable comparison hash: b284f9fbfeac4dc3128033329b20701291d73c411e2958aefdb1cd24e15b84d2
+- Sequence for task/spec: 7
+- Stable comparison hash: 45ffea41b33bad8d82800a9faa092f297a73cbdff13bfaf1e3545581fdc92cc3
 
 ## Historical Comparison
-- Previous execution: 2026-08-13T15:42:29Z
+- Previous execution: 2026-08-13T15:53:31Z
 - Status: changed
 - Stable field diffs:
-- change_set: "" -> "sha256:2d1aa6edf20cb9e5074dba29453762527ad471e5d4e89146bb0a7879df03098e:504fdf3c8de09c7136775d33829446d608561483:b9807d23681323bc3b9fcfd3ca1dfad98491553d"
-- context: "spec-closeout-final-reconciliation" -> "spec-closeout-merge-ref-reconciliation"
+- change_set: "" -> "sha256:9f4748ab60fcfa6ebf8b65edd9ce8f4ce7f60451dbad4da1d197f95c1a91b20f:504fdf3c8de09c7136775d33829446d608561483:12e58f39b91176bcddc52f4fbb577c066b3ee4c5"
+- context: "spec-closeout-merge-ref-reconciliation" -> "spec-closeout-retained-ancestry"
 
 ## Risks
 - high

@@ -504,12 +504,13 @@ read-only mode and assert that plan resolution creates no files or processes.
 ### Execution log
 - 2026-08-13, post-merge closeout: PR #16 review identified successive
   provenance gaps after the preparation, approval, state-refresh and mandatory
-  assessment commits. Append-only change set `cs-e79d77dad327` supersedes the
-  intermediate records and covers the exact 22-path GitHub PR #16 merge ref
-  `504fdf3c8de09c7136775d33829446d608561483..b9807d23681323bc3b9fcfd3ca1dfad98491553d`.
-  This uses the provider's fetchable merge object, whose parents are `main` and
-  `ae3f5c4`, instead of a transient review-only squash SHA; path-set parity and
-  strict artifact/surface gates pass for the reconciled closeout content.
+  assessment and post-closeout discovery commits. Append-only change set
+  `cs-b476b3c4827c` supersedes the intermediate records and covers the exact
+  24-path retained branch range
+  `504fdf3c8de09c7136775d33829446d608561483..12e58f39b91176bcddc52f4fbb577c066b3ee4c5`.
+  The branch also retains the provider merge object `b9807d2` as ancestry, so
+  both the independently reviewed merge content and final discovery baseline
+  remain reproducible after the transient provider ref moves.
 
 ### Risk-based cases
 
@@ -609,9 +610,10 @@ independent review through PR #16, and guarded lifecycle closeout completed on
   structured delivery evidence for the implementation commit.
 - Artifact reconciliation at the implementation commit: all declared change
   paths matched the observed range; repository-wide orphan warnings remain.
-- Closeout reconciliation: `cs-e79d77dad327` matches all 22 paths in the
-  fetchable PR #16 merge ref `b9807d23681323bc3b9fcfd3ca1dfad98491553d`;
-  the append-only correction preserves every prior intermediate change set.
+- Closeout reconciliation: `cs-b476b3c4827c` matches all 24 paths through the
+  retained post-discovery commit `12e58f39b91176bcddc52f4fbb577c066b3ee4c5`;
+  the append-only correction preserves every prior intermediate change set and
+  the reviewed PR merge object in branch ancestry.
 - PR #15 merge commit `504fdf3c8de09c7136775d33829446d608561483`
   passed 11 GitHub checks with zero failures; the Codex connector reviewed the
   final implementation commit `566e9a39a1baa291015ec20ce67b874857df4c6f`
