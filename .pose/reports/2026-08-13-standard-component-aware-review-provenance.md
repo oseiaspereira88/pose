@@ -19,7 +19,9 @@
 - delivery-surface
 
 ## Files Changed
-- _No files detected_
+- pose/reports/2026-08-13-standard-validate-native.md
+- .pose/reports/history/standard-validate-native.jsonl
+- .pose/results/delivery-validation.json
 
 ## Validation Commands
 - _Fill manually_
@@ -28,11 +30,11 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-a66dff67374b
-- Selector: range:504fdf3c8de09c7136775d33829446d608561483..38cc0849dafa4bf0694af71611395660cf245d39
+- ID: cs-e79d77dad327
+- Selector: range:504fdf3c8de09c7136775d33829446d608561483..b9807d23681323bc3b9fcfd3ca1dfad98491553d
 - Base: 504fdf3c8de09c7136775d33829446d608561483 (504fdf3c8de09c7136775d33829446d608561483)
-- Head: 38cc0849dafa4bf0694af71611395660cf245d39 (38cc0849dafa4bf0694af71611395660cf245d39)
-- Diff digest: sha256:d938cbe386955d44a3c6db0c79eca426609b2a6b3808226fb0ae3a459081e583
+- Head: b9807d23681323bc3b9fcfd3ca1dfad98491553d (b9807d23681323bc3b9fcfd3ca1dfad98491553d)
+- Diff digest: sha256:2d1aa6edf20cb9e5074dba29453762527ad471e5d4e89146bb0a7879df03098e
 - Paths:
   - created: .pose/reviews/rvw-20260813T151403Z-93bc61c6.md
   - modified: .pose/assessments/README.md
@@ -41,6 +43,7 @@
   - modified: .pose/assessments/pose-mcp.md
   - modified: .pose/assessments/technical-debt.md
   - modified: .pose/indexes/delivery-integrity.json
+  - modified: .pose/indexes/spec-graph.json
   - modified: .pose/reports/2026-08-13-standard-component-aware-review-provenance.md
   - modified: .pose/reports/2026-08-13-standard-validate-native.md
   - modified: .pose/reports/history/standard-component-aware-review-provenance.jsonl
@@ -54,20 +57,21 @@
   - modified: .pose/state/refresh-log.jsonl
   - modified: .pose/state/technical-debt.json
   - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
+  - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T15:42:29Z
-- Context: spec-closeout-final-reconciliation
+- Generated at (UTC): 2026-08-13T15:53:31Z
+- Context: spec-closeout-merge-ref-reconciliation
 - Validation profile: strict
-- Sequence for task/spec: 5
-- Stable comparison hash: 07e9c8e7910828506ef01ed310f17aef12aa12d1fda6153a604ec829f2c1e3c6
+- Sequence for task/spec: 6
+- Stable comparison hash: b284f9fbfeac4dc3128033329b20701291d73c411e2958aefdb1cd24e15b84d2
 
 ## Historical Comparison
-- Previous execution: 2026-08-13T15:02:46Z
+- Previous execution: 2026-08-13T15:42:29Z
 - Status: changed
 - Stable field diffs:
-- change_set: "" -> "sha256:d938cbe386955d44a3c6db0c79eca426609b2a6b3808226fb0ae3a459081e583:504fdf3c8de09c7136775d33829446d608561483:38cc0849dafa4bf0694af71611395660cf245d39"
-- context: "spec-closeout-review-remediation" -> "spec-closeout-final-reconciliation"
+- change_set: "" -> "sha256:2d1aa6edf20cb9e5074dba29453762527ad471e5d4e89146bb0a7879df03098e:504fdf3c8de09c7136775d33829446d608561483:b9807d23681323bc3b9fcfd3ca1dfad98491553d"
+- context: "spec-closeout-final-reconciliation" -> "spec-closeout-merge-ref-reconciliation"
 
 ## Risks
 - high
