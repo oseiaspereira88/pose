@@ -1,8 +1,8 @@
 ---
 slug: pose-component-aware-review-plans
-status: in-progress
+status: done
 created_at: 2026-08-13
-completed_at:
+completed_at: 2026-08-13
 supersedes:
 depends_on: pose-hierarchical-review-closeout
 priority: 10
@@ -209,8 +209,15 @@ This scope was requested in
 - modified: .pose/policy/review.json
 - modified: .pose/review-profiles/spec-closeout.json
 - removed: .pose/changelogs/unreleased/review-legacy-done-scope-exemption.md
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/pose-mcp.md
 - modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/technical-debt.md
+- modified: .pose/state/components/pose-mcp.json
+- modified: .pose/state/project-state.md
 - modified: .pose/state/integrations.json
+- modified: .pose/state/technical-debt.json
 - modified: .pose/indexes/delivery-integrity.json
 - modified: .pose/indexes/releases.json
 - modified: .pose/indexes/repo-map.json
@@ -412,7 +419,7 @@ explicit caller execution.
 - [x] Prove rejection of arbitrary commands, selector ambiguity, path escape,
   symlink escape, unknown tools and independence weakening.
 - [x] Prove schema-v1 compatibility and adoption-date behavior.
-- [ ] Run focused, full-suite, contract, scaffold and strict POSE gates.
+- [x] Run focused, full-suite, contract, scaffold and strict POSE gates.
 
 ## 5. Decisions
 
@@ -494,6 +501,16 @@ read-only mode and assert that plan resolution creates no files or processes.
 - Required — delivery gate: `pose validate --strict --module pose-mcp --report` followed by
   `pose surface-check --spec pose-component-aware-review-plans --strict`.
 
+### Execution log
+- 2026-08-13, post-merge closeout: PR #16 review identified successive
+  provenance gaps after the preparation, approval, state-refresh and mandatory
+  assessment commits. Append-only change set `cs-a66dff67374b` supersedes the
+  intermediate records and covers the exact 20-path closeout range
+  `504fdf3c8de09c7136775d33829446d608561483..38cc0849dafa4bf0694af71611395660cf245d39`.
+  The range intentionally ends at the parent of this self-describing evidence
+  update; path-set parity, strict artifact/surface gates and registered
+  validation pass for the reconciled closeout content.
+
 ### Risk-based cases
 
 | Scenario | Command | Expected evidence |
@@ -512,17 +529,39 @@ read-only mode and assert that plan resolution creates no files or processes.
 | Schema-v1 repository | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly -count=1` | Custom legacy rule/evidence namespaces, generic profile behavior and existing attempt readability remain unchanged. |
 | Read-only guarantee | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly -count=1` | Filesystem snapshot proves plan resolution performs no mutation or tool execution. |
 
-### Planned requirement verification
-- R1-R9: unit fixtures for scope resolution, component provenance, ordering,
-  composition, conflicts, multi-component boundaries and unmapped behavior.
-- R10-R12 and R25-R28: tool-catalog and security-negative tests proving typed,
-  non-executing, confined recommendations and independence monotonicity.
-- R13-R17: CLI/MCP golden and immutable attempt freshness tests.
-- R18-R20: frontend/backend fixtures plus workflow/skill contract tests.
-- R21-R24: repeated-run golden hashes, bounded fixture scans and filesystem
-  non-mutation tests.
-- R29-R32: schema-v1 compatibility, migration dry-run, adoption cutoff and MCP
-  catalog parity tests.
+### Requirement trace
+- R1 [satisfied] test:TestReviewPlanCLIProjectsJSONAndPinsReviewRecord — a typed scope resolves an immutable plan before review recording and pins its digest.
+- R2 [satisfied] test:TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage — the projection exposes components, profiles, criteria, tools, evidence expectations, independence, warnings and blockers with provenance.
+- R3 [satisfied] test:TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage — explicit components, attributed artifacts, delivery targets and the repository map contribute visible component sources.
+- R4 [satisfied] test:TestReviewPlanFailsClosedOnIncompleteMetadata — governed metadata is projected when present and missing/defaulted fields remain explicitly unavailable.
+- R5 [satisfied] test:TestReviewPlanPreservesStricterIndependenceAndRejectsAmbiguousSelectors — typed overlays compose without removing base coverage or weakening independence.
+- R6 [satisfied] test:TestReviewPlanOrdersOverlaysByCategoryContract — overlays follow the documented category and within-category order.
+- R7 [satisfied] test:TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped — identical IDs conflict visibly when their semantic contracts differ.
+- R8 [satisfied] test:TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage — multi-component plans contain the union plus cross-component integration coverage.
+- R9 [satisfied] test:TestReviewPlanFailsClosedOnIncompleteMetadata test:TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped — warning/blocker policy applies to unmapped, ambiguous and metadata-incomplete components without fallback matches.
+- R10 [satisfied] test:TestReviewPlanRecommendationsAreClosedAndNonExecutable — recommendations contain catalog IDs, safe argv, rationale, evidence, requiredness and preconditions.
+- R11 [satisfied] test:TestReviewPlanToolsFollowLifecycleOrder contract:pose-help-tool-catalog — applicable native assessment, validation, integrity, review and closeout tools are represented in lifecycle order.
+- R12 [satisfied] test:TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly — plan resolution performs no mutation or tool execution.
+- R13 [satisfied] test:TestReviewPlanCLIProjectsJSONAndPinsReviewRecord — CLI human/JSON/explain projection and plan-aware recording are covered.
+- R14 [satisfied] governance:component-aware-review-plans evidence:integration check:delivery-integration test:TestReviewPlanToolUsesTheSameProjectScopedProjection — MCP exposes the same confined project-scoped projection.
+- R15 [satisfied] test:TestReviewPlanCLIProjectsJSONAndPinsReviewRecord test:TestReviewRecordRequiresRequiredToolDispositions — recording scaffolds effective coverage and rejects stale plan digests.
+- R16 [satisfied] test:TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage — review-check enforces exact current plan/tool coverage and invalidates consumed-input drift.
+- R17 [satisfied] test:TestReviewRecordRequiresRequiredToolDispositions test:TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage — attempts persist criterion/tool dispositions, require matching evidence and defer completion gates explicitly.
+- R18 [satisfied] test:TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage — built-in frontend and backend overlays produce materially distinct coverage.
+- R19 [satisfied] test:TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped — repository overlays use typed selectors and only known rule/evidence/tool contracts.
+- R20 [satisfied] test:TestReviewPlanToolsFollowLifecycleOrder contract:pose-review-workflow — workflow/skill plan inspection and tool execution order match the runtime lifecycle.
+- R21 [satisfied] test:TestReviewPlanDigestIsDeterministicAndIgnoresUnconsumedOwner — identical consumed inputs produce stable ordering and SHA-256 digests.
+- R22 [satisfied] test:TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage test:TestReviewPlanRejectsComponentAndArtifactSymlinkEscapes — resolution stays bounded to the addressed scope and registered roots.
+- R23 [satisfied] test:TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped test:TestReviewPlanFailsClosedOnIncompleteMetadata — output identifies the actionable conflict, unknown tool and missing metadata reason.
+- R24 [satisfied] test:TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly — repeated resolution is read-only and idempotent.
+- R25 [satisfied] test:TestReviewPlanRecommendationsAreClosedAndNonExecutable test:TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped — arbitrary executables, shell fields and control operators are rejected.
+- R26 [satisfied] test:TestReviewPlanRejectsComponentAndArtifactSymlinkEscapes test:TestReviewPlanToolRejectsMissingAndTraversalScope — component, artifact and MCP paths are canonicalized and confined.
+- R27 [satisfied] test:TestReviewPlanPreservesStricterIndependenceAndRejectsAmbiguousSelectors — overlays cannot weaken mandatory-human or separate-execution policy.
+- R28 [satisfied] test:TestReviewPlanToolUsesTheSameProjectScopedProjection test:TestReviewPlanToolRejectsMissingAndTraversalScope — CLI/MCP projections remain project-scoped, bounded and free of execution output.
+- R29 [satisfied] test:TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly test:TestReviewCheckGrandfathersOnlyCompletedPreMigrationAttempts — schema-v1 custom namespaces and pre-adoption readability remain intact.
+- R30 [satisfied] test:TestReviewCheckGrandfathersOnlyCompletedPreMigrationAttempts contract:review-policy-schema-v2 — opt-in adoption is explicit and does not retroactively invalidate exempt completed scopes.
+- R31 [satisfied] test:TestReviewCheckGrandfathersOnlyCompletedPreMigrationAttempts — historical approved attempts remain auditable and superseding is required only for governed open scopes.
+- R32 [satisfied] governance:component-aware-review-plans evidence:integration check:delivery-integration test:TestReviewPlanCLIProjectsJSONAndPinsReviewRecord test:TestReviewPlanToolUsesTheSameProjectScopedProjection — additive CLI/MCP contracts, catalog golden, docs and capability metadata move together.
 
 ### Known gaps
 - The accepted ADR deliberately permits only one-level overlays selected by
@@ -536,11 +575,11 @@ read-only mode and assert that plan resolution creates no files or processes.
 ## 7. Final Report
 
 ### Delivered scope
-Implemented schema-v2 component-aware review plans across the Go domain, CLI,
-MCP, immutable attempt freshness, built-in profiles and the distributed POSE
-review contract. Closeout remains pending because the required review must run
-in a separate execution and delivery provenance can only reconcile after the
-implementation commit exists.
+Implemented and merge-verified schema-v2 component-aware review plans across
+the Go domain, CLI, MCP, immutable attempt freshness, built-in profiles and the
+distributed POSE review contract. The merged state received a superseding
+independent review through PR #16, and guarded lifecycle closeout completed on
+2026-08-13.
 
 ### Files and modules changed
 - `pose-mcp/internal/pose/review_plan.go`: deterministic plan resolver, typed
@@ -570,13 +609,23 @@ implementation commit exists.
   structured delivery evidence for the implementation commit.
 - Artifact reconciliation at the implementation commit: all declared change
   paths matched the observed range; repository-wide orphan warnings remain.
+- Closeout reconciliation: `cs-a66dff67374b` matches all 20 paths through PR
+  #16 remediation head `38cc0849dafa4bf0694af71611395660cf245d39`;
+  the append-only correction preserves every prior intermediate change set and
+  excludes only its own self-describing evidence update.
+- PR #15 merge commit `504fdf3c8de09c7136775d33829446d608561483`
+  passed 11 GitHub checks with zero failures; the Codex connector reviewed the
+  final implementation commit `566e9a39a1baa291015ec20ce67b874857df4c6f`
+  without additional findings.
 
 ### Residual risks
 - Existing stale delivery evidence remains outside this spec; this change does
   not rewrite historical result provenance.
 - The component map has no roots for repository governance/docs files, so they
   remain visible as unmapped warnings under the configured warning policy.
-- Formal approval and lifecycle closeout require a separate reviewer execution.
+- Governance/docs paths without component-map roots remain visible as accepted
+  low-severity review warnings; they do not weaken strict artifact, validation
+  or surface gates.
 
 ### Follow-ups
 - [done] Implementation authorized on 2026-08-13 after ADR and test-plan
