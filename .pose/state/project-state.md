@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-13T15:14:23Z
-baseline_commit: 585595b5577d9dde7fd117b08ed25ba19ff10f35
+generated_at: 2026-08-13T15:54:23Z
+baseline_commit: ae3f5c495a5095432c0e735b464621c79ac51fb8
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -64,10 +64,10 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:5e8163259cf9 -->
+<!-- state:derived hash:421d39775a93 -->
 
-- último registro: task=validate-native outcome=pass (2026-08-13T15:03:50Z)
-- últimos 30 dias: total=180 outcome_ok=127 outcome_outro=53
+- último registro: task=validate-native outcome=pass (2026-08-13T15:54:15Z)
+- últimos 30 dias: total=186 outcome_ok=132 outcome_outro=54
 - reports revisados (.md): total=96
   - report:2026-08-13-standard-validate-native.md
   - report:2026-08-13-standard-component-aware-review-provenance.md
@@ -76,10 +76,10 @@ capacidade.
   - report:README.md
 
 ## Arquitetura
-<!-- state:derived hash:5bc14f303fe9 status:active -->
+<!-- state:derived hash:0cc174f5e50a status:active -->
 
-- componentes: total=1 verificados=1 completude=98.0%
-- linhas_de_codigo: producao=28987 testes=18043 total=47030
+- componentes: total=2 verificados=2 completude=99.0%
+- linhas_de_codigo: producao=29857 testes=19072 total=48929
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=1 stubs=0
 - integracoes: contratos=52 ativos=1 gaps=51
