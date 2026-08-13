@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:5025319ea4147ac573da7dd3120e0f6ddbfeb79f541a01a31928d6cc52521cf5",
-  "provenance_digest": "sha256:553b8b6587ebc6bead4abcd8cdfa97915ee7c8c1bb8434740e28d7a0a335a228",
+  "input_digest": "sha256:b7764fe9c559afd19c39214f67a4445c8e7b39a09a7d14864fef2fc74d850f56",
+  "provenance_digest": "sha256:49393c424311fccc32249990e1a21dea9283bf3599460f8ce41c068687f0dbf4",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -22058,6 +22058,26 @@
     },
     {
       "from": "spec:pose-component-aware-review-plans",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
+      "to": "artifact:.pose/indexes/repo-map.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
       "to": "artifact:.pose/knowledge/2026-08-13-decision-log-adr-component-aware-review-plans-review.md",
       "type": "declares"
     },
@@ -22074,6 +22094,11 @@
     {
       "from": "spec:pose-component-aware-review-plans",
       "to": "artifact:.pose/reports/history/standard-validate-native.jsonl",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
+      "to": "artifact:.pose/results/delivery-validation.json",
       "type": "declares"
     },
     {
@@ -22189,6 +22214,26 @@
     {
       "from": "spec:pose-component-aware-review-plans",
       "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/repo-map.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
       "type": "declares"
     },
     {
@@ -25061,6 +25106,26 @@
     {
       "spec": "pose-component-aware-review-plans",
       "action": "modified",
+      "path": ".pose/indexes/delivery-integrity.json"
+    },
+    {
+      "spec": "pose-component-aware-review-plans",
+      "action": "modified",
+      "path": ".pose/indexes/releases.json"
+    },
+    {
+      "spec": "pose-component-aware-review-plans",
+      "action": "modified",
+      "path": ".pose/indexes/repo-map.json"
+    },
+    {
+      "spec": "pose-component-aware-review-plans",
+      "action": "modified",
+      "path": ".pose/indexes/spec-graph.json"
+    },
+    {
+      "spec": "pose-component-aware-review-plans",
+      "action": "modified",
       "path": ".pose/policy/review.json"
     },
     {
@@ -25072,6 +25137,11 @@
       "spec": "pose-component-aware-review-plans",
       "action": "modified",
       "path": ".pose/reports/history/standard-validate-native.jsonl"
+    },
+    {
+      "spec": "pose-component-aware-review-plans",
+      "action": "modified",
+      "path": ".pose/results/delivery-validation.json"
     },
     {
       "spec": "pose-component-aware-review-plans",
@@ -25167,6 +25237,26 @@
       "spec": "pose-component-aware-review-plans",
       "action": "modified",
       "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md"
+    },
+    {
+      "spec": "pose-component-aware-review-plans",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
+    },
+    {
+      "spec": "pose-component-aware-review-plans",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json"
+    },
+    {
+      "spec": "pose-component-aware-review-plans",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/repo-map.json"
+    },
+    {
+      "spec": "pose-component-aware-review-plans",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
     },
     {
       "spec": "pose-component-aware-review-plans",
@@ -35698,6 +35788,7 @@
     ],
     ".pose/indexes/delivery-integrity.json": [
       "pose-artifact-provenance-ledger",
+      "pose-component-aware-review-plans",
       "pose-delivery-surface-assurance",
       "pose-usage-metrics"
     ],
@@ -35705,10 +35796,15 @@
       "pose-delivery-surface-assurance"
     ],
     ".pose/indexes/releases.json": [
+      "pose-component-aware-review-plans",
       "pose-release-lifecycle-closure",
       "pose-usage-metrics"
     ],
+    ".pose/indexes/repo-map.json": [
+      "pose-component-aware-review-plans"
+    ],
     ".pose/indexes/spec-graph.json": [
+      "pose-component-aware-review-plans",
       "pose-delivery-surface-assurance",
       "pose-usage-metrics"
     ],
@@ -35784,6 +35880,7 @@
       "pose-component-aware-review-plans"
     ],
     ".pose/results/delivery-validation.json": [
+      "pose-component-aware-review-plans",
       "pose-mcp-active-context",
       "pose-usage-metrics"
     ],
@@ -36450,14 +36547,20 @@
       "pose-component-aware-review-plans"
     ],
     "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json": [
+      "pose-component-aware-review-plans",
       "pose-mcp-active-context",
       "pose-usage-metrics"
     ],
     "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json": [
+      "pose-component-aware-review-plans",
       "pose-mcp-active-context",
       "pose-usage-metrics"
     ],
+    "pose-mcp/internal/scaffold/dist/.pose/indexes/repo-map.json": [
+      "pose-component-aware-review-plans"
+    ],
     "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json": [
+      "pose-component-aware-review-plans",
       "pose-mcp-active-context",
       "pose-usage-metrics"
     ],
@@ -37108,6 +37211,15 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-33af9e9fc762",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": ".pose/indexes/delivery-integrity.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-3a51bdeb7fed",
       "code": "orphan",
       "severity": "warning",
@@ -37122,6 +37234,15 @@
       "path": "docs-site/docs/quickstart.md",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-3c9a082a8be0",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": ".pose/results/delivery-validation.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-3d2c73d3fb32",
@@ -37394,6 +37515,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-54004469260b",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": ".pose/indexes/repo-map.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-55ae509e883d",
       "code": "action-mismatch",
       "severity": "error",
@@ -37581,6 +37711,15 @@
       "path": "pose-mcp/internal/cli/monorepo_recipes_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-685393631b92",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-6856eb1210af",
@@ -38242,6 +38381,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-a1945bdc0315",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": ".pose/indexes/releases.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-a270a4b3d63d",
       "code": "legacy-narrative",
       "severity": "info",
@@ -38459,6 +38607,15 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-b8af4b98fb5a",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": ".pose/indexes/spec-graph.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-b8b2f5431bf3",
       "code": "action-mismatch",
       "severity": "error",
@@ -38476,6 +38633,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-bb2b16bcf440",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-bb6629774709",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -38484,6 +38650,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-bdfa486bd2cc",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-be2f54774144",
@@ -38840,6 +39015,15 @@
       "path": "pose-mcp/internal/cli/semantic_suggest_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-eaf585aca33a",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/repo-map.json",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-eb23946058be",
@@ -39637,9 +39821,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "d230cea72717ffb0706619df4fabf880c5495a09",
-      "generated_at": "2026-08-13T01:51:15Z",
-      "provenance_digest": "sha256:553b8b6587ebc6bead4abcd8cdfa97915ee7c8c1bb8434740e28d7a0a335a228",
+      "git_head": "94d80f29c316350f0f96f9cb628f700d047409b2",
+      "generated_at": "2026-08-13T01:53:39Z",
+      "provenance_digest": "sha256:49393c424311fccc32249990e1a21dea9283bf3599460f8ce41c068687f0dbf4",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -39649,9 +39833,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "d230cea72717ffb0706619df4fabf880c5495a09",
-      "generated_at": "2026-08-13T01:51:15Z",
-      "provenance_digest": "sha256:553b8b6587ebc6bead4abcd8cdfa97915ee7c8c1bb8434740e28d7a0a335a228",
+      "git_head": "94d80f29c316350f0f96f9cb628f700d047409b2",
+      "generated_at": "2026-08-13T01:53:39Z",
+      "provenance_digest": "sha256:49393c424311fccc32249990e1a21dea9283bf3599460f8ce41c068687f0dbf4",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -39661,9 +39845,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "d230cea72717ffb0706619df4fabf880c5495a09",
-      "generated_at": "2026-08-13T01:51:15Z",
-      "provenance_digest": "sha256:553b8b6587ebc6bead4abcd8cdfa97915ee7c8c1bb8434740e28d7a0a335a228",
+      "git_head": "94d80f29c316350f0f96f9cb628f700d047409b2",
+      "generated_at": "2026-08-13T01:53:39Z",
+      "provenance_digest": "sha256:49393c424311fccc32249990e1a21dea9283bf3599460f8ce41c068687f0dbf4",
       "report": ".pose/results/delivery-validation.json"
     },
     {
@@ -39673,9 +39857,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "d230cea72717ffb0706619df4fabf880c5495a09",
-      "generated_at": "2026-08-13T01:51:15Z",
-      "provenance_digest": "sha256:553b8b6587ebc6bead4abcd8cdfa97915ee7c8c1bb8434740e28d7a0a335a228",
+      "git_head": "94d80f29c316350f0f96f9cb628f700d047409b2",
+      "generated_at": "2026-08-13T01:53:39Z",
+      "provenance_digest": "sha256:49393c424311fccc32249990e1a21dea9283bf3599460f8ce41c068687f0dbf4",
       "report": ".pose/results/delivery-validation.json"
     }
   ],
