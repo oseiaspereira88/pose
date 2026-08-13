@@ -33,9 +33,23 @@ delivery provenance, not code.
 - `artifact-check --strict` (explicit range) and `surface-check --strict` now
   pass with zero error findings; `pose validate --strict --module pose-mcp`
   is green including scaffold parity.
-- The original review attempt stays immutable with decision
-  `changes-requested`; a separate review execution must record the
-  superseding approval attempt after this remediation lands.
+- Re-review ran in a separate execution and recorded
+  `rvw-20260813T063956Z-b11e7bcc` (supersedes `rvw-20260813T032130Z-c42b8c1e`)
+  with decision `changes-requested`: the provenance findings are resolved, but
+  four probe-verified spec-compliance gaps (from the codex-connector review of
+  PR #15) now block approval.
+- `required-tool-enforcement` (high, open): `ReviewCheck` never evaluates
+  `plan.Tools`; required tools can be skipped without blocking approval
+  (R16/R17, workflow step 3).
+- `schema-v1-evidence-namespace` (high, open): closed rule/evidence catalogs
+  apply to schema-v1 profiles too, breaking previously readable custom
+  evidence classes and rule refs (R29).
+- `metadata-incomplete-fail-closed` (high, open): `metadataStatus.isComplete`
+  and `missingFields` are discarded; metadata-incomplete components neither
+  warn nor block and defaulted values reach selector matching (R4/R9).
+- `tool-lifecycle-order` (medium, open): alphabetical tool sort puts
+  completion gates before evidence-collection tools although the workflow
+  instructs plan-order execution (R20).
 - `overlay-order-text` (low, open): within-category overlay ordering sorts by
   first matched component then ref; spec R6 text says language/domain overlays
   sort by ID. Align code or spec text.
@@ -45,10 +59,12 @@ delivery provenance, not code.
 
 ## Next checks
 
-- Record a superseding review attempt (decision `approved` or
-  `approved-with-reservations`) in a separate execution and pass
-  `pose review-check spec:pose-component-aware-review-plans`.
-- Then run `pose closeout-check` and the spec closeout flow.
+- Remediate the four code findings with regression tests (required-tool
+  enforcement, schema-v1 catalog gating, metadata-incomplete fail-closed,
+  lifecycle tool ordering); keep prior review attempts immutable.
+- Then record a superseding approval attempt in a separate execution, pass
+  `pose review-check spec:pose-component-aware-review-plans`, and run
+  `pose closeout-check` plus the spec closeout flow.
 
 ## Risks
 
