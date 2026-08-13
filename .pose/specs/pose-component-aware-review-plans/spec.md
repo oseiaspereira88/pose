@@ -1,8 +1,8 @@
 ---
 slug: pose-component-aware-review-plans
-status: in-progress
+status: done
 created_at: 2026-08-13
-completed_at:
+completed_at: 2026-08-13
 supersedes:
 depends_on: pose-hierarchical-review-closeout
 priority: 10
@@ -575,8 +575,9 @@ read-only mode and assert that plan resolution creates no files or processes.
 ### Delivered scope
 Implemented and merge-verified schema-v2 component-aware review plans across
 the Go domain, CLI, MCP, immutable attempt freshness, built-in profiles and the
-distributed POSE review contract. Lifecycle closeout remains pending until the
-merged state receives its superseding independent review attempt.
+distributed POSE review contract. The merged state received a superseding
+independent review through PR #16, and guarded lifecycle closeout completed on
+2026-08-13.
 
 ### Files and modules changed
 - `pose-mcp/internal/pose/review_plan.go`: deterministic plan resolver, typed
@@ -619,7 +620,9 @@ merged state receives its superseding independent review attempt.
   not rewrite historical result provenance.
 - The component map has no roots for repository governance/docs files, so they
   remain visible as unmapped warnings under the configured warning policy.
-- Formal approval and lifecycle closeout require a separate reviewer execution.
+- Governance/docs paths without component-map roots remain visible as accepted
+  low-severity review warnings; they do not weaken strict artifact, validation
+  or surface gates.
 
 ### Follow-ups
 - [done] Implementation authorized on 2026-08-13 after ADR and test-plan
