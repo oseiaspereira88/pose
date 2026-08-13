@@ -9,8 +9,13 @@ body[data-md-color-primary] {
   --md-accent-fg-color: #818cf8;
 }
 
+/* Dark sidebar in both schemes: Material paints .md-nav, .md-nav__list and
+   .md-nav__title from the default-bg variables, so re-scope them here. */
 .md-sidebar {
-  background: #0b0d12;
+  --md-default-bg-color: #0b0d12;
+  --md-default-fg-color--lightest: #12141c;
+  --md-default-fg-color--light: #94a3b8;
+  --md-default-fg-color--lighter: #334155;
 }
 
 .md-sidebar .md-nav__title,
@@ -30,6 +35,12 @@ body[data-md-color-primary] {
 .md-sidebar::-webkit-scrollbar-thumb,
 .md-sidebar__scrollwrap::-webkit-scrollbar-thumb {
   background: #1e293b;
+}
+
+/* Larger brand mark in the header (Material default is 1.2rem). */
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 2rem;
 }
 
 [data-md-color-scheme="slate"] {
