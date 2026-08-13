@@ -42,7 +42,7 @@ Caminho rápido para Linux e macOS (execute a partir do repositório Git que
 deve receber o contrato do POSE):
 
 ```bash
-curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
+curl -fsSLO https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh && bash install.sh
 ```
 
 Este caminho acompanha o release mais recente e instala o binário nativo em

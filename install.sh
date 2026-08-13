@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Universal POSE 1-Liner Installer & Upgrader
-# Usage: curl -fsSL https://raw.githubusercontent.com/oseiaspereira88/pose/main/install.sh | bash
+# Usage: curl -fsSLO https://raw.githubusercontent.com/oseiaspereira88/pose/main/install.sh && bash install.sh
 set -euo pipefail
 
 REPO="oseiaspereira88/pose"

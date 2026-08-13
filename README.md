@@ -38,7 +38,7 @@ Fast path for Linux and macOS (run it from the Git repository that should
 receive the POSE contract):
 
 ```bash
-curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
+curl -fsSLO https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh && bash install.sh
 ```
 
 This path follows the latest release and installs the native binary into

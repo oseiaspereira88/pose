@@ -10,7 +10,7 @@ Run the installer from the root of the Git repository that should receive the
 POSE contract:
 
 ```bash
-curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
+curl -fsSLO https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh && bash install.sh
 ```
 
 The script resolves the latest release for the current OS and architecture,

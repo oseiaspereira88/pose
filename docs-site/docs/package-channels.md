@@ -27,7 +27,7 @@ Install commands:
 
 ```bash
 # Linux/macOS fast path
-curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
+curl -fsSLO https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh && bash install.sh
 
 # Every platform verified path: see the install contract
 

@@ -59,7 +59,7 @@ tool activity never masquerades as delivery performance. See
 Install the latest Linux/macOS release from the root of your Git repository:
 
 ```bash
-curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash
+curl -fsSLO https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh && bash install.sh
 ```
 
 For a pinned, checksum- and Sigstore-verified installation, use the

@@ -87,7 +87,7 @@ func TestPublicInstallContract(t *testing.T) {
 	}
 	rd := string(readme)
 	for _, want := range []string{
-		"curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash",
+		"curl -fsSLO https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh && bash install.sh",
 		"V=" + base + "\n",
 		`$V = "` + base + `"`,
 		"https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz",
@@ -102,7 +102,7 @@ func TestPublicInstallContract(t *testing.T) {
 		t.Fatalf("reading docs-site/docs/quickstart.md: %v", err)
 	}
 	for _, want := range []string{
-		"curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh | bash",
+		"curl -fsSLO https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh && bash install.sh",
 		"### Verified install",
 	} {
 		if !strings.Contains(string(quickstart), want) {
