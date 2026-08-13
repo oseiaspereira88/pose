@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -127,21 +128,30 @@ type ReviewFinding struct {
 	ReviewBy    string `json:"review_by,omitempty"`
 }
 
+type ReviewToolDisposition struct {
+	ID          string `json:"id"`
+	Component   string `json:"component,omitempty"`
+	Disposition string `json:"disposition"`
+	Evidence    string `json:"evidence,omitempty"`
+	Rationale   string `json:"rationale,omitempty"`
+}
+
 type ReviewAttempt struct {
-	SchemaVersion int               `json:"schema_version"`
-	ReviewID      string            `json:"review_id"`
-	Scope         string            `json:"scope"`
-	ScopeDigest   string            `json:"scope_digest"`
-	PlanDigest    string            `json:"plan_digest,omitempty"`
-	Profile       string            `json:"profile"`
-	Reviewer      string            `json:"reviewer"`
-	Decision      string            `json:"decision"`
-	ReviewedAt    string            `json:"reviewed_at"`
-	Supersedes    string            `json:"supersedes,omitempty"`
-	EvidenceRefs  []string          `json:"evidence_refs,omitempty"`
-	Criteria      []ReviewCriterion `json:"criteria"`
-	Findings      []ReviewFinding   `json:"findings"`
-	Path          string            `json:"path,omitempty"`
+	SchemaVersion int                     `json:"schema_version"`
+	ReviewID      string                  `json:"review_id"`
+	Scope         string                  `json:"scope"`
+	ScopeDigest   string                  `json:"scope_digest"`
+	PlanDigest    string                  `json:"plan_digest,omitempty"`
+	Profile       string                  `json:"profile"`
+	Reviewer      string                  `json:"reviewer"`
+	Decision      string                  `json:"decision"`
+	ReviewedAt    string                  `json:"reviewed_at"`
+	Supersedes    string                  `json:"supersedes,omitempty"`
+	EvidenceRefs  []string                `json:"evidence_refs,omitempty"`
+	Criteria      []ReviewCriterion       `json:"criteria"`
+	Tools         []ReviewToolDisposition `json:"tools,omitempty"`
+	Findings      []ReviewFinding         `json:"findings"`
+	Path          string                  `json:"path,omitempty"`
 }
 
 type ReviewEvaluation struct {
@@ -252,8 +262,13 @@ func (s Store) loadReviewProfile(ref string) (ReviewProfile, []byte, error) {
 		if !slugPattern.MatchString(c.ID) || seen[c.ID] {
 			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid or duplicate criterion %q in %s", c.ID, ref)
 		}
-		if err := s.validateReviewContractRefs(ref, c.Rules, c.EvidenceClasses); err != nil {
-			return ReviewProfile{}, nil, err
+		// Closed rule/evidence catalogs are a schema-v2 contract. Schema-v1
+		// profiles keep their historical namespaces so repositories that never
+		// opted into component-aware planning remain readable (spec R29).
+		if p.SchemaVersion == ReviewPolicySchemaVersion {
+			if err := s.validateReviewContractRefs(ref, c.Rules, c.EvidenceClasses); err != nil {
+				return ReviewProfile{}, nil, err
+			}
 		}
 		seen[c.ID] = true
 	}
@@ -367,6 +382,9 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		case "## Criteria":
 			section = "criteria"
 			continue
+		case "## Tools":
+			section = "tools"
+			continue
 		case "## Findings":
 			section = "findings"
 			continue
@@ -378,6 +396,12 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		id, disposition, rest := match[1], strings.ToLower(match[2]), strings.TrimSpace(match[3])
 		if section == "criteria" {
 			a.Criteria = append(a.Criteria, ReviewCriterion{ID: id, Disposition: disposition, Evidence: fieldValue(rest, "evidence"), Rationale: fieldValue(rest, "rationale")})
+		} else if section == "tools" {
+			component := fieldValue(rest, "component")
+			if decoded, decodeErr := url.QueryUnescape(component); decodeErr == nil {
+				component = decoded
+			}
+			a.Tools = append(a.Tools, ReviewToolDisposition{ID: id, Component: component, Disposition: disposition, Evidence: fieldValue(rest, "evidence"), Rationale: fieldValue(rest, "rationale")})
 		} else if section == "findings" {
 			a.Findings = append(a.Findings, ReviewFinding{ID: id, Disposition: disposition, Severity: fieldValue(rest, "severity"), Evidence: fieldValue(rest, "evidence"), Action: fieldValue(rest, "action"), Owner: fieldValue(rest, "owner"), Rationale: fieldValue(rest, "rationale"), ReviewBy: fieldValue(rest, "review_by")})
 		}
@@ -577,6 +601,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	}
 	baseRequiredCriteria := append([]ReviewCriterionProfile{}, profile.Criteria...)
 	requiredCriteria := append([]ReviewCriterionProfile{}, baseRequiredCriteria...)
+	effectiveTools := []ReviewPlanTool{}
 	baseIndependence := policy.ReviewerIndependence[scope.Kind]
 	independence := baseIndependence
 	if policy.SchemaVersion >= ReviewPolicySchemaVersion && policy.ComponentAware {
@@ -595,6 +620,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 			required := true
 			requiredCriteria = append(requiredCriteria, ReviewCriterionProfile{ID: criterion.ID, Description: criterion.Description, Rules: criterion.Rules, EvidenceClasses: criterion.EvidenceClasses, Required: &required})
 		}
+		effectiveTools = append(effectiveTools, plan.Tools...)
 		independence = plan.Independence
 	}
 	attempts, err := s.ListReviewAttempts(ref)
@@ -610,6 +636,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	legacyPlanExempt := s.componentAwareLegacyAttemptExempt(scope, policy, current)
 	if legacyPlanExempt {
 		requiredCriteria = append([]ReviewCriterionProfile{}, baseRequiredCriteria...)
+		effectiveTools = nil
 		independence = baseIndependence
 		eval.Warnings = append(eval.Warnings, "completed scope retains its approved pre-component-aware review attempt")
 	}
@@ -636,6 +663,11 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 		if err := validateReviewEvidenceRef(s.Root, ref); err != nil {
 			eval.Blockers = append(eval.Blockers, err.Error())
 		}
+	}
+	if len(effectiveTools) > 0 {
+		toolWarnings, toolBlockers := evaluateReviewToolCoverage(s.Root, effectiveTools, current.Tools)
+		eval.Warnings = append(eval.Warnings, toolWarnings...)
+		eval.Blockers = append(eval.Blockers, toolBlockers...)
 	}
 	if current.Reviewer == "" || strings.ContainsAny(current.Reviewer, "\r\n") {
 		eval.Blockers = append(eval.Blockers, "reviewer execution identity is missing or malformed")
@@ -748,6 +780,112 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	sort.Strings(eval.Blockers)
 	eval.Approved = len(eval.Blockers) == 0
 	return eval, nil
+}
+
+func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, dispositions []ReviewToolDisposition) ([]string, []string) {
+	warnings, blockers := []string{}, []string{}
+	planned := map[string]ReviewPlanTool{}
+	for _, tool := range planTools {
+		planned[reviewToolKey(tool.ID, tool.Component)] = tool
+	}
+	observed := map[string]ReviewToolDisposition{}
+	for _, disposition := range dispositions {
+		key := reviewToolKey(disposition.ID, disposition.Component)
+		label := reviewToolLabel(disposition.ID, disposition.Component)
+		tool, ok := planned[key]
+		if !ok {
+			blockers = append(blockers, "unknown review tool disposition "+label)
+			continue
+		}
+		if _, duplicate := observed[key]; duplicate {
+			blockers = append(blockers, "duplicate review tool disposition "+label)
+			continue
+		}
+		observed[key] = disposition
+		if disposition.Evidence != "" {
+			if err := validateReviewEvidenceRef(root, disposition.Evidence); err != nil {
+				blockers = append(blockers, err.Error())
+			}
+		}
+		completion := containsFold(tool.Preconditions, "review-complete")
+		switch disposition.Disposition {
+		case "passed", "failed":
+			message := reviewToolEvidenceBlocker(tool, disposition)
+			if message != "" {
+				if tool.Requiredness == "required" {
+					blockers = append(blockers, message)
+				} else {
+					warnings = append(warnings, message)
+				}
+			}
+			if disposition.Disposition == "failed" {
+				message = "review tool " + label + " failed"
+				if tool.Requiredness == "required" {
+					blockers = append(blockers, message)
+				} else {
+					warnings = append(warnings, message)
+				}
+			}
+		case "not-used":
+			if tool.Requiredness == "required" {
+				blockers = append(blockers, "required review tool "+label+" was not used")
+			} else if disposition.Rationale == "" {
+				warnings = append(warnings, "recommended review tool "+label+" lacks not-used rationale")
+			}
+		case "deferred":
+			if !completion || disposition.Rationale == "" {
+				message := "review tool " + label + " has invalid deferred disposition"
+				if tool.Requiredness == "required" {
+					blockers = append(blockers, message)
+				} else {
+					warnings = append(warnings, message)
+				}
+			}
+		default:
+			blockers = append(blockers, "review tool "+label+" has invalid disposition")
+		}
+		if tool.Requiredness == "required" && !completion && disposition.Disposition != "passed" {
+			blockers = append(blockers, "required review tool "+label+" did not pass")
+		}
+	}
+	for key, tool := range planned {
+		if _, ok := observed[key]; ok {
+			continue
+		}
+		label := reviewToolLabel(tool.ID, tool.Component)
+		if tool.Requiredness == "required" {
+			blockers = append(blockers, "missing required review tool disposition "+label)
+		} else {
+			warnings = append(warnings, "recommended review tool "+label+" has no disposition")
+		}
+	}
+	return uniqueSorted(warnings), uniqueSorted(blockers)
+}
+
+func reviewToolEvidenceBlocker(tool ReviewPlanTool, disposition ReviewToolDisposition) string {
+	label := reviewToolLabel(tool.ID, tool.Component)
+	if disposition.Evidence == "" {
+		return "review tool " + label + " has no evidence"
+	}
+	if len(tool.EvidenceClasses) == 0 {
+		return ""
+	}
+	class := strings.SplitN(disposition.Evidence, ":", 2)[0]
+	if containsFold(tool.EvidenceClasses, class) {
+		return ""
+	}
+	return "review tool " + label + " lacks a required evidence class"
+}
+
+func reviewToolKey(id, component string) string {
+	return id + "\x00" + component
+}
+
+func reviewToolLabel(id, component string) string {
+	if component == "" {
+		return id
+	}
+	return id + " (component " + component + ")"
 }
 
 func (s Store) componentAwareLegacyAttemptExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {

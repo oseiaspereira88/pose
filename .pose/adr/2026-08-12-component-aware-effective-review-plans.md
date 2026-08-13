@@ -70,6 +70,12 @@ project.
 Add `plan_digest` to new immutable attempts and include it in review freshness.
 `pose review record` shows the effective digest in dry-run output and accepts
 an optional expected digest to prevent time-of-check/time-of-record drift.
+Record one disposition per effective-plan tool in component-aware attempts.
+Require evidence-collection tools marked `required` to pass with matching
+evidence, keep unused recommended tools explicit without blocking approval,
+and record `review-check` and `closeout-check` as deferred because their
+`review-complete` precondition can only be satisfied after the immutable
+attempt exists. Enforce those completion tools through their existing gates.
 Schema-v1 attempts without `plan_digest` remain valid under schema-v1 policy;
 after explicit schema-v2 adoption, new/open scopes require current plan-bound
 attempts while exempt legacy done scopes retain their adoption behavior.
@@ -84,6 +90,8 @@ attempts while exempt legacy done scopes retain their adoption behavior.
   evidence and criterion provenance.
 - Positive: policy, profile or consumed component-context changes make approval
   deterministically stale.
+- Positive: approval proves every required pre-completion tool was explicitly
+  dispositioned with evidence instead of inferring execution from criteria.
 - Trade-off: review profile schemas and canonical plan JSON become public
   compatibility contracts requiring golden tests.
 - Trade-off: stale or coarse component maps remain visible as warnings/blockers
@@ -92,6 +100,9 @@ attempts while exempt legacy done scopes retain their adoption behavior.
   evolution even when the underlying CLI command already exists.
 - Neutral: tool execution remains explicit and separately authorized; a plan is
   guidance and closeout policy, not an executor.
+- Neutral: the optional `## Tools` section extends schema-v1 attempt documents
+  compatibly; repositories that have not adopted component-aware policy remain
+  readable without it.
 
 ## Review triggers
 

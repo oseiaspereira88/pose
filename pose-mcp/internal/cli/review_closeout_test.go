@@ -117,3 +117,53 @@ func TestReviewPlanCLIProjectsJSONAndPinsReviewRecord(t *testing.T) {
 		t.Fatalf("current plan pin failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
 }
+
+func TestReviewRecordRequiresRequiredToolDispositions(t *testing.T) {
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@2"},"reviewer_independence":{"spec":"same-actor-separate-execution"},"component_aware":true,"component_aware_adopted_at":"2026-08-13","unmapped_component_behavior":"warning"}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":2,"id":"spec-closeout","version":2,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed","evidence_classes":["test"]}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{"apps":[],"services":[],"packages":[{"name":"module","path":"module space","language":"go","owner":"@team","domain":"backend","criticality":"high","validationProfile":"baseline","metadataStatus":{"source":"declared","isComplete":true,"missingFields":[]}}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", `{"reverse":{}}`)
+	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-13\ncomponents: module\n---\n\n# Spec: alpha\n\n### Artifacts\n- modified: module space/main.go\n")
+
+	baseArgs := []string{"spec:alpha", "--reviewer", "agent:review-pass", "--decision", "approved", "--evidence", "test:unit"}
+	var out, errOut bytes.Buffer
+	if code := cmdReviewRecord(root, baseArgs, &out, &errOut); code != 2 || !strings.Contains(errOut.String(), "required review tool") {
+		t.Fatalf("missing required tools were accepted: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	errOut.Reset()
+	out.Reset()
+	failedArgs := append([]string{}, baseArgs...)
+	failedArgs[4] = "changes-requested"
+	failedArgs = append(failedArgs,
+		"--tool", "artifact-check|-|failed|check:artifact-failure|",
+		"--tool", "validate|module+space|passed|validation:module|",
+	)
+	if code := cmdReviewRecord(root, failedArgs, &out, &errOut); code != 0 {
+		t.Fatalf("failed required tool could not be recorded for remediation: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	errOut.Reset()
+	out.Reset()
+	args := append([]string{}, baseArgs...)
+	args = append(args,
+		"--tool", "artifact-check|-|passed|check:artifact|",
+		"--tool", "validate|module+space|passed|validation:module|",
+		"--apply",
+	)
+	if code := cmdReviewRecord(root, args, &out, &errOut); code != 0 {
+		t.Fatalf("explicit required tools were rejected: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	eval, err := (posemodel.Store{Root: root}).ReviewCheck("spec:alpha")
+	if err != nil || !eval.Approved || eval.Current == nil || len(eval.Current.Tools) != len(mustReviewPlan(t, root).Tools) {
+		t.Fatalf("recorded tool coverage did not approve: eval=%+v err=%v", eval, err)
+	}
+}
+
+func mustReviewPlan(t *testing.T, root string) posemodel.ReviewPlan {
+	t.Helper()
+	plan, err := (posemodel.Store{Root: root}).ReviewPlan("spec:alpha")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return plan
+}

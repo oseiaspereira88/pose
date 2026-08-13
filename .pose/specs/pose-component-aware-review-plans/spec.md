@@ -116,8 +116,11 @@ This scope was requested in
   mapping, governed artifacts, delivery targets, relevant rules or required
   evidence expectations change.
 - R17: The attempt shall record evidence actually used and dispositions for
-  required criteria; recommended tools that were not used shall remain visible
-  without becoming blockers unless policy marks them required.
+  required criteria and every effective-plan tool. Required evidence-collection
+  tools shall block approval unless they passed with matching evidence;
+  recommended tools that were not used shall remain visible without becoming
+  blockers. Completion tools shall be recorded as deferred until the immutable
+  attempt exists, then enforced by `review-check` and `closeout-check`.
 - R18: Built-in overlays shall demonstrate materially distinct frontend and
   backend plans. Frontend coverage shall include user-visible behavior,
   accessibility, state/network failure and surface reachability; backend
@@ -491,20 +494,21 @@ read-only mode and assert that plan resolution creates no files or processes.
 
 ### Risk-based cases
 
-| Scenario | Expected evidence |
-|---|---|
-| Frontend-only spec | Frontend criteria and surface/reachability guidance appear; backend-only criteria do not. |
-| Backend-only spec | Backend contract/error/concurrency guidance appears; frontend accessibility criteria do not. |
-| Frontend plus backend | Both component plans and an integration-boundary criterion appear exactly once. |
-| Repository component override | Component overlay composes after domain overlay with visible provenance. |
-| Duplicate identical criterion | Criterion deduplicates with all contributing sources retained. |
-| Conflicting criterion | Resolution blocks with both profile refs and conflicting fields. |
-| Unmapped observed artifact | Warning or blocker follows policy; no component is invented. |
-| Unknown tool or free-form command | Profile validation rejects the entry before plan creation. |
-| Relevant policy/component change | Existing attempt becomes stale because plan digest changes. |
-| Unrelated owner metadata change | Plan digest and approval remain current when owner was not consumed by selection. |
-| Schema-v1 repository | Current generic profile behavior and existing attempt readability remain unchanged. |
-| Read-only guarantee | Filesystem snapshot and process hooks prove plan resolution performs no mutation or tool execution. |
+| Scenario | Command | Expected evidence |
+|---|---|---|
+| Frontend-only spec | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage -count=1` | Frontend criteria and surface/reachability guidance appear; backend-only criteria do not. |
+| Backend-only spec | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage -count=1` | Backend contract/error/concurrency guidance appears; frontend accessibility criteria do not. |
+| Frontend plus backend | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage -count=1` | Both component plans and an integration-boundary criterion appear exactly once. |
+| Repository component override | `go -C pose-mcp test ./internal/pose -run TestReviewPlanOrdersOverlaysByCategoryContract -count=1` | Component overlay composes after domain overlay; language/domain refs and component paths follow R6 ordering. |
+| Duplicate identical criterion | `go -C pose-mcp test ./internal/pose -run TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped -count=1` | Criterion deduplicates with all contributing sources retained. |
+| Conflicting criterion | `go -C pose-mcp test ./internal/pose -run TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped -count=1` | Resolution blocks with both profile refs and conflicting fields. |
+| Unmapped or metadata-incomplete component | `go -C pose-mcp test ./internal/pose -run 'TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped|TestReviewPlanFailsClosedOnIncompleteMetadata' -count=1` | Warning or blocker follows policy, missing metadata is explicit and no defaulted selector value is consumed. |
+| Unknown tool or free-form command | `go -C pose-mcp test ./internal/pose -run TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped -count=1` | Profile validation rejects the entry before plan creation. |
+| Tool lifecycle and required coverage | `go -C pose-mcp test ./internal/pose ./internal/cli -run 'TestReviewPlanToolsFollowLifecycleOrder|TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage|TestReviewRecordRequiresRequiredToolDispositions' -count=1` | Evidence tools precede completion gates; missing, duplicate or unevidenced required tools block approval; CLI scaffolds explicit recommended/deferred dispositions. |
+| Relevant policy/component change | `go -C pose-mcp test ./internal/pose -run TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage -count=1` | Existing attempt becomes stale because plan digest changes. |
+| Unrelated owner metadata change | `go -C pose-mcp test ./internal/pose -run TestReviewPlanDigestIsDeterministicAndIgnoresUnconsumedOwner -count=1` | Plan digest and approval remain current when owner was not consumed by selection. |
+| Schema-v1 repository | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly -count=1` | Custom legacy rule/evidence namespaces, generic profile behavior and existing attempt readability remain unchanged. |
+| Read-only guarantee | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly -count=1` | Filesystem snapshot proves plan resolution performs no mutation or tool execution. |
 
 ### Planned requirement verification
 - R1-R9: unit fixtures for scope resolution, component provenance, ordering,

@@ -125,6 +125,97 @@ func TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage(t *testing.
 	}
 }
 
+func TestReviewPlanOrdersOverlaysByCategoryContract(t *testing.T) {
+	root, store := componentReviewFixture(t)
+	writeReviewFixture(t, root, ".pose/review-profiles/a-language.json", `{
+  "schema_version":2,"id":"a-language","version":1,"scope":"spec",
+  "selectors":{"languages":["typescript"]},
+  "criteria":[{"id":"a-language-check","description":"A language check."}]
+}`)
+	writeReviewFixture(t, root, ".pose/review-profiles/z-language.json", `{
+  "schema_version":2,"id":"z-language","version":1,"scope":"spec",
+  "selectors":{"languages":["go"]},
+  "criteria":[{"id":"z-language-check","description":"Z language check."}]
+}`)
+	policyPath := filepath.Join(root, ".pose", "policy", "review.json")
+	raw, _ := os.ReadFile(policyPath)
+	updated := strings.Replace(string(raw), `"overlay_profiles": [`, `"overlay_profiles": ["z-language@1", "a-language@1", `, 1)
+	if err := os.WriteFile(policyPath, []byte(updated), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := store.ReviewPlan("spec:fullstack")
+	if err != nil {
+		t.Fatal(err)
+	}
+	refs := []string{}
+	for _, profile := range plan.SelectedProfiles {
+		if profile.Category == "language" {
+			refs = append(refs, profile.Ref)
+		}
+	}
+	if !sort.StringsAreSorted(refs) {
+		t.Fatalf("language overlays are not ordered by profile ref: %v", refs)
+	}
+}
+
+func TestReviewPlanFailsClosedOnIncompleteMetadata(t *testing.T) {
+	root, store := componentReviewFixture(t)
+	writeReviewFixture(t, root, ".pose/review-profiles/high-risk.json", `{
+  "schema_version":2,"id":"high-risk","version":1,"scope":"spec",
+  "selectors":{"criticalities":["high"]},
+  "criteria":[{"id":"high-risk-check","description":"High risk metadata is governed."}]
+}`)
+	policyPath := filepath.Join(root, ".pose", "policy", "review.json")
+	raw, _ := os.ReadFile(policyPath)
+	updated := strings.Replace(string(raw), `"overlay_profiles": [`, `"overlay_profiles": ["high-risk@1", `, 1)
+	if err := os.WriteFile(policyPath, []byte(updated), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, ".pose/indexes/repo-map.json", `{
+  "apps":[],
+  "services":[{"name":"api","path":"api","language":"go","owner":"@default","domain":"backend","criticality":"high","validationProfile":"baseline","metadataStatus":{"source":"defaulted","isComplete":false,"missingFields":["owner","domain","criticality","validationProfile"]}}],
+  "packages":[]
+}`)
+	plan, err := store.ReviewPlan("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(plan.Components) != 1 || plan.Components[0].Owner != "" || plan.Components[0].Domain != "" || plan.Components[0].Criticality != "" || plan.Components[0].ValidationProfile != "" {
+		t.Fatalf("defaulted metadata remained selector-visible: %+v", plan.Components)
+	}
+	if planHasCriterion(plan, "high-risk-check") || !strings.Contains(strings.Join(plan.Warnings, " "), "metadata-incomplete review component api missing:criticality,domain,owner,validationProfile") {
+		t.Fatalf("incomplete metadata was not explicit: %+v", plan)
+	}
+
+	raw, _ = os.ReadFile(policyPath)
+	if err := os.WriteFile(policyPath, []byte(strings.Replace(string(raw), `"unmapped_component_behavior": "warning"`, `"unmapped_component_behavior": "blocker"`, 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	blocked, err := store.ReviewPlan("spec:backend")
+	if err != nil || !strings.Contains(strings.Join(blocked.Blockers, " "), "metadata-incomplete review component api") {
+		t.Fatalf("blocker policy accepted incomplete metadata: plan=%+v err=%v", blocked, err)
+	}
+}
+
+func TestReviewPlanToolsFollowLifecycleOrder(t *testing.T) {
+	_, store := componentReviewFixture(t)
+	plan, err := store.ReviewPlan("spec:fullstack")
+	if err != nil {
+		t.Fatal(err)
+	}
+	lastPhase := 0
+	for _, tool := range plan.Tools {
+		phase := reviewToolCatalog[tool.ID].Phase
+		if phase < lastPhase {
+			t.Fatalf("tool %s phase %d followed phase %d: %+v", tool.ID, phase, lastPhase, plan.Tools)
+		}
+		lastPhase = phase
+	}
+	if len(plan.Tools) < 2 || plan.Tools[len(plan.Tools)-2].ID != "review-check" || plan.Tools[len(plan.Tools)-1].ID != "closeout-check" {
+		t.Fatalf("completion gates are not last: %+v", plan.Tools)
+	}
+}
+
 func TestReviewPlanDigestIsDeterministicAndIgnoresUnconsumedOwner(t *testing.T) {
 	root, store := componentReviewFixture(t)
 	first, err := store.ReviewPlan("spec:backend")
@@ -250,7 +341,7 @@ func TestReviewPlanPreservesStricterIndependenceAndRejectsAmbiguousSelectors(t *
 func TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly(t *testing.T) {
 	root, store := componentReviewFixture(t)
 	writeReviewFixture(t, root, ".pose/policy/review.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"legacy@1"}}`)
-	writeReviewFixture(t, root, ".pose/review-profiles/legacy.json", `{"schema_version":1,"id":"legacy","version":1,"scope":"spec","criteria":[{"id":"legacy","description":"Generic legacy review."}]}`)
+	writeReviewFixture(t, root, ".pose/review-profiles/legacy.json", `{"schema_version":1,"id":"legacy","version":1,"scope":"spec","criteria":[{"id":"legacy","description":"Generic legacy review.","rules":["custom-local-rule"],"evidence_classes":["custom-ci-proof"]}]}`)
 	before := reviewFixtureSnapshot(t, root)
 	plan, err := store.ReviewPlan("spec:frontend")
 	after := reviewFixtureSnapshot(t, root)
@@ -354,9 +445,68 @@ func TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage(t *testing.T) 
 	if err := os.WriteFile(filepath.Join(root, ".pose", "reviews", "rvw-plan.md"), []byte(body), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	missingTools, err := store.ReviewCheck("spec:backend")
+	if err != nil || missingTools.Approved || !strings.Contains(strings.Join(missingTools.Blockers, " "), "missing required review tool disposition") {
+		t.Fatalf("review without required tool dispositions was accepted: %+v err=%v", missingTools, err)
+	}
+	var tools strings.Builder
+	for _, tool := range plan.Tools {
+		if containsFold(tool.Preconditions, "review-complete") {
+			tools.WriteString("- " + tool.ID + " [deferred] rationale:post-review-gate\n")
+			continue
+		}
+		if tool.Requiredness == "recommended" {
+			tools.WriteString("- " + tool.ID + " [not-used]")
+			if tool.Component != "" {
+				tools.WriteString(" component:" + tool.Component)
+			}
+			tools.WriteString(" rationale:not-needed\n")
+			continue
+		}
+		class := "check"
+		if len(tool.EvidenceClasses) > 0 {
+			class = tool.EvidenceClasses[0]
+		}
+		tools.WriteString("- " + tool.ID + " [passed]")
+		if tool.Component != "" {
+			tools.WriteString(" component:" + tool.Component)
+		}
+		tools.WriteString(" evidence:" + class + ":review-plan\n")
+	}
+	body = strings.Replace(body, "\n## Findings\n", "\n## Tools\n"+tools.String()+"\n## Findings\n", 1)
+	if err := os.WriteFile(filepath.Join(root, ".pose", "reviews", "rvw-plan.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	current, err := store.ReviewCheck("spec:backend")
 	if err != nil || !current.Approved || !current.Fresh || current.PlanDigest != plan.PlanDigest {
 		t.Fatalf("current plan-bound review was rejected: %+v err=%v", current, err)
+	}
+
+	missingEvidenceBody := strings.Replace(body, " evidence:validation:review-plan", "", 1)
+	if err := os.WriteFile(filepath.Join(root, ".pose", "reviews", "rvw-plan.md"), []byte(missingEvidenceBody), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	missingEvidence, err := store.ReviewCheck("spec:backend")
+	if err != nil || missingEvidence.Approved || !strings.Contains(strings.Join(missingEvidence.Blockers, " "), "review tool validate (component api) has no evidence") {
+		t.Fatalf("required tool without evidence was accepted: %+v err=%v", missingEvidence, err)
+	}
+
+	duplicateBody := strings.Replace(body, "\n## Findings\n", "\n- validate [passed] component:api evidence:validation:review-plan\n\n## Findings\n", 1)
+	if err := os.WriteFile(filepath.Join(root, ".pose", "reviews", "rvw-plan.md"), []byte(duplicateBody), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	duplicate, err := store.ReviewCheck("spec:backend")
+	if err != nil || duplicate.Approved || !strings.Contains(strings.Join(duplicate.Blockers, " "), "duplicate review tool disposition validate") {
+		t.Fatalf("duplicate tool disposition was accepted: %+v err=%v", duplicate, err)
+	}
+
+	missingRecommendedBody := strings.Replace(body, "- assess-discover [not-used] component:api rationale:not-needed\n", "", 1)
+	if err := os.WriteFile(filepath.Join(root, ".pose", "reviews", "rvw-plan.md"), []byte(missingRecommendedBody), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	missingRecommended, err := store.ReviewCheck("spec:backend")
+	if err != nil || !missingRecommended.Approved || !strings.Contains(strings.Join(missingRecommended.Warnings, " "), "recommended review tool assess-discover") {
+		t.Fatalf("missing recommended tool did not remain a non-blocking warning: %+v err=%v", missingRecommended, err)
 	}
 }
 

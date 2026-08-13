@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -171,7 +172,7 @@ func writeJSON(w io.Writer, value any) int {
 
 func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 || args[0] != "record" {
-		fmt.Fprintln(stderr, "Usage: pose review record <scope> --reviewer <execution-id> --decision <approved|approved-with-reservations|changes-requested|rejected> --evidence <ref> [--plan-digest <sha256>] [--finding 'ID|severity|disposition|action|evidence'] [--apply]")
+		fmt.Fprintln(stderr, "Usage: pose review record <scope> --reviewer <execution-id> --decision <approved|approved-with-reservations|changes-requested|rejected> --evidence <ref> [--plan-digest <sha256>] [--tool 'ID|component|disposition|evidence|rationale'] [--finding 'ID|severity|disposition|action|evidence'] [--apply]")
 		return 2
 	}
 	return cmdReviewRecord(root, args[1:], stdout, stderr)
@@ -179,11 +180,11 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 
 func cmdReviewRecord(root string, args []string, stdout, stderr io.Writer) int {
 	var ref, reviewer, decision, expectedPlanDigest string
-	var evidence, findings []string
+	var evidence, findings, toolDispositions []string
 	apply := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
-		case "--reviewer", "--decision", "--evidence", "--finding", "--plan-digest":
+		case "--reviewer", "--decision", "--evidence", "--finding", "--plan-digest", "--tool":
 			if i+1 >= len(args) {
 				fmt.Fprintln(stderr, "pose review record: missing option value")
 				return 2
@@ -200,6 +201,8 @@ func cmdReviewRecord(root string, args []string, stdout, stderr io.Writer) int {
 				findings = append(findings, args[i])
 			case "--plan-digest":
 				expectedPlanDigest = args[i]
+			case "--tool":
+				toolDispositions = append(toolDispositions, args[i])
 			}
 		case "--apply":
 			apply = true
@@ -221,6 +224,11 @@ func cmdReviewRecord(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	store := posemodel.Store{Root: root}
+	policy, err := store.GetReviewPolicy()
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review record: %v\n", err)
+		return 1
+	}
 	profile, err := store.ReviewProfileForScope(ref)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review record: %v\n", err)
@@ -257,7 +265,7 @@ func cmdReviewRecord(root string, args []string, stdout, stderr io.Writer) int {
 	sum := sha256.Sum256([]byte(ref + digest + reviewer + now.Format(time.RFC3339)))
 	reviewID := "rvw-" + now.Format("20060102T150405Z") + "-" + hex.EncodeToString(sum[:4])
 	sort.Strings(evidence)
-	content, err := renderReviewAttempt(reviewID, ref, digest, plan, profile, reviewer, decision, now.Format(time.RFC3339), supersedes, evidence, findings)
+	content, err := renderReviewAttempt(reviewID, ref, digest, plan, profile, reviewer, decision, now.Format(time.RFC3339), supersedes, evidence, toolDispositions, findings, policy.SchemaVersion >= 2 && policy.ComponentAware)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review record: %v\n", err)
 		return 2
@@ -279,7 +287,11 @@ func cmdReviewRecord(root string, args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
-func renderReviewAttempt(id, scope, digest string, plan posemodel.ReviewPlan, profile posemodel.ReviewProfile, reviewer, decision, reviewedAt, supersedes string, evidence, findings []string) (string, error) {
+func renderReviewAttempt(id, scope, digest string, plan posemodel.ReviewPlan, profile posemodel.ReviewProfile, reviewer, decision, reviewedAt, supersedes string, evidence, rawTools, findings []string, componentAware bool) (string, error) {
+	tools, err := reviewToolDispositions(plan, rawTools, componentAware)
+	if err != nil {
+		return "", err
+	}
 	var b strings.Builder
 	fmt.Fprintf(&b, "---\nschema_version: 1\nreview_id: %s\nscope: %s\nscope_digest: %s\nplan_digest: %s\nprofile: %s\nreviewer: %s\ndecision: %s\nreviewed_at: %s\n", id, scope, digest, plan.PlanDigest, profile.Ref(), reviewer, decision, reviewedAt)
 	if supersedes == "" {
@@ -293,6 +305,20 @@ func renderReviewAttempt(id, scope, digest string, plan posemodel.ReviewPlan, pr
 			continue
 		}
 		fmt.Fprintf(&b, "- %s [passed] evidence:%s\n", criterion.ID, reviewCriterionEvidence(criterion, evidence))
+	}
+	b.WriteString("\n## Tools\n")
+	for _, tool := range tools {
+		fmt.Fprintf(&b, "- %s [%s]", tool.ID, tool.Disposition)
+		if tool.Component != "" {
+			fmt.Fprintf(&b, " component:%s", url.QueryEscape(tool.Component))
+		}
+		if tool.Evidence != "" {
+			fmt.Fprintf(&b, " evidence:%s", tool.Evidence)
+		}
+		if tool.Rationale != "" {
+			fmt.Fprintf(&b, " rationale:%s", strings.ReplaceAll(tool.Rationale, " ", "_"))
+		}
+		b.WriteByte('\n')
 	}
 	b.WriteString("\n## Findings\n")
 	for _, raw := range findings {
@@ -313,6 +339,120 @@ func renderReviewAttempt(id, scope, digest string, plan posemodel.ReviewPlan, pr
 		b.WriteByte('\n')
 	}
 	return b.String(), nil
+}
+
+func reviewToolDispositions(plan posemodel.ReviewPlan, raw []string, componentAware bool) ([]posemodel.ReviewToolDisposition, error) {
+	if !componentAware {
+		if len(raw) > 0 {
+			return nil, fmt.Errorf("tool dispositions require component-aware review policy")
+		}
+		return nil, nil
+	}
+	planned := map[string]posemodel.ReviewPlanTool{}
+	for _, tool := range plan.Tools {
+		planned[cliReviewToolKey(tool.ID, tool.Component)] = tool
+	}
+	provided := map[string]posemodel.ReviewToolDisposition{}
+	for _, value := range raw {
+		parts := strings.Split(value, "|")
+		if len(parts) < 4 || len(parts) > 5 || posemodel.ValidateSlug(parts[0]) != nil {
+			return nil, fmt.Errorf("tool must be ID|component|disposition|evidence|rationale")
+		}
+		component := parts[1]
+		if component == "-" {
+			component = ""
+		} else if decoded, err := url.QueryUnescape(component); err == nil {
+			component = decoded
+		}
+		disposition := posemodel.ReviewToolDisposition{ID: parts[0], Component: component, Disposition: parts[2], Evidence: parts[3]}
+		if len(parts) == 5 {
+			disposition.Rationale = parts[4]
+		}
+		key := cliReviewToolKey(disposition.ID, disposition.Component)
+		tool, ok := planned[key]
+		if !ok {
+			return nil, fmt.Errorf("tool disposition does not match effective plan: %s", cliReviewToolLabel(disposition.ID, disposition.Component))
+		}
+		if _, duplicate := provided[key]; duplicate {
+			return nil, fmt.Errorf("duplicate tool disposition: %s", cliReviewToolLabel(disposition.ID, disposition.Component))
+		}
+		if err := validateCLIReviewToolDisposition(tool, disposition); err != nil {
+			return nil, err
+		}
+		provided[key] = disposition
+	}
+
+	result := make([]posemodel.ReviewToolDisposition, 0, len(plan.Tools))
+	for _, tool := range plan.Tools {
+		key := cliReviewToolKey(tool.ID, tool.Component)
+		if disposition, ok := provided[key]; ok {
+			result = append(result, disposition)
+			continue
+		}
+		if cliReviewToolHasPrecondition(tool, "review-complete") {
+			result = append(result, posemodel.ReviewToolDisposition{ID: tool.ID, Component: tool.Component, Disposition: "deferred", Rationale: "post-review gate"})
+			continue
+		}
+		if tool.Requiredness == "recommended" {
+			result = append(result, posemodel.ReviewToolDisposition{ID: tool.ID, Component: tool.Component, Disposition: "not-used", Rationale: "not used during review"})
+			continue
+		}
+		return nil, fmt.Errorf("required review tool %s needs --tool evidence", cliReviewToolLabel(tool.ID, tool.Component))
+	}
+	return result, nil
+}
+
+func validateCLIReviewToolDisposition(tool posemodel.ReviewPlanTool, disposition posemodel.ReviewToolDisposition) error {
+	label := cliReviewToolLabel(tool.ID, tool.Component)
+	completion := cliReviewToolHasPrecondition(tool, "review-complete")
+	switch disposition.Disposition {
+	case "passed", "failed":
+		parts := strings.SplitN(disposition.Evidence, ":", 2)
+		if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+			return fmt.Errorf("%s review tool %s requires an evidence ref", disposition.Disposition, label)
+		}
+		if len(tool.EvidenceClasses) > 0 && !containsCLIReviewValue(tool.EvidenceClasses, parts[0]) {
+			return fmt.Errorf("review tool %s requires evidence class %s", label, strings.Join(tool.EvidenceClasses, ","))
+		}
+	case "not-used":
+		if tool.Requiredness == "required" {
+			return fmt.Errorf("required review tool %s cannot be not-used", label)
+		}
+		if disposition.Rationale == "" {
+			return fmt.Errorf("recommended review tool %s needs a not-used rationale", label)
+		}
+	case "deferred":
+		if !completion || disposition.Rationale == "" {
+			return fmt.Errorf("review tool %s cannot be deferred without a post-review rationale", label)
+		}
+	default:
+		return fmt.Errorf("review tool %s has invalid disposition %q", label, disposition.Disposition)
+	}
+	return nil
+}
+
+func cliReviewToolHasPrecondition(tool posemodel.ReviewPlanTool, expected string) bool {
+	return containsCLIReviewValue(tool.Preconditions, expected)
+}
+
+func containsCLIReviewValue(values []string, expected string) bool {
+	for _, value := range values {
+		if value == expected {
+			return true
+		}
+	}
+	return false
+}
+
+func cliReviewToolKey(id, component string) string {
+	return id + "\x00" + component
+}
+
+func cliReviewToolLabel(id, component string) string {
+	if component == "" {
+		return id
+	}
+	return id + " (component " + component + ")"
 }
 
 func reviewCriterionEvidence(criterion posemodel.ReviewPlanCriterion, evidence []string) string {

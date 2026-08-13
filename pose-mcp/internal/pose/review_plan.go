@@ -21,7 +21,10 @@ type ReviewPlanComponent struct {
 	Criticality       string   `json:"criticality,omitempty"`
 	ValidationProfile string   `json:"validation_profile,omitempty"`
 	MetadataStatus    string   `json:"metadata_status,omitempty"`
+	MetadataMissing   []string `json:"metadata_missing,omitempty"`
 	Sources           []string `json:"sources"`
+
+	metadataIncompleteFlag bool `json:"-"`
 }
 
 type ReviewPlanProfile struct {
@@ -85,7 +88,9 @@ type reviewRepoEntry struct {
 		ValidationProfile string `json:"validationProfile"`
 	} `json:"metadata"`
 	MetadataStatus struct {
-		Source string `json:"source"`
+		Source        string   `json:"source"`
+		IsComplete    *bool    `json:"isComplete"`
+		MissingFields []string `json:"missingFields"`
 	} `json:"metadataStatus"`
 	Kind string `json:"-"`
 }
@@ -101,22 +106,23 @@ type reviewPlanContext struct {
 
 type reviewToolDefinition struct {
 	Rationale string
+	Phase     int
 }
 
 var reviewToolCatalog = map[string]reviewToolDefinition{
-	"suggest-review":   {Rationale: "resolve the component-specific workflow, skill, rules and validation trail"},
-	"assess-discover":  {Rationale: "inspect component structure, language, size and visible debt"},
-	"assess-integrate": {Rationale: "inspect providers, consumers and inter-component contract gaps"},
-	"assess-tech-debt": {Rationale: "inspect unresolved TODO, FIXME, panic and stub findings"},
-	"artifact-check":   {Rationale: "reconcile declared artifacts with Git-observed provenance"},
-	"validate":         {Rationale: "run the registered deterministic checks for the affected module"},
-	"surface-check":    {Rationale: "verify delivery composition, reachability and fresh evidence"},
-	"roadmap-check":    {Rationale: "verify milestone and roadmap outcome roll-up"},
-	"history-check":    {Rationale: "verify append-only governance history"},
-	"knowledge-check":  {Rationale: "verify knowledge schema, sensitivity and lifecycle"},
-	"skills-check":     {Rationale: "verify distributed skill and workflow conformance"},
-	"review-check":     {Rationale: "verify exact review-plan coverage and freshness"},
-	"closeout-check":   {Rationale: "verify remaining hierarchical closeout blockers"},
+	"suggest-review":   {Rationale: "resolve the component-specific workflow, skill, rules and validation trail", Phase: 10},
+	"assess-discover":  {Rationale: "inspect component structure, language, size and visible debt", Phase: 20},
+	"assess-tech-debt": {Rationale: "inspect unresolved TODO, FIXME, panic and stub findings", Phase: 20},
+	"assess-integrate": {Rationale: "inspect providers, consumers and inter-component contract gaps", Phase: 20},
+	"artifact-check":   {Rationale: "reconcile declared artifacts with Git-observed provenance", Phase: 30},
+	"validate":         {Rationale: "run the registered deterministic checks for the affected module", Phase: 30},
+	"surface-check":    {Rationale: "verify delivery composition, reachability and fresh evidence", Phase: 30},
+	"roadmap-check":    {Rationale: "verify milestone and roadmap outcome roll-up", Phase: 30},
+	"history-check":    {Rationale: "verify append-only governance history", Phase: 30},
+	"knowledge-check":  {Rationale: "verify knowledge schema, sensitivity and lifecycle", Phase: 30},
+	"skills-check":     {Rationale: "verify distributed skill and workflow conformance", Phase: 30},
+	"review-check":     {Rationale: "verify exact review-plan coverage and freshness", Phase: 40},
+	"closeout-check":   {Rationale: "verify remaining hierarchical closeout blockers", Phase: 50},
 }
 
 var reviewEvidenceClassCatalog = map[string]bool{
@@ -184,7 +190,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 		plan.Warnings = append(plan.Warnings, context.Warnings...)
 		plan.Blockers = append(plan.Blockers, context.Blockers...)
 		for _, message := range append([]string{}, context.Warnings...) {
-			if policy.UnmappedComponentBehavior == "blocker" && strings.HasPrefix(message, "unmapped review component") {
+			if policy.UnmappedComponentBehavior == "blocker" && (strings.HasPrefix(message, "unmapped review component") || strings.HasPrefix(message, "metadata-incomplete review component")) {
 				plan.Blockers = append(plan.Blockers, message)
 			}
 		}
@@ -209,7 +215,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 				continue
 			}
 			matched, category, order := matchReviewOverlay(overlay.Selectors, context)
-			if len(matched) == 0 && category != "delivery" {
+			if matched == nil {
 				continue
 			}
 			selection := ReviewPlanProfile{Ref: overlay.Ref(), Category: category, Order: order, Source: ".pose/review-profiles/" + overlay.ID + ".json", Components: matched, Rationale: "matched typed " + category + " selector"}
@@ -228,7 +234,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 			if selected[i].order != selected[j].order {
 				return selected[i].order < selected[j].order
 			}
-			if selected[i].component != selected[j].component {
+			if selected[i].order == 3 && selected[i].component != selected[j].component {
 				return selected[i].component < selected[j].component
 			}
 			return selected[i].profile.Ref() < selected[j].profile.Ref()
@@ -279,6 +285,9 @@ func (s Store) resolveReviewPlanContext(scope ScopeRef) (reviewPlanContext, erro
 		component.Owner, component.Domain, component.Criticality = firstNonempty(entry.Owner, entry.Metadata.Owner), firstNonempty(entry.Domain, entry.Metadata.Domain), firstNonempty(entry.Criticality, entry.Metadata.Criticality)
 		component.ValidationProfile = firstNonempty(entry.ValidationProfile, entry.Metadata.ValidationProfile)
 		component.MetadataStatus = entry.MetadataStatus.Source
+		component.MetadataMissing = uniqueSorted(append(append([]string{}, component.MetadataMissing...), entry.MetadataStatus.MissingFields...))
+		component.metadataIncompleteFlag = component.metadataIncompleteFlag || (entry.MetadataStatus.IsComplete != nil && !*entry.MetadataStatus.IsComplete) || entry.MetadataStatus.Source == "defaulted"
+		clearIncompleteReviewMetadata(&component)
 		component.Sources = append(component.Sources, source)
 		component.Sources = uniqueSorted(component.Sources)
 		byPath[path] = component
@@ -328,6 +337,13 @@ func (s Store) resolveReviewPlanContext(scope ScopeRef) (reviewPlanContext, erro
 	}
 	for _, component := range byPath {
 		component.Sources = uniqueSorted(component.Sources)
+		if metadataIncomplete(component) {
+			reason := "missing:" + strings.Join(component.MetadataMissing, ",")
+			if len(component.MetadataMissing) == 0 {
+				reason = "source:" + component.MetadataStatus
+			}
+			context.Warnings = append(context.Warnings, "metadata-incomplete review component "+component.Path+" "+reason)
+		}
 		context.Components = append(context.Components, component)
 	}
 	sort.Slice(context.Components, func(i, j int) bool { return context.Components[i].Path < context.Components[j].Path })
@@ -335,6 +351,38 @@ func (s Store) resolveReviewPlanContext(scope ScopeRef) (reviewPlanContext, erro
 	context.ArtifactPaths = uniqueSorted(context.ArtifactPaths)
 	context.SpecSlugs = uniqueSorted(context.SpecSlugs)
 	return context, nil
+}
+
+func metadataIncomplete(component ReviewPlanComponent) bool {
+	return component.metadataIncompleteFlag || len(component.MetadataMissing) > 0
+}
+
+func clearIncompleteReviewMetadata(component *ReviewPlanComponent) {
+	if !metadataIncomplete(*component) {
+		return
+	}
+	if len(component.MetadataMissing) == 0 {
+		component.Language = ""
+		component.Owner = ""
+		component.Domain = ""
+		component.Criticality = ""
+		component.ValidationProfile = ""
+		return
+	}
+	for _, field := range component.MetadataMissing {
+		switch strings.ToLower(field) {
+		case "language":
+			component.Language = ""
+		case "owner":
+			component.Owner = ""
+		case "domain":
+			component.Domain = ""
+		case "criticality":
+			component.Criticality = ""
+		case "validationprofile", "validation_profile":
+			component.ValidationProfile = ""
+		}
+	}
 }
 
 func (s Store) reviewScopeSpecs(scope ScopeRef) ([]Spec, error) {
@@ -510,6 +558,9 @@ func matchReviewOverlay(selectors ReviewProfileSelectors, context reviewPlanCont
 	if len(context.Components) == 0 && len(selectors.Languages)+len(selectors.Domains)+len(selectors.ComponentIDs)+len(selectors.Criticalities) > 0 {
 		return nil, category, order
 	}
+	if len(matched) == 0 && len(selectors.Languages)+len(selectors.Domains)+len(selectors.ComponentIDs)+len(selectors.Criticalities) > 0 {
+		return nil, category, order
+	}
 	if len(selectors.DeliveryKinds) > 0 && len(matched) == 0 && len(selectors.Languages)+len(selectors.Domains)+len(selectors.ComponentIDs)+len(selectors.Criticalities) == 0 {
 		return []string{}, category, order
 	}
@@ -626,6 +677,10 @@ func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []Revi
 	add("review-check", "required", "", nil, nil)
 	add("closeout-check", "required", "", nil, nil)
 	sort.Slice(tools, func(i, j int) bool {
+		left, right := reviewToolCatalog[tools[i].ID], reviewToolCatalog[tools[j].ID]
+		if left.Phase != right.Phase {
+			return left.Phase < right.Phase
+		}
 		if tools[i].ID != tools[j].ID {
 			return tools[i].ID < tools[j].ID
 		}
