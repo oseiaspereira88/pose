@@ -203,7 +203,7 @@ This scope was requested in
 - created: .pose/review-profiles/backend-review.json
 - modified: .pose/policy/review.json
 - modified: .pose/review-profiles/spec-closeout.json
-- deleted: .pose/changelogs/unreleased/review-legacy-done-scope-exemption.md
+- removed: .pose/changelogs/unreleased/review-legacy-done-scope-exemption.md
 - modified: .pose/assessments/integrations.md
 - modified: .pose/state/integrations.json
 - modified: .pose/reports/2026-08-13-standard-validate-native.md
