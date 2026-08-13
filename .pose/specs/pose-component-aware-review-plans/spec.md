@@ -206,6 +206,11 @@ This scope was requested in
 - removed: .pose/changelogs/unreleased/review-legacy-done-scope-exemption.md
 - modified: .pose/assessments/integrations.md
 - modified: .pose/state/integrations.json
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/repo-map.json
+- modified: .pose/indexes/spec-graph.json
+- modified: .pose/results/delivery-validation.json
 - modified: .pose/reports/2026-08-13-standard-validate-native.md
 - modified: .pose/reports/history/standard-validate-native.jsonl
 - modified: .pose/workflows/review.md
@@ -234,6 +239,10 @@ This scope was requested in
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/review.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/indexes/repo-map.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
 - modified: pose-mcp/schemas/README.md
 
 ### Delivery targets
@@ -551,10 +560,10 @@ implementation commit exists.
   tools.
 - `pose history-check --strict`, `pose skills-check --strict` and strict spec
   lint: SUCCESS.
-- `pose check --strict`: review migration errors eliminated; the repository
-  still reports its pre-existing stale delivery-evidence baseline.
-- `pose surface-check`: expected to remain blocked before Git attribution and
-  fresh integration evidence; it will be rerun after the implementation commit.
+- `pose check --strict`: SUCCESS after regenerating the governed index and
+  structured delivery evidence for the implementation commit.
+- Artifact reconciliation at the implementation commit: all declared change
+  paths matched the observed range; repository-wide orphan warnings remain.
 
 ### Residual risks
 - Existing stale delivery evidence remains outside this spec; this change does

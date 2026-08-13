@@ -45,6 +45,10 @@
       "to": "pose-compat-gate-candidate-integrity"
     },
     {
+      "from": "pose-component-aware-review-plans",
+      "to": "pose-hierarchical-review-closeout"
+    },
+    {
       "from": "pose-composition-contract",
       "to": "pose-container-build-gate"
     },
@@ -511,6 +515,14 @@
       "path": ".pose/specs/pose-compat-gate-manual-refresh-assertion/spec.md",
       "priority": 1,
       "status": "done"
+    },
+    "pose-component-aware-review-plans": {
+      "depends_on": [
+        "pose-hierarchical-review-closeout"
+      ],
+      "path": ".pose/specs/pose-component-aware-review-plans/spec.md",
+      "priority": 10,
+      "status": "in-progress"
     },
     "pose-composition-contract": {
       "depends_on": [
