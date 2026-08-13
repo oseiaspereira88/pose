@@ -14,14 +14,10 @@
 - _Not provided_
 
 ## Files Changed
-- OSE.md
-- README.md
-- README.pt-BR.md
-- docs-site/docs/index.md
-- docs-site/docs/package-channels.md
-- docs-site/docs/quickstart.md
-- install.sh
-- pose-mcp/internal/version/contract_test.go
+- pose/indexes/delivery-integrity.json
+- .pose/reports/2026-08-13-standard-component-aware-review-provenance.md
+- .pose/reports/history/standard-component-aware-review-provenance.jsonl
+- pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
 
 ## Validation Commands
 - _Fill manually_
@@ -30,17 +26,17 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T00:33:27Z
+- Generated at (UTC): 2026-08-13T07:39:04Z
 - Context: auto-validate
-- Validation profile: tolerant
-- Sequence for task/spec: 54
-- Stable comparison hash: 5698000da1fa3d1dc09c88a5c178e5fab91c31deecd321ea182a96719596b628
+- Validation profile: strict
+- Sequence for task/spec: 60
+- Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-07T19:37:05Z
-- Status: changed
+- Previous execution: 2026-08-13T03:59:58Z
+- Status: stable
 - Stable field diffs:
-- validation_profile: "strict" -> "tolerant"
+- _No changes in stable fields_
 
 ## Risks
 - _No risks provided_

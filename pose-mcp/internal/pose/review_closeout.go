@@ -2,10 +2,12 @@ package pose
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -15,6 +17,7 @@ import (
 )
 
 const ReviewSchemaVersion = 1
+const ReviewPolicySchemaVersion = 2
 
 // ScopeRef is the canonical address of a reviewable POSE scope.
 type ScopeRef struct {
@@ -58,6 +61,23 @@ type ReviewCriterionProfile struct {
 	Description     string   `json:"description"`
 	Rules           []string `json:"rules,omitempty"`
 	EvidenceClasses []string `json:"evidence_classes,omitempty"`
+	Required        *bool    `json:"required,omitempty"`
+}
+
+type ReviewProfileSelectors struct {
+	Languages     []string `json:"languages,omitempty"`
+	Domains       []string `json:"domains,omitempty"`
+	ComponentIDs  []string `json:"component_ids,omitempty"`
+	DeliveryKinds []string `json:"delivery_kinds,omitempty"`
+	Criticalities []string `json:"criticalities,omitempty"`
+}
+
+type ReviewProfileTool struct {
+	ID              string   `json:"id"`
+	Requiredness    string   `json:"requiredness,omitempty"`
+	EvidenceClasses []string `json:"evidence_classes,omitempty"`
+	Criteria        []string `json:"criteria,omitempty"`
+	Preconditions   []string `json:"preconditions,omitempty"`
 }
 
 type ReviewProfile struct {
@@ -66,6 +86,9 @@ type ReviewProfile struct {
 	Version       int                      `json:"version"`
 	Scope         string                   `json:"scope"`
 	Criteria      []ReviewCriterionProfile `json:"criteria"`
+	Selectors     ReviewProfileSelectors   `json:"selectors,omitempty"`
+	Tools         []ReviewProfileTool      `json:"tools,omitempty"`
+	Independence  string                   `json:"independence,omitempty"`
 }
 
 func (p ReviewProfile) Ref() string { return fmt.Sprintf("%s@%d", p.ID, p.Version) }
@@ -81,6 +104,10 @@ type ReviewPolicy struct {
 	ContinuousCloseout               bool              `json:"continuous_closeout,omitempty"`
 	AllowInScopeRemediationSpec      bool              `json:"allow_in_scope_remediation_spec,omitempty"`
 	RequireReviewForLegacyDoneScopes bool              `json:"require_review_for_legacy_done_scopes,omitempty"`
+	ComponentAware                   bool              `json:"component_aware,omitempty"`
+	ComponentAwareAdoptedAt          string            `json:"component_aware_adopted_at,omitempty"`
+	UnmappedComponentBehavior        string            `json:"unmapped_component_behavior,omitempty"`
+	OverlayProfiles                  []string          `json:"overlay_profiles,omitempty"`
 }
 
 type ReviewCriterion struct {
@@ -101,26 +128,37 @@ type ReviewFinding struct {
 	ReviewBy    string `json:"review_by,omitempty"`
 }
 
+type ReviewToolDisposition struct {
+	ID          string `json:"id"`
+	Component   string `json:"component,omitempty"`
+	Disposition string `json:"disposition"`
+	Evidence    string `json:"evidence,omitempty"`
+	Rationale   string `json:"rationale,omitempty"`
+}
+
 type ReviewAttempt struct {
-	SchemaVersion int               `json:"schema_version"`
-	ReviewID      string            `json:"review_id"`
-	Scope         string            `json:"scope"`
-	ScopeDigest   string            `json:"scope_digest"`
-	Profile       string            `json:"profile"`
-	Reviewer      string            `json:"reviewer"`
-	Decision      string            `json:"decision"`
-	ReviewedAt    string            `json:"reviewed_at"`
-	Supersedes    string            `json:"supersedes,omitempty"`
-	EvidenceRefs  []string          `json:"evidence_refs,omitempty"`
-	Criteria      []ReviewCriterion `json:"criteria"`
-	Findings      []ReviewFinding   `json:"findings"`
-	Path          string            `json:"path,omitempty"`
+	SchemaVersion int                     `json:"schema_version"`
+	ReviewID      string                  `json:"review_id"`
+	Scope         string                  `json:"scope"`
+	ScopeDigest   string                  `json:"scope_digest"`
+	PlanDigest    string                  `json:"plan_digest,omitempty"`
+	Profile       string                  `json:"profile"`
+	Reviewer      string                  `json:"reviewer"`
+	Decision      string                  `json:"decision"`
+	ReviewedAt    string                  `json:"reviewed_at"`
+	Supersedes    string                  `json:"supersedes,omitempty"`
+	EvidenceRefs  []string                `json:"evidence_refs,omitempty"`
+	Criteria      []ReviewCriterion       `json:"criteria"`
+	Tools         []ReviewToolDisposition `json:"tools,omitempty"`
+	Findings      []ReviewFinding         `json:"findings"`
+	Path          string                  `json:"path,omitempty"`
 }
 
 type ReviewEvaluation struct {
 	Required      bool           `json:"required"`
 	Scope         string         `json:"scope"`
 	ScopeDigest   string         `json:"scope_digest"`
+	PlanDigest    string         `json:"plan_digest,omitempty"`
 	Profile       string         `json:"profile,omitempty"`
 	Current       *ReviewAttempt `json:"current,omitempty"`
 	Fresh         bool           `json:"fresh"`
@@ -157,8 +195,33 @@ func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid review policy: %w", err)
 	}
-	if p.SchemaVersion != ReviewSchemaVersion {
+	if p.SchemaVersion == ReviewPolicySchemaVersion {
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&p); err != nil {
+			return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid schema-v2 review policy: %w", err)
+		}
+	}
+	if p.SchemaVersion != ReviewSchemaVersion && p.SchemaVersion != ReviewPolicySchemaVersion {
 		return ReviewPolicy{}, nil, fmt.Errorf("pose: unsupported review policy schema %d", p.SchemaVersion)
+	}
+	if p.SchemaVersion == ReviewPolicySchemaVersion {
+		if p.UnmappedComponentBehavior == "" {
+			p.UnmappedComponentBehavior = "warning"
+		}
+		if p.UnmappedComponentBehavior != "warning" && p.UnmappedComponentBehavior != "blocker" {
+			return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid unmapped component behavior %q", p.UnmappedComponentBehavior)
+		}
+		if p.ComponentAware {
+			if _, err := time.Parse(time.DateOnly, p.ComponentAwareAdoptedAt); err != nil {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: component_aware_adopted_at must be YYYY-MM-DD when component-aware review is enabled")
+			}
+		}
+	}
+	for scope, independence := range p.ReviewerIndependence {
+		if !validReviewIndependence(independence) {
+			return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid reviewer independence %q for %s", independence, scope)
+		}
 	}
 	return p, raw, nil
 }
@@ -184,7 +247,14 @@ func (s Store) loadReviewProfile(ref string) (ReviewProfile, []byte, error) {
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return ReviewProfile{}, nil, fmt.Errorf("pose: invalid review profile %q: %w", ref, err)
 	}
-	if p.SchemaVersion != ReviewSchemaVersion || p.Ref() != ref || p.Scope == "" || len(p.Criteria) == 0 {
+	if p.SchemaVersion == ReviewPolicySchemaVersion {
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&p); err != nil {
+			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid schema-v2 review profile %q: %w", ref, err)
+		}
+	}
+	if (p.SchemaVersion != ReviewSchemaVersion && p.SchemaVersion != ReviewPolicySchemaVersion) || p.Ref() != ref || p.Scope == "" || len(p.Criteria) == 0 {
 		return ReviewProfile{}, nil, fmt.Errorf("pose: malformed review profile %q", ref)
 	}
 	seen := map[string]bool{}
@@ -192,9 +262,77 @@ func (s Store) loadReviewProfile(ref string) (ReviewProfile, []byte, error) {
 		if !slugPattern.MatchString(c.ID) || seen[c.ID] {
 			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid or duplicate criterion %q in %s", c.ID, ref)
 		}
+		// Closed rule/evidence catalogs are a schema-v2 contract. Schema-v1
+		// profiles keep their historical namespaces so repositories that never
+		// opted into component-aware planning remain readable (spec R29).
+		if p.SchemaVersion == ReviewPolicySchemaVersion {
+			if err := s.validateReviewContractRefs(ref, c.Rules, c.EvidenceClasses); err != nil {
+				return ReviewProfile{}, nil, err
+			}
+		}
 		seen[c.ID] = true
 	}
+	if p.SchemaVersion == ReviewSchemaVersion && (hasReviewSelectors(p.Selectors) || len(p.Tools) > 0 || p.Independence != "") {
+		return ReviewProfile{}, nil, fmt.Errorf("pose: schema-v1 review profile %q cannot declare selectors, tools or independence", ref)
+	}
+	if p.Independence != "" && !validReviewIndependence(p.Independence) {
+		return ReviewProfile{}, nil, fmt.Errorf("pose: invalid reviewer independence %q in %s", p.Independence, ref)
+	}
+	for _, selector := range append(append(append(append([]string{}, p.Selectors.Languages...), p.Selectors.Domains...), p.Selectors.DeliveryKinds...), p.Selectors.Criticalities...) {
+		if !slugPattern.MatchString(selector) {
+			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid review selector %q in %s", selector, ref)
+		}
+	}
+	for _, component := range p.Selectors.ComponentIDs {
+		if !slugPattern.MatchString(component) {
+			if _, err := validateArtifactPathSyntax(component); err != nil {
+				return ReviewProfile{}, nil, fmt.Errorf("pose: invalid component selector %q in %s", component, ref)
+			}
+		}
+	}
+	for _, tool := range p.Tools {
+		if !slugPattern.MatchString(tool.ID) || (tool.Requiredness != "" && tool.Requiredness != "recommended" && tool.Requiredness != "required") {
+			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid review tool %q in %s", tool.ID, ref)
+		}
+		if err := s.validateReviewContractRefs(ref, nil, tool.EvidenceClasses); err != nil {
+			return ReviewProfile{}, nil, err
+		}
+		for _, precondition := range tool.Preconditions {
+			if !reviewPreconditionCatalog[precondition] {
+				return ReviewProfile{}, nil, fmt.Errorf("pose: unknown review tool precondition %q in %s", precondition, ref)
+			}
+		}
+	}
 	return p, raw, nil
+}
+
+func (s Store) validateReviewContractRefs(ref string, rules, evidenceClasses []string) error {
+	for _, rule := range rules {
+		if !slugPattern.MatchString(rule) {
+			return fmt.Errorf("pose: invalid review rule %q in %s", rule, ref)
+		}
+		path := filepath.Join(s.Root, ".pose", "rules", rule+".md")
+		if err := ValidateArtifactPath(s.Root, filepath.ToSlash(filepath.Join(".pose", "rules", rule+".md")), false); err != nil {
+			return fmt.Errorf("pose: unsafe review rule %q in %s: %w", rule, ref, err)
+		}
+		if _, err := os.Stat(path); err != nil {
+			return fmt.Errorf("pose: unknown review rule %q in %s", rule, ref)
+		}
+	}
+	for _, class := range evidenceClasses {
+		if !reviewEvidenceClassCatalog[class] {
+			return fmt.Errorf("pose: unknown review evidence class %q in %s", class, ref)
+		}
+	}
+	return nil
+}
+
+func hasReviewSelectors(selectors ReviewProfileSelectors) bool {
+	return len(selectors.Languages)+len(selectors.Domains)+len(selectors.ComponentIDs)+len(selectors.DeliveryKinds)+len(selectors.Criticalities) > 0
+}
+
+func validReviewIndependence(value string) bool {
+	return value == "same-actor-separate-execution" || value == "different-actor" || value == "mandatory-human"
 }
 
 // ReviewProfileForScope returns the profile selected by policy for a typed
@@ -229,7 +367,7 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		return ReviewAttempt{}, err
 	}
 	fm, body := SplitFrontmatter(string(raw))
-	a := ReviewAttempt{SchemaVersion: ReviewSchemaVersion, ReviewID: fm["review_id"], Scope: fm["scope"], ScopeDigest: fm["scope_digest"], Profile: fm["profile"], Reviewer: fm["reviewer"], Decision: fm["decision"], ReviewedAt: fm["reviewed_at"], Supersedes: fm["supersedes"], Path: path}
+	a := ReviewAttempt{SchemaVersion: ReviewSchemaVersion, ReviewID: fm["review_id"], Scope: fm["scope"], ScopeDigest: fm["scope_digest"], PlanDigest: fm["plan_digest"], Profile: fm["profile"], Reviewer: fm["reviewer"], Decision: fm["decision"], ReviewedAt: fm["reviewed_at"], Supersedes: fm["supersedes"], Path: path}
 	if v := fm["schema_version"]; v != "" && v != "1" {
 		return a, fmt.Errorf("pose: review %s has unsupported schema_version %s", a.ReviewID, v)
 	}
@@ -244,6 +382,9 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		case "## Criteria":
 			section = "criteria"
 			continue
+		case "## Tools":
+			section = "tools"
+			continue
 		case "## Findings":
 			section = "findings"
 			continue
@@ -255,6 +396,12 @@ func parseReviewAttempt(path string) (ReviewAttempt, error) {
 		id, disposition, rest := match[1], strings.ToLower(match[2]), strings.TrimSpace(match[3])
 		if section == "criteria" {
 			a.Criteria = append(a.Criteria, ReviewCriterion{ID: id, Disposition: disposition, Evidence: fieldValue(rest, "evidence"), Rationale: fieldValue(rest, "rationale")})
+		} else if section == "tools" {
+			component := fieldValue(rest, "component")
+			if decoded, decodeErr := url.QueryUnescape(component); decodeErr == nil {
+				component = decoded
+			}
+			a.Tools = append(a.Tools, ReviewToolDisposition{ID: id, Component: component, Disposition: disposition, Evidence: fieldValue(rest, "evidence"), Rationale: fieldValue(rest, "rationale")})
 		} else if section == "findings" {
 			a.Findings = append(a.Findings, ReviewFinding{ID: id, Disposition: disposition, Severity: fieldValue(rest, "severity"), Evidence: fieldValue(rest, "evidence"), Action: fieldValue(rest, "action"), Owner: fieldValue(rest, "owner"), Rationale: fieldValue(rest, "rationale"), ReviewBy: fieldValue(rest, "review_by")})
 		}
@@ -452,6 +599,30 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	if err != nil {
 		return eval, err
 	}
+	baseRequiredCriteria := append([]ReviewCriterionProfile{}, profile.Criteria...)
+	requiredCriteria := append([]ReviewCriterionProfile{}, baseRequiredCriteria...)
+	effectiveTools := []ReviewPlanTool{}
+	baseIndependence := policy.ReviewerIndependence[scope.Kind]
+	independence := baseIndependence
+	if policy.SchemaVersion >= ReviewPolicySchemaVersion && policy.ComponentAware {
+		plan, planErr := s.ReviewPlan(ref)
+		if planErr != nil {
+			return eval, planErr
+		}
+		eval.PlanDigest = plan.PlanDigest
+		eval.Warnings = append(eval.Warnings, plan.Warnings...)
+		eval.Blockers = append(eval.Blockers, plan.Blockers...)
+		requiredCriteria = requiredCriteria[:0]
+		for _, criterion := range plan.Criteria {
+			if !criterion.Required {
+				continue
+			}
+			required := true
+			requiredCriteria = append(requiredCriteria, ReviewCriterionProfile{ID: criterion.ID, Description: criterion.Description, Rules: criterion.Rules, EvidenceClasses: criterion.EvidenceClasses, Required: &required})
+		}
+		effectiveTools = append(effectiveTools, plan.Tools...)
+		independence = plan.Independence
+	}
 	attempts, err := s.ListReviewAttempts(ref)
 	if err != nil {
 		return eval, err
@@ -462,13 +633,28 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	}
 	current := attempts[len(attempts)-1]
 	eval.Current = &current
+	legacyPlanExempt := s.componentAwareLegacyAttemptExempt(scope, policy, current)
+	if legacyPlanExempt {
+		requiredCriteria = append([]ReviewCriterionProfile{}, baseRequiredCriteria...)
+		effectiveTools = nil
+		independence = baseIndependence
+		eval.Warnings = append(eval.Warnings, "completed scope retains its approved pre-component-aware review attempt")
+	}
 	if len(attempts) > 1 && current.Supersedes != attempts[len(attempts)-2].ReviewID {
 		eval.Blockers = append(eval.Blockers, "latest review does not supersede the previous attempt")
 	}
-	if current.ScopeDigest != digest {
+	if current.ScopeDigest != digest && !legacyPlanExempt {
 		eval.Blockers = append(eval.Blockers, "review is stale: scope digest changed")
 	} else {
 		eval.Fresh = true
+	}
+	if eval.PlanDigest != "" && current.PlanDigest != eval.PlanDigest && !legacyPlanExempt {
+		eval.Fresh = false
+		if current.PlanDigest == "" {
+			eval.Blockers = append(eval.Blockers, "review is stale: effective plan digest is missing")
+		} else {
+			eval.Blockers = append(eval.Blockers, "review is stale: effective plan digest changed")
+		}
 	}
 	if current.Profile != profile.Ref() {
 		eval.Blockers = append(eval.Blockers, "review profile does not match current policy")
@@ -478,10 +664,14 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 			eval.Blockers = append(eval.Blockers, err.Error())
 		}
 	}
+	if len(effectiveTools) > 0 {
+		toolWarnings, toolBlockers := evaluateReviewToolCoverage(s.Root, effectiveTools, current.Tools)
+		eval.Warnings = append(eval.Warnings, toolWarnings...)
+		eval.Blockers = append(eval.Blockers, toolBlockers...)
+	}
 	if current.Reviewer == "" || strings.ContainsAny(current.Reviewer, "\r\n") {
 		eval.Blockers = append(eval.Blockers, "reviewer execution identity is missing or malformed")
 	}
-	independence := policy.ReviewerIndependence[scope.Kind]
 	switch independence {
 	case "", "same-actor-separate-execution":
 		if !strings.HasPrefix(current.Reviewer, "agent:") && !strings.HasPrefix(current.Reviewer, "human:") {
@@ -503,7 +693,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	}
 	criteria := map[string]ReviewCriterion{}
 	profileCriteria := map[string]bool{}
-	for _, required := range profile.Criteria {
+	for _, required := range requiredCriteria {
 		profileCriteria[required.ID] = true
 	}
 	for _, criterion := range current.Criteria {
@@ -520,7 +710,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 			}
 		}
 	}
-	for _, required := range profile.Criteria {
+	for _, required := range requiredCriteria {
 		criterion, ok := criteria[required.ID]
 		if !ok {
 			eval.Blockers = append(eval.Blockers, "missing criterion "+required.ID)
@@ -590,6 +780,167 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	sort.Strings(eval.Blockers)
 	eval.Approved = len(eval.Blockers) == 0
 	return eval, nil
+}
+
+func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, dispositions []ReviewToolDisposition) ([]string, []string) {
+	warnings, blockers := []string{}, []string{}
+	planned := map[string]ReviewPlanTool{}
+	for _, tool := range planTools {
+		planned[reviewToolKey(tool.ID, tool.Component)] = tool
+	}
+	observed := map[string]ReviewToolDisposition{}
+	for _, disposition := range dispositions {
+		key := reviewToolKey(disposition.ID, disposition.Component)
+		label := reviewToolLabel(disposition.ID, disposition.Component)
+		tool, ok := planned[key]
+		if !ok {
+			blockers = append(blockers, "unknown review tool disposition "+label)
+			continue
+		}
+		if _, duplicate := observed[key]; duplicate {
+			blockers = append(blockers, "duplicate review tool disposition "+label)
+			continue
+		}
+		observed[key] = disposition
+		if disposition.Evidence != "" {
+			if err := validateReviewEvidenceRef(root, disposition.Evidence); err != nil {
+				blockers = append(blockers, err.Error())
+			}
+		}
+		completion := containsFold(tool.Preconditions, "review-complete")
+		switch disposition.Disposition {
+		case "passed", "failed":
+			message := reviewToolEvidenceBlocker(tool, disposition)
+			if message != "" {
+				if tool.Requiredness == "required" {
+					blockers = append(blockers, message)
+				} else {
+					warnings = append(warnings, message)
+				}
+			}
+			if disposition.Disposition == "failed" {
+				message = "review tool " + label + " failed"
+				if tool.Requiredness == "required" {
+					blockers = append(blockers, message)
+				} else {
+					warnings = append(warnings, message)
+				}
+			}
+		case "not-used":
+			if tool.Requiredness == "required" {
+				blockers = append(blockers, "required review tool "+label+" was not used")
+			} else if disposition.Rationale == "" {
+				warnings = append(warnings, "recommended review tool "+label+" lacks not-used rationale")
+			}
+		case "deferred":
+			if !completion || disposition.Rationale == "" {
+				message := "review tool " + label + " has invalid deferred disposition"
+				if tool.Requiredness == "required" {
+					blockers = append(blockers, message)
+				} else {
+					warnings = append(warnings, message)
+				}
+			}
+		default:
+			blockers = append(blockers, "review tool "+label+" has invalid disposition")
+		}
+		if tool.Requiredness == "required" && !completion && disposition.Disposition != "passed" {
+			blockers = append(blockers, "required review tool "+label+" did not pass")
+		}
+	}
+	for key, tool := range planned {
+		if _, ok := observed[key]; ok {
+			continue
+		}
+		label := reviewToolLabel(tool.ID, tool.Component)
+		if tool.Requiredness == "required" {
+			blockers = append(blockers, "missing required review tool disposition "+label)
+		} else {
+			warnings = append(warnings, "recommended review tool "+label+" has no disposition")
+		}
+	}
+	return uniqueSorted(warnings), uniqueSorted(blockers)
+}
+
+func reviewToolEvidenceBlocker(tool ReviewPlanTool, disposition ReviewToolDisposition) string {
+	label := reviewToolLabel(tool.ID, tool.Component)
+	if disposition.Evidence == "" {
+		return "review tool " + label + " has no evidence"
+	}
+	if len(tool.EvidenceClasses) == 0 {
+		return ""
+	}
+	class := strings.SplitN(disposition.Evidence, ":", 2)[0]
+	if containsFold(tool.EvidenceClasses, class) {
+		return ""
+	}
+	return "review tool " + label + " lacks a required evidence class"
+}
+
+func reviewToolKey(id, component string) string {
+	return id + "\x00" + component
+}
+
+func reviewToolLabel(id, component string) string {
+	if component == "" {
+		return id
+	}
+	return id + " (component " + component + ")"
+}
+
+func (s Store) componentAwareLegacyAttemptExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
+	if !policy.ComponentAware || policy.ComponentAwareAdoptedAt == "" || attempt.PlanDigest != "" {
+		return false
+	}
+	adopted, err := time.Parse(time.DateOnly, policy.ComponentAwareAdoptedAt)
+	if err != nil {
+		return false
+	}
+	reviewed, err := time.Parse(time.RFC3339, attempt.ReviewedAt)
+	if err != nil || !reviewed.Before(adopted) {
+		return false
+	}
+	done, err := s.scopeLifecycleDone(scope)
+	return err == nil && done
+}
+
+func (s Store) scopeLifecycleDone(scope ScopeRef) (bool, error) {
+	switch scope.Kind {
+	case "spec":
+		sp, err := s.GetSpec(scope.Slug)
+		if err != nil {
+			return false, err
+		}
+		return sp.Status == "done", nil
+	case "milestone":
+		rm, err := s.GetRoadmap(scope.Roadmap)
+		if err != nil {
+			return false, err
+		}
+		for _, milestone := range rm.Milestones {
+			if milestone.ID == scope.Milestone {
+				for _, slug := range milestone.Specs {
+					sp, specErr := s.GetSpec(slug)
+					if specErr != nil {
+						return false, specErr
+					}
+					if sp.Status != "done" {
+						return false, nil
+					}
+				}
+				return true, nil
+			}
+		}
+		return false, fmt.Errorf("pose: milestone %s/%s not found", scope.Roadmap, scope.Milestone)
+	case "roadmap":
+		rm, err := s.GetRoadmap(scope.Slug)
+		if err != nil {
+			return false, err
+		}
+		return rm.Status == "done", nil
+	default:
+		return false, nil
+	}
 }
 
 func (s Store) reviewRequiredForScope(scope ScopeRef, policy ReviewPolicy) (bool, error) {

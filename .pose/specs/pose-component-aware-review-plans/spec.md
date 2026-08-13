@@ -1,12 +1,12 @@
 ---
 slug: pose-component-aware-review-plans
-status: draft
+status: in-progress
 created_at: 2026-08-13
 completed_at:
 supersedes:
 depends_on: pose-hierarchical-review-closeout
 priority: 10
-components: pose-mcp, cli, mcp, reviews, assessments, scaffold, docs
+components: pose-mcp
 delivers: governance:component-aware-review-plans
 ---
 
@@ -116,8 +116,11 @@ This scope was requested in
   mapping, governed artifacts, delivery targets, relevant rules or required
   evidence expectations change.
 - R17: The attempt shall record evidence actually used and dispositions for
-  required criteria; recommended tools that were not used shall remain visible
-  without becoming blockers unless policy marks them required.
+  required criteria and every effective-plan tool. Required evidence-collection
+  tools shall block approval unless they passed with matching evidence;
+  recommended tools that were not used shall remain visible without becoming
+  blockers. Completion tools shall be recorded as deferred until the immutable
+  attempt exists, then enforced by `review-check` and `closeout-check`.
 - R18: Built-in overlays shall demonstrate materially distinct frontend and
   backend plans. Frontend coverage shall include user-visible behavior,
   accessibility, state/network failure and surface reachability; backend
@@ -187,10 +190,17 @@ This scope was requested in
 - `spec:pose-hierarchical-review-closeout` for the current profile, policy and
   review-attempt model that this spec extends.
 - `issue:13` for the reported component-awareness and tool-guidance gap.
+- `adr:2026-08-12-component-aware-effective-review-plans` ratifies typed
+  overlays, deterministic composition, the closed tool catalog and schema-v1
+  migration.
+- `knowledge:pr15-component-aware-review-provenance` records the remediation
+  evidence and the independent-review handoff for PR #15.
 
 ### Artifacts
-- created: .pose/specs/pose-component-aware-review-plans/spec.md
-- created: .pose/adr/YYYY-MM-DD-component-aware-effective-review-plan.md
+- modified: .pose/specs/pose-component-aware-review-plans/spec.md
+- created: .pose/adr/2026-08-12-component-aware-effective-review-plans.md
+- created: .pose/knowledge/2026-08-13-decision-log-adr-component-aware-review-plans-review.md
+- created: .pose/changelogs/unreleased/pose-component-aware-review-plans.md
 - created: pose-mcp/internal/pose/review_plan.go
 - created: pose-mcp/internal/pose/review_plan_test.go
 - created: pose-mcp/schemas/v1/review-plan.schema.json
@@ -198,6 +208,16 @@ This scope was requested in
 - created: .pose/review-profiles/backend-review.json
 - modified: .pose/policy/review.json
 - modified: .pose/review-profiles/spec-closeout.json
+- removed: .pose/changelogs/unreleased/review-legacy-done-scope-exemption.md
+- modified: .pose/assessments/integrations.md
+- modified: .pose/state/integrations.json
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/repo-map.json
+- modified: .pose/indexes/spec-graph.json
+- modified: .pose/results/delivery-validation.json
+- modified: .pose/reports/2026-08-13-standard-validate-native.md
+- modified: .pose/reports/history/standard-validate-native.jsonl
 - modified: .pose/workflows/review.md
 - modified: .agents/skills/pose-review/SKILL.md
 - modified: POSE.md
@@ -206,13 +226,13 @@ This scope was requested in
 - modified: locales/pt-BR/.pose/workflows/review.md
 - modified: locales/pt-BR/.agents/skills/pose-review/SKILL.md
 - modified: pose-mcp/internal/pose/review_closeout.go
-- modified: pose-mcp/internal/pose/review_closeout_test.go
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/review_closeout_test.go
 - modified: pose-mcp/internal/mcpserver/catalog.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/closeout_tool_test.go
+- modified: pose-mcp/internal/mcpserver/server_test.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: pose-mcp/internal/scaffold/dist/.pose/policy/review.json
 - modified: pose-mcp/internal/scaffold/dist/.pose/review-profiles/spec-closeout.json
@@ -222,6 +242,13 @@ This scope was requested in
 - modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/review.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/indexes/repo-map.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
+- modified: pose-mcp/schemas/README.md
 
 ### Delivery targets
 - governance:component-aware-review-plans module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
@@ -252,13 +279,12 @@ Extend schema-v2 review profiles with optional selectors and tool references:
     "domains": ["frontend"],
     "component_ids": []
   },
-  "extends": ["spec-closeout@2"],
   "criteria": [],
   "tools": [
     {
       "id": "surface-check",
       "requiredness": "recommended",
-      "when": "delivery_kind=surface",
+      "preconditions": ["delivery-target-declared"],
       "evidence_classes": ["reachability"]
     }
   ]
@@ -354,45 +380,46 @@ explicit caller execution.
 ## 4. Tasks
 
 ### Planning
-- [ ] Record the required ADR for the effective-plan schema, selector
+- [x] Record the required ADR for the effective-plan schema, selector
   precedence, trusted tool catalog and schema-v1 migration.
-- [ ] Freeze frontend, backend, multi-component, unmapped and conflicting
+- [x] Freeze frontend, backend, multi-component, unmapped and conflicting
   selector fixtures before runtime implementation.
-- [ ] Define the versioned JSON schema and CLI/MCP golden projection.
-- [ ] Confirm every native tool ID and typed argument contract against the
+- [x] Define the versioned JSON schema and CLI/MCP golden projection.
+- [x] Confirm every native tool ID and typed argument contract against the
   current CLI catalog.
 
 ### Implementation
-- [ ] Implement component resolution with mapping provenance and ambiguity
+- [x] Implement component resolution with mapping provenance and ambiguity
   handling.
-- [ ] Implement typed selectors, deterministic overlay composition and conflict
+- [x] Implement typed selectors, deterministic overlay composition and conflict
   detection.
-- [ ] Implement the closed native tool recommendation catalog.
-- [ ] Implement canonical effective plans and stable plan digests.
-- [ ] Add `pose review-plan` human, JSON and explain output.
-- [ ] Add `pose_review_plan` with project-scoped authorization.
-- [ ] Bind new attempts and `review-check` to the effective plan digest.
-- [ ] Add schema-v1 compatibility and schema-v2 dry-run migration.
-- [ ] Update review workflow, skill, policy/profile references and manuals.
-- [ ] Regenerate and verify locales and embedded scaffold.
+- [x] Implement the closed native tool recommendation catalog.
+- [x] Implement canonical effective plans and stable plan digests.
+- [x] Add `pose review-plan` human, JSON and explain output.
+- [x] Add `pose_review_plan` with project-scoped authorization.
+- [x] Bind new attempts and `review-check` to the effective plan digest.
+- [x] Add schema-v1 compatibility and schema-v2 adoption-aware migration.
+- [x] Update review workflow, skill, policy/profile references and manuals.
+- [x] Regenerate and verify locales and embedded scaffold.
 
 ### Validation
-- [ ] Prove distinct frontend and backend effective plans from the same base
+- [x] Prove distinct frontend and backend effective plans from the same base
   scope profile.
-- [ ] Prove multi-component union and required integration-boundary coverage.
-- [ ] Prove deterministic composition and digest stability.
-- [ ] Prove stale-review invalidation for consumed policy/component changes and
+- [x] Prove multi-component union and required integration-boundary coverage.
+- [x] Prove deterministic composition and digest stability.
+- [x] Prove stale-review invalidation for consumed policy/component changes and
   stability for unrelated metadata changes.
-- [ ] Prove rejection of arbitrary commands, selector ambiguity, path escape,
+- [x] Prove rejection of arbitrary commands, selector ambiguity, path escape,
   symlink escape, unknown tools and independence weakening.
-- [ ] Prove schema-v1 compatibility and adoption-date behavior.
+- [x] Prove schema-v1 compatibility and adoption-date behavior.
 - [ ] Run focused, full-suite, contract, scaffold and strict POSE gates.
 
 ## 5. Decisions
 
 ### Decision 1: Resolve a plan, not a single component profile
 - Date: 2026-08-13
-- Status: proposed; ratify through the implementation ADR.
+- Status: accepted by
+  `adr:2026-08-12-component-aware-effective-review-plans`.
 - Context: A spec can affect several components and still needs scope-level
   correctness, security and compatibility criteria.
 - Options considered: select one most-specific profile; review each component
@@ -406,7 +433,8 @@ explicit caller execution.
 
 ### Decision 2: Recommend only cataloged native tools
 - Date: 2026-08-13
-- Status: proposed; ratify through the implementation ADR.
+- Status: accepted by
+  `adr:2026-08-12-component-aware-effective-review-plans`.
 - Context: Repository-defined commands would make review planning an execution
   and injection surface.
 - Options considered: free-form command strings; documentation-only prose;
@@ -420,7 +448,8 @@ explicit caller execution.
 
 ### Decision 3: Bind approval to the effective plan digest
 - Date: 2026-08-13
-- Status: proposed; ratify through the implementation ADR.
+- Status: accepted by
+  `adr:2026-08-12-component-aware-effective-review-plans`.
 - Context: An approval under a generic plan must not remain current after a
   newly mapped critical component adds required coverage.
 - Options considered: bind only to scope content; store a narrative plan
@@ -443,44 +472,45 @@ time and prove exact freshness behavior. Run every recommendation test in
 read-only mode and assert that plan resolution creates no files or processes.
 
 ### Deterministic checks
-- Unit: `go -C pose-mcp test ./internal/pose -run
+- Required — unit: `go -C pose-mcp test ./internal/pose -run
   'ReviewPlan|ReviewProfile|ComponentSelector|PlanDigest' -count=1`.
-- CLI: `go -C pose-mcp test ./internal/cli -run
+- Required — CLI: `go -C pose-mcp test ./internal/cli -run
   'ReviewPlan|ReviewRecord|ReviewCheck' -count=1`.
-- MCP: `go -C pose-mcp test ./internal/mcpserver -run
+- Required — MCP: `go -C pose-mcp test ./internal/mcpserver -run
   'ReviewPlan|Closeout|Catalog' -count=1`.
-- Negative/security: `go -C pose-mcp test ./internal/pose ./internal/cli
+- Required — negative/security: `go -C pose-mcp test ./internal/pose ./internal/cli
   ./internal/mcpserver -run
   'ReviewPlan.*(Traversal|Symlink|Command|Ambiguous|Unknown|Independence)'
   -count=1`.
-- Full suite: `go -C pose-mcp test ./... -count=1` and `go -C pose-mcp vet
+- Required — full suite: `go -C pose-mcp test ./... -count=1` and `go -C pose-mcp vet
   ./...`.
-- Integration assessment: `pose assess integrate` after CLI/MCP and file
+- Required — integration assessment: `pose assess integrate` after CLI/MCP and file
   contract changes.
-- Scaffold parity: `go -C pose-mcp test ./internal/scaffold -run
+- Required — scaffold parity: `go -C pose-mcp test ./internal/scaffold -run
   TestEmbeddedDistMatchesPoseDist -count=1`.
-- Structure: `pose check --strict`, `pose history-check --strict`, `pose
+- Required — structure: `pose check --strict`, `pose history-check --strict`, `pose
   skills-check --strict` and `pose lint-spec pose-component-aware-review-plans
   --strict`.
-- Delivery gate: `pose validate --strict --module pose-mcp --report` followed by
+- Required — delivery gate: `pose validate --strict --module pose-mcp --report` followed by
   `pose surface-check --spec pose-component-aware-review-plans --strict`.
 
 ### Risk-based cases
 
-| Scenario | Expected evidence |
-|---|---|
-| Frontend-only spec | Frontend criteria and surface/reachability guidance appear; backend-only criteria do not. |
-| Backend-only spec | Backend contract/error/concurrency guidance appears; frontend accessibility criteria do not. |
-| Frontend plus backend | Both component plans and an integration-boundary criterion appear exactly once. |
-| Repository component override | Component overlay composes after domain overlay with visible provenance. |
-| Duplicate identical criterion | Criterion deduplicates with all contributing sources retained. |
-| Conflicting criterion | Resolution blocks with both profile refs and conflicting fields. |
-| Unmapped observed artifact | Warning or blocker follows policy; no component is invented. |
-| Unknown tool or free-form command | Profile validation rejects the entry before plan creation. |
-| Relevant policy/component change | Existing attempt becomes stale because plan digest changes. |
-| Unrelated owner metadata change | Plan digest and approval remain current when owner was not consumed by selection. |
-| Schema-v1 repository | Current generic profile behavior and existing attempt readability remain unchanged. |
-| Read-only guarantee | Filesystem snapshot and process hooks prove plan resolution performs no mutation or tool execution. |
+| Scenario | Command | Expected evidence |
+|---|---|---|
+| Frontend-only spec | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage -count=1` | Frontend criteria and surface/reachability guidance appear; backend-only criteria do not. |
+| Backend-only spec | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage -count=1` | Backend contract/error/concurrency guidance appears; frontend accessibility criteria do not. |
+| Frontend plus backend | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage -count=1` | Both component plans and an integration-boundary criterion appear exactly once. |
+| Repository component override | `go -C pose-mcp test ./internal/pose -run TestReviewPlanOrdersOverlaysByCategoryContract -count=1` | Component overlay composes after domain overlay; language/domain refs and component paths follow R6 ordering. |
+| Duplicate identical criterion | `go -C pose-mcp test ./internal/pose -run TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped -count=1` | Criterion deduplicates with all contributing sources retained. |
+| Conflicting criterion | `go -C pose-mcp test ./internal/pose -run TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped -count=1` | Resolution blocks with both profile refs and conflicting fields. |
+| Unmapped or metadata-incomplete component | `go -C pose-mcp test ./internal/pose -run 'TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped|TestReviewPlanFailsClosedOnIncompleteMetadata' -count=1` | Warning or blocker follows policy, missing metadata is explicit and no defaulted selector value is consumed. |
+| Unknown tool or free-form command | `go -C pose-mcp test ./internal/pose -run TestReviewPlanRejectsConflictingCriteriaUnknownToolsAndStrictUnmapped -count=1` | Profile validation rejects the entry before plan creation. |
+| Tool lifecycle and required coverage | `go -C pose-mcp test ./internal/pose ./internal/cli -run 'TestReviewPlanToolsFollowLifecycleOrder|TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage|TestReviewRecordRequiresRequiredToolDispositions' -count=1` | Evidence tools precede completion gates; missing, duplicate or unevidenced required tools block approval; CLI scaffolds explicit recommended/deferred dispositions. |
+| Relevant policy/component change | `go -C pose-mcp test ./internal/pose -run TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage -count=1` | Existing attempt becomes stale because plan digest changes. |
+| Unrelated owner metadata change | `go -C pose-mcp test ./internal/pose -run TestReviewPlanDigestIsDeterministicAndIgnoresUnconsumedOwner -count=1` | Plan digest and approval remain current when owner was not consumed by selection. |
+| Schema-v1 repository | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly -count=1` | Custom legacy rule/evidence namespaces, generic profile behavior and existing attempt readability remain unchanged. |
+| Read-only guarantee | `go -C pose-mcp test ./internal/pose -run TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly -count=1` | Filesystem snapshot proves plan resolution performs no mutation or tool execution. |
 
 ### Planned requirement verification
 - R1-R9: unit fixtures for scope resolution, component provenance, ordering,
@@ -495,8 +525,8 @@ read-only mode and assert that plan resolution creates no files or processes.
   catalog parity tests.
 
 ### Known gaps
-- The final selector grammar and whether profile inheritance supports more than
-  one level require ADR ratification.
+- The accepted ADR deliberately permits only one-level overlays selected by
+  policy; deeper inheritance remains a review trigger, not an implicit feature.
 - Component boundaries are only as accurate as attributed artifacts and the
   repository map; the design makes this uncertainty visible but cannot infer
   runtime topology without evidence.
@@ -506,29 +536,48 @@ read-only mode and assert that plan resolution creates no files or processes.
 ## 7. Final Report
 
 ### Delivered scope
-Planning only. This draft defines the product contract, proposed architecture,
-security boundary, compatibility strategy, task sequence and deterministic
-validation for component-aware, tool-guided reviews. No runtime behavior,
-policy schema, profile or command is implemented by this spec-creation change.
+Implemented schema-v2 component-aware review plans across the Go domain, CLI,
+MCP, immutable attempt freshness, built-in profiles and the distributed POSE
+review contract. Closeout remains pending because the required review must run
+in a separate execution and delivery provenance can only reconcile after the
+implementation commit exists.
 
 ### Files and modules changed
-- `.pose/specs/pose-component-aware-review-plans/spec.md`: complete draft spec.
-- `.pose/feedback/suggestion-make-pose-review-component-aware-and-too.md`:
-  local copy of the upstream proposal published as issue #13.
+- `pose-mcp/internal/pose/review_plan.go`: deterministic plan resolver, typed
+  overlay composition, component provenance and closed native-tool catalog.
+- `pose-mcp/internal/pose/review_closeout.go`: schema-v2 policy/profile parsing,
+  plan-bound attempts and adoption-aware compatibility for completed reviews.
+- CLI/MCP contracts: `pose review-plan`, `pose_review_plan` and plan-aware
+  `pose review record` / `pose review-check`.
+- Review profiles, workflows, skills, manuals, locales and embedded scaffold:
+  component-specific guidance distributed with the engine.
 
 ### Validation executed
-- `pose lint-spec pose-component-aware-review-plans --ready-check`: execute as
-  the planning gate before this spec moves to `in-progress`.
-- Runtime validation is intentionally pending because implementation is outside
-  the current scope.
+- `pose lint-spec pose-component-aware-review-plans --ready-check`: SUCCESS at
+  the planning gate.
+- `pose assess discover --component pose-mcp/internal/pose`: 6,677 production
+  LOC, 3,767 test LOC and zero TODO/FIXME/panic/stub findings at baseline.
+- Focused domain/CLI/MCP tests: SUCCESS, including negative security cases.
+- `go test ./... -count=1`: SUCCESS.
+- `go vet ./...`: SUCCESS.
+- `pose validate --strict --module pose-mcp --report`: SUCCESS.
+- `pose assess integrate`: 52 observed contracts; `pose_review_plan` is visible
+  as a provider with no in-repository consumer, consistent with other public MCP
+  tools.
+- `pose history-check --strict`, `pose skills-check --strict` and strict spec
+  lint: SUCCESS.
+- `pose check --strict`: SUCCESS after regenerating the governed index and
+  structured delivery evidence for the implementation commit.
+- Artifact reconciliation at the implementation commit: all declared change
+  paths matched the observed range; repository-wide orphan warnings remain.
 
 ### Residual risks
-- The planned contract is structural and must not enter implementation without
-  its ADR and frozen frontend/backend/multi-component fixtures.
-- The issue and spec intentionally do not choose an expression language; typed
-  selectors are a security constraint for the later design.
+- Existing stale delivery evidence remains outside this spec; this change does
+  not rewrite historical result provenance.
+- The component map has no roots for repository governance/docs files, so they
+  remain visible as unmapped warnings under the configured warning policy.
+- Formal approval and lifecycle closeout require a separate reviewer execution.
 
 ### Follow-ups
-- [open] Implement this spec in a dedicated feature branch after ADR approval
-  and explicit prioritization. (owner:@pose-maintainers crit:medium
-  review:2026-10-15)
+- [done] Implementation authorized on 2026-08-13 after ADR and test-plan
+  approval; delivery is tracked by this spec.

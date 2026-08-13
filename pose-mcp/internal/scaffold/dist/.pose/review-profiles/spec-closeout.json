@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "spec-closeout",
   "version": 1,
   "scope": "spec",
@@ -11,5 +11,10 @@
     {"id": "compatibility", "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated."},
     {"id": "operability", "description": "Errors, explanations and remediation are actionable."},
     {"id": "documentation", "description": "Operational docs, templates and scaffold match runtime behavior.", "rules": ["documentation-style"]}
+  ],
+  "tools": [
+    {"id": "artifact-check", "requiredness": "required", "criteria": ["scope", "requirements"], "preconditions": ["artifacts-attributed"]},
+    {"id": "assess-tech-debt", "requiredness": "recommended", "criteria": ["correctness"]},
+    {"id": "validate", "requiredness": "required", "evidence_classes": ["validation"], "criteria": ["requirements", "correctness"]}
   ]
 }

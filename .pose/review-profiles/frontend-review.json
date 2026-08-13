@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "frontend-review",
+  "version": 1,
+  "scope": "spec",
+  "selectors": {"languages": ["javascript", "typescript"]},
+  "criteria": [
+    {"id": "frontend-user-visible-behavior", "description": "User-visible behavior matches the approved states and interaction contract.", "rules": ["frontend-react"], "evidence_classes": ["test"]},
+    {"id": "frontend-accessibility", "description": "Keyboard, semantic and assistive-technology behavior remains accessible.", "rules": ["frontend-react"], "evidence_classes": ["a11y"]},
+    {"id": "frontend-failure-states", "description": "Loading, empty, state and network failure paths remain explicit and usable.", "rules": ["frontend-react"], "evidence_classes": ["test"]},
+    {"id": "frontend-surface-reachability", "description": "Declared user-facing surfaces are composed into a reachable production entrypoint.", "evidence_classes": ["reachability"]}
+  ],
+  "tools": [
+    {"id": "surface-check", "requiredness": "recommended", "evidence_classes": ["reachability"], "criteria": ["frontend-surface-reachability"], "preconditions": ["delivery-target-declared"]},
+    {"id": "validate", "requiredness": "required", "evidence_classes": ["validation"], "criteria": ["frontend-user-visible-behavior", "frontend-accessibility", "frontend-failure-states"]}
+  ]
+}

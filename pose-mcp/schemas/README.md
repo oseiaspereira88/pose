@@ -21,6 +21,7 @@ do `pose-mcp`, conforme a política da
 | `v1/artifact.schema.json` | `pose_get_workflow`, `pose_get_rules`; itens dos envelopes de listagem (`{workflows|rules: [...], count}`) |
 | `v1/gate-result.schema.json` | `pose_check`, `pose_lint_spec` |
 | `v1/insights.schema.json` | `pose_insights`; saída JSON de `pose stats` |
+| `v1/review-plan.schema.json` | `pose_review_plan`; saída JSON de `pose review-plan` |
 
 ## Pass-through (contrato da CLI)
 

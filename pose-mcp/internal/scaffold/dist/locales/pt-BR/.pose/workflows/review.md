@@ -13,22 +13,23 @@ Validar se a mudança está correta, segura para produção e alinhada ao escopo
 
 ## Checklist de execução
 
-1. Confirmar entendimento do objetivo e do escopo aprovado.
-2. Selecionar explicitamente as `rules` aplicáveis para o tipo de mudança e registrar no parecer.
-2.1 Resolver conflitos entre `rules` pela alternativa mais restritiva, com prioridade para `security` quando houver risco de exposição, autorização ou integridade.
-3. **Consultar `.pose/knowledge/`** por handoffs ou decision-logs que contextualizem a mudança (riscos prévios, follow-ups pendentes, decisões aceitas com gatilho de revisão).
-4. Revisar aderência às specs, contratos e instruções locais.
-5. Checar correção funcional e consistência de casos limite.
-6. Avaliar riscos de segurança, observabilidade e performance.
-7. **Executar `pose assess tech-debt` (`pose_tech_debt_check`)**: Inspecionar se o diff introduziu marcadores (`TODO`, `FIXME`, `stub`, `panic`) sem a devida cobertura de follow-up ou spec.
-8. **Executar `pose assess integrate` (`pose_integration_check`)**: Verificar se a alteração quebrou contratos de integração inter-componentes ou introduziu novos gaps.
-9. Exigir evidência do `check` `pose validate` conforme matriz `.pose/indexes/validation-matrix.json` e cobertura proporcional ao risco.
-10. Identificar regressões potenciais e impactos de rollout/rollback.
-11. Classificar achados por severidade e sugerir ações objetivas.
-12. **Produzir handoff** em `.pose/knowledge/` quando achados resultarem em risco aceito, monitoramento pós-merge ou ação postergada (`pose new-knowledge handoff <slug>`); link no parecer.
-13. Registrar a decisão contra o digest canônico do escopo com `pose review record <escopo> ... --apply`.
-14. Rodar `pose review-check <escopo>` e rejeitar tentativas obsoletas, incompletas ou conflitantes.
-15. Emitir decisão final: aprovado, aprovado com ressalvas ou reprovado.
+1. Resolver `pose review-plan <escopo> --explain` (ou `pose_review_plan`) e parar em blockers.
+2. Confirmar objetivo, escopo aprovado, componentes mapeados e `plan_digest`.
+3. Executar as tools obrigatórias na ordem do plano e justificar o uso ou descarte das recomendadas.
+4. Selecionar explicitamente as `rules` do plano e registrar no parecer.
+5. Resolver conflitos entre `rules` pela alternativa mais restritiva, com prioridade para `security` quando houver risco de exposição, autorização ou integridade.
+6. **Consultar `.pose/knowledge/`** por handoffs ou decision-logs que contextualizem a mudança (riscos prévios, follow-ups pendentes, decisões aceitas com gatilho de revisão).
+7. Revisar aderência às specs, contratos e instruções locais.
+8. Checar correção funcional e consistência de casos limite.
+9. Avaliar riscos de segurança, observabilidade e performance.
+10. Executar as assessments selecionadas pelo plano, inclusive tech-debt e integração quando aplicáveis.
+11. Exigir evidência do `check` `pose validate` conforme matriz `.pose/indexes/validation-matrix.json` e cobertura proporcional ao risco.
+12. Identificar regressões potenciais e impactos de rollout/rollback.
+13. Classificar achados por severidade e sugerir ações objetivas.
+14. **Produzir handoff** em `.pose/knowledge/` quando achados resultarem em risco aceito, monitoramento pós-merge ou ação postergada (`pose new-knowledge handoff <slug>`); link no parecer.
+15. Registrar a decisão com o plano inspecionado: `pose review record <escopo> ... --plan-digest <sha256> --apply`.
+16. Rodar `pose review-check <escopo>` e rejeitar tentativas obsoletas, incompletas ou conflitantes.
+17. Emitir decisão final: aprovado, aprovado com ressalvas ou reprovado.
 
 ## Seleção obrigatória de `rules` por PR/tarefa
 

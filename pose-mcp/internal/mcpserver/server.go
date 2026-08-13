@@ -866,6 +866,14 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_closeout_state: required argument %q missing", "scope")
 		}
 		return store.GetCloseoutState(a.Scope)
+	case "pose_review_plan":
+		var a struct {
+			Scope string `json:"scope"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.Scope == "" {
+			return nil, fmt.Errorf("pose_review_plan: required argument %q missing", "scope")
+		}
+		return store.ReviewPlan(a.Scope)
 	case "pose_delivery_integrity":
 		var a struct {
 			Path string `json:"path"`
@@ -1743,6 +1751,28 @@ func toolDefinitions() []map[string]any {
 			"description": "Read the evidence-backed hierarchical closeout projection for a typed " +
 				"spec, milestone or roadmap scope. Returns current or stale review state, child " +
 				"blockers, the smallest next governed action and terminal status.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"scope": map[string]any{
+						"type":        "string",
+						"description": "Typed scope: spec:<slug>, milestone:<roadmap>/<id>, or roadmap:<slug>",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"scope"},
+			},
+		},
+		{
+			"name": "pose_review_plan",
+			"description": "Resolve the immutable component-aware review plan for a typed " +
+				"spec, milestone or roadmap scope. Returns mapped components and provenance, " +
+				"selected profiles, criteria, safe native POSE tool recommendations, effective " +
+				"reviewer independence, warnings, blockers and the plan digest used for freshness. " +
+				"This read-only tool never executes a recommendation or mutates the project.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
