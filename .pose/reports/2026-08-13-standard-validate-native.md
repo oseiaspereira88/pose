@@ -29,17 +29,17 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T14:52:44Z
+- Generated at (UTC): 2026-08-13T15:03:50Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 63
+- Sequence for task/spec: 65
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-13T14:50:56Z
-- Status: stable
+- Previous execution: 2026-08-13T15:03:21Z
+- Status: changed
 - Stable field diffs:
-- _No changes in stable fields_
+- validation_profile: "tolerant" -> "strict"
 
 ## Risks
 - _No risks provided_

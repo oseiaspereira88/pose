@@ -28,18 +28,21 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-4bbeb4906a43
-- Selector: range:504fdf3c8de09c7136775d33829446d608561483..8ec075b
+- ID: cs-7bd36066ed77
+- Selector: range:504fdf3c8de09c7136775d33829446d608561483..b734dcf71d328bcaacf39d3d23bc023c80d108eb
 - Base: 504fdf3c8de09c7136775d33829446d608561483 (504fdf3c8de09c7136775d33829446d608561483)
-- Head: 8ec075b (8ec075b07f692710815beac739dac97fda657b05)
-- Diff digest: sha256:feb342413c7df4da5906d943809a247e81994d4621c228695a9d5ff7a3b6ae63
+- Head: b734dcf71d328bcaacf39d3d23bc023c80d108eb (b734dcf71d328bcaacf39d3d23bc023c80d108eb)
+- Diff digest: sha256:9ecfcbf357b719bedd010d560f5296703aa545bf36428d2495b4d46c52984d58
 - Paths:
   - modified: .pose/assessments/README.md
   - modified: .pose/assessments/consolidated.md
   - modified: .pose/assessments/integrations.md
   - modified: .pose/assessments/pose-mcp.md
   - modified: .pose/assessments/technical-debt.md
+  - modified: .pose/indexes/delivery-integrity.json
+  - modified: .pose/reports/2026-08-13-standard-component-aware-review-provenance.md
   - modified: .pose/reports/2026-08-13-standard-validate-native.md
+  - modified: .pose/reports/history/standard-component-aware-review-provenance.jsonl
   - modified: .pose/reports/history/standard-validate-native.jsonl
   - modified: .pose/results/delivery-validation.json
   - modified: .pose/specs/pose-component-aware-review-plans/spec.md
@@ -47,21 +50,21 @@
   - modified: .pose/state/integrations.json
   - modified: .pose/state/project-state.md
   - modified: .pose/state/technical-debt.json
+  - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T14:50:19Z
-- Context: spec-closeout
+- Generated at (UTC): 2026-08-13T15:02:46Z
+- Context: spec-closeout-review-remediation
 - Validation profile: strict
-- Sequence for task/spec: 3
-- Stable comparison hash: 2da82727061a390a39159d4b7b0d0195c4213531c5feeecef2e9701adc9b29e8
+- Sequence for task/spec: 4
+- Stable comparison hash: 61e287b5d4fb2f78f3ca566bd22822ba4a3327ad26ce0adf644998891d117f41
 
 ## Historical Comparison
-- Previous execution: 2026-08-13T07:43:24Z
+- Previous execution: 2026-08-13T14:50:19Z
 - Status: changed
 - Stable field diffs:
-- change_set: "" -> "sha256:feb342413c7df4da5906d943809a247e81994d4621c228695a9d5ff7a3b6ae63:504fdf3c8de09c7136775d33829446d608561483:8ec075b07f692710815beac739dac97fda657b05"
-- context: "review-remediation" -> "spec-closeout"
-- rules: "backend-go,security,documentation-style" -> "backend-go,security,documentation-style,delivery-surface"
+- change_set: "" -> "sha256:9ecfcbf357b719bedd010d560f5296703aa545bf36428d2495b4d46c52984d58:504fdf3c8de09c7136775d33829446d608561483:b734dcf71d328bcaacf39d3d23bc023c80d108eb"
+- context: "spec-closeout" -> "spec-closeout-review-remediation"
 
 ## Risks
 - high

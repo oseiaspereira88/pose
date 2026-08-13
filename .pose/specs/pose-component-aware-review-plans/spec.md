@@ -501,6 +501,14 @@ read-only mode and assert that plan resolution creates no files or processes.
 - Required — delivery gate: `pose validate --strict --module pose-mcp --report` followed by
   `pose surface-check --spec pose-component-aware-review-plans --strict`.
 
+### Execution log
+- 2026-08-13, post-merge closeout: PR #16 review identified that the first
+  closeout change set ended at the preparation commit and omitted four ledger
+  paths introduced only by its child evidence commit. Append-only change set
+  `cs-7bd36066ed77` now covers the exact 17-path reviewed range
+  `504fdf3c8de09c7136775d33829446d608561483..b734dcf71d328bcaacf39d3d23bc023c80d108eb`;
+  path-set parity, strict artifact/surface gates and four-class validation pass.
+
 ### Risk-based cases
 
 | Scenario | Command | Expected evidence |
@@ -598,6 +606,9 @@ merged state receives its superseding independent review attempt.
   structured delivery evidence for the implementation commit.
 - Artifact reconciliation at the implementation commit: all declared change
   paths matched the observed range; repository-wide orphan warnings remain.
+- Closeout reconciliation: `cs-7bd36066ed77` matches all 17 paths changed by
+  the independently reviewed PR #16 head `b734dcf71d328bcaacf39d3d23bc023c80d108eb`;
+  the append-only correction preserves the prior intermediate change set.
 - PR #15 merge commit `504fdf3c8de09c7136775d33829446d608561483`
   passed 11 GitHub checks with zero failures; the Codex connector reviewed the
   final implementation commit `566e9a39a1baa291015ec20ce67b874857df4c6f`
