@@ -434,6 +434,16 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 		return eval, nil
 	}
 	profileRef := policy.Profiles[scope.Kind]
+	eval.Profile = profileRef
+	required, err := s.reviewRequiredForScope(scope, policy)
+	if err != nil {
+		return eval, err
+	}
+	eval.Required = required
+	if !required {
+		eval.Warnings = append(eval.Warnings, "review is not required for a legacy done scope created before policy adoption")
+		return eval, nil
+	}
 	if profileRef == "" {
 		eval.Blockers = append(eval.Blockers, "review policy has no profile for "+scope.Kind)
 		return eval, nil
@@ -442,7 +452,6 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	if err != nil {
 		return eval, err
 	}
-	eval.Profile = profileRef
 	attempts, err := s.ListReviewAttempts(ref)
 	if err != nil {
 		return eval, err
@@ -581,6 +590,49 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	sort.Strings(eval.Blockers)
 	eval.Approved = len(eval.Blockers) == 0
 	return eval, nil
+}
+
+func (s Store) reviewRequiredForScope(scope ScopeRef, policy ReviewPolicy) (bool, error) {
+	if !policy.Enabled {
+		return false, nil
+	}
+	if policy.RequireReviewForLegacyDoneScopes || policy.AdoptedAt == "" {
+		return true, nil
+	}
+	adoptedAt, err := time.Parse(time.DateOnly, policy.AdoptedAt)
+	if err != nil {
+		return true, nil
+	}
+
+	var createdAt, status string
+	switch scope.Kind {
+	case "spec":
+		sp, err := s.GetSpec(scope.Slug)
+		if err != nil {
+			return false, err
+		}
+		createdAt, status = sp.CreatedAt, sp.Status
+	case "milestone":
+		rm, err := s.GetRoadmap(scope.Roadmap)
+		if err != nil {
+			return false, err
+		}
+		createdAt, status = rm.CreatedAt, rm.Status
+	case "roadmap":
+		rm, err := s.GetRoadmap(scope.Slug)
+		if err != nil {
+			return false, err
+		}
+		createdAt, status = rm.CreatedAt, rm.Status
+	}
+	if status != "done" {
+		return true, nil
+	}
+	created, err := time.Parse(time.DateOnly, createdAt)
+	if err != nil {
+		return true, nil
+	}
+	return !created.Before(adoptedAt), nil
 }
 
 func validateReviewEvidenceRef(root, ref string) error {

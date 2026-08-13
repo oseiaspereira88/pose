@@ -109,3 +109,35 @@ func TestReviewRejectsTraversalOpenFindingsAndIncompleteCriteria(t *testing.T) {
 		t.Fatalf("open finding did not block: %+v", eval)
 	}
 }
+
+func TestReviewPolicyExemptsLegacyDoneScopesUnlessOptedIn(t *testing.T) {
+	root, store := reviewFixture(t)
+	writeReviewFixture(t, root, ".pose/specs/legacy/spec.md", "---\nslug: legacy\nstatus: done\ncreated_at: 2026-08-01\ncompleted_at: 2026-08-01\n---\n\n# Spec: legacy\n\n## 2. Requirements\n- R1: shipped before review adoption\n")
+	writeReviewFixture(t, root, ".pose/roadmaps/legacy-delivery.md", "---\nslug: legacy-delivery\nstatus: done\ncreated_at: 2026-08-01\n---\n\n# Roadmap\n\n**Outcome:** shipped before review adoption\n\n## Milestone: core\n- after:\n- specs: legacy\n\n**Exit gate:** integrated\n\n## Cut criteria\n- C1: verified\n")
+
+	for _, scope := range []string{"spec:legacy", "milestone:legacy-delivery/core", "roadmap:legacy-delivery"} {
+		eval, err := store.ReviewCheck(scope)
+		if err != nil {
+			t.Fatalf("ReviewCheck(%s): %v", scope, err)
+		}
+		if eval.Required || !eval.PolicyEnabled || len(eval.Blockers) != 0 || !strings.Contains(strings.Join(eval.Warnings, " "), "legacy done scope") {
+			t.Fatalf("legacy scope %s was not exempt: %+v", scope, eval)
+		}
+	}
+
+	state, err := store.GetCloseoutState("roadmap:legacy-delivery")
+	if err != nil || !state.Terminal {
+		t.Fatalf("legacy roadmap closeout remained blocked: state=%+v err=%v", state, err)
+	}
+
+	current, err := store.ReviewCheck("spec:alpha")
+	if err != nil || !current.Required {
+		t.Fatalf("scope created at adoption must require review: eval=%+v err=%v", current, err)
+	}
+
+	writeReviewFixture(t, root, ".pose/policy/review.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1","milestone":"milestone-integration@1","roadmap":"roadmap-outcome@1"},"require_review_for_legacy_done_scopes":true}`)
+	eval, err := store.ReviewCheck("spec:legacy")
+	if err != nil || !eval.Required || !strings.Contains(strings.Join(eval.Blockers, " "), "no review attempt") {
+		t.Fatalf("explicit legacy enforcement was ignored: eval=%+v err=%v", eval, err)
+	}
+}
