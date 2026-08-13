@@ -125,6 +125,27 @@ func TestReviewBundleCanonicalAndDigestStable(t *testing.T) {
 	}
 }
 
+func TestReviewBundleVerifiesSyntheticMergeByPatchAndTree(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	bundle, err := store.SealReviewBundle("spec:backend", time.Date(2026, 8, 13, 12, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bundle.Payload.Subject.Head != "head-resolved" {
+		t.Fatalf("advisory head = %q, want deliberately non-fetchable fixture ref", bundle.Payload.Subject.Head)
+	}
+	if bundle.Payload.Subject.PatchDigest == "" || bundle.Payload.Subject.TreeDigest == "" {
+		t.Fatalf("synthetic subject lacks stable identities: %+v", bundle.Payload.Subject)
+	}
+	loaded, err := store.LoadReviewBundle(bundle.BundleID)
+	if err != nil {
+		t.Fatalf("sealed synthetic subject did not verify without provider ref: %v", err)
+	}
+	if loaded.BundleDigest != bundle.BundleDigest || loaded.Payload.Subject.PatchDigest != bundle.Payload.Subject.PatchDigest || loaded.Payload.Subject.TreeDigest != bundle.Payload.Subject.TreeDigest {
+		t.Fatalf("synthetic subject identities changed after verification: sealed=%+v loaded=%+v", bundle.Payload.Subject, loaded.Payload.Subject)
+	}
+}
+
 func TestReviewBundleSemanticProjectionAndDerivedChangesDoNotStale(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	before, err := store.PrepareReviewBundle("spec:backend")
