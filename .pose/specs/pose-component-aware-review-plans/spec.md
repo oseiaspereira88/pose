@@ -192,7 +192,7 @@ This scope was requested in
   migration.
 
 ### Artifacts
-- created: .pose/specs/pose-component-aware-review-plans/spec.md
+- modified: .pose/specs/pose-component-aware-review-plans/spec.md
 - created: .pose/adr/2026-08-12-component-aware-effective-review-plans.md
 - created: .pose/knowledge/2026-08-13-decision-log-adr-component-aware-review-plans-review.md
 - created: .pose/changelogs/unreleased/pose-component-aware-review-plans.md
