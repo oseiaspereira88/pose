@@ -334,6 +334,7 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 			sets = append(sets, set)
 		}
 	}
+	sets = reduceReviewBundleChangeSets(sets)
 	if len(sets) == 0 {
 		blockers = append(blockers, "no immutable attributed change set exists for "+scope.String())
 		return subject, excluded, blockers, nil
@@ -403,6 +404,43 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 	treeRaw, _ := json.Marshal(treeEntries)
 	subject.TreeDigest = digestBytes(treeRaw)
 	return subject, sortedBundleInputs(excluded), blockers, nil
+}
+
+func reduceReviewBundleChangeSets(sets []ChangeSet) []ChangeSet {
+	result := make([]ChangeSet, 0, len(sets))
+	for i, candidate := range sets {
+		candidateCommits := map[string]bool{}
+		for _, commit := range candidate.Commits {
+			candidateCommits[commit] = true
+		}
+		subsumed := false
+		if len(candidateCommits) > 0 {
+			for j, other := range sets {
+				if i == j || len(other.Commits) <= len(candidate.Commits) {
+					continue
+				}
+				containsAll := true
+				otherCommits := map[string]bool{}
+				for _, commit := range other.Commits {
+					otherCommits[commit] = true
+				}
+				for commit := range candidateCommits {
+					if !otherCommits[commit] {
+						containsAll = false
+						break
+					}
+				}
+				if containsAll {
+					subsumed = true
+					break
+				}
+			}
+		}
+		if !subsumed {
+			result = append(result, candidate)
+		}
+	}
+	return result
 }
 
 func (s Store) reviewBundleScopeSpecs(scope ScopeRef) (map[string]bool, error) {

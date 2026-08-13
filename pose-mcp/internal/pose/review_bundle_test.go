@@ -490,6 +490,18 @@ func TestReviewBundleDeltaIncludesChangedComponentsAndEvidenceClasses(t *testing
 	}
 }
 
+func TestReviewBundleDropsSubsumedChangeSets(t *testing.T) {
+	sets := []ChangeSet{
+		{ID: "cs-narrow", Commits: []string{"a"}, ResolvedHead: "a"},
+		{ID: "cs-wide", Commits: []string{"a", "b"}, ResolvedHead: "b"},
+		{ID: "cs-disjoint", Commits: []string{"c"}, ResolvedHead: "c"},
+	}
+	reduced := reduceReviewBundleChangeSets(sets)
+	if len(reduced) != 2 || reduced[0].ID != "cs-wide" || reduced[1].ID != "cs-disjoint" {
+		t.Fatalf("reduced change sets = %+v", reduced)
+	}
+}
+
 func TestReviewBundleRejectsManagedDirectorySymlinkEscape(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	outside := t.TempDir()
