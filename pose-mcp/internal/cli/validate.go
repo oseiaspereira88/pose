@@ -456,6 +456,16 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	if graph, err := buildCurrentDeliveryGraph(root); err == nil {
 		run.ProvenanceDigest = graph.ProvenanceDigest
+		run.ScopeProvenance = map[string]string{}
+		seenSpecs := map[string]bool{}
+		for _, set := range graph.ChangeSets {
+			if set.Spec != "" {
+				seenSpecs[set.Spec] = true
+			}
+		}
+		for spec := range seenSpecs {
+			run.ScopeProvenance[spec] = posemodel.ScopedDeliveryProvenanceDigest(graph, spec)
+		}
 	}
 	failures := 0
 	optionalFailures := 0

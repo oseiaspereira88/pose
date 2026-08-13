@@ -348,7 +348,10 @@ Deterministic gates:
 
 Governed closeout:
   review-plan <scope> [--explain]     Resolve component-aware criteria and tools
-  review record <scope> [...]           Record an immutable review attempt
+  review bundle <scope> [--seal]      Prepare or seal an immutable review subject
+  review attest <bundle-id> [...]     Record/import a separate attestation
+  review verify <scope|bundle-id>     Verify freshness and closeout readiness
+  review record <scope> [...]         Compatibility entrypoint
   close <scope>                         Apply a review-gated lifecycle transition
   continuous-closeout <action>          Persist and project a terminal scope
   artifact-backfill --from-git          Propose explicit historical provenance
@@ -405,7 +408,10 @@ Gates determinísticos:
 
 Fechamento governado:
   review-plan <escopo> [--explain]     Resolve critérios e ferramentas por componente
-  review record <escopo> [...]          Registra tentativa imutável de review
+  review bundle <escopo> [--seal]      Prepara ou sela o sujeito imutável do review
+  review attest <bundle-id> [...]      Registra/importa atestação separada
+  review verify <escopo|bundle-id>     Verifica atualidade e prontidão para fechamento
+  review record <escopo> [...]         Entrada de compatibilidade
   close <escopo>                        Aplica transição de ciclo de vida governada
   continuous-closeout <ação>            Persiste e projeta um escopo terminal
   artifact-backfill --from-git          Propõe proveniência histórica explícita

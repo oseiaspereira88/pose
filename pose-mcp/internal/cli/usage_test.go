@@ -94,3 +94,19 @@ func TestValidateUsageUsesStructuredCheckFindings(t *testing.T) {
 		}
 	})
 }
+
+func TestReviewBundleUsageDistinguishesOperationsAndSignals(t *testing.T) {
+	if got := commandUsageTool([]string{"review", "bundle", "spec:demo"}); got != "review.bundle.prepare" {
+		t.Fatalf("prepare tool = %q", got)
+	}
+	if got := commandUsageTool([]string{"review", "bundle", "spec:demo", "--seal"}); got != "review.bundle.seal" {
+		t.Fatalf("seal tool = %q", got)
+	}
+	if got := commandUsageTool([]string{"review", "verify", "spec:demo"}); got != "review.bundle.verify" {
+		t.Fatalf("verify tool = %q", got)
+	}
+	got := compactUsageSignals([]string{"criterion-reuse", "reviewer-id", "criterion-reuse", "supersession"})
+	if len(got) != 2 || got[0] != "criterion-reuse" || got[1] != "supersession" {
+		t.Fatalf("privacy-bounded signals = %#v", got)
+	}
+}

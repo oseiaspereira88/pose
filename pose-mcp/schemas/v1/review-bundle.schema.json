@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pose.dev/schemas/v1/review-bundle.schema.json",
+  "title": "POSE sealed review bundle",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "bundle_id", "bundle_digest", "state", "payload"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "bundle_id": {"type": "string", "pattern": "^rvb-[a-f0-9]{16}$"},
+    "bundle_digest": {"$ref": "#/$defs/digest"},
+    "state": {"enum": ["prepared", "sealed", "superseded", "attested"]},
+    "sealed_at": {"type": "string", "format": "date-time"},
+    "payload": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["scope", "subject", "plan", "evidence", "consumed_inputs"],
+      "properties": {
+        "scope": {"type": "object"},
+        "subject": {
+          "type": "object",
+          "required": ["change_sets", "patch_digest", "tree_digest", "entries"],
+          "properties": {
+            "change_sets": {"type": "array", "items": {"type": "string"}},
+            "patch_digest": {"$ref": "#/$defs/digest"},
+            "tree_digest": {"$ref": "#/$defs/digest"},
+            "entries": {"type": "array", "items": {"type": "object"}}
+          }
+        },
+        "plan": {
+          "type": "object",
+          "required": ["plan_digest", "independence", "components", "criteria", "tools"],
+          "properties": {"plan_digest": {"$ref": "#/$defs/digest"}}
+        },
+        "evidence": {"type": "array", "items": {"type": "object"}},
+        "children": {"type": "array", "items": {"type": "object"}},
+        "consumed_inputs": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "excluded_inputs": {"type": "array", "items": {"type": "object"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "path": {"type": "string"}
+  },
+  "$defs": {"digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}}
+}

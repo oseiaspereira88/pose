@@ -25,9 +25,7 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 10. Verificar impacto em segurança, observabilidade e documentação operacional. Se afetar contratos inter-componentes (Protobuf, Kafka, REST, MCP), rodar `pose assess integrate`.
 11. **Produzir handoff** em `.pose/knowledge/` se houver contexto reaproveitável entre execuções (estado parcial, decisão pendente, follow-up para próximo owner). Use `pose new-knowledge handoff <slug>` e referencie a spec em `source_refs`.
 12. Consolidar resultado final com riscos residuais e próximos passos.
-13. **Fechar a spec** (skill `pose-spec-closeout`): registrar a review com
-    `pose review record spec:<slug> ... --apply`, exigir `pose closeout-check spec:<slug>`
-    e aplicar a transição com `pose close spec:<slug>` — definir `status: done` e `completed_at` no frontmatter; rodar `pose assess discover --update-state` para recalcular a completude da plataforma; dar disposição a cada follow-up (`pose followups --all` mostra o backlog cruzado e colisões); passar o gate `pose lint-spec <slug> --strict`.
+13. **Fechar a spec** (skill `pose-spec-closeout`): quando bundles estiverem habilitados, selar com `pose review bundle spec:<slug> --seal`, registrar a atestação independente com `pose review attest <bundle-id> ... --apply` e exigir `pose review verify spec:<slug>`; em policy legada, usar `pose review record`. Exigir `pose closeout-check spec:<slug>` e aplicar a transição com `pose close spec:<slug>` — definir `status: done` e `completed_at` no frontmatter; rodar `pose assess discover --update-state` para recalcular a completude da plataforma; dar disposição a cada follow-up (`pose followups --all` mostra o backlog cruzado e colisões); passar o gate `pose lint-spec <slug> --strict`.
 
 ## Saídas obrigatórias
 

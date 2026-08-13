@@ -592,6 +592,39 @@ func TestInstallEmbeddedFreshAndIdempotent(t *testing.T) {
 	}
 }
 
+func TestInstallSeedsReviewPolicyAndProfilesWithoutOverwriting(t *testing.T) {
+	repo := newGitRepo(t)
+	var out, errOut bytes.Buffer
+	if code := cmdInstall([]string{repo, "--skip-mcp"}, &out, &errOut); code != 0 {
+		t.Fatalf("install exit=%d stderr=%s", code, errOut.String())
+	}
+	policyPath := filepath.Join(repo, ".pose", "policy", "review.json")
+	profilePath := filepath.Join(repo, ".pose", "review-profiles", "spec-closeout.json")
+	if _, err := os.Stat(policyPath); err != nil {
+		t.Fatalf("review policy not seeded: %v", err)
+	}
+	if _, err := os.Stat(profilePath); err != nil {
+		t.Fatalf("review profile not seeded: %v", err)
+	}
+	custom, err := os.ReadFile(policyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	custom = bytes.Replace(custom, []byte("\n}"), []byte(",\n  \"review_bundles\": false\n}"), 1)
+	if err := os.WriteFile(policyPath, custom, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdInstall([]string{repo, "--skip-mcp"}, &out, &errOut); code != 0 {
+		t.Fatalf("reinstall exit=%d stderr=%s", code, errOut.String())
+	}
+	got, err := os.ReadFile(policyPath)
+	if err != nil || !bytes.Equal(got, custom) {
+		t.Fatalf("reinstall overwrote user policy: %q err=%v", got, err)
+	}
+}
+
 func hasPortugueseAccent(s string) bool {
 	for _, r := range "áéíóúãõâêôçÁÉÍÓÚÃÕÂÊÔÇ" {
 		if strings.ContainsRune(s, r) {

@@ -47,7 +47,7 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
    pose new-knowledge handoff <slug>-handoff --owner @<squad>
    ```
 7. Preencher seção `Final Report` da spec com escopo entregue, riscos residuais e follow-ups.
-8. **Fechar a spec** (skill [pose-spec-closeout](../pose-spec-closeout/SKILL.md)): `status: done` + `completed_at` no frontmatter, disposição em cada follow-up, e gate de saída:
+8. **Fechar a spec** (skill [pose-spec-closeout](../pose-spec-closeout/SKILL.md)): quando review bundles estiverem habilitados, selar o sujeito validado, anexar a atestação independente e exigir `pose review verify spec:<slug>`. Depois, definir `status: done` + `completed_at` no frontmatter, dar disposição a cada follow-up e rodar o gate de saída:
    ```bash
    pose followups --all          # backlog cruzado + colisões antes de triar
    pose lint-spec <slug> --strict

@@ -18,8 +18,8 @@ capabilities: read
 ## Steps
 
 1. Classify the change as feature, bugfix, refactor, documentation, or mixed.
-2. Resolve `pose review-plan <scope> --explain`; stop on blockers and retain its `plan_digest`.
-3. Run required tools in plan order and record why each recommended tool was used or skipped.
+2. Resolve `pose review bundle <scope> --explain` when bundle policy is enabled; stop on blockers and retain its bundle and plan digests.
+3. Run active required tools first, record why each recommended tool was used or skipped, and keep completion tools deferred until attestation.
 4. Select rules with `pose suggest review --path <affected-dir>` for every mapped component.
 5. Search `.pose/knowledge/` for prior module decisions, accepted risks, and pending follow-ups.
 6. Require `pose validate` evidence proportional to risk.
@@ -27,13 +27,14 @@ capabilities: read
 8. Classify findings as critical, high, medium, or low with evidence and expected action.
 9. Run `pose recurrence-check --tolerant --window-days 14`; use recurrence escalation for a matching systemic signal.
 10. Create a handoff with `pose new-knowledge handoff <slug>` for accepted residual risk, monitoring, or deferred action.
-11. Record with `pose review record <scope> ... --plan-digest <sha256> --apply`, then run `pose review-check <scope>`.
-12. Decide: approved, approved with reservations, or rejected.
+11. Seal with `pose review bundle <scope> --seal`, review that immutable ID, then record with `pose review attest <bundle-id> ... --plan-digest <sha256> --apply`.
+12. Run `pose review verify <scope>` and `pose review-check <scope>`; close only when both consume the same fresh attestation.
+13. Decide: approved, approved with reservations, changes requested, or rejected.
 
 ## Output requirements
 
 - Completed Rules applied during review section.
-- Effective plan digest and dispositions for required and recommended tools.
+- Bundle/plan digests and dispositions for required, recommended and deferred completion tools.
 - Severity-classified findings with expected actions.
 - Clear and actionable final decision.
 - Handoff when residual risk is accepted.

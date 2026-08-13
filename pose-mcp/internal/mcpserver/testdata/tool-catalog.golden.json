@@ -115,6 +115,9 @@
     "pose_requirement_trace": {
       "risk": "read"
     },
+    "pose_review_bundle": {
+      "risk": "read"
+    },
     "pose_review_plan": {
       "risk": "read"
     },
@@ -396,6 +399,26 @@
         "type": "object"
       },
       "name": "pose_review_plan"
+    },
+    {
+      "description": "Read the current sealed review-bundle and attestation state for a typed spec, milestone or roadmap scope. Returns semantic subject identity, freshness, supersession delta, blockers and the smallest next governed action. This tool is read-only: sealing and attestation import remain explicit CLI writes.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "scope": {
+            "description": "Typed scope: spec:\u003cslug\u003e, milestone:\u003croadmap\u003e/\u003cid\u003e, or roadmap:\u003cslug\u003e",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope"
+        ],
+        "type": "object"
+      },
+      "name": "pose_review_bundle"
     },
     {
       "description": "Read the project-scoped delivery-integrity graph: separate spec artifact claims, Git-observed change sets, typed edges, reverse path provenance and stable findings. Optionally narrow results to one exact path.",

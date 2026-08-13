@@ -13,9 +13,9 @@ Validar se a mudança está correta, segura para produção e alinhada ao escopo
 
 ## Checklist de execução
 
-1. Resolver `pose review-plan <escopo> --explain` (ou `pose_review_plan`) e parar em blockers.
-2. Confirmar objetivo, escopo aprovado, componentes mapeados e `plan_digest`.
-3. Executar as tools obrigatórias na ordem do plano e justificar o uso ou descarte das recomendadas.
+1. Resolver `pose review bundle <escopo> --explain` (ou `pose_review_bundle`) quando a policy de bundles estiver habilitada; senão, resolver `pose review-plan <escopo> --explain`.
+2. Confirmar escopo semântico, identidades de patch/tree, componentes mapeados e digest do plano do bundle.
+3. Executar primeiro as tools obrigatórias ativas, justificar o uso ou descarte das recomendadas e deixar as tools de conclusão adiadas até existir uma atestação.
 4. Selecionar explicitamente as `rules` do plano e registrar no parecer.
 5. Resolver conflitos entre `rules` pela alternativa mais restritiva, com prioridade para `security` quando houver risco de exposição, autorização ou integridade.
 6. **Consultar `.pose/knowledge/`** por handoffs ou decision-logs que contextualizem a mudança (riscos prévios, follow-ups pendentes, decisões aceitas com gatilho de revisão).
@@ -27,9 +27,11 @@ Validar se a mudança está correta, segura para produção e alinhada ao escopo
 12. Identificar regressões potenciais e impactos de rollout/rollback.
 13. Classificar achados por severidade e sugerir ações objetivas.
 14. **Produzir handoff** em `.pose/knowledge/` quando achados resultarem em risco aceito, monitoramento pós-merge ou ação postergada (`pose new-knowledge handoff <slug>`); link no parecer.
-15. Registrar a decisão com o plano inspecionado: `pose review record <escopo> ... --plan-digest <sha256> --apply`.
-16. Rodar `pose review-check <escopo>` e rejeitar tentativas obsoletas, incompletas ou conflitantes.
-17. Emitir decisão final: aprovado, aprovado com ressalvas ou reprovado.
+15. Selar o sujeito validado com `pose review bundle <escopo> --seal`; parar se algum input não estiver classificado ou tiver mudado desde a preparação.
+16. Emitir decisão final: aprovado, aprovado com ressalvas, mudanças solicitadas ou reprovado.
+17. Registrar com `pose review attest <bundle-id> ... --plan-digest <sha256> --apply`; envelopes externos assinados usam `pose review attest --envelope <path> --apply`.
+18. Rodar `pose review verify <escopo>` e `pose review-check <escopo>`; rejeitar estado obsoleto, incompleto, conflitante ou reutilização transitivamente inválida.
+19. Fechar somente quando a verificação reportar `ready-to-close`; atualizações de lifecycle, estado e relatórios não podem alterar o bundle selado.
 
 ## Seleção obrigatória de `rules` por PR/tarefa
 

@@ -86,3 +86,51 @@ func TestDeferredIntegrationDoesNotAssertDeliveryOrSatisfyRoadmapCriterion(t *te
 		}
 	}
 }
+
+func TestReviewBundleDeliveryChangeDoesNotStaleUnrelatedClosedScopes(t *testing.T) {
+	alphaSet := ChangeSet{ID: "cs-alpha", Spec: "alpha", Paths: []ObservedPath{{Action: "modified", Path: "svc/alpha.go"}}, DiffDigest: "sha256:alpha", ResolvedHead: "alpha-head"}
+	alphaGraph := BuildDeliveryIntegrity([]Spec{{Slug: "alpha"}}, []ArtifactClaim{{Spec: "alpha", Action: "modified", Path: "svc/alpha.go"}}, []ChangeSet{alphaSet}, []string{"svc/alpha.go"}, ArtifactPolicy{})
+	alphaScoped := ScopedDeliveryProvenanceDigest(alphaGraph, "alpha")
+	betaSet := ChangeSet{ID: "cs-beta", Spec: "beta", Paths: []ObservedPath{{Action: "modified", Path: "svc/beta.go"}}, DiffDigest: "sha256:beta", ResolvedHead: "beta-head"}
+	combined := BuildDeliveryIntegrity(
+		[]Spec{{Slug: "alpha", Status: "done"}, {Slug: "beta", Status: "in-progress"}},
+		[]ArtifactClaim{{Spec: "alpha", Action: "modified", Path: "svc/alpha.go"}, {Spec: "beta", Action: "modified", Path: "svc/beta.go"}},
+		[]ChangeSet{alphaSet, betaSet}, []string{"svc/alpha.go", "svc/beta.go"}, ArtifactPolicy{},
+	)
+	targets := []DeliveryTarget{
+		{Spec: "alpha", Ref: "contract:alpha", Kind: "contract", Module: "svc", Profile: "api-contract", Entrypoint: "svc/alpha.go"},
+		{Spec: "beta", Ref: "contract:beta", Kind: "contract", Module: "svc", Profile: "api-contract", Entrypoint: "svc/beta.go"},
+	}
+	results := []DeliveryValidationResult{{ID: "alpha-integration", Module: "svc", Check: "integration", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: "alpha-head", ScopeProvenance: map[string]string{"alpha": alphaScoped}}}
+	profiles := map[string]DeliveryProfile{"api-contract": {Kind: "contract", RequiredEvidenceClasses: []string{"integration"}}}
+	graph := BuildDeliverySurface(combined, []Spec{{Slug: "alpha", Status: "done"}, {Slug: "beta", Status: "in-progress"}}, targets, results, nil, profiles, DeliveryPolicy{})
+	for _, finding := range graph.Findings {
+		if finding.Spec == "alpha" && (finding.Code == "stale-evidence" || finding.Code == "unconsumed-capability") {
+			t.Fatalf("unrelated beta delivery invalidated alpha evidence: %+v", finding)
+		}
+	}
+}
+
+func TestReviewBundlePreservesLegacyEvidenceOnlyForClosedScopes(t *testing.T) {
+	set := ChangeSet{ID: "cs-alpha", Spec: "alpha", Paths: []ObservedPath{{Action: "modified", Path: "svc/alpha.go"}}}
+	base := BuildDeliveryIntegrity([]Spec{{Slug: "alpha"}}, []ArtifactClaim{{Spec: "alpha", Action: "modified", Path: "svc/alpha.go"}}, []ChangeSet{set}, []string{"svc/alpha.go"}, ArtifactPolicy{})
+	target := DeliveryTarget{Spec: "alpha", Ref: "contract:alpha", Kind: "contract", Module: "svc", Profile: "api-contract", Entrypoint: "svc/alpha.go"}
+	result := DeliveryValidationResult{ID: "legacy", Module: "svc", Check: "integration", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GeneratedAt: "2026-08-01T00:00:00Z", ProvenanceDigest: "sha256:legacy-module-wide"}
+	profiles := map[string]DeliveryProfile{"api-contract": {Kind: "contract", RequiredEvidenceClasses: []string{"integration"}}}
+	closed := BuildDeliverySurface(base, []Spec{{Slug: "alpha", Status: "done"}}, []DeliveryTarget{target}, []DeliveryValidationResult{result}, nil, profiles, DeliveryPolicy{})
+	for _, finding := range closed.Findings {
+		if finding.Spec == "alpha" && (finding.Code == "stale-evidence" || finding.Code == "unconsumed-capability") {
+			t.Fatalf("legacy closed evidence was retroactively invalidated: %+v", finding)
+		}
+	}
+	open := BuildDeliverySurface(base, []Spec{{Slug: "alpha", Status: "in-progress"}}, []DeliveryTarget{target}, []DeliveryValidationResult{result}, nil, profiles, DeliveryPolicy{})
+	stale := false
+	for _, finding := range open.Findings {
+		if finding.Spec == "alpha" && finding.Code == "stale-evidence" {
+			stale = true
+		}
+	}
+	if !stale {
+		t.Fatal("legacy module-wide evidence was accepted for an open scope")
+	}
+}

@@ -408,6 +408,13 @@ Five responsibilities compose without moving repository authority
 | GraphForge                      | Contextualizes (semantic code graph)                 | Consumes `pose portfolio-projection` and `pose semantic-suggest` output  |
 | Portal                          | Presents (portfolio, review UI)                      | Consumes policy-filtered projections; never a second lifecycle authority |
 
+Review follows the same ownership boundary. POSE prepares and seals a portable
+semantic `ReviewBundle`, verifies its separate attestation and remains the
+offline closeout authority. Conductor may assign reviewers, persist retries,
+manage findings and return a signed attestation envelope, but it cannot redefine
+the bundle or waive POSE policy. Recording the attestation, closing the scope and
+refreshing derived state never alter the approved bundle digest.
+
 Every boundary already ships in the open core, testable without any Harne8
 component present: `pose_validate_submit` returns a clear configuration
 error (not a crash) when no Harness is wired; `pose reconcile-evidence`

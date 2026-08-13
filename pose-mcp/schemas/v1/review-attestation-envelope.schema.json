@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pose.dev/schemas/v1/review-attestation-envelope.schema.json",
+  "title": "Optional signed POSE review attestation envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "issuer", "subject", "algorithm", "public_key", "signature", "attestation"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "issuer": {"type": "string", "minLength": 1},
+    "subject": {"type": "string", "pattern": "^rvb-[a-f0-9]{16}$"},
+    "algorithm": {"const": "ed25519"},
+    "public_key": {"type": "string", "contentEncoding": "base64"},
+    "signature": {"type": "string", "contentEncoding": "base64"},
+    "attestation": {"$ref": "review-attestation.schema.json"}
+  }
+}

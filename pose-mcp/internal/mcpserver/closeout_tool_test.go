@@ -45,3 +45,15 @@ func TestReviewPlanToolRejectsMissingAndTraversalScope(t *testing.T) {
 		}
 	}
 }
+
+func TestReviewBundleToolIsReadOnlyAndProjectScoped(t *testing.T) {
+	ts := newTestServer(t, "")
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":95,"method":"tools/call","params":{"name":"pose_review_bundle","arguments":{"scope":"spec:alpha"}}}`)
+	if out.Error != nil || out.Result["isError"] != false {
+		t.Fatalf("review bundle tool failed: error=%+v result=%v", out.Error, out.Result)
+	}
+	structured, _ := out.Result["structuredContent"].(map[string]any)
+	if structured["scope"] != "spec:alpha" || structured["state"] == "" || structured["next_action"] == "" {
+		t.Fatalf("unexpected review bundle projection: %v", structured)
+	}
+}

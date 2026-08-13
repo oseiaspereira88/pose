@@ -72,7 +72,7 @@ func loadDeliveryValidationResults(root, relative string) ([]posemodel.DeliveryV
 		if check.EvidenceClass == "" {
 			continue
 		}
-		results = append(results, posemodel.DeliveryValidationResult{ID: check.ID, Module: check.Module, Check: check.Name, EvidenceClass: check.EvidenceClass, Severity: check.Severity, Outcome: check.Outcome, GitHead: run.GitHead, GeneratedAt: run.GeneratedAt, ProvenanceDigest: run.ProvenanceDigest, Report: relative})
+		results = append(results, posemodel.DeliveryValidationResult{ID: check.ID, Module: check.Module, Check: check.Name, EvidenceClass: check.EvidenceClass, Severity: check.Severity, Outcome: check.Outcome, GitHead: run.GitHead, GeneratedAt: run.GeneratedAt, ProvenanceDigest: run.ProvenanceDigest, ScopeProvenance: run.ScopeProvenance, Report: relative})
 	}
 	sort.Slice(results, func(i, j int) bool { return results[i].ID < results[j].ID })
 	return results, nil

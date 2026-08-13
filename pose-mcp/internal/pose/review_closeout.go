@@ -108,6 +108,11 @@ type ReviewPolicy struct {
 	ComponentAwareAdoptedAt          string            `json:"component_aware_adopted_at,omitempty"`
 	UnmappedComponentBehavior        string            `json:"unmapped_component_behavior,omitempty"`
 	OverlayProfiles                  []string          `json:"overlay_profiles,omitempty"`
+	ReviewBundles                    bool              `json:"review_bundles,omitempty"`
+	ReviewBundlesAdoptedAt           string            `json:"review_bundles_adopted_at,omitempty"`
+	AllowCriterionReuse              bool              `json:"allow_criterion_reuse,omitempty"`
+	RequireSignedAttestations        bool              `json:"require_signed_attestations,omitempty"`
+	TrustedAttestationIssuers        []string          `json:"trusted_attestation_issuers,omitempty"`
 }
 
 type ReviewCriterion struct {
@@ -166,6 +171,10 @@ type ReviewEvaluation struct {
 	Blockers      []string       `json:"blockers"`
 	Warnings      []string       `json:"warnings,omitempty"`
 	PolicyEnabled bool           `json:"policy_enabled"`
+	BundleID      string         `json:"bundle_id,omitempty"`
+	BundleDigest  string         `json:"bundle_digest,omitempty"`
+	AttestationID string         `json:"attestation_id,omitempty"`
+	BundleState   string         `json:"bundle_state,omitempty"`
 }
 
 type CloseoutState struct {
@@ -215,6 +224,16 @@ func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
 		if p.ComponentAware {
 			if _, err := time.Parse(time.DateOnly, p.ComponentAwareAdoptedAt); err != nil {
 				return ReviewPolicy{}, nil, fmt.Errorf("pose: component_aware_adopted_at must be YYYY-MM-DD when component-aware review is enabled")
+			}
+		}
+		if p.ReviewBundles {
+			if _, err := time.Parse(time.DateOnly, p.ReviewBundlesAdoptedAt); err != nil {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: review_bundles_adopted_at must be YYYY-MM-DD when review bundles are enabled")
+			}
+		}
+		for _, issuer := range p.TrustedAttestationIssuers {
+			if strings.TrimSpace(issuer) == "" || strings.ContainsAny(issuer, "\r\n") {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid trusted attestation issuer")
 			}
 		}
 	}
@@ -593,6 +612,31 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	}
 	if profileRef == "" {
 		eval.Blockers = append(eval.Blockers, "review policy has no profile for "+scope.Kind)
+		return eval, nil
+	}
+	if policy.SchemaVersion >= ReviewPolicySchemaVersion && policy.ReviewBundles {
+		verification, verifyErr := s.VerifyReviewBundle(ref)
+		if verifyErr != nil {
+			return eval, verifyErr
+		}
+		eval.Fresh = verification.Fresh
+		eval.Approved = verification.Approved
+		eval.Blockers = append(eval.Blockers, verification.Blockers...)
+		eval.Warnings = append(eval.Warnings, verification.Warnings...)
+		eval.BundleState = verification.State
+		if verification.Bundle != nil {
+			eval.ScopeDigest = verification.Bundle.BundleDigest
+			eval.BundleID = verification.Bundle.BundleID
+			eval.BundleDigest = verification.Bundle.BundleDigest
+			eval.PlanDigest = verification.Bundle.Payload.Plan.PlanDigest
+		}
+		if verification.Attestation != nil {
+			eval.AttestationID = verification.Attestation.AttestationID
+			att := verification.Attestation
+			eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
+		}
+		eval.Blockers = uniqueSorted(eval.Blockers)
+		eval.Warnings = uniqueSorted(eval.Warnings)
 		return eval, nil
 	}
 	profile, _, err := s.loadReviewProfile(profileRef)

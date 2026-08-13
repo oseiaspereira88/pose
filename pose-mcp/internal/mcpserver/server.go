@@ -874,6 +874,14 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_review_plan: required argument %q missing", "scope")
 		}
 		return store.ReviewPlan(a.Scope)
+	case "pose_review_bundle":
+		var a struct {
+			Scope string `json:"scope"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.Scope == "" {
+			return nil, fmt.Errorf("pose_review_bundle: required argument %q missing", "scope")
+		}
+		return store.VerifyReviewBundle(a.Scope)
 	case "pose_delivery_integrity":
 		var a struct {
 			Path string `json:"path"`
@@ -1773,6 +1781,27 @@ func toolDefinitions() []map[string]any {
 				"selected profiles, criteria, safe native POSE tool recommendations, effective " +
 				"reviewer independence, warnings, blockers and the plan digest used for freshness. " +
 				"This read-only tool never executes a recommendation or mutates the project.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"scope": map[string]any{
+						"type":        "string",
+						"description": "Typed scope: spec:<slug>, milestone:<roadmap>/<id>, or roadmap:<slug>",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"scope"},
+			},
+		},
+		{
+			"name": "pose_review_bundle",
+			"description": "Read the current sealed review-bundle and attestation state for a typed " +
+				"spec, milestone or roadmap scope. Returns semantic subject identity, freshness, " +
+				"supersession delta, blockers and the smallest next governed action. This tool is " +
+				"read-only: sealing and attestation import remain explicit CLI writes.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{

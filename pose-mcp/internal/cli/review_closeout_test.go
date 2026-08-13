@@ -159,6 +159,156 @@ func TestReviewRecordRequiresRequiredToolDispositions(t *testing.T) {
 	}
 }
 
+func reviewBundleCLIFixture(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{
+  "schema_version":2,"enabled":true,"adopted_at":"2026-08-13",
+  "profiles":{"spec":"spec-closeout@2"},
+  "reviewer_independence":{"spec":"same-actor-separate-execution"},
+  "component_aware":true,"component_aware_adopted_at":"2026-08-13",
+  "unmapped_component_behavior":"warning",
+  "review_bundles":true,"review_bundles_adopted_at":"2026-08-13"
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{
+  "schema_version":2,"id":"spec-closeout","version":2,"scope":"spec",
+  "criteria":[{"id":"correctness","description":"reviewed","evidence_classes":["test"]}]
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{
+  "apps":[],"services":[],
+  "packages":[{"name":"pose-mcp","path":"pose-mcp","language":"go","owner":"@team","domain":"backend","criticality":"high","validationProfile":"baseline","metadataStatus":{"source":"declared","isComplete":true,"missingFields":[]}}]
+}`)
+	writeCloseoutCLIFile(t, root, "pose-mcp/main.go", "package main\n")
+	writeCloseoutCLIFile(t, root, ".pose/specs/bundle/spec.md", `---
+slug: bundle
+status: in-progress
+created_at: 2026-08-13
+components: pose-mcp
+delivers: contract:bundle
+---
+
+# Spec: bundle
+
+## 1. Intent
+Ship review bundles.
+
+## 2. Requirements
+- R1: The bundle shall converge.
+
+## 3. Technical Plan
+### Artifacts
+- modified: pose-mcp/main.go
+### Delivery targets
+- contract:bundle module:pose-mcp profile:api-contract entrypoint:pose-mcp/main.go
+### Risks
+Keep compatibility.
+
+## 4. Tasks
+- [ ] Implement.
+
+## 5. Decisions
+Use immutable JSON.
+
+## 6. Validation
+Pending.
+
+## 7. Final Report
+Pending.
+`)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", `{
+  "schema_version":1,"provenance_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "nodes":[],"edges":[],"claims":[],"reverse":{"pose-mcp/main.go":["bundle"]},"findings":[],
+  "change_sets":[{"id":"cs-bundle","spec":"bundle","selector":"range:a..b","base":"a","head":"b","resolved_base":"a","resolved_head":"b","paths":[{"action":"modified","path":"pose-mcp/main.go"}],"diff_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}],
+  "deliveries":[{"spec":"bundle","ref":"contract:bundle","kind":"contract","id":"bundle","module":"pose-mcp","profile":"api-contract","entrypoint":"pose-mcp/main.go"}],
+  "validation_results":[{"id":"bundle-test","module":"pose-mcp","check":"test","evidence_class":"test","severity":"required","outcome":"pass","provenance_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
+}`)
+	return root
+}
+
+func TestReviewBundleCLISealsAttestsAndVerifies(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	var out, errOut bytes.Buffer
+	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--json"}, &out, &errOut); code != 0 {
+		t.Fatalf("prepare code=%d err=%s", code, errOut.String())
+	}
+	var prepared posemodel.ReviewBundle
+	if err := json.Unmarshal(out.Bytes(), &prepared); err != nil {
+		t.Fatal(err)
+	}
+	if prepared.State != "prepared" || prepared.BundleID == "" || len(prepared.Blockers) != 0 {
+		t.Fatalf("unexpected prepared bundle: %+v", prepared)
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--seal", "--json"}, &out, &errOut); code != 0 {
+		t.Fatalf("seal code=%d err=%s", code, errOut.String())
+	}
+	var sealed posemodel.ReviewBundle
+	if err := json.Unmarshal(out.Bytes(), &sealed); err != nil {
+		t.Fatal(err)
+	}
+	if sealed.State != "sealed" || sealed.Path == "" {
+		t.Fatalf("bundle was not sealed: %+v", sealed)
+	}
+	out.Reset()
+	errOut.Reset()
+	attest := []string{"attest", sealed.BundleID, "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", "test:bundle", "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
+	if code := cmdReview(root, attest, &out, &errOut); code != 0 {
+		t.Fatalf("attest code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReview(root, []string{"verify", "spec:bundle", "--json"}, &out, &errOut); code != 0 {
+		t.Fatalf("verify code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	var verification posemodel.ReviewBundleVerification
+	if err := json.Unmarshal(out.Bytes(), &verification); err != nil {
+		t.Fatal(err)
+	}
+	if !verification.Approved || !verification.Fresh || verification.State != "ready-to-close" {
+		t.Fatalf("unexpected verification: %+v", verification)
+	}
+}
+
+func TestReviewRecordDelegatesToBundleAttestationWhenAdopted(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	var out, errOut bytes.Buffer
+	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--seal"}, &out, &errOut); code != 0 {
+		t.Fatalf("seal code=%d err=%s", code, errOut.String())
+	}
+	out.Reset()
+	errOut.Reset()
+	args := []string{"record", "spec:bundle", "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", "test:bundle", "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
+	if code := cmdReview(root, args, &out, &errOut); code != 0 {
+		t.Fatalf("record adapter code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	entries, err := os.ReadDir(filepath.Join(root, ".pose", "review-attestations"))
+	if err != nil || len(entries) != 1 {
+		t.Fatalf("record did not write one bundle attestation: entries=%v err=%v", entries, err)
+	}
+}
+
+func TestReviewPlanGroupsRepeatedWarningsAndPresentsActionableToolPhases(t *testing.T) {
+	warnings := groupedReviewPlanWarnings([]string{
+		"unmapped review component path:a", "unmapped review component path:b",
+		"unmapped review component path:c", "unmapped review component path:d", "another warning",
+	})
+	joined := strings.Join(warnings, "\n")
+	if !strings.Contains(joined, "unmapped-review-component count=4") || strings.Contains(joined, "path:d") || !strings.Contains(joined, "another warning") {
+		t.Fatalf("warnings were not grouped: %v", warnings)
+	}
+	tools := []posemodel.ReviewPlanTool{
+		{ID: "validate", Requiredness: "required", Args: []string{"pose", "validate"}},
+		{ID: "validate-duplicate", Requiredness: "required", Args: []string{"pose", "validate"}},
+		{ID: "suggest", Requiredness: "recommended", Args: []string{"pose", "suggest"}},
+		{ID: "review-check", Requiredness: "required", Args: []string{"pose", "review-check"}, Preconditions: []string{"review-complete"}},
+	}
+	actionable := actionableReviewPlanTools(tools)
+	if len(actionable) != 3 || actionable[0].Phase != "required" || actionable[1].Phase != "recommended" || actionable[2].Phase != "completion-deferred" {
+		t.Fatalf("unexpected actionable phases: %+v", actionable)
+	}
+}
+
 func mustReviewPlan(t *testing.T, root string) posemodel.ReviewPlan {
 	t.Helper()
 	plan, err := (posemodel.Store{Root: root}).ReviewPlan("spec:alpha")

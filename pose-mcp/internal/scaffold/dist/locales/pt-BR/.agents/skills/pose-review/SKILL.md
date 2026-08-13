@@ -20,8 +20,8 @@ Fluxo POSE para revisão técnica de PR ou diff local.
 ## Steps
 
 1. Identificar o tipo da mudança: feature | bugfix | refactor | doc | misto.
-2. Resolver `pose review-plan <escopo> --explain`; parar em blockers e reter o `plan_digest`.
-3. Executar as tools obrigatórias na ordem do plano e registrar por que cada recomendada foi usada ou dispensada.
+2. Resolver `pose review bundle <escopo> --explain` quando a policy estiver habilitada; parar em blockers e reter os digests do bundle e do plano.
+3. Executar primeiro as tools obrigatórias ativas, registrar por que cada recomendada foi usada ou dispensada e manter tools de conclusão adiadas até a atestação.
 4. Selecionar rules aplicáveis para cada componente. Use:
    ```bash
    pose suggest review --path <dir-afetado>
@@ -43,13 +43,14 @@ Fluxo POSE para revisão técnica de PR ou diff local.
    pose new-knowledge handoff review-<pr-slug> --owner @<squad>
    ```
 11. Avaliar todos os critérios obrigatórios, inclusive fronteiras entre componentes.
-12. Registrar com `pose review record <escopo> ... --plan-digest <sha256> --apply` e rodar `pose review-check <escopo>`.
-13. Emitir decisão final: **aprovado | aprovado com ressalvas | reprovado**.
+12. Selar com `pose review bundle <escopo> --seal`, revisar esse ID imutável e registrar com `pose review attest <bundle-id> ... --plan-digest <sha256> --apply`.
+13. Rodar `pose review verify <escopo>` e `pose review-check <escopo>`; fechar somente quando ambos consumirem a mesma atestação atual.
+14. Emitir decisão final: **aprovado | aprovado com ressalvas | mudanças solicitadas | reprovado**.
 
 ## Output requirements
 
 - Parecer com seção "Rules aplicadas no review" preenchida (template em `workflows/review.md`).
-- Digest do plano efetivo e disposição das tools obrigatórias e recomendadas.
+- Digests do bundle/plano e disposição das tools obrigatórias, recomendadas e adiadas para conclusão.
 - Findings por severidade com ação esperada.
 - Decisão final clara e acionável.
 - Handoff opcional quando há risco residual aceito.

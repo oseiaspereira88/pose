@@ -13,9 +13,9 @@ Verify that a change is correct, production-safe, and aligned with its approved 
 
 ## Execution checklist
 
-1. Resolve `pose review-plan <scope> --explain` (or `pose_review_plan`) and stop on blockers.
-2. Confirm the objective, approved scope, mapped components and `plan_digest`.
-3. Follow required tools in plan order; evaluate recommended tools explicitly without treating non-use as a blocker.
+1. Resolve `pose review bundle <scope> --explain` (or `pose_review_bundle`) when bundle policy is enabled; otherwise resolve `pose review-plan <scope> --explain`.
+2. Confirm the semantic scope, patch/tree identity, mapped components and bundle plan digest.
+3. Run required active tools first, evaluate recommended tools explicitly and leave completion-only tools deferred until an attestation exists.
 4. Select the plan's applicable rules explicitly and record them in the review.
 5. Resolve rule conflicts with the most restrictive option, prioritizing security for exposure, authorization, and integrity risks.
 6. Consult `.pose/knowledge/` for relevant handoffs, accepted risks, follow-ups, and decision logs.
@@ -27,9 +27,11 @@ Verify that a change is correct, production-safe, and aligned with its approved 
 12. Run plan-selected assessments, including tech-debt and integration when applicable.
 13. Classify findings by severity and propose objective actions.
 14. **Produce a handoff** in `.pose/knowledge/` when findings result in accepted risk, post-merge monitoring, or deferred work (`pose new-knowledge handoff <slug>`); link it from the review.
-15. Issue a final decision: approved, approved with reservations, or rejected.
-16. Record the decision with the inspected digest: `pose review record <scope> ... --plan-digest <sha256> --apply`.
-17. Run `pose review-check <scope>` and reject stale, incomplete or conflicting attempts.
+15. Seal the validated subject with `pose review bundle <scope> --seal`; stop if any input is unclassified or changed since preparation.
+16. Issue a final decision: approved, approved with reservations, changes requested, or rejected.
+17. Record the decision with `pose review attest <bundle-id> ... --plan-digest <sha256> --apply`; signed external envelopes use `pose review attest --envelope <path> --apply`.
+18. Run `pose review verify <scope>` and `pose review-check <scope>`; reject stale, incomplete, conflicting or transitively invalid reused criteria.
+19. Apply closeout only after verification reports `ready-to-close`; lifecycle, state and report refreshes must not change the sealed bundle.
 
 ## Required rule selection
 
@@ -102,7 +104,7 @@ Attach this section to the review:
 
 - A review decision with rationale.
 - The inspected effective plan, its component provenance and tool dispositions.
-- An immutable review attempt whose digest matches the reviewed scope.
+- An immutable sealed review bundle and separate attestation bound to its exact digest.
 - A completed rule-selection section.
 - Findings with severity, evidence, and recommendation.
 - Recurrence classification by domain and cause with preventive actions.

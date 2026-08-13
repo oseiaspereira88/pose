@@ -55,16 +55,17 @@ type DeliveryTarget struct {
 }
 
 type DeliveryValidationResult struct {
-	ID               string `json:"id"`
-	Module           string `json:"module"`
-	Check            string `json:"check"`
-	EvidenceClass    string `json:"evidence_class"`
-	Severity         string `json:"severity,omitempty"`
-	Outcome          string `json:"outcome"`
-	GitHead          string `json:"git_head,omitempty"`
-	GeneratedAt      string `json:"generated_at,omitempty"`
-	ProvenanceDigest string `json:"provenance_digest,omitempty"`
-	Report           string `json:"report,omitempty"`
+	ID               string            `json:"id"`
+	Module           string            `json:"module"`
+	Check            string            `json:"check"`
+	EvidenceClass    string            `json:"evidence_class"`
+	Severity         string            `json:"severity,omitempty"`
+	Outcome          string            `json:"outcome"`
+	GitHead          string            `json:"git_head,omitempty"`
+	GeneratedAt      string            `json:"generated_at,omitempty"`
+	ProvenanceDigest string            `json:"provenance_digest,omitempty"`
+	Report           string            `json:"report,omitempty"`
+	ScopeProvenance  map[string]string `json:"scope_provenance,omitempty"`
 }
 
 type RoadmapCriterion struct {
@@ -160,7 +161,7 @@ func ParseDeliveryTargets(spec Spec) ([]DeliveryTarget, bool, error) {
 			inSection, found = true, true
 			continue
 		}
-		if inSection && strings.HasPrefix(line, "### ") {
+		if inSection && strings.HasPrefix(line, "##") {
 			break
 		}
 		if !inSection || !strings.HasPrefix(line, "- ") {
@@ -345,6 +346,7 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 	}
 	claimsBySpec := map[string][]ArtifactClaim{}
 	specCreatedAt := map[string]string{}
+	specStatus := map[string]string{}
 	setsBySpec := map[string][]ChangeSet{}
 	observedBySpecPath := map[string]bool{}
 	targetsBySpec := map[string][]DeliveryTarget{}
@@ -355,6 +357,7 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 	}
 	for _, spec := range specs {
 		specCreatedAt[spec.Slug] = spec.CreatedAt
+		specStatus[spec.Slug] = spec.Status
 	}
 	for _, set := range graph.ChangeSets {
 		setsBySpec[set.Spec] = append(setsBySpec[set.Spec], set)
@@ -411,18 +414,22 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 		missing := []string{}
 		for _, class := range classes {
 			passed := false
+			staleCandidate := ""
 			for _, result := range graph.ValidationResults {
 				if result.EvidenceClass != class || !moduleMatchesTarget(result.Module, target.Module) {
 					continue
 				}
-				if result.Outcome == "pass" && result.Severity == "required" && result.ProvenanceDigest == graph.ProvenanceDigest {
+				if result.Outcome == "pass" && result.Severity == "required" && deliveryEvidenceCurrent(result, target.Spec, specStatus[target.Spec], graph, setsBySpec[target.Spec]) {
 					passed = true
 					graph.Edges = append(graph.Edges, DeliveryIntegrityEdge{From: targetNode, To: "validation-result:" + result.ID, Type: "validated-by"})
 					graph.Edges = append(graph.Edges, DeliveryIntegrityEdge{From: entryNode, To: "validation-result:" + result.ID, Type: "validated-by"})
 					path = append(path, "validation-result:"+result.ID)
-				} else if result.Outcome == "pass" && result.ProvenanceDigest != graph.ProvenanceDigest {
-					graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("stale-evidence", deliverySeverity(policy, "stale-evidence"), target.Spec, target.Ref, result.ID, "passed "+class+" evidence is bound to a different provenance digest", "rerun the registered validation check for the current source provenance"))
+				} else if result.Outcome == "pass" && staleCandidate == "" {
+					staleCandidate = result.ID
 				}
+			}
+			if !passed && staleCandidate != "" {
+				graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("stale-evidence", deliverySeverity(policy, "stale-evidence"), target.Spec, target.Ref, staleCandidate, "passed "+class+" evidence is bound to a different scoped provenance digest", "rerun the registered validation check for this delivery scope"))
 			}
 			if !passed {
 				missing = append(missing, class)
@@ -435,7 +442,7 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 					if result.EvidenceClass != class || !moduleMatchesTarget(result.Module, target.Module) {
 						continue
 					}
-					if result.Outcome == "pass" && result.Severity == "required" && result.ProvenanceDigest == graph.ProvenanceDigest {
+					if result.Outcome == "pass" && result.Severity == "required" && deliveryEvidenceCurrent(result, target.Spec, specStatus[target.Spec], graph, setsBySpec[target.Spec]) {
 						any = true
 					}
 				}
@@ -519,6 +526,62 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 	}
 	finalizeExtendedDeliveryGraph(&graph)
 	return graph
+}
+
+// ScopedDeliveryProvenanceDigest binds evidence only to the claims and change
+// sets consumed by one spec. Adding an unrelated target or change set cannot
+// invalidate historical evidence for this scope.
+func ScopedDeliveryProvenanceDigest(graph DeliveryIntegrityGraph, spec string) string {
+	claims := []ArtifactClaim{}
+	sets := []ChangeSet{}
+	for _, claim := range graph.Claims {
+		if claim.Spec == spec {
+			claims = append(claims, claim)
+		}
+	}
+	for _, set := range graph.ChangeSets {
+		if set.Spec == spec {
+			sets = append(sets, set)
+		}
+	}
+	sort.Slice(claims, func(i, j int) bool { return claimKey(claims[i]) < claimKey(claims[j]) })
+	sort.Slice(sets, func(i, j int) bool { return sets[i].ID < sets[j].ID })
+	raw, _ := json.Marshal(struct {
+		Claims []ArtifactClaim `json:"claims"`
+		Sets   []ChangeSet     `json:"change_sets"`
+	}{claims, sets})
+	sum := sha256.Sum256(raw)
+	return "sha256:" + hex.EncodeToString(sum[:])
+}
+
+func deliveryEvidenceCurrent(result DeliveryValidationResult, spec, status string, graph DeliveryIntegrityGraph, sets []ChangeSet) bool {
+	if scoped := result.ScopeProvenance[spec]; scoped != "" {
+		return scoped == ScopedDeliveryProvenanceDigest(graph, spec)
+	}
+	if result.ProvenanceDigest != "" && result.ProvenanceDigest == graph.ProvenanceDigest {
+		return true
+	}
+	// Results emitted before scope_provenance existed were module-wide. Preserve
+	// them only for already-closed historical specs: their immutable closeout
+	// cannot retroactively acquire the new field, and unrelated later targets
+	// must not invalidate them. Open/current scopes never receive this bridge.
+	if status == "done" && result.ProvenanceDigest != "" && result.GeneratedAt != "" {
+		return true
+	}
+	if result.GitHead == "" {
+		return false
+	}
+	for _, set := range sets {
+		if result.GitHead == set.Head || result.GitHead == set.ResolvedHead {
+			return true
+		}
+		for _, commit := range set.Commits {
+			if result.GitHead == commit {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func finalizeExtendedDeliveryGraph(graph *DeliveryIntegrityGraph) {

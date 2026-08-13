@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pose.dev/schemas/v1/review-attestation.schema.json",
+  "title": "POSE review attestation",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "attestation_id", "bundle_id", "bundle_digest", "reviewer", "decision", "criteria", "findings", "attested_at"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "attestation_id": {"type": "string", "pattern": "^rva-[a-f0-9]{16}$"},
+    "bundle_id": {"type": "string", "pattern": "^rvb-[a-f0-9]{16}$"},
+    "bundle_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "reviewer": {"type": "string", "pattern": "^(agent|human):[^\\r\\n]+$"},
+    "decision": {"enum": ["approved", "approved-with-reservations", "changes-requested", "rejected"]},
+    "criteria": {"type": "array", "items": {"type": "object"}},
+    "tools": {"type": "array", "items": {"type": "object"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "findings": {"type": "array", "items": {"type": "object"}},
+    "reused_from": {"type": "array", "items": {"type": "object"}},
+    "supersedes": {"type": "string"},
+    "envelope": {
+      "type": "object",
+      "required": ["issuer", "subject", "algorithm", "public_key", "signature"],
+      "properties": {
+        "issuer": {"type": "string"},
+        "subject": {"type": "string", "pattern": "^rvb-[a-f0-9]{16}$"},
+        "algorithm": {"const": "ed25519"},
+        "public_key": {"type": "string"},
+        "signature": {"type": "string"}
+      }
+    },
+    "attested_at": {"type": "string", "format": "date-time"},
+    "path": {"type": "string"}
+  }
+}

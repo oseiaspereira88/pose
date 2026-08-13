@@ -28,8 +28,8 @@ Deliver a production feature with clear scope, incremental implementation, and d
 13. If touching inter-component contracts (Protobuf, Kafka, REST, MCP), run `pose assess integrate`.
 14. Create a reusable handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, a pending decision, or a follow-up; link the spec through `source_refs`.
 15. Summarize the result, residual risks, and next steps.
-16. Run a separate review pass and record its immutable attempt with `pose review record spec:<slug> ... --apply`.
-17. Require `pose closeout-check spec:<slug>` before applying `pose close spec:<slug>`; remediate and re-review when the digest or findings block closure.
+16. Run a separate review pass. With bundle policy enabled, prepare and seal with `pose review bundle spec:<slug> --seal`, then bind the decision with `pose review attest <bundle-id> ... --apply`; otherwise use the legacy `pose review record` flow.
+17. Require `pose review verify spec:<slug>` (bundle mode) and `pose closeout-check spec:<slug>` before applying `pose close spec:<slug>`; remediation that changes semantic or source inputs creates a superseding bundle.
 18. Complete follow-up and changelog disposition (`pose followups --all` shows the cross-spec backlog and its collisions), run `pose assess discover --update-state` to recalculate platform completeness; then pass `pose lint-spec <slug> --strict`.
 
 ## Required outputs

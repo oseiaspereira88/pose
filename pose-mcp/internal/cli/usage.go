@@ -19,6 +19,7 @@ type commandUsageResult struct {
 	FindingCount       int
 	FindingsBySeverity map[string]int
 	FindingSetComplete bool
+	Signals            []string
 }
 
 type usageFinding struct {
@@ -42,13 +43,24 @@ func noteCommandUsage(stdout io.Writer, result commandUsageResult) {
 	}
 }
 
+func noteUsageSignals(stdout io.Writer, signals ...string) {
+	output, ok := stdout.(*usageOutput)
+	if !ok {
+		return
+	}
+	if output.result == nil {
+		output.result = &commandUsageResult{SemanticOutcome: "unknown"}
+	}
+	output.result.Signals = append(output.result.Signals, signals...)
+}
+
 func mainWithUsage(args []string, stdout, stderr io.Writer) int {
 	started := time.Now()
 	root, rootErr := projectRoot()
 	original := append([]string(nil), args...)
 	tool := "help"
 	if len(original) > 0 {
-		tool = original[0]
+		tool = commandUsageTool(original)
 	}
 	wrapped := &usageOutput{Writer: stdout}
 	code := mainCommand(args, wrapped, stderr)
@@ -76,7 +88,56 @@ func mainWithUsage(args []string, stdout, stderr io.Writer) int {
 		Scope:              strings.Join(scopeArgs, "\x00"), Version: Version,
 	}
 	_ = usagepkg.Record(root, observation)
+	for _, signal := range compactUsageSignals(result.Signals) {
+		observation.Tool = "review.signal." + signal
+		observation.DurationMS = 0
+		observation.Findings = nil
+		observation.FindingCount = 0
+		observation.FindingsBySeverity = nil
+		observation.FindingSetComplete = false
+		_ = usagepkg.Record(root, observation)
+	}
 	return code
+}
+
+func commandUsageTool(args []string) string {
+	if len(args) < 2 || args[0] != "review" {
+		return args[0]
+	}
+	switch args[1] {
+	case "bundle":
+		for _, arg := range args[2:] {
+			if arg == "--seal" {
+				return "review.bundle.seal"
+			}
+		}
+		return "review.bundle.prepare"
+	case "attest":
+		return "review.attest"
+	case "verify":
+		return "review.bundle.verify"
+	case "record":
+		return "review.record"
+	default:
+		return "review"
+	}
+}
+
+func compactUsageSignals(values []string) []string {
+	seen := map[string]bool{}
+	result := make([]string, 0, len(values))
+	for _, value := range values {
+		switch value {
+		case "false-staleness-avoided", "supersession", "criterion-reuse":
+		default:
+			continue
+		}
+		if !seen[value] {
+			seen[value] = true
+			result = append(result, value)
+		}
+	}
+	return result
 }
 
 func shouldRecordCLIUsage(tool string, code int) bool {
@@ -102,7 +163,7 @@ func isKnownCLICommand(tool string) bool {
 		"recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks", "skills-check", "record-deployment",
 		"record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping", "semantic-suggest", "suggest-feedback",
 		"portfolio-projection", "reconcile-evidence", "release-notes", "release", "release-package-manifests", "install", "doctor",
-		"import", "extension", "lint-spec", "history-check":
+		"import", "extension", "lint-spec", "history-check", "review.bundle.prepare", "review.bundle.seal", "review.bundle.verify", "review.attest", "review.record":
 		return true
 	default:
 		return false
@@ -129,7 +190,7 @@ func defaultCommandUsage(tool string, code int) commandUsageResult {
 
 func isGateCommand(tool string) bool {
 	switch tool {
-	case "check", "validate", "knowledge-check", "recurrence-check", "lint-spec", "history-check", "skills-check", "review-check", "closeout-check", "artifact-check", "surface-check", "roadmap-check":
+	case "check", "validate", "knowledge-check", "recurrence-check", "lint-spec", "history-check", "skills-check", "review-check", "review.bundle.verify", "closeout-check", "artifact-check", "surface-check", "roadmap-check":
 		return true
 	default:
 		return false

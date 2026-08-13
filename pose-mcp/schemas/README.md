@@ -22,6 +22,9 @@ do `pose-mcp`, conforme a política da
 | `v1/gate-result.schema.json` | `pose_check`, `pose_lint_spec` |
 | `v1/insights.schema.json` | `pose_insights`; saída JSON de `pose stats` |
 | `v1/review-plan.schema.json` | `pose_review_plan`; saída JSON de `pose review-plan` |
+| `v1/review-bundle.schema.json` | `pose_review_bundle`; saída JSON de `pose review bundle` |
+| `v1/review-attestation.schema.json` | `pose review attest` e `pose review verify` |
+| `v1/review-attestation-envelope.schema.json` | envelope externo opcional assinado |
 
 ## Pass-through (contrato da CLI)
 

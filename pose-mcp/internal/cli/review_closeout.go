@@ -84,7 +84,7 @@ func cmdReviewPlan(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	fmt.Fprintf(stdout, "review_plan.scope=%s\nreview_plan.scope_digest=%s\nreview_plan.plan_digest=%s\nreview_plan.base_profile=%s\nreview_plan.independence=%s\nreview_plan.components=%d\nreview_plan.criteria=%d\nreview_plan.tools=%d\n", plan.Scope, plan.ScopeDigest, plan.PlanDigest, plan.BaseProfile, plan.Independence, len(plan.Components), len(plan.Criteria), len(plan.Tools))
-	for _, warning := range plan.Warnings {
+	for _, warning := range groupedReviewPlanWarnings(plan.Warnings) {
 		fmt.Fprintf(stdout, "[WARN] %s\n", warning)
 	}
 	for _, blocker := range plan.Blockers {
@@ -100,14 +100,70 @@ func cmdReviewPlan(root string, args []string, stdout, stderr io.Writer) int {
 		for _, criterion := range plan.Criteria {
 			fmt.Fprintf(stdout, "criterion.%s=required:%t profiles:%s rules:%s evidence:%s\n", criterion.ID, criterion.Required, strings.Join(criterion.Profiles, ","), strings.Join(criterion.Rules, ","), strings.Join(criterion.EvidenceClasses, ","))
 		}
-		for _, tool := range plan.Tools {
-			fmt.Fprintf(stdout, "tool.%s=requiredness:%s args:%s preconditions:%s criteria:%s evidence:%s rationale:%s\n", tool.ID, tool.Requiredness, strings.Join(tool.Args, " "), strings.Join(tool.Preconditions, ","), strings.Join(tool.Criteria, ","), strings.Join(tool.EvidenceClasses, ","), tool.Rationale)
+		for _, item := range actionableReviewPlanTools(plan.Tools) {
+			tool := item.Tool
+			fmt.Fprintf(stdout, "tool.%s.%s=requiredness:%s args:%s preconditions:%s criteria:%s evidence:%s rationale:%s\n", item.Phase, tool.ID, tool.Requiredness, strings.Join(tool.Args, " "), strings.Join(tool.Preconditions, ","), strings.Join(tool.Criteria, ","), strings.Join(tool.EvidenceClasses, ","), tool.Rationale)
 		}
 	}
 	if len(plan.Blockers) > 0 {
 		return 1
 	}
 	return 0
+}
+
+func groupedReviewPlanWarnings(warnings []string) []string {
+	groups := map[string][]string{}
+	plain := []string{}
+	for _, warning := range warnings {
+		if strings.HasPrefix(warning, "unmapped review component ") {
+			groups["unmapped-review-component"] = append(groups["unmapped-review-component"], strings.TrimPrefix(warning, "unmapped review component "))
+		} else {
+			plain = append(plain, warning)
+		}
+	}
+	result := append([]string{}, plain...)
+	for code, values := range groups {
+		sort.Strings(values)
+		representative := values
+		if len(representative) > 3 {
+			representative = representative[:3]
+		}
+		result = append(result, fmt.Sprintf("%s count=%d examples=%s", code, len(values), strings.Join(representative, ",")))
+	}
+	sort.Strings(result)
+	return result
+}
+
+type actionableReviewTool struct {
+	Phase string
+	Tool  posemodel.ReviewPlanTool
+}
+
+func actionableReviewPlanTools(tools []posemodel.ReviewPlanTool) []actionableReviewTool {
+	result := []actionableReviewTool{}
+	seen := map[string]bool{}
+	for _, tool := range tools {
+		phase := "recommended"
+		if containsCLIReviewValue(tool.Preconditions, "review-complete") {
+			phase = "completion-deferred"
+		} else if tool.Requiredness == "required" {
+			phase = "required"
+		}
+		key := phase + "\x00" + strings.Join(tool.Args, "\x00")
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		result = append(result, actionableReviewTool{Phase: phase, Tool: tool})
+	}
+	order := map[string]int{"required": 0, "recommended": 1, "completion-deferred": 2}
+	sort.SliceStable(result, func(i, j int) bool {
+		if order[result[i].Phase] != order[result[j].Phase] {
+			return order[result[i].Phase] < order[result[j].Phase]
+		}
+		return result[i].Tool.ID < result[j].Tool.ID
+	})
+	return result
 }
 
 func cmdCloseoutCheck(root string, args []string, stdout, stderr io.Writer) int {
@@ -171,11 +227,298 @@ func writeJSON(w io.Writer, value any) int {
 }
 
 func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
-	if len(args) == 0 || args[0] != "record" {
-		fmt.Fprintln(stderr, "Usage: pose review record <scope> --reviewer <execution-id> --decision <approved|approved-with-reservations|changes-requested|rejected> --evidence <ref> [--plan-digest <sha256>] [--tool 'ID|component|disposition|evidence|rationale'] [--finding 'ID|severity|disposition|action|evidence'] [--apply]")
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|verify|record> ...")
 		return 2
 	}
-	return cmdReviewRecord(root, args[1:], stdout, stderr)
+	switch args[0] {
+	case "bundle":
+		return cmdReviewBundle(root, args[1:], stdout, stderr)
+	case "attest":
+		return cmdReviewAttest(root, args[1:], stdout, stderr)
+	case "verify":
+		return cmdReviewVerify(root, args[1:], stdout, stderr)
+	case "record":
+		return cmdReviewRecord(root, args[1:], stdout, stderr)
+	default:
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|verify|record> ...")
+		return 2
+	}
+}
+
+func cmdReviewBundle(root string, args []string, stdout, stderr io.Writer) int {
+	ref, jsonOutput, explain, seal := "", false, false, false
+	for _, arg := range args {
+		switch arg {
+		case "--json":
+			jsonOutput = true
+		case "--explain":
+			explain = true
+		case "--seal":
+			seal = true
+		default:
+			if strings.HasPrefix(arg, "-") || ref != "" {
+				fmt.Fprintln(stderr, "Usage: pose review bundle <scope> [--json] [--explain] [--seal]")
+				return 2
+			}
+			ref = arg
+		}
+	}
+	if ref == "" {
+		fmt.Fprintln(stderr, "Usage: pose review bundle <scope> [--json] [--explain] [--seal]")
+		return 2
+	}
+	store := posemodel.Store{Root: root}
+	var bundle posemodel.ReviewBundle
+	var err error
+	if seal {
+		bundle, err = store.SealReviewBundle(ref, time.Now())
+	} else {
+		bundle, err = store.PrepareReviewBundle(ref)
+	}
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review bundle: %v\n", err)
+		if bundle.BundleID == "" {
+			return 1
+		}
+	}
+	if jsonOutput {
+		if code := writeJSON(stdout, bundle); code != 0 {
+			return code
+		}
+	} else {
+		fmt.Fprintf(stdout, "review_bundle.id=%s\nreview_bundle.digest=%s\nreview_bundle.scope=%s\nreview_bundle.state=%s\nreview_bundle.subject.patch_digest=%s\nreview_bundle.subject.tree_digest=%s\nreview_bundle.criteria=%d\nreview_bundle.tools=%d\nreview_bundle.evidence=%d\n", bundle.BundleID, bundle.BundleDigest, bundle.Payload.Scope.Ref, bundle.State, bundle.Payload.Subject.PatchDigest, bundle.Payload.Subject.TreeDigest, len(bundle.Payload.Plan.Criteria), len(bundle.Payload.Plan.Tools), len(bundle.Payload.Evidence))
+		if explain {
+			for _, input := range bundle.Payload.Scope.Sections {
+				fmt.Fprintf(stdout, "include.%s=%s reason:%s\n", input.Kind, input.Path, input.Reason)
+			}
+			for _, input := range bundle.Payload.ConsumedInputs {
+				fmt.Fprintf(stdout, "include.%s=%s reason:%s\n", input.Kind, input.Path, input.Reason)
+			}
+			for _, input := range bundle.ExcludedInputs {
+				fmt.Fprintf(stdout, "exclude.%s=%s reason:%s\n", input.Kind, input.Path, input.Reason)
+			}
+		}
+		for _, warning := range bundle.Warnings {
+			fmt.Fprintf(stdout, "[WARN] %s\n", warning)
+		}
+		for _, blocker := range bundle.Blockers {
+			fmt.Fprintf(stderr, "[ERROR] %s\n", blocker)
+		}
+	}
+	if err != nil || len(bundle.Blockers) > 0 {
+		return 1
+	}
+	for _, input := range bundle.ExcludedInputs {
+		if input.Kind == "derived" || input.Kind == "derived-section" || input.Kind == "lifecycle" {
+			noteUsageSignals(stdout, "false-staleness-avoided")
+			break
+		}
+	}
+	return 0
+}
+
+func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
+	jsonOutput, target := false, ""
+	for _, arg := range args {
+		if arg == "--json" {
+			jsonOutput = true
+		} else if strings.HasPrefix(arg, "-") || target != "" {
+			fmt.Fprintln(stderr, "Usage: pose review verify <scope|bundle-id|bundle-path> [--json]")
+			return 2
+		} else {
+			target = arg
+		}
+	}
+	if target == "" {
+		fmt.Fprintln(stderr, "Usage: pose review verify <scope|bundle-id|bundle-path> [--json]")
+		return 2
+	}
+	store := posemodel.Store{Root: root}
+	ref, err := resolveReviewBundleScope(store, target)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review verify: %v\n", err)
+		return 1
+	}
+	verification, err := store.VerifyReviewBundle(ref)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review verify: %v\n", err)
+		return 1
+	}
+	if jsonOutput {
+		if code := writeJSON(stdout, verification); code != 0 {
+			return code
+		}
+	} else {
+		fmt.Fprintf(stdout, "review_verify.scope=%s\nreview_verify.state=%s\nreview_verify.fresh=%t\nreview_verify.approved=%t\nreview_verify.next_action=%s\n", verification.Scope, verification.State, verification.Fresh, verification.Approved, verification.NextAction)
+		for _, warning := range verification.Warnings {
+			fmt.Fprintf(stdout, "[WARN] %s\n", warning)
+		}
+		for _, blocker := range verification.Blockers {
+			fmt.Fprintf(stderr, "[ERROR] %s\n", blocker)
+		}
+	}
+	if verification.State == "superseded" {
+		noteUsageSignals(stdout, "supersession")
+	}
+	if verification.Attestation != nil && len(verification.Attestation.ReusedFrom) > 0 {
+		noteUsageSignals(stdout, "criterion-reuse")
+	}
+	if !verification.Approved {
+		return 1
+	}
+	return 0
+}
+
+func resolveReviewBundleScope(store posemodel.Store, target string) (string, error) {
+	if _, err := posemodel.ParseScopeRef(target); err == nil {
+		return target, nil
+	}
+	id := target
+	if strings.HasSuffix(target, ".json") {
+		clean := filepath.Clean(filepath.FromSlash(target))
+		if filepath.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, ".."+string(os.PathSeparator)) {
+			return "", fmt.Errorf("bundle path escapes project root")
+		}
+		id = strings.TrimSuffix(filepath.Base(clean), ".json")
+	}
+	bundle, err := store.LoadReviewBundle(id)
+	if err != nil {
+		return "", err
+	}
+	return bundle.Payload.Scope.Ref, nil
+}
+
+func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
+	if len(args) >= 2 && args[0] == "--envelope" {
+		apply := false
+		if len(args) == 3 && args[2] == "--apply" {
+			apply = true
+		} else if len(args) != 2 {
+			fmt.Fprintln(stderr, "Usage: pose review attest --envelope <project-relative-path> [--apply]")
+			return 2
+		}
+		attestation, err := (posemodel.Store{Root: root}).ImportReviewAttestationEnvelope(args[1], apply)
+		if err != nil {
+			fmt.Fprintf(stderr, "pose review attest: %v\n", err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "review_attestation.envelope=verified\nreview_attestation.id=%s\nreview_attestation.bundle_id=%s\nreview_attestation.apply=%t\n", attestation.AttestationID, attestation.BundleID, apply)
+		return 0
+	}
+	var target, reviewer, decision, expectedPlanDigest string
+	var evidence, findings, rawTools []string
+	apply := false
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--reviewer", "--decision", "--evidence", "--finding", "--tool", "--plan-digest":
+			if i+1 >= len(args) {
+				fmt.Fprintln(stderr, "pose review attest: missing option value")
+				return 2
+			}
+			i++
+			switch args[i-1] {
+			case "--reviewer":
+				reviewer = args[i]
+			case "--decision":
+				decision = args[i]
+			case "--evidence":
+				evidence = append(evidence, args[i])
+			case "--finding":
+				findings = append(findings, args[i])
+			case "--tool":
+				rawTools = append(rawTools, args[i])
+			case "--plan-digest":
+				expectedPlanDigest = args[i]
+			}
+		case "--apply":
+			apply = true
+		default:
+			if strings.HasPrefix(args[i], "-") || target != "" {
+				fmt.Fprintf(stderr, "pose review attest: unexpected argument %q\n", args[i])
+				return 2
+			}
+			target = args[i]
+		}
+	}
+	if target == "" || reviewer == "" || decision == "" || len(evidence) == 0 {
+		fmt.Fprintln(stderr, "pose review attest: bundle, reviewer, decision and at least one evidence ref are required")
+		return 2
+	}
+	store := posemodel.Store{Root: root}
+	ref, err := resolveReviewBundleScope(store, target)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
+		return 1
+	}
+	bundle, err := store.CurrentReviewBundle(ref)
+	if err != nil || bundle == nil {
+		if err == nil {
+			err = fmt.Errorf("scope has no current sealed bundle")
+		}
+		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
+		return 1
+	}
+	if strings.HasPrefix(target, "rvb-") && target != bundle.BundleID {
+		fmt.Fprintln(stderr, "pose review attest: bundle is superseded by current semantic inputs")
+		return 1
+	}
+	if expectedPlanDigest != "" && expectedPlanDigest != bundle.Payload.Plan.PlanDigest {
+		fmt.Fprintf(stderr, "pose review attest: expected plan digest %s, current is %s\n", expectedPlanDigest, bundle.Payload.Plan.PlanDigest)
+		return 1
+	}
+	plan := posemodel.ReviewPlan{Criteria: bundle.Payload.Plan.Criteria, Tools: bundle.Payload.Plan.Tools}
+	tools, err := reviewToolDispositions(plan, rawTools, true)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
+		return 2
+	}
+	parsedFindings, err := parseCLIReviewFindings(findings)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
+		return 2
+	}
+	sort.Strings(evidence)
+	criteria := make([]posemodel.ReviewCriterion, 0, len(plan.Criteria))
+	for _, criterion := range plan.Criteria {
+		if criterion.Required {
+			criteria = append(criteria, posemodel.ReviewCriterion{ID: criterion.ID, Disposition: "passed", Evidence: reviewCriterionEvidence(criterion, evidence)})
+		}
+	}
+	att := posemodel.ReviewAttestation{BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest, Reviewer: reviewer, Decision: decision, Criteria: criteria, Tools: tools, EvidenceRefs: evidence, Findings: parsedFindings}
+	if !apply {
+		fmt.Fprintf(stdout, "review_attestation.plan=record\nreview_attestation.bundle_id=%s\nreview_attestation.bundle_digest=%s\nreview_attestation.plan_digest=%s\nreview_attestation.apply=false\n", bundle.BundleID, bundle.BundleDigest, bundle.Payload.Plan.PlanDigest)
+		return 0
+	}
+	att, err = store.RecordReviewAttestation(att, time.Now())
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
+		return 1
+	}
+	fmt.Fprintf(stdout, "Review attestation recorded: %s\n", filepath.Join(root, filepath.FromSlash(att.Path)))
+	return 0
+}
+
+func parseCLIReviewFindings(values []string) ([]posemodel.ReviewFinding, error) {
+	result := make([]posemodel.ReviewFinding, 0, len(values))
+	for _, raw := range values {
+		parts := strings.Split(raw, "|")
+		if len(parts) < 5 || posemodel.ValidateSlug(parts[0]) != nil {
+			return nil, fmt.Errorf("finding must be ID|severity|disposition|action|evidence[|owner|rationale|review-by]")
+		}
+		finding := posemodel.ReviewFinding{ID: parts[0], Severity: parts[1], Disposition: parts[2], Action: parts[3], Evidence: parts[4]}
+		if len(parts) > 5 {
+			finding.Owner = parts[5]
+		}
+		if len(parts) > 6 {
+			finding.Rationale = parts[6]
+		}
+		if len(parts) > 7 {
+			finding.ReviewBy = parts[7]
+		}
+		result = append(result, finding)
+	}
+	return result, nil
 }
 
 func cmdReviewRecord(root string, args []string, stdout, stderr io.Writer) int {
@@ -228,6 +571,25 @@ func cmdReviewRecord(root string, args []string, stdout, stderr io.Writer) int {
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review record: %v\n", err)
 		return 1
+	}
+	if policy.ReviewBundles {
+		verification, verifyErr := store.VerifyReviewBundle(ref)
+		if verifyErr != nil {
+			fmt.Fprintf(stderr, "pose review record: %v\n", verifyErr)
+			return 1
+		}
+		if verification.Bundle == nil || !verification.Fresh {
+			fmt.Fprintln(stderr, "pose review record: bundle policy requires a current sealed bundle; run pose review bundle <scope> --seal")
+			return 1
+		}
+		adapted := append([]string{}, args...)
+		for i, value := range adapted {
+			if value == ref {
+				adapted[i] = verification.Bundle.BundleID
+				break
+			}
+		}
+		return cmdReviewAttest(root, adapted, stdout, stderr)
 	}
 	profile, err := store.ReviewProfileForScope(ref)
 	if err != nil {

@@ -60,14 +60,15 @@ func (l *outputLimiter) Write(p []byte) (int, error) {
 }
 
 type validationRunResult struct {
-	SchemaVersion    int    `json:"schema_version"`
-	GeneratedAt      string `json:"generated_at"`
-	Mode             string `json:"mode"`
-	StackFilter      string `json:"stack_filter,omitempty"`
-	ModuleFilter     string `json:"module_filter,omitempty"`
-	GitHead          string `json:"git_head,omitempty"`
-	MatrixSHA256     string `json:"matrix_sha256,omitempty"`
-	ProvenanceDigest string `json:"provenance_digest,omitempty"`
+	SchemaVersion    int               `json:"schema_version"`
+	GeneratedAt      string            `json:"generated_at"`
+	Mode             string            `json:"mode"`
+	StackFilter      string            `json:"stack_filter,omitempty"`
+	ModuleFilter     string            `json:"module_filter,omitempty"`
+	GitHead          string            `json:"git_head,omitempty"`
+	MatrixSHA256     string            `json:"matrix_sha256,omitempty"`
+	ProvenanceDigest string            `json:"provenance_digest,omitempty"`
+	ScopeProvenance  map[string]string `json:"scope_provenance,omitempty"`
 	// Outcome semantics (R3): fail = required check failed; partial =
 	// tolerated (optional or infra-only) failures; pass = everything green.
 	Outcome string        `json:"outcome"`
