@@ -156,7 +156,7 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdCheck(root, args, stdout, stderr)
-	case "review", "review-check", "closeout-check", "close", "continuous-closeout", "artifact-check", "artifact-backfill", "surface-check", "roadmap-check":
+	case "review", "review-plan", "review-check", "closeout-check", "close", "continuous-closeout", "artifact-check", "artifact-backfill", "surface-check", "roadmap-check":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
@@ -165,6 +165,8 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 		switch cmd {
 		case "review":
 			return cmdReview(root, args, stdout, stderr)
+		case "review-plan":
+			return cmdReviewPlan(root, args, stdout, stderr)
 		case "review-check":
 			return cmdReviewCheck(root, args, stdout, stderr)
 		case "closeout-check":
@@ -345,6 +347,7 @@ Deterministic gates:
   artifact-check | surface-check | roadmap-check
 
 Governed closeout:
+  review-plan <scope> [--explain]     Resolve component-aware criteria and tools
   review record <scope> [...]           Record an immutable review attempt
   close <scope>                         Apply a review-gated lifecycle transition
   continuous-closeout <action>          Persist and project a terminal scope
@@ -401,6 +404,7 @@ Gates determinísticos:
   artifact-check | surface-check | roadmap-check
 
 Fechamento governado:
+  review-plan <escopo> [--explain]     Resolve critérios e ferramentas por componente
   review record <escopo> [...]          Registra tentativa imutável de review
   close <escopo>                        Aplica transição de ciclo de vida governada
   continuous-closeout <ação>            Persiste e projeta um escopo terminal

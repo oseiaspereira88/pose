@@ -92,3 +92,28 @@ func TestContinuousCloseoutPersistsTerminalScopeAndRefusesEarlyCompletion(t *tes
 		t.Fatalf("early completion removed selection: %v", err)
 	}
 }
+
+func TestReviewPlanCLIProjectsJSONAndPinsReviewRecord(t *testing.T) {
+	root := closeoutCLIFixture(t)
+	var out, errOut bytes.Buffer
+	if code := cmdReviewPlan(root, []string{"spec:alpha", "--json", "--explain"}, &out, &errOut); code != 0 {
+		t.Fatalf("review-plan code=%d err=%s", code, errOut.String())
+	}
+	var plan posemodel.ReviewPlan
+	if err := json.Unmarshal(out.Bytes(), &plan); err != nil {
+		t.Fatal(err)
+	}
+	if plan.Scope != "spec:alpha" || plan.PlanDigest == "" || len(plan.Criteria) != 1 || !strings.Contains(strings.Join(plan.Tools[0].Args, " "), "pose") {
+		t.Fatalf("unexpected review plan: %+v", plan)
+	}
+	out.Reset()
+	args := []string{"spec:alpha", "--reviewer", "agent:review-pass", "--decision", "approved", "--evidence", "check:unit", "--plan-digest", "sha256:stale"}
+	if code := cmdReviewRecord(root, args, &out, &errOut); code != 1 || !strings.Contains(errOut.String(), "current is "+plan.PlanDigest) {
+		t.Fatalf("stale plan pin was accepted: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	errOut.Reset()
+	args[len(args)-1] = plan.PlanDigest
+	if code := cmdReviewRecord(root, args, &out, &errOut); code != 0 || !strings.Contains(out.String(), "review.plan_digest="+plan.PlanDigest) {
+		t.Fatalf("current plan pin failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+}

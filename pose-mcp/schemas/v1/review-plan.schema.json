@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pose.dev/schemas/v1/review-plan.schema.json",
+  "title": "POSE effective review plan",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "scope", "scope_digest", "plan_digest", "policy_schema_version", "base_profile", "components", "selected_profiles", "criteria", "tools", "independence", "explain"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "scope": {"type": "string", "pattern": "^(spec|roadmap):[a-z0-9][a-z0-9._-]*$|^milestone:[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$"},
+    "scope_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "plan_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "policy_schema_version": {"type": "integer", "minimum": 1, "maximum": 2},
+    "base_profile": {"type": "string"},
+    "components": {"type": "array", "items": {"$ref": "#/$defs/component"}},
+    "selected_profiles": {"type": "array", "items": {"$ref": "#/$defs/profile"}},
+    "criteria": {"type": "array", "items": {"$ref": "#/$defs/criterion"}},
+    "tools": {"type": "array", "items": {"$ref": "#/$defs/tool"}},
+    "independence": {"enum": ["same-actor-separate-execution", "different-actor", "mandatory-human"]},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "explain": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "component": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "path", "sources"],
+      "properties": {
+        "id": {"type": "string"}, "path": {"type": "string"}, "kind": {"type": "string"},
+        "language": {"type": "string"}, "domain": {"type": "string"}, "owner": {"type": "string"},
+        "criticality": {"type": "string"}, "validation_profile": {"type": "string"},
+        "metadata_status": {"type": "string"}, "sources": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "profile": {
+      "type": "object", "additionalProperties": true,
+      "required": ["ref", "category", "order", "source", "rationale"],
+      "properties": {"ref": {"type": "string"}, "category": {"type": "string"}, "order": {"type": "integer"}, "source": {"type": "string"}, "components": {"type": "array", "items": {"type": "string"}}, "rationale": {"type": "string"}}
+    },
+    "criterion": {
+      "type": "object", "additionalProperties": true,
+      "required": ["id", "description", "required", "profiles"],
+      "properties": {"id": {"type": "string"}, "description": {"type": "string"}, "required": {"type": "boolean"}, "rules": {"type": "array", "items": {"type": "string"}}, "evidence_classes": {"type": "array", "items": {"type": "string"}}, "profiles": {"type": "array", "items": {"type": "string"}}}
+    },
+    "tool": {
+      "type": "object", "additionalProperties": true,
+      "required": ["id", "requiredness", "args", "rationale"],
+      "properties": {"id": {"type": "string"}, "requiredness": {"enum": ["recommended", "required"]}, "args": {"type": "array", "items": {"type": "string"}}, "rationale": {"type": "string"}, "evidence_classes": {"type": "array", "items": {"type": "string"}}, "criteria": {"type": "array", "items": {"type": "string"}}, "component": {"type": "string"}, "preconditions": {"type": "array", "items": {"type": "string"}}}
+    }
+  }
+}

@@ -1,5 +1,5 @@
 ---
-spec:
+spec: pose-component-aware-review-plans
 category: fixed
 breaking: false
 refs:

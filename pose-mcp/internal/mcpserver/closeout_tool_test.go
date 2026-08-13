@@ -23,3 +23,25 @@ func TestCloseoutStateToolRejectsMissingAndTraversalScope(t *testing.T) {
 		}
 	}
 }
+
+func TestReviewPlanToolUsesTheSameProjectScopedProjection(t *testing.T) {
+	ts := newTestServer(t, "")
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":93,"method":"tools/call","params":{"name":"pose_review_plan","arguments":{"scope":"spec:alpha"}}}`)
+	if out.Error != nil || out.Result["isError"] != false {
+		t.Fatalf("review plan tool failed: error=%+v result=%v", out.Error, out.Result)
+	}
+	structured, _ := out.Result["structuredContent"].(map[string]any)
+	if structured["scope"] != "spec:alpha" || structured["plan_digest"] == "" || structured["base_profile"] != "spec-closeout@1" {
+		t.Fatalf("unexpected review plan projection: %v", structured)
+	}
+}
+
+func TestReviewPlanToolRejectsMissingAndTraversalScope(t *testing.T) {
+	ts := newTestServer(t, "")
+	for _, arguments := range []string{`{}`, `{"scope":"spec:../../etc"}`} {
+		_, out := post(t, ts, `{"jsonrpc":"2.0","id":94,"method":"tools/call","params":{"name":"pose_review_plan","arguments":`+arguments+`}}`)
+		if out.Error != nil || out.Result["isError"] != true {
+			t.Fatalf("arguments %s did not fail closed: error=%+v result=%v", arguments, out.Error, out.Result)
+		}
+	}
+}

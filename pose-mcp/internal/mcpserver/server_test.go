@@ -73,6 +73,8 @@ func newTestServer(t *testing.T, token string) *httptest.Server {
 	write(".pose/knowledge/handbook.md", "---\nslug: handbook\ntype: handoff\nowner: @platform\nsensitivity: public-internal\ncreated_at: 2026-06-01\n---\n\n# Handbook\n\nTeam processes.\n")
 	write(".pose/reports/history/standard-feature.jsonl", `{"generated_at":"2026-06-11T12:00:00Z","task":"feature","task_slug":"alpha","workflow":"feature","context":"ci","report_path":"/abs/path/to/2026-06-11-standard-feature.md","outcome":"pass"}`)
 	write(".pose/reports/2026-06-11-standard-feature.md", "# Report Feature\nPassed standard validation.")
+	write(".pose/policy/review.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"}}`)
+	write(".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
 
 	ts := httptest.NewServer(New(pose.Store{Root: root}).Handler(token, ""))
 	t.Cleanup(ts.Close)
@@ -148,8 +150,8 @@ func TestToolsList(t *testing.T) {
 	ts := newTestServer(t, "")
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}`)
 	tools, _ := out.Result["tools"].([]any)
-	if len(tools) != 48 {
-		t.Fatalf("tools = %d, want 48", len(tools))
+	if len(tools) != 49 {
+		t.Fatalf("tools = %d, want 49", len(tools))
 	}
 	names := map[string]bool{}
 	for _, raw := range tools {
@@ -160,7 +162,7 @@ func TestToolsList(t *testing.T) {
 		}
 	}
 	for _, want := range []string{"pose_get_spec", "pose_list_specs", "pose_spec_readiness",
-		"pose_list_roadmaps", "pose_get_roadmap", "pose_get_changelog", "pose_release_status", "pose_closeout_state", "pose_delivery_integrity",
+		"pose_list_roadmaps", "pose_get_roadmap", "pose_get_changelog", "pose_release_status", "pose_closeout_state", "pose_review_plan", "pose_delivery_integrity",
 		"pose_suggest", "pose_get_workflow", "pose_get_rules", "pose_insights", "pose_usage", "pose_get_followups", "pose_check",
 		"pose_lint_spec", "pose_list_knowledge", "pose_get_knowledge", "pose_list_reports",
 		"pose_get_report"} {

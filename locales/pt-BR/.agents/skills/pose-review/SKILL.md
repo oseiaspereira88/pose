@@ -20,31 +20,36 @@ Fluxo POSE para revisão técnica de PR ou diff local.
 ## Steps
 
 1. Identificar o tipo da mudança: feature | bugfix | refactor | doc | misto.
-2. Selecionar rules aplicáveis para o escopo. Use:
+2. Resolver `pose review-plan <escopo> --explain`; parar em blockers e reter o `plan_digest`.
+3. Executar as tools obrigatórias na ordem do plano e registrar por que cada recomendada foi usada ou dispensada.
+4. Selecionar rules aplicáveis para cada componente. Use:
    ```bash
-   pose suggest <tipo> --path <dir-afetado>
+   pose suggest review --path <dir-afetado>
    ```
-3. Consultar `.pose/knowledge/` por decision-logs prévios sobre o módulo (risco já aceito, follow-up pendente, gatilho de revisão):
+5. Consultar `.pose/knowledge/` por decision-logs prévios sobre o módulo (risco já aceito, follow-up pendente, gatilho de revisão):
    ```bash
    find .pose/knowledge -name "*<modulo>*.md" -type f -not -path '*/archive/*'
    ```
-4. Exigir evidência de `pose validate` proporcional ao risco. Se ausente, bloquear até execução.
-5. Avaliar nas dimensões: correção funcional, contratos públicos, segurança, observabilidade, performance, regressão.
-6. Classificar findings por severidade (`crítico | alto | médio | baixo`) com evidência e ação esperada por item.
-7. Verificar se há sinal de recorrência sistêmica:
+6. Exigir evidência de `pose validate` proporcional ao risco. Se ausente, bloquear até execução.
+7. Avaliar nas dimensões: correção funcional, contratos públicos, segurança, observabilidade, performance, regressão.
+8. Classificar findings por severidade (`crítico | alto | médio | baixo`) com evidência e ação esperada por item.
+9. Verificar se há sinal de recorrência sistêmica:
    ```bash
    pose recurrence-check --tolerant --window-days 14
    ```
    Se flagged no mesmo escopo do PR, use o skill `pose-recurrence-escalation` em vez de só comentar no PR.
-8. Quando aceitar risco residual, condicionar merge a monitoramento ou postergar ação, criar handoff:
+10. Quando aceitar risco residual, condicionar merge a monitoramento ou postergar ação, criar handoff:
    ```bash
    pose new-knowledge handoff review-<pr-slug> --owner @<squad>
    ```
-9. Emitir decisão final: **aprovado | aprovado com ressalvas | reprovado**.
+11. Avaliar todos os critérios obrigatórios, inclusive fronteiras entre componentes.
+12. Registrar com `pose review record <escopo> ... --plan-digest <sha256> --apply` e rodar `pose review-check <escopo>`.
+13. Emitir decisão final: **aprovado | aprovado com ressalvas | reprovado**.
 
 ## Output requirements
 
 - Parecer com seção "Rules aplicadas no review" preenchida (template em `workflows/review.md`).
+- Digest do plano efetivo e disposição das tools obrigatórias e recomendadas.
 - Findings por severidade com ação esperada.
 - Decisão final clara e acionável.
 - Handoff opcional quando há risco residual aceito.

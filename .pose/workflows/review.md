@@ -13,22 +13,23 @@ Verify that a change is correct, production-safe, and aligned with its approved 
 
 ## Execution checklist
 
-1. Confirm the objective and approved scope.
-2. Select applicable rules explicitly and record them in the review.
-3. Resolve rule conflicts with the most restrictive option, prioritizing security for exposure, authorization, and integrity risks.
-4. Consult `.pose/knowledge/` for relevant handoffs, accepted risks, follow-ups, and decision logs.
-5. Check compliance with specs, contracts, and local instructions.
-6. Review functional correctness and edge cases.
-7. Evaluate security, observability, and performance risks.
-8. Require validation evidence from `.pose/indexes/validation-matrix.json` proportional to risk.
-9. Identify regression and rollout or rollback risks.
-10. **Run `pose assess tech-debt`** (`pose_tech_debt_check`): inspect whether the diff introduced markers (`TODO`, `FIXME`, `stub`, `panic`) without coverage by follow-up or spec.
-11. **Run `pose assess integrate`** (`pose_integration_check`): verify whether the change broke inter-component integration contracts or introduced new gaps.
-12. Classify findings by severity and propose objective actions.
-13. **Produce a handoff** in `.pose/knowledge/` when findings result in accepted risk, post-merge monitoring, or deferred work (`pose new-knowledge handoff <slug>`); link it from the review.
-14. Issue a final decision: approved, approved with reservations, or rejected.
-15. Record the decision against the canonical scope digest with `pose review record <scope> ... --apply`.
-16. Run `pose review-check <scope>` and reject stale, incomplete or conflicting attempts.
+1. Resolve `pose review-plan <scope> --explain` (or `pose_review_plan`) and stop on blockers.
+2. Confirm the objective, approved scope, mapped components and `plan_digest`.
+3. Follow required tools in plan order; evaluate recommended tools explicitly without treating non-use as a blocker.
+4. Select the plan's applicable rules explicitly and record them in the review.
+5. Resolve rule conflicts with the most restrictive option, prioritizing security for exposure, authorization, and integrity risks.
+6. Consult `.pose/knowledge/` for relevant handoffs, accepted risks, follow-ups, and decision logs.
+7. Check compliance with specs, contracts, and local instructions.
+8. Review functional correctness and edge cases.
+9. Evaluate security, observability, and performance risks.
+10. Require validation evidence from `.pose/indexes/validation-matrix.json` proportional to risk.
+11. Identify regression and rollout or rollback risks.
+12. Run plan-selected assessments, including tech-debt and integration when applicable.
+13. Classify findings by severity and propose objective actions.
+14. **Produce a handoff** in `.pose/knowledge/` when findings result in accepted risk, post-merge monitoring, or deferred work (`pose new-knowledge handoff <slug>`); link it from the review.
+15. Issue a final decision: approved, approved with reservations, or rejected.
+16. Record the decision with the inspected digest: `pose review record <scope> ... --plan-digest <sha256> --apply`.
+17. Run `pose review-check <scope>` and reject stale, incomplete or conflicting attempts.
 
 ## Required rule selection
 
@@ -100,6 +101,7 @@ Attach this section to the review:
 ## Required outputs
 
 - A review decision with rationale.
+- The inspected effective plan, its component provenance and tool dispositions.
 - An immutable review attempt whose digest matches the reviewed scope.
 - A completed rule-selection section.
 - Findings with severity, evidence, and recommendation.

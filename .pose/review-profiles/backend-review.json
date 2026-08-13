@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "backend-review",
+  "version": 1,
+  "scope": "spec",
+  "selectors": {"languages": ["go"]},
+  "criteria": [
+    {"id": "backend-contracts", "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.", "rules": ["backend-go"], "evidence_classes": ["contract"]},
+    {"id": "backend-input-errors", "description": "Inputs, validation failures and error paths are bounded, typed and actionable.", "rules": ["backend-go", "security"], "evidence_classes": ["test"]},
+    {"id": "backend-concurrency", "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.", "rules": ["backend-go"], "evidence_classes": ["test"]},
+    {"id": "backend-observability", "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.", "rules": ["backend-go", "security"], "evidence_classes": ["observability"]},
+    {"id": "backend-integration-impact", "description": "Providers, consumers and inter-component boundaries remain integrated.", "evidence_classes": ["integration"]}
+  ],
+  "tools": [
+    {"id": "assess-integrate", "requiredness": "recommended", "evidence_classes": ["integration"], "criteria": ["backend-contracts", "backend-integration-impact"]},
+    {"id": "validate", "requiredness": "required", "evidence_classes": ["validation"], "criteria": ["backend-input-errors", "backend-concurrency", "backend-observability"]}
+  ]
+}
