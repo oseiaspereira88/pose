@@ -25,16 +25,17 @@ delivery provenance, not code.
 
 ## Current state
 
-- Review attempt is recorded, digest-bound (`review.fresh=true`) and blocks
-  closeout with three open findings.
-- `provenance-gap` (high, open): the implementation commits carry no
-  `POSE-Spec:` trailers and no attributed Git change-set range, so
-  `delivery-integrity.json` holds 52 claims but 0 change sets for the spec.
-  `artifact-check --strict` and `surface-check --strict` fail with 52
-  `action-mismatch` findings already visible in the committed index.
-- `reconciliation-claim-drift` (medium, open): the PR description claims
-  "43 declared / 43 observed" while the committed index shows 52 mismatches;
-  reconciliation must be re-run after the evidence commits.
+- Remediation executed on 2026-08-13: every implementation commit carries the
+  `POSE-Spec: pose-component-aware-review-plans` trailer, change set
+  `cs-f16aa75f2706` (`range:dbee77a2..73ebafb`, 52 paths / 6 commits) is
+  recorded, the integrity index was regenerated and the delivery validation
+  evidence was rebound to provenance digest `sha256:06a1889c…`.
+- `artifact-check --strict` (explicit range) and `surface-check --strict` now
+  pass with zero error findings; `pose validate --strict --module pose-mcp`
+  is green including scaffold parity.
+- The original review attempt stays immutable with decision
+  `changes-requested`; a separate review execution must record the
+  superseding approval attempt after this remediation lands.
 - `overlay-order-text` (low, open): within-category overlay ordering sorts by
   first matched component then ref; spec R6 text says language/domain overlays
   sort by ID. Align code or spec text.
@@ -44,15 +45,10 @@ delivery provenance, not code.
 
 ## Next checks
 
-- Record attributed change-set evidence for the implementation range, e.g.
-  `pose report --change-from <origin/main-base> --change-to <impl-commit>`
-  with spec attribution, or add `POSE-Spec:` trailers to the PR commits.
-- Regenerate `.pose/indexes/delivery-integrity.json` and re-run:
-  `pose artifact-check --spec pose-component-aware-review-plans --strict` and
-  `pose surface-check --spec pose-component-aware-review-plans --strict`.
-- Re-run `pose validate --strict --module pose-mcp --report`, then record a
-  superseding review attempt with decision `approved` (or
-  `approved-with-reservations`) and pass `pose review-check`.
+- Record a superseding review attempt (decision `approved` or
+  `approved-with-reservations`) in a separate execution and pass
+  `pose review-check spec:pose-component-aware-review-plans`.
+- Then run `pose closeout-check` and the spec closeout flow.
 
 ## Risks
 
