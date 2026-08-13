@@ -28,12 +28,13 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-7bd36066ed77
-- Selector: range:504fdf3c8de09c7136775d33829446d608561483..b734dcf71d328bcaacf39d3d23bc023c80d108eb
+- ID: cs-a66dff67374b
+- Selector: range:504fdf3c8de09c7136775d33829446d608561483..38cc0849dafa4bf0694af71611395660cf245d39
 - Base: 504fdf3c8de09c7136775d33829446d608561483 (504fdf3c8de09c7136775d33829446d608561483)
-- Head: b734dcf71d328bcaacf39d3d23bc023c80d108eb (b734dcf71d328bcaacf39d3d23bc023c80d108eb)
-- Diff digest: sha256:9ecfcbf357b719bedd010d560f5296703aa545bf36428d2495b4d46c52984d58
+- Head: 38cc0849dafa4bf0694af71611395660cf245d39 (38cc0849dafa4bf0694af71611395660cf245d39)
+- Diff digest: sha256:d938cbe386955d44a3c6db0c79eca426609b2a6b3808226fb0ae3a459081e583
 - Paths:
+  - created: .pose/reviews/rvw-20260813T151403Z-93bc61c6.md
   - modified: .pose/assessments/README.md
   - modified: .pose/assessments/consolidated.md
   - modified: .pose/assessments/integrations.md
@@ -47,24 +48,26 @@
   - modified: .pose/results/delivery-validation.json
   - modified: .pose/specs/pose-component-aware-review-plans/spec.md
   - modified: .pose/state/components/pose-mcp.json
+  - modified: .pose/state/history.jsonl
   - modified: .pose/state/integrations.json
   - modified: .pose/state/project-state.md
+  - modified: .pose/state/refresh-log.jsonl
   - modified: .pose/state/technical-debt.json
   - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T15:02:46Z
-- Context: spec-closeout-review-remediation
+- Generated at (UTC): 2026-08-13T15:42:29Z
+- Context: spec-closeout-final-reconciliation
 - Validation profile: strict
-- Sequence for task/spec: 4
-- Stable comparison hash: 61e287b5d4fb2f78f3ca566bd22822ba4a3327ad26ce0adf644998891d117f41
+- Sequence for task/spec: 5
+- Stable comparison hash: 07e9c8e7910828506ef01ed310f17aef12aa12d1fda6153a604ec829f2c1e3c6
 
 ## Historical Comparison
-- Previous execution: 2026-08-13T14:50:19Z
+- Previous execution: 2026-08-13T15:02:46Z
 - Status: changed
 - Stable field diffs:
-- change_set: "" -> "sha256:9ecfcbf357b719bedd010d560f5296703aa545bf36428d2495b4d46c52984d58:504fdf3c8de09c7136775d33829446d608561483:b734dcf71d328bcaacf39d3d23bc023c80d108eb"
-- context: "spec-closeout" -> "spec-closeout-review-remediation"
+- change_set: "" -> "sha256:d938cbe386955d44a3c6db0c79eca426609b2a6b3808226fb0ae3a459081e583:504fdf3c8de09c7136775d33829446d608561483:38cc0849dafa4bf0694af71611395660cf245d39"
+- context: "spec-closeout-review-remediation" -> "spec-closeout-final-reconciliation"
 
 ## Risks
 - high
