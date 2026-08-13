@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-11T01:13:35Z
-baseline_commit: e110a5d9334111e6221d9a8385a9681186684cdf
+generated_at: 2026-08-13T16:01:50Z
+baseline_commit: 12e58f39b91176bcddc52f4fbb577c066b3ee4c5
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:a443296c9e67 -->
+<!-- state:derived hash:d2235909d95a -->
 
-- specs: total=89 draft=0 in-progress=0 blocked=0 done=89 superseded=0 abandoned=0
+- specs: total=90 draft=0 in-progress=0 blocked=0 done=90 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-component-aware-review-plans (2026-08-13)
   - spec:pose-managed-doc-project-identity-regression (2026-08-11)
   - spec:pose-dora-five-metrics-v2 (2026-08-11)
   - spec:pose-usage-metrics (2026-08-11)
-  - spec:pose-scaffold-exclusion-policy (2026-08-10)
-  - spec:pose-fragment-error-clarity (2026-08-10)
-  - ... e mais 84 (ver `pose_list_specs status:done`)
+  - spec:pose-skill-index-parity (2026-08-10)
+  - ... e mais 85 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:003cc85f278e -->
@@ -64,25 +64,25 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:3a5ea7f0c0c3 -->
+<!-- state:derived hash:60c6298dadcb -->
 
-- último registro: task=pose-analytics-final-closeout outcome=pass (2026-08-11T01:03:21Z)
-- últimos 30 dias: total=164 outcome_ok=114 outcome_outro=50
-- reports revisados (.md): total=93
-  - report:2026-08-11-standard-pose-analytics-final-closeout.md
-  - report:2026-08-11-standard-pose-analytics-delivery-targets.md
-  - report:2026-08-11-standard-pose-dora-five-metrics-v2.md
-  - report:2026-08-11-standard-pose-managed-doc-project-identity-regression.md
+- último registro: task=validate-native outcome=pass (2026-08-13T16:01:41Z)
+- últimos 30 dias: total=188 outcome_ok=134 outcome_outro=54
+- reports revisados (.md): total=96
+  - report:2026-08-13-standard-validate-native.md
+  - report:2026-08-13-standard-component-aware-review-provenance.md
   - report:2026-08-11-standard-pose-usage-metrics.md
+  - report:2026-08-11-standard-pose-v1-docs-audit.md
+  - report:README.md
 
 ## Arquitetura
-<!-- state:derived hash:cb25d685317d status:active -->
+<!-- state:derived hash:0cc174f5e50a status:active -->
 
-- componentes: total=1 verificados=1 completude=98.0%
-- linhas_de_codigo: producao=27505 testes=17372 total=44877
+- componentes: total=2 verificados=2 completude=99.0%
+- linhas_de_codigo: producao=29857 testes=19072 total=48929
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=1 stubs=0
-- integracoes: contratos=51 ativos=1 gaps=50
+- integracoes: contratos=52 ativos=1 gaps=51
 - divida_tecnica: total=1 coberta=0 descoberta=1
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 

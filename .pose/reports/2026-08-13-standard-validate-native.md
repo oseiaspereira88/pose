@@ -17,6 +17,8 @@
 - pose/indexes/delivery-integrity.json
 - .pose/reports/2026-08-13-standard-component-aware-review-provenance.md
 - .pose/reports/history/standard-component-aware-review-provenance.jsonl
+- .pose/results/delivery-validation.json
+- .pose/specs/pose-component-aware-review-plans/spec.md
 - pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
 
 ## Validation Commands
@@ -26,14 +28,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T07:39:04Z
+- Generated at (UTC): 2026-08-13T16:21:24Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 60
+- Sequence for task/spec: 72
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-13T03:59:58Z
+- Previous execution: 2026-08-13T16:11:24Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

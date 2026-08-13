@@ -16,14 +16,10 @@
 - backend-go
 - security
 - documentation-style
+- delivery-surface
 
 ## Files Changed
-- pose/indexes/delivery-integrity.json
-- .pose/reports/2026-08-13-standard-component-aware-review-provenance.md
-- .pose/reports/2026-08-13-standard-validate-native.md
-- .pose/reports/history/standard-validate-native.jsonl
-- .pose/results/delivery-validation.json
-- pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
+- _No files detected_
 
 ## Validation Commands
 - _Fill manually_
@@ -32,83 +28,50 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-1b9fd3fd905d
-- Selector: range:dbee77a23213b2f4b0b558d5aff474264f86789c..0eb9805d93ec628f196eda4ceffa942c414a6084
-- Base: dbee77a23213b2f4b0b558d5aff474264f86789c (dbee77a23213b2f4b0b558d5aff474264f86789c)
-- Head: 0eb9805d93ec628f196eda4ceffa942c414a6084 (0eb9805d93ec628f196eda4ceffa942c414a6084)
-- Diff digest: sha256:c619eb1c912d934c2c797f786bd8ecd6178ebf07e341bfa3c1779a21d7cc1307
+- ID: cs-94bce6d13479
+- Selector: range:504fdf3c8de09c7136775d33829446d608561483..d1d0268b44ef6ea69520068af026d5329fb80277
+- Base: 504fdf3c8de09c7136775d33829446d608561483 (504fdf3c8de09c7136775d33829446d608561483)
+- Head: d1d0268b44ef6ea69520068af026d5329fb80277 (d1d0268b44ef6ea69520068af026d5329fb80277)
+- Diff digest: sha256:1f74f58eb75ddf47fb794f2f34571d9cf3eabd4bb7b9fec7a6135a9440bd0cf6
 - Paths:
-  - created: .pose/adr/2026-08-12-component-aware-effective-review-plans.md
-  - created: .pose/changelogs/unreleased/pose-component-aware-review-plans.md
-  - created: .pose/knowledge/2026-08-13-decision-log-adr-component-aware-review-plans-review.md
-  - created: .pose/knowledge/2026-08-13-handoff-pr15-component-aware-review-provenance.md
-  - created: .pose/reports/2026-08-13-standard-component-aware-review-provenance.md
-  - created: .pose/reports/history/standard-component-aware-review-provenance.jsonl
-  - created: .pose/review-profiles/backend-review.json
-  - created: .pose/review-profiles/frontend-review.json
-  - created: .pose/reviews/rvw-20260813T032130Z-c42b8c1e.md
-  - created: .pose/reviews/rvw-20260813T063956Z-b11e7bcc.md
-  - created: pose-mcp/internal/pose/review_plan.go
-  - created: pose-mcp/internal/pose/review_plan_test.go
-  - created: pose-mcp/internal/scaffold/dist/.pose/review-profiles/backend-review.json
-  - created: pose-mcp/internal/scaffold/dist/.pose/review-profiles/frontend-review.json
-  - created: pose-mcp/schemas/v1/review-plan.schema.json
-  - modified: .agents/skills/pose-review/SKILL.md
+  - created: .pose/reviews/rvw-20260813T151403Z-93bc61c6.md
+  - modified: .pose/assessments/README.md
+  - modified: .pose/assessments/consolidated.md
   - modified: .pose/assessments/integrations.md
+  - modified: .pose/assessments/mcp-enforce.md
+  - modified: .pose/assessments/pose-mcp.md
+  - modified: .pose/assessments/technical-debt.md
   - modified: .pose/indexes/delivery-integrity.json
-  - modified: .pose/indexes/releases.json
-  - modified: .pose/indexes/repo-map.json
   - modified: .pose/indexes/spec-graph.json
-  - modified: .pose/policy/review.json
+  - modified: .pose/reports/2026-08-13-standard-component-aware-review-provenance.md
   - modified: .pose/reports/2026-08-13-standard-validate-native.md
+  - modified: .pose/reports/history/standard-component-aware-review-provenance.jsonl
   - modified: .pose/reports/history/standard-validate-native.jsonl
   - modified: .pose/results/delivery-validation.json
-  - modified: .pose/review-profiles/spec-closeout.json
   - modified: .pose/specs/pose-component-aware-review-plans/spec.md
+  - modified: .pose/state/components/mcp-enforce.json
+  - modified: .pose/state/components/pose-mcp.json
+  - modified: .pose/state/history.jsonl
   - modified: .pose/state/integrations.json
-  - modified: .pose/workflows/review.md
-  - modified: POSE.md
-  - modified: docs-site/docs/mcp.md
-  - modified: locales/pt-BR/.agents/skills/pose-review/SKILL.md
-  - modified: locales/pt-BR/.pose/workflows/review.md
-  - modified: locales/pt-BR/POSE.md
-  - modified: pose-mcp/internal/cli/cli.go
-  - modified: pose-mcp/internal/cli/review_closeout.go
-  - modified: pose-mcp/internal/cli/review_closeout_test.go
-  - modified: pose-mcp/internal/mcpserver/catalog.go
-  - modified: pose-mcp/internal/mcpserver/closeout_tool_test.go
-  - modified: pose-mcp/internal/mcpserver/server.go
-  - modified: pose-mcp/internal/mcpserver/server_test.go
-  - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
-  - modified: pose-mcp/internal/pose/review_closeout.go
-  - modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md
+  - modified: .pose/state/project-state.md
+  - modified: .pose/state/refresh-log.jsonl
+  - modified: .pose/state/technical-debt.json
   - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
-  - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
-  - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/repo-map.json
   - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
-  - modified: pose-mcp/internal/scaffold/dist/.pose/policy/review.json
-  - modified: pose-mcp/internal/scaffold/dist/.pose/review-profiles/spec-closeout.json
-  - modified: pose-mcp/internal/scaffold/dist/.pose/workflows/review.md
-  - modified: pose-mcp/internal/scaffold/dist/POSE.md
-  - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md
-  - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/review.md
-  - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
-  - modified: pose-mcp/schemas/README.md
-  - removed: .pose/changelogs/unreleased/review-legacy-done-scope-exemption.md
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T07:43:24Z
-- Context: review-remediation
+- Generated at (UTC): 2026-08-13T16:19:58Z
+- Context: spec-closeout-approved-head
 - Validation profile: strict
-- Sequence for task/spec: 2
-- Stable comparison hash: 0059d1ef1d7ae12f0c8992a85f135e21d176d74f54c49cf927a399044057b27f
+- Sequence for task/spec: 9
+- Stable comparison hash: 584dd3df59b95c9d24dbf968a4a3912a4460af516a37253b51e3c06941c05403
 
 ## Historical Comparison
-- Previous execution: 2026-08-13T03:54:35Z
+- Previous execution: 2026-08-13T16:09:20Z
 - Status: changed
 - Stable field diffs:
-- change_set: "" -> "sha256:c619eb1c912d934c2c797f786bd8ecd6178ebf07e341bfa3c1779a21d7cc1307:dbee77a23213b2f4b0b558d5aff474264f86789c:0eb9805d93ec628f196eda4ceffa942c414a6084"
-- rules: "" -> "backend-go,security,documentation-style"
+- change_set: "" -> "sha256:1f74f58eb75ddf47fb794f2f34571d9cf3eabd4bb7b9fec7a6135a9440bd0cf6:504fdf3c8de09c7136775d33829446d608561483:d1d0268b44ef6ea69520068af026d5329fb80277"
+- context: "spec-closeout-reviewed-head" -> "spec-closeout-approved-head"
 
 ## Risks
 - high
