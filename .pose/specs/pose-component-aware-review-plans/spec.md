@@ -193,6 +193,8 @@ This scope was requested in
 - `adr:2026-08-12-component-aware-effective-review-plans` ratifies typed
   overlays, deterministic composition, the closed tool catalog and schema-v1
   migration.
+- `knowledge:pr15-component-aware-review-provenance` records the remediation
+  evidence and the independent-review handoff for PR #15.
 
 ### Artifacts
 - modified: .pose/specs/pose-component-aware-review-plans/spec.md

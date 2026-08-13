@@ -13,10 +13,17 @@
 - Outcome: pass (source: manual)
 
 ## Rules Applied
-- _Not provided_
+- backend-go
+- security
+- documentation-style
 
 ## Files Changed
-- _No files detected_
+- pose/indexes/delivery-integrity.json
+- .pose/reports/2026-08-13-standard-component-aware-review-provenance.md
+- .pose/reports/2026-08-13-standard-validate-native.md
+- .pose/reports/history/standard-validate-native.jsonl
+- .pose/results/delivery-validation.json
+- pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
 
 ## Validation Commands
 - _Fill manually_
@@ -25,17 +32,22 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-f16aa75f2706
-- Selector: range:dbee77a2..73ebafb
-- Base: dbee77a2 (dbee77a23213b2f4b0b558d5aff474264f86789c)
-- Head: 73ebafb (73ebafbfd8230b4a205432a4cd03834417652c2a)
-- Diff digest: sha256:13a993f07d5a8e8cdfcde61f675ceb49fd9f2f63800c0baab5ad46ef60ae08e9
+- ID: cs-1b9fd3fd905d
+- Selector: range:dbee77a23213b2f4b0b558d5aff474264f86789c..0eb9805d93ec628f196eda4ceffa942c414a6084
+- Base: dbee77a23213b2f4b0b558d5aff474264f86789c (dbee77a23213b2f4b0b558d5aff474264f86789c)
+- Head: 0eb9805d93ec628f196eda4ceffa942c414a6084 (0eb9805d93ec628f196eda4ceffa942c414a6084)
+- Diff digest: sha256:c619eb1c912d934c2c797f786bd8ecd6178ebf07e341bfa3c1779a21d7cc1307
 - Paths:
   - created: .pose/adr/2026-08-12-component-aware-effective-review-plans.md
   - created: .pose/changelogs/unreleased/pose-component-aware-review-plans.md
   - created: .pose/knowledge/2026-08-13-decision-log-adr-component-aware-review-plans-review.md
+  - created: .pose/knowledge/2026-08-13-handoff-pr15-component-aware-review-provenance.md
+  - created: .pose/reports/2026-08-13-standard-component-aware-review-provenance.md
+  - created: .pose/reports/history/standard-component-aware-review-provenance.jsonl
   - created: .pose/review-profiles/backend-review.json
   - created: .pose/review-profiles/frontend-review.json
+  - created: .pose/reviews/rvw-20260813T032130Z-c42b8c1e.md
+  - created: .pose/reviews/rvw-20260813T063956Z-b11e7bcc.md
   - created: pose-mcp/internal/pose/review_plan.go
   - created: pose-mcp/internal/pose/review_plan_test.go
   - created: pose-mcp/internal/scaffold/dist/.pose/review-profiles/backend-review.json
@@ -85,20 +97,21 @@
   - removed: .pose/changelogs/unreleased/review-legacy-done-scope-exemption.md
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T03:54:35Z
+- Generated at (UTC): 2026-08-13T07:43:24Z
 - Context: review-remediation
 - Validation profile: strict
-- Sequence for task/spec: 1
-- Stable comparison hash: 698bcc953ec8ee3dc18b79fb74fdd5bedb2b56ba6f00c5c71412011555b6e1db
+- Sequence for task/spec: 2
+- Stable comparison hash: 0059d1ef1d7ae12f0c8992a85f135e21d176d74f54c49cf927a399044057b27f
 
 ## Historical Comparison
-- Previous execution: _No previous execution_
-- Status: first-run
+- Previous execution: 2026-08-13T03:54:35Z
+- Status: changed
 - Stable field diffs:
-- _No changes in stable fields_
+- change_set: "" -> "sha256:c619eb1c912d934c2c797f786bd8ecd6178ebf07e341bfa3c1779a21d7cc1307:dbee77a23213b2f4b0b558d5aff474264f86789c:0eb9805d93ec628f196eda4ceffa942c414a6084"
+- rules: "" -> "backend-go,security,documentation-style"
 
 ## Risks
-- _No risks provided_
+- high
 
 ## Follow-ups
 - _Add next steps if needed._
