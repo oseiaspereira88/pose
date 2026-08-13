@@ -505,9 +505,9 @@ read-only mode and assert that plan resolution creates no files or processes.
 - 2026-08-13, post-merge closeout: PR #16 review identified successive
   provenance gaps after the preparation, approval, state-refresh and mandatory
   assessment and post-closeout discovery commits. Append-only change set
-  `cs-dede4700477b` supersedes the intermediate records and covers the exact
+  `cs-94bce6d13479` supersedes the intermediate records and covers the exact
   24-path retained branch range
-  `504fdf3c8de09c7136775d33829446d608561483..ca851a18f9c7e3a752985d9f9bfe783307ba4733`.
+  `504fdf3c8de09c7136775d33829446d608561483..d1d0268b44ef6ea69520068af026d5329fb80277`.
   The branch also retains the provider merge object `b9807d2` as ancestry, so
   both the independently reviewed merge content and final discovery baseline
   remain reproducible after the transient provider ref moves.
@@ -610,8 +610,8 @@ independent review through PR #16, and guarded lifecycle closeout completed on
   structured delivery evidence for the implementation commit.
 - Artifact reconciliation at the implementation commit: all declared change
   paths matched the observed range; repository-wide orphan warnings remain.
-- Closeout reconciliation: `cs-dede4700477b` matches all 24 paths through the
-  retained, independently reviewed commit `ca851a18f9c7e3a752985d9f9bfe783307ba4733`;
+- Closeout reconciliation: `cs-94bce6d13479` matches all 24 paths through the
+  retained, independently reviewed commit `d1d0268b44ef6ea69520068af026d5329fb80277`;
   the append-only correction preserves every prior intermediate change set and
   the reviewed PR merge object in branch ancestry.
 - PR #15 merge commit `504fdf3c8de09c7136775d33829446d608561483`

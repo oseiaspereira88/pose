@@ -28,11 +28,11 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-dede4700477b
-- Selector: range:504fdf3c8de09c7136775d33829446d608561483..ca851a18f9c7e3a752985d9f9bfe783307ba4733
+- ID: cs-94bce6d13479
+- Selector: range:504fdf3c8de09c7136775d33829446d608561483..d1d0268b44ef6ea69520068af026d5329fb80277
 - Base: 504fdf3c8de09c7136775d33829446d608561483 (504fdf3c8de09c7136775d33829446d608561483)
-- Head: ca851a18f9c7e3a752985d9f9bfe783307ba4733 (ca851a18f9c7e3a752985d9f9bfe783307ba4733)
-- Diff digest: sha256:afb4cbd57ddfd8aa4f39a3ee89079963a26a95e5abefa8232431adb6e9822755
+- Head: d1d0268b44ef6ea69520068af026d5329fb80277 (d1d0268b44ef6ea69520068af026d5329fb80277)
+- Diff digest: sha256:1f74f58eb75ddf47fb794f2f34571d9cf3eabd4bb7b9fec7a6135a9440bd0cf6
 - Paths:
   - created: .pose/reviews/rvw-20260813T151403Z-93bc61c6.md
   - modified: .pose/assessments/README.md
@@ -60,18 +60,18 @@
   - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T16:09:20Z
-- Context: spec-closeout-reviewed-head
+- Generated at (UTC): 2026-08-13T16:19:58Z
+- Context: spec-closeout-approved-head
 - Validation profile: strict
-- Sequence for task/spec: 8
-- Stable comparison hash: 7bf1ccbdb0616ce6da022a3f19f8c2c59813740ae46f745f22c46f8cedcf9b7b
+- Sequence for task/spec: 9
+- Stable comparison hash: 584dd3df59b95c9d24dbf968a4a3912a4460af516a37253b51e3c06941c05403
 
 ## Historical Comparison
-- Previous execution: 2026-08-13T16:00:31Z
+- Previous execution: 2026-08-13T16:09:20Z
 - Status: changed
 - Stable field diffs:
-- change_set: "" -> "sha256:afb4cbd57ddfd8aa4f39a3ee89079963a26a95e5abefa8232431adb6e9822755:504fdf3c8de09c7136775d33829446d608561483:ca851a18f9c7e3a752985d9f9bfe783307ba4733"
-- context: "spec-closeout-retained-ancestry" -> "spec-closeout-reviewed-head"
+- change_set: "" -> "sha256:1f74f58eb75ddf47fb794f2f34571d9cf3eabd4bb7b9fec7a6135a9440bd0cf6:504fdf3c8de09c7136775d33829446d608561483:d1d0268b44ef6ea69520068af026d5329fb80277"
+- context: "spec-closeout-reviewed-head" -> "spec-closeout-approved-head"
 
 ## Risks
 - high
