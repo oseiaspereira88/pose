@@ -76,13 +76,13 @@ capacidade.
   - report:2026-08-11-standard-pose-usage-metrics.md
 
 ## Arquitetura
-<!-- state:derived hash:cb25d685317d status:active -->
+<!-- state:derived hash:5bc14f303fe9 status:active -->
 
 - componentes: total=1 verificados=1 completude=98.0%
-- linhas_de_codigo: producao=27505 testes=17372 total=44877
+- linhas_de_codigo: producao=28987 testes=18043 total=47030
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=1 stubs=0
-- integracoes: contratos=51 ativos=1 gaps=50
+- integracoes: contratos=52 ativos=1 gaps=51
 - divida_tecnica: total=1 coberta=0 descoberta=1
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 

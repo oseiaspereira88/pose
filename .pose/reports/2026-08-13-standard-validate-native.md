@@ -14,10 +14,13 @@
 - _Not provided_
 
 ## Files Changed
-- pose/indexes/delivery-integrity.json
-- .pose/reports/2026-08-13-standard-component-aware-review-provenance.md
-- .pose/reports/history/standard-component-aware-review-provenance.jsonl
-- pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json
+- pose/assessments/README.md
+- .pose/assessments/consolidated.md
+- .pose/assessments/pose-mcp.md
+- .pose/results/delivery-validation.json
+- .pose/specs/pose-component-aware-review-plans/spec.md
+- .pose/state/components/pose-mcp.json
+- .pose/state/project-state.md
 
 ## Validation Commands
 - _Fill manually_
@@ -26,14 +29,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T07:39:04Z
+- Generated at (UTC): 2026-08-13T07:59:03Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 60
+- Sequence for task/spec: 61
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-13T03:59:58Z
+- Previous execution: 2026-08-13T07:39:04Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
