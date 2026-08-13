@@ -28,11 +28,11 @@
 - _No validation output detected_
 
 ## Change Set
-- ID: cs-b476b3c4827c
-- Selector: range:504fdf3c8de09c7136775d33829446d608561483..12e58f3
+- ID: cs-dede4700477b
+- Selector: range:504fdf3c8de09c7136775d33829446d608561483..ca851a18f9c7e3a752985d9f9bfe783307ba4733
 - Base: 504fdf3c8de09c7136775d33829446d608561483 (504fdf3c8de09c7136775d33829446d608561483)
-- Head: 12e58f3 (12e58f39b91176bcddc52f4fbb577c066b3ee4c5)
-- Diff digest: sha256:9f4748ab60fcfa6ebf8b65edd9ce8f4ce7f60451dbad4da1d197f95c1a91b20f
+- Head: ca851a18f9c7e3a752985d9f9bfe783307ba4733 (ca851a18f9c7e3a752985d9f9bfe783307ba4733)
+- Diff digest: sha256:afb4cbd57ddfd8aa4f39a3ee89079963a26a95e5abefa8232431adb6e9822755
 - Paths:
   - created: .pose/reviews/rvw-20260813T151403Z-93bc61c6.md
   - modified: .pose/assessments/README.md
@@ -60,18 +60,18 @@
   - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-13T16:00:31Z
-- Context: spec-closeout-retained-ancestry
+- Generated at (UTC): 2026-08-13T16:09:20Z
+- Context: spec-closeout-reviewed-head
 - Validation profile: strict
-- Sequence for task/spec: 7
-- Stable comparison hash: 45ffea41b33bad8d82800a9faa092f297a73cbdff13bfaf1e3545581fdc92cc3
+- Sequence for task/spec: 8
+- Stable comparison hash: 7bf1ccbdb0616ce6da022a3f19f8c2c59813740ae46f745f22c46f8cedcf9b7b
 
 ## Historical Comparison
-- Previous execution: 2026-08-13T15:53:31Z
+- Previous execution: 2026-08-13T16:00:31Z
 - Status: changed
 - Stable field diffs:
-- change_set: "" -> "sha256:9f4748ab60fcfa6ebf8b65edd9ce8f4ce7f60451dbad4da1d197f95c1a91b20f:504fdf3c8de09c7136775d33829446d608561483:12e58f39b91176bcddc52f4fbb577c066b3ee4c5"
-- context: "spec-closeout-merge-ref-reconciliation" -> "spec-closeout-retained-ancestry"
+- change_set: "" -> "sha256:afb4cbd57ddfd8aa4f39a3ee89079963a26a95e5abefa8232431adb6e9822755:504fdf3c8de09c7136775d33829446d608561483:ca851a18f9c7e3a752985d9f9bfe783307ba4733"
+- context: "spec-closeout-retained-ancestry" -> "spec-closeout-reviewed-head"
 
 ## Risks
 - high
