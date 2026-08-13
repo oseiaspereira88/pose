@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -51,6 +52,7 @@ type ReviewBundleSubjectEntry struct {
 	NewPath string `json:"new_path,omitempty"`
 	Class   string `json:"class"`
 	Digest  string `json:"digest,omitempty"`
+	Reason  string `json:"reason"`
 }
 
 type ReviewBundleSubject struct {
@@ -152,13 +154,16 @@ type ReviewAttestationEnvelope struct {
 }
 
 type ReviewBundleDelta struct {
-	FromBundle       string   `json:"from_bundle,omitempty"`
-	ToBundle         string   `json:"to_bundle"`
-	ChangedSections  []string `json:"changed_sections,omitempty"`
-	ChangedPaths     []string `json:"changed_paths,omitempty"`
-	ChangedCriteria  []string `json:"changed_criteria,omitempty"`
-	ChangedEvidence  []string `json:"changed_evidence,omitempty"`
-	ReusableCriteria []string `json:"reusable_criteria,omitempty"`
+	FromBundle             string   `json:"from_bundle,omitempty"`
+	ToBundle               string   `json:"to_bundle"`
+	ChangedComponents      []string `json:"changed_components,omitempty"`
+	ChangedSections        []string `json:"changed_sections,omitempty"`
+	ChangedPaths           []string `json:"changed_paths,omitempty"`
+	ChangedCriteria        []string `json:"changed_criteria,omitempty"`
+	ChangedEvidence        []string `json:"changed_evidence,omitempty"`
+	ChangedEvidenceClasses []string `json:"changed_evidence_classes,omitempty"`
+	ChangedFindings        []string `json:"changed_findings,omitempty"`
+	ReusableCriteria       []string `json:"reusable_criteria,omitempty"`
 }
 
 type ReviewBundleVerification struct {
@@ -319,9 +324,13 @@ func markdownLevelTwoSections(body string) map[string]string {
 func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanComponent, graph DeliveryIntegrityGraph, blockers []string) (ReviewBundleSubject, []ReviewBundleInput, []string, error) {
 	subject := ReviewBundleSubject{ChangeSets: []string{}, Entries: []ReviewBundleSubjectEntry{}}
 	excluded := []ReviewBundleInput{}
+	allowedSpecs, err := s.reviewBundleScopeSpecs(scope)
+	if err != nil {
+		return subject, excluded, blockers, err
+	}
 	sets := []ChangeSet{}
 	for _, set := range graph.ChangeSets {
-		if (scope.Kind == "spec" && set.Spec == scope.Slug) || (scope.Kind != "spec" && set.Spec != "") {
+		if allowedSpecs[set.Spec] {
 			sets = append(sets, set)
 		}
 	}
@@ -352,12 +361,17 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 			if class == "" {
 				blockers = append(blockers, "unclassified review subject path "+path)
 				entry.Class = "unclassified"
+				entry.Reason = "attributed path has no governed review classification"
 			} else {
 				entry.Class = class
+				entry.Reason = "attributed " + class + " path in the immutable change set"
 			}
 			if !include {
 				excluded = append(excluded, ReviewBundleInput{Kind: class, Path: path, Reason: "attributed path is outside the semantic review subject"})
 				continue
+			}
+			if dirty, detail := reviewBundleWorkingTreeChange(s.Root, path); dirty {
+				blockers = append(blockers, "review subject path "+path+" has working-tree-only content"+detail)
 			}
 			if include && observed.Action != "removed" {
 				digest, err := s.reviewBundleFileDigest(path)
@@ -389,6 +403,61 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 	treeRaw, _ := json.Marshal(treeEntries)
 	subject.TreeDigest = digestBytes(treeRaw)
 	return subject, sortedBundleInputs(excluded), blockers, nil
+}
+
+func (s Store) reviewBundleScopeSpecs(scope ScopeRef) (map[string]bool, error) {
+	result := map[string]bool{}
+	switch scope.Kind {
+	case "spec":
+		result[scope.Slug] = true
+	case "milestone":
+		rm, err := s.GetRoadmap(scope.Roadmap)
+		if err != nil {
+			return nil, err
+		}
+		for _, milestone := range rm.Milestones {
+			if milestone.ID == scope.Milestone {
+				for _, slug := range milestone.Specs {
+					result[slug] = true
+				}
+				return result, nil
+			}
+		}
+		return nil, fmt.Errorf("pose: milestone %s/%s not found", scope.Roadmap, scope.Milestone)
+	case "roadmap":
+		rm, err := s.GetRoadmap(scope.Slug)
+		if err != nil {
+			return nil, err
+		}
+		for _, milestone := range rm.Milestones {
+			for _, slug := range milestone.Specs {
+				result[slug] = true
+			}
+		}
+	}
+	return result, nil
+}
+
+func reviewBundleWorkingTreeChange(root, path string) (bool, string) {
+	cmd := exec.Command("git", "-C", root, "status", "--porcelain=v1", "--untracked-files=all", "--", path)
+	out, err := cmd.Output()
+	if err != nil {
+		// Unit fixtures and exported source trees may not have Git metadata. The
+		// immutable change-set gate remains authoritative there.
+		return false, ""
+	}
+	line := strings.TrimSpace(string(out))
+	if line == "" {
+		return false, ""
+	}
+	if newline := strings.IndexByte(line, '\n'); newline >= 0 {
+		line = line[:newline]
+	}
+	status := strings.TrimSpace(strings.TrimSuffix(line, path))
+	if status == "" {
+		return true, ""
+	}
+	return true, " (git status " + status + ")"
 }
 
 func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanComponent) (string, bool) {
@@ -492,12 +561,12 @@ func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph
 	return result
 }
 
-func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []string, error) {
+func (s Store) reviewBundleChildRefs(scope ScopeRef) ([]string, error) {
 	refs := []string{}
 	if scope.Kind == "milestone" {
 		rm, err := s.GetRoadmap(scope.Roadmap)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		for _, milestone := range rm.Milestones {
 			if milestone.ID == scope.Milestone {
@@ -509,11 +578,19 @@ func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []stri
 	} else if scope.Kind == "roadmap" {
 		rm, err := s.GetRoadmap(scope.Slug)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		for _, milestone := range rm.Milestones {
 			refs = append(refs, "milestone:"+rm.Slug+"/"+milestone.ID)
 		}
+	}
+	return refs, nil
+}
+
+func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []string, error) {
+	refs, err := s.reviewBundleChildRefs(scope)
+	if err != nil {
+		return nil, nil, err
 	}
 	children, blockers := []ReviewBundleChild{}, []string{}
 	for _, ref := range refs {
@@ -527,7 +604,6 @@ func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []stri
 		}
 		children = append(children, ReviewBundleChild{Scope: ref, BundleID: sealed.BundleID, BundleDigest: sealed.BundleDigest})
 	}
-	sort.Slice(children, func(i, j int) bool { return children[i].Scope < children[j].Scope })
 	return children, blockers, nil
 }
 
@@ -627,6 +703,35 @@ func (s Store) reviewAttestationsDir() string {
 	return filepath.Join(s.Root, ".pose", "review-attestations")
 }
 
+func ensureReviewArtifactDir(root, rel string, create bool) (string, error) {
+	clean, err := validateArtifactPathSyntax(rel)
+	if err != nil {
+		return "", err
+	}
+	current := root
+	for _, part := range strings.Split(filepath.Clean(clean), string(os.PathSeparator)) {
+		current = filepath.Join(current, part)
+		info, statErr := os.Lstat(current)
+		if os.IsNotExist(statErr) && create {
+			if mkdirErr := os.Mkdir(current, 0o755); mkdirErr != nil && !os.IsExist(mkdirErr) {
+				return "", mkdirErr
+			}
+			info, statErr = os.Lstat(current)
+		}
+		if statErr != nil {
+			return "", statErr
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			relPath, _ := filepath.Rel(root, current)
+			return "", fmt.Errorf("pose: refusing to follow review artifact symlink at %s", filepath.ToSlash(relPath))
+		}
+		if !info.IsDir() {
+			return "", fmt.Errorf("pose: review artifact path is not a directory: %s", filepath.ToSlash(rel))
+		}
+	}
+	return current, nil
+}
+
 // SealReviewBundle writes a prepared, unblocked bundle atomically. Replaying
 // the same payload is idempotent.
 func (s Store) SealReviewBundle(ref string, now time.Time) (ReviewBundle, error) {
@@ -640,15 +745,16 @@ func (s Store) SealReviewBundle(ref string, now time.Time) (ReviewBundle, error)
 	bundle.State = "sealed"
 	bundle.SealedAt = now.UTC().Truncate(time.Second).Format(time.RFC3339)
 	bundle.Path = filepath.ToSlash(filepath.Join(".pose", "review-bundles", bundle.BundleID+".json"))
-	path := filepath.Join(s.Root, filepath.FromSlash(bundle.Path))
+	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), true)
+	if err != nil {
+		return ReviewBundle{}, err
+	}
+	path := filepath.Join(dir, bundle.BundleID+".json")
 	if existing, readErr := s.LoadReviewBundle(bundle.BundleID); readErr == nil {
 		if existing.BundleDigest != bundle.BundleDigest {
 			return ReviewBundle{}, fmt.Errorf("pose: review bundle identity collision for %s", bundle.BundleID)
 		}
 		return existing, nil
-	}
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return ReviewBundle{}, err
 	}
 	raw, err := json.MarshalIndent(bundle, "", "  ")
 	if err != nil {
@@ -801,7 +907,11 @@ func (s Store) LoadReviewBundle(id string) (ReviewBundle, error) {
 	if !strings.HasPrefix(id, "rvb-") || len(id) != 20 {
 		return ReviewBundle{}, fmt.Errorf("pose: invalid review bundle id %q", id)
 	}
-	path := filepath.Join(s.reviewBundlesDir(), id+".json")
+	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), false)
+	if err != nil {
+		return ReviewBundle{}, err
+	}
+	path := filepath.Join(dir, id+".json")
 	var bundle ReviewBundle
 	if err := strictJSONFile(path, &bundle); err != nil {
 		return ReviewBundle{}, fmt.Errorf("pose: reading review bundle %s: %w", id, err)
@@ -818,7 +928,14 @@ func (s Store) LoadReviewBundle(id string) (ReviewBundle, error) {
 }
 
 func (s Store) ListReviewBundles(scope string) ([]ReviewBundle, error) {
-	entries, err := os.ReadDir(s.reviewBundlesDir())
+	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), false)
+	if os.IsNotExist(err) {
+		return []ReviewBundle{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	entries, err := os.ReadDir(dir)
 	if os.IsNotExist(err) {
 		return []ReviewBundle{}, nil
 	}
@@ -912,7 +1029,11 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 		return ReviewAttestation{}, fmt.Errorf("pose: invalid attestation id")
 	}
 	att.Path = filepath.ToSlash(filepath.Join(".pose", "review-attestations", att.AttestationID+".json"))
-	path := filepath.Join(s.Root, filepath.FromSlash(att.Path))
+	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), true)
+	if err != nil {
+		return ReviewAttestation{}, err
+	}
+	path := filepath.Join(dir, att.AttestationID+".json")
 	if existing, loadErr := s.LoadReviewAttestation(att.AttestationID); loadErr == nil {
 		existingRaw, _ := json.Marshal(existing)
 		candidateRaw, _ := json.Marshal(att)
@@ -920,9 +1041,6 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 			return existing, nil
 		}
 		return ReviewAttestation{}, fmt.Errorf("pose: review attestation identity collision for %s", att.AttestationID)
-	}
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return ReviewAttestation{}, err
 	}
 	raw, err := json.MarshalIndent(att, "", "  ")
 	if err != nil {
@@ -1006,7 +1124,11 @@ func (s Store) LoadReviewAttestation(id string) (ReviewAttestation, error) {
 		return ReviewAttestation{}, fmt.Errorf("pose: invalid review attestation id %q", id)
 	}
 	var att ReviewAttestation
-	path := filepath.Join(s.reviewAttestationsDir(), id+".json")
+	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), false)
+	if err != nil {
+		return ReviewAttestation{}, err
+	}
+	path := filepath.Join(dir, id+".json")
 	if err := strictJSONFile(path, &att); err != nil {
 		return ReviewAttestation{}, fmt.Errorf("pose: reading review attestation %s: %w", id, err)
 	}
@@ -1021,7 +1143,14 @@ func (s Store) LoadReviewAttestation(id string) (ReviewAttestation, error) {
 }
 
 func (s Store) ListReviewAttestations(bundleID string) ([]ReviewAttestation, error) {
-	entries, err := os.ReadDir(s.reviewAttestationsDir())
+	dir, err := ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), false)
+	if os.IsNotExist(err) {
+		return []ReviewAttestation{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	entries, err := os.ReadDir(dir)
 	if os.IsNotExist(err) {
 		return []ReviewAttestation{}, nil
 	}
@@ -1073,7 +1202,14 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 	}
 	if current == nil {
 		if len(bundles) > 0 {
-			delta := ReviewBundleDiff(bundles[len(bundles)-1], prepared)
+			previous := bundles[len(bundles)-1]
+			delta := ReviewBundleDiff(previous, prepared)
+			if attempts, listErr := s.ListReviewAttestations(previous.BundleID); listErr == nil && len(attempts) > 0 {
+				for _, finding := range attempts[len(attempts)-1].Findings {
+					delta.ChangedFindings = append(delta.ChangedFindings, finding.ID)
+				}
+				delta.ChangedFindings = uniqueSorted(delta.ChangedFindings)
+			}
 			verification.Delta = &delta
 			verification.State = "superseded"
 			verification.Blockers = append(verification.Blockers, "current semantic inputs are not represented by a sealed bundle")
@@ -1351,55 +1487,103 @@ func reviewCriterionSubjectSensitive(criterion ReviewPlanCriterion) bool {
 
 func ReviewBundleDiff(from, to ReviewBundle) ReviewBundleDelta {
 	delta := ReviewBundleDelta{FromBundle: from.BundleID, ToBundle: to.BundleID}
+	fromComponents := map[string]string{}
+	toComponents := map[string]string{}
+	for _, component := range from.Payload.Plan.Components {
+		raw, _ := json.Marshal(component)
+		fromComponents[component.ID] = digestBytes(raw)
+	}
+	for _, component := range to.Payload.Plan.Components {
+		raw, _ := json.Marshal(component)
+		toComponents[component.ID] = digestBytes(raw)
+	}
+	delta.ChangedComponents = changedReviewBundleKeys(fromComponents, toComponents)
 	fromSections := map[string]string{}
+	toSections := map[string]string{}
 	for _, input := range from.Payload.Scope.Sections {
 		fromSections[input.Path] = input.Digest
 	}
 	for _, input := range to.Payload.Scope.Sections {
-		if fromSections[input.Path] != input.Digest {
-			delta.ChangedSections = append(delta.ChangedSections, input.Path)
-		}
+		toSections[input.Path] = input.Digest
 	}
+	delta.ChangedSections = changedReviewBundleKeys(fromSections, toSections)
 	fromPaths := map[string]string{}
+	toPaths := map[string]string{}
+	pathNames := map[string]string{}
 	for _, entry := range from.Payload.Subject.Entries {
-		fromPaths[entry.Action+"\x00"+entry.Path+"\x00"+entry.NewPath] = entry.Digest
+		key := entry.Action + "\x00" + entry.Path + "\x00" + entry.NewPath
+		fromPaths[key] = entry.Digest
+		pathNames[key] = reviewBundleEntryPath(entry)
 	}
 	for _, entry := range to.Payload.Subject.Entries {
 		key := entry.Action + "\x00" + entry.Path + "\x00" + entry.NewPath
-		if fromPaths[key] != entry.Digest {
-			path := entry.Path
-			if path == "" {
-				path = entry.NewPath
-			}
-			delta.ChangedPaths = append(delta.ChangedPaths, path)
-		}
+		toPaths[key] = entry.Digest
+		pathNames[key] = reviewBundleEntryPath(entry)
+	}
+	for _, key := range changedReviewBundleKeys(fromPaths, toPaths) {
+		delta.ChangedPaths = append(delta.ChangedPaths, pathNames[key])
 	}
 	fromCriteria := map[string]string{}
+	toCriteria := map[string]string{}
 	for _, criterion := range from.Payload.Plan.Criteria {
 		fromCriteria[criterion.ID] = reviewCriterionInputDigest(from, criterion)
 	}
 	for _, criterion := range to.Payload.Plan.Criteria {
-		if fromCriteria[criterion.ID] != reviewCriterionInputDigest(to, criterion) {
-			delta.ChangedCriteria = append(delta.ChangedCriteria, criterion.ID)
-		} else {
+		toCriteria[criterion.ID] = reviewCriterionInputDigest(to, criterion)
+		if fromCriteria[criterion.ID] == toCriteria[criterion.ID] {
 			delta.ReusableCriteria = append(delta.ReusableCriteria, criterion.ID)
 		}
 	}
+	delta.ChangedCriteria = changedReviewBundleKeys(fromCriteria, toCriteria)
 	fromEvidence := map[string]string{}
+	toEvidence := map[string]string{}
+	evidenceClasses := map[string][]string{}
 	for _, evidence := range from.Payload.Evidence {
 		raw, _ := json.Marshal(evidence)
 		fromEvidence[evidence.ID] = digestBytes(raw)
+		evidenceClasses[evidence.ID] = append(evidenceClasses[evidence.ID], evidence.EvidenceClass)
 	}
 	for _, evidence := range to.Payload.Evidence {
 		raw, _ := json.Marshal(evidence)
-		if fromEvidence[evidence.ID] != digestBytes(raw) {
-			delta.ChangedEvidence = append(delta.ChangedEvidence, evidence.ID)
-		}
+		toEvidence[evidence.ID] = digestBytes(raw)
+		evidenceClasses[evidence.ID] = append(evidenceClasses[evidence.ID], evidence.EvidenceClass)
 	}
+	delta.ChangedEvidence = changedReviewBundleKeys(fromEvidence, toEvidence)
+	for _, id := range delta.ChangedEvidence {
+		delta.ChangedEvidenceClasses = append(delta.ChangedEvidenceClasses, evidenceClasses[id]...)
+	}
+	delta.ChangedComponents = uniqueSorted(delta.ChangedComponents)
 	delta.ChangedSections = uniqueSorted(delta.ChangedSections)
 	delta.ChangedPaths = uniqueSorted(delta.ChangedPaths)
 	delta.ChangedCriteria = uniqueSorted(delta.ChangedCriteria)
 	delta.ChangedEvidence = uniqueSorted(delta.ChangedEvidence)
+	delta.ChangedEvidenceClasses = uniqueSorted(delta.ChangedEvidenceClasses)
 	delta.ReusableCriteria = uniqueSorted(delta.ReusableCriteria)
 	return delta
+}
+
+func changedReviewBundleKeys(from, to map[string]string) []string {
+	keys := map[string]bool{}
+	for key, value := range from {
+		if to[key] != value {
+			keys[key] = true
+		}
+	}
+	for key, value := range to {
+		if from[key] != value {
+			keys[key] = true
+		}
+	}
+	result := make([]string, 0, len(keys))
+	for key := range keys {
+		result = append(result, key)
+	}
+	return uniqueSorted(result)
+}
+
+func reviewBundleEntryPath(entry ReviewBundleSubjectEntry) string {
+	if entry.NewPath != "" {
+		return entry.NewPath
+	}
+	return entry.Path
 }

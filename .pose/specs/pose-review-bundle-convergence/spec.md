@@ -240,6 +240,8 @@ targeted rereview.
 ### Consulted context
 - `knowledge:pr15-component-aware-review-provenance` records the independent
   review, repeated provenance corrections and required-tool enforcement.
+- `knowledge:project-agnostic-assessment-evidence` supplies the confined-root,
+  symlink and evidence-derivation invariants reused by the closeout remediation.
 - `knowledge:adr-component-aware-review-plans-review` records production
   false-staleness as an explicit review trigger.
 - `adr:2026-08-02-immutable-hierarchical-review-and-closeout-evidence` defines

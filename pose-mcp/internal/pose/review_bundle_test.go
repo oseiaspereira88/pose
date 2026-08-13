@@ -406,6 +406,102 @@ func TestReviewBundleRejectsUnclassifiedSubjectPath(t *testing.T) {
 	}
 }
 
+func TestReviewBundleRejectsWorkingTreeOnlySubjectContent(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	runStateTestGit(t, root, "init")
+	runStateTestGit(t, root, "config", "user.name", "POSE Test")
+	runStateTestGit(t, root, "config", "user.email", "pose@example.invalid")
+	runStateTestGit(t, root, "add", ".")
+	runStateTestGit(t, root, "commit", "-m", "test: seed review fixture")
+	if err := os.WriteFile(filepath.Join(root, "api/server.go"), []byte("package api\n\nfunc Ready() bool { return false }\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(strings.Join(bundle.Blockers, " "), "working-tree-only content") {
+		t.Fatalf("working-tree-only subject was sealable: blockers=%v", bundle.Blockers)
+	}
+}
+
+func TestReviewBundleMilestoneSubjectIsConfinedAndChildOrderIsDeclared(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	writeReviewFixture(t, root, "api/unrelated.go", "package api\n")
+	writeReviewFixture(t, root, ".pose/roadmaps/delivery.md", `---
+slug: delivery
+status: active
+---
+
+# Roadmap
+
+## Milestone: core
+- specs: backend, zeta
+
+## Milestone: later
+- specs: alpha
+`)
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets = append(graph.ChangeSets, ChangeSet{ID: "cs-unrelated", Spec: "unrelated", ResolvedBase: "base", ResolvedHead: "head", Paths: []ObservedPath{{Action: "created", Path: "api/unrelated.go"}}})
+	subject, _, blockers, err := store.reviewBundleSubject(ScopeRef{Kind: "milestone", Roadmap: "delivery", Milestone: "core"}, []ReviewPlanComponent{{ID: "api", Path: "api"}}, graph, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(blockers) != 0 || len(subject.ChangeSets) != 1 || subject.ChangeSets[0] != "cs-backend" {
+		t.Fatalf("milestone subject escaped declared specs: subject=%+v blockers=%v", subject, blockers)
+	}
+	refs, err := store.reviewBundleChildRefs(ScopeRef{Kind: "milestone", Roadmap: "delivery", Milestone: "core"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(refs, ",") != "spec:backend,spec:zeta" {
+		t.Fatalf("child order = %v, want declaration order", refs)
+	}
+	refs, err = store.reviewBundleChildRefs(ScopeRef{Kind: "roadmap", Slug: "delivery"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(refs, ",") != "milestone:delivery/core,milestone:delivery/later" {
+		t.Fatalf("milestone order = %v, want declaration order", refs)
+	}
+}
+
+func TestReviewBundleDeltaIncludesChangedComponentsAndEvidenceClasses(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	from, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	to := from
+	to.BundleID = "rvb-ffffffffffffffff"
+	to.Payload.Plan.Components = append([]ReviewPlanComponent{}, from.Payload.Plan.Components...)
+	to.Payload.Plan.Components[0].Owner = "@new-owner"
+	to.Payload.Evidence = append([]ReviewBundleEvidence{}, from.Payload.Evidence...)
+	to.Payload.Evidence[0].EvidenceClass = "e2e"
+	delta := ReviewBundleDiff(from, to)
+	if strings.Join(delta.ChangedComponents, ",") != from.Payload.Plan.Components[0].ID {
+		t.Fatalf("changed components = %v", delta.ChangedComponents)
+	}
+	if strings.Join(delta.ChangedEvidence, ",") != from.Payload.Evidence[0].ID || strings.Join(delta.ChangedEvidenceClasses, ",") != "e2e,integration" {
+		t.Fatalf("changed evidence = %v classes=%v", delta.ChangedEvidence, delta.ChangedEvidenceClasses)
+	}
+}
+
+func TestReviewBundleRejectsManagedDirectorySymlinkEscape(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	outside := t.TempDir()
+	link := filepath.Join(root, ".pose", "review-bundles")
+	if err := os.Symlink(outside, link); err != nil {
+		t.Skipf("symlink unavailable: %v", err)
+	}
+	if _, err := store.SealReviewBundle("spec:backend", time.Now()); err == nil || !strings.Contains(err.Error(), "refusing to follow review artifact symlink") {
+		t.Fatalf("review bundle followed managed-directory symlink: %v", err)
+	}
+}
+
 func TestReviewAttestationEnvelopeTrustPolicy(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	bundle, err := store.SealReviewBundle("spec:backend", time.Date(2026, 8, 13, 12, 0, 0, 0, time.UTC))

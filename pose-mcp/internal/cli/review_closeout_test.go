@@ -240,6 +240,14 @@ func TestReviewBundleCLISealsAttestsAndVerifies(t *testing.T) {
 	}
 	out.Reset()
 	errOut.Reset()
+	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--explain"}, &out, &errOut); code != 0 {
+		t.Fatalf("explain code=%d err=%s", code, errOut.String())
+	}
+	if text := out.String(); !strings.Contains(text, "include.subject=") || !strings.Contains(text, " class:implementation digest:sha256:") || !strings.Contains(text, " reason:attributed implementation path") {
+		t.Fatalf("subject classification missing from explain output:\n%s", text)
+	}
+	out.Reset()
+	errOut.Reset()
 	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--seal", "--json"}, &out, &errOut); code != 0 {
 		t.Fatalf("seal code=%d err=%s", code, errOut.String())
 	}

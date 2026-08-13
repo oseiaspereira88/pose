@@ -292,6 +292,13 @@ func cmdReviewBundle(root string, args []string, stdout, stderr io.Writer) int {
 			for _, input := range bundle.Payload.Scope.Sections {
 				fmt.Fprintf(stdout, "include.%s=%s reason:%s\n", input.Kind, input.Path, input.Reason)
 			}
+			for _, entry := range bundle.Payload.Subject.Entries {
+				path := entry.Path
+				if entry.NewPath != "" {
+					path = entry.NewPath
+				}
+				fmt.Fprintf(stdout, "include.subject=%s class:%s digest:%s reason:%s\n", path, entry.Class, entry.Digest, entry.Reason)
+			}
 			for _, input := range bundle.Payload.ConsumedInputs {
 				fmt.Fprintf(stdout, "include.%s=%s reason:%s\n", input.Kind, input.Path, input.Reason)
 			}
