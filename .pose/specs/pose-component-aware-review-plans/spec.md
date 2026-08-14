@@ -200,7 +200,7 @@ This scope was requested in
 - modified: .pose/specs/pose-component-aware-review-plans/spec.md
 - created: .pose/adr/2026-08-12-component-aware-effective-review-plans.md
 - created: .pose/knowledge/2026-08-13-decision-log-adr-component-aware-review-plans-review.md
-- created: .pose/changelogs/unreleased/pose-component-aware-review-plans.md
+- created: .pose/changelogs/v1.1.0/pose-component-aware-review-plans.md
 - created: pose-mcp/internal/pose/review_plan.go
 - created: pose-mcp/internal/pose/review_plan_test.go
 - created: pose-mcp/schemas/v1/review-plan.schema.json
