@@ -30,13 +30,17 @@ Ative este workflow quando qualquer critério abaixo for atendido no período m�
 ## Checklist de execução
 
 1. Consolidar evidência da métrica `recurrence_rework_uncovered` com recorte de 30 dias.
-2. Confirmar que o padrão não está coberto por workflow vigente e registrar o gap.
-3. Criar workflow especializado em `.pose/workflows/<nome>.md` com escopo, precondições, checks e saídas.
-4. Vincular o novo workflow às `rules` de domínio correspondentes no próprio arquivo e no `.pose/workflows/review.md` quando aplicável.
-5. Atualizar `spec` relacionada com justificativa, critérios de aceite e riscos residuais.
-6. Definir owner, janela piloto e critérios de sucesso do piloto.
-7. Rodar checks determinísticos aplicáveis aos arquivos alterados.
-8. Registrar decisão pós-piloto: manter, ajustar ou descartar workflow.
+2. Classificar falhas por causa e raiz de execução (`report_path`). Uma
+   tentativa de desenvolvimento com falha seguida por PASS permanece como
+   evidência imutável, mas não é incidente descoberto enquanto a causa não
+   sobreviver ao workflow vigente.
+3. Confirmar que o padrão não está coberto por workflow vigente e registrar o gap.
+4. Criar workflow especializado em `.pose/workflows/<nome>.md` com escopo, precondições, checks e saídas.
+5. Vincular o novo workflow às `rules` de domínio correspondentes no próprio arquivo e no `.pose/workflows/review.md` quando aplicável.
+6. Atualizar `spec` relacionada com justificativa, critérios de aceite e riscos residuais.
+7. Definir owner, janela piloto e critérios de sucesso do piloto.
+8. Rodar checks determinísticos aplicáveis aos arquivos alterados.
+9. Registrar decisão pós-piloto: manter, ajustar ou descartar workflow.
 
 ## Vinculação obrigatória de rules
 

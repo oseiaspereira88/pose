@@ -631,3 +631,7 @@ independent review through PR #16, and guarded lifecycle closeout completed on
 ### Follow-ups
 - [done] Implementation authorized on 2026-08-13 after ADR and test-plan
   approval; delivery is tracked by this spec.
+- [covered: pose-governance-gate-activation] The recurring `validate-native`
+  signal was classified and its first 45-day intervention registered; the
+  post-window verdict remains owned by the governance gate. See
+  knowledge:escalation-validate-native.

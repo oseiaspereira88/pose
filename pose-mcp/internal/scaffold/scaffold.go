@@ -18,9 +18,21 @@ var distFS embed.FS
 
 // Dist returns the embedded POSE distribution rooted at its top level.
 func Dist() fs.FS {
-	sub, err := fs.Sub(distFS, "dist")
+	return subOrError(distFS, "dist")
+}
+
+type errorFS struct {
+	err error
+}
+
+func (e errorFS) Open(string) (fs.File, error) {
+	return nil, e.err
+}
+
+func subOrError(source fs.FS, dir string) fs.FS {
+	sub, err := fs.Sub(source, dir)
 	if err != nil {
-		panic(err) // impossible: dist is embedded at compile time
+		return errorFS{err: err}
 	}
 	return sub
 }

@@ -28,13 +28,16 @@ Activate this workflow when any condition is met in a rolling 30-day period:
 ## Execution checklist
 
 1. Consolidate 30 days of `recurrence_rework_uncovered` evidence.
-2. Confirm that no current workflow covers the pattern and record the gap.
-3. Create `.pose/workflows/<name>.md` with scope, preconditions, checks, and outputs.
-4. Link the new workflow from applicable domain rules and from the review workflow when relevant.
-5. Update the related spec with rationale, acceptance criteria, and residual risks.
-6. Define an owner, pilot window, and pilot success criteria.
-7. Run deterministic checks for every changed file.
-8. Record the post-pilot decision: keep, adjust, or discard the workflow.
+2. Classify failures by cause and execution root (`report_path`). A failed
+   development retry followed by PASS remains immutable evidence, but it is
+   not an uncovered incident unless the cause survives the current workflow.
+3. Confirm that no current workflow covers the pattern and record the gap.
+4. Create `.pose/workflows/<name>.md` with scope, preconditions, checks, and outputs.
+5. Link the new workflow from applicable domain rules and from the review workflow when relevant.
+6. Update the related spec with rationale, acceptance criteria, and residual risks.
+7. Define an owner, pilot window, and pilot success criteria.
+8. Run deterministic checks for every changed file.
+9. Record the post-pilot decision: keep, adjust, or discard the workflow.
 
 ## Required rule linkage
 

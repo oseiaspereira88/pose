@@ -2,14 +2,16 @@
   "schema_version": 1,
   "version": "v1.1.0",
   "previous_version": "v1.0.0",
-  "prepared_at": "2026-08-14T01:08:17Z",
+  "prepared_at": "2026-08-14T03:59:01Z",
   "specs": [
     "pose-component-aware-review-plans",
+    "pose-governance-gate-activation",
     "pose-review-bundle-convergence"
   ],
   "categories": {
     "added": 1,
-    "changed": 1
+    "changed": 1,
+    "fixed": 1
   },
   "fragments": [
     {
@@ -22,6 +24,14 @@
       "digest": "sha256:57a3cee14888187a6ef74b9cc73d75b775176ad90d3defe59f669f392a8afb3a"
     },
     {
+      "spec": "pose-governance-gate-activation",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Harden the 1.1 release closeout by preserving archived-fragment provenance,\nexcluding agent-local `.qwen` worktrees from discovery, reconciling recorded\nrelease change sets during artifact checks, and returning a filesystem error\ninstead of terminating the process when the embedded distribution is invalid.",
+      "path": "pose-v1-1-release-closeout-hardening.md",
+      "digest": "sha256:561fccf7a6a115cd4a871961e23d54ca071b9f755e76f6882c425fef7bdcc7f2"
+    },
+    {
       "spec": "pose-review-bundle-convergence",
       "category": "changed",
       "breaking": false,
@@ -31,8 +41,8 @@
     }
   ],
   "breaking": false,
-  "notes_digest": "sha256:6451e8e39911cee8a446c62f2f0676efb1e3283ba53d14d45842953255b8c31e",
-  "release_input_digest": "sha256:158235b4005cea2cd0a516d162e28357e22b998238b585a4fe8855e5cfafc81f",
+  "notes_digest": "sha256:868bfb1abdc5085469f07b14313550a2542288b06c643acd97a28ccfa68570eb",
+  "release_input_digest": "sha256:d22909ed7631d4ba6c231fd1a37463a2a3e7e0e5da7be015897b79fc8a99ea4c",
   "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
   "version_evidence": {
     "source": "pose-mcp/internal/version/version.go",

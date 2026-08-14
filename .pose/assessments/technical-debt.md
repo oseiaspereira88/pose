@@ -1,14 +1,14 @@
 # Technical Debt Assessment: pose-dist
 
 > **Gerado por**: POSE Technical Debt Engine (`pose assess tech-debt`)
-> **Data de Avaliação**: 2026-08-13T23:58:53Z
-> **Baseline Commit**: dbd41e3d6cd3
+> **Data de Avaliação**: 2026-08-14T03:58:16Z
+> **Baseline Commit**: 9c59e12902a8
 
 ## 1. Resumo Executivo
 
-- **Total de Marcadores**: 1
-- **TODOs**: 0 | **FIXMEs**: 0 | **HACKs**: 0 | **Panics**: 1 | **Stubs**: 0
-- **Cobertos por Backlog Ativo**: 1
+- **Total de Marcadores**: 0
+- **TODOs**: 0 | **FIXMEs**: 0 | **HACKs**: 0 | **Panics**: 0 | **Stubs**: 0
+- **Cobertos por Backlog Ativo**: 0
 - **Não Cobertos**: 0
 - **Recomendações**: 0 Follow-ups | 0 Specs | 0 Roadmaps
 
@@ -16,7 +16,6 @@
 
 | ID | Marcador | Componente | Arquivo e Linha | Cobertura | Evidência | Recomendação |
 |---|---|---|---|---|---|---|
-| DEBT-05b998d4 | `PANIC` | `pose-mcp` | [scaffold.go:23](file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/scaffold/scaffold.go#L23) | `covered_by_spec` | `spec:pose-review-bundle-convergence` | `none` |
 
 ## 3. Política de Ação
 

@@ -6,7 +6,6 @@ package scaffold
 
 import (
 	"bytes"
-	"github.com/harne8/pose-mcp/internal/scaffold/distpolicy"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -14,6 +13,9 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"testing/fstest"
+
+	"github.com/harne8/pose-mcp/internal/scaffold/distpolicy"
 )
 
 func poseDistDir(t *testing.T) string {
@@ -118,6 +120,13 @@ func TestEmbeddedDistMatchesPoseDist(t *testing.T) {
 	}
 	if len(embedded) < 50 {
 		t.Fatalf("embedded dist suspiciously small: %d files", len(embedded))
+	}
+}
+
+func TestSubOrErrorReturnsFailureFS(t *testing.T) {
+	broken := subOrError(fstest.MapFS{}, "../invalid")
+	if _, err := broken.Open("."); err == nil {
+		t.Fatal("invalid embedded subtree did not preserve its construction error")
 	}
 }
 
