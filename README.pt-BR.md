@@ -63,7 +63,7 @@ para Linux e macOS, `zip` para Windows — em
 Linux e macOS (bash ou zsh; substitua `linux_amd64` pela sua plataforma):
 
 ```bash
-V=1.1.0
+V=1.2.0
 curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz"
 curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/checksums.txt"
 sha256sum --check --ignore-missing checksums.txt   # macOS: shasum -a 256 -c
@@ -75,7 +75,7 @@ pose install /caminho/do/seu/repo
 Windows (PowerShell):
 
 ```powershell
-$V = "1.1.0"
+$V = "1.2.0"
 Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/pose_${V}_windows_amd64.zip" -OutFile "pose_${V}_windows_amd64.zip"
 Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/checksums.txt" -OutFile checksums.txt
 (Get-FileHash "pose_${V}_windows_amd64.zip" -Algorithm SHA256).Hash -eq ((Get-Content checksums.txt | Select-String "pose_${V}_windows_amd64.zip") -split '\s+')[0]
@@ -173,7 +173,7 @@ versionado.
 | **Escala falhas sistêmicas**                  | Detecta falhas recorrentes de tarefa e roteia a correção estrutural     | `pose recurrence-check` + workflow de escalonamento |
 | **Preserva o contexto operacional**           | Dá dono, sensibilidade e TTL a handoffs e decisões                      | `.pose/knowledge/` + `knowledge-check`         |
 | **Planeja a partir de dependências**          | Valida DAGs de specs e milestones e calcula readiness                   | `depends_on`, roadmaps, `pose_spec_readiness`  |
-| **Revisa um sujeito imutável**                | Separa a entrada de review selada de sua atestação append-only          | `pose review bundle` / `attest` / `verify`     |
+| **Revisa um sujeito imutável**                | Separa o bundle selado de sua atestação e auto-descarta critérios validados pelo CI | `pose review bundle` / `auto-attest` / `verify` |
 | **Funciona entre agentes**                    | Expõe instruções curtas, skills portáveis e ferramentas MCP             | `AGENTS.md`, Agent Skills, `pose serve-mcp`    |
 | **Mantém o controle local**                   | Roda offline e mantém a fonte de verdade no Git                         | Um binário sem CGO; nenhuma dependência hospedada |
 
