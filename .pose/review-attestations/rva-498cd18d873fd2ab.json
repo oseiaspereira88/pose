@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-498cd18d873fd2ab",
+  "bundle_id": "rvb-277c7e934b8af535",
+  "bundle_digest": "sha256:277c7e934b8af5356f0bff8f8d3ad37dcc97fb28165625395da918816171293c",
+  "reviewer": "agent:codex-release-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "test:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "contract:review-bundle-schemas-v1"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "test:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "observability:review-bundle-explain-output"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "contract:review-bundle-schemas-v1"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "test:pose-mcp/go/test"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "contract:review-bundle-schemas-v1"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "contract:review-bundle-schemas-v1"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "requirement-trace:pose-review-bundle-convergence"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "contract:review-bundle-schemas-v1"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "contract:review-bundle-schemas-v1"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:assess-integrate"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "check:history-check"
+    },
+    {
+      "id": "knowledge-check",
+      "disposition": "passed",
+      "evidence": "check:knowledge-check"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "check:skills-check"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:surface-check"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "validation:delivery-validation"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "validation:delivery-validation"
+    }
+  ],
+  "evidence_refs": [
+    "contract:review-bundle-schemas-v1",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "observability:review-bundle-explain-output",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "requirement-trace:pose-review-bundle-convergence",
+    "test:pose-mcp/go/test",
+    "validation:pose-mcp/delivery-validation"
+  ],
+  "findings": [],
+  "attested_at": "2026-08-14T04:04:11Z",
+  "path": ".pose/review-attestations/rva-498cd18d873fd2ab.json"
+}
