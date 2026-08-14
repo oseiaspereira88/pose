@@ -497,12 +497,14 @@ review subject does not waive their own correctness requirements.
 - [x] Run all focused unit, contract, negative and end-to-end cases in section 6.
 - [x] Run `pose assess integrate` for CLI/MCP/schema contract changes.
 - [x] Run `pose validate --strict --module pose-mcp --report --report-task review-bundle-convergence`.
-- [x] Run security, history, skill and spec checks; artifact/surface gates await the immutable implementation commit below.
-- [ ] Build the validated revision and atomically install it at
+- [x] Run security, artifact, surface, skill and knowledge checks.
+- [ ] Run staged-history and strict spec lifecycle checks.
+- [x] Build the validated revision and atomically install it at
   `/home/go/.local/bin/pose`.
-- [ ] Run installed-binary doctor/version and fresh-repository smoke tests.
+- [x] Run installed-binary doctor/version and fresh-repository smoke tests.
 - [ ] Perform an independent review against the sealed bundle.
-- [ ] Run `pose assess discover --update-state`, closeout and release gates.
+- [x] Run `pose assess discover --update-state`.
+- [ ] Run closeout and final release gates.
 
 ## 5. Decisions
 
@@ -641,105 +643,197 @@ integration boundary verified here.
 - Expected: reachability and integration evidence are fresh.
 
 ### Execution log
-- 2026-08-13 — `pose state`: SUCCESS; state fresh at five commits since
-  baseline, within the configured 20-commit limit.
-- 2026-08-13 — `pose assess discover --component pose-mcp`: SUCCESS; 28,987
-  production LOC, 18,043 test LOC, zero TODO and zero FIXME debt markers.
-- 2026-08-13 — `pose suggest feature --path pose-mcp`: SUCCESS; selected the
-  feature workflow plus security and documentation rules.
-- 2026-08-13 — source/build parity: `go test ./...` passed outside the sandbox
-  (the sandbox run could not open `httptest` listeners), `go vet ./...` passed
-  and `go build -trimpath -o /tmp/pose-review-bundle-current ./cmd/pose` passed.
-- 2026-08-13 — home binary materialization: installed the validated build as
-  `/home/go/.local/bin/pose`; SHA-256
-  `7d2a0cec1b3ea8ae5665ef6b803b2514f4857342e30fe7af5993467cb7dcc48f`,
-  version `pose 1.0.0-dev`. `pose doctor --json` returned zero errors and
-  `pose review-plan spec:pose-review-bundle-convergence --json` returned one
-  component, 12 criteria, 12 tools and zero blockers. The replaced `1.0.0`
-  binary is recoverable at `/tmp/pose-home-before-review-plan` for this machine
-  session.
-- 2026-08-13 — global strict baseline comparison: `pose check --strict` passes
-  on a clean `HEAD` archive at `/tmp/pose-baseline.EmxGLJ`. In the planning
-  worktree it fails with 92 stale/missing integration-evidence errors across
-  unrelated historical specs after the new delivery targets are declared.
-  This is direct reproduction evidence for R43, not a preexisting baseline
-  failure. The active plan also emits 28 per-path mapping warnings, captured by
-  R44-R45 as an ergonomics regression to eliminate before promotion.
-- Implementation validation has not run; this spec is intentionally `draft`.
+- 2026-08-13 — discovery and routing: `pose state`,
+  `pose assess discover --component pose-mcp` and
+  `pose suggest feature --path pose-mcp` passed before implementation.
+- 2026-08-13 — implementation landed in `89b100a`; independent review then
+  found mutable-worktree inclusion, over-broad hierarchy subjects, managed
+  directory symlink traversal, incomplete deltas and regressing overlapping
+  ranges. Corrections landed in `e6fe84e` and `60171f8` with focused regression
+  coverage; `dbd41e3` makes synthetic-provider verification explicit.
+- 2026-08-13 — `go -C pose-mcp test ./...`, `go vet ./...`, the focused race
+  suite and all five registered strict matrix checks passed at `dbd41e3`.
+  Listener-dependent tests ran outside the restricted sandbox.
+- 2026-08-13 — source and installed-binary E2E both passed. The exact
+  `-trimpath` build installed atomically at `/home/go/.local/bin/pose` has
+  SHA-256 `652415f522dfb94d216cfc730328f2cd8833566fb0e03be34dbb9209fffb9ae9`,
+  reports `pose 1.0.0-dev`, and `pose doctor --json` reports zero errors.
+- 2026-08-13 — `govulncheck ./...` found no vulnerabilities; gitleaks v8.21.2
+  scanned 382 commits and found no secrets.
+- 2026-08-13 — `pose assess integrate` evaluated 53 contracts. Its 52
+  unobserved-consumer warnings are repository-wide provider inventory, not an
+  uncovered changed contract. `pose assess tech-debt` found one accepted
+  construction-invariant panic and no uncovered debt.
+- 2026-08-13 — `pose assess discover --update-state` refreshed two components:
+  `pose-mcp` at 31,140 production / 18,914 test LOC and `mcp-enforce` at
+  870 production / 1,029 test LOC, with zero TODO/FIXME markers.
+- 2026-08-13 — strict artifact provenance matched 64 claims to 64 observed
+  paths with no errors; the 231 warnings are preexisting repository-wide
+  orphan inventory. Strict surface assurance passed all three delivery targets
+  with five current results and zero findings. Skills and knowledge gates also
+  passed without errors or warnings.
 
 ### Results summary
-- Successes: discovery, state validation, historical-contract review, ADR and
-  complete pre-implementation test plan; current source-build and installed
-  home-binary parity are verified.
-- Failures: the current engine's global strict gate reproduces cross-scope
-  false staleness after the draft delivery target is introduced; implementation
-  of R43 must restore it without refreshing unrelated historical evidence.
-- Warnings: `pose doctor --json` reports only that the optional pre-commit hook
-  is not installed. The installed build is intentionally labeled `1.0.0-dev`
-  until the next release is cut.
+- Successes: immutable semantic bundles, separate append-only attestations,
+  deterministic supersession deltas, policy-bounded criterion reuse,
+  CLI/MCP/schema/scaffold parity, one-cycle closeout and scoped delivery
+  provenance are implemented and covered by source and installed-binary tests.
+- Independent review corrections: working-tree-only subjects now fail closed;
+  hierarchy resolution stays within declared children and order; managed
+  artifact directories reject symlinks; deltas project components, evidence
+  classes and findings; overlapping ranges collapse to the broadest immutable
+  subject; human explain output identifies every included subject.
+- Warnings: the optional pre-commit hook is not installed, external MCP/HTTP
+  consumers are intentionally unobserved in this portable repository, and the
+  repository retains its historical orphan-provenance warning inventory. None
+  is a delivery-target or changed-contract error for this spec.
 
 ### Requirement trace
-To be completed with immutable checks, tests, reports and commit references at
-closeout. Every R1-R45 must receive one terminal disposition before this spec
-can become `done`.
+- R1: satisfied by `PrepareReviewBundle`, schema fixtures and
+  `TestReviewBundleCanonicalAndDigestStable` (`89b100a`).
+- R2: satisfied by bundle/verification state projection and
+  `TestReviewBundleCLISealsAttestsAndVerifies` (`89b100a`).
+- R3: satisfied by required-evidence gating plus
+  `TestReviewBundleRejectsWorkingTreeOnlySubjectContent` (`e6fe84e`).
+- R4: satisfied by semantic projection and
+  `TestReviewBundleSemanticProjectionAndDerivedChangesDoNotStale` (`89b100a`).
+- R5: satisfied by derived/lifecycle exclusions in
+  `TestReviewBundleDerivedOnlyChangeSetDoesNotStale` (`89b100a`).
+- R6: satisfied by classified human/JSON explain output and
+  `TestReviewBundleRejectsUnclassifiedSubjectPath` (`e6fe84e`).
+- R7: satisfied by immutable atomic storage and collision coverage in
+  `TestReviewBundleSealIsAtomicIdempotentAndDetectsSubjectChange` (`89b100a`).
+- R8: satisfied by the separate attestation schema and
+  `TestReviewAttestationDoesNotMutateBundleAndConverges` (`89b100a`).
+- R9: satisfied by bundle-aware verification and closeout checks exercised by
+  `TestReviewBundleCLISealsAttestsAndVerifies` (`89b100a`).
+- R10: satisfied by one-cycle lifecycle convergence in
+  `TestReviewAttestationDoesNotMutateBundleAndConverges` (`89b100a`).
+- R11: satisfied by semantic supersession retention in
+  `TestReviewBundleSealIsAtomicIdempotentAndDetectsSubjectChange` (`89b100a`).
+- R12: satisfied by `TestReviewBundleDerivedOnlyChangeSetDoesNotStale`
+  (`89b100a`).
+- R13: satisfied by `TestReviewBundleDeltaIncludesChangedComponentsAndEvidenceClasses`
+  and changed-finding projection (`e6fe84e`).
+- R14: satisfied by `TestReviewAttestationCriterionReuseRequiresExactUnchangedContract`
+  (`89b100a`).
+- R15: satisfied by `TestReviewAttestationCriterionReuseRejectsChangedSubjectSlice`
+  and complete attestation validation (`89b100a`).
+- R16: satisfied by `TestReviewBundleVerifiesSyntheticMergeByPatchAndTree`
+  against a deliberately non-fetchable advisory ref (`dbd41e3`).
+- R17: satisfied by shared local/export/import schemas and the documented
+  provider-neutral orchestration boundary (`89b100a`).
+- R18: satisfied by dry-run/apply CLI behavior in
+  `TestReviewBundleCLISealsAttestsAndVerifies` (`89b100a`).
+- R19: satisfied by `TestReviewAttestationEnvelopeTrustPolicy` (`89b100a`).
+- R20: satisfied by `TestReviewBundleMilestoneSubjectIsConfinedAndChildOrderIsDeclared`
+  (`e6fe84e`).
+- R21: satisfied by CLI command and compatibility coverage in
+  `TestReviewBundleCLISealsAttestsAndVerifies` (`89b100a`).
+- R22: satisfied by `TestReviewBundleToolIsReadOnlyAndProjectScoped`
+  (`89b100a`).
+- R23: satisfied by human/JSON state and next-action assertions across the CLI
+  and verification suites (`89b100a`).
+- R24: satisfied by `TestReviewBundleUsageDistinguishesOperationsAndSignals`
+  (`89b100a`).
+- R25: satisfied by `TestReviewBundleCanonicalAndDigestStable` and CLI/MCP
+  contract parity (`89b100a`).
+- R26: satisfied by source and installed `tests/e2e/review-bundle/run.sh` plus
+  `TestReviewAttestationDoesNotMutateBundleAndConverges`.
+- R27: satisfied by confined change-set resolution and hierarchy regression
+  coverage (`e6fe84e`).
+- R28: satisfied by the three v1 schemas, schemas README and ADR
+  `2026-08-13-sealed-review-bundles-and-attestations` (`89b100a`).
+- R29: satisfied by bundle and attestation idempotency/collision tests
+  (`89b100a`).
+- R30: satisfied by malformed input, digest and path negative suites
+  (`89b100a`, `e6fe84e`).
+- R31: satisfied by offline source/installed E2E, unchanged Go dependencies and
+  successful `govulncheck ./...`.
+- R32: satisfied by traversal, file-symlink and managed-directory-symlink
+  rejection tests (`89b100a`, `e6fe84e`).
+- R33: satisfied by `TestReviewBundleRejectsMalformedInput` and
+  `TestReviewAttestationRejectsMalformedInput` (`89b100a`).
+- R34: satisfied by the closed native tool catalog and
+  `TestReviewPlanRecommendationsAreClosedAndNonExecutable` (`89b100a`).
+- R35: satisfied by trust/independence preservation tests in review plan and
+  signed-envelope suites (`89b100a`).
+- R36: satisfied by negative parser/path tests, race tests, govulncheck and the
+  382-commit gitleaks scan.
+- R37: satisfied by `TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly`
+  and closed-scope compatibility coverage (`89b100a`).
+- R38: satisfied by policy migration/exemption tests including
+  `TestReviewPolicyExemptsLegacyDoneScopesUnlessOptedIn` (`89b100a`).
+- R39: satisfied by `TestReviewRecordDelegatesToBundleAttestationWhenAdopted`
+  and legacy record tests (`89b100a`).
+- R40: satisfied by strict catalog, locale and embedded-scaffold parity tests
+  in the full Go suite (`89b100a`).
+- R41: satisfied by keeping bundle adoption opt-in/preview while source and
+  installed-binary convergence cases pass.
+- R42: satisfied by the atomically installed `-trimpath` binary with SHA-256
+  `652415f5...`, zero doctor errors and installed E2E pass (`dbd41e3`).
+- R43: satisfied by `TestReviewBundleDeliveryChangeDoesNotStaleUnrelatedClosedScopes`
+  and current strict surface assurance (`89b100a`).
+- R44: satisfied by `TestReviewPlanGroupsRepeatedWarningsAndPresentsActionableToolPhases`
+  while canonical JSON retains full warning detail (`89b100a`).
+- R45: satisfied by the same phase-aware tool-plan regression plus human CLI
+  explain assertions (`89b100a`, `e6fe84e`).
 
 ### Known gaps
-- No implementation has started.
-- `pose check --strict` is intentionally red in the planning worktree because
-  the current engine applies the new module delivery target to unrelated closed
-  specs. The clean-HEAD control passes; R43 makes fixing this reproduced defect
-  a release blocker rather than papering it over with refreshed old evidence.
-- The Conductor-side workflow remains a separate Harne8 delivery; this spec
-  defines and verifies only the portable contract it will consume.
-- The exact signed-envelope algorithm/provider set will be selected during
-  implementation without making online verification mandatory; any new
-  cryptographic dependency requires a documented ADR amendment.
+- The feature intentionally remains opt-in/preview; promotion is a later
+  release decision after production adoption evidence, not part of this spec.
+- Conductor-side assignment/retry orchestration remains owned by Harne8. This
+  repository delivers and verifies only the offline portable contract.
+- Repository-wide assessment still lists 52 unobserved external consumers and
+  artifact assurance lists 231 historical orphan warnings. Current changed
+  contracts, declared artifacts and all three delivery targets have no error.
 
 ## 7. Final Report
 
 ### Delivered scope
-Planning delivery only: complete implementation contract, ADR, migration plan,
-risk model and deterministic validation matrix. Runtime delivery remains open.
+Delivered the preview/opt-in convergent review flow end to end: canonical
+semantic bundle preparation, immutable sealing, separate local/imported
+attestations, deterministic verification and deltas, bounded criterion reuse,
+legacy compatibility, CLI/MCP/schema parity, closeout integration and portable
+offline orchestration contracts.
 
 ### Files and modules changed
-- `.pose/specs/pose-review-bundle-convergence/spec.md`
-- `.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md`
-- `.pose/knowledge/2026-08-13-decision-log-adr-sealed-review-bundles-review.md`
-- `.pose/assessments/README.md`
-- `.pose/assessments/consolidated.md`
-- `.pose/assessments/pose-mcp.md`
-- `.pose/state/components/pose-mcp.json`
+- Engine: `pose-mcp/internal/pose/review_bundle.go`, review closeout and delivery
+  surface logic with regression suites.
+- Interfaces: native CLI commands, read-only MCP projections, schemas v1,
+  usage signals and catalog goldens.
+- Distribution: POSE manual, feature/review workflows, skills, docs-site,
+  English/pt-BR locales and embedded scaffold copies.
+- Governance/evidence: this spec, ADR, decision log, changelog, validation
+  matrix, assessment/state refreshes, reports and structured results.
+- E2E: `tests/e2e/review-bundle/run.sh` for source and installed binaries.
 
 ### Validation executed
-- Command: `pose state`
-- Result: SUCCESS; current state artifact is fresh.
-- Command: `pose assess discover --component pose-mcp`
-- Result: SUCCESS; module/debt baseline recorded above.
-- Command: `pose suggest feature --path pose-mcp`
-- Result: SUCCESS; applicable workflow and rules resolved.
-- Command: `go test ./...`
-- Result: SUCCESS outside the listener-restricted sandbox.
-- Command: `go vet ./...` and `go build -trimpath -o /tmp/pose-review-bundle-current ./cmd/pose`
-- Result: SUCCESS.
-- Command: `/home/go/.local/bin/pose doctor --json` and
-  `/home/go/.local/bin/pose review-plan spec:pose-review-bundle-convergence --json`
-- Result: SUCCESS; zero doctor errors and zero review-plan blockers.
+- `go -C pose-mcp test ./...`, `go vet ./...`, focused race tests and
+  `go build -trimpath`: SUCCESS.
+- `pose validate --strict --module pose-mcp` persisted to both canonical result
+  files: five checks passed, zero failed/skipped/errored.
+- Source and installed `tests/e2e/review-bundle/run.sh`: SUCCESS.
+- `govulncheck ./...` and gitleaks history scan: SUCCESS.
+- `pose artifact-check --strict`: 64/64 current artifacts, zero errors.
+- `pose surface-check --strict`: three targets, five current results, zero
+  findings.
+- `pose assess integrate`, `pose assess tech-debt` and
+  `pose assess discover --update-state`: completed with only the documented
+  repository-wide inventory warnings.
+- `pose skills-check --strict` and `pose knowledge-check --strict`: SUCCESS.
 
 ### Residual risks
-- The spec deliberately keeps the mechanism in preview until runtime evidence
-  proves convergence; the next release must not promote it on planning alone.
-- Digest-boundary mistakes are the highest risk and require both include and
-  exclude regressions before implementation is accepted.
-- Current module-wide delivery provenance creates 92 unrelated stale-evidence
-  errors and current plan rendering creates 28 path-level warnings; both must
-  fall through scoped invalidation and grouped diagnostics, not bulk evidence
-  regeneration or suppressed checks.
-- `pose assess tech-debt` reports the preexisting invariant panic at
-  `pose-mcp/internal/scaffold/scaffold.go:23`; it is outside this feature and
-  remains visible rather than being hidden by an unrelated refactor.
+- Production adoption may reveal additional semantic projection classes; the
+  closed classifier intentionally fails sealing until each is governed.
+- External signature providers remain optional. Any new algorithm or dependency
+  requires a schema/ADR revision and fresh security validation.
+- The preexisting scaffold embed parse panic remains an accepted construction
+  invariant, outside ordinary request processing.
 
 ### Follow-ups
-- [covered: pose-review-bundle-convergence] Implement Conductor orchestration
-  against the portable bundle/attestation contract in the Harne8 repository;
-  POSE-side export/import compatibility is covered here, while service delivery
-  is owned by Harne8.
+- [wont-do: Harne8 owns Conductor service delivery outside this repository]
+  Implement Conductor assignment/retry orchestration against the portable
+  bundle/attestation contract.
+- [wont-do: compile-time scaffold embed parsing is a construction invariant]
+  Replace the preexisting scaffold initialization panic as runtime debt.
