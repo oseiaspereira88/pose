@@ -2,16 +2,14 @@
   "schema_version": 1,
   "version": "v1.1.0",
   "previous_version": "v1.0.0",
-  "prepared_at": "2026-08-14T03:59:01Z",
+  "prepared_at": "2026-08-14T04:03:15Z",
   "specs": [
     "pose-component-aware-review-plans",
-    "pose-governance-gate-activation",
     "pose-review-bundle-convergence"
   ],
   "categories": {
     "added": 1,
-    "changed": 1,
-    "fixed": 1
+    "changed": 1
   },
   "fragments": [
     {
@@ -24,25 +22,17 @@
       "digest": "sha256:57a3cee14888187a6ef74b9cc73d75b775176ad90d3defe59f669f392a8afb3a"
     },
     {
-      "spec": "pose-governance-gate-activation",
-      "category": "fixed",
-      "breaking": false,
-      "body": "Harden the 1.1 release closeout by preserving archived-fragment provenance,\nexcluding agent-local `.qwen` worktrees from discovery, reconciling recorded\nrelease change sets during artifact checks, and returning a filesystem error\ninstead of terminating the process when the embedded distribution is invalid.",
-      "path": "pose-v1-1-release-closeout-hardening.md",
-      "digest": "sha256:561fccf7a6a115cd4a871961e23d54ca071b9f755e76f6882c425fef7bdcc7f2"
-    },
-    {
       "spec": "pose-review-bundle-convergence",
       "category": "changed",
       "breaking": false,
-      "body": "Add opt-in sealed review bundles and separate attestations so POSE closeout\nconverges without self-invalidating rereview. The release includes scoped\ndelivery provenance, supersession deltas, targeted criterion reuse, an offline\nCLI flow and a read-only MCP projection.",
+      "body": "Add opt-in sealed review bundles and separate attestations so POSE closeout\nconverges without self-invalidating rereview. The release includes scoped\ndelivery provenance, supersession deltas, targeted criterion reuse, an offline\nCLI flow and a read-only MCP projection.\n\nThe release closeout also preserves archived-fragment provenance, excludes\nagent-local `.qwen` worktrees from discovery, reconciles recorded release\nchange sets during artifact checks, and returns a filesystem error instead of\nterminating the process when the embedded distribution is invalid.",
       "path": "pose-review-bundle-convergence.md",
-      "digest": "sha256:5bedd76783f1aa47a03e005a2d2cc6c615b84ded75dad403ccf5c0381ada37a7"
+      "digest": "sha256:f15a91b6ea51181789ec4eef14140795ff8d5493222278d9271063625b6da7f0"
     }
   ],
   "breaking": false,
-  "notes_digest": "sha256:868bfb1abdc5085469f07b14313550a2542288b06c643acd97a28ccfa68570eb",
-  "release_input_digest": "sha256:d22909ed7631d4ba6c231fd1a37463a2a3e7e0e5da7be015897b79fc8a99ea4c",
+  "notes_digest": "sha256:5108bbbfbaa9f4b9836a8dac3589a7706a31156b3931ddc6fd86ee5c498810f0",
+  "release_input_digest": "sha256:c898e95e609dcedcb866f1e04cc4aef9b75b6eec83a5b5fea3fa4c67fb50db81",
   "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
   "version_evidence": {
     "source": "pose-mcp/internal/version/version.go",
