@@ -1,8 +1,8 @@
 # Product roadmaps
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.2.x
 
-**Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-13):** all 8 roadmaps `done`
+**Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-14):** all 8 roadmaps `done`
 **Canonical execution artifacts:** `.pose/roadmaps/*.md` and `.pose/specs/*/spec.md`
 
 This portfolio converted the [capability assessment](capability-assessment.md)
@@ -21,9 +21,9 @@ state of each mechanism.
 
     The wave dates below are retained as execution history. POSE 1.0.0 added
     automatic usage analytics, the revised five-metric DORA contract and an
-    exercised immutable release lifecycle. The v1.1.0 candidate adds
-    component-aware review plans and convergent sealed review bundles with
-    separate attestations. Current capability truth lives in the assessment,
+    exercised immutable release lifecycle. The v1.1.0 and v1.2.0 releases add
+    component-aware review plans, convergent sealed review bundles with
+    separate attestations, and automated evidence attestation (`pose review auto-attest`). Current capability truth lives in the assessment,
     not in these historical target windows.
 
 ## Prioritization model

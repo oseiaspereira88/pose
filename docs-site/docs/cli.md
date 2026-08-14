@@ -1,6 +1,6 @@
 # CLI reference
 
-**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.2.x
 
 The `pose` CLI is a single native Go binary. Every command below executes
 without Bash or Python fallbacks and works offline.
@@ -36,6 +36,7 @@ without Bash or Python fallbacks and works offline.
 |---|---|
 | `pose review-plan <scope> [--json] [--explain]` | Resolve the deterministic component-aware plan, provenance, criteria, safe native-tool guidance and plan digest |
 | `pose review bundle <scope> [--json] [--explain] [--seal]` | Prepare the semantic review subject or persist it as an immutable `rvb-` bundle after required evidence is current |
+| `pose review auto-attest <bundle-id\|scope-ref> [--reviewer <id>] [--apply]` | Extract matching evidence from validation results, resolve tool dispositions and record attestation |
 | `pose review attest <bundle-id> --reviewer ID --decision D --evidence REF [--plan-digest SHA] [--tool DISPOSITION] [--finding FINDING] [--apply]` | Preview or append a local `rva-` attestation bound to the exact sealed bundle |
 | `pose review attest --envelope <project-relative-path> [--apply]` | Verify and preview/import a policy-trusted external attestation envelope |
 | `pose review verify <scope\|bundle-id\|bundle-path> [--json]` | Verify bundle freshness, attestation completeness and closeout readiness |
@@ -51,8 +52,7 @@ convergent path is:
 pose review bundle spec:customer-export --explain
 pose validate --strict
 pose review bundle spec:customer-export --seal
-pose review attest rvb-... --reviewer reviewer-a --decision approved \
-  --evidence check:validate --plan-digest sha256:... --apply
+pose review auto-attest spec:customer-export --reviewer agent:reviewer-a --apply
 pose review verify spec:customer-export
 pose review-check spec:customer-export
 pose closeout-check spec:customer-export

@@ -1,6 +1,6 @@
 # POSE
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.2.x
 
 **Repository-owned governance for agentic engineering.**
 

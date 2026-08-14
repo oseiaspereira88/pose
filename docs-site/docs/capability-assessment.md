@@ -1,8 +1,8 @@
 # Capability assessment
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.2.x
 
-**Assessment date:** 2026-08-13
+**Assessment date:** 2026-08-14
 **Scope:** POSE open-source distribution  
 **Evidence baseline:** published `v1.2.0` release artifacts,
 independent release verification and mainline test suite
@@ -38,7 +38,7 @@ Since the previous assessment (2026-07-18, commit `d9c0b98`), the original
 seven-roadmap, 35-spec product portfolio shipped and the later
 delivery-integrity roadmap also reached `done`. The repository now carries 8
 completed roadmaps and 91 completed specs, including the component-aware and
-convergent-review increments prepared for v1.1.0.
+convergent-review increments delivered in v1.1.0 and unified in v1.2.0.
 Every item in that assessment's P0 and P1 improvement plan is delivered;
 most of P2 is delivered as well, with one item (durable multi-team
 orchestration, visual operation, tenant-scoped policy distribution) still
@@ -50,10 +50,10 @@ with a large distance to reference-grade" to a governance engine that is
 reference-grade across most of its own claimed surface. v1.0.0 added automatic,
 privacy-bounded CLI/MCP usage analytics and completed the production-scoped
 five-metric DORA contract; the immutable release lifecycle was also exercised
-through tagged, published and independently verified states. The v1.1.0
-candidate adds deterministic component-aware review plans and sealed semantic
+through tagged, published and independently verified states. The v1.1.0/v1.2.0
+releases add deterministic component-aware review plans, sealed semantic
 review bundles whose separate attestations no longer invalidate the subject
-they approve. Distribution
+they approve, and automated evidence attestation (`pose review auto-attest`). Distribution
 trust, structured validation, MCP protocol completeness, extension lifecycle
 and cross-repository portfolio projection are no longer design-only claims.
 
@@ -212,7 +212,7 @@ not a structural gap.
 checks and commits that satisfied them; release artifacts carry SLSA
 provenance, CycloneDX SBOMs and Sigstore signatures (finding 11); Markdown
 reports, append-only JSONL history and MCP insights remain inspectable with
-ordinary Git. The v1.1.0 review path additionally binds approval to an
+ordinary Git. The v1.1.0/v1.2.0 review path additionally binds approval to an
 immutable semantic/source bundle while keeping the attestation append-only and
 outside the reviewed digest.
 
