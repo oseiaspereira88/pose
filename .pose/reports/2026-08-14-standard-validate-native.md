@@ -14,7 +14,7 @@
 - _Not provided_
 
 ## Files Changed
-- _No files detected_
+- pose/results/delivery-validation.json
 
 ## Validation Commands
 - _Fill manually_
@@ -23,17 +23,17 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-14T03:39:50Z
+- Generated at (UTC): 2026-08-14T03:52:34Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 74
+- Sequence for task/spec: 75
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-14T01:06:43Z
-- Status: changed
+- Previous execution: 2026-08-14T03:39:50Z
+- Status: stable
 - Stable field diffs:
-- validation_profile: "tolerant" -> "strict"
+- _No changes in stable fields_
 
 ## Risks
 - _No risks provided_
