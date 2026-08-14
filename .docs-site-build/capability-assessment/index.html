@@ -20,7 +20,7 @@
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../assets/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -50,6 +50,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -94,8 +96,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="POSE" class="md-header__button md-logo" aria-label="POSE" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -218,8 +219,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="POSE" class="md-nav__button md-logo" aria-label="POSE" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     POSE
@@ -1221,11 +1221,11 @@
 
 
 <h1 id="capability-assessment">Capability assessment</h1>
-<p><strong>Doc type:</strong> Explanation &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.0.x</p>
-<p><strong>Assessment date:</strong> 2026-08-11
-<strong>Evidence baseline:</strong> published <code>v1.0.0</code>, current mainline source inspection,
-closed spec Final Reports, <code>pose doctor --json</code>, the 48-tool MCP <code>tools/list</code>
-golden fixture and repository checks
+<p><strong>Doc type:</strong> Explanation &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.1.x</p>
+<p><strong>Assessment date:</strong> 2026-08-13
+<strong>Evidence baseline:</strong> published <code>v1.0.0</code>, <code>v1.1.0</code> release-candidate source
+inspection, closed spec Final Reports, <code>pose doctor --json</code>, the 50-tool MCP
+<code>tools/list</code> golden fixture and repository checks
 <strong>Purpose:</strong> measure fitness against POSE's own promises and relevant
 best-of-breed practices, not manufacture a universal product ranking.</p>
 <blockquote>
@@ -1275,9 +1275,11 @@ data.</p>
 only to improve a score. Compare each mechanism with the strongest relevant
 practice while preserving POSE's boundary.</p>
 <h2 id="executive-result">Executive result</h2>
-<p>Since the previous assessment (2026-07-18, commit <code>d9c0b98</code>), all seven
-roadmaps in the product portfolio have shipped — 35 specs, each closed with
-requirement trace, deterministic validation evidence and a Final Report.
+<p>Since the previous assessment (2026-07-18, commit <code>d9c0b98</code>), the original
+seven-roadmap, 35-spec product portfolio shipped and the later
+delivery-integrity roadmap also reached <code>done</code>. The repository now carries 8
+completed roadmaps and 91 completed specs, including the component-aware and
+convergent-review increments prepared for v1.1.0.
 Every item in that assessment's P0 and P1 improvement plan is delivered;
 most of P2 is delivered as well, with one item (durable multi-team
 orchestration, visual operation, tenant-scoped policy distribution) still
@@ -1285,10 +1287,13 @@ correctly out of scope for a local-first engine and living in Harne8 by
 design.</p>
 <p>POSE has moved from "credible open-source, single-repo governance engine
 with a large distance to reference-grade" to a governance engine that is
-reference-grade across most of its own claimed surface. v1.0.0 adds automatic,
-privacy-bounded CLI/MCP usage analytics and completes the production-scoped
+reference-grade across most of its own claimed surface. v1.0.0 added automatic,
+privacy-bounded CLI/MCP usage analytics and completed the production-scoped
 five-metric DORA contract; the immutable release lifecycle was also exercised
-through tagged, published and independently verified states. Distribution
+through tagged, published and independently verified states. The v1.1.0
+candidate adds deterministic component-aware review plans and sealed semantic
+review bundles whose separate attestations no longer invalidate the subject
+they approve. Distribution
 trust, structured validation, MCP protocol completeness, extension lifecycle
 and cross-repository portfolio projection are no longer design-only claims.</p>
 <p>The remaining distance is concentrated in production-grade identity/secret
@@ -1322,7 +1327,7 @@ not capabilities silently presented as complete.</p>
 <td>Task routing, workflows, rules and skills</td>
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">5</td>
-<td>Agent Skills contract is now a CI gate across all 9 skills, both locales</td>
+<td>Agent Skills contract is now a CI gate across all 11 skills, both locales</td>
 </tr>
 <tr>
 <td>Dependencies, readiness and roadmaps</td>
@@ -1358,7 +1363,7 @@ not capabilities silently presented as complete.</p>
 <td>MCP and agent interoperability</td>
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">5</td>
-<td>Golden-fixture catalog conformance, active connection context, uniform project scoping, pagination, 48 tools</td>
+<td>Golden-fixture catalog conformance, active connection context, uniform project scoping, pagination, 50 tools</td>
 </tr>
 <tr>
 <td>Policy, identity and audit</td>
@@ -1455,7 +1460,7 @@ integrates specs, steering and hooks into an agentic development service.</p>
 <p><strong>Purpose:</strong> translate task intent into the correct procedure, constraints and
 checks across agents.</p>
 <p><strong>Delivered now:</strong> compatibility frontmatter (<code>pose_schema_range</code>, <code>clients</code>,
-<code>capabilities</code>) on all 9 shipped skills in both locales; <code>pose skills-check</code>
+<code>capabilities</code>) on all 11 shipped skills in both locales; <code>pose skills-check</code>
 as a CI gate; <code>pose_skills_check</code> as an MCP tool; broken-link detection caught
 one real defect during delivery, proving the gate exercises real content, not
 a placeholder check.</p>
@@ -1505,17 +1510,18 @@ not a structural gap.</p>
 checks and commits that satisfied them; release artifacts carry SLSA
 provenance, CycloneDX SBOMs and Sigstore signatures (finding 11); Markdown
 reports, append-only JSONL history and MCP insights remain inspectable with
-ordinary Git.</p>
+ordinary Git. The v1.1.0 review path additionally binds approval to an
+immutable semantic/source bundle while keeping the attestation append-only and
+outside the reviewed digest.</p>
 <p><strong>Strength:</strong> the traceability gap this document previously called out by
-name — "link requirement IDs to checks and commits" — is closed, and release
-evidence now carries real cryptographic provenance, not just a stable-field
-hash.</p>
-<p><strong>Gap to ideal:</strong> that provenance chain covers release artifacts, not
-individual spec closeout evidence — a <code>spec.md</code>'s Final Report and its
-validation history are still integrity-protected by Git history alone, not
-independently signed or attested per closeout. Actor/approval identity for a
-spec closeout is still whoever's Git identity signed the merge commit, not a
-captured, structured field.</p>
+name — "link requirement IDs to checks and commits" — is closed, release
+evidence carries real cryptographic provenance, and closeout review now has a
+stable subject/attestation boundary instead of a self-invalidating digest.</p>
+<p><strong>Gap to ideal:</strong> cryptographic provenance covers release artifacts and
+optional externally signed review envelopes, not every local report or
+closeout event. Local bundle attestations capture a reviewer/execution alias
+and exact subject digest, but remain integrity-protected by Git rather than
+requiring an asymmetric signature.</p>
 <p><strong>Benchmark:</strong> <a href="https://slsa.dev/spec/v1.0/levels">SLSA</a> defines progressive
 build provenance guarantees, now applied to every POSE release artifact.
 CycloneDX defines interoperable SBOM media types and predicates, also now
@@ -1555,7 +1561,7 @@ beyond POSE's own sensitivity field.</p>
 <p><strong>Purpose:</strong> expose governance consistently to any MCP-capable agent.</p>
 <p><strong>Delivered now:</strong> a versioned golden catalog fixture
 (<code>testdata/tool-catalog.golden.json</code>) freezing the exact <code>tools/list</code> payload
-— 48 tools (45 POSE tools + 3 optional reporters) — with bijection and
+— 50 tools (47 POSE tools + 3 optional reporters) — with bijection and
 negative-path tests against source registry, runtime and documentation; a
 uniform <code>project_id</code> schema across every
 multi-root tool with typed <code>ProjectUnknownError</code>/<code>ProjectAmbiguousError</code> and
@@ -1611,7 +1617,7 @@ misconfiguration (switched to <code>autobuild</code>).</p>
 SBOM, provenance, Scorecard, dependency/secret/static-analysis scanning,
 public placeholders — is closed with running, green CI evidence, not a
 documented intention.</p>
-<p><strong>Gap to ideal:</strong> the v1.0.0 release exercised the immutable candidate,
+<p><strong>Gap to ideal:</strong> the published v1.0.0 release exercised the immutable candidate,
 published-artifact and independent-verification lifecycle, including a clean
 rebuild. A higher SLSA build level, broader OpenSSF Scorecard improvement and
 upstream package-channel automation remain hardening work, not missing

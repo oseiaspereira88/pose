@@ -1,6 +1,6 @@
 # POSE
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
 
 **Repository-owned governance for agentic engineering.**
 
@@ -26,6 +26,7 @@ those changes are ready, valid, reachable and complete.
 | **Executable repository contract** | `AGENTS.md`, workflows, cumulative rules and task-aware skills travel with the code instead of living only in prompts or a hosted board. |
 | **Entry and exit gates** | Definition of Ready blocks under-specified work; closeout requires completion metadata, requirement evidence and explicit follow-up disposition. |
 | **Deterministic proof** | Module-aware test/lint/typecheck/build checks emit one canonical result as text, JSON, JUnit or SARIF. |
+| **Convergent technical review** | Component-aware plans select the relevant criteria and tools; a sealed semantic/source bundle is approved by a separate append-only attestation. |
 | **Composition assurance** | Artifact and surface gates distinguish “a file exists” from “the capability is reachable through a production entrypoint with current evidence.” |
 | **Operational learning** | Follow-ups, recurrence effectiveness and expiring knowledge keep residual work and reusable context alive without turning every note into permanent policy. |
 | **Verifiable distribution** | The native binary ships with checksums, keyless Sigstore signatures, CycloneDX SBOMs, SLSA provenance and independent rebuild verification. |
@@ -34,7 +35,7 @@ those changes are ready, valid, reachable and complete.
 
 - **CLI:** scaffold, assess, validate, report, close and maintain from one native
   Go binary, offline by design.
-- **MCP:** 45 POSE governance tools plus 3 optional Conductor run reporters.
+- **MCP:** 47 POSE governance tools plus 3 optional Conductor run reporters.
   The catalog is versioned and frozen against a golden fixture; project scope,
   policy and safe validation orchestration are explicit.
 - **CI:** GitHub Action, pre-commit hooks and the same validation matrix promote
@@ -42,7 +43,7 @@ those changes are ready, valid, reachable and complete.
 
 ## Analytics without manual counters
 
-POSE 1.0.0 automatically observes recognized local CLI commands and authorized
+POSE automatically observes recognized local CLI commands and authorized
 project-backed MCP calls. `pose usage` reports tools, outcomes, latency and the
 lifecycle of structured findings without asking agents to maintain `count++`.
 The privacy-bounded journal stays outside the worktree and excludes arguments,

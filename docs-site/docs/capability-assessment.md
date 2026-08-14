@@ -1,11 +1,11 @@
 # Capability assessment
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
 
-**Assessment date:** 2026-08-11
-**Evidence baseline:** published `v1.0.0`, current mainline source inspection,
-closed spec Final Reports, `pose doctor --json`, the 48-tool MCP `tools/list`
-golden fixture and repository checks
+**Assessment date:** 2026-08-13
+**Evidence baseline:** published `v1.0.0`, `v1.1.0` release-candidate source
+inspection, closed spec Final Reports, `pose doctor --json`, the 50-tool MCP
+`tools/list` golden fixture and repository checks
 **Purpose:** measure fitness against POSE's own promises and relevant
 best-of-breed practices, not manufacture a universal product ranking.
 
@@ -34,9 +34,11 @@ practice while preserving POSE's boundary.
 
 ## Executive result
 
-Since the previous assessment (2026-07-18, commit `d9c0b98`), all seven
-roadmaps in the product portfolio have shipped — 35 specs, each closed with
-requirement trace, deterministic validation evidence and a Final Report.
+Since the previous assessment (2026-07-18, commit `d9c0b98`), the original
+seven-roadmap, 35-spec product portfolio shipped and the later
+delivery-integrity roadmap also reached `done`. The repository now carries 8
+completed roadmaps and 91 completed specs, including the component-aware and
+convergent-review increments prepared for v1.1.0.
 Every item in that assessment's P0 and P1 improvement plan is delivered;
 most of P2 is delivered as well, with one item (durable multi-team
 orchestration, visual operation, tenant-scoped policy distribution) still
@@ -45,10 +47,13 @@ design.
 
 POSE has moved from "credible open-source, single-repo governance engine
 with a large distance to reference-grade" to a governance engine that is
-reference-grade across most of its own claimed surface. v1.0.0 adds automatic,
-privacy-bounded CLI/MCP usage analytics and completes the production-scoped
+reference-grade across most of its own claimed surface. v1.0.0 added automatic,
+privacy-bounded CLI/MCP usage analytics and completed the production-scoped
 five-metric DORA contract; the immutable release lifecycle was also exercised
-through tagged, published and independently verified states. Distribution
+through tagged, published and independently verified states. The v1.1.0
+candidate adds deterministic component-aware review plans and sealed semantic
+review bundles whose separate attestations no longer invalidate the subject
+they approve. Distribution
 trust, structured validation, MCP protocol completeness, extension lifecycle
 and cross-repository portfolio projection are no longer design-only claims.
 
@@ -62,13 +67,13 @@ not capabilities silently presented as complete.
 |---------------------------------------------|--------:|-------:|----------------------------------------------------------------------------------------------------------------|
 | Install, upgrade and local-first runtime    |       5 |      5 | Verified multi-platform download and proven in-place upgrade; package-manager channel limits are explicit      |
 | Spec lifecycle and closeout                 |       5 |      5 | Requirement-to-check-to-commit trace and structured amendment history close the prior gap                      |
-| Task routing, workflows, rules and skills   |       5 |      5 | Agent Skills contract is now a CI gate across all 9 skills, both locales                                       |
+| Task routing, workflows, rules and skills   |       5 |      5 | Agent Skills contract is now a CI gate across all 11 skills, both locales                                      |
 | Dependencies, readiness and roadmaps        |       4 |      5 | Cross-repository portfolio projection with ownership/criticality; no capacity/time scheduling by design        |
 | Validation matrix and structural checks     |       5 |      5 | Python/.NET/monorepo stacks, JSON/JUnit/SARIF, timeouts and Harness isolation all delivered                    |
 | Evidence, history and insights              |       4 |      5 | Requirement trace links checks to commits; release artifacts are signed, per-report evidence is not            |
 | Follow-ups and recurrence                   |       5 |      5 | Owner/SLA and measured intervention effectiveness close the prior gap                                          |
 | Knowledge governance                        |       4 |      5 | Usage traceability and explainable semantic-advisory retrieval delivered; RBAC mapping still open              |
-| MCP and agent interoperability              |       5 |      5 | Golden-fixture catalog conformance, active connection context, uniform project scoping, pagination, 48 tools  |
+| MCP and agent interoperability              |       5 |      5 | Golden-fixture catalog conformance, active connection context, uniform project scoping, pagination, 50 tools  |
 | Policy, identity and audit                  |       4 |      5 | Identity-gated validation orchestration and bounded audit fields; SPIFFE/secret-mgmt/TLS still external        |
 | CI, release and supply-chain trust          |       5 |      5 | Signed, SBOM'd, provenance-attested releases; CodeQL/govulncheck/gitleaks/Scorecard all green                  |
 | Import and adoption interoperability        |       4 |      5 | Three executable, end-to-end-tested brownfield kits; no plugin-based custom source schemas yet                 |
@@ -142,7 +147,7 @@ integrates specs, steering and hooks into an agentic development service.
 checks across agents.
 
 **Delivered now:** compatibility frontmatter (`pose_schema_range`, `clients`,
-`capabilities`) on all 9 shipped skills in both locales; `pose skills-check`
+`capabilities`) on all 11 shipped skills in both locales; `pose skills-check`
 as a CI gate; `pose_skills_check` as an MCP tool; broken-link detection caught
 one real defect during delivery, proving the gate exercises real content, not
 a placeholder check.
@@ -207,19 +212,20 @@ not a structural gap.
 checks and commits that satisfied them; release artifacts carry SLSA
 provenance, CycloneDX SBOMs and Sigstore signatures (finding 11); Markdown
 reports, append-only JSONL history and MCP insights remain inspectable with
-ordinary Git.
+ordinary Git. The v1.1.0 review path additionally binds approval to an
+immutable semantic/source bundle while keeping the attestation append-only and
+outside the reviewed digest.
 
 **Strength:** the traceability gap this document previously called out by
-name — "link requirement IDs to checks and commits" — is closed, and release
-evidence now carries real cryptographic provenance, not just a stable-field
-hash.
+name — "link requirement IDs to checks and commits" — is closed, release
+evidence carries real cryptographic provenance, and closeout review now has a
+stable subject/attestation boundary instead of a self-invalidating digest.
 
-**Gap to ideal:** that provenance chain covers release artifacts, not
-individual spec closeout evidence — a `spec.md`'s Final Report and its
-validation history are still integrity-protected by Git history alone, not
-independently signed or attested per closeout. Actor/approval identity for a
-spec closeout is still whoever's Git identity signed the merge commit, not a
-captured, structured field.
+**Gap to ideal:** cryptographic provenance covers release artifacts and
+optional externally signed review envelopes, not every local report or
+closeout event. Local bundle attestations capture a reviewer/execution alias
+and exact subject digest, but remain integrity-protected by Git rather than
+requiring an asymmetric signature.
 
 **Benchmark:** [SLSA](https://slsa.dev/spec/v1.0/levels) defines progressive
 build provenance guarantees, now applied to every POSE release artifact.
@@ -273,7 +279,7 @@ beyond POSE's own sensitivity field.
 
 **Delivered now:** a versioned golden catalog fixture
 (`testdata/tool-catalog.golden.json`) freezing the exact `tools/list` payload
-— 48 tools (45 POSE tools + 3 optional reporters) — with bijection and
+— 50 tools (47 POSE tools + 3 optional reporters) — with bijection and
 negative-path tests against source registry, runtime and documentation; a
 uniform `project_id` schema across every
 multi-root tool with typed `ProjectUnknownError`/`ProjectAmbiguousError` and
@@ -342,7 +348,7 @@ SBOM, provenance, Scorecard, dependency/secret/static-analysis scanning,
 public placeholders — is closed with running, green CI evidence, not a
 documented intention.
 
-**Gap to ideal:** the v1.0.0 release exercised the immutable candidate,
+**Gap to ideal:** the published v1.0.0 release exercised the immutable candidate,
 published-artifact and independent-verification lifecycle, including a clean
 rebuild. A higher SLSA build level, broader OpenSSF Scorecard improvement and
 upstream package-channel automation remain hardening work, not missing

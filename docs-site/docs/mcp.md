@@ -1,13 +1,13 @@
 # MCP server
 
-**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
 
 `pose serve-mcp` exposes a read-heavy governance view of a POSE instance to
 MCP-capable agents. Transports: stdio
 (`--stdio`, ideal for agent runtimes) and Streamable HTTP (`POSE_MCP_ADDR`,
 default `:8790`).
 
-The v1.0.0 golden catalog contains **48 tools**: 45 project-scoped POSE
+The v1.1.0 golden catalog contains **50 tools**: 47 project-scoped POSE
 governance tools and 3 optional Conductor run reporters. The count is a
 release contract, not a hand-maintained marketing number.
 
@@ -150,7 +150,7 @@ source content and raw finding IDs are excluded. No usage event is transmitted
 over the network.
 
 Human confirmation of a finding as `valid`, `wont-fix` or `false-positive` is
-not part of v1.0.0 and is never inferred from repeated calls. It remains a
+not inferred from repeated calls. It remains a
 tracked evolution; see [Analytics and delivery metrics](analytics.md).
 
 ## Optional tools

@@ -1,6 +1,6 @@
 # CI integration
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
 
 ## GitHub Action
 
@@ -31,7 +31,7 @@ the POSE repository to an immutable release tag or commit:
 ```yaml
 repos:
   - repo: https://github.com/oseiaspereira88/pose
-    rev: v1.0.0  # pin to an immutable release tag
+    rev: v1.1.0  # pin to an immutable release tag
     hooks: [{id: pose-check}, {id: pose-lint-spec}, {id: pose-history-check}]
 ```
 
@@ -59,4 +59,5 @@ Tagging that prepared candidate triggers POSE gates, Go tests, installer E2E
 and GoReleaser. Publication emits the multi-platform binary, SHA-256 checksums,
 Sigstore bundles, per-archive CycloneDX SBOMs and SLSA provenance; the release
 lifecycle then records tagged/published/verified evidence without rewriting
-the tag or mutable notes. See `docs/RELEASE.md` for the full process.
+the tag or mutable notes. See the
+[release lifecycle](cli.md#release-lifecycle) for the governed command flow.

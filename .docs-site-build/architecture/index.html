@@ -20,7 +20,7 @@
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../assets/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -50,6 +50,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -94,8 +96,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="POSE" class="md-header__button md-logo" aria-label="POSE" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -218,8 +219,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="POSE" class="md-nav__button md-logo" aria-label="POSE" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     POSE
@@ -1231,11 +1231,11 @@
 
 
 <h1 id="technical-architecture">Technical architecture</h1>
-<p><strong>Doc type:</strong> Explanation &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.0.x</p>
+<p><strong>Doc type:</strong> Explanation &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.1.x</p>
 <p><strong>Scope:</strong> POSE open-source distribution<br />
-<strong>Verified:</strong> 2026-08-11 against the published <code>v1.0.0</code> contract and current
-mainline source, after the analytics and immutable-release lifecycle specs
-reached <code>status: done</code></p>
+<strong>Verified:</strong> 2026-08-13 against the <code>v1.1.0</code> release-candidate contract and
+current mainline source, after component-aware review plans and convergent
+sealed review bundles reached <code>status: done</code></p>
 <p>POSE is a repository-local governance system for human and AI-assisted software
 delivery. It combines a versioned operating contract, a native deterministic
 engine and an MCP adapter. It does not implement an IDE, an agent runtime or a
@@ -1564,8 +1564,8 @@ results on every PR, push to <code>main</code> and weekly schedule.</p>
 full POSE governance surface — specs, readiness, roadmaps, changelogs,
 follow-ups, structural gates, task routing, workflows, rules, skills,
 knowledge, reports, insights and safe validation orchestration — frozen by a
-golden catalog fixture with an explicit risk class per tool. The v1.0.0
-catalog contains 45 POSE tools plus 3 optional Conductor reporters. Optional
+golden catalog fixture with an explicit risk class per tool. The v1.1.0
+catalog contains 47 POSE tools plus 3 optional Conductor reporters. Optional
 <code>pose_validate_submit</code> and <code>conductor_run_*</code> tools report external runs or
 submit to a Harness only when the corresponding Harne8 endpoints are
 configured.</p>
@@ -1648,6 +1648,12 @@ excluded by contract.</p>
 </tr>
 </tbody>
 </table>
+<p>Review follows the same ownership boundary. POSE prepares and seals a portable
+semantic <code>ReviewBundle</code>, verifies its separate attestation and remains the
+offline closeout authority. Conductor may assign reviewers, persist retries,
+manage findings and return a signed attestation envelope, but it cannot redefine
+the bundle or waive POSE policy. Recording the attestation, closing the scope and
+refreshing derived state never alter the approved bundle digest.</p>
 <p>Every boundary already ships in the open core, testable without any Harne8
 component present: <code>pose_validate_submit</code> returns a clear configuration
 error (not a crash) when no Harness is wired; <code>pose reconcile-evidence</code>

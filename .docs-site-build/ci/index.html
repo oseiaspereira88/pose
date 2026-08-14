@@ -18,7 +18,7 @@
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../assets/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -48,6 +48,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -92,8 +94,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="POSE" class="md-header__button md-logo" aria-label="POSE" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -216,8 +217,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="POSE" class="md-nav__button md-logo" aria-label="POSE" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     POSE
@@ -755,7 +755,7 @@
 
 
 <h1 id="ci-integration">CI integration</h1>
-<p><strong>Doc type:</strong> How-to &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.0.x</p>
+<p><strong>Doc type:</strong> How-to &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.1.x</p>
 <h2 id="github-action">GitHub Action</h2>
 <p>The distribution ships a composite action (<code>pose-action/</code>):</p>
 <div class="highlight"><pre><span></span><code><span class="nt">jobs</span><span class="p">:</span>
@@ -777,7 +777,7 @@
 the POSE repository to an immutable release tag or commit:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">repos</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/oseiaspereira88/pose</span>
-<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.0.0</span><span class="w">  </span><span class="c1"># pin to an immutable release tag</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.1.0</span><span class="w">  </span><span class="c1"># pin to an immutable release tag</span>
 <span class="w">    </span><span class="nt">hooks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[{</span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="nv">pose-check</span><span class="p p-Indicator">},</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="nv">pose-lint-spec</span><span class="p p-Indicator">},</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="nv">pose-history-check</span><span class="p p-Indicator">}]</span>
 </code></pre></div>
 <p>Run <code>pre-commit install</code>, then use <code>pre-commit run --all-files</code> in CI. The
@@ -802,7 +802,8 @@ Tagging that prepared candidate triggers POSE gates, Go tests, installer E2E
 and GoReleaser. Publication emits the multi-platform binary, SHA-256 checksums,
 Sigstore bundles, per-archive CycloneDX SBOMs and SLSA provenance; the release
 lifecycle then records tagged/published/verified evidence without rewriting
-the tag or mutable notes. See <code>docs/RELEASE.md</code> for the full process.</p>
+the tag or mutable notes. See the
+<a href="../cli/#release-lifecycle">release lifecycle</a> for the governed command flow.</p>
 
 
 

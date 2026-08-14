@@ -18,7 +18,7 @@
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="assets/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -48,6 +48,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="stylesheets/extra.css">
     
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -92,8 +94,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="." title="POSE" class="md-header__button md-logo" aria-label="POSE" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -216,8 +217,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="." title="POSE" class="md-nav__button md-logo" aria-label="POSE" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="assets/logo.svg" alt="logo">
 
     </a>
     POSE
@@ -777,7 +777,7 @@
 
 
 <h1 id="pose">POSE</h1>
-<p><strong>Doc type:</strong> Explanation &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.0.x</p>
+<p><strong>Doc type:</strong> Explanation &nbsp;·&nbsp; <strong>Applies to:</strong> POSE 1.1.x</p>
 <p><strong>Repository-owned governance for agentic engineering.</strong></p>
 <p>POSE (Project Operating Standard for Engineering) is the local operating
 contract around humans, coding agents and CI. It turns intent, policy,
@@ -812,6 +812,10 @@ those changes are ready, valid, reachable and complete.</p>
 <td>Module-aware test/lint/typecheck/build checks emit one canonical result as text, JSON, JUnit or SARIF.</td>
 </tr>
 <tr>
+<td><strong>Convergent technical review</strong></td>
+<td>Component-aware plans select the relevant criteria and tools; a sealed semantic/source bundle is approved by a separate append-only attestation.</td>
+</tr>
+<tr>
 <td><strong>Composition assurance</strong></td>
 <td>Artifact and surface gates distinguish “a file exists” from “the capability is reachable through a production entrypoint with current evidence.”</td>
 </tr>
@@ -829,14 +833,14 @@ those changes are ready, valid, reachable and complete.</p>
 <ul>
 <li><strong>CLI:</strong> scaffold, assess, validate, report, close and maintain from one native
   Go binary, offline by design.</li>
-<li><strong>MCP:</strong> 45 POSE governance tools plus 3 optional Conductor run reporters.
+<li><strong>MCP:</strong> 47 POSE governance tools plus 3 optional Conductor run reporters.
   The catalog is versioned and frozen against a golden fixture; project scope,
   policy and safe validation orchestration are explicit.</li>
 <li><strong>CI:</strong> GitHub Action, pre-commit hooks and the same validation matrix promote
   local policy into reproducible delivery gates.</li>
 </ul>
 <h2 id="analytics-without-manual-counters">Analytics without manual counters</h2>
-<p>POSE 1.0.0 automatically observes recognized local CLI commands and authorized
+<p>POSE automatically observes recognized local CLI commands and authorized
 project-backed MCP calls. <code>pose usage</code> reports tools, outcomes, latency and the
 lifecycle of structured findings without asking agents to maintain <code>count++</code>.
 The privacy-bounded journal stays outside the worktree and excludes arguments,
@@ -848,7 +852,7 @@ tool activity never masquerades as delivery performance. See
 <a href="analytics/">Analytics and delivery metrics</a>.</p>
 <h2 id="start-here">Start here</h2>
 <p>Install the latest Linux/macOS release from the root of your Git repository:</p>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSLO<span class="w"> </span>https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>bash<span class="w"> </span>install.sh
 </code></pre></div>
 <p>For a pinned, checksum- and Sigstore-verified installation, use the
 <a href="quickstart/#verified-install">Quickstart</a>.</p>

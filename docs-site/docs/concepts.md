@@ -1,6 +1,6 @@
 # Concepts
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
 
 ## The closed loop
 
@@ -74,8 +74,11 @@ locally. `pose init --wizard` seeds modules from a repository scan.
 ## Evidence has two levels
 
 **Lifecycle evidence** lives with the spec: requirement trace, validation
-results, immutable review attempts, follow-up dispositions and Git history.
-It answers “why was this change accepted?”
+results, immutable review bundles and separate attestations, follow-up
+dispositions and Git history. The review bundle hashes semantic/source inputs
+without hashing the attestation or closeout bookkeeping that follows, so the
+approval cannot invalidate its own subject. It answers “why was this change
+accepted?”
 
 **Delivery composition evidence** proves that an implementation claim reaches
 a production entrypoint. `artifact-check` reconciles declared files against an

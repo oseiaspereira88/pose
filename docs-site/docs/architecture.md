@@ -1,11 +1,11 @@
 # Technical architecture
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
 
 **Scope:** POSE open-source distribution  
-**Verified:** 2026-08-11 against the published `v1.0.0` contract and current
-mainline source, after the analytics and immutable-release lifecycle specs
-reached `status: done`
+**Verified:** 2026-08-13 against the `v1.1.0` release-candidate contract and
+current mainline source, after component-aware review plans and convergent
+sealed review bundles reached `status: done`
 
 POSE is a repository-local governance system for human and AI-assisted software
 delivery. It combines a versioned operating contract, a native deterministic
@@ -340,8 +340,8 @@ results on every PR, push to `main` and weekly schedule.
 full POSE governance surface — specs, readiness, roadmaps, changelogs,
 follow-ups, structural gates, task routing, workflows, rules, skills,
 knowledge, reports, insights and safe validation orchestration — frozen by a
-golden catalog fixture with an explicit risk class per tool. The v1.0.0
-catalog contains 45 POSE tools plus 3 optional Conductor reporters. Optional
+golden catalog fixture with an explicit risk class per tool. The v1.1.0
+catalog contains 47 POSE tools plus 3 optional Conductor reporters. Optional
 `pose_validate_submit` and `conductor_run_*` tools report external runs or
 submit to a Harness only when the corresponding Harne8 endpoints are
 configured.

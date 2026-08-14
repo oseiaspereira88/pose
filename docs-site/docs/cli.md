@@ -1,6 +1,6 @@
 # CLI reference
 
-**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
 
 The `pose` CLI is a single native Go binary. Every command below executes
 without Bash or Python fallbacks and works offline.
@@ -29,6 +29,42 @@ without Bash or Python fallbacks and works offline.
 | `pose artifact-check --spec S [--from A --to B]` | Reconcile declared artifacts with an immutable Git change set |
 | `pose surface-check [--spec S] [--results P]` | Prove composition/reachability with current typed validation evidence |
 | `pose roadmap-check <slug>` | Evaluate member closeout, registered cut criteria and required delivery findings |
+
+## Component-aware and convergent review
+
+| Command | Purpose |
+|---|---|
+| `pose review-plan <scope> [--json] [--explain]` | Resolve the deterministic component-aware plan, provenance, criteria, safe native-tool guidance and plan digest |
+| `pose review bundle <scope> [--json] [--explain] [--seal]` | Prepare the semantic review subject or persist it as an immutable `rvb-` bundle after required evidence is current |
+| `pose review attest <bundle-id> --reviewer ID --decision D --evidence REF [--plan-digest SHA] [--tool DISPOSITION] [--finding FINDING] [--apply]` | Preview or append a local `rva-` attestation bound to the exact sealed bundle |
+| `pose review attest --envelope <project-relative-path> [--apply]` | Verify and preview/import a policy-trusted external attestation envelope |
+| `pose review verify <scope\|bundle-id\|bundle-path> [--json]` | Verify bundle freshness, attestation completeness and closeout readiness |
+| `pose review-check <scope> [--json]` | Enforce the current review plan and accepted attempt/attestation |
+| `pose closeout-check <scope> [--json]` | Evaluate hierarchical spec, milestone or roadmap closure |
+
+`<scope>` is `spec:<slug>`, `milestone:<roadmap>/<id>` or
+`roadmap:<slug>`. Component-aware planning and sealed bundles are explicit
+policy opt-ins; legacy policies and historical attempts remain readable. The
+convergent path is:
+
+```bash
+pose review bundle spec:customer-export --explain
+pose validate --strict
+pose review bundle spec:customer-export --seal
+pose review attest rvb-... --reviewer reviewer-a --decision approved \
+  --evidence check:validate --plan-digest sha256:... --apply
+pose review verify spec:customer-export
+pose review-check spec:customer-export
+pose closeout-check spec:customer-export
+```
+
+The bundle digest includes governed semantic inputs, attributed patch/tree
+identity, consumed plan inputs and required evidence identities. Lifecycle
+bookkeeping, generated state and the attestation itself stay outside that
+digest, so approval does not invalidate its own subject. Semantic or source
+changes create a superseding bundle with a typed delta; derived closeout
+updates do not force a mechanical rereview. Plan resolution, bundle preview
+and verification never execute recommended tools or widen caller authority.
 
 ## Discovery, metrics, artifacts
 
@@ -59,7 +95,7 @@ Set `POSE_USAGE_DIR` only when an operator needs an explicit absolute local
 state directory (for example, a persistent container mount); the default Git
 common-dir/user-cache resolution is preferred.
 
-POSE 1.0.0 does not infer the future human adjudication states `valid`,
+POSE does not infer the future human adjudication states `valid`,
 `wont-fix` or `false-positive`; that evolution remains an owned follow-up and
 will stay separate from automatic observation counts. See
 [Analytics and delivery metrics](analytics.md) for interpretation and examples.

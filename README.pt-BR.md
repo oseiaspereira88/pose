@@ -63,7 +63,7 @@ para Linux e macOS, `zip` para Windows — em
 Linux e macOS (bash ou zsh; substitua `linux_amd64` pela sua plataforma):
 
 ```bash
-V=1.0.0
+V=1.1.0
 curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz"
 curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/checksums.txt"
 sha256sum --check --ignore-missing checksums.txt   # macOS: shasum -a 256 -c
@@ -75,7 +75,7 @@ pose install /caminho/do/seu/repo
 Windows (PowerShell):
 
 ```powershell
-$V = "1.0.0"
+$V = "1.1.0"
 Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/pose_${V}_windows_amd64.zip" -OutFile "pose_${V}_windows_amd64.zip"
 Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/checksums.txt" -OutFile checksums.txt
 (Get-FileHash "pose_${V}_windows_amd64.zip" -Algorithm SHA256).Hash -eq ((Get-Content checksums.txt | Select-String "pose_${V}_windows_amd64.zip") -split '\s+')[0]
@@ -173,6 +173,7 @@ versionado.
 | **Escala falhas sistêmicas**                  | Detecta falhas recorrentes de tarefa e roteia a correção estrutural     | `pose recurrence-check` + workflow de escalonamento |
 | **Preserva o contexto operacional**           | Dá dono, sensibilidade e TTL a handoffs e decisões                      | `.pose/knowledge/` + `knowledge-check`         |
 | **Planeja a partir de dependências**          | Valida DAGs de specs e milestones e calcula readiness                   | `depends_on`, roadmaps, `pose_spec_readiness`  |
+| **Revisa um sujeito imutável**                | Separa a entrada de review selada de sua atestação append-only          | `pose review bundle` / `attest` / `verify`     |
 | **Funciona entre agentes**                    | Expõe instruções curtas, skills portáveis e ferramentas MCP             | `AGENTS.md`, Agent Skills, `pose serve-mcp`    |
 | **Mantém o controle local**                   | Roda offline e mantém a fonte de verdade no Git                         | Um binário sem CGO; nenhuma dependência hospedada |
 
@@ -189,7 +190,7 @@ versionado.
 | `.pose/knowledge/`    | Handoffs, notas e decision logs governados por TTL                                               |
 | `.pose/reports/`      | Evidência versionável e histórico JSONL append-only                                              |
 | `.pose/indexes/`      | Projeções de repositório, módulo, tarefa, spec-graph e roadmap                                   |
-| `pose serve-mcp`      | 45 ferramentas de governança POSE e 3 reporters opcionais do Conductor via stdio ou Streamable HTTP |
+| `pose serve-mcp`      | 47 ferramentas de governança POSE e 3 reporters opcionais do Conductor via stdio ou Streamable HTTP |
 | `mcp-enforce/`        | Identidade opcional por projeto/execução, decisões OPA e auditoria                               |
 | `pose-action/`        | Adaptador de GitHub Action para gates determinísticos                                            |
 
@@ -199,7 +200,7 @@ componente e mecanismo. Leia a
 maturidade atual e lacunas frente ao estado da arte. Os
 [roadmaps de produto](docs-site/docs/product-roadmaps.md) governados
 convertem essas descobertas em roadmaps, specs de implementação e gates de
-release conscientes de dependências — 8 roadmaps e 89 specs hoje,
+release conscientes de dependências — 8 roadmaps e 91 specs hoje,
 acompanhados em `.pose/roadmaps/` e `.pose/specs/`.
 
 ## Onde o POSE é mais forte

@@ -1,6 +1,6 @@
 # Quickstart
 
-**Doc type:** Tutorial &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
+**Doc type:** Tutorial &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
 
 ## Install
 

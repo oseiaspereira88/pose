@@ -1,8 +1,8 @@
 ---
 schema_version: 1
-assessed_at: 2026-07-22
-baseline_commit: c9a08fa
-method: local source inspection, delivered-spec Final Reports, pose doctor --json, pose assess, MCP tools/list golden fixture and repository checks
+assessed_at: 2026-08-13
+baseline_commit: b65156e
+method: v1.1.0 release-candidate source inspection, delivered-spec Final Reports, pose doctor --json, pose assess, MCP tools/list golden fixture and repository checks
 ---
 
 # Capability assessment
@@ -34,10 +34,11 @@ Requirement-to-check-to-commit trace and structured amendment history.
 - title: Task routing, workflows, rules and skills
 - score: 5
 - target: 5
-- evidence: spec:pose-agent-skills-conformance
+- evidence: spec:pose-agent-skills-conformance, spec:pose-component-aware-review-plans
 - gaps:
 
-Agent Skills contract is a CI gate across all 9 skills, both locales.
+Agent Skills contract is a CI gate across all 11 skills, both locales; review
+plans now compose component-specific policy and safe tool guidance.
 
 ## Mechanism: dependencies-readiness-roadmaps
 - title: Dependencies, readiness and roadmaps
@@ -61,11 +62,12 @@ Python/.NET/monorepo stacks, JSON/JUnit/SARIF, timeouts and Harness isolation de
 - title: Evidence, history and insights
 - score: 4
 - target: 5
-- evidence: spec:pose-requirement-evidence-traceability, spec:pose-release-signing, spec:pose-slsa-provenance, spec:pose-capability-mechanism
-- gaps: provenance covers release artifacts, not per-spec closeout evidence; closeout actor identity is Git identity, not a captured structured field
+- evidence: spec:pose-requirement-evidence-traceability, spec:pose-release-signing, spec:pose-slsa-provenance, spec:pose-capability-mechanism, spec:pose-review-bundle-convergence
+- gaps: cryptographic provenance covers release artifacts and optional external review envelopes, not every local report or closeout event
 
-Release artifacts are signed and capability evidence now has typed resolution
-plus append-only snapshots; per-report actor attestation is still absent.
+Release artifacts are signed, capability evidence has typed resolution and
+append-only snapshots, and review approvals bind an immutable semantic bundle;
+ordinary local reports remain unsigned.
 
 ## Mechanism: followups-recurrence
 - title: Follow-ups and recurrence
@@ -89,11 +91,11 @@ Usage traceability and explainable semantic-advisory retrieval delivered.
 - title: MCP and agent interoperability
 - score: 5
 - target: 5
-- evidence: spec:pose-mcp-catalog-conformance, spec:pose-mcp-project-scope-contract, spec:pose-mcp-protocol-completeness, spec:pose-capability-mechanism
+- evidence: spec:pose-mcp-catalog-conformance, spec:pose-mcp-project-scope-contract, spec:pose-mcp-protocol-completeness, spec:pose-capability-mechanism, spec:pose-component-aware-review-plans, spec:pose-review-bundle-convergence
 - gaps:
 - paths: pose-mcp/internal/mcpserver/*.go
 
-Golden-fixture catalog conformance, uniform project scoping, pagination, 34 tools.
+Golden-fixture catalog conformance, uniform project scoping, pagination and 50 tools.
 
 ## Mechanism: policy-identity-audit
 - title: Policy, identity and audit

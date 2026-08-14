@@ -1,26 +1,30 @@
 # Product roadmaps
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.0.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
 
-**Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-07-19):** all 7 roadmaps `done`
+**Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-13):** all 8 roadmaps `done`
 **Canonical execution artifacts:** `.pose/roadmaps/*.md` and `.pose/specs/*/spec.md`
 
 This portfolio converted the [capability assessment](capability-assessment.md)
-into 7 governed roadmaps and 35 implementation specs. All 35 specs and all 7
-roadmaps carry `status: done` as of this baseline — every capability listed
-below crossed its documented validation and closeout gates with an
-executed Final Report, not a planning intention. The target windows and wave
-structure are kept below as the historical execution record and as the
-template for the next portfolio, not as an open plan. See the
+into an original 7 governed roadmaps and 35 implementation specs. A later
+delivery-integrity roadmap added 4 roadmap-bound specs, bringing the governed
+portfolio to 8 roadmaps and 39 member specs; the repository contains 91
+completed specs in total. All 8 roadmaps carry `status: done` as of this
+baseline — every roadmap outcome crossed its documented validation and
+closeout gates with executed evidence, not a planning intention. The target
+windows and wave structure are kept below as the historical execution record
+and as the template for the next portfolio, not as an open plan. See the
 [capability assessment](capability-assessment.md) for the current, post-delivery
 state of each mechanism.
 
 !!! note "Historical portfolio, current product"
 
-    The wave dates below are retained as execution history. POSE 1.0.0 has
-    since added automatic usage analytics, the revised five-metric DORA
-    contract and an exercised immutable release lifecycle. Current capability
-    truth lives in the assessment, not in these historical target windows.
+    The wave dates below are retained as execution history. POSE 1.0.0 added
+    automatic usage analytics, the revised five-metric DORA contract and an
+    exercised immutable release lifecycle. The v1.1.0 candidate adds
+    component-aware review plans and convergent sealed review bundles with
+    separate attestations. Current capability truth lives in the assessment,
+    not in these historical target windows.
 
 ## Prioritization model
 
@@ -48,6 +52,7 @@ specs but must not bypass dependencies to satisfy a target date.
 | 5 | Agent interoperability | MCP drift and manual extension lifecycle | 2026-09-21 → 2026-12-18 | Conformant project-safe protocol and ecosystem |
 | 6 | Adoption and DX | Distribution and onboarding friction | 2026-09-21 → 2027-01-29 | Trusted install, guided remediation and adoption kits |
 | 7 | Insights and scale | No outcome integrations or portfolio layer | 2026-11-02 → 2027-03-31 | OTel/DORA signals and Harne8 composition |
+| 8 | Delivery integrity | Completion claims that lacked immutable review, provenance and reachability witnesses | Delivered | Reviewed closure, artifact identity, composed surfaces and evidence-backed release states |
 
 ## Coverage of the assessed mechanisms
 
@@ -58,7 +63,7 @@ specs but must not bypass dependencies to satisfy a target date.
 | Task routing, workflows, rules and skills | Agent interoperability | `pose-agent-skills-conformance`, `pose-extension-catalog-lifecycle` |
 | Dependencies, readiness and roadmaps | Insights and scale | `pose-cross-repo-portfolio` |
 | Validation and structural integrity | Validation platform | all five validation-platform specs |
-| Evidence, history and insights | Governance traceability | `pose-requirement-evidence-traceability`, `pose-recurrence-effectiveness` |
+| Evidence, history and insights | Governance traceability / Delivery integrity | `pose-requirement-evidence-traceability`, `pose-review-bundle-convergence`, `pose-recurrence-effectiveness` |
 | Follow-ups and recurrence | Governance traceability | `pose-followup-ownership-sla`, `pose-recurrence-effectiveness` |
 | Operational knowledge | Governance traceability | `pose-knowledge-consumption-traceability` |
 | MCP and agent interoperability | Product integrity / Agent interoperability | `pose-mcp-catalog-conformance`, `pose-mcp-project-scope-contract`, `pose-mcp-protocol-completeness` |
