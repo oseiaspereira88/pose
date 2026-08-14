@@ -3,6 +3,11 @@ on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag (e.g. v1.1.0)"
+        required: false
+        default: ""
 # id-token: write enables keyless Sigstore signing (spec pose-release-signing);
 # attestations: write publishes SLSA build provenance (spec pose-slsa-provenance)
 # Least privilege at the top; the release job raises what it needs
@@ -18,6 +23,17 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { fetch-depth: 0 }
+      - name: Resolve release version
+        run: |
+          set -euo pipefail
+          VERSION="${{ inputs.version }}"
+          if [ -z "$VERSION" ] && [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME}"
+          fi
+          if [ -z "$VERSION" ]; then
+            VERSION="v$(go -C pose-mcp run ./cmd/pose version | head -n1 | awk '{print $2}' | sed 's/-dev//')"
+          fi
+          echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with: { go-version: "1.26.6", cache: true, cache-dependency-path: pose-mcp/go.mod }
       # goreleaser refuses to build from a dirty worktree, but only finds out
@@ -31,7 +47,7 @@ jobs:
           bash tests/install/run.sh
       - run: bash tests/release/assert-clean-tree.sh "Tests + installer E2E"
       - name: Compatibility gate (spec pose-release-compatibility-matrix)
-        run: bash tests/release/compat.sh "${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}"
+        run: bash tests/release/compat.sh "${RELEASE_VERSION}"
       - run: bash tests/release/assert-clean-tree.sh "Compatibility gate" compatibility-report.md
       - name: Retain compatibility report
         if: always()
@@ -42,8 +58,8 @@ jobs:
           retention-days: 400
       - name: Release notes from changelog fragments
         run: |
-          go -C pose-mcp run ./cmd/pose release check --version "${GITHUB_REF_NAME}" --strict
-          go -C pose-mcp run ./cmd/pose release notes --version "${GITHUB_REF_NAME}" > /tmp/notes.md
+          go -C pose-mcp run ./cmd/pose release check --version "${RELEASE_VERSION}" --strict
+          go -C pose-mcp run ./cmd/pose release notes --version "${RELEASE_VERSION}" > /tmp/notes.md
           cat /tmp/notes.md
       - run: bash tests/release/assert-clean-tree.sh "Release notes from changelog fragments"
       - name: Security gate (spec pose-ossf-security-baseline)
