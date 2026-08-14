@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:934120982e17c1e1cdb7ee28c0d59663d16483d7e151649c66a5d9224db8cc98",
-  "provenance_digest": "sha256:22e0d6734795b57014081c38e0cc83e429780191bf70629aec6a99736a7fd3a1",
+  "input_digest": "sha256:3d3c283b5da7e24e05415e040aae95714e7e6020c0249a35c9f5285966de0577",
+  "provenance_digest": "sha256:8037caed3aba863a374d3a4235fafe3a199dfbbc2384c9701d9f263a5a7a9116",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -613,6 +613,27 @@
       }
     },
     {
+      "id": "artifact:.pose/changelogs/v1.1.0.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/v1.1.0.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/v1.1.0/pose-component-aware-review-plans.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/v1.1.0/pose-component-aware-review-plans.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/v1.1.0/pose-review-bundle-convergence.md"
+      }
+    },
+    {
       "id": "artifact:.pose/indexes/delivery-integrity.json",
       "type": "artifact",
       "attributes": {
@@ -785,6 +806,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/releases/v0.20.3/manifest.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/releases/v1.1.0/manifest.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/releases/v1.1.0/manifest.json"
       }
     },
     {
@@ -6734,6 +6762,14 @@
       }
     },
     {
+      "id": "change-set:cs-53ab291cdd01",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:ee9db403c733ac84cbc53be52927be1616c6dbcc2afbcdde471bab0e3baa30ce",
+        "selector": "range:0d40bc7^..0d40bc7"
+      }
+    },
+    {
       "id": "change-set:cs-56f1f7cb644d",
       "type": "change-set",
       "attributes": {
@@ -6987,6 +7023,14 @@
       "attributes": {
         "diff_digest": "sha256:3fa2464efd44a56f8896a7321ff09d94d6f4db87dbfc3308f6e2e4e084bbf04b",
         "selector": "range:636a31f^..636a31f"
+      }
+    },
+    {
+      "id": "change-set:cs-b7ba2659ac0c",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:ee9db403c733ac84cbc53be52927be1616c6dbcc2afbcdde471bab0e3baa30ce",
+        "selector": "range:0d40bc7^..0d40bc7"
       }
     },
     {
@@ -7663,7 +7707,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7677,7 +7721,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7691,14 +7735,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7726,7 +7770,7 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -9044,28 +9088,28 @@
       "type": "implemented-by"
     },
     {
-      "from": "artifact:.pose/changelogs/unreleased/pose-component-aware-review-plans.md",
+      "from": "artifact:.pose/changelogs/unreleased/review-legacy-done-scope-exemption.md",
       "to": "delivery:governance:component-aware-review-plans",
       "type": "implemented-by"
     },
     {
-      "from": "artifact:.pose/changelogs/unreleased/pose-review-bundle-convergence.md",
+      "from": "artifact:.pose/changelogs/v1.1.0/pose-component-aware-review-plans.md",
+      "to": "delivery:governance:component-aware-review-plans",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
       "to": "delivery:contract:review-bundle-mcp",
       "type": "implemented-by"
     },
     {
-      "from": "artifact:.pose/changelogs/unreleased/pose-review-bundle-convergence.md",
+      "from": "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
       "to": "delivery:governance:convergent-review-closeout",
       "type": "implemented-by"
     },
     {
-      "from": "artifact:.pose/changelogs/unreleased/pose-review-bundle-convergence.md",
+      "from": "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
       "to": "delivery:surface:review-bundle-cli",
-      "type": "implemented-by"
-    },
-    {
-      "from": "artifact:.pose/changelogs/unreleased/review-legacy-done-scope-exemption.md",
-      "to": "delivery:governance:component-aware-review-plans",
       "type": "implemented-by"
     },
     {
@@ -17954,6 +17998,46 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-53ab291cdd01",
+      "to": "artifact:.pose/changelogs/unreleased/pose-component-aware-review-plans.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-53ab291cdd01",
+      "to": "artifact:.pose/changelogs/unreleased/pose-review-bundle-convergence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-53ab291cdd01",
+      "to": "artifact:.pose/changelogs/v1.1.0.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-53ab291cdd01",
+      "to": "artifact:.pose/changelogs/v1.1.0/pose-component-aware-review-plans.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-53ab291cdd01",
+      "to": "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-53ab291cdd01",
+      "to": "artifact:.pose/releases/v1.1.0/manifest.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-53ab291cdd01",
+      "to": "artifact:.pose/specs/pose-component-aware-review-plans/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-53ab291cdd01",
+      "to": "artifact:.pose/specs/pose-review-bundle-convergence/spec.md",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-56f1f7cb644d",
       "to": "artifact:.github/workflows/ci.yml",
       "type": "changes"
@@ -22034,6 +22118,46 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-b7ba2659ac0c",
+      "to": "artifact:.pose/changelogs/unreleased/pose-component-aware-review-plans.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b7ba2659ac0c",
+      "to": "artifact:.pose/changelogs/unreleased/pose-review-bundle-convergence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b7ba2659ac0c",
+      "to": "artifact:.pose/changelogs/v1.1.0.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b7ba2659ac0c",
+      "to": "artifact:.pose/changelogs/v1.1.0/pose-component-aware-review-plans.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b7ba2659ac0c",
+      "to": "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b7ba2659ac0c",
+      "to": "artifact:.pose/releases/v1.1.0/manifest.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b7ba2659ac0c",
+      "to": "artifact:.pose/specs/pose-component-aware-review-plans/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b7ba2659ac0c",
+      "to": "artifact:.pose/specs/pose-review-bundle-convergence/spec.md",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-bc87444a3e57",
       "to": "artifact:.github/workflows/release.yml",
       "type": "changes"
@@ -25194,16 +25318,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:contract:review-bundle-mcp",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "delivery:contract:review-bundle-mcp",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:governance:action-runtime-currency-gate",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -25299,16 +25413,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:governance:component-aware-review-plans",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "delivery:governance:component-aware-review-plans",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:governance:composition-contract",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -25342,16 +25446,6 @@
       "from": "delivery:governance:convergent-review-closeout",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:governance:convergent-review-closeout",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "delivery:governance:convergent-review-closeout",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
     },
     {
       "from": "delivery:governance:dependency-digest-pinning",
@@ -25939,21 +26033,6 @@
       "type": "reaches"
     },
     {
-      "from": "delivery:surface:review-bundle-cli",
-      "to": "validation-result:pose-mcp/go/delivery-reachability",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
@@ -26230,11 +26309,6 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-reachability",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
@@ -26485,26 +26559,6 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/mcpserver/server.go",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/mcpserver/server.go",
       "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
@@ -27075,6 +27129,11 @@
     },
     {
       "from": "spec:pose-component-aware-review-plans",
+      "to": "artifact:.pose/changelogs/v1.1.0/pose-component-aware-review-plans.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
       "to": "artifact:.pose/indexes/delivery-integrity.json",
       "type": "declares"
     },
@@ -27356,6 +27415,11 @@
     {
       "from": "spec:pose-component-aware-review-plans",
       "to": "change-set:cs-b476b3c4827c",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-component-aware-review-plans",
+      "to": "change-set:cs-b7ba2659ac0c",
       "type": "observed-by"
     },
     {
@@ -29215,6 +29279,11 @@
     },
     {
       "from": "spec:pose-review-bundle-convergence",
+      "to": "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-review-bundle-convergence",
       "to": "artifact:.pose/indexes/validation-matrix.json",
       "type": "declares"
     },
@@ -29506,6 +29575,11 @@
     {
       "from": "spec:pose-review-bundle-convergence",
       "to": "change-set:cs-316fe0d39a1e",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-review-bundle-convergence",
+      "to": "change-set:cs-53ab291cdd01",
       "type": "observed-by"
     },
     {
@@ -30488,11 +30562,6 @@
     {
       "spec": "pose-component-aware-review-plans",
       "action": "created",
-      "path": ".pose/changelogs/unreleased/pose-component-aware-review-plans.md"
-    },
-    {
-      "spec": "pose-component-aware-review-plans",
-      "action": "created",
       "path": ".pose/knowledge/2026-08-13-decision-log-adr-component-aware-review-plans-review.md"
     },
     {
@@ -30774,6 +30843,12 @@
       "spec": "pose-component-aware-review-plans",
       "action": "removed",
       "path": ".pose/changelogs/unreleased/review-legacy-done-scope-exemption.md"
+    },
+    {
+      "spec": "pose-component-aware-review-plans",
+      "action": "renamed",
+      "old_path": ".pose/changelogs/unreleased/pose-component-aware-review-plans.md",
+      "new_path": ".pose/changelogs/v1.1.0/pose-component-aware-review-plans.md"
     },
     {
       "spec": "pose-composition-contract",
@@ -32199,11 +32274,6 @@
     {
       "spec": "pose-review-bundle-convergence",
       "action": "created",
-      "path": ".pose/changelogs/unreleased/pose-review-bundle-convergence.md"
-    },
-    {
-      "spec": "pose-review-bundle-convergence",
-      "action": "created",
       "path": ".pose/knowledge/2026-08-13-decision-log-adr-sealed-review-bundles-review.md"
     },
     {
@@ -32510,6 +32580,12 @@
       "spec": "pose-review-bundle-convergence",
       "action": "modified",
       "path": "pose-mcp/schemas/README.md"
+    },
+    {
+      "spec": "pose-review-bundle-convergence",
+      "action": "renamed",
+      "old_path": ".pose/changelogs/unreleased/pose-review-bundle-convergence.md",
+      "new_path": ".pose/changelogs/v1.1.0/pose-review-bundle-convergence.md"
     },
     {
       "spec": "pose-sbom-license-coverage-gate",
@@ -37372,6 +37448,47 @@
       "diff_digest": "sha256:e378a0f966fa70c88a19167a830ff30079c7d567b16e80aef897c064ba3d06e6"
     },
     {
+      "id": "cs-53ab291cdd01",
+      "spec": "pose-review-bundle-convergence",
+      "selector": "range:0d40bc7^..0d40bc7",
+      "base": "0d40bc7^",
+      "head": "0d40bc7",
+      "resolved_base": "8dba8a8f022f5bf1a5658701770e2305843594fb",
+      "resolved_head": "0d40bc754f9d0c1b37ec8665723b721ff4382d42",
+      "commits": [
+        "0d40bc754f9d0c1b37ec8665723b721ff4382d42"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/v1.1.0.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v1.1.0/manifest.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-component-aware-review-plans/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-review-bundle-convergence/spec.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-component-aware-review-plans.md",
+          "new_path": ".pose/changelogs/v1.1.0/pose-component-aware-review-plans.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-review-bundle-convergence.md",
+          "new_path": ".pose/changelogs/v1.1.0/pose-review-bundle-convergence.md"
+        }
+      ],
+      "diff_digest": "sha256:ee9db403c733ac84cbc53be52927be1616c6dbcc2afbcdde471bab0e3baa30ce"
+    },
+    {
       "id": "cs-56f1f7cb644d",
       "spec": "pose-container-build-gate",
       "selector": "range:04bf682..838c2fd",
@@ -41153,6 +41270,47 @@
       "diff_digest": "sha256:3fa2464efd44a56f8896a7321ff09d94d6f4db87dbfc3308f6e2e4e084bbf04b"
     },
     {
+      "id": "cs-b7ba2659ac0c",
+      "spec": "pose-component-aware-review-plans",
+      "selector": "range:0d40bc7^..0d40bc7",
+      "base": "0d40bc7^",
+      "head": "0d40bc7",
+      "resolved_base": "8dba8a8f022f5bf1a5658701770e2305843594fb",
+      "resolved_head": "0d40bc754f9d0c1b37ec8665723b721ff4382d42",
+      "commits": [
+        "0d40bc754f9d0c1b37ec8665723b721ff4382d42"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/v1.1.0.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v1.1.0/manifest.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-component-aware-review-plans/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-review-bundle-convergence/spec.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-component-aware-review-plans.md",
+          "new_path": ".pose/changelogs/v1.1.0/pose-component-aware-review-plans.md"
+        },
+        {
+          "action": "renamed",
+          "old_path": ".pose/changelogs/unreleased/pose-review-bundle-convergence.md",
+          "new_path": ".pose/changelogs/v1.1.0/pose-review-bundle-convergence.md"
+        }
+      ],
+      "diff_digest": "sha256:ee9db403c733ac84cbc53be52927be1616c6dbcc2afbcdde471bab0e3baa30ce"
+    },
+    {
       "id": "cs-bc87444a3e57",
       "spec": "pose-extension-reference-publication",
       "selector": "range:1f65cf7..HEAD",
@@ -44165,6 +44323,12 @@
     ".pose/changelogs/v0.16.3/pose-debt-marker-lexical-precision.md": [
       "pose-debt-marker-lexical-precision"
     ],
+    ".pose/changelogs/v1.1.0/pose-component-aware-review-plans.md": [
+      "pose-component-aware-review-plans"
+    ],
+    ".pose/changelogs/v1.1.0/pose-review-bundle-convergence.md": [
+      "pose-review-bundle-convergence"
+    ],
     ".pose/indexes/delivery-integrity.json": [
       "pose-artifact-provenance-ledger",
       "pose-component-aware-review-plans",
@@ -45449,6 +45613,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-1d7d65d4cb84",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": "governance:component-aware-review-plans",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-1dfa145489d4",
       "code": "orphan",
       "severity": "warning",
@@ -46064,6 +46238,15 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-74913f538e42",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-component-aware-review-plans",
+      "path": "governance:component-aware-review-plans",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-74bab9857a59",
       "code": "legacy-narrative",
       "severity": "info",
@@ -46212,6 +46395,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-865e81c11266",
+      "code": "surface-without-reachability",
+      "severity": "error",
+      "spec": "pose-review-bundle-convergence",
+      "path": "surface:review-bundle-cli",
+      "message": "required current evidence is missing: reachability, one-of:integration|e2e",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-87108fc84844",
@@ -46614,6 +46806,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-b0a36d8d99f7",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-review-bundle-convergence",
+      "path": "contract:review-bundle-mcp",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-b33c7916857f",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -46656,6 +46857,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-b47192bc2ec4",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-review-bundle-convergence",
+      "path": "governance:convergent-review-closeout",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-b5a98739a772",
@@ -46901,6 +47111,16 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-d734c0cf8719",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-review-bundle-convergence",
+      "path": "governance:convergent-review-closeout",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-d75da855ea8d",
       "code": "orphan",
       "severity": "warning",
@@ -46986,6 +47206,16 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-e5b66f5a57e0",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-review-bundle-convergence",
+      "path": "contract:review-bundle-mcp",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-e65bb29b3cb2",
@@ -47233,6 +47463,16 @@
       "path": "pose-mcp/internal/cli/docs_sync.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-f863abb65d32",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-review-bundle-convergence",
+      "path": "surface:review-bundle-cli",
+      "change_set": "pose-mcp/go/delivery-reachability",
+      "message": "passed reachability evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-f9c5eb4e616d",
@@ -48165,7 +48405,10 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -48186,7 +48429,12 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test",
+        "check is missing, failing or stale: delivery-integration",
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -48206,7 +48454,10 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -48217,7 +48468,10 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -48255,7 +48509,10 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     }
   ],
   "paths": {
@@ -48572,7 +48829,6 @@
     "contract:review-bundle-mcp": [
       "spec:pose-review-bundle-convergence",
       "artifact:.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
-      "artifact:.pose/changelogs/unreleased/pose-review-bundle-convergence.md",
       "artifact:.pose/knowledge/2026-08-13-decision-log-adr-sealed-review-bundles-review.md",
       "artifact:.pose/reports/2026-08-13-standard-review-bundle-convergence.md",
       "artifact:.pose/reports/history/standard-review-bundle-convergence.jsonl",
@@ -48635,10 +48891,9 @@
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/review.md",
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "artifact:pose-mcp/schemas/README.md",
+      "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
       "delivery:contract:review-bundle-mcp",
-      "entrypoint:pose-mcp/internal/mcpserver/server.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/internal/mcpserver/server.go"
     ],
     "governance:action-runtime-currency-gate": [
       "spec:pose-action-runtime-currency-gate",
@@ -48728,7 +48983,6 @@
     "governance:component-aware-review-plans": [
       "spec:pose-component-aware-review-plans",
       "artifact:.pose/adr/2026-08-12-component-aware-effective-review-plans.md",
-      "artifact:.pose/changelogs/unreleased/pose-component-aware-review-plans.md",
       "artifact:.pose/knowledge/2026-08-13-decision-log-adr-component-aware-review-plans-review.md",
       "artifact:.pose/review-profiles/backend-review.json",
       "artifact:.pose/review-profiles/frontend-review.json",
@@ -48786,10 +49040,9 @@
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "artifact:pose-mcp/schemas/README.md",
       "artifact:.pose/changelogs/unreleased/review-legacy-done-scope-exemption.md",
+      "artifact:.pose/changelogs/v1.1.0/pose-component-aware-review-plans.md",
       "delivery:governance:component-aware-review-plans",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "governance:composition-contract": [
       "spec:pose-composition-contract",
@@ -48816,7 +49069,6 @@
     "governance:convergent-review-closeout": [
       "spec:pose-review-bundle-convergence",
       "artifact:.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
-      "artifact:.pose/changelogs/unreleased/pose-review-bundle-convergence.md",
       "artifact:.pose/knowledge/2026-08-13-decision-log-adr-sealed-review-bundles-review.md",
       "artifact:.pose/reports/2026-08-13-standard-review-bundle-convergence.md",
       "artifact:.pose/reports/history/standard-review-bundle-convergence.jsonl",
@@ -48879,10 +49131,9 @@
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/review.md",
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "artifact:pose-mcp/schemas/README.md",
+      "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
       "delivery:governance:convergent-review-closeout",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "governance:dependency-digest-pinning": [
       "spec:pose-dependency-digest-pinning",
@@ -49484,7 +49735,6 @@
     "surface:review-bundle-cli": [
       "spec:pose-review-bundle-convergence",
       "artifact:.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
-      "artifact:.pose/changelogs/unreleased/pose-review-bundle-convergence.md",
       "artifact:.pose/knowledge/2026-08-13-decision-log-adr-sealed-review-bundles-review.md",
       "artifact:.pose/reports/2026-08-13-standard-review-bundle-convergence.md",
       "artifact:.pose/reports/history/standard-review-bundle-convergence.jsonl",
@@ -49547,9 +49797,9 @@
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/review.md",
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "artifact:pose-mcp/schemas/README.md",
+      "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
       "delivery:surface:review-bundle-cli",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-reachability"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ]
   }
 }

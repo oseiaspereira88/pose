@@ -118,7 +118,7 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func scanModules(root string) ([]indexedModule, []string, []string, []string, []string) {
-	ignored := map[string]bool{".git": true, "node_modules": true, ".gradle": true, "build": true, "dist": true, "target": true, "vendor": true, "__pycache__": true}
+	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, ".gradle": true, "build": true, "dist": true, "target": true, "vendor": true, "__pycache__": true}
 	byDir := map[string]string{}
 	manifests, dockers, charts, readmes := []string{}, []string{}, []string{}, []string{}
 	_ = filepath.WalkDir(root, func(path string, e os.DirEntry, err error) error {

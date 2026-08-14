@@ -260,7 +260,7 @@ targeted rereview.
 - created: .pose/specs/pose-review-bundle-convergence/spec.md
 - created: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
 - created: .pose/knowledge/2026-08-13-decision-log-adr-sealed-review-bundles-review.md
-- created: .pose/changelogs/v1.1.0/pose-review-bundle-convergence.md
+- renamed: .pose/changelogs/unreleased/pose-review-bundle-convergence.md -> .pose/changelogs/v1.1.0/pose-review-bundle-convergence.md
 - modified: .pose/assessments/README.md
 - modified: .pose/assessments/consolidated.md
 - modified: .pose/assessments/pose-mcp.md

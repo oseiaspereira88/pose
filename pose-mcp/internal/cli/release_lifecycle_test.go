@@ -119,11 +119,12 @@ func TestReleasePrepareRepointsConsumedSpecArtifactClaims(t *testing.T) {
 		t.Fatal(err)
 	}
 	archived := ".pose/changelogs/" + target + "/alpha.md"
-	if !strings.Contains(string(claimed), "- created: "+archived) {
+	oldClaim := ".pose/changelogs/unreleased/alpha.md"
+	if !strings.Contains(string(claimed), "- renamed: "+oldClaim+" -> "+archived) {
 		t.Errorf("the consumed spec must claim the archived path, got:\n%s", claimed)
 	}
-	if strings.Contains(string(claimed), ".pose/changelogs/unreleased/alpha.md") {
-		t.Error("the stale unreleased claim must be gone")
+	if strings.Contains(string(claimed), "- created: "+archived) {
+		t.Error("the archived fragment must be recorded as a rename, not a creation")
 	}
 	if !strings.Contains(string(claimed), "- modified: internal/alpha.go") {
 		t.Error("unrelated claims must survive untouched")

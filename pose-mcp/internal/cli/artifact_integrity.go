@@ -305,7 +305,16 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 		fmt.Fprintf(stderr, "pose artifact-check: %v\n", err)
 		return 1
 	}
-	graph := posemodel.BuildDeliveryIntegrity([]posemodel.Spec{*full}, claims, []posemodel.ChangeSet{set}, tracked, policy)
+	sets := []posemodel.ChangeSet{set}
+	if from == "" && to == "" {
+		for _, recorded := range loadRecordedChangeSets(root) {
+			if recorded.Spec != spec || recorded.ID == set.ID {
+				continue
+			}
+			sets = append(sets, recorded)
+		}
+	}
+	graph := posemodel.BuildDeliveryIntegrity([]posemodel.Spec{*full}, claims, sets, tracked, policy)
 	for _, claim := range claims {
 		paths := []string{claim.Path}
 		if claim.Action == "renamed" {

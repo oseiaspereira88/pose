@@ -341,6 +341,14 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 	}
 	sort.Slice(sets, func(i, j int) bool { return sets[i].ID < sets[j].ID })
 	seen := map[string]bool{}
+	supersededPaths := map[string]bool{}
+	for _, set := range sets {
+		for _, observed := range set.Paths {
+			if observed.Action == "renamed" && observed.OldPath != "" {
+				supersededPaths[observed.OldPath] = true
+			}
+		}
+	}
 	for _, set := range sets {
 		subject.ChangeSets = append(subject.ChangeSets, set.ID)
 		if subject.Base == "" {
@@ -348,6 +356,10 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 		}
 		subject.Head = set.ResolvedHead
 		for _, observed := range set.Paths {
+			if observed.Action != "renamed" && supersededPaths[observed.Path] {
+				excluded = append(excluded, ReviewBundleInput{Kind: "superseded-path", Path: observed.Path, Reason: "a later attributed rename supplies the current review subject identity"})
+				continue
+			}
 			key := observedKey(observed)
 			if seen[key] {
 				continue
@@ -506,6 +518,9 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if scope.Kind == "spec" && (path == ".pose/specs/"+scope.Slug+"/spec.md" || path == ".pose/specs/"+scope.Slug+".md") {
 		return "semantic-scope", false
 	}
+	if strings.HasPrefix(path, ".pose/specs/") {
+		return "semantic-scope", false
+	}
 	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "derived-evidence", false
@@ -524,7 +539,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if strings.HasPrefix(path, ".pose/indexes/") {
 		return "derived-index", false
 	}
-	for _, prefix := range []string{".pose/policy/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".agents/skills/"} {
+	for _, prefix := range []string{".pose/policy/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".agents/skills/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}

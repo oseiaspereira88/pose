@@ -121,6 +121,54 @@ func TestArtifactCheckMatchesRenameWithEditAndRemoval(t *testing.T) {
 	}
 }
 
+func TestArtifactCheckReconcilesRecordedReleaseRename(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	writeArtifactTestFile(t, root, "README.md", "fixture\n")
+	artifactGit(t, root, "add", "--", "README.md")
+	artifactGit(t, root, "commit", "-q", "-m", "baseline")
+	writeArtifactTestFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-03","governed_roots":["release"],"severities":{"action-mismatch":"error","undeclared":"warning"}}`)
+	writeArtifactTestFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: done\ncreated_at: 2026-08-03\n---\n\n# Spec: alpha\n\n## 3. Technical Plan\n\n### Artifacts\n- created: release/unreleased/alpha.md\n")
+	writeArtifactTestFile(t, root, "release/unreleased/alpha.md", "alpha\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "implement alpha", "-m", "POSE-Spec: alpha")
+
+	base := artifactGit(t, root, "rev-parse", "HEAD")
+	if err := os.MkdirAll(filepath.Join(root, "release/v1.1.0"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	artifactGit(t, root, "mv", "--", "release/unreleased/alpha.md", "release/v1.1.0/alpha.md")
+	writeArtifactTestFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: done\ncreated_at: 2026-08-03\n---\n\n# Spec: alpha\n\n## 3. Technical Plan\n\n### Artifacts\n- renamed: release/unreleased/alpha.md -> release/v1.1.0/alpha.md\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "prepare release")
+	head := artifactGit(t, root, "rev-parse", "HEAD")
+
+	var reportOut, reportErr bytes.Buffer
+	args := []string{"--task", "alpha release attribution", "--spec", "alpha", "--outcome", "pass", "--change-from", base, "--change-to", head}
+	if code := cmdReport(root, args, &reportOut, &reportErr); code != 0 {
+		t.Fatalf("report code=%d err=%s", code, reportErr.String())
+	}
+
+	var out, errOut bytes.Buffer
+	if code := cmdArtifactCheck(root, []string{"--spec", "alpha", "--strict", "--json"}, &out, &errOut); code != 0 {
+		t.Fatalf("artifact-check code=%d err=%s out=%s", code, errOut.String(), out.String())
+	}
+	var graph posemodel.DeliveryIntegrityGraph
+	if err := json.Unmarshal(out.Bytes(), &graph); err != nil {
+		t.Fatal(err)
+	}
+	if len(graph.ChangeSets) != 2 {
+		t.Fatalf("recorded release change set was not reconciled: %+v", graph.ChangeSets)
+	}
+	for _, finding := range graph.Findings {
+		if finding.Code == "action-mismatch" {
+			t.Fatalf("recorded release rename did not satisfy the final claim: %+v", finding)
+		}
+	}
+}
+
 func TestArtifactBackfillDryRunDoesNotMutateSpecs(t *testing.T) {
 	root, _, _ := artifactGitFixture(t)
 	path := filepath.Join(root, ".pose/specs/alpha/spec.md")

@@ -730,7 +730,10 @@ func repointFragmentClaims(root, version, fragment string, restore map[string][]
 		if _, seen := restore[path]; !seen {
 			restore[path] = original
 		}
-		updated := strings.ReplaceAll(string(original), oldClaim, newClaim)
+		updated := string(original)
+		for _, action := range []string{"created", "modified"} {
+			updated = strings.ReplaceAll(updated, "- "+action+": "+oldClaim, "- renamed: "+oldClaim+" -> "+newClaim)
+		}
 		if err := os.WriteFile(path, []byte(updated), 0o644); err != nil {
 			return fmt.Errorf("repointing %s: %w", path, err)
 		}

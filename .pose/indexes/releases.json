@@ -1,24 +1,53 @@
 {
-  "pending": [
-    {
-      "spec": "pose-component-aware-review-plans",
-      "category": "added",
-      "breaking": false,
-      "refs": "ISSUE#13",
-      "body": "Review can now resolve a deterministic effective plan for the actual components\naffected by a spec, milestone or roadmap. The plan composes typed review\noverlays, component-specific criteria and safe native POSE tool recommendations,\nand binds new review attempts to both scope and plan digests.\n\nThe migration also preserves the configured exemption for completed scopes and\napproved attempts that predate review-policy or component-aware adoption.",
-      "path": "pose-component-aware-review-plans.md",
-      "digest": "sha256:57a3cee14888187a6ef74b9cc73d75b775176ad90d3defe59f669f392a8afb3a"
-    },
-    {
-      "spec": "pose-review-bundle-convergence",
-      "category": "changed",
-      "breaking": false,
-      "body": "Add opt-in sealed review bundles and separate attestations so POSE closeout\nconverges without self-invalidating rereview. The release includes scoped\ndelivery provenance, supersession deltas, targeted criterion reuse, an offline\nCLI flow and a read-only MCP projection.",
-      "path": "pose-review-bundle-convergence.md",
-      "digest": "sha256:5bedd76783f1aa47a03e005a2d2cc6c615b84ded75dad403ccf5c0381ada37a7"
-    }
-  ],
+  "pending": [],
   "releases": [
+    {
+      "version": "v1.1.0",
+      "state": "prepared",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v1.1.0",
+        "previous_version": "v1.0.0",
+        "prepared_at": "2026-08-14T01:08:17Z",
+        "specs": [
+          "pose-component-aware-review-plans",
+          "pose-review-bundle-convergence"
+        ],
+        "categories": {
+          "added": 1,
+          "changed": 1
+        },
+        "fragments": [
+          {
+            "spec": "pose-component-aware-review-plans",
+            "category": "added",
+            "breaking": false,
+            "refs": "ISSUE#13",
+            "body": "Review can now resolve a deterministic effective plan for the actual components\naffected by a spec, milestone or roadmap. The plan composes typed review\noverlays, component-specific criteria and safe native POSE tool recommendations,\nand binds new review attempts to both scope and plan digests.\n\nThe migration also preserves the configured exemption for completed scopes and\napproved attempts that predate review-policy or component-aware adoption.",
+            "path": "pose-component-aware-review-plans.md",
+            "digest": "sha256:57a3cee14888187a6ef74b9cc73d75b775176ad90d3defe59f669f392a8afb3a"
+          },
+          {
+            "spec": "pose-review-bundle-convergence",
+            "category": "changed",
+            "breaking": false,
+            "body": "Add opt-in sealed review bundles and separate attestations so POSE closeout\nconverges without self-invalidating rereview. The release includes scoped\ndelivery provenance, supersession deltas, targeted criterion reuse, an offline\nCLI flow and a read-only MCP projection.",
+            "path": "pose-review-bundle-convergence.md",
+            "digest": "sha256:5bedd76783f1aa47a03e005a2d2cc6c615b84ded75dad403ccf5c0381ada37a7"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:6451e8e39911cee8a446c62f2f0676efb1e3283ba53d14d45842953255b8c31e",
+        "release_input_digest": "sha256:158235b4005cea2cd0a516d162e28357e22b998238b585a4fe8855e5cfafc81f",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v1.1.0"
+        }
+      },
+      "events": [],
+      "gaps": []
+    },
     {
       "version": "v1.0.0",
       "state": "verified",

@@ -427,6 +427,47 @@ func TestReviewBundleRejectsUnclassifiedSubjectPath(t *testing.T) {
 	}
 }
 
+func TestReviewBundleSubjectUsesCurrentRenameAndClassifiesReleaseMetadata(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	writeReviewFixture(t, root, ".pose/changelogs/v1.1.0/backend.md", "released fragment\n")
+	writeReviewFixture(t, root, ".pose/releases/v1.1.0/manifest.json", "{}\n")
+	writeReviewFixture(t, root, ".pose/specs/sibling/spec.md", "---\nslug: sibling\nstatus: done\n---\n")
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths,
+		ObservedPath{Action: "created", Path: ".pose/changelogs/unreleased/backend.md"},
+	)
+	graph.ChangeSets = append(graph.ChangeSets, ChangeSet{
+		ID: "cs-release", Spec: "backend", ResolvedBase: "head-resolved", ResolvedHead: "release-head",
+		Paths: []ObservedPath{
+			{Action: "renamed", OldPath: ".pose/changelogs/unreleased/backend.md", NewPath: ".pose/changelogs/v1.1.0/backend.md"},
+			{Action: "created", Path: ".pose/releases/v1.1.0/manifest.json"},
+			{Action: "modified", Path: ".pose/specs/sibling/spec.md"},
+		},
+	})
+	scope, err := ParseScopeRef("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	subject, excluded, blockers, err := store.reviewBundleSubject(scope, []ReviewPlanComponent{{Path: "api"}}, graph, nil)
+	if err != nil || len(blockers) != 0 {
+		t.Fatalf("release rename subject blockers=%v err=%v", blockers, err)
+	}
+	if len(subject.Entries) != 3 {
+		t.Fatalf("subject entries=%+v, want implementation, archived fragment and manifest", subject.Entries)
+	}
+	excludedText := ""
+	for _, input := range excluded {
+		excludedText += input.Kind + ":" + input.Path + "\n"
+	}
+	if !strings.Contains(excludedText, "superseded-path:.pose/changelogs/unreleased/backend.md") ||
+		!strings.Contains(excludedText, "semantic-scope:.pose/specs/sibling/spec.md") {
+		t.Fatalf("release exclusions=%s", excludedText)
+	}
+}
+
 func TestReviewBundleRejectsWorkingTreeOnlySubjectContent(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	runStateTestGit(t, root, "init")
