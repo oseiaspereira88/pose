@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-b6fbf52b0df93de1",
+  "bundle_id": "rvb-4132f00e318cab57",
+  "bundle_digest": "sha256:4132f00e318cab5721a2be42119ab1d0063b2d9ac1df677ae89378244942c63b",
+  "reviewer": "agent:independent-closeout-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "test:pose-mcp"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "contract:review-bundle"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "test:pose-mcp"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:review-bundle-convergence"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "observability:bounded-error-tests"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "artifact:pose-review-bundle-convergence"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "test:pose-mcp"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "artifact:pose-review-bundle-convergence"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "artifact:pose-review-bundle-convergence"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "requirement-trace:pose-review-bundle-convergence"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "artifact:pose-review-bundle-convergence"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "artifact:pose-review-bundle-convergence"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-review-bundle-convergence",
+      "rationale": "64 declared and observed artifacts"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "assessment:discover",
+      "rationale": "component state refreshed"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:review-bundle-convergence",
+      "rationale": "changed contracts reviewed"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "assessment:tech-debt",
+      "rationale": "no uncovered debt"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "runs after attestation"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "history:append-only",
+      "rationale": "append-only history verified"
+    },
+    {
+      "id": "knowledge-check",
+      "disposition": "passed",
+      "evidence": "knowledge:strict",
+      "rationale": "knowledge lifecycle verified"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "runs after attestation"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "skills:strict",
+      "rationale": "skill parity verified"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "workflow:review",
+      "rationale": "review trail resolved"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:review-bundle-convergence",
+      "rationale": "three delivery targets current"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "validation:pose-mcp",
+      "rationale": "strict validation passed"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "validation:pose-mcp",
+      "rationale": "five registered checks passed"
+    }
+  ],
+  "evidence_refs": [
+    "artifact:pose-review-bundle-convergence",
+    "assessment:discover",
+    "assessment:tech-debt",
+    "contract:review-bundle",
+    "e2e:review-bundle",
+    "history:append-only",
+    "integration:review-bundle-convergence",
+    "knowledge:strict",
+    "observability:bounded-error-tests",
+    "reachability:review-bundle-cli",
+    "requirement-trace:pose-review-bundle-convergence",
+    "security:gitleaks",
+    "security:govulncheck",
+    "skills:strict",
+    "test:pose-mcp",
+    "validation:pose-mcp",
+    "workflow:review"
+  ],
+  "findings": [],
+  "attested_at": "2026-08-14T00:11:40Z",
+  "path": ".pose/review-attestations/rva-b6fbf52b0df93de1.json"
+}

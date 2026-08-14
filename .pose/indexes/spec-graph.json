@@ -321,6 +321,14 @@
       "to": "pose-standalone-dogfood"
     },
     {
+      "from": "pose-review-bundle-convergence",
+      "to": "pose-hierarchical-review-closeout"
+    },
+    {
+      "from": "pose-review-bundle-convergence",
+      "to": "pose-component-aware-review-plans"
+    },
+    {
       "from": "pose-safe-validate-orchestration",
       "to": "pose-mcp-project-scope-contract"
     },
@@ -970,6 +978,15 @@
       ],
       "path": ".pose/specs/pose-requirement-evidence-traceability/spec.md",
       "priority": 10,
+      "status": "done"
+    },
+    "pose-review-bundle-convergence": {
+      "depends_on": [
+        "pose-hierarchical-review-closeout",
+        "pose-component-aware-review-plans"
+      ],
+      "path": ".pose/specs/pose-review-bundle-convergence/spec.md",
+      "priority": 0,
       "status": "done"
     },
     "pose-safe-validate-orchestration": {

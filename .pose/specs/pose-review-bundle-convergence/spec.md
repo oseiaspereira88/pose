@@ -1,8 +1,8 @@
 ---
 slug: pose-review-bundle-convergence
-status: in-progress
+status: done
 created_at: 2026-08-13
-completed_at:
+completed_at: 2026-08-14
 supersedes:
 depends_on: pose-hierarchical-review-closeout, pose-component-aware-review-plans
 priority: 0
@@ -498,13 +498,13 @@ review subject does not waive their own correctness requirements.
 - [x] Run `pose assess integrate` for CLI/MCP/schema contract changes.
 - [x] Run `pose validate --strict --module pose-mcp --report --report-task review-bundle-convergence`.
 - [x] Run security, artifact, surface, skill and knowledge checks.
-- [ ] Run staged-history and strict spec lifecycle checks.
+- [x] Run staged-history and strict spec lifecycle checks.
 - [x] Build the validated revision and atomically install it at
   `/home/go/.local/bin/pose`.
 - [x] Run installed-binary doctor/version and fresh-repository smoke tests.
-- [ ] Perform an independent review against the sealed bundle.
+- [x] Perform an independent review against the sealed bundle.
 - [x] Run `pose assess discover --update-state`.
-- [ ] Run closeout and final release gates.
+- [x] Run closeout and final release gates.
 
 ## 5. Decisions
 
@@ -656,7 +656,7 @@ integration boundary verified here.
   Listener-dependent tests ran outside the restricted sandbox.
 - 2026-08-13 — source and installed-binary E2E both passed. The exact
   `-trimpath` build installed atomically at `/home/go/.local/bin/pose` has
-  SHA-256 `652415f522dfb94d216cfc730328f2cd8833566fb0e03be34dbb9209fffb9ae9`,
+  SHA-256 `035ef05f066986eebf705eb71517b6bf1c6058534ed507fd0941404212fc1095`,
   reports `pose 1.0.0-dev`, and `pose doctor --json` reports zero errors.
 - 2026-08-13 — `govulncheck ./...` found no vulnerabilities; gitleaks v8.21.2
   scanned 382 commits and found no secrets.
@@ -689,95 +689,99 @@ integration boundary verified here.
   is a delivery-target or changed-contract error for this spec.
 
 ### Requirement trace
-- R1: satisfied by `PrepareReviewBundle`, schema fixtures and
-  `TestReviewBundleCanonicalAndDigestStable` (`89b100a`).
-- R2: satisfied by bundle/verification state projection and
-  `TestReviewBundleCLISealsAttestsAndVerifies` (`89b100a`).
-- R3: satisfied by required-evidence gating plus
-  `TestReviewBundleRejectsWorkingTreeOnlySubjectContent` (`e6fe84e`).
-- R4: satisfied by semantic projection and
-  `TestReviewBundleSemanticProjectionAndDerivedChangesDoNotStale` (`89b100a`).
-- R5: satisfied by derived/lifecycle exclusions in
-  `TestReviewBundleDerivedOnlyChangeSetDoesNotStale` (`89b100a`).
-- R6: satisfied by classified human/JSON explain output and
-  `TestReviewBundleRejectsUnclassifiedSubjectPath` (`e6fe84e`).
-- R7: satisfied by immutable atomic storage and collision coverage in
-  `TestReviewBundleSealIsAtomicIdempotentAndDetectsSubjectChange` (`89b100a`).
-- R8: satisfied by the separate attestation schema and
-  `TestReviewAttestationDoesNotMutateBundleAndConverges` (`89b100a`).
-- R9: satisfied by bundle-aware verification and closeout checks exercised by
-  `TestReviewBundleCLISealsAttestsAndVerifies` (`89b100a`).
-- R10: satisfied by one-cycle lifecycle convergence in
-  `TestReviewAttestationDoesNotMutateBundleAndConverges` (`89b100a`).
-- R11: satisfied by semantic supersession retention in
-  `TestReviewBundleSealIsAtomicIdempotentAndDetectsSubjectChange` (`89b100a`).
-- R12: satisfied by `TestReviewBundleDerivedOnlyChangeSetDoesNotStale`
-  (`89b100a`).
-- R13: satisfied by `TestReviewBundleDeltaIncludesChangedComponentsAndEvidenceClasses`
-  and changed-finding projection (`e6fe84e`).
-- R14: satisfied by `TestReviewAttestationCriterionReuseRequiresExactUnchangedContract`
-  (`89b100a`).
-- R15: satisfied by `TestReviewAttestationCriterionReuseRejectsChangedSubjectSlice`
-  and complete attestation validation (`89b100a`).
-- R16: satisfied by `TestReviewBundleVerifiesSyntheticMergeByPatchAndTree`
-  against a deliberately non-fetchable advisory ref (`dbd41e3`).
-- R17: satisfied by shared local/export/import schemas and the documented
-  provider-neutral orchestration boundary (`89b100a`).
-- R18: satisfied by dry-run/apply CLI behavior in
-  `TestReviewBundleCLISealsAttestsAndVerifies` (`89b100a`).
-- R19: satisfied by `TestReviewAttestationEnvelopeTrustPolicy` (`89b100a`).
-- R20: satisfied by `TestReviewBundleMilestoneSubjectIsConfinedAndChildOrderIsDeclared`
-  (`e6fe84e`).
-- R21: satisfied by CLI command and compatibility coverage in
-  `TestReviewBundleCLISealsAttestsAndVerifies` (`89b100a`).
-- R22: satisfied by `TestReviewBundleToolIsReadOnlyAndProjectScoped`
-  (`89b100a`).
-- R23: satisfied by human/JSON state and next-action assertions across the CLI
-  and verification suites (`89b100a`).
-- R24: satisfied by `TestReviewBundleUsageDistinguishesOperationsAndSignals`
-  (`89b100a`).
-- R25: satisfied by `TestReviewBundleCanonicalAndDigestStable` and CLI/MCP
-  contract parity (`89b100a`).
-- R26: satisfied by source and installed `tests/e2e/review-bundle/run.sh` plus
-  `TestReviewAttestationDoesNotMutateBundleAndConverges`.
-- R27: satisfied by confined change-set resolution and hierarchy regression
-  coverage (`e6fe84e`).
-- R28: satisfied by the three v1 schemas, schemas README and ADR
-  `2026-08-13-sealed-review-bundles-and-attestations` (`89b100a`).
-- R29: satisfied by bundle and attestation idempotency/collision tests
-  (`89b100a`).
-- R30: satisfied by malformed input, digest and path negative suites
-  (`89b100a`, `e6fe84e`).
-- R31: satisfied by offline source/installed E2E, unchanged Go dependencies and
-  successful `govulncheck ./...`.
-- R32: satisfied by traversal, file-symlink and managed-directory-symlink
-  rejection tests (`89b100a`, `e6fe84e`).
-- R33: satisfied by `TestReviewBundleRejectsMalformedInput` and
-  `TestReviewAttestationRejectsMalformedInput` (`89b100a`).
-- R34: satisfied by the closed native tool catalog and
-  `TestReviewPlanRecommendationsAreClosedAndNonExecutable` (`89b100a`).
-- R35: satisfied by trust/independence preservation tests in review plan and
-  signed-envelope suites (`89b100a`).
-- R36: satisfied by negative parser/path tests, race tests, govulncheck and the
-  382-commit gitleaks scan.
-- R37: satisfied by `TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly`
-  and closed-scope compatibility coverage (`89b100a`).
-- R38: satisfied by policy migration/exemption tests including
-  `TestReviewPolicyExemptsLegacyDoneScopesUnlessOptedIn` (`89b100a`).
-- R39: satisfied by `TestReviewRecordDelegatesToBundleAttestationWhenAdopted`
-  and legacy record tests (`89b100a`).
-- R40: satisfied by strict catalog, locale and embedded-scaffold parity tests
-  in the full Go suite (`89b100a`).
-- R41: satisfied by keeping bundle adoption opt-in/preview while source and
-  installed-binary convergence cases pass.
-- R42: satisfied by the atomically installed `-trimpath` binary with SHA-256
-  `652415f5...`, zero doctor errors and installed E2E pass (`dbd41e3`).
-- R43: satisfied by `TestReviewBundleDeliveryChangeDoesNotStaleUnrelatedClosedScopes`
-  and current strict surface assurance (`89b100a`).
-- R44: satisfied by `TestReviewPlanGroupsRepeatedWarningsAndPresentsActionableToolPhases`
-  while canonical JSON retains full warning detail (`89b100a`).
-- R45: satisfied by the same phase-aware tool-plan regression plus human CLI
-  explain assertions (`89b100a`, `e6fe84e`).
+- R1 [satisfied] `PrepareReviewBundle`, schema fixtures and
+  `TestReviewBundleCanonicalAndDigestStable` commit:89b100a.
+- R2 [satisfied] bundle/verification state projection and
+  `TestReviewBundleCLISealsAttestsAndVerifies` commit:89b100a.
+- R3 [satisfied] required-evidence gating plus
+  `TestReviewBundleRejectsWorkingTreeOnlySubjectContent` commit:e6fe84e.
+- R4 [satisfied] semantic projection and
+  `TestReviewBundleSemanticProjectionAndDerivedChangesDoNotStale` commit:89b100a.
+- R5 [satisfied] derived/lifecycle exclusions in
+  `TestReviewBundleDerivedOnlyChangeSetDoesNotStale` commit:89b100a.
+- R6 [satisfied] classified human/JSON explain output and
+  `TestReviewBundleRejectsUnclassifiedSubjectPath` commit:e6fe84e.
+- R7 [satisfied] immutable atomic storage and collision coverage in
+  `TestReviewBundleSealIsAtomicIdempotentAndDetectsSubjectChange` commit:89b100a.
+- R8 [satisfied] the separate attestation schema and
+  `TestReviewAttestationDoesNotMutateBundleAndConverges` commit:89b100a.
+- R9 [satisfied] bundle-aware verification and closeout checks exercised by
+  `TestReviewBundleCLISealsAttestsAndVerifies` commit:89b100a.
+- R10 [satisfied] one-cycle lifecycle convergence in
+  `TestReviewAttestationDoesNotMutateBundleAndConverges` commit:89b100a
+  governance:convergent-review-closeout evidence:integration
+  check:review-bundle-convergence.
+- R11 [satisfied] semantic supersession retention in
+  `TestReviewBundleSealIsAtomicIdempotentAndDetectsSubjectChange` commit:89b100a.
+- R12 [satisfied] `TestReviewBundleDerivedOnlyChangeSetDoesNotStale`
+  commit:89b100a.
+- R13 [satisfied] `TestReviewBundleDeltaIncludesChangedComponentsAndEvidenceClasses`
+  and changed-finding projection commit:e6fe84e.
+- R14 [satisfied] `TestReviewAttestationCriterionReuseRequiresExactUnchangedContract`
+  commit:89b100a.
+- R15 [satisfied] `TestReviewAttestationCriterionReuseRejectsChangedSubjectSlice`
+  and complete attestation validation commit:89b100a.
+- R16 [satisfied] `TestReviewBundleVerifiesSyntheticMergeByPatchAndTree`
+  against a deliberately non-fetchable advisory ref commit:dbd41e3.
+- R17 [satisfied] shared local/export/import schemas and the documented
+  provider-neutral orchestration boundary commit:89b100a.
+- R18 [satisfied] dry-run/apply CLI behavior in
+  `TestReviewBundleCLISealsAttestsAndVerifies` commit:89b100a.
+- R19 [satisfied] `TestReviewAttestationEnvelopeTrustPolicy` commit:89b100a.
+- R20 [satisfied] `TestReviewBundleMilestoneSubjectIsConfinedAndChildOrderIsDeclared`
+  commit:e6fe84e.
+- R21 [satisfied] surface:review-bundle-cli evidence:e2e
+  check:delivery-reachability; CLI command and compatibility coverage in
+  `TestReviewBundleCLISealsAttestsAndVerifies` commit:89b100a.
+- R22 [satisfied] `TestReviewBundleToolIsReadOnlyAndProjectScoped`
+  commit:89b100a contract:review-bundle-mcp evidence:integration
+  check:review-bundle-convergence.
+- R23 [satisfied] human/JSON state and next-action assertions across the CLI
+  and verification suites commit:89b100a.
+- R24 [satisfied] `TestReviewBundleUsageDistinguishesOperationsAndSignals`
+  commit:89b100a.
+- R25 [satisfied] `TestReviewBundleCanonicalAndDigestStable` and CLI/MCP
+  contract parity commit:89b100a.
+- R26 [satisfied] source and installed `tests/e2e/review-bundle/run.sh` plus
+  `TestReviewAttestationDoesNotMutateBundleAndConverges` test:review-bundle-e2e.
+- R27 [satisfied] confined change-set resolution and hierarchy regression
+  coverage commit:e6fe84e.
+- R28 [satisfied] the three v1 schemas, schemas README and ADR
+  `2026-08-13-sealed-review-bundles-and-attestations` commit:89b100a.
+- R29 [satisfied] bundle and attestation idempotency/collision tests
+  commit:89b100a.
+- R30 [satisfied] malformed input, digest and path negative suites
+  commit:89b100a commit:e6fe84e.
+- R31 [satisfied] offline source/installed E2E, unchanged Go dependencies and
+  successful `govulncheck ./...`; check:review-bundle-convergence.
+- R32 [satisfied] traversal, file-symlink and managed-directory-symlink
+  rejection tests commit:89b100a commit:e6fe84e.
+- R33 [satisfied] `TestReviewBundleRejectsMalformedInput` and
+  `TestReviewAttestationRejectsMalformedInput` commit:89b100a.
+- R34 [satisfied] the closed native tool catalog and
+  `TestReviewPlanRecommendationsAreClosedAndNonExecutable` commit:89b100a.
+- R35 [satisfied] trust/independence preservation tests in review plan and
+  signed-envelope suites commit:89b100a.
+- R36 [satisfied] negative parser/path tests, race tests, govulncheck and the
+  382-commit gitleaks scan; check:review-bundle-convergence.
+- R37 [satisfied] `TestReviewPlanSchemaV1RemainsGenericAndResolutionIsReadOnly`
+  and closed-scope compatibility coverage commit:89b100a.
+- R38 [satisfied] policy migration/exemption tests including
+  `TestReviewPolicyExemptsLegacyDoneScopesUnlessOptedIn` commit:89b100a.
+- R39 [satisfied] `TestReviewRecordDelegatesToBundleAttestationWhenAdopted`
+  and legacy record tests commit:89b100a.
+- R40 [satisfied] strict catalog, locale and embedded-scaffold parity tests
+  in the full Go suite commit:89b100a.
+- R41 [satisfied] keeping bundle adoption opt-in/preview while source and
+  installed-binary convergence cases pass; test:review-bundle-e2e.
+- R42 [satisfied] the atomically installed `-trimpath` binary with SHA-256
+  `035ef05f...`, zero doctor errors and installed E2E pass commit:5646f90.
+- R43 [satisfied] `TestReviewBundleDeliveryChangeDoesNotStaleUnrelatedClosedScopes`
+  and current strict surface assurance commit:89b100a.
+- R44 [satisfied] `TestReviewPlanGroupsRepeatedWarningsAndPresentsActionableToolPhases`
+  while canonical JSON retains full warning detail commit:89b100a.
+- R45 [satisfied] the same phase-aware tool-plan regression plus human CLI
+  explain assertions commit:89b100a commit:e6fe84e.
 
 ### Known gaps
 - The feature intentionally remains opt-in/preview; promotion is a later

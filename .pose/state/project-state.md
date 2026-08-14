@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-13T16:01:50Z
-baseline_commit: 12e58f39b91176bcddc52f4fbb577c066b3ee4c5
+generated_at: 2026-08-14T00:30:28Z
+baseline_commit: 5646f9036b641f463bb70ad50383a587209c052e
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:d2235909d95a -->
+<!-- state:derived hash:8646aff3eddc -->
 
-- specs: total=90 draft=0 in-progress=0 blocked=0 done=90 superseded=0 abandoned=0
+- specs: total=91 draft=0 in-progress=0 blocked=0 done=91 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-review-bundle-convergence (2026-08-14)
   - spec:pose-component-aware-review-plans (2026-08-13)
   - spec:pose-managed-doc-project-identity-regression (2026-08-11)
   - spec:pose-dora-five-metrics-v2 (2026-08-11)
   - spec:pose-usage-metrics (2026-08-11)
-  - spec:pose-skill-index-parity (2026-08-10)
-  - ... e mais 85 (ver `pose_list_specs status:done`)
+  - ... e mais 86 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:003cc85f278e -->
@@ -64,26 +64,26 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:60c6298dadcb -->
+<!-- state:derived hash:854e45c73558 -->
 
-- último registro: task=validate-native outcome=pass (2026-08-13T16:01:41Z)
-- últimos 30 dias: total=188 outcome_ok=134 outcome_outro=54
-- reports revisados (.md): total=96
-  - report:2026-08-13-standard-validate-native.md
+- último registro: task=review-bundle-convergence outcome=pass (2026-08-14T00:23:21Z)
+- últimos 30 dias: total=208 outcome_ok=153 outcome_outro=55
+- reports revisados (.md): total=98
+  - report:2026-08-14-standard-review-bundle-convergence.md
+  - report:2026-08-13-standard-review-bundle-convergence.md
   - report:2026-08-13-standard-component-aware-review-provenance.md
-  - report:2026-08-11-standard-pose-usage-metrics.md
+  - report:2026-08-13-standard-validate-native.md
   - report:2026-08-11-standard-pose-v1-docs-audit.md
-  - report:README.md
 
 ## Arquitetura
-<!-- state:derived hash:0cc174f5e50a status:active -->
+<!-- state:derived hash:d03cb9bcadab status:active -->
 
 - componentes: total=2 verificados=2 completude=99.0%
-- linhas_de_codigo: producao=29857 testes=19072 total=48929
+- linhas_de_codigo: producao=32010 testes=19943 total=51953
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=1 stubs=0
-- integracoes: contratos=52 ativos=1 gaps=51
-- divida_tecnica: total=1 coberta=0 descoberta=1
+- integracoes: contratos=53 ativos=1 gaps=52
+- divida_tecnica: total=1 coberta=1 descoberta=0
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 
 ## Docs
