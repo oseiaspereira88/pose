@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with: { go-version: "1.26.5", cache: false }
+        with: { go-version: "1.26.6", cache: false }
       - uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
         with:
           languages: go
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with: { go-version: "1.26.5", cache: true, cache-dependency-path: pose-mcp/go.mod }
+        with: { go-version: "1.26.6", cache: true, cache-dependency-path: pose-mcp/go.mod }
       - name: Known-vulnerability scan (module versions pinned, sumdb-authenticated)
         run: |
           go -C pose-mcp run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { fetch-depth: 0 }
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with: { go-version: "1.26.5", cache: true, cache-dependency-path: pose-mcp/go.mod }
+        with: { go-version: "1.26.6", cache: true, cache-dependency-path: pose-mcp/go.mod }
       - name: Secret detection over full git history (redacted output)
         run: go -C pose-mcp run github.com/zricethezav/gitleaks/v8@v8.21.2 git --no-banner --redact --config ../.gitleaks.toml ..
   dependency-review:
@@ -69,7 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with: { go-version: "1.26.5", cache: true, cache-dependency-path: pose-mcp/go.mod }
+        with: { go-version: "1.26.6", cache: true, cache-dependency-path: pose-mcp/go.mod }
       - run: go -C pose-mcp test ./internal/version -run 'WorkflowSecurity' -count=1
   validation-findings:
     # Deterministic validation results reach code scanning as SARIF, so a
@@ -82,7 +82,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with: { go-version: "1.26.5", cache: true, cache-dependency-path: pose-mcp/go.mod }
+        with: { go-version: "1.26.6", cache: true, cache-dependency-path: pose-mcp/go.mod }
       - name: Deterministic validation to SARIF
         run: go -C pose-mcp run ./cmd/pose validate --tolerant --sarif .pose/reports/validation.sarif
       - uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4

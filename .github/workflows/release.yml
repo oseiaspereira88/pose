@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { fetch-depth: 0 }
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with: { go-version: "1.26.5", cache: true, cache-dependency-path: pose-mcp/go.mod }
+        with: { go-version: "1.26.6", cache: true, cache-dependency-path: pose-mcp/go.mod }
       # goreleaser refuses to build from a dirty worktree, but only finds out
       # after every gate below has run, and names the files rather than the step
       # that wrote them. Asserting after each step that could write turns a late,
