@@ -699,3 +699,33 @@ func TestReviewAttestationRejectsMalformedInput(t *testing.T) {
 		t.Fatalf("oversized attestation was accepted: %v", err)
 	}
 }
+
+func TestAutoAttestReviewBundle(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	bundle, err := store.SealReviewBundle("spec:backend", time.Date(2026, 8, 14, 10, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatal(err)
+	}
+	att, err := store.AutoAttestReviewBundle(bundle.BundleID, "agent:test-subagent", true, time.Date(2026, 8, 14, 10, 5, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("AutoAttestReviewBundle failed: %v", err)
+	}
+	if att.Reviewer != "agent:test-subagent" || att.Decision != "approved" {
+		t.Fatalf("unexpected attestation: %+v", att)
+	}
+	if len(att.Criteria) == 0 {
+		t.Fatalf("no criteria in auto-attestation: %+v", att.Criteria)
+	}
+	for _, c := range att.Criteria {
+		if c.Disposition != "passed" {
+			t.Fatalf("criterion %s not passed: %+v", c.ID, c)
+		}
+	}
+	verification, err := store.VerifyReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !verification.Approved || !verification.Fresh {
+		t.Fatalf("auto-attested bundle did not verify: %+v", verification)
+	}
+}

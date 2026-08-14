@@ -325,3 +325,39 @@ func mustReviewPlan(t *testing.T, root string) posemodel.ReviewPlan {
 	}
 	return plan
 }
+
+func TestReviewAutoAttestCLI(t *testing.T) {
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"review_bundles":true,"review_bundles_adopted_at":"2026-08-14"}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-02\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n")
+	writeCloseoutCLIFile(t, root, "pose-mcp/lib.go", "package posemcp\n")
+	graph := posemodel.DeliveryIntegrityGraph{
+		SchemaVersion:    1,
+		ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+		ChangeSets: []posemodel.ChangeSet{{
+			ID: "cs-alpha", Spec: "alpha", Selector: "range:base..head",
+			Base: "base", Head: "head", ResolvedBase: "base-resolved", ResolvedHead: "head-resolved",
+			Paths:      []posemodel.ObservedPath{{Action: "modified", Path: "pose-mcp/lib.go"}},
+			DiffDigest: "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+		}},
+		Deliveries:        []posemodel.DeliveryTarget{{Spec: "alpha", Ref: "contract:alpha-api", Kind: "contract", ID: "alpha-api", Module: "pose-mcp", Profile: "api-contract", Entrypoint: "pose-mcp/lib.go"}},
+		ValidationResults: []posemodel.DeliveryValidationResult{{ID: "val-alpha", Module: "pose-mcp", Check: "go-test", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111"}},
+		Reverse:           map[string][]string{"pose-mcp/lib.go": {"alpha"}},
+	}
+	rawGraph, _ := json.Marshal(graph)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", string(rawGraph))
+
+	var out, errOut bytes.Buffer
+	if code := cmdReviewBundle(root, []string{"spec:alpha", "--seal"}, &out, &errOut); code != 0 {
+		t.Fatalf("bundle seal failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	out.Reset()
+	if code := cmdReviewAutoAttest(root, []string{"spec:alpha", "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("auto-attest failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	out.Reset()
+	if code := cmdReviewVerify(root, []string{"spec:alpha"}, &out, &errOut); code != 0 {
+		t.Fatalf("review verify failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+}

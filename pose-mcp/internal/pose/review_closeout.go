@@ -615,29 +615,77 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 		return eval, nil
 	}
 	if policy.SchemaVersion >= ReviewPolicySchemaVersion && policy.ReviewBundles {
+		done, _ := s.scopeLifecycleDone(scope)
 		verification, verifyErr := s.VerifyReviewBundle(ref)
-		if verifyErr != nil {
+		if verifyErr == nil && verification.Approved {
+			eval.Fresh = verification.Fresh
+			eval.Approved = verification.Approved
+			eval.Blockers = append(eval.Blockers, verification.Blockers...)
+			eval.Warnings = append(eval.Warnings, verification.Warnings...)
+			eval.BundleState = verification.State
+			if verification.Bundle != nil {
+				eval.ScopeDigest = verification.Bundle.BundleDigest
+				eval.BundleID = verification.Bundle.BundleID
+				eval.BundleDigest = verification.Bundle.BundleDigest
+				eval.PlanDigest = verification.Bundle.Payload.Plan.PlanDigest
+			}
+			if verification.Attestation != nil {
+				eval.AttestationID = verification.Attestation.AttestationID
+				att := verification.Attestation
+				eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
+			}
+			eval.Blockers = uniqueSorted(eval.Blockers)
+			eval.Warnings = uniqueSorted(eval.Warnings)
+			return eval, nil
+		}
+		if done && s.reviewBundlesLegacyAttemptExempt(scope, policy) {
+			// Check if this done scope has an earlier approved bundle attestation
+			bundles, listErr := s.ListReviewBundles(ref)
+			if listErr == nil && len(bundles) > 0 {
+				for i := len(bundles) - 1; i >= 0; i-- {
+					attestations, attErr := s.ListReviewAttestations(bundles[i].BundleID)
+					if attErr == nil && len(attestations) > 0 {
+						att := attestations[len(attestations)-1]
+						if len(s.validateBundleAttestation(bundles[i], att)) == 0 {
+							eval.Fresh = true
+							eval.Approved = true
+							eval.BundleState = "closed"
+							eval.ScopeDigest = bundles[i].BundleDigest
+							eval.BundleID = bundles[i].BundleID
+							eval.BundleDigest = bundles[i].BundleDigest
+							eval.PlanDigest = bundles[i].Payload.Plan.PlanDigest
+							eval.AttestationID = att.AttestationID
+							eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
+							eval.Warnings = append(eval.Warnings, "completed scope retains its approved sealed review bundle attestation")
+							return eval, nil
+						}
+					}
+				}
+			}
+			// Fall through to legacy check
+		} else if verifyErr != nil {
 			return eval, verifyErr
+		} else {
+			eval.Fresh = verification.Fresh
+			eval.Approved = verification.Approved
+			eval.Blockers = append(eval.Blockers, verification.Blockers...)
+			eval.Warnings = append(eval.Warnings, verification.Warnings...)
+			eval.BundleState = verification.State
+			if verification.Bundle != nil {
+				eval.ScopeDigest = verification.Bundle.BundleDigest
+				eval.BundleID = verification.Bundle.BundleID
+				eval.BundleDigest = verification.Bundle.BundleDigest
+				eval.PlanDigest = verification.Bundle.Payload.Plan.PlanDigest
+			}
+			if verification.Attestation != nil {
+				eval.AttestationID = verification.Attestation.AttestationID
+				att := verification.Attestation
+				eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
+			}
+			eval.Blockers = uniqueSorted(eval.Blockers)
+			eval.Warnings = uniqueSorted(eval.Warnings)
+			return eval, nil
 		}
-		eval.Fresh = verification.Fresh
-		eval.Approved = verification.Approved
-		eval.Blockers = append(eval.Blockers, verification.Blockers...)
-		eval.Warnings = append(eval.Warnings, verification.Warnings...)
-		eval.BundleState = verification.State
-		if verification.Bundle != nil {
-			eval.ScopeDigest = verification.Bundle.BundleDigest
-			eval.BundleID = verification.Bundle.BundleID
-			eval.BundleDigest = verification.Bundle.BundleDigest
-			eval.PlanDigest = verification.Bundle.Payload.Plan.PlanDigest
-		}
-		if verification.Attestation != nil {
-			eval.AttestationID = verification.Attestation.AttestationID
-			att := verification.Attestation
-			eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
-		}
-		eval.Blockers = uniqueSorted(eval.Blockers)
-		eval.Warnings = uniqueSorted(eval.Warnings)
-		return eval, nil
 	}
 	profile, _, err := s.loadReviewProfile(profileRef)
 	if err != nil {
@@ -946,6 +994,43 @@ func (s Store) componentAwareLegacyAttemptExempt(scope ScopeRef, policy ReviewPo
 	}
 	done, err := s.scopeLifecycleDone(scope)
 	return err == nil && done
+}
+
+func (s Store) reviewBundlesLegacyAttemptExempt(scope ScopeRef, policy ReviewPolicy) bool {
+	if !policy.ReviewBundles || policy.ReviewBundlesAdoptedAt == "" {
+		return false
+	}
+	done, err := s.scopeLifecycleDone(scope)
+	if err != nil || !done {
+		return false
+	}
+	adopted, err := time.Parse(time.DateOnly, policy.ReviewBundlesAdoptedAt)
+	if err != nil {
+		return false
+	}
+	var createdAt string
+	switch scope.Kind {
+	case "spec":
+		if sp, err := s.GetSpec(scope.Slug); err == nil {
+			createdAt = sp.CreatedAt
+		}
+	case "milestone":
+		if rm, err := s.GetRoadmap(scope.Roadmap); err == nil {
+			createdAt = rm.CreatedAt
+		}
+	case "roadmap":
+		if rm, err := s.GetRoadmap(scope.Slug); err == nil {
+			createdAt = rm.CreatedAt
+		}
+	}
+	if createdAt == "" {
+		return false
+	}
+	created, err := time.Parse(time.DateOnly, createdAt)
+	if err != nil {
+		return false
+	}
+	return created.Before(adopted)
 }
 
 func (s Store) scopeLifecycleDone(scope ScopeRef) (bool, error) {

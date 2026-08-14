@@ -228,7 +228,7 @@ func writeJSON(w io.Writer, value any) int {
 
 func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|verify|record> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|auto-attest|verify|record> ...")
 		return 2
 	}
 	switch args[0] {
@@ -236,12 +236,14 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewBundle(root, args[1:], stdout, stderr)
 	case "attest":
 		return cmdReviewAttest(root, args[1:], stdout, stderr)
+	case "auto-attest":
+		return cmdReviewAutoAttest(root, args[1:], stdout, stderr)
 	case "verify":
 		return cmdReviewVerify(root, args[1:], stdout, stderr)
 	case "record":
 		return cmdReviewRecord(root, args[1:], stdout, stderr)
 	default:
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|verify|record> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|auto-attest|verify|record> ...")
 		return 2
 	}
 }
@@ -503,6 +505,66 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	fmt.Fprintf(stdout, "Review attestation recorded: %s\n", filepath.Join(root, filepath.FromSlash(att.Path)))
+	return 0
+}
+
+func cmdReviewAutoAttest(root string, args []string, stdout, stderr io.Writer) int {
+	var target, reviewer string
+	apply := false
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--reviewer":
+			if i+1 >= len(args) {
+				fmt.Fprintln(stderr, "pose review auto-attest: missing option value for --reviewer")
+				return 2
+			}
+			i++
+			reviewer = args[i]
+		case "--apply":
+			apply = true
+		default:
+			if strings.HasPrefix(args[i], "-") || target != "" {
+				fmt.Fprintf(stderr, "pose review auto-attest: unexpected argument %q\n", args[i])
+				return 2
+			}
+			target = args[i]
+		}
+	}
+	if target == "" {
+		fmt.Fprintln(stderr, "Usage: pose review auto-attest <bundle-id|scope-ref> [--reviewer <id>] [--apply]")
+		return 2
+	}
+	if reviewer == "" {
+		reviewer = "agent:auto-attest"
+	}
+	store := posemodel.Store{Root: root}
+	ref, err := resolveReviewBundleScope(store, target)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review auto-attest: %v\n", err)
+		return 1
+	}
+	bundle, err := store.CurrentReviewBundle(ref)
+	if err != nil || bundle == nil {
+		if err == nil {
+			err = fmt.Errorf("scope %s has no current sealed bundle", ref)
+		}
+		fmt.Fprintf(stderr, "pose review auto-attest: %v\n", err)
+		return 1
+	}
+	if strings.HasPrefix(target, "rvb-") && target != bundle.BundleID {
+		fmt.Fprintf(stderr, "pose review auto-attest: bundle %s is superseded by %s\n", target, bundle.BundleID)
+		return 1
+	}
+	att, err := store.AutoAttestReviewBundle(bundle.BundleID, reviewer, apply, time.Now())
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review auto-attest: %v\n", err)
+		return 1
+	}
+	if !apply {
+		fmt.Fprintf(stdout, "review_attestation.plan=auto-attest\nreview_attestation.bundle_id=%s\nreview_attestation.bundle_digest=%s\nreview_attestation.reviewer=%s\nreview_attestation.criteria_count=%d\nreview_attestation.tools_count=%d\nreview_attestation.apply=false\n", bundle.BundleID, bundle.BundleDigest, reviewer, len(att.Criteria), len(att.Tools))
+		return 0
+	}
+	fmt.Fprintf(stdout, "Review attestation auto-recorded: %s\n", filepath.Join(root, filepath.FromSlash(att.Path)))
 	return 0
 }
 

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "version": "v1.2.0",
+  "previous_version": "v1.1.0",
+  "prepared_at": "2026-08-14T09:38:12Z",
+  "specs": [
+    "pose-unified-review-convergence"
+  ],
+  "categories": {
+    "added": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-unified-review-convergence",
+      "category": "added",
+      "breaking": false,
+      "refs": "ADR-2026-08-14-unified-review-convergence",
+      "body": "Unified review architecture into a single canonical track based on immutable\n`ReviewBundles` and separate `ReviewAttestations`, eliminating dual legacy review paths.\n\nAdded `pose review auto-attest` CLI command and Go API to automatically extract matching\nevidence and resolve tool dispositions from structured validation results without manual flags.\nUpdated review skills and workflows across all locales for seamless subagent integration.",
+      "path": "pose-unified-review-convergence.md",
+      "digest": "sha256:2593078c9fd38b69a3b52fb2d825480fbf408eb80be1df9a71429811acbdd7df"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:07c05d8455c5a70aeb36affeaa30122156bcc6a112930eb68dcad874ba350456",
+  "release_input_digest": "sha256:8e24352d8843fcb4e1d6e508c5981752b44d8d5d756d81c15230f361a4c01484",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.2.0"
+  }
+}

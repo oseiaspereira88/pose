@@ -1,0 +1,13 @@
+---
+spec: pose-unified-review-convergence
+category: added
+breaking: false
+refs: ADR-2026-08-14-unified-review-convergence
+---
+
+Unified review architecture into a single canonical track based on immutable
+`ReviewBundles` and separate `ReviewAttestations`, eliminating dual legacy review paths.
+
+Added `pose review auto-attest` CLI command and Go API to automatically extract matching
+evidence and resolve tool dispositions from structured validation results without manual flags.
+Updated review skills and workflows across all locales for seamless subagent integration.

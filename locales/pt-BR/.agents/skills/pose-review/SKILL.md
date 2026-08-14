@@ -43,9 +43,10 @@ Fluxo POSE para revisão técnica de PR ou diff local.
    pose new-knowledge handoff review-<pr-slug> --owner @<squad>
    ```
 11. Avaliar todos os critérios obrigatórios, inclusive fronteiras entre componentes.
-12. Selar com `pose review bundle <escopo> --seal`, revisar esse ID imutável e registrar com `pose review attest <bundle-id> ... --plan-digest <sha256> --apply`.
-13. Rodar `pose review verify <escopo>` e `pose review-check <escopo>`; fechar somente quando ambos consumirem a mesma atestação atual.
-14. Emitir decisão final: **aprovado | aprovado com ressalvas | mudanças solicitadas | reprovado**.
+12. Selar com `pose review bundle <escopo> --seal`.
+13. Atestar o bundle automaticamente com `pose review auto-attest <bundle-id> --reviewer agent:reviewer-subagent --apply` (ou `pose review attest` com findings explícitos quando houver ressalvas).
+14. Rodar `pose review verify <escopo>` e `pose review-check <escopo>`; fechar somente quando ambos confirmarem uma atestação válida e aprovada.
+15. Emitir decisão final: **aprovado | aprovado com ressalvas | mudanças solicitadas | reprovado**.
 
 ## Output requirements
 

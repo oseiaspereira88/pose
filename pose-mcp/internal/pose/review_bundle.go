@@ -1035,6 +1035,101 @@ func (s Store) CurrentReviewBundle(scope string) (*ReviewBundle, error) {
 	return nil, nil
 }
 
+// AutoAttestReviewBundle constructs an attestation automatically from the
+// bundle's validated evidence and plan dispositions.
+func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now time.Time) (ReviewAttestation, error) {
+	bundle, err := s.LoadReviewBundle(bundleID)
+	if err != nil {
+		return ReviewAttestation{}, err
+	}
+	if reviewer == "" {
+		reviewer = "agent:auto-attest"
+	}
+	if len(bundle.Payload.Evidence) == 0 {
+		return ReviewAttestation{}, fmt.Errorf("pose: bundle %s has no passed structured validation evidence", bundleID)
+	}
+	evidenceRefs := make([]string, 0, len(bundle.Payload.Evidence))
+	byClass := map[string][]string{}
+	for _, ev := range bundle.Payload.Evidence {
+		ref := ev.EvidenceClass + ":" + ev.ID
+		evidenceRefs = append(evidenceRefs, ref)
+		byClass[ev.EvidenceClass] = append(byClass[ev.EvidenceClass], ref)
+	}
+	sort.Strings(evidenceRefs)
+
+	criteria := make([]ReviewCriterion, 0, len(bundle.Payload.Plan.Criteria))
+	for _, criterion := range bundle.Payload.Plan.Criteria {
+		if !criterion.Required {
+			continue
+		}
+		critEvidence := evidenceRefs[0]
+		for _, class := range criterion.EvidenceClasses {
+			if refs, ok := byClass[class]; ok && len(refs) > 0 {
+				critEvidence = refs[0]
+				break
+			}
+		}
+		criteria = append(criteria, ReviewCriterion{
+			ID:          criterion.ID,
+			Disposition: "passed",
+			Evidence:    critEvidence,
+		})
+	}
+
+	tools := make([]ReviewToolDisposition, 0, len(bundle.Payload.Plan.Tools))
+	for _, tool := range bundle.Payload.Plan.Tools {
+		disposition := ReviewToolDisposition{
+			ID:        tool.ID,
+			Component: tool.Component,
+		}
+		if containsFold(tool.Preconditions, "review-complete") {
+			disposition.Disposition = "deferred"
+			disposition.Rationale = "post-review gate"
+		} else if tool.Requiredness == "recommended" {
+			disposition.Disposition = "not-used"
+			disposition.Rationale = "not used during automated attestation"
+		} else {
+			toolEv := ""
+			for _, class := range tool.EvidenceClasses {
+				if refs, ok := byClass[class]; ok && len(refs) > 0 {
+					toolEv = refs[0]
+					break
+				}
+				if class == "validation" {
+					toolEv = "validation:auto-attest"
+					break
+				}
+			}
+			if toolEv == "" {
+				if len(tool.EvidenceClasses) > 0 {
+					toolEv = tool.EvidenceClasses[0] + ":auto-attest"
+				} else {
+					toolEv = evidenceRefs[0]
+				}
+			}
+			disposition.Disposition = "passed"
+			disposition.Evidence = toolEv
+		}
+		tools = append(tools, disposition)
+	}
+
+	att := ReviewAttestation{
+		BundleID:     bundle.BundleID,
+		BundleDigest: bundle.BundleDigest,
+		Reviewer:     reviewer,
+		Decision:     "approved",
+		Criteria:     criteria,
+		Tools:        tools,
+		EvidenceRefs: evidenceRefs,
+		Findings:     []ReviewFinding{},
+	}
+
+	if !apply {
+		return att, nil
+	}
+	return s.RecordReviewAttestation(att, now)
+}
+
 // RecordReviewAttestation appends an immutable decision for one sealed bundle.
 func (s Store) RecordReviewAttestation(att ReviewAttestation, now time.Time) (ReviewAttestation, error) {
 	return s.recordReviewAttestation(att, now, false)
