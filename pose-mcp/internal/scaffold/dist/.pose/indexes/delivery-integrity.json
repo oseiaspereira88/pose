@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:3d3c283b5da7e24e05415e040aae95714e7e6020c0249a35c9f5285966de0577",
+  "input_digest": "sha256:1d5c1bbdf4b0d182d8f55da8677dad1bf242be7b91e8dfe85d5d1a943bb38791",
   "provenance_digest": "sha256:8037caed3aba863a374d3a4235fafe3a199dfbbc2384c9701d9f263a5a7a9116",
   "nodes": [
     {
@@ -46472,6 +46472,14 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-8d2c5b46969f",
+      "code": "orphan",
+      "severity": "warning",
+      "path": "pose-mcp/internal/cli/index_test.go",
+      "message": "governed tracked path has no spec provenance claim",
+      "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
       "id": "dif-8fc456d4df46",
