@@ -72,3 +72,28 @@ func TestSanitizeGoCheckArgs_FiltersNodeModules(t *testing.T) {
 		}
 	}
 }
+
+func TestDiscoverValidationModules_IgnoresQwenWorktrees(t *testing.T) {
+	root := t.TempDir()
+	paths := []string{
+		filepath.Join(root, "pose-mcp", "go.mod"),
+		filepath.Join(root, ".qwen", "worktrees", "review", "docs-site", "pyproject.toml"),
+		filepath.Join(root, ".qwen", "worktrees", "review", "pose-mcp", "go.mod"),
+	}
+	for _, path := range paths {
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatalf("mkdir %s: %v", filepath.Dir(path), err)
+		}
+		if err := os.WriteFile(path, []byte("fixture\n"), 0o644); err != nil {
+			t.Fatalf("write %s: %v", path, err)
+		}
+	}
+
+	modules, err := discoverValidationModules(root)
+	if err != nil {
+		t.Fatalf("discover validation modules: %v", err)
+	}
+	if len(modules) != 1 || modules[0].Rel != "pose-mcp" || modules[0].Stack != "go" {
+		t.Fatalf("modules = %#v, want only pose-mcp Go module", modules)
+	}
+}

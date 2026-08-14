@@ -99,7 +99,7 @@ func confinedRelativePath(path string) bool {
 }
 
 func discoverValidationModules(root string) ([]validationModule, error) {
-	ignored := map[string]bool{".git": true, "node_modules": true, "vendor": true, ".venv": true, ".pnpm-store": true, "target": true, "dist": true, "build": true, ".next": true, "coverage": true, ".pose": true}
+	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, "vendor": true, ".venv": true, ".pnpm-store": true, "target": true, "dist": true, "build": true, ".next": true, "coverage": true, ".pose": true}
 	byPath := map[string]string{}
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
