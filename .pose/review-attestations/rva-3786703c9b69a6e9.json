@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-3786703c9b69a6e9",
+  "bundle_id": "rvb-a95d295d2b546304",
+  "bundle_digest": "sha256:a95d295d2b5463046ef6861cdb9f42eb211a4d07c0d0214e78f42b2467f6eee7",
+  "reviewer": "agent:codex-release-review",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "test:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "contract:review-plan-schema-v1"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "test:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "observability:review-plan-explain-output"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "contract:review-plan-schema-v1"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "test:pose-mcp/go/test"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "contract:review-plan-schema-v1"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "contract:review-plan-schema-v1"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "requirement-trace:pose-component-aware-review-plans"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "contract:review-plan-schema-v1"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "contract:review-plan-schema-v1"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "check:history-check"
+    },
+    {
+      "id": "knowledge-check",
+      "disposition": "passed",
+      "evidence": "check:knowledge-check"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "check:skills-check"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "validation:pose-mcp/delivery-validation"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "validation:pose-mcp/delivery-validation"
+    }
+  ],
+  "evidence_refs": [
+    "contract:review-plan-schema-v1",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "observability:review-plan-explain-output",
+    "requirement-trace:pose-component-aware-review-plans",
+    "test:pose-mcp/go/test",
+    "validation:pose-mcp/delivery-validation"
+  ],
+  "findings": [],
+  "attested_at": "2026-08-14T04:50:55Z",
+  "path": ".pose/review-attestations/rva-3786703c9b69a6e9.json"
+}
