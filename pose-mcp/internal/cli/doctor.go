@@ -260,20 +260,20 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	svPath := filepath.Join(poseDir, "schema-version")
 	engineVersion := engineSchemaVersion(root)
 	if b, err := os.ReadFile(svPath); err != nil {
-		add("schema.version", "warn", text("instance has no .pose/schema-version", "instância sem .pose/schema-version"), text("run 'pose upgrade'", "rode 'pose upgrade'"))
+		add("schema.version", "warn", text("instance has no .pose/schema-version", "instância sem .pose/schema-version"), text("run 'pose update'", "rode 'pose update'"))
 	} else {
 		instance := strings.TrimSpace(string(b))
 		n, convErr := strconv.Atoi(instance)
 		switch {
 		case convErr != nil:
-			add("schema.version", "error", fmt.Sprintf(text("invalid schema-version: %q", "schema-version inválido: %q"), instance), text("run 'pose upgrade'", "rode 'pose upgrade'"))
+			add("schema.version", "error", fmt.Sprintf(text("invalid schema-version: %q", "schema-version inválido: %q"), instance), text("run 'pose update'", "rode 'pose update'"))
 		case engineVersion > 0 && n > engineVersion:
 			add("schema.version", "error",
 				fmt.Sprintf(text("instance v%d is newer than engine v%d", "instância v%d é mais nova que o motor v%d"), n, engineVersion),
 				text("update the POSE engine; downgrade is unsupported", "atualize o motor POSE (não há downgrade)"))
 		case engineVersion > 0 && n < engineVersion:
 			add("schema.version", "warn",
-				fmt.Sprintf(text("instance v%d is behind engine v%d", "instância v%d atrás do motor v%d"), n, engineVersion), text("run 'pose upgrade'", "rode 'pose upgrade'"))
+				fmt.Sprintf(text("instance v%d is behind engine v%d", "instância v%d atrás do motor v%d"), n, engineVersion), text("run 'pose update'", "rode 'pose update'"))
 		default:
 			add("schema.version", "ok", "schema v"+instance, "")
 		}

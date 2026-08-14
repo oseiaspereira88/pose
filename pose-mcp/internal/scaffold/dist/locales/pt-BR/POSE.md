@@ -44,7 +44,7 @@ o manual operacional (estrutura, CLI, fluxos por tipo, CI, governança).
   indexes/       # repo-map, services, packages, validation-matrix, module-metadata, task-map, spec-graph, roadmaps
   reports/       # relatórios versionáveis + history JSONL + archive/
   specs/         # specs vivas por feature
-  schema-version # versão do contrato da instância (ver `pose upgrade`)
+  schema-version # versão do contrato da instância (ver `pose update`)
 
 .agents/skills/  # skills (fonte de verdade; formato nativo Codex)
 .claude/skills/  # symlinks compatíveis com Claude Code
@@ -242,16 +242,16 @@ pose state [init|refresh|diff]      # artefato nativo de estado (sem args = vali
 # Instalação, MCP e feedback do engine
 pose version                       # versões do binário e do schema da instância
 pose install <dir> [--locale tag]  # instala o POSE embutido sem clonar
-pose upgrade [--dry-run] [--force] [--schema-only]
-                                      # atualiza binário + maquinário + schema
-                                      # NÃO reescreve POSE.md/AGENTS.md sem --force
+pose update [--dry-run] [--force] [--schema-only]
+                                       # atualiza binário + maquinário + schema
+                                       # NÃO reescreve POSE.md/AGENTS.md sem --force
 pose import <spec-kit|openspec> <path> [--dry-run]
 pose serve-mcp --stdio             # transporte local gerenciado pelo cliente MCP
 pose serve-mcp                     # servidor HTTP; configure as variáveis POSE_* antes
 pose doctor [--json] [--fix]       # diagnostica binário e configuração local;
-                                      # não prova conexão ativa — use pose_mcp_context
+                                       # não prova conexão ativa — use pose_mcp_context
 pose report-limitation --title "..." --kind limitation|bug|suggestion [--body "..."] [--submit]
-                                      # sem --submit, grava somente em .pose/feedback/
+                                       # sem --submit, grava somente em .pose/feedback/
 pose telemetry <enable|disable|status>
 
 # Assessment e extensões
@@ -273,7 +273,7 @@ pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-tha
 pose events-housekeeping [...]
 pose amend <slug> [...]            # registra emenda append-only em spec
 pose hooks <install|uninstall|status> [--force]
-                                      # symlinks do binário pose em .git/hooks/<x>
+                                       # symlinks do binário pose em .git/hooks/<x>
 ```
 
 ### Referência de comandos
@@ -286,7 +286,7 @@ pose hooks <install|uninstall|status> [--force]
 - `validate` — executa a matriz declarativa em [`validation-matrix.json`](.pose/indexes/validation-matrix.json): checks por stack, overrides por módulo, severidade (`required`/`optional`) e modo (`strict`/`tolerant`). `--json`/`--junit`/`--sarif <path>` emitem o resultado estruturado versionado (schema 1) a partir de um único modelo canônico: IDs estáveis de check (`<module>/<stack>/<name>`), metadados de comando, tempo, severidade, outcomes distinguíveis (`pass|fail|error|skipped` — falha de infraestrutura nunca se disfarça de falha de check), motivos determinísticos de skip, saída capturada com limite e redação de segredos (apenas valores de env configurados; o ambiente herdado nunca entra no resultado). A saída em texto continua autoritativa; os formatos de máquina são aditivos. A semântica específica do POSE sobrevive às projeções JUnit/SARIF via extensões documentadas (sufixo de classname / propriedades `pose/*`).
   **Guardrails de runtime:** todo check roda sob timeout (`timeoutSeconds` por check, `defaults.timeoutSeconds`, default seguro 600s) e teto de saída (`defaults.maxOutputBytes`, default 1 MiB); violar qualquer um encerra o process group e registra o estado explícito (`limit_state: timeout|output-limit`). Checks marcados `isolation: "required"` nunca rodam localmente — são pulados com motivo legível por máquina e exportados por `--emit-plan <file>`: um envelope de plano de execução vinculando projeto, spec, plano de checks, digest da matriz, git HEAD e um slot de aprovação a ser carimbado com identidade de execução expirável antes que o Harness possa executá-lo.
   **Escopo por mudança:** `--changed-from <rev> [--changed-to <rev>]` seleciona deterministicamente o conjunto mínimo seguro de módulos — módulos com arquivos alterados (rastreados e não rastreados), dependentes transitivos via arestas `dependsOn` em [`module-metadata.json`](.pose/indexes/module-metadata.json) e alargamento por política (criticidade `high` sempre roda). Uma mudança fora de todos os módulos roda tudo (na incerteza, prefere-se execução segura); checks não selecionados são registrados como skipped com o motivo da seleção e `--explain` imprime cada decisão. Revisões ficam confinadas a uma gramática segura; sem as flags, a validação completa é inalterada.
-- `upgrade` — atualização completa em comando único: verifica e atualiza automaticamente o binário executável do `pose` para o release mais recente do GitHub, sincroniza scaffolds, regras, workflows e configurações MCP (`--force`), e migra o schema da instância (`.pose/schema-version`). Use `--dry-run` para pré-visualizar ou `--schema-only` para ignorar a autoatualização do binário. Downgrades são sempre recusados.
+- `update` — atualização completa em comando único: verifica e atualiza automaticamente o binário executável do `pose` para o release mais recente do GitHub, sincroniza scaffolds, regras, workflows e configurações MCP (`--force`), e migra o schema da instância (`.pose/schema-version`). Use `--dry-run` para pré-visualizar ou `--schema-only` para ignorar a autoatualização do binário. Downgrades são sempre recusados.
 - `index` — gera `repo-map.json`, `services.json`, `packages.json`, `spec-graph.json` e `roadmaps.json` (grafo de `depends_on`/`priority` das specs, cache para pose-mcp) em `.pose/indexes/`, incluindo metadados operacionais por módulo a partir de [`module-metadata.json`](.pose/indexes/module-metadata.json).
 - `report` — gera relatório versionável em `.pose/reports/` com metadados de execução, histórico mínimo por task (`.pose/reports/history/`) e diff de campos estáveis.
 - `knowledge-check` — gate duplo: (1) valida o frontmatter de cada artefato em [`.pose/knowledge/`](.pose/knowledge/) contra a rule (`type`, `sensitivity`, `expires_at`, TTL ≤ 90d), e (2) conta backlog vencido contra `--max-overdue`. Em `--strict` ambos os gates falham com exit 1.

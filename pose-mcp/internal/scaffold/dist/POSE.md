@@ -44,7 +44,7 @@ the operating manual (structure, CLI, per-type flows, CI, governance).
   indexes/       # repo-map, services, packages, validation-matrix, module-metadata, task-map, spec-graph, roadmaps
   reports/       # versionable reports + history JSONL + archive/
   specs/         # living specs per feature
-  schema-version # instance contract version (see `pose upgrade`)
+  schema-version # instance contract version (see `pose update`)
 
 .agents/skills/  # skills (source of truth; Codex-native format)
 .claude/skills/  # Claude Code-compatible symlinks
@@ -226,7 +226,7 @@ pose state [init|refresh|diff]     # native project-state artifact (bare = valid
 # Installation, MCP and engine feedback
 pose version                       # binary and instance schema versions
 pose install <dir> [--locale tag]  # install the embedded POSE without cloning
-pose upgrade [--dry-run] [--force] [--schema-only]
+pose update [--dry-run] [--force] [--schema-only]
                                    # updates binary + machinery + schema; does NOT
                                    # rewrite POSE.md/AGENTS.md without --force
 pose import <spec-kit|openspec> <path> [--dry-run]
@@ -269,7 +269,7 @@ pose hooks <install|uninstall|status> [--force]
 - `validate` — runs the declarative matrix in [`validation-matrix.json`](.pose/indexes/validation-matrix.json): per-stack checks, per-module overrides, severity (`required`/`optional`) and mode (`strict`/`tolerant`). `--json`/`--junit`/`--sarif <path>` emit the versioned structured result (schema 1) from one canonical model: stable check IDs (`<module>/<stack>/<name>`), command metadata, timing, severity, distinguishable outcomes (`pass|fail|error|skipped` — infra failures never masquerade as check failures), deterministic skip reasons, bounded captured output and secret redaction (configured env values only; inherited environment never enters the result). Text output stays authoritative; machine formats are additive. POSE-specific semantics survive the JUnit/SARIF projections via documented extensions (classname suffix / `pose/*` properties).
   **Runtime guardrails:** every check runs under a timeout (`timeoutSeconds` per check, `defaults.timeoutSeconds`, safe default 600s) and an output ceiling (`defaults.maxOutputBytes`, default 1 MiB); breaching either terminates the process group and records the explicit state (`limit_state: timeout|output-limit`). Checks marked `isolation: "required"` never run locally — they are skipped with a machine-readable reason and exported by `--emit-plan <file>`: an execution-plan envelope binding project, spec, check plan, matrix digest, git HEAD and an approval slot to be stamped with an expiring execution identity before the Harness may run it.
   **Changed scope:** `--changed-from <rev> [--changed-to <rev>]` selects the minimum safe module set deterministically — modules containing changed files (tracked and untracked), transitive dependents via `dependsOn` edges in [`module-metadata.json`](.pose/indexes/module-metadata.json), and policy widening (criticality `high` always runs). A change outside every module runs everything (uncertainty prefers safe execution); unselected checks are recorded as skipped with the selection reason and `--explain` prints every decision. Revisions are confined to a safe grammar; without the flags, full validation is unchanged.
-- `upgrade` — single-command complete upgrade: automatically checks and updates the `pose` binary executable to the latest GitHub release, refreshes scaffolds, rules, workflows and MCP config (`--force`), and migrates the repository instance schema (`.pose/schema-version`). Use `--dry-run` to preview or `--schema-only` to skip binary self-update. Downgrade is always refused.
+- `update` — single-command complete update: automatically checks and updates the `pose` binary executable to the latest GitHub release, refreshes scaffolds, rules, workflows and MCP config (`--force`), and migrates the repository instance schema (`.pose/schema-version`). Use `--dry-run` to preview or `--schema-only` to skip binary self-update. Downgrade is always refused.
 - `index` — generates `repo-map.json`, `services.json`, `packages.json`, `spec-graph.json` and `roadmaps.json` (the specs' `depends_on`/`priority` graph, cached for pose-mcp) in `.pose/indexes/`, including per-module operational metadata from [`module-metadata.json`](.pose/indexes/module-metadata.json).
 - `report` — generates a versionable report in `.pose/reports/` with execution metadata, minimal per-task history (`.pose/reports/history/`) and stable-field diffs.
 - `knowledge-check` — double gate: (1) validates each artifact's frontmatter in [`.pose/knowledge/`](.pose/knowledge/) against the rule (`type`, `sensitivity`, `expires_at`, TTL ≤ 90d), and (2) counts the overdue backlog against `--max-overdue`. In `--strict` both gates exit 1.

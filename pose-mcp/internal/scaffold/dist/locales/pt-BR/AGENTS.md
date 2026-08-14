@@ -91,7 +91,7 @@ por `pose validate`.
 
 <!-- pose:instance-owned -->
 
-<!-- Orientação para agentes específica deste repositório. O `pose upgrade`
+<!-- Orientação para agentes específica deste repositório. O `pose update`
      atualiza todas as outras seções deste arquivo a partir do contrato
      distribuído, mas nunca toca nesta — registre aqui convenções locais,
      exceções e ponteiros, em vez de editar as seções do motor acima. -->

@@ -99,14 +99,14 @@ else
     ) || return 1
     local marker
     marker="upgrade-lab: user customization preserved across upgrade"
-    # --no-self is mandatory here: a bare `upgrade` self-updates to the latest
+    # --no-self is mandatory here: a bare `update` self-updates to the latest
     # *published* release, which would overwrite the candidate binary mid-gate
     # and leave every later pair validating the previous release instead of the
     # one being cut (spec pose-compat-gate-candidate-integrity).
-    (cd "$fixture" && "$candidate" upgrade --no-self >/dev/null) || return 1
+    (cd "$fixture" && "$candidate" update --no-self >/dev/null) || return 1
     (cd "$fixture" && "$candidate" check --strict >/dev/null) || return 1
     local reapply
-    reapply="$(cd "$fixture" && "$candidate" upgrade --no-self)"
+    reapply="$(cd "$fixture" && "$candidate" update --no-self)"
     [[ "$reapply" == *"already at schema"* ]] || return 1
     # The upgrade is allowed — required, since pose-manual-distribution-merge —
     # to refresh engine-owned manual content. What it may never do is lose what

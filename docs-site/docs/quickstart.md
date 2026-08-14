@@ -111,7 +111,7 @@ run `pose dora-metrics`; see [Analytics and delivery metrics](analytics.md).
 pose check --strict       # structural integrity + graphs + schema version
 pose validate --tolerant  # run the validation matrix
 pose followups --open     # live backlog from all specs
-pose upgrade              # migrate the contract after engine updates
+pose update               # migrate the contract after engine updates
 pose hooks install        # pre-commit check + post-merge reindex
 ```
 

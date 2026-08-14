@@ -159,7 +159,7 @@ func isKnownCLICommand(tool string) bool {
 	case "init", "new-spec", "new-roadmap", "new-adr", "new-knowledge", "followups", "amend", "assess", "state",
 		"docs-init", "docs-check", "docs-review", "docs-sync", "report-limitation", "feedback", "report", "validate", "check",
 		"review", "review-check", "closeout-check", "close", "continuous-closeout", "artifact-check", "artifact-backfill", "surface-check", "roadmap-check",
-		"upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping",
+		"update", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping",
 		"recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks", "skills-check", "record-deployment",
 		"record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping", "semantic-suggest", "suggest-feedback",
 		"portfolio-projection", "reconcile-evidence", "release-notes", "release", "release-package-manifests", "install", "doctor",

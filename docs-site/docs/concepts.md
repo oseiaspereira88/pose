@@ -110,6 +110,6 @@ archives/purges expired entries.
 ## Schema versioning
 
 The `.pose/` contract itself is versioned (`.pose/schema-version`). The engine
-declares `POSE_SCHEMA_VERSION`; `pose check` detects drift and `pose upgrade`
+declares `POSE_SCHEMA_VERSION`; `pose check` detects drift and `pose update`
 applies sequential idempotent migrations. An instance newer than its engine is
 always an error — upgrade the engine, never downgrade the instance.

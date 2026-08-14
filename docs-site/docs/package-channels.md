@@ -74,6 +74,6 @@ Every channel installs a specific pinned version. To roll back:
 - **WinGet:** `winget install Harne8.Pose --version <prior-version>`, or
   uninstall and reinstall from the prior release's manifest artifact.
 
-`pose upgrade` handles the repository contract/schema side of moving
+`pose update` handles the repository contract/schema side of moving
 between versions once the new binary is on `PATH`; channel rollback only
 changes which binary is installed.

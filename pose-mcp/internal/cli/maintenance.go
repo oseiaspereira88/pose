@@ -20,7 +20,7 @@ import (
 	"github.com/harne8/pose-mcp/internal/version"
 )
 
-func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
+func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	commandLocale := cliLocaleValue()
 	text := func(english, portuguese string) string { return cliText(commandLocale, english, portuguese) }
 	localeFlag := ""
@@ -46,7 +46,7 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 			i++
 		case "--locale":
 			if i+1 >= len(args) {
-				fmt.Fprintf(stderr, text("pose upgrade: %s requires a value\n", "pose upgrade: %s exige um valor\n"), a)
+				fmt.Fprintf(stderr, text("pose update: %s requires a value\n", "pose update: %s exige um valor\n"), a)
 				return 2
 			}
 			localeFlag = args[i+1]
@@ -57,7 +57,7 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 			}
 			i += 2
 		default:
-			return usageError(stderr, text("Usage: pose upgrade [--dry-run] [--force] [--no-self] [--locale tag]", "Uso: pose upgrade [--dry-run] [--force] [--no-self] [--locale tag]"))
+			return usageError(stderr, text("Usage: pose update [--dry-run] [--force] [--no-self] [--locale tag]", "Uso: pose update [--dry-run] [--force] [--no-self] [--locale tag]"))
 		}
 	}
 
@@ -71,15 +71,15 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 	}
 
 	if _, e := os.Stat(filepath.Join(root, ".git")); e != nil {
-		fmt.Fprintln(stderr, text("pose upgrade: a git repository is required", "pose upgrade: um repositório git é obrigatório"))
+		fmt.Fprintln(stderr, text("pose update: a git repository is required", "pose update: um repositório git é obrigatório"))
 		return 1
 	}
 	poseDir := filepath.Join(root, ".pose")
 	if fi, e := os.Lstat(poseDir); e != nil {
-		fmt.Fprintln(stderr, text("pose upgrade: .pose not found", "pose upgrade: .pose não encontrado"))
+		fmt.Fprintln(stderr, text("pose update: .pose not found", "pose update: .pose não encontrado"))
 		return 1
 	} else if fi.Mode()&os.ModeSymlink != 0 {
-		fmt.Fprintln(stderr, text("pose upgrade: refusing to follow symlink at .pose", "pose upgrade: recusando seguir symlink em .pose"))
+		fmt.Fprintln(stderr, text("pose update: refusing to follow symlink at .pose", "pose update: recusando seguir symlink em .pose"))
 		return 1
 	}
 
@@ -87,18 +87,18 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 	if b, e := os.ReadFile(filepath.Join(poseDir, "schema-version")); e == nil {
 		current, e = strconv.Atoi(strings.TrimSpace(string(b)))
 		if e != nil {
-			fmt.Fprintln(stderr, text("pose upgrade: invalid schema-version", "pose upgrade: schema-version inválido"))
+			fmt.Fprintln(stderr, text("pose update: invalid schema-version", "pose update: schema-version inválido"))
 			return 1
 		}
 	}
 	if current > nativeSchemaVersion {
-		fmt.Fprintf(stderr, text("pose upgrade: instance v%d is newer than engine v%d; downgrade is unsupported\n", "pose upgrade: instância v%d é mais recente que engine v%d; downgrade não é suportado\n"), current, nativeSchemaVersion)
+		fmt.Fprintf(stderr, text("pose update: instance v%d is newer than engine v%d; downgrade is unsupported\n", "pose update: instância v%d é mais recente que engine v%d; downgrade não é suportado\n"), current, nativeSchemaVersion)
 		return 1
 	}
 
 	if dry {
 		if current < nativeSchemaVersion {
-			fmt.Fprintf(stdout, text("[INFO] schema upgrade: v%d -> v%d\n", "[INFO] atualização de schema: v%d -> v%d\n"), current, nativeSchemaVersion)
+			fmt.Fprintf(stdout, text("[INFO] schema update: v%d -> v%d\n", "[INFO] atualização de schema: v%d -> v%d\n"), current, nativeSchemaVersion)
 			fmt.Fprintln(stdout, text("[DRY-RUN] would apply: 001-baseline", "[DRY-RUN] aplicaria: 001-baseline"))
 		} else {
 			fmt.Fprintf(stdout, text("[INFO] instance already at schema v%d. Nothing to do.\n", "[INFO] instância já está no schema v%d. Nada a fazer.\n"), current)
@@ -112,7 +112,7 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 
 	for _, rel := range []string{".pose/roadmaps", ".pose/changelogs/unreleased", ".pose/reports/history", ".pose/feedback"} {
 		if e := ensureManagedDirSafe(root, rel); e != nil {
-			fmt.Fprintf(stderr, "pose upgrade: %v\n", e)
+			fmt.Fprintf(stderr, "pose update: %v\n", e)
 			return 1
 		}
 	}
@@ -121,7 +121,7 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 
-	// Managed manuals refresh on every upgrade, not only under --force: the
+	// Managed manuals refresh on every update, not only under --force: the
 	// merge keeps instance-owned sections, so there is nothing to protect by
 	// skipping. Skipping was why canonical POSE.md/AGENTS.md changes never
 	// reached an installed repository (spec pose-manual-distribution-merge).
@@ -131,10 +131,10 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 			docLocale = "pt-BR"
 		}
 		if e := refreshManagedDocs(root, docLocale, stdout, commandLocale); e != nil {
-			fmt.Fprintf(stderr, text("pose upgrade: refreshing managed docs: %v\n", "pose upgrade: atualizando docs gerenciados: %v\n"), e)
+			fmt.Fprintf(stderr, text("pose update: refreshing managed docs: %v\n", "pose update: atualizando docs gerenciados: %v\n"), e)
 			return 1
 		}
-		// Machinery refreshes on a plain upgrade for the same reason the
+		// Machinery refreshes on a plain update for the same reason the
 		// manuals do: the whole-file contract backs up anything the instance
 		// changed, so skipping protected nothing and only guaranteed drift
 		// (spec pose-machinery-distribution-contract).
@@ -143,7 +143,7 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		dist := scaffold.Dist()
 		if e := deliverMachinery(dist, root, machineryLocale(dist, root, docLocale), false, false, stderr, machineryLog); e != nil {
-			fmt.Fprintf(stderr, text("pose upgrade: delivering machinery: %v\n", "pose upgrade: entregando maquinário: %v\n"), e)
+			fmt.Fprintf(stderr, text("pose update: delivering machinery: %v\n", "pose update: entregando maquinário: %v\n"), e)
 			return 1
 		}
 	}
@@ -157,7 +157,7 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 			installArgs = append(installArgs, "--locale", "pt-BR")
 		}
 		if code := cmdInstall(installArgs, stdout, stderr); code != 0 {
-			fmt.Fprintln(stderr, text("pose upgrade: scaffold refresh failed", "pose upgrade: falha na atualização de scaffolds"))
+			fmt.Fprintln(stderr, text("pose update: scaffold refresh failed", "pose update: falha na atualização de scaffolds"))
 			return code
 		}
 	}
@@ -167,7 +167,7 @@ func cmdUpgrade(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 
-	fmt.Fprintf(stdout, text("Result: SUCCESS — POSE upgraded to engine v%s (schema v%d).\n", "Resultado: SUCESSO — POSE atualizado para engine v%s (schema v%d).\n"), version.Version, nativeSchemaVersion)
+	fmt.Fprintf(stdout, text("Result: SUCCESS — POSE updated to engine v%s (schema v%d).\n", "Resultado: SUCESSO — POSE atualizado para engine v%s (schema v%d).\n"), version.Version, nativeSchemaVersion)
 	return 0
 }
 

@@ -25,7 +25,7 @@ func TestNativeOnlyAdvertisedMaintenanceCommands(t *testing.T) {
 			{"index"}, {"suggest", "feature", "--json"}, {"stats", "workflows", "--json"},
 			{"recurrence-check", "--strict"}, {"knowledge-check", "--strict"},
 			{"knowledge-housekeeping", "list-expired"}, {"reports-housekeeping", "list-stale"},
-			{"upgrade", "--dry-run"}, {"init", "--wizard", "--yes"},
+			{"update", "--dry-run"}, {"init", "--wizard", "--yes"},
 			{"release-notes", "--preview", "--version", "v0.1.0"},
 		}
 		for _, command := range commands {

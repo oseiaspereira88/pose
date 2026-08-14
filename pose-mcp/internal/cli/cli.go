@@ -184,15 +184,15 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 		default:
 			return cmdClose(root, args, stdout, stderr)
 		}
-	case "upgrade", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "usage", "stacks", "skills-check", "record-deployment", "record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping", "semantic-suggest", "suggest-feedback", "portfolio-projection", "reconcile-evidence":
+	case "update", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping", "recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "usage", "stacks", "skills-check", "record-deployment", "record-incident", "dora-metrics", "adoption-metrics", "events-housekeeping", "semantic-suggest", "suggest-feedback", "portfolio-projection", "reconcile-evidence":
 		root, err := projectRoot()
 		if err != nil {
 			fmt.Fprintf(stderr, "pose %s: %v\n", cmd, err)
 			return 1
 		}
 		switch cmd {
-		case "upgrade":
-			return cmdUpgrade(root, args, stdout, stderr)
+		case "update":
+			return cmdUpdate(root, args, stdout, stderr)
 		case "index":
 			return cmdIndex(root, args, stdout, stderr)
 		case "knowledge-check":
@@ -309,7 +309,7 @@ func cmdVersion(w io.Writer) int {
 		if b, err := os.ReadFile(sv); err == nil {
 			fmt.Fprintf(w, "schema: %s\n", strings.TrimSpace(string(b)))
 		} else if _, err := os.Stat(filepath.Join(root, ".pose")); err == nil {
-			fmt.Fprintf(w, "schema: unversioned (run 'pose upgrade')\n")
+			fmt.Fprintf(w, "schema: unversioned (run 'pose update')\n")
 		}
 	}
 	return 0
@@ -373,7 +373,7 @@ Extensions:
   extension list [--json] | extension remove <id> [...] | extension verify <dir>
 
 Artifacts and maintenance:
-  index | report | upgrade [--dry-run] | knowledge-housekeeping |
+  index | report | update [--dry-run] | knowledge-housekeeping |
   knowledge-usage | knowledge-suggest | reports-housekeeping | events-housekeeping | hooks
 
 All commands execute in the Go binary without Bash or Python fallbacks.
@@ -436,7 +436,7 @@ Geração de artefatos:
   index | report
 
 Manutenção:
-  upgrade [--dry-run] | knowledge-housekeeping | knowledge-usage |
+  update [--dry-run] | knowledge-housekeeping | knowledge-usage |
   knowledge-suggest | reports-housekeeping | events-housekeeping | hooks
 
 Todos os comandos executam no binário Go, sem fallbacks Bash ou Python.

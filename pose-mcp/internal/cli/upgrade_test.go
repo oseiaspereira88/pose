@@ -121,7 +121,7 @@ func TestUpgradeDryRunIsAccurateAndNonMutating(t *testing.T) {
 	before := snapshotTree(t, fixture)
 	inDir(t, fixture, func() {
 		var out, errB bytes.Buffer
-		if code := Main([]string{"upgrade", "--dry-run"}, &out, &errB); code != 0 {
+		if code := Main([]string{"update", "--dry-run"}, &out, &errB); code != 0 {
 			t.Fatalf("dry-run exit=%d out=%s err=%s", code, out.String(), errB.String())
 		}
 		if !strings.Contains(out.String(), "v0 -> v1") || !strings.Contains(out.String(), "001-baseline") || !strings.Contains(out.String(), "DRY-RUN") {
@@ -141,7 +141,7 @@ func TestUpgradeApplyIsIdempotentAndPreservesInstanceContent(t *testing.T) {
 
 	inDir(t, fixture, func() {
 		var out, errB bytes.Buffer
-		if code := Main([]string{"upgrade"}, &out, &errB); code != 0 {
+		if code := Main([]string{"update"}, &out, &errB); code != 0 {
 			t.Fatalf("apply exit=%d out=%s err=%s", code, out.String(), errB.String())
 		}
 		if !strings.Contains(out.String(), "Result: SUCCESS") || !strings.Contains(out.String(), "schema v1") {
@@ -181,7 +181,7 @@ func TestUpgradeApplyIsIdempotentAndPreservesInstanceContent(t *testing.T) {
 	// Reapply must be idempotent: no further mutation, explicit no-op message.
 	inDir(t, fixture, func() {
 		var out, errB bytes.Buffer
-		if code := Main([]string{"upgrade"}, &out, &errB); code != 0 {
+		if code := Main([]string{"update"}, &out, &errB); code != 0 {
 			t.Fatalf("reapply exit=%d out=%s err=%s", code, out.String(), errB.String())
 		}
 		if !strings.Contains(out.String(), "already at schema v1") {
@@ -203,7 +203,7 @@ func TestUpgradeRejectsNewerInstanceWithExplicitRemediation(t *testing.T) {
 	before := snapshotTree(t, fixture)
 	inDir(t, fixture, func() {
 		var out, errB bytes.Buffer
-		if code := Main([]string{"upgrade"}, &out, &errB); code == 0 {
+		if code := Main([]string{"update"}, &out, &errB); code == 0 {
 			t.Fatalf("expected non-zero exit for a newer-than-engine instance, out=%s", out.String())
 		} else if !strings.Contains(errB.String(), "newer than engine") || !strings.Contains(errB.String(), "downgrade is unsupported") {
 			t.Errorf("expected explicit remediation diagnostic, got: %s", errB.String())
@@ -234,7 +234,7 @@ func TestUpgradeBlocksManagedDirSymlinkEscape(t *testing.T) {
 
 	inDir(t, repo, func() {
 		var out, errB bytes.Buffer
-		if code := Main([]string{"upgrade"}, &out, &errB); code == 0 {
+		if code := Main([]string{"update"}, &out, &errB); code == 0 {
 			t.Fatalf("expected non-zero exit when a managed directory is a symlink, out=%s", out.String())
 		} else if !strings.Contains(errB.String(), "refusing to follow symlink") {
 			t.Errorf("expected a symlink-refusal diagnostic, got: %s", errB.String())

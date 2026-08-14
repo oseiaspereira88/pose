@@ -73,7 +73,7 @@ The installed instance is data, not another runtime. `pose install` copies the
 contract and templates into the target repository, then runs `init`, `index`
 and `check --strict`. Reinstallation updates managed machinery while preserving
 specs, ADRs, roadmaps, knowledge and reports. `.pose/schema-version` allows the
-engine to apply ordered, idempotent migrations with `pose upgrade`, verified
+engine to apply ordered, idempotent migrations with `pose update`, verified
 against a populated instance (a real spec, knowledge note and hand-edited
 managed file) for dry-run non-mutation, schema-only apply and idempotent
 reapply. Releases publish through Homebrew and WinGet channels generated

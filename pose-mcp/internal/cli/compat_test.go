@@ -98,19 +98,19 @@ func TestCompatibilityUpgradeFromLegacyInstance(t *testing.T) {
 	dir := compatInstance(t, "")
 	inDir(t, dir, func() {
 		var out, errB bytes.Buffer
-		if code := Main([]string{"upgrade"}, &out, &errB); code != 0 {
-			t.Fatalf("upgrade exit=%d stderr=%s", code, errB.String())
+		if code := Main([]string{"update"}, &out, &errB); code != 0 {
+			t.Fatalf("update exit=%d stderr=%s", code, errB.String())
 		}
 		b, err := os.ReadFile(filepath.Join(dir, ".pose", "schema-version"))
 		if err != nil || strings.TrimSpace(string(b)) != "1" {
-			t.Fatalf("schema-version after upgrade = %q (err=%v), want 1", b, err)
+			t.Fatalf("schema-version after update = %q (err=%v), want 1", b, err)
 		}
 		out.Reset()
-		if code := Main([]string{"upgrade"}, &out, &errB); code != 0 {
-			t.Fatalf("second upgrade exit=%d", code)
+		if code := Main([]string{"update"}, &out, &errB); code != 0 {
+			t.Fatalf("second update exit=%d", code)
 		}
 		if !strings.Contains(out.String(), "Nothing to do") {
-			t.Errorf("upgrade is not idempotent: %s", out.String())
+			t.Errorf("update is not idempotent: %s", out.String())
 		}
 	})
 }
@@ -121,8 +121,8 @@ func TestCompatibilityDowngradeRejected(t *testing.T) {
 	dir := compatInstance(t, "999")
 	inDir(t, dir, func() {
 		var out, errB bytes.Buffer
-		if code := Main([]string{"upgrade"}, &out, &errB); code == 0 {
-			t.Fatal("upgrade accepted an instance newer than the engine")
+		if code := Main([]string{"update"}, &out, &errB); code == 0 {
+			t.Fatal("update accepted an instance newer than the engine")
 		}
 		if !strings.Contains(errB.String(), "downgrade is unsupported") {
 			t.Errorf("diagnostic should state downgrade is unsupported, got: %s", errB.String())

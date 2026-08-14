@@ -65,12 +65,12 @@ fi
 
 if [[ -d "$TARGET_DIR/.git" ]] || [[ -d "$TARGET_DIR/.pose" ]]; then
   echo "[pose-installer] upgrading & syncing POSE instance at ${TARGET_DIR}..."
-  # `upgrade` and `check` operate on the current instance and take no
+  # `update` and `check` operate on the current instance and take no
   # positional directory; calling them with one only printed a usage banner,
   # so neither the migration nor the final gate ever ran. There is nothing to
   # migrate before the first install, so skip it on a target without `.pose`.
   if [[ -d "$TARGET_DIR/.pose" ]]; then
-    (cd "$TARGET_DIR" && "$POSE_BIN" upgrade) || true
+    (cd "$TARGET_DIR" && "$POSE_BIN" update) || true
   fi
   "$POSE_BIN" install "$TARGET_DIR" --force
   (cd "$TARGET_DIR" && "$POSE_BIN" check --strict)

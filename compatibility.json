@@ -5,7 +5,7 @@
   "support_policy": {
     "window": "Releases from 0.18.2 onward. Earlier releases had no installed base, so upgrades from them are not supported and are not exercised. Every entry in supported_upgrades is exercised by the release compatibility gate: install with the prior release, then upgrade with the candidate.",
     "downgrade": "unsupported \u2014 an instance newer than its engine is always an error; upgrade the engine, never the instance",
-    "schema": "Repository schema compatibility is an independent integer sequence (.pose/schema-version); pose upgrade applies ordered idempotent migrations. SemVer of the binary never implies schema compatibility.",
+    "schema": "Repository schema compatibility is an independent integer sequence (.pose/schema-version); pose update applies ordered idempotent migrations. SemVer of the binary never implies schema compatibility.",
     "prior_artifact_authentication": "Each supported prior release pins the SHA-256 of its checksums.txt; the compatibility gate verifies the pin before executing any downloaded binary."
   },
   "supported_upgrades": [

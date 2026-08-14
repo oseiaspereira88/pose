@@ -91,7 +91,7 @@ executed by `pose validate`.
 
 <!-- pose:instance-owned -->
 
-<!-- Repository-specific agent guidance. `pose upgrade` refreshes every other
+<!-- Repository-specific agent guidance. `pose update` refreshes every other
      section of this file from the shipped contract but never touches this one,
      so put local conventions, exceptions and pointers here rather than editing
      the engine-owned sections above. -->

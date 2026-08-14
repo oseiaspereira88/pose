@@ -232,7 +232,7 @@ func (checker *nativeChecker) checkSchemaVersion() {
 	path := filepath.Join(checker.root, ".pose", "schema-version")
 	content, err := os.ReadFile(path)
 	if err != nil {
-		checker.failOrWarn(checker.message("schema: instance has no .pose/schema-version — run 'pose upgrade'", "schema: instância sem .pose/schema-version — rode 'pose upgrade'"))
+		checker.failOrWarn(checker.message("schema: instance has no .pose/schema-version — run 'pose update'", "schema: instância sem .pose/schema-version — rode 'pose update'"))
 		return
 	}
 	version, err := strconv.Atoi(strings.TrimSpace(string(content)))
@@ -244,7 +244,7 @@ func (checker *nativeChecker) checkSchemaVersion() {
 		checker.issue("ERRO", fmt.Sprintf(checker.message("schema: instance v%d is newer than engine v%d", "schema: instância v%d é mais nova que o motor v%d"), version, nativeSchemaVersion))
 	}
 	if version < nativeSchemaVersion {
-		checker.failOrWarn(fmt.Sprintf(checker.message("schema: instance v%d is behind engine v%d — run 'pose upgrade'", "schema: instância v%d atrás do motor v%d — rode 'pose upgrade'"), version, nativeSchemaVersion))
+		checker.failOrWarn(fmt.Sprintf(checker.message("schema: instance v%d is behind engine v%d — run 'pose update'", "schema: instância v%d atrás do motor v%d — rode 'pose update'"), version, nativeSchemaVersion))
 	}
 }
 

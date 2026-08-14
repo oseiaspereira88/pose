@@ -90,4 +90,4 @@ The body is 1–3 user-facing sentences. At release time,
 ## Schema version (`.pose/schema-version`)
 
 A single integer line. The engine's `POSE_SCHEMA_VERSION` must be ≥ the
-instance's; `pose upgrade` migrates forward, never backward.
+instance's; `pose update` migrates forward, never backward.

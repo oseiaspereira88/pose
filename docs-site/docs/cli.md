@@ -287,7 +287,7 @@ behavioral/change layout.
 
 | Command | Purpose |
 |---|---|
-| `pose upgrade [--dry-run]` | Migrate the instance contract to the engine version |
+| `pose update [--dry-run]` | Migrate the instance contract to the engine version |
 | `pose doctor [--json] [--fix [--yes] [--only <check>]]` | Read-only diagnostics; `--fix` previews confined remediation, `--fix --yes` applies and rechecks it |
 | `pose knowledge-housekeeping <op> [--apply]` | List/archive/purge expired knowledge |
 | `pose reports-housekeeping <op> [--apply]` | Same for reports (never touches `history/`) |

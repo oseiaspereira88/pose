@@ -8,7 +8,7 @@
         "schema_version": 1,
         "version": "v1.1.0",
         "previous_version": "v1.0.0",
-        "prepared_at": "2026-08-14T01:08:17Z",
+        "prepared_at": "2026-08-14T04:45:39Z",
         "specs": [
           "pose-component-aware-review-plans",
           "pose-review-bundle-convergence"
@@ -31,14 +31,14 @@
             "spec": "pose-review-bundle-convergence",
             "category": "changed",
             "breaking": false,
-            "body": "Add opt-in sealed review bundles and separate attestations so POSE closeout\nconverges without self-invalidating rereview. The release includes scoped\ndelivery provenance, supersession deltas, targeted criterion reuse, an offline\nCLI flow and a read-only MCP projection.",
+            "body": "Add opt-in sealed review bundles and separate attestations so POSE closeout\nconverges without self-invalidating rereview. The release includes scoped\ndelivery provenance, supersession deltas, targeted criterion reuse, an offline\nCLI flow and a read-only MCP projection.\n\nThe maintenance command was updated from `pose upgrade` to `pose update` across\nCLI, runtime, installer, documentation and compatibility layers.\n\nThe release closeout also preserves archived-fragment provenance, excludes\nagent-local `.qwen` worktrees from discovery, reconciles recorded release\nchange sets during artifact checks, and returns a filesystem error instead of\nterminating the process when the embedded distribution is invalid.",
             "path": "pose-review-bundle-convergence.md",
-            "digest": "sha256:5bedd76783f1aa47a03e005a2d2cc6c615b84ded75dad403ccf5c0381ada37a7"
+            "digest": "sha256:5481ae7d281c101a4b4383d88a34c9493cbb5bcd48ee444994238ee4b3715b8f"
           }
         ],
         "breaking": false,
-        "notes_digest": "sha256:6451e8e39911cee8a446c62f2f0676efb1e3283ba53d14d45842953255b8c31e",
-        "release_input_digest": "sha256:158235b4005cea2cd0a516d162e28357e22b998238b585a4fe8855e5cfafc81f",
+        "notes_digest": "sha256:2acf6d4ced0eebd35e9f4d8d55286a250316d2d00190692faa27c45d91dad44d",
+        "release_input_digest": "sha256:87db19609e35fb41c9ee51df02f862ec12e24e4a2b2ab2a684f6b1a27b021ba4",
         "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
         "version_evidence": {
           "source": "pose-mcp/internal/version/version.go",

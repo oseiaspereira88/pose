@@ -107,7 +107,7 @@ são Linux, macOS e Windows em `amd64` e `arm64`.
 Todo release publica `compatibility.json` (engine suportado, schema e pares
 de upgrade) e o `compatibility-report.md` gerado (a evidência do gate de
 release) como assets do release. SemVer do binário e compatibilidade do
-schema do repositório são eixos independentes: `pose upgrade` migra uma
+schema do repositório são eixos independentes: `pose update` migra uma
 instância para frente através de migrações idempotentes ordenadas; downgrade
 não é suportado por contrato.
 
