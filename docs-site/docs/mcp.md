@@ -7,7 +7,7 @@ MCP-capable agents. Transports: stdio
 (`--stdio`, ideal for agent runtimes) and Streamable HTTP (`POSE_MCP_ADDR`,
 default `:8790`).
 
-The v1.1.0 golden catalog contains **50 tools**: 47 project-scoped POSE
+The v1.2.0 golden catalog contains **50 tools**: 47 project-scoped POSE
 governance tools and 3 optional Conductor run reporters. The count is a
 release contract, not a hand-maintained marketing number.
 

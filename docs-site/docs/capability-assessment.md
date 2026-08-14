@@ -3,9 +3,9 @@
 **Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
 
 **Assessment date:** 2026-08-13
-**Evidence baseline:** published `v1.0.0`, `v1.1.0` release-candidate source
-inspection, closed spec Final Reports, `pose doctor --json`, the 50-tool MCP
-`tools/list` golden fixture and repository checks
+**Scope:** POSE open-source distribution  
+**Evidence baseline:** published `v1.2.0` release artifacts,
+independent release verification and mainline test suite
 **Purpose:** measure fitness against POSE's own promises and relevant
 best-of-breed practices, not manufacture a universal product ranking.
 

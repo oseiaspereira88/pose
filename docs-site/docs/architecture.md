@@ -1,10 +1,10 @@
 # Technical architecture
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.1.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.2.x
 
-**Scope:** POSE open-source distribution  
-**Verified:** 2026-08-13 against the `v1.1.0` release-candidate contract and
-current mainline source, after component-aware review plans and convergent
+**Status:** Reference-grade, offline-first engineering operating standard  
+**Verified:** 2026-08-14 against the `v1.2.0` release contract and
+validation matrix, after component-aware review plans and convergent
 sealed review bundles reached `status: done`
 
 POSE is a repository-local governance system for human and AI-assisted software
