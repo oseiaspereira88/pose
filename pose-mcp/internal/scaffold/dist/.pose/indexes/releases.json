@@ -17,6 +17,15 @@
       "body": "`.pose/rules/knowledge-governance.md` and the `pose-knowledge` skill now document where a durable, non-architectural fact or convention belongs: `.pose/rules/`, not a `decision-log` forced into that shape for lack of a better option. `.pose/knowledge/`'s three types (`handoff`, `decision-log`, `note`) and their mandatory TTL are unchanged — this only adds guidance for telling a real decision apart from a durable fact that never expires.",
       "path": "pose-knowledge-durable-reference-type.md",
       "digest": "sha256:77dc171c258288017e307f0f00fddac33e63fe2f3ef4e780715318ceceacd6e6"
+    },
+    {
+      "spec": "pose-scaffold-index-template-neutralization",
+      "category": "fixed",
+      "breaking": false,
+      "refs": "ISSUE#22",
+      "body": "A fresh `pose init`/`pose install` no longer seeds `.pose/indexes/module-metadata.json` and `.pose/indexes/validation-matrix.json` with POSE's own development-repository module entries (`pose-mcp`, `mcp-enforce`, `docs-site`, `@pose-maintainers`). The generic, reusable check catalog (`stacks`, `deliveryProfiles`) still ships as before — only the pose-mcp-specific module graph and overrides are neutralized.",
+      "path": "pose-scaffold-index-template-neutralization.md",
+      "digest": "sha256:556999d12d0973f2dc30788d32e25415dfa3038d2b3a0a57d379e35e40d46750"
     }
   ],
   "releases": [
