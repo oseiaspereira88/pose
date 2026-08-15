@@ -287,7 +287,15 @@ func (s Store) reviewBundleScopeProjection(scope ScopeRef) (ReviewBundleScope, [
 		if err != nil {
 			return projection, nil, err
 		}
-		projection.Sections = append(projection.Sections, ReviewBundleInput{Kind: "roadmap", Path: filepath.ToSlash(rm.Path), Digest: digestText(normalizeBundleText(rm.Body)), Reason: "governed roadmap outcomes and ordered membership"})
+		// Repo-relative by construction, not rm.Path (absolute — Store.Root
+		// joined with the roadmap file): an absolute path bakes the sealing
+		// machine's checkout location into the sealed bundle's semantic
+		// identity, so the exact same content re-sealed from a different
+		// checkout path (any other clone, including CI's) computes a
+		// different ChangedSections key and reads as "changed" even though
+		// nothing changed. Every other scope kind already avoids this
+		// (spec uses section names, milestone uses the milestone ID).
+		projection.Sections = append(projection.Sections, ReviewBundleInput{Kind: "roadmap", Path: filepath.ToSlash(filepath.Join(".pose", "roadmaps", scope.Slug+".md")), Digest: digestText(normalizeBundleText(rm.Body)), Reason: "governed roadmap outcomes and ordered membership"})
 	}
 	return projection, excluded, nil
 }
