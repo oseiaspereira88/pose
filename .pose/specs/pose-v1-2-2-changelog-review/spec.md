@@ -176,3 +176,13 @@ user to trigger.
 ### Follow-ups
 - [open] Actually run `pose release prepare --version v1.2.2` when the user
   chooses to cut (owner:@pose-maintainers crit:low review:2026-09-01)
+- [open] `cmdArtifactCheck` (`pose-mcp/internal/cli/artifact_integrity.go`
+  ~line 318-332) reports a spurious `resolvability` error on any spec whose
+  `### Artifacts` declares `- none: <reason>` — it validates `claim.Path`
+  for every claim regardless of `Action`, and a none-action claim's `Path`
+  is always empty by construction. Found running `pose artifact-check
+  --spec pose-v1-2-2-changelog-review --strict` (exit 1) even though `pose
+  check --strict`'s own delivery-graph build handles none-claims correctly
+  (exit 0) — the bug is confined to this one standalone command's extra
+  validation loop. Fix: skip claims with `Action == "none"` in that loop
+  (owner:@pose-maintainers crit:low review:2026-09-15)
