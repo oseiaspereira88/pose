@@ -98,10 +98,6 @@ reason.
 - created: .pose/adr/2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md
 - created: .pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md
 
-### Delivery targets
-- none — documentation/governance content only, no capability/contract/
-  surface/infrastructure delivery target applies.
-
 ---
 
 ## 4. Tasks
