@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:6dd2c061604d342020ec06b6655053e9f10d8e8584f5814b90d51a84cc7e4cb6",
-  "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
+  "input_digest": "sha256:13566ae05a35ae66c850fbed274647edfb24d674f4c1faf8d88f42a326a5d27f",
+  "provenance_digest": "sha256:cb4da50518461ce8cc332fa51ff62ebee8b6e61b7ac0dc999ab22592025e663b",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -456,6 +456,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-review-bundle-convergence.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-review-scope-trailer-check.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-review-scope-trailer-check.md"
       }
     },
     {
@@ -1975,6 +1982,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-usage-metrics/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-v1-2-2-changelog-review/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-v1-2-2-changelog-review/spec.md"
       }
     },
     {
@@ -6758,6 +6772,14 @@
       }
     },
     {
+      "id": "change-set:cs-154114166f37",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:9ce586405979ba7b0ce72e3313d035c166c849c08426a56d08c178548df1c58e",
+        "selector": "range:b48e462~1..b48e462"
+      }
+    },
+    {
       "id": "change-set:cs-194bf53c0f10",
       "type": "change-set",
       "attributes": {
@@ -7854,7 +7876,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7868,7 +7890,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7882,14 +7904,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7917,7 +7939,7 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -8548,6 +8570,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-v1-2-2-changelog-review",
+      "type": "spec",
+      "attributes": {
+        "status": "in-progress"
       }
     },
     {
@@ -16956,6 +16985,31 @@
     {
       "from": "change-set:cs-10bfd095c5a5",
       "to": "artifact:.pose/specs/pose-package-manager-distribution/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-154114166f37",
+      "to": "artifact:.pose/changelogs/unreleased/pose-review-scope-trailer-check.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-154114166f37",
+      "to": "artifact:.pose/specs/pose-v1-2-2-changelog-review/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-154114166f37",
+      "to": "artifact:.pose/state/history.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-154114166f37",
+      "to": "artifact:.pose/state/project-state.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-154114166f37",
+      "to": "artifact:.pose/state/refresh-log.jsonl",
       "type": "changes"
     },
     {
@@ -31099,6 +31153,11 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-v1-2-2-changelog-review",
+      "to": "change-set:cs-154114166f37",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-verifier-assets-variable-fix",
       "to": "artifact:.pose/specs/pose-verifier-assets-variable-fix/spec.md",
       "type": "declares"
@@ -34097,6 +34156,11 @@
       "spec": "pose-usage-metrics",
       "action": "modified",
       "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+    },
+    {
+      "spec": "pose-v1-2-2-changelog-review",
+      "action": "none",
+      "reason": "governance"
     },
     {
       "spec": "pose-verifier-assets-variable-fix",
@@ -37254,6 +37318,41 @@
         }
       ],
       "diff_digest": "sha256:479afb7e047c23989298eaca757d5df1b804692acbbe9d18b59a4f93bdb1cd35"
+    },
+    {
+      "id": "cs-154114166f37",
+      "spec": "pose-v1-2-2-changelog-review",
+      "selector": "range:b48e462~1..b48e462",
+      "base": "b48e462~1",
+      "head": "b48e462",
+      "resolved_base": "f59f73a850db1ec24da25d33260b92c8d6b78089",
+      "resolved_head": "b48e4623f6d2ef20eb277535b0c411558973a51a",
+      "commits": [
+        "b48e4623f6d2ef20eb277535b0c411558973a51a"
+      ],
+      "paths": [
+        {
+          "action": "modified",
+          "path": ".pose/changelogs/unreleased/pose-review-scope-trailer-check.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-v1-2-2-changelog-review/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        }
+      ],
+      "diff_digest": "sha256:9ce586405979ba7b0ce72e3313d035c166c849c08426a56d08c178548df1c58e"
     },
     {
       "id": "cs-194bf53c0f10",
@@ -49478,8 +49577,8 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "19037e960943be9f05cc048938ca384f23317354",
-      "generated_at": "2026-08-15T03:08:49Z",
+      "git_head": "4af81c6a169374c65a8847c6d3e294c567c0ea5c",
+      "generated_at": "2026-08-15T03:10:45Z",
       "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -49546,8 +49645,8 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "19037e960943be9f05cc048938ca384f23317354",
-      "generated_at": "2026-08-15T03:08:49Z",
+      "git_head": "4af81c6a169374c65a8847c6d3e294c567c0ea5c",
+      "generated_at": "2026-08-15T03:10:45Z",
       "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -49614,8 +49713,8 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "19037e960943be9f05cc048938ca384f23317354",
-      "generated_at": "2026-08-15T03:08:49Z",
+      "git_head": "4af81c6a169374c65a8847c6d3e294c567c0ea5c",
+      "generated_at": "2026-08-15T03:10:45Z",
       "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -49682,8 +49781,8 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "19037e960943be9f05cc048938ca384f23317354",
-      "generated_at": "2026-08-15T03:08:49Z",
+      "git_head": "4af81c6a169374c65a8847c6d3e294c567c0ea5c",
+      "generated_at": "2026-08-15T03:10:45Z",
       "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -49750,8 +49849,8 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "19037e960943be9f05cc048938ca384f23317354",
-      "generated_at": "2026-08-15T03:08:49Z",
+      "git_head": "4af81c6a169374c65a8847c6d3e294c567c0ea5c",
+      "generated_at": "2026-08-15T03:10:45Z",
       "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -49818,8 +49917,8 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "19037e960943be9f05cc048938ca384f23317354",
-      "generated_at": "2026-08-15T03:08:49Z",
+      "git_head": "4af81c6a169374c65a8847c6d3e294c567c0ea5c",
+      "generated_at": "2026-08-15T03:10:45Z",
       "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -49886,8 +49985,8 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "19037e960943be9f05cc048938ca384f23317354",
-      "generated_at": "2026-08-15T03:08:49Z",
+      "git_head": "4af81c6a169374c65a8847c6d3e294c567c0ea5c",
+      "generated_at": "2026-08-15T03:10:45Z",
       "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -49954,8 +50053,8 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "19037e960943be9f05cc048938ca384f23317354",
-      "generated_at": "2026-08-15T03:08:49Z",
+      "git_head": "4af81c6a169374c65a8847c6d3e294c567c0ea5c",
+      "generated_at": "2026-08-15T03:10:45Z",
       "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -50022,8 +50121,8 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "19037e960943be9f05cc048938ca384f23317354",
-      "generated_at": "2026-08-15T03:08:49Z",
+      "git_head": "4af81c6a169374c65a8847c6d3e294c567c0ea5c",
+      "generated_at": "2026-08-15T03:10:45Z",
       "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -50093,7 +50192,10 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50114,7 +50216,12 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test",
+        "check is missing, failing or stale: delivery-integration",
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50134,7 +50241,10 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50145,7 +50255,10 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50183,7 +50296,10 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     }
   ],
   "paths": {
