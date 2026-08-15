@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T12:25:31Z
-baseline_commit: 9eeb3a40daa0a940096f28a796c905c3c40b982b
+generated_at: 2026-08-15T12:34:08Z
+baseline_commit: a1fddade482b7020840d4e8d59e8779a3abcd114
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:98a65120049d -->
+<!-- state:derived hash:c11b12b4f101 -->
 
-- specs: total=105 draft=1 in-progress=0 blocked=0 done=104 superseded=0 abandoned=0
+- specs: total=105 draft=0 in-progress=0 blocked=0 done=105 superseded=0 abandoned=0
 - roadmaps: total=9 active=0 done=8
 - últimos closeouts:
   - spec:pose-stack-detection-consolidation (2026-08-15)
-  - spec:pose-unified-review-convergence (2026-08-15)
+  - spec:pose-scaffold-index-template-neutralization (2026-08-15)
   - spec:pose-adaptive-rule-delivery (2026-08-15)
-  - spec:pose-install-locale-autodetect (2026-08-15)
+  - spec:pose-install-gate-failure-recovery-notice (2026-08-15)
   - spec:pose-instance-engine-version-tracking (2026-08-15)
-  - ... e mais 99 (ver `pose_list_specs status:done`)
+  - ... e mais 100 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:14c9c3e3b9f4 -->
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=9 ativo=9 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:863f6c86dfe4 -->
+<!-- state:derived hash:d51852bc3d1c -->
 
-- último registro: task=recommend-rule-extension-matching-detected-stack outcome=pass (2026-08-15T12:24:35Z)
-- últimos 30 dias: total=236 outcome_ok=170 outcome_outro=66
-- reports revisados (.md): total=119
+- último registro: task=advise-on-redundant-monorepo-execution-add-root-only-workspace-flags outcome=pass (2026-08-15T12:33:13Z)
+- últimos 30 dias: total=237 outcome_ok=171 outcome_outro=66
+- reports revisados (.md): total=120
+  - report:2026-08-15-standard-advise-on-redundant-monorepo-execution-add-root-only-workspace-flags.md
   - report:2026-08-15-standard-recommend-rule-extension-matching-detected-stack.md
   - report:2026-08-15-standard-seed-module-metadata-json-from-discovered-modules.md
   - report:2026-08-15-standard-fix-review-bundle-gaps-surfaced-by-rule-extension-migration.md
   - report:2026-08-15-standard-migrate-backend-go-frontend-react-rules-to-extensions.md
-  - report:2026-08-15-standard-neutralize-leaked-pose-mcp-index-templates.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
