@@ -9,6 +9,14 @@
       "to": "pose-ossf-security-baseline"
     },
     {
+      "from": "pose-adaptive-rule-delivery",
+      "to": "pose-domain-rule-extension-migration"
+    },
+    {
+      "from": "pose-adaptive-rule-delivery",
+      "to": "pose-stack-detection-consolidation"
+    },
+    {
       "from": "pose-agent-skills-conformance",
       "to": "pose-standalone-dogfood"
     },
@@ -455,6 +463,15 @@
       "priority": 1,
       "status": "done"
     },
+    "pose-adaptive-rule-delivery": {
+      "depends_on": [
+        "pose-domain-rule-extension-migration",
+        "pose-stack-detection-consolidation"
+      ],
+      "path": ".pose/specs/pose-adaptive-rule-delivery/spec.md",
+      "priority": 3,
+      "status": "draft"
+    },
     "pose-agent-skills-conformance": {
       "depends_on": [
         "pose-standalone-dogfood"
@@ -618,6 +635,12 @@
       "path": ".pose/specs/pose-doctor-guided-remediation/spec.md",
       "priority": 27,
       "status": "done"
+    },
+    "pose-domain-rule-extension-migration": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-domain-rule-extension-migration/spec.md",
+      "priority": 2,
+      "status": "draft"
     },
     "pose-dora-adoption-metrics": {
       "depends_on": [
@@ -834,6 +857,12 @@
       "path": ".pose/specs/pose-mcp-protocol-completeness/spec.md",
       "priority": 21,
       "status": "done"
+    },
+    "pose-monorepo-validation-advisory": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-monorepo-validation-advisory/spec.md",
+      "priority": 2,
+      "status": "draft"
     },
     "pose-monorepo-validation-recipes": {
       "depends_on": [
@@ -1075,6 +1104,12 @@
       "priority": 1,
       "status": "done"
     },
+    "pose-scaffold-index-template-neutralization": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-scaffold-index-template-neutralization/spec.md",
+      "priority": 1,
+      "status": "draft"
+    },
     "pose-scaffold-self-referential-policy-fix": {
       "depends_on": null,
       "path": ".pose/specs/pose-scaffold-self-referential-policy-fix/spec.md",
@@ -1146,6 +1181,12 @@
       "path": ".pose/specs/pose-stack-catalog-expansion/spec.md",
       "priority": 18,
       "status": "done"
+    },
+    "pose-stack-detection-consolidation": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-stack-detection-consolidation/spec.md",
+      "priority": 2,
+      "status": "draft"
     },
     "pose-standalone-dogfood": {
       "depends_on": null,
