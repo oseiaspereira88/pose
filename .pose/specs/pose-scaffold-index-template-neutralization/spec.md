@@ -8,7 +8,7 @@ depends_on:          # prerequisites, inline list: other-spec, milestone:<roadma
 priority: 1
 components: pose-mcp
 depends_on:
-delivers:
+delivers: capability:scaffold-index-template-neutralization
 ---
 
 # Spec: pose-scaffold-index-template-neutralization
@@ -139,6 +139,9 @@ information about the project it is operating in.
 - modified: pose-mcp/internal/scaffold/gen/main.go
 - modified: pose-mcp/internal/scaffold/scaffold_test.go
 - created: .pose/changelogs/unreleased/pose-scaffold-index-template-neutralization.md
+
+### Delivery targets
+- capability:scaffold-index-template-neutralization module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 - Low: purely subtractive/neutralizing change to a generation-time step;
