@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:db57b289996ea490e9297e31151954678265900a424c89c85030c471282a0244",
-  "provenance_digest": "sha256:2c1ffc5bcc1263223e737cded3fea2559c9915433bafcaa0de2d654feabfc090",
+  "input_digest": "sha256:4d20eea744eab6f01df670e8ba00c3cc1d2137825120576a6de0eda63d4cc27b",
+  "provenance_digest": "sha256:37c7de1bd34e18da3948c6d1bc315d3aa2f7058c7593810efe030d03b9eda885",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -7235,6 +7235,14 @@
       }
     },
     {
+      "id": "change-set:cs-c8476a91710a",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:939721858563b68e402fb9cbfd6947568e4deec98a5d0ecdb2c50ca0e6b53027",
+        "selector": "range:4473d47~1..4473d47"
+      }
+    },
+    {
       "id": "change-set:cs-caccd0b93a75",
       "type": "change-set",
       "attributes": {
@@ -7915,7 +7923,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7929,7 +7937,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7943,14 +7951,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7978,7 +7986,7 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -8238,6 +8246,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-instance-engine-version-tracking",
+      "type": "spec",
+      "attributes": {
+        "status": "in-progress"
       }
     },
     {
@@ -11322,6 +11337,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/cli.go",
+      "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli.go",
       "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
@@ -11383,6 +11403,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/cli.go",
       "to": "delivery:surface:review-bundle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
     {
@@ -11572,6 +11597,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/localization_docs_test.go",
+      "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/machinery.go",
       "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
@@ -23301,6 +23331,21 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-c8476a91710a",
+      "to": "artifact:pose-mcp/internal/cli/cli.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c8476a91710a",
+      "to": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-c8476a91710a",
+      "to": "artifact:pose-mcp/internal/cli/machinery.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-caccd0b93a75",
       "to": "artifact:.github/workflows/package-channels.yml",
       "type": "changes"
@@ -26019,6 +26064,11 @@
       "from": "delivery:capability:manual-distribution",
       "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:pose-mcp",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
     },
     {
       "from": "delivery:capability:pose-mcp",
@@ -29353,6 +29403,31 @@
     {
       "from": "spec:pose-installer-local-binary-precedence",
       "to": "change-set:cs-211d56f0088f",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-instance-engine-version-tracking",
+      "to": "artifact:pose-mcp/internal/cli/cli.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-instance-engine-version-tracking",
+      "to": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-instance-engine-version-tracking",
+      "to": "artifact:pose-mcp/internal/cli/machinery.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-instance-engine-version-tracking",
+      "to": "delivery:capability:pose-mcp",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-instance-engine-version-tracking",
+      "to": "change-set:cs-c8476a91710a",
       "type": "observed-by"
     },
     {
@@ -32788,6 +32863,21 @@
       "spec": "pose-installer-local-binary-precedence",
       "action": "modified",
       "path": "tests/install/run.sh"
+    },
+    {
+      "spec": "pose-instance-engine-version-tracking",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/cli.go"
+    },
+    {
+      "spec": "pose-instance-engine-version-tracking",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/cli_test.go"
+    },
+    {
+      "spec": "pose-instance-engine-version-tracking",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/machinery.go"
     },
     {
       "spec": "pose-locale-coverage-contract",
@@ -43429,6 +43519,33 @@
       "diff_digest": "sha256:e6cabd0ce36ad48b2a9717756015f004cc60418112f31db0667b988924dae1ba"
     },
     {
+      "id": "cs-c8476a91710a",
+      "spec": "pose-instance-engine-version-tracking",
+      "selector": "range:4473d47~1..4473d47",
+      "base": "4473d47~1",
+      "head": "4473d47",
+      "resolved_base": "d85fdb3e8e20be46125bd4c956251e6d7aeb5ada",
+      "resolved_head": "4473d47fc0610047268d6a4fa9c5dde296834727",
+      "commits": [
+        "4473d47fc0610047268d6a4fa9c5dde296834727"
+      ],
+      "paths": [
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/cli.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/cli_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/machinery.go"
+        }
+      ],
+      "diff_digest": "sha256:939721858563b68e402fb9cbfd6947568e4deec98a5d0ecdb2c50ca0e6b53027"
+    },
+    {
       "id": "cs-caccd0b93a75",
       "spec": "pose-package-channel-workflow-safety",
       "selector": "range:9920067..27050aa",
@@ -46673,12 +46790,14 @@
       "pose-command-reference-parity",
       "pose-component-aware-review-plans",
       "pose-delivery-surface-assurance",
+      "pose-instance-engine-version-tracking",
       "pose-release-lifecycle-closure",
       "pose-review-bundle-convergence",
       "pose-usage-metrics"
     ],
     "pose-mcp/internal/cli/cli_test.go": [
       "pose-install-gate-failure-recovery-notice",
+      "pose-instance-engine-version-tracking",
       "pose-review-bundle-convergence",
       "pose-usage-metrics"
     ],
@@ -46734,6 +46853,7 @@
       "pose-install-locale-autodetect"
     ],
     "pose-mcp/internal/cli/machinery.go": [
+      "pose-instance-engine-version-tracking",
       "pose-machinery-distribution-contract"
     ],
     "pose-mcp/internal/cli/machinery_test.go": [
@@ -48141,6 +48261,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-8102bca92261",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-instance-engine-version-tracking",
+      "path": "capability:pose-mcp",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-8165d7e283e3",
       "code": "orphan",
       "severity": "warning",
@@ -48448,6 +48577,16 @@
       "path": "pose-mcp/internal/pose/pointers_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-9d73495ccf97",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-instance-engine-version-tracking",
+      "path": "capability:pose-mcp",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-9da19ede934f",
@@ -49316,7 +49455,16 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-scaffold-self-referential-policy-fix",
+      "spec": "pose-instance-engine-version-tracking",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-install-gate-failure-recovery-notice",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -49334,15 +49482,6 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-install-locale-autodetect",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
       "spec": "pose-review-scope-trailer-check",
       "ref": "capability:pose-mcp",
       "kind": "capability",
@@ -49352,7 +49491,16 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-install-gate-failure-recovery-notice",
+      "spec": "pose-scaffold-self-referential-policy-fix",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-install-locale-autodetect",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -49703,7 +49851,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -49712,7 +49860,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -50542,7 +50690,10 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50563,7 +50714,12 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test",
+        "check is missing, failing or stale: delivery-integration",
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50583,7 +50739,10 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50594,7 +50753,10 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50632,7 +50794,10 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     }
   ],
   "paths": {
@@ -50706,9 +50871,9 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "capability:pose-mcp": [
-      "spec:pose-install-gate-failure-recovery-notice",
-      "artifact:pose-mcp/internal/cli/cli_test.go",
+      "spec:pose-install-locale-autodetect",
       "artifact:pose-mcp/internal/cli/install.go",
+      "artifact:pose-mcp/internal/cli/localization_docs_test.go",
       "delivery:capability:pose-mcp",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -51538,43 +51703,13 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-lifecycle-closure",
-      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
-      "artifact:.pose/indexes/releases.json",
-      "artifact:.pose/policy/changelog.json",
-      "artifact:.pose/release-policy.json",
-      "artifact:.pose/rules/release-integrity.md",
-      "artifact:.pose/workflows/release.md",
-      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
-      "artifact:locales/pt-BR/.pose/workflows/release.md",
-      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
-      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
-      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
-      "artifact:.agents/skills/README.md",
+      "spec:pose-release-evidence-trigger-fix",
+      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.pose/indexes/task-map.json",
-      "artifact:.pose/indexes/validation-matrix.json",
-      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
-      "artifact:POSE.md",
-      "artifact:docs-site/docs/cli.md",
-      "artifact:docs-site/docs/mcp.md",
-      "artifact:pose-mcp/internal/cli/check.go",
-      "artifact:pose-mcp/internal/cli/cli.go",
-      "artifact:pose-mcp/internal/cli/index.go",
-      "artifact:pose-mcp/internal/cli/maintenance.go",
-      "artifact:pose-mcp/internal/cli/native_only_test.go",
-      "artifact:pose-mcp/internal/cli/skills_check_test.go",
-      "artifact:pose-mcp/internal/mcpserver/catalog.go",
-      "artifact:pose-mcp/internal/mcpserver/server.go",
-      "artifact:pose-mcp/internal/mcpserver/server_test.go",
-      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "artifact:pose-mcp/internal/pose/changelogs.go",
-      "artifact:pose-mcp/internal/scaffold/scaffold.go",
-      "artifact:scripts/release.sh",
+      "artifact:.github/workflows/verify-release.yml",
+      "artifact:docs-site/docs/ci.md",
+      "artifact:pose-mcp/internal/version/contract_test.go",
+      "artifact:pose-mcp/internal/version/version.go",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
