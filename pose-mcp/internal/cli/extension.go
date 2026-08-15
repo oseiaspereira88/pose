@@ -450,7 +450,7 @@ func cmdExtensionVerify(root string, args []string, stdout, stderr io.Writer) in
 
 func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) < 1 {
-		return usageError(stderr, "Usage: pose extension install <package-dir> [--dry-run] [--yes] [--force] [--allow-unsigned] [--locale tag]")
+		return usageError(stderr, "Usage: pose extension install <package-dir|extension-id> [--dry-run] [--yes] [--force] [--allow-unsigned] [--locale tag]")
 	}
 	pkgDir := args[0]
 	flags := args[1:]
@@ -473,9 +473,35 @@ func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) i
 		locale = machineryLocale(scaffold.Dist(), root, "en")
 	}
 
+	// A first argument that is not a local directory is treated as an
+	// extension ID to resolve through the catalog (spec
+	// pose-extension-catalog-resolution) — everything downstream
+	// (manifest load, signature verification, plan, conflicts, apply)
+	// is completely unchanged; catalog resolution only produces a local,
+	// extracted package directory the existing pipeline already knows how
+	// to consume.
+	requestedID := ""
+	if !isDir(pkgDir) {
+		requestedID = pkgDir
+		resolved, cleanup, err := fetchCatalogPackage(requestedID)
+		if err != nil {
+			fmt.Fprintf(stderr, "pose extension install: resolving %q from the catalog: %v\n", requestedID, err)
+			return 1
+		}
+		defer cleanup()
+		pkgDir = resolved
+	}
+
 	m, err := loadExtensionManifest(pkgDir)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose extension install: %v\n", err)
+		return 1
+	}
+	if requestedID != "" && m.ID != requestedID {
+		// Cheap sanity check, not the trust boundary — the signature check
+		// below is. Catches a misnamed or mismatched published asset before
+		// it gets any further.
+		fmt.Fprintf(stderr, "pose extension install: catalog asset for %q resolved to a manifest declaring id %q\n", requestedID, m.ID)
 		return 1
 	}
 	lock, err := loadExtensionLock(root)
