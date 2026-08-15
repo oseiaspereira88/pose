@@ -41,6 +41,24 @@ func machineryManifestPath(target string) string {
 type machineryManifest struct {
 	SchemaVersion int      `json:"schema_version"`
 	Paths         []string `json:"paths"`
+	// EngineVersion is the delivering binary's version.Version (spec
+	// pose-instance-engine-version-tracking) — omitted, not guessed, for a
+	// manifest written before this field existed.
+	EngineVersion string `json:"engine_version,omitempty"`
+}
+
+// instanceEngineVersion reads the engine version this instance's machinery
+// was last delivered by, or "" when the manifest predates this field.
+func instanceEngineVersion(target string) string {
+	raw, err := os.ReadFile(machineryManifestPath(target))
+	if err != nil {
+		return ""
+	}
+	var m machineryManifest
+	if json.Unmarshal(raw, &m) != nil {
+		return ""
+	}
+	return m.EngineVersion
 }
 
 func loadMachineryManifest(target string) map[string]bool {
@@ -61,7 +79,7 @@ func loadMachineryManifest(target string) map[string]bool {
 
 func saveMachineryManifest(target string, paths []string) error {
 	sort.Strings(paths)
-	m := machineryManifest{SchemaVersion: 1, Paths: paths}
+	m := machineryManifest{SchemaVersion: 1, Paths: paths, EngineVersion: Version}
 	raw, err := json.MarshalIndent(m, "", "  ")
 	if err != nil {
 		return err

@@ -31,7 +31,11 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 
 	switch cmd {
 	case "version", "--version", "-v":
-		return cmdVersion(stdout)
+		target := ""
+		if len(args) > 0 {
+			target = args[0]
+		}
+		return cmdVersion(stdout, target)
 	case "help", "-h", "--help":
 		return cmdHelp(stdout)
 	case "init":
@@ -291,25 +295,44 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 
 // projectRoot resolves the git toplevel, falling back to the current directory.
 func projectRoot() (string, error) {
-	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	return projectRootAt(".")
+}
+
+// projectRootAt resolves the git top-level starting from dir, falling back
+// to dir's own absolute path when dir isn't inside a git work tree (spec
+// pose-instance-engine-version-tracking R2) — the same fallback shape
+// projectRoot() already had for ".".
+func projectRootAt(dir string) (string, error) {
+	out, err := exec.Command("git", "-C", dir, "rev-parse", "--show-toplevel").Output()
 	if err == nil {
 		return strings.TrimSpace(string(out)), nil
 	}
-	wd, err := os.Getwd()
+	abs, err := filepath.Abs(dir)
 	if err != nil {
 		return "", err
 	}
-	return wd, nil
+	return abs, nil
 }
 
-func cmdVersion(w io.Writer) int {
+// cmdVersion prints the binary version and, when an instance is resolvable
+// (target, or the current directory when target is ""), its schema and —
+// when recorded — the engine version that last delivered its machinery
+// (spec pose-instance-engine-version-tracking).
+func cmdVersion(w io.Writer, target string) int {
 	fmt.Fprintf(w, "pose %s\n", Version)
-	if root, err := projectRoot(); err == nil {
+	dir := "."
+	if target != "" {
+		dir = target
+	}
+	if root, err := projectRootAt(dir); err == nil {
 		sv := filepath.Join(root, ".pose", "schema-version")
 		if b, err := os.ReadFile(sv); err == nil {
 			fmt.Fprintf(w, "schema: %s\n", strings.TrimSpace(string(b)))
 		} else if _, err := os.Stat(filepath.Join(root, ".pose")); err == nil {
 			fmt.Fprintf(w, "schema: unversioned (run 'pose update')\n")
+		}
+		if ev := instanceEngineVersion(root); ev != "" {
+			fmt.Fprintf(w, "instance last updated by: pose %s\n", ev)
 		}
 	}
 	return 0

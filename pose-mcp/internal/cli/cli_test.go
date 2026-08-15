@@ -54,6 +54,55 @@ func TestVersionWorksOutsideRepo(t *testing.T) {
 	})
 }
 
+// TestVersionWithPathArgReportsRecordedEngineVersion pins
+// spec pose-instance-engine-version-tracking: a fresh install records the
+// delivering engine's version.Version in machinery-manifest.json, and
+// `pose version <path>` — run from a different directory — resolves that
+// target instance and prints it, without relying on cwd.
+func TestVersionWithPathArgReportsRecordedEngineVersion(t *testing.T) {
+	repo := newGitRepo(t)
+	var installOut, installErr bytes.Buffer
+	if code := cmdInstall([]string{repo, "--skip-mcp"}, &installOut, &installErr); code != 0 {
+		t.Fatalf("install exit=%d err=%s", code, installErr.String())
+	}
+	elsewhere := t.TempDir()
+	inDir(t, elsewhere, func() {
+		var out, errB bytes.Buffer
+		if code := Main([]string{"version", repo}, &out, &errB); code != 0 {
+			t.Fatalf("version exit=%d stderr=%s", code, errB.String())
+		}
+		if !strings.Contains(out.String(), "schema:") {
+			t.Errorf("version <path> did not resolve the target instance's schema: %q", out.String())
+		}
+		want := "instance last updated by: pose " + Version
+		if !strings.Contains(out.String(), want) {
+			t.Errorf("version <path> missing recorded engine version %q: %q", want, out.String())
+		}
+	})
+}
+
+// TestVersionOmitsEngineVersionForPreExistingManifest pins R4: a manifest
+// written before this field existed (no engine_version key) must not make
+// `pose version` print a guessed or blank line.
+func TestVersionOmitsEngineVersionForPreExistingManifest(t *testing.T) {
+	repo := newGitRepo(t)
+	var installOut, installErr bytes.Buffer
+	if code := cmdInstall([]string{repo, "--skip-mcp"}, &installOut, &installErr); code != 0 {
+		t.Fatalf("install exit=%d err=%s", code, installErr.String())
+	}
+	manifestPath := filepath.Join(repo, ".pose", "state", "machinery-manifest.json")
+	if err := os.WriteFile(manifestPath, []byte(`{"schema_version":1,"paths":["a"]}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var out, errB bytes.Buffer
+	if code := Main([]string{"version", repo}, &out, &errB); code != 0 {
+		t.Fatalf("version exit=%d stderr=%s", code, errB.String())
+	}
+	if strings.Contains(out.String(), "instance last updated by") {
+		t.Errorf("version printed an engine version for a manifest that never recorded one: %q", out.String())
+	}
+}
+
 func TestUnknownCommandExit2(t *testing.T) {
 	var out, errB bytes.Buffer
 	code := Main([]string{"definitely-not-a-command"}, &out, &errB)
