@@ -28,6 +28,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
 const extensionSchemaVersion = 1
@@ -328,11 +330,30 @@ func planExtensionInstall(root, pkgDir string, m *extensionManifest, lock *exten
 	return &installPlan{ID: m.ID, Version: m.Version, Kind: m.Kind, Digest: digest, Files: append([]string(nil), m.Files...), Conflicts: conflicts, SignatureOK: sigOK}, nil
 }
 
+// localizedExtensionSource returns the package-relative source path to copy
+// target from: `locales/<locale>/files/<target>`, when the package ships
+// that variant, else the base `files/<target>` (spec
+// pose-rule-extension-locale-parity). Mirrors how core machinery already
+// resolves a locale overlay (resolveDocLocale/deliverMachinery) — locale
+// changes content, never the installed target path.
+func localizedExtensionSource(pkgDir, locale, target string) string {
+	if locale != "" && locale != "en" {
+		localized := filepath.Join(pkgDir, "locales", locale, "files", filepath.FromSlash(target))
+		if _, err := os.Stat(localized); err == nil {
+			return localized
+		}
+	}
+	return filepath.Join(pkgDir, "files", filepath.FromSlash(target))
+}
+
 // applyExtensionInstall performs the transaction: pre-images of any files
 // being overwritten are captured before any write; on any failure every
 // change made so far is rolled back (deleted-if-new, restored-if-overwritten)
-// so the repository never sits in a partially-applied state.
-func applyExtensionInstall(root, pkgDir string, m *extensionManifest, plan *installPlan) (err error) {
+// so the repository never sits in a partially-applied state. `locale` picks
+// a `locales/<locale>/files/` variant when the package ships one; the
+// package's base `files/` content is used otherwise, unchanged from before
+// locale support existed.
+func applyExtensionInstall(root, pkgDir, locale string, m *extensionManifest, plan *installPlan) (err error) {
 	type undo struct {
 		path     string
 		existed  bool
@@ -364,7 +385,7 @@ func applyExtensionInstall(root, pkgDir string, m *extensionManifest, plan *inst
 		if mkErr := os.MkdirAll(filepath.Dir(abs), 0o755); mkErr != nil {
 			return fmt.Errorf("creating directory for %s: %w", target, mkErr)
 		}
-		src := filepath.Join(pkgDir, "files", filepath.FromSlash(target))
+		src := localizedExtensionSource(pkgDir, locale, target)
 		content, readErr := os.ReadFile(src)
 		if readErr != nil {
 			return fmt.Errorf("reading package file %s: %w", target, readErr)
@@ -429,7 +450,7 @@ func cmdExtensionVerify(root string, args []string, stdout, stderr io.Writer) in
 
 func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) < 1 {
-		return usageError(stderr, "Usage: pose extension install <package-dir> [--dry-run] [--yes] [--force] [--allow-unsigned]")
+		return usageError(stderr, "Usage: pose extension install <package-dir> [--dry-run] [--yes] [--force] [--allow-unsigned] [--locale tag]")
 	}
 	pkgDir := args[0]
 	flags := args[1:]
@@ -437,6 +458,20 @@ func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) i
 	yes := hasFlag(flags, "--yes")
 	force := hasFlag(flags, "--force")
 	allowUnsigned := hasFlag(flags, "--allow-unsigned")
+	locale := ""
+	for i, a := range flags {
+		if a == "--locale" && i+1 < len(flags) {
+			locale = flags[i+1]
+		}
+	}
+	// An explicit --locale wins; otherwise auto-detect the target's own
+	// locale the same way `pose install`/`pose update` already do, so a
+	// pt-BR instance installing a rule extension gets pt-BR content without
+	// the operator having to know or pass the flag (spec
+	// pose-rule-extension-locale-parity).
+	if locale == "" {
+		locale = machineryLocale(scaffold.Dist(), root, "en")
+	}
 
 	m, err := loadExtensionManifest(pkgDir)
 	if err != nil {
@@ -453,7 +488,7 @@ func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) i
 		fmt.Fprintf(stderr, "pose extension install: %v\n", err)
 		return 1
 	}
-	fmt.Fprintf(stdout, "[plan] %s@%s (%s) digest=%s\n", plan.ID, plan.Version, plan.Kind, plan.Digest)
+	fmt.Fprintf(stdout, "[plan] %s@%s (%s) digest=%s locale=%s\n", plan.ID, plan.Version, plan.Kind, plan.Digest, locale)
 	for _, f := range plan.Files {
 		fmt.Fprintf(stdout, "  + %s\n", f)
 	}
@@ -476,7 +511,7 @@ func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) i
 		fmt.Fprintln(stderr, "pose extension install: consent required — rerun with --yes to apply, or --dry-run to preview")
 		return 2
 	}
-	if err := applyExtensionInstall(root, pkgDir, m, plan); err != nil {
+	if err := applyExtensionInstall(root, pkgDir, locale, m, plan); err != nil {
 		fmt.Fprintf(stderr, "pose extension install: %v (rolled back)\n", err)
 		return 1
 	}
