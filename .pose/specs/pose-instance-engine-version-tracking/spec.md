@@ -1,13 +1,13 @@
 ---
 slug: pose-instance-engine-version-tracking
-status: draft
+status: in-progress
 created_at: 2026-08-15
 completed_at:
 supersedes:
 depends_on:
 priority: 3
 components: pose-mcp, cli
-delivers:
+delivers: capability:pose-mcp
 ---
 
 # Spec: pose-instance-engine-version-tracking
@@ -89,6 +89,14 @@ against whatever it produced — no cheap "check first" existed.
   `saveMachineryManifest`, call sites)
 - `pose-mcp/internal/cli/cli.go` (`version` dispatch, `cmdVersion`)
 
+### Artifacts
+- modified: pose-mcp/internal/cli/machinery.go
+- modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/cli_test.go
+
+### Delivery targets
+- capability:pose-mcp module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
 ### Technical risks
 - Low: additive JSON field and an optional CLI argument; no change to
   existing call signatures used elsewhere without updating them.
@@ -105,18 +113,34 @@ against whatever it produced — no cheap "check first" existed.
       version <anything>` silently ignores extra args
 
 ### Implementation
-- [ ] Add `EngineVersion string` to `machineryManifest`; populate it in
-      `saveMachineryManifest`'s caller(s) from `version.Version`
-- [ ] Accept an optional path argument in the `version` dispatch case and
-      `cmdVersion`; resolve the instance there instead of cwd when given
-- [ ] Print the recorded engine version line only when present
+- [x] Added `EngineVersion string \`json:"engine_version,omitempty"\`` to
+      `machineryManifest`; `saveMachineryManifest` populates it from the
+      package-level `Version` (its only call site, inside
+      `deliverMachinery`, covers both `pose update`'s non-force path and
+      `pose install`, force or not)
+- [x] Refactored `projectRoot()` into `projectRootAt(dir)` (git top-level
+      from `dir`, falling back to `dir`'s absolute path) with
+      `projectRoot()` now calling `projectRootAt(".")` — preserves exact
+      prior behavior for the no-arg case
+- [x] `version` dispatch in `cli.go` passes an optional first arg through
+      to `cmdVersion(w, target)`; prints the recorded engine version line
+      only when `instanceEngineVersion(root)` returns non-empty
 
 ### Validation
-- [ ] Regression test: fresh install records `version.Version` in the
-      manifest; `pose version <target>` prints it
-- [ ] Regression test: a manifest without the new field (simulating a
-      pre-existing instance) — `pose version` omits the line, no error
-- [ ] `go -C pose-mcp test ./...`, `go vet ./...`, `gofmt -l`
+- [x] `TestVersionWithPathArgReportsRecordedEngineVersion`: fresh install
+      records `Version` in the manifest; `pose version <path>` — run from
+      an unrelated cwd — resolves the target and prints
+      `instance last updated by: pose <Version>`
+- [x] `TestVersionOmitsEngineVersionForPreExistingManifest`: a
+      hand-written manifest without `engine_version` produces no such line
+- [x] `go -C pose-mcp test ./...`, `go -C pose-mcp vet ./...`, `gofmt -l`:
+      all clean
+- [x] Manually verified against `~/GolandProjects/codass` (real project,
+      not a fixture): `pose version <path>` before any update showed no
+      engine-version line; after `pose update --no-self`,
+      `instance last updated by: pose 1.2.2-dev` appeared, and the only
+      diff was the one new JSON field — reverted after verification (not
+      requested to actually update codass again right now)
 
 ---
 
@@ -128,6 +152,14 @@ manifest's new field, assert `pose version <path>` output contains it;
 separately, hand-write a manifest without the field and assert the line is
 absent, not blank/guessed.
 
+### Requirement trace
+- R1 [satisfied] `TestVersionWithPathArgReportsRecordedEngineVersion`
+  (manifest side); also manually reverified against codass.
+- R2 [satisfied] `TestVersionWithPathArgReportsRecordedEngineVersion`
+  (resolves `repo` from an unrelated cwd via the path argument).
+- R3 [satisfied] same test, asserts the printed line.
+- R4 [satisfied] `TestVersionOmitsEngineVersionForPreExistingManifest`.
+
 ### Known gaps
 - None identified.
 
@@ -135,5 +167,34 @@ absent, not blank/guessed.
 
 ## 7. Final Report
 
+### Delivered scope
+`saveMachineryManifest` now records the delivering engine's `Version` in
+`.pose/state/machinery-manifest.json` (`engine_version`, additive/
+omitempty). `pose version` accepts an optional target-path argument
+(`pose version <path>`, resolving that instance instead of cwd, via a new
+`projectRootAt(dir)` that `projectRoot()` itself now delegates to) and
+prints `instance last updated by: pose <version>` when the resolved
+instance's manifest carries one — omitted entirely, never guessed, for a
+manifest that predates this field.
+
+### Files and modules changed
+- `pose-mcp/internal/cli/machinery.go`: `EngineVersion` field,
+  `instanceEngineVersion` helper, `saveMachineryManifest` populates it.
+- `pose-mcp/internal/cli/cli.go`: `projectRootAt`, `version` dispatch
+  takes an optional arg, `cmdVersion` signature and output.
+- `pose-mcp/internal/cli/cli_test.go`: two new regression tests.
+
+### Validation executed
+- `go -C pose-mcp test ./internal/cli/... -run TestVersion`: SUCCESS.
+- `go -C pose-mcp test ./...`: SUCCESS.
+- `go -C pose-mcp vet ./...`: SUCCESS.
+- `gofmt -l`: clean.
+- Manual end-to-end against `~/GolandProjects/codass`: confirmed the full
+  record-then-report loop works on a real, previously-untouched instance.
+
+### Residual risks
+- None identified; purely additive JSON field and an optional CLI
+  argument, no existing call site's behavior changed.
+
 ### Follow-ups
-- [open] 
+- [wont-do: no further work identified — R1-R4 fully closes the gap issue #20 reported]
