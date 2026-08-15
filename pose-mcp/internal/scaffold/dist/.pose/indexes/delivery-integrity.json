@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:4883da9ef8e3e520761ab54304fc9aec3efe5bc5af2ece830251c97366ae89cf",
-  "provenance_digest": "sha256:eb4b18f92883a0380dad41a0547aeaf4c10a0e6b6be96d6c125dc8995f06b2a9",
+  "input_digest": "sha256:38d46a6807006f643efe311b743f1e70a94b8ca991a6ac1df48e892043ed8671",
+  "provenance_digest": "sha256:d2bd22b25fd95632e821b21aaf11f2599cf55a79b90e73d3a7b2f3d0ac26364c",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -1852,6 +1852,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/pose-onboarding-context-extraction/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-onboarding-context-extraction/spec.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/pose-ossf-security-baseline/spec.md",
       "type": "artifact",
       "attributes": {
@@ -2815,6 +2822,20 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/cli/native_only_test.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/cli/onboarding_context.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/onboarding_context.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/cli/onboarding_context_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/onboarding_context_test.go"
       }
     },
     {
@@ -7302,6 +7323,14 @@
       }
     },
     {
+      "id": "change-set:cs-69752f1b8e5d",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:7a1e99ff3096c6ccbaeb8b057d68e6bb829d99131728f08e7b3bde4c1876118a",
+        "selector": "range:37642ec..f8f8f0a"
+      }
+    },
+    {
       "id": "change-set:cs-6b153fe9345a",
       "type": "change-set",
       "attributes": {
@@ -7839,6 +7868,14 @@
     },
     {
       "id": "delivery:capability:monorepo-validation-advisory",
+      "type": "capability",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "composed-capability"
+      }
+    },
+    {
+      "id": "delivery:capability:onboarding-context-extraction",
       "type": "capability",
       "attributes": {
         "module": "pose-mcp",
@@ -8836,7 +8873,7 @@
       "id": "spec:pose-onboarding-context-extraction",
       "type": "spec",
       "attributes": {
-        "status": "draft"
+        "status": "in-progress"
       }
     },
     {
@@ -11087,6 +11124,11 @@
     },
     {
       "from": "artifact:AGENTS.md",
+      "to": "delivery:capability:onboarding-context-extraction",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:AGENTS.md",
       "to": "delivery:governance:extension-reference",
       "type": "implemented-by"
     },
@@ -11786,6 +11828,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:locales/pt-BR/AGENTS.md",
+      "to": "delivery:capability:onboarding-context-extraction",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:locales/pt-BR/POSE.md",
       "to": "delivery:capability:delivery-integrity-graph",
       "type": "implemented-by"
@@ -12177,6 +12224,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/install.go",
+      "to": "delivery:capability:onboarding-context-extraction",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/install.go",
       "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
@@ -12333,6 +12385,16 @@
     {
       "from": "artifact:pose-mcp/internal/cli/native_only_test.go",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/onboarding_context.go",
+      "to": "delivery:capability:onboarding-context-extraction",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/onboarding_context_test.go",
+      "to": "delivery:capability:onboarding-context-extraction",
       "type": "implemented-by"
     },
     {
@@ -20311,6 +20373,61 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:.pose/specs/pose-onboarding-context-extraction/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:AGENTS.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:locales/pt-BR/AGENTS.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:pose-mcp/internal/cli/install.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:pose-mcp/internal/cli/onboarding_context.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:pose-mcp/internal/cli/onboarding_context_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/roadmaps.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/AGENTS.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-69752f1b8e5d",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/AGENTS.md",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-6b153fe9345a",
       "to": "artifact:.pose/changelogs/unreleased/pose-compat-gate-candidate-integrity.md",
       "type": "changes"
@@ -27311,6 +27428,11 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:capability:onboarding-context-extraction",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
       "from": "delivery:capability:pose-mcp",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -31522,8 +31644,38 @@
     },
     {
       "from": "spec:pose-onboarding-context-extraction",
-      "to": "artifact:path/to/file",
+      "to": "artifact:AGENTS.md",
       "type": "declares"
+    },
+    {
+      "from": "spec:pose-onboarding-context-extraction",
+      "to": "artifact:locales/pt-BR/AGENTS.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-onboarding-context-extraction",
+      "to": "artifact:pose-mcp/internal/cli/install.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-onboarding-context-extraction",
+      "to": "artifact:pose-mcp/internal/cli/onboarding_context.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-onboarding-context-extraction",
+      "to": "artifact:pose-mcp/internal/cli/onboarding_context_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-onboarding-context-extraction",
+      "to": "delivery:capability:onboarding-context-extraction",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-onboarding-context-extraction",
+      "to": "change-set:cs-69752f1b8e5d",
+      "type": "observed-by"
     },
     {
       "from": "spec:pose-package-channel-delivery",
@@ -35213,8 +35365,28 @@
     },
     {
       "spec": "pose-onboarding-context-extraction",
+      "action": "created",
+      "path": "pose-mcp/internal/cli/onboarding_context.go"
+    },
+    {
+      "spec": "pose-onboarding-context-extraction",
+      "action": "created",
+      "path": "pose-mcp/internal/cli/onboarding_context_test.go"
+    },
+    {
+      "spec": "pose-onboarding-context-extraction",
       "action": "modified",
-      "path": "path/to/file"
+      "path": "AGENTS.md"
+    },
+    {
+      "spec": "pose-onboarding-context-extraction",
+      "action": "modified",
+      "path": "locales/pt-BR/AGENTS.md"
+    },
+    {
+      "spec": "pose-onboarding-context-extraction",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/install.go"
     },
     {
       "spec": "pose-package-channel-delivery",
@@ -42020,6 +42192,65 @@
         }
       ],
       "diff_digest": "sha256:ca0300fb3e71138c74e2995a6577865a8ea3a6539cea4a7a113a92878677b434"
+    },
+    {
+      "id": "cs-69752f1b8e5d",
+      "spec": "pose-onboarding-context-extraction",
+      "selector": "range:37642ec..f8f8f0a",
+      "base": "37642ec",
+      "head": "f8f8f0a",
+      "resolved_base": "37642eccf777d97167df304fd77bafdbc3a63915",
+      "resolved_head": "f8f8f0a67512dbb5b130c881aa611323b25466e2",
+      "commits": [
+        "f8f8f0a67512dbb5b130c881aa611323b25466e2"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/onboarding_context.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/onboarding_context_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-onboarding-context-extraction/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "AGENTS.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/AGENTS.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/install.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/AGENTS.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/AGENTS.md"
+        }
+      ],
+      "diff_digest": "sha256:7a1e99ff3096c6ccbaeb8b057d68e6bb829d99131728f08e7b3bde4c1876118a"
     },
     {
       "id": "cs-6b153fe9345a",
@@ -49118,7 +49349,8 @@
       "pose-domain-rule-extension-migration",
       "pose-extension-reference-publication",
       "pose-managed-doc-project-identity-regression",
-      "pose-manual-locale-parity"
+      "pose-manual-locale-parity",
+      "pose-onboarding-context-extraction"
     ],
     "POSE.md": [
       "pose-artifact-provenance-ledger",
@@ -49287,7 +49519,8 @@
       "pose-delivery-surface-assurance"
     ],
     "locales/pt-BR/AGENTS.md": [
-      "pose-domain-rule-extension-migration"
+      "pose-domain-rule-extension-migration",
+      "pose-onboarding-context-extraction"
     ],
     "locales/pt-BR/POSE.md": [
       "pose-artifact-provenance-ledger",
@@ -49315,7 +49548,6 @@
     ],
     "path/to/file": [
       "pose-extension-catalog-resolution",
-      "pose-onboarding-context-extraction",
       "pose-rule-extension-locale-parity",
       "pose-validation-scanner-consolidation"
     ],
@@ -49408,6 +49640,7 @@
       "pose-install-locale-autodetect",
       "pose-machinery-distribution-contract",
       "pose-manual-distribution-merge",
+      "pose-onboarding-context-extraction",
       "pose-review-bundle-convergence",
       "pose-stack-detection-consolidation"
     ],
@@ -49443,6 +49676,12 @@
     ],
     "pose-mcp/internal/cli/native_only_test.go": [
       "pose-release-lifecycle-closure"
+    ],
+    "pose-mcp/internal/cli/onboarding_context.go": [
+      "pose-onboarding-context-extraction"
+    ],
+    "pose-mcp/internal/cli/onboarding_context_test.go": [
+      "pose-onboarding-context-extraction"
     ],
     "pose-mcp/internal/cli/release_lifecycle.go": [
       "pose-release-cycle-debt-closure",
@@ -50186,6 +50425,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-1d3cd1e3e953",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-onboarding-context-extraction",
+      "path": "capability:onboarding-context-extraction",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-1dfa145489d4",
       "code": "orphan",
       "severity": "warning",
@@ -50300,15 +50548,6 @@
       "spec": "pose-reproducible-release-verification",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-39f2cf6b9dd3",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-onboarding-context-extraction",
-      "path": "path/to/file",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-3a51bdeb7fed",
@@ -50517,15 +50756,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-514a719f2c74",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-onboarding-context-extraction",
-      "path": "path/to/file",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-51cacc3afe3c",
       "code": "orphan",
       "severity": "warning",
@@ -50595,6 +50825,16 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-5c87781070de",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-onboarding-context-extraction",
+      "path": "capability:onboarding-context-extraction",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-5cf6ded4141a",
@@ -52149,10 +52389,10 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-scaffold-self-referential-policy-fix",
-      "ref": "capability:pose-mcp",
+      "spec": "pose-onboarding-context-extraction",
+      "ref": "capability:onboarding-context-extraction",
       "kind": "capability",
-      "id": "pose-mcp",
+      "id": "onboarding-context-extraction",
       "module": "pose-mcp",
       "profile": "composed-capability",
       "entrypoint": "pose-mcp/cmd/pose/main.go"
@@ -52168,6 +52408,15 @@
     },
     {
       "spec": "pose-review-bundle-root-file-classification",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-instance-engine-version-tracking",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -52194,7 +52443,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-instance-engine-version-tracking",
+      "spec": "pose-scaffold-self-referential-policy-fix",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -52554,7 +52803,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -52563,7 +52812,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -52590,7 +52839,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -52599,7 +52848,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -53740,11 +53989,32 @@
       "validation-result:pose-mcp/go/delivery-integration",
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
+    "capability:onboarding-context-extraction": [
+      "spec:pose-onboarding-context-extraction",
+      "artifact:pose-mcp/internal/cli/onboarding_context.go",
+      "artifact:pose-mcp/internal/cli/onboarding_context_test.go",
+      "artifact:AGENTS.md",
+      "artifact:locales/pt-BR/AGENTS.md",
+      "artifact:pose-mcp/internal/cli/install.go",
+      "delivery:capability:onboarding-context-extraction",
+      "entrypoint:pose-mcp/cmd/pose/main.go"
+    ],
     "capability:pose-mcp": [
-      "spec:pose-instance-engine-version-tracking",
-      "artifact:pose-mcp/internal/cli/cli.go",
-      "artifact:pose-mcp/internal/cli/cli_test.go",
-      "artifact:pose-mcp/internal/cli/machinery.go",
+      "spec:pose-scaffold-self-referential-policy-fix",
+      "artifact:.pose/knowledge/2026-08-15-decision-log-self-referential-policy-template-contamination.md",
+      "artifact:.pose/reports/2026-08-15-standard-validate-native.md",
+      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
+      "artifact:.pose/reports/history/standard-validate-native.jsonl",
+      "artifact:mcp-enforce/README.md",
+      "artifact:pose-mcp/internal/cli/doctor.go",
+      "artifact:pose-mcp/internal/cli/doctor_remediation_test.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/mcpserver/validate_orchestration_test.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/artifacts.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/delivery.json",
+      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+      "artifact:pose-mcp/internal/scaffold/gen/main.go",
+      "artifact:pose-mcp/internal/scaffold/scaffold_test.go",
       "delivery:capability:pose-mcp",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -54596,7 +54866,7 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "governance:project-assessment": [
-      "spec:pose-debt-marker-lexical-precision",
+      "spec:pose-project-agnostic-assessment-engines",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -54628,13 +54898,43 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-evidence-trigger-fix",
-      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
+      "spec:pose-release-lifecycle-closure",
+      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
+      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
+      "artifact:.pose/indexes/releases.json",
+      "artifact:.pose/policy/changelog.json",
+      "artifact:.pose/release-policy.json",
+      "artifact:.pose/rules/release-integrity.md",
+      "artifact:.pose/workflows/release.md",
+      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
+      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
+      "artifact:locales/pt-BR/.pose/workflows/release.md",
+      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
+      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
+      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
+      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
+      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
+      "artifact:.agents/skills/README.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.github/workflows/verify-release.yml",
-      "artifact:docs-site/docs/ci.md",
-      "artifact:pose-mcp/internal/version/contract_test.go",
-      "artifact:pose-mcp/internal/version/version.go",
+      "artifact:.pose/indexes/task-map.json",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
+      "artifact:POSE.md",
+      "artifact:docs-site/docs/cli.md",
+      "artifact:docs-site/docs/mcp.md",
+      "artifact:pose-mcp/internal/cli/check.go",
+      "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/maintenance.go",
+      "artifact:pose-mcp/internal/cli/native_only_test.go",
+      "artifact:pose-mcp/internal/cli/skills_check_test.go",
+      "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "artifact:pose-mcp/internal/pose/changelogs.go",
+      "artifact:pose-mcp/internal/scaffold/scaffold.go",
+      "artifact:scripts/release.sh",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
