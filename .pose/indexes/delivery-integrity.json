@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:49de05562e4cedb38e08a09036676ee275c141a5d9780dfba5a5949379ee489e",
-  "provenance_digest": "sha256:7db6948b5b9cf95131ea994779230dcde7bbbd670268fac7ade134dd75913e6d",
+  "input_digest": "sha256:2dc6aa21dd6ab4913cb586f5a5b964352e52eea66223e80b030f3bc4522d9474",
+  "provenance_digest": "sha256:10478a27a3e10aeca212d0cc2f43151a6cdadc3852ef1532964a3814d6e6578b",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -7035,6 +7035,14 @@
       }
     },
     {
+      "id": "change-set:cs-8d87c5f153a7",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:691c6f71b6f06527474de6996c9e1af9bccf53a7c6a567f655ba5d80d00a2c06",
+        "selector": "range:325efd1~1..325efd1"
+      }
+    },
+    {
       "id": "change-set:cs-8ef8e6216691",
       "type": "change-set",
       "attributes": {
@@ -7907,7 +7915,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7921,7 +7929,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7935,14 +7943,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -7970,7 +7978,7 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -8209,6 +8217,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-install-gate-failure-recovery-notice",
+      "type": "spec",
+      "attributes": {
+        "status": "in-progress"
       }
     },
     {
@@ -11372,6 +11387,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli_test.go",
       "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
@@ -11478,6 +11498,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/install.go",
       "to": "delivery:capability:manual-distribution",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/install.go",
+      "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
     {
@@ -20346,6 +20371,16 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-8d87c5f153a7",
+      "to": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-8d87c5f153a7",
+      "to": "artifact:pose-mcp/internal/cli/install.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-8ef8e6216691",
       "to": "artifact:.github/workflows/release.yml",
       "type": "changes"
@@ -26007,6 +26042,11 @@
     },
     {
       "from": "delivery:capability:pose-mcp",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:capability:pose-mcp",
       "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
@@ -29228,6 +29268,26 @@
     {
       "from": "spec:pose-governance-gate-activation",
       "to": "change-set:cs-dccd9f6dd0d3",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-install-gate-failure-recovery-notice",
+      "to": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-install-gate-failure-recovery-notice",
+      "to": "artifact:pose-mcp/internal/cli/install.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-install-gate-failure-recovery-notice",
+      "to": "delivery:capability:pose-mcp",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-install-gate-failure-recovery-notice",
+      "to": "change-set:cs-8d87c5f153a7",
       "type": "observed-by"
     },
     {
@@ -32673,6 +32733,16 @@
       "spec": "pose-governance-gate-activation",
       "action": "modified",
       "path": "pose-mcp/internal/pose/techdebt_coverage_test.go"
+    },
+    {
+      "spec": "pose-install-gate-failure-recovery-notice",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/cli_test.go"
+    },
+    {
+      "spec": "pose-install-gate-failure-recovery-notice",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/install.go"
     },
     {
       "spec": "pose-install-locale-autodetect",
@@ -40597,6 +40667,29 @@
       "diff_digest": "sha256:82a4cb58ddd4a7fab853c033ee696c72edbe036142572fc32c9cadcdf8dd7fcd"
     },
     {
+      "id": "cs-8d87c5f153a7",
+      "spec": "pose-install-gate-failure-recovery-notice",
+      "selector": "range:325efd1~1..325efd1",
+      "base": "325efd1~1",
+      "head": "325efd1",
+      "resolved_base": "27afaaccfbcaa5430d90ccc00ef77743b0b278dd",
+      "resolved_head": "325efd17861c324c543251fedb060c93a27364ee",
+      "commits": [
+        "325efd17861c324c543251fedb060c93a27364ee"
+      ],
+      "paths": [
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/cli_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/install.go"
+        }
+      ],
+      "diff_digest": "sha256:691c6f71b6f06527474de6996c9e1af9bccf53a7c6a567f655ba5d80d00a2c06"
+    },
+    {
       "id": "cs-8ef8e6216691",
       "spec": "pose-release-evidence-trigger-fix",
       "selector": "range:3ee2b03..c6e8841",
@@ -46565,6 +46658,7 @@
       "pose-usage-metrics"
     ],
     "pose-mcp/internal/cli/cli_test.go": [
+      "pose-install-gate-failure-recovery-notice",
       "pose-review-bundle-convergence",
       "pose-usage-metrics"
     ],
@@ -46604,6 +46698,7 @@
     ],
     "pose-mcp/internal/cli/install.go": [
       "pose-compat-gate-candidate-integrity",
+      "pose-install-gate-failure-recovery-notice",
       "pose-install-locale-autodetect",
       "pose-machinery-distribution-contract",
       "pose-manual-distribution-merge",
@@ -48571,6 +48666,15 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-b68137ead382",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-install-gate-failure-recovery-notice",
+      "path": "capability:pose-mcp",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-b863985db102",
       "code": "legacy-narrative",
       "severity": "info",
@@ -48976,6 +49080,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-f261fc327a78",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-install-gate-failure-recovery-notice",
+      "path": "capability:pose-mcp",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-f2d0d6ea39e2",
       "code": "orphan",
       "severity": "warning",
@@ -49201,7 +49315,25 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-scaffold-self-referential-policy-fix",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-review-bundle-root-file-classification",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-install-locale-autodetect",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -49219,16 +49351,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-scaffold-self-referential-policy-fix",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-install-locale-autodetect",
+      "spec": "pose-install-gate-failure-recovery-notice",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -50409,7 +50532,10 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50430,7 +50556,12 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test",
+        "check is missing, failing or stale: delivery-integration",
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50450,7 +50581,10 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50461,7 +50595,10 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -50499,7 +50636,10 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     }
   ],
   "paths": {
@@ -50573,13 +50713,11 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "capability:pose-mcp": [
-      "spec:pose-install-locale-autodetect",
+      "spec:pose-install-gate-failure-recovery-notice",
+      "artifact:pose-mcp/internal/cli/cli_test.go",
       "artifact:pose-mcp/internal/cli/install.go",
-      "artifact:pose-mcp/internal/cli/localization_docs_test.go",
       "delivery:capability:pose-mcp",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:pose-usage-analytics": [
       "spec:pose-usage-metrics",
