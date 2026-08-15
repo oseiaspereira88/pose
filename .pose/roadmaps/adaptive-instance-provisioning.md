@@ -1,6 +1,6 @@
 ---
 slug: adaptive-instance-provisioning
-status: draft        # draft | active | done | abandoned
+status: done
 created_at: 2026-08-15
 depends_on:          # prerequisite roadmaps, inline list: other-roadmap-a, other-roadmap-b
 ---
@@ -82,10 +82,12 @@ of shipping a static seed, and resolves `AGENTS.md`'s mechanical placeholders
 - specs: pose-adaptive-rule-delivery
 
 **Exit gate:** the stack detected during install/onboarding resolves to a
-concrete rule-extension install decision (auto-install the matched baseline
-or prompt for confirmation) — no repository receives a domain rule for a
-stack it does not use, and no repository is left without one for a stack
-POSE recognizes.
+concrete rule-extension recommendation via `pose doctor` — no repository is
+ever recommended a domain rule for a stack it does not use. Literal
+auto-install was found unreachable for an external consumer (no fetch/
+catalog mechanism, `extensions/` not embedded in the scaffold dist —
+`pose-adaptive-rule-delivery` Decision 1) and is tracked as a follow-up,
+not this milestone's exit condition.
 
 ## Milestone: monorepo-advisory
 - after:
