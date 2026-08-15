@@ -470,6 +470,51 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		}
 	}
 
+	// 11. Stack-matched rule extension not installed (spec
+	// pose-adaptive-rule-delivery): module-metadata.json already knows
+	// each module's stack, which may resolve to a matching rule extension
+	// (resolveRuleExtension) that is not installed. Advisory only — no
+	// fetch/catalog mechanism exists to install it automatically
+	// (Decision 1), so this only ever recommends by name.
+	if raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "module-metadata.json")); err == nil {
+		var doc struct {
+			Modules map[string]map[string]string `json:"modules"`
+		}
+		if json.Unmarshal(raw, &doc) == nil {
+			var recommend []string
+			paths := make([]string, 0, len(doc.Modules))
+			for p := range doc.Modules {
+				paths = append(paths, p)
+			}
+			sort.Strings(paths)
+			for _, modPath := range paths {
+				stack := doc.Modules[modPath]["domain"]
+				if stack == "" {
+					continue
+				}
+				extID, ok := resolveRuleExtension(root, modPath, stack)
+				if !ok {
+					continue
+				}
+				ruleFile, ok := ruleExtensionFile[extID]
+				if !ok || ruleExtensionInstalled(root, ruleFile) {
+					continue
+				}
+				recommend = append(recommend, fmt.Sprintf("%s (%s) -> pose extension install <path-to-%s>", modPath, stack, extID))
+			}
+			if len(recommend) > 0 {
+				add("rules.stack-extension-available", "warn",
+					fmt.Sprintf(text("%d module(s) match a rule extension not yet installed: %s",
+						"%d módulo(s) combinam com uma extensão de rule ainda não instalada: %s"),
+						len(recommend), strings.Join(recommend, "; ")),
+					text("obtain the extension package and run 'pose extension install <path>' — see AGENTS.md's Domain rules section",
+						"obtenha o pacote da extensão e rode 'pose extension install <path>' — veja a seção Domain rules do AGENTS.md"))
+			} else {
+				add("rules.stack-extension-available", "ok", text("no unmatched rule extensions for detected modules", "nenhuma extensão de rule pendente para os módulos detectados"), "")
+			}
+		}
+	}
+
 	return root, findings
 }
 
