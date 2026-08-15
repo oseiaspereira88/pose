@@ -46,6 +46,15 @@
       "digest": "sha256:3c8aa5bd98c4945940a89125d2fbe033f3c76f569a49b5f3b1f6983639759a34"
     },
     {
+      "spec": "pose-review-bundle-roadmap-path-portability",
+      "category": "fixed",
+      "breaking": false,
+      "refs": "ISSUE#26",
+      "body": "A sealed roadmap review bundle no longer bakes in the absolute checkout path it was sealed from — it previously read as stale (\"changed\") on any machine or CI runner other than the one that sealed it, permanently blocking `pose check --strict` there.",
+      "path": "pose-review-bundle-roadmap-path-portability.md",
+      "digest": "sha256:e8d6b2a06a4b793e46eddb0ef5de6c07f70d11ab26d606d8ace7bcd1b2559584"
+    },
+    {
       "spec": "pose-scaffold-index-template-neutralization",
       "category": "fixed",
       "breaking": false,
