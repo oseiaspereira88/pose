@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-11cbba2c560243bc",
+  "bundle_id": "rvb-d5fa8a2afc9c51a2",
+  "bundle_digest": "sha256:d5fa8a2afc9c51a2b8cd5f11815cad1be2d6f12f4b2025fbd69b72bae3f2cdeb",
+  "reviewer": "agent:claude-code",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "validation:auto-attest"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "unit:examples/brownfield-kits/direct-adoption/fixture/service/go/test",
+    "unit:mcp-enforce/go/test",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-08-15T14:54:46Z",
+  "path": ".pose/review-attestations/rva-11cbba2c560243bc.json"
+}
