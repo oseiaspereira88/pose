@@ -1,13 +1,13 @@
 ---
 slug: pose-install-locale-autodetect
-status: draft
+status: in-progress
 created_at: 2026-08-15
 completed_at:
 supersedes:
 depends_on:
 priority: 1
 components: pose-mcp, cli
-delivers:
+delivers: capability:pose-mcp
 ---
 
 # Spec: pose-install-locale-autodetect
@@ -89,6 +89,13 @@ flip.
 ### Affected areas
 - `pose-mcp/internal/cli/install.go`
 
+### Artifacts
+- modified: pose-mcp/internal/cli/install.go
+- modified: pose-mcp/internal/cli/localization_docs_test.go
+
+### Delivery targets
+- capability:pose-mcp module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
 ### Technical risks
 - Low: mirrors an already-shipped, already-tested detection path
   (`cmdUpdate`'s non-force branch); the risk is confined to correctly
@@ -107,19 +114,95 @@ flip.
 - [x] Trace root cause to `cmdInstall`'s hardcoded `locale = "en"`
       (install.go:25) never being overridden by `machineryLocale()`
       detection, which only `cmdUpdate`'s `!force` branch calls
-- [ ] Confirm the exact gating condition (existing `POSE.md` vs. any other
-      already-installed signal) before implementing
+- [x] Confirm the exact gating condition: an explicit `--locale` (any
+      value, including `en`) must always win over detection — see
+      Decision 1, this could not be inferred from `resolveDocLocale`'s own
+      short-circuit alone
 
 ### Implementation
-- [ ] Call `machineryLocale()`-equivalent detection in `cmdInstall` when
-      target already has `.pose/POSE.md` and `--locale` is unset
+- [x] Track `localeExplicit` when `--locale` is parsed; call
+      `machineryLocale(dist, target, locale)` only when `!localeExplicit`,
+      right before `deliverMachinery` (covers both the machinery copy and
+      the `AGENTS.md`/`POSE.md` docs step, which both read the same
+      `locale` variable)
 
 ### Validation
-- [ ] Regression test: re-running `cmdInstall` on an already pt-BR-localized
-      fixture without `--locale` produces zero diff (mirrors
-      `TestDoctorSilentOnLegitimatePolicyRoots`-style fixture pattern)
-- [ ] Existing fresh-install tests still default to `en` unchanged
-- [ ] `pose validate --tolerant --module pose-mcp/internal/cli`
+- [x] Regression tests in `localization_docs_test.go`: reinstall without
+      `--locale` preserves detected pt-BR; fresh install without `--locale`
+      still defaults to `en`; explicit `--locale en` (with `--force`)
+      overrides detection
+- [x] Existing fresh-install tests unaffected
+- [x] Manually reverified against `~/GolandProjects/codass`: `pose install
+      .` and `pose update --force` (both no `--locale`) now correctly log
+      `locale: pt-BR` and produce zero diff; reverted afterward
+- [x] `go -C pose-mcp test ./...`, `go -C pose-mcp vet ./...`, `gofmt -l`
+
+---
+
+## 5. Decisions
+
+### Decision 1
+- Date: 2026-08-15
+- Context: an unconditional `locale = machineryLocale(dist, target, locale)`
+  before every `cmdInstall` call — the simplest possible fix, and what
+  `cmdUpdate`'s non-force path itself does — was tried first. It correctly
+  fixed R1 (detect pt-BR when `--locale` is absent) but broke R3 for one
+  specific input: `cmdInstall(..., "--locale", "en")` on an already
+  pt-BR-localized target still produced pt-BR content, because
+  `resolveDocLocale`'s short-circuit is `if preferred != "" && preferred !=
+  "en"` — an explicit `en` is indistinguishable from the "no preference"
+  default, so it falls through to content-based detection and gets
+  overridden back to pt-BR. Caught by
+  `TestInstallExplicitLocaleOverridesDetection` before this was assumed
+  fixed. (This same ambiguity already exists, unfixed, in `cmdUpdate`'s own
+  non-force path — `pose update --locale en` on an already pt-BR project
+  would hit the identical override; out of scope here, since this spec's
+  R3 only commits to "unchanged from today's contract" for `cmdInstall`.)
+- Decision: track an explicit `localeExplicit` bool at flag-parse time;
+  call `machineryLocale()` only when `!localeExplicit`.
+- Rationale: distinguishing "the caller said `en`" from "nothing was said"
+  requires information `resolveDocLocale` structurally cannot have (a
+  three-state signal collapsed into a two-state string) — the caller
+  (`cmdInstall`) is the only place that still knows which one happened.
+- Consequences: `cmdInstall` now correctly handles the explicit-en case
+  that `cmdUpdate`'s existing non-force path does not; the two diverge
+  slightly, but only where `cmdUpdate`'s existing behavior was itself the
+  bug (documented above, not touched by this spec).
+
+### Decision 2
+- Date: 2026-08-15
+- Context: while validating R3 with `--locale en` (no `--force`) against an
+  already pt-BR fixture, the resulting `AGENTS.md` still contained
+  Portuguese content — not a locale-resolution bug, but a separate,
+  pre-existing property of `MergeManagedDoc`: it matches engine-owned
+  sections between canonical and local text **by heading string**. A
+  Portuguese heading (`## Contexto do projeto`) never matches its English
+  counterpart (`## Project context`), so the merge treats every Portuguese
+  section as instance-added content and appends it after the (correctly
+  resolved, correctly English) canonical sections — both languages end up
+  concatenated in the same file. `--force` bypasses the merge entirely
+  (wholesale overwrite) and produces clean English, confirming the locale
+  resolution itself was correct; only the *unforced* merge path has this
+  gap.
+- Decision: scope this spec to locale *resolution* only (R1-R3, all about
+  which content `deliverMachinery`/the docs step reads from) and adjusted
+  `TestInstallExplicitLocaleOverridesDetection` to assert against the
+  `--force` (full-overwrite) path, which is what a real "switch this
+  project's language" operation would use in practice. Filed the
+  merge-by-heading limitation as a follow-up rather than fixing it here.
+- Rationale: fixing cross-language section matching in `MergeManagedDoc`
+  (e.g. by a language-neutral section ID instead of heading text) is a
+  separate, larger change to the merge contract — the anti-pattern this
+  workflow explicitly warns against (`bugfix.md`: "no parallel
+  refactoring"). It also only matters for the *unforced* reinstall-with-a-
+  different-explicit-locale case, which is narrower and less surprising
+  than R1's silent revert (the unforced, no-`--locale` case correctly
+  produces zero drift today, since canonical and local headings match once
+  detection resolves to the same language).
+- Consequences: an operator who explicitly reruns `pose install --locale
+  en` (no `--force`) on a pt-BR project without also passing `--force`
+  gets a file with both languages concatenated, not a clean switch — a
+  real but narrower and less silent gap than R1's, tracked as a follow-up.
 
 ---
 
@@ -129,16 +212,59 @@ flip.
 Unit-level regression in `pose-mcp/internal/cli`: install a pt-BR fixture,
 rerun `cmdInstall` without `--locale`, assert zero content drift (matching
 the manual reproduction against codass). A second case confirms a fresh
-target (no prior `POSE.md`) still defaults to `en`. A third confirms
-`--locale` still overrides detection either way.
+target (no prior `POSE.md`) still defaults to `en`. A third confirms an
+explicit `--locale en` (via `--force`, see Decision 2) overrides detection.
+
+### Requirement trace
+- R1 [satisfied] `TestInstallReinstallDetectsExistingLocaleWithoutFlag`;
+  reverified against `~/GolandProjects/codass`.
+- R2 [satisfied] `TestInstallFreshWithoutLocaleStillDefaultsToEnglish`.
+- R3 [satisfied] `TestInstallExplicitLocaleOverridesDetection`; see
+  Decision 1 for the edge case that required `localeExplicit` rather than
+  an unconditional detection call.
 
 ### Known gaps
 - The transactional/rollback finding (issue #18, secondary) is explicitly
   out of scope — tracked as a follow-up, not fixed here.
+- The merge-by-heading language-matching limitation found in Decision 2 is
+  a second, narrower follow-up — also not fixed here.
 
 ---
 
 ## 7. Final Report
+
+### Delivered scope
+`cmdInstall` now detects an already-installed target's existing locale
+(reusing `machineryLocale`/`resolveDocLocale`, the same mechanism
+`cmdUpdate`'s non-force path already used) whenever `--locale` is not
+passed explicitly, fixing the silent English revert in both
+`pose install <existing-target>` and `pose update --force`. An explicit
+`--locale` (any value) still always wins, including the `en`-vs-detection
+edge case a naive fix would have missed (Decision 1).
+
+### Files and modules changed
+- `pose-mcp/internal/cli/install.go`: `localeExplicit` tracking at flag
+  parse time; conditional `machineryLocale()` call before machinery/docs
+  delivery.
+- `pose-mcp/internal/cli/localization_docs_test.go`: three new regression
+  tests (`TestInstallReinstallDetectsExistingLocaleWithoutFlag`,
+  `TestInstallFreshWithoutLocaleStillDefaultsToEnglish`,
+  `TestInstallExplicitLocaleOverridesDetection`).
+
+### Validation executed
+- `go -C pose-mcp test ./internal/cli/... -run TestInstall`: SUCCESS (8/8,
+  including the 3 new tests).
+- `go -C pose-mcp test ./...`: SUCCESS.
+- `go -C pose-mcp vet ./...`: SUCCESS.
+- `gofmt -l`: clean.
+- Manual reverification against `~/GolandProjects/codass` (real pt-BR
+  project, not a fixture): `pose install .` and
+  `pose update --no-self --force` (both without `--locale`) now log
+  `locale: pt-BR` and produce zero diff; reverted, working tree left clean.
+
+### Residual risks
+- None beyond the two documented follow-ups (transactional gate;
+  merge-by-heading language matching), both pre-existing and out of scope.
 
 ### Follow-ups
 - [open] `pose install`'s final `--strict` gate (install.go:262) runs after
@@ -147,3 +273,9 @@ target (no prior `POSE.md`) still defaults to `en`. A third confirms
   either gating before mutation (dry-run the check first) or explicitly
   documenting that a failed install/update can still leave mutated files
   (owner:@pose-maintainers crit:medium review:2026-09-15)
+- [open] `MergeManagedDoc` matches sections by heading text, so an explicit
+  `--locale` switch on `AGENTS.md`/`POSE.md` without `--force` concatenates
+  both languages instead of cleanly switching (Decision 2) — only the
+  merge (unforced) path is affected; `--force` already produces a clean
+  result. Consider a language-neutral section identifier if this proves to
+  matter in practice (owner:@pose-maintainers crit:low review:2026-10-01)
