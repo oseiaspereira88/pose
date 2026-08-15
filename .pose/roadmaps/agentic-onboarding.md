@@ -1,6 +1,6 @@
 ---
 slug: agentic-onboarding
-status: active        # draft | active | done | abandoned
+status: done
 created_at: 2026-08-15
 depends_on:          # prerequisite roadmaps, inline list: other-roadmap-a, other-roadmap-b
 ---
