@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:fd201bdfbd173383f7737d6eaf50dca783b61837aa72640b9e644937c26abc1b",
-  "provenance_digest": "sha256:a5fe516efcf8f102e8a704483ba56723e298011c6c4096b25524a777e63b0ad7",
+  "input_digest": "sha256:4883da9ef8e3e520761ab54304fc9aec3efe5bc5af2ece830251c97366ae89cf",
+  "provenance_digest": "sha256:eb4b18f92883a0380dad41a0547aeaf4c10a0e6b6be96d6c125dc8995f06b2a9",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -2605,6 +2605,13 @@
       "type": "artifact",
       "attributes": {
         "path": "mcp-enforce/extract.go"
+      }
+    },
+    {
+      "id": "artifact:path/to/file",
+      "type": "artifact",
+      "attributes": {
+        "path": "path/to/file"
       }
     },
     {
@@ -8367,7 +8374,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -8381,7 +8388,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -8395,14 +8402,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -8430,7 +8437,7 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -8630,6 +8637,13 @@
       }
     },
     {
+      "id": "spec:pose-extension-catalog-resolution",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
+      }
+    },
+    {
       "id": "spec:pose-extension-reference-publication",
       "type": "spec",
       "attributes": {
@@ -8819,6 +8833,13 @@
       }
     },
     {
+      "id": "spec:pose-onboarding-context-extraction",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
+      }
+    },
+    {
       "id": "spec:pose-ossf-security-baseline",
       "type": "spec",
       "attributes": {
@@ -8977,6 +8998,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-rule-extension-locale-parity",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
       }
     },
     {
@@ -9152,6 +9180,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-validation-scanner-consolidation",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
       }
     },
     {
@@ -30666,6 +30701,11 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-extension-catalog-resolution",
+      "to": "artifact:path/to/file",
+      "type": "declares"
+    },
+    {
       "from": "spec:pose-extension-reference-publication",
       "to": "artifact:.github/workflows/release.yml",
       "type": "declares"
@@ -31479,6 +31519,11 @@
       "from": "spec:pose-monorepo-validation-advisory",
       "to": "change-set:cs-a72c70ca96b3",
       "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-onboarding-context-extraction",
+      "to": "artifact:path/to/file",
+      "type": "declares"
     },
     {
       "from": "spec:pose-package-channel-delivery",
@@ -32436,6 +32481,11 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-rule-extension-locale-parity",
+      "to": "artifact:path/to/file",
+      "type": "declares"
+    },
+    {
       "from": "spec:pose-sbom-license-coverage-gate",
       "to": "artifact:.pose/specs/pose-sbom-license-coverage-gate/spec.md",
       "type": "declares"
@@ -33154,6 +33204,11 @@
       "from": "spec:pose-v1-2-2-changelog-review",
       "to": "change-set:cs-77706636c015",
       "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-validation-scanner-consolidation",
+      "to": "artifact:path/to/file",
+      "type": "declares"
     },
     {
       "from": "spec:pose-verifier-assets-variable-fix",
@@ -34516,6 +34571,11 @@
       "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
     },
     {
+      "spec": "pose-extension-catalog-resolution",
+      "action": "modified",
+      "path": "path/to/file"
+    },
+    {
       "spec": "pose-extension-reference-publication",
       "action": "created",
       "path": "extensions/pose-rule-kubernetes/extension.json"
@@ -35150,6 +35210,11 @@
       "spec": "pose-monorepo-validation-advisory",
       "action": "modified",
       "path": "pose-mcp/internal/cli/validate.go"
+    },
+    {
+      "spec": "pose-onboarding-context-extraction",
+      "action": "modified",
+      "path": "path/to/file"
     },
     {
       "spec": "pose-package-channel-delivery",
@@ -35903,6 +35968,11 @@
       "path": "pose-mcp/internal/cli/doctor.go"
     },
     {
+      "spec": "pose-rule-extension-locale-parity",
+      "action": "modified",
+      "path": "path/to/file"
+    },
+    {
       "spec": "pose-sbom-license-coverage-gate",
       "action": "created",
       "path": ".pose/specs/pose-sbom-license-coverage-gate/spec.md"
@@ -36436,6 +36506,11 @@
       "spec": "pose-v1-2-2-changelog-review",
       "action": "none",
       "reason": "governance"
+    },
+    {
+      "spec": "pose-validation-scanner-consolidation",
+      "action": "modified",
+      "path": "path/to/file"
     },
     {
       "spec": "pose-verifier-assets-variable-fix",
@@ -49238,6 +49313,12 @@
     "mcp-enforce/extract.go": [
       "pose-composition-contract"
     ],
+    "path/to/file": [
+      "pose-extension-catalog-resolution",
+      "pose-onboarding-context-extraction",
+      "pose-rule-extension-locale-parity",
+      "pose-validation-scanner-consolidation"
+    ],
     "pose-mcp/Dockerfile": [
       "pose-dependency-digest-pinning"
     ],
@@ -50221,6 +50302,15 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-39f2cf6b9dd3",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-onboarding-context-extraction",
+      "path": "path/to/file",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-3a51bdeb7fed",
       "code": "orphan",
       "severity": "warning",
@@ -50427,6 +50517,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-514a719f2c74",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-onboarding-context-extraction",
+      "path": "path/to/file",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-51cacc3afe3c",
       "code": "orphan",
       "severity": "warning",
@@ -50608,12 +50707,30 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-688f860fee0b",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-extension-catalog-resolution",
+      "path": "path/to/file",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-68904ccabbc0",
       "code": "orphan",
       "severity": "warning",
       "path": ".pose/templates/knowledge.md",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-6903bcd45479",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-rule-extension-locale-parity",
+      "path": "path/to/file",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-6a02cb19e7c8",
@@ -50728,6 +50845,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-76a05244ebc6",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-rule-extension-locale-parity",
+      "path": "path/to/file",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-7807e58d2c91",
       "code": "legacy-narrative",
       "severity": "info",
@@ -50754,12 +50880,30 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-7a38bcf8b945",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-scanner-consolidation",
+      "path": "path/to/file",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-7a5c01e533f1",
       "code": "legacy-narrative",
       "severity": "info",
       "spec": "pose-validation-runtime-guardrails",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-7aa7fe80531f",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-extension-catalog-resolution",
+      "path": "path/to/file",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-7acac67049ac",
@@ -51642,6 +51786,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-e2cde8e9ebab",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-validation-scanner-consolidation",
+      "path": "path/to/file",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-e65bb29b3cb2",
@@ -53357,7 +53510,10 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -53378,7 +53534,12 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test",
+        "check is missing, failing or stale: delivery-integration",
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -53398,7 +53559,10 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -53409,7 +53573,10 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -53447,7 +53614,10 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     }
   ],
   "paths": {

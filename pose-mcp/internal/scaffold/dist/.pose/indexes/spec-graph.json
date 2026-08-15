@@ -121,6 +121,10 @@
       "to": "pose-release-signing"
     },
     {
+      "from": "pose-extension-catalog-resolution",
+      "to": "pose-extension-catalog-lifecycle"
+    },
+    {
       "from": "pose-extension-reference-publication",
       "to": "pose-machinery-distribution-contract"
     },
@@ -668,6 +672,14 @@
       "priority": 24,
       "status": "done"
     },
+    "pose-extension-catalog-resolution": {
+      "depends_on": [
+        "pose-extension-catalog-lifecycle"
+      ],
+      "path": ".pose/specs/pose-extension-catalog-resolution/spec.md",
+      "priority": 4,
+      "status": "draft"
+    },
     "pose-extension-reference-publication": {
       "depends_on": [
         "pose-machinery-distribution-contract",
@@ -873,6 +885,12 @@
       "priority": 19,
       "status": "done"
     },
+    "pose-onboarding-context-extraction": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-onboarding-context-extraction/spec.md",
+      "priority": 1,
+      "status": "draft"
+    },
     "pose-ossf-security-baseline": {
       "depends_on": [
         "pose-version-contract"
@@ -1059,6 +1077,12 @@
       "path": ".pose/specs/pose-review-scope-trailer-check/spec.md",
       "priority": 2,
       "status": "done"
+    },
+    "pose-rule-extension-locale-parity": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-rule-extension-locale-parity/spec.md",
+      "priority": 3,
+      "status": "draft"
     },
     "pose-safe-validate-orchestration": {
       "depends_on": [
@@ -1251,6 +1275,12 @@
       "path": ".pose/specs/pose-validation-runtime-guardrails/spec.md",
       "priority": 17,
       "status": "done"
+    },
+    "pose-validation-scanner-consolidation": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-validation-scanner-consolidation/spec.md",
+      "priority": 2,
+      "status": "draft"
     },
     "pose-verifier-assets-variable-fix": {
       "depends_on": [

@@ -6,10 +6,14 @@ govern agent work. This file is the short contract. For the operating manual
 
 ## Project context
 
+<!-- pose:instance-owned -->
+
 <!-- Describe here, in 3-6 lines, what this repository is: components,
      high-level architecture, and where the project's canonical references
      live (vision, backlog, decisions). Point to subproject AGENTS.md files
-     when they exist. -->
+     when they exist. `pose install` excerpts this from an existing
+     README.md/CLAUDE.md on first install when one is present; `pose
+     update` never touches this section afterward — edit it directly. -->
 
 {{PROJECT_NAME}}: describe the repository's purpose and its main components.
 

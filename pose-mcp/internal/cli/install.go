@@ -209,7 +209,16 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "pose install: %s: %v\n", doc, err)
 			return 1
 		}
-		content := replacer.Replace(string(b))
+		raw := string(b)
+		if doc == "AGENTS.md" {
+			// Excerpt the target's own README.md/CLAUDE.md into the
+			// "Project context" placeholder before the {{PROJECT_NAME}}
+			// token is substituted, so the injected summary still receives
+			// it (spec pose-onboarding-context-extraction). A target with
+			// neither file leaves raw unchanged.
+			raw = injectExtractedProjectContext(raw, target)
+		}
+		content := replacer.Replace(raw)
 		// An existing manual is merged, never skipped: engine-owned sections
 		// refresh while the instance keeps what it wrote under the sections the
 		// canonical manual tags as instance-owned. Skipping (the pre-existing

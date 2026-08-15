@@ -6,10 +6,14 @@ CLI, fluxos por tipo de tarefa, política de CI), consulte [`POSE.md`](POSE.md).
 
 ## Contexto do projeto
 
+<!-- pose:instance-owned -->
+
 <!-- Descreva aqui, em 3-6 linhas, o que este repositório é: componentes,
      arquitetura de alto nível e onde vivem as referências canônicas do
      projeto (visão, backlog, decisões). Aponte AGENTS.md específicos de
-     subprojetos quando existirem. -->
+     subprojetos quando existirem. O `pose install` extrai isto de um
+     README.md/CLAUDE.md existente na primeira instalação, quando houver;
+     o `pose update` nunca toca nesta seção depois — edite-a diretamente. -->
 
 {{PROJECT_NAME}}: descreva o propósito do repositório e seus componentes principais.
 
