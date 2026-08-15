@@ -14,21 +14,18 @@
 - _Not provided_
 
 ## Files Changed
-- pose/reports/history/standard-validate-native.jsonl
-- mcp-enforce/README.md
-- pose-mcp/internal/cli/doctor.go
-- pose-mcp/internal/cli/doctor_remediation_test.go
-- pose-mcp/internal/mcpserver/server.go
-- pose-mcp/internal/mcpserver/validate_orchestration_test.go
-- pose-mcp/internal/scaffold/dist/.pose/policy/artifacts.json
-- pose-mcp/internal/scaffold/dist/.pose/policy/delivery.json
-- pose-mcp/internal/scaffold/distpolicy/distpolicy.go
-- pose-mcp/internal/scaffold/gen/main.go
-- pose-mcp/internal/scaffold/scaffold_test.go
-- .pose/knowledge/2026-08-15-decision-log-self-referential-policy-template-contamination.md
+- pose/capabilities/assessment.md
 - .pose/reports/2026-08-15-standard-validate-native.md
+- .pose/reports/history/standard-validate-native.jsonl
+- .pose/results/delivery-validation.json
+- .pose/state/history.jsonl
+- .pose/state/project-state.md
+- .pose/state/refresh-log.jsonl
+- .pose/changelogs/unreleased/pose-scaffold-self-referential-policy-fix.md
+- .pose/reports/2026-08-15-standard-closeout-pose-scaffold-self-referential-policy-fix.md
+- .pose/reports/history/standard-closeout-pose-scaffold-self-referential-policy-fix.jsonl
 - .pose/review-bundles/rvb-fe8edb72703fd5a9.json
-- pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go
+- .pose/specs/pose-scaffold-self-referential-policy-fix/
 
 ## Validation Commands
 - _Fill manually_
@@ -37,14 +34,14 @@
 - _No validation output detected_
 
 ## Execution Metadata
-- Generated at (UTC): 2026-08-15T00:03:21Z
+- Generated at (UTC): 2026-08-15T00:08:38Z
 - Context: auto-validate
-- Validation profile: tolerant
-- Sequence for task/spec: 78
-- Stable comparison hash: 5698000da1fa3d1dc09c88a5c178e5fab91c31deecd321ea182a96719596b628
+- Validation profile: strict
+- Sequence for task/spec: 80
+- Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-08-15T00:03:17Z
+- Previous execution: 2026-08-15T00:08:33Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

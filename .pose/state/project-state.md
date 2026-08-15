@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-14T00:40:37Z
-baseline_commit: fdca3756e183586e3b260edd2c73a85a28a28374
+generated_at: 2026-08-15T00:07:49Z
+baseline_commit: 06c5fa159c1e2c2f031bfb41f8f8dc0b09d0a244
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:8646aff3eddc -->
+<!-- state:derived hash:d67f8afd1e3b -->
 
-- specs: total=91 draft=0 in-progress=0 blocked=0 done=91 superseded=0 abandoned=0
+- specs: total=93 draft=0 in-progress=1 blocked=0 done=92 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-scaffold-self-referential-policy-fix (2026-08-15)
   - spec:pose-review-bundle-convergence (2026-08-14)
   - spec:pose-component-aware-review-plans (2026-08-13)
-  - spec:pose-managed-doc-project-identity-regression (2026-08-11)
   - spec:pose-dora-five-metrics-v2 (2026-08-11)
   - spec:pose-usage-metrics (2026-08-11)
-  - ... e mais 86 (ver `pose_list_specs status:done`)
+  - ... e mais 87 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:003cc85f278e -->
+<!-- state:derived hash:86e1c574b657 -->
 
-- abertos: 42
-- por criticidade: high=1 medium=14 low=27 sem-classificação=0
+- abertos: 44
+- por criticidade: high=1 medium=15 low=28 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=2 ativo=2 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:854e45c73558 -->
+<!-- state:derived hash:2dcd9a9be604 -->
 
-- último registro: task=review-bundle-convergence outcome=pass (2026-08-14T00:23:21Z)
-- últimos 30 dias: total=208 outcome_ok=153 outcome_outro=55
-- reports revisados (.md): total=98
+- último registro: task=validate-native outcome=pass (2026-08-15T00:03:21Z)
+- últimos 30 dias: total=217 outcome_ok=162 outcome_outro=55
+- reports revisados (.md): total=103
+  - report:2026-08-15-standard-validate-native.md
   - report:2026-08-14-standard-review-bundle-convergence.md
-  - report:2026-08-13-standard-review-bundle-convergence.md
-  - report:2026-08-13-standard-component-aware-review-provenance.md
-  - report:2026-08-13-standard-validate-native.md
-  - report:2026-08-11-standard-pose-v1-docs-audit.md
+  - report:2026-08-14-standard-validate-native.md
+  - report:2026-08-14-standard-review-bundle-convergence-release-attribution.md
+  - report:2026-08-14-standard-component-aware-review-release-attribution.md
 
 ## Arquitetura
 <!-- state:derived hash:d03cb9bcadab status:active -->
