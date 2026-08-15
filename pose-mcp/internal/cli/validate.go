@@ -111,27 +111,13 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 			}
 			return nil
 		}
-		stack := ""
-		switch entry.Name() {
-		case "package.json":
-			stack = "node"
-		case "go.mod":
-			stack = "go"
-		case "Cargo.toml":
-			stack = "rust"
-		case "pom.xml", "build.gradle", "build.gradle.kts":
-			stack = "java"
-		case "pyproject.toml", "requirements.txt", "Pipfile", "poetry.lock", "setup.py":
-			// spec pose-stack-catalog-expansion: manager (poetry/pipenv/pip/
-			// setuptools/pep517) is resolved by the matrix `when` predicates,
-			// not at discovery time — every marker maps to the "python" stack.
-			stack = "python"
-		default:
-			switch filepath.Ext(entry.Name()) {
-			case ".sln", ".csproj", ".fsproj", ".vbproj":
-				stack = "dotnet"
-			}
-		}
+		// spec pose-stack-catalog-expansion: the Python manager (poetry/
+		// pipenv/pip/setuptools/pep517) is resolved by the matrix `when`
+		// predicates, not at discovery time — every marker maps to the
+		// "python" stack. stackForManifestFile is shared with scanModules
+		// (spec pose-validation-scanner-consolidation) so a stack-detection
+		// fix here applies there too.
+		stack := stackForManifestFile(entry.Name())
 		if stack != "" {
 			// Existing overwrite-by-walk-order semantics preserved
 			// unchanged for compatibility; `pose stacks` surfaces the full

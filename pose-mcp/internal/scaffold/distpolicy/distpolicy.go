@@ -288,6 +288,11 @@ func NeutralIndexTemplates() map[string][]byte {
       "checks": [
         {"name": "dotnet-test", "program": "dotnet", "args": ["test"], "severity": "required"}
       ]
+    },
+    "cloudflare-workers": {
+      "checks": [
+        {"name": "wrangler-version", "program": "wrangler", "args": ["--version"], "severity": "optional"}
+      ]
     }
   },
   "moduleOverrides": {}

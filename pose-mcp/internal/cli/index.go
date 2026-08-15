@@ -133,15 +133,16 @@ func scanModules(root string) ([]indexedModule, []string, []string, []string, []
 		}
 		rel := relativePath(root, path)
 		name := e.Name()
-		lang := ""
-		switch name {
-		case "go.mod":
-			lang = "go"
-		case "Cargo.toml":
-			lang = "rust"
-		case "pom.xml":
-			lang = "java"
-		case "package.json":
+		// Shared with discoverValidationModules (spec
+		// pose-validation-scanner-consolidation) so a stack-detection fix
+		// applies to both `pose index` and `pose validate`/install/init
+		// instead of only whichever scanner happened to get updated.
+		// "node" is renamed to this index's pre-existing "javascript" label
+		// for output compatibility; every other stack name is new coverage
+		// (java via build.gradle(.kts), python, dotnet, cloudflare-workers)
+		// this repo-map previously silently skipped.
+		lang := stackForManifestFile(name)
+		if lang == "node" {
 			lang = "javascript"
 		}
 		if lang != "" {
