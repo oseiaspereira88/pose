@@ -57,11 +57,14 @@ func init() {
 		localeComparisons[".agents/skills/"+slug+"/SKILL.md"] = commandsOnly
 	}
 	// Rules, workflows and templates are translations of the same document and
-	// must keep the same structure.
+	// must keep the same structure. backend-go.md/frontend-react.md are not
+	// listed here: they ship as extensions (pose-rule-backend-go,
+	// pose-rule-frontend-react), not core machinery, and extensions carry no
+	// locale variant today (spec pose-domain-rule-extension-migration).
 	for _, p := range []string{
-		".pose/rules/_base-recurrence.md", ".pose/rules/backend-go.md",
+		".pose/rules/_base-recurrence.md",
 		".pose/rules/delivery-evidence.md", ".pose/rules/delivery-surface.md",
-		".pose/rules/documentation-style.md", ".pose/rules/frontend-react.md",
+		".pose/rules/documentation-style.md",
 		".pose/rules/knowledge-governance.md",
 		".pose/rules/release-integrity.md", ".pose/rules/security.md",
 		".pose/templates/changelog-fragment.md", ".pose/templates/doc-audit-report.md",

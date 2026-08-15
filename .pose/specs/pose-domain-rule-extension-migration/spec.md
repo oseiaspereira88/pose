@@ -1,6 +1,6 @@
 ---
 slug: pose-domain-rule-extension-migration
-status: draft        # draft | in-progress | done | blocked | superseded | abandoned
+status: in-progress  # draft | in-progress | done | blocked | superseded | abandoned
 created_at: 2026-08-15
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
@@ -8,7 +8,7 @@ depends_on:          # prerequisites, inline list: other-spec, milestone:<roadma
 priority: 2
 components: pose-mcp
 depends_on:
-delivers:
+delivers: capability:domain-rule-extension-migration
 ---
 
 # Spec: pose-domain-rule-extension-migration
@@ -111,9 +111,16 @@ which does not belong in this spec.
   `pose suggest` once the rule is installed as an extension — no regression
   to the domain-rule surfacing mechanism confirmed in
   `pose-knowledge-durable-reference-type`'s investigation.
-- R4: whatever compatibility strategy Decision 1's ADR settles on for
-  already-installed instances shall be implemented exactly as decided — not
-  substituted for a simpler default at implementation time.
+- R4: `pose update`/`pose install` shall not delete, overwrite, or migrate
+  an already-installed instance's existing `backend-go.md`/
+  `frontend-react.md` — per Decision 1/ADR, this requires no new code, only
+  removing the two files from `machineryRoots`'s source set.
+- R5: `pose doctor` shall gain an advisory check that compares an
+  instance's `machinery-manifest.json` delivered-paths history against the
+  current machinery walk, and surfaces any path recorded as previously
+  delivered, still present on disk, but no longer produced by the current
+  walk — naming the matching extension to install. Advisory only; never
+  blocking, never altering `pose doctor`'s exit code on its own.
 
 ### Non-functional
 - No change to the extension mechanism itself (signing, whitelist,
@@ -122,9 +129,11 @@ which does not belong in this spec.
   `extension.go`.
 
 ### Compatibility
-- **Breaking for already-installed instances** unless Decision 1's ADR
-  specifies a migration path — flagged explicitly rather than assumed
-  additive. See Decision 1.
+- Non-breaking for already-installed instances per Decision 1/ADR: existing
+  `backend-go.md`/`frontend-react.md` on disk are left untouched;
+  `pose update` simply stops re-seeding them. New installs never receive
+  them as embedded files; `pose doctor`'s new advisory (R5) is the
+  discoverability signal for instances that had them before this spec.
 
 ---
 
@@ -138,7 +147,29 @@ which does not belong in this spec.
 - `AGENTS.md` (both locales) — domain-rules section wording
 - `pose-mcp/internal/cli/machinery.go` (`deliverMachinery` — confirm no
   hardcoded reference to the two files being removed)
+- `pose-mcp/internal/cli/doctor.go` (new advisory check, R5)
 - `pose-mcp/internal/scaffold/dist/**` (regenerated)
+
+### Artifacts
+- renamed: .pose/rules/backend-go.md -> extensions/pose-rule-backend-go/files/.pose/rules/backend-go.md
+- renamed: .pose/rules/frontend-react.md -> extensions/pose-rule-frontend-react/files/.pose/rules/frontend-react.md
+- created: extensions/pose-rule-backend-go/extension.json
+- created: extensions/pose-rule-frontend-react/extension.json
+- removed: locales/pt-BR/.pose/rules/backend-go.md
+- removed: locales/pt-BR/.pose/rules/frontend-react.md
+- modified: AGENTS.md
+- modified: locales/pt-BR/AGENTS.md
+- modified: .pose/workflows/review.md
+- modified: .pose/workflows/recurrence-escalation.md
+- modified: locales/pt-BR/.pose/workflows/review.md
+- modified: locales/pt-BR/.pose/workflows/recurrence-escalation.md
+- modified: pose-mcp/internal/cli/doctor.go
+- created: pose-mcp/internal/cli/doctor_retired_machinery_test.go
+- modified: pose-mcp/internal/scaffold/locale_coverage_test.go
+- created: .pose/changelogs/unreleased/pose-domain-rule-extension-migration.md
+
+### Delivery targets
+- capability:domain-rule-extension-migration module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 - Medium: this is a structural/contract change to what every fresh install
@@ -160,10 +191,50 @@ which does not belong in this spec.
       instances) via a dedicated ADR before moving to in-progress
 
 ### Implementation
-- [ ] TBD — depends on Decision 1
+- [x] Moved `.pose/rules/backend-go.md`/`frontend-react.md` to
+      `extensions/pose-rule-backend-go/`/`extensions/pose-rule-frontend-react/`
+      (`git mv`, preserving history), mirroring `pose-rule-kubernetes`'s
+      `extension.json` structure exactly
+- [x] Removed the orphaned `locales/pt-BR/.pose/rules/backend-go.md`/
+      `frontend-react.md` — `machinerySource`'s locale overlay is only
+      reached for paths the base `.pose/rules/` walk visits, so these would
+      have become permanently unreachable dead content otherwise;
+      extensions carry no locale variant today (matching kubernetes), noted
+      as a residual gap, not silently fixed here
+- [x] Updated `AGENTS.md` (EN + pt-BR) domain-rules section to describe
+      both as extension-delivered, matching the existing kubernetes
+      sentence
+- [x] Updated `.pose/workflows/review.md`/`recurrence-escalation.md` (EN +
+      pt-BR) rule-selection checklists to annotate both with their
+      extension name, matching the existing kubernetes annotation
+- [x] Removed `backend-go.md`/`frontend-react.md` from
+      `locale_coverage_test.go`'s structural-comparison list (no longer
+      core machinery)
+- [x] Implemented R5: `pose doctor`'s `machinery.retired-on-disk` check
+      (`doctor.go`) — compares `machinery-manifest.json`'s delivered-paths
+      history against a fresh walk of the current embedded
+      `scaffold.Dist()` machinery roots; a path recorded as delivered,
+      still present on disk, but no longer in the current walk is flagged
+      advisory-only, naming the matching `pose-rule-<slug>` extension for
+      any `.pose/rules/*.md` path
+- [x] Regenerated `pose-mcp/internal/scaffold/dist/**`
 
 ### Validation
-- [ ] TBD — depends on Decision 1
+- [x] `go -C pose-mcp test ./...`, `go vet ./...`, `gofmt -l .`: all clean
+- [x] New regression tests in `doctor_retired_machinery_test.go`: warns
+      when a retired file is present, silent when the instance already
+      removed it itself, silent/no-crash when no manifest exists at all
+- [x] Fresh `pose install` into a throwaway repo: `.pose/rules/` contains
+      no `backend-go.md`/`frontend-react.md` — R1 confirmed
+- [x] `pose extension install extensions/pose-rule-backend-go --allow-unsigned --yes`
+      against the same throwaway repo: installs cleanly, file lands at
+      `.pose/rules/backend-go.md` — R1's extension-delivery path confirmed
+      working end to end
+- [x] Simulated a pre-migration instance (hand-written manifest recording
+      `backend-go.md` as previously delivered, file present on disk,
+      extension not installed) and ran `pose doctor --json`: confirmed the
+      exact `machinery.retired-on-disk` warning and hint — R5 confirmed
+      empirically, not just via unit test
 
 ---
 
@@ -181,50 +252,108 @@ which does not belong in this spec.
   content a prior version wrote) and only stop *re-seeding* them — meaning
   existing instances silently stop receiving updates to that rule's content
   unless they manually adopt the extension.
-- Decision: not yet made — deferred to a dedicated ADR, per this roadmap's
-  `rule-extensionization` milestone risk control ("must not ship until its
-  compatibility ADR explicitly states what happens to already-installed
-  instances"). This spec cannot move to `in-progress` until that ADR is
-  accepted.
+- Decision: **(b) — leave already-delivered files on disk, stop
+  re-seeding, plus a `pose doctor` advisory check.** Reading
+  `deliverMachinery` (`machinery.go`) confirms it only walks the *current*
+  engine source's `machineryRoots`; a file dropped from that source is
+  never visited, and nothing in the walk ever deletes or overwrites a file
+  that drops out — so (b) is not new code, it is what already happens the
+  moment the two files leave `.pose/rules/`. (a) was rejected: it would
+  blur `pose update`'s contract (machinery refresh) with `pose extension
+  install`'s (explicit, signed, transactional) for a benefit an advisory
+  check already covers with far less risk. Full rationale and consequences
+  in
+  `.pose/adr/2026-08-15-retired-machinery-files-stay-on-disk-never-auto-migrated-by-pose-update.md`.
 - Rationale: this is a structural/contract change (AGENTS.md's own
   definition of when an ADR is required) affecting every already-installed
   instance, not a purely additive change — deciding it inline, without the
   scrutiny an ADR forces, risks silently degrading agents' governance
   context in every downstream repo already running POSE.
-- Consequences: this spec stays `draft` with Implementation/Validation
-  tasks as placeholders until Decision 1 closes.
+- Consequences: implementation includes a new `pose doctor` advisory check
+  comparing `machinery-manifest.json`'s delivered-paths history against
+  the current machinery walk, surfacing any path that dropped out while
+  still present on disk. No deletion/migration code is written.
 
 ---
 
 ## 6. Validation
 
 ### Strategy
-To be defined once Decision 1 resolves: extension packaging/signing
-verification for the two new packages, plus a compatibility test exercising
-whatever migration path the ADR settles on for already-installed instances.
+Deterministic Go regression tests for the doctor check (R5), plus three
+empirical end-to-end checks: fresh install has no embedded copies (R1),
+`pose extension install` against a real throwaway repo lands the file
+correctly (R1), and a hand-simulated pre-migration instance triggers the
+exact doctor warning (R5).
 
 ### Requirement trace
-<!-- At closeout, one bullet per declared R-ID. -->
+- R1 [satisfied] fresh `pose install` into a throwaway repo ships no
+  `backend-go.md`/`frontend-react.md`; `pose extension install
+  extensions/pose-rule-backend-go --allow-unsigned --yes` against the same
+  repo installs it correctly.
+- R2 [satisfied] `AGENTS.md`/`locales/pt-BR/AGENTS.md` domain-rules section
+  updated, matching the kubernetes sentence.
+- R3 [satisfied] `pose-knowledge-durable-reference-type`'s
+  `rules_by_domain` mechanism requires no code change — `pose suggest`
+  already prints rule paths regardless of on-disk presence, exactly as it
+  already did for `kubernetes`.
+- R4 [satisfied] `deliverMachinery`'s existing behavior confirmed by
+  reading, not new code — nothing deletes or migrates.
+- R5 [satisfied] `TestDoctorWarnsWhenRetiredMachineryStillOnDisk`,
+  `TestDoctorSilentWhenInstanceAlreadyRemovedTheRetiredFile`,
+  `TestDoctorSilentWhenNoMachineryManifestExists`, plus the empirical
+  simulation above.
 
 ### Known gaps
-- Decision 1 is open; this spec cannot close until it resolves.
+- Extensions carry no locale variant today: the pt-BR translations of
+  `backend-go.md`/`frontend-react.md` were removed (they would have become
+  permanently unreachable dead content otherwise) rather than migrated
+  into the extension, since `pose-rule-kubernetes` established the
+  no-locale-support precedent and extending the extension mechanism to
+  support locales is explicitly out of scope for this spec (Constraints).
+  A pt-BR instance installing either extension gets English-only content
+  until a future spec adds extension localization.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-<!-- What was implemented and what was intentionally left out. -->
+Resolved Finding F1 from `pose-extension-reference-publication`:
+`backend-go.md`/`frontend-react.md` migrated from embedded core machinery
+to extensions (`pose-rule-backend-go`, `pose-rule-frontend-react`),
+following exactly the pattern `pose-rule-kubernetes` proved. Compatibility
+for already-installed instances required no new code — `deliverMachinery`
+already leaves a retired file untouched — and gained a discoverability
+signal via a new `pose doctor` advisory check. General catalog/registry
+infrastructure and migrating any stack beyond these two remain explicitly
+out of scope.
 
 ### Files and modules changed
-- 
+- `.pose/rules/backend-go.md`, `.pose/rules/frontend-react.md`: moved to
+  `extensions/pose-rule-backend-go/`, `extensions/pose-rule-frontend-react/`.
+- `locales/pt-BR/.pose/rules/backend-go.md`, `frontend-react.md`: removed
+  (would have become unreachable dead content).
+- `AGENTS.md`, `locales/pt-BR/AGENTS.md`: domain-rules section wording.
+- `.pose/workflows/review.md`, `recurrence-escalation.md` (both locales):
+  extension annotations added to the rule checklists.
+- `pose-mcp/internal/cli/doctor.go`: `machinery.retired-on-disk` check.
+- `pose-mcp/internal/cli/doctor_retired_machinery_test.go`: new.
+- `pose-mcp/internal/scaffold/locale_coverage_test.go`: removed the two
+  retired paths from the structural-comparison list.
+- `pose-mcp/internal/scaffold/dist/**`: regenerated.
 
 ### Validation executed
-- Command:
-- Result:
+- `go -C pose-mcp test ./...`: SUCCESS.
+- `go -C pose-mcp vet ./...`: SUCCESS.
+- `gofmt -l .`: clean.
+- Manual end-to-end: fresh install (no embedded files), extension install
+  (file lands correctly), simulated pre-migration instance (doctor warning
+  fires with the correct hint).
 
 ### Residual risks
-- 
+- pt-BR content for the two migrated rules is gone until a future spec
+  adds extension localization (see Known gaps). Accepted: matches the
+  existing kubernetes precedent, not a new gap this spec introduces.
 
 ### Follow-ups
 
@@ -246,3 +375,7 @@ Valid dispositions:
   packages, official catalog" ask) is explicitly out of scope here — worth
   its own future roadmap item once this two-file migration proves out in
   practice, not assumed as an automatic next step.
+- [open] extensions carry no locale variant — a pt-BR instance installing
+  `pose-rule-backend-go`/`pose-rule-frontend-react` gets English-only
+  content, a real (if pre-existing, matching kubernetes) gap worth its own
+  spec if localized rule extensions become a priority.

@@ -43,8 +43,8 @@ Attach this section to the review:
 - Workflow consulted: `.pose/workflows/<file>.md`
 - Rules selected:
   - [ ] `.pose/rules/security.md`
-  - [ ] `.pose/rules/backend-go.md`
-  - [ ] `.pose/rules/frontend-react.md`
+  - [ ] `.pose/rules/backend-go.md` (extension `pose-rule-backend-go`, when installed)
+  - [ ] `.pose/rules/frontend-react.md` (extension `pose-rule-frontend-react`, when installed)
   - [ ] `.pose/rules/kubernetes.md` (extension `pose-rule-kubernetes`, when installed)
   - [ ] `.pose/rules/documentation-style.md`
   - [ ] `.pose/rules/knowledge-governance.md` when knowledge or process changes
@@ -121,8 +121,8 @@ Attach this section to the review:
 - Workflow: `.pose/workflows/feature.md`
 
 ## Rules applied during review
-- `.pose/rules/backend-go.md`: verified handlers, context, and error handling.
-- `.pose/rules/frontend-react.md`: verified accessibility and explicit loading and error states.
+- `.pose/rules/backend-go.md` (extension `pose-rule-backend-go`): verified handlers, context, and error handling.
+- `.pose/rules/frontend-react.md` (extension `pose-rule-frontend-react`): verified accessibility and explicit loading and error states.
 - `.pose/rules/kubernetes.md` (extension `pose-rule-kubernetes`): verified resources, probes, and immutable images.
 - `.pose/rules/security.md`: verified authorization and absence of secrets.
 - `.pose/rules/documentation-style.md`: verified editorial consistency.

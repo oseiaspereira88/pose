@@ -44,8 +44,8 @@ Activate this workflow when any condition is met in a rolling 30-day period:
 Select rules cumulatively for every affected domain:
 
 - `.pose/rules/security.md`
-- `.pose/rules/backend-go.md`
-- `.pose/rules/frontend-react.md`
+- `.pose/rules/backend-go.md` (extension `pose-rule-backend-go`, when installed)
+- `.pose/rules/frontend-react.md` (extension `pose-rule-frontend-react`, when installed)
 - `.pose/rules/kubernetes.md` (extension `pose-rule-kubernetes`, when installed)
 - `.pose/rules/documentation-style.md`
 - `.pose/rules/knowledge-governance.md` when knowledge or process artifacts change

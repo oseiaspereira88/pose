@@ -47,8 +47,8 @@ Ative este workflow quando qualquer critério abaixo for atendido no período m�
 Selecione cumulativamente as `rules` por domínio afetado:
 
 - `.pose/rules/security.md`
-- `.pose/rules/backend-go.md`
-- `.pose/rules/frontend-react.md`
+- `.pose/rules/backend-go.md` (extensão `pose-rule-backend-go`, quando instalada)
+- `.pose/rules/frontend-react.md` (extensão `pose-rule-frontend-react`, quando instalada)
 - `.pose/rules/kubernetes.md` (extensão `pose-rule-kubernetes`, quando instalada)
 - `.pose/rules/documentation-style.md`
 - `.pose/rules/knowledge-governance.md` (quando houver artefatos de conhecimento/processo)

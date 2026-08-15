@@ -43,8 +43,8 @@ Antes de concluir o review, preencha e anexe a seção abaixo no parecer:
 - Workflow consultado: `.pose/workflows/<arquivo>.md`
 - Rules selecionadas:
   - [ ] `.pose/rules/security.md`
-  - [ ] `.pose/rules/backend-go.md`
-  - [ ] `.pose/rules/frontend-react.md`
+  - [ ] `.pose/rules/backend-go.md` (extensão `pose-rule-backend-go`, quando instalada)
+  - [ ] `.pose/rules/frontend-react.md` (extensão `pose-rule-frontend-react`, quando instalada)
   - [ ] `.pose/rules/kubernetes.md` (extensão `pose-rule-kubernetes`, quando instalada)
   - [ ] `.pose/rules/documentation-style.md`
   - [ ] `.pose/rules/knowledge-governance.md` (quando houver mudança em conhecimento/processo)
@@ -123,8 +123,8 @@ Use a seleção como evidência obrigatória de cobertura por domínio real do m
 - Workflow: `.pose/workflows/feature.md`
 
 ## Rules aplicadas no review
-- `.pose/rules/backend-go.md`: validada aderência de handlers, contexto e erros.
-- `.pose/rules/frontend-react.md`: validada acessibilidade e tratamento explícito de loading/erro.
+- `.pose/rules/backend-go.md` (extensão `pose-rule-backend-go`): validada aderência de handlers, contexto e erros.
+- `.pose/rules/frontend-react.md` (extensão `pose-rule-frontend-react`): validada acessibilidade e tratamento explícito de loading/erro.
 - `.pose/rules/kubernetes.md`: validados resources/probes e imagem imutável.
 - `.pose/rules/security.md`: validada ausência de segredos e revisão de autorização.
 - `.pose/rules/documentation-style.md`: validada consistência editorial em docs/spec.

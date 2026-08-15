@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -18,6 +19,7 @@ import (
 	"strings"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
 // doctorSchemaVersion versions doctor's own JSON output shape (distinct
@@ -411,6 +413,60 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 					"rode 'pose report --spec <slug> --change-from <rev> --change-to <rev>' para registrar o range antes de selar (só o trailer do commit não persiste nada; issue #17)"))
 		} else {
 			add("review.scope-change-set", "ok", text("every in-progress/done spec with delivers: has a recorded change set", "toda spec em andamento/concluída com delivers: tem change set registrado"), "")
+		}
+	}
+
+	// 10. Retired machinery still on disk (spec
+	// pose-domain-rule-extension-migration, ADR
+	// retired-machinery-files-stay-on-disk-never-auto-migrated-by-pose-update):
+	// deliverMachinery only ever walks the *current* engine source's
+	// machineryRoots, so a file the engine used to ship but no longer does
+	// (moved out to become an extension) is simply never revisited — it
+	// stays on disk untouched and un-updated. That is the deliberate,
+	// non-breaking compatibility strategy; this check is the discoverability
+	// half of it, since nothing else would ever tell an instance the file it
+	// still has is no longer receiving updates.
+	if delivered := loadMachineryManifest(root); len(delivered) > 0 {
+		current := map[string]bool{}
+		for _, mroot := range machineryRoots {
+			_ = fs.WalkDir(scaffold.Dist(), mroot, func(path string, d fs.DirEntry, err error) error {
+				if err != nil || d.IsDir() {
+					return nil
+				}
+				current[path] = true
+				return nil
+			})
+		}
+		var retired []string
+		for path := range delivered {
+			if current[path] {
+				continue
+			}
+			if _, statErr := os.Stat(filepath.Join(root, filepath.FromSlash(path))); statErr != nil {
+				continue // instance already removed it — nothing to flag
+			}
+			retired = append(retired, path)
+		}
+		sort.Strings(retired)
+		if len(retired) > 0 {
+			hints := make([]string, 0, len(retired))
+			for _, path := range retired {
+				if rest, ok := strings.CutPrefix(path, ".pose/rules/"); ok {
+					if slug, ok := strings.CutSuffix(rest, ".md"); ok {
+						hints = append(hints, fmt.Sprintf("%s -> pose extension install pose-rule-%s", path, slug))
+						continue
+					}
+				}
+				hints = append(hints, path)
+			}
+			add("machinery.retired-on-disk", "warn",
+				fmt.Sprintf(text("%d machinery file(s) present but no longer delivered by this engine version: %s",
+					"%d arquivo(s) de machinery presente(s) mas não mais entregue(s) por esta versão do engine: %s"),
+					len(retired), strings.Join(retired, ", ")),
+				text("content is untouched and still valid, it just no longer receives engine updates; install the matching extension to resume updates: "+strings.Join(hints, "; "),
+					"o conteúdo está intacto e continua válido, só não recebe mais atualizações do engine; instale a extensão correspondente para retomar: "+strings.Join(hints, "; ")))
+		} else {
+			add("machinery.retired-on-disk", "ok", text("no retired machinery content found", "nenhum conteúdo de machinery aposentado encontrado"), "")
 		}
 	}
 
