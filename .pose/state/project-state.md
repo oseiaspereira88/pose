@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T12:18:32Z
-baseline_commit: c7d418b2a2075e1d72c3a04a31450332cff27bd7
+generated_at: 2026-08-15T12:25:31Z
+baseline_commit: 9eeb3a40daa0a940096f28a796c905c3c40b982b
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:689ed6133977 -->
+<!-- state:derived hash:98a65120049d -->
 
-- specs: total=105 draft=2 in-progress=0 blocked=0 done=103 superseded=0 abandoned=0
+- specs: total=105 draft=1 in-progress=0 blocked=0 done=104 superseded=0 abandoned=0
 - roadmaps: total=9 active=0 done=8
 - últimos closeouts:
-  - spec:pose-install-gate-failure-recovery-notice (2026-08-15)
-  - spec:pose-v1-2-2-changelog-review (2026-08-15)
-  - spec:pose-review-bundle-root-file-classification (2026-08-15)
-  - spec:pose-review-scope-trailer-check (2026-08-15)
-  - spec:pose-domain-rule-extension-migration (2026-08-15)
-  - ... e mais 98 (ver `pose_list_specs status:done`)
+  - spec:pose-stack-detection-consolidation (2026-08-15)
+  - spec:pose-unified-review-convergence (2026-08-15)
+  - spec:pose-adaptive-rule-delivery (2026-08-15)
+  - spec:pose-install-locale-autodetect (2026-08-15)
+  - spec:pose-instance-engine-version-tracking (2026-08-15)
+  - ... e mais 99 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:2b02d03b9d42 -->
+<!-- state:derived hash:14c9c3e3b9f4 -->
 
-- abertos: 58
-- por criticidade: high=1 medium=16 low=34 sem-classificação=7
+- abertos: 59
+- por criticidade: high=1 medium=16 low=34 sem-classificação=8
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=9 ativo=9 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:992f08d7ade0 -->
+<!-- state:derived hash:863f6c86dfe4 -->
 
-- último registro: task=seed-module-metadata-json-from-discovered-modules outcome=pass (2026-08-15T12:17:40Z)
-- últimos 30 dias: total=235 outcome_ok=169 outcome_outro=66
-- reports revisados (.md): total=118
+- último registro: task=recommend-rule-extension-matching-detected-stack outcome=pass (2026-08-15T12:24:35Z)
+- últimos 30 dias: total=236 outcome_ok=170 outcome_outro=66
+- reports revisados (.md): total=119
+  - report:2026-08-15-standard-recommend-rule-extension-matching-detected-stack.md
   - report:2026-08-15-standard-seed-module-metadata-json-from-discovered-modules.md
   - report:2026-08-15-standard-fix-review-bundle-gaps-surfaced-by-rule-extension-migration.md
   - report:2026-08-15-standard-migrate-backend-go-frontend-react-rules-to-extensions.md
   - report:2026-08-15-standard-neutralize-leaked-pose-mcp-index-templates.md
-  - report:2026-08-15-standard-resolve-durable-non-architectural-knowledge-routing-adr-rules-skill-guidance.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
