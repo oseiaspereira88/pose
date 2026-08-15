@@ -8,7 +8,7 @@ supersedes:
 depends_on:
 priority: 3
 components: pose-mcp
-delivers:
+delivers: capability:pose-mcp
 ---
 
 # Spec: pose-v1-2-2-changelog-review
@@ -72,6 +72,9 @@ are immutable once a version is tagged).
 ### Artifacts
 - none: governance
 
+### Delivery targets
+- capability:pose-mcp module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
 ---
 
 ## 4. Tasks
@@ -124,6 +127,37 @@ are immutable once a version is tagged).
   requirement — left to the user's call.
 - Consequences: none beyond the one-line fragment fix; no code or other
   specs touched.
+
+### Decision 2
+- Date: 2026-08-15
+- Context: `pose close` rejected this spec with `undeclared-delivery:
+  changed delivery root pose-mcp has no delivery declaration`, despite
+  `### Artifacts` declaring `- none: governance` (no source claims at all).
+  Traced to `LoadDeliveryPolicy` (`pose-mcp/internal/pose/delivery_surface.go`
+  ~line 96): it derives an *implicit* whole-module root
+  `DeliveryRoot{Path: "pose-mcp", ...}` from `.pose/indexes/module-metadata.json`
+  whenever that module has `deliveryRole`/`entrypoints` set — in addition to
+  the three explicit `pose-mcp/internal/{cli,mcpserver,pose}` sub-roots in
+  `.pose/policy/delivery.json`. This spec's persisted change set (an
+  explicit `--change-from`/`--change-to` range) unavoidably squashed in an
+  intervening evidence commit that synced
+  `pose-mcp/internal/scaffold/dist/...` — which matches that implicit
+  "pose-mcp" root by prefix, even though the *artifact* policy's exclusions
+  list explicitly excludes `pose-mcp/internal/scaffold/dist` from
+  governance. Delivery-root matching and artifact-exclusion matching are
+  two separate mechanisms that do not share exclusions.
+- Decision: declare `delivers: capability:pose-mcp` /
+  `profile:composed-capability` (same target used by other specs whose
+  change sets touch `pose-mcp/` broadly), even though this spec makes no
+  source changes.
+- Rationale: narrowing the change set to dodge the scaffold-mirror commit
+  isn't possible without re-doing this spec's own already-persisted
+  evidence trail from scratch; declaring the module-level capability is the
+  documented, precedented way to satisfy this gate (matches
+  `pose-review-scope-trailer-check`'s own Decision, a similar case).
+- Consequences: none functionally — `composed-capability` only requires
+  `integration` evidence, which plain `pose validate --strict` already
+  provides for this repository.
 
 ---
 
