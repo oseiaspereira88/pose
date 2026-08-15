@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T19:13:41Z
-baseline_commit: b2ab6a65e0c468700cf4a5efbfb6a5c68e120ace
+generated_at: 2026-08-15T19:26:31Z
+baseline_commit: 10075f04e72cd64ff4d31b5055651273992ea3fb
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:5e4b37e617db -->
+<!-- state:derived hash:a2e16ca0702c -->
 
-- specs: total=111 draft=3 in-progress=0 blocked=0 done=108 superseded=0 abandoned=0
+- specs: total=111 draft=2 in-progress=0 blocked=0 done=109 superseded=0 abandoned=0
 - roadmaps: total=10 active=1 done=9
 - últimos closeouts:
-  - spec:pose-install-locale-autodetect (2026-08-15)
-  - spec:pose-review-bundle-root-file-classification (2026-08-15)
-  - spec:pose-adaptive-rule-delivery (2026-08-15)
   - spec:pose-monorepo-validation-advisory (2026-08-15)
-  - spec:pose-unified-review-convergence (2026-08-15)
-  - ... e mais 103 (ver `pose_list_specs status:done`)
+  - spec:pose-review-scope-trailer-check (2026-08-15)
+  - spec:pose-adaptive-rule-delivery (2026-08-15)
+  - spec:pose-v1-2-2-changelog-review (2026-08-15)
+  - spec:pose-install-gate-failure-recovery-notice (2026-08-15)
+  - ... e mais 104 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:2feaf5d5730f -->
+<!-- state:derived hash:e4d1cc6066b6 -->
 
-- abertos: 63
-- por criticidade: high=1 medium=16 low=34 sem-classificação=12
+- abertos: 65
+- por criticidade: high=1 medium=16 low=34 sem-classificação=14
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=9 ativo=9 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:ec3921180c54 -->
+<!-- state:derived hash:6dd049ecfdb5 -->
 
-- último registro: task=excerpt-readme-claude-md-into-agents-md-s-project-context outcome=pass (2026-08-15T19:12:00Z)
-- últimos 30 dias: total=240 outcome_ok=174 outcome_outro=66
-- reports revisados (.md): total=123
+- último registro: task=consolidate-module-stack-detection-into-one-shared-function outcome=pass (2026-08-15T19:25:25Z)
+- últimos 30 dias: total=241 outcome_ok=175 outcome_outro=66
+- reports revisados (.md): total=124
+  - report:2026-08-15-standard-consolidate-module-stack-detection-into-one-shared-function.md
   - report:2026-08-15-standard-excerpt-readme-claude-md-into-agents-md-s-project-context.md
   - report:2026-08-15-standard-fix-test-self-exec-flake-blocking-v1-3-0.md
   - report:2026-08-15-standard-fix-roadmap-review-bundle-absolute-path-portability-bug.md
   - report:2026-08-15-standard-advise-on-redundant-monorepo-execution-add-root-only-workspace-flags.md
-  - report:2026-08-15-standard-recommend-rule-extension-matching-detected-stack.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->

@@ -8,6 +8,14 @@
       "body": "`pose init`/`pose install` now excerpts a brownfield target's own `README.md`/`CLAUDE.md` into `AGENTS.md`'s \"Project context\" section on first install, instead of leaving the generic unfilled placeholder. The section is preserved on later `pose install`/`pose update` runs, so an extracted or hand-edited description is never silently reverted.",
       "path": "pose-onboarding-context-extraction.md",
       "digest": "sha256:eaf831705474ef86ef8d7854f8e4e818eea714f6f31c01bcb63a060ae0d5ec74"
+    },
+    {
+      "spec": "pose-validation-scanner-consolidation",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose index`, `pose validate`, `pose install` and `pose init` now classify a repository's modules through one shared stack detector instead of two independently maintained ones, so a stack-detection fix reaches every command that relies on it. Cloudflare Workers (`wrangler.toml`/`.json`/`.jsonc`) is now a recognized stack with a runnable check, and `pose index`'s repo map now picks up Python and .NET modules it previously skipped entirely.",
+      "path": "pose-validation-scanner-consolidation.md",
+      "digest": "sha256:69b4bc5b70d84b52339ab6096f8285eaf5fa70387ae3cc49dc69f9c081cee4f5"
     }
   ],
   "releases": [
