@@ -560,10 +560,10 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 			return "implementation", true
 		}
 	}
-	if path == "POSE.md" || path == "AGENTS.md" {
+	if path == "POSE.md" || path == "AGENTS.md" || path == "README.md" {
 		return "documentation", true
 	}
-	if strings.HasPrefix(path, ".pose/adr/") || strings.HasPrefix(path, ".pose/knowledge/") || strings.HasPrefix(path, ".pose/changelogs/") {
+	if strings.HasPrefix(path, ".pose/adr/") || strings.HasPrefix(path, ".pose/knowledge/") || strings.HasPrefix(path, ".pose/changelogs/") || path == "compatibility.json" {
 		return "governance", true
 	}
 	return "", false

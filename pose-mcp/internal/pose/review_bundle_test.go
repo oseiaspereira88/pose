@@ -427,6 +427,39 @@ func TestReviewBundleRejectsUnclassifiedSubjectPath(t *testing.T) {
 	}
 }
 
+func TestReviewBundleClassifiesRootReleaseFiles(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	writeReviewFixture(t, root, "README.md", "# root readme\n")
+	writeReviewFixture(t, root, "compatibility.json", `{"engine_version":"1.2.1"}`)
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths,
+		ObservedPath{Action: "modified", Path: "README.md"},
+		ObservedPath{Action: "modified", Path: "compatibility.json"},
+	)
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(strings.Join(bundle.Blockers, " "), "unclassified review subject path") {
+		t.Fatalf("known root release files were treated as unclassified: %+v", bundle.Blockers)
+	}
+	classes := map[string]string{}
+	for _, entry := range bundle.Payload.Subject.Entries {
+		classes[entry.Path] = entry.Class
+	}
+	if classes["README.md"] != "documentation" {
+		t.Fatalf("README.md classified as %q, want documentation", classes["README.md"])
+	}
+	if classes["compatibility.json"] != "governance" {
+		t.Fatalf("compatibility.json classified as %q, want governance", classes["compatibility.json"])
+	}
+}
+
 func TestReviewBundleSubjectUsesCurrentRenameAndClassifiesReleaseMetadata(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	writeReviewFixture(t, root, ".pose/changelogs/v1.1.0/backend.md", "released fragment\n")
