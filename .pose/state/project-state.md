@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T12:34:08Z
-baseline_commit: a1fddade482b7020840d4e8d59e8779a3abcd114
+generated_at: 2026-08-15T12:36:32Z
+baseline_commit: 5afa2d048702abceaa99afc3fb9b7942db60e68a
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,10 +27,10 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:c11b12b4f101 -->
+<!-- state:derived hash:26b76028c36b -->
 
 - specs: total=105 draft=0 in-progress=0 blocked=0 done=105 superseded=0 abandoned=0
-- roadmaps: total=9 active=0 done=8
+- roadmaps: total=9 active=0 done=9
 - últimos closeouts:
   - spec:pose-stack-detection-consolidation (2026-08-15)
   - spec:pose-scaffold-index-template-neutralization (2026-08-15)
