@@ -1,8 +1,8 @@
 ---
 slug: pose-extension-catalog-resolution
-status: in-progress
+status: done
 created_at: 2026-08-15
-completed_at:        # stamped on the transition to status: done
+completed_at: 2026-08-15
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on: pose-extension-catalog-lifecycle
 priority: 4
