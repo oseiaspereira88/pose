@@ -154,6 +154,11 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
+	// 2a. Discover this repository's actual modules and merge them into
+	// module-metadata.json (spec pose-stack-detection-consolidation) —
+	// additive only, never overwrites an existing entry.
+	seedModuleMetadataFromDiscovery(target, log)
+
 	// 2b. Seed governed configuration contracts for a fresh repository. These
 	// are user-owned after installation, so reruns never overwrite them; engine
 	// defaults still need to exist for direct adoption of review bundles and
