@@ -1,0 +1,570 @@
+{
+  "schema_version": 1,
+  "bundle_id": "rvb-395395ce94fd4865",
+  "bundle_digest": "sha256:395395ce94fd486598b6569084674ef548d731f0536a678938556fff164b83e5",
+  "state": "sealed",
+  "sealed_at": "2026-08-15T19:36:33Z",
+  "payload": {
+    "scope": {
+      "ref": "spec:pose-rule-extension-locale-parity",
+      "kind": "spec",
+      "slug": "pose-rule-extension-locale-parity",
+      "components": [
+        "pose-mcp"
+      ],
+      "deliveries": [
+        "capability:rule-extension-locale-parity"
+      ],
+      "sections": [
+        {
+          "kind": "semantic-section",
+          "path": "decisions",
+          "digest": "sha256:79a4f6a14b0e806affbc63537c980e56aa0ae38f8f1e221c20a4e15f0c9d5451",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "intent",
+          "digest": "sha256:e299490b19d5d9c470421a1576d01704fac96ee4a0105d53d834815530cb86bd",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "requirements",
+          "digest": "sha256:64d3f3ee774e00381bb0934e71ce109c39e29272a3f5011e3f649472ec4f8126",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "technical plan",
+          "digest": "sha256:45f690dd73a845671349eac47c1930ed3760590caf540581bc8bf03e1da71453",
+          "reason": "governed semantic review input"
+        }
+      ]
+    },
+    "subject": {
+      "change_sets": [
+        "cs-5459a5de61b2"
+      ],
+      "base": "eea9b4cfbdb77e831c735c49dd799359dee3241d",
+      "head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+      "patch_digest": "sha256:bfecb844c421df6415c75a1f3ac412186eb004fbf6a34d62f2e1683a41132fe5",
+      "tree_digest": "sha256:9b02100dfb4b258f46845871deb0984744fd4196d0f7b15b4fd58bb500e913f5",
+      "entries": [
+        {
+          "action": "created",
+          "path": "extensions/pose-rule-backend-go/locales/pt-BR/files/.pose/rules/backend-go.md",
+          "class": "governance",
+          "digest": "sha256:7845945d6833497f13b0da092c1c66de31cf0f347f274abfc45e0980d11f7c1b",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "extensions/pose-rule-frontend-react/locales/pt-BR/files/.pose/rules/frontend-react.md",
+          "class": "governance",
+          "digest": "sha256:a792eaa9d7a63b372102f345079db827e7259a0a589031a4f5611923f45e09e7",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/extension_locale_test.go",
+          "class": "implementation",
+          "digest": "sha256:d2fcc0a3e342e7a4909f3edd8d9e9623cfbd48ae1cccf8bf695bc0dcbb2718a7",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/extension.go",
+          "class": "implementation",
+          "digest": "sha256:aa3d5a331c3666945ac6c9138960c2e99b849a2cb6eea7c7344da99001dd5095",
+          "reason": "attributed implementation path in the immutable change set"
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:4125bd118cb16e8e1d144ccaa9adfcebdf227ac7305cba3f4333a78a24dfa1eb",
+      "independence": "same-actor-separate-execution",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "governance-engine",
+          "owner": "@pose-maintainers",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "declared",
+          "sources": [
+            "artifact:pose-rule-extension-locale-parity:pose-mcp/internal/cli/extension.go",
+            "artifact:pose-rule-extension-locale-parity:pose-mcp/internal/cli/extension_locale_test.go",
+            "delivery:capability:rule-extension-locale-parity:pose-mcp",
+            "delivery:capability:rule-extension-locale-parity:pose-mcp/cmd/pose/main.go",
+            "observed:pose-rule-extension-locale-parity:pose-mcp/internal/cli/extension.go",
+            "observed:pose-rule-extension-locale-parity:pose-mcp/internal/cli/extension_locale_test.go",
+            "spec:pose-rule-extension-locale-parity:component:pose-mcp"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "backend-concurrency",
+          "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.",
+          "required": true,
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "test"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-contracts",
+          "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.",
+          "required": true,
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "contract"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-input-errors",
+          "description": "Inputs, validation failures and error paths are bounded, typed and actionable.",
+          "required": true,
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "test"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-integration-impact",
+          "description": "Providers, consumers and inter-component boundaries remain integrated.",
+          "required": true,
+          "evidence_classes": [
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-observability",
+          "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.",
+          "required": true,
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "observability"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "compatibility",
+          "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+          "required": true,
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "correctness",
+          "description": "Functional and negative behavior is correct.",
+          "required": true,
+          "evidence_classes": [
+            "test",
+            "validation"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "documentation",
+          "description": "Operational docs, templates and scaffold match runtime behavior.",
+          "required": true,
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "operability",
+          "description": "Errors, explanations and remediation are actionable.",
+          "required": true,
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "requirements",
+          "description": "Every requirement has current, relevant evidence.",
+          "required": true,
+          "evidence_classes": [
+            "requirement-trace",
+            "test"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "scope",
+          "description": "The implementation matches the approved spec scope.",
+          "required": true,
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "security",
+          "description": "Inputs, paths, evidence and authority boundaries are safe.",
+          "required": true,
+          "rules": [
+            "security"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "artifact-check",
+            "--spec",
+            "pose-rule-extension-locale-parity",
+            "--strict"
+          ],
+          "rationale": "reconcile declared artifacts with Git-observed provenance",
+          "criteria": [
+            "requirements",
+            "scope"
+          ],
+          "preconditions": [
+            "artifacts-attributed"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-integrate",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "integrate"
+          ],
+          "rationale": "inspect providers, consumers and inter-component contract gaps",
+          "evidence_classes": [
+            "integration"
+          ],
+          "criteria": [
+            "backend-contracts",
+            "backend-integration-impact"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "criteria": [
+            "correctness"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "spec:pose-rule-extension-locale-parity"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "spec:pose-rule-extension-locale-parity"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "surface-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "surface-check",
+            "--spec",
+            "pose-rule-extension-locale-parity",
+            "--strict"
+          ],
+          "rationale": "verify delivery composition, reachability and fresh evidence",
+          "evidence_classes": [
+            "integration",
+            "reachability"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "validation"
+          ],
+          "criteria": [
+            "backend-concurrency",
+            "backend-input-errors",
+            "backend-observability",
+            "correctness",
+            "requirements"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "validation"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "pose-mcp/go/delivery-integration",
+        "module": "pose-mcp",
+        "check": "delivery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+        "provenance_digest": "sha256:a9587518af0919caad26004ad781bdc97faf0a4d02eaa4ce82b995f061d9d7fd",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-reachability",
+        "module": "pose-mcp",
+        "check": "delivery-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "git_head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+        "provenance_digest": "sha256:a9587518af0919caad26004ad781bdc97faf0a4d02eaa4ce82b995f061d9d7fd",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-bundle-convergence",
+        "module": "pose-mcp",
+        "check": "review-bundle-convergence",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+        "provenance_digest": "sha256:a9587518af0919caad26004ad781bdc97faf0a4d02eaa4ce82b995f061d9d7fd",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test",
+        "module": "pose-mcp",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "git_head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+        "provenance_digest": "sha256:a9587518af0919caad26004ad781bdc97faf0a4d02eaa4ce82b995f061d9d7fd",
+        "report": ".pose/results/delivery-validation.json"
+      }
+    ],
+    "consumed_inputs": [
+      {
+        "kind": "governed-config",
+        "path": ".pose/indexes/validation-matrix.json",
+        "digest": "sha256:94f2ffd4c48937b32d146f1d0fefd96dfaaa03818439dd3bee06b37303daad42",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "governed-config",
+        "path": ".pose/policy/review.json",
+        "digest": "sha256:89a78e6ec6e1806414c669e66239831b593c08b9a182e36fae119bccecd28b5e",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "review-plan",
+        "path": "spec-closeout@1",
+        "digest": "sha256:4125bd118cb16e8e1d144ccaa9adfcebdf227ac7305cba3f4333a78a24dfa1eb",
+        "reason": "effective component-aware plan contract"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/backend-review.json",
+        "digest": "sha256:af12d354f01a3939764d1796ba772c9eff2775e253ca4386c39ba88fe0d16975",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/spec-closeout.json",
+        "digest": "sha256:de13c1d59e485aaf4cb474a8c2836507447c44dc7090cbdc2de589fa75c6cc92",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/backend-go.md",
+        "digest": "sha256:2289a86134e7d6667ae4dba4bfd68dee8acd59246912e32c35648d399e6d3e31",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/documentation-style.md",
+        "digest": "sha256:5c5c666fc6c796cf9ae3876d25d3fd4fa523d121892459dc0d681d73da1d60ae",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/security.md",
+        "digest": "sha256:1cbf29c12d09cad0799e2d8715e94f84a49ee8fa09867bb5f12a544f8df43774",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "schema",
+        "path": "review-bundle@1",
+        "digest": "sha256:e7c9643ec88eccb2a6dea3ee3291c351983d78e1d2fa44b61399514c5021bcb0",
+        "reason": "canonical bundle and attestation schema identity"
+      },
+      {
+        "kind": "tool-catalog",
+        "path": "native-review-tools@1",
+        "digest": "sha256:4125bd118cb16e8e1d144ccaa9adfcebdf227ac7305cba3f4333a78a24dfa1eb",
+        "reason": "closed resolved native tool contract"
+      }
+    ]
+  },
+  "excluded_inputs": [
+    {
+      "kind": "derived-section",
+      "path": "final report",
+      "digest": "sha256:2fe7d045a180b6451e98bf3d12ab5ef619be023a6db83868a7b6251893ac5591",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "tasks",
+      "digest": "sha256:6ebcad61a39bf0d5bbeae20600ed35b6542eaa0b6106a95df424586ab3140562",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "validation",
+      "digest": "sha256:afcf88977f2495dd860fc16b617bf761134245fa5ca26dfc6ce7c7faa066b66f",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "lifecycle",
+      "path": "/home/go/IdeaProjects/harne8/pose-dist/.pose/specs/pose-rule-extension-locale-parity/spec.md",
+      "reason": "status and completed_at do not define the reviewed semantic subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/pose-rule-extension-locale-parity/spec.md",
+      "reason": "attributed path is outside the semantic review subject"
+    }
+  ],
+  "warnings": [
+    "unmapped review component path:extensions/pose-rule-backend-go/locales/pt-BR/files/.pose/rules/backend-go.md",
+    "unmapped review component path:extensions/pose-rule-frontend-react/locales/pt-BR/files/.pose/rules/frontend-react.md"
+  ],
+  "path": ".pose/review-bundles/rvb-395395ce94fd4865.json"
+}
