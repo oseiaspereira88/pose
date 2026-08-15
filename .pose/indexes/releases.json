@@ -35,6 +35,15 @@
       "body": "A fresh `pose init`/`pose install` no longer seeds `.pose/indexes/module-metadata.json` and `.pose/indexes/validation-matrix.json` with POSE's own development-repository module entries (`pose-mcp`, `mcp-enforce`, `docs-site`, `@pose-maintainers`). The generic, reusable check catalog (`stacks`, `deliveryProfiles`) still ships as before — only the pose-mcp-specific module graph and overrides are neutralized.",
       "path": "pose-scaffold-index-template-neutralization.md",
       "digest": "sha256:556999d12d0973f2dc30788d32e25415dfa3038d2b3a0a57d379e35e40d46750"
+    },
+    {
+      "spec": "pose-stack-detection-consolidation",
+      "category": "added",
+      "breaking": false,
+      "refs": "ISSUE#21",
+      "body": "`pose install`/`pose init` now discovers the target repository's real modules (Node, Go, Rust, Java, Python, .NET) and seeds `.pose/indexes/module-metadata.json` with them — additive only, never overwriting a hand-authored entry. A brownfield repository no longer keeps a permanently empty or static module-metadata file.",
+      "path": "pose-stack-detection-consolidation.md",
+      "digest": "sha256:f553b8251fa51bfc7906805f1858303d97ab012f0574996a787189fbdb9bae70"
     }
   ],
   "releases": [
