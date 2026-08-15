@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T09:06:14Z
-baseline_commit: 6175168980f024371735b46ca109de9224e8745b
+generated_at: 2026-08-15T10:00:16Z
+baseline_commit: 68dc6195fffc7bae5354c81412470b748c40db77
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:bb0e4746b04b -->
+<!-- state:derived hash:fdd2a1ffcbf8 -->
 
-- specs: total=99 draft=0 in-progress=0 blocked=0 done=99 superseded=0 abandoned=0
+- specs: total=100 draft=0 in-progress=0 blocked=0 done=100 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
-  - spec:pose-unified-review-convergence (2026-08-15)
-  - spec:pose-install-gate-failure-recovery-notice (2026-08-15)
-  - spec:pose-review-bundle-root-file-classification (2026-08-15)
   - spec:pose-install-locale-autodetect (2026-08-15)
-  - spec:pose-review-scope-trailer-check (2026-08-15)
-  - ... e mais 94 (ver `pose_list_specs status:done`)
+  - spec:pose-v1-2-2-changelog-review (2026-08-15)
+  - spec:pose-instance-engine-version-tracking (2026-08-15)
+  - spec:pose-unified-review-convergence (2026-08-15)
+  - spec:pose-knowledge-durable-reference-type (2026-08-15)
+  - ... e mais 95 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:3d5e0a464a07 -->
@@ -53,27 +53,27 @@ capacidade.
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:bfdee79251ca -->
+<!-- state:derived hash:cb5dc576eaf0 -->
 
-- ADRs: total=42
+- ADRs: total=43
+  - adr:2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md
   - adr:2026-08-14-unified-review-convergence-and-auto-attestation.md
   - adr:2026-08-13-sealed-review-bundles-and-attestations.md
   - adr:2026-08-12-component-aware-effective-review-plans.md
   - adr:2026-08-10-production-scoped-dora-five-metric-contract.md
-  - adr:2026-08-10-local-usage-events-and-outcome-aware-aggregation.md
-- knowledge: total=8 ativo=8 expirado=0
+- knowledge: total=9 ativo=9 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:bc9ad01e3282 -->
+<!-- state:derived hash:6ea8230f71d4 -->
 
-- último registro: task=closeout-pose-instance-engine-version-tracking outcome=unknown (2026-08-15T09:04:38Z)
-- últimos 30 dias: total=230 outcome_ok=164 outcome_outro=66
-- reports revisados (.md): total=113
+- último registro: task=resolve-durable-non-architectural-knowledge-routing-adr-rules-skill-guidance outcome=pass (2026-08-15T09:51:47Z)
+- últimos 30 dias: total=231 outcome_ok=165 outcome_outro=66
+- reports revisados (.md): total=114
+  - report:2026-08-15-standard-resolve-durable-non-architectural-knowledge-routing-adr-rules-skill-guidance.md
   - report:2026-08-15-standard-closeout-pose-instance-engine-version-tracking.md
   - report:2026-08-15-standard-closeout-pose-install-gate-failure-recovery-notice.md
   - report:2026-08-15-standard-closeout-pose-install-locale-autodetect.md
   - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review-delivery-fix.md
-  - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review-follow-up-note.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
