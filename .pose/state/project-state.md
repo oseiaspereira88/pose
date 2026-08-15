@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T18:32:33Z
-baseline_commit: 9df68564d8590da17ed5ced6f137b1c5d3c2e736
+generated_at: 2026-08-15T18:41:55Z
+baseline_commit: 17f8aea3a6994d4c122065c17aba679f20c98798
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,10 +27,10 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:245156219f1e -->
+<!-- state:derived hash:1f06fbfff709 -->
 
-- specs: total=107 draft=0 in-progress=0 blocked=0 done=107 superseded=0 abandoned=0
-- roadmaps: total=9 active=0 done=9
+- specs: total=111 draft=4 in-progress=0 blocked=0 done=107 superseded=0 abandoned=0
+- roadmaps: total=10 active=1 done=9
 - últimos closeouts:
   - spec:pose-v1-2-2-changelog-review (2026-08-15)
   - spec:pose-instance-engine-version-tracking (2026-08-15)
