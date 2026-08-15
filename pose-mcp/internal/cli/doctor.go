@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -361,6 +362,55 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 					".pose/policy/artifacts.json — governed_roots podem ter vindo de um template pose-mcp v1.2.0 contaminado (issue #17); substitua pelos diretórios reais deste projeto"))
 		} else {
 			add("policy.artifact-roots", "ok", text("artifact policy governed_roots resolve in this project", "governed_roots da política de artefatos resolvem neste projeto"), "")
+		}
+	}
+
+	// 9. Review-scope recorded change set coverage (issue #17, comments 2-3):
+	// `pose review bundle <scope> --seal` reads its subject exclusively from
+	// graph.ChangeSets (`.pose/indexes/delivery-integrity.json`), which
+	// `pose index` builds solely from change sets persisted via
+	// `pose report --spec <slug> --change-from <rev> --change-to <rev>`
+	// (loadRecordedChangeSets, reports/history/*.jsonl). A commit carrying
+	// the `POSE-Spec: <slug>` trailer does NOT by itself make a spec
+	// sealable — that trailer only feeds resolveGitChangeSet's live
+	// auto-discovery fallback used by `pose artifact-check`/
+	// `artifact-backfill --from-git` when called without --from/--to, which
+	// is a different, ephemeral code path that never persists into the
+	// index. (This corrects the original issue #17 investigation, which
+	// attributed the review-bundle blocking to missing trailers; verified
+	// empirically while implementing this check — spec
+	// pose-review-scope-trailer-check Decision 2.) Warn before someone hits
+	// "no immutable attributed change set exists" at seal time.
+	if specs, err := (posemodel.Store{Root: root}).ListSpecs("", ""); err == nil {
+		recorded := map[string]bool{}
+		for _, set := range loadRecordedChangeSets(root) {
+			if set.Spec != "" {
+				recorded[set.Spec] = true
+			}
+		}
+		var untraceable []string
+		for _, spec := range specs {
+			if len(spec.Delivers) == 0 {
+				continue
+			}
+			if spec.Status != "in-progress" && spec.Status != "done" {
+				continue
+			}
+			if recorded[spec.Slug] {
+				continue
+			}
+			untraceable = append(untraceable, spec.Slug)
+		}
+		if len(untraceable) > 0 {
+			sort.Strings(untraceable)
+			add("review.scope-change-set", "warn",
+				fmt.Sprintf(text("%d spec(s) with delivers: have no change set recorded in .pose/reports/history — sealing a review bundle for them will fail with \"no immutable attributed change set exists\": %s",
+					"%d spec(s) com delivers: não têm nenhum change set registrado em .pose/reports/history — selar um review bundle para elas vai falhar com \"no immutable attributed change set exists\": %s"),
+					len(untraceable), strings.Join(untraceable, ", ")),
+				text("run 'pose report --spec <slug> --change-from <rev> --change-to <rev>' to record the delivering range before sealing (a commit trailer alone does not persist one; github.com/oseiaspereira88/pose issue #17)",
+					"rode 'pose report --spec <slug> --change-from <rev> --change-to <rev>' para registrar o range antes de selar (só o trailer do commit não persiste nada; issue #17)"))
+		} else {
+			add("review.scope-change-set", "ok", text("every in-progress/done spec with delivers: has a recorded change set", "toda spec em andamento/concluída com delivers: tem change set registrado"), "")
 		}
 	}
 
