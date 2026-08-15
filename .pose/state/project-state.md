@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T10:00:16Z
-baseline_commit: 68dc6195fffc7bae5354c81412470b748c40db77
+generated_at: 2026-08-15T11:49:53Z
+baseline_commit: 4292ee64c7ba85034051aff03ded5db489a983ea
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:fdd2a1ffcbf8 -->
+<!-- state:derived hash:b58de03095da -->
 
-- specs: total=100 draft=0 in-progress=0 blocked=0 done=100 superseded=0 abandoned=0
-- roadmaps: total=8 active=0 done=8
+- specs: total=105 draft=4 in-progress=0 blocked=0 done=101 superseded=0 abandoned=0
+- roadmaps: total=9 active=0 done=8
 - últimos closeouts:
+  - spec:pose-review-scope-trailer-check (2026-08-15)
   - spec:pose-install-locale-autodetect (2026-08-15)
   - spec:pose-v1-2-2-changelog-review (2026-08-15)
   - spec:pose-instance-engine-version-tracking (2026-08-15)
   - spec:pose-unified-review-convergence (2026-08-15)
-  - spec:pose-knowledge-durable-reference-type (2026-08-15)
-  - ... e mais 95 (ver `pose_list_specs status:done`)
+  - ... e mais 96 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:3d5e0a464a07 -->
+<!-- state:derived hash:82b91ea0c04d -->
 
-- abertos: 51
-- por criticidade: high=1 medium=16 low=34 sem-classificação=0
+- abertos: 56
+- por criticidade: high=1 medium=16 low=34 sem-classificação=5
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=9 ativo=9 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:6ea8230f71d4 -->
+<!-- state:derived hash:ba315db97e56 -->
 
-- último registro: task=resolve-durable-non-architectural-knowledge-routing-adr-rules-skill-guidance outcome=pass (2026-08-15T09:51:47Z)
-- últimos 30 dias: total=231 outcome_ok=165 outcome_outro=66
-- reports revisados (.md): total=114
+- último registro: task=neutralize-leaked-pose-mcp-index-templates outcome=pass (2026-08-15T11:47:42Z)
+- últimos 30 dias: total=232 outcome_ok=166 outcome_outro=66
+- reports revisados (.md): total=115
+  - report:2026-08-15-standard-neutralize-leaked-pose-mcp-index-templates.md
   - report:2026-08-15-standard-resolve-durable-non-architectural-knowledge-routing-adr-rules-skill-guidance.md
   - report:2026-08-15-standard-closeout-pose-instance-engine-version-tracking.md
   - report:2026-08-15-standard-closeout-pose-install-gate-failure-recovery-notice.md
   - report:2026-08-15-standard-closeout-pose-install-locale-autodetect.md
-  - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review-delivery-fix.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
