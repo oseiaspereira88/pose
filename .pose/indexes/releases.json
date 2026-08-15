@@ -1,5 +1,15 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-onboarding-context-extraction",
+      "category": "added",
+      "breaking": false,
+      "refs": "ISSUE#21",
+      "body": "`pose init`/`pose install` now excerpts a brownfield target's own `README.md`/`CLAUDE.md` into `AGENTS.md`'s \"Project context\" section on first install, instead of leaving the generic unfilled placeholder. The section is preserved on later `pose install`/`pose update` runs, so an extracted or hand-edited description is never silently reverted.",
+      "path": "pose-onboarding-context-extraction.md",
+      "digest": "sha256:eaf831705474ef86ef8d7854f8e4e818eea714f6f31c01bcb63a060ae0d5ec74"
+    }
+  ],
   "releases": [
     {
       "version": "v1.3.0",

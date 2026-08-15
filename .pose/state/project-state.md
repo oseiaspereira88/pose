@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T18:41:55Z
-baseline_commit: 17f8aea3a6994d4c122065c17aba679f20c98798
+generated_at: 2026-08-15T19:13:41Z
+baseline_commit: b2ab6a65e0c468700cf4a5efbfb6a5c68e120ace
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:1f06fbfff709 -->
+<!-- state:derived hash:5e4b37e617db -->
 
-- specs: total=111 draft=4 in-progress=0 blocked=0 done=107 superseded=0 abandoned=0
+- specs: total=111 draft=3 in-progress=0 blocked=0 done=108 superseded=0 abandoned=0
 - roadmaps: total=10 active=1 done=9
 - últimos closeouts:
-  - spec:pose-v1-2-2-changelog-review (2026-08-15)
-  - spec:pose-instance-engine-version-tracking (2026-08-15)
-  - spec:pose-adaptive-rule-delivery (2026-08-15)
+  - spec:pose-install-locale-autodetect (2026-08-15)
   - spec:pose-review-bundle-root-file-classification (2026-08-15)
-  - spec:pose-review-scope-trailer-check (2026-08-15)
-  - ... e mais 102 (ver `pose_list_specs status:done`)
+  - spec:pose-adaptive-rule-delivery (2026-08-15)
+  - spec:pose-monorepo-validation-advisory (2026-08-15)
+  - spec:pose-unified-review-convergence (2026-08-15)
+  - ... e mais 103 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:e7a0538d816a -->
+<!-- state:derived hash:2feaf5d5730f -->
 
-- abertos: 61
-- por criticidade: high=1 medium=16 low=34 sem-classificação=10
+- abertos: 63
+- por criticidade: high=1 medium=16 low=34 sem-classificação=12
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=9 ativo=9 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:48e071878926 -->
+<!-- state:derived hash:ec3921180c54 -->
 
-- último registro: task=fix-test-self-exec-flake-blocking-v1-3-0 outcome=pass (2026-08-15T18:12:12Z)
-- últimos 30 dias: total=239 outcome_ok=173 outcome_outro=66
-- reports revisados (.md): total=122
+- último registro: task=excerpt-readme-claude-md-into-agents-md-s-project-context outcome=pass (2026-08-15T19:12:00Z)
+- últimos 30 dias: total=240 outcome_ok=174 outcome_outro=66
+- reports revisados (.md): total=123
+  - report:2026-08-15-standard-excerpt-readme-claude-md-into-agents-md-s-project-context.md
   - report:2026-08-15-standard-fix-test-self-exec-flake-blocking-v1-3-0.md
   - report:2026-08-15-standard-fix-roadmap-review-bundle-absolute-path-portability-bug.md
   - report:2026-08-15-standard-advise-on-redundant-monorepo-execution-add-root-only-workspace-flags.md
   - report:2026-08-15-standard-recommend-rule-extension-matching-detected-stack.md
-  - report:2026-08-15-standard-seed-module-metadata-json-from-discovered-modules.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
