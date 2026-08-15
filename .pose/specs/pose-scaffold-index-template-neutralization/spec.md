@@ -138,7 +138,7 @@ information about the project it is operating in.
 - modified: pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go
 - modified: pose-mcp/internal/scaffold/gen/main.go
 - modified: pose-mcp/internal/scaffold/scaffold_test.go
-- created: .pose/changelogs/unreleased/pose-scaffold-index-template-neutralization.md
+- renamed: .pose/changelogs/unreleased/pose-scaffold-index-template-neutralization.md -> .pose/changelogs/v1.3.0/pose-scaffold-index-template-neutralization.md
 
 ### Delivery targets
 - capability:scaffold-index-template-neutralization module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go

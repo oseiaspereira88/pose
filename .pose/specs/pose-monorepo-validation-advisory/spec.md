@@ -131,7 +131,7 @@ contradicts.
 - created: pose-mcp/internal/cli/doctor_workspace_execution_test.go
 - modified: pose-mcp/internal/cli/validate.go
 - modified: pose-mcp/internal/cli/doctor.go
-- created: .pose/changelogs/unreleased/pose-monorepo-validation-advisory.md
+- renamed: .pose/changelogs/unreleased/pose-monorepo-validation-advisory.md -> .pose/changelogs/v1.3.0/pose-monorepo-validation-advisory.md
 
 ### Delivery targets
 - capability:monorepo-validation-advisory module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go

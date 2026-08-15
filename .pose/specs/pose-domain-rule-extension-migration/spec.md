@@ -173,7 +173,7 @@ which does not belong in this spec.
 - modified: pose-mcp/internal/cli/doctor.go
 - created: pose-mcp/internal/cli/doctor_retired_machinery_test.go
 - modified: pose-mcp/internal/scaffold/locale_coverage_test.go
-- created: .pose/changelogs/unreleased/pose-domain-rule-extension-migration.md
+- renamed: .pose/changelogs/unreleased/pose-domain-rule-extension-migration.md -> .pose/changelogs/v1.3.0/pose-domain-rule-extension-migration.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go

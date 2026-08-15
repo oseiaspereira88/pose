@@ -96,7 +96,7 @@ reason.
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/knowledge-governance.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md
 - created: .pose/adr/2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md
-- created: .pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md
+- renamed: .pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md -> .pose/changelogs/v1.3.0/pose-knowledge-durable-reference-type.md
 
 ### Delivery targets
 - governance:knowledge-durable-reference-type module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go

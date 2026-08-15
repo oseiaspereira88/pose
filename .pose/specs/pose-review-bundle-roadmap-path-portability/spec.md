@@ -96,7 +96,7 @@ undetected until now.
 ### Artifacts
 - modified: pose-mcp/internal/pose/review_bundle.go
 - created: pose-mcp/internal/pose/review_bundle_roadmap_path_test.go
-- created: .pose/changelogs/unreleased/pose-review-bundle-roadmap-path-portability.md
+- renamed: .pose/changelogs/unreleased/pose-review-bundle-roadmap-path-portability.md -> .pose/changelogs/v1.3.0/pose-review-bundle-roadmap-path-portability.md
 
 ### Delivery targets
 - capability:review-bundle-roadmap-path-portability module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
