@@ -7,6 +7,15 @@
       "body": "`pose review bundle \u003cscope\u003e --seal` no longer fails closed with `unclassified review subject path` when the attributed change set touches the repository's `README.md` or `compatibility.json` — both are now recognized as known review-subject paths (documentation and governance respectively) instead of blocking the seal.",
       "path": "pose-review-bundle-root-file-classification.md",
       "digest": "sha256:0fca067492084695386111f553996182e56948e8cabfab3a305f71e60c6619c2"
+    },
+    {
+      "spec": "pose-review-scope-trailer-check",
+      "category": "added",
+      "breaking": false,
+      "refs": "[ISSUE#17]",
+      "body": "`pose doctor` gained a new check, `review.scope-change-set`: it warns when a spec with `delivers:` populated has no change set recorded in `.pose/reports/history/` (via `pose report --change-from`/`--change-to`), so `pose review bundle --seal` is caught failing with \"no immutable attributed change set exists\" before it happens, not after — and points directly at the `pose report` command that resolves it.",
+      "path": "pose-review-scope-trailer-check.md",
+      "digest": "sha256:717c4e17cccd44f9ace2327fcddfd9e8c23a1ca782325da153c428934ea33725"
     }
   ],
   "releases": [

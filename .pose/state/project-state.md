@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T02:24:58Z
-baseline_commit: 26519852c53495ece3fab7ed594f7a72bce54412
+generated_at: 2026-08-15T03:09:44Z
+baseline_commit: 72a889d023ecc37a6896201dc1ccbeb61717fa24
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:944c20256761 -->
+<!-- state:derived hash:225cd781730b -->
 
-- specs: total=94 draft=0 in-progress=0 blocked=0 done=94 superseded=0 abandoned=0
+- specs: total=95 draft=0 in-progress=0 blocked=0 done=95 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
-  - spec:pose-unified-review-convergence (2026-08-15)
   - spec:pose-review-bundle-root-file-classification (2026-08-15)
+  - spec:pose-review-scope-trailer-check (2026-08-15)
+  - spec:pose-unified-review-convergence (2026-08-15)
   - spec:pose-scaffold-self-referential-policy-fix (2026-08-15)
   - spec:pose-review-bundle-convergence (2026-08-14)
-  - spec:pose-component-aware-review-plans (2026-08-13)
-  - ... e mais 89 (ver `pose_list_specs status:done`)
+  - ... e mais 90 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:212f868e5daf -->
+<!-- state:derived hash:e9c35ac628c2 -->
 
-- abertos: 45
-- por criticidade: high=1 medium=15 low=29 sem-classificação=0
+- abertos: 46
+- por criticidade: high=1 medium=15 low=30 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=8 ativo=8 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:66748661b372 -->
+<!-- state:derived hash:7f9b7ceda758 -->
 
-- último registro: task=closeout-pose-review-bundle-root-file-classification outcome=unknown (2026-08-15T02:19:53Z)
-- últimos 30 dias: total=222 outcome_ok=164 outcome_outro=58
-- reports revisados (.md): total=106
+- último registro: task=closeout-pose-review-scope-trailer-check outcome=unknown (2026-08-15T03:07:00Z)
+- últimos 30 dias: total=224 outcome_ok=164 outcome_outro=60
+- reports revisados (.md): total=107
+  - report:2026-08-15-standard-closeout-pose-review-scope-trailer-check.md
   - report:2026-08-15-standard-closeout-pose-review-bundle-root-file-classification.md
   - report:2026-08-15-standard-closeout-pose-unified-review-convergence.md
   - report:2026-08-15-standard-validate-native.md
   - report:2026-08-15-standard-closeout-pose-scaffold-self-referential-policy-fix.md
-  - report:2026-08-14-standard-review-bundle-convergence.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
