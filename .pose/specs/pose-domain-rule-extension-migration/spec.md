@@ -148,6 +148,13 @@ which does not belong in this spec.
 - `pose-mcp/internal/cli/machinery.go` (`deliverMachinery` — confirm no
   hardcoded reference to the two files being removed)
 - `pose-mcp/internal/cli/doctor.go` (new advisory check, R5)
+- `pose-mcp/internal/scaffold/distpolicy/distpolicy.go` (`ExtensionOnlyRuleFiles`
+  — pose-dist's own locally-installed dogfood copy must not re-leak into
+  the embedded dist)
+- `pose-mcp/internal/pose/review_bundle.go` (`reviewBundlePathClass` —
+  `extensions/` had no classification; discovered when this spec's own
+  change set became the first to touch that directory since
+  component-aware review bundles were adopted)
 - `pose-mcp/internal/scaffold/dist/**` (regenerated)
 
 ### Artifacts
@@ -167,6 +174,12 @@ which does not belong in this spec.
 - created: pose-mcp/internal/cli/doctor_retired_machinery_test.go
 - modified: pose-mcp/internal/scaffold/locale_coverage_test.go
 - created: .pose/changelogs/unreleased/pose-domain-rule-extension-migration.md
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_bundle_test.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go
+- modified: pose-mcp/internal/scaffold/scaffold_test.go
+- modified: .pose/indexes/extensions.lock.json
 
 ### Delivery targets
 - capability:domain-rule-extension-migration module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
@@ -218,6 +231,17 @@ which does not belong in this spec.
       advisory-only, naming the matching `pose-rule-<slug>` extension for
       any `.pose/rules/*.md` path
 - [x] Regenerated `pose-mcp/internal/scaffold/dist/**`
+- [x] Decision 2: installed both extensions locally into pose-dist's own
+      `.pose/rules/` (dogfooding — its own review profiles cite `backend-go`/
+      `frontend-react` as rule names), added
+      `distpolicy.ExtensionOnlyRuleFiles` so that local install does not
+      re-leak into the embedded dist, and fixed
+      `TestEditorialDefaultsAreEnglishAndPtBROverlayIsComplete`'s locale
+      scan to skip extension-only content
+- [x] Fixed `reviewBundlePathClass` (`review_bundle.go`): `extensions/` had
+      no classification at all — undiscovered until now because
+      `pose-rule-kubernetes` shipped before component-aware review bundles
+      were adopted. Classified as `governance`, matching `.pose/rules/`
 
 ### Validation
 - [x] `go -C pose-mcp test ./...`, `go vet ./...`, `gofmt -l .`: all clean
@@ -273,6 +297,47 @@ which does not belong in this spec.
   comparing `machinery-manifest.json`'s delivered-paths history against
   the current machinery walk, surfacing any path that dropped out while
   still present on disk. No deletion/migration code is written.
+
+### Decision 2
+- Date: 2026-08-15
+- Context: pose-dist's own `.pose/policy/review.json` declares
+  `overlay_profiles: ["backend-review@1", "frontend-review@1"]`, and both
+  profiles' criteria cite `rules: ["backend-go", ...]`/`["frontend-react",
+  ...]`. `validateReviewContractRefs` (`review_closeout.go`) resolves a
+  rule name by `os.Stat`-ing `.pose/rules/<name>.md` — a pure file-presence
+  check, no awareness of extensions. Removing the two files from
+  `.pose/rules/` entirely broke pose-dist's own review-profile validation
+  (`pose review bundle --seal` failed with `unknown review rule
+  "backend-go"`/`"frontend-react"`), since pose-dist genuinely is a Go
+  backend and its own review process depends on `backend-go`'s criteria.
+- Options considered: (a) install both extensions locally into pose-dist's
+  own `.pose/rules/` for dogfooding, matching how any consumer with a Go
+  backend would; (b) remove `frontend-review@1` (and/or `backend-review@1`)
+  from pose-dist's own `overlay_profiles`, since pose-dist has no React
+  frontend to justify the latter.
+- Decision: (a) for both profiles, not a mix. Installing both extensions
+  locally is a direct application of the exact mechanism this spec ships —
+  pose-dist consuming its own product's extension the same way any
+  downstream repository would. This surfaced a second gap: the local
+  install physically re-created `.pose/rules/backend-go.md`, which the
+  scaffold generator's wholesale walk would re-embed into every fresh
+  instance, undoing the whole migration — closed by
+  `distpolicy.ExtensionOnlyRuleFiles`, an explicit exclusion mirroring
+  `SelfReferentialPolicyFiles`/`SelfReferentialIndexFiles`. Whether
+  `frontend-review@1` genuinely belongs in pose-dist's own overlay
+  profiles (option b, for frontend-react specifically) is a separate,
+  pre-existing governance-config question this spec does not adjudicate —
+  installing the extension is a strictly safe default that keeps existing
+  behavior working either way.
+- Rationale: (b) would require judging whether pose-dist's own review
+  configuration is currently over-scoped, a decision independent of this
+  spec's actual goal (migrating rule *delivery*, not auditing pose-dist's
+  own review-profile selection) and outside this spec's stated Non-goals.
+- Consequences: pose-dist's `.pose/indexes/extensions.lock.json` records
+  both extensions as locally installed; a third scaffold exclusion list
+  (`ExtensionOnlyRuleFiles`) and a review-bundle path-classification gap
+  for `extensions/` (unrelated to this decision specifically, but
+  discovered by the same change set) both needed fixing — see Artifacts.
 
 ---
 
@@ -340,6 +405,17 @@ out of scope.
 - `pose-mcp/internal/cli/doctor_retired_machinery_test.go`: new.
 - `pose-mcp/internal/scaffold/locale_coverage_test.go`: removed the two
   retired paths from the structural-comparison list.
+- `pose-mcp/internal/scaffold/distpolicy/distpolicy.go`:
+  `ExtensionOnlyRuleFiles`.
+- `pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go`: new
+  regression test.
+- `pose-mcp/internal/scaffold/scaffold_test.go`: locale-parity scan skips
+  extension-only content.
+- `pose-mcp/internal/pose/review_bundle.go`: `extensions/` classified as
+  governance.
+- `pose-mcp/internal/pose/review_bundle_test.go`: new regression test.
+- `.pose/indexes/extensions.lock.json`: pose-dist's own dogfood install of
+  both extensions.
 - `pose-mcp/internal/scaffold/dist/**`: regenerated.
 
 ### Validation executed

@@ -100,6 +100,23 @@ var SelfReferentialIndexFiles = []string{
 	"validation-matrix.json",
 }
 
+// ExtensionOnlyRuleFiles are `.pose/rules/` files that ship exclusively
+// through `pose extension install`, never through core machinery — the
+// pattern `pose-rule-kubernetes` established. pose-dist installs some of
+// these locally into its own `.pose/rules/` for its own dogfooded review
+// needs (e.g. `pose-rule-backend-go`, since pose-mcp is itself a Go
+// backend): without this exclusion, that install would make the wholesale
+// `.pose/rules/` sync re-embed the file into every fresh instance, silently
+// undoing the extension migration (spec
+// pose-domain-rule-extension-migration). The file still exists on disk here
+// and still satisfies `pose review`'s rule-presence check
+// (review_closeout.go's validateReviewContractRefs) for pose-dist's own
+// reviews — it just never leaves this repository through the embedded dist.
+var ExtensionOnlyRuleFiles = []string{
+	"backend-go.md",
+	"frontend-react.md",
+}
+
 // IsIncluded reports whether a slash-separated repository-relative path belongs
 // in the embedded scaffold.
 func IsIncluded(rel string) bool {
@@ -120,6 +137,9 @@ func IsIncluded(rel string) bool {
 		return false
 	}
 	if parts[1] == "indexes" && len(parts) == 3 && slices.Contains(SelfReferentialIndexFiles, parts[2]) {
+		return false
+	}
+	if parts[1] == "rules" && len(parts) == 3 && slices.Contains(ExtensionOnlyRuleFiles, parts[2]) {
 		return false
 	}
 	return true

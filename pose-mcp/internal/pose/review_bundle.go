@@ -539,7 +539,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if strings.HasPrefix(path, ".pose/indexes/") {
 		return "derived-index", false
 	}
-	for _, prefix := range []string{".pose/policy/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".agents/skills/"} {
+	for _, prefix := range []string{".pose/policy/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".agents/skills/", "extensions/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}

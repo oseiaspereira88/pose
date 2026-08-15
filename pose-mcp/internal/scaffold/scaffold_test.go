@@ -202,6 +202,14 @@ func TestEditorialDefaultsAreEnglishAndPtBROverlayIsComplete(t *testing.T) {
 		if !inEditorialScope || filepath.Ext(path) != ".md" {
 			return nil
 		}
+		if !distpolicy.IsIncluded(rel) {
+			// Extension-only content (e.g. pose-rule-backend-go's local
+			// dogfooded copy at .pose/rules/backend-go.md) never ships
+			// through core machinery, so it is not held to the shipped
+			// editorial locale-parity contract — see spec
+			// pose-domain-rule-extension-migration's Known gaps.
+			return nil
+		}
 		content, readErr := os.ReadFile(path)
 		if readErr != nil {
 			return readErr

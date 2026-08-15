@@ -153,3 +153,23 @@ func TestNeutralIndexTemplatesAreSchemaValidAndClean(t *testing.T) {
 		t.Error("neutral validation-matrix.json must keep the generic deliveryProfiles, not strip them")
 	}
 }
+
+// Regression test for spec pose-domain-rule-extension-migration: pose-dist
+// installs pose-rule-backend-go/pose-rule-frontend-react locally (into its
+// own .pose/rules/) for its own dogfooded review needs. Without this
+// exclusion, that local install would make the wholesale .pose/rules/ sync
+// re-embed the file into every fresh instance, silently undoing the
+// extension migration.
+func TestExtensionOnlyRuleFilesExcluded(t *testing.T) {
+	for _, rel := range []string{".pose/rules/backend-go.md", ".pose/rules/frontend-react.md"} {
+		if IsIncluded(rel) {
+			t.Errorf("IsIncluded(%q) = true, want false — extension-only rule content must not be synced verbatim even when present locally for dogfooding", rel)
+		}
+	}
+	// Sanity: universal governance rules stay on the wholesale allowlist.
+	for _, rel := range []string{".pose/rules/security.md", ".pose/rules/documentation-style.md"} {
+		if !IsIncluded(rel) {
+			t.Errorf("IsIncluded(%q) = false, want true — universal rules must still sync", rel)
+		}
+	}
+}

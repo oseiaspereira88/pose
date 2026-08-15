@@ -460,6 +460,45 @@ func TestReviewBundleClassifiesRootReleaseFiles(t *testing.T) {
 	}
 }
 
+// TestReviewBundleClassifiesExtensionsDirectory guards spec
+// pose-domain-rule-extension-migration: extensions/ predates review-bundle
+// path classification (pose-rule-kubernetes shipped 2026-08-07, before
+// component_aware/review_bundles were adopted on 2026-08-13/14), so no spec
+// touching it had ever exercised this path — discovered when migrating
+// backend-go.md/frontend-react.md into extensions/pose-rule-*.
+func TestReviewBundleClassifiesExtensionsDirectory(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	writeReviewFixture(t, root, "extensions/pose-rule-backend-go/extension.json", `{"id":"pose-rule-backend-go"}`)
+	writeReviewFixture(t, root, "extensions/pose-rule-backend-go/files/.pose/rules/backend-go.md", "# Rule: Backend Go\n")
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths,
+		ObservedPath{Action: "created", Path: "extensions/pose-rule-backend-go/extension.json"},
+		ObservedPath{Action: "created", Path: "extensions/pose-rule-backend-go/files/.pose/rules/backend-go.md"},
+	)
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(strings.Join(bundle.Blockers, " "), "unclassified review subject path") {
+		t.Fatalf("extensions/ paths were treated as unclassified: %+v", bundle.Blockers)
+	}
+	classes := map[string]string{}
+	for _, entry := range bundle.Payload.Subject.Entries {
+		classes[entry.Path] = entry.Class
+	}
+	if classes["extensions/pose-rule-backend-go/extension.json"] != "governance" {
+		t.Fatalf("extension.json classified as %q, want governance", classes["extensions/pose-rule-backend-go/extension.json"])
+	}
+	if classes["extensions/pose-rule-backend-go/files/.pose/rules/backend-go.md"] != "governance" {
+		t.Fatalf("extension file classified as %q, want governance", classes["extensions/pose-rule-backend-go/files/.pose/rules/backend-go.md"])
+	}
+}
+
 func TestReviewBundleSubjectUsesCurrentRenameAndClassifiesReleaseMetadata(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	writeReviewFixture(t, root, ".pose/changelogs/v1.1.0/backend.md", "released fragment\n")
