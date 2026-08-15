@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:38534678be4f7c113e69538f9f9b9dac7d50e0b2168d79472e7dc2e20f729968",
+  "input_digest": "sha256:f47b42780c399b2b8f0d4f8435fdc3cdd5a7156aca394c4df7530bc358b068c0",
   "provenance_digest": "sha256:45e3191bb7fe90811ad1130d0c84e6fd1f0897e2d7e488af31d10df3a43ee507",
   "nodes": [
     {
@@ -7716,6 +7716,14 @@
       }
     },
     {
+      "id": "delivery:governance:knowledge-durable-reference-type",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "release-governance"
+      }
+    },
+    {
       "id": "delivery:governance:locale-coverage-contract",
       "type": "governance",
       "attributes": {
@@ -8901,6 +8909,11 @@
     },
     {
       "from": "artifact:.agents/skills/pose-knowledge/SKILL.md",
+      "to": "delivery:governance:knowledge-durable-reference-type",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.agents/skills/pose-knowledge/SKILL.md",
       "to": "delivery:governance:skill-command-parity",
       "type": "implemented-by"
     },
@@ -9270,6 +9283,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/adr/2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md",
+      "to": "delivery:governance:knowledge-durable-reference-type",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/assessments/README.md",
       "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
@@ -9467,6 +9485,11 @@
     {
       "from": "artifact:.pose/assessments/technical-debt.md",
       "to": "delivery:surface:review-bundle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md",
+      "to": "delivery:governance:knowledge-durable-reference-type",
       "type": "implemented-by"
     },
     {
@@ -10007,6 +10030,11 @@
     {
       "from": "artifact:.pose/rules/delivery-surface.md",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/rules/knowledge-governance.md",
+      "to": "delivery:governance:knowledge-durable-reference-type",
       "type": "implemented-by"
     },
     {
@@ -11001,6 +11029,11 @@
     },
     {
       "from": "artifact:locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md",
+      "to": "delivery:governance:knowledge-durable-reference-type",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md",
       "to": "delivery:governance:machinery-distribution",
       "type": "implemented-by"
     },
@@ -11092,6 +11125,11 @@
     {
       "from": "artifact:locales/pt-BR/.pose/rules/delivery-surface.md",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:locales/pt-BR/.pose/rules/knowledge-governance.md",
+      "to": "delivery:governance:knowledge-durable-reference-type",
       "type": "implemented-by"
     },
     {
@@ -12810,6 +12848,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-knowledge/SKILL.md",
+      "to": "delivery:governance:knowledge-durable-reference-type",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md",
       "to": "delivery:contract:review-bundle-mcp",
       "type": "implemented-by"
@@ -12955,6 +12998,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/rules/knowledge-governance.md",
+      "to": "delivery:governance:knowledge-durable-reference-type",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md",
       "to": "delivery:contract:review-bundle-mcp",
       "type": "implemented-by"
@@ -13055,6 +13103,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md",
+      "to": "delivery:governance:knowledge-durable-reference-type",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md",
       "to": "delivery:contract:review-bundle-mcp",
       "type": "implemented-by"
@@ -13072,6 +13125,11 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md",
       "to": "delivery:surface:review-bundle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/knowledge-governance.md",
+      "to": "delivery:governance:knowledge-durable-reference-type",
       "type": "implemented-by"
     },
     {
@@ -26680,6 +26738,21 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:knowledge-durable-reference-type",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:knowledge-durable-reference-type",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:governance:knowledge-durable-reference-type",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:locale-coverage-contract",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -27431,7 +27504,7 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -27452,6 +27525,16 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
     {
@@ -29618,6 +29701,11 @@
       "from": "spec:pose-knowledge-durable-reference-type",
       "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/knowledge-governance.md",
       "type": "declares"
+    },
+    {
+      "from": "spec:pose-knowledge-durable-reference-type",
+      "to": "delivery:governance:knowledge-durable-reference-type",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-knowledge-durable-reference-type",
@@ -48066,16 +48154,6 @@
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
-      "id": "dif-4030062eed0c",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-knowledge-durable-reference-type",
-      "path": "pose-mcp/internal/scaffold/dist/.pose/rules/knowledge-governance.md",
-      "change_set": "cs-5b6a1b891d1e",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-4087026c6b42",
       "code": "orphan",
       "severity": "warning",
@@ -48394,16 +48472,6 @@
       "spec": "pose-monorepo-validation-recipes",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-67efaf90ac9a",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-knowledge-durable-reference-type",
-      "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md",
-      "change_set": "cs-5b6a1b891d1e",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-67eff08c810b",
@@ -49051,16 +49119,6 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
-      "id": "dif-ad3bdf904605",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-knowledge-durable-reference-type",
-      "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/knowledge-governance.md",
-      "change_set": "cs-5b6a1b891d1e",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-af7f09e4e23a",
       "code": "orphan",
       "severity": "warning",
@@ -49371,16 +49429,6 @@
       "path": "pose-mcp/internal/cli/state_providers.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-d44c4ff21958",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-knowledge-durable-reference-type",
-      "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-knowledge/SKILL.md",
-      "change_set": "cs-5b6a1b891d1e",
-      "message": "changed delivery root pose-mcp has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-d49faa20ae71",
@@ -49814,25 +49862,16 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-install-locale-autodetect",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-install-gate-failure-recovery-notice",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-review-bundle-root-file-classification",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-review-scope-trailer-check",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -49850,7 +49889,16 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-install-locale-autodetect",
+      "spec": "pose-review-scope-trailer-check",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-review-bundle-root-file-classification",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -50102,6 +50150,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-knowledge-durable-reference-type",
+      "ref": "governance:knowledge-durable-reference-type",
+      "kind": "governance",
+      "id": "knowledge-durable-reference-type",
+      "module": "pose-mcp",
+      "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-locale-coverage-contract",
       "ref": "governance:locale-coverage-contract",
       "kind": "governance",
@@ -50201,7 +50258,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -50210,7 +50267,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -50398,8 +50455,8 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9666953c94fe2973cfc9730370f0bdc9c40e1bc8",
-      "generated_at": "2026-08-15T09:52:19Z",
+      "git_head": "2c25a62c72ad199d60bda5a60a9a58dc94cf5c98",
+      "generated_at": "2026-08-15T09:59:18Z",
       "provenance_digest": "sha256:45e3191bb7fe90811ad1130d0c84e6fd1f0897e2d7e488af31d10df3a43ee507",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -50471,8 +50528,8 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "9666953c94fe2973cfc9730370f0bdc9c40e1bc8",
-      "generated_at": "2026-08-15T09:52:19Z",
+      "git_head": "2c25a62c72ad199d60bda5a60a9a58dc94cf5c98",
+      "generated_at": "2026-08-15T09:59:18Z",
       "provenance_digest": "sha256:45e3191bb7fe90811ad1130d0c84e6fd1f0897e2d7e488af31d10df3a43ee507",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -50544,8 +50601,8 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9666953c94fe2973cfc9730370f0bdc9c40e1bc8",
-      "generated_at": "2026-08-15T09:52:19Z",
+      "git_head": "2c25a62c72ad199d60bda5a60a9a58dc94cf5c98",
+      "generated_at": "2026-08-15T09:59:18Z",
       "provenance_digest": "sha256:45e3191bb7fe90811ad1130d0c84e6fd1f0897e2d7e488af31d10df3a43ee507",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -50617,8 +50674,8 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "9666953c94fe2973cfc9730370f0bdc9c40e1bc8",
-      "generated_at": "2026-08-15T09:52:19Z",
+      "git_head": "2c25a62c72ad199d60bda5a60a9a58dc94cf5c98",
+      "generated_at": "2026-08-15T09:59:18Z",
       "provenance_digest": "sha256:45e3191bb7fe90811ad1130d0c84e6fd1f0897e2d7e488af31d10df3a43ee507",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -50690,8 +50747,8 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9666953c94fe2973cfc9730370f0bdc9c40e1bc8",
-      "generated_at": "2026-08-15T09:52:19Z",
+      "git_head": "2c25a62c72ad199d60bda5a60a9a58dc94cf5c98",
+      "generated_at": "2026-08-15T09:59:18Z",
       "provenance_digest": "sha256:45e3191bb7fe90811ad1130d0c84e6fd1f0897e2d7e488af31d10df3a43ee507",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -50763,8 +50820,8 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9666953c94fe2973cfc9730370f0bdc9c40e1bc8",
-      "generated_at": "2026-08-15T09:52:19Z",
+      "git_head": "2c25a62c72ad199d60bda5a60a9a58dc94cf5c98",
+      "generated_at": "2026-08-15T09:59:18Z",
       "provenance_digest": "sha256:45e3191bb7fe90811ad1130d0c84e6fd1f0897e2d7e488af31d10df3a43ee507",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -50836,8 +50893,8 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9666953c94fe2973cfc9730370f0bdc9c40e1bc8",
-      "generated_at": "2026-08-15T09:52:19Z",
+      "git_head": "2c25a62c72ad199d60bda5a60a9a58dc94cf5c98",
+      "generated_at": "2026-08-15T09:59:18Z",
       "provenance_digest": "sha256:45e3191bb7fe90811ad1130d0c84e6fd1f0897e2d7e488af31d10df3a43ee507",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -50909,8 +50966,8 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9666953c94fe2973cfc9730370f0bdc9c40e1bc8",
-      "generated_at": "2026-08-15T09:52:19Z",
+      "git_head": "2c25a62c72ad199d60bda5a60a9a58dc94cf5c98",
+      "generated_at": "2026-08-15T09:59:18Z",
       "provenance_digest": "sha256:45e3191bb7fe90811ad1130d0c84e6fd1f0897e2d7e488af31d10df3a43ee507",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -50982,8 +51039,8 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "9666953c94fe2973cfc9730370f0bdc9c40e1bc8",
-      "generated_at": "2026-08-15T09:52:19Z",
+      "git_head": "2c25a62c72ad199d60bda5a60a9a58dc94cf5c98",
+      "generated_at": "2026-08-15T09:59:18Z",
       "provenance_digest": "sha256:45e3191bb7fe90811ad1130d0c84e6fd1f0897e2d7e488af31d10df3a43ee507",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
@@ -51222,9 +51279,9 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "capability:pose-mcp": [
-      "spec:pose-install-locale-autodetect",
-      "artifact:pose-mcp/internal/cli/install.go",
-      "artifact:pose-mcp/internal/cli/localization_docs_test.go",
+      "spec:pose-review-bundle-root-file-classification",
+      "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "artifact:pose-mcp/internal/pose/review_bundle_test.go",
       "delivery:capability:pose-mcp",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -51935,6 +51992,23 @@
       "validation-result:pose-mcp/go/delivery-integration",
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
+    "governance:knowledge-durable-reference-type": [
+      "spec:pose-knowledge-durable-reference-type",
+      "artifact:.pose/adr/2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md",
+      "artifact:.pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md",
+      "artifact:.agents/skills/pose-knowledge/SKILL.md",
+      "artifact:.pose/rules/knowledge-governance.md",
+      "artifact:locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md",
+      "artifact:locales/pt-BR/.pose/rules/knowledge-governance.md",
+      "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-knowledge/SKILL.md",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/rules/knowledge-governance.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/knowledge-governance.md",
+      "delivery:governance:knowledge-durable-reference-type",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration",
+      "validation-result:pose-mcp/go/review-bundle-convergence"
+    ],
     "governance:locale-coverage-contract": [
       "spec:pose-locale-coverage-contract",
       "artifact:.pose/specs/pose-locale-coverage-contract/spec.md",
@@ -52054,13 +52128,43 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-evidence-trigger-fix",
-      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
+      "spec:pose-release-lifecycle-closure",
+      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
+      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
+      "artifact:.pose/indexes/releases.json",
+      "artifact:.pose/policy/changelog.json",
+      "artifact:.pose/release-policy.json",
+      "artifact:.pose/rules/release-integrity.md",
+      "artifact:.pose/workflows/release.md",
+      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
+      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
+      "artifact:locales/pt-BR/.pose/workflows/release.md",
+      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
+      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
+      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
+      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
+      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
+      "artifact:.agents/skills/README.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.github/workflows/verify-release.yml",
-      "artifact:docs-site/docs/ci.md",
-      "artifact:pose-mcp/internal/version/contract_test.go",
-      "artifact:pose-mcp/internal/version/version.go",
+      "artifact:.pose/indexes/task-map.json",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
+      "artifact:POSE.md",
+      "artifact:docs-site/docs/cli.md",
+      "artifact:docs-site/docs/mcp.md",
+      "artifact:pose-mcp/internal/cli/check.go",
+      "artifact:pose-mcp/internal/cli/cli.go",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/maintenance.go",
+      "artifact:pose-mcp/internal/cli/native_only_test.go",
+      "artifact:pose-mcp/internal/cli/skills_check_test.go",
+      "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "artifact:pose-mcp/internal/pose/changelogs.go",
+      "artifact:pose-mcp/internal/scaffold/scaffold.go",
+      "artifact:scripts/release.sh",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
