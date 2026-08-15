@@ -11,6 +11,26 @@ Consult this guide when creating, updating, reviewing, or removing artifacts und
 - Use a TTL of up to 90 days only with a justification recorded in the artifact body.
 - Treat an artifact without `expires_at` as non-compliant and block its creation or merge.
 
+## When this is not the right home
+
+- Use `.pose/knowledge/` only for time-bound operational memory: content
+  tied to a decision moment, a handoff between executions, or something
+  meant to be reviewed and eventually expire.
+- A durable fact or convention that will not become false and carries no
+  review trigger — a third-party tool's parsing quirk, a naming
+  convention, a recurring gotcha — is not a `decision-log` just because no
+  better type exists. Route it to `.pose/rules/` instead: add it to an
+  existing rule file or create one, then wire it into the relevant task
+  type's base `rules` array in `.pose/indexes/task-map.json` so
+  `pose suggest <task>` surfaces it automatically. No path scoping is
+  required — a task type's base `rules` list is returned regardless of
+  `--path`; only language/component-specific rules need the
+  `rules_by_domain` layer.
+- Rule of thumb: if nothing was decided or traded off, and nothing about
+  the fact will change on a predictable timeline, it is not a
+  `decision-log` and not an ADR — it is a rule. See ADR
+  `2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type`.
+
 ## Reusable cross-execution format
 
 - Structure reusable context as a handoff with fixed sections: Context, Current state, Next checks, Risks, and Next owner.

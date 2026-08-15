@@ -11,6 +11,27 @@ Consulte este guia em tarefas que criam, atualizam, revisam ou removem artefatos
 - Use TTL máximo de 90 dias apenas quando houver justificativa registrada no corpo do artefato.
 - Marque artefato sem `expires_at` como não conforme e bloqueie criação/merge.
 
+## Quando este não é o lugar certo
+
+- Use `.pose/knowledge/` só para memória operacional limitada no tempo:
+  conteúdo ligado a um momento de decisão, um handoff entre execuções, ou
+  algo que deve ser revisado e eventualmente expirar.
+- Um fato ou convenção durável que não vai se tornar falso e não tem
+  gatilho de revisão — uma peculiaridade de parsing de uma ferramenta
+  externa, uma convenção de nomenclatura, um gotcha recorrente — não é um
+  `decision-log` só por falta de opção melhor. Direcione para
+  `.pose/rules/`: acrescente a um arquivo de rule existente ou crie um
+  novo, depois conecte-o ao array `rules` base do(s) tipo(s) de tarefa
+  relevante(s) em `.pose/indexes/task-map.json`, para que
+  `pose suggest <task>` o traga automaticamente. Não é preciso escopo por
+  path — a lista `rules` base de um tipo de tarefa é retornada
+  independentemente de `--path`; só regras específicas de
+  linguagem/componente precisam da camada `rules_by_domain`.
+- Regra prática: se nada foi decidido ou trocado, e nada sobre o fato vai
+  mudar em prazo previsível, não é `decision-log` nem ADR — é uma rule.
+  Ver ADR
+  `2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type`.
+
 ## Formato reutilizável entre execuções
 
 - Estruture contexto reutilizável como `handoff` com seções fixas: `Contexto`, `Estado atual`, `Próximos checks`, `Riscos`, `Próximo owner`.

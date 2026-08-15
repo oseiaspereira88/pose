@@ -24,6 +24,12 @@ Fluxo POSE para o subsistema de memória entre execuções.
 
 TTL padrão 30 dias (`--ttl-days N`, máximo 90 conforme rule).
 
+Fato ou convenção durável sem gatilho de revisão — nada foi decidido, nada
+expira em prazo previsível — não é `decision-log` só por falta de tipo
+melhor. Direcione para `.pose/rules/` (ver
+`.pose/rules/knowledge-governance.md`, seção "Quando este não é o lugar
+certo").
+
 ## Steps
 
 ### Criar artefato

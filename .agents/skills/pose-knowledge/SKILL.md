@@ -22,6 +22,12 @@ capabilities: read, knowledge-write
 
 Use a 30-day default TTL and at most 90 days with justification.
 
+Durable facts or conventions with no review trigger — nothing was decided,
+nothing expires on a predictable timeline — are not a `decision-log`
+routed here for lack of a better type. Route those to `.pose/rules/`
+instead (see `.pose/rules/knowledge-governance.md`, "When this is not the
+right home").
+
 ## Steps
 
 1. Create an artifact with `pose new-knowledge <type> <slug> --owner @<team> --ttl-days 30`.

@@ -1,6 +1,6 @@
 ---
 slug: pose-knowledge-durable-reference-type
-status: draft
+status: in-progress
 created_at: 2026-08-15
 completed_at:
 supersedes:
@@ -80,9 +80,27 @@ reason.
 ## 3. Technical Plan
 
 ### Affected areas
-- `pose-mcp/internal/pose/knowledge.go` (if a new type is added)
 - `.pose/rules/knowledge-governance.md`
 - `.agents/skills/pose-knowledge/SKILL.md`
+- `locales/pt-BR/.pose/rules/knowledge-governance.md`
+- `locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md`
+- `pose-mcp/internal/scaffold/dist/**` (regenerated, not hand-edited)
+
+### Artifacts
+- modified: .pose/rules/knowledge-governance.md
+- modified: .agents/skills/pose-knowledge/SKILL.md
+- modified: locales/pt-BR/.pose/rules/knowledge-governance.md
+- modified: locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/rules/knowledge-governance.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-knowledge/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/knowledge-governance.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md
+- created: .pose/adr/2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md
+- created: .pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md
+
+### Delivery targets
+- none — documentation/governance content only, no capability/contract/
+  surface/infrastructure delivery target applies.
 
 ---
 
@@ -93,14 +111,29 @@ reason.
       `.pose/knowledge/2026-08-15-decision-log-github-issue-closing-
       keyword-format.md` as a `decision-log` for lack of a better fit,
       documented the mismatch in this spec's Business value
-- [ ] Resolve Decision 1 (new type vs. `.pose/rules/` routing) before
-      moving to in-progress
+- [x] Resolve Decision 1 (new type vs. `.pose/rules/` routing) before
+      moving to in-progress — see Decision 1 and
+      `.pose/adr/2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md`
 
 ### Implementation
-- [ ] TBD — depends on Decision 1
+- [x] Added a "When this is not the right home" section to
+      `.pose/rules/knowledge-governance.md` (EN + pt-BR): durable facts
+      with no review trigger route to `.pose/rules/`, wired into a task
+      type's base `rules` array in `.pose/indexes/task-map.json` rather
+      than filed as `decision-log`
+- [x] Added the same distinction to `.agents/skills/pose-knowledge/
+      SKILL.md` (EN + pt-BR), right after the artifact-type list
+- [x] Regenerated `pose-mcp/internal/scaffold/dist/**` via
+      `go generate ./internal/scaffold` so the embedded copies used by
+      `pose install`/`pose update` on other instances match
 
 ### Validation
-- [ ] TBD — depends on Decision 1
+- [x] `pose check --strict` after edits: clean
+- [x] Manual content review: no change to `expires_at` enforcement wording
+      or the three existing artifact types' definitions — new section is
+      additive
+- [x] Confirmed no retroactive re-triage: `github-issue-closing-keyword-
+      format.md` untouched, still expires 2026-11-13 on its own schedule
 
 ---
 
@@ -116,37 +149,93 @@ reason.
   `.pose/rules/` instead — already the durable, non-expiring home for team
   conventions — and treat `.pose/knowledge/` as strictly for time-bound
   operational memory, no code change needed.
-- Decision: not yet made — deferred to implementation. Whoever picks this
-  up should first check whether `.pose/rules/` content is actually
-  surfaced with enough discoverability for a fact like the trailer-format
-  one (rules are consulted via `pose suggest <workflow> --path <dir>`,
-  which is path/component-scoped — worth confirming a cross-cutting,
-  no-specific-path convention like this one would actually reach an agent
-  before adding new schema surface for the same job).
+- Decision: **(b) — route to `.pose/rules/`, no fourth knowledge type.**
+  Investigated `pose-mcp/internal/cli/suggest.go` and
+  `.pose/indexes/task-map.json`: each task type's base `rules` array is
+  returned by `pose suggest <task>` unconditionally, with no `--path`
+  required; `--path`/`--domain` only resolves an *additional*
+  `rules_by_domain` layer for language/component-specific rules. A
+  cross-cutting convention with no natural path scope belongs in a task
+  type's base `rules` list, which every `pose-*` skill's Required Reading
+  step already surfaces before work starts — stronger discoverability than
+  `.pose/knowledge/`'s opportunistic `find`-based search offers today. Full
+  rationale, rejected trade-off and consequences recorded in
+  `.pose/adr/2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md`.
 - Rationale: recording the fork explicitly rather than picking one
   prematurely — this spec's own Intent is itself an example of exactly the
   kind of durable-but-non-architectural content in question, and forcing
   a decision here without checking (b)'s discoverability first would risk
-  building (a) for something (b) already solves.
-- Consequences: this spec stays `draft`/`in-progress` with an unresolved
-  fork until Decision 1 is closed; Implementation/Validation tasks above
-  are placeholders pending that.
+  building (a) for something (b) already solves. The discoverability check
+  confirmed (b) is not just adequate but *stronger* than (a) would have
+  been.
+- Consequences: implementation scope is documentation-only — no
+  `pose-mcp/internal/pose/knowledge.go` change. `.pose/rules/
+  knowledge-governance.md` and `.agents/skills/pose-knowledge/SKILL.md`
+  gain guidance distinguishing "this is a `decision-log`" from "this
+  belongs in `.pose/rules/`"; no retroactive re-triage of the existing
+  `github-issue-closing-keyword-format` artifact (out of scope per this
+  spec's Non-goals).
 
 ---
 
 ## 6. Validation
 
 ### Strategy
-To be defined once Decision 1 resolves: either regression tests for a new
-knowledge type's parsing/TTL-exemption in `pose-mcp/internal/pose`, or a
-documentation-only validation (skill/rule content review, no code change).
+Documentation-only: content review of the added guidance in both locales
+plus the ADR, `pose check --strict` for structural conformance, and a scan
+confirming the existing `github-issue-closing-keyword-format` artifact was
+left untouched (Non-goals explicitly exclude retroactive re-triage).
+
+### Requirement trace
+- R1 [satisfied] Decision 1 resolved to routing durable, non-architectural
+  content to `.pose/rules/`; documented in the ADR and referenced from
+  Decision 1 below.
+- R2 [satisfied] `.pose/rules/knowledge-governance.md` and
+  `.agents/skills/pose-knowledge/SKILL.md` (EN + pt-BR) both gained the
+  "not a decision-log if nothing was decided/nothing expires" distinction.
 
 ### Known gaps
-- Decision 1 is open; this spec cannot close until it resolves.
+- None identified. No code path changes, so no regression surface beyond
+  the doc/skill content itself, covered by manual review above.
 
 ---
 
 ## 7. Final Report
 
+### Delivered scope
+Resolved the open fork via ADR
+`2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type`:
+no fourth knowledge type. `.pose/knowledge/` stays strictly
+`handoff`/`decision-log`/`note`, all mandatorily TTL'd. Durable,
+non-architectural facts and conventions route to `.pose/rules/` instead —
+confirmed adequately discoverable because a task type's base `rules` array
+in `.pose/indexes/task-map.json` is returned by `pose suggest <task>`
+unconditionally (no `--path` required); `--path`/`--domain` only resolves
+an additional layer for language/component-specific rules.
+`knowledge-governance.md` and the `pose-knowledge` skill (EN + pt-BR) now
+document the distinction so a future author does not have to guess.
+
+### Files and modules changed
+- `.pose/rules/knowledge-governance.md`,
+  `locales/pt-BR/.pose/rules/knowledge-governance.md`: new "When this is
+  not the right home" section.
+- `.agents/skills/pose-knowledge/SKILL.md`,
+  `locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md`: routing guidance
+  after the artifact-type list.
+- `pose-mcp/internal/scaffold/dist/**`: regenerated via
+  `go generate ./internal/scaffold`.
+- `.pose/adr/2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md`:
+  new ADR.
+- `.pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md`:
+  new fragment.
+
+### Validation executed
+- `pose check --strict`: SUCCESS.
+- Manual review: existing TTL enforcement and artifact-type definitions
+  unchanged; new content additive only.
+
+### Residual risks
+- None identified. Documentation-only change; no code path affected.
+
 ### Follow-ups
-- [open]
+- [wont-do: retroactive re-triage of `github-issue-closing-keyword-format.md` explicitly excluded by this spec's Non-goals — it expires on its existing 2026-11-13 schedule with no action needed]
