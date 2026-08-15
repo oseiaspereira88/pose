@@ -1,8 +1,8 @@
 ---
 slug: pose-v1-2-2-changelog-review
-status: in-progress
+status: done
 created_at: 2026-08-15
-completed_at:
+completed_at: 2026-08-15
 changelog: none
 supersedes:
 depends_on:

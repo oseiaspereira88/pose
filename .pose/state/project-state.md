@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T03:33:18Z
-baseline_commit: f59f73a850db1ec24da25d33260b92c8d6b78089
+generated_at: 2026-08-15T03:47:02Z
+baseline_commit: 5f2f6faba0cc5557749b09d56c43772d3a90e5f3
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:3d235573052f -->
+<!-- state:derived hash:d28d818cff0b -->
 
-- specs: total=96 draft=0 in-progress=1 blocked=0 done=95 superseded=0 abandoned=0
+- specs: total=96 draft=0 in-progress=0 blocked=0 done=96 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
   - spec:pose-review-bundle-root-file-classification (2026-08-15)
   - spec:pose-review-scope-trailer-check (2026-08-15)
-  - spec:pose-unified-review-convergence (2026-08-15)
   - spec:pose-scaffold-self-referential-policy-fix (2026-08-15)
-  - spec:pose-review-bundle-convergence (2026-08-14)
-  - ... e mais 90 (ver `pose_list_specs status:done`)
+  - spec:pose-unified-review-convergence (2026-08-15)
+  - spec:pose-v1-2-2-changelog-review (2026-08-15)
+  - ... e mais 91 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:861fb38b1499 -->
+<!-- state:derived hash:bbdae96fa6a6 -->
 
-- abertos: 47
-- por criticidade: high=1 medium=15 low=31 sem-classificação=0
+- abertos: 48
+- por criticidade: high=1 medium=15 low=32 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=8 ativo=8 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:7f9b7ceda758 -->
+<!-- state:derived hash:21370c36b9a8 -->
 
-- último registro: task=closeout-pose-review-scope-trailer-check outcome=unknown (2026-08-15T03:07:00Z)
-- últimos 30 dias: total=224 outcome_ok=164 outcome_outro=60
-- reports revisados (.md): total=107
+- último registro: task=closeout-pose-v1-2-2-changelog-review-delivery-fix outcome=unknown (2026-08-15T03:44:30Z)
+- últimos 30 dias: total=227 outcome_ok=164 outcome_outro=63
+- reports revisados (.md): total=110
+  - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review-delivery-fix.md
+  - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review-follow-up-note.md
+  - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review.md
   - report:2026-08-15-standard-closeout-pose-review-scope-trailer-check.md
   - report:2026-08-15-standard-closeout-pose-review-bundle-root-file-classification.md
-  - report:2026-08-15-standard-closeout-pose-unified-review-convergence.md
-  - report:2026-08-15-standard-validate-native.md
-  - report:2026-08-15-standard-closeout-pose-scaffold-self-referential-policy-fix.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
