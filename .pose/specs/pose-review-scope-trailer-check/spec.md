@@ -7,7 +7,7 @@ supersedes:
 depends_on:
 priority: 2
 components: pose-mcp, cli
-delivers: surface:pose-mcp-cli
+delivers: capability:pose-mcp
 ---
 
 # Spec: pose-review-scope-trailer-check
@@ -92,7 +92,7 @@ for the spec at all**, trailer or not.
 - created: pose-mcp/internal/cli/doctor_review_scope_trailer_test.go
 
 ### Delivery targets
-- surface:pose-mcp-cli module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:pose-mcp module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ---
 

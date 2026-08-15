@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:b3453d547647ff0d2c39baf18d1909e78c5ad4ac48b4811f60248677fbc092a5",
+  "input_digest": "sha256:a95711cd1da35dc04c67500e53e825a35dcb65a581e63cde1a0edb536aac490e",
   "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
   "nodes": [
     {
@@ -7806,14 +7806,6 @@
       }
     },
     {
-      "id": "delivery:surface:pose-mcp-cli",
-      "type": "surface",
-      "attributes": {
-        "module": "pose-mcp",
-        "profile": "cli-surface"
-      }
-    },
-    {
       "id": "delivery:surface:pose-usage-cli",
       "type": "surface",
       "attributes": {
@@ -7862,7 +7854,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -7876,7 +7868,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -7890,14 +7882,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -7925,7 +7917,7 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -11353,12 +11345,12 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/doctor.go",
-      "to": "delivery:contract:mcp-active-context",
+      "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
     {
       "from": "artifact:pose-mcp/internal/cli/doctor.go",
-      "to": "delivery:surface:pose-mcp-cli",
+      "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
     },
     {
@@ -11373,7 +11365,7 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
-      "to": "delivery:surface:pose-mcp-cli",
+      "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
     {
@@ -25883,12 +25875,27 @@
     },
     {
       "from": "delivery:capability:pose-mcp",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:capability:pose-mcp",
       "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
       "from": "delivery:capability:pose-mcp",
       "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:pose-mcp",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:pose-mcp",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
     {
@@ -26732,11 +26739,6 @@
       "type": "validated-by"
     },
     {
-      "from": "delivery:surface:pose-mcp-cli",
-      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "type": "reaches"
-    },
-    {
       "from": "delivery:surface:pose-usage-cli",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "reaches"
@@ -27043,7 +27045,7 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -27064,6 +27066,16 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
     {
@@ -30443,7 +30455,7 @@
     },
     {
       "from": "spec:pose-review-scope-trailer-check",
-      "to": "delivery:surface:pose-mcp-cli",
+      "to": "delivery:capability:pose-mcp",
       "type": "delivers"
     },
     {
@@ -48385,15 +48397,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-c7f57c349042",
-      "code": "surface-without-reachability",
-      "severity": "error",
-      "spec": "pose-review-scope-trailer-check",
-      "path": "surface:pose-mcp-cli",
-      "message": "required current evidence is missing: reachability, one-of:integration|e2e",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
-    },
-    {
       "id": "dif-c8631fc47396",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -48771,16 +48774,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-f62a0a75ffda",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-review-scope-trailer-check",
-      "path": "surface:pose-mcp-cli",
-      "change_set": "pose-mcp/go/delivery-reachability",
-      "message": "passed reachability evidence is bound to a different scoped provenance digest",
-      "remediation": "rerun the registered validation check for this delivery scope"
-    },
-    {
       "id": "dif-f67d52f5985a",
       "code": "orphan",
       "severity": "warning",
@@ -48920,6 +48913,15 @@
     },
     {
       "spec": "pose-scaffold-self-referential-policy-fix",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-review-scope-trailer-check",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -49441,15 +49443,6 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-review-scope-trailer-check",
-      "ref": "surface:pose-mcp-cli",
-      "kind": "surface",
-      "id": "pose-mcp-cli",
-      "module": "pose-mcp",
-      "profile": "cli-surface",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
       "spec": "pose-usage-metrics",
       "ref": "surface:pose-usage-cli",
       "kind": "surface",
@@ -49485,9 +49478,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9836fb01c31a68805ecc3b609e79be0d2db71a5a",
-      "generated_at": "2026-08-15T03:01:57Z",
-      "provenance_digest": "sha256:220e69646dddcedff69ce2c17bada3de917fe461697f70e49f6d77422274cbe6",
+      "git_head": "19037e960943be9f05cc048938ca384f23317354",
+      "generated_at": "2026-08-15T03:07:42Z",
+      "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -49528,6 +49521,7 @@
         "pose-release-workflow-hardening": "sha256:2547cd3feba72acf82097edd43bf66120038fccfe461d5b424e65d125960311d",
         "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-root-file-classification": "sha256:ab625780c69c44af6dbb845797802c1e0c67258ff78874c9f7a93e8025dac704",
+        "pose-review-scope-trailer-check": "sha256:b5a99e1754dc79cfa8f2eb0e455302b22402b632ff8cb6f680ed00416c164f36",
         "pose-sbom-license-coverage-gate": "sha256:348abb3ad705d1854f9c9b8b6a2b1f668030d4392d5dafeabff4a680c4574b50",
         "pose-sbom-license-inventory": "sha256:0e6d1eac87b522242aec3e506fb8997b0a857eb99202a18f186af60c403f74d7",
         "pose-sbom-negative-coverage": "sha256:d588bd606adac3f66ddbe254321c48e79b1a746b25ebff4b4a26a16cc791a8fe",
@@ -49552,9 +49546,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "9836fb01c31a68805ecc3b609e79be0d2db71a5a",
-      "generated_at": "2026-08-15T03:01:57Z",
-      "provenance_digest": "sha256:220e69646dddcedff69ce2c17bada3de917fe461697f70e49f6d77422274cbe6",
+      "git_head": "19037e960943be9f05cc048938ca384f23317354",
+      "generated_at": "2026-08-15T03:07:42Z",
+      "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -49595,6 +49589,7 @@
         "pose-release-workflow-hardening": "sha256:2547cd3feba72acf82097edd43bf66120038fccfe461d5b424e65d125960311d",
         "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-root-file-classification": "sha256:ab625780c69c44af6dbb845797802c1e0c67258ff78874c9f7a93e8025dac704",
+        "pose-review-scope-trailer-check": "sha256:b5a99e1754dc79cfa8f2eb0e455302b22402b632ff8cb6f680ed00416c164f36",
         "pose-sbom-license-coverage-gate": "sha256:348abb3ad705d1854f9c9b8b6a2b1f668030d4392d5dafeabff4a680c4574b50",
         "pose-sbom-license-inventory": "sha256:0e6d1eac87b522242aec3e506fb8997b0a857eb99202a18f186af60c403f74d7",
         "pose-sbom-negative-coverage": "sha256:d588bd606adac3f66ddbe254321c48e79b1a746b25ebff4b4a26a16cc791a8fe",
@@ -49619,9 +49614,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9836fb01c31a68805ecc3b609e79be0d2db71a5a",
-      "generated_at": "2026-08-15T03:01:57Z",
-      "provenance_digest": "sha256:220e69646dddcedff69ce2c17bada3de917fe461697f70e49f6d77422274cbe6",
+      "git_head": "19037e960943be9f05cc048938ca384f23317354",
+      "generated_at": "2026-08-15T03:07:42Z",
+      "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -49662,6 +49657,7 @@
         "pose-release-workflow-hardening": "sha256:2547cd3feba72acf82097edd43bf66120038fccfe461d5b424e65d125960311d",
         "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-root-file-classification": "sha256:ab625780c69c44af6dbb845797802c1e0c67258ff78874c9f7a93e8025dac704",
+        "pose-review-scope-trailer-check": "sha256:b5a99e1754dc79cfa8f2eb0e455302b22402b632ff8cb6f680ed00416c164f36",
         "pose-sbom-license-coverage-gate": "sha256:348abb3ad705d1854f9c9b8b6a2b1f668030d4392d5dafeabff4a680c4574b50",
         "pose-sbom-license-inventory": "sha256:0e6d1eac87b522242aec3e506fb8997b0a857eb99202a18f186af60c403f74d7",
         "pose-sbom-negative-coverage": "sha256:d588bd606adac3f66ddbe254321c48e79b1a746b25ebff4b4a26a16cc791a8fe",
@@ -49686,9 +49682,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "9836fb01c31a68805ecc3b609e79be0d2db71a5a",
-      "generated_at": "2026-08-15T03:01:57Z",
-      "provenance_digest": "sha256:220e69646dddcedff69ce2c17bada3de917fe461697f70e49f6d77422274cbe6",
+      "git_head": "19037e960943be9f05cc048938ca384f23317354",
+      "generated_at": "2026-08-15T03:07:42Z",
+      "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -49729,6 +49725,7 @@
         "pose-release-workflow-hardening": "sha256:2547cd3feba72acf82097edd43bf66120038fccfe461d5b424e65d125960311d",
         "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-root-file-classification": "sha256:ab625780c69c44af6dbb845797802c1e0c67258ff78874c9f7a93e8025dac704",
+        "pose-review-scope-trailer-check": "sha256:b5a99e1754dc79cfa8f2eb0e455302b22402b632ff8cb6f680ed00416c164f36",
         "pose-sbom-license-coverage-gate": "sha256:348abb3ad705d1854f9c9b8b6a2b1f668030d4392d5dafeabff4a680c4574b50",
         "pose-sbom-license-inventory": "sha256:0e6d1eac87b522242aec3e506fb8997b0a857eb99202a18f186af60c403f74d7",
         "pose-sbom-negative-coverage": "sha256:d588bd606adac3f66ddbe254321c48e79b1a746b25ebff4b4a26a16cc791a8fe",
@@ -49753,9 +49750,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9836fb01c31a68805ecc3b609e79be0d2db71a5a",
-      "generated_at": "2026-08-15T03:01:57Z",
-      "provenance_digest": "sha256:220e69646dddcedff69ce2c17bada3de917fe461697f70e49f6d77422274cbe6",
+      "git_head": "19037e960943be9f05cc048938ca384f23317354",
+      "generated_at": "2026-08-15T03:07:42Z",
+      "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -49796,6 +49793,7 @@
         "pose-release-workflow-hardening": "sha256:2547cd3feba72acf82097edd43bf66120038fccfe461d5b424e65d125960311d",
         "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-root-file-classification": "sha256:ab625780c69c44af6dbb845797802c1e0c67258ff78874c9f7a93e8025dac704",
+        "pose-review-scope-trailer-check": "sha256:b5a99e1754dc79cfa8f2eb0e455302b22402b632ff8cb6f680ed00416c164f36",
         "pose-sbom-license-coverage-gate": "sha256:348abb3ad705d1854f9c9b8b6a2b1f668030d4392d5dafeabff4a680c4574b50",
         "pose-sbom-license-inventory": "sha256:0e6d1eac87b522242aec3e506fb8997b0a857eb99202a18f186af60c403f74d7",
         "pose-sbom-negative-coverage": "sha256:d588bd606adac3f66ddbe254321c48e79b1a746b25ebff4b4a26a16cc791a8fe",
@@ -49820,9 +49818,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9836fb01c31a68805ecc3b609e79be0d2db71a5a",
-      "generated_at": "2026-08-15T03:01:57Z",
-      "provenance_digest": "sha256:220e69646dddcedff69ce2c17bada3de917fe461697f70e49f6d77422274cbe6",
+      "git_head": "19037e960943be9f05cc048938ca384f23317354",
+      "generated_at": "2026-08-15T03:07:42Z",
+      "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -49863,6 +49861,7 @@
         "pose-release-workflow-hardening": "sha256:2547cd3feba72acf82097edd43bf66120038fccfe461d5b424e65d125960311d",
         "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-root-file-classification": "sha256:ab625780c69c44af6dbb845797802c1e0c67258ff78874c9f7a93e8025dac704",
+        "pose-review-scope-trailer-check": "sha256:b5a99e1754dc79cfa8f2eb0e455302b22402b632ff8cb6f680ed00416c164f36",
         "pose-sbom-license-coverage-gate": "sha256:348abb3ad705d1854f9c9b8b6a2b1f668030d4392d5dafeabff4a680c4574b50",
         "pose-sbom-license-inventory": "sha256:0e6d1eac87b522242aec3e506fb8997b0a857eb99202a18f186af60c403f74d7",
         "pose-sbom-negative-coverage": "sha256:d588bd606adac3f66ddbe254321c48e79b1a746b25ebff4b4a26a16cc791a8fe",
@@ -49887,9 +49886,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9836fb01c31a68805ecc3b609e79be0d2db71a5a",
-      "generated_at": "2026-08-15T03:01:57Z",
-      "provenance_digest": "sha256:220e69646dddcedff69ce2c17bada3de917fe461697f70e49f6d77422274cbe6",
+      "git_head": "19037e960943be9f05cc048938ca384f23317354",
+      "generated_at": "2026-08-15T03:07:42Z",
+      "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -49930,6 +49929,7 @@
         "pose-release-workflow-hardening": "sha256:2547cd3feba72acf82097edd43bf66120038fccfe461d5b424e65d125960311d",
         "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-root-file-classification": "sha256:ab625780c69c44af6dbb845797802c1e0c67258ff78874c9f7a93e8025dac704",
+        "pose-review-scope-trailer-check": "sha256:b5a99e1754dc79cfa8f2eb0e455302b22402b632ff8cb6f680ed00416c164f36",
         "pose-sbom-license-coverage-gate": "sha256:348abb3ad705d1854f9c9b8b6a2b1f668030d4392d5dafeabff4a680c4574b50",
         "pose-sbom-license-inventory": "sha256:0e6d1eac87b522242aec3e506fb8997b0a857eb99202a18f186af60c403f74d7",
         "pose-sbom-negative-coverage": "sha256:d588bd606adac3f66ddbe254321c48e79b1a746b25ebff4b4a26a16cc791a8fe",
@@ -49954,9 +49954,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "9836fb01c31a68805ecc3b609e79be0d2db71a5a",
-      "generated_at": "2026-08-15T03:01:57Z",
-      "provenance_digest": "sha256:220e69646dddcedff69ce2c17bada3de917fe461697f70e49f6d77422274cbe6",
+      "git_head": "19037e960943be9f05cc048938ca384f23317354",
+      "generated_at": "2026-08-15T03:07:42Z",
+      "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -49997,6 +49997,7 @@
         "pose-release-workflow-hardening": "sha256:2547cd3feba72acf82097edd43bf66120038fccfe461d5b424e65d125960311d",
         "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-root-file-classification": "sha256:ab625780c69c44af6dbb845797802c1e0c67258ff78874c9f7a93e8025dac704",
+        "pose-review-scope-trailer-check": "sha256:b5a99e1754dc79cfa8f2eb0e455302b22402b632ff8cb6f680ed00416c164f36",
         "pose-sbom-license-coverage-gate": "sha256:348abb3ad705d1854f9c9b8b6a2b1f668030d4392d5dafeabff4a680c4574b50",
         "pose-sbom-license-inventory": "sha256:0e6d1eac87b522242aec3e506fb8997b0a857eb99202a18f186af60c403f74d7",
         "pose-sbom-negative-coverage": "sha256:d588bd606adac3f66ddbe254321c48e79b1a746b25ebff4b4a26a16cc791a8fe",
@@ -50021,9 +50022,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "9836fb01c31a68805ecc3b609e79be0d2db71a5a",
-      "generated_at": "2026-08-15T03:01:57Z",
-      "provenance_digest": "sha256:220e69646dddcedff69ce2c17bada3de917fe461697f70e49f6d77422274cbe6",
+      "git_head": "19037e960943be9f05cc048938ca384f23317354",
+      "generated_at": "2026-08-15T03:07:42Z",
+      "provenance_digest": "sha256:161eb964bd2e8d33b6fd918a01f27a62fa61bed939321f7b555fcc64906d307d",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -50064,6 +50065,7 @@
         "pose-release-workflow-hardening": "sha256:2547cd3feba72acf82097edd43bf66120038fccfe461d5b424e65d125960311d",
         "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-root-file-classification": "sha256:ab625780c69c44af6dbb845797802c1e0c67258ff78874c9f7a93e8025dac704",
+        "pose-review-scope-trailer-check": "sha256:b5a99e1754dc79cfa8f2eb0e455302b22402b632ff8cb6f680ed00416c164f36",
         "pose-sbom-license-coverage-gate": "sha256:348abb3ad705d1854f9c9b8b6a2b1f668030d4392d5dafeabff4a680c4574b50",
         "pose-sbom-license-inventory": "sha256:0e6d1eac87b522242aec3e506fb8997b0a857eb99202a18f186af60c403f74d7",
         "pose-sbom-negative-coverage": "sha256:d588bd606adac3f66ddbe254321c48e79b1a746b25ebff4b4a26a16cc791a8fe",
@@ -50091,10 +50093,7 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: test"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -50115,12 +50114,7 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: test",
-        "check is missing, failing or stale: delivery-integration",
-        "check is missing, failing or stale: delivery-reachability"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -50140,10 +50134,7 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-reachability"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -50154,10 +50145,7 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-integration"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -50195,10 +50183,7 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-integration"
-      ]
+      "passed": true
     }
   ],
   "paths": {
@@ -51343,13 +51328,6 @@
       "delivery:surface:dora-five-metrics-v2",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-reachability"
-    ],
-    "surface:pose-mcp-cli": [
-      "spec:pose-review-scope-trailer-check",
-      "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
-      "artifact:pose-mcp/internal/cli/doctor.go",
-      "delivery:surface:pose-mcp-cli",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "surface:pose-usage-cli": [
       "spec:pose-usage-metrics",
