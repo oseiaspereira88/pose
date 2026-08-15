@@ -15,6 +15,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // doctorSchemaVersion versions doctor's own JSON output shape (distinct
@@ -318,6 +320,48 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		add("hooks.pre-commit", "warn", text("pre-commit hook not installed", "pre-commit não instalado"), text("run 'pose hooks install' for an automatic commit gate", "rode 'pose hooks install' para gate automático no commit"))
 	} else {
 		add("hooks.pre-commit", "ok", text("pre-commit hook installed", "pre-commit instalado"), "")
+	}
+
+	// 8. Delivery-integrity / artifact-contract policy roots (issue #17): a
+	// v1.2.0 `pose install`/`pose update --force` could seed
+	// .pose/policy/{delivery,artifacts}.json with roots copied verbatim from
+	// pose-mcp's own source tree (fixed at the source in
+	// internal/scaffold/distpolicy — see NeutralPolicyTemplates). An instance
+	// that already seeded those files before the fix keeps the contaminated
+	// content — `pose install`/`update` never overwrite an existing policy
+	// file — so detect it here instead of relying on a fresh
+	// install/update to self-heal.
+	if dp, err := posemodel.LoadDeliveryPolicy(root); err == nil && dp.Enabled && len(dp.Roots) > 0 {
+		var missing []string
+		for _, r := range dp.Roots {
+			if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(r.Path))); err != nil {
+				missing = append(missing, r.Path)
+			}
+		}
+		if len(missing) == len(dp.Roots) {
+			add("policy.delivery-roots", "warn",
+				fmt.Sprintf(text("delivery policy roots do not exist in this project: %s", "raízes da política de entrega não existem neste projeto: %s"), strings.Join(missing, ", ")),
+				text("check .pose/policy/delivery.json — roots may have been inherited from a contaminated pose-mcp v1.2.0 template (github.com/oseiaspereira88/pose issue #17); replace with this project's own module paths",
+					".pose/policy/delivery.json — as roots podem ter vindo de um template pose-mcp v1.2.0 contaminado (issue #17); substitua pelos caminhos reais deste projeto"))
+		} else {
+			add("policy.delivery-roots", "ok", text("delivery policy roots resolve in this project", "raízes da política de entrega resolvem neste projeto"), "")
+		}
+	}
+	if ap, err := posemodel.LoadArtifactPolicy(root); err == nil && ap.Enabled && len(ap.GovernedRoots) > 0 {
+		var missing []string
+		for _, p := range ap.GovernedRoots {
+			if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(p))); err != nil {
+				missing = append(missing, p)
+			}
+		}
+		if len(missing) == len(ap.GovernedRoots) {
+			add("policy.artifact-roots", "warn",
+				fmt.Sprintf(text("artifact policy governed_roots do not exist in this project: %s", "governed_roots da política de artefatos não existem neste projeto: %s"), strings.Join(missing, ", ")),
+				text("check .pose/policy/artifacts.json — governed_roots may have been inherited from a contaminated pose-mcp v1.2.0 template (github.com/oseiaspereira88/pose issue #17); replace with this project's own source directories",
+					".pose/policy/artifacts.json — governed_roots podem ter vindo de um template pose-mcp v1.2.0 contaminado (issue #17); substitua pelos diretórios reais deste projeto"))
+		} else {
+			add("policy.artifact-roots", "ok", text("artifact policy governed_roots resolve in this project", "governed_roots da política de artefatos resolvem neste projeto"), "")
+		}
 	}
 
 	return root, findings

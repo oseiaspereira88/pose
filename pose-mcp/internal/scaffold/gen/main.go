@@ -74,6 +74,16 @@ func main() {
 	if err != nil {
 		fatal(err)
 	}
+	for rel, content := range distpolicy.NeutralPolicyTemplates() {
+		target := filepath.Join(dst, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			fatal(err)
+		}
+		if err := os.WriteFile(target, content, 0o644); err != nil {
+			fatal(err)
+		}
+		copied++
+	}
 	fmt.Printf("scaffold: %d files synced from pose-dist\n", copied)
 }
 

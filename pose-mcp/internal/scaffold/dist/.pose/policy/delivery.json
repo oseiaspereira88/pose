@@ -1,28 +1,10 @@
 {
+  "_comment": "Delivery-integrity policy (spec pose-delivery-surface-assurance). Disabled by default: roots/entrypoints must name this project's own source paths, not pose-mcp's. Set enabled=true and populate roots once configured for this project.",
   "schema_version": 1,
-  "enabled": true,
-  "adopted_at": "2026-08-04",
+  "enabled": false,
+  "adopted_at": "",
   "results_path": ".pose/results/delivery-validation.json",
-  "roots": [
-    {
-      "path": "pose-mcp/internal/cli",
-      "kind": "surface",
-      "profile": "cli-surface",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "path": "pose-mcp/internal/mcpserver",
-      "kind": "contract",
-      "profile": "api-contract",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "path": "pose-mcp/internal/pose",
-      "kind": "capability",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    }
-  ],
+  "roots": [],
   "severities": {
     "unconnected-artifact": "error",
     "unconsumed-capability": "error",

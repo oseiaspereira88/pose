@@ -310,3 +310,131 @@ func TestDoctorFixSkillsSymlinks(t *testing.T) {
 		t.Errorf("symlink target = %q, want %q", target, scaffold.ClaudeSkillLinks[staleName])
 	}
 }
+
+// TestDoctorDetectsContaminatedPolicyRoots is a regression test for issue #17:
+// a v1.2.0 `pose install`/`pose update --force` could seed
+// .pose/policy/{delivery,artifacts}.json with roots copied verbatim from
+// pose-mcp's own source tree. Because `pose install`/`update` never overwrite
+// an existing policy file, an instance seeded before the fix keeps the
+// contaminated content even after upgrading the pose binary — `pose doctor`
+// must surface it so the operator can fix it by hand.
+func TestDoctorDetectsContaminatedPolicyRoots(t *testing.T) {
+	repo := newGitRepo(t)
+	poseDir := filepath.Join(repo, ".pose")
+	if err := os.MkdirAll(filepath.Join(poseDir, "policy"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(poseDir, "schema-version"), []byte("1\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	contaminatedDelivery := `{
+  "schema_version": 1,
+  "enabled": true,
+  "adopted_at": "2026-08-04",
+  "results_path": ".pose/results/delivery-validation.json",
+  "roots": [
+    {"path": "pose-mcp/internal/cli", "kind": "surface", "profile": "cli-surface", "entrypoint": "pose-mcp/cmd/pose/main.go"}
+  ],
+  "severities": {}
+}`
+	contaminatedArtifacts := `{
+  "schema_version": 1,
+  "enabled": true,
+  "adopted_at": "2026-08-03",
+  "governed_roots": ["pose-mcp/internal"],
+  "severities": {}
+}`
+	if err := os.WriteFile(filepath.Join(poseDir, "policy", "delivery.json"), []byte(contaminatedDelivery), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(poseDir, "policy", "artifacts.json"), []byte(contaminatedArtifacts), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		if code := Main([]string{"doctor", "--json"}, &out, &errB); code != 0 {
+			t.Fatalf("doctor exit=%d out=%s err=%s", code, out.String(), errB.String())
+		}
+		var report struct {
+			Findings []doctorFinding `json:"findings"`
+		}
+		if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+			t.Fatalf("invalid JSON output: %v\n%s", err, out.String())
+		}
+		var sawDelivery, sawArtifact bool
+		for _, f := range report.Findings {
+			switch f.Check {
+			case "policy.delivery-roots":
+				sawDelivery = true
+				if f.Level != "warn" || f.RemediationClass != remediationDetectable {
+					t.Errorf("policy.delivery-roots: level=%q class=%q, want warn/detectable", f.Level, f.RemediationClass)
+				}
+				if !strings.Contains(f.Hint, "issue #17") {
+					t.Errorf("policy.delivery-roots hint missing issue pointer: %q", f.Hint)
+				}
+			case "policy.artifact-roots":
+				sawArtifact = true
+				if f.Level != "warn" || f.RemediationClass != remediationDetectable {
+					t.Errorf("policy.artifact-roots: level=%q class=%q, want warn/detectable", f.Level, f.RemediationClass)
+				}
+			}
+		}
+		if !sawDelivery {
+			t.Error("expected a policy.delivery-roots finding for contaminated roots")
+		}
+		if !sawArtifact {
+			t.Error("expected a policy.artifact-roots finding for contaminated governed_roots")
+		}
+	})
+}
+
+// TestDoctorSilentOnLegitimatePolicyRoots ensures the new check does not
+// false-positive on a project whose policy roots genuinely exist on disk.
+func TestDoctorSilentOnLegitimatePolicyRoots(t *testing.T) {
+	repo := newGitRepo(t)
+	poseDir := filepath.Join(repo, ".pose")
+	if err := os.MkdirAll(filepath.Join(poseDir, "policy"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(repo, "cmd"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(repo, "cmd", "main.go"), []byte("package main\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(poseDir, "schema-version"), []byte("1\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	legitDelivery := `{
+  "schema_version": 1,
+  "enabled": true,
+  "adopted_at": "2026-08-04",
+  "results_path": ".pose/results/delivery-validation.json",
+  "roots": [
+    {"path": "cmd", "kind": "surface", "profile": "cli-surface", "entrypoint": "cmd/main.go"}
+  ],
+  "severities": {}
+}`
+	if err := os.WriteFile(filepath.Join(poseDir, "policy", "delivery.json"), []byte(legitDelivery), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		if code := Main([]string{"doctor", "--json"}, &out, &errB); code != 0 {
+			t.Fatalf("doctor exit=%d out=%s err=%s", code, out.String(), errB.String())
+		}
+		var report struct {
+			Findings []doctorFinding `json:"findings"`
+		}
+		if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+			t.Fatalf("invalid JSON output: %v\n%s", err, out.String())
+		}
+		for _, f := range report.Findings {
+			if f.Check == "policy.delivery-roots" && f.Level != "ok" {
+				t.Errorf("expected policy.delivery-roots=ok for legitimate roots, got %+v", f)
+			}
+		}
+	})
+}

@@ -242,6 +242,54 @@ func TestSubmitWithoutHarnessConfiguredIsAConfigError(t *testing.T) {
 	}
 }
 
+// TestApproveOverStdioNamesTheStructuralGapAndTheAlternative is a regression
+// test for issue #17 achado 2: stdio has no X-MCP-Execution-Identity header
+// channel, so pose_validate_approve is structurally unavailable there (not a
+// missing configuration). The diagnostic must say so and point at `pose
+// review attest`/`pose review auto-attest` as the supported local
+// alternative, instead of the generic "anonymous caller" message that reads
+// as user error.
+func TestApproveOverStdioNamesTheStructuralGapAndTheAlternative(t *testing.T) {
+	secret := []byte("test-secret-32-bytes-minimum!!!!")
+	s, _ := orchServer(t, secret)
+	ctx := context.Background()
+
+	reqResp := s.dispatchRPC(ctx, rpcRequest{
+		JSONRPC: "2.0", ID: json.RawMessage(`1`), Method: "tools/call",
+		Params: json.RawMessage(`{"name":"pose_validate_request","arguments":{}}`),
+	})
+	reqResult, _ := reqResp.Result.(map[string]any)
+	reqContent, _ := reqResult["content"].([]map[string]any)
+	var sc struct {
+		RequestID string `json:"request_id"`
+		Plan      struct {
+			Digest string `json:"digest"`
+		} `json:"plan"`
+	}
+	if len(reqContent) == 0 || json.Unmarshal([]byte(reqContent[0]["text"].(string)), &sc) != nil || sc.RequestID == "" || sc.Plan.Digest == "" {
+		t.Fatalf("could not extract plan from result: %+v", reqResult)
+	}
+	requestID, digest := sc.RequestID, sc.Plan.Digest
+
+	approveResp := s.dispatchRPC(ctx, rpcRequest{
+		JSONRPC: "2.0", ID: json.RawMessage(`2`), Method: "tools/call",
+		Params: json.RawMessage(`{"name":"pose_validate_approve","arguments":{"request_id":` + quote(requestID) + `,"plan_digest":` + quote(digest) + `,"decision":"approve"}}`),
+	})
+	approveResult, _ := approveResp.Result.(map[string]any)
+	isErr, _ := approveResult["isError"].(bool)
+	if !isErr {
+		t.Fatal("approval over stdio must still be denied — no identity header channel exists")
+	}
+	content, _ := approveResult["content"].([]map[string]any)
+	text, _ := content[0]["text"].(string)
+	if !strings.Contains(text, "stdio") {
+		t.Errorf("expected the diagnostic to name stdio as the structural cause, got: %s", text)
+	}
+	if !strings.Contains(text, "review attest") {
+		t.Errorf("expected the diagnostic to point at `pose review attest` as the alternative, got: %s", text)
+	}
+}
+
 func TestValidateOrchestrationToolsInCatalog(t *testing.T) {
 	want := map[string]bool{
 		"pose_validate_request": true, "pose_validate_approve": true,

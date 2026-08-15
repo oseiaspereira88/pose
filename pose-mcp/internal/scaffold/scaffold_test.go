@@ -98,6 +98,23 @@ func TestEmbeddedDistMatchesPoseDist(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Self-referential policy files (distpolicy.SelfReferentialPolicyFiles)
+	// are deliberately NOT a byte copy of pose-dist's own live policy — see
+	// distpolicy.NeutralPolicyTemplates. IsIncluded already drops them from
+	// `src`, so the generic diff below would otherwise flag the embedded
+	// copy as spurious "extra". Check them against the known placeholder
+	// instead, then remove from `embedded` before the generic diff.
+	for rel, want := range distpolicy.NeutralPolicyTemplates() {
+		got, ok := embedded[rel]
+		if !ok {
+			t.Fatalf("embedded dist missing neutral policy placeholder %s — run `go generate ./internal/scaffold`", rel)
+		}
+		if !bytes.Equal(got, want) {
+			t.Fatalf("embedded dist %s does not match distpolicy.NeutralPolicyTemplates() — run `go generate ./internal/scaffold`\ngot:\n%s\nwant:\n%s", rel, got, want)
+		}
+		delete(embedded, rel)
+	}
+
 	var missing, extra, differs []string
 	for rel := range src {
 		if _, ok := embedded[rel]; !ok {

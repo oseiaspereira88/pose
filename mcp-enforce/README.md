@@ -48,6 +48,16 @@ binds `RunID`, `Scopes`, `ExpiresAt` (and `project_id` when absent). The gate th
   governs expiry; injectable for tests/skew). Applied locally before any OPA call.
 - `Scopes`/`run_id`/`expires_at` are carried into the OPA input document for scope policies.
 
+**stdio has no header channel.** The token above rides an HTTP request header, so Execution
+Identity binding is an HTTP-transport-only mechanism. A server running over stdio (the
+`claude-native`/subprocess deployment — no HTTP daemon) has no equivalent: every `tools/call`
+dispatches with an empty principal/project/identity token (`pose-mcp/internal/mcpserver/
+server.go`, `dispatchRPC`), so any tool that hard-requires a bound identity — e.g.
+`pose_validate_approve` — is structurally unavailable there, not misconfigured. That tool's
+local equivalent under stdio is `pose review attest`/`pose review auto-attest` (pose-mcp CLI),
+which seals a review bundle directly against the POSE store with no MCP identity requirement.
+See `.pose/adr/2026-07-19-mcp-conductor-harness-trust-boundary-for-safe-validation-orchestration.md`.
+
 ## Default-deny contract
 
 `Evaluate` denies on every failure path: marshal error, transport error, OPA HTTP ≠ 200,

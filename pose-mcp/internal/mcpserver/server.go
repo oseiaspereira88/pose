@@ -1401,6 +1401,18 @@ func (s *Server) dispatchValidateOrchestration(ctx context.Context, name string,
 		// server's default policy mode (dev/allow-all still gates approval).
 		caller := callerIdentityFromContext(ctx)
 		if caller.RunID == "" {
+			if mcpTransportFromContext(ctx) == "stdio" {
+				// Identity binding (ADR-007) needs the X-MCP-Execution-Identity
+				// HTTP header; stdio has no header channel, so this is not a
+				// missing configuration but a structural transport gap (issue
+				// #17, documented in
+				// .pose/adr/2026-07-19-mcp-conductor-harness-trust-boundary-for-safe-validation-orchestration.md).
+				// `pose review attest`/`pose review auto-attest` is the
+				// supported local equivalent: it seals a review bundle
+				// directly against the POSE store, with no MCP identity
+				// requirement.
+				return nil, fmt.Errorf("pose_validate_approve: this MCP server is running over stdio, which has no Execution Identity header — approval via this tool is unavailable on this transport (not a configuration error). Use `pose review attest`/`pose review auto-attest` on the CLI to seal the review bundle locally instead")
+			}
 			return nil, fmt.Errorf("pose_validate_approve: requires a bound Execution Identity (X-MCP-Execution-Identity) — approval cannot be anonymous")
 		}
 		return s.orch.approve(a.RequestID, a.PlanDigest, a.Decision, a.Rationale, caller.RunID, caller.Scopes)
