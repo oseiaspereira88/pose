@@ -1,5 +1,15 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-scaffold-self-referential-policy-fix",
+      "category": "fixed",
+      "breaking": false,
+      "refs": "ISSUE#17",
+      "body": "`pose install`/`pose update --force` no longer seeds a project's\n`.pose/policy/delivery.json`/`artifacts.json` with roots that describe\npose-mcp's own source tree instead of the target project's — the embedded\ntemplate now ships an explicit, disabled placeholder until the project\nconfigures its own roots. `pose doctor` also gained two new checks that warn\nwhen an already-seeded policy file's roots do not resolve on disk, so\ninstances installed before this fix can find and repair the contamination.\nSeparately, the `pose_validate_approve` MCP tool's error message now explains\nthat it is unavailable over the stdio transport by design (no Execution\nIdentity header channel exists there) and points at `pose review attest`/\n`pose review auto-attest` as the supported local alternative.",
+      "path": "pose-scaffold-self-referential-policy-fix.md",
+      "digest": "sha256:4be6b89f13a1c211a9a9c7a88708a46d0b17d042118e79cc732422ed30e95bcd"
+    }
+  ],
   "releases": [
     {
       "version": "v1.2.0",
