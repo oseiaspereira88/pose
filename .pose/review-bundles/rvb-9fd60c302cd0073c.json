@@ -1,0 +1,385 @@
+{
+  "schema_version": 1,
+  "bundle_id": "rvb-9fd60c302cd0073c",
+  "bundle_digest": "sha256:9fd60c302cd0073c6e28a768a402a2dfa2827d7b1dc1d517708649ed30bb91f2",
+  "state": "sealed",
+  "sealed_at": "2026-08-15T19:37:50Z",
+  "payload": {
+    "scope": {
+      "ref": "milestone:adaptive-instance-provisioning/index-hygiene",
+      "kind": "milestone",
+      "roadmap": "adaptive-instance-provisioning",
+      "milestone": "index-hygiene",
+      "sections": [
+        {
+          "kind": "milestone",
+          "path": "index-hygiene",
+          "digest": "sha256:4b55b9a9141243d913b63b16186dd12b9c1fd14a7bbb24f903d390e6a113ab05",
+          "reason": "governed milestone exit and cut criteria"
+        }
+      ]
+    },
+    "subject": {
+      "change_sets": [
+        "cs-d510f50c396c"
+      ],
+      "base": "0907972d4a11100ad64d069e0a09113e0725845a",
+      "head": "14b42bc3bb3d7bc0b39a9a57f0804e6e8188d79e",
+      "patch_digest": "sha256:703c058adfee88a0fb8ce876ea122b96d2d882ea6539a485bdc800feb498f3f8",
+      "tree_digest": "sha256:9546cde0f612d44f0257a193c2d049ceaa3e641dee929fbd1b4a6a2363618579",
+      "entries": [
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+          "class": "implementation",
+          "digest": "sha256:44601160d011518427b4dd9b2a42b55ec3df7e23ea775b0a25425eb09049c3cb",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/module-metadata.json",
+          "class": "implementation",
+          "digest": "sha256:3aa32eb0a61a7ad1a45ca1392689343d0707eb0ba3383a9843152052d18c439d",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/roadmaps.json",
+          "class": "implementation",
+          "digest": "sha256:0b0bd0d0a3b48fed95ea7f2fe9f458a9d2131766e409be25650af9dd2dc04614",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+          "class": "implementation",
+          "digest": "sha256:a23d65b61d366c3597552bda967e758b85c5cfc79951146ff3be2cef63fde047",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json",
+          "class": "implementation",
+          "digest": "sha256:d8a36b2938234b87ab8f81f498834a253bf981e0f14691d9a6e076feec96122c",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+          "class": "implementation",
+          "digest": "sha256:cb0917837db48ae63389680f20f0b5ea2380bde7af4816a9da6285e2066161b7",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
+          "class": "implementation",
+          "digest": "sha256:d3c0bac6d60028c628f16fa8e09fd8e23ae9a67507f5a3e13792be3de8b3cbb0",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/gen/main.go",
+          "class": "implementation",
+          "digest": "sha256:57a570e9ab719a482bbe7bb5283761cac04ebcc9d09fa035acf40c967135239c",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/scaffold_test.go",
+          "class": "implementation",
+          "digest": "sha256:9ba009b3d5455135718b307d6e289320fe5c940b0084e074c8a985f1e78ffe71",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "removed",
+          "path": ".pose/changelogs/unreleased/pose-scaffold-index-template-neutralization.md",
+          "class": "governance",
+          "reason": "attributed governance path in the immutable change set"
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:19f988fa891619dba6142d4a751b937e1d546be9bfd9c67978ac457e08d9d666",
+      "independence": "same-actor-separate-execution",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "governance-engine",
+          "owner": "@pose-maintainers",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "declared",
+          "sources": [
+            "artifact:pose-scaffold-index-template-neutralization:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+            "artifact:pose-scaffold-index-template-neutralization:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
+            "artifact:pose-scaffold-index-template-neutralization:pose-mcp/internal/scaffold/gen/main.go",
+            "artifact:pose-scaffold-index-template-neutralization:pose-mcp/internal/scaffold/scaffold_test.go",
+            "delivery:capability:scaffold-index-template-neutralization:pose-mcp",
+            "delivery:capability:scaffold-index-template-neutralization:pose-mcp/cmd/pose/main.go",
+            "observed:pose-scaffold-index-template-neutralization:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+            "observed:pose-scaffold-index-template-neutralization:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
+            "observed:pose-scaffold-index-template-neutralization:pose-mcp/internal/scaffold/gen/main.go",
+            "observed:pose-scaffold-index-template-neutralization:pose-mcp/internal/scaffold/scaffold_test.go",
+            "spec:pose-scaffold-index-template-neutralization:component:pose-mcp"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "exit-gate",
+          "description": "The milestone exit gate has falsifiable evidence.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "integration",
+          "description": "Member contracts compose without gaps or contradictions.",
+          "required": true,
+          "evidence_classes": [
+            "integration-test"
+          ],
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "membership",
+          "description": "All ordered member specs are freshly closed.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "regression",
+          "description": "Cumulative module validation passes.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "residual-risk",
+          "description": "Cross-spec risks and follow-ups are disposed.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "milestone:adaptive-instance-provisioning/index-hygiene"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "milestone:adaptive-instance-provisioning/index-hygiene"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "validation"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "examples/brownfield-kits/direct-adoption/fixture/service/go/test",
+        "module": "examples/brownfield-kits/direct-adoption/fixture/service",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "git_head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+        "provenance_digest": "sha256:a9587518af0919caad26004ad781bdc97faf0a4d02eaa4ce82b995f061d9d7fd",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "mcp-enforce/go/test",
+        "module": "mcp-enforce",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "git_head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+        "provenance_digest": "sha256:a9587518af0919caad26004ad781bdc97faf0a4d02eaa4ce82b995f061d9d7fd",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-integration",
+        "module": "pose-mcp",
+        "check": "delivery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+        "provenance_digest": "sha256:a9587518af0919caad26004ad781bdc97faf0a4d02eaa4ce82b995f061d9d7fd",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-reachability",
+        "module": "pose-mcp",
+        "check": "delivery-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "git_head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+        "provenance_digest": "sha256:a9587518af0919caad26004ad781bdc97faf0a4d02eaa4ce82b995f061d9d7fd",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-bundle-convergence",
+        "module": "pose-mcp",
+        "check": "review-bundle-convergence",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+        "provenance_digest": "sha256:a9587518af0919caad26004ad781bdc97faf0a4d02eaa4ce82b995f061d9d7fd",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test",
+        "module": "pose-mcp",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "git_head": "9d26d1ef1d335aacd7a224fadeaaf45ae888c34a",
+        "provenance_digest": "sha256:a9587518af0919caad26004ad781bdc97faf0a4d02eaa4ce82b995f061d9d7fd",
+        "report": ".pose/results/delivery-validation.json"
+      }
+    ],
+    "children": [
+      {
+        "scope": "spec:pose-scaffold-index-template-neutralization",
+        "bundle_id": "rvb-cad8b95f438051b2",
+        "bundle_digest": "sha256:cad8b95f438051b2cf60148e48580be9c01f6562a4dccec07b0aa3626945f453"
+      }
+    ],
+    "consumed_inputs": [
+      {
+        "kind": "governed-config",
+        "path": ".pose/indexes/validation-matrix.json",
+        "digest": "sha256:94f2ffd4c48937b32d146f1d0fefd96dfaaa03818439dd3bee06b37303daad42",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "governed-config",
+        "path": ".pose/policy/review.json",
+        "digest": "sha256:89a78e6ec6e1806414c669e66239831b593c08b9a182e36fae119bccecd28b5e",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "review-plan",
+        "path": "milestone-integration@1",
+        "digest": "sha256:19f988fa891619dba6142d4a751b937e1d546be9bfd9c67978ac457e08d9d666",
+        "reason": "effective component-aware plan contract"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/milestone-integration.json",
+        "digest": "sha256:4943a0af84a76feddccfdc7769db35f45adb826d7155d60cf93a2e6cbc8bb2f3",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "schema",
+        "path": "review-bundle@1",
+        "digest": "sha256:e7c9643ec88eccb2a6dea3ee3291c351983d78e1d2fa44b61399514c5021bcb0",
+        "reason": "canonical bundle and attestation schema identity"
+      },
+      {
+        "kind": "tool-catalog",
+        "path": "native-review-tools@1",
+        "digest": "sha256:19f988fa891619dba6142d4a751b937e1d546be9bfd9c67978ac457e08d9d666",
+        "reason": "closed resolved native tool contract"
+      }
+    ]
+  },
+  "excluded_inputs": [
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/pose-scaffold-index-template-neutralization/spec.md",
+      "reason": "attributed path is outside the semantic review subject"
+    }
+  ],
+  "path": ".pose/review-bundles/rvb-9fd60c302cd0073c.json"
+}
