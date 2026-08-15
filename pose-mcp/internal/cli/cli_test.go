@@ -592,6 +592,38 @@ func TestInstallEmbeddedFreshAndIdempotent(t *testing.T) {
 	}
 }
 
+// TestInstallGateFailureExplainsFilesWereAlreadyWritten pins the fix for
+// github.com/oseiaspereira88/pose#18 (secondary finding, follow-up on
+// pose-install-locale-autodetect): cmdInstall's final `pose check --strict`
+// gate runs after every file is already on disk, and is not transactional.
+// A pre-existing spec with an invalid status reliably fails that gate; the
+// failure message must say files were already written and name both
+// recovery paths (.pose-backup, git), not just "gate failed".
+func TestInstallGateFailureExplainsFilesWereAlreadyWritten(t *testing.T) {
+	repo := newGitRepo(t)
+	if err := os.MkdirAll(filepath.Join(repo, ".pose", "specs", "broken"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	broken := "---\nslug: broken\nstatus: bogus-status\ncreated_at: 2026-08-15\n---\n\n# Spec: broken\n"
+	if err := os.WriteFile(filepath.Join(repo, ".pose", "specs", "broken", "spec.md"), []byte(broken), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var out, errB bytes.Buffer
+	code := cmdInstall([]string{repo, "--skip-mcp"}, &out, &errB)
+	if code == 0 {
+		t.Fatalf("expected the post-install gate to fail on an invalid spec status, got exit=0\nout=%s", out.String())
+	}
+	if _, err := os.Stat(filepath.Join(repo, "AGENTS.md")); err != nil {
+		t.Fatalf("gate failure should not prevent earlier steps from writing files: AGENTS.md missing: %v", err)
+	}
+	if !strings.Contains(errB.String(), "already written") {
+		t.Errorf("gate failure message does not say files were already written: %s", errB.String())
+	}
+	if !strings.Contains(errB.String(), ".pose-backup") || !strings.Contains(errB.String(), "git status") {
+		t.Errorf("gate failure message does not name both recovery paths: %s", errB.String())
+	}
+}
+
 func TestInstallSeedsReviewPolicyAndProfilesWithoutOverwriting(t *testing.T) {
 	repo := newGitRepo(t)
 	var out, errOut bytes.Buffer

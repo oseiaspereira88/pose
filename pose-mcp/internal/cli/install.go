@@ -279,6 +279,19 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	log("running native final gate", "executando gate final nativo")
 	if rc := cmdCheck(target, []string{"--strict"}, stdout, stderr); rc != 0 {
 		fmt.Fprintln(stderr, text("pose install: post-install gate failed (check --strict)", "pose install: gate pós-instalação falhou (check --strict)"))
+		// The gate runs after every machinery file, doc merge and policy
+		// seed is already on disk — this command is not transactional, so
+		// failing here does not undo any of it (spec
+		// pose-install-gate-failure-recovery-notice, github.com/
+		// oseiaspereira88/pose#18). Every overwritten *existing* file has a
+		// .pose-backup copy unless --no-backup was passed; newly created
+		// files have none but show up as untracked/modified in git status
+		// on the git target install already requires (unless
+		// --allow-non-git).
+		fmt.Fprintln(stderr, text(
+			"pose install: files were already written before this failure — this command does not roll back. Recover with the .pose-backup copies (unless --no-backup) and/or `git status`/`git diff` in the target.",
+			"pose install: os arquivos já foram gravados antes desta falha — este comando não desfaz a operação. Recupere com as cópias .pose-backup (a menos que --no-backup tenha sido usado) e/ou `git status`/`git diff` no alvo.",
+		))
 		return 1
 	}
 	log("install complete — POSE is ready in %s", "instalação concluída — POSE pronto em %s", target)
