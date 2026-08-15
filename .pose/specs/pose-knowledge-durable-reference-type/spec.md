@@ -7,7 +7,7 @@ supersedes:
 depends_on:
 priority: 3
 components: pose-mcp
-delivers:
+delivers: governance:knowledge-durable-reference-type
 ---
 
 # Spec: pose-knowledge-durable-reference-type
@@ -97,6 +97,9 @@ reason.
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md
 - created: .pose/adr/2026-08-15-durable-non-architectural-knowledge-belongs-in-rules-not-a-new-type.md
 - created: .pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md
+
+### Delivery targets
+- governance:knowledge-durable-reference-type module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ---
 
