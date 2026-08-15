@@ -23,6 +23,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	text := func(english, portuguese string) string { return cliText(commandLocale, english, portuguese) }
 	var target, projectName, projectID, locale string
 	locale = "en"
+	localeExplicit := false
 	force, skipMCP, allowNonGit, noBackup := false, false, false, false
 
 	i := 0
@@ -42,6 +43,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 				projectID = v
 			case "--locale":
 				locale = v
+				localeExplicit = true
 			}
 			i += 2
 		case "--force":
@@ -102,6 +104,22 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	log("project id:   %s", "id do projeto:   %s", projectID)
 
 	dist := scaffold.Dist()
+
+	// An already-installed target's real locale is detected from its
+	// existing POSE.md the same way `pose update` (without --force) already
+	// does — but only when the caller did not pass --locale explicitly.
+	// resolveDocLocale's own short-circuit only recognizes an explicit
+	// non-en value; without localeExplicit here, an explicit `--locale en`
+	// on an already pt-BR-localized target would fall through to detection
+	// and get silently overridden back to pt-BR. machineryLocale itself
+	// returns `locale` unchanged when POSE.md is absent (fresh install:
+	// keeps defaulting to en). Without any of this, `pose install <target>`
+	// rerun on an instance, or `pose update --force` (which delegates
+	// entirely to cmdInstall), would silently revert an already-localized
+	// project's machinery to English — github.com/oseiaspereira88/pose#18.
+	if !localeExplicit {
+		locale = machineryLocale(dist, target, locale)
+	}
 
 	// 1. Native machinery: this binary is the runtime. Delivery is shared with
 	// `pose upgrade` (spec pose-machinery-distribution-contract), which is why

@@ -209,3 +209,89 @@ func TestInstallFallsBackToEnglishWhenLocaleUnsupported(t *testing.T) {
 		}
 	}
 }
+
+// TestInstallReinstallDetectsExistingLocaleWithoutFlag pins the fix for
+// github.com/oseiaspereira88/pose#18: rerunning `pose install <target>` on
+// an already pt-BR-localized instance without --locale must preserve pt-BR
+// (detected from the existing POSE.md), not silently revert to English.
+// This is also what pose update --force exercises, since its force branch
+// delegates entirely to cmdInstall.
+func TestInstallReinstallDetectsExistingLocaleWithoutFlag(t *testing.T) {
+	repo := newGitRepo(t)
+	var out, errB bytes.Buffer
+	if code := cmdInstall([]string{repo, "--skip-mcp", "--locale", "pt-BR"}, &out, &errB); code != 0 {
+		t.Fatalf("install exit=%d out=%s err=%s", code, out.String(), errB.String())
+	}
+	agents := filepath.Join(repo, "AGENTS.md")
+	before, err := os.ReadFile(agents)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !hasPortugueseAccent(string(before)) {
+		t.Fatalf("fixture did not install pt-BR content: %s", before)
+	}
+
+	out.Reset()
+	errB.Reset()
+	if code := cmdInstall([]string{repo, "--skip-mcp"}, &out, &errB); code != 0 {
+		t.Fatalf("reinstall exit=%d out=%s err=%s", code, out.String(), errB.String())
+	}
+	after, err := os.ReadFile(agents)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !hasPortugueseAccent(string(after)) {
+		t.Errorf("reinstall without --locale reverted an already pt-BR-localized project to English:\n%s", after)
+	}
+}
+
+// TestInstallFreshWithoutLocaleStillDefaultsToEnglish pins R2: a target with
+// no pre-existing POSE.md has nothing to detect a locale from, so it must
+// keep defaulting to English when --locale is omitted.
+func TestInstallFreshWithoutLocaleStillDefaultsToEnglish(t *testing.T) {
+	repo := newGitRepo(t)
+	var out, errB bytes.Buffer
+	if code := cmdInstall([]string{repo, "--skip-mcp"}, &out, &errB); code != 0 {
+		t.Fatalf("install exit=%d out=%s err=%s", code, out.String(), errB.String())
+	}
+	b, err := os.ReadFile(filepath.Join(repo, "AGENTS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hasPortugueseAccent(string(b)) {
+		t.Errorf("fresh install without --locale must default to English, found non-English content: %s", b)
+	}
+}
+
+// TestInstallExplicitLocaleOverridesDetection pins R3: an explicit --locale
+// always wins over detection, including the edge case --locale en on an
+// already pt-BR-localized instance — the case where a naive fix (always
+// calling the detector unconditionally) would silently ignore the explicit
+// flag, since resolveDocLocale's own short-circuit only special-cases
+// non-en preferred values. Uses --force on the second call: AGENTS.md/
+// POSE.md merge by heading (MergeManagedDoc) when unforced, and a
+// Portuguese heading never matches its English counterpart, so a plain
+// merge appends the old section instead of replacing it — a real, separate,
+// pre-existing limitation of the merge algorithm, not of locale resolution.
+// --force skips the merge and overwrites wholesale, which is what isolates
+// the assertion to what this fix actually controls: which locale's content
+// deliverMachinery/the docs step reads from.
+func TestInstallExplicitLocaleOverridesDetection(t *testing.T) {
+	repo := newGitRepo(t)
+	var out, errB bytes.Buffer
+	if code := cmdInstall([]string{repo, "--skip-mcp", "--locale", "pt-BR"}, &out, &errB); code != 0 {
+		t.Fatalf("install exit=%d out=%s err=%s", code, out.String(), errB.String())
+	}
+	out.Reset()
+	errB.Reset()
+	if code := cmdInstall([]string{repo, "--skip-mcp", "--force", "--locale", "en"}, &out, &errB); code != 0 {
+		t.Fatalf("reinstall exit=%d out=%s err=%s", code, out.String(), errB.String())
+	}
+	b, err := os.ReadFile(filepath.Join(repo, "AGENTS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hasPortugueseAccent(string(b)) {
+		t.Errorf("explicit --locale en did not override detection on an already pt-BR-localized instance: %s", b)
+	}
+}
