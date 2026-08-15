@@ -8,7 +8,7 @@ supersedes:
 depends_on:
 priority: 3
 components: pose-mcp
-delivers: capability:pose-mcp
+delivers:
 ---
 
 # Spec: pose-v1-2-2-changelog-review
@@ -71,9 +71,6 @@ are immutable once a version is tagged).
 
 ### Artifacts
 - none: governance
-
-### Delivery targets
-- capability:pose-mcp module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ---
 
@@ -138,26 +135,44 @@ are immutable once a version is tagged).
   `DeliveryRoot{Path: "pose-mcp", ...}` from `.pose/indexes/module-metadata.json`
   whenever that module has `deliveryRole`/`entrypoints` set — in addition to
   the three explicit `pose-mcp/internal/{cli,mcpserver,pose}` sub-roots in
-  `.pose/policy/delivery.json`. This spec's persisted change set (an
-  explicit `--change-from`/`--change-to` range) unavoidably squashed in an
-  intervening evidence commit that synced
-  `pose-mcp/internal/scaffold/dist/...` — which matches that implicit
-  "pose-mcp" root by prefix, even though the *artifact* policy's exclusions
-  list explicitly excludes `pose-mcp/internal/scaffold/dist` from
-  governance. Delivery-root matching and artifact-exclusion matching are
-  two separate mechanisms that do not share exclusions.
-- Decision: declare `delivers: capability:pose-mcp` /
-  `profile:composed-capability` (same target used by other specs whose
-  change sets touch `pose-mcp/` broadly), even though this spec makes no
-  source changes.
-- Rationale: narrowing the change set to dodge the scaffold-mirror commit
-  isn't possible without re-doing this spec's own already-persisted
-  evidence trail from scratch; declaring the module-level capability is the
-  documented, precedented way to satisfy this gate (matches
-  `pose-review-scope-trailer-check`'s own Decision, a similar case).
-- Consequences: none functionally — `composed-capability` only requires
-  `integration` evidence, which plain `pose validate --strict` already
-  provides for this repository.
+  `.pose/policy/delivery.json`. The trigger was this spec's own second
+  `pose report --change-from b48e462 --change-to 6c92e3a`: that range
+  unintentionally squashed in an *intervening* evidence-refresh commit
+  (`46b5216`) that synced `pose-mcp/internal/scaffold/dist/...` as a
+  mechanical side effect of `go generate ./internal/scaffold` — a path the
+  *artifact* policy's exclusions list explicitly excludes from governance,
+  but delivery-root matching doesn't consult that same exclusion list.
+  First attempted fix was declaring `delivers: capability:pose-mcp`, which
+  traded that error for a new one, `unconnected-artifact: delivery target
+  has no structured artifact provenance` — a `none:` spec has no artifact
+  claims to connect a delivery target to, so the two frontmatter fields
+  are mutually exclusive in this schema.
+- Options considered: (a) declare a delivery target anyway, accepting the
+  `unconnected-artifact` contradiction is unresolvable for a `none:` spec;
+  (b) fabricate an artifact claim for the scaffold-mirror path just to
+  connect the delivery target, even though that path is a mechanical,
+  policy-excluded byproduct, not something this spec designed; (c) remove
+  the wide, over-squashed change set and replace it with commit-scoped
+  single-commit ranges that never cross a pose-mcp/-touching commit, and
+  drop `delivers:` again since nothing pose-mcp-shaped is genuinely in
+  this spec's change set once correctly scoped.
+- Decision: (c). Deleted the over-wide persisted change set
+  (`.pose/reports/*-follow-up.{md,jsonl}`, `range:b48e462..6c92e3a`) and
+  replaced it with two single-commit ranges
+  (`range:6c92e3a~1..6c92e3a`, `range:74d8067~1..74d8067`), each touching
+  only `.pose/specs/pose-v1-2-2-changelog-review/spec.md`.
+- Rationale: (a)/(b) both accept or manufacture provenance this spec
+  doesn't actually have — the honest fix is correcting the change-set
+  boundary that was wrong in the first place, not working around its
+  consequence. A `pose report` range should track the actual commit(s)
+  that deliver a spec's content, not incidentally absorb whatever
+  evidence-refresh housekeeping happened to land between them in git
+  history.
+- Consequences: confirms a durable operating lesson — when persisting
+  change sets across several closeout-evidence commits for the same spec,
+  prefer several narrow single-commit `pose report` calls over one wide
+  range spanning intermediate index/validate/scaffold-sync commits,
+  *especially* for a spec with no real `delivers:` target to fall back on.
 
 ---
 
