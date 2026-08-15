@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T05:26:17Z
-baseline_commit: 43464db9afe746ac2ae3284a9100e3064cd70b55
+generated_at: 2026-08-15T05:31:46Z
+baseline_commit: ca7bd65f3506de0eea1bb86552d97d7b3916f41a
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:351af8790b15 -->
+<!-- state:derived hash:3b76843a2bbc -->
 
-- specs: total=97 draft=0 in-progress=0 blocked=0 done=97 superseded=0 abandoned=0
+- specs: total=98 draft=0 in-progress=0 blocked=0 done=98 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
+  - spec:pose-v1-2-2-changelog-review (2026-08-15)
   - spec:pose-review-bundle-root-file-classification (2026-08-15)
   - spec:pose-review-scope-trailer-check (2026-08-15)
   - spec:pose-scaffold-self-referential-policy-fix (2026-08-15)
-  - spec:pose-install-locale-autodetect (2026-08-15)
   - spec:pose-unified-review-convergence (2026-08-15)
-  - ... e mais 92 (ver `pose_list_specs status:done`)
+  - ... e mais 93 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:1e4f99da1aad -->
+<!-- state:derived hash:3d5e0a464a07 -->
 
-- abertos: 50
-- por criticidade: high=1 medium=16 low=33 sem-classificação=0
+- abertos: 51
+- por criticidade: high=1 medium=16 low=34 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=8 ativo=8 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:c0a24b93efe7 -->
+<!-- state:derived hash:2ccfd8b48815 -->
 
-- último registro: task=closeout-pose-install-locale-autodetect outcome=unknown (2026-08-15T05:24:57Z)
-- últimos 30 dias: total=228 outcome_ok=164 outcome_outro=64
-- reports revisados (.md): total=111
+- último registro: task=closeout-pose-install-gate-failure-recovery-notice outcome=unknown (2026-08-15T05:30:29Z)
+- últimos 30 dias: total=229 outcome_ok=164 outcome_outro=65
+- reports revisados (.md): total=112
+  - report:2026-08-15-standard-closeout-pose-install-gate-failure-recovery-notice.md
   - report:2026-08-15-standard-closeout-pose-install-locale-autodetect.md
   - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review-delivery-fix.md
   - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review-follow-up-note.md
   - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review.md
-  - report:2026-08-15-standard-closeout-pose-review-scope-trailer-check.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->

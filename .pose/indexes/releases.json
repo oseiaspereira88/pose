@@ -1,6 +1,15 @@
 {
   "pending": [
     {
+      "spec": "pose-install-gate-failure-recovery-notice",
+      "category": "fixed",
+      "breaking": false,
+      "refs": "ISSUE#18",
+      "body": "When `pose install`'s final `--strict` gate fails, the error message now explicitly says every file was already written before the failure (the command does not roll back) and names both recovery paths: the `.pose-backup` copy kept for every overwritten existing file, and `git status`/`git diff` on the target.",
+      "path": "pose-install-gate-failure-recovery-notice.md",
+      "digest": "sha256:691ba5d671e77c2d0c20b3ab336c6583552b80ed58dc521daf0e3a1f421cc38b"
+    },
+    {
       "spec": "pose-install-locale-autodetect",
       "category": "fixed",
       "breaking": false,
