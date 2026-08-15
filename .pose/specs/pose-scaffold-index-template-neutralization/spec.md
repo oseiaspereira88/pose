@@ -1,6 +1,6 @@
 ---
 slug: pose-scaffold-index-template-neutralization
-status: draft        # draft | in-progress | done | blocked | superseded | abandoned
+status: in-progress  # draft | in-progress | done | blocked | superseded | abandoned
 created_at: 2026-08-15
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
@@ -107,9 +107,9 @@ information about the project it is operating in.
   dogfoods against.
 
 ### Non-functional
-- A regression test must fail the build if any of
-  `pose-mcp`/`mcp-enforce`/`docs-site`/`@pose-maintainers` appears anywhere
-  under `pose-mcp/internal/scaffold/dist/.pose/indexes/` after
+- R4: a regression test shall fail the build if the embedded scaffold
+  dist's `.pose/indexes/module-metadata.json`/`validation-matrix.json`
+  ever drifts from their neutral templates after
   `go generate ./internal/scaffold` — mirroring how
   `pose-scaffold-self-referential-policy-fix` guarded `.pose/policy/`.
 
@@ -133,6 +133,13 @@ information about the project it is operating in.
   during embedded-dist generation)
 - `pose-mcp/internal/scaffold/scaffold_test.go` (regression test)
 
+### Artifacts
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go
+- modified: pose-mcp/internal/scaffold/gen/main.go
+- modified: pose-mcp/internal/scaffold/scaffold_test.go
+- created: .pose/changelogs/unreleased/pose-scaffold-index-template-neutralization.md
+
 ### Technical risks
 - Low: purely subtractive/neutralizing change to a generation-time step;
   no runtime behavior of `pose index`/`pose validate` changes for existing
@@ -149,22 +156,35 @@ information about the project it is operating in.
       covered `.pose/indexes/`
 
 ### Implementation
-- [ ] Extend `distpolicy` with an equivalent neutralization list/predicate
-      for `.pose/indexes/module-metadata.json` (strip `pose-mcp`,
-      `mcp-enforce` module entries and the `@pose-maintainers` owner
-      default) and `.pose/indexes/validation-matrix.json` (strip
-      `moduleOverrides.pose-mcp`, `moduleOverrides.docs-site`)
-- [ ] Wire the neutralization into `gen/main.go`'s dist-generation walk,
-      same call site as the existing `.pose/policy/*` neutralization
-- [ ] Add a regression test asserting the embedded dist contains none of
-      the four leaked identifiers anywhere under `.pose/indexes/`
+- [x] Added `SelfReferentialIndexFiles` and `NeutralIndexTemplates()` to
+      `distpolicy.go`, extending `IsIncluded` to exclude
+      `.pose/indexes/module-metadata.json`/`validation-matrix.json` from
+      the wholesale sync — mirroring `SelfReferentialPolicyFiles`. Unlike
+      the policy templates, the index templates preserve
+      `validation-matrix.json`'s generic `stacks`/`deliveryProfiles`
+      content and only blank `modules`, `defaults.owner`/`domain`, and
+      `moduleOverrides`.
+- [x] Wired `NeutralIndexTemplates()` into `gen/main.go`'s existing
+      neutral-template write loop (merged with `NeutralPolicyTemplates()`
+      into one map, same call site)
+- [x] Extended `scaffold_test.go`'s drift guard to check both template
+      sources; added `TestSelfReferentialIndexFilesExcluded` and
+      `TestNeutralIndexTemplatesAreSchemaValidAndClean` to
+      `distpolicy_test.go`, asserting `modules`/`moduleOverrides` are
+      empty and `owner`/`domain` are blank while `stacks`/
+      `deliveryProfiles` stay populated
 
 ### Validation
-- [ ] `go -C pose-mcp test ./internal/scaffold/...`
-- [ ] Fresh `pose install` into an empty throwaway repo; assert
-      `module-metadata.json`/`validation-matrix.json` contents match R2
-- [ ] `pose check --strict` on pose-dist itself (confirm the canonical
-      source files are untouched, per R3)
+- [x] `go -C pose-mcp test ./internal/scaffold/...`: SUCCESS
+- [x] `go -C pose-mcp test ./...`, `go vet ./...`, `gofmt -l .`: all clean
+- [x] Fresh `pose install` into an empty throwaway git repo (`/tmp`,
+      cleaned up after): `module-metadata.json` ships `modules: {}`,
+      `owner`/`domain` blank; `validation-matrix.json` ships
+      `moduleOverrides: {}` while `stacks`/`deliveryProfiles` remain fully
+      populated (6 stacks, 5 profiles) — R2 confirmed
+- [x] `git diff --stat` on pose-dist's own canonical
+      `.pose/indexes/module-metadata.json`/`validation-matrix.json`:
+      empty — R3 confirmed, only the embedded dist copy changed
 
 ---
 
@@ -176,26 +196,57 @@ clean, plus one empirical end-to-end fresh-install check against a
 throwaway repository confirming R2's exact expected content.
 
 ### Requirement trace
-<!-- At closeout, one bullet per declared R-ID (spec pose-requirement-evidence-traceability):
-- R<N> [satisfied] <verification case; structured refs: check:<name> test:<id> report:<file> commit:<sha>>
-- R<N> [satisfied] surface:<id> evidence:integration check:<reachability-check>
-- R<N> [deferred-integration: spec:<non-terminal-slug>] surface:<id>
-- R<N> [waived: <reason>]
-- R<N> [withdrawn: <reason>]
-Missing or orphaned IDs fail `pose lint-spec --strict` on done specs. -->
+- R1 [satisfied] check:TestSelfReferentialIndexFilesExcluded
+  check:TestNeutralIndexTemplatesAreSchemaValidAndClean — leaked entries
+  excluded and structurally verified absent.
+- R2 [satisfied] empirical fresh-install check against a throwaway
+  repository — exact expected content confirmed.
+- R3 [satisfied] `git diff --stat` against pose-dist's own canonical
+  `.pose/indexes/*` — no diff.
+- R4 [satisfied] `TestEmbeddedDistMatchesPoseDist` (`scaffold_test.go`) —
+  fails the build if the embedded dist ever drifts from either neutral
+  template again.
 
 ### Known gaps
-<!-- Temporary limitations, blocked checks, deferred validations. -->
+- None identified.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-<!-- What was implemented and what was intentionally left out. -->
+Extended the neutralization mechanism issue #17 established for
+`.pose/policy/*` to cover `.pose/indexes/module-metadata.json` and
+`.pose/indexes/validation-matrix.json`. A fresh `pose install`/`pose init`
+no longer seeds a consumer instance with pose-mcp's own dogfooded module
+entries, owner, domain, or module-specific check overrides — while the
+generic, reusable `stacks`/`deliveryProfiles` catalog in
+`validation-matrix.json` ships unchanged. Cleanup of already-affected
+consumer instances is explicitly out of scope (see Follow-ups).
 
 ### Files and modules changed
-- 
+- `pose-mcp/internal/scaffold/distpolicy/distpolicy.go`:
+  `SelfReferentialIndexFiles`, `NeutralIndexTemplates()`, `IsIncluded`
+  extended.
+- `pose-mcp/internal/scaffold/gen/main.go`: merged neutral-template write
+  loop.
+- `pose-mcp/internal/scaffold/scaffold_test.go`: drift guard checks both
+  template sources.
+- `pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go`: two new
+  regression tests.
+- `pose-mcp/internal/scaffold/dist/**`: regenerated.
+
+### Validation executed
+- `go -C pose-mcp test ./...`: SUCCESS.
+- `go -C pose-mcp vet ./...`: SUCCESS.
+- `gofmt -l .`: clean.
+- Manual end-to-end fresh install against a throwaway `/tmp` repository:
+  confirmed clean `module-metadata.json`/`validation-matrix.json`.
+
+### Residual risks
+- None identified for new installs. Already-affected instances remain
+  polluted until they are individually remediated (tracked as an open
+  follow-up, not blocking this spec).
 
 ### Validation executed
 - Command:

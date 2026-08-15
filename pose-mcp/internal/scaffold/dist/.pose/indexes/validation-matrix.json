@@ -5,318 +5,68 @@
   "deliveryProfiles": {
     "cli-surface": {
       "kind": "surface",
-      "requiredEvidenceClasses": [
-        "reachability"
-      ],
-      "anyEvidenceClasses": [
-        "integration",
-        "e2e"
-      ]
+      "requiredEvidenceClasses": ["reachability"],
+      "anyEvidenceClasses": ["integration", "e2e"]
     },
     "composed-capability": {
       "kind": "capability",
-      "requiredEvidenceClasses": [
-        "integration"
-      ]
+      "requiredEvidenceClasses": ["integration"]
     },
     "api-contract": {
       "kind": "contract",
-      "requiredEvidenceClasses": [
-        "integration"
-      ]
+      "requiredEvidenceClasses": ["integration"]
     },
     "release-governance": {
       "kind": "governance",
-      "requiredEvidenceClasses": [
-        "integration"
-      ]
+      "requiredEvidenceClasses": ["integration"]
     },
     "backend-go": {
       "kind": "governance",
-      "requiredEvidenceClasses": [
-        "integration"
-      ]
+      "requiredEvidenceClasses": ["integration"]
     }
   },
   "stacks": {
     "node": {
       "checks": [
-        {
-          "name": "lint",
-          "program": "npm",
-          "args": [
-            "run",
-            "lint",
-            "--if-present"
-          ],
-          "severity": "optional"
-        },
-        {
-          "name": "test",
-          "program": "npm",
-          "args": [
-            "test",
-            "--if-present"
-          ],
-          "severity": "required"
-        },
-        {
-          "name": "build",
-          "program": "npm",
-          "args": [
-            "run",
-            "build",
-            "--if-present"
-          ],
-          "severity": "required"
-        },
-        {
-          "name": "typecheck",
-          "program": "npm",
-          "args": [
-            "run",
-            "typecheck",
-            "--if-present"
-          ],
-          "severity": "optional"
-        }
+        {"name": "lint", "program": "npm", "args": ["run", "lint", "--if-present"], "severity": "optional"},
+        {"name": "test", "program": "npm", "args": ["test", "--if-present"], "severity": "required"},
+        {"name": "build", "program": "npm", "args": ["run", "build", "--if-present"], "severity": "required"},
+        {"name": "typecheck", "program": "npm", "args": ["run", "typecheck", "--if-present"], "severity": "optional"}
       ]
     },
     "go": {
       "checks": [
-        {
-          "name": "test",
-          "program": "go",
-          "args": [
-            "test",
-            "./..."
-          ],
-          "severity": "required",
-          "evidenceClass": "unit"
-        },
-        {
-          "name": "vet",
-          "program": "go",
-          "args": [
-            "vet",
-            "./..."
-          ],
-          "severity": "optional",
-          "evidenceClass": "build"
-        }
+        {"name": "test", "program": "go", "args": ["test", "./..."], "severity": "required", "evidenceClass": "unit"},
+        {"name": "vet", "program": "go", "args": ["vet", "./..."], "severity": "optional", "evidenceClass": "build"}
       ]
     },
     "rust": {
       "checks": [
-        {
-          "name": "test",
-          "program": "cargo",
-          "args": [
-            "test"
-          ],
-          "severity": "required"
-        }
+        {"name": "test", "program": "cargo", "args": ["test"], "severity": "required"}
       ]
     },
     "java": {
       "checks": [
-        {
-          "name": "maven-test",
-          "program": "mvn",
-          "args": [
-            "-B",
-            "test"
-          ],
-          "severity": "required",
-          "when": {
-            "fileExists": "pom.xml"
-          }
-        },
-        {
-          "name": "gradle-test",
-          "program": "./gradlew",
-          "args": [
-            "test"
-          ],
-          "severity": "required",
-          "when": {
-            "fileExists": "gradlew"
-          }
-        },
-        {
-          "name": "gradle-test-wrapper",
-          "program": "gradle",
-          "args": [
-            "test"
-          ],
-          "severity": "required",
-          "when": {
-            "fileExists": "build.gradle",
-            "fileNotExists": "gradlew"
-          }
-        },
-        {
-          "name": "gradle-test-wrapper-kts",
-          "program": "gradle",
-          "args": [
-            "test"
-          ],
-          "severity": "required",
-          "when": {
-            "fileExists": "build.gradle.kts",
-            "fileNotExists": "gradlew"
-          }
-        }
+        {"name": "maven-test", "program": "mvn", "args": ["-B", "test"], "severity": "required", "when": {"fileExists": "pom.xml"}},
+        {"name": "gradle-test", "program": "./gradlew", "args": ["test"], "severity": "required", "when": {"fileExists": "gradlew"}},
+        {"name": "gradle-test-wrapper", "program": "gradle", "args": ["test"], "severity": "required", "when": {"fileExists": "build.gradle", "fileNotExists": "gradlew"}},
+        {"name": "gradle-test-wrapper-kts", "program": "gradle", "args": ["test"], "severity": "required", "when": {"fileExists": "build.gradle.kts", "fileNotExists": "gradlew"}}
       ]
     },
     "python": {
       "checks": [
-        {
-          "name": "poetry-test",
-          "program": "poetry",
-          "args": [
-            "run",
-            "pytest",
-            "-q"
-          ],
-          "severity": "required",
-          "when": {
-            "fileExists": "poetry.lock"
-          }
-        },
-        {
-          "name": "pipenv-test",
-          "program": "pipenv",
-          "args": [
-            "run",
-            "pytest",
-            "-q"
-          ],
-          "severity": "required",
-          "when": {
-            "fileExists": "Pipfile",
-            "fileNotExistsAny": [
-              "poetry.lock"
-            ]
-          }
-        },
-        {
-          "name": "pip-test",
-          "program": "pytest",
-          "args": [
-            "-q"
-          ],
-          "severity": "required",
-          "when": {
-            "fileExists": "requirements.txt",
-            "fileNotExistsAny": [
-              "poetry.lock",
-              "Pipfile"
-            ]
-          }
-        },
-        {
-          "name": "setuptools-test",
-          "program": "pytest",
-          "args": [
-            "-q"
-          ],
-          "severity": "required",
-          "when": {
-            "fileExists": "setup.py",
-            "fileNotExistsAny": [
-              "poetry.lock",
-              "Pipfile",
-              "requirements.txt"
-            ]
-          }
-        },
-        {
-          "name": "pep517-test",
-          "program": "pytest",
-          "args": [
-            "-q"
-          ],
-          "severity": "optional",
-          "when": {
-            "fileExists": "pyproject.toml",
-            "fileNotExistsAny": [
-              "poetry.lock",
-              "Pipfile",
-              "requirements.txt",
-              "setup.py"
-            ]
-          }
-        }
+        {"name": "poetry-test", "program": "poetry", "args": ["run", "pytest", "-q"], "severity": "required", "when": {"fileExists": "poetry.lock"}},
+        {"name": "pipenv-test", "program": "pipenv", "args": ["run", "pytest", "-q"], "severity": "required", "when": {"fileExists": "Pipfile", "fileNotExistsAny": ["poetry.lock"]}},
+        {"name": "pip-test", "program": "pytest", "args": ["-q"], "severity": "required", "when": {"fileExists": "requirements.txt", "fileNotExistsAny": ["poetry.lock", "Pipfile"]}},
+        {"name": "setuptools-test", "program": "pytest", "args": ["-q"], "severity": "required", "when": {"fileExists": "setup.py", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt"]}},
+        {"name": "pep517-test", "program": "pytest", "args": ["-q"], "severity": "optional", "when": {"fileExists": "pyproject.toml", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt", "setup.py"]}}
       ]
     },
     "dotnet": {
       "checks": [
-        {
-          "name": "dotnet-test",
-          "program": "dotnet",
-          "args": [
-            "test"
-          ],
-          "severity": "required"
-        }
+        {"name": "dotnet-test", "program": "dotnet", "args": ["test"], "severity": "required"}
       ]
     }
   },
-  "moduleOverrides": {
-    "pose-mcp": {
-      "stack": "go",
-      "checks": [
-        {
-          "name": "delivery-integration",
-          "program": "go",
-          "args": [
-            "test",
-            "./internal/pose",
-            "./internal/cli",
-            "./internal/mcpserver",
-            "-run",
-            "Delivery|Surface|RoadmapCheck",
-            "-count=1"
-          ],
-          "severity": "required",
-          "evidenceClass": "integration"
-        },
-        {
-          "name": "delivery-reachability",
-          "program": "go",
-          "args": [
-            "test",
-            "./internal/cli",
-            "./internal/mcpserver",
-            "-run",
-            "Surface|DeliveryIntegrity|RoadmapCheck",
-            "-count=1"
-          ],
-          "severity": "required",
-          "evidenceClass": "reachability"
-        },
-        {
-          "name": "review-bundle-convergence",
-          "program": "go",
-          "args": [
-            "test",
-            "./internal/pose",
-            "./internal/cli",
-            "./internal/mcpserver",
-            "-run",
-            "ReviewBundle|ReviewAttestation|ReviewPlanGroupsRepeatedWarnings|ReviewPlanActionableToolPhases|ToolCatalog",
-            "-count=1"
-          ],
-          "severity": "required",
-          "evidenceClass": "integration"
-        }
-      ]
-    },
-    "docs-site": {
-      "stack": "python",
-      "replaceDefaultChecks": true,
-      "checks": []
-    }
-  }
+  "moduleOverrides": {}
 }

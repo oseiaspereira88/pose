@@ -104,13 +104,20 @@ func TestEmbeddedDistMatchesPoseDist(t *testing.T) {
 	// `src`, so the generic diff below would otherwise flag the embedded
 	// copy as spurious "extra". Check them against the known placeholder
 	// instead, then remove from `embedded` before the generic diff.
-	for rel, want := range distpolicy.NeutralPolicyTemplates() {
+	neutralTemplates := map[string][]byte{}
+	for rel, content := range distpolicy.NeutralPolicyTemplates() {
+		neutralTemplates[rel] = content
+	}
+	for rel, content := range distpolicy.NeutralIndexTemplates() {
+		neutralTemplates[rel] = content
+	}
+	for rel, want := range neutralTemplates {
 		got, ok := embedded[rel]
 		if !ok {
-			t.Fatalf("embedded dist missing neutral policy placeholder %s — run `go generate ./internal/scaffold`", rel)
+			t.Fatalf("embedded dist missing neutral placeholder %s — run `go generate ./internal/scaffold`", rel)
 		}
 		if !bytes.Equal(got, want) {
-			t.Fatalf("embedded dist %s does not match distpolicy.NeutralPolicyTemplates() — run `go generate ./internal/scaffold`\ngot:\n%s\nwant:\n%s", rel, got, want)
+			t.Fatalf("embedded dist %s does not match its neutral template — run `go generate ./internal/scaffold`\ngot:\n%s\nwant:\n%s", rel, got, want)
 		}
 		delete(embedded, rel)
 	}

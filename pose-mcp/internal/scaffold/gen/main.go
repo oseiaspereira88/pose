@@ -74,7 +74,14 @@ func main() {
 	if err != nil {
 		fatal(err)
 	}
+	neutralTemplates := map[string][]byte{}
 	for rel, content := range distpolicy.NeutralPolicyTemplates() {
+		neutralTemplates[rel] = content
+	}
+	for rel, content := range distpolicy.NeutralIndexTemplates() {
+		neutralTemplates[rel] = content
+	}
+	for rel, content := range neutralTemplates {
 		target := filepath.Join(dst, filepath.FromSlash(rel))
 		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 			fatal(err)

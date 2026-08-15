@@ -1,5 +1,47 @@
 {
   "roadmaps": {
+    "adaptive-instance-provisioning": {
+      "created_at": "2026-08-15",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "index-hygiene",
+          "specs": [
+            "pose-scaffold-index-template-neutralization"
+          ]
+        },
+        {
+          "id": "rule-extensionization",
+          "specs": [
+            "pose-domain-rule-extension-migration"
+          ]
+        },
+        {
+          "id": "stack-detection",
+          "specs": [
+            "pose-stack-detection-consolidation"
+          ]
+        },
+        {
+          "id": "adaptive-delivery",
+          "after": [
+            "rule-extensionization",
+            "stack-detection"
+          ],
+          "specs": [
+            "pose-adaptive-rule-delivery"
+          ]
+        },
+        {
+          "id": "monorepo-advisory",
+          "specs": [
+            "pose-monorepo-validation-advisory"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/adaptive-instance-provisioning.md",
+      "status": "draft"
+    },
     "adoption-developer-experience": {
       "created_at": "2026-07-18",
       "depends_on": null,

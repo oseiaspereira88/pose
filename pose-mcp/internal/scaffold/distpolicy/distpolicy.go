@@ -78,6 +78,28 @@ var SelfReferentialPolicyFiles = []string{
 	"artifacts.json",
 }
 
+// SelfReferentialIndexFiles are `.pose/indexes/` files whose live content in
+// *this* repository describes pose-mcp's own dogfooded module graph — not a
+// generic default. `module-metadata.json` names pose-mcp/mcp-enforce with
+// owner @pose-maintainers; `validation-matrix.json`'s `moduleOverrides` names
+// pose-mcp's own internal package paths and docs-site's Python override.
+// Copying them byte-for-byte into the embedded scaffold made every fresh
+// `pose install` on a target project inherit module entries and check
+// overrides that describe pose-mcp's development repo, not the target
+// (issue #22 — the same leak class `SelfReferentialPolicyFiles` closed for
+// `.pose/policy/` under issue #17).
+//
+// Unlike the policy files, these two are not dropped from the sync entirely:
+// `validation-matrix.json`'s `stacks` catalog (generic per-language checks)
+// and `deliveryProfiles` (generic profile kinds) are legitimate, reusable
+// defaults every instance should receive. Only the self-referential subtrees
+// (`modules`, `defaults.owner`/`defaults.domain`, `moduleOverrides`) are
+// neutralized — see NeutralIndexTemplates.
+var SelfReferentialIndexFiles = []string{
+	"module-metadata.json",
+	"validation-matrix.json",
+}
+
 // IsIncluded reports whether a slash-separated repository-relative path belongs
 // in the embedded scaffold.
 func IsIncluded(rel string) bool {
@@ -95,6 +117,9 @@ func IsIncluded(rel string) bool {
 		return false
 	}
 	if parts[1] == "policy" && len(parts) == 3 && slices.Contains(SelfReferentialPolicyFiles, parts[2]) {
+		return false
+	}
+	if parts[1] == "indexes" && len(parts) == 3 && slices.Contains(SelfReferentialIndexFiles, parts[2]) {
 		return false
 	}
 	return true
@@ -149,6 +174,103 @@ func NeutralPolicyTemplates() map[string][]byte {
     "orphan": "warning",
     "legacy-narrative": "info"
   }
+}
+`),
+	}
+}
+
+// NeutralIndexTemplates returns the embedded content for the
+// SelfReferentialIndexFiles IsIncluded excludes from the byte-for-byte sync.
+// Unlike NeutralPolicyTemplates, these placeholders are not fully empty
+// shells: validation-matrix.json's `stacks` catalog and `deliveryProfiles`
+// are generic, reusable content every instance should receive as-is — only
+// `modules`, `defaults.owner`/`defaults.domain` (module-metadata.json) and
+// `moduleOverrides` (validation-matrix.json) are neutralized, since those
+// are the subtrees that named pose-mcp's own module graph (issue #22).
+func NeutralIndexTemplates() map[string][]byte {
+	return map[string][]byte{
+		".pose/indexes/module-metadata.json": []byte(`{
+  "schemaVersion": 1,
+  "defaults": {
+    "owner": "",
+    "criticality": "medium",
+    "domain": "",
+    "validationProfile": "baseline"
+  },
+  "modules": {}
+}
+`),
+		".pose/indexes/validation-matrix.json": []byte(`{
+  "defaults": {
+    "mode": "strict"
+  },
+  "deliveryProfiles": {
+    "cli-surface": {
+      "kind": "surface",
+      "requiredEvidenceClasses": ["reachability"],
+      "anyEvidenceClasses": ["integration", "e2e"]
+    },
+    "composed-capability": {
+      "kind": "capability",
+      "requiredEvidenceClasses": ["integration"]
+    },
+    "api-contract": {
+      "kind": "contract",
+      "requiredEvidenceClasses": ["integration"]
+    },
+    "release-governance": {
+      "kind": "governance",
+      "requiredEvidenceClasses": ["integration"]
+    },
+    "backend-go": {
+      "kind": "governance",
+      "requiredEvidenceClasses": ["integration"]
+    }
+  },
+  "stacks": {
+    "node": {
+      "checks": [
+        {"name": "lint", "program": "npm", "args": ["run", "lint", "--if-present"], "severity": "optional"},
+        {"name": "test", "program": "npm", "args": ["test", "--if-present"], "severity": "required"},
+        {"name": "build", "program": "npm", "args": ["run", "build", "--if-present"], "severity": "required"},
+        {"name": "typecheck", "program": "npm", "args": ["run", "typecheck", "--if-present"], "severity": "optional"}
+      ]
+    },
+    "go": {
+      "checks": [
+        {"name": "test", "program": "go", "args": ["test", "./..."], "severity": "required", "evidenceClass": "unit"},
+        {"name": "vet", "program": "go", "args": ["vet", "./..."], "severity": "optional", "evidenceClass": "build"}
+      ]
+    },
+    "rust": {
+      "checks": [
+        {"name": "test", "program": "cargo", "args": ["test"], "severity": "required"}
+      ]
+    },
+    "java": {
+      "checks": [
+        {"name": "maven-test", "program": "mvn", "args": ["-B", "test"], "severity": "required", "when": {"fileExists": "pom.xml"}},
+        {"name": "gradle-test", "program": "./gradlew", "args": ["test"], "severity": "required", "when": {"fileExists": "gradlew"}},
+        {"name": "gradle-test-wrapper", "program": "gradle", "args": ["test"], "severity": "required", "when": {"fileExists": "build.gradle", "fileNotExists": "gradlew"}},
+        {"name": "gradle-test-wrapper-kts", "program": "gradle", "args": ["test"], "severity": "required", "when": {"fileExists": "build.gradle.kts", "fileNotExists": "gradlew"}}
+      ]
+    },
+    "python": {
+      "checks": [
+        {"name": "poetry-test", "program": "poetry", "args": ["run", "pytest", "-q"], "severity": "required", "when": {"fileExists": "poetry.lock"}},
+        {"name": "pipenv-test", "program": "pipenv", "args": ["run", "pytest", "-q"], "severity": "required", "when": {"fileExists": "Pipfile", "fileNotExistsAny": ["poetry.lock"]}},
+        {"name": "pip-test", "program": "pytest", "args": ["-q"], "severity": "required", "when": {"fileExists": "requirements.txt", "fileNotExistsAny": ["poetry.lock", "Pipfile"]}},
+        {"name": "setuptools-test", "program": "pytest", "args": ["-q"], "severity": "required", "when": {"fileExists": "setup.py", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt"]}},
+        {"name": "pep517-test", "program": "pytest", "args": ["-q"], "severity": "optional", "when": {"fileExists": "pyproject.toml", "fileNotExistsAny": ["poetry.lock", "Pipfile", "requirements.txt", "setup.py"]}}
+      ]
+    },
+    "dotnet": {
+      "checks": [
+        {"name": "dotnet-test", "program": "dotnet", "args": ["test"], "severity": "required"}
+      ]
+    }
+  },
+  "moduleOverrides": {}
 }
 `),
 	}
