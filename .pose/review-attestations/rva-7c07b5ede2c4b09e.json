@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-7c07b5ede2c4b09e",
+  "bundle_id": "rvb-620f9e3293867ec2",
+  "bundle_digest": "sha256:620f9e3293867ec232eeca4b4b2d452485a465755291ff21418fe3ee5300a12e",
+  "reviewer": "agent:claude-code",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cut-criteria",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "end-to-end",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "milestones",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "outcome",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "release-readiness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "roadmap-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "validation:auto-attest"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "unit:examples/brownfield-kits/direct-adoption/fixture/service/go/test",
+    "unit:mcp-enforce/go/test",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-08-15T19:51:19Z",
+  "path": ".pose/review-attestations/rva-7c07b5ede2c4b09e.json"
+}
