@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "version": "v1.2.2",
+  "previous_version": "v1.2.1",
+  "prepared_at": "2026-08-15T05:48:36Z",
+  "specs": [
+    "pose-install-gate-failure-recovery-notice",
+    "pose-install-locale-autodetect",
+    "pose-review-bundle-root-file-classification",
+    "pose-review-scope-trailer-check"
+  ],
+  "categories": {
+    "added": 1,
+    "fixed": 3
+  },
+  "fragments": [
+    {
+      "spec": "pose-install-gate-failure-recovery-notice",
+      "category": "fixed",
+      "breaking": false,
+      "refs": "ISSUE#18",
+      "body": "When `pose install`'s final `--strict` gate fails, the error message now explicitly says every file was already written before the failure (the command does not roll back) and names both recovery paths: the `.pose-backup` copy kept for every overwritten existing file, and `git status`/`git diff` on the target.",
+      "path": "pose-install-gate-failure-recovery-notice.md",
+      "digest": "sha256:691ba5d671e77c2d0c20b3ab336c6583552b80ed58dc521daf0e3a1f421cc38b"
+    },
+    {
+      "spec": "pose-install-locale-autodetect",
+      "category": "fixed",
+      "breaking": false,
+      "refs": "ISSUE#18",
+      "body": "`pose install \u003ctarget\u003e` rerun on an already-localized instance, and `pose update --force` (which delegates to the same code path), no longer silently revert the project's machinery (`.pose/rules`, `.pose/templates`, `.pose/workflows`, `.agents/skills`, `AGENTS.md`, `POSE.md`) to English — the existing locale is now detected from the target's own `POSE.md`, the same way a plain `pose update` already did. An explicit `--locale` still always wins.",
+      "path": "pose-install-locale-autodetect.md",
+      "digest": "sha256:2df966bd0aeb7d2c9fce57291c101e13f2d621313641bb7c70e97469ea043671"
+    },
+    {
+      "spec": "pose-review-bundle-root-file-classification",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose review bundle \u003cscope\u003e --seal` no longer fails closed with `unclassified review subject path` when the attributed change set touches the repository's `README.md` or `compatibility.json` — both are now recognized as known review-subject paths (documentation and governance respectively) instead of blocking the seal.",
+      "path": "pose-review-bundle-root-file-classification.md",
+      "digest": "sha256:0fca067492084695386111f553996182e56948e8cabfab3a305f71e60c6619c2"
+    },
+    {
+      "spec": "pose-review-scope-trailer-check",
+      "category": "added",
+      "breaking": false,
+      "refs": "ISSUE#17",
+      "body": "`pose doctor` gained a new check, `review.scope-change-set`: it warns when a spec with `delivers:` populated has no change set recorded in `.pose/reports/history/` (via `pose report --change-from`/`--change-to`), so `pose review bundle --seal` is caught failing with \"no immutable attributed change set exists\" before it happens, not after — and points directly at the `pose report` command that resolves it.",
+      "path": "pose-review-scope-trailer-check.md",
+      "digest": "sha256:9b5e09cb4bc2235a4eaa2261464569a738cf1e9908221dea2292d4f1094f63c5"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:da44e30888b1be965e9648e7eabcb63c168004b1369cd63672082f959ac0c0f8",
+  "release_input_digest": "sha256:643bd2adbdada03dc415051aca3fb8084a2138fd909265904b2921d115b07499",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.2.2"
+  }
+}
