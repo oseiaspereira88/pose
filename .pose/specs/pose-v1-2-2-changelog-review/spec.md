@@ -69,8 +69,7 @@ are immutable once a version is tagged).
 ## 3. Technical Plan
 
 ### Artifacts
-- none: governance-only review of existing changelog fragments; no source
-  or spec changes to other specs are made by this spec
+- none: governance
 
 ---
 
