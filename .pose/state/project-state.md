@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T03:09:44Z
-baseline_commit: 72a889d023ecc37a6896201dc1ccbeb61717fa24
+generated_at: 2026-08-15T03:33:18Z
+baseline_commit: f59f73a850db1ec24da25d33260b92c8d6b78089
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,9 +27,9 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:225cd781730b -->
+<!-- state:derived hash:3d235573052f -->
 
-- specs: total=95 draft=0 in-progress=0 blocked=0 done=95 superseded=0 abandoned=0
+- specs: total=96 draft=0 in-progress=1 blocked=0 done=95 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
   - spec:pose-review-bundle-root-file-classification (2026-08-15)
@@ -40,10 +40,10 @@ capacidade.
   - ... e mais 90 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:e9c35ac628c2 -->
+<!-- state:derived hash:861fb38b1499 -->
 
-- abertos: 46
-- por criticidade: high=1 medium=15 low=30 sem-classificação=0
+- abertos: 47
+- por criticidade: high=1 medium=15 low=31 sem-classificação=0
 - vencidos (review < hoje): 0
 
 ## Capabilities
