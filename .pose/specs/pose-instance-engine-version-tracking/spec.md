@@ -1,8 +1,8 @@
 ---
 slug: pose-instance-engine-version-tracking
-status: in-progress
+status: done
 created_at: 2026-08-15
-completed_at:
+completed_at: 2026-08-15
 supersedes:
 depends_on:
 priority: 3

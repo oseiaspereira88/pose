@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T06:24:27Z
-baseline_commit: 8537ee8613c82b50eaebfded47230bcd9284a9bc
+generated_at: 2026-08-15T09:06:14Z
+baseline_commit: 6175168980f024371735b46ca109de9224e8745b
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:3b76843a2bbc -->
+<!-- state:derived hash:bb0e4746b04b -->
 
-- specs: total=98 draft=0 in-progress=0 blocked=0 done=98 superseded=0 abandoned=0
+- specs: total=99 draft=0 in-progress=0 blocked=0 done=99 superseded=0 abandoned=0
 - roadmaps: total=8 active=0 done=8
 - últimos closeouts:
-  - spec:pose-v1-2-2-changelog-review (2026-08-15)
-  - spec:pose-review-bundle-root-file-classification (2026-08-15)
-  - spec:pose-review-scope-trailer-check (2026-08-15)
-  - spec:pose-scaffold-self-referential-policy-fix (2026-08-15)
   - spec:pose-unified-review-convergence (2026-08-15)
-  - ... e mais 93 (ver `pose_list_specs status:done`)
+  - spec:pose-install-gate-failure-recovery-notice (2026-08-15)
+  - spec:pose-review-bundle-root-file-classification (2026-08-15)
+  - spec:pose-install-locale-autodetect (2026-08-15)
+  - spec:pose-review-scope-trailer-check (2026-08-15)
+  - ... e mais 94 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:3d5e0a464a07 -->
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=8 ativo=8 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:2ccfd8b48815 -->
+<!-- state:derived hash:bc9ad01e3282 -->
 
-- último registro: task=closeout-pose-install-gate-failure-recovery-notice outcome=unknown (2026-08-15T05:30:29Z)
-- últimos 30 dias: total=229 outcome_ok=164 outcome_outro=65
-- reports revisados (.md): total=112
+- último registro: task=closeout-pose-instance-engine-version-tracking outcome=unknown (2026-08-15T09:04:38Z)
+- últimos 30 dias: total=230 outcome_ok=164 outcome_outro=66
+- reports revisados (.md): total=113
+  - report:2026-08-15-standard-closeout-pose-instance-engine-version-tracking.md
   - report:2026-08-15-standard-closeout-pose-install-gate-failure-recovery-notice.md
   - report:2026-08-15-standard-closeout-pose-install-locale-autodetect.md
   - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review-delivery-fix.md
   - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review-follow-up-note.md
-  - report:2026-08-15-standard-closeout-pose-v1-2-2-changelog-review.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
