@@ -515,6 +515,93 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		}
 	}
 
+	// 12. Redundant root-plus-child monorepo execution (spec
+	// pose-monorepo-validation-advisory): a root module whose configured
+	// checks delegate to workspace members (npm's --workspaces, Cargo's
+	// --workspace) alongside child modules POSE also validates directly
+	// runs those children's tests twice. The fix already exists —
+	// moduleOverrides.<path>.replaceDefaultChecks — this is purely
+	// discoverability, never an automatic skip (spec Decision 1).
+	if raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json")); err == nil {
+		if matrix, err := parseValidationMatrix(raw); err == nil {
+			if modules, err := discoverValidationModules(root); err == nil {
+				rootStack := ""
+				var children []string
+				for _, m := range modules {
+					if m.Rel == "." {
+						rootStack = m.Stack
+					} else {
+						children = append(children, m.Rel)
+					}
+				}
+				delegates := false
+				// The delegation flag (npm's --workspaces) typically lives
+				// inside the root package.json's own "scripts" values, not
+				// in POSE's generic per-stack check args — `npm test
+				// --if-present` (POSE's own invocation) reads
+				// scripts.test, and THAT string is what actually contains
+				// "--workspaces". Checking POSE's own check definitions
+				// alone (as an earlier version of this check did) never
+				// finds it, since those are stack-generic and never
+				// contain the flag themselves.
+				if rootStack == "node" {
+					if raw, err := os.ReadFile(filepath.Join(root, "package.json")); err == nil {
+						var pkg struct {
+							Scripts map[string]string `json:"scripts"`
+						}
+						if json.Unmarshal(raw, &pkg) == nil {
+							for _, script := range pkg.Scripts {
+								if strings.Contains(script, "--workspace") {
+									delegates = true
+								}
+							}
+						}
+					}
+				}
+				// Cargo has no scripts indirection layer: a workspace
+				// delegation would appear directly in POSE's own
+				// configured check args for the root (moduleOverrides["."]
+				// or the generic "rust" stack, if customized to invoke
+				// `cargo test --workspace`).
+				rootChecks := matrix.Stacks[rootStack].Checks
+				if override, ok := matrix.ModuleOverrides["."]; ok {
+					rootChecks = override.Checks
+				}
+				for _, c := range rootChecks {
+					for _, a := range c.Args {
+						if strings.Contains(a, "--workspace") {
+							delegates = true
+						}
+					}
+				}
+				var flagged []string
+				if delegates {
+					for _, childRel := range children {
+						if o, ok := matrix.ModuleOverrides[childRel]; ok && o.ReplaceDefaultChecks {
+							continue // already resolved
+						}
+						flagged = append(flagged, childRel)
+					}
+					sort.Strings(flagged)
+				}
+				if len(flagged) > 0 {
+					examples := make([]string, 0, len(flagged))
+					for _, rel := range flagged {
+						examples = append(examples, fmt.Sprintf(`"%s": {"replaceDefaultChecks": true, "checks": []}`, rel))
+					}
+					add("validate.redundant-workspace-execution", "warn",
+						fmt.Sprintf(text("root module's checks delegate to workspace members (--workspace flag) while %d child module(s) are also validated directly, likely running the same tests twice: %s",
+							"os checks do módulo raiz delegam para os membros do workspace (flag --workspace) enquanto %d módulo(s) filho(s) também são validados diretamente, provavelmente rodando os mesmos testes duas vezes: %s"),
+							len(flagged), strings.Join(flagged, ", ")),
+						text("add to .pose/indexes/validation-matrix.json's moduleOverrides to stop the direct run and keep only the root's delegated one: "+strings.Join(examples, ", "),
+							"adicione em moduleOverrides de .pose/indexes/validation-matrix.json para parar a execução direta e manter só a delegada pelo root: "+strings.Join(examples, ", ")))
+				} else {
+					add("validate.redundant-workspace-execution", "ok", text("no redundant root-plus-child execution detected", "nenhuma execução redundante raiz+filho detectada"), "")
+				}
+			}
+		}
+	}
+
 	return root, findings
 }
 

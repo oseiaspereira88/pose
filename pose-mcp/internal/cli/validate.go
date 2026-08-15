@@ -297,6 +297,8 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	changedFrom, changedTo := "", ""
 	explain := false
 	autoReport := false
+	rootOnly := false
+	workspaceFilter := ""
 	var isolationChecks []checkResult
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -308,7 +310,12 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			autoReport = true
 		case "--explain":
 			explain = true
-		case "--stack", "--module", "--report-task", "--json", "--junit", "--sarif", "--emit-plan", "--changed-from", "--changed-to":
+		case "--root-only":
+			// Documented alias of --module . (spec
+			// pose-monorepo-validation-advisory, R2) — sugar over the
+			// existing selector, no new selection logic.
+			rootOnly = true
+		case "--stack", "--module", "--workspace", "--report-task", "--json", "--junit", "--sarif", "--emit-plan", "--changed-from", "--changed-to":
 			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
 				fmt.Fprintf(stderr, cliText(locale, "Error: %s requires a value.\n", "Erro: %s exige um valor.\n"), args[i])
 				return 2
@@ -319,6 +326,12 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 				stackFilter = args[i]
 			case "--module":
 				moduleFilter = filepath.ToSlash(filepath.Clean(args[i]))
+			case "--workspace":
+				// Documented alias of --module <path> (R3) that resolves a
+				// package/crate name to its module path, for the case
+				// where the operator knows the workspace member's name but
+				// not its relative directory.
+				workspaceFilter = args[i]
 			case "--report-task":
 				reportTask = args[i]
 			case "--json":
@@ -338,6 +351,17 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, cliText(locale, "Error: invalid argument: %s\n", "Erro: argumento inválido: %s\n"), args[i])
 			return 2
 		}
+	}
+	if rootOnly && moduleFilter != "" {
+		fmt.Fprintln(stderr, cliText(locale, "Error: --root-only and --module are mutually exclusive.", "Erro: --root-only e --module são mutuamente exclusivos."))
+		return 2
+	}
+	if workspaceFilter != "" && (moduleFilter != "" || rootOnly) {
+		fmt.Fprintln(stderr, cliText(locale, "Error: --workspace, --module and --root-only are mutually exclusive.", "Erro: --workspace, --module e --root-only são mutuamente exclusivos."))
+		return 2
+	}
+	if rootOnly {
+		moduleFilter = "."
 	}
 	for _, out := range []string{jsonOut, junitOut, sarifOut, planOut} {
 		if out != "" && !confinedRelativePath(out) {
@@ -386,6 +410,14 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	if err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: discovering modules: %v\n", "Erro: descobrir módulos: %v\n"), err)
 		return 1
+	}
+	if workspaceFilter != "" {
+		resolved, ok := resolveWorkspaceModulePath(root, modules, workspaceFilter)
+		if !ok {
+			fmt.Fprintf(stderr, cliText(locale, "Error: no module's manifest name matches --workspace %q.\n", "Erro: nenhum module tem name de manifesto igual a --workspace %q.\n"), workspaceFilter)
+			return 2
+		}
+		moduleFilter = resolved
 	}
 	knownModules := map[string]bool{}
 	for _, module := range modules {

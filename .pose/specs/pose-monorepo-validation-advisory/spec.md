@@ -1,6 +1,6 @@
 ---
 slug: pose-monorepo-validation-advisory
-status: draft        # draft | in-progress | done | blocked | superseded | abandoned
+status: in-progress  # draft | in-progress | done | blocked | superseded | abandoned
 created_at: 2026-08-15
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
@@ -8,7 +8,7 @@ depends_on:          # prerequisites, inline list: other-spec, milestone:<roadma
 priority: 2
 components: pose-mcp
 depends_on:
-delivers:
+delivers: capability:monorepo-validation-advisory
 ---
 
 # Spec: pose-monorepo-validation-advisory
@@ -120,7 +120,21 @@ contradicts.
 ### Affected areas
 - `pose-mcp/internal/cli/doctor.go` (new advisory check)
 - `pose-mcp/internal/cli/validate.go` (`--root-only`, `--workspace <name>`
-  flag aliases; manifest `"name"` field lookup for R3)
+  flag aliases)
+- `pose-mcp/internal/cli/workspace_alias.go` (new — `--workspace`'s
+  manifest-name resolution: `package.json`'s `"name"` for node, `Cargo.toml`'s
+  `[package] name` for rust)
+
+### Artifacts
+- created: pose-mcp/internal/cli/workspace_alias.go
+- created: pose-mcp/internal/cli/workspace_alias_test.go
+- created: pose-mcp/internal/cli/doctor_workspace_execution_test.go
+- modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/cli/doctor.go
+- created: .pose/changelogs/unreleased/pose-monorepo-validation-advisory.md
+
+### Delivery targets
+- capability:monorepo-validation-advisory module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 - Low: advisory-only check plus flag sugar over an existing selector; no
@@ -141,15 +155,31 @@ contradicts.
       accordingly (Decision 1)
 
 ### Implementation
-- [ ] Implement the `pose doctor` advisory check (R1)
-- [ ] Add `--root-only`/`--workspace <name>` flag aliases to `validate.go`
-      (R2, R3)
+- [x] `pose doctor`'s `validate.redundant-workspace-execution` check
+      (R1). Corrected mid-implementation: the delegation flag
+      (`--workspaces`) lives inside the root's own `package.json`
+      `scripts` values (what `npm test --if-present`, POSE's own
+      invocation, actually executes), not in POSE's generic per-stack
+      check args — an earlier version checked the wrong place and never
+      fired against the real repro fixture. Fixed by reading
+      `package.json`'s `scripts` directly for the `node` stack; Cargo's
+      workspace flag (no `scripts` indirection layer) is still checked via
+      the configured check args.
+- [x] `--root-only`/`--workspace <name>` flag aliases (R2, R3):
+      `--root-only` sets the existing `moduleFilter` to `.`;
+      `--workspace <name>` resolves via `workspace_alias.go` against each
+      candidate module's own manifest name (not path), erroring clearly
+      when no module matches
 
 ### Validation
-- [ ] `go -C pose-mcp test ./internal/cli/...`
-- [ ] Reproduce the original throwaway npm-workspaces fixture; confirm
-      `pose doctor` surfaces the advisory and `pose validate --root-only`
-      produces the expected single-module run
+- [x] `go -C pose-mcp test ./...`, `go vet ./...`, `gofmt -l .`: all clean
+- [x] Reproduced the original issue #23 throwaway npm-workspaces fixture
+      end to end with the real built binary: `pose doctor` correctly warns
+      naming `packages/foo` and the exact `moduleOverrides` JSON to add;
+      `pose validate --root-only` runs only the root (which itself
+      delegates via npm, expected); `pose validate --workspace foo`
+      resolves `foo`'s manifest name to `packages/foo` and runs only that
+      module
 
 ---
 
@@ -182,6 +212,34 @@ contradicts.
   original ask. The real fix is discoverability (R1's advisory) and minor
   CLI ergonomics (R2, R3), not new execution-control capability.
 
+### Decision 2
+- Date: 2026-08-15
+- Context: implementing R1's detection logic, an initial version checked
+  `validation-matrix.json`'s own configured check args (POSE's generic
+  per-stack invocation, e.g. `npm test --if-present`) for a workspace flag.
+  Running it against the exact original issue #23 repro fixture with the
+  real built binary produced `level: "ok"` — a false negative — because
+  POSE's own generic node-stack check never contains `--workspaces`; that
+  flag lives inside the *target repository's* `package.json`
+  `scripts.test` value, which is what `npm test --if-present` actually
+  executes and where the delegation really happens.
+- Decision: read the root module's own `package.json` `scripts` values
+  directly for the `node` stack, in addition to (not instead of) checking
+  the configured check args — the latter stays relevant for Cargo, which
+  has no `scripts` indirection layer.
+- Rationale: this is exactly the kind of gap only an empirical
+  reproduction against a real fixture catches — a unit test built around
+  the (wrong) assumption would have "passed" while never firing on the
+  actual bug the issue reported. Caught precisely because this spec's
+  Validation strategy required reproducing the original throwaway repro
+  with the real binary, not just unit tests against a synthetic fixture
+  shaped to match the (incorrect) implementation.
+- Consequences: `TestDoctorWarnsOnRedundantWorkspaceExecution`'s fixture
+  already had the delegation flag in `package.json`'s `scripts` (matching
+  real npm-workspaces shape), so it did not need changing once the
+  detection logic was corrected — only the production code moved to read
+  the right place.
+
 ---
 
 ## 6. Validation
@@ -192,26 +250,58 @@ empirical reproduction against the original throwaway workspace fixture
 confirming the advisory fires and the flags behave as documented.
 
 ### Requirement trace
+- R1 [satisfied] `TestDoctorWarnsOnRedundantWorkspaceExecution`,
+  `TestDoctorSilentWhenModuleOverrideAlreadyDeclared`,
+  `TestDoctorSilentWhenRootDoesNotDelegate`, plus an empirical end-to-end
+  run against the original issue #23 repro fixture.
+- R2 [satisfied] `TestValidateRootOnlySelectsRootModule`.
+- R3 [satisfied] `TestValidateWorkspaceResolvesNodePackageName`,
+  `TestValidateWorkspaceResolvesCargoPackageName`,
+  `TestValidateWorkspaceUnknownNameFails`.
+- R4 [satisfied] the advisory uses `add(..., "warn", ...)`, the same
+  non-blocking finding mechanism every other `pose doctor` check uses;
+  `pose doctor`'s own exit code is independent of individual finding
+  levels, confirmed by existing `pose doctor` behavior unchanged elsewhere
+  in this session's test suite.
 
 ### Known gaps
-- None identified yet; to be updated during implementation.
+- None identified.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-<!-- What was implemented and what was intentionally left out. -->
+`pose doctor` now recognizes redundant root-plus-child validation
+execution in npm-style workspace monorepos and recommends the existing
+`moduleOverrides.<path>.replaceDefaultChecks` fix by name — no new
+execution-control capability, matching Decision 1's rejection of automatic
+skip/inference. `pose validate` gained `--root-only` and
+`--workspace <name>` as documented aliases of the existing `--module`
+selector. Mid-implementation, an empirical reproduction against the
+original issue caught that the detection logic was reading the wrong
+signal (Decision 2) — fixed before this closed.
 
 ### Files and modules changed
-- 
+- `pose-mcp/internal/cli/doctor.go`:
+  `validate.redundant-workspace-execution` check.
+- `pose-mcp/internal/cli/validate.go`: `--root-only`/`--workspace <name>`
+  flags.
+- `pose-mcp/internal/cli/workspace_alias.go`: new, manifest-name
+  resolution.
+- `pose-mcp/internal/cli/workspace_alias_test.go`,
+  `doctor_workspace_execution_test.go`: new regression tests.
 
 ### Validation executed
-- Command:
-- Result:
+- `go -C pose-mcp test ./...`: SUCCESS.
+- `go -C pose-mcp vet ./...`: SUCCESS.
+- `gofmt -l .`: clean.
+- Manual end-to-end reproduction of the original issue #23 npm-workspaces
+  fixture with the real built binary.
 
 ### Residual risks
-- 
+- None identified. The advisory only recommends a fix by name; it never
+  mutates `validation-matrix.json` or changes execution.
 
 ### Follow-ups
 
