@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-15T14:53:45Z
-baseline_commit: adf65b6eabdee0535cab3da9deb4ddfdf17bf6b9
+generated_at: 2026-08-15T18:13:14Z
+baseline_commit: 4132fc15b66d1b9abb95c2029cf5ed624505bcd5
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:b1fa47ac0015 -->
+<!-- state:derived hash:245156219f1e -->
 
-- specs: total=106 draft=0 in-progress=0 blocked=0 done=106 superseded=0 abandoned=0
+- specs: total=107 draft=0 in-progress=0 blocked=0 done=107 superseded=0 abandoned=0
 - roadmaps: total=9 active=0 done=9
 - últimos closeouts:
-  - spec:pose-stack-detection-consolidation (2026-08-15)
-  - spec:pose-domain-rule-extension-migration (2026-08-15)
+  - spec:pose-v1-2-2-changelog-review (2026-08-15)
+  - spec:pose-instance-engine-version-tracking (2026-08-15)
   - spec:pose-adaptive-rule-delivery (2026-08-15)
-  - spec:pose-install-locale-autodetect (2026-08-15)
-  - spec:pose-review-bundle-roadmap-path-portability (2026-08-15)
-  - ... e mais 101 (ver `pose_list_specs status:done`)
+  - spec:pose-review-bundle-root-file-classification (2026-08-15)
+  - spec:pose-review-scope-trailer-check (2026-08-15)
+  - ... e mais 102 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:5b0a9534e342 -->
+<!-- state:derived hash:e7a0538d816a -->
 
-- abertos: 60
-- por criticidade: high=1 medium=16 low=34 sem-classificação=9
+- abertos: 61
+- por criticidade: high=1 medium=16 low=34 sem-classificação=10
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=9 ativo=9 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:090bea05c203 -->
+<!-- state:derived hash:48e071878926 -->
 
-- último registro: task=fix-roadmap-review-bundle-absolute-path-portability-bug outcome=pass (2026-08-15T14:52:38Z)
-- últimos 30 dias: total=238 outcome_ok=172 outcome_outro=66
-- reports revisados (.md): total=121
+- último registro: task=fix-test-self-exec-flake-blocking-v1-3-0 outcome=pass (2026-08-15T18:12:12Z)
+- últimos 30 dias: total=239 outcome_ok=173 outcome_outro=66
+- reports revisados (.md): total=122
+  - report:2026-08-15-standard-fix-test-self-exec-flake-blocking-v1-3-0.md
   - report:2026-08-15-standard-fix-roadmap-review-bundle-absolute-path-portability-bug.md
   - report:2026-08-15-standard-advise-on-redundant-monorepo-execution-add-root-only-workspace-flags.md
   - report:2026-08-15-standard-recommend-rule-extension-matching-detected-stack.md
   - report:2026-08-15-standard-seed-module-metadata-json-from-discovered-modules.md
-  - report:2026-08-15-standard-fix-review-bundle-gaps-surfaced-by-rule-extension-migration.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
