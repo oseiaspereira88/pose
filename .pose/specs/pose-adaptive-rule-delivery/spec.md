@@ -120,7 +120,6 @@ exists today.
 - created: pose-mcp/internal/cli/rule_extension_resolver.go
 - created: pose-mcp/internal/cli/rule_extension_resolver_test.go
 - modified: pose-mcp/internal/cli/doctor.go
-- renamed: .pose/changelogs/unreleased/pose-adaptive-rule-delivery.md -> .pose/changelogs/v1.3.0/pose-adaptive-rule-delivery.md
 
 ### Delivery targets
 - capability:adaptive-rule-delivery module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go

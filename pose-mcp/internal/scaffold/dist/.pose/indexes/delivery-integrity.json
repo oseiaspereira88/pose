@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:5d05d7c155d6a868eb5bebca13c2b4442e9e2910bd7e9b5f41f48141e4e8171c",
-  "provenance_digest": "sha256:cae052292583f9fb3d6a9f9af7984b323ed9f1a33cf4d5a0f5b9089eabc8c2b3",
+  "input_digest": "sha256:578676eb94a442c31f93c5cef56e3ed7f803e093c9be33704af290b3139c8433",
+  "provenance_digest": "sha256:19d67faffc0c35a7161496582107d8d38b6dc8ff96d775bc7e4f8511e43de348",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -722,55 +722,6 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/v1.2.0/pose-unified-review-convergence.md"
-      }
-    },
-    {
-      "id": "artifact:.pose/changelogs/v1.3.0/pose-adaptive-rule-delivery.md",
-      "type": "artifact",
-      "attributes": {
-        "path": ".pose/changelogs/v1.3.0/pose-adaptive-rule-delivery.md"
-      }
-    },
-    {
-      "id": "artifact:.pose/changelogs/v1.3.0/pose-domain-rule-extension-migration.md",
-      "type": "artifact",
-      "attributes": {
-        "path": ".pose/changelogs/v1.3.0/pose-domain-rule-extension-migration.md"
-      }
-    },
-    {
-      "id": "artifact:.pose/changelogs/v1.3.0/pose-knowledge-durable-reference-type.md",
-      "type": "artifact",
-      "attributes": {
-        "path": ".pose/changelogs/v1.3.0/pose-knowledge-durable-reference-type.md"
-      }
-    },
-    {
-      "id": "artifact:.pose/changelogs/v1.3.0/pose-monorepo-validation-advisory.md",
-      "type": "artifact",
-      "attributes": {
-        "path": ".pose/changelogs/v1.3.0/pose-monorepo-validation-advisory.md"
-      }
-    },
-    {
-      "id": "artifact:.pose/changelogs/v1.3.0/pose-review-bundle-roadmap-path-portability.md",
-      "type": "artifact",
-      "attributes": {
-        "path": ".pose/changelogs/v1.3.0/pose-review-bundle-roadmap-path-portability.md"
-      }
-    },
-    {
-      "id": "artifact:.pose/changelogs/v1.3.0/pose-scaffold-index-template-neutralization.md",
-      "type": "artifact",
-      "attributes": {
-        "path": ".pose/changelogs/v1.3.0/pose-scaffold-index-template-neutralization.md"
-      }
-    },
-    {
-      "id": "artifact:.pose/changelogs/v1.3.0/pose-stack-detection-consolidation.md",
-      "type": "artifact",
-      "attributes": {
-        "path": ".pose/changelogs/v1.3.0/pose-stack-detection-consolidation.md"
       }
     },
     {
@@ -8416,7 +8367,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -8430,7 +8381,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -8444,14 +8395,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -8479,7 +8430,7 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -27255,16 +27206,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:adaptive-rule-delivery",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "delivery:capability:adaptive-rule-delivery",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:delivery-integrity-graph",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -27285,16 +27226,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:domain-rule-extension-migration",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "delivery:capability:domain-rule-extension-migration",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:manual-distribution",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -27313,16 +27244,6 @@
       "from": "delivery:capability:monorepo-validation-advisory",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:monorepo-validation-advisory",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "delivery:capability:monorepo-validation-advisory",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:pose-mcp",
@@ -27435,44 +27356,14 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:review-bundle-roadmap-path-portability",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "delivery:capability:review-bundle-roadmap-path-portability",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:scaffold-index-template-neutralization",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
     },
     {
-      "from": "delivery:capability:scaffold-index-template-neutralization",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "delivery:capability:scaffold-index-template-neutralization",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:stack-detection-consolidation",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:stack-detection-consolidation",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "delivery:capability:stack-detection-consolidation",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:test-self-exec-flake-fix",
@@ -27885,16 +27776,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:governance:knowledge-durable-reference-type",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "delivery:governance:knowledge-durable-reference-type",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:governance:locale-coverage-contract",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -28651,41 +28532,6 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
       "type": "validated-by"
     },
@@ -28707,41 +28553,6 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
     {
@@ -29278,16 +29089,6 @@
       "from": "spec:pose-actions-node24-bump",
       "to": "change-set:cs-7d1d84fb2f7a",
       "type": "observed-by"
-    },
-    {
-      "from": "spec:pose-adaptive-rule-delivery",
-      "to": "artifact:.pose/changelogs/unreleased/pose-adaptive-rule-delivery.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-adaptive-rule-delivery",
-      "to": "artifact:.pose/changelogs/v1.3.0/pose-adaptive-rule-delivery.md",
-      "type": "declares"
     },
     {
       "from": "spec:pose-adaptive-rule-delivery",
@@ -30501,16 +30302,6 @@
     },
     {
       "from": "spec:pose-domain-rule-extension-migration",
-      "to": "artifact:.pose/changelogs/unreleased/pose-domain-rule-extension-migration.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-domain-rule-extension-migration",
-      "to": "artifact:.pose/changelogs/v1.3.0/pose-domain-rule-extension-migration.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-domain-rule-extension-migration",
       "to": "artifact:.pose/indexes/extensions.lock.json",
       "type": "declares"
     },
@@ -31051,16 +30842,6 @@
     },
     {
       "from": "spec:pose-knowledge-durable-reference-type",
-      "to": "artifact:.pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-knowledge-durable-reference-type",
-      "to": "artifact:.pose/changelogs/v1.3.0/pose-knowledge-durable-reference-type.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-knowledge-durable-reference-type",
       "to": "artifact:.pose/rules/knowledge-governance.md",
       "type": "declares"
     },
@@ -31523,16 +31304,6 @@
       "from": "spec:pose-mcp-active-context",
       "to": "change-set:cs-d2d19e427e51",
       "type": "observed-by"
-    },
-    {
-      "from": "spec:pose-monorepo-validation-advisory",
-      "to": "artifact:.pose/changelogs/unreleased/pose-monorepo-validation-advisory.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-monorepo-validation-advisory",
-      "to": "artifact:.pose/changelogs/v1.3.0/pose-monorepo-validation-advisory.md",
-      "type": "declares"
     },
     {
       "from": "spec:pose-monorepo-validation-advisory",
@@ -32466,16 +32237,6 @@
     },
     {
       "from": "spec:pose-review-bundle-roadmap-path-portability",
-      "to": "artifact:.pose/changelogs/unreleased/pose-review-bundle-roadmap-path-portability.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-review-bundle-roadmap-path-portability",
-      "to": "artifact:.pose/changelogs/v1.3.0/pose-review-bundle-roadmap-path-portability.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-review-bundle-roadmap-path-portability",
       "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
       "type": "declares"
     },
@@ -32663,16 +32424,6 @@
       "from": "spec:pose-scaffold-exclusion-policy",
       "to": "change-set:cs-c46adf528cec",
       "type": "observed-by"
-    },
-    {
-      "from": "spec:pose-scaffold-index-template-neutralization",
-      "to": "artifact:.pose/changelogs/unreleased/pose-scaffold-index-template-neutralization.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-scaffold-index-template-neutralization",
-      "to": "artifact:.pose/changelogs/v1.3.0/pose-scaffold-index-template-neutralization.md",
-      "type": "declares"
     },
     {
       "from": "spec:pose-scaffold-index-template-neutralization",
@@ -32903,16 +32654,6 @@
       "from": "spec:pose-skill-index-parity",
       "to": "change-set:cs-21ca73cda14b",
       "type": "observed-by"
-    },
-    {
-      "from": "spec:pose-stack-detection-consolidation",
-      "to": "artifact:.pose/changelogs/unreleased/pose-stack-detection-consolidation.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-stack-detection-consolidation",
-      "to": "artifact:.pose/changelogs/v1.3.0/pose-stack-detection-consolidation.md",
-      "type": "declares"
     },
     {
       "from": "spec:pose-stack-detection-consolidation",
@@ -33480,12 +33221,6 @@
       "spec": "pose-adaptive-rule-delivery",
       "action": "modified",
       "path": "pose-mcp/internal/cli/doctor.go"
-    },
-    {
-      "spec": "pose-adaptive-rule-delivery",
-      "action": "renamed",
-      "old_path": ".pose/changelogs/unreleased/pose-adaptive-rule-delivery.md",
-      "new_path": ".pose/changelogs/v1.3.0/pose-adaptive-rule-delivery.md"
     },
     {
       "spec": "pose-artifact-provenance-ledger",
@@ -34556,12 +34291,6 @@
     {
       "spec": "pose-domain-rule-extension-migration",
       "action": "renamed",
-      "old_path": ".pose/changelogs/unreleased/pose-domain-rule-extension-migration.md",
-      "new_path": ".pose/changelogs/v1.3.0/pose-domain-rule-extension-migration.md"
-    },
-    {
-      "spec": "pose-domain-rule-extension-migration",
-      "action": "renamed",
       "old_path": ".pose/rules/backend-go.md",
       "new_path": "extensions/pose-rule-backend-go/files/.pose/rules/backend-go.md"
     },
@@ -34896,12 +34625,6 @@
       "spec": "pose-knowledge-durable-reference-type",
       "action": "modified",
       "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/knowledge-governance.md"
-    },
-    {
-      "spec": "pose-knowledge-durable-reference-type",
-      "action": "renamed",
-      "old_path": ".pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md",
-      "new_path": ".pose/changelogs/v1.3.0/pose-knowledge-durable-reference-type.md"
     },
     {
       "spec": "pose-locale-coverage-contract",
@@ -35287,12 +35010,6 @@
       "spec": "pose-monorepo-validation-advisory",
       "action": "modified",
       "path": "pose-mcp/internal/cli/validate.go"
-    },
-    {
-      "spec": "pose-monorepo-validation-advisory",
-      "action": "renamed",
-      "old_path": ".pose/changelogs/unreleased/pose-monorepo-validation-advisory.md",
-      "new_path": ".pose/changelogs/v1.3.0/pose-monorepo-validation-advisory.md"
     },
     {
       "spec": "pose-package-channel-delivery",
@@ -36026,12 +35743,6 @@
       "path": "pose-mcp/internal/pose/review_bundle.go"
     },
     {
-      "spec": "pose-review-bundle-roadmap-path-portability",
-      "action": "renamed",
-      "old_path": ".pose/changelogs/unreleased/pose-review-bundle-roadmap-path-portability.md",
-      "new_path": ".pose/changelogs/v1.3.0/pose-review-bundle-roadmap-path-portability.md"
-    },
-    {
       "spec": "pose-review-bundle-root-file-classification",
       "action": "modified",
       "path": "pose-mcp/internal/pose/review_bundle.go"
@@ -36150,12 +35861,6 @@
       "spec": "pose-scaffold-index-template-neutralization",
       "action": "modified",
       "path": "pose-mcp/internal/scaffold/scaffold_test.go"
-    },
-    {
-      "spec": "pose-scaffold-index-template-neutralization",
-      "action": "renamed",
-      "old_path": ".pose/changelogs/unreleased/pose-scaffold-index-template-neutralization.md",
-      "new_path": ".pose/changelogs/v1.3.0/pose-scaffold-index-template-neutralization.md"
     },
     {
       "spec": "pose-scaffold-self-referential-policy-fix",
@@ -36321,12 +36026,6 @@
       "spec": "pose-stack-detection-consolidation",
       "action": "modified",
       "path": "pose-mcp/internal/cli/install.go"
-    },
-    {
-      "spec": "pose-stack-detection-consolidation",
-      "action": "renamed",
-      "old_path": ".pose/changelogs/unreleased/pose-stack-detection-consolidation.md",
-      "new_path": ".pose/changelogs/v1.3.0/pose-stack-detection-consolidation.md"
     },
     {
       "spec": "pose-test-self-exec-flake-fix",
@@ -48812,32 +48511,11 @@
       "pose-review-bundle-convergence",
       "pose-usage-metrics"
     ],
-    ".pose/changelogs/unreleased/pose-adaptive-rule-delivery.md": [
-      "pose-adaptive-rule-delivery"
-    ],
     ".pose/changelogs/unreleased/pose-component-aware-review-plans.md": [
       "pose-component-aware-review-plans"
     ],
-    ".pose/changelogs/unreleased/pose-domain-rule-extension-migration.md": [
-      "pose-domain-rule-extension-migration"
-    ],
-    ".pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md": [
-      "pose-knowledge-durable-reference-type"
-    ],
-    ".pose/changelogs/unreleased/pose-monorepo-validation-advisory.md": [
-      "pose-monorepo-validation-advisory"
-    ],
     ".pose/changelogs/unreleased/pose-review-bundle-convergence.md": [
       "pose-review-bundle-convergence"
-    ],
-    ".pose/changelogs/unreleased/pose-review-bundle-roadmap-path-portability.md": [
-      "pose-review-bundle-roadmap-path-portability"
-    ],
-    ".pose/changelogs/unreleased/pose-scaffold-index-template-neutralization.md": [
-      "pose-scaffold-index-template-neutralization"
-    ],
-    ".pose/changelogs/unreleased/pose-stack-detection-consolidation.md": [
-      "pose-stack-detection-consolidation"
     ],
     ".pose/changelogs/unreleased/review-legacy-done-scope-exemption.md": [
       "pose-component-aware-review-plans"
@@ -48853,27 +48531,6 @@
     ],
     ".pose/changelogs/v1.1.0/pose-review-bundle-convergence.md": [
       "pose-review-bundle-convergence"
-    ],
-    ".pose/changelogs/v1.3.0/pose-adaptive-rule-delivery.md": [
-      "pose-adaptive-rule-delivery"
-    ],
-    ".pose/changelogs/v1.3.0/pose-domain-rule-extension-migration.md": [
-      "pose-domain-rule-extension-migration"
-    ],
-    ".pose/changelogs/v1.3.0/pose-knowledge-durable-reference-type.md": [
-      "pose-knowledge-durable-reference-type"
-    ],
-    ".pose/changelogs/v1.3.0/pose-monorepo-validation-advisory.md": [
-      "pose-monorepo-validation-advisory"
-    ],
-    ".pose/changelogs/v1.3.0/pose-review-bundle-roadmap-path-portability.md": [
-      "pose-review-bundle-roadmap-path-portability"
-    ],
-    ".pose/changelogs/v1.3.0/pose-scaffold-index-template-neutralization.md": [
-      "pose-scaffold-index-template-neutralization"
-    ],
-    ".pose/changelogs/v1.3.0/pose-stack-detection-consolidation.md": [
-      "pose-stack-detection-consolidation"
     ],
     ".pose/indexes/delivery-integrity.json": [
       "pose-artifact-provenance-ledger",
@@ -50154,6 +49811,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-0bcaa4714cfb",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-monorepo-validation-advisory",
+      "path": "capability:monorepo-validation-advisory",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-0f8db18f4672",
       "code": "action-mismatch",
       "severity": "error",
@@ -50213,6 +49880,15 @@
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-1658d24c1f3c",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-review-bundle-roadmap-path-portability",
+      "path": "capability:review-bundle-roadmap-path-portability",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-170746d099ba",
@@ -50342,6 +50018,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-279b0f145230",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-stack-detection-consolidation",
+      "path": "capability:stack-detection-consolidation",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-27b2da531c6c",
@@ -50557,15 +50242,6 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
-      "id": "dif-47ef411451a7",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-review-bundle-roadmap-path-portability",
-      "path": ".pose/changelogs/unreleased/pose-review-bundle-roadmap-path-portability.md -\u003e .pose/changelogs/v1.3.0/pose-review-bundle-roadmap-path-portability.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-48490bb0de48",
       "code": "orphan",
       "severity": "warning",
@@ -50684,24 +50360,6 @@
       "remediation": "correct the action or record the exact attributed revisions"
     },
     {
-      "id": "dif-5633b45441bc",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-scaffold-index-template-neutralization",
-      "path": ".pose/changelogs/unreleased/pose-scaffold-index-template-neutralization.md -\u003e .pose/changelogs/v1.3.0/pose-scaffold-index-template-neutralization.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
-      "id": "dif-5913b1ac6524",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-domain-rule-extension-migration",
-      "path": ".pose/changelogs/unreleased/pose-domain-rule-extension-migration.md -\u003e .pose/changelogs/v1.3.0/pose-domain-rule-extension-migration.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-5a6056f73fe2",
       "code": "orphan",
       "severity": "warning",
@@ -50778,21 +50436,21 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
-      "id": "dif-63b7eec992c3",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-adaptive-rule-delivery",
-      "path": ".pose/changelogs/unreleased/pose-adaptive-rule-delivery.md -\u003e .pose/changelogs/v1.3.0/pose-adaptive-rule-delivery.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-6423f75c500f",
       "code": "legacy-narrative",
       "severity": "info",
       "spec": "pose-doctor-guided-remediation",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-6464e3b110b7",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-domain-rule-extension-migration",
+      "path": "capability:domain-rule-extension-migration",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-648af4b42323",
@@ -50985,6 +50643,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-79c66131dc22",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-monorepo-validation-advisory",
+      "path": "capability:monorepo-validation-advisory",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-7a15564f63e5",
       "code": "orphan",
       "severity": "warning",
@@ -51151,6 +50818,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-8b4039e938bf",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-scaffold-index-template-neutralization",
+      "path": "capability:scaffold-index-template-neutralization",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-8c91ba90a130",
       "code": "orphan",
       "severity": "warning",
@@ -51307,6 +50984,16 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-9af9f94ff359",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-domain-rule-extension-migration",
+      "path": "capability:domain-rule-extension-migration",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-9b83657d2679",
       "code": "orphan",
       "severity": "warning",
@@ -51358,6 +51045,16 @@
       "path": "docs-site/docs/monorepo-recipes.md",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-9ee6ca6e5205",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-review-bundle-roadmap-path-portability",
+      "path": "capability:review-bundle-roadmap-path-portability",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-9fae1a1e6f95",
@@ -51614,15 +51311,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-bed52b3dec0f",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-knowledge-durable-reference-type",
-      "path": ".pose/changelogs/unreleased/pose-knowledge-durable-reference-type.md -\u003e .pose/changelogs/v1.3.0/pose-knowledge-durable-reference-type.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-beefc6d252d5",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -51639,15 +51327,6 @@
       "path": "pose-mcp/internal/cli/harness_evidence.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-c22ae96666e9",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-stack-detection-consolidation",
-      "path": ".pose/changelogs/unreleased/pose-stack-detection-consolidation.md -\u003e .pose/changelogs/v1.3.0/pose-stack-detection-consolidation.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-c22e1f738341",
@@ -51763,6 +51442,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-ccc55d464013",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-stack-detection-consolidation",
+      "path": "capability:stack-detection-consolidation",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-cd685e4fbcf6",
       "code": "orphan",
       "severity": "warning",
@@ -51812,6 +51501,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-d6a03d47b071",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-knowledge-durable-reference-type",
+      "path": "governance:knowledge-durable-reference-type",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-d75da855ea8d",
@@ -51865,12 +51563,31 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-df2276e54461",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-adaptive-rule-delivery",
+      "path": "capability:adaptive-rule-delivery",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-df760eaedf77",
       "code": "orphan",
       "severity": "warning",
       "path": "pose-mcp/internal/mcpserver/enforce.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-dfd8a14fd00e",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-adaptive-rule-delivery",
+      "path": "capability:adaptive-rule-delivery",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-e12a06b1c496",
@@ -51985,6 +51702,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-ef3035543192",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-scaffold-index-template-neutralization",
+      "path": "capability:scaffold-index-template-neutralization",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-f08f12cf9dde",
       "code": "orphan",
       "severity": "warning",
@@ -52096,15 +51822,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-f6894ecd4aad",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-monorepo-validation-advisory",
-      "path": ".pose/changelogs/unreleased/pose-monorepo-validation-advisory.md -\u003e .pose/changelogs/v1.3.0/pose-monorepo-validation-advisory.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-f6a278ce9eaf",
       "code": "orphan",
       "severity": "warning",
@@ -52189,6 +51906,16 @@
       "path": "pose-mcp/internal/pose/docs.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-fdeeea23c479",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-knowledge-durable-reference-type",
+      "path": "governance:knowledge-durable-reference-type",
+      "change_set": "pose-mcp/go/delivery-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-fe265ee0a886",
@@ -53623,7 +53350,10 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -53644,7 +53374,12 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test",
+        "check is missing, failing or stale: delivery-integration",
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -53664,7 +53399,10 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -53675,7 +53413,10 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -53713,7 +53454,10 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     }
   ],
   "paths": {
@@ -53723,9 +53467,7 @@
       "artifact:pose-mcp/internal/cli/rule_extension_resolver_test.go",
       "artifact:pose-mcp/internal/cli/doctor.go",
       "delivery:capability:adaptive-rule-delivery",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:delivery-integrity-graph": [
       "spec:pose-delivery-surface-assurance",
@@ -53806,9 +53548,7 @@
       "artifact:extensions/pose-rule-backend-go/files/.pose/rules/backend-go.md",
       "artifact:extensions/pose-rule-frontend-react/files/.pose/rules/frontend-react.md",
       "delivery:capability:domain-rule-extension-migration",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:manual-distribution": [
       "spec:pose-manual-distribution-merge",
@@ -53832,9 +53572,7 @@
       "artifact:pose-mcp/internal/cli/doctor.go",
       "artifact:pose-mcp/internal/cli/validate.go",
       "delivery:capability:monorepo-validation-advisory",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:pose-mcp": [
       "spec:pose-instance-engine-version-tracking",
@@ -53901,9 +53639,7 @@
       "artifact:pose-mcp/internal/pose/review_bundle_roadmap_path_test.go",
       "artifact:pose-mcp/internal/pose/review_bundle.go",
       "delivery:capability:review-bundle-roadmap-path-portability",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:scaffold-index-template-neutralization": [
       "spec:pose-scaffold-index-template-neutralization",
@@ -53912,9 +53648,7 @@
       "artifact:pose-mcp/internal/scaffold/gen/main.go",
       "artifact:pose-mcp/internal/scaffold/scaffold_test.go",
       "delivery:capability:scaffold-index-template-neutralization",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:stack-detection-consolidation": [
       "spec:pose-stack-detection-consolidation",
@@ -53922,9 +53656,7 @@
       "artifact:pose-mcp/internal/cli/stack_seed_test.go",
       "artifact:pose-mcp/internal/cli/install.go",
       "delivery:capability:stack-detection-consolidation",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:test-self-exec-flake-fix": [
       "spec:pose-test-self-exec-flake-fix",
@@ -54601,9 +54333,7 @@
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md",
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/knowledge-governance.md",
       "delivery:governance:knowledge-durable-reference-type",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-result:pose-mcp/go/delivery-integration",
-      "validation-result:pose-mcp/go/review-bundle-convergence"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "governance:locale-coverage-contract": [
       "spec:pose-locale-coverage-contract",

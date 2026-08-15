@@ -153,7 +153,6 @@ scanner.
 - created: pose-mcp/internal/cli/stack_seed.go
 - created: pose-mcp/internal/cli/stack_seed_test.go
 - modified: pose-mcp/internal/cli/install.go
-- renamed: .pose/changelogs/unreleased/pose-stack-detection-consolidation.md -> .pose/changelogs/v1.3.0/pose-stack-detection-consolidation.md
 
 ### Delivery targets
 - capability:stack-detection-consolidation module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
