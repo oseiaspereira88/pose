@@ -6,7 +6,7 @@ package cli
 import (
 	"bytes"
 	"fmt"
-	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -19,11 +19,22 @@ func workspaceAliasFixture(t *testing.T) string {
 	mustWrite(t, filepath.Join(repo, "web", "package.json"), `{"name":"my-web-app"}`)
 	mustWrite(t, filepath.Join(repo, "worker", "Cargo.toml"), "[package]\nname = \"my-worker\"\nversion = \"0.1.0\"\n")
 
-	executable, err := os.Executable()
+	// A stable, standalone no-op binary — not os.Executable() (the running
+	// test binary itself). Self-referencing it as the fake check program
+	// is what several pre-existing tests in this package already do, and
+	// it is exactly what caused a real, reproducible flake in this
+	// session: `go test ./...` for the whole module intermittently
+	// renamed the live test binary out from under itself mid-run
+	// (observed both locally and in actual release CI — not merely a
+	// local-machine artifact), producing a spurious
+	// "<path>.old: no such file" failure unrelated to the feature under
+	// test. `true` carries no such risk: it is not the process currently
+	// executing the test.
+	truePath, err := exec.LookPath("true")
 	if err != nil {
 		t.Fatal(err)
 	}
-	matrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"self","program":%q,"args":["-test.run=^$"],"severity":"required"}]},"node":{"checks":[{"name":"self","program":%q,"args":["-test.run=^$"],"severity":"required"}]},"rust":{"checks":[{"name":"self","program":%q,"args":["-test.run=^$"],"severity":"required"}]}},"moduleOverrides":{}}`, executable, executable, executable)
+	matrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"self","program":%q,"args":[],"severity":"required"}]},"node":{"checks":[{"name":"self","program":%q,"args":[],"severity":"required"}]},"rust":{"checks":[{"name":"self","program":%q,"args":[],"severity":"required"}]}},"moduleOverrides":{}}`, truePath, truePath, truePath)
 	mustWrite(t, filepath.Join(repo, ".pose", "indexes", "validation-matrix.json"), matrix)
 	return repo
 }
