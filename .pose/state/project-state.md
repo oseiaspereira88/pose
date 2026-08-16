@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-16T17:23:48Z
-baseline_commit: 8af5e8bd4295580e1f49b37bed435a632c853218
+generated_at: 2026-08-16T17:33:36Z
+baseline_commit: 4eec0c7213eceb4907dbcee12629111d24d94109
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -53,7 +53,7 @@ capacidade.
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:440f0b570fba -->
+<!-- state:derived hash:b8f47d8fd574 -->
 
 - ADRs: total=44
   - adr:2026-08-15-retired-machinery-files-stay-on-disk-never-auto-migrated-by-pose-update.md
@@ -61,19 +61,19 @@ capacidade.
   - adr:2026-08-14-unified-review-convergence-and-auto-attestation.md
   - adr:2026-08-13-sealed-review-bundles-and-attestations.md
   - adr:2026-08-12-component-aware-effective-review-plans.md
-- knowledge: total=9 ativo=9 expirado=0
+- knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:588caba2082d -->
+<!-- state:derived hash:587c8e25b64f -->
 
-- último registro: task=resolve-an-extension-id-against-the-latest-published-release outcome=pass (2026-08-15T19:45:23Z)
-- últimos 30 dias: total=243 outcome_ok=177 outcome_outro=66
-- reports revisados (.md): total=126
+- último registro: task=closeout-pose-upgrade-path-audit-fixes outcome=unknown (2026-08-16T17:26:20Z)
+- últimos 30 dias: total=244 outcome_ok=177 outcome_outro=67
+- reports revisados (.md): total=127
+  - report:2026-08-16-standard-closeout-pose-upgrade-path-audit-fixes.md
   - report:2026-08-15-standard-resolve-an-extension-id-against-the-latest-published-release.md
   - report:2026-08-15-standard-support-a-locale-overlay-in-pose-extension-install.md
   - report:2026-08-15-standard-consolidate-module-stack-detection-into-one-shared-function.md
   - report:2026-08-15-standard-excerpt-readme-claude-md-into-agents-md-s-project-context.md
-  - report:2026-08-15-standard-fix-test-self-exec-flake-blocking-v1-3-0.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
