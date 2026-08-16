@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-16T18:31:59Z
-baseline_commit: 08c2c82e516a9e9231e57b76bf59804b460c662d
+generated_at: 2026-08-16T18:38:25Z
+baseline_commit: d817a2e05f07ffd1718d1ee75f73b09799cf7db6
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:587c8e25b64f -->
+<!-- state:derived hash:52cb11ac3473 -->
 
-- último registro: task=closeout-pose-upgrade-path-audit-fixes outcome=unknown (2026-08-16T17:26:20Z)
-- últimos 30 dias: total=244 outcome_ok=177 outcome_outro=67
-- reports revisados (.md): total=127
+- último registro: task=closeout-pose-derived-index-self-referential-leak outcome=unknown (2026-08-16T18:32:17Z)
+- últimos 30 dias: total=245 outcome_ok=177 outcome_outro=68
+- reports revisados (.md): total=128
+  - report:2026-08-16-standard-closeout-pose-derived-index-self-referential-leak.md
   - report:2026-08-16-standard-closeout-pose-upgrade-path-audit-fixes.md
   - report:2026-08-15-standard-resolve-an-extension-id-against-the-latest-published-release.md
   - report:2026-08-15-standard-support-a-locale-overlay-in-pose-extension-install.md
   - report:2026-08-15-standard-consolidate-module-stack-detection-into-one-shared-function.md
-  - report:2026-08-15-standard-excerpt-readme-claude-md-into-agents-md-s-project-context.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
