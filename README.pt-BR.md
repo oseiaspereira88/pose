@@ -63,7 +63,7 @@ para Linux e macOS, `zip` para Windows — em
 Linux e macOS (bash ou zsh; substitua `linux_amd64` pela sua plataforma):
 
 ```bash
-V=1.4.0
+V=1.4.1
 curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz"
 curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/checksums.txt"
 sha256sum --check --ignore-missing checksums.txt   # macOS: shasum -a 256 -c
@@ -75,7 +75,7 @@ pose install /caminho/do/seu/repo
 Windows (PowerShell):
 
 ```powershell
-$V = "1.4.0"
+$V = "1.4.1"
 Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/pose_${V}_windows_amd64.zip" -OutFile "pose_${V}_windows_amd64.zip"
 Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/checksums.txt" -OutFile checksums.txt
 (Get-FileHash "pose_${V}_windows_amd64.zip" -Algorithm SHA256).Hash -eq ((Get-Content checksums.txt | Select-String "pose_${V}_windows_amd64.zip") -split '\s+')[0]
