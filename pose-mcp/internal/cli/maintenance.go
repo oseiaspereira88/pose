@@ -110,7 +110,16 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 
-	for _, rel := range []string{".pose/roadmaps", ".pose/changelogs/unreleased", ".pose/reports/history", ".pose/feedback"} {
+	// instanceDirs (init.go) is the same canonical directory contract
+	// cmdInit seeds for a fresh install — reused here, not a hand-picked
+	// subset of it, so a plain update never again leaves a directory
+	// missing that install already guarantees. This hand-picked list used
+	// to have only 4 of the 14 real directories, missing .pose/assessments
+	// among others: an old instance's freshly-refreshed AGENTS.md already
+	// references it, so `pose check --strict` failed with a broken
+	// reference right after a `Result: SUCCESS` update (spec
+	// pose-update-instance-directory-completeness).
+	for _, rel := range instanceDirs {
 		if e := ensureManagedDirSafe(root, rel); e != nil {
 			fmt.Fprintf(stderr, "pose update: %v\n", e)
 			return 1

@@ -149,6 +149,45 @@ func TestUpdateSeedsComputedIndexesWithTargetOwnStateNotPoseDists(t *testing.T) 
 	}
 }
 
+// TestUpdateSeedsEveryInstanceDirectoryNotOnlyAHandpickedFour regression-
+// covers a live defect found updating a real old instance to v1.4.1: a
+// plain `pose update` (no --force) only ever created 4 of the 14
+// directories cmdInit's own instanceDirs contract requires (missing
+// .pose/assessments among others), so an instance whose freshly-refreshed
+// AGENTS.md already references .pose/assessments reported "Result:
+// SUCCESS" and then failed its own very next `pose check --strict` with a
+// broken reference.
+func TestUpdateSeedsEveryInstanceDirectoryNotOnlyAHandpickedFour(t *testing.T) {
+	repo := newGitRepo(t)
+	var out, errB bytes.Buffer
+	if code := Main([]string{"install", repo, "--skip-mcp"}, &out, &errB); code != 0 {
+		t.Fatalf("install exit=%d err=%s", code, errB.String())
+	}
+	if err := os.RemoveAll(filepath.Join(repo, ".pose", "assessments")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.RemoveAll(filepath.Join(repo, ".pose", "adr")); err != nil {
+		t.Fatal(err)
+	}
+
+	out.Reset()
+	errB.Reset()
+	if code := cmdUpdate(repo, []string{"--no-self"}, &out, &errB); code != 0 {
+		t.Fatalf("update exit=%d err=%s out=%s", code, errB.String(), out.String())
+	}
+	for _, rel := range []string{".pose/assessments", ".pose/adr"} {
+		if fi, err := os.Stat(filepath.Join(repo, filepath.FromSlash(rel))); err != nil || !fi.IsDir() {
+			t.Errorf("%s not recreated by a plain update: %v", rel, err)
+		}
+	}
+
+	out.Reset()
+	errB.Reset()
+	if code := cmdCheck(repo, []string{"--strict"}, &out, &errB); code != 0 {
+		t.Errorf("check --strict after update exit=%d out=%s", code, out.String())
+	}
+}
+
 func mustWrite(t *testing.T, path, content string) {
 	t.Helper()
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
