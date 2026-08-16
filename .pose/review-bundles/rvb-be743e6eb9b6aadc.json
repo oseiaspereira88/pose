@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "bundle_id": "rvb-be743e6eb9b6aadc",
+  "bundle_digest": "sha256:be743e6eb9b6aadc99353c99ab1d838f400e27694f010ab079e96c578c9bc566",
+  "state": "sealed",
+  "sealed_at": "2026-08-16T17:31:09Z",
+  "payload": {
+    "scope": {
+      "ref": "milestone:agentic-onboarding/scanner-consolidation",
+      "kind": "milestone",
+      "roadmap": "agentic-onboarding",
+      "milestone": "scanner-consolidation",
+      "sections": [
+        {
+          "kind": "milestone",
+          "path": "scanner-consolidation",
+          "digest": "sha256:eeb4cdcdf6273eb4166b3202ee2f142c90da1f18cab377a4d2a4d43e053a4ab2",
+          "reason": "governed milestone exit and cut criteria"
+        }
+      ]
+    },
+    "subject": {
+      "change_sets": [
+        "cs-2ba75b6f3713"
+      ],
+      "base": "35f77ff0f49322d54dd642be24152689c81d6c5f",
+      "head": "d80a2f1c0592e03f73427560f9e63769cfc1d2f0",
+      "patch_digest": "sha256:3e7f0d72846ce10dffc691ecb698ff14553652758003a6e453c0b73df759a05f",
+      "tree_digest": "sha256:ae8ed3a9112ac8a86328cae3eeb86f611a080f2136a79d730a72c386015fc314",
+      "entries": [
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/stack_manifest.go",
+          "class": "implementation",
+          "digest": "sha256:0fd715956a4b19b4413dff1d73429271409a3aed27548622e58925b093ae053f",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/stack_manifest_test.go",
+          "class": "implementation",
+          "digest": "sha256:b5363ba3ff748c91e6c32bfa893bd843cdf1a40612e3c3ffb42938fd5f217c18",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json",
+          "class": "governance",
+          "digest": "sha256:94f2ffd4c48937b32d146f1d0fefd96dfaaa03818439dd3bee06b37303daad42",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/index.go",
+          "class": "implementation",
+          "digest": "sha256:732a2935db1f06372870bfdd87040b08f64d53e2c6c171473e4e02056c7347d7",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate.go",
+          "class": "implementation",
+          "digest": "sha256:3bf23d8820d5272f42ccdb95c7d591a8f1f9e5ba608dd4a662cd439c82d66ae7",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json",
+          "class": "implementation",
+          "digest": "sha256:d8a36b2938234b87ab8f81f498834a253bf981e0f14691d9a6e076feec96122c",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+          "class": "implementation",
+          "digest": "sha256:cb0917837db48ae63389680f20f0b5ea2380bde7af4816a9da6285e2066161b7",
+          "reason": "attributed implementation path in the immutable change set"
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:c65c892b443c0f9a22b7db763fa902b19338796c131179f96c2c3e017aeb79f3",
+      "independence": "same-actor-separate-execution",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "governance-engine",
+          "owner": "@pose-maintainers",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "declared",
+          "sources": [
+            "artifact:pose-validation-scanner-consolidation:pose-mcp/internal/cli/index.go",
+            "artifact:pose-validation-scanner-consolidation:pose-mcp/internal/cli/stack_manifest.go",
+            "artifact:pose-validation-scanner-consolidation:pose-mcp/internal/cli/stack_manifest_test.go",
+            "artifact:pose-validation-scanner-consolidation:pose-mcp/internal/cli/validate.go",
+            "artifact:pose-validation-scanner-consolidation:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+            "delivery:capability:validation-scanner-consolidation:pose-mcp",
+            "delivery:capability:validation-scanner-consolidation:pose-mcp/cmd/pose/main.go",
+            "observed:pose-validation-scanner-consolidation:pose-mcp/internal/cli/index.go",
+            "observed:pose-validation-scanner-consolidation:pose-mcp/internal/cli/stack_manifest.go",
+            "observed:pose-validation-scanner-consolidation:pose-mcp/internal/cli/stack_manifest_test.go",
+            "observed:pose-validation-scanner-consolidation:pose-mcp/internal/cli/validate.go",
+            "observed:pose-validation-scanner-consolidation:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+            "spec:pose-validation-scanner-consolidation:component:pose-mcp"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "exit-gate",
+          "description": "The milestone exit gate has falsifiable evidence.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "integration",
+          "description": "Member contracts compose without gaps or contradictions.",
+          "required": true,
+          "evidence_classes": [
+            "integration-test"
+          ],
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "membership",
+          "description": "All ordered member specs are freshly closed.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "regression",
+          "description": "Cumulative module validation passes.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "residual-risk",
+          "description": "Cross-spec risks and follow-ups are disposed.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "milestone:agentic-onboarding/scanner-consolidation"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "milestone:agentic-onboarding/scanner-consolidation"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "validation"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "mcp-enforce/go/test",
+        "module": "mcp-enforce",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "git_head": "7746ff9b714fa3e805d0e4946052aea9176cb87c",
+        "provenance_digest": "sha256:ad775a5f787f9f2b0cf111994c9e1e07e2ead583ff84941d1f077900219c3689",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-integration",
+        "module": "pose-mcp",
+        "check": "delivery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "7746ff9b714fa3e805d0e4946052aea9176cb87c",
+        "provenance_digest": "sha256:ad775a5f787f9f2b0cf111994c9e1e07e2ead583ff84941d1f077900219c3689",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-reachability",
+        "module": "pose-mcp",
+        "check": "delivery-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "git_head": "7746ff9b714fa3e805d0e4946052aea9176cb87c",
+        "provenance_digest": "sha256:ad775a5f787f9f2b0cf111994c9e1e07e2ead583ff84941d1f077900219c3689",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-bundle-convergence",
+        "module": "pose-mcp",
+        "check": "review-bundle-convergence",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "7746ff9b714fa3e805d0e4946052aea9176cb87c",
+        "provenance_digest": "sha256:ad775a5f787f9f2b0cf111994c9e1e07e2ead583ff84941d1f077900219c3689",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test",
+        "module": "pose-mcp",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "git_head": "7746ff9b714fa3e805d0e4946052aea9176cb87c",
+        "provenance_digest": "sha256:ad775a5f787f9f2b0cf111994c9e1e07e2ead583ff84941d1f077900219c3689",
+        "report": ".pose/results/delivery-validation.json"
+      }
+    ],
+    "children": [
+      {
+        "scope": "spec:pose-validation-scanner-consolidation",
+        "bundle_id": "rvb-31ab4be4c2d66fb7",
+        "bundle_digest": "sha256:31ab4be4c2d66fb777741d02625c7ebf551e03148ea23a4c4ecea5b8b3422829"
+      }
+    ],
+    "consumed_inputs": [
+      {
+        "kind": "governed-config",
+        "path": ".pose/indexes/validation-matrix.json",
+        "digest": "sha256:94f2ffd4c48937b32d146f1d0fefd96dfaaa03818439dd3bee06b37303daad42",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "governed-config",
+        "path": ".pose/policy/review.json",
+        "digest": "sha256:89a78e6ec6e1806414c669e66239831b593c08b9a182e36fae119bccecd28b5e",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "review-plan",
+        "path": "milestone-integration@1",
+        "digest": "sha256:c65c892b443c0f9a22b7db763fa902b19338796c131179f96c2c3e017aeb79f3",
+        "reason": "effective component-aware plan contract"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/milestone-integration.json",
+        "digest": "sha256:4943a0af84a76feddccfdc7769db35f45adb826d7155d60cf93a2e6cbc8bb2f3",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "schema",
+        "path": "review-bundle@1",
+        "digest": "sha256:e7c9643ec88eccb2a6dea3ee3291c351983d78e1d2fa44b61399514c5021bcb0",
+        "reason": "canonical bundle and attestation schema identity"
+      },
+      {
+        "kind": "tool-catalog",
+        "path": "native-review-tools@1",
+        "digest": "sha256:c65c892b443c0f9a22b7db763fa902b19338796c131179f96c2c3e017aeb79f3",
+        "reason": "closed resolved native tool contract"
+      }
+    ]
+  },
+  "excluded_inputs": [
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/pose-validation-scanner-consolidation/spec.md",
+      "reason": "attributed path is outside the semantic review subject"
+    }
+  ],
+  "warnings": [
+    "unmapped review component path:.pose/indexes/validation-matrix.json"
+  ],
+  "path": ".pose/review-bundles/rvb-be743e6eb9b6aadc.json"
+}
