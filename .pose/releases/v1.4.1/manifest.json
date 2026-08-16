@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "version": "v1.4.1",
+  "previous_version": "v1.4.0",
+  "prepared_at": "2026-08-16T19:06:12Z",
+  "specs": [
+    "pose-derived-index-self-referential-leak",
+    "pose-upgrade-path-audit-fixes"
+  ],
+  "categories": {
+    "fixed": 2
+  },
+  "fragments": [
+    {
+      "spec": "pose-derived-index-self-referential-leak",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The embedded scaffold no longer ships pose-dist's own computed `.pose/indexes/{repo-map,services,packages,spec-graph,roadmaps,delivery-integrity,releases,extensions.lock}.json` content to installed instances (the same leak class already fixed for `.pose/policy/{delivery,artifacts}.json` and `module-metadata.json`/`validation-matrix.json`). `pose install`/`pose update` now recompute these indexes for the target immediately after seeding any of them, so a target ends up with its own real state instead of a stale snapshot of pose-dist's own graph.",
+      "path": "pose-derived-index-self-referential-leak.md",
+      "digest": "sha256:2e3eb95ab610decd4461e6f7c763cdcfef2da7e80d57f6599ef256e791317f3b"
+    },
+    {
+      "spec": "pose-upgrade-path-audit-fixes",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose update`/`pose install` no longer silently drop AGENTS.md/POSE.md customizations outside `instance-owned` sections without a warning, and `pose update` without `--force` now seeds `.pose/policy`, `.pose/review-profiles` and the discovered module-metadata/indexes it previously left un-seeded on an old instance — `pose doctor` also gained checks for both an incomplete instance and orphaned module-metadata entries. An explicit `--locale en`/`pt-BR` is now honored reliably by `pose update`/`pose install`/`pose extension install`, including across a locale switch on an already-installed instance (no more duplicated sections). Module/stack discovery now excludes `testdata`/`fixture`/`fixtures` directories (fixes a false-positive that could invalidate closed specs' review evidence on this repository's own reinstalls) and classifies Android/Kotlin Gradle modules as `\"android\"` instead of the generic `\"java\"`. `pose install`'s post-install gate now says plainly when a failure is caused by governance debt already present in the target before the run started, and a forced update/install rerun preserves the project's declared identity across a directory rename instead of silently replacing it with the current directory name.",
+      "path": "pose-upgrade-path-audit-fixes.md",
+      "digest": "sha256:1109dba3f8d3d8a6f1ad924e515b40b402bb9bb946a782cb59e18b98d6224996"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:03d5827fccf3a8a1c7e22af9129f148cb0e2c51ebd7921c6c343b975d1bf753c",
+  "release_input_digest": "sha256:07b8aecafff5b637b1b92fcf5b8f8bedc648d97a44308a167fa67188f71c0dbc",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.4.1"
+  }
+}
