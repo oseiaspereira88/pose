@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "version": "v1.4.0",
+  "previous_version": "v1.3.0",
+  "prepared_at": "2026-08-16T02:45:39Z",
+  "specs": [
+    "pose-extension-catalog-resolution",
+    "pose-onboarding-context-extraction",
+    "pose-rule-extension-locale-parity",
+    "pose-validation-scanner-consolidation"
+  ],
+  "categories": {
+    "added": 4
+  },
+  "fragments": [
+    {
+      "spec": "pose-extension-catalog-resolution",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose extension install \u003cextension-id\u003e` now resolves the ID against the latest published GitHub release's signed assets, downloads and safely extracts the package, and installs it through the same signature-verified pipeline a local directory install already used — no local directory required. `pose doctor`'s rule-extension recommendation can now be satisfied by a single runnable command for any extension published this way.",
+      "path": "pose-extension-catalog-resolution.md",
+      "digest": "sha256:0c1cb74f4082fb6a78417864a437a988e132ecb44aa558d6cdcdf79d1cec6202"
+    },
+    {
+      "spec": "pose-onboarding-context-extraction",
+      "category": "added",
+      "breaking": false,
+      "refs": "ISSUE#21",
+      "body": "`pose init`/`pose install` now excerpts a brownfield target's own `README.md`/`CLAUDE.md` into `AGENTS.md`'s \"Project context\" section on first install, instead of leaving the generic unfilled placeholder. The section is preserved on later `pose install`/`pose update` runs, so an extracted or hand-edited description is never silently reverted.",
+      "path": "pose-onboarding-context-extraction.md",
+      "digest": "sha256:eaf831705474ef86ef8d7854f8e4e818eea714f6f31c01bcb63a060ae0d5ec74"
+    },
+    {
+      "spec": "pose-rule-extension-locale-parity",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose extension install` now supports a `--locale` flag (auto-detected from the target when omitted, same as `pose install`), so an extension package can ship localized content alongside its base files. `pose-rule-backend-go` and `pose-rule-frontend-react` now ship a pt-BR variant, so a pt-BR instance installing either gets locale-consistent content instead of English-only text.",
+      "path": "pose-rule-extension-locale-parity.md",
+      "digest": "sha256:c6ce399fe81b07b05b3158c9c770e99ef373d771488c5ef08f6553a69044f0cb"
+    },
+    {
+      "spec": "pose-validation-scanner-consolidation",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose index`, `pose validate`, `pose install` and `pose init` now classify a repository's modules through one shared stack detector instead of two independently maintained ones, so a stack-detection fix reaches every command that relies on it. Cloudflare Workers (`wrangler.toml`/`.json`/`.jsonc`) is now a recognized stack with a runnable check, and `pose index`'s repo map now picks up Python and .NET modules it previously skipped entirely.",
+      "path": "pose-validation-scanner-consolidation.md",
+      "digest": "sha256:69b4bc5b70d84b52339ab6096f8285eaf5fa70387ae3cc49dc69f9c081cee4f5"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:864fb676c61e9d2d214b37620507be67251acabcd46bd8f92ede5b7a5c1555f6",
+  "release_input_digest": "sha256:a9b68e3d4dc2a76bc120cac1fc11b6f879f18877f587750fc328c2f0549e75c9",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.4.0"
+  }
+}
