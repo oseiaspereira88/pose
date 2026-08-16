@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-16T17:33:36Z
-baseline_commit: 4eec0c7213eceb4907dbcee12629111d24d94109
+generated_at: 2026-08-16T18:31:59Z
+baseline_commit: 08c2c82e516a9e9231e57b76bf59804b460c662d
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:5c009dd27693 -->
+<!-- state:derived hash:7660ac7944a0 -->
 
-- specs: total=112 draft=0 in-progress=0 blocked=0 done=112 superseded=0 abandoned=0
+- specs: total=113 draft=0 in-progress=0 blocked=0 done=113 superseded=0 abandoned=0
 - roadmaps: total=10 active=0 done=10
 - últimos closeouts:
   - spec:pose-upgrade-path-audit-fixes (2026-08-16)
-  - spec:pose-scaffold-self-referential-policy-fix (2026-08-15)
-  - spec:pose-install-gate-failure-recovery-notice (2026-08-15)
-  - spec:pose-validation-scanner-consolidation (2026-08-15)
-  - spec:pose-v1-2-2-changelog-review (2026-08-15)
-  - ... e mais 107 (ver `pose_list_specs status:done`)
+  - spec:pose-derived-index-self-referential-leak (2026-08-16)
+  - spec:pose-knowledge-durable-reference-type (2026-08-15)
+  - spec:pose-review-bundle-root-file-classification (2026-08-15)
+  - spec:pose-adaptive-rule-delivery (2026-08-15)
+  - ... e mais 108 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:5d2f0a063ff8 -->
