@@ -367,6 +367,37 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		}
 	}
 
+	// 8a. Instance config completeness. A `.pose/schema-version` stamp means
+	// this instance considers itself current, so the subsystems every other
+	// current instance has should exist too. Before spec
+	// pose-update-instance-config-completeness, a plain `pose update`
+	// (without --force) refreshed AGENTS.md/POSE.md to reference these
+	// subsystems without ever seeding them on an old instance, so `Result:
+	// SUCCESS` could be followed immediately by `pose check --strict`
+	// failing with broken references — and this same doctor run reported no
+	// error. Detected here so an instance a stale binary already left in
+	// that state surfaces it, not just prevented going forward.
+	if _, err := os.Stat(filepath.Join(root, ".pose", "schema-version")); err == nil {
+		var missing []string
+		for _, rel := range []string{
+			filepath.Join(".pose", "policy", "delivery.json"),
+			filepath.Join(".pose", "policy", "artifacts.json"),
+			filepath.Join(".pose", "indexes", "spec-graph.json"),
+			filepath.Join(".pose", "indexes", "extensions.lock.json"),
+		} {
+			if _, err := os.Stat(filepath.Join(root, rel)); err != nil {
+				missing = append(missing, filepath.ToSlash(rel))
+			}
+		}
+		if len(missing) > 0 {
+			add("instance.config-completeness", "warn",
+				fmt.Sprintf(text("subsystems referenced by this instance's manuals were never seeded: %s", "subsistemas referenciados pelos manuais desta instância nunca foram semeados: %s"), strings.Join(missing, ", ")),
+				text("run 'pose update' to seed them (safe: additive-only, never overwrites an existing file)", "rode 'pose update' para semeá-los (seguro: só adiciona, nunca sobrescreve um arquivo existente)"))
+		} else {
+			add("instance.config-completeness", "ok", text("subsystems referenced by this instance's manuals are all seeded", "subsistemas referenciados pelos manuais desta instância estão todos semeados"), "")
+		}
+	}
+
 	// 9. Review-scope recorded change set coverage (issue #17, comments 2-3):
 	// `pose review bundle <scope> --seal` reads its subject exclusively from
 	// graph.ChangeSets (`.pose/indexes/delivery-integrity.json`), which
@@ -511,6 +542,42 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 						"obtenha o pacote da extensão e rode 'pose extension install <path>' — veja a seção Domain rules do AGENTS.md"))
 			} else {
 				add("rules.stack-extension-available", "ok", text("no unmatched rule extensions for detected modules", "nenhuma extensão de rule pendente para os módulos detectados"), "")
+			}
+
+			// 11a. Orphaned module-metadata entries (specs
+			// pose-fixture-directory-discovery-exclusion,
+			// pose-stack-detection-consolidation): discovery is additive-only
+			// and never removes an entry, so a path that stopped existing —
+			// a stale self-referential entry from an old scaffold version, a
+			// typo/case mismatch, a module that was deleted — stays forever,
+			// silently. Root ("") is exempt: it is a valid module-metadata
+			// key that legitimately has no directory of its own to stat.
+			var orphans []string
+			modPaths := make([]string, 0, len(doc.Modules))
+			for p := range doc.Modules {
+				modPaths = append(modPaths, p)
+			}
+			sort.Strings(modPaths)
+			for _, modPath := range modPaths {
+				if modPath == "" || modPath == "." {
+					continue
+				}
+				if !confinedRelativePath(modPath) {
+					continue
+				}
+				if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(modPath))); err != nil {
+					orphans = append(orphans, modPath)
+				}
+			}
+			if len(orphans) > 0 {
+				add("module-metadata.orphan-entries", "warn",
+					fmt.Sprintf(text("%d module-metadata.json entr(y/ies) do not resolve to a directory in this project: %s",
+						"%d entrada(s) de module-metadata.json não resolvem a um diretório neste projeto: %s"),
+						len(orphans), strings.Join(orphans, ", ")),
+					text("check .pose/indexes/module-metadata.json — the module may have been deleted, renamed, or (github.com/oseiaspereira88/pose issue #21-adjacent) inherited from an old scaffold that leaked its own modules; remove the entry or fix the path",
+						"confira .pose/indexes/module-metadata.json — o módulo pode ter sido apagado, renomeado, ou (adjacente à issue #21) herdado de um scaffold antigo que vazou seus próprios módulos; remova a entrada ou corrija o caminho"))
+			} else {
+				add("module-metadata.orphan-entries", "ok", text("every module-metadata.json entry resolves to a real directory", "toda entrada de module-metadata.json resolve a um diretório real"), "")
 			}
 		}
 	}

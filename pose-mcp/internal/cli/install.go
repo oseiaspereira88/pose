@@ -44,6 +44,16 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			case "--locale":
 				locale = v
 				localeExplicit = true
+				// The operator's explicit request also drives this
+				// command's own diagnostic output (log lines, the
+				// post-install gate report), not just the scaffold
+				// content — matching --locale's meaning on `pose update`
+				// (spec pose-post-install-gate-locale).
+				if v == "pt-BR" {
+					commandLocale = localePtBR
+				} else {
+					commandLocale = localeEN
+				}
 			}
 			i += 2
 		case "--force":
@@ -90,11 +100,34 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 	}
-	if projectName == "" {
-		projectName = filepath.Base(target)
-	}
-	if projectID == "" {
-		projectID = "proj." + projectName
+	if projectName == "" || projectID == "" {
+		// An already-installed target's declared identity is recovered from
+		// its own AGENTS.md/.mcp.json before ever falling back to the
+		// directory's current basename — the same recovery
+		// `refreshManagedDocs` already does for a plain `pose update`.
+		// Without this, any `--force` update or install rerun (this
+		// function is also what `pose update --force` delegates to)
+		// silently renamed the project's declared identity the moment the
+		// repository was checked out or cloned under a different directory
+		// name than the one it was first installed with.
+		detectedName, detectedID := "", ""
+		if existing, err := os.ReadFile(filepath.Join(target, "AGENTS.md")); err == nil {
+			detectedName, detectedID = detectProjectIdentity(string(existing), target)
+		}
+		if projectName == "" {
+			if detectedName != "" {
+				projectName = detectedName
+			} else {
+				projectName = filepath.Base(target)
+			}
+		}
+		if projectID == "" {
+			if detectedID != "" {
+				projectID = detectedID
+			} else {
+				projectID = "proj." + projectName
+			}
+		}
 	}
 	log := func(english, portuguese string, a ...any) {
 		fmt.Fprintf(stdout, "[pose-install] "+text(english, portuguese)+"\n", a...)
@@ -102,6 +135,24 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	log("target:       %s", "alvo:         %s", target)
 	log("project name: %s", "nome do projeto: %s", projectName)
 	log("project id:   %s", "id do projeto:   %s", projectID)
+
+	// A target already carrying a `.pose` instance may already fail
+	// `check --strict` on its own governance debt, unrelated to anything
+	// this run is about to do — reindexing/reseeding module-metadata
+	// alone can flip an already-broken review-closeout or provenance
+	// state (spec pose-install-gate-failure-recovery-notice's own
+	// follow-up: "decide whether the index step should ... run before
+	// delivery so the failure is honest about what did not happen").
+	// Checking here, before any write, lets the final gate failure (if
+	// any) say so plainly instead of reading as something this install
+	// broke.
+	preExistingFailure := false
+	if _, err := os.Stat(filepath.Join(target, ".pose")); err == nil {
+		if cmdCheck(target, []string{"--strict"}, io.Discard, io.Discard) != 0 {
+			preExistingFailure = true
+			log("warning: target already fails `pose check --strict` before this run touches anything — pre-existing governance debt, not something this command is about to cause", "aviso: o alvo já falha em `pose check --strict` antes desta execução tocar em qualquer coisa — dívida de governança pré-existente, não algo que este comando está prestes a causar")
+		}
+	}
 
 	dist := scaffold.Dist()
 
@@ -118,7 +169,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// entirely to cmdInstall), would silently revert an already-localized
 	// project's machinery to English — github.com/oseiaspereira88/pose#18.
 	if !localeExplicit {
-		locale = machineryLocale(dist, target, locale)
+		locale = machineryLocale(dist, target, locale, false)
 	}
 
 	// 1. Native machinery: this binary is the runtime. Delivery is shared with
@@ -138,56 +189,30 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
-	// 2. Config indexes: seed only when absent.
-	idxEntries, _ := fs.ReadDir(dist, ".pose/indexes")
-	_ = os.MkdirAll(filepath.Join(target, ".pose", "indexes"), 0o755)
-	for _, e := range idxEntries {
-		if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
-			continue
-		}
-		dst := filepath.Join(target, ".pose", "indexes", e.Name())
-		if _, err := os.Stat(dst); err == nil {
-			continue
-		}
-		if err := copyFile(dist, ".pose/indexes/"+e.Name(), dst, 0o644); err == nil {
-			log("index (seed): %s", "índice (semente): %s", e.Name())
-		}
-	}
-
-	// 2a. Discover this repository's actual modules and merge them into
-	// module-metadata.json (spec pose-stack-detection-consolidation) —
-	// additive only, never overwrites an existing entry.
-	seedModuleMetadataFromDiscovery(target, log)
-
-	// 2b. Seed governed configuration contracts for a fresh repository. These
-	// are user-owned after installation, so reruns never overwrite them; engine
-	// defaults still need to exist for direct adoption of review bundles and
-	// the validation/delivery policies they consume.
-	for _, dir := range []string{".pose/policy", ".pose/review-profiles"} {
-		entries, _ := fs.ReadDir(dist, dir)
-		_ = os.MkdirAll(filepath.Join(target, filepath.FromSlash(dir)), 0o755)
-		for _, e := range entries {
-			if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
-				continue
-			}
-			dst := filepath.Join(target, filepath.FromSlash(dir), e.Name())
-			if _, err := os.Stat(dst); err == nil {
-				continue
-			}
-			if err := copyFile(dist, dir+"/"+e.Name(), dst, 0o644); err == nil {
-				log("config (seed): %s/%s", "configuração (semente): %s/%s", dir, e.Name())
-			}
-		}
-	}
+	// 2. Config indexes, module-metadata discovery, policy and
+	// review-profiles: seed only what is absent. Shared with `pose update`
+	// (see seedAbsentInstanceConfig) so a plain update without --force seeds
+	// the same subsystems a fresh install does instead of leaving an old
+	// instance with docs/machinery that reference subsystems (assessments,
+	// spec-graph.json, policy/) it never actually seeded — that produced a
+	// "Result: SUCCESS" update whose very next `pose check --strict` failed
+	// with broken references, undetected by `pose doctor`
+	// (spec pose-update-instance-config-completeness).
+	seedAbsentInstanceConfig(dist, target, log)
 
 	// 3. Legal texts vendored under .pose/.
 	_ = copyFile(dist, "LICENSE", filepath.Join(target, ".pose", "LICENSE"), 0o644)
 	_ = copyFile(dist, "NOTICE", filepath.Join(target, ".pose", "NOTICE"), 0o644)
 	log("vendored: .pose/LICENSE, .pose/NOTICE", "incorporados: .pose/LICENSE, .pose/NOTICE")
 
-	// 4. Root docs with locale + placeholders.
+	// 4. Root docs with locale + placeholders. "" is auto-detection's own
+	// spelling of English (resolveDocLocale/machineryLocale's return value
+	// for the canonical, un-prefixed manual) — treat it exactly like the
+	// literal "en" the operator would type, not as an unresolved locale
+	// request; logging "locale '' not available" for it would misreport an
+	// auto-detected default as a rejected explicit ask.
 	docsPrefix := ""
-	if locale != "en" {
+	if locale != "" && locale != "en" {
 		if _, err := fs.Stat(dist, "locales/"+locale); err == nil {
 			docsPrefix = "locales/" + locale + "/"
 			log("locale: %s (docs/templates localized)", "locale: %s (docs/templates localizados)", locale)
@@ -225,8 +250,33 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		// behavior) meant canonical manual content never reached an installed
 		// repository at all; --force still resets the file wholesale.
 		if existing, readErr := os.ReadFile(dst); readErr == nil && !force {
-			merged, preserved := MergeManagedDoc(content, string(existing))
-			dropsContent := MergeDropsLocalContent(content, string(existing))
+			// A rerun that switches locale (`pose install <target> --locale
+			// pt-BR` over an English instance) hands the merge headings in a
+			// different language than what `existing` already has: matching
+			// them literally would treat every local section as unknown to
+			// the engine and append it as a duplicate instead of recognizing
+			// it as the same section (spec
+			// pose-locale-switch-section-identity).
+			var merged string
+			var preserved, dropsContent bool
+			existingResolved := resolveDocLocale(dist, doc, string(existing), "", false)
+			targetResolved := strings.TrimSuffix(strings.TrimPrefix(docsPrefix, "locales/"), "/")
+			if targetResolved != existingResolved {
+				existingCanonicalPrefix := ""
+				if existingResolved != "" {
+					existingCanonicalPrefix = "locales/" + existingResolved + "/"
+				}
+				existingCanonical, ecErr := fs.ReadFile(dist, existingCanonicalPrefix+doc)
+				var translation map[string]string
+				if ecErr == nil {
+					translation = buildHeadingTranslation(string(existingCanonical), content)
+				}
+				merged, preserved = MergeManagedDocAcrossLocale(content, string(existing), translation)
+				dropsContent = MergeAcrossLocaleDropsLocalContent(content, string(existing), translation)
+			} else {
+				merged, preserved = MergeManagedDoc(content, string(existing))
+				dropsContent = MergeDropsLocalContent(content, string(existing))
+			}
 			content = merged
 			if string(existing) == content {
 				log("unchanged: %s", "inalterado: %s", doc)
@@ -291,8 +341,19 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		return rc
 	}
 	log("running native final gate", "executando gate final nativo")
-	if rc := cmdCheck(target, []string{"--strict"}, stdout, stderr); rc != 0 {
+	// The operator's own --locale (or the auto-detected commandLocale) drives
+	// this gate's report, not the shell's $LANG — an explicit `pose install
+	// --locale en` reporting its own final gate in Portuguese because the
+	// shell happens to be pt-BR would read as if the flag had failed
+	// (spec pose-post-install-gate-locale).
+	if rc := cmdCheckWithLocale(target, []string{"--strict"}, stdout, stderr, commandLocale); rc != 0 {
 		fmt.Fprintln(stderr, text("pose install: post-install gate failed (check --strict)", "pose install: gate pós-instalação falhou (check --strict)"))
+		if preExistingFailure {
+			fmt.Fprintln(stderr, text(
+				"pose install: this target already failed the same gate before this run touched anything (see the warning above) — this is very likely pre-existing governance debt in the target, not something this install/update caused.",
+				"pose install: este alvo já falhava no mesmo gate antes desta execução tocar em qualquer coisa (veja o aviso acima) — isto é muito provavelmente dívida de governança pré-existente no alvo, não algo causado por este install/update.",
+			))
+		}
 		// The gate runs after every machinery file, doc merge and policy
 		// seed is already on disk — this command is not transactional, so
 		// failing here does not undo any of it (spec

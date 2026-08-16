@@ -142,10 +142,18 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stdout, "[INFO] "+text(english, portuguese)+"\n", a...)
 		}
 		dist := scaffold.Dist()
-		if e := deliverMachinery(dist, root, machineryLocale(dist, root, docLocale), false, false, stderr, machineryLog); e != nil {
+		if e := deliverMachinery(dist, root, machineryLocale(dist, root, docLocale, docLocale != ""), false, false, stderr, machineryLog); e != nil {
 			fmt.Fprintf(stderr, text("pose update: delivering machinery: %v\n", "pose update: entregando maquinário: %v\n"), e)
 			return 1
 		}
+		// Config indexes, discovered module-metadata, policy and
+		// review-profiles: seeded here too, not only under --force
+		// (delegated to cmdInstall below) — every step is additive-only, so
+		// a plain update has nothing to protect by skipping it, and skipping
+		// it left older instances with docs referencing subsystems nothing
+		// had actually seeded (spec
+		// pose-update-instance-config-completeness).
+		seedAbsentInstanceConfig(dist, root, machineryLog)
 	}
 
 	if force {

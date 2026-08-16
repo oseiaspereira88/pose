@@ -158,12 +158,15 @@ func machinerySource(src fs.FS, path, locale string) string {
 
 // machineryLocale resolves the locale an instance is actually installed in,
 // reusing the manual-based detection so machinery and manuals never disagree.
-func machineryLocale(src fs.FS, root, localeFlag string) string {
+// explicit must be true only when localeFlag came from an operator-typed
+// --locale, never when it is merely the caller's zero-value default — see
+// resolveDocLocale.
+func machineryLocale(src fs.FS, root, localeFlag string, explicit bool) string {
 	existing, err := os.ReadFile(filepath.Join(root, "POSE.md"))
 	if err != nil {
 		return localeFlag
 	}
-	return resolveDocLocale(src, "POSE.md", string(existing), localeFlag)
+	return resolveDocLocale(src, "POSE.md", string(existing), localeFlag, explicit)
 }
 
 // localeSkillMirrors lists the locales/<tag>/.agents/skills trees present in an

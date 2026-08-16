@@ -118,7 +118,13 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func scanModules(root string) ([]indexedModule, []string, []string, []string, []string) {
-	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, ".gradle": true, "build": true, "dist": true, "target": true, "vendor": true, "__pycache__": true}
+	// testdata/fixture(s) hold synthetic content by convention (testdata is
+	// the Go toolchain's own name for it), never a repository's real
+	// deliverable modules — a fixture go.mod under an adoption-kit example
+	// was otherwise discovered as a real module and invalidated closed
+	// specs' review evidence on every reindex (spec
+	// pose-fixture-directory-discovery-exclusion).
+	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, ".gradle": true, "build": true, "dist": true, "target": true, "vendor": true, "__pycache__": true, "testdata": true, "fixture": true, "fixtures": true}
 	byDir := map[string]string{}
 	manifests, dockers, charts, readmes := []string{}, []string{}, []string{}, []string{}
 	_ = filepath.WalkDir(root, func(path string, e os.DirEntry, err error) error {
@@ -171,7 +177,11 @@ func scanModules(root string) ([]indexedModule, []string, []string, []string, []
 		if rel == "." {
 			rel = ""
 		}
-		mods = append(mods, indexedModule{Name: filepath.Base(d), Path: filepath.ToSlash(rel), Language: byDir[d], HasDockerfile: containsParent(dockers, rel), HasHelmChart: containsParent(charts, rel)})
+		lang := byDir[d]
+		if lang == "java" && isAndroidModule(d) {
+			lang = "android"
+		}
+		mods = append(mods, indexedModule{Name: filepath.Base(d), Path: filepath.ToSlash(rel), Language: lang, HasDockerfile: containsParent(dockers, rel), HasHelmChart: containsParent(charts, rel)})
 	}
 	for _, s := range [][]string{manifests, dockers, charts, readmes} {
 		sort.Strings(s)

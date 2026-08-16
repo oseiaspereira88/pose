@@ -53,8 +53,18 @@ func (checker *nativeChecker) failOrWarn(message string) {
 	}
 }
 
+// cmdCheck runs the strict/tolerant gate in the invoking shell's own locale
+// (the command has no --locale flag of its own). cmdCheckWithLocale lets an
+// internal caller that already resolved an explicit locale — `pose install`/
+// `pose update`'s post-install gate, driven by their own --locale — report
+// in that locale instead, matching the language the operator actually asked
+// for on the outer command rather than whatever the shell's $LANG happens to
+// be (spec pose-post-install-gate-locale).
 func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
-	locale := cliLocaleValue()
+	return cmdCheckWithLocale(root, args, stdout, stderr, cliLocaleValue())
+}
+
+func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, locale cliLocale) int {
 	mode := "strict"
 	if len(args) > 1 {
 		fmt.Fprintln(stderr, cliText(locale, "Usage: pose check [--strict|--tolerant]", "Uso: pose check [--strict|--tolerant]"))
@@ -88,16 +98,16 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	checker.checkCommandReference()
 	if checker.errors > 0 {
 		noteCommandUsage(stdout, countedUsageResult("fail", checker.errors, checker.warnings, false))
-		fmt.Fprintf(stdout, "Resultado: FALHA — estrutura POSE com %d erro(s).\n", checker.errors)
+		fmt.Fprintf(stdout, cliText(locale, "Result: FAILURE — POSE structure has %d error(s).\n", "Resultado: FALHA — estrutura POSE com %d erro(s).\n"), checker.errors)
 		return 1
 	}
 	if checker.warnings > 0 {
 		noteCommandUsage(stdout, countedUsageResult("partial", 0, checker.warnings, false))
-		fmt.Fprintf(stdout, "Resultado: SUCESSO (modo tolerant) com %d aviso(s).\n", checker.warnings)
+		fmt.Fprintf(stdout, cliText(locale, "Result: SUCCESS (tolerant mode) with %d warning(s).\n", "Resultado: SUCESSO (modo tolerant) com %d aviso(s).\n"), checker.warnings)
 		return 0
 	}
 	noteCommandUsage(stdout, countedUsageResult("pass", 0, 0, false))
-	fmt.Fprintf(stdout, "Resultado: SUCESSO — estrutura POSE válida (modo %s).\n", mode)
+	fmt.Fprintf(stdout, cliText(locale, "Result: SUCCESS — valid POSE structure (%s mode).\n", "Resultado: SUCESSO — estrutura POSE válida (modo %s).\n"), mode)
 	return 0
 }
 

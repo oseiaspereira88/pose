@@ -18,10 +18,66 @@ package cli
 
 import (
 	"encoding/json"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 )
+
+// seedAbsentInstanceConfig seeds every engine-owned config file a fresh
+// instance needs that is currently absent: `.pose/indexes/*.json`,
+// module-metadata's discovered modules, and `.pose/policy`/`.pose/
+// review-profiles`. Every step is additive-only — an existing file is never
+// touched — so it is safe to call unconditionally on both `pose install`
+// (always) and `pose update` (with or without --force): skipping it on a
+// plain update was the root cause of an instance whose refreshed
+// AGENTS.md/POSE.md already reference these subsystems while nothing had
+// ever seeded them, so it reported "Result: SUCCESS" and then failed its own
+// very next `pose check --strict` with broken references that `pose doctor`
+// did not catch (spec pose-update-instance-config-completeness).
+func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
+	idxEntries, _ := fs.ReadDir(dist, ".pose/indexes")
+	_ = os.MkdirAll(filepath.Join(target, ".pose", "indexes"), 0o755)
+	for _, e := range idxEntries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
+			continue
+		}
+		dst := filepath.Join(target, ".pose", "indexes", e.Name())
+		if _, err := os.Stat(dst); err == nil {
+			continue
+		}
+		if err := copyFile(dist, ".pose/indexes/"+e.Name(), dst, 0o644); err == nil {
+			log("index (seed): %s", "índice (semente): %s", e.Name())
+		}
+	}
+
+	// Discover this repository's actual modules and merge them into
+	// module-metadata.json (spec pose-stack-detection-consolidation) —
+	// additive only, never overwrites an existing entry.
+	seedModuleMetadataFromDiscovery(target, log)
+
+	// Seed governed configuration contracts for a fresh repository. These
+	// are user-owned after installation, so reruns never overwrite them;
+	// engine defaults still need to exist for direct adoption of review
+	// bundles and the validation/delivery policies they consume.
+	for _, dir := range []string{".pose/policy", ".pose/review-profiles"} {
+		entries, _ := fs.ReadDir(dist, dir)
+		_ = os.MkdirAll(filepath.Join(target, filepath.FromSlash(dir)), 0o755)
+		for _, e := range entries {
+			if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
+				continue
+			}
+			dst := filepath.Join(target, filepath.FromSlash(dir), e.Name())
+			if _, err := os.Stat(dst); err == nil {
+				continue
+			}
+			if err := copyFile(dist, dir+"/"+e.Name(), dst, 0o644); err == nil {
+				log("config (seed): %s/%s", "configuração (semente): %s/%s", dir, e.Name())
+			}
+		}
+	}
+}
 
 // seedModuleMetadataFromDiscovery merges newly-discovered module paths into
 // target's module-metadata.json, leaving every existing entry (whether

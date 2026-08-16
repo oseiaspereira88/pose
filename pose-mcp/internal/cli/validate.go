@@ -99,7 +99,9 @@ func confinedRelativePath(path string) bool {
 }
 
 func discoverValidationModules(root string) ([]validationModule, error) {
-	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, "vendor": true, ".venv": true, ".pnpm-store": true, "target": true, "dist": true, "build": true, ".next": true, "coverage": true, ".pose": true}
+	// testdata/fixture(s): see index.go's scanModules for why these are
+	// excluded (spec pose-fixture-directory-discovery-exclusion).
+	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, "vendor": true, ".venv": true, ".pnpm-store": true, "target": true, "dist": true, "build": true, ".next": true, "coverage": true, ".pose": true, "testdata": true, "fixture": true, "fixtures": true}
 	byPath := map[string]string{}
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
@@ -132,6 +134,15 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 	}
 	modules := make([]validationModule, 0, len(byPath))
 	for abs, stack := range byPath {
+		if stack == "java" && isAndroidModule(abs) {
+			// A Gradle module carrying an AndroidManifest.xml is an Android
+			// app/library, not a generic JVM backend module — conflating the
+			// two under "java" made every Android module's domain
+			// misleading (spec pose-android-stack-detection). Kotlin-only
+			// non-Android Gradle modules are unaffected: they have no
+			// AndroidManifest.xml and keep classifying as "java".
+			stack = "android"
+		}
 		rel, err := filepath.Rel(root, abs)
 		if err != nil {
 			return nil, err
@@ -140,6 +151,23 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 	}
 	sort.Slice(modules, func(i, j int) bool { return modules[i].Rel < modules[j].Rel })
 	return modules, nil
+}
+
+// isAndroidModule reports whether a Gradle module directory is an Android
+// app/library rather than a generic JVM module, by the one file every
+// Android module has and no other Gradle module does: AndroidManifest.xml,
+// at its conventional root-relative location or directly in the module
+// (some legacy layouts skip the src/main nesting).
+func isAndroidModule(moduleDir string) bool {
+	for _, candidate := range []string{
+		filepath.Join(moduleDir, "src", "main", "AndroidManifest.xml"),
+		filepath.Join(moduleDir, "AndroidManifest.xml"),
+	} {
+		if _, err := os.Stat(candidate); err == nil {
+			return true
+		}
+	}
+	return false
 }
 
 // validationSkipReason returns the deterministic selection reason when a

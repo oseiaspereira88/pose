@@ -66,7 +66,18 @@ func splitDocSections(doc string) (preamble []string, sections []docSection) {
 // The second return value reports whether anything was preserved from the
 // local copy, which lets the caller log a merge instead of an overwrite.
 func MergeManagedDoc(canonical, local string) (string, bool) {
-	merged, preserved, _ := mergeManagedDoc(canonical, local)
+	merged, preserved, _ := mergeManagedDoc(canonical, local, nil)
+	return merged, preserved
+}
+
+// MergeManagedDocAcrossLocale is MergeManagedDoc for the case where local was
+// last written in a different locale than canonical. headingTranslation maps
+// each of local's headings to the canonical heading it corresponds to (built
+// by buildHeadingTranslation), so a section translated between locales is
+// recognized as the same section instead of being appended as unrelated
+// content the merge has never seen (spec pose-locale-switch-section-identity).
+func MergeManagedDocAcrossLocale(canonical, local string, headingTranslation map[string]string) (string, bool) {
+	merged, preserved, _ := mergeManagedDoc(canonical, local, headingTranslation)
 	return merged, preserved
 }
 
@@ -77,20 +88,62 @@ func MergeManagedDoc(canonical, local string) (string, bool) {
 // acceptable: the caller keeps a `.pose-backup` copy when this returns true
 // (spec pose-managed-doc-content-preservation).
 func MergeDropsLocalContent(canonical, local string) bool {
-	_, _, dropped := mergeManagedDoc(canonical, local)
+	_, _, dropped := mergeManagedDoc(canonical, local, nil)
 	return dropped
 }
 
-func mergeManagedDoc(canonical, local string) (string, bool, bool) {
+// MergeAcrossLocaleDropsLocalContent is MergeDropsLocalContent for a merge
+// that also translates headings across a locale switch.
+func MergeAcrossLocaleDropsLocalContent(canonical, local string, headingTranslation map[string]string) bool {
+	_, _, dropped := mergeManagedDoc(canonical, local, headingTranslation)
+	return dropped
+}
+
+// buildHeadingTranslation pairs canonicalFrom's sections with canonicalTo's by
+// position — both are shipped translations of the same manual, kept in
+// lockstep by the locale-parity gate, so section N in one is section N in the
+// other — and returns a map from canonicalFrom's heading text to canonicalTo's
+// at the same position. Mismatched section counts return nil: pairing by
+// position would silently mislabel sections rather than merely fail to
+// translate, so an untranslatable manual falls back to literal heading
+// matching (same-language behavior) instead.
+func buildHeadingTranslation(canonicalFrom, canonicalTo string) map[string]string {
+	_, fromSections := splitDocSections(canonicalFrom)
+	_, toSections := splitDocSections(canonicalTo)
+	if len(fromSections) == 0 || len(fromSections) != len(toSections) {
+		return nil
+	}
+	translation := make(map[string]string, len(fromSections))
+	for i, section := range fromSections {
+		translation[section.Heading] = toSections[i].Heading
+	}
+	return translation
+}
+
+func mergeManagedDoc(canonical, local string, headingTranslation map[string]string) (string, bool, bool) {
 	canonicalPre, canonicalSections := splitDocSections(canonical)
 	_, localSections := splitDocSections(local)
 
+	// effectiveHeading is what a local section is matched against: its own
+	// heading in the common same-locale case, or the canonical translation of
+	// it when the instance is merging across a locale switch — otherwise a
+	// translated section reads as content the engine has never seen and gets
+	// appended as a duplicate instead of recognized as the same section
+	// (spec pose-locale-switch-section-identity).
+	effectiveHeading := func(heading string) string {
+		if translated, ok := headingTranslation[heading]; ok {
+			return translated
+		}
+		return heading
+	}
+
 	localByHeading := make(map[string]docSection, len(localSections))
 	for _, section := range localSections {
+		key := effectiveHeading(section.Heading)
 		// First occurrence wins: a duplicated heading in the local copy must
 		// not let a later one silently replace the earlier body.
-		if _, seen := localByHeading[section.Heading]; !seen {
-			localByHeading[section.Heading] = section
+		if _, seen := localByHeading[key]; !seen {
+			localByHeading[key] = section
 		}
 	}
 
@@ -113,9 +166,11 @@ func mergeManagedDoc(canonical, local string) (string, bool, bool) {
 	}
 
 	// Sections the instance added on its own are unknown to the engine; keep
-	// them at the end instead of discarding them.
+	// them at the end instead of discarding them. A section already matched
+	// above via its translated heading is not "unknown" — skip it here too,
+	// or it would be both merged in place and appended again as a duplicate.
 	for _, section := range localSections {
-		if !kept[section.Heading] {
+		if !kept[effectiveHeading(section.Heading)] {
 			preserved = true
 			merged = append(merged, section)
 		}
@@ -177,10 +232,15 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 		}
 		// The locale is a property of the installed manual, not of the shell
 		// running the upgrade: an instance installed with --locale pt-BR must
-		// not be silently rewritten in English by a plain `pose upgrade`.
+		// not be silently rewritten in English by a plain `pose upgrade`, and
+		// an explicit `--locale en` must land in English even when the
+		// instance is currently pt-BR (resolveDocLocale honors an explicit
+		// preference for every locale, "en" included).
+		existingResolved := resolveDocLocale(dist, doc, string(existing), "", false)
+		targetResolved := resolveDocLocale(dist, doc, string(existing), locale, locale != "")
 		docsPrefix := ""
-		if resolved := resolveDocLocale(dist, doc, string(existing), locale); resolved != "" {
-			docsPrefix = "locales/" + resolved + "/"
+		if targetResolved != "" {
+			docsPrefix = "locales/" + targetResolved + "/"
 		}
 		canonical, err := fs.ReadFile(dist, docsPrefix+doc)
 		if err != nil {
@@ -192,7 +252,30 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 		// The instance already resolved the scaffold placeholders; reuse its
 		// own values so a refresh never reintroduces {{PROJECT_NAME}}.
 		content := restoreDocPlaceholders(string(canonical), string(existing), root)
-		merged, preserved := MergeManagedDoc(content, string(existing))
+
+		var merged string
+		var preserved, dropsContent bool
+		if targetResolved != existingResolved {
+			// Crossing a locale switch: local headings are in a different
+			// language than canonical's, so literal heading matching would
+			// treat every local section as unknown-to-the-engine and append
+			// it as a duplicate instead of recognizing it as the same
+			// section (spec pose-locale-switch-section-identity).
+			existingCanonicalPrefix := ""
+			if existingResolved != "" {
+				existingCanonicalPrefix = "locales/" + existingResolved + "/"
+			}
+			existingCanonical, ecErr := fs.ReadFile(dist, existingCanonicalPrefix+doc)
+			var translation map[string]string
+			if ecErr == nil {
+				translation = buildHeadingTranslation(string(existingCanonical), string(canonical))
+			}
+			merged, preserved = MergeManagedDocAcrossLocale(content, string(existing), translation)
+			dropsContent = MergeAcrossLocaleDropsLocalContent(content, string(existing), translation)
+		} else {
+			merged, preserved = MergeManagedDoc(content, string(existing))
+			dropsContent = MergeDropsLocalContent(content, string(existing))
+		}
 		if merged == string(existing) {
 			continue
 		}
@@ -203,12 +286,18 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 			fmt.Fprintf(stdout, cliText(localeText, "[WARN] skipped %s: unresolved scaffold placeholder\n", "[AVISO] %s ignorado: placeholder de scaffold não resolvido\n"), doc)
 			continue
 		}
-		// Engine-owned sections are rewritten, so an instance that edited one
-		// in place would otherwise lose it silently. Keep the previous file
-		// beside the new one; the instance-owned sections are preserved by the
-		// merge itself and need no recovery.
-		if err := os.WriteFile(filepath.Join(root, doc)+".pose-backup", existing, 0o644); err != nil {
-			return err
+		// Text the instance wrote inside an engine-owned section body has no
+		// heading of its own, so the refresh legitimately overwrites it. Keep
+		// a copy and say so explicitly — the merge only preserves what it can
+		// recognize as a whole section, and a generic "merged" log would
+		// otherwise read as if nothing had been lost (spec
+		// pose-managed-doc-content-preservation, matching the warning `pose
+		// install`'s own merge path already gives for the same case).
+		if dropsContent {
+			if err := os.WriteFile(filepath.Join(root, doc)+".pose-backup", existing, 0o644); err != nil {
+				return err
+			}
+			fmt.Fprintf(stdout, cliText(localeText, "[WARN] backed up customized: %s -> %s.pose-backup (content outside instance-owned sections was not preserved)\n", "[AVISO] backup de conteúdo customizado: %s -> %s.pose-backup (conteúdo fora das seções da instância não foi preservado)\n"), doc, doc)
 		}
 		if err := writeAtomic(filepath.Join(root, doc), []byte(merged), 0o644); err != nil {
 			return err
@@ -224,10 +313,23 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 
 // resolveDocLocale picks which shipped translation of doc the installed manual
 // actually is, by scoring how many of each candidate's headings the local file
-// still contains. An explicit preference wins when it ships the document.
-// Returns "" for the English original.
-func resolveDocLocale(dist fs.FS, doc, existing, preferred string) string {
-	if preferred != "" && preferred != "en" {
+// still contains. A non-"en" preference always wins outright when the
+// document ships that locale. An "en" preference wins outright only when
+// explicit is true — callers that pass "en" merely as their zero-value
+// default, with no real ask from the operator, must pass explicit=false, or
+// a genuinely pt-BR (or other) instance would be silently forced back to
+// English by every unrelated command that happens to auto-detect a locale
+// (github.com/oseiaspereira88/pose#18's failure mode, one layer deeper: this
+// function itself must not repeat it for callers that DO make an explicit
+// "en" ask, e.g. `pose update --locale en` against a pt-BR instance). An
+// empty preference always falls through to auto-detection against the
+// existing content. Returns "" for the English original.
+func resolveDocLocale(dist fs.FS, doc, existing, preferred string, explicit bool) string {
+	if preferred == "en" {
+		if explicit {
+			return ""
+		}
+	} else if preferred != "" {
 		if _, err := fs.Stat(dist, "locales/"+preferred+"/"+doc); err == nil {
 			return preferred
 		}

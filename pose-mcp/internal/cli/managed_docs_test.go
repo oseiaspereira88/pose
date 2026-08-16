@@ -2,10 +2,13 @@ package cli
 
 import (
 	"bytes"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
 const canonicalManual = `# POSE
@@ -194,6 +197,115 @@ func TestRefreshManagedDocsIgnoresAbsentManual(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, "POSE.md")); !os.IsNotExist(err) {
 		t.Error("refresh must not create a manual where none existed")
+	}
+}
+
+// TestResolveDocLocaleHonorsExplicitEnglish regression-covers spec
+// pose-locale-switch-section-identity, root cause 1: an explicit "en"
+// preference must win even against a pt-BR-detected existing manual —
+// before this fix, resolveDocLocale's own short-circuit only recognized a
+// non-"en" explicit preference, so "en" silently fell through to
+// auto-detection and got overridden back to whatever the existing content
+// already was.
+func TestResolveDocLocaleHonorsExplicitEnglish(t *testing.T) {
+	dist := scaffold.Dist()
+	ptBRExisting, err := fs.ReadFile(dist, "locales/pt-BR/POSE.md")
+	if err != nil {
+		t.Fatalf("reading shipped pt-BR POSE.md: %v", err)
+	}
+	if got := resolveDocLocale(dist, "POSE.md", string(ptBRExisting), "en", true); got != "" {
+		t.Errorf("explicit en against pt-BR existing content: resolveDocLocale = %q, want \"\" (English)", got)
+	}
+	// A non-explicit "en" (a caller's zero-value default, not a real ask)
+	// must still fall through to auto-detection, or a caller like
+	// `pose install`'s own locale auto-detect (which passes "en" as its
+	// unset default, explicit=false) would incorrectly force English onto
+	// an already-localized target on every unrelated rerun.
+	if got := resolveDocLocale(dist, "POSE.md", string(ptBRExisting), "en", false); got != "pt-BR" {
+		t.Errorf("non-explicit en against pt-BR existing content: resolveDocLocale = %q, want \"pt-BR\" (auto-detected)", got)
+	}
+}
+
+// TestRefreshManagedDocsSwitchesLocaleWithoutDuplicating regression-covers
+// spec pose-locale-switch-section-identity, root cause 2: switching
+// `--locale` on a plain `pose update` (no --force) must replace the
+// manual's language, not concatenate both — literal heading matching
+// treated a translated section as unknown content and appended it instead
+// of recognizing it as the same section.
+func TestRefreshManagedDocsSwitchesLocaleWithoutDuplicating(t *testing.T) {
+	repo := newGitRepo(t)
+	var out, errB bytes.Buffer
+	if code := cmdInstall([]string{repo, "--locale", "pt-BR", "--skip-mcp"}, &out, &errB); code != 0 {
+		t.Fatalf("install exit=%d err=%s", code, errB.String())
+	}
+
+	var refreshOut strings.Builder
+	if err := refreshManagedDocs(repo, "en", &refreshOut, localeEN); err != nil {
+		t.Fatal(err)
+	}
+
+	after, err := os.ReadFile(filepath.Join(repo, "POSE.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(after)
+	if strings.Contains(text, "## 1) O que é") {
+		t.Errorf("an explicit --locale en switch left the old pt-BR heading behind:\n%s", text)
+	}
+	if !strings.Contains(text, "## 1) What it is") {
+		t.Errorf("an explicit --locale en switch did not produce the English heading:\n%s", text)
+	}
+	if strings.Count(text, "## 1)") > 1 {
+		t.Errorf("locale switch duplicated section 1 instead of replacing it:\n%s", text)
+	}
+}
+
+// TestRefreshManagedDocsWarnsAndBacksUpDroppedContent regression-covers the
+// corrected scope of the original finding on `pose update`'s doc refresh: a
+// hand-edit inside an engine-owned section body (no heading of its own) is
+// legitimately overwritten by the refresh, but the operator must be told —
+// before this fix, refreshManagedDocs backed up unconditionally on any
+// change yet logged the generic "merged ... preserved" line even when
+// content was in fact dropped, reading as if nothing had been lost.
+func TestRefreshManagedDocsWarnsAndBacksUpDroppedContent(t *testing.T) {
+	repo := newGitRepo(t)
+	var out, errB bytes.Buffer
+	if code := cmdInstall([]string{repo, "--locale", "en", "--skip-mcp"}, &out, &errB); code != 0 {
+		t.Fatalf("install exit=%d err=%s", code, errB.String())
+	}
+	agentsPath := filepath.Join(repo, "AGENTS.md")
+	original, err := os.ReadFile(agentsPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const customLine = "- Cloudflare Workers backend: `.pose/rules/backend-worker.md`\n"
+	marker := "## Domain rules"
+	idx := strings.Index(string(original), marker)
+	if idx < 0 {
+		t.Fatalf("fixture AGENTS.md has no %q section:\n%s", marker, original)
+	}
+	// Insert the custom line just after the section's next newline, inside
+	// its body — not under its own heading.
+	bodyStart := idx + strings.Index(string(original)[idx:], "\n") + 1
+	edited := string(original)[:bodyStart] + customLine + string(original)[bodyStart:]
+	if err := os.WriteFile(agentsPath, []byte(edited), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	var refreshOut strings.Builder
+	if err := refreshManagedDocs(repo, "en", &refreshOut, localeEN); err != nil {
+		t.Fatal(err)
+	}
+
+	if !strings.Contains(refreshOut.String(), "backed up customized") {
+		t.Errorf("refresh must warn that customized content was backed up, got:\n%s", refreshOut.String())
+	}
+	backup, err := os.ReadFile(agentsPath + ".pose-backup")
+	if err != nil {
+		t.Fatalf(".pose-backup was not written: %v", err)
+	}
+	if !strings.Contains(string(backup), customLine) {
+		t.Errorf("backup does not contain the dropped custom line:\n%s", backup)
 	}
 }
 

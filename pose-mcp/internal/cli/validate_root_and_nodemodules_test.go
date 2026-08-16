@@ -97,3 +97,74 @@ func TestDiscoverValidationModules_IgnoresQwenWorktrees(t *testing.T) {
 		t.Fatalf("modules = %#v, want only pose-mcp Go module", modules)
 	}
 }
+
+// TestDiscoverValidationModules_IgnoresFixtureDirectories regression-covers
+// spec pose-fixture-directory-discovery-exclusion: a synthetic go.mod under
+// an adoption-kit example's fixture/testdata directory was previously
+// discovered as a real deliverable module, which recomputed pose-dist's own
+// provenance digest and invalidated closed specs' review evidence on every
+// reindex.
+func TestDiscoverValidationModules_IgnoresFixtureDirectories(t *testing.T) {
+	root := t.TempDir()
+	paths := []string{
+		filepath.Join(root, "service", "go.mod"),
+		filepath.Join(root, "examples", "kit", "fixture", "service", "go.mod"),
+		filepath.Join(root, "examples", "kit", "fixtures", "other", "go.mod"),
+		filepath.Join(root, "pose-mcp", "internal", "testdata", "sample", "go.mod"),
+	}
+	for _, path := range paths {
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatalf("mkdir %s: %v", filepath.Dir(path), err)
+		}
+		if err := os.WriteFile(path, []byte("fixture\n"), 0o644); err != nil {
+			t.Fatalf("write %s: %v", path, err)
+		}
+	}
+
+	modules, err := discoverValidationModules(root)
+	if err != nil {
+		t.Fatalf("discover validation modules: %v", err)
+	}
+	if len(modules) != 1 || modules[0].Rel != "service" {
+		t.Fatalf("modules = %#v, want only the real \"service\" module (fixture/fixtures/testdata excluded)", modules)
+	}
+}
+
+// TestDiscoverValidationModules_ClassifiesAndroidSeparatelyFromJava
+// regression-covers spec pose-android-stack-detection: a Gradle module
+// carrying AndroidManifest.xml must classify as "android", not the generic
+// "java" every other Gradle/Maven module gets.
+func TestDiscoverValidationModules_ClassifiesAndroidSeparatelyFromJava(t *testing.T) {
+	root := t.TempDir()
+	androidManifest := filepath.Join(root, "app", "src", "main", "AndroidManifest.xml")
+	if err := os.MkdirAll(filepath.Dir(androidManifest), 0o755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+	if err := os.WriteFile(androidManifest, []byte("<manifest/>\n"), 0o644); err != nil {
+		t.Fatalf("write AndroidManifest.xml: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "app", "build.gradle.kts"), []byte("// android app\n"), 0o644); err != nil {
+		t.Fatalf("write build.gradle.kts: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "backend"), 0o755); err != nil {
+		t.Fatalf("mkdir backend: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "backend", "build.gradle"), []byte("// plain jvm backend\n"), 0o644); err != nil {
+		t.Fatalf("write build.gradle: %v", err)
+	}
+
+	modules, err := discoverValidationModules(root)
+	if err != nil {
+		t.Fatalf("discover validation modules: %v", err)
+	}
+	stacks := map[string]string{}
+	for _, m := range modules {
+		stacks[m.Rel] = m.Stack
+	}
+	if stacks["app"] != "android" {
+		t.Errorf("app module stack = %q, want \"android\"", stacks["app"])
+	}
+	if stacks["backend"] != "java" {
+		t.Errorf("backend module stack = %q, want \"java\" (no AndroidManifest.xml)", stacks["backend"])
+	}
+}

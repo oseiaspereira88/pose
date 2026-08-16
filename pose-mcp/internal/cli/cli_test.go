@@ -415,7 +415,11 @@ func TestCheckNativeParityAndSchemaFailures(t *testing.T) {
 		if code := Main([]string{"check", "--strict"}, &nativeOut, &nativeErr); code != 0 {
 			t.Fatalf("native healthy exit=%d out=%s err=%s", code, nativeOut.String(), nativeErr.String())
 		}
-		if !strings.Contains(nativeOut.String(), "Resultado: SUCESSO") || strings.Contains(nativeErr.String(), "deprecated script engine") {
+		// The summary line's language follows the process locale (whatever
+		// it resolves to in this environment) — this assertion is about
+		// native/compatible parity, not language, so it accepts either.
+		summaryOK := strings.Contains(nativeOut.String(), "Resultado: SUCESSO") || strings.Contains(nativeOut.String(), "Result: SUCCESS")
+		if !summaryOK || strings.Contains(nativeErr.String(), "deprecated script engine") {
 			t.Fatalf("check was not native/compatible: out=%q err=%q", nativeOut.String(), nativeErr.String())
 		}
 		matrixPath := filepath.Join(repo, ".pose", "indexes", "validation-matrix.json")
@@ -469,10 +473,10 @@ func TestNativeCommandLocaleMessagesAndStableAnchors(t *testing.T) {
 	old := os.Getenv("POSE_LOCALE")
 	t.Cleanup(func() { _ = os.Setenv("POSE_LOCALE", old) })
 	for _, tc := range []struct {
-		locale, wantUsage, wantError, wantHelp, wantReport string
+		locale, wantUsage, wantError, wantHelp, wantReport, wantCheck string
 	}{
-		{"en", "Usage: pose new-spec", "Error: provide <slug> or --all", "Usage: pose <command>", "Error: --task is required."},
-		{"pt-BR", "Uso: pose new-spec", "Erro: informe <slug> ou --all", "Uso: pose <comando>", "Erro: --task é obrigatório."},
+		{"en", "Usage: pose new-spec", "Error: provide <slug> or --all", "Usage: pose <command>", "Error: --task is required.", "Result: FAILURE"},
+		{"pt-BR", "Uso: pose new-spec", "Erro: informe <slug> ou --all", "Uso: pose <comando>", "Erro: --task é obrigatório.", "Resultado: FALHA"},
 	} {
 		_ = os.Setenv("POSE_LOCALE", tc.locale)
 		var out, errB bytes.Buffer
@@ -496,8 +500,14 @@ func TestNativeCommandLocaleMessagesAndStableAnchors(t *testing.T) {
 		}
 		out.Reset()
 		errB.Reset()
-		if code := cmdCheck(t.TempDir(), []string{"--tolerant"}, &out, &errB); code != 1 || !strings.Contains(out.String(), "Resultado: FALHA") {
-			t.Fatalf("locale=%s check anchor exit=%d out=%q", tc.locale, code, out.String())
+		if code := cmdCheck(t.TempDir(), []string{"--tolerant"}, &out, &errB); code != 1 || !strings.Contains(out.String(), tc.wantCheck) {
+			t.Fatalf("locale=%s check summary exit=%d out=%q", tc.locale, code, out.String())
+		}
+		// [ERRO]/[AVISO] issue-level tags are stable anchors: unlike the
+		// summary line, they never translate, so tooling that greps for
+		// them works the same regardless of locale.
+		if !strings.Contains(out.String(), "[ERRO]") {
+			t.Fatalf("locale=%s issue-level anchor [ERRO] must stay untranslated: out=%q", tc.locale, out.String())
 		}
 	}
 }

@@ -470,7 +470,7 @@ func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) i
 	// the operator having to know or pass the flag (spec
 	// pose-rule-extension-locale-parity).
 	if locale == "" {
-		locale = machineryLocale(scaffold.Dist(), root, "en")
+		locale = machineryLocale(scaffold.Dist(), root, "en", false)
 	}
 
 	// A first argument that is not a local directory is treated as an
