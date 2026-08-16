@@ -98,6 +98,34 @@ var SelfReferentialPolicyFiles = []string{
 var SelfReferentialIndexFiles = []string{
 	"module-metadata.json",
 	"validation-matrix.json",
+	// The remaining index files below are `pose index`'s own *computed*
+	// output — repo-map.json, services.json and packages.json from
+	// scanModules; spec-graph.json from this repository's own 100+ specs;
+	// roadmaps.json from its own roadmaps; delivery-integrity.json from
+	// buildCurrentDeliveryGraph; releases.json from this repository's own
+	// release lifecycle (v1.4.0, in-progress evidence, ...). None of it
+	// describes a fresh target project. Before this exclusion, `pose
+	// install` never surfaced the leak in practice only because it always
+	// calls `cmdIndex` again moments later, silently overwriting whatever
+	// was just seeded — but a plain `pose update` (spec
+	// pose-upgrade-path-audit-fixes, R2) seeds `.pose/indexes/*.json` too
+	// and, unlike install, never called cmdIndex afterward, so the leak
+	// reached a real instance for the first time (spec
+	// pose-derived-index-self-referential-leak).
+	"repo-map.json",
+	"services.json",
+	"packages.json",
+	"spec-graph.json",
+	"roadmaps.json",
+	"delivery-integrity.json",
+	"releases.json",
+	// extensions.lock.json records pose-dist's own two locally-installed
+	// rule extensions (pose-rule-backend-go, pose-rule-frontend-react) —
+	// not something `cmdIndex` regenerates; the neutral empty registry is
+	// this file's actual final state until the target's own operator runs
+	// `pose extension install`, same as module-metadata.json's empty
+	// `modules: {}` waits for discovery/manual curation.
+	"extensions.lock.json",
 }
 
 // ExtensionOnlyRuleFiles are `.pose/rules/` files that ship exclusively
@@ -296,6 +324,71 @@ func NeutralIndexTemplates() map[string][]byte {
     }
   },
   "moduleOverrides": {}
+}
+`),
+		// The eight placeholders below (spec
+		// pose-derived-index-self-referential-leak) are byte-for-byte what
+		// `pose index` itself computes for a target with zero specs/modules/
+		// roadmaps/releases (verified empirically — a fresh `pose install`
+		// on an empty repository produces exactly this, digests included;
+		// the delivery-integrity digests are sha256 over an empty claims/
+		// change-sets set, deterministic, not random/timestamped). They
+		// exist only as the state between seeding and the `cmdIndex` call
+		// that immediately follows it (seedAbsentInstanceConfig) — a
+		// consumer that reads them in that narrow window sees a valid,
+		// honestly-empty target, never pose-dist's own graph.
+		".pose/indexes/repo-map.json": []byte(`{
+  "root": ".",
+  "apps": [],
+  "services": [],
+  "packages": [],
+  "manifests": [],
+  "dockerfiles": [],
+  "helmCharts": [],
+  "readmes": [],
+  "moduleMetadata": {
+    "schemaVersion": 1,
+    "source": ".pose/indexes/module-metadata.json"
+  }
+}
+`),
+		".pose/indexes/services.json": []byte("[]\n"),
+		".pose/indexes/packages.json": []byte("[]\n"),
+		".pose/indexes/spec-graph.json": []byte(`{
+  "schemaVersion": 1,
+  "specs": {},
+  "edges": []
+}
+`),
+		".pose/indexes/roadmaps.json": []byte(`{
+  "schemaVersion": 1,
+  "roadmaps": {}
+}
+`),
+		".pose/indexes/delivery-integrity.json": []byte(`{
+  "schema_version": 1,
+  "input_digest": "sha256:9cdc22ecf5b519b1ed2e91fed2b7ebe9eb29abe3417191f2a500f0cedc1158ea",
+  "provenance_digest": "sha256:aade89ae2026afe39ab153cd6a6b5a3c34e87a69a4c677daf467b942da699414",
+  "nodes": [],
+  "edges": [],
+  "claims": [],
+  "change_sets": [],
+  "reverse": {},
+  "findings": []
+}
+`),
+		".pose/indexes/releases.json": []byte(`{
+  "pending": [],
+  "releases": []
+}
+`),
+		// extensions.lock.json is not computed by cmdIndex — this empty
+		// registry is its actual final state until the target's own
+		// operator runs `pose extension install` (see the comment on
+		// SelfReferentialIndexFiles).
+		".pose/indexes/extensions.lock.json": []byte(`{
+  "schema_version": 1,
+  "extensions": {}
 }
 `),
 	}

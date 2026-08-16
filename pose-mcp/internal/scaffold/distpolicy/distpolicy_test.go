@@ -83,15 +83,26 @@ func TestNeutralPolicyTemplatesAreSchemaValidAndInert(t *testing.T) {
 // included in the wholesale `.pose/indexes` sync — the same leak class
 // SelfReferentialPolicyFiles closed for `.pose/policy/` under issue #17.
 func TestSelfReferentialIndexFilesExcluded(t *testing.T) {
-	for _, rel := range []string{".pose/indexes/module-metadata.json", ".pose/indexes/validation-matrix.json"} {
+	for _, rel := range []string{
+		".pose/indexes/module-metadata.json",
+		".pose/indexes/validation-matrix.json",
+		".pose/indexes/repo-map.json",
+		".pose/indexes/services.json",
+		".pose/indexes/packages.json",
+		".pose/indexes/spec-graph.json",
+		".pose/indexes/roadmaps.json",
+		".pose/indexes/delivery-integrity.json",
+		".pose/indexes/releases.json",
+		".pose/indexes/extensions.lock.json",
+	} {
 		if IsIncluded(rel) {
 			t.Errorf("IsIncluded(%q) = true, want false — self-referential index content must not be synced verbatim", rel)
 		}
 	}
-	// Sanity: other index files stay on the wholesale allowlist — in
-	// particular task-map.json, which is generic governance content, not
-	// pose-mcp-specific, and must keep syncing byte-for-byte.
-	for _, rel := range []string{".pose/indexes/task-map.json", ".pose/indexes/repo-map.json"} {
+	// Sanity: other index files stay on the wholesale allowlist —
+	// task-map.json is generic governance content, not pose-mcp-specific,
+	// and must keep syncing byte-for-byte.
+	for _, rel := range []string{".pose/indexes/task-map.json"} {
 		if !IsIncluded(rel) {
 			t.Errorf("IsIncluded(%q) = false, want true — unrelated index files must still sync", rel)
 		}
@@ -100,16 +111,18 @@ func TestSelfReferentialIndexFilesExcluded(t *testing.T) {
 
 func TestNeutralIndexTemplatesAreSchemaValidAndClean(t *testing.T) {
 	templates := NeutralIndexTemplates()
-	for _, rel := range []string{".pose/indexes/module-metadata.json", ".pose/indexes/validation-matrix.json"} {
-		if _, ok := templates[rel]; !ok {
-			t.Fatalf("NeutralIndexTemplates() missing %s", rel)
+	for _, rel := range SelfReferentialIndexFiles {
+		full := ".pose/indexes/" + rel
+		if _, ok := templates[full]; !ok {
+			t.Fatalf("NeutralIndexTemplates() missing %s", full)
 		}
 	}
 
 	for rel, content := range templates {
-		var raw map[string]any
-		if err := json.Unmarshal(content, &raw); err != nil {
-			t.Fatalf("%s: invalid JSON: %v", rel, err)
+		// services.json/packages.json are JSON arrays, not objects — every
+		// other template is an object; json.Valid accepts both.
+		if !json.Valid(content) {
+			t.Fatalf("%s: invalid JSON", rel)
 		}
 	}
 
@@ -151,6 +164,58 @@ func TestNeutralIndexTemplatesAreSchemaValidAndClean(t *testing.T) {
 	}
 	if len(validationMatrix.DeliveryProfiles) == 0 {
 		t.Error("neutral validation-matrix.json must keep the generic deliveryProfiles, not strip them")
+	}
+
+	// The seven cmdIndex-computed placeholders (regression for spec
+	// pose-derived-index-self-referential-leak) must be the genuinely empty
+	// shape a target with zero specs/modules/roadmaps/releases produces —
+	// never a byte of pose-dist's own ~130-spec graph, module list or
+	// release history.
+	for rel, wantEmptyKeys := range map[string][]string{
+		".pose/indexes/spec-graph.json": {"specs", "edges"},
+		".pose/indexes/roadmaps.json":   {"roadmaps"},
+	} {
+		var doc map[string]any
+		if err := json.Unmarshal(templates[rel], &doc); err != nil {
+			t.Fatalf("%s: %v", rel, err)
+		}
+		for _, key := range wantEmptyKeys {
+			v, ok := doc[key]
+			if !ok {
+				t.Errorf("%s: missing key %q", rel, key)
+				continue
+			}
+			switch vv := v.(type) {
+			case map[string]any:
+				if len(vv) != 0 {
+					t.Errorf("%s.%s must be empty, got %v", rel, key, vv)
+				}
+			case []any:
+				if len(vv) != 0 {
+					t.Errorf("%s.%s must be empty, got %v", rel, key, vv)
+				}
+			default:
+				t.Errorf("%s.%s has unexpected type %T", rel, key, v)
+			}
+		}
+	}
+	for _, rel := range []string{".pose/indexes/services.json", ".pose/indexes/packages.json"} {
+		var arr []any
+		if err := json.Unmarshal(templates[rel], &arr); err != nil {
+			t.Fatalf("%s: %v", rel, err)
+		}
+		if len(arr) != 0 {
+			t.Errorf("%s must be an empty array, got %v", rel, arr)
+		}
+	}
+	var extLock struct {
+		Extensions map[string]any `json:"extensions"`
+	}
+	if err := json.Unmarshal(templates[".pose/indexes/extensions.lock.json"], &extLock); err != nil {
+		t.Fatal(err)
+	}
+	if len(extLock.Extensions) != 0 {
+		t.Errorf("neutral extensions.lock.json must ship extensions={}, got %v", extLock.Extensions)
 	}
 }
 

@@ -18,12 +18,29 @@ package cli
 
 import (
 	"encoding/json"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 )
+
+// computedIndexFiles are the `.pose/indexes/*.json` files `cmdIndex` itself
+// (re)computes from the target's own current state on every run. The
+// embedded scaffold ships a neutral empty-shell placeholder for each
+// (distpolicy.NeutralIndexTemplates) — the seed step below writes that
+// placeholder when absent, purely so a consumer never sees a missing file;
+// it is never the final content. See seedAbsentInstanceConfig.
+var computedIndexFiles = map[string]bool{
+	"repo-map.json":           true,
+	"services.json":           true,
+	"packages.json":           true,
+	"spec-graph.json":         true,
+	"roadmaps.json":           true,
+	"delivery-integrity.json": true,
+	"releases.json":           true,
+}
 
 // seedAbsentInstanceConfig seeds every engine-owned config file a fresh
 // instance needs that is currently absent: `.pose/indexes/*.json`,
@@ -39,6 +56,7 @@ import (
 func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
 	idxEntries, _ := fs.ReadDir(dist, ".pose/indexes")
 	_ = os.MkdirAll(filepath.Join(target, ".pose", "indexes"), 0o755)
+	seededComputedIndex := false
 	for _, e := range idxEntries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
 			continue
@@ -49,6 +67,9 @@ func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portu
 		}
 		if err := copyFile(dist, ".pose/indexes/"+e.Name(), dst, 0o644); err == nil {
 			log("index (seed): %s", "índice (semente): %s", e.Name())
+			if computedIndexFiles[e.Name()] {
+				seededComputedIndex = true
+			}
 		}
 	}
 
@@ -76,6 +97,18 @@ func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portu
 				log("config (seed): %s/%s", "configuração (semente): %s/%s", dir, e.Name())
 			}
 		}
+	}
+
+	// The neutral placeholders just seeded above for repo-map.json,
+	// spec-graph.json, delivery-integrity.json etc. are honestly empty, not
+	// this target's real state — cmdIndex is the one thing that computes
+	// them correctly, and policy/review-profiles (just seeded) are what it
+	// needs to do that. `pose install` already called cmdIndex again a few
+	// steps after this either way; this closes the same gap for a plain
+	// `pose update`, which never did (spec
+	// pose-derived-index-self-referential-leak).
+	if seededComputedIndex {
+		_ = cmdIndex(target, nil, io.Discard, io.Discard)
 	}
 }
 
