@@ -200,8 +200,23 @@ componente e mecanismo. Leia a
 maturidade atual e lacunas frente ao estado da arte. Os
 [roadmaps de produto](docs-site/docs/product-roadmaps.md) governados
 convertem essas descobertas em roadmaps, specs de implementação e gates de
-release conscientes de dependências — 8 roadmaps e 91 specs hoje,
+release conscientes de dependências — 10 roadmaps e 111 specs hoje,
 acompanhados em `.pose/roadmaps/` e `.pose/specs/`.
+
+## Novidades da v1.4.0
+
+Notas completas: [`.pose/changelogs/v1.4.0.md`](.pose/changelogs/v1.4.0.md).
+
+- `pose extension install <extension-id>` agora resolve o ID contra a
+  última release publicada no GitHub — sem precisar de diretório local.
+- `pose init`/`pose install` agora extrai o `README.md`/`CLAUDE.md` de um
+  alvo brownfield para popular a seção "Project context" de `AGENTS.md`,
+  em vez do placeholder genérico.
+- `pose extension install` ganhou a flag `--locale`; `pose-rule-backend-go`
+  e `pose-rule-frontend-react` agora têm variante pt-BR.
+- `pose index`/`pose validate`/`pose install`/`pose init` agora usam um
+  único detector de stack compartilhado; Cloudflare Workers, Python e .NET
+  passaram a ser reconhecidos.
 
 ## Onde o POSE é mais forte
 

@@ -1,6 +1,6 @@
 # Capability assessment
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.2.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.4.x
 
 **Assessment date:** 2026-08-14
 **Scope:** POSE open-source distribution  
@@ -429,18 +429,27 @@ fork.
 **Delivered now:** an `extension.json` manifest contract with path
 confinement, permission whitelisting, revocation and provenance; `pose
 extension install/list/remove/verify` — dry-runnable, consent-gated,
-transactional.
+transactional. `pose extension install <extension-id>` (v1.4.0) now also
+resolves the ID against the latest published GitHub release's signed
+assets and installs it through the same signature-verified pipeline — no
+local directory required — and accepts a `--locale` flag so an extension
+package can carry localized content (`pose-rule-backend-go` and
+`pose-rule-frontend-react` now ship pt-BR variants).
 
 **Strength:** every element this document previously named as the completion
 benchmark — versioned manifests, compatibility constraints, discovery,
 install/update/removal, conflict handling, provenance, a catalog mechanism —
 is delivered.
 
-**Gap to ideal:** the lifecycle mechanism is complete; a populated
-third-party or community extension catalog is not — this is an ecosystem
-adoption gap (will grow with usage), not a missing mechanism. GitHub Spec
-Kit's populated extensions/presets/bundles remain the useful comparison for
-that adoption curve, not for the mechanism itself.
+**Gap to ideal:** the lifecycle and online-resolution mechanisms are
+complete; a populated third-party or community extension catalog is not —
+this is an ecosystem adoption gap (will grow with usage), not a missing
+mechanism. Only `pose-rule-kubernetes` is signed and published this way
+today; `pose-rule-backend-go`/`pose-rule-frontend-react` remain
+local-directory-installable only until the release workflow signs and
+publishes them too. GitHub Spec Kit's populated extensions/presets/bundles
+remain the useful comparison for that adoption curve, not for the mechanism
+itself.
 
 ### 16. Multi-repository and enterprise operation — 4/5
 

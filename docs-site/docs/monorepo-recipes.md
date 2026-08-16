@@ -1,13 +1,16 @@
 # Monorepo validation recipes
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.2.x
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.4.x
 
 POSE does not implement a monorepo orchestrator. It composes with whatever
 build graph a repository already has — real Bazel, Nx, npm/yarn workspaces,
 or nothing at all — through two versioned inputs: `.pose/indexes/module-
 metadata.json` (dependency edges and criticality) and `.pose/indexes/
-validation-matrix.json` (per-stack checks). `pose validate --changed-from`
-turns those into a minimum safe selection (see
+validation-matrix.json` (per-stack checks). `pose index`, `pose validate`,
+`pose install` and `pose init` share one stack detector for module discovery
+(Node.js, Go, Rust, Java, Python, .NET and Cloudflare Workers), so a
+detection fix reaches every command that scans a monorepo. `pose validate
+--changed-from` turns those inputs into a minimum safe selection (see
 [technical architecture](architecture.md)); every recipe below is a docs-as-
 test — the exact fixture layout and commands are executed in CI
 (`internal/cli/monorepo_recipes_test.go`), so this page cannot drift from

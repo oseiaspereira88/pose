@@ -1,21 +1,24 @@
 # Product roadmaps
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.2.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.4.x
 
-**Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-14):** all 8 roadmaps `done`
+**Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-15):** all 10 roadmaps `done`
 **Canonical execution artifacts:** `.pose/roadmaps/*.md` and `.pose/specs/*/spec.md`
 
 This portfolio converted the [capability assessment](capability-assessment.md)
 into an original 7 governed roadmaps and 35 implementation specs. A later
 delivery-integrity roadmap added 4 roadmap-bound specs, bringing the governed
-portfolio to 8 roadmaps and 39 member specs; the repository contains 91
-completed specs in total. All 8 roadmaps carry `status: done` as of this
-baseline — every roadmap outcome crossed its documented validation and
-closeout gates with executed evidence, not a planning intention. The target
-windows and wave structure are kept below as the historical execution record
-and as the template for the next portfolio, not as an open plan. See the
-[capability assessment](capability-assessment.md) for the current, post-delivery
-state of each mechanism.
+portfolio to 8 roadmaps and 39 member specs. Two further roadmaps —
+`adaptive-instance-provisioning` and `agentic-onboarding`, both closing gaps
+raised in [issue #21](https://github.com/oseiaspereira88/pose/issues/21) —
+brought the portfolio to 10 roadmaps and 48 member specs; the repository
+contains 111 completed specs in total. All 10 roadmaps carry `status: done`
+as of this baseline — every roadmap outcome crossed its documented
+validation and closeout gates with executed evidence, not a planning
+intention. The target windows and wave structure are kept below as the
+historical execution record and as the template for the next portfolio, not
+as an open plan. See the [capability assessment](capability-assessment.md)
+for the current, post-delivery state of each mechanism.
 
 !!! note "Historical portfolio, current product"
 
@@ -53,6 +56,8 @@ specs but must not bypass dependencies to satisfy a target date.
 | 6 | Adoption and DX | Distribution and onboarding friction | 2026-09-21 → 2027-01-29 | Trusted install, guided remediation and adoption kits |
 | 7 | Insights and scale | No outcome integrations or portfolio layer | 2026-11-02 → 2027-03-31 | OTel/DORA signals and Harne8 composition |
 | 8 | Delivery integrity | Completion claims that lacked immutable review, provenance and reachability witnesses | Delivered | Reviewed closure, artifact identity, composed surfaces and evidence-backed release states |
+| 9 | Adaptive instance provisioning | Brownfield `pose init` shipped hardcoded domain rules and empty module metadata regardless of the target's real stack | Delivered (v1.3.0) | Rule extensions installed adaptively per detected stack; module metadata auto-discovered from real modules |
+| 10 | Agentic onboarding | Brownfield onboarding ignored the target's own README/CLAUDE.md, extensions were local-directory-only and English-only, and two scanners duplicated stack detection | Delivered (v1.4.0) | README/CLAUDE.md excerpted into `AGENTS.md`; extensions resolve by ID against a published release and carry pt-BR variants; one consolidated stack detector recognizes Cloudflare Workers, Python and .NET |
 
 ## Coverage of the assessed mechanisms
 

@@ -1,6 +1,6 @@
 # CI integration
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.2.x
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.4.x
 
 ## GitHub Action
 

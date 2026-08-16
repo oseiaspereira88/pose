@@ -1,6 +1,6 @@
 # Technical architecture
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.2.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.4.x
 
 **Status:** Reference-grade, offline-first engineering operating standard  
 **Verified:** 2026-08-14 against the `v1.2.0` release contract and
@@ -194,6 +194,9 @@ outdated view.
   in the base install — declare a versioned `extension.json` manifest (path
   confinement, permission whitelisting, provenance); `pose extension
   install/list/remove/verify` is dry-runnable, consent-gated and transactional.
+  `pose extension install <extension-id>` also resolves the ID against the
+  latest published GitHub release's signed assets, so a local directory is
+  no longer required, and accepts a `--locale` flag for localized content.
 
 The layers are independent so a team can change a security rule without
 forking every workflow or repeating the same instruction in every prompt.
@@ -208,6 +211,11 @@ forking every workflow or repeating the same instruction in every prompt.
 - `roadmaps.json`: roadmap projection;
 - `task-map.json`: routing configuration;
 - `module-metadata.json`: ownership, criticality, domain and validation profile.
+
+Repository and module discovery share one stack detector across `pose
+index`, `pose validate`, `pose install` and `pose init`, recognizing
+Node.js, Go, Rust, Java, Python, .NET and Cloudflare Workers (`wrangler.toml`/
+`.json`/`.jsonc`) modules.
 
 `pose init --wizard` uses stack markers to seed validation configuration.
 Indexes are intentionally shallow and local; semantic code intelligence is a

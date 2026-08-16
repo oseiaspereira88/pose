@@ -191,8 +191,24 @@ component and mechanism. Read the
 maturity and best-of-breed gaps. The governed
 [product roadmaps](docs-site/docs/product-roadmaps.md) convert those findings
 into roadmaps, implementation specs and dependency-aware release gates —
-8 roadmaps and 91 specs today, tracked under `.pose/roadmaps/` and
+10 roadmaps and 111 specs today, tracked under `.pose/roadmaps/` and
 `.pose/specs/`.
+
+## What's new in v1.4.0
+
+Full notes: [`.pose/changelogs/v1.4.0.md`](.pose/changelogs/v1.4.0.md).
+
+- `pose extension install <extension-id>` now resolves the ID against the
+  latest published GitHub release's signed assets — no local directory
+  required.
+- `pose init`/`pose install` now excerpts a brownfield target's own
+  `README.md`/`CLAUDE.md` into `AGENTS.md`'s "Project context" section on
+  first install, instead of the generic placeholder.
+- `pose extension install` gained a `--locale` flag; `pose-rule-backend-go`
+  and `pose-rule-frontend-react` now ship pt-BR variants.
+- `pose index`/`pose validate`/`pose install`/`pose init` now share one
+  stack detector; Cloudflare Workers, Python and .NET modules are
+  recognized.
 
 ## Where POSE is strongest
 
