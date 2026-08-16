@@ -1,0 +1,378 @@
+{
+  "schema_version": 1,
+  "bundle_id": "rvb-315c459c93612c80",
+  "bundle_digest": "sha256:315c459c93612c801cc5c21d029db88bfe5c81befb1911c7a2c15069258bbda3",
+  "state": "sealed",
+  "sealed_at": "2026-08-16T18:35:22Z",
+  "payload": {
+    "scope": {
+      "ref": "milestone:agentic-onboarding/context-extraction",
+      "kind": "milestone",
+      "roadmap": "agentic-onboarding",
+      "milestone": "context-extraction",
+      "sections": [
+        {
+          "kind": "milestone",
+          "path": "context-extraction",
+          "digest": "sha256:3c1c32ca6409bc5108d11710138ae834844cdc89853193a81c8b633a43ffeab4",
+          "reason": "governed milestone exit and cut criteria"
+        }
+      ]
+    },
+    "subject": {
+      "change_sets": [
+        "cs-69752f1b8e5d"
+      ],
+      "base": "37642eccf777d97167df304fd77bafdbc3a63915",
+      "head": "f8f8f0a67512dbb5b130c881aa611323b25466e2",
+      "patch_digest": "sha256:d338c079ff68ddf56c1b7f3e573352dfe683c410fae644248001d8fa848c0ba7",
+      "tree_digest": "sha256:fac45e6a8f8121eae74cf57a420ff26f66352eee9bf43a172d64c04e7023b539",
+      "entries": [
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/onboarding_context.go",
+          "class": "implementation",
+          "digest": "sha256:97f7f6257635cd7314349c1fd2db2017c2cf1260293f07f951745a96464165eb",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/onboarding_context_test.go",
+          "class": "implementation",
+          "digest": "sha256:4c87831715cce36f45a7556d697a8e19d6b825a335947301496f713c06d30a53",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "AGENTS.md",
+          "class": "documentation",
+          "digest": "sha256:c729293006395ab14991c93048527cf34fafd0bd2cefc4e83811495b1c813dd9",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/AGENTS.md",
+          "class": "documentation",
+          "digest": "sha256:26a448ec8a2d4d42c42eb1615d6c92153a7327c3620cdb6b264247bf18e09343",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/install.go",
+          "class": "implementation",
+          "digest": "sha256:546f41a1b82394ccda766b46ead1fb64efed44240eac3ce231e3bc355d600f0f",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+          "class": "implementation",
+          "digest": "sha256:7586b2ff087bdc015ae29e120a4ec9fd0e3a108be099253e1bdf00efe86bd6f2",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/roadmaps.json",
+          "class": "implementation",
+          "digest": "sha256:c677ada074537479bfaa61bac7700d7b0de754c0343028bdf87fe29d3d9c9a09",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+          "class": "implementation",
+          "digest": "sha256:367679c78340e31832f9aabcb39ad13f3e6ed5063bd2fea269ce8dca44d8bb5c",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/AGENTS.md",
+          "class": "implementation",
+          "digest": "sha256:c729293006395ab14991c93048527cf34fafd0bd2cefc4e83811495b1c813dd9",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/AGENTS.md",
+          "class": "implementation",
+          "digest": "sha256:26a448ec8a2d4d42c42eb1615d6c92153a7327c3620cdb6b264247bf18e09343",
+          "reason": "attributed implementation path in the immutable change set"
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:a7c6ae10facaaddd1dd4a55086edcf2bf222d95d64a8c3ffa0f7d902548ba078",
+      "independence": "same-actor-separate-execution",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "governance-engine",
+          "owner": "@pose-maintainers",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "declared",
+          "sources": [
+            "artifact:pose-onboarding-context-extraction:pose-mcp/internal/cli/install.go",
+            "artifact:pose-onboarding-context-extraction:pose-mcp/internal/cli/onboarding_context.go",
+            "artifact:pose-onboarding-context-extraction:pose-mcp/internal/cli/onboarding_context_test.go",
+            "delivery:capability:onboarding-context-extraction:pose-mcp",
+            "delivery:capability:onboarding-context-extraction:pose-mcp/cmd/pose/main.go",
+            "observed:pose-onboarding-context-extraction:pose-mcp/internal/cli/install.go",
+            "observed:pose-onboarding-context-extraction:pose-mcp/internal/cli/onboarding_context.go",
+            "observed:pose-onboarding-context-extraction:pose-mcp/internal/cli/onboarding_context_test.go",
+            "spec:pose-onboarding-context-extraction:component:pose-mcp"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "exit-gate",
+          "description": "The milestone exit gate has falsifiable evidence.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "integration",
+          "description": "Member contracts compose without gaps or contradictions.",
+          "required": true,
+          "evidence_classes": [
+            "integration-test"
+          ],
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "membership",
+          "description": "All ordered member specs are freshly closed.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "regression",
+          "description": "Cumulative module validation passes.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        },
+        {
+          "id": "residual-risk",
+          "description": "Cross-spec risks and follow-ups are disposed.",
+          "required": true,
+          "profiles": [
+            "milestone-integration@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "milestone:agentic-onboarding/context-extraction"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "milestone:agentic-onboarding/context-extraction"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "validation"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "mcp-enforce/go/test",
+        "module": "mcp-enforce",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "git_head": "71bcf4207a69137947edd9642ef5d79faa637520",
+        "provenance_digest": "sha256:8fef1bd457c9736c4c6d208e8fae7d7c96b4365b96b6a4a639eec5c91e614569",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-integration",
+        "module": "pose-mcp",
+        "check": "delivery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "71bcf4207a69137947edd9642ef5d79faa637520",
+        "provenance_digest": "sha256:8fef1bd457c9736c4c6d208e8fae7d7c96b4365b96b6a4a639eec5c91e614569",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-reachability",
+        "module": "pose-mcp",
+        "check": "delivery-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "git_head": "71bcf4207a69137947edd9642ef5d79faa637520",
+        "provenance_digest": "sha256:8fef1bd457c9736c4c6d208e8fae7d7c96b4365b96b6a4a639eec5c91e614569",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-bundle-convergence",
+        "module": "pose-mcp",
+        "check": "review-bundle-convergence",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "71bcf4207a69137947edd9642ef5d79faa637520",
+        "provenance_digest": "sha256:8fef1bd457c9736c4c6d208e8fae7d7c96b4365b96b6a4a639eec5c91e614569",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test",
+        "module": "pose-mcp",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "git_head": "71bcf4207a69137947edd9642ef5d79faa637520",
+        "provenance_digest": "sha256:8fef1bd457c9736c4c6d208e8fae7d7c96b4365b96b6a4a639eec5c91e614569",
+        "report": ".pose/results/delivery-validation.json"
+      }
+    ],
+    "children": [
+      {
+        "scope": "spec:pose-onboarding-context-extraction",
+        "bundle_id": "rvb-ff579b8ada39899d",
+        "bundle_digest": "sha256:ff579b8ada39899d3be88aff84c35fa667aa7e2c9f2cbe87d48d97e7fe9fb562"
+      }
+    ],
+    "consumed_inputs": [
+      {
+        "kind": "governed-config",
+        "path": ".pose/indexes/validation-matrix.json",
+        "digest": "sha256:94f2ffd4c48937b32d146f1d0fefd96dfaaa03818439dd3bee06b37303daad42",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "governed-config",
+        "path": ".pose/policy/review.json",
+        "digest": "sha256:89a78e6ec6e1806414c669e66239831b593c08b9a182e36fae119bccecd28b5e",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "review-plan",
+        "path": "milestone-integration@1",
+        "digest": "sha256:a7c6ae10facaaddd1dd4a55086edcf2bf222d95d64a8c3ffa0f7d902548ba078",
+        "reason": "effective component-aware plan contract"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/milestone-integration.json",
+        "digest": "sha256:4943a0af84a76feddccfdc7769db35f45adb826d7155d60cf93a2e6cbc8bb2f3",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "schema",
+        "path": "review-bundle@1",
+        "digest": "sha256:e7c9643ec88eccb2a6dea3ee3291c351983d78e1d2fa44b61399514c5021bcb0",
+        "reason": "canonical bundle and attestation schema identity"
+      },
+      {
+        "kind": "tool-catalog",
+        "path": "native-review-tools@1",
+        "digest": "sha256:a7c6ae10facaaddd1dd4a55086edcf2bf222d95d64a8c3ffa0f7d902548ba078",
+        "reason": "closed resolved native tool contract"
+      }
+    ]
+  },
+  "excluded_inputs": [
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/pose-onboarding-context-extraction/spec.md",
+      "reason": "attributed path is outside the semantic review subject"
+    }
+  ],
+  "warnings": [
+    "unmapped review component path:AGENTS.md",
+    "unmapped review component path:locales/pt-BR/AGENTS.md"
+  ],
+  "path": ".pose/review-bundles/rvb-315c459c93612c80.json"
+}
