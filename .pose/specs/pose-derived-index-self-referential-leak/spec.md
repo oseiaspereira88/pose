@@ -143,6 +143,7 @@ a path where it was previously unreachable: reproduced empirically —
 - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json
 - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/extensions.lock.json
 - modified: pose-mcp/internal/cli/stack_seed.go
+- modified: pose-mcp/internal/cli/stack_seed_test.go
 
 ### Delivery targets
 - capability:pose-mcp module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
