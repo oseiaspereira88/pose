@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-16T21:52:56Z
-baseline_commit: 0dcb7fedc65836d7d5f1fdfcdbe81ff3a4efdaaf
+generated_at: 2026-08-16T21:57:41Z
+baseline_commit: 586469da569926c9912dc7d28f0d229b553a1b35
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:52cb11ac3473 -->
+<!-- state:derived hash:d864298f7ee8 -->
 
-- último registro: task=closeout-pose-derived-index-self-referential-leak outcome=unknown (2026-08-16T18:32:17Z)
-- últimos 30 dias: total=245 outcome_ok=177 outcome_outro=68
-- reports revisados (.md): total=128
+- último registro: task=closeout-pose-update-instance-directory-completeness outcome=unknown (2026-08-16T21:53:20Z)
+- últimos 30 dias: total=246 outcome_ok=177 outcome_outro=69
+- reports revisados (.md): total=129
+  - report:2026-08-16-standard-closeout-pose-update-instance-directory-completeness.md
   - report:2026-08-16-standard-closeout-pose-derived-index-self-referential-leak.md
   - report:2026-08-16-standard-closeout-pose-upgrade-path-audit-fixes.md
   - report:2026-08-15-standard-resolve-an-extension-id-against-the-latest-published-release.md
   - report:2026-08-15-standard-support-a-locale-overlay-in-pose-extension-install.md
-  - report:2026-08-15-standard-consolidate-module-stack-detection-into-one-shared-function.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
