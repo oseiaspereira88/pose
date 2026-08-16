@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v1.4.2",
+  "previous_version": "v1.4.1",
+  "prepared_at": "2026-08-16T23:59:29Z",
+  "specs": [
+    "pose-update-instance-directory-completeness"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-update-instance-directory-completeness",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose update` without `--force` now creates every directory the instance contract requires (`instanceDirs`), not a hand-picked subset of 4 — previously a plain update could report `Result: SUCCESS` on an old instance while `.pose/assessments` (among others) stayed missing, and the instance's own very next `pose check --strict` failed with a broken reference.",
+      "path": "pose-update-instance-directory-completeness.md",
+      "digest": "sha256:ff48da81693fdce4d02bc8f13cf5324e4773f3e9c2069cecf719db65354f938a"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:667bea78bb0ef667627004e180159f2001195d251e8a9f47b144b7859a7e0db1",
+  "release_input_digest": "sha256:7f73aed777a523d872aa3c4f8c107fa35b7651d31192536482e8fba9cc593f9c",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.4.2"
+  }
+}
