@@ -1,40 +1,199 @@
 {
-  "pending": [
-    {
-      "spec": "pose-extension-catalog-resolution",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose extension install \u003cextension-id\u003e` now resolves the ID against the latest published GitHub release's signed assets, downloads and safely extracts the package, and installs it through the same signature-verified pipeline a local directory install already used — no local directory required. `pose doctor`'s rule-extension recommendation can now be satisfied by a single runnable command for any extension published this way.",
-      "path": "pose-extension-catalog-resolution.md",
-      "digest": "sha256:0c1cb74f4082fb6a78417864a437a988e132ecb44aa558d6cdcdf79d1cec6202"
-    },
-    {
-      "spec": "pose-onboarding-context-extraction",
-      "category": "added",
-      "breaking": false,
-      "refs": "ISSUE#21",
-      "body": "`pose init`/`pose install` now excerpts a brownfield target's own `README.md`/`CLAUDE.md` into `AGENTS.md`'s \"Project context\" section on first install, instead of leaving the generic unfilled placeholder. The section is preserved on later `pose install`/`pose update` runs, so an extracted or hand-edited description is never silently reverted.",
-      "path": "pose-onboarding-context-extraction.md",
-      "digest": "sha256:eaf831705474ef86ef8d7854f8e4e818eea714f6f31c01bcb63a060ae0d5ec74"
-    },
-    {
-      "spec": "pose-rule-extension-locale-parity",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose extension install` now supports a `--locale` flag (auto-detected from the target when omitted, same as `pose install`), so an extension package can ship localized content alongside its base files. `pose-rule-backend-go` and `pose-rule-frontend-react` now ship a pt-BR variant, so a pt-BR instance installing either gets locale-consistent content instead of English-only text.",
-      "path": "pose-rule-extension-locale-parity.md",
-      "digest": "sha256:c6ce399fe81b07b05b3158c9c770e99ef373d771488c5ef08f6553a69044f0cb"
-    },
-    {
-      "spec": "pose-validation-scanner-consolidation",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose index`, `pose validate`, `pose install` and `pose init` now classify a repository's modules through one shared stack detector instead of two independently maintained ones, so a stack-detection fix reaches every command that relies on it. Cloudflare Workers (`wrangler.toml`/`.json`/`.jsonc`) is now a recognized stack with a runnable check, and `pose index`'s repo map now picks up Python and .NET modules it previously skipped entirely.",
-      "path": "pose-validation-scanner-consolidation.md",
-      "digest": "sha256:69b4bc5b70d84b52339ab6096f8285eaf5fa70387ae3cc49dc69f9c081cee4f5"
-    }
-  ],
+  "pending": [],
   "releases": [
+    {
+      "version": "v1.4.0",
+      "state": "verified",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v1.4.0",
+        "previous_version": "v1.3.0",
+        "prepared_at": "2026-08-16T02:45:39Z",
+        "specs": [
+          "pose-extension-catalog-resolution",
+          "pose-onboarding-context-extraction",
+          "pose-rule-extension-locale-parity",
+          "pose-validation-scanner-consolidation"
+        ],
+        "categories": {
+          "added": 4
+        },
+        "fragments": [
+          {
+            "spec": "pose-extension-catalog-resolution",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose extension install \u003cextension-id\u003e` now resolves the ID against the latest published GitHub release's signed assets, downloads and safely extracts the package, and installs it through the same signature-verified pipeline a local directory install already used — no local directory required. `pose doctor`'s rule-extension recommendation can now be satisfied by a single runnable command for any extension published this way.",
+            "path": "pose-extension-catalog-resolution.md",
+            "digest": "sha256:0c1cb74f4082fb6a78417864a437a988e132ecb44aa558d6cdcdf79d1cec6202"
+          },
+          {
+            "spec": "pose-onboarding-context-extraction",
+            "category": "added",
+            "breaking": false,
+            "refs": "ISSUE#21",
+            "body": "`pose init`/`pose install` now excerpts a brownfield target's own `README.md`/`CLAUDE.md` into `AGENTS.md`'s \"Project context\" section on first install, instead of leaving the generic unfilled placeholder. The section is preserved on later `pose install`/`pose update` runs, so an extracted or hand-edited description is never silently reverted.",
+            "path": "pose-onboarding-context-extraction.md",
+            "digest": "sha256:eaf831705474ef86ef8d7854f8e4e818eea714f6f31c01bcb63a060ae0d5ec74"
+          },
+          {
+            "spec": "pose-rule-extension-locale-parity",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose extension install` now supports a `--locale` flag (auto-detected from the target when omitted, same as `pose install`), so an extension package can ship localized content alongside its base files. `pose-rule-backend-go` and `pose-rule-frontend-react` now ship a pt-BR variant, so a pt-BR instance installing either gets locale-consistent content instead of English-only text.",
+            "path": "pose-rule-extension-locale-parity.md",
+            "digest": "sha256:c6ce399fe81b07b05b3158c9c770e99ef373d771488c5ef08f6553a69044f0cb"
+          },
+          {
+            "spec": "pose-validation-scanner-consolidation",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose index`, `pose validate`, `pose install` and `pose init` now classify a repository's modules through one shared stack detector instead of two independently maintained ones, so a stack-detection fix reaches every command that relies on it. Cloudflare Workers (`wrangler.toml`/`.json`/`.jsonc`) is now a recognized stack with a runnable check, and `pose index`'s repo map now picks up Python and .NET modules it previously skipped entirely.",
+            "path": "pose-validation-scanner-consolidation.md",
+            "digest": "sha256:69b4bc5b70d84b52339ab6096f8285eaf5fa70387ae3cc49dc69f9c081cee4f5"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:864fb676c61e9d2d214b37620507be67251acabcd46bd8f92ede5b7a5c1555f6",
+        "release_input_digest": "sha256:a9b68e3d4dc2a76bc120cac1fc11b6f879f18877f587750fc328c2f0549e75c9",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v1.4.0"
+        }
+      },
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v1.4.0",
+          "state": "tagged",
+          "recorded_at": "2026-08-16T02:54:13Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v1.4.0",
+            "tag": "v1.4.0",
+            "commit": "d64c7bc081026e3176cfdd820f962bcf22ce4a1e",
+            "published_at": "",
+            "url": ""
+          },
+          "evidence_digest": "sha256:f4279a1f20a470fb0380521d7a41123ab27b6249ffecf4a7fe44dbf728201fdb"
+        },
+        {
+          "schema_version": 1,
+          "version": "v1.4.0",
+          "state": "published",
+          "recorded_at": "2026-08-16T02:54:24Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v1.4.0",
+            "tag": "v1.4.0",
+            "commit": "d64c7bc081026e3176cfdd820f962bcf22ce4a1e",
+            "published_at": "2026-08-16T02:52:37Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v1.4.0",
+            "workflow_run": "31922707548",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:93015beade913ddbe28a9eb647cc6b2ce3a66686eb289decab72a2c2a30677fe",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:a77ca656cee3d28f24bb5921c186700435fac378a0c2c277c1ed6626477f9d08",
+              "Harne8.Pose.yaml": "sha256:ba98d65dd1e4b6bbdc73600c45d44eb182283d1b182b7411ac2d6d04686389ea",
+              "checksums.txt": "sha256:a4507d27f843ed2a99d156c2128fa57aa6ccaf11026cec490a81b021a5eac4fe",
+              "checksums.txt.sigstore.json": "sha256:4fc813bc7666d518de863ecbcd3c165fcf5e70335d545cc6d5245ffd94506b1d",
+              "compatibility-report.md": "sha256:466a04866791d31c72cd46e3d4ec386a6ee000db79e89dbb486242d7bd513261",
+              "compatibility.json": "sha256:12af2bdc36c1d62cb6c01187651abe41d8058b00a4a39b6c740cbc45611a7f18",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:a357f311f398c8bdaff9cd03f427aa55cf7247ea405b5722193378662785f5f5",
+              "pose-rule-kubernetes.tar.gz": "sha256:cef8312aa9b8b98a76c7a6deb4f29c46bf650490cc6d5e02a96034d2a364af87",
+              "pose.rb": "sha256:4d8aaac3f26d4f098f41a436471dd373973f956f8d46f0579f811b788482fcb1",
+              "pose_1.4.0_darwin_amd64.tar.gz": "sha256:c2253eb958396f3ab2a1d9396131b33180f19029d8be7c5238092eb3a24ff811",
+              "pose_1.4.0_darwin_amd64.tar.gz.cdx.json": "sha256:82834f0f964bbcea7845fe7b2023444fdb83911ab3ad889eb5d03a6443aa4649",
+              "pose_1.4.0_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:cb050c8e98876f4553920407c15f42c8806ec0f36700ff56c50c2bc6101d40cf",
+              "pose_1.4.0_darwin_amd64.tar.gz.sigstore.json": "sha256:f7cd7dd037395224c7da655c85b8a7ce85711434865654458d41e59b67fac61c",
+              "pose_1.4.0_darwin_arm64.tar.gz": "sha256:4c050783a1ba7b5143451e0aa6c1dab6818bb8855b84e3dc109c7bfad825dbf8",
+              "pose_1.4.0_darwin_arm64.tar.gz.cdx.json": "sha256:25d548d0dc1d52082f904de1ee69faeb24427853634a42d036fdbbf5a27fdfdf",
+              "pose_1.4.0_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:ac961c8c6fc8159fb3f55d06842101adde6830382a335faf7caff572c622245e",
+              "pose_1.4.0_darwin_arm64.tar.gz.sigstore.json": "sha256:f222bce117a8f2b3f5fcddc0df03df5617971ce604a6fd7ed8c237e3299ace10",
+              "pose_1.4.0_linux_amd64.tar.gz": "sha256:c520a9389975bc10da6179133ed738e6124ad2b58ddb2ce50065b03ced6ef0d6",
+              "pose_1.4.0_linux_amd64.tar.gz.cdx.json": "sha256:56a6be196fd9c18488ec47af778a6042da3ab7eca1bf938074571bd9a6bbf77c",
+              "pose_1.4.0_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:272675ddb2cb6f05d562f5cd31734db5e45f26483a2051f7990943274736a72a",
+              "pose_1.4.0_linux_amd64.tar.gz.sigstore.json": "sha256:71c0da7ac18692777d24fe8f11520cc3f1fd441102872752b352080da2dbfbdf",
+              "pose_1.4.0_linux_arm64.tar.gz": "sha256:e36d40fa2e4e5637f46fdaea065604e01a1984af8dabc59d230a2ad91e17295e",
+              "pose_1.4.0_linux_arm64.tar.gz.cdx.json": "sha256:6ff9b4edac37015e467fa0f5e52d86f8d7a3f65bb111246e45a944d07599854c",
+              "pose_1.4.0_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:455f752555cac4f42ff37131fe77fe03f4cd87075b9728232b7504442f916e05",
+              "pose_1.4.0_linux_arm64.tar.gz.sigstore.json": "sha256:154fd44854a72848254fec44d854f053e5bcc3273a227a3359082023407d2873",
+              "pose_1.4.0_windows_amd64.zip": "sha256:3f91194c11d6bade358cde5c04bbad31f43ca7b9c122c1dd7b592b0c0030f53e",
+              "pose_1.4.0_windows_amd64.zip.cdx.json": "sha256:bc20ce10e0cf9573189885004844b347cfb0031ffd7aa6d48d9961b42fcd4ff4",
+              "pose_1.4.0_windows_amd64.zip.cdx.json.sigstore.json": "sha256:193616ce2dd738097f726c494e9d71a82ad1aa0cccc79d94d3f5ac8e205ddf2f",
+              "pose_1.4.0_windows_amd64.zip.sigstore.json": "sha256:d3f82a904d7ee9be27aff1cee734e45129a5e586b1d9bfbb554c122ffcb47aea",
+              "pose_1.4.0_windows_arm64.zip": "sha256:897c599be058c88e9cee5c7344f5d031626e9fe63b4e3c0786579fa381510ccd",
+              "pose_1.4.0_windows_arm64.zip.cdx.json": "sha256:3597694438135ba2cf94d8c61f85506938559e3f768f4cd1bebb10352ab1d0e5",
+              "pose_1.4.0_windows_arm64.zip.cdx.json.sigstore.json": "sha256:08b92ad92c3ba545b472697d3cf5e33cc83373c1e686a6e8dc17464317f740ee",
+              "pose_1.4.0_windows_arm64.zip.sigstore.json": "sha256:1f6df917c0c375908a371fb963cce95147e64faf7f017a78136cee0aef31a40e"
+            }
+          },
+          "evidence_digest": "sha256:b686ab39d16d93b9ba7c1b9c3746486cc61ef09474ab4c5abc50232524155953"
+        },
+        {
+          "schema_version": 1,
+          "version": "v1.4.0",
+          "state": "verified",
+          "recorded_at": "2026-08-16T02:54:45Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v1.4.0",
+            "tag": "v1.4.0",
+            "commit": "d64c7bc081026e3176cfdd820f962bcf22ce4a1e",
+            "published_at": "2026-08-16T02:52:37Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v1.4.0",
+            "workflow_run": "31922707548",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:93015beade913ddbe28a9eb647cc6b2ce3a66686eb289decab72a2c2a30677fe",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:a77ca656cee3d28f24bb5921c186700435fac378a0c2c277c1ed6626477f9d08",
+              "Harne8.Pose.yaml": "sha256:ba98d65dd1e4b6bbdc73600c45d44eb182283d1b182b7411ac2d6d04686389ea",
+              "checksums.txt": "sha256:a4507d27f843ed2a99d156c2128fa57aa6ccaf11026cec490a81b021a5eac4fe",
+              "checksums.txt.sigstore.json": "sha256:4fc813bc7666d518de863ecbcd3c165fcf5e70335d545cc6d5245ffd94506b1d",
+              "compatibility-report.md": "sha256:466a04866791d31c72cd46e3d4ec386a6ee000db79e89dbb486242d7bd513261",
+              "compatibility.json": "sha256:12af2bdc36c1d62cb6c01187651abe41d8058b00a4a39b6c740cbc45611a7f18",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:a357f311f398c8bdaff9cd03f427aa55cf7247ea405b5722193378662785f5f5",
+              "pose-rule-kubernetes.tar.gz": "sha256:cef8312aa9b8b98a76c7a6deb4f29c46bf650490cc6d5e02a96034d2a364af87",
+              "pose.rb": "sha256:4d8aaac3f26d4f098f41a436471dd373973f956f8d46f0579f811b788482fcb1",
+              "pose_1.4.0_darwin_amd64.tar.gz": "sha256:c2253eb958396f3ab2a1d9396131b33180f19029d8be7c5238092eb3a24ff811",
+              "pose_1.4.0_darwin_amd64.tar.gz.cdx.json": "sha256:82834f0f964bbcea7845fe7b2023444fdb83911ab3ad889eb5d03a6443aa4649",
+              "pose_1.4.0_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:cb050c8e98876f4553920407c15f42c8806ec0f36700ff56c50c2bc6101d40cf",
+              "pose_1.4.0_darwin_amd64.tar.gz.sigstore.json": "sha256:f7cd7dd037395224c7da655c85b8a7ce85711434865654458d41e59b67fac61c",
+              "pose_1.4.0_darwin_arm64.tar.gz": "sha256:4c050783a1ba7b5143451e0aa6c1dab6818bb8855b84e3dc109c7bfad825dbf8",
+              "pose_1.4.0_darwin_arm64.tar.gz.cdx.json": "sha256:25d548d0dc1d52082f904de1ee69faeb24427853634a42d036fdbbf5a27fdfdf",
+              "pose_1.4.0_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:ac961c8c6fc8159fb3f55d06842101adde6830382a335faf7caff572c622245e",
+              "pose_1.4.0_darwin_arm64.tar.gz.sigstore.json": "sha256:f222bce117a8f2b3f5fcddc0df03df5617971ce604a6fd7ed8c237e3299ace10",
+              "pose_1.4.0_linux_amd64.tar.gz": "sha256:c520a9389975bc10da6179133ed738e6124ad2b58ddb2ce50065b03ced6ef0d6",
+              "pose_1.4.0_linux_amd64.tar.gz.cdx.json": "sha256:56a6be196fd9c18488ec47af778a6042da3ab7eca1bf938074571bd9a6bbf77c",
+              "pose_1.4.0_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:272675ddb2cb6f05d562f5cd31734db5e45f26483a2051f7990943274736a72a",
+              "pose_1.4.0_linux_amd64.tar.gz.sigstore.json": "sha256:71c0da7ac18692777d24fe8f11520cc3f1fd441102872752b352080da2dbfbdf",
+              "pose_1.4.0_linux_arm64.tar.gz": "sha256:e36d40fa2e4e5637f46fdaea065604e01a1984af8dabc59d230a2ad91e17295e",
+              "pose_1.4.0_linux_arm64.tar.gz.cdx.json": "sha256:6ff9b4edac37015e467fa0f5e52d86f8d7a3f65bb111246e45a944d07599854c",
+              "pose_1.4.0_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:455f752555cac4f42ff37131fe77fe03f4cd87075b9728232b7504442f916e05",
+              "pose_1.4.0_linux_arm64.tar.gz.sigstore.json": "sha256:154fd44854a72848254fec44d854f053e5bcc3273a227a3359082023407d2873",
+              "pose_1.4.0_windows_amd64.zip": "sha256:3f91194c11d6bade358cde5c04bbad31f43ca7b9c122c1dd7b592b0c0030f53e",
+              "pose_1.4.0_windows_amd64.zip.cdx.json": "sha256:bc20ce10e0cf9573189885004844b347cfb0031ffd7aa6d48d9961b42fcd4ff4",
+              "pose_1.4.0_windows_amd64.zip.cdx.json.sigstore.json": "sha256:193616ce2dd738097f726c494e9d71a82ad1aa0cccc79d94d3f5ac8e205ddf2f",
+              "pose_1.4.0_windows_amd64.zip.sigstore.json": "sha256:d3f82a904d7ee9be27aff1cee734e45129a5e586b1d9bfbb554c122ffcb47aea",
+              "pose_1.4.0_windows_arm64.zip": "sha256:897c599be058c88e9cee5c7344f5d031626e9fe63b4e3c0786579fa381510ccd",
+              "pose_1.4.0_windows_arm64.zip.cdx.json": "sha256:3597694438135ba2cf94d8c61f85506938559e3f768f4cd1bebb10352ab1d0e5",
+              "pose_1.4.0_windows_arm64.zip.cdx.json.sigstore.json": "sha256:08b92ad92c3ba545b472697d3cf5e33cc83373c1e686a6e8dc17464317f740ee",
+              "pose_1.4.0_windows_arm64.zip.sigstore.json": "sha256:1f6df917c0c375908a371fb963cce95147e64faf7f017a78136cee0aef31a40e"
+            },
+            "publication_digest": "sha256:b686ab39d16d93b9ba7c1b9c3746486cc61ef09474ab4c5abc50232524155953"
+          },
+          "evidence_digest": "sha256:e9c12fd3fd909b9a9136920ea2bfeee087895c6fb008fae3e44f1b3b31521545"
+        }
+      ],
+      "gaps": []
+    },
     {
       "version": "v1.3.0",
       "state": "verified",
