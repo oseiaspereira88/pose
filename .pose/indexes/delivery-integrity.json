@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:22e973f474494404ce7b73189c86b015de26e380b849f2e1dbdf173bc164f92e",
-  "provenance_digest": "sha256:26aa9b89c2545d4c1e22bafcfa4dfa262c3dad08b8582fe1341bf65130cd5fa6",
+  "input_digest": "sha256:72c786ba985d6485882c78d9172ad682859e127d8f86ca2e2938f90cb5f7cffb",
+  "provenance_digest": "sha256:a00ec5a53c0fb32cc807ac03617d1c492cccafcd5eee1d1245814e6bcc4f1c2b",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -1691,6 +1691,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/pose-discovery-gitignore-and-root-alias-fix/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-discovery-gitignore-and-root-alias-fix/spec.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/pose-docs-asset-parity/spec.md",
       "type": "artifact",
       "attributes": {
@@ -3256,6 +3263,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/pose/discovery.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/pose/discovery_test.go"
       }
     },
     {
@@ -7321,6 +7335,14 @@
       }
     },
     {
+      "id": "change-set:cs-233670d92d24",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:7ce77bfaf2b4572c74581b1cd077eceedbc17a1a8f26a59c279856c8d2738d9a",
+        "selector": "range:a807b4633f1780bf4502bff78bed990b1fe8e840..31b06df"
+      }
+    },
+    {
       "id": "change-set:cs-2ba75b6f3713",
       "type": "change-set",
       "attributes": {
@@ -8824,6 +8846,13 @@
     },
     {
       "id": "spec:pose-derived-index-self-referential-leak",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-discovery-gitignore-and-root-alias-fix",
       "type": "spec",
       "attributes": {
         "status": "done"
@@ -12480,6 +12509,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/index.go",
+      "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/index.go",
       "to": "delivery:capability:validation-scanner-consolidation",
       "type": "implemented-by"
     },
@@ -12925,7 +12959,17 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/stack_seed.go",
+      "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/stack_seed.go",
       "to": "delivery:capability:stack-detection-consolidation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/stack_seed_test.go",
+      "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
     {
@@ -13070,6 +13114,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/validate.go",
+      "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate.go",
       "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
     },
@@ -13156,6 +13205,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/validate_results_test.go",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate_root_and_nodemodules_test.go",
+      "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
     {
@@ -13650,6 +13704,16 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/discovery.go",
+      "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/discovery.go",
+      "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/discovery_test.go",
       "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
@@ -19281,6 +19345,46 @@
     {
       "from": "change-set:cs-21ca73cda14b",
       "to": "artifact:pose-mcp/internal/scaffold/skill_locale_parity_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-233670d92d24",
+      "to": "artifact:.pose/specs/pose-discovery-gitignore-and-root-alias-fix/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-233670d92d24",
+      "to": "artifact:pose-mcp/internal/cli/index.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-233670d92d24",
+      "to": "artifact:pose-mcp/internal/cli/stack_seed.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-233670d92d24",
+      "to": "artifact:pose-mcp/internal/cli/stack_seed_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-233670d92d24",
+      "to": "artifact:pose-mcp/internal/cli/validate.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-233670d92d24",
+      "to": "artifact:pose-mcp/internal/cli/validate_root_and_nodemodules_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-233670d92d24",
+      "to": "artifact:pose-mcp/internal/pose/discovery.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-233670d92d24",
+      "to": "artifact:pose-mcp/internal/pose/discovery_test.go",
       "type": "changes"
     },
     {
@@ -28170,8 +28274,8 @@
     },
     {
       "from": "delivery:capability:pose-mcp",
-      "to": "validation-result:pose-mcp/go/delivery-integration",
-      "type": "validated-by"
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
     },
     {
       "from": "delivery:capability:pose-mcp",
@@ -28211,6 +28315,21 @@
     {
       "from": "delivery:capability:pose-mcp",
       "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:pose-mcp",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:pose-mcp",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:pose-mcp",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
     {
@@ -29595,7 +29714,7 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -29616,6 +29735,16 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
     {
@@ -31471,6 +31600,51 @@
     {
       "from": "spec:pose-derived-index-self-referential-leak",
       "to": "change-set:cs-b7ad61eb2b48",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "to": "artifact:pose-mcp/internal/cli/index.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "to": "artifact:pose-mcp/internal/cli/stack_seed.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "to": "artifact:pose-mcp/internal/cli/stack_seed_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "to": "artifact:pose-mcp/internal/cli/validate.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "to": "artifact:pose-mcp/internal/cli/validate_root_and_nodemodules_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "to": "artifact:pose-mcp/internal/pose/discovery.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "to": "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "to": "delivery:capability:pose-mcp",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "to": "change-set:cs-233670d92d24",
       "type": "observed-by"
     },
     {
@@ -35670,6 +35844,41 @@
       "spec": "pose-derived-index-self-referential-leak",
       "action": "modified",
       "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go"
+    },
+    {
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/index.go"
+    },
+    {
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/stack_seed.go"
+    },
+    {
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/stack_seed_test.go"
+    },
+    {
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/validate.go"
+    },
+    {
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/validate_root_and_nodemodules_test.go"
+    },
+    {
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/discovery.go"
+    },
+    {
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/discovery_test.go"
     },
     {
       "spec": "pose-doc-command-reference",
@@ -42044,6 +42253,53 @@
         }
       ],
       "diff_digest": "sha256:3014f631f57c9368a621ea01e70a62557316a429d0ad0933697ea616398f1269"
+    },
+    {
+      "id": "cs-233670d92d24",
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "selector": "range:a807b4633f1780bf4502bff78bed990b1fe8e840..31b06df",
+      "base": "a807b4633f1780bf4502bff78bed990b1fe8e840",
+      "head": "31b06df",
+      "resolved_base": "a807b4633f1780bf4502bff78bed990b1fe8e840",
+      "resolved_head": "31b06df0560a1b86e57e88b8b3ffb5497147b0e8",
+      "commits": [
+        "31b06df0560a1b86e57e88b8b3ffb5497147b0e8"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-discovery-gitignore-and-root-alias-fix/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/index.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/stack_seed.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/stack_seed_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_root_and_nodemodules_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/discovery.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/discovery_test.go"
+        }
+      ],
+      "diff_digest": "sha256:7ce77bfaf2b4572c74581b1cd077eceedbc17a1a8f26a59c279856c8d2738d9a"
     },
     {
       "id": "cs-2ba75b6f3713",
@@ -51244,6 +51500,7 @@
     ],
     "pose-mcp/internal/cli/index.go": [
       "pose-artifact-provenance-ledger",
+      "pose-discovery-gitignore-and-root-alias-fix",
       "pose-release-lifecycle-closure",
       "pose-upgrade-path-audit-fixes",
       "pose-validation-scanner-consolidation"
@@ -51358,11 +51615,13 @@
     ],
     "pose-mcp/internal/cli/stack_seed.go": [
       "pose-derived-index-self-referential-leak",
+      "pose-discovery-gitignore-and-root-alias-fix",
       "pose-stack-detection-consolidation",
       "pose-upgrade-path-audit-fixes"
     ],
     "pose-mcp/internal/cli/stack_seed_test.go": [
       "pose-derived-index-self-referential-leak",
+      "pose-discovery-gitignore-and-root-alias-fix",
       "pose-stack-detection-consolidation",
       "pose-update-instance-directory-completeness"
     ],
@@ -51386,6 +51645,7 @@
     ],
     "pose-mcp/internal/cli/validate.go": [
       "pose-delivery-surface-assurance",
+      "pose-discovery-gitignore-and-root-alias-fix",
       "pose-monorepo-validation-advisory",
       "pose-review-bundle-convergence",
       "pose-upgrade-path-audit-fixes",
@@ -51400,6 +51660,7 @@
       "pose-delivery-surface-assurance"
     ],
     "pose-mcp/internal/cli/validate_root_and_nodemodules_test.go": [
+      "pose-discovery-gitignore-and-root-alias-fix",
       "pose-upgrade-path-audit-fixes"
     ],
     "pose-mcp/internal/cli/workspace_alias.go": [
@@ -51499,8 +51760,12 @@
       "pose-review-bundle-convergence"
     ],
     "pose-mcp/internal/pose/discovery.go": [
+      "pose-discovery-gitignore-and-root-alias-fix",
       "pose-project-agnostic-assessment-engines",
       "pose-upgrade-path-audit-fixes"
+    ],
+    "pose-mcp/internal/pose/discovery_test.go": [
+      "pose-discovery-gitignore-and-root-alias-fix"
     ],
     "pose-mcp/internal/pose/integration.go": [
       "pose-assessment-engine-precision",
@@ -52243,14 +52508,6 @@
       "path": "governance:project-assessment",
       "message": "delivery target has no structured artifact provenance",
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
-    },
-    {
-      "id": "dif-4087026c6b42",
-      "code": "orphan",
-      "severity": "warning",
-      "path": "pose-mcp/internal/pose/discovery_test.go",
-      "message": "governed tracked path has no spec provenance claim",
-      "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
       "id": "dif-41bb5f092eaf",
@@ -53982,6 +54239,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-install-locale-autodetect",
       "ref": "capability:pose-mcp",
       "kind": "capability",
@@ -54000,6 +54266,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-review-bundle-root-file-classification",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-review-scope-trailer-check",
       "ref": "capability:pose-mcp",
       "kind": "capability",
@@ -54009,7 +54284,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-review-bundle-root-file-classification",
+      "spec": "pose-install-gate-failure-recovery-notice",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -54037,15 +54312,6 @@
     },
     {
       "spec": "pose-derived-index-self-referential-leak",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-install-gate-failure-recovery-notice",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -54423,7 +54689,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -54432,7 +54698,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -54656,9 +54922,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "b529a9d77397ff6a00e1a5a70fdcd87a3ce8c742",
-      "generated_at": "2026-08-16T21:53:24Z",
-      "provenance_digest": "sha256:26aa9b89c2545d4c1e22bafcfa4dfa262c3dad08b8582fe1341bf65130cd5fa6",
+      "git_head": "31b06df0560a1b86e57e88b8b3ffb5497147b0e8",
+      "generated_at": "2026-08-17T00:45:52Z",
+      "provenance_digest": "sha256:a00ec5a53c0fb32cc807ac03617d1c492cccafcd5eee1d1245814e6bcc4f1c2b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -54676,6 +54942,7 @@
         "pose-dependency-digest-pinning": "sha256:d5bf9bb01c297d231054d464b30a2031d29a5780ce73367f5984c0be264cdba9",
         "pose-dependency-pin-refresh": "sha256:67c29865c16ce15ff33cd316822b4d4b0011ce720cbbfd6a7cb6fa5121ce770c",
         "pose-derived-index-self-referential-leak": "sha256:d66c2d3c0687e1c94991a40ba42212e68ae219a4fcf29d6933fb80733ba98a97",
+        "pose-discovery-gitignore-and-root-alias-fix": "sha256:8f6bf66b57f759c7b2fab7dbc15553bcdc654ecd279a2d34cf2a579ec2a8c90f",
         "pose-docs-asset-parity": "sha256:3f687a6dcb9cea8151e4bc11976d377d1f11a6bcd0151b5d55fb82dbfc8b74d8",
         "pose-domain-rule-extension-migration": "sha256:24a27597f1049d431bddfd4e65eca90ac4167eeadfede1a9c972a56016576338",
         "pose-dora-five-metrics-v2": "sha256:1ee6a1335ba9542cacf69f476b45a5a4484cde5009a229828f11aa1df25747ea",
@@ -54743,9 +55010,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "b529a9d77397ff6a00e1a5a70fdcd87a3ce8c742",
-      "generated_at": "2026-08-16T21:53:24Z",
-      "provenance_digest": "sha256:26aa9b89c2545d4c1e22bafcfa4dfa262c3dad08b8582fe1341bf65130cd5fa6",
+      "git_head": "31b06df0560a1b86e57e88b8b3ffb5497147b0e8",
+      "generated_at": "2026-08-17T00:45:52Z",
+      "provenance_digest": "sha256:a00ec5a53c0fb32cc807ac03617d1c492cccafcd5eee1d1245814e6bcc4f1c2b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -54763,6 +55030,7 @@
         "pose-dependency-digest-pinning": "sha256:d5bf9bb01c297d231054d464b30a2031d29a5780ce73367f5984c0be264cdba9",
         "pose-dependency-pin-refresh": "sha256:67c29865c16ce15ff33cd316822b4d4b0011ce720cbbfd6a7cb6fa5121ce770c",
         "pose-derived-index-self-referential-leak": "sha256:d66c2d3c0687e1c94991a40ba42212e68ae219a4fcf29d6933fb80733ba98a97",
+        "pose-discovery-gitignore-and-root-alias-fix": "sha256:8f6bf66b57f759c7b2fab7dbc15553bcdc654ecd279a2d34cf2a579ec2a8c90f",
         "pose-docs-asset-parity": "sha256:3f687a6dcb9cea8151e4bc11976d377d1f11a6bcd0151b5d55fb82dbfc8b74d8",
         "pose-domain-rule-extension-migration": "sha256:24a27597f1049d431bddfd4e65eca90ac4167eeadfede1a9c972a56016576338",
         "pose-dora-five-metrics-v2": "sha256:1ee6a1335ba9542cacf69f476b45a5a4484cde5009a229828f11aa1df25747ea",
@@ -54830,9 +55098,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "b529a9d77397ff6a00e1a5a70fdcd87a3ce8c742",
-      "generated_at": "2026-08-16T21:53:24Z",
-      "provenance_digest": "sha256:26aa9b89c2545d4c1e22bafcfa4dfa262c3dad08b8582fe1341bf65130cd5fa6",
+      "git_head": "31b06df0560a1b86e57e88b8b3ffb5497147b0e8",
+      "generated_at": "2026-08-17T00:45:52Z",
+      "provenance_digest": "sha256:a00ec5a53c0fb32cc807ac03617d1c492cccafcd5eee1d1245814e6bcc4f1c2b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -54850,6 +55118,7 @@
         "pose-dependency-digest-pinning": "sha256:d5bf9bb01c297d231054d464b30a2031d29a5780ce73367f5984c0be264cdba9",
         "pose-dependency-pin-refresh": "sha256:67c29865c16ce15ff33cd316822b4d4b0011ce720cbbfd6a7cb6fa5121ce770c",
         "pose-derived-index-self-referential-leak": "sha256:d66c2d3c0687e1c94991a40ba42212e68ae219a4fcf29d6933fb80733ba98a97",
+        "pose-discovery-gitignore-and-root-alias-fix": "sha256:8f6bf66b57f759c7b2fab7dbc15553bcdc654ecd279a2d34cf2a579ec2a8c90f",
         "pose-docs-asset-parity": "sha256:3f687a6dcb9cea8151e4bc11976d377d1f11a6bcd0151b5d55fb82dbfc8b74d8",
         "pose-domain-rule-extension-migration": "sha256:24a27597f1049d431bddfd4e65eca90ac4167eeadfede1a9c972a56016576338",
         "pose-dora-five-metrics-v2": "sha256:1ee6a1335ba9542cacf69f476b45a5a4484cde5009a229828f11aa1df25747ea",
@@ -54917,9 +55186,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "b529a9d77397ff6a00e1a5a70fdcd87a3ce8c742",
-      "generated_at": "2026-08-16T21:53:24Z",
-      "provenance_digest": "sha256:26aa9b89c2545d4c1e22bafcfa4dfa262c3dad08b8582fe1341bf65130cd5fa6",
+      "git_head": "31b06df0560a1b86e57e88b8b3ffb5497147b0e8",
+      "generated_at": "2026-08-17T00:45:52Z",
+      "provenance_digest": "sha256:a00ec5a53c0fb32cc807ac03617d1c492cccafcd5eee1d1245814e6bcc4f1c2b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -54937,6 +55206,7 @@
         "pose-dependency-digest-pinning": "sha256:d5bf9bb01c297d231054d464b30a2031d29a5780ce73367f5984c0be264cdba9",
         "pose-dependency-pin-refresh": "sha256:67c29865c16ce15ff33cd316822b4d4b0011ce720cbbfd6a7cb6fa5121ce770c",
         "pose-derived-index-self-referential-leak": "sha256:d66c2d3c0687e1c94991a40ba42212e68ae219a4fcf29d6933fb80733ba98a97",
+        "pose-discovery-gitignore-and-root-alias-fix": "sha256:8f6bf66b57f759c7b2fab7dbc15553bcdc654ecd279a2d34cf2a579ec2a8c90f",
         "pose-docs-asset-parity": "sha256:3f687a6dcb9cea8151e4bc11976d377d1f11a6bcd0151b5d55fb82dbfc8b74d8",
         "pose-domain-rule-extension-migration": "sha256:24a27597f1049d431bddfd4e65eca90ac4167eeadfede1a9c972a56016576338",
         "pose-dora-five-metrics-v2": "sha256:1ee6a1335ba9542cacf69f476b45a5a4484cde5009a229828f11aa1df25747ea",
@@ -55004,9 +55274,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "b529a9d77397ff6a00e1a5a70fdcd87a3ce8c742",
-      "generated_at": "2026-08-16T21:53:24Z",
-      "provenance_digest": "sha256:26aa9b89c2545d4c1e22bafcfa4dfa262c3dad08b8582fe1341bf65130cd5fa6",
+      "git_head": "31b06df0560a1b86e57e88b8b3ffb5497147b0e8",
+      "generated_at": "2026-08-17T00:45:52Z",
+      "provenance_digest": "sha256:a00ec5a53c0fb32cc807ac03617d1c492cccafcd5eee1d1245814e6bcc4f1c2b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -55024,6 +55294,7 @@
         "pose-dependency-digest-pinning": "sha256:d5bf9bb01c297d231054d464b30a2031d29a5780ce73367f5984c0be264cdba9",
         "pose-dependency-pin-refresh": "sha256:67c29865c16ce15ff33cd316822b4d4b0011ce720cbbfd6a7cb6fa5121ce770c",
         "pose-derived-index-self-referential-leak": "sha256:d66c2d3c0687e1c94991a40ba42212e68ae219a4fcf29d6933fb80733ba98a97",
+        "pose-discovery-gitignore-and-root-alias-fix": "sha256:8f6bf66b57f759c7b2fab7dbc15553bcdc654ecd279a2d34cf2a579ec2a8c90f",
         "pose-docs-asset-parity": "sha256:3f687a6dcb9cea8151e4bc11976d377d1f11a6bcd0151b5d55fb82dbfc8b74d8",
         "pose-domain-rule-extension-migration": "sha256:24a27597f1049d431bddfd4e65eca90ac4167eeadfede1a9c972a56016576338",
         "pose-dora-five-metrics-v2": "sha256:1ee6a1335ba9542cacf69f476b45a5a4484cde5009a229828f11aa1df25747ea",
@@ -55091,9 +55362,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "b529a9d77397ff6a00e1a5a70fdcd87a3ce8c742",
-      "generated_at": "2026-08-16T21:53:24Z",
-      "provenance_digest": "sha256:26aa9b89c2545d4c1e22bafcfa4dfa262c3dad08b8582fe1341bf65130cd5fa6",
+      "git_head": "31b06df0560a1b86e57e88b8b3ffb5497147b0e8",
+      "generated_at": "2026-08-17T00:45:52Z",
+      "provenance_digest": "sha256:a00ec5a53c0fb32cc807ac03617d1c492cccafcd5eee1d1245814e6bcc4f1c2b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -55111,6 +55382,7 @@
         "pose-dependency-digest-pinning": "sha256:d5bf9bb01c297d231054d464b30a2031d29a5780ce73367f5984c0be264cdba9",
         "pose-dependency-pin-refresh": "sha256:67c29865c16ce15ff33cd316822b4d4b0011ce720cbbfd6a7cb6fa5121ce770c",
         "pose-derived-index-self-referential-leak": "sha256:d66c2d3c0687e1c94991a40ba42212e68ae219a4fcf29d6933fb80733ba98a97",
+        "pose-discovery-gitignore-and-root-alias-fix": "sha256:8f6bf66b57f759c7b2fab7dbc15553bcdc654ecd279a2d34cf2a579ec2a8c90f",
         "pose-docs-asset-parity": "sha256:3f687a6dcb9cea8151e4bc11976d377d1f11a6bcd0151b5d55fb82dbfc8b74d8",
         "pose-domain-rule-extension-migration": "sha256:24a27597f1049d431bddfd4e65eca90ac4167eeadfede1a9c972a56016576338",
         "pose-dora-five-metrics-v2": "sha256:1ee6a1335ba9542cacf69f476b45a5a4484cde5009a229828f11aa1df25747ea",
@@ -55178,9 +55450,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "b529a9d77397ff6a00e1a5a70fdcd87a3ce8c742",
-      "generated_at": "2026-08-16T21:53:24Z",
-      "provenance_digest": "sha256:26aa9b89c2545d4c1e22bafcfa4dfa262c3dad08b8582fe1341bf65130cd5fa6",
+      "git_head": "31b06df0560a1b86e57e88b8b3ffb5497147b0e8",
+      "generated_at": "2026-08-17T00:45:52Z",
+      "provenance_digest": "sha256:a00ec5a53c0fb32cc807ac03617d1c492cccafcd5eee1d1245814e6bcc4f1c2b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
@@ -55198,6 +55470,7 @@
         "pose-dependency-digest-pinning": "sha256:d5bf9bb01c297d231054d464b30a2031d29a5780ce73367f5984c0be264cdba9",
         "pose-dependency-pin-refresh": "sha256:67c29865c16ce15ff33cd316822b4d4b0011ce720cbbfd6a7cb6fa5121ce770c",
         "pose-derived-index-self-referential-leak": "sha256:d66c2d3c0687e1c94991a40ba42212e68ae219a4fcf29d6933fb80733ba98a97",
+        "pose-discovery-gitignore-and-root-alias-fix": "sha256:8f6bf66b57f759c7b2fab7dbc15553bcdc654ecd279a2d34cf2a579ec2a8c90f",
         "pose-docs-asset-parity": "sha256:3f687a6dcb9cea8151e4bc11976d377d1f11a6bcd0151b5d55fb82dbfc8b74d8",
         "pose-domain-rule-extension-migration": "sha256:24a27597f1049d431bddfd4e65eca90ac4167eeadfede1a9c972a56016576338",
         "pose-dora-five-metrics-v2": "sha256:1ee6a1335ba9542cacf69f476b45a5a4484cde5009a229828f11aa1df25747ea",
@@ -55504,9 +55777,18 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "capability:pose-mcp": [
-      "spec:pose-install-gate-failure-recovery-notice",
-      "artifact:pose-mcp/internal/cli/cli_test.go",
-      "artifact:pose-mcp/internal/cli/install.go",
+      "spec:pose-derived-index-self-referential-leak",
+      "artifact:pose-mcp/internal/cli/stack_seed.go",
+      "artifact:pose-mcp/internal/cli/stack_seed_test.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/extensions.lock.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/packages.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/repo-map.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/roadmaps.json",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
       "delivery:capability:pose-mcp",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -56382,7 +56664,7 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "governance:project-assessment": [
-      "spec:pose-debt-marker-lexical-precision",
+      "spec:pose-project-agnostic-assessment-engines",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
