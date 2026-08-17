@@ -1,0 +1,8 @@
+---
+spec: pose-discovery-gitignore-and-root-alias-fix
+category: fixed
+breaking: false
+refs:
+---
+
+Module/stack discovery (`pose index`, `pose validate`, `pose install`/`update`'s module-metadata seeding) no longer descends into a `.gitignore`-excluded directory, and no longer adds a duplicate `"."` root entry when the project root is already aliased by a `module-metadata.json` entry keyed with the project directory's own name.
