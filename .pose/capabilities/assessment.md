@@ -1,8 +1,8 @@
 ---
 schema_version: 1
-assessed_at: 2026-08-13
-baseline_commit: b65156e
-method: v1.1.0 release-candidate source inspection, delivered-spec Final Reports, pose doctor --json, pose assess, MCP tools/list golden fixture and repository checks
+assessed_at: 2026-08-17
+baseline_commit: dbf5b77
+method: v1.4.3 published-release source inspection, delivered-spec Final Reports, four real cut/published/independently-verified releases (v1.4.0-v1.4.3), pose doctor --json, pose assess, MCP tools/list golden fixture and repository checks
 ---
 
 # Capability assessment
@@ -16,10 +16,22 @@ structured source of truth for scores, evidence and gaps.
 - title: Install, upgrade and local-first runtime
 - score: 5
 - target: 5
-- evidence: spec:pose-package-manager-distribution, spec:pose-upgrade-compatibility-lab, spec:pose-doctor-guided-remediation, doc:docs-site/docs/capability-assessment.md
+- evidence: spec:pose-package-manager-distribution, spec:pose-upgrade-compatibility-lab, spec:pose-doctor-guided-remediation, spec:pose-upgrade-path-audit-fixes, spec:pose-update-instance-directory-completeness, spec:pose-derived-index-self-referential-leak, doc:docs-site/docs/capability-assessment.md
 - gaps: winget-pkgs submission not yet made; Scoop and Nix channels uncovered
 
-Two real package-manager channels; proven in-place upgrade against a populated instance.
+Two real package-manager channels; proven in-place upgrade against a populated
+instance. A field audit of `pose update`/`pose install` against seven real,
+independently-owned repositories (not synthetic fixtures) surfaced and closed
+11 correctness/robustness defects: locale handling was unreliable without
+`--force`, a plain update could leave an old instance with broken references
+undetected by `pose doctor` (now two new doctor checks), a hand-edit outside
+an instance-owned AGENTS.md/POSE.md section could be silently dropped (now
+warned and consistently backed up), and the embedded scaffold leaked this
+product's own computed graph/module data into fresh instances (closed the
+same self-referential-leak class already fixed for policy files under issue
+#17). Verified against real upgrades from four prior published releases
+(1.1.0, 1.0.0, 0.19.0, 0.18.2) on every one of four consecutive real
+releases cut this cycle (v1.4.0-v1.4.3).
 
 ## Mechanism: spec-lifecycle-closeout
 - title: Spec lifecycle and closeout
@@ -53,10 +65,17 @@ Cross-repository portfolio projection with ownership/criticality.
 - title: Validation matrix and structural checks
 - score: 5
 - target: 5
-- evidence: spec:pose-stack-catalog-expansion, spec:pose-structured-validation-results, spec:pose-changed-scope-validation, spec:pose-validation-runtime-guardrails, spec:pose-monorepo-validation-recipes
+- evidence: spec:pose-stack-catalog-expansion, spec:pose-structured-validation-results, spec:pose-changed-scope-validation, spec:pose-validation-runtime-guardrails, spec:pose-monorepo-validation-recipes, spec:pose-validation-scanner-consolidation, spec:pose-upgrade-path-audit-fixes, spec:pose-discovery-gitignore-and-root-alias-fix
 - gaps:
 
-Python/.NET/monorepo stacks, JSON/JUnit/SARIF, timeouts and Harness isolation delivered.
+Python/.NET/monorepo stacks, JSON/JUnit/SARIF, timeouts and Harness isolation
+delivered. Stack discovery is now a single shared detector across `pose
+index`/`validate`/`install`/`init` (previously two independently-drifting
+scanners), classifies Android/Kotlin Gradle modules distinctly from generic
+JVM ones, excludes synthetic testdata/fixture content, and — found live on a
+real repository whose vendored subtree was entirely gitignored — now respects
+`.gitignore` instead of walking excluded trees as if they were the project's
+own deliverable modules.
 
 ## Mechanism: evidence-history-insights
 - title: Evidence, history and insights
@@ -110,10 +129,21 @@ Identity-gated validation orchestration and bounded audit fields.
 - title: CI, release and supply-chain trust
 - score: 5
 - target: 5
-- evidence: spec:pose-release-signing, spec:pose-cyclonedx-sbom, spec:pose-slsa-provenance, spec:pose-ossf-security-baseline, spec:pose-reproducible-release-verification
-- gaps: real N-minus-1 comparison in Verify release unexercised until a second real published release exists
+- evidence: spec:pose-release-signing, spec:pose-cyclonedx-sbom, spec:pose-slsa-provenance, spec:pose-ossf-security-baseline, spec:pose-reproducible-release-verification, spec:pose-upgrade-path-audit-fixes, spec:pose-discovery-gitignore-and-root-alias-fix
+- gaps:
 
-Signed, SBOM'd, provenance-attested releases; security workflows green.
+Signed, SBOM'd, provenance-attested releases; security workflows green. The
+prior gap ("real N-minus-1 comparison unexercised until a second real
+published release exists") is closed: four consecutive real releases were
+cut, published and independently verified this cycle (v1.4.0 through v1.4.3),
+each with a bit-identical independent rebuild and each exercising real
+upgrade paths from four previously-published versions (1.1.0, 1.0.0, 0.19.0,
+0.18.2) against pinned, checksum-authenticated prior artifacts — not
+simulated. Three of the four releases (v1.4.1-v1.4.3) shipped same-day
+follow-up fixes for defects found auditing the immediately preceding release
+against real, independently-owned external repositories, which is itself
+evidence the release-to-fix-to-release loop works end to end under real
+conditions, not only in isolation.
 
 ## Mechanism: import-adoption-interop
 - title: Import and adoption interoperability
@@ -137,20 +167,33 @@ All five DORA metrics and OTel traces/metrics for server operation.
 - title: Documentation, localization and diagnostics
 - score: 5
 - target: 5
-- evidence: spec:pose-localization-docs-contract, spec:pose-doctor-guided-remediation, spec:pose-capability-mechanism
+- evidence: spec:pose-localization-docs-contract, spec:pose-doctor-guided-remediation, spec:pose-capability-mechanism, spec:pose-onboarding-context-extraction, spec:pose-upgrade-path-audit-fixes
 - gaps:
 
 Locale-parity bug fixed, self-inspecting docs tests, guided remediation and a
 structured assessment as the source behind the narrative documentation.
+`pose init`/`pose install` now excerpts a brownfield target's own
+`README.md`/`CLAUDE.md` into AGENTS.md's "Project context" on first install
+instead of a generic placeholder. A real audit found and fixed a second class
+of locale defect beyond the original parity bug: an explicit `--locale`
+request could be silently ignored or produce a duplicated (not switched)
+manual on an already-installed instance; both are now fixed. The same audit
+also found `pose check`'s own summary line was unconditionally Portuguese
+regardless of locale for every direct invocation, not only the one internal
+call the fix originally targeted — now corrected.
 
 ## Mechanism: extensibility-ecosystem
 - title: Extensibility and ecosystem
 - score: 5
 - target: 5
-- evidence: spec:pose-extension-catalog-lifecycle
-- gaps: community catalog still to populate (adoption gap, not mechanism gap)
+- evidence: spec:pose-extension-catalog-lifecycle, spec:pose-extension-catalog-resolution, spec:pose-rule-extension-locale-parity
+- gaps: community catalog still to populate (adoption gap, not mechanism gap); only `pose-rule-kubernetes` is actually signed/published this way today, `pose-rule-backend-go`/`pose-rule-frontend-react` remain local-directory-installable only
 
 Versioned manifest, install/list/remove/verify, provenance and revocation.
+`pose extension install <extension-id>` now also resolves the ID against the
+latest published GitHub release's signed assets directly — no local
+directory required — and accepts a `--locale` flag, with pt-BR variants now
+shipped for `pose-rule-backend-go`/`pose-rule-frontend-react`.
 
 ## Mechanism: multi-repo-enterprise
 - title: Multi-repository and enterprise operation

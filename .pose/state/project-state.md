@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-17T01:10:36Z
-baseline_commit: f127f7db626b0c2ca23cb54f4f1a6d4bd838325f
+generated_at: 2026-08-17T01:17:11Z
+baseline_commit: dbf5b77cf03d0691027bf59886f21cda582ec69c
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -47,9 +47,9 @@ capacidade.
 - vencidos (review < hoje): 0
 
 ## Capabilities
-<!-- state:derived hash:d98c218934f8 -->
+<!-- state:derived hash:7db5fb52757a -->
 
-- assessment: presente, baseline_commit=commit:b65156e, assessed_at=2026-08-13 (4 dias atrás)
+- assessment: presente, baseline_commit=commit:dbf5b77, assessed_at=2026-08-17 (0 dias atrás)
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
