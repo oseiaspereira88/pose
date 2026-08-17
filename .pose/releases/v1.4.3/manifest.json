@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v1.4.3",
+  "previous_version": "v1.4.2",
+  "prepared_at": "2026-08-17T01:02:07Z",
+  "specs": [
+    "pose-discovery-gitignore-and-root-alias-fix"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Module/stack discovery (`pose index`, `pose validate`, `pose install`/`update`'s module-metadata seeding) no longer descends into a `.gitignore`-excluded directory, and no longer adds a duplicate `\".\"` root entry when the project root is already aliased by a `module-metadata.json` entry keyed with the project directory's own name.",
+      "path": "pose-discovery-gitignore-and-root-alias-fix.md",
+      "digest": "sha256:df8ea0d74b172e86d946e260ace37f20b86d8e74f0948bb041c3817fc36ad12a"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:946c06bbc1dffa42095f7f2d03bed2f511789df66a40229a6d0e0f760f6cb4fa",
+  "release_input_digest": "sha256:e75b972810a76955b742231e3240acc9a49328c06a35df97b59c3add0a3a50ef",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.4.3"
+  }
+}
