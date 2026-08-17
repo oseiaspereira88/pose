@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-17T00:45:13Z
-baseline_commit: a807b4633f1780bf4502bff78bed990b1fe8e840
+generated_at: 2026-08-17T00:49:34Z
+baseline_commit: 2ac5a17f0bc7210ae3d9de1e122030d6bda40c22
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:d864298f7ee8 -->
+<!-- state:derived hash:f236392abd12 -->
 
-- último registro: task=closeout-pose-update-instance-directory-completeness outcome=unknown (2026-08-16T21:53:20Z)
-- últimos 30 dias: total=246 outcome_ok=177 outcome_outro=69
-- reports revisados (.md): total=129
+- último registro: task=closeout-pose-discovery-gitignore-and-root-alias-fix outcome=unknown (2026-08-17T00:45:47Z)
+- últimos 30 dias: total=247 outcome_ok=177 outcome_outro=70
+- reports revisados (.md): total=130
+  - report:2026-08-17-standard-closeout-pose-discovery-gitignore-and-root-alias-fix.md
   - report:2026-08-16-standard-closeout-pose-update-instance-directory-completeness.md
   - report:2026-08-16-standard-closeout-pose-derived-index-self-referential-leak.md
   - report:2026-08-16-standard-closeout-pose-upgrade-path-audit-fixes.md
   - report:2026-08-15-standard-resolve-an-extension-id-against-the-latest-published-release.md
-  - report:2026-08-15-standard-support-a-locale-overlay-in-pose-extension-install.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->
