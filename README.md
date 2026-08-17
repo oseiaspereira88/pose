@@ -191,12 +191,14 @@ component and mechanism. Read the
 maturity and best-of-breed gaps. The governed
 [product roadmaps](docs-site/docs/product-roadmaps.md) convert those findings
 into roadmaps, implementation specs and dependency-aware release gates —
-10 roadmaps and 111 specs today, tracked under `.pose/roadmaps/` and
+10 roadmaps and 115 specs today, tracked under `.pose/roadmaps/` and
 `.pose/specs/`.
 
-## What's new in v1.4.0
+## What's new in v1.4.3
 
-Full notes: [`.pose/changelogs/v1.4.0.md`](.pose/changelogs/v1.4.0.md).
+Full notes: [`.pose/changelogs/v1.4.0.md`](.pose/changelogs/v1.4.0.md),
+[`v1.4.1`](.pose/changelogs/v1.4.1.md), [`v1.4.2`](.pose/changelogs/v1.4.2.md),
+[`v1.4.3`](.pose/changelogs/v1.4.3.md).
 
 - `pose extension install <extension-id>` now resolves the ID against the
   latest published GitHub release's signed assets — no local directory
@@ -209,6 +211,16 @@ Full notes: [`.pose/changelogs/v1.4.0.md`](.pose/changelogs/v1.4.0.md).
 - `pose index`/`pose validate`/`pose install`/`pose init` now share one
   stack detector; Cloudflare Workers, Python and .NET modules are
   recognized.
+- A field audit of `pose update`/`pose install` against seven real,
+  independently-owned repositories found and fixed 11 upgrade-path defects:
+  unreliable `--locale` handling without `--force` (including a duplicated,
+  not switched, manual on a locale change); silently dropped AGENTS.md/POSE.md
+  customizations outside `instance-owned` sections (now warned and backed
+  up); an old instance missing required directories or seeded config after a
+  plain update (two new `pose doctor` checks close the blind spot); discovery
+  descending into `.gitignore`-excluded trees or duplicating an aliased root
+  module entry; and the embedded scaffold leaking pose-dist's own computed
+  index/graph data into fresh instances.
 
 ## Where POSE is strongest
 

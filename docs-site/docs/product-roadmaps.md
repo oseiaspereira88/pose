@@ -2,7 +2,7 @@
 
 **Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.4.x
 
-**Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-15):** all 10 roadmaps `done`
+**Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-17):** all 10 roadmaps `done`
 **Canonical execution artifacts:** `.pose/roadmaps/*.md` and `.pose/specs/*/spec.md`
 
 This portfolio converted the [capability assessment](capability-assessment.md)
@@ -12,13 +12,22 @@ portfolio to 8 roadmaps and 39 member specs. Two further roadmaps —
 `adaptive-instance-provisioning` and `agentic-onboarding`, both closing gaps
 raised in [issue #21](https://github.com/oseiaspereira88/pose/issues/21) —
 brought the portfolio to 10 roadmaps and 48 member specs; the repository
-contains 111 completed specs in total. All 10 roadmaps carry `status: done`
+contains 115 completed specs in total. All 10 roadmaps carry `status: done`
 as of this baseline — every roadmap outcome crossed its documented
 validation and closeout gates with executed evidence, not a planning
 intention. The target windows and wave structure are kept below as the
 historical execution record and as the template for the next portfolio, not
 as an open plan. See the [capability assessment](capability-assessment.md)
 for the current, post-delivery state of each mechanism.
+
+Four further specs sit outside roadmap membership, opened directly against
+delivered roadmap 10 outcomes after a real upgrade-path field audit against
+seven independently-owned external repositories:
+`pose-upgrade-path-audit-fixes`, `pose-derived-index-self-referential-leak`,
+`pose-update-instance-directory-completeness` and
+`pose-discovery-gitignore-and-root-alias-fix`, shipped across releases
+v1.4.1-v1.4.3 — among the specs outside the 48 governed-portfolio
+memberships that make up the remainder of the 115 total.
 
 !!! note "Historical portfolio, current product"
 

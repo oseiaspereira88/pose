@@ -3,9 +3,10 @@
 **Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.4.x
 
 **Status:** Reference-grade, offline-first engineering operating standard  
-**Verified:** 2026-08-14 against the `v1.2.0` release contract and
-validation matrix, after component-aware review plans and convergent
-sealed review bundles reached `status: done`
+**Verified:** 2026-08-17 against the `v1.4.3` release contract and
+validation matrix, after four consecutive real releases (v1.4.0-v1.4.3)
+closed an 11-defect upgrade-path field audit against real, independently-owned
+repositories
 
 POSE is a repository-local governance system for human and AI-assisted software
 delivery. It combines a versioned operating contract, a native deterministic

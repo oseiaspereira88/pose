@@ -200,12 +200,14 @@ componente e mecanismo. Leia a
 maturidade atual e lacunas frente ao estado da arte. Os
 [roadmaps de produto](docs-site/docs/product-roadmaps.md) governados
 convertem essas descobertas em roadmaps, specs de implementação e gates de
-release conscientes de dependências — 10 roadmaps e 111 specs hoje,
+release conscientes de dependências — 10 roadmaps e 115 specs hoje,
 acompanhados em `.pose/roadmaps/` e `.pose/specs/`.
 
-## Novidades da v1.4.0
+## Novidades da v1.4.3
 
-Notas completas: [`.pose/changelogs/v1.4.0.md`](.pose/changelogs/v1.4.0.md).
+Notas completas: [`.pose/changelogs/v1.4.0.md`](.pose/changelogs/v1.4.0.md),
+[`v1.4.1`](.pose/changelogs/v1.4.1.md), [`v1.4.2`](.pose/changelogs/v1.4.2.md),
+[`v1.4.3`](.pose/changelogs/v1.4.3.md).
 
 - `pose extension install <extension-id>` agora resolve o ID contra a
   última release publicada no GitHub — sem precisar de diretório local.
@@ -217,6 +219,18 @@ Notas completas: [`.pose/changelogs/v1.4.0.md`](.pose/changelogs/v1.4.0.md).
 - `pose index`/`pose validate`/`pose install`/`pose init` agora usam um
   único detector de stack compartilhado; Cloudflare Workers, Python e .NET
   passaram a ser reconhecidos.
+- Uma auditoria de campo do `pose update`/`pose install` contra sete
+  repositórios reais e independentes encontrou e corrigiu 11 defeitos de
+  atualização: tratamento não confiável de `--locale` sem `--force`
+  (incluindo manual duplicado, em vez de trocado, numa mudança de locale);
+  customizações de AGENTS.md/POSE.md fora de seções `instance-owned`
+  descartadas silenciosamente (agora avisadas e salvas em backup); uma
+  instância antiga sem diretórios obrigatórios ou config seedada após um
+  update simples (duas novas verificações no `pose doctor` fecham essa
+  lacuna); descoberta descendo em árvores excluídas por `.gitignore` ou
+  duplicando uma entrada de módulo raiz já com alias; e o scaffold embutido
+  vazando os próprios dados computados de índice/grafo do pose-dist para
+  instâncias novas.
 
 ## Onde o POSE é mais forte
 

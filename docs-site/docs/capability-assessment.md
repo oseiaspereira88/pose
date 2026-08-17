@@ -2,10 +2,11 @@
 
 **Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.4.x
 
-**Assessment date:** 2026-08-14
+**Assessment date:** 2026-08-17
 **Scope:** POSE open-source distribution  
-**Evidence baseline:** published `v1.2.0` release artifacts,
-independent release verification and mainline test suite
+**Evidence baseline:** published `v1.4.3` release artifacts, four
+consecutive real cut/published/independently-verified releases (v1.4.0
+through v1.4.3), independent release verification and mainline test suite
 **Purpose:** measure fitness against POSE's own promises and relevant
 best-of-breed practices, not manufacture a universal product ranking.
 
@@ -34,28 +35,43 @@ practice while preserving POSE's boundary.
 
 ## Executive result
 
-Since the previous assessment (2026-07-18, commit `d9c0b98`), the original
-seven-roadmap, 35-spec product portfolio shipped and the later
-delivery-integrity roadmap also reached `done`. The repository now carries 8
-completed roadmaps and 91 completed specs, including the component-aware and
-convergent-review increments delivered in v1.1.0 and unified in v1.2.0.
-Every item in that assessment's P0 and P1 improvement plan is delivered;
-most of P2 is delivered as well, with one item (durable multi-team
-orchestration, visual operation, tenant-scoped policy distribution) still
-correctly out of scope for a local-first engine and living in Harne8 by
-design.
+Since the previous narrative sync (2026-08-14, against the v1.2.0 release
+contract), the repository shipped four consecutive real releases — v1.4.0
+through v1.4.3 — three of them (v1.4.1-v1.4.3) same-day follow-up fixes for
+defects an upgrade-path field audit found on seven real, independently-owned
+external repositories, not synthetic fixtures. The repository now carries 10
+completed roadmaps and 115 completed specs, including the component-aware
+and convergent-review increments delivered in v1.1.0/v1.2.0 and the four
+audit-driven fixes delivered this cycle: `pose-upgrade-path-audit-fixes`,
+`pose-derived-index-self-referential-leak`,
+`pose-update-instance-directory-completeness` and
+`pose-discovery-gitignore-and-root-alias-fix`. Every item in the prior
+assessment's P0 and P1 improvement plan is delivered; most of P2 is
+delivered as well, with one item (durable multi-team orchestration, visual
+operation, tenant-scoped policy distribution) still correctly out of scope
+for a local-first engine and living in Harne8 by design.
 
 POSE has moved from "credible open-source, single-repo governance engine
 with a large distance to reference-grade" to a governance engine that is
-reference-grade across most of its own claimed surface. v1.0.0 added automatic,
-privacy-bounded CLI/MCP usage analytics and completed the production-scoped
-five-metric DORA contract; the immutable release lifecycle was also exercised
-through tagged, published and independently verified states. The v1.1.0/v1.2.0
-releases add deterministic component-aware review plans, sealed semantic
-review bundles whose separate attestations no longer invalidate the subject
-they approve, and automated evidence attestation (`pose review auto-attest`). Distribution
-trust, structured validation, MCP protocol completeness, extension lifecycle
-and cross-repository portfolio projection are no longer design-only claims.
+reference-grade across most of its own claimed surface, now proven not only
+in CI but against real, independently-owned installations. v1.0.0 added
+automatic, privacy-bounded CLI/MCP usage analytics and completed the
+production-scoped five-metric DORA contract; the immutable release lifecycle
+was also exercised through tagged, published and independently verified
+states, repeated on four consecutive real releases this cycle. The
+v1.1.0/v1.2.0 releases add deterministic component-aware review plans,
+sealed semantic review bundles whose separate attestations no longer
+invalidate the subject they approve, and automated evidence attestation
+(`pose review auto-attest`). Distribution trust, structured validation, MCP
+protocol completeness, extension lifecycle and cross-repository portfolio
+projection are no longer design-only claims. The v1.4.x cycle closed the
+remaining gap between "tested in the abstract" and "proven against real
+upgrade paths": an 11-defect field audit of `pose update`/`pose install`
+against real installations fixed locale-handling reliability, doctor
+blind spots, a second class of locale defect beyond the original parity
+bug, discovery false positives (gitignored trees, duplicated root
+aliases), and a self-referential leak of pose-dist's own computed graph
+data into fresh instances.
 
 The remaining distance is concentrated in production-grade identity/secret
 management for shared MCP deployments, a populated third-party extension
@@ -101,10 +117,27 @@ hand-edited managed file) proving dry-run non-mutation, schema-only apply and
 idempotent reapply; a symlink-escape gap in managed directories closed via
 `ensureManagedDirSafe`.
 
+Also delivered this cycle: a field audit of `pose update`/`pose install`
+against seven real, independently-owned repositories (not synthetic
+fixtures) surfaced and closed 11 correctness/robustness defects — locale
+handling was unreliable without `--force`; a plain update could leave an
+old instance with broken references undetected by `pose doctor` (now two
+new doctor checks: `instance.config-completeness`,
+`module-metadata.orphan-entries`); a hand-edit outside an
+`instance-owned` AGENTS.md/POSE.md section could be silently dropped (now
+warned and consistently backed up); `pose update` without `--force` now
+creates every directory the instance contract requires instead of a
+hand-picked subset; and the embedded scaffold no longer leaks pose-dist's
+own computed index/graph data into fresh instances. Verified against real
+upgrades from four prior published releases (1.1.0, 1.0.0, 0.19.0, 0.18.2)
+on every one of four consecutive real releases cut this cycle
+(v1.4.0-v1.4.3).
+
 **Strength:** installation and upgrade are no longer just tested in the
 abstract — they are proven against instances that already have real content
-in them, which is the scenario that actually breaks upgrade paths in
-practice.
+in them, and now also against real, independently-owned repositories with
+their own pre-existing customizations and unrelated in-progress work, which
+is the scenario that actually breaks upgrade paths in practice.
 
 **Gap to ideal:** the WinGet manifest generator is real and CI-tested, but
 publication into `winget-pkgs` itself is a maintainer-reviewed submission
@@ -199,6 +232,14 @@ high-criticality module) executed by a real test, not just documented.
 **Strength:** every gap this document previously named by name — additional
 stacks, standard result formats, timeouts/isolation, changed-scope selection,
 monorepo recipes — is closed with executable evidence, not aspiration.
+Also delivered this cycle: stack discovery is now a single shared detector
+across `pose index`/`validate`/`install`/`init` (previously two
+independently-drifting scanners), it classifies Android/Kotlin Gradle
+modules distinctly from generic JVM ones, excludes synthetic
+testdata/fixture content from discovery, and — found live on a real
+repository whose vendored subtree was entirely gitignored — now respects
+`.gitignore` instead of walking excluded trees as if they were the
+project's own deliverable modules.
 
 **Gap to ideal:** none identified against this mechanism's original scope.
 Future stack additions (e.g. Ruby, PHP) remain a routine catalog extension,
@@ -348,11 +389,20 @@ SBOM, provenance, Scorecard, dependency/secret/static-analysis scanning,
 public placeholders — is closed with running, green CI evidence, not a
 documented intention.
 
-**Gap to ideal:** the published v1.0.0 release exercised the immutable candidate,
-published-artifact and independent-verification lifecycle, including a clean
-rebuild. A higher SLSA build level, broader OpenSSF Scorecard improvement and
-upstream package-channel automation remain hardening work, not missing
-evidence for the current release contract.
+**Gap to ideal:** the prior gap named here — "a real N-minus-1 comparison is
+unexercised until a second real published release exists" — is closed. Four
+consecutive real releases were cut, published and independently verified
+this cycle (v1.4.0 through v1.4.3), each with a bit-identical independent
+rebuild and each exercising real upgrade paths from four previously-published
+versions (1.1.0, 1.0.0, 0.19.0, 0.18.2) against pinned, checksum-authenticated
+prior artifacts — not simulated. Three of the four releases (v1.4.1-v1.4.3)
+shipped same-day follow-up fixes for defects found auditing the immediately
+preceding release against real, independently-owned external repositories,
+which is itself evidence the release-to-fix-to-release loop works end to end
+under real conditions, not only in isolation. A higher SLSA build level,
+broader OpenSSF Scorecard improvement and upstream package-channel automation
+remain hardening work, not missing evidence for the current release
+contract.
 
 ### 12. Import and adoption interoperability — 4/5
 
@@ -414,10 +464,23 @@ docs-site pages classified by Diátaxis type with a visible
 version-applicability line; a docs security scan reusing the skills
 conformance patterns; `pose doctor --fix` turning diagnosable failures into
 guided, confined, idempotent remediation instead of prose instructions.
+`pose init`/`pose install` now excerpt a brownfield target's own
+`README.md`/`CLAUDE.md` into `AGENTS.md`'s "Project context" section on
+first install instead of a generic placeholder. A real field audit found and
+fixed a second class of locale defect beyond the original parity bug: an
+explicit `--locale` request could be silently ignored, or could produce a
+duplicated (not switched) manual on an already-installed instance; both are
+now fixed, including detecting a locale switch and warning when content
+outside `instance-owned` sections would be dropped. The same audit also
+found `pose check`'s own summary line was unconditionally Portuguese
+regardless of locale for every direct invocation, not only the one internal
+call the fix originally targeted — now corrected.
 
 **Strength:** documentation now has the same kind of executable guarantee
 POSE demands of everything else — a doc claiming a command exists is
-verified against the CLI's real dispatch table, not maintained by hand.
+verified against the CLI's real dispatch table, not maintained by hand, and
+locale correctness is now audited against real multi-locale installations,
+not only unit fixtures.
 
 **Gap to ideal:** none identified against this mechanism's original scope.
 
@@ -489,9 +552,9 @@ follow-ups each delivering spec recorded in its own Final Report.
 
 1. Submit the generated WinGet manifest to `winget-pkgs` (the generator and
    CI matrix are done; the maintainer-reviewed submission is not).
-2. Exercise a real N-minus-1 comparison in `Verify release` / `compat.sh`
-   once a second real published release exists — the synthetic-fixture path
-   is fully tested, the real-history path is not yet.
+
+The prior P0 item 2 (exercise a real N-minus-1 comparison once a second real
+published release exists) is delivered — see finding 11.
 
 ### P1 — harden what no roadmap in this portfolio targeted
 
