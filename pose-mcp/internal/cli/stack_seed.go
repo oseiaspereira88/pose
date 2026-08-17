@@ -137,9 +137,29 @@ func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese
 	if err != nil {
 		return
 	}
+	// A pre-existing entry keyed by the project directory's own name (e.g.
+	// a repository at .../acme installed with a curated "acme" entry),
+	// when that key does not resolve to a real subdirectory, is the
+	// common hand-curation
+	// convention for aliasing the project root — discovering "." fresh
+	// would otherwise add a second entry for the exact same physical
+	// directory under a different key. This heuristic is deliberately
+	// narrow (an exact name-of-the-root match, not "any orphaned key") to
+	// avoid mistaking genuinely stale entries for root aliases (spec
+	// pose-discovery-gitignore-and-root-alias-fix).
+	rootAlreadyAliased := false
+	if rootAlias := filepath.Base(target); doc.Modules[rootAlias] != nil {
+		if _, err := os.Stat(filepath.Join(target, rootAlias)); err != nil {
+			rootAlreadyAliased = true
+		}
+	}
+
 	added := []string{}
 	for _, m := range discovered {
 		if _, exists := doc.Modules[m.Rel]; exists {
+			continue
+		}
+		if m.Rel == "." && rootAlreadyAliased {
 			continue
 		}
 		doc.Modules[m.Rel] = map[string]string{

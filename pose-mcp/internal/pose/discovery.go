@@ -12,6 +12,41 @@ import (
 	"time"
 )
 
+// GitIgnoredPaths returns the set of paths (relative to root, slash-
+// separated, directories carrying a trailing slash) git considers ignored —
+// computed once via a single `git ls-files` invocation, not looked up per
+// path, so a discovery walker can skip an entire ignored subtree with one
+// map lookup per directory instead of one git process per directory. `git
+// ls-files --directory` reports an ignored directory itself and does not
+// recurse into it, so a deeply-nested ignore rule (`foo/bar/` ignored while
+// `foo/` is not) still resolves to exactly the directory that is actually
+// ignored, not just top-level entries.
+//
+// Discovered live: a target repository's own entirely-gitignored tree (a
+// vendored or locally-checked-out project the repository deliberately
+// excludes from version control) was walked and discovered as real
+// governed modules anyway, because none of the three discovery walkers in
+// this codebase knew about .gitignore at all (spec
+// pose-discovery-gitignore-and-root-alias-fix).
+//
+// Returns an empty (non-nil) set — never an error — when git is
+// unavailable or root is not a repository: discovery degrades to "nothing
+// is ignored," the behavior every caller already had before this existed.
+func GitIgnoredPaths(root string) map[string]bool {
+	ignored := map[string]bool{}
+	out, err := exec.Command("git", "-C", root, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory").Output()
+	if err != nil {
+		return ignored
+	}
+	for _, line := range strings.Split(string(out), "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			ignored[line] = true
+		}
+	}
+	return ignored
+}
+
 // ComponentDiscoveryMetrics holds code metrics for a discovered component.
 type ComponentDiscoveryMetrics struct {
 	LOCProduction int      `json:"loc_production"`
@@ -128,6 +163,7 @@ func (s Store) FindComponentDirectories() []string {
 	}
 
 	// 2. Fallback: Auto-discover subdirectories containing project manifests
+	ignored := GitIgnoredPaths(s.Root)
 	_ = filepath.Walk(s.Root, func(path string, info os.FileInfo, err error) error {
 		if err != nil || !info.IsDir() {
 			return nil
@@ -142,6 +178,9 @@ func (s Store) FindComponentDirectories() []string {
 		// why (spec pose-fixture-directory-discovery-exclusion).
 		name := info.Name()
 		if strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "target" || name == "dist" || name == "testdata" || name == "fixture" || name == "fixtures" {
+			return filepath.SkipDir
+		}
+		if ignored[filepath.ToSlash(rel)+"/"] {
 			return filepath.SkipDir
 		}
 

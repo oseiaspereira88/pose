@@ -125,6 +125,10 @@ func scanModules(root string) ([]indexedModule, []string, []string, []string, []
 	// specs' review evidence on every reindex (spec
 	// pose-fixture-directory-discovery-exclusion).
 	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, ".gradle": true, "build": true, "dist": true, "target": true, "vendor": true, "__pycache__": true, "testdata": true, "fixture": true, "fixtures": true}
+	// See discoverValidationModules (validate.go) for why a gitignored
+	// subtree is excluded the same way (spec
+	// pose-discovery-gitignore-and-root-alias-fix).
+	gitIgnored := posepkg.GitIgnoredPaths(root)
 	byDir := map[string]string{}
 	manifests, dockers, charts, readmes := []string{}, []string{}, []string{}, []string{}
 	_ = filepath.WalkDir(root, func(path string, e os.DirEntry, err error) error {
@@ -134,6 +138,11 @@ func scanModules(root string) ([]indexedModule, []string, []string, []string, []
 		if e.IsDir() {
 			if path != root && (ignored[e.Name()] || strings.HasPrefix(e.Name(), ".venv")) {
 				return filepath.SkipDir
+			}
+			if path != root {
+				if rel, relErr := filepath.Rel(root, path); relErr == nil && gitIgnored[filepath.ToSlash(rel)+"/"] {
+					return filepath.SkipDir
+				}
 			}
 			return nil
 		}

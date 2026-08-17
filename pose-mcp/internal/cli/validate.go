@@ -102,6 +102,11 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 	// testdata/fixture(s): see index.go's scanModules for why these are
 	// excluded (spec pose-fixture-directory-discovery-exclusion).
 	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, "vendor": true, ".venv": true, ".pnpm-store": true, "target": true, "dist": true, "build": true, ".next": true, "coverage": true, ".pose": true, "testdata": true, "fixture": true, "fixtures": true}
+	// A gitignored subtree (a locally-checked-out project the repository
+	// deliberately excludes, e.g. a vendored tool) is never a governed
+	// deliverable module — see posemodel.GitIgnoredPaths (spec
+	// pose-discovery-gitignore-and-root-alias-fix).
+	gitIgnored := posemodel.GitIgnoredPaths(root)
 	byPath := map[string]string{}
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
@@ -110,6 +115,11 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 		if entry.IsDir() {
 			if path != root && ignored[entry.Name()] {
 				return filepath.SkipDir
+			}
+			if path != root {
+				if rel, relErr := filepath.Rel(root, path); relErr == nil && gitIgnored[filepath.ToSlash(rel)+"/"] {
+					return filepath.SkipDir
+				}
 			}
 			return nil
 		}

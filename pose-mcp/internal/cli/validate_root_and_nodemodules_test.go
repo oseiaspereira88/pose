@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -127,6 +128,43 @@ func TestDiscoverValidationModules_IgnoresFixtureDirectories(t *testing.T) {
 	}
 	if len(modules) != 1 || modules[0].Rel != "service" {
 		t.Fatalf("modules = %#v, want only the real \"service\" module (fixture/fixtures/testdata excluded)", modules)
+	}
+}
+
+// TestDiscoverValidationModules_RespectsGitignore regression-covers spec
+// pose-discovery-gitignore-and-root-alias-fix: a directory the repository
+// itself excludes via .gitignore (a vendored or locally-checked-out
+// project) must never be discovered as a real governed module — found live
+// updating a real external repository whose entirely-gitignored vendored
+// subtree got module-metadata.json entries for its own internal structure.
+func TestDiscoverValidationModules_RespectsGitignore(t *testing.T) {
+	root := t.TempDir()
+	if out, err := exec.Command("git", "-C", root, "init", "-q").CombinedOutput(); err != nil {
+		t.Fatalf("git init: %v: %s", err, out)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".gitignore"), []byte("/vendored/\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	realModule := filepath.Join(root, "service", "go.mod")
+	ignoredModule := filepath.Join(root, "vendored", "cli", "go.mod")
+	for _, path := range []string{realModule, ignoredModule} {
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatalf("mkdir %s: %v", filepath.Dir(path), err)
+		}
+		if err := os.WriteFile(path, []byte("module example.com/x\n"), 0o644); err != nil {
+			t.Fatalf("write %s: %v", path, err)
+		}
+	}
+	if out, err := exec.Command("git", "-C", root, "add", ".gitignore").CombinedOutput(); err != nil {
+		t.Fatalf("git add: %v: %s", err, out)
+	}
+
+	modules, err := discoverValidationModules(root)
+	if err != nil {
+		t.Fatalf("discover validation modules: %v", err)
+	}
+	if len(modules) != 1 || modules[0].Rel != "service" {
+		t.Fatalf("modules = %#v, want only \"service\" (vendored/ is gitignored)", modules)
 	}
 }
 

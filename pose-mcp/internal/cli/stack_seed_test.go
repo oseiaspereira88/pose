@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 )
@@ -185,6 +186,71 @@ func TestUpdateSeedsEveryInstanceDirectoryNotOnlyAHandpickedFour(t *testing.T) {
 	errB.Reset()
 	if code := cmdCheck(repo, []string{"--strict"}, &out, &errB); code != 0 {
 		t.Errorf("check --strict after update exit=%d out=%s", code, out.String())
+	}
+}
+
+// TestModuleMetadataDiscoveryDoesNotDuplicateAnAliasedRoot regression-covers
+// a live defect found updating a real external repository: a pre-existing
+// module-metadata.json entry keyed by the project's own directory name
+// (e.g. "acme" for a repo at .../acme), the common hand-curation
+// convention for aliasing the project root, got a second, duplicate "."
+// entry added alongside it the moment a go.mod (or any manifest) appeared
+// at the root and discovery ran.
+func TestModuleMetadataDiscoveryDoesNotDuplicateAnAliasedRoot(t *testing.T) {
+	parent := t.TempDir()
+	repo := filepath.Join(parent, "acme")
+	if err := os.Mkdir(repo, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if out, err := exec.Command("git", "-C", repo, "init", "-q").CombinedOutput(); err != nil {
+		t.Fatalf("git init: %v: %s", err, out)
+	}
+	var out, errB bytes.Buffer
+	if code := Main([]string{"install", repo, "--skip-mcp"}, &out, &errB); code != 0 {
+		t.Fatalf("install exit=%d err=%s", code, errB.String())
+	}
+
+	metaPath := filepath.Join(repo, ".pose", "indexes", "module-metadata.json")
+	raw, err := os.ReadFile(metaPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Modules map[string]map[string]string `json:"modules"`
+	}
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatal(err)
+	}
+	doc.Modules["acme"] = map[string]string{"criticality": "medium", "domain": "go", "validationProfile": "baseline"}
+	edited, err := json.MarshalIndent(doc, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(metaPath, edited, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	mustWrite(t, filepath.Join(repo, "go.mod"), "module example.com/acme\n\ngo 1.22\n")
+
+	out.Reset()
+	errB.Reset()
+	if code := cmdUpdate(repo, []string{"--no-self"}, &out, &errB); code != 0 {
+		t.Fatalf("update exit=%d err=%s out=%s", code, errB.String(), out.String())
+	}
+
+	raw, err = os.ReadFile(metaPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc.Modules = nil
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatal(err)
+	}
+	if _, dup := doc.Modules["."]; dup {
+		t.Errorf("discovery added a duplicate \".\" entry alongside the pre-existing \"acme\" root alias: %+v", doc.Modules)
+	}
+	if _, kept := doc.Modules["acme"]; !kept {
+		t.Error("the pre-existing \"acme\" root alias was removed, not just left alone")
 	}
 }
 
