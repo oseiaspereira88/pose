@@ -454,12 +454,115 @@ func TestGetSSE(t *testing.T) {
 	if resp.Header.Get("Mcp-Session-Id") == "" {
 		t.Fatal("missing Mcp-Session-Id")
 	}
-	line, err := bufio.NewReader(resp.Body).ReadString('\n')
+	reader := bufio.NewReader(resp.Body)
+	idLine, err := reader.ReadString('\n')
+	if err != nil {
+		t.Fatalf("read SSE id line: %v", err)
+	}
+	if !strings.HasPrefix(strings.TrimSpace(idLine), "id: ") {
+		t.Fatalf("first SSE line = %q, want a resumption id", idLine)
+	}
+	eventLine, err := reader.ReadString('\n')
 	if err != nil {
 		t.Fatalf("read SSE event line: %v", err)
 	}
-	if strings.TrimSpace(line) != "event: endpoint" {
-		t.Fatalf("first SSE line = %q, want endpoint event", line)
+	if strings.TrimSpace(eventLine) != "event: endpoint" {
+		t.Fatalf("second SSE line = %q, want endpoint event", eventLine)
+	}
+}
+
+// TestGetSSE_ResumesFromLastEventID exercises pose-mcp-enterprise-hardening's
+// resumable-cursor requirement end to end: a reconnect with Last-Event-ID
+// replays what happened on that session while the client was away, before
+// the stream resumes live.
+func TestGetSSE_ResumesFromLastEventID(t *testing.T) {
+	root := t.TempDir()
+	server := New(pose.Store{Root: root})
+	ts := httptest.NewServer(server.Handler("", ""))
+	t.Cleanup(ts.Close)
+
+	sessionID := "session_resume_test"
+
+	// First connection: read just the initial "endpoint" event (id 1), then
+	// disconnect — simulating a client that drops before ever seeing
+	// anything else.
+	req1, err := http.NewRequest(http.MethodGet, ts.URL+"/mcp", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req1.Header.Set("Accept", "text/event-stream")
+	req1.Header.Set("Mcp-Session-Id", sessionID)
+	resp1, err := http.DefaultClient.Do(req1)
+	if err != nil {
+		t.Fatalf("first GET /mcp: %v", err)
+	}
+	reader1 := bufio.NewReader(resp1.Body)
+	if _, err := reader1.ReadString('\n'); err != nil { // id: 1
+		t.Fatalf("read id line: %v", err)
+	}
+	if _, err := reader1.ReadString('\n'); err != nil { // event: endpoint
+		t.Fatalf("read event line: %v", err)
+	}
+	resp1.Body.Close()
+
+	// Something happens on this session while the client is disconnected —
+	// simulated directly via the store rather than waiting for a real
+	// 15-second ping tick.
+	if _, err := server.cursorStore().Append(context.Background(), sessionID, "missed", json.RawMessage(`{"n":1}`)); err != nil {
+		t.Fatalf("simulate missed event: %v", err)
+	}
+
+	// Reconnect with Last-Event-ID: 1 — the replay must include the missed
+	// event (id 2) before the stream continues.
+	req2, err := http.NewRequest(http.MethodGet, ts.URL+"/mcp", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req2.Header.Set("Accept", "text/event-stream")
+	req2.Header.Set("Mcp-Session-Id", sessionID)
+	req2.Header.Set("Last-Event-ID", "1")
+	resp2, err := http.DefaultClient.Do(req2)
+	if err != nil {
+		t.Fatalf("second GET /mcp: %v", err)
+	}
+	defer resp2.Body.Close()
+	reader2 := bufio.NewReader(resp2.Body)
+
+	idLine, err := reader2.ReadString('\n')
+	if err != nil {
+		t.Fatalf("read replayed id line: %v", err)
+	}
+	if strings.TrimSpace(idLine) != "id: 2" {
+		t.Fatalf("replayed id line = %q, want id: 2 (the missed event)", idLine)
+	}
+	eventLine, err := reader2.ReadString('\n')
+	if err != nil {
+		t.Fatalf("read replayed event line: %v", err)
+	}
+	if strings.TrimSpace(eventLine) != "event: missed" {
+		t.Fatalf("replayed event line = %q, want event: missed", eventLine)
+	}
+}
+
+// TestGetSSE_NoLastEventIDSkipsReplay confirms a plain (non-resuming)
+// connection never sees another session's or a stale replay — only its own
+// fresh "endpoint" event.
+func TestGetSSE_NoLastEventIDSkipsReplay(t *testing.T) {
+	ts := newTestServer(t, "")
+	req, err := http.NewRequest(http.MethodGet, ts.URL+"/mcp", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Accept", "text/event-stream")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("GET /mcp: %v", err)
+	}
+	defer resp.Body.Close()
+	reader := bufio.NewReader(resp.Body)
+	idLine, _ := reader.ReadString('\n')
+	if strings.TrimSpace(idLine) != "id: 1" {
+		t.Fatalf("id line = %q, want id: 1 (fresh session, no replay)", idLine)
 	}
 }
 

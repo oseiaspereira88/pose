@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -131,6 +132,7 @@ type Server struct {
 	harness        HarnessExecutor    // nil = pose_validate_submit returns config error
 	orch           *orchestrator      // safe validation orchestration state (spec pose-safe-validate-orchestration)
 	obs            *observability.Provider
+	cursor         CursorStore // resumable SSE event log (pose-mcp-enterprise-hardening); defaults to in-process memory
 	runtimeOnce    sync.Once
 	startedAt      time.Time
 	instanceID     string
@@ -213,6 +215,30 @@ func defaultObservability() *observability.Provider {
 	return p
 }
 
+// WithCursorStore swaps the resumable-SSE event log backing (pose-mcp-
+// enterprise-hardening). Every server already has a working in-process
+// default from construction (memoryCursorStore) — this is only needed to
+// opt into a durable, cross-replica store (redisCursorStore) when running
+// with more than one instance. A nil store is a no-op, so callers can pass
+// through an optional/conditionally-nil value without a guard.
+func (s *Server) WithCursorStore(store CursorStore) *Server {
+	if store != nil {
+		s.cursor = store
+	}
+	return s
+}
+
+// cursorStore returns s.cursor, falling back to a fresh in-process store for
+// a Server constructed as a bare struct literal (test fixtures) rather than
+// via New/NewWithRoots — never nil, so call sites need no guard.
+func (s *Server) cursorStore() CursorStore {
+	if s.cursor != nil {
+		return s.cursor
+	}
+	s.cursor = newMemoryCursorStore()
+	return s.cursor
+}
+
 // observability returns s.obs, falling back to a shared no-op instance for
 // a Server constructed as a bare struct literal (test fixtures) rather
 // than via New/NewWithRoots — never nil, so call sites need no guard.
@@ -228,7 +254,7 @@ var sharedNoopObservability = defaultObservability()
 // New builds a single-root server (legacy / dev): every request resolves to this
 // store regardless of project_id only when project_id is empty.
 func New(store pose.Store) *Server {
-	server := &Server{roots: pose.NewRoots(pose.RootsConfig{DefaultRoot: store.Root}), policy: NewPolicyGate(PolicyConfig{}), auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability()}
+	server := &Server{roots: pose.NewRoots(pose.RootsConfig{DefaultRoot: store.Root}), policy: NewPolicyGate(PolicyConfig{}), auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability(), cursor: newMemoryCursorStore()}
 	server.runtimeMetadata()
 	return server
 }
@@ -243,7 +269,7 @@ func NewWithRootsAndPolicy(roots *pose.Roots, policy *PolicyGate) *Server {
 	if policy == nil {
 		policy = NewPolicyGate(PolicyConfig{})
 	}
-	server := &Server{roots: roots, policy: policy, auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability()}
+	server := &Server{roots: roots, policy: policy, auditor: defaultAuditor, orch: newOrchestrator(), obs: defaultObservability(), cursor: newMemoryCursorStore()}
 	server.runtimeMetadata()
 	return server
 }
@@ -400,28 +426,73 @@ func (s *Server) handleSSE(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("Mcp-Session-Id", sessionID)
 	w.WriteHeader(http.StatusOK)
-	writeSSE(w, "endpoint", map[string]any{"uri": "/mcp", "session_id": sessionID})
-	flusher.Flush()
+
+	store := s.cursorStore()
+	ctx := r.Context()
+
+	// Streamable HTTP resumption (pose-mcp-enterprise-hardening): a client
+	// reconnecting with Last-Event-ID gets everything it missed replayed
+	// before the stream resumes live — the whole reason the cursor exists.
+	// A missing/unparseable header is treated as "nothing to resume from"
+	// (afterID=0), not an error: this is the same path a brand-new
+	// connection takes.
+	afterID := int64(0)
+	if last := r.Header.Get("Last-Event-ID"); last != "" {
+		if parsed, err := strconv.ParseInt(last, 10, 64); err == nil {
+			afterID = parsed
+		}
+	}
+	if missed, err := store.Since(ctx, sessionID, afterID); err == nil {
+		for _, ev := range missed {
+			writeSSEEvent(w, ev)
+			afterID = ev.ID
+		}
+		if len(missed) > 0 {
+			flusher.Flush()
+		}
+	}
+
+	if err := s.emitSSE(ctx, w, sessionID, "endpoint", map[string]any{"uri": "/mcp", "session_id": sessionID}); err == nil {
+		flusher.Flush()
+	}
 
 	ticker := time.NewTicker(15 * time.Second)
 	defer ticker.Stop()
 	for {
 		select {
-		case <-r.Context().Done():
+		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			writeSSE(w, "ping", map[string]any{"session_id": sessionID, "ts": time.Now().UTC().Format(time.RFC3339Nano)})
-			flusher.Flush()
+			if err := s.emitSSE(ctx, w, sessionID, "ping", map[string]any{"session_id": sessionID, "ts": time.Now().UTC().Format(time.RFC3339Nano)}); err == nil {
+				flusher.Flush()
+			}
 		}
 	}
 }
 
-func writeSSE(w http.ResponseWriter, event string, payload any) {
+// emitSSE appends event to sessionID's cursor log (assigning it its
+// resumption ID) and writes it to w with that ID attached — the same event
+// a reconnecting client would receive via replay, written once.
+func (s *Server) emitSSE(ctx context.Context, w http.ResponseWriter, sessionID, event string, payload any) error {
 	data, err := json.Marshal(payload)
 	if err != nil {
-		return
+		return err
 	}
-	fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, data)
+	ev, err := s.cursorStore().Append(ctx, sessionID, event, data)
+	if err != nil {
+		// A store failure (e.g. Redis briefly unreachable) must not stop
+		// the heartbeat itself — write without a resumption ID rather than
+		// drop the client. The Restrição is "cursor durável quando Redis
+		// habilitado", not "stream must halt if the store hiccups".
+		fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, data)
+		return nil
+	}
+	writeSSEEvent(w, ev)
+	return nil
+}
+
+func writeSSEEvent(w http.ResponseWriter, ev StreamEvent) {
+	fmt.Fprintf(w, "id: %d\nevent: %s\ndata: %s\n\n", ev.ID, ev.Name, ev.Data)
 }
 
 type toolCallParams struct {

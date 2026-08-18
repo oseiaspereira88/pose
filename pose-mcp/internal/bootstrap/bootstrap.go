@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -29,6 +30,41 @@ import (
 //     without OPA (strict authz; pose-mcp-enterprise-hardening).
 func opaConfigFromEnv() mcpserver.PolicyConfig {
 	return mcpenforce.ConfigFromEnv("POSE_MCP_", "pose/mcp/allow")
+}
+
+// cursorStoreFromEnv reads the resumable-SSE cursor store's Redis settings
+// (pose-mcp-enterprise-hardening: "não tornar Redis obrigatório em modo
+// single-node dev"):
+//
+//   - POSE_MCP_REDIS_ADDR      host:port (e.g. "redis:6379"); empty = keep
+//     the in-process default (single-node dev, no Redis dependency).
+//   - POSE_MCP_REDIS_PASSWORD  optional.
+//   - POSE_MCP_REDIS_DB        optional, default "0".
+//
+// A configured-but-unreachable Redis degrades to the in-process default
+// rather than failing startup: the cursor is a resumption *nicety* (a
+// client that can't resume just starts a fresh session), not something
+// worth taking the whole MCP server down for.
+func cursorStoreFromEnv() mcpserver.CursorStore {
+	addr := os.Getenv("POSE_MCP_REDIS_ADDR")
+	if addr == "" {
+		return nil
+	}
+	db := 0
+	if raw := os.Getenv("POSE_MCP_REDIS_DB"); raw != "" {
+		if parsed, err := strconv.Atoi(raw); err == nil {
+			db = parsed
+		}
+	}
+	store := mcpserver.NewRedisCursorStore(addr, os.Getenv("POSE_MCP_REDIS_PASSWORD"), db)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	if err := store.Ping(ctx); err != nil {
+		log.Printf("pose-mcp: cursor_store redis_addr=%s unreachable at startup, falling back to in-process (err=%v)", addr, err)
+		return nil
+	}
+	log.Printf("pose-mcp: cursor_store=redis addr=%s", addr)
+	return store
 }
 
 // Run starts the MCP server using environment configuration. args are the
@@ -119,7 +155,8 @@ func Run(args []string) {
 	// denies calls without a run-bound identity. Empty secret = binding disabled.
 	server := mcpserver.NewWithRootsAndPolicy(roots, policy).
 		WithIdentitySecret([]byte(os.Getenv("POSE_MCP_IDENTITY_SECRET"))).
-		WithObservability(obs)
+		WithObservability(obs).
+		WithCursorStore(cursorStoreFromEnv())
 
 	// Conductor run reporter (external-run-reporters): enable conductor_run_* tools
 	// when CONDUCTOR_URL and CONDUCTOR_PROJECT_ID are set.
