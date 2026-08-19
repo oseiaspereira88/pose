@@ -1,13 +1,10 @@
 ---
 slug: pose-agy-smoke-test
-status: in-progress
+status: draft
 created_at: 2026-08-19
-completed_at:        # stamped on the transition to status: done
-supersedes:          # slug of the superseded spec (when applicable)
-depends_on:          # prerequisites, inline list: other-spec, milestone:<roadmap>/<id>, roadmap:<slug>
-priority: 1            # integer >= 0 (lower = higher priority); ordering preference, not a blocker
-components: examples         # optional, inline comma-separated list: modules/components touched (e.g. mcp-server, cli) — used by pose_list_specs' `components` filter
-delivers:            # optional typed refs: surface:id, contract:id, capability:id, infrastructure:id, governance:id
+completed_at:
+priority: 1
+components: examples
 ---
 
 # Spec: pose-agy-smoke-test
