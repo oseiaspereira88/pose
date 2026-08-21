@@ -29,7 +29,7 @@ stale, go straight to the reading below — the artifact is additive, never bloc
 1. Identify a short slug and create the spec with `pose new-spec <slug>`, or locate the existing `.pose/specs/<slug>/spec.md`.
 2. Search `.pose/knowledge/` for related handoffs and decision logs; cite each one used as `knowledge:<slug>` in the spec, the form `pose knowledge-usage` counts.
 3. Complete Intent, Requirements, Technical Plan, and Tasks before coding.
-4. Implement incrementally and run `pose validate --strict --module <affected-path> --report`.
+4. Implement incrementally, commit changes with a `POSE-Spec: <slug>` trailer in the commit message (e.g. `POSE-Spec: <slug>`) to attribute file modifications to the spec, and run `pose validate --strict --module <affected-path> --report`.
 5. Record executed commands and results in Validation.
 6. Create a handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, follow-ups, or owner transition.
 7. Complete the Final Report with delivered scope and residual risk.

@@ -28,11 +28,12 @@ Fluxo POSE para correção cirúrgica de defeito.
 3. Isolar causa raiz; mapear impacto colateral.
 4. Implementar fix mínimo coeso (sem refactor paralelo).
 5. Adicionar/ajustar teste de regressão.
-6. Rodar validação determinística do módulo:
+6. Quando a correção for governada por uma spec, comitar as alterações no Git com o trailer `POSE-Spec: <slug>` na mensagem do commit antes de rodar `pose artifact-check` e `pose close`.
+7. Rodar validação determinística do módulo:
    ```bash
    pose validate --tolerant --module <path-afetado> --report
    ```
-7. Se a causa raiz revelar dívida sistêmica ou trade-off relevante, produzir decision-log:
+8. Se a causa raiz revelar dívida sistêmica ou trade-off relevante, produzir decision-log:
    ```bash
    pose new-knowledge decision-log <slug-do-tema> --owner @<squad>
    ```

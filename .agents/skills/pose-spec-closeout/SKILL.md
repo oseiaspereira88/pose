@@ -46,12 +46,13 @@ when transitioning to `done`.
 ## Steps
 
 1. Confirm strict deterministic validation passed for affected modules (`pose validate --strict --module <affected-path>`).
-2. Run a separate review pass and record it with `pose review record spec:<slug> ... --apply`.
-3. Require `pose review-check spec:<slug>`; remediate, revalidate and supersede stale or rejected attempts.
-4. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
-5. Propose each consequential disposition and obtain confirmation before writing it.
-6. Apply `pose close spec:<slug>`; use a manual lifecycle edit only when the Git workflow requires it and preserve the same gate.
-7. Produce a **changelog fragment** for the delivered spec:
+2. Verify that all implementation commits modifying the spec's declared `### Artifacts` carry a `POSE-Spec: <slug>` trailer in their commit message. Commits lacking this trailer cannot be attributed during `pose close` or `pose artifact-check`.
+3. Run a separate review pass and record it with `pose review record spec:<slug> ... --apply` (or prepare and seal via `pose review bundle spec:<slug> --seal` and attest via `pose review attest <bundle-id> ... --apply` when review bundles are enabled).
+4. Require `pose review-check spec:<slug>` (or `pose review verify spec:<slug>`); remediate, revalidate and supersede stale or rejected attempts.
+5. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
+6. Propose each consequential disposition and obtain confirmation before writing it.
+7. Apply `pose close spec:<slug>`; use a manual lifecycle edit only when the Git workflow requires it and preserve the same gate.
+8. Produce a **changelog fragment** for the delivered spec:
    ```bash
    cp .pose/templates/changelog-fragment.md .pose/changelogs/unreleased/<slug>.md
    # fill category/breaking and the user-facing summary (derive from Intent, not implementation)
@@ -59,9 +60,9 @@ when transitioning to `done`.
    Internal work with no user-facing effect: set `changelog: none` in the spec
    frontmatter instead of creating a fragment. `pose check` warns on done specs
    without a fragment (post-adoption).
-8. Run `pose lint-spec <slug> --strict`.
-9. Create any confirmed successor spec with `pose new-spec <slug>` and revalidate its intent instead of copying follow-up text verbatim.
-10. Inspect residual live backlog with `pose followups --open --json`.
+9. Run `pose lint-spec <slug> --strict`.
+10. Create any confirmed successor spec with `pose new-spec <slug>` and revalidate its intent instead of copying follow-up text verbatim.
+11. Inspect residual live backlog with `pose followups --open --json`.
 
 ## Output requirements
 

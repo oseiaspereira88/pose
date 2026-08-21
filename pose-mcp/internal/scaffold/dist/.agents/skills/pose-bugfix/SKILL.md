@@ -23,8 +23,9 @@ capabilities: read, spec-write, validate
 3. Isolate root cause and map collateral impact.
 4. Implement the smallest cohesive fix without parallel refactoring.
 5. Add or update a regression test.
-6. Run `pose validate --tolerant --module <affected-path> --report`.
-7. Create a decision log with `pose new-knowledge decision-log <slug>` when root cause exposes systemic debt or a significant trade-off.
+6. When governed by a spec, commit changes with a `POSE-Spec: <slug>` trailer in the commit message before running `pose artifact-check` and `pose close`.
+7. Run `pose validate --tolerant --module <affected-path> --report`.
+8. Create a decision log with `pose new-knowledge decision-log <slug>` when root cause exposes systemic debt or a significant trade-off.
 
 ## Output requirements
 

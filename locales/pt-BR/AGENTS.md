@@ -29,6 +29,10 @@ profundo no diretório afetado); (3) `AGENTS.md` mais abrangente (raiz). Leia ap
 - **ADR**: obrigatória em decisão arquitetural ou alteração de contrato estrutural.
 - **Checks**: obrigatórios quando existir comando aplicável no módulo alterado (`test`,
   `lint`, `typecheck`, `build`, checks de segurança/contrato).
+- **Trailer de commit (`POSE-Spec:`)**: obrigatório em cada commit que implemente,
+  altere ou teste artefatos declarados em uma spec (`POSE-Spec: <slug>`).
+  Sem esse trailer, o `pose artifact-check` e o `pose close` não conseguem atribuir
+  os change sets do Git à seção `### Artifacts` da spec.
 
 ## Paths ativos no fluxo
 

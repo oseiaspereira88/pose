@@ -37,7 +37,7 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
    find .pose/knowledge -name "*<modulo>*.md" -type f -not -path '*/archive/*'
    ```
 3. Preencher seções `Intent → Requirements → Technical Plan → Tasks` da spec antes de codar.
-4. Implementar incrementalmente, validando cada passo:
+4. Implementar incrementalmente, comitar as alterações no Git com o trailer `POSE-Spec: <slug>` na mensagem do commit (ex: `POSE-Spec: <slug>`) e validar cada passo:
    ```bash
    pose validate --strict --module <path-afetado> --report
    ```

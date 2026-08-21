@@ -16,7 +16,7 @@ Improve internal structure and maintainability without changing observed functio
 1. Define the technical objective (readability, coupling, duplication, and so on).
 2. Map scope boundaries and contracts that must remain intact.
 3. Split the refactor into small, reviewable, reversible steps.
-4. Make mechanical changes through cohesive commits and diffs.
+4. Make mechanical changes through cohesive commits and diffs; when governed by a spec, include a `POSE-Spec: <slug>` trailer in the commit message before running `pose artifact-check` and `pose close`.
 5. Ensure behavioral equivalence with automated tests.
 6. Run relevant deterministic checks (`test`, `lint`, `typecheck`, `build`).
 7. Measure practical gains (complexity, clarity, coverage, maintenance).

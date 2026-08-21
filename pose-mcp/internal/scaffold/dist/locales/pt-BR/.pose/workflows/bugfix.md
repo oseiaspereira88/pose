@@ -21,8 +21,9 @@ Corrigir a causa raiz com o menor impacto possível, cobertura de regressão e s
 6. Adicionar/ajustar teste de regressão quando aplicável.
 7. Rodar checks determinísticos relevantes (`test`, `lint`, `typecheck`, `build`).
 8. Validar que o defeito foi removido e comportamento adjacente preservado.
-9. **Produzir decision-log** em `.pose/knowledge/` quando a causa raiz revelar dívida sistêmica ou trade-off com impacto futuro (`pose new-knowledge decision-log <slug>`).
-10. Registrar riscos residuais e monitoramento pós-correção.
+9. Quando a correção for governada por uma spec, comitar as alterações no Git com o trailer `POSE-Spec: <slug>` na mensagem do commit antes de rodar `pose artifact-check` e `pose close`.
+10. **Produzir decision-log** em `.pose/knowledge/` quando a causa raiz revelar dívida sistêmica ou trade-off com impacto futuro (`pose new-knowledge decision-log <slug>`).
+11. Registrar riscos residuais e monitoramento pós-correção.
 
 ## Saídas obrigatórias
 

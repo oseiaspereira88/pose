@@ -77,8 +77,9 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    ```bash
    pose validate --strict --module <path-afetado>
    ```
-2. Rodar uma passagem de review separada e registrá-la — a review é uma
-   tentativa imutável, não uma edição do frontmatter:
+2. Verificar que todos os commits com as alterações da spec carregam o trailer `POSE-Spec: <slug>` na mensagem do commit. Sem esse trailer, o `pose close` e o `pose artifact-check` não conseguem atribuir os arquivos da seção `### Artifacts` à spec.
+3. Rodar uma passagem de review separada e registrá-la — a review é uma
+   tentativa imutável, não uma edição do frontmatter (quando review bundles estiverem habilitados, preparar e selar com `pose review bundle spec:<slug> --seal` e atestar com `pose review attest <bundle-id> ... --apply`; caso contrário, usar `pose review record`):
    ```bash
    pose review record spec:<slug> --reviewer <execução> --decision approved \
      --evidence report:<relatório>.md --evidence requirement-trace:spec --apply
@@ -86,26 +87,26 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    Sem `--apply` o comando é dry-run. A independência exigida é
    `same-actor-separate-execution`: a mesma pessoa/agente pode revisar, desde
    que numa execução distinta da implementação.
-3. Exigir o gate de review antes de qualquer transição:
+4. Exigir o gate de review antes de qualquer transição:
    ```bash
-   pose review-check spec:<slug>   # review.fresh + review.approved precisam ser true
+   pose review-check spec:<slug>   # review.fresh + review.approved precisam ser true (ou pose review verify spec:<slug>)
    ```
    Tentativas obsoletas (a spec mudou depois da review) ou rejeitadas precisam
    ser remediadas e supersedidas por uma nova tentativa — nunca editadas.
-4. Triagem dos follow-ups (ver "Triagem em duas camadas" acima):
+5. Triagem dos follow-ups (ver "Triagem em duas camadas" acima):
    ```bash
    pose followups --all                 # backlog + candidatos a near-duplicate
    pose followups --all --similarity 45  # afrouxa o limiar para ver mais candidatos
    ```
    Para cada follow-up da spec: julgue semanticamente, proponha a disposição e
    **confirme com o usuário antes de gravar** `spawned`/`covered`/`duplicate`.
-5. Aplicar a transição de ciclo de vida pelo gate, não à mão:
+6. Aplicar a transição de ciclo de vida pelo gate, não à mão:
    ```bash
    pose close spec:<slug>   # exige review aprovada e fresca; preenche a transição
    ```
    Edição manual do frontmatter (`status: done`, `completed_at: <YYYY-MM-DD>`)
    só quando o fluxo Git exigir — e preservando o mesmo gate, nunca contornando-o.
-6. Produzir o **changelog fragment** (pose-release-changelog) — o registro
+7. Produzir o **changelog fragment** (pose-release-changelog) — o registro
    user-facing da entrega, consolidado por release no corte:
    ```bash
    cp .pose/templates/changelog-fragment.md .pose/changelogs/unreleased/<slug>.md
@@ -114,18 +115,18 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    Trabalho interno sem efeito user-facing: marque `changelog: none` no
    frontmatter da spec em vez de criar fragment. O `pose check` avisa specs
    done sem fragment (pós-adoção).
-7. Gate de saída — bloqueia "done com follow-up sem disposição" e "done sem completed_at":
+8. Gate de saída — bloqueia "done com follow-up sem disposição" e "done sem completed_at":
    ```bash
    pose lint-spec <slug> --strict
    ```
-8. Se algum follow-up `[spawned: <slug>]` exigir nova spec, criá-la e referenciar a origem:
+9. Se algum follow-up `[spawned: <slug>]` exigir nova spec, criá-la e referenciar a origem:
    ```bash
    pose new-spec <nova-slug>     # mencione a spec de origem na seção Intent
    ```
-9. Confirmar o backlog residual da spec fechada:
-   ```bash
-   pose followups --open --json  # quantos [open] sobraram nesta e nas demais
-   ```
+10. Verificação final: inspecionar o backlog restante:
+    ```bash
+    pose followups --open --json  # quantos [open] sobraram nesta e nas demais
+    ```
 
 ## Output requirements
 

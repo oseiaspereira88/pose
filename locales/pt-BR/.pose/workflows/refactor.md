@@ -16,7 +16,7 @@ Melhorar estrutura interna e manutenibilidade sem alterar comportamento funciona
 1. Definir objetivo técnico (legibilidade, acoplamento, duplicação, etc.).
 2. Mapear limites de escopo e contratos que devem permanecer intactos.
 3. Quebrar refactor em etapas pequenas, revisáveis e revertíveis.
-4. Executar mudanças mecânicas com commits/diffs coesos.
+4. Executar mudanças mecânicas com commits/diffs coesos; quando governado por uma spec, incluir o trailer `POSE-Spec: <slug>` na mensagem do commit antes de rodar `pose artifact-check` e `pose close`.
 5. Garantir equivalência comportamental com testes automatizados.
 6. Rodar checks determinísticos relevantes (`test`, `lint`, `typecheck`, `build`).
 7. Medir ganhos práticos (complexidade, clareza, cobertura, manutenção).

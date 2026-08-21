@@ -29,6 +29,10 @@ On conflict: (1) direct instruction of the current task; (2) the most specific
 - **ADR**: required for architectural decisions or structural contract changes.
 - **Checks**: required whenever an applicable command exists in the changed
   module (`test`, `lint`, `typecheck`, `build`, security/contract checks).
+- **Commit trailer (`POSE-Spec:`)**: required on every commit that implements,
+  modifies, or tests artifacts declared by a spec (`POSE-Spec: <slug>`).
+  Without this trailer, `pose artifact-check` and `pose close` cannot attribute
+  Git change sets to the spec's `### Artifacts` section.
 
 ## Active paths in the flow
 
