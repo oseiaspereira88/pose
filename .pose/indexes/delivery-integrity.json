@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:65b4cd35a3c91e726881bf1be0c2ffdffc994dcd77b5b9c325c4f900c7f38e81",
-  "provenance_digest": "sha256:799b4410fcf0c1173dcabcd960793699f6cd46c39fb0d200523b86cf8bedc5fc",
+  "input_digest": "sha256:512c3ea697b76ef9d79ddd1a4eeaf0d887617b83945417d7564611857b51febc",
+  "provenance_digest": "sha256:8d034a8a712c649ecc7373d239531cff8cdbf35b03594000b778034200294d53",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -393,6 +393,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-dora-five-metrics-v2.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-engine-stability-and-diagnostics-convergence.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-engine-stability-and-diagnostics-convergence.md"
       }
     },
     {
@@ -4040,6 +4047,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/pose-dora-five-metrics-v2/spec.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/pose-engine-stability-and-diagnostics-convergence/spec.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/pose-engine-stability-and-diagnostics-convergence/spec.md"
       }
     },
     {
@@ -10589,6 +10603,14 @@
       }
     },
     {
+      "id": "change-set:cs-e03dd5bc76c7",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:bf2dd29a7f4bd38310bc0a3c0a0b2676cb8516c9d38b46e4d957cff7d398ac35",
+        "selector": "trailers:pose-engine-stability-and-diagnostics-convergence"
+      }
+    },
+    {
       "id": "change-set:cs-e242a61ebc19",
       "type": "change-set",
       "attributes": {
@@ -10781,6 +10803,14 @@
       }
     },
     {
+      "id": "delivery:capability:artifact-check-none-tolerance",
+      "type": "capability",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "composed-capability"
+      }
+    },
+    {
       "id": "delivery:capability:delivery-integrity-git-convergence",
       "type": "capability",
       "attributes": {
@@ -10790,6 +10820,22 @@
     },
     {
       "id": "delivery:capability:delivery-integrity-graph",
+      "type": "capability",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "composed-capability"
+      }
+    },
+    {
+      "id": "delivery:capability:discovery-gitignore-robustness",
+      "type": "capability",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "composed-capability"
+      }
+    },
+    {
+      "id": "delivery:capability:doctor-trailer-parity",
       "type": "capability",
       "attributes": {
         "module": "pose-mcp",
@@ -10886,6 +10932,14 @@
     },
     {
       "id": "delivery:capability:test-self-exec-flake-fix",
+      "type": "capability",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "composed-capability"
+      }
+    },
+    {
+      "id": "delivery:capability:test-suite-flakeless-exec",
       "type": "capability",
       "attributes": {
         "module": "pose-mcp",
@@ -11697,6 +11751,13 @@
       }
     },
     {
+      "id": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "type": "spec",
+      "attributes": {
+        "status": "in-progress"
+      }
+    },
+    {
       "id": "spec:pose-extension-catalog-lifecycle",
       "type": "spec",
       "attributes": {
@@ -12183,7 +12244,7 @@
       "id": "spec:pose-spec-trailer-workflow-documentation",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -15162,12 +15223,32 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "to": "delivery:capability:artifact-check-none-tolerance",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
       "to": "delivery:capability:delivery-integrity-git-convergence",
       "type": "implemented-by"
     },
     {
       "from": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
       "to": "delivery:capability:delivery-integrity-graph",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "to": "delivery:capability:discovery-gitignore-robustness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "to": "delivery:capability:doctor-trailer-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "to": "delivery:capability:test-suite-flakeless-exec",
       "type": "implemented-by"
     },
     {
@@ -15192,7 +15273,27 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
+      "to": "delivery:capability:artifact-check-none-tolerance",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
       "to": "delivery:capability:delivery-integrity-git-convergence",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
+      "to": "delivery:capability:discovery-gitignore-robustness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
+      "to": "delivery:capability:doctor-trailer-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
+      "to": "delivery:capability:test-suite-flakeless-exec",
       "type": "implemented-by"
     },
     {
@@ -15352,6 +15453,21 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "to": "delivery:capability:artifact-check-none-tolerance",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "to": "delivery:capability:discovery-gitignore-robustness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "to": "delivery:capability:doctor-trailer-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli_test.go",
       "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
@@ -15368,6 +15484,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/cli_test.go",
       "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "to": "delivery:capability:test-suite-flakeless-exec",
       "type": "implemented-by"
     },
     {
@@ -15407,6 +15528,21 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/doctor.go",
+      "to": "delivery:capability:artifact-check-none-tolerance",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/doctor.go",
+      "to": "delivery:capability:discovery-gitignore-robustness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/doctor.go",
+      "to": "delivery:capability:doctor-trailer-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/doctor.go",
       "to": "delivery:capability:domain-rule-extension-migration",
       "type": "implemented-by"
     },
@@ -15428,6 +15564,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/doctor.go",
       "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/doctor.go",
+      "to": "delivery:capability:test-suite-flakeless-exec",
       "type": "implemented-by"
     },
     {
@@ -15457,7 +15598,27 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
+      "to": "delivery:capability:artifact-check-none-tolerance",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
+      "to": "delivery:capability:discovery-gitignore-robustness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
+      "to": "delivery:capability:doctor-trailer-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
       "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
+      "to": "delivery:capability:test-suite-flakeless-exec",
       "type": "implemented-by"
     },
     {
@@ -15522,12 +15683,32 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/index.go",
+      "to": "delivery:capability:artifact-check-none-tolerance",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/index.go",
+      "to": "delivery:capability:discovery-gitignore-robustness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/index.go",
+      "to": "delivery:capability:doctor-trailer-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/index.go",
       "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
     {
       "from": "artifact:pose-mcp/internal/cli/index.go",
       "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/index.go",
+      "to": "delivery:capability:test-suite-flakeless-exec",
       "type": "implemented-by"
     },
     {
@@ -16147,7 +16328,22 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/validate.go",
+      "to": "delivery:capability:artifact-check-none-tolerance",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate.go",
       "to": "delivery:capability:delivery-integrity-graph",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate.go",
+      "to": "delivery:capability:discovery-gitignore-robustness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate.go",
+      "to": "delivery:capability:doctor-trailer-parity",
       "type": "implemented-by"
     },
     {
@@ -16168,6 +16364,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/validate.go",
       "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/validate.go",
+      "to": "delivery:capability:test-suite-flakeless-exec",
       "type": "implemented-by"
     },
     {
@@ -16782,12 +16983,32 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/discovery.go",
+      "to": "delivery:capability:artifact-check-none-tolerance",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/discovery.go",
+      "to": "delivery:capability:discovery-gitignore-robustness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/discovery.go",
+      "to": "delivery:capability:doctor-trailer-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/discovery.go",
       "to": "delivery:capability:pose-mcp",
       "type": "implemented-by"
     },
     {
       "from": "artifact:pose-mcp/internal/pose/discovery.go",
       "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/discovery.go",
+      "to": "delivery:capability:test-suite-flakeless-exec",
       "type": "implemented-by"
     },
     {
@@ -16797,7 +17018,27 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "to": "delivery:capability:artifact-check-none-tolerance",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "to": "delivery:capability:discovery-gitignore-robustness",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "to": "delivery:capability:doctor-trailer-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/discovery_test.go",
       "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "to": "delivery:capability:test-suite-flakeless-exec",
       "type": "implemented-by"
     },
     {
@@ -38641,6 +38882,61 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:.pose/changelogs/unreleased/pose-engine-stability-and-diagnostics-convergence.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:.pose/specs/pose-engine-stability-and-diagnostics-convergence/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:pose-mcp/internal/cli/doctor.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:pose-mcp/internal/cli/index.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:pose-mcp/internal/cli/validate.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:pose-mcp/internal/pose/discovery.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e03dd5bc76c7",
+      "to": "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-e242a61ebc19",
       "to": "artifact:pose-mcp/internal/cli/install.go",
       "type": "changes"
@@ -41841,6 +42137,21 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:capability:artifact-check-none-tolerance",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:capability:artifact-check-none-tolerance",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:artifact-check-none-tolerance",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:capability:delivery-integrity-git-convergence",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -41867,6 +42178,36 @@
     },
     {
       "from": "delivery:capability:delivery-integrity-graph",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:discovery-gitignore-robustness",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:capability:discovery-gitignore-robustness",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:discovery-gitignore-robustness",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:doctor-trailer-parity",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:capability:doctor-trailer-parity",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:doctor-trailer-parity",
       "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
@@ -42182,6 +42523,21 @@
     },
     {
       "from": "delivery:capability:test-self-exec-flake-fix",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:test-suite-flakeless-exec",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:capability:test-suite-flakeless-exec",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:test-suite-flakeless-exec",
       "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
@@ -43502,7 +43858,22 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -43533,6 +43904,31 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
     {
@@ -45828,6 +46224,76 @@
     {
       "from": "spec:pose-dora-five-metrics-v2",
       "to": "change-set:cs-f2ab5a8bd5de",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "artifact:pose-mcp/internal/cli/doctor.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "artifact:pose-mcp/internal/cli/index.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "artifact:pose-mcp/internal/cli/validate.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "artifact:pose-mcp/internal/pose/discovery.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "delivery:capability:artifact-check-none-tolerance",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "delivery:capability:discovery-gitignore-robustness",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "delivery:capability:doctor-trailer-parity",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "delivery:capability:test-suite-flakeless-exec",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-engine-stability-and-diagnostics-convergence",
+      "to": "change-set:cs-e03dd5bc76c7",
       "type": "observed-by"
     },
     {
@@ -50334,6 +50800,51 @@
       "spec": "pose-dora-five-metrics-v2",
       "action": "modified",
       "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/artifact_integrity.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/artifact_integrity_test.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/cli_test.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/doctor.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/doctor_review_scope_trailer_test.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/index.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/validate.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/discovery.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/discovery_test.go"
     },
     {
       "spec": "pose-extension-catalog-resolution",
@@ -71200,6 +71711,65 @@
       "diff_digest": "sha256:afb4cbd57ddfd8aa4f39a3ee89079963a26a95e5abefa8232431adb6e9822755"
     },
     {
+      "id": "cs-e03dd5bc76c7",
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "selector": "trailers:pose-engine-stability-and-diagnostics-convergence",
+      "base": "7a6488ca356c84112a5c302e3e31e83c6564e5d4^",
+      "head": "7a6488ca356c84112a5c302e3e31e83c6564e5d4",
+      "resolved_base": "9c5aeeca45cc32044fcbf53b2bd7766f240cdb53",
+      "resolved_head": "7a6488ca356c84112a5c302e3e31e83c6564e5d4",
+      "commits": [
+        "7a6488ca356c84112a5c302e3e31e83c6564e5d4"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-engine-stability-and-diagnostics-convergence.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/pose-engine-stability-and-diagnostics-convergence/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/cli_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor_review_scope_trailer_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/index.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/discovery.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/discovery_test.go"
+        }
+      ],
+      "diff_digest": "sha256:bf2dd29a7f4bd38310bc0a3c0a0b2676cb8516c9d38b46e4d957cff7d398ac35"
+    },
+    {
       "id": "cs-e242a61ebc19",
       "spec": "pose-install-locale-autodetect",
       "selector": "trailers:pose-install-locale-autodetect",
@@ -74923,11 +75493,13 @@
     "pose-mcp/internal/cli/artifact_integrity.go": [
       "pose-artifact-provenance-ledger",
       "pose-closeout-delivery-assurance-convergence",
-      "pose-delivery-surface-assurance"
+      "pose-delivery-surface-assurance",
+      "pose-engine-stability-and-diagnostics-convergence"
     ],
     "pose-mcp/internal/cli/artifact_integrity_test.go": [
       "pose-artifact-provenance-ledger",
-      "pose-closeout-delivery-assurance-convergence"
+      "pose-closeout-delivery-assurance-convergence",
+      "pose-engine-stability-and-diagnostics-convergence"
     ],
     "pose-mcp/internal/cli/assess.go": [
       "pose-assessment-engine-precision",
@@ -74955,6 +75527,7 @@
       "pose-usage-metrics"
     ],
     "pose-mcp/internal/cli/cli_test.go": [
+      "pose-engine-stability-and-diagnostics-convergence",
       "pose-install-gate-failure-recovery-notice",
       "pose-instance-engine-version-tracking",
       "pose-review-bundle-convergence",
@@ -74967,6 +75540,7 @@
     "pose-mcp/internal/cli/doctor.go": [
       "pose-adaptive-rule-delivery",
       "pose-domain-rule-extension-migration",
+      "pose-engine-stability-and-diagnostics-convergence",
       "pose-mcp-active-context",
       "pose-monorepo-validation-advisory",
       "pose-review-scope-trailer-check",
@@ -74984,6 +75558,7 @@
       "pose-domain-rule-extension-migration"
     ],
     "pose-mcp/internal/cli/doctor_review_scope_trailer_test.go": [
+      "pose-engine-stability-and-diagnostics-convergence",
       "pose-review-scope-trailer-check"
     ],
     "pose-mcp/internal/cli/doctor_workspace_execution_test.go": [
@@ -75021,6 +75596,7 @@
     "pose-mcp/internal/cli/index.go": [
       "pose-artifact-provenance-ledger",
       "pose-discovery-gitignore-and-root-alias-fix",
+      "pose-engine-stability-and-diagnostics-convergence",
       "pose-release-lifecycle-closure",
       "pose-upgrade-path-audit-fixes",
       "pose-validation-scanner-consolidation"
@@ -75168,6 +75744,7 @@
     "pose-mcp/internal/cli/validate.go": [
       "pose-delivery-surface-assurance",
       "pose-discovery-gitignore-and-root-alias-fix",
+      "pose-engine-stability-and-diagnostics-convergence",
       "pose-monorepo-validation-advisory",
       "pose-review-bundle-convergence",
       "pose-upgrade-path-audit-fixes",
@@ -75284,11 +75861,13 @@
     ],
     "pose-mcp/internal/pose/discovery.go": [
       "pose-discovery-gitignore-and-root-alias-fix",
+      "pose-engine-stability-and-diagnostics-convergence",
       "pose-project-agnostic-assessment-engines",
       "pose-upgrade-path-audit-fixes"
     ],
     "pose-mcp/internal/pose/discovery_test.go": [
-      "pose-discovery-gitignore-and-root-alias-fix"
+      "pose-discovery-gitignore-and-root-alias-fix",
+      "pose-engine-stability-and-diagnostics-convergence"
     ],
     "pose-mcp/internal/pose/integration.go": [
       "pose-assessment-engine-precision",
@@ -78099,6 +78678,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "ref": "capability:artifact-check-none-tolerance",
+      "kind": "capability",
+      "id": "artifact-check-none-tolerance",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-closeout-delivery-assurance-convergence",
       "ref": "capability:delivery-integrity-git-convergence",
       "kind": "capability",
@@ -78112,6 +78700,24 @@
       "ref": "capability:delivery-integrity-graph",
       "kind": "capability",
       "id": "delivery-integrity-graph",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "ref": "capability:discovery-gitignore-robustness",
+      "kind": "capability",
+      "id": "discovery-gitignore-robustness",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "ref": "capability:doctor-trailer-parity",
+      "kind": "capability",
+      "id": "doctor-trailer-parity",
       "module": "pose-mcp",
       "profile": "composed-capability",
       "entrypoint": "pose-mcp/cmd/pose/main.go"
@@ -78162,43 +78768,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-instance-engine-version-tracking",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
       "spec": "pose-install-locale-autodetect",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-upgrade-path-audit-fixes",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-review-bundle-root-file-classification",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-install-gate-failure-recovery-notice",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -78225,7 +78795,43 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "spec": "pose-scaffold-self-referential-policy-fix",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-instance-engine-version-tracking",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-install-gate-failure-recovery-notice",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-upgrade-path-audit-fixes",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-review-bundle-root-file-classification",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -78243,7 +78849,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-scaffold-self-referential-policy-fix",
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -78301,6 +78907,15 @@
       "ref": "capability:test-self-exec-flake-fix",
       "kind": "capability",
       "id": "test-self-exec-flake-fix",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-engine-stability-and-diagnostics-convergence",
+      "ref": "capability:test-suite-flakeless-exec",
+      "kind": "capability",
+      "id": "test-suite-flakeless-exec",
       "module": "pose-mcp",
       "profile": "composed-capability",
       "entrypoint": "pose-mcp/cmd/pose/main.go"
@@ -78630,7 +79245,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -78639,7 +79254,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -78666,7 +79281,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -78675,7 +79290,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -78890,9 +79505,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8e6731cf583bf398e08e413421f0dcb631cb8312",
-      "generated_at": "2026-08-21T07:08:32Z",
-      "provenance_digest": "sha256:799b4410fcf0c1173dcabcd960793699f6cd46c39fb0d200523b86cf8bedc5fc",
+      "git_head": "7a6488ca356c84112a5c302e3e31e83c6564e5d4",
+      "generated_at": "2026-08-21T16:12:27Z",
+      "provenance_digest": "sha256:8d034a8a712c649ecc7373d239531cff8cdbf35b03594000b778034200294d53",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -78915,6 +79530,7 @@
         "pose-docs-asset-parity": "sha256:989471ffa7972faf2eee70e98bf7000ed0eecbdab10911042cfa847e687ca9c6",
         "pose-domain-rule-extension-migration": "sha256:6940b49674aa9c1379af871adfa3b4aab2bf1bc35a28a4709a30e68578654592",
         "pose-dora-five-metrics-v2": "sha256:b9e151fa5abb8b1888a7887b13ff0147f7f270136de76e7281f90fbfdd3aecb8",
+        "pose-engine-stability-and-diagnostics-convergence": "sha256:5ebdff377ece771ec01d490890dfdf38f91e49b9046270d16fe7654df5d7c1b9",
         "pose-extension-catalog-resolution": "sha256:2b0eb2a1747289e1971bf0fce776ee7dcc6de93504d00038e9d39f7f1329ec82",
         "pose-extension-reference-publication": "sha256:48c70eca7c8f7d4e50f537e6acec2e83eab2df2b8ab1c5a6bf136b7bacf6453d",
         "pose-extension-signing-clean-tree": "sha256:5059ed0cad6827225d51b67bd8478adfde0aad983df617c07c83b5ddc129214c",
@@ -78981,9 +79597,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "8e6731cf583bf398e08e413421f0dcb631cb8312",
-      "generated_at": "2026-08-21T07:08:32Z",
-      "provenance_digest": "sha256:799b4410fcf0c1173dcabcd960793699f6cd46c39fb0d200523b86cf8bedc5fc",
+      "git_head": "7a6488ca356c84112a5c302e3e31e83c6564e5d4",
+      "generated_at": "2026-08-21T16:12:27Z",
+      "provenance_digest": "sha256:8d034a8a712c649ecc7373d239531cff8cdbf35b03594000b778034200294d53",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -79006,6 +79622,7 @@
         "pose-docs-asset-parity": "sha256:989471ffa7972faf2eee70e98bf7000ed0eecbdab10911042cfa847e687ca9c6",
         "pose-domain-rule-extension-migration": "sha256:6940b49674aa9c1379af871adfa3b4aab2bf1bc35a28a4709a30e68578654592",
         "pose-dora-five-metrics-v2": "sha256:b9e151fa5abb8b1888a7887b13ff0147f7f270136de76e7281f90fbfdd3aecb8",
+        "pose-engine-stability-and-diagnostics-convergence": "sha256:5ebdff377ece771ec01d490890dfdf38f91e49b9046270d16fe7654df5d7c1b9",
         "pose-extension-catalog-resolution": "sha256:2b0eb2a1747289e1971bf0fce776ee7dcc6de93504d00038e9d39f7f1329ec82",
         "pose-extension-reference-publication": "sha256:48c70eca7c8f7d4e50f537e6acec2e83eab2df2b8ab1c5a6bf136b7bacf6453d",
         "pose-extension-signing-clean-tree": "sha256:5059ed0cad6827225d51b67bd8478adfde0aad983df617c07c83b5ddc129214c",
@@ -79072,9 +79689,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8e6731cf583bf398e08e413421f0dcb631cb8312",
-      "generated_at": "2026-08-21T07:08:32Z",
-      "provenance_digest": "sha256:799b4410fcf0c1173dcabcd960793699f6cd46c39fb0d200523b86cf8bedc5fc",
+      "git_head": "7a6488ca356c84112a5c302e3e31e83c6564e5d4",
+      "generated_at": "2026-08-21T16:12:27Z",
+      "provenance_digest": "sha256:8d034a8a712c649ecc7373d239531cff8cdbf35b03594000b778034200294d53",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -79097,6 +79714,7 @@
         "pose-docs-asset-parity": "sha256:989471ffa7972faf2eee70e98bf7000ed0eecbdab10911042cfa847e687ca9c6",
         "pose-domain-rule-extension-migration": "sha256:6940b49674aa9c1379af871adfa3b4aab2bf1bc35a28a4709a30e68578654592",
         "pose-dora-five-metrics-v2": "sha256:b9e151fa5abb8b1888a7887b13ff0147f7f270136de76e7281f90fbfdd3aecb8",
+        "pose-engine-stability-and-diagnostics-convergence": "sha256:5ebdff377ece771ec01d490890dfdf38f91e49b9046270d16fe7654df5d7c1b9",
         "pose-extension-catalog-resolution": "sha256:2b0eb2a1747289e1971bf0fce776ee7dcc6de93504d00038e9d39f7f1329ec82",
         "pose-extension-reference-publication": "sha256:48c70eca7c8f7d4e50f537e6acec2e83eab2df2b8ab1c5a6bf136b7bacf6453d",
         "pose-extension-signing-clean-tree": "sha256:5059ed0cad6827225d51b67bd8478adfde0aad983df617c07c83b5ddc129214c",
@@ -79163,9 +79781,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8e6731cf583bf398e08e413421f0dcb631cb8312",
-      "generated_at": "2026-08-21T07:08:32Z",
-      "provenance_digest": "sha256:799b4410fcf0c1173dcabcd960793699f6cd46c39fb0d200523b86cf8bedc5fc",
+      "git_head": "7a6488ca356c84112a5c302e3e31e83c6564e5d4",
+      "generated_at": "2026-08-21T16:12:27Z",
+      "provenance_digest": "sha256:8d034a8a712c649ecc7373d239531cff8cdbf35b03594000b778034200294d53",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -79188,6 +79806,7 @@
         "pose-docs-asset-parity": "sha256:989471ffa7972faf2eee70e98bf7000ed0eecbdab10911042cfa847e687ca9c6",
         "pose-domain-rule-extension-migration": "sha256:6940b49674aa9c1379af871adfa3b4aab2bf1bc35a28a4709a30e68578654592",
         "pose-dora-five-metrics-v2": "sha256:b9e151fa5abb8b1888a7887b13ff0147f7f270136de76e7281f90fbfdd3aecb8",
+        "pose-engine-stability-and-diagnostics-convergence": "sha256:5ebdff377ece771ec01d490890dfdf38f91e49b9046270d16fe7654df5d7c1b9",
         "pose-extension-catalog-resolution": "sha256:2b0eb2a1747289e1971bf0fce776ee7dcc6de93504d00038e9d39f7f1329ec82",
         "pose-extension-reference-publication": "sha256:48c70eca7c8f7d4e50f537e6acec2e83eab2df2b8ab1c5a6bf136b7bacf6453d",
         "pose-extension-signing-clean-tree": "sha256:5059ed0cad6827225d51b67bd8478adfde0aad983df617c07c83b5ddc129214c",
@@ -79254,9 +79873,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8e6731cf583bf398e08e413421f0dcb631cb8312",
-      "generated_at": "2026-08-21T07:08:32Z",
-      "provenance_digest": "sha256:799b4410fcf0c1173dcabcd960793699f6cd46c39fb0d200523b86cf8bedc5fc",
+      "git_head": "7a6488ca356c84112a5c302e3e31e83c6564e5d4",
+      "generated_at": "2026-08-21T16:12:27Z",
+      "provenance_digest": "sha256:8d034a8a712c649ecc7373d239531cff8cdbf35b03594000b778034200294d53",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -79279,6 +79898,7 @@
         "pose-docs-asset-parity": "sha256:989471ffa7972faf2eee70e98bf7000ed0eecbdab10911042cfa847e687ca9c6",
         "pose-domain-rule-extension-migration": "sha256:6940b49674aa9c1379af871adfa3b4aab2bf1bc35a28a4709a30e68578654592",
         "pose-dora-five-metrics-v2": "sha256:b9e151fa5abb8b1888a7887b13ff0147f7f270136de76e7281f90fbfdd3aecb8",
+        "pose-engine-stability-and-diagnostics-convergence": "sha256:5ebdff377ece771ec01d490890dfdf38f91e49b9046270d16fe7654df5d7c1b9",
         "pose-extension-catalog-resolution": "sha256:2b0eb2a1747289e1971bf0fce776ee7dcc6de93504d00038e9d39f7f1329ec82",
         "pose-extension-reference-publication": "sha256:48c70eca7c8f7d4e50f537e6acec2e83eab2df2b8ab1c5a6bf136b7bacf6453d",
         "pose-extension-signing-clean-tree": "sha256:5059ed0cad6827225d51b67bd8478adfde0aad983df617c07c83b5ddc129214c",
@@ -79345,9 +79965,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8e6731cf583bf398e08e413421f0dcb631cb8312",
-      "generated_at": "2026-08-21T07:08:32Z",
-      "provenance_digest": "sha256:799b4410fcf0c1173dcabcd960793699f6cd46c39fb0d200523b86cf8bedc5fc",
+      "git_head": "7a6488ca356c84112a5c302e3e31e83c6564e5d4",
+      "generated_at": "2026-08-21T16:12:27Z",
+      "provenance_digest": "sha256:8d034a8a712c649ecc7373d239531cff8cdbf35b03594000b778034200294d53",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -79370,6 +79990,7 @@
         "pose-docs-asset-parity": "sha256:989471ffa7972faf2eee70e98bf7000ed0eecbdab10911042cfa847e687ca9c6",
         "pose-domain-rule-extension-migration": "sha256:6940b49674aa9c1379af871adfa3b4aab2bf1bc35a28a4709a30e68578654592",
         "pose-dora-five-metrics-v2": "sha256:b9e151fa5abb8b1888a7887b13ff0147f7f270136de76e7281f90fbfdd3aecb8",
+        "pose-engine-stability-and-diagnostics-convergence": "sha256:5ebdff377ece771ec01d490890dfdf38f91e49b9046270d16fe7654df5d7c1b9",
         "pose-extension-catalog-resolution": "sha256:2b0eb2a1747289e1971bf0fce776ee7dcc6de93504d00038e9d39f7f1329ec82",
         "pose-extension-reference-publication": "sha256:48c70eca7c8f7d4e50f537e6acec2e83eab2df2b8ab1c5a6bf136b7bacf6453d",
         "pose-extension-signing-clean-tree": "sha256:5059ed0cad6827225d51b67bd8478adfde0aad983df617c07c83b5ddc129214c",
@@ -79436,9 +80057,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "8e6731cf583bf398e08e413421f0dcb631cb8312",
-      "generated_at": "2026-08-21T07:08:32Z",
-      "provenance_digest": "sha256:799b4410fcf0c1173dcabcd960793699f6cd46c39fb0d200523b86cf8bedc5fc",
+      "git_head": "7a6488ca356c84112a5c302e3e31e83c6564e5d4",
+      "generated_at": "2026-08-21T16:12:27Z",
+      "provenance_digest": "sha256:8d034a8a712c649ecc7373d239531cff8cdbf35b03594000b778034200294d53",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -79461,6 +80082,7 @@
         "pose-docs-asset-parity": "sha256:989471ffa7972faf2eee70e98bf7000ed0eecbdab10911042cfa847e687ca9c6",
         "pose-domain-rule-extension-migration": "sha256:6940b49674aa9c1379af871adfa3b4aab2bf1bc35a28a4709a30e68578654592",
         "pose-dora-five-metrics-v2": "sha256:b9e151fa5abb8b1888a7887b13ff0147f7f270136de76e7281f90fbfdd3aecb8",
+        "pose-engine-stability-and-diagnostics-convergence": "sha256:5ebdff377ece771ec01d490890dfdf38f91e49b9046270d16fe7654df5d7c1b9",
         "pose-extension-catalog-resolution": "sha256:2b0eb2a1747289e1971bf0fce776ee7dcc6de93504d00038e9d39f7f1329ec82",
         "pose-extension-reference-publication": "sha256:48c70eca7c8f7d4e50f537e6acec2e83eab2df2b8ab1c5a6bf136b7bacf6453d",
         "pose-extension-signing-clean-tree": "sha256:5059ed0cad6827225d51b67bd8478adfde0aad983df617c07c83b5ddc129214c",
@@ -79634,6 +80256,22 @@
       "validation-result:pose-mcp/go/delivery-integration",
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
+    "capability:artifact-check-none-tolerance": [
+      "spec:pose-engine-stability-and-diagnostics-convergence",
+      "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
+      "artifact:pose-mcp/internal/cli/cli_test.go",
+      "artifact:pose-mcp/internal/cli/doctor.go",
+      "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/validate.go",
+      "artifact:pose-mcp/internal/pose/discovery.go",
+      "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "delivery:capability:artifact-check-none-tolerance",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration",
+      "validation-result:pose-mcp/go/review-bundle-convergence"
+    ],
     "capability:delivery-integrity-git-convergence": [
       "spec:pose-closeout-delivery-assurance-convergence",
       "artifact:pose-mcp/internal/cli/artifact_integrity.go",
@@ -79697,6 +80335,38 @@
       "artifact:pose-mcp/internal/pose/trace.go",
       "artifact:pose-mcp/internal/scaffold/scaffold.go",
       "delivery:capability:delivery-integrity-graph",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration",
+      "validation-result:pose-mcp/go/review-bundle-convergence"
+    ],
+    "capability:discovery-gitignore-robustness": [
+      "spec:pose-engine-stability-and-diagnostics-convergence",
+      "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
+      "artifact:pose-mcp/internal/cli/cli_test.go",
+      "artifact:pose-mcp/internal/cli/doctor.go",
+      "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/validate.go",
+      "artifact:pose-mcp/internal/pose/discovery.go",
+      "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "delivery:capability:discovery-gitignore-robustness",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration",
+      "validation-result:pose-mcp/go/review-bundle-convergence"
+    ],
+    "capability:doctor-trailer-parity": [
+      "spec:pose-engine-stability-and-diagnostics-convergence",
+      "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
+      "artifact:pose-mcp/internal/cli/cli_test.go",
+      "artifact:pose-mcp/internal/cli/doctor.go",
+      "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/validate.go",
+      "artifact:pose-mcp/internal/pose/discovery.go",
+      "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "delivery:capability:doctor-trailer-parity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
       "validation-result:pose-mcp/go/review-bundle-convergence"
@@ -79778,21 +80448,14 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "capability:pose-mcp": [
-      "spec:pose-scaffold-self-referential-policy-fix",
-      "artifact:.pose/knowledge/2026-08-15-decision-log-self-referential-policy-template-contamination.md",
-      "artifact:.pose/reports/2026-08-15-standard-validate-native.md",
-      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
-      "artifact:.pose/reports/history/standard-validate-native.jsonl",
-      "artifact:mcp-enforce/README.md",
-      "artifact:pose-mcp/internal/cli/doctor.go",
-      "artifact:pose-mcp/internal/cli/doctor_remediation_test.go",
-      "artifact:pose-mcp/internal/mcpserver/server.go",
-      "artifact:pose-mcp/internal/mcpserver/validate_orchestration_test.go",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/artifacts.json",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/delivery.json",
-      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
-      "artifact:pose-mcp/internal/scaffold/gen/main.go",
-      "artifact:pose-mcp/internal/scaffold/scaffold_test.go",
+      "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/stack_seed.go",
+      "artifact:pose-mcp/internal/cli/stack_seed_test.go",
+      "artifact:pose-mcp/internal/cli/validate.go",
+      "artifact:pose-mcp/internal/cli/validate_root_and_nodemodules_test.go",
+      "artifact:pose-mcp/internal/pose/discovery.go",
+      "artifact:pose-mcp/internal/pose/discovery_test.go",
       "delivery:capability:pose-mcp",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -79893,6 +80556,22 @@
       "spec:pose-test-self-exec-flake-fix",
       "artifact:pose-mcp/internal/cli/workspace_alias_test.go",
       "delivery:capability:test-self-exec-flake-fix",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration",
+      "validation-result:pose-mcp/go/review-bundle-convergence"
+    ],
+    "capability:test-suite-flakeless-exec": [
+      "spec:pose-engine-stability-and-diagnostics-convergence",
+      "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "artifact:pose-mcp/internal/cli/artifact_integrity_test.go",
+      "artifact:pose-mcp/internal/cli/cli_test.go",
+      "artifact:pose-mcp/internal/cli/doctor.go",
+      "artifact:pose-mcp/internal/cli/doctor_review_scope_trailer_test.go",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/validate.go",
+      "artifact:pose-mcp/internal/pose/discovery.go",
+      "artifact:pose-mcp/internal/pose/discovery_test.go",
+      "delivery:capability:test-suite-flakeless-exec",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
       "validation-result:pose-mcp/go/review-bundle-convergence"
@@ -80680,7 +81359,18 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "governance:project-assessment": [
-      "spec:pose-debt-marker-lexical-precision",
+      "spec:pose-project-agnostic-assessment-engines",
+      "artifact:.pose/changelogs/v0.16.2/pose-project-agnostic-assessment-engines.md",
+      "artifact:.pose/knowledge/2026-08-03-decision-log-project-agnostic-assessment-evidence.md",
+      "artifact:.pose/specs/pose-project-agnostic-assessment-engines/spec.md",
+      "artifact:pose-mcp/internal/cli/assessment_agnostic_test.go",
+      "artifact:pose-mcp/internal/pose/assessment_agnostic_test.go",
+      "artifact:pose-mcp/internal/pose/assessment_scan.go",
+      "artifact:pose-mcp/internal/cli/assess.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/pose/discovery.go",
+      "artifact:pose-mcp/internal/pose/integration.go",
+      "artifact:pose-mcp/internal/pose/techdebt.go",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -80712,43 +81402,13 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-lifecycle-closure",
-      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
-      "artifact:.pose/indexes/releases.json",
-      "artifact:.pose/policy/changelog.json",
-      "artifact:.pose/release-policy.json",
-      "artifact:.pose/rules/release-integrity.md",
-      "artifact:.pose/workflows/release.md",
-      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
-      "artifact:locales/pt-BR/.pose/workflows/release.md",
-      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
-      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
-      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
-      "artifact:.agents/skills/README.md",
+      "spec:pose-release-evidence-trigger-fix",
+      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.pose/indexes/task-map.json",
-      "artifact:.pose/indexes/validation-matrix.json",
-      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
-      "artifact:POSE.md",
-      "artifact:docs-site/docs/cli.md",
-      "artifact:docs-site/docs/mcp.md",
-      "artifact:pose-mcp/internal/cli/check.go",
-      "artifact:pose-mcp/internal/cli/cli.go",
-      "artifact:pose-mcp/internal/cli/index.go",
-      "artifact:pose-mcp/internal/cli/maintenance.go",
-      "artifact:pose-mcp/internal/cli/native_only_test.go",
-      "artifact:pose-mcp/internal/cli/skills_check_test.go",
-      "artifact:pose-mcp/internal/mcpserver/catalog.go",
-      "artifact:pose-mcp/internal/mcpserver/server.go",
-      "artifact:pose-mcp/internal/mcpserver/server_test.go",
-      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "artifact:pose-mcp/internal/pose/changelogs.go",
-      "artifact:pose-mcp/internal/scaffold/scaffold.go",
-      "artifact:scripts/release.sh",
+      "artifact:.github/workflows/verify-release.yml",
+      "artifact:docs-site/docs/ci.md",
+      "artifact:pose-mcp/internal/version/contract_test.go",
+      "artifact:pose-mcp/internal/version/version.go",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",

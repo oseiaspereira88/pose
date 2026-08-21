@@ -121,6 +121,14 @@
       "to": "pose-dora-adoption-metrics"
     },
     {
+      "from": "pose-engine-stability-and-diagnostics-convergence",
+      "to": "pose-closeout-delivery-assurance-convergence"
+    },
+    {
+      "from": "pose-engine-stability-and-diagnostics-convergence",
+      "to": "pose-spec-trailer-workflow-documentation"
+    },
+    {
       "from": "pose-extension-catalog-lifecycle",
       "to": "pose-agent-skills-conformance"
     },
@@ -702,6 +710,15 @@
       "priority": 1,
       "status": "done"
     },
+    "pose-engine-stability-and-diagnostics-convergence": {
+      "depends_on": [
+        "pose-closeout-delivery-assurance-convergence",
+        "pose-spec-trailer-workflow-documentation"
+      ],
+      "path": ".pose/specs/pose-engine-stability-and-diagnostics-convergence/spec.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-extension-catalog-lifecycle": {
       "depends_on": [
         "pose-agent-skills-conformance",
@@ -1249,7 +1266,7 @@
       ],
       "path": ".pose/specs/pose-spec-trailer-workflow-documentation/spec.md",
       "priority": 0,
-      "status": "in-progress"
+      "status": "done"
     },
     "pose-stack-catalog-expansion": {
       "depends_on": [
