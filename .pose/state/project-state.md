@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-21T20:02:05Z
-baseline_commit: 182fd50646e09fe2847884698a5f452f103f1015
+generated_at: 2026-08-21T21:40:37Z
+baseline_commit: b84394c998dbb9876575ffa1fa96e53db6bb5165
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:dbd493b3b1d7 -->
+<!-- state:derived hash:ba72325a9403 -->
 
-- specs: total=122 draft=1 in-progress=0 blocked=0 done=121 superseded=0 abandoned=0
+- specs: total=123 draft=1 in-progress=0 blocked=0 done=122 superseded=0 abandoned=0
 - roadmaps: total=10 active=0 done=10
 - últimos closeouts:
-  - spec:pose-closeout-delivery-assurance-convergence (2026-08-21)
-  - spec:pose-engine-discovery-consolidation-and-onboarding (2026-08-21)
-  - spec:pose-spec-trailer-workflow-documentation (2026-08-21)
   - spec:pose-stack-rule-extensions-expansion (2026-08-21)
   - spec:pose-engine-stability-and-diagnostics-convergence (2026-08-21)
-  - ... e mais 116 (ver `pose_list_specs status:done`)
+  - spec:pose-engine-discovery-consolidation-and-onboarding (2026-08-21)
+  - spec:pose-contributor-mode-protocol (2026-08-21)
+  - spec:pose-spec-trailer-workflow-documentation (2026-08-21)
+  - ... e mais 117 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:59c7c2a6bb92 -->
