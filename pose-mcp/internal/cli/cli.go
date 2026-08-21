@@ -29,6 +29,20 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 		args = args[1:]
 	}
 
+	if cmd == "help" {
+		return cmdHelp(stdout, args)
+	}
+
+	if hasHelpFlag(args) || cmd == "-h" || cmd == "--help" {
+		if cmd == "-h" || cmd == "--help" {
+			return cmdHelp(stdout, nil)
+		}
+		if dispatchCommandHelp(cmd, args, stdout, locale) {
+			return 0
+		}
+		return cmdHelp(stdout, []string{cmd})
+	}
+
 	switch cmd {
 	case "version", "--version", "-v":
 		target := ""
@@ -36,8 +50,6 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			target = args[0]
 		}
 		return cmdVersion(stdout, target)
-	case "help", "-h", "--help":
-		return cmdHelp(stdout)
 	case "init":
 		if len(args) > 0 && args[0] == "--wizard" {
 			root, err := projectRoot()
@@ -345,10 +357,6 @@ func cmdVersion(w io.Writer, target string) int {
 	return 0
 }
 
-func cmdHelp(w io.Writer) int {
-	fmt.Fprint(w, cliText(cliLocaleValue(), helpTextEN, helpTextPtBR))
-	return 0
-}
 
 const helpTextEN = `POSE - Project Operating Standard for Engineering
 
