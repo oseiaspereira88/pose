@@ -1,8 +1,8 @@
 ---
 slug: pose-spec-trailer-workflow-documentation
-status: in-progress
+status: done
 created_at: 2026-08-21
-completed_at:
+completed_at: 2026-08-21
 supersedes:
 depends_on: pose-closeout-delivery-assurance-convergence
 priority: 0
