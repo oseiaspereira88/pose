@@ -11,6 +11,7 @@ without Bash or Python fallbacks and works offline.
 |---|---|
 | `pose init [--wizard [--yes]]` | Ensure the minimal structure; the wizard detects stacks and seeds the validation matrix |
 | `pose specs [--recent N] [--status S] [--since D] [--json]` | List and discover specifications chronologically (newest first) |
+| `pose spec-format <migrate|status> [<slug>|--all] [--format folder|flat] [--dry-run]` | Inspect and migrate specifications to chronological layout with companion preservation |
 | `pose new-spec <slug>` | Create `.pose/specs/YYYY-MM-DD-<slug>/spec.md` from the template (hybrid engine resolution) |
 | `pose new-roadmap <slug>` | Create a governed roadmap in `.pose/roadmaps/` |
 | `pose new-adr "<title>"` | Create a dated ADR |

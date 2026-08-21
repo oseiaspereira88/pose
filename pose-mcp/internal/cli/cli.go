@@ -100,6 +100,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdSpecs(root, args, stdout, stderr)
+	case "spec-format":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose spec-format: %v\n", err)
+			return 1
+		}
+		return cmdSpecFormat(root, args, stdout, stderr)
 	case "followups":
 		root, err := projectRoot()
 		if err != nil {

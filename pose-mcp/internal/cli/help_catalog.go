@@ -155,6 +155,39 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose specs --json",
 		},
 	},
+	"spec-format": {
+		Name:            "spec-format",
+		SummaryEN:       "Inspect and migrate specifications to the modern chronological format",
+		SummaryPtBR:     "Inspeciona e migra especificações para o formato cronológico moderno",
+		Usage:           "pose spec-format <migrate|status> [<slug>|--all] [--format folder|flat] [--dry-run] [--json]",
+		DescriptionEN:   "Migrates legacy spec structures to date-prefixed chronological layouts (YYYY-MM-DD-<slug>/spec.md or YYYY-MM-DD-<slug>.md), preserving companion files (amendments.jsonl) in directory envelopes.",
+		DescriptionPtBR: "Migra estruturas legadas de specs para formatos cronológicos com prefixo de data, preservando arquivos acompanhantes (amendments.jsonl) em envelopes de diretório.",
+		Subcommands: []SubcommandHelp{
+			{
+				Name:        "migrate",
+				Usage:       "pose spec-format migrate <slug>|--all [--format folder|flat] [--dry-run] [--json]",
+				SummaryEN:   "Migrate legacy specification structures into date-prefixed layouts (preserves companions)",
+				SummaryPtBR: "Migra estruturas legadas de specs para layouts com prefixo de data (preserva acompanhantes)",
+			},
+			{
+				Name:        "status",
+				Usage:       "pose spec-format status [--json]",
+				SummaryEN:   "Display current spec format conformance and count legacy structures",
+				SummaryPtBR: "Exibe a conformidade de formato de specs e conta estruturas legadas",
+			},
+		},
+		Flags: []FlagHelp{
+			{"--all", "Target all specifications in repository", "Aplica a todas as especificações do repositório"},
+			{"--format <folder|flat>", "Format preference: folder (default) or flat", "Preferência de formato: folder (padrão) ou flat"},
+			{"--dry-run", "Preview migration actions without modifying disk", "Pré-visualiza ações de migração sem modificar o disco"},
+			{"--json", "Output structured JSON report", "Emite relatório em JSON estruturado"},
+		},
+		Examples: []string{
+			"pose spec-format status",
+			"pose spec-format migrate my-feature --dry-run",
+			"pose spec-format migrate --all",
+		},
+	},
 	"new-spec": {
 		Name:            "new-spec",
 		SummaryEN:       "Scaffold a new feature specification",
