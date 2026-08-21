@@ -92,12 +92,7 @@ func TestDoctorWarnsWhenSpecHasNoRecordedChangeSet(t *testing.T) {
 	}
 }
 
-// TestDoctorStillWarnsWhenOnlyATrailerCommitExists pins the correction made
-// while implementing this check (Decision 2 in the spec): a POSE-Spec:
-// <slug> trailer commit, on its own, does NOT persist a change set that
-// review bundle sealing can find — only `pose report --change-from/--to`
-// does. A doctor check that went silent here would be actively misleading.
-func TestDoctorStillWarnsWhenOnlyATrailerCommitExists(t *testing.T) {
+func TestDoctorReviewScopeChangeSetGitTrailerParity(t *testing.T) {
 	root := doctorTrailerFixture(t)
 	writeDoctorTrailerSpec(t, root, "alpha", "in-progress")
 	doctorTrailerGit(t, root, "add", "--", ".")
@@ -107,8 +102,8 @@ func TestDoctorStillWarnsWhenOnlyATrailerCommitExists(t *testing.T) {
 	if !ok {
 		t.Fatal("expected a review.scope-change-set finding")
 	}
-	if f.Level != "warn" {
-		t.Errorf("review.scope-change-set level=%q, want warn — a trailer commit alone does not record a change set", f.Level)
+	if f.Level != "ok" {
+		t.Errorf("review.scope-change-set level=%q, want ok when a POSE-Spec commit trailer exists", f.Level)
 	}
 }
 

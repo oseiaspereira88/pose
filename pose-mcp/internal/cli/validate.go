@@ -117,7 +117,7 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 				return filepath.SkipDir
 			}
 			if path != root {
-				if rel, relErr := filepath.Rel(root, path); relErr == nil && gitIgnored[filepath.ToSlash(rel)+"/"] {
+				if rel, relErr := filepath.Rel(root, path); relErr == nil && (gitIgnored[filepath.ToSlash(rel)+"/"] || gitIgnored[filepath.ToSlash(rel)]) {
 					return filepath.SkipDir
 				}
 			}

@@ -367,7 +367,7 @@ func TestValidateNativeRunsStructuredChecksWithoutShell(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(repo, "contracts"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	executable, err := os.Executable()
+	truePath, err := exec.LookPath("true")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -375,7 +375,7 @@ func TestValidateNativeRunsStructuredChecksWithoutShell(t *testing.T) {
 	if err := os.MkdirAll(matrixDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	matrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"self","program":%q,"args":["-test.run=^$"] ,"severity":"required"}]},"contract":{"checks":[]}},"moduleOverrides":{"contracts":{"stack":"contract","checks":[{"name":"self","program":%q,"args":["-test.run=^$"],"severity":"required"}]}}}`, executable, executable)
+	matrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"self","program":%q,"args":[],"severity":"required"}]},"contract":{"checks":[]}},"moduleOverrides":{"contracts":{"stack":"contract","checks":[{"name":"self","program":%q,"args":[],"severity":"required"}]}}}`, truePath, truePath)
 	if err := os.WriteFile(filepath.Join(matrixDir, "validation-matrix.json"), []byte(matrix), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -394,7 +394,7 @@ func TestValidateNativeRunsStructuredChecksWithoutShell(t *testing.T) {
 		if code := Main([]string{"validate", "--module", "../escape"}, &out, &errB); code != 2 {
 			t.Fatalf("unsafe module exit=%d", code)
 		}
-		unsafeMatrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"unsafe","program":%q,"args":[],"severity":"required","when":{"fileExists":"../../secret"}}]}},"moduleOverrides":{}}`, executable)
+		unsafeMatrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"unsafe","program":%q,"args":[],"severity":"required","when":{"fileExists":"../../secret"}}]}},"moduleOverrides":{}}`, truePath)
 		if err := os.WriteFile(filepath.Join(matrixDir, "validation-matrix.json"), []byte(unsafeMatrix), 0o644); err != nil {
 			t.Fatal(err)
 		}

@@ -421,6 +421,11 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				recorded[set.Spec] = true
 			}
 		}
+		if trailers, err := allCommitsWithSpecTrailers(root); err == nil {
+			for spec := range trailers {
+				recorded[spec] = true
+			}
+		}
 		var untraceable []string
 		for _, spec := range specs {
 			if len(spec.Delivers) == 0 {
@@ -437,13 +442,13 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		if len(untraceable) > 0 {
 			sort.Strings(untraceable)
 			add("review.scope-change-set", "warn",
-				fmt.Sprintf(text("%d spec(s) with delivers: have no change set recorded in .pose/reports/history — sealing a review bundle for them will fail with \"no immutable attributed change set exists\": %s",
-					"%d spec(s) com delivers: não têm nenhum change set registrado em .pose/reports/history — selar um review bundle para elas vai falhar com \"no immutable attributed change set exists\": %s"),
+				fmt.Sprintf(text("%d spec(s) with delivers: have no change set recorded in .pose/reports/history or Git POSE-Spec trailers: %s",
+					"%d spec(s) com delivers: não têm nenhum change set registrado em .pose/reports/history ou trailers Git POSE-Spec: %s"),
 					len(untraceable), strings.Join(untraceable, ", ")),
-				text("run 'pose report --spec <slug> --change-from <rev> --change-to <rev>' to record the delivering range before sealing (a commit trailer alone does not persist one; github.com/oseiaspereira88/pose issue #17)",
-					"rode 'pose report --spec <slug> --change-from <rev> --change-to <rev>' para registrar o range antes de selar (só o trailer do commit não persiste nada; issue #17)"))
+				text("commit changes with a 'POSE-Spec: <slug>' trailer or run 'pose report --spec <slug> --change-from <rev> --change-to <rev>' to record the delivering range before sealing (github.com/oseiaspereira88/pose issue #17)",
+					"comite as mudanças com o trailer 'POSE-Spec: <slug>' ou rode 'pose report --spec <slug> --change-from <rev> --change-to <rev>' para registrar o range antes de selar (issue #17)"))
 		} else {
-			add("review.scope-change-set", "ok", text("every in-progress/done spec with delivers: has a recorded change set", "toda spec em andamento/concluída com delivers: tem change set registrado"), "")
+			add("review.scope-change-set", "ok", text("every in-progress/done spec with delivers: has an attributed change set", "toda spec em andamento/concluída com delivers: tem change set atribuído"), "")
 		}
 	}
 

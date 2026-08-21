@@ -136,3 +136,24 @@ func TestFindComponentDirectoriesRespectsGitignore(t *testing.T) {
 		t.Errorf("FindComponentDirectories missed the real \"service\" module: %v", targets)
 	}
 }
+
+func TestGitIgnoredPathsSlashNormalization(t *testing.T) {
+	root := t.TempDir()
+	if out, err := exec.Command("git", "-C", root, "init", "-q").CombinedOutput(); err != nil {
+		t.Fatalf("git init: %v: %s", err, out)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".gitignore"), []byte("ignored_dir/\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "ignored_dir"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if out, err := exec.Command("git", "-C", root, "add", ".gitignore").CombinedOutput(); err != nil {
+		t.Fatalf("git add: %v: %s", err, out)
+	}
+
+	ignored := pose.GitIgnoredPaths(root)
+	if !ignored["ignored_dir"] || !ignored["ignored_dir/"] {
+		t.Errorf("GitIgnoredPaths(%q) did not normalize slash forms: %v", root, ignored)
+	}
+}

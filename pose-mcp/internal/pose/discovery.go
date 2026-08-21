@@ -41,7 +41,13 @@ func GitIgnoredPaths(root string) map[string]bool {
 	for _, line := range strings.Split(string(out), "\n") {
 		line = strings.TrimSpace(line)
 		if line != "" {
-			ignored[line] = true
+			normalized := filepath.ToSlash(line)
+			ignored[normalized] = true
+			if strings.HasSuffix(normalized, "/") {
+				ignored[strings.TrimSuffix(normalized, "/")] = true
+			} else {
+				ignored[normalized+"/"] = true
+			}
 		}
 	}
 	return ignored
@@ -180,7 +186,7 @@ func (s Store) FindComponentDirectories() []string {
 		if strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "target" || name == "dist" || name == "testdata" || name == "fixture" || name == "fixtures" {
 			return filepath.SkipDir
 		}
-		if ignored[filepath.ToSlash(rel)+"/"] {
+		if ignored[filepath.ToSlash(rel)+"/"] || ignored[filepath.ToSlash(rel)] {
 			return filepath.SkipDir
 		}
 

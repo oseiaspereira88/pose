@@ -430,6 +430,9 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 	}
 	graph := posemodel.BuildDeliveryIntegrity([]posemodel.Spec{*full}, claims, sets, tracked, policy)
 	for _, claim := range claims {
+		if claim.Action == "none" {
+			continue
+		}
 		paths := []string{claim.Path}
 		if claim.Action == "renamed" {
 			paths = []string{claim.OldPath, claim.NewPath}

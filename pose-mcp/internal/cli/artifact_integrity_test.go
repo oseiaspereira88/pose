@@ -318,3 +318,28 @@ func TestDeliverySpecBlockersPathAndRemediationDiagnostics(t *testing.T) {
 		t.Fatalf("blockers did not include exact artifact path: %v", blockers)
 	}
 }
+
+func TestArtifactCheckNoneActionClaimTolerance(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	writeArtifactTestFile(t, root, "init.txt", "initial\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "initial baseline")
+
+	writeArtifactTestFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-03","governed_roots":["internal"],"severities":{"resolvability":"error"}}`)
+	writeArtifactTestFile(t, root, ".pose/specs/docs-only/spec.md", "---\nslug: docs-only\nstatus: in-progress\ncreated_at: 2026-08-03\n---\n\n# Spec: docs-only\n\n## 3. Technical Plan\n\n### Artifacts\n- none: documentation\n\n## 4. Tasks\nwork\n")
+	writeArtifactTestFile(t, root, "README.md", "docs update\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "update docs", "-m", "POSE-Spec: docs-only")
+
+	var stdout, stderr bytes.Buffer
+	code := cmdArtifactCheck(root, []string{"--spec", "docs-only", "--strict"}, &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("cmdArtifactCheck failed for none-claim spec: code=%d stdout=%s stderr=%s", code, stdout.String(), stderr.String())
+	}
+	if strings.Contains(stdout.String(), "resolvability") {
+		t.Fatalf("unexpected resolvability finding on none-claim spec: %s", stdout.String())
+	}
+}
