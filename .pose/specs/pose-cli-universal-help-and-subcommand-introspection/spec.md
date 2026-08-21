@@ -1,8 +1,8 @@
 ---
 slug: pose-cli-universal-help-and-subcommand-introspection
-status: in-progress
+status: done
 created_at: 2026-08-21
-completed_at:        # stamped on the transition to status: done
+completed_at: 2026-08-21
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on: pose-contributor-mode-protocol
 priority: 0
