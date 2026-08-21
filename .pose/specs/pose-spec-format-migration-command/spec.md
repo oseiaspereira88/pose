@@ -1,8 +1,8 @@
 ---
 slug: pose-spec-format-migration-command
-status: in-progress
+status: done
 created_at: 2026-08-21
-completed_at:
+completed_at: 2026-08-21
 supersedes:
 depends_on: pose-specs-ergonomics-and-discovery
 priority: 0
