@@ -241,11 +241,24 @@ func resolveDeclaredModulePath(root, declared string) (string, bool) {
 func hasProjectManifest(dir string) bool {
 	manifests := []string{
 		"go.mod", "Cargo.toml", "package.json", "pyproject.toml",
-		"pom.xml", "build.gradle", "Makefile", "Dockerfile", "wrangler.json", "wrangler.jsonc",
+		"pom.xml", "build.gradle", "build.gradle.kts", "requirements.txt",
+		"Pipfile", "poetry.lock", "setup.py", "wrangler.toml",
+		"wrangler.json", "wrangler.jsonc", "Makefile", "Dockerfile",
 	}
 	for _, m := range manifests {
 		if _, err := os.Stat(filepath.Join(dir, m)); err == nil {
 			return true
+		}
+	}
+	entries, err := os.ReadDir(dir)
+	if err == nil {
+		for _, e := range entries {
+			if !e.IsDir() {
+				ext := filepath.Ext(e.Name())
+				if ext == ".sln" || ext == ".csproj" || ext == ".fsproj" || ext == ".vbproj" {
+					return true
+				}
+			}
 		}
 	}
 	return false

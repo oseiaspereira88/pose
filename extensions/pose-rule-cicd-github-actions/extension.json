@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "pose-rule-cicd-github-actions",
+  "version": "1.0.0",
+  "kind": "rule",
+  "description": "POSE review rule for GitHub Actions CI/CD workflows: commit SHA pinning, least-privilege permissions, script injection prevention, and secret masking.",
+  "pose_schema_range": "1-1",
+  "files": [
+    ".pose/rules/cicd-github-actions.md"
+  ],
+  "permissions": [
+    ".pose/rules/"
+  ],
+  "provenance": {
+    "source": "https://github.com/oseiaspereira88/pose",
+    "signer": "^https://github\\.com/oseiaspereira88/pose/\\.github/workflows/release\\.yml@refs/tags/v[0-9]+\\.[0-9]+\\.[0-9]+$",
+    "issuer": "https://token.actions.githubusercontent.com"
+  }
+}

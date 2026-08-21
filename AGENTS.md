@@ -67,9 +67,13 @@ Apply the rules relevant to the scope, cumulatively:
 - Java/Kotlin backend: shipped as the extension `pose-rule-backend-java` — install with `pose extension install pose-rule-backend-java`.
 - .NET backend: shipped as the extension `pose-rule-backend-dotnet` — install with `pose extension install pose-rule-backend-dotnet`.
 - React frontend: shipped as the extension `pose-rule-frontend-react` — install with `pose extension install pose-rule-frontend-react`.
+- Vue frontend: shipped as the extension `pose-rule-frontend-vue` — install with `pose extension install pose-rule-frontend-vue`.
+- Svelte frontend: shipped as the extension `pose-rule-frontend-svelte` — install with `pose extension install pose-rule-frontend-svelte`.
 - Cloudflare Workers: shipped as the extension `pose-rule-serverless-cloudflare` — install with `pose extension install pose-rule-serverless-cloudflare`.
+- Docker: shipped as the extension `pose-rule-infra-docker` — install with `pose extension install pose-rule-infra-docker`.
 - Terraform: shipped as the extension `pose-rule-infra-terraform` — install with `pose extension install pose-rule-infra-terraform`.
 - Kubernetes: shipped as the reference extension `pose-rule-kubernetes` — install with `pose extension install pose-rule-kubernetes`.
+- GitHub Actions CI/CD: shipped as the extension `pose-rule-cicd-github-actions` — install with `pose extension install pose-rule-cicd-github-actions`.
 - Security: [`.pose/rules/security.md`](.pose/rules/security.md)
 - Documentation / Process: [`.pose/rules/documentation-style.md`](.pose/rules/documentation-style.md)
 - Delivery evidence (claiming delivery requires a gate): [`.pose/rules/delivery-evidence.md`](.pose/rules/delivery-evidence.md)

@@ -30,14 +30,31 @@ func TestResolveRuleExtensionNodeWithReactInDevDependenciesMatches(t *testing.T)
 	}
 }
 
-func TestResolveRuleExtensionNodeWithoutReactDoesNotMatch(t *testing.T) {
+func TestResolveRuleExtensionNodeWithReactDoesNotMatch(t *testing.T) {
 	root := t.TempDir()
-	// A real Node.js backend — express, no react — must never be
-	// recommended the frontend rule (R3, the exact "wrong rule for the
-	// stack" complaint this whole roadmap started from).
+	// A real Node.js backend — express, no react/vue/svelte — must never be
+	// recommended the frontend rule.
 	mustWrite(t, filepath.Join(root, "api", "package.json"), `{"name":"api","dependencies":{"express":"^4.0.0"}}`)
 	if id, ok := resolveRuleExtension(root, "api", "node"); ok {
-		t.Fatalf("resolveRuleExtension(node, no react) = (%q, true), want no match", id)
+		t.Fatalf("resolveRuleExtension(node, no frontend) = (%q, true), want no match", id)
+	}
+}
+
+func TestResolveRuleExtensionNodeWithVueMatches(t *testing.T) {
+	root := t.TempDir()
+	mustWrite(t, filepath.Join(root, "web-vue", "package.json"), `{"name":"web-vue","dependencies":{"vue":"^3.4.0"}}`)
+	id, ok := resolveRuleExtension(root, "web-vue", "node")
+	if !ok || id != "pose-rule-frontend-vue" {
+		t.Fatalf("resolveRuleExtension(node+vue) = (%q, %v), want (pose-rule-frontend-vue, true)", id, ok)
+	}
+}
+
+func TestResolveRuleExtensionNodeWithSvelteMatches(t *testing.T) {
+	root := t.TempDir()
+	mustWrite(t, filepath.Join(root, "web-svelte", "package.json"), `{"name":"web-svelte","devDependencies":{"@sveltejs/kit":"^2.0.0"}}`)
+	id, ok := resolveRuleExtension(root, "web-svelte", "node")
+	if !ok || id != "pose-rule-frontend-svelte" {
+		t.Fatalf("resolveRuleExtension(node+svelte) = (%q, %v), want (pose-rule-frontend-svelte, true)", id, ok)
 	}
 }
 

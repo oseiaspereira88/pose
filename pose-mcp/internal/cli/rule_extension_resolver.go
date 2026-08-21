@@ -32,25 +32,46 @@ var ruleExtensionByStack = map[string]string{
 
 // resolveRuleExtension resolves the rule extension matching a discovered
 // module's stack, or ok=false when no extension applies — including when
-// the stack is real but no extension has been authored for it yet (Rust,
-// Python, etc — R2), and when the manifest-level signal is too coarse on
-// its own (Node without a confirmed React dependency — R3).
+// the stack is real but no extension has been authored for it yet (R2),
+// and when the manifest-level signal is too coarse on its own (Node without
+// a confirmed React/Vue/Svelte dependency — R3).
 func resolveRuleExtension(root, modulePath, stack string) (string, bool) {
 	if id, ok := ruleExtensionByStack[stack]; ok {
 		return id, true
 	}
-	if stack == "node" && hasReactDependency(root, modulePath) {
-		return "pose-rule-frontend-react", true
+	if stack == "node" {
+		if hasReactDependency(root, modulePath) {
+			return "pose-rule-frontend-react", true
+		}
+		if hasVueDependency(root, modulePath) {
+			return "pose-rule-frontend-vue", true
+		}
+		if hasSvelteDependency(root, modulePath) {
+			return "pose-rule-frontend-svelte", true
+		}
 	}
 	return "", false
 }
 
 // hasReactDependency reports whether modulePath's package.json lists
-// "react" under dependencies or devDependencies. Deliberately a content
-// check, not a presence check: the whole point is distinguishing a React
-// frontend from a plain Node.js backend, which package.json's mere
-// existence cannot do.
+// "react" under dependencies or devDependencies.
 func hasReactDependency(root, modulePath string) bool {
+	return hasPackageDependency(root, modulePath, "react")
+}
+
+// hasVueDependency reports whether modulePath's package.json lists
+// "vue" or "nuxt" under dependencies or devDependencies.
+func hasVueDependency(root, modulePath string) bool {
+	return hasPackageDependency(root, modulePath, "vue", "nuxt", "@vue/runtime-core")
+}
+
+// hasSvelteDependency reports whether modulePath's package.json lists
+// "svelte" or "@sveltejs/kit" under dependencies or devDependencies.
+func hasSvelteDependency(root, modulePath string) bool {
+	return hasPackageDependency(root, modulePath, "svelte", "@sveltejs/kit")
+}
+
+func hasPackageDependency(root, modulePath string, names ...string) bool {
 	raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(modulePath), "package.json"))
 	if err != nil {
 		return false
@@ -62,18 +83,32 @@ func hasReactDependency(root, modulePath string) bool {
 	if json.Unmarshal(raw, &pkg) != nil {
 		return false
 	}
-	if _, ok := pkg.Dependencies["react"]; ok {
-		return true
+	for _, name := range names {
+		if _, ok := pkg.Dependencies[name]; ok {
+			return true
+		}
+		if _, ok := pkg.DevDependencies[name]; ok {
+			return true
+		}
 	}
-	_, ok := pkg.DevDependencies["react"]
-	return ok
+	return false
 }
 
 // ruleExtensionFile maps an extension ID to the rule file it installs
 // under .pose/rules/, for the doctor advisory's "already installed?" check.
 var ruleExtensionFile = map[string]string{
-	"pose-rule-backend-go":     "backend-go.md",
-	"pose-rule-frontend-react": "frontend-react.md",
+	"pose-rule-backend-go":          "backend-go.md",
+	"pose-rule-backend-python":      "backend-python.md",
+	"pose-rule-backend-rust":        "backend-rust.md",
+	"pose-rule-backend-java":        "backend-java.md",
+	"pose-rule-backend-dotnet":      "backend-dotnet.md",
+	"pose-rule-serverless-cloudflare": "serverless-cloudflare.md",
+	"pose-rule-infra-terraform":     "infra-terraform.md",
+	"pose-rule-frontend-react":      "frontend-react.md",
+	"pose-rule-frontend-vue":        "frontend-vue.md",
+	"pose-rule-frontend-svelte":     "frontend-svelte.md",
+	"pose-rule-infra-docker":        "infra-docker.md",
+	"pose-rule-cicd-github-actions": "cicd-github-actions.md",
 }
 
 // ruleExtensionInstalled reports whether the extension's rule file is
