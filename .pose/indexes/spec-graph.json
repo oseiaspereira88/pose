@@ -41,6 +41,10 @@
       "to": "pose-structured-validation-results"
     },
     {
+      "from": "pose-cli-ergonomics-and-stack-expansion",
+      "to": "pose-engine-stability-and-diagnostics-convergence"
+    },
+    {
       "from": "pose-closeout-delivery-assurance-convergence",
       "to": "pose-delivery-surface-assurance"
     },
@@ -548,6 +552,14 @@
       "priority": 16,
       "status": "done"
     },
+    "pose-cli-ergonomics-and-stack-expansion": {
+      "depends_on": [
+        "pose-engine-stability-and-diagnostics-convergence"
+      ],
+      "path": ".pose/specs/pose-cli-ergonomics-and-stack-expansion/spec.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-closeout-delivery-assurance-convergence": {
       "depends_on": [
         "pose-delivery-surface-assurance",
@@ -717,7 +729,7 @@
       ],
       "path": ".pose/specs/pose-engine-stability-and-diagnostics-convergence/spec.md",
       "priority": 0,
-      "status": "in-progress"
+      "status": "done"
     },
     "pose-extension-catalog-lifecycle": {
       "depends_on": [
