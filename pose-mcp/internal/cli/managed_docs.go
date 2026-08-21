@@ -208,10 +208,10 @@ func droppedLocalContent(local, merged string) bool {
 }
 
 // sectionIsInstanceOwned reports whether the canonical manual tags this
-// section's body as belonging to the instance.
+// section's body as belonging to the instance or active contributor mode.
 func sectionIsInstanceOwned(section docSection) bool {
 	for _, line := range section.Body {
-		if strings.Contains(line, instanceOwnedMarker) {
+		if strings.Contains(line, instanceOwnedMarker) || strings.Contains(line, contributorModeMarker) {
 			return true
 		}
 	}

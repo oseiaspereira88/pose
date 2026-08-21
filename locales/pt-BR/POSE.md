@@ -252,6 +252,10 @@ pose doctor [--json] [--fix]       # diagnostica binário e configuração local
                                        # não prova conexão ativa — use pose_mcp_context
 pose report-limitation --title "..." --kind limitation|bug|suggestion [--body "..."] [--submit]
                                        # sem --submit, grava somente em .pose/feedback/
+pose contribute <enable|disable|status|stage|list> [--target <dir>] [--json]
+                                       # modo contribuidor open-source; registra rascunhos
+                                       # sanitizados sob .pose/contributions/ sem vazar
+                                       # código privado; submissão fica a critério do dev
 pose telemetry <enable|disable|status>
 
 # Assessment e extensões

@@ -274,6 +274,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdExtension(root, args, stdout, stderr)
+	case "contribute":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose contribute: %v\n", err)
+			return 1
+		}
+		return cmdContribute(root, args, stdout, stderr)
 	case "lint-spec":
 		defer emitTelemetry("lint-spec")
 		return cmdLintSpec(args, stdout, stderr)
@@ -395,6 +402,9 @@ Extensions:
   extension install <dir> [--target <dir>] [--dry-run] [--yes] [--force] [--allow-unsigned]
   extension list [--json] | extension remove <id> [...] | extension verify <dir>
 
+Contributions:
+  contribute <enable|disable|status|stage|list> [--target <dir>] [--json]
+
 Artifacts and maintenance:
   index | report | update [--dry-run] | knowledge-housekeeping |
   knowledge-usage | knowledge-suggest | reports-housekeeping | events-housekeeping | hooks
@@ -454,6 +464,9 @@ Descoberta e métricas:
 Extensões:
   extension install <dir> [--target <dir>] [--dry-run] [--yes] [--force] [--allow-unsigned]
   extension list [--json] | extension remove <id> [...] | extension verify <dir>
+
+Contribuições:
+  contribute <enable|disable|status|stage|list> [--target <dir>] [--json]
 
 Geração de artefatos:
   index | report

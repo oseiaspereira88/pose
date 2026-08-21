@@ -113,3 +113,12 @@ The `.pose/` contract itself is versioned (`.pose/schema-version`). The engine
 declares `POSE_SCHEMA_VERSION`; `pose check` detects drift and `pose update`
 applies sequential idempotent migrations. An instance newer than its engine is
 always an error — upgrade the engine, never downgrade the instance.
+
+## Open-Source Contributor Protocol
+
+When developers enable POSE Contributor Mode (`pose contribute enable`), executing AI agents automatically stage feedback, bug reports, and stack extension proposals under `.pose/contributions/` whenever observing workflow friction or engine limitations.
+
+The protocol enforces three core principles:
+1. **Automated Local Staging**: Agents draft feedback by default without interrupting the flow or requiring manual prompts.
+2. **Strict Privacy Invariant**: Staged reports isolate POSE mechanics using generic, synthetic reproductions. Proprietary business logic, company hostnames, customer data, and secrets are strictly excluded.
+3. **Developer Sovereignty**: Contributions remain strictly local until the developer explicitly decides to review, submit, or file upstream issues (`oseiaspereira88/pose`).

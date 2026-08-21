@@ -276,6 +276,12 @@ func (checker *nativeChecker) checkReferences() {
 				checker.failOrWarn(fmt.Sprintf(checker.message("Reference escapes the project root: %q (source: %s)", "Referência escapa da raiz do projeto: %q (origem: %s)"), ref, rel))
 				continue
 			}
+			if isRuntimeReference(ref) {
+				if _, err := os.Stat(filepath.Join(checker.root, ".pose")); err != nil {
+					checker.failOrWarn(fmt.Sprintf(checker.message("Broken reference: %q (source: %s)", "Referência quebrada: %q (origem: %s)"), ref, rel))
+				}
+				continue
+			}
 			if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(ref))); err != nil {
 				checker.failOrWarn(fmt.Sprintf(checker.message("Broken reference: %q (source: %s)", "Referência quebrada: %q (origem: %s)"), ref, rel))
 			}
@@ -284,6 +290,21 @@ func (checker *nativeChecker) checkReferences() {
 			checker.issue("ERRO", checker.message("No POSE reference found to validate in ", "Nenhuma referência POSE encontrada para validar em ")+rel)
 		}
 	}
+}
+
+func isRuntimeReference(ref string) bool {
+	runtimePrefixes := []string{
+		".pose/contributions",
+		".pose/feedback",
+		".pose/results",
+		".pose/reports/history",
+	}
+	for _, rp := range runtimePrefixes {
+		if ref == rp || strings.HasPrefix(ref, rp+"/") {
+			return true
+		}
+	}
+	return false
 }
 
 func (checker *nativeChecker) checkValidationMatrix() {
