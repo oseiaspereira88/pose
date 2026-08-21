@@ -125,6 +125,10 @@
       "to": "pose-dora-adoption-metrics"
     },
     {
+      "from": "pose-engine-discovery-consolidation-and-onboarding",
+      "to": "pose-stack-rule-extensions-expansion"
+    },
+    {
       "from": "pose-engine-stability-and-diagnostics-convergence",
       "to": "pose-closeout-delivery-assurance-convergence"
     },
@@ -726,6 +730,14 @@
       "priority": 1,
       "status": "done"
     },
+    "pose-engine-discovery-consolidation-and-onboarding": {
+      "depends_on": [
+        "pose-stack-rule-extensions-expansion"
+      ],
+      "path": ".pose/specs/pose-engine-discovery-consolidation-and-onboarding/spec.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-engine-stability-and-diagnostics-convergence": {
       "depends_on": [
         "pose-closeout-delivery-assurance-convergence",
@@ -1304,7 +1316,7 @@
       ],
       "path": ".pose/specs/pose-stack-rule-extensions-expansion/spec.md",
       "priority": 0,
-      "status": "in-progress"
+      "status": "done"
     },
     "pose-standalone-dogfood": {
       "depends_on": null,

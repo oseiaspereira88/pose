@@ -1,8 +1,8 @@
 ---
 slug: pose-engine-discovery-consolidation-and-onboarding
-status: in-progress
+status: done
 created_at: 2026-08-21
-completed_at:        # stamped on the transition to status: done
+completed_at: 2026-08-21
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on: pose-stack-rule-extensions-expansion
 priority: 0
