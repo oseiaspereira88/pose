@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-17T01:17:11Z
-baseline_commit: dbf5b77cf03d0691027bf59886f21cda582ec69c
+generated_at: 2026-08-21T06:34:55Z
+baseline_commit: 89c4d499ad8a0d4c9ec5e615dff8162f014316c4
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:9f57a9f6d4a1 -->
+<!-- state:derived hash:d80fd5cc50a0 -->
 
-- specs: total=115 draft=0 in-progress=0 blocked=0 done=115 superseded=0 abandoned=0
+- specs: total=117 draft=1 in-progress=0 blocked=0 done=116 superseded=0 abandoned=0
 - roadmaps: total=10 active=0 done=10
 - últimos closeouts:
+  - spec:pose-closeout-delivery-assurance-convergence (2026-08-21)
   - spec:pose-discovery-gitignore-and-root-alias-fix (2026-08-17)
+  - spec:pose-upgrade-path-audit-fixes (2026-08-16)
   - spec:pose-derived-index-self-referential-leak (2026-08-16)
   - spec:pose-update-instance-directory-completeness (2026-08-16)
-  - spec:pose-upgrade-path-audit-fixes (2026-08-16)
-  - spec:pose-scaffold-index-template-neutralization (2026-08-15)
-  - ... e mais 110 (ver `pose_list_specs status:done`)
+  - ... e mais 111 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:9bb935aad49e -->
+<!-- state:derived hash:9ad390b8c222 -->
 
-- abertos: 72
-- por criticidade: high=1 medium=18 low=36 sem-classificação=17
+- abertos: 74
+- por criticidade: high=1 medium=18 low=36 sem-classificação=19
 - vencidos (review < hoje): 0
 
 ## Capabilities
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:f236392abd12 -->
+<!-- state:derived hash:5656f5e8f783 -->
 
-- último registro: task=closeout-pose-discovery-gitignore-and-root-alias-fix outcome=unknown (2026-08-17T00:45:47Z)
-- últimos 30 dias: total=247 outcome_ok=177 outcome_outro=70
-- reports revisados (.md): total=130
+- último registro: task=validate-native outcome=pass (2026-08-21T06:32:23Z)
+- últimos 30 dias: total=223 outcome_ok=154 outcome_outro=69
+- reports revisados (.md): total=132
+  - report:2026-08-21-standard-validate-native.md
+  - report:2026-08-18-standard-validate-native.md
   - report:2026-08-17-standard-closeout-pose-discovery-gitignore-and-root-alias-fix.md
   - report:2026-08-16-standard-closeout-pose-update-instance-directory-completeness.md
   - report:2026-08-16-standard-closeout-pose-derived-index-self-referential-leak.md
-  - report:2026-08-16-standard-closeout-pose-upgrade-path-audit-fixes.md
-  - report:2026-08-15-standard-resolve-an-extension-id-against-the-latest-published-release.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->

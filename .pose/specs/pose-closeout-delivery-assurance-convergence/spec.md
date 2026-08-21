@@ -1,8 +1,8 @@
 ---
 slug: pose-closeout-delivery-assurance-convergence
-status: in-progress
+status: done
 created_at: 2026-08-21
-completed_at:
+completed_at: 2026-08-21
 supersedes:
 depends_on: pose-delivery-surface-assurance, pose-artifact-provenance-ledger
 priority: 0
@@ -79,9 +79,9 @@ This defect disrupts agent and developer workflows at the terminal step, forcing
 - modified: pose-mcp/internal/pose/delivery_integrity.go
 
 ### Delivery targets
-- capability:delivery-integrity-git-convergence module:pose-mcp profile:core-engine entrypoint:cmd/pose/main.go
-- surface:delivery-assurance-closeout-cli module:pose-mcp profile:cli-command entrypoint:cmd/pose/main.go
-- contract:delivery-assurance-blocker-diagnostics module:pose-mcp profile:core-engine entrypoint:cmd/pose/main.go
+- capability:delivery-integrity-git-convergence module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+- surface:delivery-assurance-closeout-cli module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- contract:delivery-assurance-blocker-diagnostics module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 1. **`collectArtifactGraphInputs` Enhancement**:
@@ -171,12 +171,12 @@ Validate end-to-end using automated Go unit tests, e2e CLI test scripts, and reg
 - Expected: SUCCESS.
 
 ### Requirement trace
-- R1 [satisfied] check:unit test:TestCollectArtifactGraphInputsGitParity
-- R2 [satisfied] check:unit test:TestChangesetPrecedenceAndDeduplication
-- R3 [satisfied] check:unit test:TestNonContiguousCommitDiffResolution
-- R4 [satisfied] check:unit test:TestDeliverySpecBlockersPathFormatting
-- R5 [satisfied] check:unit test:TestActionMismatchZeroCommitsDiagnostics
-- R6 [satisfied] check:e2e test:TestPoseCloseWithLiveGitTrailerNoReport
+- R1 [satisfied] capability:delivery-integrity-git-convergence check:unit test:TestCollectArtifactGraphInputsGitParity evidence:integration
+- R2 [satisfied] check:unit test:TestChangesetPrecedenceAndDeduplication evidence:integration
+- R3 [satisfied] check:unit test:TestNonContiguousCommitDiffResolution evidence:integration
+- R4 [satisfied] surface:delivery-assurance-closeout-cli check:unit test:TestDeliverySpecBlockersPathFormatting evidence:integration
+- R5 [satisfied] contract:delivery-assurance-blocker-diagnostics check:unit test:TestActionMismatchZeroCommitsDiagnostics evidence:integration
+- R6 [satisfied] check:e2e test:TestPoseCloseWithLiveGitTrailerNoReport evidence:integration
 
 ---
 
@@ -213,4 +213,4 @@ Valid dispositions:
   [wont-do: <reason>]     consciously discarded
 -->
 
-- [open] Document the `POSE-Spec: <slug>` trailer workflow in `AGENTS.md` and `.pose/workflows/feature.md` (Issue #29).
+- [open] Document the `POSE-Spec: <slug>` trailer workflow in `AGENTS.md` and `.pose/workflows/feature.md` (Issue #29). (owner:@pose-maintainers crit:medium review:2026-09-21)

@@ -41,6 +41,14 @@
       "to": "pose-structured-validation-results"
     },
     {
+      "from": "pose-closeout-delivery-assurance-convergence",
+      "to": "pose-delivery-surface-assurance"
+    },
+    {
+      "from": "pose-closeout-delivery-assurance-convergence",
+      "to": "pose-artifact-provenance-ledger"
+    },
+    {
       "from": "pose-compat-gate-candidate-integrity",
       "to": "pose-installer-local-binary-precedence"
     },
@@ -484,6 +492,12 @@
       "priority": 23,
       "status": "done"
     },
+    "pose-agy-smoke-test": {
+      "depends_on": null,
+      "path": ".pose/specs/pose-agy-smoke-test/spec.md",
+      "priority": 1,
+      "status": "draft"
+    },
     "pose-artifact-provenance-ledger": {
       "depends_on": [
         "pose-hierarchical-review-closeout"
@@ -521,6 +535,15 @@
       "path": ".pose/specs/pose-changed-scope-validation/spec.md",
       "priority": 16,
       "status": "done"
+    },
+    "pose-closeout-delivery-assurance-convergence": {
+      "depends_on": [
+        "pose-delivery-surface-assurance",
+        "pose-artifact-provenance-ledger"
+      ],
+      "path": ".pose/specs/pose-closeout-delivery-assurance-convergence/spec.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-command-reference-parity": {
       "depends_on": null,
