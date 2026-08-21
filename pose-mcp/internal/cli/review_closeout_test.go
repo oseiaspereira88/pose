@@ -361,3 +361,36 @@ func TestReviewAutoAttestCLI(t *testing.T) {
 		t.Fatalf("review verify failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
 }
+
+func TestPoseCloseWithLiveGitTrailerNoReport(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"}}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","governed_roots":["internal"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/delivery.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","results_path":".pose/results/current.json"}`)
+	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-03\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n\n## 3. Technical Plan\n\n### Artifacts\n- created: internal/feature.go\n\n## 4. Tasks\nwork\n")
+	writeCloseoutCLIFile(t, root, "README.md", "baseline\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "baseline")
+
+	writeCloseoutCLIFile(t, root, "internal/feature.go", "package internal\n")
+	artifactGit(t, root, "add", "--", "internal/feature.go")
+	artifactGit(t, root, "commit", "-q", "-m", "implement feature", "-m", "POSE-Spec: alpha")
+
+	var out, errOut bytes.Buffer
+	if code := cmdReviewRecord(root, []string{"spec:alpha", "--reviewer", "agent:test", "--decision", "approved", "--evidence", "check:unit", "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("review record failed: code=%d err=%s", code, errOut.String())
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdClose(root, []string{"spec:alpha"}, &out, &errOut); code != 0 {
+		t.Fatalf("pose close should succeed with live git trailer without prior report history: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	state, err := (posemodel.Store{Root: root}).GetCloseoutState("spec:alpha")
+	if err != nil || !state.Terminal {
+		t.Fatalf("expected terminal closeout, got state=%+v err=%v", state, err)
+	}
+}

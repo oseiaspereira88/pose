@@ -329,7 +329,15 @@ func deliverySpecBlockers(root, slug string) []string {
 	blockers := []string{}
 	for _, finding := range graph.Findings {
 		if finding.Severity == "error" || finding.Severity == "critical" {
-			blockers = append(blockers, finding.Code+": "+finding.Message)
+			msg := finding.Code
+			if finding.Path != "" {
+				msg += " [" + finding.Path + "]"
+			}
+			msg += ": " + finding.Message
+			if finding.Remediation != "" {
+				msg += " (" + finding.Remediation + ")"
+			}
+			blockers = append(blockers, msg)
 		}
 	}
 	return uniqueCLIStrings(blockers)

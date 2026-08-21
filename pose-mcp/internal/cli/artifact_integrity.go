@@ -70,6 +70,7 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 		return posemodel.ChangeSet{}, fmt.Errorf("a valid spec slug is required")
 	}
 	selector := "range:" + base + ".." + head
+	var trailerCommits []string
 	if base == "" && head == "" {
 		commits, err := commitsWithSpecTrailer(root, spec)
 		if err != nil {
@@ -78,6 +79,7 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 		if len(commits) == 0 {
 			return posemodel.ChangeSet{}, fmt.Errorf("no commits carry POSE-Spec: %s", spec)
 		}
+		trailerCommits = commits
 		head = commits[len(commits)-1]
 		base = commits[0] + "^"
 		selector = "trailers:" + spec
@@ -92,45 +94,141 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 	if err != nil {
 		return posemodel.ChangeSet{}, err
 	}
-	nameStatus, err := gitOutputBounded(root, 8*1024*1024, "diff", "--name-status", "-M", "--no-ext-diff", resolvedBase, resolvedHead, "--")
-	if err != nil {
-		return posemodel.ChangeSet{}, err
-	}
-	paths, err := parseGitNameStatus(nameStatus)
-	if err != nil {
-		return posemodel.ChangeSet{}, err
-	}
-	diff, err := gitOutputBounded(root, 32*1024*1024, "diff", "--binary", "--no-ext-diff", resolvedBase, resolvedHead, "--")
-	if err != nil {
-		return posemodel.ChangeSet{}, err
-	}
-	digest := sha256.Sum256(diff)
 	commitsRaw, err := gitOutputBounded(root, 4*1024*1024, "rev-list", "--reverse", resolvedBase+".."+resolvedHead, "--")
 	if err != nil {
 		return posemodel.ChangeSet{}, err
 	}
 	commits := splitNonEmpty(string(commitsRaw), "\n")
+
+	var paths []posemodel.ObservedPath
+	var diff []byte
+	if len(trailerCommits) > 0 && len(commits) > len(trailerCommits) {
+		commits = trailerCommits
+		commitPathLists := make([][]posemodel.ObservedPath, 0, len(commits))
+		var diffBuf bytes.Buffer
+		for _, sha := range commits {
+			nameStatus, err := gitOutputBounded(root, 4*1024*1024, "diff-tree", "--no-commit-id", "--name-status", "-M", "-r", sha, "--")
+			if err != nil {
+				return posemodel.ChangeSet{}, err
+			}
+			parsed, err := parseGitNameStatus(nameStatus)
+			if err != nil {
+				return posemodel.ChangeSet{}, err
+			}
+			commitPathLists = append(commitPathLists, parsed)
+			commitDiff, err := gitOutputBounded(root, 16*1024*1024, "show", "--binary", "--no-ext-diff", "--format=", sha, "--")
+			if err != nil {
+				return posemodel.ChangeSet{}, err
+			}
+			diffBuf.Write(commitDiff)
+		}
+		paths = mergeObservedPaths(commitPathLists)
+		diff = diffBuf.Bytes()
+	} else {
+		nameStatus, err := gitOutputBounded(root, 8*1024*1024, "diff", "--name-status", "-M", "--no-ext-diff", resolvedBase, resolvedHead, "--")
+		if err != nil {
+			return posemodel.ChangeSet{}, err
+		}
+		paths, err = parseGitNameStatus(nameStatus)
+		if err != nil {
+			return posemodel.ChangeSet{}, err
+		}
+		diff, err = gitOutputBounded(root, 32*1024*1024, "diff", "--binary", "--no-ext-diff", resolvedBase, resolvedHead, "--")
+		if err != nil {
+			return posemodel.ChangeSet{}, err
+		}
+	}
+	digest := sha256.Sum256(diff)
 	idSum := sha256.Sum256([]byte(spec + "\x00" + resolvedBase + "\x00" + resolvedHead + "\x00" + hex.EncodeToString(digest[:])))
 	return posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(idSum[:6]), Spec: spec, Selector: selector, Base: base, Head: head, ResolvedBase: resolvedBase, ResolvedHead: resolvedHead, Commits: commits, Paths: paths, DiffDigest: "sha256:" + hex.EncodeToString(digest[:])}, nil
 }
 
-func commitsWithSpecTrailer(root, spec string) ([]string, error) {
+func allCommitsWithSpecTrailers(root string) (map[string][]string, error) {
 	out, err := gitOutputBounded(root, 8*1024*1024, "log", "--all", "--reverse", "--max-count=500", "--format=%H%x00%B%x00")
 	if err != nil {
 		return nil, err
 	}
 	parts := bytes.Split(out, []byte{0})
-	commits := []string{}
+	specCommits := map[string][]string{}
 	for i := 0; i+1 < len(parts); i += 2 {
 		sha, body := strings.TrimSpace(string(parts[i])), string(parts[i+1])
 		for _, line := range strings.Split(body, "\n") {
-			if strings.TrimSpace(line) == "POSE-Spec: "+spec {
-				commits = append(commits, sha)
-				break
+			line = strings.TrimSpace(line)
+			if strings.HasPrefix(line, "POSE-Spec:") {
+				spec := strings.TrimSpace(strings.TrimPrefix(line, "POSE-Spec:"))
+				if spec != "" {
+					specCommits[spec] = append(specCommits[spec], sha)
+				}
 			}
 		}
 	}
-	return commits, nil
+	return specCommits, nil
+}
+
+func commitsWithSpecTrailer(root, spec string) ([]string, error) {
+	specCommits, err := allCommitsWithSpecTrailers(root)
+	if err != nil {
+		return nil, err
+	}
+	return specCommits[spec], nil
+}
+
+func mergeObservedPaths(commitPathLists [][]posemodel.ObservedPath) []posemodel.ObservedPath {
+	type pathState struct {
+		action  string
+		oldPath string
+		newPath string
+	}
+	stateByPath := map[string]pathState{}
+	for _, paths := range commitPathLists {
+		for _, p := range paths {
+			switch p.Action {
+			case "created":
+				if prev, ok := stateByPath[p.Path]; ok && prev.action == "removed" {
+					stateByPath[p.Path] = pathState{action: "modified", newPath: p.Path}
+				} else {
+					stateByPath[p.Path] = pathState{action: "created", newPath: p.Path}
+				}
+			case "modified":
+				if _, ok := stateByPath[p.Path]; !ok {
+					stateByPath[p.Path] = pathState{action: "modified", newPath: p.Path}
+				}
+			case "removed":
+				if prev, ok := stateByPath[p.Path]; ok && prev.action == "created" {
+					delete(stateByPath, p.Path)
+				} else {
+					stateByPath[p.Path] = pathState{action: "removed", newPath: p.Path}
+				}
+			case "renamed":
+				if prev, ok := stateByPath[p.OldPath]; ok && prev.action == "created" {
+					delete(stateByPath, p.OldPath)
+					stateByPath[p.NewPath] = pathState{action: "created", newPath: p.NewPath}
+				} else {
+					initialOld := p.OldPath
+					if prev, ok := stateByPath[p.OldPath]; ok && prev.action == "renamed" {
+						initialOld = prev.oldPath
+						delete(stateByPath, p.OldPath)
+					}
+					stateByPath[p.NewPath] = pathState{action: "renamed", oldPath: initialOld, newPath: p.NewPath}
+				}
+			}
+		}
+	}
+	result := make([]posemodel.ObservedPath, 0, len(stateByPath))
+	for path, st := range stateByPath {
+		switch st.action {
+		case "created":
+			result = append(result, posemodel.ObservedPath{Action: "created", Path: path})
+		case "modified":
+			result = append(result, posemodel.ObservedPath{Action: "modified", Path: path})
+		case "removed":
+			result = append(result, posemodel.ObservedPath{Action: "removed", Path: path})
+		case "renamed":
+			result = append(result, posemodel.ObservedPath{Action: "renamed", OldPath: st.oldPath, NewPath: st.newPath})
+		}
+	}
+	sort.Slice(result, func(i, j int) bool { return observedSortKey(result[i]) < observedSortKey(result[j]) })
+	return result
 }
 
 func parseGitNameStatus(raw []byte) ([]posemodel.ObservedPath, error) {
@@ -200,7 +298,23 @@ func collectArtifactGraphInputs(root string) ([]posemodel.Spec, []posemodel.Arti
 	if err != nil {
 		tracked = []string{}
 	}
-	changeSets := loadRecordedChangeSets(root)
+	changeSetsMap := map[string]posemodel.ChangeSet{}
+	for _, recorded := range loadRecordedChangeSets(root) {
+		changeSetsMap[recorded.ID] = recorded
+	}
+	specTrailers, _ := allCommitsWithSpecTrailers(root)
+	for _, spec := range specs {
+		if len(specTrailers[spec.Slug]) > 0 {
+			if set, err := resolveGitChangeSet(root, spec.Slug, "", ""); err == nil {
+				changeSetsMap[set.ID] = set
+			}
+		}
+	}
+	changeSets := make([]posemodel.ChangeSet, 0, len(changeSetsMap))
+	for _, set := range changeSetsMap {
+		changeSets = append(changeSets, set)
+	}
+	sort.Slice(changeSets, func(i, j int) bool { return changeSets[i].ID < changeSets[j].ID })
 	return specs, claims, changeSets, tracked, policy, nil
 }
 

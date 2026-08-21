@@ -234,3 +234,87 @@ func TestIndexWritesDeliveryIntegrityGraphAndReverseLookup(t *testing.T) {
 		t.Fatalf("reverse=%v", graph.Reverse)
 	}
 }
+
+func TestCollectArtifactGraphInputsGitParity(t *testing.T) {
+	root, _, _ := artifactGitFixture(t)
+	specs, claims, changeSets, tracked, policy, err := collectArtifactGraphInputs(root)
+	if err != nil {
+		t.Fatalf("collectArtifactGraphInputs err=%v", err)
+	}
+	if len(changeSets) != 1 || changeSets[0].Spec != "alpha" {
+		t.Fatalf("expected live git changeset for alpha, got: %+v", changeSets)
+	}
+	graph := posemodel.BuildDeliveryIntegrity(specs, claims, changeSets, tracked, policy)
+	for _, finding := range graph.Findings {
+		if finding.Spec == "alpha" && finding.Code == "action-mismatch" {
+			t.Fatalf("unexpected action-mismatch on live git commit: %+v", finding)
+		}
+	}
+}
+
+func TestNonContiguousCommitDiffResolution(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	writeArtifactTestFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-03","governed_roots":["internal"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
+	writeArtifactTestFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-03\n---\n\n# Spec: alpha\n\n## 3. Technical Plan\n\n### Artifacts\n- created: internal/alpha1.go\n- created: internal/alpha2.go\n\n## 4. Tasks\nwork\n")
+	writeArtifactTestFile(t, root, "README.md", "base\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "baseline")
+
+	// Commit 1 for alpha
+	writeArtifactTestFile(t, root, "internal/alpha1.go", "package internal\n")
+	artifactGit(t, root, "add", "--", "internal/alpha1.go")
+	artifactGit(t, root, "commit", "-q", "-m", "alpha part 1", "-m", "POSE-Spec: alpha")
+
+	// Interleaved commit for unrelated beta
+	writeArtifactTestFile(t, root, "internal/beta.go", "package internal\n")
+	artifactGit(t, root, "add", "--", "internal/beta.go")
+	artifactGit(t, root, "commit", "-q", "-m", "unrelated beta work", "-m", "POSE-Spec: beta")
+
+	// Commit 2 for alpha
+	writeArtifactTestFile(t, root, "internal/alpha2.go", "package internal\n")
+	artifactGit(t, root, "add", "--", "internal/alpha2.go")
+	artifactGit(t, root, "commit", "-q", "-m", "alpha part 2", "-m", "POSE-Spec: alpha")
+
+	set, err := resolveGitChangeSet(root, "alpha", "", "")
+	if err != nil {
+		t.Fatalf("resolveGitChangeSet err=%v", err)
+	}
+	if len(set.Commits) != 2 {
+		t.Fatalf("expected 2 commits attributed to alpha, got %d", len(set.Commits))
+	}
+	for _, p := range set.Paths {
+		if strings.Contains(p.Path, "beta") {
+			t.Fatalf("unrelated commit file leaked into non-contiguous changeset: %+v", set.Paths)
+		}
+	}
+	if len(set.Paths) != 2 {
+		t.Fatalf("expected exactly 2 observed paths for alpha, got: %+v", set.Paths)
+	}
+}
+
+func TestDeliverySpecBlockersPathAndRemediationDiagnostics(t *testing.T) {
+	root, _, _ := artifactGitFixture(t)
+	// Mutate spec to claim a missing file
+	path := filepath.Join(root, ".pose/specs/alpha/spec.md")
+	raw, _ := os.ReadFile(path)
+	text := strings.Replace(string(raw), "- created: internal/new.go", "- created: internal/missing.go", 1)
+	if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	blockers := deliverySpecBlockers(root, "alpha")
+	if len(blockers) == 0 {
+		t.Fatal("expected blockers for mismatched artifact")
+	}
+	foundPath := false
+	for _, b := range blockers {
+		if strings.Contains(b, "[internal/missing.go]") {
+			foundPath = true
+		}
+	}
+	if !foundPath {
+		t.Fatalf("blockers did not include exact artifact path: %v", blockers)
+	}
+}

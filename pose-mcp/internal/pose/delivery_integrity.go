@@ -284,7 +284,11 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 			if claim.Action == "renamed" {
 				path = claim.OldPath + " -> " + claim.NewPath
 			}
-			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("action-mismatch", severity(policy, "action-mismatch"), spec, path, "", "declared artifact action is absent from the attributed Git change sets", "correct the action or record the exact attributed revisions"))
+			details := "correct the action or record the exact attributed revisions"
+			if len(observedBySpec[spec]) == 0 {
+				details = fmt.Sprintf("no Git change sets are attributed to spec %s (ensure commits carry 'POSE-Spec: %s' trailer or generate report with pose report)", spec, spec)
+			}
+			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("action-mismatch", severity(policy, "action-mismatch"), spec, path, "", "declared artifact action is absent from the attributed Git change sets", details))
 		}
 	}
 	for _, set := range graph.ChangeSets {
