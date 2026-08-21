@@ -78,6 +78,7 @@ Provide a native `pose contribute` CLI command group and governed agent operatin
 - modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/managed_docs.go
+- modified: pose-mcp/internal/pose/review_bundle.go
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: docs-site/docs/cli.md
