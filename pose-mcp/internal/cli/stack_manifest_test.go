@@ -138,3 +138,32 @@ func TestInstallSeedsModuleMetadataForCloudflareWorkersModule(t *testing.T) {
 		t.Errorf("seeded validation-matrix.json has no cloudflare-workers stack entry: %+v", matrix.Stacks)
 	}
 }
+
+func TestStackManifestFixturesExpansion(t *testing.T) {
+	root := t.TempDir()
+	mustWrite(t, filepath.Join(root, "py-poetry", "poetry.lock"), "")
+	mustWrite(t, filepath.Join(root, "py-pipenv", "Pipfile"), "")
+	mustWrite(t, filepath.Join(root, "py-reqs", "requirements.txt"), "")
+	mustWrite(t, filepath.Join(root, "net-sln", "app.sln"), "")
+	mustWrite(t, filepath.Join(root, "net-proj", "App.csproj"), "<Project></Project>")
+
+	mods, err := discoverValidationModules(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	byPath := map[string]string{}
+	for _, m := range mods {
+		byPath[m.Rel] = m.Stack
+	}
+
+	for _, p := range []string{"py-poetry", "py-pipenv", "py-reqs"} {
+		if byPath[p] != "python" {
+			t.Errorf("expected python stack for %s, got %q", p, byPath[p])
+		}
+	}
+	for _, p := range []string{"net-sln", "net-proj"} {
+		if byPath[p] != "dotnet" {
+			t.Errorf("expected dotnet stack for %s, got %q", p, byPath[p])
+		}
+	}
+}

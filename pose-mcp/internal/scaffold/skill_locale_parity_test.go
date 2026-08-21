@@ -74,6 +74,7 @@ var multiWordCommands = map[string]bool{
 	"docs-review": true,
 	"state":       true,
 	"telemetry":   true,
+	"roadmap":     true,
 }
 
 func TestSkillLocaleParity(t *testing.T) {

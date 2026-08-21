@@ -450,7 +450,7 @@ func cmdExtensionVerify(root string, args []string, stdout, stderr io.Writer) in
 
 func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) < 1 {
-		return usageError(stderr, "Usage: pose extension install <package-dir|extension-id> [--dry-run] [--yes] [--force] [--allow-unsigned] [--locale tag]")
+		return usageError(stderr, "Usage: pose extension install <package-dir|extension-id> [--target dir] [--dry-run] [--yes] [--force] [--allow-unsigned] [--locale tag]")
 	}
 	pkgDir := args[0]
 	flags := args[1:]
@@ -462,6 +462,9 @@ func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) i
 	for i, a := range flags {
 		if a == "--locale" && i+1 < len(flags) {
 			locale = flags[i+1]
+		}
+		if a == "--target" && i+1 < len(flags) {
+			root = flags[i+1]
 		}
 	}
 	// An explicit --locale wins; otherwise auto-detect the target's own

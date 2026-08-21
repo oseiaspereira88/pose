@@ -392,7 +392,7 @@ Discovery and metrics:
   semantic-suggest | suggest-feedback | portfolio-projection | reconcile-evidence
 
 Extensions:
-  extension install <dir> [--dry-run] [--yes] [--force] [--allow-unsigned]
+  extension install <dir> [--target <dir>] [--dry-run] [--yes] [--force] [--allow-unsigned]
   extension list [--json] | extension remove <id> [...] | extension verify <dir>
 
 Artifacts and maintenance:
@@ -452,7 +452,7 @@ Descoberta e métricas:
   semantic-suggest | suggest-feedback | portfolio-projection | reconcile-evidence
 
 Extensões:
-  extension install <dir> [--dry-run] [--yes] [--force] [--allow-unsigned]
+  extension install <dir> [--target <dir>] [--dry-run] [--yes] [--force] [--allow-unsigned]
   extension list [--json] | extension remove <id> [...] | extension verify <dir>
 
 Geração de artefatos:

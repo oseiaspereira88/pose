@@ -379,3 +379,27 @@ func TestExtensionVerifyCommand(t *testing.T) {
 func bytesContains(s, substr string) bool {
 	return strings.Contains(s, substr)
 }
+
+func TestExtensionInstallTargetFlag(t *testing.T) {
+	fakeSignedInstall(t)
+	root := t.TempDir()
+	targetDir := t.TempDir()
+	pkgDir := t.TempDir()
+	pkg := writeExtPkg(t, pkgDir, "acme-target-skill", "1.0.0", "skill", map[string]string{".agents/skills/acme-target-skill/SKILL.md": "body"}, nil)
+
+	code, out := runExt(t, root, "install", pkg, "--target", targetDir, "--yes")
+	if code != 0 {
+		t.Fatalf("install with --target failed: %s", out)
+	}
+
+	if _, err := os.Stat(filepath.Join(targetDir, ".agents/skills/acme-target-skill/SKILL.md")); err != nil {
+		t.Fatalf("expected file in targetDir: %v", err)
+	}
+	if _, err := os.Stat(extensionLockPath(targetDir)); err != nil {
+		t.Fatalf("expected lock file in targetDir: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(root, ".agents/skills/acme-target-skill/SKILL.md")); err == nil {
+		t.Fatal("root should not contain extension files when --target is provided")
+	}
+}
