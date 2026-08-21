@@ -301,6 +301,18 @@
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
             "type": "string"
           },
+          "recent": {
+            "description": "Optional limit to return only the N most recently created specifications (sorted date-descending)",
+            "type": "integer"
+          },
+          "since": {
+            "description": "Optional relative time duration (e.g. \"14d\", \"30d\") or ISO date filter",
+            "type": "string"
+          },
+          "sort": {
+            "description": "Optional sort order: \"date\" (created_at descending) or \"slug\" (alphabetical)",
+            "type": "string"
+          },
           "status": {
             "description": "Optional lifecycle filter: draft, in-progress, done, blocked, superseded or abandoned. Pass multiple as a comma-separated list in one call, e.g. \"draft,in-progress,blocked\" for everything still open — cheaper than one call per status.",
             "type": "string"

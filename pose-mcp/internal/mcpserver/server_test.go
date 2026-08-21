@@ -240,6 +240,18 @@ func TestToolsCall_ListSpecsFilter(t *testing.T) {
 	}
 }
 
+func TestMCPServer_ListSpecsRecent(t *testing.T) {
+	ts := newTestServer(t, "")
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{"recent":1}}}`)
+	if out.Error != nil || out.Result["isError"] != false {
+		t.Fatalf("list_specs recent failed: %+v", out)
+	}
+	structured, _ := out.Result["structuredContent"].(map[string]any)
+	if structured["count"].(float64) != 1 {
+		t.Errorf("count = %v, want 1", structured["count"])
+	}
+}
+
 func TestToolsCall_Insights(t *testing.T) {
 	ts := newTestServer(t, "")
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":31,"method":"tools/call","params":{"name":"pose_insights","arguments":{"group_by":"task","since_days":0}}}`)

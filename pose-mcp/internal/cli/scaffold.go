@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/harne8/pose-mcp/internal/pose"
 )
 
 var scaffoldSlug = regexp.MustCompile(`^[a-z0-9][a-z0-9._-]*$`)
@@ -25,35 +27,69 @@ func scaffoldSlugify(value string) string {
 // cmdNewSpec is the native parity implementation of pose-new-spec.sh.
 func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
-	if len(args) != 1 || !scaffoldSlug.MatchString(args[0]) {
-		fmt.Fprintln(stderr, cliText(locale, "Usage: pose new-spec <feature-slug>", "Uso: pose new-spec <feature-slug>"))
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, cliText(locale, "Usage: pose new-spec <feature-slug> [--flat] [--legacy]", "Uso: pose new-spec <feature-slug> [--flat] [--legacy]"))
 		return 2
 	}
-	slug := args[0]
+	slug := ""
+	isFlat := false
+	isDated := false
+	for _, a := range args {
+		switch a {
+		case "--flat":
+			isFlat = true
+		case "--dated":
+			isDated = true
+		default:
+			if !strings.HasPrefix(a, "-") && slug == "" {
+				slug = a
+			}
+		}
+	}
+	if slug == "" || !scaffoldSlug.MatchString(slug) {
+		fmt.Fprintln(stderr, cliText(locale, "Usage: pose new-spec <feature-slug> [--dated] [--flat]", "Uso: pose new-spec <feature-slug> [--dated] [--flat]"))
+		return 2
+	}
+	store := pose.Store{Root: root}
+	if existing, err := store.GetSpec(slug); err == nil && existing != nil {
+		fmt.Fprintf(stderr, cliText(locale, "Error: spec already exists: %s\n", "Erro: spec já existe: %s\n"), existing.Path)
+		return 1
+	}
 	templatePath := filepath.Join(root, ".pose", "templates", "spec.md")
 	template, err := os.ReadFile(templatePath)
 	if err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: template not found: %s\n", "Erro: template ausente: %s\n"), templatePath)
 		return 2
 	}
-	dir := filepath.Join(root, ".pose", "specs", slug)
-	if _, err := os.Stat(dir); err == nil {
-		fmt.Fprintf(stderr, cliText(locale, "Error: spec already exists: %s\n", "Erro: spec já existe: %s\n"), dir)
-		return 1
-	}
+	today := time.Now().UTC().Format("2006-01-02")
 	content := strings.ReplaceAll(string(template), "<feature-slug>", slug)
-	content = strings.ReplaceAll(content, "<YYYY-MM-DD>", time.Now().UTC().Format("2006-01-02"))
-	content = strings.ReplaceAll(content, "<created_at>", time.Now().UTC().Format("2006-01-02"))
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		fmt.Fprintf(stderr, cliText(locale, "Error: creating spec: %v\n", "Erro: criar spec: %v\n"), err)
-		return 1
+	content = strings.ReplaceAll(content, "<YYYY-MM-DD>", today)
+	content = strings.ReplaceAll(content, "<created_at>", today)
+
+	var targetPath string
+	if isFlat {
+		targetPath = filepath.Join(root, ".pose", "specs", today+"-"+slug+".md")
+	} else if isDated {
+		dir := filepath.Join(root, ".pose", "specs", today+"-"+slug)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			fmt.Fprintf(stderr, cliText(locale, "Error: creating spec dir: %v\n", "Erro: criar diretório de spec: %v\n"), err)
+			return 1
+		}
+		targetPath = filepath.Join(dir, "spec.md")
+	} else {
+		dir := filepath.Join(root, ".pose", "specs", slug)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			fmt.Fprintf(stderr, cliText(locale, "Error: creating spec dir: %v\n", "Erro: criar diretório de spec: %v\n"), err)
+			return 1
+		}
+		targetPath = filepath.Join(dir, "spec.md")
 	}
-	path := filepath.Join(dir, "spec.md")
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+
+	if err := os.WriteFile(targetPath, []byte(content), 0o644); err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: writing spec: %v\n", "Erro: escrever spec: %v\n"), err)
 		return 1
 	}
-	fmt.Fprintf(stdout, cliText(locale, "Spec created: %s (status: draft)\n", "Spec criada: %s (status: draft)\n"), path)
+	fmt.Fprintf(stdout, cliText(locale, "Spec created: %s (status: draft)\n", "Spec criada: %s (status: draft)\n"), targetPath)
 	return 0
 }
 

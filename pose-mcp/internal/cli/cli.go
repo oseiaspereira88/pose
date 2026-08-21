@@ -93,6 +93,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdNewKnowledge(root, args, stdout, stderr)
+	case "specs":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose specs: %v\n", err)
+			return 1
+		}
+		return cmdSpecs(root, args, stdout, stderr)
 	case "followups":
 		root, err := projectRoot()
 		if err != nil {

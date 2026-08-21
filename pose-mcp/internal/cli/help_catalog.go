@@ -134,6 +134,27 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose lint-spec --all --strict",
 		},
 	},
+	"specs": {
+		Name:            "specs",
+		SummaryEN:       "List, filter, and discover specifications across the repository",
+		SummaryPtBR:     "Lista, filtra e descobre especificações em todo o repositório",
+		Usage:           "pose specs [--recent <N>] [--status <s>] [--since <d>] [--components <c>] [--json]",
+		DescriptionEN:   "Discovers and lists repository specifications sorted chronologically (newest first). Supports filtering by lifecycle status, tags, recent limit, and relative time windows.",
+		DescriptionPtBR: "Descobre e lista especificações do repositório ordenadas cronologicamente (mais recentes primeiro). Suporta filtros por status, tags, limite recente e janelas de tempo.",
+		Flags: []FlagHelp{
+			{"--recent <N>", "Limit output to the N most recently created specifications", "Limita a saída às N especificações mais recentes"},
+			{"--status <status>", "Filter by lifecycle status (draft, in-progress, done, blocked)", "Filtra pelo status do ciclo de vida (draft, in-progress, done, blocked)"},
+			{"--since <window>", "Filter specs created within a relative duration (e.g. 14d, 30d) or ISO date", "Filtra specs criadas em uma janela relativa (ex: 14d, 30d) ou data ISO"},
+			{"--components <tags>", "Filter by comma-separated component tags with OR semantics", "Filtra por tags de componentes separadas por vírgula"},
+			{"--json", "Output specifications in structured JSON format", "Emite as especificações em formato JSON estruturado"},
+		},
+		Examples: []string{
+			"pose specs --recent 10",
+			"pose specs --status in-progress",
+			"pose specs --since 14d",
+			"pose specs --json",
+		},
+	},
 	"new-spec": {
 		Name:            "new-spec",
 		SummaryEN:       "Scaffold a new feature specification",

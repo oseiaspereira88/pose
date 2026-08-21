@@ -298,6 +298,7 @@ func isRuntimeReference(ref string) bool {
 		".pose/feedback",
 		".pose/results",
 		".pose/reports/history",
+		".pose/specs",
 	}
 	for _, rp := range runtimePrefixes {
 		if ref == rp || strings.HasPrefix(ref, rp+"/") {

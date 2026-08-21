@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -892,6 +893,9 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			Components string `json:"components"`
 			Cursor     string `json:"cursor"`
 			Limit      int    `json:"limit"`
+			Recent     int    `json:"recent"`
+			Sort       string `json:"sort"`
+			Since      string `json:"since"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_specs: invalid arguments")
@@ -899,6 +903,34 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		specs, err := store.ListSpecs(a.Status, a.Components)
 		if err != nil {
 			return nil, err
+		}
+		if a.Since != "" {
+			if sinceDate, parseErr := pose.ParseSinceDate(a.Since); parseErr == nil {
+				filtered := []pose.Spec{}
+				for _, sp := range specs {
+					dateStr := sp.CreatedAt
+					if dateStr == "" {
+						dateStr = sp.CompletedAt
+					}
+					if dateStr != "" {
+						if t, err := time.Parse("2006-01-02", dateStr); err == nil && !t.Before(sinceDate) {
+							filtered = append(filtered, sp)
+						}
+					}
+				}
+				specs = filtered
+			}
+		}
+		if a.Sort == "date" || a.Recent > 0 {
+			sort.Slice(specs, func(i, j int) bool {
+				if specs[i].CreatedAt != specs[j].CreatedAt {
+					return specs[i].CreatedAt > specs[j].CreatedAt
+				}
+				return specs[i].Slug < specs[j].Slug
+			})
+		}
+		if a.Recent > 0 && a.Recent < len(specs) {
+			specs = specs[:a.Recent]
 		}
 		after, err := decodePageCursor(a.Cursor)
 		if err != nil {
@@ -1759,6 +1791,18 @@ func toolDefinitions() []map[string]any {
 					"project_id": map[string]any{
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+					"recent": map[string]any{
+						"type":        "integer",
+						"description": "Optional limit to return only the N most recently created specifications (sorted date-descending)",
+					},
+					"sort": map[string]any{
+						"type":        "string",
+						"description": "Optional sort order: \"date\" (created_at descending) or \"slug\" (alphabetical)",
+					},
+					"since": map[string]any{
+						"type":        "string",
+						"description": "Optional relative time duration (e.g. \"14d\", \"30d\") or ISO date filter",
 					},
 					"cursor": map[string]any{
 						"type":        "string",

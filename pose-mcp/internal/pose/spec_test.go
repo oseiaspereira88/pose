@@ -317,3 +317,45 @@ func TestIntegration_DogfoodRepo(t *testing.T) {
 		t.Errorf("ListSpecs on repo: len=%d err=%v, want >=2 specs", len(all), err)
 	}
 }
+
+func TestGetSpec_HybridResolution(t *testing.T) {
+	root := t.TempDir()
+	write := func(rel, content string) {
+		path := filepath.Join(root, rel)
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// 1. Date-prefixed folder
+	write(".pose/specs/2026-08-21-auth-flow/spec.md", "---\nslug: auth-flow\nstatus: done\ncreated_at: 2026-08-21\n---\n# Auth Flow\n")
+	// 2. Date-prefixed flat file
+	write(".pose/specs/2026-08-21-billing-api.md", "---\nslug: billing-api\nstatus: in-progress\ncreated_at: 2026-08-21\n---\n# Billing API\n")
+	// 3. Legacy folder
+	write(".pose/specs/legacy-folder/spec.md", "---\nslug: legacy-folder\nstatus: draft\n---\n# Legacy\n")
+
+	s := Store{Root: root}
+
+	sp1, err := s.GetSpec("auth-flow")
+	if err != nil || sp1.Slug != "auth-flow" || sp1.Status != "done" {
+		t.Fatalf("failed to resolve date-prefixed folder: %v, %+v", err, sp1)
+	}
+
+	sp2, err := s.GetSpec("billing-api")
+	if err != nil || sp2.Slug != "billing-api" || sp2.Status != "in-progress" {
+		t.Fatalf("failed to resolve date-prefixed flat file: %v, %+v", err, sp2)
+	}
+
+	sp3, err := s.GetSpec("legacy-folder")
+	if err != nil || sp3.Slug != "legacy-folder" {
+		t.Fatalf("failed to resolve legacy folder: %v, %+v", err, sp3)
+	}
+
+	all, err := s.ListSpecs("", "")
+	if err != nil || len(all) != 3 {
+		t.Fatalf("ListSpecs hybrid: len=%d err=%v, want 3", len(all), err)
+	}
+}

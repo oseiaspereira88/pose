@@ -10,7 +10,8 @@ without Bash or Python fallbacks and works offline.
 | Command | Purpose |
 |---|---|
 | `pose init [--wizard [--yes]]` | Ensure the minimal structure; the wizard detects stacks and seeds the validation matrix |
-| `pose new-spec <slug>` | Create `.pose/specs/<slug>/spec.md` from the template |
+| `pose specs [--recent N] [--status S] [--since D] [--json]` | List and discover specifications chronologically (newest first) |
+| `pose new-spec <slug>` | Create `.pose/specs/YYYY-MM-DD-<slug>/spec.md` from the template (hybrid engine resolution) |
 | `pose new-roadmap <slug>` | Create a governed roadmap in `.pose/roadmaps/` |
 | `pose new-adr "<title>"` | Create a dated ADR |
 | `pose new-knowledge <type> <slug>` | Create handoff/note/decision-log (`--owner`, `--ttl-days`, `--restricted`) |

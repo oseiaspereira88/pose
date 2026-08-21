@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Spec is the parsed view of a POSE spec: the lifecycle frontmatter plus the
@@ -49,12 +50,14 @@ type Store struct {
 func (s Store) specsDir() string { return filepath.Join(s.Root, ".pose", "specs") }
 
 // GetSpec returns a spec by slug, body included. The canonical layout is
-// .pose/specs/<slug>/spec.md; flat legacy files (.pose/specs/<slug>.md) and
-// section-split directories are also supported.
+// .pose/specs/<slug>/spec.md or date-prefixed .pose/specs/<YYYY-MM-DD>-<slug>/spec.md;
+// flat legacy/dated files (.pose/specs/<slug>.md, .pose/specs/<YYYY-MM-DD>-<slug>.md)
+// and section-split directories are also supported.
 func (s Store) GetSpec(slug string) (*Spec, error) {
 	if err := ValidateSlug(slug); err != nil {
 		return nil, err
 	}
+	// 1. Direct path matches
 	canonical := filepath.Join(s.specsDir(), slug, "spec.md")
 	if _, err := os.Stat(canonical); err == nil {
 		return parseSpecFile(canonical, slug, true)
@@ -67,6 +70,52 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 	if files := splitSpecFiles(splitDir); len(files) > 0 {
 		return parseSplitSpec(splitDir, slug, files, true)
 	}
+
+	// 2. Scan for date-prefixed or suffix-matching directories and files
+	entries, err := os.ReadDir(s.specsDir())
+	if err == nil {
+		for _, e := range entries {
+			name := e.Name()
+			if e.IsDir() {
+				if strings.HasSuffix(name, "-"+slug) || strings.HasSuffix(name, "_"+slug) {
+					dir := filepath.Join(s.specsDir(), name)
+					path := filepath.Join(dir, "spec.md")
+					if _, statErr := os.Stat(path); statErr == nil {
+						return parseSpecFile(path, slug, true)
+					}
+					if files := splitSpecFiles(dir); len(files) > 0 {
+						return parseSplitSpec(dir, slug, files, true)
+					}
+				}
+			} else if strings.HasSuffix(name, ".md") && !strings.EqualFold(name, "README.md") {
+				base := strings.TrimSuffix(name, ".md")
+				if strings.HasSuffix(base, "-"+slug) || strings.HasSuffix(base, "_"+slug) {
+					path := filepath.Join(s.specsDir(), name)
+					return parseSpecFile(path, slug, true)
+				}
+			}
+		}
+
+		// 3. Fallback scan matching frontmatter slug
+		for _, e := range entries {
+			name := e.Name()
+			var path string
+			if e.IsDir() {
+				cand := filepath.Join(s.specsDir(), name, "spec.md")
+				if _, statErr := os.Stat(cand); statErr == nil {
+					path = cand
+				}
+			} else if strings.HasSuffix(name, ".md") && !strings.EqualFold(name, "README.md") {
+				path = filepath.Join(s.specsDir(), name)
+			}
+			if path != "" {
+				if sp, err := parseSpecFile(path, name, true); err == nil && sp.Slug == slug {
+					return sp, nil
+				}
+			}
+		}
+	}
+
 	return nil, fmt.Errorf("pose: spec %q not found", slug)
 }
 
@@ -144,6 +193,22 @@ func splitCommaFilter(value string) []string {
 		}
 	}
 	return wanted
+}
+
+// ParseSinceDate parses a relative duration (e.g. "14d", "30d") or ISO date ("2006-01-02").
+func ParseSinceDate(val string) (time.Time, error) {
+	val = strings.TrimSpace(val)
+	if strings.HasSuffix(val, "d") {
+		daysStr := strings.TrimSuffix(val, "d")
+		days, err := strconv.Atoi(daysStr)
+		if err == nil {
+			return time.Now().UTC().AddDate(0, 0, -days), nil
+		}
+	}
+	if t, err := time.Parse("2006-01-02", val); err == nil {
+		return t, nil
+	}
+	return time.Time{}, fmt.Errorf("invalid since format %q", val)
 }
 
 // splitStatusFilter parses a status filter into its wanted values (see
