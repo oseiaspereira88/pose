@@ -529,7 +529,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if strings.HasPrefix(path, ".pose/specs/") {
 		return "semantic-scope", false
 	}
-	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/contributions/", ".pose/feedback/", ".pose/changelogs/"} {
+	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/contributions/", ".pose/feedback/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "derived-evidence", false
 		}
@@ -547,7 +547,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if strings.HasPrefix(path, ".pose/indexes/") {
 		return "derived-index", false
 	}
-	for _, prefix := range []string{".pose/policy/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".agents/skills/", "extensions/"} {
+	for _, prefix := range []string{".pose/policy/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".agents/skills/", "extensions/", ".pose/changelogs/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}
