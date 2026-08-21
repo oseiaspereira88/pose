@@ -22,7 +22,12 @@ import (
 // content check (currently only "node") is resolved by resolveRuleExtension
 // instead of appearing here.
 var ruleExtensionByStack = map[string]string{
-	"go": "pose-rule-backend-go",
+	"go":                 "pose-rule-backend-go",
+	"python":             "pose-rule-backend-python",
+	"rust":               "pose-rule-backend-rust",
+	"java":               "pose-rule-backend-java",
+	"dotnet":             "pose-rule-backend-dotnet",
+	"cloudflare-workers": "pose-rule-serverless-cloudflare",
 }
 
 // resolveRuleExtension resolves the rule extension matching a discovered

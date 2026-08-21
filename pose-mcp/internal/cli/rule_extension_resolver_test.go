@@ -41,9 +41,27 @@ func TestResolveRuleExtensionNodeWithoutReactDoesNotMatch(t *testing.T) {
 	}
 }
 
+func TestResolveRuleExtensionAllStacks(t *testing.T) {
+	root := t.TempDir()
+	expected := map[string]string{
+		"go":                 "pose-rule-backend-go",
+		"python":             "pose-rule-backend-python",
+		"rust":               "pose-rule-backend-rust",
+		"java":               "pose-rule-backend-java",
+		"dotnet":             "pose-rule-backend-dotnet",
+		"cloudflare-workers": "pose-rule-serverless-cloudflare",
+	}
+	for stack, wantID := range expected {
+		id, ok := resolveRuleExtension(root, "mod", stack)
+		if !ok || id != wantID {
+			t.Errorf("resolveRuleExtension(%s) = (%q, %v), want (%q, true)", stack, id, ok, wantID)
+		}
+	}
+}
+
 func TestResolveRuleExtensionUnmappedStacksNeverMatch(t *testing.T) {
 	root := t.TempDir()
-	for _, stack := range []string{"rust", "python", "java", "dotnet", "unknown-stack"} {
+	for _, stack := range []string{"ruby", "php", "elixir", "unknown-stack"} {
 		if id, ok := resolveRuleExtension(root, "mod", stack); ok {
 			t.Errorf("resolveRuleExtension(%s) = (%q, true), want no match — no extension authored for this stack yet", stack, id)
 		}
@@ -85,13 +103,13 @@ func TestDoctorSilentWhenRuleExtensionAlreadyInstalled(t *testing.T) {
 func TestDoctorSilentForUnmappedStack(t *testing.T) {
 	root := doctorTrailerFixture(t)
 	mustWrite(t, filepath.Join(root, ".pose", "indexes", "module-metadata.json"),
-		`{"schemaVersion":1,"defaults":{},"modules":{"worker":{"domain":"rust","criticality":"medium","validationProfile":"baseline"}}}`)
+		`{"schemaVersion":1,"defaults":{},"modules":{"worker":{"domain":"ruby","criticality":"medium","validationProfile":"baseline"}}}`)
 
 	f, ok := findDoctorFinding(runDoctorJSON(t, root), "rules.stack-extension-available")
 	if !ok {
 		t.Fatal("expected a rules.stack-extension-available finding (ok level)")
 	}
 	if f.Level != "ok" {
-		t.Errorf("rules.stack-extension-available level=%q, want ok — no extension exists for rust yet", f.Level)
+		t.Errorf("rules.stack-extension-available level=%q, want ok — no extension exists for ruby yet", f.Level)
 	}
 }

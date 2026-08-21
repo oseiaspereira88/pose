@@ -61,9 +61,15 @@ AI agents must use assessment tools at specific points in the flow:
 
 Apply the rules relevant to the scope, cumulatively:
 
-- Go backend: shipped as the extension `pose-rule-backend-go`, not embedded — install it with `pose extension install` when the repository has a Go backend.
-- React frontend: shipped as the extension `pose-rule-frontend-react`, not embedded — install it with `pose extension install` when the repository has a React frontend.
-- Kubernetes: shipped as the reference extension `pose-rule-kubernetes`, not embedded — install it with `pose extension install` when the repository deploys to a cluster.
+- Go backend: shipped as the extension `pose-rule-backend-go` — install with `pose extension install pose-rule-backend-go`.
+- Python backend: shipped as the extension `pose-rule-backend-python` — install with `pose extension install pose-rule-backend-python`.
+- Rust backend: shipped as the extension `pose-rule-backend-rust` — install with `pose extension install pose-rule-backend-rust`.
+- Java/Kotlin backend: shipped as the extension `pose-rule-backend-java` — install with `pose extension install pose-rule-backend-java`.
+- .NET backend: shipped as the extension `pose-rule-backend-dotnet` — install with `pose extension install pose-rule-backend-dotnet`.
+- React frontend: shipped as the extension `pose-rule-frontend-react` — install with `pose extension install pose-rule-frontend-react`.
+- Cloudflare Workers: shipped as the extension `pose-rule-serverless-cloudflare` — install with `pose extension install pose-rule-serverless-cloudflare`.
+- Terraform: shipped as the extension `pose-rule-infra-terraform` — install with `pose extension install pose-rule-infra-terraform`.
+- Kubernetes: shipped as the reference extension `pose-rule-kubernetes` — install with `pose extension install pose-rule-kubernetes`.
 - Security: [`.pose/rules/security.md`](.pose/rules/security.md)
 - Documentation / Process: [`.pose/rules/documentation-style.md`](.pose/rules/documentation-style.md)
 - Delivery evidence (claiming delivery requires a gate): [`.pose/rules/delivery-evidence.md`](.pose/rules/delivery-evidence.md)

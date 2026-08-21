@@ -61,9 +61,15 @@ Agentes de IA devem utilizar as ferramentas de assessment em momentos específic
 
 Aplique cumulativamente as rules relevantes ao escopo:
 
-- Backend Go: distribuída como a extensão `pose-rule-backend-go`, não embutida — instale com `pose extension install` quando o repositório tem um backend Go.
-- Frontend React: distribuída como a extensão `pose-rule-frontend-react`, não embutida — instale com `pose extension install` quando o repositório tem um frontend React.
-- Kubernetes: distribuída como a extensão de referência `pose-rule-kubernetes`, não embutida — instale com `pose extension install` quando o repositório faz deploy em cluster.
+- Backend Go: distribuída como a extensão `pose-rule-backend-go` — instale com `pose extension install pose-rule-backend-go`.
+- Backend Python: distribuída como a extensão `pose-rule-backend-python` — instale com `pose extension install pose-rule-backend-python`.
+- Backend Rust: distribuída como a extensão `pose-rule-backend-rust` — instale com `pose extension install pose-rule-backend-rust`.
+- Backend Java/Kotlin: distribuída como a extensão `pose-rule-backend-java` — instale com `pose extension install pose-rule-backend-java`.
+- Backend .NET: distribuída como a extensão `pose-rule-backend-dotnet` — instale com `pose extension install pose-rule-backend-dotnet`.
+- Frontend React: distribuída como a extensão `pose-rule-frontend-react` — instale com `pose extension install pose-rule-frontend-react`.
+- Cloudflare Workers: distribuída como a extensão `pose-rule-serverless-cloudflare` — instale com `pose extension install pose-rule-serverless-cloudflare`.
+- Terraform: distribuída como a extensão `pose-rule-infra-terraform` — instale com `pose extension install pose-rule-infra-terraform`.
+- Kubernetes: distribuída como a extensão de referência `pose-rule-kubernetes` — instale com `pose extension install pose-rule-kubernetes`.
 - Security: [`.pose/rules/security.md`](.pose/rules/security.md)
 - Documentation / Process: [`.pose/rules/documentation-style.md`](.pose/rules/documentation-style.md)
 - Delivery evidence (declarar entrega exige gate): [`.pose/rules/delivery-evidence.md`](.pose/rules/delivery-evidence.md)
