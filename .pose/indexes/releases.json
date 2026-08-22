@@ -2,8 +2,44 @@
   "pending": [],
   "releases": [
     {
-      "version": "v1.7.5",
+      "version": "v1.7.6",
       "state": "prepared",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v1.7.6",
+        "previous_version": "v1.7.5",
+        "prepared_at": "2026-08-22T19:31:49Z",
+        "specs": [
+          "pose-lint-spec-flat-layout-followup-resolution"
+        ],
+        "categories": {
+          "fixed": 1
+        },
+        "fragments": [
+          {
+            "spec": "pose-lint-spec-flat-layout-followup-resolution",
+            "category": "fixed",
+            "breaking": false,
+            "body": "Fixed `pose lint-spec` followup disposition and sibling status resolution to properly discover specs formatted in the flat dated layout (`.pose/specs/\u003cdate\u003e-\u003cslug\u003e.md`). Corrected `specsDir` navigation in `lintSpecFile`, expanded `cmdLintSpec --all` to list all specs across layouts, and supported flat specs in release claim repointing.",
+            "path": "2026-08-22-pose-lint-spec-flat-layout-followup-resolution.md",
+            "digest": "sha256:c1e9cf635037171e8e6f2445a64a3199c32f9cb7664bd095a6ca671a70d14693"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:e59c6ef29d8678be56843db02e663b5575e72a6a989b45b9ecb26d30cc784f7a",
+        "release_input_digest": "sha256:f64e148a6918c8dc9816cfc36b74f3aaa6e76224cff45be832a983a972198572",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v1.7.6"
+        }
+      },
+      "events": [],
+      "gaps": []
+    },
+    {
+      "version": "v1.7.5",
+      "state": "tagged",
       "manifest": {
         "schema_version": 1,
         "version": "v1.7.5",

@@ -1,12 +1,13 @@
 ---
 slug: pose-lint-spec-flat-layout-followup-resolution
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-review-bundle-doc-only-specs
 priority: 29
 components: cli, pose-mcp
 delivers: contract:lint-spec-flat-layout-resolution
+completed_at: 2026-08-22
 ---
 
 # Spec: lint-spec Flat Layout Followup and Sibling Spec Resolution
