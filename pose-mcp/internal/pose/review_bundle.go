@@ -562,9 +562,35 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 			return "governance", true
 		}
 	}
+	baseName := filepath.Base(path)
+	manifestNames := map[string]bool{
+		"go.mod": true, "go.sum": true, "go.work": true, "go.work.sum": true,
+		"package.json": true, "package-lock.json": true, "pnpm-lock.yaml": true, "yarn.lock": true, "bun.lockb": true,
+		"Cargo.toml": true, "Cargo.lock": true,
+		"pyproject.toml": true, "poetry.lock": true, "requirements.txt": true, "Pipfile": true, "Pipfile.lock": true, "setup.py": true, "setup.cfg": true,
+		"pom.xml": true, "build.gradle": true, "build.gradle.kts": true, "settings.gradle": true, "settings.gradle.kts": true,
+		"CMakeLists.txt": true, "Makefile": true, "Dockerfile": true, "docker-compose.yml": true, "docker-compose.yaml": true, "compose.yaml": true, "compose.yml": true,
+		"tsconfig.json": true, "jsconfig.json": true, "turbo.json": true, "biome.json": true,
+		".gitignore": true, ".gitattributes": true, ".editorconfig": true,
+		".golangci.yml": true, ".golangci.yaml": true, "buf.yaml": true, "buf.gen.yaml": true,
+		".pre-commit-config.yaml": true, ".goreleaser.yaml": true, ".goreleaser.yml": true,
+	}
+	if manifestNames[baseName] || strings.HasPrefix(baseName, ".eslintrc") || strings.HasPrefix(baseName, ".prettierrc") || strings.HasPrefix(baseName, "vite.config.") || strings.HasPrefix(baseName, "webpack.config.") || strings.HasPrefix(baseName, "rollup.config.") || strings.HasPrefix(baseName, "next.config.") {
+		return "governance", true
+	}
+	if !strings.Contains(path, "/") {
+		baseLower := strings.ToLower(path)
+		if strings.HasSuffix(baseLower, ".md") || strings.HasSuffix(baseLower, ".txt") || strings.HasPrefix(baseLower, "license") || baseLower == "notice" {
+			return "documentation", true
+		}
+	}
 	for _, component := range components {
 		root := strings.TrimSuffix(filepath.ToSlash(filepath.Clean(component.Path)), "/")
-		if root != "." && root != "" && (path == root || strings.HasPrefix(path, root+"/")) {
+		if root == "." || root == "" {
+			if !strings.HasPrefix(path, ".pose/") && !strings.HasPrefix(path, ".git/") {
+				return "implementation", true
+			}
+		} else if path == root || strings.HasPrefix(path, root+"/") {
 			return "implementation", true
 		}
 	}
@@ -574,13 +600,10 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if strings.HasPrefix(path, "docs-site/docs/") || strings.HasPrefix(path, "docs/") || strings.HasPrefix(path, "locales/") {
 		return "documentation", true
 	}
-	for _, prefix := range []string{"pose-mcp/", "mcp-enforce/", "docs-site/", "locales/", "scripts/", "tests/", ".github/"} {
+	for _, prefix := range []string{"pose-mcp/", "mcp-enforce/", "docs-site/", "locales/", "scripts/", "tests/", ".github/", "cmd/", "internal/", "pkg/", "src/", "lib/", "app/", "api/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "implementation", true
 		}
-	}
-	if path == "POSE.md" || path == "AGENTS.md" || path == "README.md" {
-		return "documentation", true
 	}
 	return "", false
 }

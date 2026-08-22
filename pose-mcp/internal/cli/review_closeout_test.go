@@ -545,3 +545,120 @@ Nenhum
 	}
 }
 
+func TestReviewBundleSealSingleModuleRootFilesAndManifests(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{
+  "schema_version": 2,
+  "enabled": true,
+  "adopted_at": "2026-08-02",
+  "profiles": {"spec": "spec-closeout@2"},
+  "reviewer_independence": {"spec": "same-actor-separate-execution"},
+  "component_aware": true,
+  "component_aware_adopted_at": "2026-08-13",
+  "review_bundles": true,
+  "review_bundles_adopted_at": "2026-08-13",
+  "unmapped_component_behavior": "warning"
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{
+  "schema_version": 2,
+  "id": "spec-closeout",
+  "version": 2,
+  "scope": "spec",
+  "criteria": [
+    {"id": "correctness", "description": "reviewed", "evidence_classes": ["test"]},
+    {"id": "delivery-verification", "description": "verified", "evidence_classes": ["validation"]}
+  ],
+  "tools": [
+    {"id": "review-check", "requiredness": "required", "criteria": ["correctness", "delivery-verification"]}
+  ]
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","governed_roots":["cmd","internal"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/delivery.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","results_path":".pose/results/current.json"}`)
+	writeCloseoutCLIFile(t, root, ".pose/rules/security.md", "# Security\n")
+	writeCloseoutCLIFile(t, root, ".pose/rules/documentation-style.md", "# Docs\n")
+
+	// Single module Go repo with go.mod, PROJECT.md, package.json, and .gitignore at root
+	writeCloseoutCLIFile(t, root, "go.mod", "module example.com/mycli\n\ngo 1.22\n")
+	writeCloseoutCLIFile(t, root, "README.md", "baseline\n")
+	writeCloseoutCLIFile(t, root, ".pose/specs/my-feature.md", `---
+slug: my-feature
+status: in-progress
+created_at: 2026-08-22
+completed_at:
+---
+
+# Spec: My Feature
+
+## 2. Requirements
+- R1: Root CLI configuration and project overview.
+
+## 3. Technical Plan
+
+### Artifacts
+- modified: go.mod
+- created: PROJECT.md
+- created: package.json
+- created: .gitignore
+
+### Delivery targets
+Nenhum
+
+## 4. Tasks
+- [x] Configure root manifests.
+`)
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "baseline")
+
+	// Modify go.mod, create PROJECT.md, package.json, and .gitignore
+	writeCloseoutCLIFile(t, root, "go.mod", "module example.com/mycli\n\ngo 1.22\n\nrequire github.com/spf13/cobra v1.8.0\n")
+	writeCloseoutCLIFile(t, root, "PROJECT.md", "# My CLI\n")
+	writeCloseoutCLIFile(t, root, "package.json", `{"name":"mycli"}`)
+	writeCloseoutCLIFile(t, root, ".gitignore", "*.o\n")
+
+	artifactGit(t, root, "add", "--", "go.mod", "PROJECT.md", "package.json", ".gitignore")
+	artifactGit(t, root, "commit", "-q", "-m", "feat: add root files and manifests", "-m", "POSE-Spec: my-feature")
+
+	var out, errOut bytes.Buffer
+	// Step 1: artifact-check
+	if code := cmdArtifactCheck(root, []string{"--spec", "my-feature", "--strict"}, &out, &errOut); code != 0 {
+		t.Fatalf("artifact-check failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// Step 2: review bundle seal
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewBundle(root, []string{"spec:my-feature", "--seal"}, &out, &errOut); code != 0 {
+		t.Fatalf("review bundle seal failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// Step 3: auto-attest
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewAutoAttest(root, []string{"spec:my-feature", "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("auto-attest failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// Step 4: review verify
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewVerify(root, []string{"spec:my-feature"}, &out, &errOut); code != 0 {
+		t.Fatalf("review verify failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// Step 5: pose close
+	out.Reset()
+	errOut.Reset()
+	if code := cmdClose(root, []string{"spec:my-feature"}, &out, &errOut); code != 0 {
+		t.Fatalf("pose close failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	state, err := (posemodel.Store{Root: root}).GetCloseoutState("spec:my-feature")
+	if err != nil || !state.Terminal {
+		t.Fatalf("expected terminal closeout for single-module spec with root files, got: %+v err=%v", state, err)
+	}
+}
+
+

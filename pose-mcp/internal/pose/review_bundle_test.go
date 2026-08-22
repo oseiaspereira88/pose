@@ -460,6 +460,63 @@ func TestReviewBundleClassifiesRootReleaseFiles(t *testing.T) {
 	}
 }
 
+func TestReviewBundleClassifiesRootManifestsAndProjectFiles(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	writeReviewFixture(t, root, "go.mod", "module example.com/test\n\ngo 1.22\n")
+	writeReviewFixture(t, root, "PROJECT.md", "# Project Overview\n")
+	writeReviewFixture(t, root, "package.json", `{"name": "test"}`)
+	writeReviewFixture(t, root, "Cargo.toml", `[package]
+name = "test"
+version = "0.1.0"
+`)
+	writeReviewFixture(t, root, ".gitignore", "*.o\n")
+	writeReviewFixture(t, root, "cmd/main.go", "package main\nfunc main() {}\n")
+
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths,
+		ObservedPath{Action: "modified", Path: "go.mod"},
+		ObservedPath{Action: "created", Path: "PROJECT.md"},
+		ObservedPath{Action: "created", Path: "package.json"},
+		ObservedPath{Action: "created", Path: "Cargo.toml"},
+		ObservedPath{Action: "created", Path: ".gitignore"},
+		ObservedPath{Action: "created", Path: "cmd/main.go"},
+	)
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(strings.Join(bundle.Blockers, " "), "unclassified review subject path") {
+		t.Fatalf("root manifests and project files were treated as unclassified: %+v", bundle.Blockers)
+	}
+	classes := map[string]string{}
+	for _, entry := range bundle.Payload.Subject.Entries {
+		classes[entry.Path] = entry.Class
+	}
+	if classes["go.mod"] != "governance" {
+		t.Fatalf("go.mod classified as %q, want governance", classes["go.mod"])
+	}
+	if classes["PROJECT.md"] != "documentation" {
+		t.Fatalf("PROJECT.md classified as %q, want documentation", classes["PROJECT.md"])
+	}
+	if classes["package.json"] != "governance" {
+		t.Fatalf("package.json classified as %q, want governance", classes["package.json"])
+	}
+	if classes["Cargo.toml"] != "governance" {
+		t.Fatalf("Cargo.toml classified as %q, want governance", classes["Cargo.toml"])
+	}
+	if classes[".gitignore"] != "governance" {
+		t.Fatalf(".gitignore classified as %q, want governance", classes[".gitignore"])
+	}
+	if classes["cmd/main.go"] != "implementation" {
+		t.Fatalf("cmd/main.go classified as %q, want implementation", classes["cmd/main.go"])
+	}
+}
+
 // TestReviewBundleClassifiesExtensionsDirectory guards spec
 // pose-domain-rule-extension-migration: extensions/ predates review-bundle
 // path classification (pose-rule-kubernetes shipped 2026-08-07, before
