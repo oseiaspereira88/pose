@@ -102,7 +102,7 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 
 	var paths []posemodel.ObservedPath
 	var diff []byte
-	if len(trailerCommits) > 0 && len(commits) > len(trailerCommits) {
+	if len(trailerCommits) > 0 {
 		commits = trailerCommits
 		commitPathLists := make([][]posemodel.ObservedPath, 0, len(commits))
 		var diffBuf bytes.Buffer

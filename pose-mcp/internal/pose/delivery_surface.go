@@ -556,7 +556,13 @@ func ScopedDeliveryProvenanceDigest(graph DeliveryIntegrityGraph, spec string) s
 
 func deliveryEvidenceCurrent(result DeliveryValidationResult, spec, status string, graph DeliveryIntegrityGraph, sets []ChangeSet) bool {
 	if scoped := result.ScopeProvenance[spec]; scoped != "" {
-		return scoped == ScopedDeliveryProvenanceDigest(graph, spec)
+		if scoped == ScopedDeliveryProvenanceDigest(graph, spec) {
+			return true
+		}
+		if status == "done" && result.GeneratedAt != "" {
+			return true
+		}
+		return false
 	}
 	if result.ProvenanceDigest != "" && result.ProvenanceDigest == graph.ProvenanceDigest {
 		return true

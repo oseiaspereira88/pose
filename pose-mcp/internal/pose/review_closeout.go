@@ -638,7 +638,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 			eval.Warnings = uniqueSorted(eval.Warnings)
 			return eval, nil
 		}
-		if done && s.reviewBundlesLegacyAttemptExempt(scope, policy) {
+		if done {
 			// Check if this done scope has an earlier approved bundle attestation
 			bundles, listErr := s.ListReviewBundles(ref)
 			if listErr == nil && len(bundles) > 0 {
@@ -661,6 +661,9 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 						}
 					}
 				}
+			}
+			if !s.reviewBundlesLegacyAttemptExempt(scope, policy) && verifyErr != nil {
+				return eval, verifyErr
 			}
 			// Fall through to legacy check
 		} else if verifyErr != nil {
