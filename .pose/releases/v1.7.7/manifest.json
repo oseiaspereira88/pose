@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v1.7.7",
+  "previous_version": "v1.7.6",
+  "prepared_at": "2026-08-22T23:16:55Z",
+  "specs": [
+    "pose-review-bundle-root-manifests-classification"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-review-bundle-root-manifests-classification",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Fixed review bundle path classification for root-level project manifests (`go.mod`, `package.json`, `Cargo.toml`, `pyproject.toml`, etc.), toolchain configuration files, and root documentation files (`PROJECT.md`, `CLAUDE.md`, `LICENSE`, etc.). Supported single-module repositories rooted at `.` so their direct files and common source directories are properly classified without blocking bundle seal.",
+      "path": "2026-08-22-pose-review-bundle-root-manifests-classification.md",
+      "digest": "sha256:89d1b9785e19d61a08b2637b4a8c703148e265d36633eeb000396669c0614caf"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:d4c0566678ee93dab9d06c2fc5b4d2b3fa0bb1ce0ef568c61f2bb8afd493b735",
+  "release_input_digest": "sha256:0dff4e5463a25688a6751d5af6ba8130e81d97fd2ca1576c516b45fb93a2e368",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.7.7"
+  }
+}

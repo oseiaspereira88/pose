@@ -1,12 +1,13 @@
 ---
 slug: pose-review-bundle-root-manifests-classification
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-lint-spec-flat-layout-followup-resolution
 priority: 30
 components: cli, pose-mcp
 delivers: contract:review-bundle-root-manifests
+completed_at: 2026-08-22
 ---
 
 # Spec: Review Bundle Root Manifests and Project Configuration Classification
