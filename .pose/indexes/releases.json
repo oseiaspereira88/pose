@@ -1,89 +1,127 @@
 {
-  "pending": [
-    {
-      "spec": "pose-cli-ergonomics-and-stack-expansion",
-      "category": "added",
-      "breaking": false,
-      "body": "Added `--target \u003cdir\u003e` flag support to `pose extension install`, expanded multi-word command dispatch checks in scaffold parity tests, and added end-to-end stack detection fixtures for Poetry, Pipenv, and .NET.",
-      "path": "pose-cli-ergonomics-and-stack-expansion.md",
-      "digest": "sha256:01e68ec396ffbc0cf4cbca8a653cd8a38194c86707e62b937cbe86bd8239e577"
-    },
-    {
-      "spec": "pose-cli-universal-help-and-subcommand-introspection",
-      "category": "added",
-      "breaking": false,
-      "body": "Added universal, first-class `-h` and `--help` flag support across all POSE CLI commands and subcommands, hierarchical `pose help \u003ccommand\u003e [subcommand]` resolution, and rich bilingual documentation (synopsis, flags, examples) with standard POSIX exit code 0.",
-      "path": "pose-cli-universal-help-and-subcommand-introspection.md",
-      "digest": "sha256:a104966e9b968664c925233e6950b2c7a1047a7935409fec1a665f52848c8e98"
-    },
-    {
-      "spec": "pose-closeout-delivery-assurance-convergence",
-      "category": "fixed",
-      "breaking": false,
-      "refs": "ISSUE#30",
-      "body": "Unify Git changeset attribution across graph generation, surface verification, and spec closeout, eliminating false `action-mismatch` failures when closing specs with live Git commit trailers. Enhance delivery assurance blocker reporting with exact artifact paths, declared actions, and actionable remediation guidance.",
-      "path": "pose-closeout-delivery-assurance-convergence.md",
-      "digest": "sha256:18c8fc997907558c0c0463a220cbd3478e7ebba4039709c355cd2a99b8cab377"
-    },
-    {
-      "spec": "pose-contributor-mode-protocol",
-      "category": "added",
-      "breaking": false,
-      "body": "Added native `pose contribute` CLI command suite (`enable`, `disable`, `status`, `stage`, `list`) and governed Contributor Mode protocol, allowing developers to opt in to automatic local staging of sanitized POSE feedback and engine improvements with strict privacy guarantees and developer-adjudicated submissions.",
-      "path": "pose-contributor-mode-protocol.md",
-      "digest": "sha256:6eea310a892ca740569d958ba81fcda2b1395f812867eb017db37899cda44864"
-    },
-    {
-      "spec": "pose-engine-discovery-consolidation-and-onboarding",
-      "category": "added",
-      "breaking": false,
-      "body": "Added 4 new curated domain rule extensions with full bilingual parity (`pose-rule-frontend-vue`, `pose-rule-frontend-svelte`, `pose-rule-infra-docker`, and `pose-rule-cicd-github-actions`), expanded dependency-aware frontend resolution in `rule_extension_resolver`, and consolidated component manifest discovery across all supported language markers.",
-      "path": "pose-engine-discovery-consolidation-and-onboarding.md",
-      "digest": "sha256:d362f666795737e6ce45697823ed26c23724d4116bff8f254efcefd2e1d60ce3"
-    },
-    {
-      "spec": "pose-engine-stability-and-diagnostics-convergence",
-      "category": "fixed",
-      "breaking": false,
-      "body": "Hardened engine stability by adding Git commit trailer recognition to `pose doctor`, eliminating spurious `resolvability` errors in `pose artifact-check` for `none`-action claims, normalizing `.gitignore` trailing slash lookups across module discovery walkers, and replacing test self-execution with stable binaries.",
-      "path": "pose-engine-stability-and-diagnostics-convergence.md",
-      "digest": "sha256:46e7d4d1e9f3bc51a727d69b4cf1f257f999943b35844959713426166bb27eb2"
-    },
-    {
-      "spec": "pose-spec-format-migration-command",
-      "category": "added",
-      "breaking": false,
-      "body": "Added the `pose spec-format` CLI command suite with `migrate \u003cslug\u003e|--all` and `status` subcommands, allowing automated migration of legacy specifications to modern date-prefixed formats (`YYYY-MM-DD-\u003cslug\u003e/spec.md` or `YYYY-MM-DD-\u003cslug\u003e.md`) while strictly preserving directory envelopes for specs with companion artifacts (`amendments.jsonl`).",
-      "path": "pose-spec-format-migration-command.md",
-      "digest": "sha256:15e0d2d78f660dec549ce83a7e4ee39c5275e7857874f8d910bd8ee49f81c4dc"
-    },
-    {
-      "spec": "pose-spec-trailer-workflow-documentation",
-      "category": "changed",
-      "breaking": false,
-      "refs": "ISSUE#29",
-      "body": "Documented the mandatory `POSE-Spec: \u003cslug\u003e` Git commit trailer requirement across `AGENTS.md`, `POSE.md`, task workflows (`feature`, `bugfix`, `refactor`), AI agent skills (`pose-feature`, `pose-bugfix`, `pose-spec-closeout`), and distributed engine scaffolds in English and Portuguese (`pt-BR`).",
-      "path": "pose-spec-trailer-workflow-documentation.md",
-      "digest": "sha256:59730b0f3e6512893605e414b76d4c2b7c377c5bf737c8554d7598c9615e8e3b"
-    },
-    {
-      "spec": "pose-specs-ergonomics-and-discovery",
-      "category": "added",
-      "breaking": false,
-      "body": "Added hybrid and resilient spec resolution (supporting date-prefixed folders `YYYY-MM-DD-\u003cslug\u003e/spec.md` and flat files `YYYY-MM-DD-\u003cslug\u003e.md` with 100% backward compatibility), `pose new-spec` `--dated` and `--flat` scaffolding options, the `pose specs` discovery CLI command with `--recent`, `--status`, `--since`, and `--json`, and expanded the `pose_list_specs` MCP tool with recent and sort options.",
-      "path": "pose-specs-ergonomics-and-discovery.md",
-      "digest": "sha256:21686e8a63f5b4dceea760972ce9658d366e1f6d32687ee643fa38824e72aa7e"
-    },
-    {
-      "spec": "pose-stack-rule-extensions-expansion",
-      "category": "added",
-      "breaking": false,
-      "body": "Added 6 new curated domain rule extensions with full bilingual parity (English and Portuguese): `pose-rule-backend-python`, `pose-rule-backend-rust`, `pose-rule-backend-java`, `pose-rule-backend-dotnet`, `pose-rule-serverless-cloudflare`, and `pose-rule-infra-terraform`, and wired automatic stack resolution in the native engine.",
-      "path": "pose-stack-rule-extensions-expansion.md",
-      "digest": "sha256:bad19325b794077749d89d5338dae02126e8402f12478ecdf83c4df1040df01e"
-    }
-  ],
+  "pending": [],
   "releases": [
+    {
+      "version": "v1.5.0",
+      "state": "prepared",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v1.5.0",
+        "previous_version": "v1.4.3",
+        "prepared_at": "2026-08-22T00:01:22Z",
+        "specs": [
+          "pose-cli-ergonomics-and-stack-expansion",
+          "pose-cli-universal-help-and-subcommand-introspection",
+          "pose-closeout-delivery-assurance-convergence",
+          "pose-contributor-mode-protocol",
+          "pose-engine-discovery-consolidation-and-onboarding",
+          "pose-engine-stability-and-diagnostics-convergence",
+          "pose-spec-format-migration-command",
+          "pose-spec-trailer-workflow-documentation",
+          "pose-specs-ergonomics-and-discovery",
+          "pose-stack-rule-extensions-expansion"
+        ],
+        "categories": {
+          "added": 7,
+          "changed": 1,
+          "fixed": 2
+        },
+        "fragments": [
+          {
+            "spec": "pose-cli-ergonomics-and-stack-expansion",
+            "category": "added",
+            "breaking": false,
+            "body": "Added `--target \u003cdir\u003e` flag support to `pose extension install`, expanded multi-word command dispatch checks in scaffold parity tests, and added end-to-end stack detection fixtures for Poetry, Pipenv, and .NET.",
+            "path": "pose-cli-ergonomics-and-stack-expansion.md",
+            "digest": "sha256:01e68ec396ffbc0cf4cbca8a653cd8a38194c86707e62b937cbe86bd8239e577"
+          },
+          {
+            "spec": "pose-cli-universal-help-and-subcommand-introspection",
+            "category": "added",
+            "breaking": false,
+            "body": "Added universal, first-class `-h` and `--help` flag support across all POSE CLI commands and subcommands, hierarchical `pose help \u003ccommand\u003e [subcommand]` resolution, and rich bilingual documentation (synopsis, flags, examples) with standard POSIX exit code 0.",
+            "path": "pose-cli-universal-help-and-subcommand-introspection.md",
+            "digest": "sha256:a104966e9b968664c925233e6950b2c7a1047a7935409fec1a665f52848c8e98"
+          },
+          {
+            "spec": "pose-closeout-delivery-assurance-convergence",
+            "category": "fixed",
+            "breaking": false,
+            "refs": "ISSUE#30",
+            "body": "Unify Git changeset attribution across graph generation, surface verification, and spec closeout, eliminating false `action-mismatch` failures when closing specs with live Git commit trailers. Enhance delivery assurance blocker reporting with exact artifact paths, declared actions, and actionable remediation guidance.",
+            "path": "pose-closeout-delivery-assurance-convergence.md",
+            "digest": "sha256:18c8fc997907558c0c0463a220cbd3478e7ebba4039709c355cd2a99b8cab377"
+          },
+          {
+            "spec": "pose-contributor-mode-protocol",
+            "category": "added",
+            "breaking": false,
+            "body": "Added native `pose contribute` CLI command suite (`enable`, `disable`, `status`, `stage`, `list`) and governed Contributor Mode protocol, allowing developers to opt in to automatic local staging of sanitized POSE feedback and engine improvements with strict privacy guarantees and developer-adjudicated submissions.",
+            "path": "pose-contributor-mode-protocol.md",
+            "digest": "sha256:6eea310a892ca740569d958ba81fcda2b1395f812867eb017db37899cda44864"
+          },
+          {
+            "spec": "pose-engine-discovery-consolidation-and-onboarding",
+            "category": "added",
+            "breaking": false,
+            "body": "Added 4 new curated domain rule extensions with full bilingual parity (`pose-rule-frontend-vue`, `pose-rule-frontend-svelte`, `pose-rule-infra-docker`, and `pose-rule-cicd-github-actions`), expanded dependency-aware frontend resolution in `rule_extension_resolver`, and consolidated component manifest discovery across all supported language markers.",
+            "path": "pose-engine-discovery-consolidation-and-onboarding.md",
+            "digest": "sha256:d362f666795737e6ce45697823ed26c23724d4116bff8f254efcefd2e1d60ce3"
+          },
+          {
+            "spec": "pose-engine-stability-and-diagnostics-convergence",
+            "category": "fixed",
+            "breaking": false,
+            "body": "Hardened engine stability by adding Git commit trailer recognition to `pose doctor`, eliminating spurious `resolvability` errors in `pose artifact-check` for `none`-action claims, normalizing `.gitignore` trailing slash lookups across module discovery walkers, and replacing test self-execution with stable binaries.",
+            "path": "pose-engine-stability-and-diagnostics-convergence.md",
+            "digest": "sha256:46e7d4d1e9f3bc51a727d69b4cf1f257f999943b35844959713426166bb27eb2"
+          },
+          {
+            "spec": "pose-spec-format-migration-command",
+            "category": "added",
+            "breaking": false,
+            "body": "Added the `pose spec-format` CLI command suite with `migrate \u003cslug\u003e|--all` and `status` subcommands, allowing automated migration of legacy specifications to modern date-prefixed formats (`YYYY-MM-DD-\u003cslug\u003e/spec.md` or `YYYY-MM-DD-\u003cslug\u003e.md`) while strictly preserving directory envelopes for specs with companion artifacts (`amendments.jsonl`).",
+            "path": "pose-spec-format-migration-command.md",
+            "digest": "sha256:15e0d2d78f660dec549ce83a7e4ee39c5275e7857874f8d910bd8ee49f81c4dc"
+          },
+          {
+            "spec": "pose-spec-trailer-workflow-documentation",
+            "category": "changed",
+            "breaking": false,
+            "refs": "ISSUE#29",
+            "body": "Documented the mandatory `POSE-Spec: \u003cslug\u003e` Git commit trailer requirement across `AGENTS.md`, `POSE.md`, task workflows (`feature`, `bugfix`, `refactor`), AI agent skills (`pose-feature`, `pose-bugfix`, `pose-spec-closeout`), and distributed engine scaffolds in English and Portuguese (`pt-BR`).",
+            "path": "pose-spec-trailer-workflow-documentation.md",
+            "digest": "sha256:59730b0f3e6512893605e414b76d4c2b7c377c5bf737c8554d7598c9615e8e3b"
+          },
+          {
+            "spec": "pose-specs-ergonomics-and-discovery",
+            "category": "added",
+            "breaking": false,
+            "body": "Added hybrid and resilient spec resolution (supporting date-prefixed folders `YYYY-MM-DD-\u003cslug\u003e/spec.md` and flat files `YYYY-MM-DD-\u003cslug\u003e.md` with 100% backward compatibility), `pose new-spec` `--dated` and `--flat` scaffolding options, the `pose specs` discovery CLI command with `--recent`, `--status`, `--since`, and `--json`, and expanded the `pose_list_specs` MCP tool with recent and sort options.",
+            "path": "pose-specs-ergonomics-and-discovery.md",
+            "digest": "sha256:21686e8a63f5b4dceea760972ce9658d366e1f6d32687ee643fa38824e72aa7e"
+          },
+          {
+            "spec": "pose-stack-rule-extensions-expansion",
+            "category": "added",
+            "breaking": false,
+            "body": "Added 6 new curated domain rule extensions with full bilingual parity (English and Portuguese): `pose-rule-backend-python`, `pose-rule-backend-rust`, `pose-rule-backend-java`, `pose-rule-backend-dotnet`, `pose-rule-serverless-cloudflare`, and `pose-rule-infra-terraform`, and wired automatic stack resolution in the native engine.",
+            "path": "pose-stack-rule-extensions-expansion.md",
+            "digest": "sha256:bad19325b794077749d89d5338dae02126e8402f12478ecdf83c4df1040df01e"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:d110a19a743793ed70534a684b39765042d045123ad4c95478f2443425c7b89c",
+        "release_input_digest": "sha256:703574debbff1e45ee734b8d978666be988e7b16c7e9b40ce22880c5c29c8d2a",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v1.5.0"
+        }
+      },
+      "events": [],
+      "gaps": []
+    },
     {
       "version": "v1.4.3",
       "state": "verified",
