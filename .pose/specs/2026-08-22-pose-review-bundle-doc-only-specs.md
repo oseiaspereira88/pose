@@ -1,12 +1,13 @@
 ---
 slug: pose-review-bundle-doc-only-specs
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-review-overlay-uninstalled-rules-graceful-degradation
 priority: 28
 components: cli, pose-mcp
 delivers: contract:review-bundle-doc-only-specs
+completed_at: 2026-08-22
 ---
 
 # Spec: Review Bundle and Seal Support for Doc-Only and Governance Specs

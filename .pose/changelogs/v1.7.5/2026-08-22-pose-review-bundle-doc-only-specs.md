@@ -1,0 +1,7 @@
+---
+spec: pose-review-bundle-doc-only-specs
+category: fixed
+breaking: false
+---
+
+Fixed review bundle sealing and closeout for documentation-only, governance, and ADR specs that declare no code delivery targets. Added `delivery-target-declared` precondition to the base `validate` tool in `spec-closeout.json`, ensured `delivery-integrity.json` persistence upon `artifact-check`, and allowed auto-attestation for scopes without required code validation evidence.
