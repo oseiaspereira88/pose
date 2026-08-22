@@ -113,3 +113,13 @@ executed by `pose validate`.
      section of this file from the shipped contract but never touches this one,
      so put local conventions, exceptions and pointers here rather than editing
      the engine-owned sections above. -->
+
+## Open-Source POSE Contributor Mode
+
+<!-- pose:contributor-mode -->
+
+**Contributor Mode is ACTIVE.** When executing tasks, if you encounter POSE engine defects, tool frictions, missing stack rules, diagnostic false-positives, or clear improvement opportunities:
+
+1. **Stage structured feedback locally**: create a report artifact under `.pose/contributions/<timestamp>-<slug>.md` documenting the observed limitation, synthetic reproduction, and proposed solution.
+2. **Strict Privacy Invariant**: NEVER include proprietary business logic, internal hostnames/domains, customer data, API keys, credentials, or private source code in staged contributions. All examples must use generic, synthetic reproductions.
+3. **Developer Adjudication**: Staging is automatic and local. Submitting or creating upstream GitHub issues (`oseiaspereira88/pose`) is always an explicit developer decision.

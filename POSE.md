@@ -442,3 +442,15 @@ POSE is the operational layer that makes agent work reliable in the repository:
 - operational depth in [`.pose/`](.pose/)
 - assisted execution via [`pose`](pose) (CLI)
 - progressive maturity with skills in [`.agents/skills/`](.agents/skills/)
+
+## Open-Source POSE Contributor Mode
+
+<!-- pose:contributor-mode -->
+
+This repository has enabled POSE Contributor Mode. Executing AI agents will automatically stage feedback, bug reports, and stack extension proposals under `.pose/contributions/` when encountering workflow friction.
+
+- Check staged contributions: `pose contribute list`
+- Check contributor status: `pose contribute status`
+- Stage a contribution manually: `pose contribute stage --type <bug|enhancement> --title <title>`
+- Disable contributor mode: `pose contribute disable`
+- Privacy guarantee: staged reports strictly isolate POSE engine mechanics and never leak proprietary code.
