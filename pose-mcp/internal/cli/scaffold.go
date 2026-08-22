@@ -28,18 +28,20 @@ func scaffoldSlugify(value string) string {
 func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, cliText(locale, "Usage: pose new-spec <feature-slug> [--flat] [--legacy]", "Uso: pose new-spec <feature-slug> [--flat] [--legacy]"))
+		fmt.Fprintln(stderr, cliText(locale, "Usage: pose new-spec <feature-slug> [--folder] [--legacy]", "Uso: pose new-spec <feature-slug> [--folder] [--legacy]"))
 		return 2
 	}
 	slug := ""
-	isFlat := false
-	isDated := false
+	isFolder := false
+	isLegacy := false
 	for _, a := range args {
 		switch a {
+		case "--folder", "--dated", "--dir":
+			isFolder = true
+		case "--legacy":
+			isLegacy = true
 		case "--flat":
-			isFlat = true
-		case "--dated":
-			isDated = true
+			// flat is default
 		default:
 			if !strings.HasPrefix(a, "-") && slug == "" {
 				slug = a
@@ -47,7 +49,7 @@ func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	if slug == "" || !scaffoldSlug.MatchString(slug) {
-		fmt.Fprintln(stderr, cliText(locale, "Usage: pose new-spec <feature-slug> [--dated] [--flat]", "Uso: pose new-spec <feature-slug> [--dated] [--flat]"))
+		fmt.Fprintln(stderr, cliText(locale, "Usage: pose new-spec <feature-slug> [--folder] [--legacy]", "Uso: pose new-spec <feature-slug> [--folder] [--legacy]"))
 		return 2
 	}
 	store := pose.Store{Root: root}
@@ -67,22 +69,18 @@ func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 	content = strings.ReplaceAll(content, "<created_at>", today)
 
 	var targetPath string
-	if isFlat {
-		targetPath = filepath.Join(root, ".pose", "specs", today+"-"+slug+".md")
-	} else if isDated {
-		dir := filepath.Join(root, ".pose", "specs", today+"-"+slug)
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			fmt.Fprintf(stderr, cliText(locale, "Error: creating spec dir: %v\n", "Erro: criar diretório de spec: %v\n"), err)
-			return 1
-		}
-		targetPath = filepath.Join(dir, "spec.md")
+	if isFolder {
+		targetPath = filepath.Join(root, ".pose", "specs", today+"-"+slug, "spec.md")
+	} else if isLegacy {
+		targetPath = filepath.Join(root, ".pose", "specs", slug, "spec.md")
 	} else {
-		dir := filepath.Join(root, ".pose", "specs", slug)
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			fmt.Fprintf(stderr, cliText(locale, "Error: creating spec dir: %v\n", "Erro: criar diretório de spec: %v\n"), err)
-			return 1
-		}
-		targetPath = filepath.Join(dir, "spec.md")
+		// Default: modern dated flat file (conforming format)
+		targetPath = filepath.Join(root, ".pose", "specs", today+"-"+slug+".md")
+	}
+
+	if err := os.MkdirAll(filepath.Dir(targetPath), 0o755); err != nil {
+		fmt.Fprintf(stderr, cliText(locale, "Error: creating spec dir: %v\n", "Erro: criar diretório de spec: %v\n"), err)
+		return 1
 	}
 
 	if err := os.WriteFile(targetPath, []byte(content), 0o644); err != nil {

@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestMain(m *testing.M) {
@@ -152,7 +153,8 @@ func TestNewSpecNativeCreatesTemplateAndRejectsInvalidInput(t *testing.T) {
 		if code := Main([]string{"new-spec", "user-auth"}, &out, &errB); code != 0 {
 			t.Fatalf("new-spec exit=%d stderr=%s", code, errB.String())
 		}
-		content, err := os.ReadFile(filepath.Join(repo, ".pose", "specs", "user-auth", "spec.md"))
+		today := time.Now().UTC().Format("2006-01-02")
+		content, err := os.ReadFile(filepath.Join(repo, ".pose", "specs", today+"-user-auth.md"))
 		if err != nil || !strings.Contains(string(content), "slug: user-auth") || strings.Contains(string(content), "<YYYY-MM-DD>") {
 			t.Fatalf("template not materialized: %q err=%v", content, err)
 		}

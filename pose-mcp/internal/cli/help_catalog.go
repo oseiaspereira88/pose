@@ -192,12 +192,12 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "new-spec",
 		SummaryEN:       "Scaffold a new feature specification",
 		SummaryPtBR:     "Cria o scaffold de uma nova especificação de feature",
-		Usage:           "pose new-spec <slug>",
-		DescriptionEN:   "Generates a new draft spec scaffold under .pose/specs/<slug>/spec.md with standard lifecycle frontmatter and the 7 required engineering sections.",
-		DescriptionPtBR: "Gera o scaffold de uma nova spec em rascunho sob .pose/specs/<slug>/spec.md com frontmatter padrão e as 7 seções de engenharia.",
+		Usage:           "pose new-spec <slug> [--folder] [--legacy]",
+		DescriptionEN:   "Generates a new draft spec scaffold under .pose/specs/YYYY-MM-DD-<slug>.md (or dated folder with --folder) with standard lifecycle frontmatter and the 7 required engineering sections.",
+		DescriptionPtBR: "Gera o scaffold de uma nova spec em rascunho sob .pose/specs/YYYY-MM-DD-<slug>.md (ou pasta datada com --folder) com frontmatter padrão e as 7 seções de engenharia.",
 		Examples: []string{
 			"pose new-spec user-authentication",
-			"pose new-spec billing-export-pipeline",
+			"pose new-spec billing-export-pipeline --folder",
 		},
 	},
 	"new-roadmap": {

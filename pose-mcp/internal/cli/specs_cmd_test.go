@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/harne8/pose-mcp/internal/pose"
 )
@@ -88,9 +89,16 @@ func TestNewSpec_DatePrefixScaffold(t *testing.T) {
 	writeSpecsFixture(t, root, ".pose/templates/spec.md", "---\nslug: <feature-slug>\nstatus: draft\ncreated_at: <created_at>\n---\n# Spec: <feature-slug>\n")
 
 	var stdout, stderr bytes.Buffer
-	code := cmdNewSpec(root, []string{"checkout-flow", "--dated"}, &stdout, &stderr)
+	// Default: creates flat modern dated spec
+	code := cmdNewSpec(root, []string{"checkout-flow"}, &stdout, &stderr)
 	if code != 0 {
 		t.Fatalf("cmdNewSpec failed: %d, stderr: %s", code, stderr.String())
+	}
+
+	today := time.Now().UTC().Format("2006-01-02")
+	expectedFlat := filepath.Join(root, ".pose", "specs", today+"-checkout-flow.md")
+	if _, err := os.Stat(expectedFlat); err != nil {
+		t.Fatalf("expected default spec at %s: %v", expectedFlat, err)
 	}
 
 	store := pose.Store{Root: root}
@@ -102,14 +110,36 @@ func TestNewSpec_DatePrefixScaffold(t *testing.T) {
 		t.Errorf("unexpected spec content: %+v", sp)
 	}
 
-	// Flat spec creation
+	// Verify spec-format reports conforming
 	stdout.Reset()
-	code = cmdNewSpec(root, []string{"flat-flow", "--flat"}, &stdout, &stderr)
+	stderr.Reset()
+	code = cmdSpecFormatStatus(root, []string{"--json"}, &stdout, &stderr, localeEN)
 	if code != 0 {
-		t.Fatalf("cmdNewSpec --flat failed: %d, stderr: %s", code, stderr.String())
+		t.Fatalf("spec-format status failed: %d, stderr: %s", code, stderr.String())
 	}
-	spFlat, err := store.GetSpec("flat-flow")
-	if err != nil || spFlat.Slug != "flat-flow" {
-		t.Fatalf("GetSpec failed to find created flat spec: %v", err)
+	if !strings.Contains(stdout.String(), `"conforming": true`) {
+		t.Fatalf("expected conforming: true for fresh spec, got: %s", stdout.String())
+	}
+
+	// Folder spec creation
+	stdout.Reset()
+	code = cmdNewSpec(root, []string{"folder-flow", "--folder"}, &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("cmdNewSpec --folder failed: %d, stderr: %s", code, stderr.String())
+	}
+	expectedFolder := filepath.Join(root, ".pose", "specs", today+"-folder-flow", "spec.md")
+	if _, err := os.Stat(expectedFolder); err != nil {
+		t.Fatalf("expected folder spec at %s: %v", expectedFolder, err)
+	}
+
+	// Legacy spec creation
+	stdout.Reset()
+	code = cmdNewSpec(root, []string{"legacy-flow", "--legacy"}, &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("cmdNewSpec --legacy failed: %d, stderr: %s", code, stderr.String())
+	}
+	expectedLegacy := filepath.Join(root, ".pose", "specs", "legacy-flow", "spec.md")
+	if _, err := os.Stat(expectedLegacy); err != nil {
+		t.Fatalf("expected legacy spec at %s: %v", expectedLegacy, err)
 	}
 }
