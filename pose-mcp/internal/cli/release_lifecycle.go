@@ -99,6 +99,9 @@ func releaseInputs(root, target string) (posemodel.ReleasePolicy, []posemodel.Re
 	if err != nil {
 		return policy, nil, "", nil, err
 	}
+	if policy.AdoptedAt == "" || policy.Provider == "" || policy.Repository == "" {
+		return policy, nil, "", nil, fmt.Errorf("release policy is not adopted: set adopted_at, provider and repository in .pose/policy/release.json")
+	}
 	fragments, err := posemodel.LoadReleaseFragments(filepath.Join(root, ".pose", "changelogs", "unreleased"))
 	if err != nil {
 		return policy, nil, "", nil, err
@@ -651,12 +654,21 @@ func cmdReleaseBackfill(root string, args []string, stdout, stderr io.Writer) in
 }
 
 func appendReleasePolicyChecks(checker *nativeChecker) {
-	if _, err := os.Stat(filepath.Join(checker.root, ".pose", "release-policy.json")); os.IsNotExist(err) {
+	hasPolicy := false
+	if _, err := os.Stat(filepath.Join(checker.root, ".pose", "policy", "release.json")); err == nil {
+		hasPolicy = true
+	} else if _, err := os.Stat(filepath.Join(checker.root, ".pose", "release-policy.json")); err == nil {
+		hasPolicy = true
+	}
+	if !hasPolicy {
 		return
 	}
 	policy, err := posemodel.LoadReleasePolicy(checker.root)
 	if err != nil {
 		checker.failOrWarn("release: " + err.Error())
+		return
+	}
+	if policy.AdoptedAt == "" {
 		return
 	}
 	_ = policy

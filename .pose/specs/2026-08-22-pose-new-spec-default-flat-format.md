@@ -1,12 +1,13 @@
 ---
 slug: pose-new-spec-default-flat-format
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-release-closeout-skill-policy-link
 priority: 25
 components: cli, scaffold, help
 delivers: surface:new-spec-flat-default
+completed_at: 2026-08-22
 ---
 
 # Spec: Modern Dated Flat Layout as Default for new-spec

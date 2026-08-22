@@ -1,24 +1,73 @@
 {
-  "pending": [
-    {
-      "spec": "pose-contributor-mode-workflow-and-cli-hints",
-      "category": "added",
-      "breaking": false,
-      "body": "Integrated end-to-end Contributor Mode guidance across AI agent skills (`pose-bugfix`, `pose-review`, `pose-spec-closeout`, `pose-recurrence-escalation`, `pose-feature`) and core workflows in both English and Portuguese. Added non-intrusive contextual CLI hints when check/lint/close failures or doctor diagnostics occur under active contributor mode, automatically staging feedback without leaking proprietary code.",
-      "path": "pose-contributor-mode-workflow-and-cli-hints.md",
-      "digest": "sha256:15c66f73f3295d3f7f38bb8546832e52195b9e37d34dac587342942dbf4f16a6"
-    },
-    {
-      "spec": "pose-review-bundle-component-discovery-and-governance-paths",
-      "category": "fixed",
-      "breaking": false,
-      "refs": "ISSUE#31",
-      "body": "Resolved issue #31: Enhanced review plan component discovery to synthesize modules across metadata, state, and top-level directory discovery without requiring a pre-existing repo-map. Expanded review bundle path classification to recognize ADR conventions (`docs/decisions/`), roadmaps (`.pose/roadmaps/`), and governance manifests. Fixed `pose artifact-check` to honor recorded change-set reports from history logs.",
-      "path": "pose-review-bundle-component-discovery-and-governance-paths.md",
-      "digest": "sha256:97d8d7dd12fc73503d63f14bc61b24214d7d2d0f4e4f56e2d46f1b9c3cead1c4"
-    }
-  ],
+  "pending": [],
   "releases": [
+    {
+      "version": "v1.7.1",
+      "state": "tagged",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v1.7.1",
+        "previous_version": "v1.6.0",
+        "prepared_at": "2026-08-22T08:22:53Z",
+        "specs": [
+          "pose-contributor-mode-workflow-and-cli-hints",
+          "pose-new-spec-default-flat-format",
+          "pose-release-closeout-skill-policy-link",
+          "pose-review-bundle-component-discovery-and-governance-paths"
+        ],
+        "categories": {
+          "added": 1,
+          "fixed": 3
+        },
+        "fragments": [
+          {
+            "spec": "pose-contributor-mode-workflow-and-cli-hints",
+            "category": "added",
+            "breaking": false,
+            "body": "Integrated end-to-end Contributor Mode guidance across AI agent skills (`pose-bugfix`, `pose-review`, `pose-spec-closeout`, `pose-recurrence-escalation`, `pose-feature`) and core workflows in both English and Portuguese. Added non-intrusive contextual CLI hints when check/lint/close failures or doctor diagnostics occur under active contributor mode, automatically staging feedback without leaking proprietary code.",
+            "path": "pose-contributor-mode-workflow-and-cli-hints.md",
+            "digest": "sha256:15c66f73f3295d3f7f38bb8546832e52195b9e37d34dac587342942dbf4f16a6"
+          },
+          {
+            "spec": "pose-new-spec-default-flat-format",
+            "category": "fixed",
+            "breaking": false,
+            "refs": "ISSUE#33",
+            "body": "Resolved issue #33: Changed `pose new-spec` default layout to modern date-prefixed flat file `.pose/specs/YYYY-MM-DD-\u003cslug\u003e.md` so that newly scaffolded specifications immediately conform (`pose spec-format status` reports `conforming: true`). Added `--folder` flag for creating date-prefixed folder envelope when specs include amendments, and enhanced `pose spec-format migrate` to convert dated folders to flat files while preserving folders with amendments.",
+            "path": "pose-new-spec-default-flat-format.md",
+            "digest": "sha256:9ee69152f7a5ae5bfe74a43432d70a3c7137fd646f52c830337cce0a3d614c8f"
+          },
+          {
+            "spec": "pose-release-closeout-skill-policy-link",
+            "category": "fixed",
+            "breaking": false,
+            "refs": "ISSUE#32",
+            "body": "Resolved issue #32: Corrected the policy reference link in the `pose-release-closeout` skill to point to canonical `.pose/policy/changelog.json` in English and Portuguese, ensuring clean out-of-the-box `pose skills-check --strict` execution on freshly initialized schema-v1 instances.",
+            "path": "pose-release-closeout-skill-policy-link.md",
+            "digest": "sha256:186219d4d74fe40aae07d2a725ff5532de24c4e734c450af6663a6141e4ebb46"
+          },
+          {
+            "spec": "pose-review-bundle-component-discovery-and-governance-paths",
+            "category": "fixed",
+            "breaking": false,
+            "refs": "ISSUE#31",
+            "body": "Resolved issue #31: Enhanced review plan component discovery to synthesize modules across metadata, state, and top-level directory discovery without requiring a pre-existing repo-map. Expanded review bundle path classification to recognize ADR conventions (`docs/decisions/`), roadmaps (`.pose/roadmaps/`), and governance manifests. Fixed `pose artifact-check` to honor recorded change-set reports from history logs.",
+            "path": "pose-review-bundle-component-discovery-and-governance-paths.md",
+            "digest": "sha256:97d8d7dd12fc73503d63f14bc61b24214d7d2d0f4e4f56e2d46f1b9c3cead1c4"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:c2ddc57404a47df6d024fc15fcd2ea69ee5db91bb7eb00fabb4ad6a80368c14f",
+        "release_input_digest": "sha256:697d12e8aab5204e68754aa2e5aaf64cdb5ff90908e3c17654ecfcf33da841eb",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v1.7.1"
+        }
+      },
+      "events": [],
+      "gaps": []
+    },
     {
       "version": "v1.6.0",
       "state": "tagged",

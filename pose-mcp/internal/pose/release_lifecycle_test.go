@@ -42,7 +42,7 @@ func TestReleaseFragmentsRejectMalformedDuplicateAndSymlink(t *testing.T) {
 }
 
 func TestMissingReleasePolicyIsActionable(t *testing.T) {
-	if _, err := LoadReleasePolicy(t.TempDir()); err == nil || !strings.Contains(err.Error(), ".pose/release-policy.json") {
+	if _, err := LoadReleasePolicy(t.TempDir()); err == nil || (!strings.Contains(err.Error(), ".pose/policy/release.json") && !strings.Contains(err.Error(), ".pose/release-policy.json")) {
 		t.Fatalf("missing policy error=%v", err)
 	}
 }

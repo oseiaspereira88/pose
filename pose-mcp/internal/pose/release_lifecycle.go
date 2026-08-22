@@ -104,15 +104,21 @@ func ReleaseDigest(value any) string {
 
 func LoadReleasePolicy(root string) (ReleasePolicy, error) {
 	var policy ReleasePolicy
-	raw, err := os.ReadFile(filepath.Join(root, ".pose", "release-policy.json"))
+	raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "release.json"))
 	if err != nil {
-		return policy, fmt.Errorf("release policy missing: create .pose/release-policy.json")
+		raw, err = os.ReadFile(filepath.Join(root, ".pose", "release-policy.json"))
+	}
+	if err != nil {
+		return policy, fmt.Errorf("release policy missing: create .pose/policy/release.json")
 	}
 	if err := json.Unmarshal(raw, &policy); err != nil {
 		return policy, fmt.Errorf("invalid release policy: %w", err)
 	}
-	if policy.SchemaVersion != 1 || policy.AdoptedAt == "" || policy.Provider == "" || policy.Repository == "" {
-		return policy, fmt.Errorf("invalid release policy: schema_version, adopted_at, provider and repository are required")
+	if policy.SchemaVersion != 1 {
+		return policy, fmt.Errorf("invalid release policy: schema_version must be 1")
+	}
+	if policy.AdoptedAt != "" && (policy.Provider == "" || policy.Repository == "") {
+		return policy, fmt.Errorf("invalid release policy: provider and repository are required once adopted")
 	}
 	return policy, nil
 }

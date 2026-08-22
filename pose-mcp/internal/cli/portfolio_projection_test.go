@@ -15,6 +15,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // portfolioFixtureProject creates a project directory (real git repo +
@@ -262,7 +264,12 @@ func TestXrefDependsOnPassesReadyCheck(t *testing.T) {
 		if code := Main([]string{"new-spec", "xref-consumer"}, &out, &errB); code != 0 {
 			t.Fatalf("new-spec exit=%d err=%s", code, errB.String())
 		}
-		specPath := filepath.Join(root, ".pose", "specs", "xref-consumer", "spec.md")
+		store := posemodel.Store{Root: root}
+		sp, err := store.GetSpec("xref-consumer")
+		if err != nil {
+			t.Fatal(err)
+		}
+		specPath := sp.Path
 		raw, err := os.ReadFile(specPath)
 		if err != nil {
 			t.Fatal(err)

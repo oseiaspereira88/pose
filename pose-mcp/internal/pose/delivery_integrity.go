@@ -386,6 +386,16 @@ func normalizeSpecPath(p string) string {
 		return p
 	}
 	rel := strings.TrimPrefix(p, ".pose/specs/")
+	if strings.HasSuffix(rel, "/spec.md") {
+		slug := strings.TrimSuffix(rel, "/spec.md")
+		slug = datePrefixRE.ReplaceAllString(slug, "")
+		return ".pose/specs/" + slug
+	}
+	if strings.HasSuffix(rel, ".md") && !strings.Contains(rel, "/") {
+		slug := strings.TrimSuffix(rel, ".md")
+		slug = datePrefixRE.ReplaceAllString(slug, "")
+		return ".pose/specs/" + slug
+	}
 	parts := strings.Split(rel, "/")
 	for i, part := range parts {
 		parts[i] = datePrefixRE.ReplaceAllString(part, "")

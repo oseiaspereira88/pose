@@ -76,6 +76,7 @@ var IncludedPoseSubtrees = []string{
 var SelfReferentialPolicyFiles = []string{
 	"delivery.json",
 	"artifacts.json",
+	"release.json",
 }
 
 // SelfReferentialIndexFiles are `.pose/indexes/` files whose live content in
@@ -222,6 +223,14 @@ func NeutralPolicyTemplates() map[string][]byte {
     "orphan": "warning",
     "legacy-narrative": "info"
   }
+}
+`),
+		".pose/policy/release.json": []byte(`{
+  "_comment": "Release policy (spec pose-release-closeout). Set adopted_at, provider and repository once release closeout is configured for this project.",
+  "schema_version": 1,
+  "adopted_at": "",
+  "provider": "github",
+  "repository": ""
 }
 `),
 	}

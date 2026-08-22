@@ -19,6 +19,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 const upgradeLabUserMarker = "\n<!-- upgrade-lab: user customization preserved across upgrade -->\n"
@@ -170,7 +172,8 @@ func TestUpgradeApplyIsIdempotentAndPreservesInstanceContent(t *testing.T) {
 	if !strings.Contains(string(agents), "upgrade-lab: user customization") {
 		t.Error("user-modified AGENTS.md content was not preserved across upgrade")
 	}
-	if _, err := os.Stat(filepath.Join(fixture, ".pose", "specs", "upgrade-lab-fixture", "spec.md")); err != nil {
+	store := posemodel.Store{Root: fixture}
+	if sp, err := store.GetSpec("upgrade-lab-fixture"); err != nil || sp == nil {
 		t.Errorf("populated spec artifact was not preserved: %v", err)
 	}
 	matches, err := filepath.Glob(filepath.Join(fixture, ".pose", "knowledge", "*upgrade-lab-fixture*.md"))

@@ -13,7 +13,7 @@ capabilities: read, release-write
 
 1. [Workflow de Release](../../../.pose/workflows/release.md).
 2. [Regra de integridade de release](../../../.pose/rules/release-integrity.md).
-3. [Política de changelog e release](../../../.pose/policy/changelog.json).
+3. [Política de release](../../../.pose/policy/release.json).
 
 ## Procedimento
 

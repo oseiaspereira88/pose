@@ -146,28 +146,6 @@ func cmdSpecFormatMigrate(root string, args []string, stdout, stderr io.Writer, 
 			continue
 		}
 
-		// Check if already date-prefixed
-		if datePrefixRegex.MatchString(name) {
-			results = append(results, SpecMigrationItem{
-				Slug:       sp.Slug,
-				SourcePath: specPath,
-				TargetPath: specPath,
-				Format:     formatPref,
-				Status:     "skipped (already date-prefixed)",
-			})
-			continue
-		}
-
-		// Determine date prefix
-		dateStr := strings.TrimSpace(sp.CreatedAt)
-		if len(dateStr) >= 10 && datePrefixRegex.MatchString(dateStr[:10]+"-") {
-			dateStr = dateStr[:10]
-		} else if len(sp.CompletedAt) >= 10 && datePrefixRegex.MatchString(sp.CompletedAt[:10]+"-") {
-			dateStr = sp.CompletedAt[:10]
-		} else {
-			dateStr = time.Now().UTC().Format("2006-01-02")
-		}
-
 		// Check companion files in source directory
 		hasCompanion := false
 		sourceDir := ""
@@ -187,6 +165,70 @@ func cmdSpecFormatMigrate(root string, args []string, stdout, stderr io.Writer, 
 		targetFormat := formatPref
 		if hasCompanion {
 			targetFormat = "folder"
+		}
+
+		// Check if already in target format
+		if datePrefixRegex.MatchString(name) {
+			if targetFormat == "flat" {
+				if !isDir {
+					results = append(results, SpecMigrationItem{
+						Slug:       sp.Slug,
+						SourcePath: specPath,
+						TargetPath: specPath,
+						Format:     "flat",
+						Status:     "skipped (already flat)",
+					})
+					continue
+				}
+				if hasCompanion {
+					results = append(results, SpecMigrationItem{
+						Slug:         sp.Slug,
+						SourcePath:   specPath,
+						TargetPath:   specPath,
+						Format:       "folder",
+						HasCompanion: true,
+						Status:       "skipped (has companion/amends, kept as folder)",
+					})
+					continue
+				}
+				// isDir is true and hasCompanion is false: migrate to flat file
+			} else if targetFormat == "folder" {
+				if isDir {
+					results = append(results, SpecMigrationItem{
+						Slug:         sp.Slug,
+						SourcePath:   specPath,
+						TargetPath:   specPath,
+						Format:       "folder",
+						HasCompanion: hasCompanion,
+						Status:       "skipped (already folder)",
+					})
+					continue
+				}
+				// isDir is false: migrate to folder
+			} else {
+				// Default format (auto): keep existing date-prefixed as-is
+				results = append(results, SpecMigrationItem{
+					Slug:         sp.Slug,
+					SourcePath:   specPath,
+					TargetPath:   specPath,
+					Format:       formatPref,
+					HasCompanion: hasCompanion,
+					Status:       "skipped (already date-prefixed)",
+				})
+				continue
+			}
+		}
+
+		// Determine date prefix
+		dateStr := strings.TrimSpace(sp.CreatedAt)
+		if datePrefixRegex.MatchString(name) {
+			dateStr = name[:10]
+		} else if len(dateStr) >= 10 && datePrefixRegex.MatchString(dateStr[:10]+"-") {
+			dateStr = dateStr[:10]
+		} else if len(sp.CompletedAt) >= 10 && datePrefixRegex.MatchString(sp.CompletedAt[:10]+"-") {
+			dateStr = sp.CompletedAt[:10]
+		} else {
+			dateStr = time.Now().UTC().Format("2006-01-02")
 		}
 
 		var targetPath string
@@ -223,14 +265,16 @@ func cmdSpecFormatMigrate(root string, args []string, stdout, stderr io.Writer, 
 			}
 			if isDir {
 				// Move all files from sourceDir to targetDir
-				if dirEntries, err := os.ReadDir(sourceDir); err == nil {
-					for _, de := range dirEntries {
-						oldFile := filepath.Join(sourceDir, de.Name())
-						newFile := filepath.Join(targetDir, de.Name())
-						_ = os.Rename(oldFile, newFile)
+				if sourceDir != targetDir {
+					if dirEntries, err := os.ReadDir(sourceDir); err == nil {
+						for _, de := range dirEntries {
+							oldFile := filepath.Join(sourceDir, de.Name())
+							newFile := filepath.Join(targetDir, de.Name())
+							_ = os.Rename(oldFile, newFile)
+						}
 					}
+					_ = os.Remove(sourceDir)
 				}
-				_ = os.Remove(sourceDir)
 			} else {
 				// Move single flat file into targetDir/spec.md
 				_ = os.Rename(specPath, targetPath)
