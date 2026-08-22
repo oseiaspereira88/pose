@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-21T23:57:43Z
-baseline_commit: 21e72814a71749fd9e41998676af2a87015773ba
+generated_at: 2026-08-22T05:44:57Z
+baseline_commit: e77faa6cc2a6a72da846feffec0b761ad2816ad2
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:3a38230cfb17 -->
+<!-- state:derived hash:f1529bf095f7 -->
 
-- specs: total=126 draft=1 in-progress=0 blocked=0 done=125 superseded=0 abandoned=0
+- specs: total=128 draft=1 in-progress=0 blocked=0 done=127 superseded=0 abandoned=0
 - roadmaps: total=10 active=0 done=10
 - últimos closeouts:
-  - spec:pose-contributor-mode-protocol (2026-08-21)
+  - spec:pose-contributor-mode-workflow-and-cli-hints (2026-08-22)
   - spec:pose-spec-trailer-workflow-documentation (2026-08-21)
-  - spec:pose-engine-stability-and-diagnostics-convergence (2026-08-21)
-  - spec:pose-engine-discovery-consolidation-and-onboarding (2026-08-21)
+  - spec:pose-stack-rule-extensions-expansion (2026-08-21)
   - spec:pose-spec-format-migration-command (2026-08-21)
-  - ... e mais 120 (ver `pose_list_specs status:done`)
+  - spec:pose-engine-stability-and-diagnostics-convergence (2026-08-21)
+  - ... e mais 122 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:48a16c7aa529 -->
@@ -64,16 +64,16 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:5656f5e8f783 -->
+<!-- state:derived hash:6f17695e37f9 -->
 
-- último registro: task=validate-native outcome=pass (2026-08-21T06:32:23Z)
-- últimos 30 dias: total=223 outcome_ok=154 outcome_outro=69
-- reports revisados (.md): total=132
+- último registro: task=feature outcome=unknown (2026-08-22T05:35:43Z)
+- últimos 30 dias: total=225 outcome_ok=155 outcome_outro=70
+- reports revisados (.md): total=134
+  - report:2026-08-22-standard-feature.md
+  - report:2026-08-22-standard-validate-native.md
   - report:2026-08-21-standard-validate-native.md
   - report:2026-08-18-standard-validate-native.md
   - report:2026-08-17-standard-closeout-pose-discovery-gitignore-and-root-alias-fix.md
-  - report:2026-08-16-standard-closeout-pose-update-instance-directory-completeness.md
-  - report:2026-08-16-standard-closeout-pose-derived-index-self-referential-leak.md
 
 ## Arquitetura
 <!-- state:derived hash:26bc9a5cafff status:unavailable -->

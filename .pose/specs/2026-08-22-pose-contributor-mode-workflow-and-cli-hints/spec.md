@@ -1,12 +1,13 @@
 ---
 slug: pose-contributor-mode-workflow-and-cli-hints
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-contributor-mode-protocol, pose-manual-and-cli-command-parity
 priority: 25
 components: cli, skills, workflows, scaffold, locales
 delivers: surface:contributor-mode-cli-hints
+completed_at: 2026-08-22
 ---
 
 # Spec: Contributor Mode Workflow and CLI Contextual Guidance Integration
@@ -154,23 +155,22 @@ Empowers AI agents and developers to naturally capture and stage engine friction
 - `pose check --strict`
 - `pose validate --strict`
 
+### Requirement trace
+- R1 [satisfied] surface:contributor-mode-cli-hints check:delivery-integration test:TestContributorModeHints evidence:integration
+- R2 [satisfied] surface:contributor-mode-cli-hints check:delivery-integration test:TestContributorModeHints evidence:integration
+- R3 [satisfied] surface:contributor-mode-cli-hints check:delivery-integration test:TestReportLimitationStagesContributionWhenActive evidence:integration
+- R4 [satisfied] surface:contributor-mode-cli-hints check:delivery-integration test:TestContributorModeHints evidence:integration
+- R5 [satisfied] surface:contributor-mode-cli-hints check:delivery-integration test:TestSkillLocaleParity evidence:integration
+- R6 [satisfied] surface:contributor-mode-cli-hints check:delivery-integration test:TestLocaleCoverage evidence:integration
+- R7 [satisfied] surface:contributor-mode-cli-hints check:delivery-integration test:TestLocaleCoverage evidence:integration
+- R8 [satisfied] surface:contributor-mode-cli-hints check:delivery-integration test:TestMergeManagedDocPreservesContributorMode evidence:integration
+
 ---
 
 ## 6. Delivery Evidence
 
 ### Artifact claims
-- capability:contributor-mode-cli-hints -> pose-mcp/cmd/pose/main.go
-- surface:contributor-workflow-guidance -> POSE.md
-
-### Requirement trace
-- R1 (CLI failure hints): Covered by `PrintContributorFailureHint` in `check.go`, `lintspec.go`, `artifact_integrity.go`, `review_closeout.go`.
-- R2 (Doctor status hint): Covered by `PrintContributorDoctorHint` in `doctor.go`.
-- R3 (Report-limitation staging): Covered in `report_limitation.go`.
-- R4 (JSON suppression): Covered by `!jsonOut` and `!jsonOutput` guard clauses in `doctor.go` and `artifact_integrity.go`.
-- R5 (Key skills integration): Embedded in `pose-bugfix`, `pose-review`, `pose-spec-closeout`, `pose-recurrence-escalation`, `pose-feature`.
-- R6 (Workflows guidance): Embedded in `bugfix.md`, `review.md`, `feature.md`, `refactor.md`.
-- R7 (Bilingual parity): Verified in `locales/pt-BR/` and embedded dist.
-- R8 (Update preservation): Tested and verified in `TestMergeManagedDocPreservesContributorMode`.
+- surface:contributor-mode-cli-hints -> pose-mcp/cmd/pose/main.go
 
 ### Known gaps
 None.

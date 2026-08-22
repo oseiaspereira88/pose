@@ -786,7 +786,8 @@ func (checker *nativeChecker) checkChangelogs() {
 			slug = fields["spec"]
 		}
 		covered[slug] = true
-		if _, err := os.Stat(filepath.Join(checker.root, ".pose", "specs", slug, "spec.md")); err != nil {
+		store := pose.Store{Root: checker.root}
+		if _, err := store.GetSpec(slug); err != nil {
 			checker.failOrWarn(fmt.Sprintf(checker.message("changelog: fragment %s points to a missing spec: %s", "changelog: fragment %s aponta para spec inexistente: %s"), filepath.Base(path), slug))
 		}
 		if !valid[fields["category"]] {

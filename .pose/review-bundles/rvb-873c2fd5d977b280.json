@@ -1,0 +1,977 @@
+{
+  "schema_version": 1,
+  "bundle_id": "rvb-873c2fd5d977b280",
+  "bundle_digest": "sha256:873c2fd5d977b280267f0b833344c32d9f52179aa68b095d853da4ad7a65ea34",
+  "state": "sealed",
+  "sealed_at": "2026-08-22T05:37:52Z",
+  "payload": {
+    "scope": {
+      "ref": "spec:pose-contributor-mode-workflow-and-cli-hints",
+      "kind": "spec",
+      "slug": "pose-contributor-mode-workflow-and-cli-hints",
+      "depends_on": [
+        "pose-contributor-mode-protocol",
+        "pose-manual-and-cli-command-parity"
+      ],
+      "components": [
+        "cli",
+        "locales",
+        "scaffold",
+        "skills",
+        "workflows"
+      ],
+      "deliveries": [
+        "surface:contributor-mode-cli-hints"
+      ],
+      "sections": [
+        {
+          "kind": "semantic-section",
+          "path": "intent",
+          "digest": "sha256:239fecff9689d462f8fb965b952fbc0bed870ca28eb2a29ef2f2bc4d4ce6f368",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "requirements",
+          "digest": "sha256:738bf68f49c60cb4fb151f9e603196d90409b3569d1d6d19d1e958e6468cf0d1",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "technical plan",
+          "digest": "sha256:a1767f816b963a33e821ec739098558dda19784a230e3fe85328e2bdbb3ce36f",
+          "reason": "governed semantic review input"
+        }
+      ]
+    },
+    "subject": {
+      "change_sets": [
+        "cs-9309887cc50e",
+        "cs-de02196695b4"
+      ],
+      "base": "810107863a9891ce349138ec92f3da14e1a51af4",
+      "head": "e77faa6cc2a6a72da846feffec0b761ad2816ad2",
+      "patch_digest": "sha256:9c94860ed6fd878ecec40a97e7fda18739696e1e3998b16bf33d59b0ace5590e",
+      "tree_digest": "sha256:eafb76bd84f895fa8ded45de4637d2da74d928daaf34c231aedb1b1e1b915f72",
+      "entries": [
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/contribute_hints_test.go",
+          "class": "implementation",
+          "digest": "sha256:3d7e97af3848425e9cda6bef43fef09e0007a7500515fc5eedd670e206805df1",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/pose-bugfix/SKILL.md",
+          "class": "governance",
+          "digest": "sha256:550ca23044ccf355420c66810027aaa7c93f911c0a685171c4e0ccdced37a877",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/pose-feature/SKILL.md",
+          "class": "governance",
+          "digest": "sha256:1b3f4116604f69e86365656b2e6c8e52194747aaaf4193f51604ce5648e36bd1",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/pose-recurrence-escalation/SKILL.md",
+          "class": "governance",
+          "digest": "sha256:2a55960fedacd5bc5fc60e4b5a4d89815ed57e61158498941956b8db19cf18c1",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/pose-review/SKILL.md",
+          "class": "governance",
+          "digest": "sha256:0f3c33b54d346944469baf507cf91e54f982771cae02b2128a19249c7c54c5de",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/pose-spec-closeout/SKILL.md",
+          "class": "governance",
+          "digest": "sha256:03fc6d71a36d45389d8ecf4b05209d77748bcb7788b4d6998ce4bf6765713746",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json",
+          "class": "governance",
+          "digest": "sha256:126305dc0cb04c1b571908d6df29c3a09bef50a415cbabc0c005e66f2ed60c9c",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/workflows/bugfix.md",
+          "class": "governance",
+          "digest": "sha256:3355e925107af20da600308c604d8823ba0a2339bd3a1f0d05fddd2fce22518f",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/workflows/feature.md",
+          "class": "governance",
+          "digest": "sha256:f2fd869815e72d046981cd9604ced64912b6ddc3b71e09ba6fdb85847ede1eea",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/workflows/refactor.md",
+          "class": "governance",
+          "digest": "sha256:5319162f97b5676ae76dcdcb25659ca05760cda14c12ffca1b60750e33f6c881",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/workflows/review.md",
+          "class": "governance",
+          "digest": "sha256:1721fa3275fa4e2419710e90a0042e575cb7c41c8930281f292fd060d64eaa30",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.agents/skills/pose-bugfix/SKILL.md",
+          "class": "documentation",
+          "digest": "sha256:ac40f6a7f75eb79903731a70e29a2f26aa66fb1ce263c94632fb4e185cb3f422",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+          "class": "documentation",
+          "digest": "sha256:75204eb3b86aed0cc80352b035fff283bdf028ef4a7fb465f3865eda3d123c90",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.agents/skills/pose-recurrence-escalation/SKILL.md",
+          "class": "documentation",
+          "digest": "sha256:e7acf25cf6696de6d2d6ac3215ad0fa3b007ed12558e34b6f2abd91489adccb1",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+          "class": "documentation",
+          "digest": "sha256:c591473a8432add7270cf4ddfa708d41eb18bcc64a9f6e4901f36c68bfff8c9b",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+          "class": "documentation",
+          "digest": "sha256:e077f6585df91300727c9ef7557fa68c179c19d63b939993b5f2d99d5837607b",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/workflows/bugfix.md",
+          "class": "documentation",
+          "digest": "sha256:22922a96335e2af5bd6a279d5e7c14276a45c46e6c102231bae55c116a14e92f",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/workflows/feature.md",
+          "class": "documentation",
+          "digest": "sha256:68853a0e1068c15a7a58fec5f0be74081f1d6457e213885d16f394c2aa6fd467",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/workflows/refactor.md",
+          "class": "documentation",
+          "digest": "sha256:cabe64ce2a067e0a3814558435bd3fd5c905298e7d7db3ce8f48ad8da8f38723",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.pose/workflows/review.md",
+          "class": "documentation",
+          "digest": "sha256:350bee11ee277fc5ced0506ed9ef7d0d73aa5f6d43631cb3f4da7766767d52ab",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go",
+          "class": "implementation",
+          "digest": "sha256:9409b9abc74d65e3fd77e85d80cba50b6859ae8ce542b2631dc2572c1a9aebc4",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/check.go",
+          "class": "implementation",
+          "digest": "sha256:546245861c19664a45fd4ffa7a67f66602924eb6eb7b65a31538c4fbc82fd2e4",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/contribute.go",
+          "class": "implementation",
+          "digest": "sha256:75b857f101d41170238d32650fc38092b983c44f689a8e8a19552ef7304e7909",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor.go",
+          "class": "implementation",
+          "digest": "sha256:9c8d164fb48cd202bff7e8b97e6c29a9e659dc86bfd0d8014b1fca595a3df5da",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/lintspec.go",
+          "class": "implementation",
+          "digest": "sha256:7e2aa97014344e6965e7cfd3df44d4d563216c9232de60e765bff1749ef84a2b",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/report_limitation.go",
+          "class": "implementation",
+          "digest": "sha256:c051dc68fd9a3e09725d170930a01050bb922ec6e7e7997b6b9217eec17bce06",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go",
+          "class": "implementation",
+          "digest": "sha256:71a71676618dfd471e461d3ab3554157f6782ac767cca2676bf9c7c8c57149c5",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-bugfix/SKILL.md",
+          "class": "implementation",
+          "digest": "sha256:550ca23044ccf355420c66810027aaa7c93f911c0a685171c4e0ccdced37a877",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md",
+          "class": "implementation",
+          "digest": "sha256:1b3f4116604f69e86365656b2e6c8e52194747aaaf4193f51604ce5648e36bd1",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-recurrence-escalation/SKILL.md",
+          "class": "implementation",
+          "digest": "sha256:2a55960fedacd5bc5fc60e4b5a4d89815ed57e61158498941956b8db19cf18c1",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md",
+          "class": "implementation",
+          "digest": "sha256:0f3c33b54d346944469baf507cf91e54f982771cae02b2128a19249c7c54c5de",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
+          "class": "implementation",
+          "digest": "sha256:03fc6d71a36d45389d8ecf4b05209d77748bcb7788b4d6998ce4bf6765713746",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/bugfix.md",
+          "class": "implementation",
+          "digest": "sha256:3355e925107af20da600308c604d8823ba0a2339bd3a1f0d05fddd2fce22518f",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md",
+          "class": "implementation",
+          "digest": "sha256:f2fd869815e72d046981cd9604ced64912b6ddc3b71e09ba6fdb85847ede1eea",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/refactor.md",
+          "class": "implementation",
+          "digest": "sha256:5319162f97b5676ae76dcdcb25659ca05760cda14c12ffca1b60750e33f6c881",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/workflows/review.md",
+          "class": "implementation",
+          "digest": "sha256:1721fa3275fa4e2419710e90a0042e575cb7c41c8930281f292fd060d64eaa30",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-bugfix/SKILL.md",
+          "class": "implementation",
+          "digest": "sha256:ac40f6a7f75eb79903731a70e29a2f26aa66fb1ce263c94632fb4e185cb3f422",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+          "class": "implementation",
+          "digest": "sha256:75204eb3b86aed0cc80352b035fff283bdf028ef4a7fb465f3865eda3d123c90",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-recurrence-escalation/SKILL.md",
+          "class": "implementation",
+          "digest": "sha256:e7acf25cf6696de6d2d6ac3215ad0fa3b007ed12558e34b6f2abd91489adccb1",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+          "class": "implementation",
+          "digest": "sha256:c591473a8432add7270cf4ddfa708d41eb18bcc64a9f6e4901f36c68bfff8c9b",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+          "class": "implementation",
+          "digest": "sha256:e077f6585df91300727c9ef7557fa68c179c19d63b939993b5f2d99d5837607b",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/bugfix.md",
+          "class": "implementation",
+          "digest": "sha256:22922a96335e2af5bd6a279d5e7c14276a45c46e6c102231bae55c116a14e92f",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md",
+          "class": "implementation",
+          "digest": "sha256:68853a0e1068c15a7a58fec5f0be74081f1d6457e213885d16f394c2aa6fd467",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/refactor.md",
+          "class": "implementation",
+          "digest": "sha256:cabe64ce2a067e0a3814558435bd3fd5c905298e7d7db3ce8f48ad8da8f38723",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/review.md",
+          "class": "implementation",
+          "digest": "sha256:350bee11ee277fc5ced0506ed9ef7d0d73aa5f6d43631cb3f4da7766767d52ab",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+          "class": "implementation",
+          "digest": "sha256:4cebb29362d68ea58a096e8e80b0469dfe63b1b7e846f2d6cc63ff869fc69ca7",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/gen/main.go",
+          "class": "implementation",
+          "digest": "sha256:7d4bb92907866ca3bb0f6a2dddeaef677e6c36d0ca37210bbb8de6a3f9daacd4",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/manual_locale_parity_test.go",
+          "class": "implementation",
+          "digest": "sha256:6cda3a6b7b7a126ae464743295e044f901d9f1eca501f54bc03fa1c198030be3",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/scaffold_test.go",
+          "class": "implementation",
+          "digest": "sha256:dbe31e8f4aa848db3a1309632f331d16230007321b37fbc60bdcfb16112cdc5c",
+          "reason": "attributed implementation path in the immutable change set"
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:a4730eeda1244dca23ac8508149b41a86c4f749f4d424ee89e50303ddb5bdb85",
+      "independence": "same-actor-separate-execution",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "governance-engine",
+          "owner": "@pose-maintainers",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "declared",
+          "sources": [
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/artifact_integrity.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/check.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/contribute.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/contribute_hints_test.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/doctor.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/lintspec.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/report_limitation.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/review_closeout.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.agents/skills/pose-bugfix/SKILL.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.agents/skills/pose-recurrence-escalation/SKILL.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.pose/workflows/bugfix.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.pose/workflows/refactor.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.pose/workflows/review.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-bugfix/SKILL.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-recurrence-escalation/SKILL.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/bugfix.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/refactor.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/review.md",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/gen/main.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/manual_locale_parity_test.go",
+            "artifact:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/scaffold_test.go",
+            "delivery:surface:contributor-mode-cli-hints:pose-mcp",
+            "delivery:surface:contributor-mode-cli-hints:pose-mcp/cmd/pose/main.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/artifact_integrity.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/check.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/contribute.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/contribute_hints_test.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/doctor.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/lintspec.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/report_limitation.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/cli/review_closeout.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.agents/skills/pose-bugfix/SKILL.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.agents/skills/pose-recurrence-escalation/SKILL.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.pose/workflows/bugfix.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.pose/workflows/refactor.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/.pose/workflows/review.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-bugfix/SKILL.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-recurrence-escalation/SKILL.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/bugfix.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/refactor.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/review.md",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/gen/main.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/manual_locale_parity_test.go",
+            "observed:pose-contributor-mode-workflow-and-cli-hints:pose-mcp/internal/scaffold/scaffold_test.go"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "backend-concurrency",
+          "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.",
+          "required": true,
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "test"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-contracts",
+          "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.",
+          "required": true,
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "contract"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-input-errors",
+          "description": "Inputs, validation failures and error paths are bounded, typed and actionable.",
+          "required": true,
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "test"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-integration-impact",
+          "description": "Providers, consumers and inter-component boundaries remain integrated.",
+          "required": true,
+          "evidence_classes": [
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-observability",
+          "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.",
+          "required": true,
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "observability"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "compatibility",
+          "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+          "required": true,
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "correctness",
+          "description": "Functional and negative behavior is correct.",
+          "required": true,
+          "evidence_classes": [
+            "test",
+            "validation"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "documentation",
+          "description": "Operational docs, templates and scaffold match runtime behavior.",
+          "required": true,
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "operability",
+          "description": "Errors, explanations and remediation are actionable.",
+          "required": true,
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "requirements",
+          "description": "Every requirement has current, relevant evidence.",
+          "required": true,
+          "evidence_classes": [
+            "requirement-trace",
+            "test"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "scope",
+          "description": "The implementation matches the approved spec scope.",
+          "required": true,
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "security",
+          "description": "Inputs, paths, evidence and authority boundaries are safe.",
+          "required": true,
+          "rules": [
+            "security"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "artifact-check",
+            "--spec",
+            "pose-contributor-mode-workflow-and-cli-hints",
+            "--strict"
+          ],
+          "rationale": "reconcile declared artifacts with Git-observed provenance",
+          "criteria": [
+            "requirements",
+            "scope"
+          ],
+          "preconditions": [
+            "artifacts-attributed"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-integrate",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "integrate"
+          ],
+          "rationale": "inspect providers, consumers and inter-component contract gaps",
+          "evidence_classes": [
+            "integration"
+          ],
+          "criteria": [
+            "backend-contracts",
+            "backend-integration-impact"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "criteria": [
+            "correctness"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "spec:pose-contributor-mode-workflow-and-cli-hints"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "spec:pose-contributor-mode-workflow-and-cli-hints"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "skills-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "skills-check",
+            "--strict"
+          ],
+          "rationale": "verify distributed skill and workflow conformance",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "surface-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "surface-check",
+            "--spec",
+            "pose-contributor-mode-workflow-and-cli-hints",
+            "--strict"
+          ],
+          "rationale": "verify delivery composition, reachability and fresh evidence",
+          "evidence_classes": [
+            "integration",
+            "reachability"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "validation"
+          ],
+          "criteria": [
+            "backend-concurrency",
+            "backend-input-errors",
+            "backend-observability",
+            "correctness",
+            "requirements"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "validation"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "pose-mcp/go/delivery-integration",
+        "module": "pose-mcp",
+        "check": "delivery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "e77faa6cc2a6a72da846feffec0b761ad2816ad2",
+        "provenance_digest": "sha256:dcffac9f25cc536da7fc4dfa833ec78e2c4aaae83933893cafcfc2980729cdf3",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-reachability",
+        "module": "pose-mcp",
+        "check": "delivery-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "git_head": "e77faa6cc2a6a72da846feffec0b761ad2816ad2",
+        "provenance_digest": "sha256:dcffac9f25cc536da7fc4dfa833ec78e2c4aaae83933893cafcfc2980729cdf3",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-bundle-convergence",
+        "module": "pose-mcp",
+        "check": "review-bundle-convergence",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "e77faa6cc2a6a72da846feffec0b761ad2816ad2",
+        "provenance_digest": "sha256:dcffac9f25cc536da7fc4dfa833ec78e2c4aaae83933893cafcfc2980729cdf3",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test",
+        "module": "pose-mcp",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "git_head": "e77faa6cc2a6a72da846feffec0b761ad2816ad2",
+        "provenance_digest": "sha256:dcffac9f25cc536da7fc4dfa833ec78e2c4aaae83933893cafcfc2980729cdf3",
+        "report": ".pose/results/delivery-validation.json"
+      }
+    ],
+    "consumed_inputs": [
+      {
+        "kind": "governed-config",
+        "path": ".pose/indexes/validation-matrix.json",
+        "digest": "sha256:126305dc0cb04c1b571908d6df29c3a09bef50a415cbabc0c005e66f2ed60c9c",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "governed-config",
+        "path": ".pose/policy/review.json",
+        "digest": "sha256:89a78e6ec6e1806414c669e66239831b593c08b9a182e36fae119bccecd28b5e",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "review-plan",
+        "path": "spec-closeout@1",
+        "digest": "sha256:a4730eeda1244dca23ac8508149b41a86c4f749f4d424ee89e50303ddb5bdb85",
+        "reason": "effective component-aware plan contract"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/backend-review.json",
+        "digest": "sha256:af12d354f01a3939764d1796ba772c9eff2775e253ca4386c39ba88fe0d16975",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/spec-closeout.json",
+        "digest": "sha256:de13c1d59e485aaf4cb474a8c2836507447c44dc7090cbdc2de589fa75c6cc92",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/backend-go.md",
+        "digest": "sha256:2289a86134e7d6667ae4dba4bfd68dee8acd59246912e32c35648d399e6d3e31",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/documentation-style.md",
+        "digest": "sha256:5c5c666fc6c796cf9ae3876d25d3fd4fa523d121892459dc0d681d73da1d60ae",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/security.md",
+        "digest": "sha256:1cbf29c12d09cad0799e2d8715e94f84a49ee8fa09867bb5f12a544f8df43774",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "schema",
+        "path": "review-bundle@1",
+        "digest": "sha256:e7c9643ec88eccb2a6dea3ee3291c351983d78e1d2fa44b61399514c5021bcb0",
+        "reason": "canonical bundle and attestation schema identity"
+      },
+      {
+        "kind": "tool-catalog",
+        "path": "native-review-tools@1",
+        "digest": "sha256:a4730eeda1244dca23ac8508149b41a86c4f749f4d424ee89e50303ddb5bdb85",
+        "reason": "closed resolved native tool contract"
+      }
+    ]
+  },
+  "excluded_inputs": [
+    {
+      "kind": "derived-section",
+      "path": "final report",
+      "digest": "sha256:c4cb81a145eb72956806fd2592ae7484148783fbbef0ad5d653ea5ccdf847780",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "tasks",
+      "digest": "sha256:24a157a2d83e59fcdf0c349ee3ce73983894b50cecd8f5ed4ea3c44c3f7ccd79",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "validation",
+      "digest": "sha256:7914a181d0b07a39bd362e8dfbdd28e36dba8f0ff303c0abc4b82b1c992fc206",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "lifecycle",
+      "path": "/home/go/IdeaProjects/harne8/pose-dist/.pose/specs/2026-08-22-pose-contributor-mode-workflow-and-cli-hints/spec.md",
+      "reason": "status and completed_at do not define the reviewed semantic subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-08-22-pose-contributor-mode-workflow-and-cli-hints/spec.md",
+      "reason": "attributed path is outside the semantic review subject"
+    }
+  ],
+  "warnings": [
+    "unmapped review component explicit:cli",
+    "unmapped review component explicit:locales",
+    "unmapped review component explicit:scaffold",
+    "unmapped review component explicit:skills",
+    "unmapped review component explicit:workflows",
+    "unmapped review component path:.agents/skills/pose-bugfix/SKILL.md",
+    "unmapped review component path:.agents/skills/pose-feature/SKILL.md",
+    "unmapped review component path:.agents/skills/pose-recurrence-escalation/SKILL.md",
+    "unmapped review component path:.agents/skills/pose-review/SKILL.md",
+    "unmapped review component path:.agents/skills/pose-spec-closeout/SKILL.md",
+    "unmapped review component path:.pose/workflows/bugfix.md",
+    "unmapped review component path:.pose/workflows/feature.md",
+    "unmapped review component path:.pose/workflows/refactor.md",
+    "unmapped review component path:.pose/workflows/review.md",
+    "unmapped review component path:locales/pt-BR/.agents/skills/pose-bugfix/SKILL.md",
+    "unmapped review component path:locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+    "unmapped review component path:locales/pt-BR/.agents/skills/pose-recurrence-escalation/SKILL.md",
+    "unmapped review component path:locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+    "unmapped review component path:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+    "unmapped review component path:locales/pt-BR/.pose/workflows/bugfix.md",
+    "unmapped review component path:locales/pt-BR/.pose/workflows/feature.md",
+    "unmapped review component path:locales/pt-BR/.pose/workflows/refactor.md",
+    "unmapped review component path:locales/pt-BR/.pose/workflows/review.md"
+  ],
+  "path": ".pose/review-bundles/rvb-873c2fd5d977b280.json"
+}
