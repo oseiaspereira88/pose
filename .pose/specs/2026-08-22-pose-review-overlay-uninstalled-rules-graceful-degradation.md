@@ -1,12 +1,13 @@
 ---
 slug: pose-review-overlay-uninstalled-rules-graceful-degradation
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-skills-harmonization
 priority: 27
 components: cli, pose-mcp
 delivers: contract:review-overlay-uninstalled-rules-graceful-degradation
+completed_at: 2026-08-22
 ---
 
 # Spec: Graceful Degradation for Review Overlay Profiles Referencing Uninstalled Extension Rules

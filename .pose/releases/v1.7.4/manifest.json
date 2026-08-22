@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v1.7.4",
+  "previous_version": "v1.7.3",
+  "prepared_at": "2026-08-22T11:03:07Z",
+  "specs": [
+    "pose-review-overlay-uninstalled-rules-graceful-degradation"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-review-overlay-uninstalled-rules-graceful-degradation",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Fixed review bundle preparation and sealing crash when configured overlay profiles reference rule IDs provided by uninstalled extensions (`backend-go`, `frontend-react`). Missing extension rules now degrade gracefully to plan warnings instead of hard blockers.",
+      "path": "2026-08-22-pose-review-overlay-uninstalled-rules-graceful-degradation.md",
+      "digest": "sha256:18f4b5fbafe971e3c86fada35f2663a2bd4199a12147cacea4bc67ec0b380bd8"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:b17158cbada7f58e3906ee857f02990f58439f796ccc9f7747e70427fcb7bf4e",
+  "release_input_digest": "sha256:be7b7044ee647241d9c9bf2ea9d434dd91dc9c04198b6cbecb4148278bce70a3",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.7.4"
+  }
+}
