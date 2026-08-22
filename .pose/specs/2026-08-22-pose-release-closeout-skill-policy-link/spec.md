@@ -1,12 +1,13 @@
 ---
 slug: pose-release-closeout-skill-policy-link
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-review-bundle-component-discovery-and-governance-paths
 priority: 25
 components: skills, locales, scaffold
 delivers: surface:release-closeout-skill-link
+completed_at: 2026-08-22
 ---
 
 # Spec: Release Closeout Skill Canonical Policy Link Correction
