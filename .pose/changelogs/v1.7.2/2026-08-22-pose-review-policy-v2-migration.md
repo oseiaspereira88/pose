@@ -1,0 +1,8 @@
+---
+spec: pose-review-policy-v2-migration-and-verify-compat
+category: fixed
+breaking: false
+refs: ISSUE#34
+---
+
+Resolved issue #34: `pose update` automatically and idempotently migrates `.pose/policy/review.json` and review profiles from schema v1 to schema v2 (`component_aware: true`, `review_bundles: true`, and typed overlay profiles). `pose update --dry-run` reports pending review policy migrations. `pose review bundle` keeps repository component discovery active even on instances with schema v1 policies, preventing subproject paths from being rejected as unclassified. `pose review verify` evaluates recorded reviews via `ReviewCheck` when `review_bundles=false` or on schema v1 policies, maintaining full consistency with `pose review-check` and `pose close`.

@@ -1,12 +1,13 @@
 ---
 slug: pose-review-policy-v2-migration-and-verify-compat
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-new-spec-default-flat-format
 priority: 25
 components: cli, pose, review
 delivers: surface:review-policy-v2-migration
+completed_at: 2026-08-22
 ---
 
 # Spec: Review Policy V2 Migration, Component Discovery Fallback, and Review Verify Compatibility

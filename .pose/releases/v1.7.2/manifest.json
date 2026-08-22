@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "version": "v1.7.2",
+  "previous_version": "v1.7.1",
+  "prepared_at": "2026-08-22T09:30:31Z",
+  "specs": [
+    "pose-review-policy-v2-migration-and-verify-compat"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-review-policy-v2-migration-and-verify-compat",
+      "category": "fixed",
+      "breaking": false,
+      "refs": "ISSUE#34",
+      "body": "Resolved issue #34: `pose update` automatically and idempotently migrates `.pose/policy/review.json` and review profiles from schema v1 to schema v2 (`component_aware: true`, `review_bundles: true`, and typed overlay profiles). `pose update --dry-run` reports pending review policy migrations. `pose review bundle` keeps repository component discovery active even on instances with schema v1 policies, preventing subproject paths from being rejected as unclassified. `pose review verify` evaluates recorded reviews via `ReviewCheck` when `review_bundles=false` or on schema v1 policies, maintaining full consistency with `pose review-check` and `pose close`.",
+      "path": "2026-08-22-pose-review-policy-v2-migration.md",
+      "digest": "sha256:65713e46aeea2beee597f2903244ba1fc55d2e07378a18f920c2a9d2a29f8a32"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:033d93a4a65595bb60e74a02723637430fa29853464fceaa2215e18a6711efe8",
+  "release_input_digest": "sha256:a625d80ce07edeadc2c6e8d853e5bcb5b72983f02e14c47e8e505e7b8c2bafc0",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.7.2"
+  }
+}
