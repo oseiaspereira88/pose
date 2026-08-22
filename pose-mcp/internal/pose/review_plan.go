@@ -729,7 +729,7 @@ func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []Revi
 		add("assess-discover", "recommended", component.Path, nil, nil)
 		add("validate", "required", component.Path, []string{"validation"}, nil)
 	}
-	if len(context.Components) == 0 {
+	if len(context.Components) == 0 && len(context.DeliveryKinds) > 0 {
 		add("validate", "required", "", []string{"validation"}, nil)
 	}
 	add("assess-tech-debt", "recommended", "", nil, nil)
@@ -795,14 +795,14 @@ func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []Revi
 
 func reviewToolPreconditions(id string) []string {
 	switch id {
-	case "suggest-review", "assess-discover", "validate":
+	case "suggest-review", "assess-discover":
 		return []string{"scope-authorized"}
+	case "validate", "surface-check", "roadmap-check":
+		return []string{"delivery-target-declared"}
 	case "assess-integrate":
 		return []string{"scope-authorized"}
 	case "artifact-check":
 		return []string{"artifacts-attributed"}
-	case "surface-check", "roadmap-check":
-		return []string{"delivery-target-declared"}
 	case "review-check", "closeout-check":
 		return []string{"review-complete"}
 	default:

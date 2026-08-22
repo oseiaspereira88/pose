@@ -270,6 +270,15 @@ func cmdReviewBundle(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "Usage: pose review bundle <scope> [--json] [--explain] [--seal]")
 		return 2
 	}
+	indexPath := filepath.Join(root, ".pose", "indexes", "delivery-integrity.json")
+	if _, statErr := os.Stat(indexPath); statErr != nil {
+		if deliveryGraph, err := buildCurrentDeliveryGraph(root); err == nil {
+			if raw, err := json.MarshalIndent(deliveryGraph, "", "  "); err == nil {
+				_ = os.MkdirAll(filepath.Join(root, ".pose", "indexes"), 0o755)
+				_ = os.WriteFile(indexPath, append(raw, '\n'), 0o644)
+			}
+		}
+	}
 	store := posemodel.Store{Root: root}
 	var bundle posemodel.ReviewBundle
 	var err error

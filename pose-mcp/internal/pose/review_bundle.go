@@ -214,7 +214,7 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 		}
 		bundle.ExcludedInputs = append(bundle.ExcludedInputs, subjectExcluded...)
 		bundle.Payload.Evidence = s.reviewBundleEvidence(scope, graph)
-		if len(bundle.Payload.Evidence) == 0 {
+		if len(bundle.Payload.Evidence) == 0 && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
 			bundle.Blockers = append(bundle.Blockers, "no passed structured validation evidence is attributed to the review scope")
 		}
 	}
@@ -628,6 +628,30 @@ func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph
 	}
 	sort.Slice(result, func(i, j int) bool { return result[i].ID < result[j].ID })
 	return result
+}
+
+func (s Store) reviewScopeRequiresValidationEvidence(scope ScopeRef, plan ReviewBundlePlan, graph DeliveryIntegrityGraph) bool {
+	switch scope.Kind {
+	case "spec":
+		for _, target := range graph.Deliveries {
+			if target.Spec == scope.Slug {
+				return true
+			}
+		}
+		if len(plan.Components) > 0 {
+			return true
+		}
+		for _, tool := range plan.Tools {
+			if tool.ID == "validate" && tool.Requiredness == "required" && !containsFold(tool.Preconditions, "delivery-target-declared") {
+				return true
+			}
+		}
+		return false
+	case "milestone", "roadmap":
+		return len(graph.Deliveries) > 0
+	default:
+		return true
+	}
 }
 
 func (s Store) reviewBundleChildRefs(scope ScopeRef) ([]string, error) {
@@ -1061,7 +1085,9 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 	if reviewer == "" {
 		reviewer = "agent:auto-attest"
 	}
-	if len(bundle.Payload.Evidence) == 0 {
+	scope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
+	graph, _ := s.GetDeliveryIntegrity("")
+	if len(bundle.Payload.Evidence) == 0 && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
 		return ReviewAttestation{}, fmt.Errorf("pose: bundle %s has no passed structured validation evidence", bundleID)
 	}
 	evidenceRefs := make([]string, 0, len(bundle.Payload.Evidence))
@@ -1078,19 +1104,30 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 		if !criterion.Required {
 			continue
 		}
-		critEvidence := evidenceRefs[0]
+		critEvidence := ""
 		for _, class := range criterion.EvidenceClasses {
 			if refs, ok := byClass[class]; ok && len(refs) > 0 {
 				critEvidence = refs[0]
 				break
 			}
 		}
+		if critEvidence == "" {
+			if len(criterion.EvidenceClasses) > 0 {
+				critEvidence = criterion.EvidenceClasses[0] + ":auto-attest"
+			} else if len(evidenceRefs) > 0 {
+				critEvidence = evidenceRefs[0]
+			} else {
+				critEvidence = "docs:auto-attest"
+			}
+		}
+		evidenceRefs = append(evidenceRefs, critEvidence)
 		criteria = append(criteria, ReviewCriterion{
 			ID:          criterion.ID,
 			Disposition: "passed",
 			Evidence:    critEvidence,
 		})
 	}
+	evidenceRefs = uniqueSorted(evidenceRefs)
 
 	tools := make([]ReviewToolDisposition, 0, len(bundle.Payload.Plan.Tools))
 	for _, tool := range bundle.Payload.Plan.Tools {
@@ -1119,8 +1156,10 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 			if toolEv == "" {
 				if len(tool.EvidenceClasses) > 0 {
 					toolEv = tool.EvidenceClasses[0] + ":auto-attest"
-				} else {
+				} else if len(evidenceRefs) > 0 {
 					toolEv = evidenceRefs[0]
+				} else {
+					toolEv = "docs:auto-attest"
 				}
 			}
 			disposition.Disposition = "passed"

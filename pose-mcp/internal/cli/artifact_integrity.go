@@ -484,6 +484,12 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 			}
 		}
 	}
+	if deliveryGraph, err := buildCurrentDeliveryGraph(root); err == nil {
+		if raw, err := json.MarshalIndent(deliveryGraph, "", "  "); err == nil {
+			_ = os.MkdirAll(filepath.Join(root, ".pose", "indexes"), 0o755)
+			_ = os.WriteFile(filepath.Join(root, ".pose", "indexes", "delivery-integrity.json"), append(raw, '\n'), 0o644)
+		}
+	}
 	return 0
 }
 

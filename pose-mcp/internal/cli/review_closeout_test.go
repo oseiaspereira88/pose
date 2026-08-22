@@ -432,3 +432,116 @@ func TestUpdateMigratesReviewPolicySchemaV1ToV2(t *testing.T) {
 		t.Fatalf("review policy not upgraded to schema v2 with component_aware and review_bundles: %+v", policy)
 	}
 }
+
+func TestReviewBundleSealAndCloseoutForDocOnlySpecWithNoDeliveryTargets(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{
+  "schema_version": 2,
+  "enabled": true,
+  "adopted_at": "2026-08-02",
+  "profiles": {"spec": "spec-closeout@2"},
+  "reviewer_independence": {"spec": "same-actor-separate-execution"},
+  "component_aware": true,
+  "component_aware_adopted_at": "2026-08-13",
+  "review_bundles": true,
+  "review_bundles_adopted_at": "2026-08-13",
+  "unmapped_component_behavior": "warning",
+  "overlay_profiles": ["frontend-review@1", "backend-review@1"]
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{
+  "schema_version": 2,
+  "id": "spec-closeout",
+  "version": 2,
+  "scope": "spec",
+  "criteria": [
+    {"id": "correctness", "description": "reviewed", "evidence_classes": ["test"]},
+    {"id": "delivery-verification", "description": "verified", "evidence_classes": ["validation"]}
+  ],
+  "tools": [
+    {"id": "review-check", "requiredness": "required", "criteria": ["correctness", "delivery-verification"]},
+    {"id": "validate", "requiredness": "required", "evidence_classes": ["validation"], "criteria": ["delivery-verification"], "preconditions": ["delivery-target-declared"]}
+  ]
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/backend-review.json", `{"schema_version":2,"id":"backend-review","version":1,"scope":"spec","selectors":{"languages":["go"]},"criteria":[{"id":"backend-contracts","description":"contracts","rules":["backend-go"],"evidence_classes":["integration"]}],"tools":[{"id":"assess-integrate","requiredness":"recommended","criteria":["backend-contracts"]}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/frontend-review.json", `{"schema_version":2,"id":"frontend-review","version":1,"scope":"spec","selectors":{"languages":["javascript"]},"criteria":[{"id":"frontend-user-visible-behavior","description":"ui","rules":["frontend-react"],"evidence_classes":["test"]}],"tools":[{"id":"surface-check","requiredness":"recommended","evidence_classes":["reachability"],"criteria":["frontend-user-visible-behavior"],"preconditions":["delivery-target-declared"]}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","governed_roots":[".pose/adr"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/delivery.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","results_path":".pose/results/current.json"}`)
+	writeCloseoutCLIFile(t, root, ".pose/rules/security.md", "# Security\n")
+	writeCloseoutCLIFile(t, root, ".pose/rules/documentation-style.md", "# Docs\n")
+
+	// Doc-only / ADR spec with Delivery targets: none
+	writeCloseoutCLIFile(t, root, ".pose/specs/adr-doc/spec.md", `---
+slug: adr-doc
+status: in-progress
+created_at: 2026-08-22
+completed_at:
+---
+
+# Spec: ADR Doc
+
+## 2. Requirements
+- R1: Architecture documented in ADR.
+
+## 3. Technical Plan
+
+### Artifacts
+- created: .pose/adr/0001-architecture-baseline.md
+
+### Delivery targets
+Nenhum
+
+## 4. Tasks
+- [x] Document ADR.
+`)
+	writeCloseoutCLIFile(t, root, "README.md", "baseline\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "baseline")
+
+	// Create ADR artifact and commit with POSE-Spec trailer
+	writeCloseoutCLIFile(t, root, ".pose/adr/0001-architecture-baseline.md", "# ADR 0001: Baseline\n")
+	artifactGit(t, root, "add", "--", ".pose/adr/0001-architecture-baseline.md")
+	artifactGit(t, root, "commit", "-q", "-m", "docs(adr): document baseline architecture", "-m", "POSE-Spec: adr-doc")
+
+	var out, errOut bytes.Buffer
+	// Step 1: artifact-check
+	if code := cmdArtifactCheck(root, []string{"--spec", "adr-doc", "--strict"}, &out, &errOut); code != 0 {
+		t.Fatalf("artifact-check failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// Step 2: review bundle seal
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewBundle(root, []string{"spec:adr-doc", "--seal"}, &out, &errOut); code != 0 {
+		t.Fatalf("review bundle seal failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// Step 3: auto-attest
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewAutoAttest(root, []string{"spec:adr-doc", "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("auto-attest failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// Step 4: review verify
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewVerify(root, []string{"spec:adr-doc"}, &out, &errOut); code != 0 {
+		t.Fatalf("review verify failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// Step 5: pose close
+	out.Reset()
+	errOut.Reset()
+	if code := cmdClose(root, []string{"spec:adr-doc"}, &out, &errOut); code != 0 {
+		t.Fatalf("pose close failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	state, err := (posemodel.Store{Root: root}).GetCloseoutState("spec:adr-doc")
+	if err != nil || !state.Terminal {
+		t.Fatalf("expected terminal closeout for doc-only spec, got: %+v err=%v", state, err)
+	}
+}
+
