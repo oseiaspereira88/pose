@@ -1,12 +1,13 @@
 ---
 slug: pose-review-bundle-component-discovery-and-governance-paths
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-contributor-mode-workflow-and-cli-hints
 priority: 25
 components: pose-mcp, cli, review
 delivers: surface:review-bundle-classification
+completed_at: 2026-08-22
 ---
 
 # Spec: Review Bundle Component Discovery, Governance Paths, and Artifact-Check Attribution
