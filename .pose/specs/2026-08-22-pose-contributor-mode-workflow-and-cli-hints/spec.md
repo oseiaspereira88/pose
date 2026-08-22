@@ -6,7 +6,7 @@ supersedes:
 depends_on: pose-contributor-mode-protocol, pose-manual-and-cli-command-parity
 priority: 25
 components: cli, skills, workflows, scaffold, locales
-delivers: capability:contributor-mode-cli-hints, surface:contributor-workflow-guidance
+delivers: surface:contributor-mode-cli-hints
 ---
 
 # Spec: Contributor Mode Workflow and CLI Contextual Guidance Integration
@@ -83,8 +83,7 @@ Empowers AI agents and developers to naturally capture and stage engine friction
 - `pose-mcp/internal/scaffold/dist/...`
 
 ### Delivery targets
-- capability:contributor-mode-cli-hints module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
-- surface:contributor-workflow-guidance module:pose-dist profile:composed-capability entrypoint:POSE.md
+- surface:contributor-mode-cli-hints module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ---
 
