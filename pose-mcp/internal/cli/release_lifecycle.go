@@ -106,8 +106,9 @@ func releaseInputs(root, target string) (posemodel.ReleasePolicy, []posemodel.Re
 	if len(fragments) == 0 && !policy.AllowEmpty {
 		return policy, nil, "", nil, fmt.Errorf("empty release is forbidden by policy")
 	}
+	store := posemodel.Store{Root: root}
 	for _, fragment := range fragments {
-		if _, err := os.Stat(filepath.Join(root, ".pose", "specs", fragment.Spec, "spec.md")); err != nil {
+		if _, err := store.GetSpec(fragment.Spec); err != nil {
 			return policy, nil, "", nil, fmt.Errorf("fragment %s references missing spec", fragment.Spec)
 		}
 	}

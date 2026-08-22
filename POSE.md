@@ -170,60 +170,83 @@ and avoid cascading drift:
 ```bash
 pose help                          # show help
 
-# Scaffold
+# Scaffold and specs
 pose init [--wizard [--yes]]       # ensure minimal structure; --wizard detects
-                                      # stacks and seeds the validation matrix
-pose new-spec <slug>               # create a spec at .pose/specs/<slug>/spec.md
+                                   # stacks and seeds the validation matrix
+pose specs [--recent N] [--status S] [--since D] [--components tags] [--json]
+                                   # list and discover specs chronologically
+pose spec-format <migrate <slug>|--all [--format folder|flat] [--dry-run]|status> [--json]
+                                   # inspect and migrate specs to chronological layout
+pose new-spec <slug>               # create a spec at .pose/specs/YYYY-MM-DD-<slug>/spec.md
 pose new-roadmap <slug>            # create a governed roadmap in .pose/roadmaps/
 pose new-adr "<title>"             # create a dated ADR
 pose new-knowledge <type> <slug>   # create handoff/note/decision-log
-                                      # (options: --owner @x --ttl-days N --restricted)
+                                   # (options: --owner @x --ttl-days N --restricted)
 
 # Deterministic gates
 pose check [--strict|--tolerant]   # structural integrity + matrix schema +
-                                      # task-map sync + spec graph + schema version
+                                   # task-map sync + spec graph + schema version
 pose validate [--strict|--tolerant] [--stack s] [--module path] [--report] [--json f] [--junit f] [--sarif f]
               [--changed-from rev [--changed-to rev]] [--explain] [--emit-plan f]
+pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]
 pose knowledge-check [--strict|--tolerant] [--max-overdue N]
 pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T] [--include-pass]
-pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]
-pose followups [--open|--all] [--json]
+pose history-check [--strict|--tolerant]
+pose skills-check [--strict|--tolerant]
+pose artifact-check --spec <slug> [--from <rev> --to <rev>] [--strict|--tolerant] [--json]
+pose surface-check [--spec <slug>] [--results <path>] [--strict|--tolerant] [--json]
+pose roadmap-check <slug> [--strict|--tolerant] [--json]
+pose docs-check [--json] [--explain <rule>]
+
+# Governed closeout and review
+pose followups [--open|--all] [--json] [--owner <alias>] [--overdue] [--similarity N] [--fail-overdue]
 pose review-plan <scope> [--json] [--explain]
 pose review bundle <scope> [--json] [--explain] [--seal]
 pose review attest <bundle-id> --reviewer <execution-id> --decision <decision> --evidence <ref> [--apply]
 pose review attest --envelope <project-relative-path> [--apply]
+pose review auto-attest <bundle-id|scope-ref> [--reviewer <id>] [--apply]
 pose review verify <scope|bundle-id|bundle-path> [--json]
 pose review-check <scope> [--json]
 pose closeout-check <scope> [--json]
 pose review record <scope> --reviewer <execution-id> --decision <decision> --evidence <ref> [--apply]
 pose close <scope>
 pose continuous-closeout <start|status|complete> [...]
-pose artifact-check --spec <slug> [--from <rev> --to <rev>] [--strict|--tolerant] [--json]
-pose surface-check [--spec <slug>] [--results <path>] [--strict|--tolerant] [--json]
-pose roadmap-check <slug> [--strict|--tolerant] [--json]
 pose artifact-backfill --from-git [--apply --confirm-spec-edits]
+
+# Project state and docs governance
 pose state [init|refresh [--if-stale]|diff]  # native project-state artifact; no subcommand = validate
-pose history-check [--strict|--tolerant]
+pose docs-init [--profile library|service|cli|monorepo]
+pose docs-review <resolve <doc> [--no-change --reason <text>] [--commit <sha>]|request <doc>|--all-stale>
+pose docs-sync [--dry-run]
 
 # Discovery and metrics
 pose suggest [<type>] [--domain <d>] [--path <p>] [--json]
 pose stats [workflows|tasks|contexts] [--since-days N] [--json]
 pose usage [--since-days N] [--tool NAME] [--surface cli|mcp] [--json]
+pose stacks [--path dir] [--json]  # read-only catalog of detected profiles
+pose recurrence-effect [--register ...] [--json] [--fail-ineffective]
+pose record-deployment --environment <env> --deployment-kind <kind> [...]
+pose record-incident --environment <env> [...]
+pose dora-metrics [--environment <env>] [--since-days N] [--json]
+pose adoption-metrics [--since-days N] [--json]
+pose semantic-suggest <query> | pose knowledge-suggest <query>
+pose suggest-feedback | pose portfolio-projection | pose reconcile-evidence
 
-# Artifact generation
+# Assessment and extensions
+pose assess <discover|integrate|tech-debt|stale|request|snapshot> [--json] [--update-state]
+pose extension <install|list|remove|verify> [...]
+
+# Artifact generation and maintenance
 pose index                         # regenerate indexes (incl. spec-graph, roadmaps)
-pose report --task "..." [--outcome pass|fail|partial] [--since <ref>] [--git-stage] [...]
+pose report --task "..." [--outcome pass|fail|partial|skipped] [--since <ref>] [--git-stage] [...]
+pose amend <slug> [...]            # record an append-only spec amendment
+pose knowledge-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
+pose knowledge-usage [--json]
+pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-than N] [--dry-run|--apply]
+pose events-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
+pose hooks <install|uninstall|status> [--force]
 
-# Release lifecycle
-pose release <plan|prepare|check|notes|record|status|open-next|backfill> --version vX.Y.Z
-                                   # prepare freezes manifest/notes; record imports
-                                   # provider evidence; status projects the state
-pose release-notes --version vX.Y.Z  # compatibility alias for the immutable notes
-
-# Project state
-pose state [init|refresh|diff]     # native project-state artifact (bare = validate)
-
-# Installation, MCP and engine feedback
+# Installation, MCP, contributions and telemetry
 pose version                       # binary and instance schema versions
 pose install <dir> [--locale tag]  # install the embedded POSE without cloning
 pose update [--dry-run] [--force] [--schema-only]
@@ -242,29 +265,16 @@ pose contribute <enable|disable|status|stage|list> [--target <dir>] [--json]
                                    # proprietary code; submission remains developer-adjudicated
 pose telemetry <enable|disable|status>
 
-# Assessment and extensions
-pose assess <discover|integrate|tech-debt> [--json] [--update-state]
-pose stacks [--path dir] [--json]  # read-only catalog of detected profiles
-pose skills-check [--strict|--tolerant]
-pose extension <install|list|remove|verify> [...]
-
-# Metrics and advanced discovery
-pose recurrence-effect [--register ...] [--json]
-pose semantic-suggest <query> | pose knowledge-suggest <query>
-pose suggest-feedback | pose portfolio-projection | pose reconcile-evidence
-pose record-deployment | pose record-incident | pose dora-metrics | pose adoption-metrics
-
-# Maintenance
-pose knowledge-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
-pose knowledge-usage [--json]
-pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-than N] [--dry-run|--apply]
-pose events-housekeeping [...]
-pose amend <slug> [...]            # record an append-only spec amendment
-pose hooks <install|uninstall|status> [--force]
+# Release lifecycle
+pose release <plan|prepare|check|notes|record|status|open-next|backfill> --version vX.Y.Z
+                                   # prepare freezes manifest/notes; record imports
+                                   # provider evidence; status projects the state
+pose release-notes --version vX.Y.Z  # compatibility alias for the immutable notes
 ```
 
 ### Command reference
 
+- `init` — ensures the minimal required `.pose` directory structure, policy files and indexes. Supports `--wizard` to auto-detect repository stacks and seed the initial validation matrix.
 - `check` — validates POSE structural integrity (required paths and references in `AGENTS.md`/`POSE.md`) **plus** the [`validation-matrix.json`](.pose/indexes/validation-matrix.json) schema, [`task-map.json`](.pose/indexes/task-map.json) sync, the native spec dependency graph and the schema-version gate. It fails in `--strict` and warns where permitted in `--tolerant`.
 - `specs` — lists and discovers repository specifications sorted chronologically (newest first). Supports `--recent <N>`, `--status <status>`, `--since <duration|date>`, `--components <tags>`, and `--json`.
 - `spec-format` — inspects and migrates specifications to the modern chronological date-prefixed format (`migrate <slug>|--all [--format folder|flat] [--dry-run]`, `status`). Enforces mandatory directory envelope preservation whenever companion artifacts (`amendments.jsonl`) exist.
@@ -286,27 +296,38 @@ pose hooks <install|uninstall|status> [--force]
 - `lint-spec` — verifies each `spec.md` section has real content, not placeholders. **`--ready-check`** applies the **Definition of Ready** (ENTRY gate): Intent/Requirements/Technical Plan filled, acceptance criteria with stable IDs (`- R<N>:`) and syntactically valid `depends_on` — without requiring Validation/Final Report. `check` applies the ready-check automatically on the `→ in-progress` transition. Use `--all` to audit every spec; `--required-only` skips the optional `Decisions` section. **Lifecycle gate:** `status: done` requires `completed_at` and a valid disposition on every follow-up; for `spawned`/`covered`/`duplicate` the target must be an **existing** spec (and not itself).
 - `followups` — aggregates all specs' follow-ups, derives the live (`--open`) or full (`--all`) backlog, projects ownership (`--owner <alias>`) and expired reviews (`--overdue`), and proposes near-duplicate candidates by deterministic lexical similarity (token Jaccard + `SequenceMatcher`, stdlib only; threshold via `--similarity 0..100`, default 60). Exit 0 by default, no network; `--fail-overdue` turns expired reviews into a blocking, risk-based policy gate. The candidates are mechanical hints — the **semantic judgement** and the **confirmation of reuse** live in the agent layer (skill `pose-spec-closeout`), never in this script.
 - `review-plan` / `review-check` / `closeout-check` — resolve a deterministic component-aware plan from governed metadata, typed overlays and a closed native-tool catalog, then validate immutable attempts against both scope and plan digests. Opt in explicitly with review-policy schema v2, `component_aware: true` and `component_aware_adopted_at`; preview the migration read-only with `pose review-plan <scope> --explain` before committing the policy. Completed attempts older than that component adoption date remain auditable, while open scopes require the new plan. `pose review record` is dry-run by default, accepts `--plan-digest` to reject drift and appends with `--apply`; recommended tools are never executed implicitly. Hierarchical closeout rolls approvals through `spec:`, `milestone:` and `roadmap:` scopes. Read-only MCP: `pose_review_plan`, `pose_closeout_state`.
-- `review bundle` / `review attest` / `review verify` — opt-in fixed-point review (`review_bundles: true` plus an adoption date). Preparation hashes the semantic Intent, Requirements, Technical Plan and Decisions, attributed patch/tree content, consumed plan inputs, validation identities and child bundles. Tasks, execution logs, Final Report, lifecycle metadata, attestations and derived state remain outside the review digest but retain their own gates. `--seal` persists immutable JSON in the review-bundles directory under an `rvb-` identity; attestations are separate append-only JSON in review-attestations under an `rva-` identity. Semantic or source changes create a superseding bundle and typed delta; derived closeout changes do not cause rereview. Local review stays offline. Conductor may return an optional Ed25519 envelope only when its issuer/public-key pin is trusted by policy. Human plan output groups repeated path warnings and separates active required, recommended and completion-deferred tools; JSON retains full provenance. Read-only MCP: `pose_review_bundle`.
-- `artifact-check` — parses exact `### Artifacts` actions, resolves an explicit base/head range or `POSE-Spec: <slug>` commit trailers with safe structured Git arguments, and reports resolvability, existence, action mismatch, undeclared and orphan findings. Commits modifying artifacts declared by a spec must carry a `POSE-Spec: <slug>` trailer in their commit message for `artifact-check` and `pose close` to attribute the changes. `pose report --change-from/--change-to` persists immutable change-set evidence; `pose index` projects claims, observations, reverse provenance and findings into `delivery-integrity.json`. `artifact-backfill` is dry-run-first and requires `--confirm-spec-edits` before applying unambiguous proposals. MCP: `pose_delivery_integrity`.
+- `review bundle` / `review attest` / `review auto-attest` / `review verify` / `review record` — opt-in fixed-point review (`review_bundles: true` plus an adoption date). Preparation hashes the semantic Intent, Requirements, Technical Plan and Decisions, attributed patch/tree content, consumed plan inputs, validation identities and child bundles. Tasks, execution logs, Final Report, lifecycle metadata, attestations and derived state remain outside the review digest but retain their own gates. `--seal` persists immutable JSON in the review-bundles directory under an `rvb-` identity; attestations are separate append-only JSON in review-attestations under an `rva-` identity. `auto-attest` extracts matching evidence from validation results and resolves tool dispositions deterministically. Semantic or source changes create a superseding bundle and typed delta; derived closeout changes do not cause rereview. Local review stays offline. Conductor may return an optional Ed25519 envelope only when its issuer/public-key pin is trusted by policy. Human plan output groups repeated path warnings and separates active required, recommended and completion-deferred tools; JSON retains full provenance. Read-only MCP: `pose_review_bundle`.
+- `close` — applies a review-gated lifecycle transition to complete a spec, milestone, or roadmap.
+- `continuous-closeout` — persists and projects continuous closeout terminal state for rapid-iteration workflows.
+- `artifact-check` — parses exact `### Artifacts` actions, resolves an explicit base/head range or `POSE-Spec: <slug>` commit trailers with safe structured Git arguments, and reports resolvability, existence, action mismatch, undeclared and orphan findings. Commits modifying artifacts declared by a spec must carry a `POSE-Spec: <slug>` trailer in their commit message for `artifact-check` and `pose close` to attribute the changes. `pose report --change-from/--change-to` persists immutable change-set evidence; `pose index` projects claims, observations, reverse provenance and findings into `delivery-integrity.json`. MCP: `pose_delivery_integrity`.
+- `artifact-backfill` — proposes explicit historical provenance from Git history (`--from-git`) and requires `--confirm-spec-edits` before applying unambiguous proposals to spec artifact claims.
 - `surface-check` / `roadmap-check` — extend the same graph with typed `delivers` refs, production entrypoints, closed validation `evidenceClass` values and provenance-bound structured results. Surface profiles require reachability plus integration/e2e; composed capabilities require integration. Roadmap criteria may reference only registered delivery refs, checks or confined manual-review reports—raw commands are rejected. MCP: `pose_surface_assurance`.
 - `state` (spec `pose-project-state-artifact`) — native project-state artifact: answers "what is the current state of this project?" in one read instead of scanning specs/roadmaps/follow-ups/capabilities/knowledge/reports every session. `curated` sections (executive summary, current direction — human prose, preserved verbatim) and `derived` sections (specs & roadmaps, follow-ups, capabilities, decisions & knowledge, validation & evidence, architecture — counts and typed pointers, never copied content). `init` scaffolds; `refresh` recomputes derived sections while preserving curated ones, stamping `generated_at`/`baseline_commit`; `--if-stale` only redoes the work when the artifact is already `stale` (cheap to run on every CI build). With no subcommand, validates schema, staleness (age/commits since the last refresh, configurable policy), **per-section hash** — a hand-edited derived section fails nominally (`[TAMPERED]`) — and `refresh_pending` (see below). `diff` compares the last two refreshes. MCP equivalent: `pose_project_state` (`section` param fetches just one). Additive: a project without the artifact generated yet stays valid everywhere. The Architecture section reports `unavailable` in this version — no local GraphForge export producer exists yet.
 - **Automatic project-state refresh** (spec `pose-project-state-refresh-contract`) — an internal post-event hook registry fires a **partial** `pose state refresh` (only the sections an event affects) at the points POSE already intercepts: a successful `pose lint-spec <slug> --strict` on a `status: done` spec (`spec_closeout` → Specs & Roadmaps, Follow-ups, Validation & Evidence), `pose amend` (`spec_amend` → Specs & Roadmaps, Decisions & Knowledge), `pose reconcile-evidence record` (`evidence_reconciled` → Validation & Evidence) and `pose assess snapshot` (`assessment_snapshot` → Capabilities). When the event carries a commit and `POSE_GRAPHFORGE_MCP_URL` is configured, the consumer calls `components_hit` (spec `graphforge-components-hit-contract`) from the state's baseline to the event's commit and attaches the hit components to the Architecture section (**directed** refresh); without GraphForge configured, refresh stays full/undirected — zero build coupling. No daemon, no filesystem watcher: it is a synchronous call at the exact point each event already happens. **Best-effort by default**: a failed refresh never blocks the command that fired the event — it marks `refresh_pending: <event>` in the state frontmatter instead (cleared by the next successful refresh, regardless of trigger). Strict mode is opt-in via policy (`strict_refresh: true`) — there, a refresh failure fails the triggering command. Every run (triggered or manual) is logged to the artifact's own append-only log (metadata only: trigger, target, result `ok|failed|skipped`, duration, changed-section hashes — never content). Dedup key `hash(event+target+commit)`: the same event processed twice (retry/replay) does not repeat the refresh, result `skipped`; `manual`/`ci` refreshes are never deduped against each other (an explicit call always runs). `release_cut` is registered in the event→sections map but has no producer inside pose-mcp today — cutting a release belongs to Conductor (a separate service); the trigger is ready for when that integration exists.
 - **Capability reassessment triggers** (spec `pose-capability-assessment-triggers`, same hook registry as the automatic project-state refresh above) — the `assessment-staleness` consumer, registered on `spec_closeout`, resolves which components a closeout reached (via `components_hit` when `POSE_GRAPHFORGE_MCP_URL` is configured; fallback: intersecting the event's touched files against each mechanism's manually declared `paths:` globs in the assessment) and marks every affected capability mechanism stale — never mutating a score, only recording `since`/`trigger`/`hits` and projecting a cobrável demand (origin `assessment-trigger`) into `pose followups --open`, with no duplicate storage. `pose assess snapshot` clears the marks on the mechanisms it reassesses and records the mark→snapshot link in the history. On-demand: `pose assess stale [--json]` lists pending marks; `pose assess request --mechanism <id> [--reason <text>]` creates one manually (the same path a UI-driven "flag for reassessment" action would call over MCP). MCP tool: `pose_capability_stale`. Without GraphForge and without `paths:` declared, the event logs `capability_mapping_unavailable` to the refresh log — a visible signal, nothing marked silently. Anti-noise threshold (`min_hits`, hit `level` `direct`/`any`, the demand's default owner/SLA) is configurable, sharing the same policy file already used for age/commit-based staleness (optional; absent means these same conservative defaults).
-- **Docs governance** (spec `pose-docs-governance-contract`) — an opt-in, per-project contract for documentation, same mechanic as the capability assessment above: absent, every project stays valid everywhere. `pose docs-init [--profile library|service|cli|monorepo]` scaffolds a manifest declaring governed doc roots and, per doc, `path`/`doc_type` (Diátaxis `tutorial`/`howto`/`reference`/`explanation`, or a custom value)/`topics`/`owns`/`applies_to`/optional `review_after`. `pose docs-check [--json] [--explain <rule>]` runs seven deterministic, offline rules — a declared doc missing from disk, a file present but undeclared, missing minimal frontmatter (`title`/`doc_type`), a broken relative link, a broken typed reference (`spec:`/`adr:`/`knowledge:`/`doc:`/...), staleness (an entry's own review date, or the manifest's default review window counted from its last touching commit) and a security scan reusing the same deterministic unsafe-instruction/secret-shaped pattern check skills already run — each with a configurable severity (`error`/`warning`/`off`). `pose check --strict` incorporates `docs-check` when the manifest exists (opt-in by presence); only errors block, warnings surface without blocking. Tool MCP: `pose_docs_state`. Project-state gains an additive Docs section (manifest presence/profile/roots, declared/undeclared/stale/error/warning counts).
+- **Docs governance** (spec `pose-docs-governance-contract`) — an opt-in, per-project contract for documentation, same mechanic as the capability assessment above: absent, every project stays valid everywhere. `pose docs-init [--profile library|service|cli|monorepo]` scaffolds a manifest declaring governed doc roots and, per doc, `path`/`doc_type` (Diátaxis `tutorial`/`howto`/`reference`/`explanation`, or a custom value)/`topics`/`owns`/`applies_to`/optional `review_after`. `pose docs-check [--json] [--explain <rule>]` runs seven deterministic, offline rules — a declared doc missing from disk, a file present but undeclared, missing minimal frontmatter (`title`/`doc_type`), a broken relative link, a broken typed reference (`spec:`/`adr:`/`knowledge:`/`doc:`/...), staleness (an entry's own review date, or the manifest's default review window counted from its last touching commit) and a security scan reusing the same deterministic unsafe-instruction/secret-shaped pattern check skills already run — each with a configurable severity (`error`/`warning`/`off`). `pose check --strict` incorporates `docs-check` when the manifest exists (opt-in by presence); only errors block, warnings surface without blocking. `pose docs-sync` synchronizes governance metadata. Tool MCP: `pose_docs_state`. Project-state gains an additive Docs section (manifest presence/profile/roots, declared/undeclared/stale/error/warning counts).
 - **Docs review-pending triggers** (spec `pose-docs-assessment-followups`, third consumer of the same hook registry as the two entries above — reused unmodified) — a `docs-review` consumer, registered on `spec_closeout`, resolves which components/files a closeout reached (`components_hit` when configured, matched against `owns:` entries declared as `component:<id>`; otherwise the event's touched files matched against each doc's `owns:` paths/globs, where a directory like `"site"` covers every file under it) and marks every doc whose declared area was reached as review-pending — never editing the doc itself, never touching a score. Marks accumulate in an append-only log outside the doc's own file and project a synthetic, owned demand into `pose followups --open` (origin `docs:<doc-path>`), reusing the manifest entry's own `owner` field when declared. `pose docs-review resolve <doc> [--no-change --reason <text>] [--commit <sha>]` closes every mark pending on a doc at once, recording `updated` (default, captures the current commit) or `no_change_needed` (reason required); `pose docs-review request <doc>`/`--all-stale` cover the on-demand path — the latter bridges every currently-stale doc into an active demand in one call. `docs-check`'s own output and `pose_docs_state` additively list what's still pending. Without a component map and without `owns:` declared, the event logs a visible signal instead of marking anything silently — here the path fallback is the mechanism's full-strength path (`owns:` is expressed as paths by default), not a lesser one. Anti-noise threshold (`min_hits`, hit `level`, default owner/SLA) is configurable, sharing the same policy shape as the capability triggers in its own file (optional; absent means these same conservative defaults).
 - `history-check` — verifies every `.jsonl` under `reports/history/` is git-tracked. Without that, `recurrence-check` and `stats` diverge between machines. Strict blocks; tolerant warns.
 - `suggest` — reads [`task-map.json`](.pose/indexes/task-map.json) and prints the canonical trail (workflow + skill + rules + spec/ADR + knowledge) for a task type. With no arguments it lists every type. `--domain <d>` adds domain rules (frontend, backend-go, k8s); `--path <p>` infers the domain heuristically and via [`repo-map.json`](.pose/indexes/repo-map.json) (`language` → frontend/backend-go); `--json` for agents.
 - `stats` — aggregates history JSONL outcomes by workflow, task or context. Enables objective decisions (promoting a check from optional to required, spotting unstable workflows, comparing ci against manual). `--since-days N` filters the window; `--json` for machine consumption.
 - `usage` — aggregates automatic, project-scoped CLI and MCP usage events: calls, execution/semantic outcomes, latency, findings observed and stable finding lifecycle (`unique`, `new`, `resolved`, `reopened`). Agents never maintain counters. Events are best-effort, local-only and stored outside the tracked worktree; raw arguments, output, paths, project/user identity and finding IDs are never persisted. `--since-days 0` includes all history; filter with `--tool` or `--surface`; MCP equivalent: `pose_usage`. This is product-usage evidence, not a DORA delivery outcome or an individual productivity score.
-- `record-deployment` / `record-incident` / `dora-metrics` — ingest identity-free schema-v2 delivery events and calculate the current five metrics for one explicit production environment (`--environment`, default `production`). Deployments require `--deployment-kind planned|rework`; incidents require an environment; recovery includes only resolved `--caused-by-deployment` incidents. Legacy schema-v1 JSONL remains readable, but an unknown `deployment_kind` makes only `deployment_rework_rate` unavailable instead of fabricating zero.
+- `record-deployment` / `record-incident` / `dora-metrics` / `adoption-metrics` — ingest identity-free schema-v2 delivery events and calculate metrics for explicit production environments (`--environment`, default `production`). Deployments require `--deployment-kind planned|rework`; incidents require an environment; recovery includes only resolved `--caused-by-deployment` incidents. `adoption-metrics` aggregates specifications, roadmaps, and validation lifecycle rates.
 - `stacks [--path dir] [--json]` — read-only, offline catalog inspection (spec pose-stack-catalog-expansion). Matches directory entries against the maintained profile catalog (Node.js, Go, Rust, Java, **Python** — poetry/pipenv/pip/setuptools/pep517 — and **.NET**), reporting per profile: manager, marker, `winner`/`shadowed` (multiple managers present resolve by declared priority), `confidence` (`medium` under conflict), and whether the prerequisite native tool is on `PATH` — via `exec.LookPath`, never by executing a project file. Detected markers feed `discoverValidationModules`/`pose init --wizard` the same way Node/Go/Rust/Java already do; the actual checks run through [`validation-matrix.json`](.pose/indexes/validation-matrix.json) `python`/`dotnet` stacks. Python manager priority is expressed with `when.fileNotExistsAny` (skip when any higher-priority lockfile/marker exists) alongside the existing `fileExists`/`fileNotExists` predicates.
-- `assess discover|integrate|tech-debt` — native assessment engines for LOC, technical debt markers, component structures, and inter-module contract integrity checks.
+- `assess discover|integrate|tech-debt|stale|request|snapshot` — native assessment engines for LOC, technical debt markers, component structures, inter-module contract integrity checks, and capability mechanism reassessment lifecycle.
 - `doctor [--fix]` — environment, dependency, native runtime, and POSE instance health diagnostics.
-- `knowledge-housekeeping` / `reports-housekeeping` — idempotent maintenance (list/archive/purge). Mutations require `--apply`. Reports housekeeping **never touches `history/`**: the JSONL is the source of truth for `recurrence-check` and `report`'s temporal comparisons. Defaults: stale = 120d, archive purge = 365d.
+- `knowledge-housekeeping` / `reports-housekeeping` / `events-housekeeping` — idempotent maintenance (list/archive/purge). Mutations require `--apply`. Reports housekeeping **never touches `history/`**: the JSONL is the source of truth for `recurrence-check` and `report`'s temporal comparisons. Defaults: stale = 120d, archive purge = 365d.
 - `amend` — append-only spec amendment history (`.pose/specs/<slug>/amendments.jsonl`). `--baseline` snapshots every R-ID hash; `--ids R2 --change added|withdrawn|semantic|editorial --rationale <text> --author @alias [--reviewer @alias]` acknowledges a material change; `--list` renders history and pending acknowledgments. On `done` specs with a history, `lint-spec` rejects any requirement whose current text is not acknowledged by an event — specs cannot be silently rewritten after evidence.
 - `knowledge-usage` — projects `knowledge:<slug>` citations from specs per artifact (owner, expiry, citing specs). Usage signals inform the owner's review; TTL is never extended automatically. Dangling `knowledge:` refs fail `knowledge-check`.
-- `knowledge-suggest <query>` — deterministic, explainable lexical ranking over non-restricted knowledge (shared-term rationale exposed). Advisory only: suggestions never gate or auto-apply and require human confirmation before citing.
+- `knowledge-suggest <query>` / `semantic-suggest <query>` / `suggest-feedback` / `portfolio-projection` / `reconcile-evidence` — deterministic lexical ranking and advisory projections for knowledge, feedback clustering, multi-roadmap portfolio milestones, and delivery validation evidence reconciliation. Suggestions never gate or auto-apply without confirmation.
 - `hooks` — links the native binary into `.git/hooks/`; invocation name selects `check --tolerant` for `pre-commit` and `index` for `post-merge`. `install --force` keeps a backup of pre-existing hooks.
+- `version` — displays compiled Go binary version, commit SHA, and compares the repository schema version with engine requirements.
+- `install <dir> [--locale tag]` — installs the embedded POSE runtime, rules, workflows, templates, and documentation into a target project directory without cloning.
+- `import <spec-kit|openspec> <path> [--dry-run]` — imports foreign specification trees into canonical POSE specifications with standard frontmatter and section structure.
+- `serve-mcp` — starts the POSE Model Context Protocol server over stdio (`--stdio`) or HTTP for native AI agent integration.
+- `report-limitation` — records an engine limitation, defect, or enhancement proposal into `.pose/feedback/` with optional submission (`--submit`).
+- `contribute <enable|disable|status|stage|list>` — open-source contributor mode; stages sanitized reports under `.pose/contributions/` without leaking proprietary code; submission remains developer-adjudicated.
+- `telemetry <enable|disable|status>` — manages anonymous, opt-in platform telemetry settings.
+- `release` / `release-notes` — governed release lifecycle (`plan`, `prepare`, `check`, `notes`, `record`, `status`, `open-next`, `backfill`) ensuring immutable release notes, manifest freezing, provider evidence importing, and reproducible release verification. `release-notes` provides a compatibility alias for viewing frozen notes.
 
 ### MCP connection contract
 

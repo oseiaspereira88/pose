@@ -174,114 +174,111 @@ determinismo do CLI nem gerar drift em cascata:
 ```bash
 pose help                          # mostra ajuda
 
-# Scaffold
-pose init                          # garante estrutura mínima (idempotente)
-pose new-spec <slug>               # cria spec única em .pose/specs/<slug>/spec.md
+# Scaffold e specs
+pose init [--wizard [--yes]]       # garante estrutura mínima; --wizard detecta
+                                   # stacks e popula a matriz de validação
+pose specs [--recent N] [--status S] [--since D] [--components tags] [--json]
+                                   # lista e descobre specs cronologicamente
+pose spec-format <migrate <slug>|--all [--format folder|flat] [--dry-run]|status> [--json]
+                                   # inspeciona e migra specs para o formato cronológico
+pose new-spec <slug>               # cria spec em .pose/specs/YYYY-MM-DD-<slug>/spec.md
 pose new-roadmap <slug>            # cria roadmap governado em .pose/roadmaps/
 pose new-adr "<título>"            # cria ADR datada
 pose new-knowledge <type> <slug>   # cria handoff/note/decision-log em .pose/knowledge/
-                                      # (opções: --owner @x --ttl-days N --restricted)
+                                   # (opções: --owner @x --ttl-days N --restricted)
 
 # Gates determinísticos
-pose check [--strict|--tolerant]   # integridade estrutural + matrix schema + task-map sync
-pose validate [--strict|--tolerant] [--stack s] [--module path] [--report]
-                                      # --report dispara pose report ao final
-                                      # com --outcome deduzido (auto-validate)
-pose knowledge-check [--strict|--tolerant] [--max-overdue N]
-                                      # schema (gate) + backlog vencido
-pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T] [--include-pass]
-                                      # task_slugs com ≥T runs em N dias
+pose check [--strict|--tolerant]   # integridade estrutural + matrix schema +
+                                   # task-map sync + grafo de specs + schema version
+pose validate [--strict|--tolerant] [--stack s] [--module path] [--report] [--json f] [--junit f] [--sarif f]
+              [--changed-from rev [--changed-to rev]] [--explain] [--emit-plan f]
 pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]
-                                      # detecta spec.md com seções esqueléticas
-                                      # + gate de ciclo de vida (status: done)
-                                      # + Definition of Ready (--ready-check)
-pose followups [--open|--all] [--json]
-                                      # agrega follow-ups de todas as specs
-                                      # (backlog vivo + colisões) para triagem
+pose knowledge-check [--strict|--tolerant] [--max-overdue N]
+pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T] [--include-pass]
+pose history-check [--strict|--tolerant]
+pose skills-check [--strict|--tolerant]
+pose artifact-check --spec <slug> [--from <rev> --to <rev>] [--strict|--tolerant] [--json]
+pose surface-check [--spec <slug>] [--results <path>] [--strict|--tolerant] [--json]
+pose roadmap-check <slug> [--strict|--tolerant] [--json]
+pose docs-check [--json] [--explain <rule>]
+
+# Closeout governado e review
+pose followups [--open|--all] [--json] [--owner <alias>] [--overdue] [--similarity N] [--fail-overdue]
 pose review-plan <escopo> [--json] [--explain]
 pose review bundle <escopo> [--json] [--explain] [--seal]
 pose review attest <bundle-id> --reviewer <execução> --decision <decisão> --evidence <ref> [--apply]
 pose review attest --envelope <project-relative-path> [--apply]
+pose review auto-attest <bundle-id|scope-ref> [--reviewer <id>] [--apply]
 pose review verify <escopo|bundle-id|bundle-path> [--json]
 pose review-check <escopo> [--json]
 pose closeout-check <escopo> [--json]
 pose review record <escopo> --reviewer <execução> --decision <decisão> --evidence <ref> [--apply]
 pose close <escopo>
 pose continuous-closeout <start|status|complete> [...]
-pose artifact-check --spec <slug> [--from <rev> --to <rev>] [--strict|--tolerant] [--json]
-pose surface-check [--spec <slug>] [--results <path>] [--strict|--tolerant] [--json]
-pose roadmap-check <slug> [--strict|--tolerant] [--json]
 pose artifact-backfill --from-git [--apply --confirm-spec-edits]
-pose history-check [--strict|--tolerant]
-                                      # detecta JSONL untracked em .pose/reports/history/
+
+# Estado do projeto e governança de docs
+pose state [init|refresh [--if-stale]|diff]  # artefato nativo de estado; sem subcomando = valida
+pose docs-init [--profile library|service|cli|monorepo]
+pose docs-review <resolve <doc> [--no-change --reason <text>] [--commit <sha>]|request <doc>|--all-stale>
+pose docs-sync [--dry-run]
 
 # Descoberta e métricas
 pose suggest [<tipo>] [--domain <d>] [--path <p>] [--json]
-                                      # trilha canônica por tipo de tarefa
-                                      # --path infere domínio via repo-map.json
 pose stats [workflows|tasks|contexts] [--since-days N] [--json]
 pose usage [--since-days N] [--tool NOME] [--surface cli|mcp] [--json]
-                                      # agrega outcomes do history JSONL
+pose stacks [--path dir] [--json]  # catálogo read-only de perfis detectados
+pose recurrence-effect [--register ...] [--json] [--fail-ineffective]
+pose record-deployment --environment <env> --deployment-kind <kind> [...]
+pose record-incident --environment <env> [...]
+pose dora-metrics [--environment <env>] [--since-days N] [--json]
+pose adoption-metrics [--since-days N] [--json]
+pose semantic-suggest <query> | pose knowledge-suggest <query>
+pose suggest-feedback | pose portfolio-projection | pose reconcile-evidence
 
-# Geração de artefatos
+# Assessment e extensões
+pose assess <discover|integrate|tech-debt|stale|request|snapshot> [--json] [--update-state]
+pose extension <install|list|remove|verify> [...]
+
+# Geração de artefatos e manutenção
 pose index                         # regenera repo-map/services/packages/spec-graph/roadmaps
 pose report --task "..." [--outcome pass|fail|partial|skipped] [--since <ref>] [--git-stage] [...]
-                                      # --since usa `git diff --name-only`;
-                                      # outcome auto-derivado de --validate-output;
-                                      # --git-stage faz git add do JSONL após escrita
+pose amend <slug> [...]            # registra emenda append-only em spec
+pose knowledge-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
+pose knowledge-usage [--json]
+pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-than N] [--dry-run|--apply]
+pose events-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
+pose hooks <install|uninstall|status> [--force]
 
-# Ciclo de release
-pose release <plan|prepare|check|notes|record|status|open-next|backfill> --version vX.Y.Z
-                                      # prepare congela manifest/notes; record importa
-                                      # evidência do provider; status projeta o estado
-pose release-notes --version vX.Y.Z # alias de compatibilidade para as notes imutáveis
-
-# Estado do projeto
-pose state [init|refresh|diff]      # artefato nativo de estado (sem args = valida)
-
-# Instalação, MCP e feedback do engine
+# Instalação, MCP, contribuições e telemetria
 pose version                       # versões do binário e do schema da instância
 pose install <dir> [--locale tag]  # instala o POSE embutido sem clonar
 pose update [--dry-run] [--force] [--schema-only]
-                                       # atualiza binário + maquinário + schema
-                                       # NÃO reescreve POSE.md/AGENTS.md sem --force
+                                   # atualiza binário + maquinário + schema
+                                   # NÃO reescreve POSE.md/AGENTS.md sem --force
 pose import <spec-kit|openspec> <path> [--dry-run]
 pose serve-mcp --stdio             # transporte local gerenciado pelo cliente MCP
 pose serve-mcp                     # servidor HTTP; configure as variáveis POSE_* antes
 pose doctor [--json] [--fix]       # diagnostica binário e configuração local;
-                                       # não prova conexão ativa — use pose_mcp_context
+                                   # não prova conexão ativa — use pose_mcp_context
 pose report-limitation --title "..." --kind limitation|bug|suggestion [--body "..."] [--submit]
-                                       # sem --submit, grava somente em .pose/feedback/
+                                   # sem --submit, grava somente em .pose/feedback/
 pose contribute <enable|disable|status|stage|list> [--target <dir>] [--json]
-                                       # modo contribuidor open-source; registra rascunhos
-                                       # sanitizados sob .pose/contributions/ sem vazar
-                                       # código privado; submissão fica a critério do dev
+                                   # modo contribuidor open-source; registra rascunhos
+                                   # sanitizados sob .pose/contributions/ sem vazar
+                                   # código privado; submissão fica a critério do dev
 pose telemetry <enable|disable|status>
 
-# Assessment e extensões
-pose assess <discover|integrate|tech-debt> [--json] [--update-state]
-pose stacks [--path dir] [--json]  # catálogo read-only de perfis detectados
-pose skills-check [--strict|--tolerant]
-pose extension <install|list|remove|verify> [...]
-
-# Métricas e descoberta avançada
-pose recurrence-effect [--register ...] [--json]
-pose semantic-suggest <query> | pose knowledge-suggest <query>
-pose suggest-feedback | pose portfolio-projection | pose reconcile-evidence
-pose record-deployment | pose record-incident | pose dora-metrics | pose adoption-metrics
-
-# Manutenção
-pose knowledge-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
-pose knowledge-usage [--json]
-pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-than N] [--dry-run|--apply]
-pose events-housekeeping [...]
-pose amend <slug> [...]            # registra emenda append-only em spec
-pose hooks <install|uninstall|status> [--force]
-                                       # symlinks do binário pose em .git/hooks/<x>
+# Ciclo de release
+pose release <plan|prepare|check|notes|record|status|open-next|backfill> --version vX.Y.Z
+                                   # prepare congela manifest/notes; record importa
+                                   # evidência do provider; status projeta o estado
+pose release-notes --version vX.Y.Z # alias de compatibilidade para as notes imutáveis
 ```
 
 ### Referência de comandos
 
+- `init` — garante a estrutura mínima de diretórios, políticas e índices do `.pose`. Suporta `--wizard` para detectar automaticamente as stacks do repositório e popular a matriz de validação inicial.
 - `check` — valida integridade estrutural POSE (paths obrigatórios e referências em `AGENTS.md`/`POSE.md`) **mais** o schema de [`validation-matrix.json`](.pose/indexes/validation-matrix.json), o sync de [`task-map.json`](.pose/indexes/task-map.json), o grafo nativo de dependências entre specs e o gate de schema-version. Falha em `--strict` e avisa onde permitido em `--tolerant`.
 - `specs` — lista e descobre especificações do repositório ordenadas cronologicamente (mais recentes primeiro). Suporta `--recent <N>`, `--status <status>`, `--since <janela|data>`, `--components <tags>` e `--json`.
 - `spec-format` — inspeciona e migra especificações para o formato cronológico com prefixo de data (`migrate <slug>|--all [--format folder|flat] [--dry-run]`, `status`). Força a preservação de envelopes de diretório quando houver arquivos acompanhantes (`amendments.jsonl`).
@@ -303,27 +300,37 @@ pose hooks <install|uninstall|status> [--force]
 - `lint-spec` — verifica se cada seção do `spec.md` (Intent, Requirements, Technical Plan, Tasks, Validation, Final Report) tem conteúdo real, não apenas placeholders HTML. **`--ready-check`** aplica a **Definition of Ready** (gate de ENTRADA): Intent/Requirements/Technical Plan preenchidos, acceptance criteria com IDs estáveis (`- R<N>:`) e `depends_on` sintaticamente válido — sem exigir Validation/Final Report (a spec ainda não executou). O `check` aplica o ready-check automaticamente na transição `→ in-progress`. Use `--all` para auditar todas as specs; `--required-only` ignora a seção opcional `Decisions`. **Gate de ciclo de vida:** quando o frontmatter declara `status: done`, exige `completed_at` preenchido e disposição válida em cada follow-up (`[open]`, `[spawned: <slug>]`, `[covered: <slug>]`, `[duplicate: <slug>]`, `[done]`, `[wont-do: <motivo>]`). Para `spawned`/`covered`/`duplicate`, o alvo precisa referenciar uma spec **existente** (e não a própria) — guarda determinística contra "covered falso" por typo ou slug morto. Specs legadas (sem frontmatter/`status`) não disparam o gate.
 - `followups` — agrega os follow-ups de `Final Report > Follow-ups` de todas as specs, deriva o backlog vivo (`--open`, default) ou completo (`--all`), projeta titularidade (`--owner <alias>`) e reviews vencidas (`--overdue`), e propõe **candidatos a near-duplicate** por similaridade léxica determinística (Jaccard de tokens + `SequenceMatcher`, stdlib; limiar via `--similarity 0..100`, default 60). Exit 0 por padrão, sem rede; `--fail-overdue` transforma reviews vencidas em gate de política bloqueante baseado em risco. Os candidatos são pistas mecânicas — o **julgamento semântico** e a **confirmação de reaproveitamento** vivem na camada de agente (skill `pose-spec-closeout`), nunca neste script.
 - `review-plan` / `review-check` / `closeout-check` — resolvem um plano determinístico por componente usando metadados governados, overlays tipados e catálogo fechado de tools nativas, e validam tentativas imutáveis contra os digests do escopo e do plano. O opt-in é explícito pela policy de review schema v2 com `component_aware: true` e `component_aware_adopted_at`; pré-visualize a migração sem escrita com `pose review-plan <escopo> --explain` antes de commitar a policy. Tentativas concluídas anteriores a essa adoção seguem auditáveis, enquanto scopes abertos exigem o plano novo. `pose review record` é dry-run por padrão, aceita `--plan-digest` para rejeitar drift e só anexa com `--apply`; tools recomendadas nunca são executadas implicitamente. O closeout hierárquico propaga aprovações por `spec:`, `milestone:` e `roadmap:`. MCP read-only: `pose_review_plan`, `pose_closeout_state`.
-- `review bundle` / `review attest` / `review verify` — review de ponto fixo com opt-in (`review_bundles: true` e data de adoção). A preparação resume Intent, Requirements, Technical Plan e Decisions sem incluir Tasks, logs de execução, Final Report, lifecycle, atestações ou estado derivado no digest. `--seal` persiste JSON imutável no diretório review-bundles sob uma identidade `rvb-`; atestações ficam em JSON separado e append-only no diretório review-attestations sob uma identidade `rva-`. Mudanças semânticas ou de fonte criam um bundle sucessor e delta tipado; mudanças derivadas de closeout não exigem nova revisão. O fluxo local é offline. O Conductor pode devolver um envelope Ed25519 opcional somente quando o pin de emissor/chave estiver confiado pela policy. A saída humana agrupa avisos repetidos e separa tools obrigatórias ativas, recomendadas e adiadas para conclusão; o JSON preserva a proveniência completa. MCP read-only: `pose_review_bundle`.
-- `artifact-check` — interpreta as ações exatas de `### Artifacts`, resolve um range base/head explícito ou trailers de commit `POSE-Spec: <slug>` com argumentos Git estruturados e seguros, e reporta findings de resolvability, existence, action mismatch, undeclared e orphan. Commits que modificam artefatos declarados por uma spec precisam carregar o trailer `POSE-Spec: <slug>` na mensagem do commit para que `artifact-check` e `pose close` atribuam as alterações. `pose report --change-from/--change-to` persiste evidência imutável de change set; `pose index` projeta claims, observações, proveniência reversa e findings em `delivery-integrity.json`. O `artifact-backfill` é dry-run-first e exige `--confirm-spec-edits` antes de aplicar propostas inequívocas. MCP: `pose_delivery_integrity`.
-- `surface-check` / `roadmap-check` — estendem o mesmo grafo com refs tipadas `delivers`, entrypoints de produção, valores fechados de `evidenceClass` e resultados estruturados vinculados ao provenance. Perfis de surface exigem reachability mais integration/e2e; capabilities compostas exigem integration. Critérios de roadmap podem referenciar apenas refs de entrega registradas, checks ou relatórios de review manual confinados — comandos crus são rejeitados. MCP: `pose_surface_assurance`.
+- `review bundle` / `review attest` / `review auto-attest` / `review verify` / `review record` — review de ponto fixo com opt-in (`review_bundles: true` e data de adoção). A preparação resume Intent, Requirements, Technical Plan e Decisions sem incluir Tasks, logs de execução, Final Report, lifecycle, atestações ou estado derivado no digest. `--seal` persiste JSON imutável no diretório review-bundles sob uma identidade `rvb-`; atestações ficam em JSON separado e append-only no diretório review-attestations sob uma identidade `rva-`. `auto-attest` extrai evidências correspondentes dos resultados de validação e resolve disposições de ferramentas deterministicamente. Mudanças semânticas ou de fonte criam um bundle sucessor e delta tipado; mudanças derivadas de closeout não exigem nova revisão. O fluxo local é offline. O Conductor pode devolver um envelope Ed25519 opcional somente quando o pin de emissor/chave estiver confiado pela policy. A saída humana agrupa avisos repetidos e separa tools obrigatórias ativas, recomendadas e adiadas para conclusão; o JSON preserva a proveniência completa. MCP read-only: `pose_review_bundle`.
+- `close` — aplica uma transição de ciclo de vida com gate de review para concluir uma spec, milestone ou roadmap.
+- `continuous-closeout` — persiste e projeta o estado terminal de continuous closeout para workflows de iteração contínua.
+- `artifact-check` — interpreta as ações exatas de `### Artifacts`, resolve um range base/head explícito ou trailers de commit `POSE-Spec: <slug>` com argumentos Git estruturados e seguros, e reporta findings de resolvability, existence, action mismatch, undeclared e orphan. Commits que modificam artefatos declarados por uma spec precisam carregar o trailer `POSE-Spec: <slug>` na mensagem do commit para que `artifact-check` e `pose close` atribuam as alterações. `pose report --change-from/--change-to` persiste evidência imutável de change set; `pose index` projeta claims, observações, proveniência reversa e findings em `delivery-integrity.json`. MCP: `pose_delivery_integrity`.
+- `artifact-backfill` — propõe proveniência histórica explícita a partir do histórico Git (`--from-git`) e exige `--confirm-spec-edits` antes de aplicar propostas inequívocas às declarações de artefatos das specs.
+- `surface-check` / `roadmap-check` — estendem o mesmo grafo com refs tipadas `delivers`, entrypoints de produção, valores fechados de `evidenceClass` e resultados estruturados vinculados ao provenance. Perfis de surface exigem reachability mais integration/ee2e; capabilities compostas exigem integration. Critérios de roadmap podem referenciar apenas refs de entrega registradas, checks ou relatórios de review manual confinados — comandos crus são rejeitados. MCP: `pose_surface_assurance`.
 - `state` (spec `pose-project-state-artifact`) — artefato nativo de estado do projeto: responde "qual é o estado atual deste projeto?" em uma leitura, em vez de varrer specs/roadmaps/follow-ups/capabilities/knowledge/reports a cada sessão. Seções `curated` (resumo executivo, direção atual — prosa humana, preservada literalmente) e `derived` (specs e roadmaps, follow-ups, capabilities, decisões e conhecimento, validação e evidência, arquitetura — contagens e ponteiros tipados, nunca conteúdo copiado). `init` cria a estrutura; `refresh` recomputa as seções derivadas preservando as curadas, carimbando `generated_at`/`baseline_commit`; `--if-stale` só refaz o trabalho quando o artefato já está `stale` (barato de rodar em todo build de CI). Sem subcomando, valida schema, staleness (idade/commits desde o último refresh, política configurável), **hash por seção** — uma seção derivada editada à mão falha nominalmente (`[TAMPERED]`) — e `refresh_pending` (ver abaixo). `diff` compara os dois últimos refreshes. Equivalente MCP: `pose_project_state` (o parâmetro `section` busca apenas uma). Aditivo: um projeto que ainda não gerou o artefato segue válido em todo lugar. A seção Arquitetura reporta `unavailable` nesta versão — ainda não existe produtor local de export GraphForge.
 - **Refresh automático de project-state** (spec `pose-project-state-refresh-contract`) — um registro interno de hooks pós-evento dispara um `pose state refresh` **parcial** (apenas as seções que o evento afeta) nos pontos que o POSE já intercepta: um `pose lint-spec <slug> --strict` bem-sucedido numa spec `status: done` (`spec_closeout` → Specs & Roadmaps, Follow-ups, Validação & Evidência), `pose amend` (`spec_amend` → Specs & Roadmaps, Decisões & Conhecimento), `pose reconcile-evidence record` (`evidence_reconciled` → Validação & Evidência) e `pose assess snapshot` (`assessment_snapshot` → Capabilities). Quando o evento carrega um commit e `POSE_GRAPHFORGE_MCP_URL` está configurado, o consumidor chama `components_hit` (spec `graphforge-components-hit-contract`) do baseline do estado até o commit do evento e anexa os componentes atingidos à seção Arquitetura (refresh **dirigido**); sem GraphForge configurado, o refresh permanece completo/não dirigido — zero acoplamento de build. Sem daemon e sem watcher de filesystem: é uma chamada síncrona no ponto exato em que cada evento já acontece. **Best-effort por padrão**: um refresh que falha nunca bloqueia o comando que disparou o evento — em vez disso marca `refresh_pending: <event>` no frontmatter do estado (limpo pelo próximo refresh bem-sucedido, qualquer que seja o gatilho). O modo estrito é opt-in por política (`strict_refresh: true`) — ali, uma falha de refresh falha o comando disparador. Toda execução (disparada ou manual) é registrada no log append-only do próprio artefato (apenas metadados: gatilho, alvo, resultado `ok|failed|skipped`, duração, hashes das seções alteradas — nunca conteúdo). Chave de dedup `hash(event+target+commit)`: o mesmo evento processado duas vezes (retry/replay) não repete o refresh, resultado `skipped`; refreshes `manual`/`ci` nunca são deduplicados entre si (uma chamada explícita sempre roda). `release_cut` está registrado no mapa evento→seções mas não tem produtor dentro do pose-mcp hoje — cortar um release pertence ao Conductor (serviço separado); o gatilho está pronto para quando essa integração existir.
 - **Gatilhos de reavaliação de capability** (spec `pose-capability-assessment-triggers`, mesmo registro de hooks do refresh automático acima) — o consumidor `assessment-staleness`, registrado em `spec_closeout`, resolve quais componentes um closeout alcançou (via `components_hit` quando `POSE_GRAPHFORGE_MCP_URL` está configurado; fallback: interseção dos arquivos tocados pelo evento com os globs `paths:` declarados manualmente por mecanismo no assessment) e marca como stale todo mecanismo de capability afetado — nunca mutando um score, apenas registrando `since`/`trigger`/`hits` e projetando uma demanda cobrável (origem `assessment-trigger`) em `pose followups --open`, sem armazenamento duplicado. `pose assess snapshot` limpa as marcas dos mecanismos que reavalia e registra o vínculo marca→snapshot no histórico. Sob demanda: `pose assess stale [--json]` lista marcas pendentes; `pose assess request --mechanism <id> [--reason <text>]` cria uma manualmente (o mesmo caminho que uma ação de UI "sinalizar para reavaliação" chamaria via MCP). Ferramenta MCP: `pose_capability_stale`. Sem GraphForge e sem `paths:` declarado, o evento registra `capability_mapping_unavailable` no log de refresh — sinal visível, nada marcado em silêncio. O limiar antirruído (`min_hits`, `level` de hit `direct`/`any`, owner/SLA default da demanda) é configurável, compartilhando o mesmo arquivo de política já usado para staleness por idade/commits (opcional; ausente significa estes mesmos defaults conservadores).
-- **Governança de docs** (spec `pose-docs-governance-contract`) — contrato opt-in por projeto para documentação, mesma mecânica do assessment de capability acima: ausente, todo projeto segue válido em todo lugar. `pose docs-init [--profile library|service|cli|monorepo]` cria um manifesto declarando as raízes governadas de documentação e, por doc, `path`/`doc_type` (Diátaxis `tutorial`/`howto`/`reference`/`explanation`, ou valor customizado)/`topics`/`owns`/`applies_to`/opcionalmente `review_after`. `pose docs-check [--json] [--explain <rule>]` roda sete regras determinísticas e offline — doc declarado ausente do disco, arquivo presente mas não declarado, frontmatter mínimo faltando (`title`/`doc_type`), link relativo quebrado, referência tipada quebrada (`spec:`/`adr:`/`knowledge:`/`doc:`/...), staleness (data de review da própria entrada, ou a janela default do manifesto contada a partir do último commit que a tocou) e uma varredura de segurança reusando a mesma checagem determinística de instrução insegura/forma de segredo que as skills já rodam — cada uma com severidade configurável (`error`/`warning`/`off`). `pose check --strict` incorpora o `docs-check` quando o manifesto existe (opt-in por presença); apenas erros bloqueiam, avisos aparecem sem bloquear. Ferramenta MCP: `pose_docs_state`. O project-state ganha uma seção Docs aditiva (presença/perfil/raízes do manifesto, contagens de declarados/não declarados/stale/erro/aviso).
+- **Governança de docs** (spec `pose-docs-governance-contract`) — contrato opt-in por projeto para documentação, mesma mecânica do assessment de capability acima: ausente, todo projeto segue válido em todo lugar. `pose docs-init [--profile library|service|cli|monorepo]` cria um manifesto declarando as raízes governadas de documentação e, por doc, `path`/`doc_type` (Diátaxis `tutorial`/`howto`/`reference`/`explanation`, ou valor customizado)/`topics`/`owns`/`applies_to`/opcionalmente `review_after`. `pose docs-check [--json] [--explain <rule>]` roda sete regras determinísticas e offline — doc declarado ausente do disco, arquivo presente mas não declarado, frontmatter mínimo faltando (`title`/`doc_type`), link relativo quebrado, referência tipada quebrada (`spec:`/`adr:`/`knowledge:`/`doc:`/...), staleness (data de review da própria entrada, ou a janela default do manifesto contada a partir do último commit que a tocou) e uma varredura de segurança reusando a mesma checagem determinística de instrução insegura/forma de segredo que as skills já rodam — cada uma com severidade configurável (`error`/`warning`/`off`). `pose check --strict` incorpora o `docs-check` quando o manifesto existe (opt-in por presença); apenas erros bloqueiam, avisos aparecem sem bloquear. `pose docs-sync` sincroniza metadados de governança. Ferramenta MCP: `pose_docs_state`. O project-state ganha uma seção Docs aditiva (presença/perfil/raízes do manifesto, contagens de declarados/não declarados/stale/erro/aviso).
 - **Gatilhos de review pendente de docs** (spec `pose-docs-assessment-followups`, terceiro consumidor do mesmo registro de hooks das duas entradas acima — reusado sem modificação) — um consumidor `docs-review`, registrado em `spec_closeout`, resolve quais componentes/arquivos um closeout alcançou (`components_hit` quando configurado, casado contra entradas `owns:` declaradas como `component:<id>`; caso contrário, os arquivos tocados pelo evento casados contra os paths/globs `owns:` de cada doc, onde um diretório como `"site"` cobre todo arquivo abaixo dele) e marca como review-pending todo doc cuja área declarada foi alcançada — nunca editando o doc, nunca tocando um score. As marcas se acumulam num log append-only fora do arquivo do próprio doc e projetam uma demanda sintética e com dono em `pose followups --open` (origem `docs:<caminho-do-doc>`), reusando o campo `owner` da própria entrada do manifesto quando declarado. `pose docs-review resolve <doc> [--no-change --reason <text>] [--commit <sha>]` fecha de uma vez todas as marcas pendentes num doc, registrando `updated` (default, captura o commit atual) ou `no_change_needed` (motivo obrigatório); `pose docs-review request <doc>`/`--all-stale` cobrem o caminho sob demanda — o segundo transforma todo doc atualmente stale em demanda ativa numa chamada. A saída do próprio `docs-check` e o `pose_docs_state` listam aditivamente o que segue pendente. Sem mapa de componentes e sem `owns:` declarado, o evento registra um sinal visível em vez de marcar algo em silêncio — aqui o fallback por path é o caminho de força total do mecanismo (`owns:` é expresso como paths por padrão), não um caminho menor. O limiar antirruído (`min_hits`, `level` de hit, owner/SLA default) é configurável, compartilhando o mesmo formato de política dos gatilhos de capability em arquivo próprio (opcional; ausente significa estes mesmos defaults conservadores).
 - `history-check` — verifica que todo `.jsonl` em `reports/history/` está sob versionamento git. Sem isso, `recurrence-check` e `stats` divergem entre máquinas. Strict bloqueia; tolerant avisa.
 - `suggest` — lê [`task-map.json`](.pose/indexes/task-map.json) e imprime a trilha canônica (workflow + skill + rules + spec/ADR + knowledge) para um tipo de tarefa. Sem argumentos, lista todos os tipos. `--domain <d>` aplica rules adicionais por domínio (frontend, backend-go, k8s); `--path <p>` infere o domínio por heurísticas e via [`repo-map.json`](.pose/indexes/repo-map.json) (`language` → frontend/backend-go); `--json` para consumo por agentes.
 - `stats` — agrega outcomes do history JSONL por workflow, task ou context. Habilita decisões objetivas (promover check de optional → required, identificar workflows instáveis, comparar ci vs manual). `--since-days N` filtra a janela; `--json` para consumo por máquina.
 - `usage` — agrega automaticamente eventos locais e por projeto de uso da CLI e do MCP: chamadas, outcomes de execução/semântica, latência, findings observados e ciclo de vida estável (`unique`, `new`, `resolved`, `reopened`). Agentes nunca mantêm contadores. Os eventos são best-effort, somente locais e ficam fora da árvore versionada; argumentos, saída, paths, identidade de projeto/usuário e IDs crus de findings nunca são persistidos. `--since-days 0` inclui todo o histórico; filtre com `--tool` ou `--surface`; equivalente MCP: `pose_usage`. É evidência de uso do produto, não outcome DORA nem score individual de produtividade.
-- `record-deployment` / `record-incident` / `dora-metrics` — ingerem eventos de entrega schema v2 sem identidade individual e calculam as cinco métricas atuais para um ambiente de produção explícito (`--environment`, padrão `production`). Deployments exigem `--deployment-kind planned|rework`; incidentes exigem ambiente; recovery inclui apenas incidentes resolvidos com `--caused-by-deployment`. JSONL legado schema v1 continua legível, mas `deployment_kind` desconhecido torna somente `deployment_rework_rate` indisponível em vez de fabricar zero.
+- `record-deployment` / `record-incident` / `dora-metrics` / `adoption-metrics` — ingerem eventos de entrega schema v2 sem identidade individual e calculam métricas para um ambiente de produção explícito (`--environment`, padrão `production`). Deployments exigem `--deployment-kind planned|rework`; incidentes exigem ambiente; recovery inclui apenas incidentes resolvidos com `--caused-by-deployment`. `adoption-metrics` agrega taxas de especificações, roadmaps e validação de ciclo de vida.
 - `stacks [--path dir] [--json]` — inspeção de catálogo read-only e offline (spec pose-stack-catalog-expansion). Casa entradas de diretório contra o catálogo mantido de perfis (Node.js, Go, Rust, Java, **Python** — poetry/pipenv/pip/setuptools/pep517 — e **.NET**), reportando por perfil: manager, marker, `winner`/`shadowed` (múltiplos managers presentes resolvem por prioridade declarada), `confidence` (`medium` sob conflito) e se a ferramenta nativa pré-requisito está no `PATH` — via `exec.LookPath`, nunca executando um arquivo do projeto. Markers detectados alimentam `discoverValidationModules`/`pose init --wizard` do mesmo jeito que Node/Go/Rust/Java já fazem; os checks propriamente ditos rodam pelas stacks `python`/`dotnet` da [`validation-matrix.json`](.pose/indexes/validation-matrix.json). A prioridade de manager Python é expressa com `when.fileNotExistsAny` (pular quando existir qualquer lockfile/marker de prioridade maior) ao lado dos predicados `fileExists`/`fileNotExists` já existentes.
-- `assess discover|integrate|tech-debt` — motores nativos de assessment para LOC, marcadores de débito técnico, estruturas de componentes e checagens de integridade de contrato entre módulos.
+- `assess discover|integrate|tech-debt|stale|request|snapshot` — motores nativos de assessment para LOC, marcadores de débito técnico, estruturas de componentes, checagens de integridade de contrato entre módulos e ciclo de vida de reavaliação de capabilities.
 - `doctor [--fix]` — diagnósticos de ambiente, dependências, runtime nativo e saúde da instância POSE.
-- `knowledge-housekeeping` / `reports-housekeeping` — manutenção idempotente (listar/arquivar/expurgar). Mutações exigem `--apply`. O housekeeping de reports **nunca toca em `history/`**: o JSONL é a fonte de verdade para `recurrence-check` e comparações temporais de `report`. Defaults: stale = 120d, purga de arquivo = 365d.
+- `knowledge-housekeeping` / `reports-housekeeping` / `events-housekeeping` — manutenção idempotente (listar/arquivar/expurgar). Mutações exigem `--apply`. O housekeeping de reports **nunca toca em `history/`**: o JSONL é a fonte de verdade para `recurrence-check` e comparações temporais de `report`. Defaults: stale = 120d, purga de arquivo = 365d.
 - `amend` — histórico append-only de emendas da spec (`.pose/specs/<slug>/amendments.jsonl`). `--baseline` fotografa o hash de cada R-ID; `--ids R2 --change added|withdrawn|semantic|editorial --rationale <text> --author @alias [--reviewer @alias]` reconhece uma mudança material; `--list` renderiza o histórico e os reconhecimentos pendentes. Em specs `done` com histórico, o `lint-spec` rejeita todo requisito cujo texto atual não esteja reconhecido por um evento — specs não podem ser reescritas em silêncio depois da evidência.
 - `knowledge-usage` — projeta as citações `knowledge:<slug>` das specs por artefato (dono, expiração, specs citantes). Sinais de uso informam a review do dono; o TTL nunca é estendido automaticamente. Refs `knowledge:` órfãs falham no `knowledge-check`.
-- `knowledge-suggest <query>` — ranqueamento léxico determinístico e explicável sobre conhecimento não restrito (o racional de termos compartilhados é exposto). Apenas consultivo: sugestões nunca bloqueiam nem se aplicam sozinhas e exigem confirmação humana antes de serem citadas.
+- `knowledge-suggest <query>` / `semantic-suggest <query>` / `suggest-feedback` / `portfolio-projection` / `reconcile-evidence` — ranqueamento léxico determinístico e projeções consultivas para conhecimento, agrupamento de feedback, marcos de portfólio multi-roadmap e reconciliação de evidências de validação. Sugestões nunca bloqueiam nem se autoaplicam sem confirmação.
 - `hooks` — gerencia symlinks do binário nativo em `.git/hooks/`. O nome de invocação seleciona `check --tolerant` para `pre-commit` e `index` para `post-merge`; `install --force` preserva backup de hooks preexistentes.
+- `version` — exibe versão compilada do binário Go, SHA do commit e compara a versão do schema do repositório com os requisitos do motor.
+- `install <dir> [--locale tag]` — instala o runtime, regras, workflows, templates e documentação embutidos do POSE em um diretório de destino sem clonar.
+- `import <spec-kit|openspec> <path> [--dry-run]` — importa especificações externas para o formato canônico do POSE com frontmatter e 7 seções padronizadas.
+- `serve-mcp` — inicia o servidor POSE Model Context Protocol via stdio (`--stdio`) ou HTTP para integração com agentes de IA.
+- `report-limitation` — registra limitação, defeito ou sugestão de melhoria do motor em `.pose/feedback/` com opção de submissão (`--submit`).
+- `contribute <enable|disable|status|stage|list>` — modo contribuidor open-source; registra relatórios sanitizados sob `.pose/contributions/` sem vazar código privado; a submissão permanece a critério do desenvolvedor.
+- `release` / `release-notes` — ciclo de vida governado de releases (`plan`, `prepare`, `check`, `notes`, `record`, `status`, `open-next`, `backfill`) garantindo notas de release imutáveis, congelamento de manifesto, importação de evidências de provedor e verificação reproduzível. `release-notes` fornece alias de compatibilidade para visualização de notas congeladas.
 
 ### Contrato de conexão MCP
 
