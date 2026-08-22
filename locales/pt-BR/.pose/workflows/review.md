@@ -32,6 +32,7 @@ Validar se a mudança está correta, segura para produção e alinhada ao escopo
 17. Registrar com `pose review attest <bundle-id> ... --plan-digest <sha256> --apply`; envelopes externos assinados usam `pose review attest --envelope <path> --apply`.
 18. Rodar `pose review verify <escopo>` e `pose review-check <escopo>`; rejeitar estado obsoleto, incompleto, conflitante ou reutilização transitivamente inválida.
 19. Fechar somente quando a verificação reportar `ready-to-close`; atualizações de lifecycle, estado e relatórios não podem alterar o bundle selado.
+20. Se o Modo Contribuidor estiver ativo e a revisão apontar falsos-positivos de linters, atritos de diagnóstico ou lacunas nas regras do POSE, registre uma proposta de melhoria via `pose contribute stage --type enhancement`.
 
 ## Seleção obrigatória de `rules` por PR/tarefa
 

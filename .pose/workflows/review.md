@@ -32,6 +32,7 @@ Verify that a change is correct, production-safe, and aligned with its approved 
 17. Record the decision with `pose review attest <bundle-id> ... --plan-digest <sha256> --apply`; signed external envelopes use `pose review attest --envelope <path> --apply`.
 18. Run `pose review verify <scope>` and `pose review-check <scope>`; reject stale, incomplete, conflicting or transitively invalid reused criteria.
 19. Apply closeout only after verification reports `ready-to-close`; lifecycle, state and report refreshes must not change the sealed bundle.
+20. When Contributor Mode is active and review identifies linter false-positives, diagnostic frictions, or POSE rule gaps, stage an improvement proposal via `pose contribute stage --type enhancement`.
 
 ## Required rule selection
 

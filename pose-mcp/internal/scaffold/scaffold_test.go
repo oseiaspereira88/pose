@@ -126,7 +126,7 @@ func TestEmbeddedDistMatchesPoseDist(t *testing.T) {
 	for rel := range src {
 		if _, ok := embedded[rel]; !ok {
 			missing = append(missing, rel)
-		} else if !bytes.Equal(src[rel], embedded[rel]) {
+		} else if !bytes.Equal(distpolicy.StripDynamicContributorSectionBytes(src[rel]), distpolicy.StripDynamicContributorSectionBytes(embedded[rel])) {
 			differs = append(differs, rel)
 		}
 	}

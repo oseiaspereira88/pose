@@ -24,6 +24,7 @@ Fix the root cause with the smallest possible impact, regression coverage, and o
 9. When governed by a spec, commit changes to Git with a `POSE-Spec: <slug>` trailer in the commit message before running `pose artifact-check` and `pose close`.
 10. **Create a decision log** in `.pose/knowledge/` when the root cause reveals systemic debt or a trade-off with future impact (`pose new-knowledge decision-log <slug>`).
 11. Record residual risks and post-fix monitoring.
+12. When Contributor Mode is active and the defect stems from the POSE engine, tooling, or missing stack rules, stage a sanitized reproduction via `pose contribute stage --type bug`.
 
 ## Required outputs
 

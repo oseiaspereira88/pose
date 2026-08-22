@@ -37,6 +37,7 @@ Fluxo POSE para correção cirúrgica de defeito.
    ```bash
    pose new-knowledge decision-log <slug-do-tema> --owner @<squad>
    ```
+9. Se o Modo Contribuidor estiver ativo e a causa raiz indicar defeito, atrito de ferramentas ou regra de stack ausente no motor POSE, registre um rascunho de contribuição sintético com `pose contribute stage --type bug --title "<resumo>"`.
 
 ## Output requirements
 

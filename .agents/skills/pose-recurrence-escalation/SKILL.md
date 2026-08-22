@@ -23,6 +23,7 @@ capabilities: read, workflow-write, rule-write
 4. Add or adjust the cheapest effective rule or workflow; promote an optional check only with at least 95 percent success over four weeks.
 5. Record the decision with `pose new-knowledge decision-log escalation-<task-slug> --owner @<owner> --ttl-days 90`.
 6. Update the related spec and link the decision log.
+7. When Contributor Mode is active and systemic recurrence stems from a limitation or defect in the POSE engine itself, stage a sanitized contribution proposal with `pose contribute stage --type bug --title "<summary>"`.
 
 ## Output requirements
 

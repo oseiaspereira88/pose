@@ -26,6 +26,7 @@ capabilities: read, spec-write, validate
 6. When governed by a spec, commit changes with a `POSE-Spec: <slug>` trailer in the commit message before running `pose artifact-check` and `pose close`.
 7. Run `pose validate --tolerant --module <affected-path> --report`.
 8. Create a decision log with `pose new-knowledge decision-log <slug>` when root cause exposes systemic debt or a significant trade-off.
+9. When Contributor Mode is active and root cause indicates a defect, tool friction, or missing stack rule in the POSE engine, stage a sanitized synthetic reproduction with `pose contribute stage --type bug --title "<summary>"`.
 
 ## Output requirements
 

@@ -99,6 +99,7 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 	if checker.errors > 0 {
 		noteCommandUsage(stdout, countedUsageResult("fail", checker.errors, checker.warnings, false))
 		fmt.Fprintf(stdout, cliText(locale, "Result: FAILURE — POSE structure has %d error(s).\n", "Resultado: FALHA — estrutura POSE com %d erro(s).\n"), checker.errors)
+		PrintContributorFailureHint(checker.root, stdout, locale)
 		return 1
 	}
 	if checker.warnings > 0 {

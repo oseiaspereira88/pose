@@ -179,7 +179,7 @@ func cmdDoctor(args []string, stdout, stderr io.Writer) int {
 
 	root, findings := runDoctorDiagnostics(locale)
 	if !fix {
-		return doctorReport(findings, jsonOut, stdout, locale)
+		return doctorReport(root, findings, jsonOut, stdout, locale)
 	}
 
 	var candidates []string
@@ -711,7 +711,7 @@ func printSummaryLine(errors, warns int, stdout io.Writer, locale cliLocale) {
 	fmt.Fprintf(stdout, cliText(locale, "\ndoctor: %d error(s), %d warning(s)\n", "\ndoctor: %d erro(s), %d aviso(s)\n"), errors, warns)
 }
 
-func doctorReport(findings []doctorFinding, jsonOut bool, stdout io.Writer, locale cliLocale) int {
+func doctorReport(root string, findings []doctorFinding, jsonOut bool, stdout io.Writer, locale cliLocale) int {
 	errors, warns := countLevels(findings)
 	if jsonOut {
 		enc := json.NewEncoder(stdout)
@@ -725,6 +725,7 @@ func doctorReport(findings []doctorFinding, jsonOut bool, stdout io.Writer, loca
 	} else {
 		renderFindingsText(findings, stdout, locale)
 		printSummaryLine(errors, warns, stdout, locale)
+		PrintContributorDoctorHint(root, stdout, locale)
 	}
 	if errors > 0 {
 		return 1

@@ -61,6 +61,7 @@ func main() {
 		if err != nil {
 			return err
 		}
+		b = distpolicy.StripDynamicContributorSectionBytes(b)
 		info, _ := d.Info()
 		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 			return err

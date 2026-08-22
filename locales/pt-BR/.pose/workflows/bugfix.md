@@ -24,6 +24,7 @@ Corrigir a causa raiz com o menor impacto possível, cobertura de regressão e s
 9. Quando a correção for governada por uma spec, comitar as alterações no Git com o trailer `POSE-Spec: <slug>` na mensagem do commit antes de rodar `pose artifact-check` e `pose close`.
 10. **Produzir decision-log** em `.pose/knowledge/` quando a causa raiz revelar dívida sistêmica ou trade-off com impacto futuro (`pose new-knowledge decision-log <slug>`).
 11. Registrar riscos residuais e monitoramento pós-correção.
+12. Se o Modo Contribuidor estiver ativo e o defeito decorrer do motor POSE, automações ou regras de stack ausentes, registre uma reprodução sintética via `pose contribute stage --type bug`.
 
 ## Saídas obrigatórias
 

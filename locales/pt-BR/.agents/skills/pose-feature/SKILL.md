@@ -52,6 +52,7 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
    pose followups --all          # backlog cruzado + colisões antes de triar
    pose lint-spec <slug> --strict
    ```
+9. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
 
 ## Output requirements
 

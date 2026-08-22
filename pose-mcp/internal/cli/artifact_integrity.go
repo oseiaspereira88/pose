@@ -459,6 +459,9 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 	if strict {
 		for _, finding := range graph.Findings {
 			if finding.Severity == "error" || finding.Severity == "critical" {
+				if !jsonOutput {
+					PrintContributorFailureHint(root, stdout, cliLocaleValue())
+				}
 				return 1
 			}
 		}

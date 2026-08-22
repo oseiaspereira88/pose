@@ -493,3 +493,35 @@ func removeDocSectionContent(content, marker string) string {
 	}
 	return strings.Join(out, "\n")
 }
+
+// IsContributorModeActive checks if contributor mode is enabled in the repository.
+func IsContributorModeActive(root string) bool {
+	state, err := loadContributorState(root)
+	return err == nil && state != nil && state.Active
+}
+
+// PrintContributorFailureHint emits an actionable hint when a check/lint/close failure occurs and contributor mode is active.
+func PrintContributorFailureHint(root string, w io.Writer, loc cliLocale) {
+	if !IsContributorModeActive(root) {
+		return
+	}
+	text := func(en, pt string) string { return cliText(loc, en, pt) }
+	fmt.Fprintf(w, "\n%s\n   %s\n",
+		text("💡 [Contributor Mode ACTIVE] If this failure stems from a POSE engine defect, false-positive, or missing stack rule, stage a synthetic reproduction locally with:",
+			"💡 [Modo Contribuidor ATIVO] Se esta falha for causada por defeito no motor POSE, falso-positivo ou regra de stack ausente, registre uma reprodução sintética local com:"),
+		"pose contribute stage --type bug --title \"<brief-summary>\"",
+	)
+}
+
+// PrintContributorDoctorHint emits an informational contributor mode status in pose doctor.
+func PrintContributorDoctorHint(root string, w io.Writer, loc cliLocale) {
+	if !IsContributorModeActive(root) {
+		return
+	}
+	text := func(en, pt string) string { return cliText(loc, en, pt) }
+	fmt.Fprintln(w, text(
+		"[INFO] Contributor Mode: ACTIVE (.pose/contributions/) — Encountered engine or tooling friction? Stage feedback with 'pose contribute stage'.",
+		"[INFO] Modo Contribuidor: ATIVO (.pose/contributions/) — Encontrou atrito de ambiente ou motor? Registre feedback com 'pose contribute stage'.",
+	))
+}
+

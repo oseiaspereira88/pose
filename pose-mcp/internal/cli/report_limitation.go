@@ -112,6 +112,15 @@ reported_at: %s
 
 	fmt.Fprintf(stdout, text("[INFO] Limitation/Feedback recorded locally at: %s\n", "[INFO] Limitação/Feedback registrado localmente em: %s\n"), localPath)
 
+	if IsContributorModeActive(root) {
+		ts := time.Now().UTC().Format("20060102-150405")
+		contribFilename := fmt.Sprintf("%s-%s.md", ts, slug)
+		contribPath := filepath.Join(root, filepath.FromSlash(contributionsDir), contribFilename)
+		_ = os.MkdirAll(filepath.Dir(contribPath), 0o755)
+		_ = writeAtomic(contribPath, []byte(localContent), 0o644)
+		fmt.Fprintf(stdout, text("[INFO] Contributor Mode: Staged contribution draft at %s\n", "[INFO] Modo Contribuidor: Rascunho de contribuição registrado em %s\n"), contribPath)
+	}
+
 	// Submit remotely via gh CLI or GITHUB_TOKEN if requested or gh is available
 	if submitRemote {
 		label := feedbackIssueLabel(kind)

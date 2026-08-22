@@ -393,3 +393,66 @@ func NeutralIndexTemplates() map[string][]byte {
 `),
 	}
 }
+
+// StripDynamicContributorSection removes local instance contributor-mode sections
+// from AGENTS.md or POSE.md when syncing or testing base scaffold manuals.
+func StripDynamicContributorSection(content string) string {
+	marker := "<!-- pose:contributor-mode -->"
+	if !strings.Contains(content, marker) {
+		return content
+	}
+	type docSection struct {
+		Heading string
+		Body    []string
+	}
+	var preamble []string
+	var sections []docSection
+	var current docSection
+	var buf []string
+	flush := func() {
+		if current.Heading == "" {
+			preamble = buf
+			return
+		}
+		current.Body = buf
+		sections = append(sections, current)
+	}
+	for _, line := range strings.Split(content, "\n") {
+		if strings.HasPrefix(line, "## ") {
+			flush()
+			current = docSection{Heading: line}
+			buf = nil
+			continue
+		}
+		buf = append(buf, line)
+	}
+	flush()
+
+	var kept []docSection
+	for _, sec := range sections {
+		isContrib := false
+		for _, line := range sec.Body {
+			if strings.Contains(line, marker) {
+				isContrib = true
+				break
+			}
+		}
+		if !isContrib {
+			kept = append(kept, sec)
+		}
+	}
+
+	out := append([]string{}, preamble...)
+	for _, sec := range kept {
+		out = append(out, sec.Heading)
+		out = append(out, sec.Body...)
+	}
+	return strings.TrimRight(strings.Join(out, "\n"), "\n") + "\n"
+}
+
+// StripDynamicContributorSectionBytes is the byte slice variant of StripDynamicContributorSection.
+func StripDynamicContributorSectionBytes(b []byte) []byte {
+	return []byte(StripDynamicContributorSection(string(b)))
+}
+
+

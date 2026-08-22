@@ -28,6 +28,7 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 13. **Produzir handoff** em `.pose/knowledge/` se houver contexto reaproveitável entre execuções (estado parcial, decisão pendente, follow-up para próximo owner). Use `pose new-knowledge handoff <slug>` e referencie a spec em `source_refs`.
 14. Consolidar resultado final com riscos residuais e próximos passos.
 15. **Fechar a spec** (skill `pose-spec-closeout`): quando bundles estiverem habilitados, selar com `pose review bundle spec:<slug> --seal`, registrar a atestação independente com `pose review attest <bundle-id> ... --apply` e exigir `pose review verify spec:<slug>`; em policy legada, usar `pose review record`. Exigir `pose closeout-check spec:<slug>` e aplicar a transição com `pose close spec:<slug>` — definir `status: done` e `completed_at` no frontmatter; rodar `pose assess discover --update-state` para recalcular a completude da plataforma; dar disposição a cada follow-up (`pose followups --all` mostra o backlog cruzado e colisões); passar o gate `pose lint-spec <slug> --strict`.
+16. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição via `pose contribute stage --type enhancement`.
 
 ## Saídas obrigatórias
 

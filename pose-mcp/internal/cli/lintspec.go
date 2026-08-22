@@ -654,16 +654,13 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 	}
 	var closeoutHookErr error
 	if target != "--all" {
-		specMD := filepath.Join(specsDir, target, "spec.md")
-		if _, err := os.Stat(specMD); err != nil {
-			legacy := filepath.Join(specsDir, target+".md")
-			if _, err := os.Stat(legacy); err == nil {
-				specMD = legacy
-			} else {
-				fmt.Fprintf(stderr, cliText(locale, "Error: spec not found: %s\n", "Erro: spec não encontrada: %s\n"), specMD)
-				return 2
-			}
+		store := posepkg.Store{Root: root}
+		sp, err := store.GetSpec(target)
+		if err != nil {
+			fmt.Fprintf(stderr, cliText(locale, "Error: spec not found: %s\n", "Erro: spec não encontrada: %s\n"), target)
+			return 2
 		}
+		specMD := sp.Path
 		lintOne(specMD)
 		if totalFailed == 0 && mode == "strict" {
 			if fm, err := readFlatFrontmatter(specMD); err == nil && fm["status"] == "done" {
@@ -683,6 +680,7 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 		noteUsageFindings(stdout, "fail", findings, true)
 		fmt.Fprintf(stdout, "Resultado: FALHA (%d spec(s) com seção obrigatória vazia/esquelética ou gate de ciclo de vida violado)\n", totalFailed)
 		if mode == "strict" {
+			PrintContributorFailureHint(root, stdout, locale)
 			return 1
 		}
 		fmt.Fprintln(stdout, cliText(locale, "Tolerant mode: record a follow-up to complete specs.", "Modo tolerant: registrar follow-up para completar specs."))

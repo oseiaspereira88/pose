@@ -21,6 +21,7 @@ Improve internal structure and maintainability without changing observed functio
 6. Run relevant deterministic checks (`test`, `lint`, `typecheck`, `build`).
 7. Measure practical gains (complexity, clarity, coverage, maintenance).
 8. Record residual risks and non-essential follow-ups.
+9. When Contributor Mode is active, if refactoring exposed engine frictions or rigid template patterns, stage feedback via `pose contribute stage --type enhancement`.
 
 ## Required outputs
 

@@ -31,6 +31,7 @@ capabilities: read
 12. Attest the bundle automatically using `pose review auto-attest <bundle-id> --reviewer agent:reviewer-subagent --apply` (or `pose review attest` with explicit findings when requesting changes).
 13. Run `pose review verify <scope>` and `pose review-check <scope>`; close only when both confirm a valid, approved attestation.
 14. Decide: approved, approved with reservations, changes requested, or rejected.
+15. When Contributor Mode is active, if review uncovers POSE linter false-positives, diagnostic frictions, or rule gaps, stage an improvement proposal with `pose contribute stage --type enhancement --title "<summary>"`.
 
 ## Output requirements
 

@@ -944,6 +944,7 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 			claims, found, err := posemodel.ParseArtifactClaims(*sp, policy)
 			if err != nil || !found || len(claims) == 0 {
 				fmt.Fprintf(stderr, "pose close: artifact declaration gate failed: %v\n", err)
+				PrintContributorFailureHint(root, stderr, cliLocaleValue())
 				return 1
 			}
 		}
@@ -953,6 +954,7 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 		} else if policy.Enabled && sp.CreatedAt >= policy.AdoptedAt {
 			if blockers := deliverySpecBlockers(root, sp.Slug); len(blockers) > 0 {
 				fmt.Fprintf(stderr, "pose close: delivery assurance gate failed: %s\n", strings.Join(blockers, "; "))
+				PrintContributorFailureHint(root, stderr, cliLocaleValue())
 				return 1
 			}
 		}

@@ -47,6 +47,7 @@ Fluxo POSE para revisão técnica de PR ou diff local.
 13. Atestar o bundle automaticamente com `pose review auto-attest <bundle-id> --reviewer agent:reviewer-subagent --apply` (ou `pose review attest` com findings explícitos quando houver ressalvas).
 14. Rodar `pose review verify <escopo>` e `pose review-check <escopo>`; fechar somente quando ambos confirmarem uma atestação válida e aprovada.
 15. Emitir decisão final: **aprovado | aprovado com ressalvas | mudanças solicitadas | reprovado**.
+16. Se o Modo Contribuidor estiver ativo e o review apontar falsos-positivos de linters, atritos de diagnóstico ou lacunas nas regras do POSE, registre uma proposta de melhoria com `pose contribute stage --type enhancement --title "<resumo>"`.
 
 ## Output requirements
 

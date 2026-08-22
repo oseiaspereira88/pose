@@ -26,6 +26,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"github.com/harne8/pose-mcp/internal/scaffold/distpolicy"
 )
 
 var (
@@ -164,7 +166,7 @@ func readManual(t *testing.T, parts ...string) string {
 	if err != nil {
 		t.Fatalf("reading manual: %v", err)
 	}
-	return string(raw)
+	return distpolicy.StripDynamicContributorSection(string(raw))
 }
 
 func TestManualLocaleParity(t *testing.T) {

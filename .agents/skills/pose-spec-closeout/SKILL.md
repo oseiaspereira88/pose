@@ -63,6 +63,7 @@ when transitioning to `done`.
 9. Run `pose lint-spec <slug> --strict`.
 10. Create any confirmed successor spec with `pose new-spec <slug>` and revalidate its intent instead of copying follow-up text verbatim.
 11. Inspect residual live backlog with `pose followups --open --json`.
+12. When Contributor Mode is active, if the delivery cycle revealed POSE engine friction, false-positive linters, or tooling gaps, stage a sanitized feedback report with `pose contribute stage --type enhancement --title "<summary>"`.
 
 ## Output requirements
 

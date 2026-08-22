@@ -41,6 +41,7 @@ Fluxo POSE para escalonar padrões detectados pelo recurrence-check.
    pose new-knowledge decision-log escalation-<task-slug> --owner @<dono> --ttl-days 90
    ```
 6. Atualizar spec da rule/workflow alterado e abrir PR com referência ao decision-log.
+7. Se o Modo Contribuidor estiver ativo e a recorrência sistêmica decorrer de limitação ou defeito no próprio motor POSE, registre uma proposta de contribuição com `pose contribute stage --type bug --title "<resumo>"`.
 
 ## Output requirements
 

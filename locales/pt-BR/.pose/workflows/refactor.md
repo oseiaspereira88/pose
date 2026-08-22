@@ -21,6 +21,7 @@ Melhorar estrutura interna e manutenibilidade sem alterar comportamento funciona
 6. Rodar checks determinísticos relevantes (`test`, `lint`, `typecheck`, `build`).
 7. Medir ganhos práticos (complexidade, clareza, cobertura, manutenção).
 8. Registrar riscos residuais e follow-ups não essenciais.
+9. Se o Modo Contribuidor estiver ativo e o refactor expuser atritos do motor ou templates rígidos, registre feedback via `pose contribute stage --type enhancement`.
 
 ## Saídas obrigatórias
 

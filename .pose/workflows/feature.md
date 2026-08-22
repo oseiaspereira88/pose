@@ -32,6 +32,7 @@ Deliver a production feature with clear scope, incremental implementation, and d
 17. Run a separate review pass. With bundle policy enabled, prepare and seal with `pose review bundle spec:<slug> --seal`, then bind the decision with `pose review attest <bundle-id> ... --apply`; otherwise use the legacy `pose review record` flow.
 18. Require `pose review verify spec:<slug>` (bundle mode) and `pose closeout-check spec:<slug>` before applying `pose close spec:<slug>`; remediation that changes semantic or source inputs creates a superseding bundle.
 19. Complete follow-up and changelog disposition (`pose followups --all` shows the cross-spec backlog and its collisions), run `pose assess discover --update-state` to recalculate platform completeness; then pass `pose lint-spec <slug> --strict`.
+20. When Contributor Mode is active and scope reveals missing POSE stack rules or reusable engine capabilities, stage a contribution proposal via `pose contribute stage --type enhancement`.
 
 ## Required outputs
 

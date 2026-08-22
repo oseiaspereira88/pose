@@ -127,6 +127,7 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
     ```bash
     pose followups --open --json  # quantos [open] sobraram nesta e nas demais
     ```
+11. Se o Modo Contribuidor estiver ativo e o ciclo de entrega revelar atritos no motor POSE, falsos-positivos de linters ou lacunas de ferramentas, registre um rascunho de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
 
 ## Output requirements
 
