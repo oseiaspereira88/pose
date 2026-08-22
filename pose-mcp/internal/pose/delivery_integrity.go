@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -234,8 +235,11 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 	claimBySpec := map[string][]ArtifactClaim{}
 	claimedPaths := map[string]bool{}
 	trackedSet := map[string]bool{}
+	normalizedTrackedSet := map[string]bool{}
 	for _, path := range tracked {
-		trackedSet[filepath.ToSlash(path)] = true
+		p := filepath.ToSlash(path)
+		trackedSet[p] = true
+		normalizedTrackedSet[normalizeSpecPath(p)] = true
 	}
 	for _, claim := range graph.Claims {
 		claimBySpec[claim.Spec] = append(claimBySpec[claim.Spec], claim)
@@ -248,6 +252,7 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 		}
 		for _, path := range paths {
 			claimedPaths[path] = true
+			claimedPaths[normalizeSpecPath(path)] = true
 			graph.Reverse[path] = appendUnique(graph.Reverse[path], claim.Spec)
 			graph.Nodes = appendNode(graph.Nodes, DeliveryIntegrityNode{ID: "artifact:" + path, Type: "artifact", Attributes: map[string]string{"path": path}})
 			graph.Edges = append(graph.Edges, DeliveryIntegrityEdge{From: "spec:" + claim.Spec, To: "artifact:" + path, Type: "declares"})
@@ -256,7 +261,7 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 		if claim.Action == "renamed" {
 			existencePath = claim.NewPath
 		}
-		if len(tracked) > 0 && (claim.Action == "created" || claim.Action == "modified" || claim.Action == "renamed") && !trackedSet[existencePath] {
+		if len(tracked) > 0 && (claim.Action == "created" || claim.Action == "modified" || claim.Action == "renamed") && !trackedSet[existencePath] && !normalizedTrackedSet[normalizeSpecPath(existencePath)] {
 			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("existence", severity(policy, "existence"), claim.Spec, existencePath, "", "declared current artifact is not tracked at the selected head", "correct the exact path or commit the artifact before closeout"))
 		}
 	}
@@ -314,7 +319,7 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 	}
 	for _, path := range tracked {
 		path = filepath.ToSlash(path)
-		if governedPath(path, policy) && !claimedPaths[path] {
+		if governedPath(path, policy) && !claimedPaths[path] && !claimedPaths[normalizeSpecPath(path)] {
 			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("orphan", severity(policy, "orphan"), "", path, "", "governed tracked path has no spec provenance claim", "backfill an explicit claim or add an exact reviewed exclusion"))
 		}
 	}
@@ -373,18 +378,33 @@ func (s Store) GetDeliveryIntegrity(path string) (DeliveryIntegrityGraph, error)
 	return graph, nil
 }
 
+var datePrefixRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-`)
+
+func normalizeSpecPath(p string) string {
+	p = filepath.ToSlash(filepath.Clean(p))
+	if !strings.HasPrefix(p, ".pose/specs/") {
+		return p
+	}
+	rel := strings.TrimPrefix(p, ".pose/specs/")
+	parts := strings.Split(rel, "/")
+	for i, part := range parts {
+		parts[i] = datePrefixRE.ReplaceAllString(part, "")
+	}
+	return ".pose/specs/" + strings.Join(parts, "/")
+}
+
 func claimKey(c ArtifactClaim) string { return c.Spec + "\x00" + claimKeyNoSpec(c) }
 func claimKeyNoSpec(c ArtifactClaim) string {
 	if c.Action == "renamed" {
-		return c.Action + "\x00" + c.OldPath + "\x00" + c.NewPath
+		return c.Action + "\x00" + normalizeSpecPath(c.OldPath) + "\x00" + normalizeSpecPath(c.NewPath)
 	}
-	return c.Action + "\x00" + c.Path
+	return c.Action + "\x00" + normalizeSpecPath(c.Path)
 }
 func observedKey(p ObservedPath) string {
 	if p.Action == "renamed" {
-		return p.Action + "\x00" + p.OldPath + "\x00" + p.NewPath
+		return p.Action + "\x00" + normalizeSpecPath(p.OldPath) + "\x00" + normalizeSpecPath(p.NewPath)
 	}
-	return p.Action + "\x00" + p.Path
+	return p.Action + "\x00" + normalizeSpecPath(p.Path)
 }
 func observedPaths(p ObservedPath) []string {
 	if p.Action == "renamed" {
@@ -451,3 +471,4 @@ func governedPath(path string, policy ArtifactPolicy) bool {
 	}
 	return false
 }
+

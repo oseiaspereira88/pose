@@ -63,7 +63,10 @@ func collectKnowledgeRefs(root string) map[string][]string {
 		if err != nil {
 			continue
 		}
-		spec := filepath.Base(filepath.Dir(path))
+		spec := simpleFrontmatter(path)["slug"]
+		if spec == "" {
+			spec = filepath.Base(filepath.Dir(path))
+		}
 		for _, m := range knowledgeRefRE.FindAllStringSubmatch(string(raw), -1) {
 			if refs[m[1]] == nil {
 				refs[m[1]] = map[string]bool{}

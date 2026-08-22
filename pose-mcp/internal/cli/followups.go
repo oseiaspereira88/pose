@@ -248,6 +248,11 @@ func collectFollowups(root string) []followup {
 			continue
 		}
 		body := followupHTMLComment.ReplaceAllString(string(raw), "")
+		fm := simpleFrontmatter(path)
+		specSlug := fm["slug"]
+		if specSlug == "" {
+			specSlug = filepath.Base(filepath.Dir(path))
+		}
 		status := frontmatterStatus(body)
 		inFinal, inFollowups := false, false
 		// A follow-up may wrap across lines. Everything until the next bullet or
@@ -267,7 +272,7 @@ func collectFollowups(root string) []followup {
 			stripped, owner, crit, review, by, metaErr := parseFollowupMeta(text)
 			if stripped != "" {
 				entries = append(entries, followup{
-					Spec: filepath.Base(filepath.Dir(path)), SpecStatus: status,
+					Spec: specSlug, SpecStatus: status,
 					RawDisposition: disposition, Target: target, Text: stripped,
 					Owner: owner, Criticality: crit, Review: review, By: by, MetaErr: metaErr,
 				})

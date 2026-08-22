@@ -121,13 +121,16 @@ func (checker *nativeChecker) checkDeliveryContracts() {
 		return
 	}
 	store := pose.Store{Root: checker.root}
-	paths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*", "spec.md"))
+	paths := findSpecFiles(checker.root)
 	for _, path := range paths {
 		fm := simpleFrontmatter(path)
 		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
 			continue
 		}
-		slug := filepath.Base(filepath.Dir(path))
+		slug := fm["slug"]
+		if slug == "" {
+			slug = filepath.Base(filepath.Dir(path))
+		}
 		full, err := store.GetSpec(slug)
 		if err != nil {
 			checker.failOrWarn("delivery contract: spec:" + slug + ": " + err.Error())
@@ -154,13 +157,16 @@ func (checker *nativeChecker) checkArtifactContracts() {
 		return
 	}
 	store := pose.Store{Root: checker.root}
-	paths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*", "spec.md"))
+	paths := findSpecFiles(checker.root)
 	for _, path := range paths {
 		fm := simpleFrontmatter(path)
 		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
 			continue
 		}
-		slug := filepath.Base(filepath.Dir(path))
+		slug := fm["slug"]
+		if slug == "" {
+			slug = filepath.Base(filepath.Dir(path))
+		}
 		spec, err := store.GetSpec(slug)
 		if err != nil {
 			checker.failOrWarn("artifact contract: spec:" + slug + ": " + err.Error())
@@ -195,13 +201,16 @@ func (checker *nativeChecker) checkReviewCloseout() {
 		return
 	}
 	store := pose.Store{Root: checker.root}
-	specPaths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*", "spec.md"))
+	specPaths := findSpecFiles(checker.root)
 	for _, path := range specPaths {
 		fm := simpleFrontmatter(path)
 		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
 			continue
 		}
-		slug := filepath.Base(filepath.Dir(path))
+		slug := fm["slug"]
+		if slug == "" {
+			slug = filepath.Base(filepath.Dir(path))
+		}
 		state, err := store.GetCloseoutState("spec:" + slug)
 		if err != nil {
 			checker.failOrWarn("review closeout: spec:" + slug + ": " + err.Error())
@@ -512,9 +521,12 @@ func (checker *nativeChecker) checkSpecs() {
 	validStatus := map[string]bool{"draft": true, "in-progress": true, "done": true, "blocked": true, "superseded": true, "abandoned": true}
 	for _, path := range paths {
 		fields := simpleFrontmatter(path)
-		slug := filepath.Base(filepath.Dir(path))
-		if filepath.Dir(path) == filepath.Join(checker.root, ".pose", "specs") {
-			slug = strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+		slug := fields["slug"]
+		if slug == "" {
+			slug = filepath.Base(filepath.Dir(path))
+			if filepath.Dir(path) == filepath.Join(checker.root, ".pose", "specs") {
+				slug = strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+			}
 		}
 		status := fields["status"]
 		if status != "" && !validStatus[status] {
@@ -790,9 +802,13 @@ func (checker *nativeChecker) checkChangelogs() {
 			continue
 		}
 		text := string(raw)
-		specPaths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*", "spec.md"))
+		specPaths := findSpecFiles(checker.root)
 		for _, specPath := range specPaths {
-			slug := filepath.Base(filepath.Dir(specPath))
+			fm := simpleFrontmatter(specPath)
+			slug := fm["slug"]
+			if slug == "" {
+				slug = filepath.Base(filepath.Dir(specPath))
+			}
 			if strings.Contains(text, slug) {
 				covered[slug] = true
 			}
@@ -813,10 +829,13 @@ func (checker *nativeChecker) checkChangelogs() {
 		checker.failOrWarn("changelog: invalid policy; adopted_at is required")
 		return
 	}
-	specPaths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*", "spec.md"))
+	specPaths := findSpecFiles(checker.root)
 	for _, path := range specPaths {
 		fields := simpleFrontmatter(path)
-		slug := filepath.Base(filepath.Dir(path))
+		slug := fields["slug"]
+		if slug == "" {
+			slug = filepath.Base(filepath.Dir(path))
+		}
 		if fields["status"] == "done" && fields["changelog"] != "none" && fields["completed_at"] >= policy.AdoptedAt && !covered[slug] {
 			checker.issue("AVISO", checker.message("changelog: done spec without a changelog fragment: ", "changelog: spec done sem changelog fragment: ")+slug)
 		}
@@ -858,8 +877,9 @@ func (checker *nativeChecker) checkReadyTransitions() {
 			continue
 		}
 		for _, rel := range strings.Fields(string(output)) {
-			if strings.HasPrefix(filepath.ToSlash(rel), ".pose/specs/") && strings.HasSuffix(rel, "/spec.md") {
-				changed[filepath.ToSlash(rel)] = true
+			relNorm := filepath.ToSlash(rel)
+			if strings.HasPrefix(relNorm, ".pose/specs/") && (strings.HasSuffix(relNorm, "/spec.md") || (strings.HasSuffix(relNorm, ".md") && !strings.EqualFold(filepath.Base(relNorm), "README.md"))) {
+				changed[relNorm] = true
 			}
 		}
 	}
@@ -874,7 +894,10 @@ func (checker *nativeChecker) checkReadyTransitions() {
 			continue
 		}
 		if !specReady(checker.root, path) {
-			slug := filepath.Base(filepath.Dir(path))
+			slug := simpleFrontmatter(path)["slug"]
+			if slug == "" {
+				slug = filepath.Base(filepath.Dir(path))
+			}
 			checker.failOrWarn(checker.message("DoR: transition to in-progress without Definition of Ready: ", "DoR: transição para in-progress sem Definition of Ready: ") + slug + checker.message(" (details: pose lint-spec ", " (detalhes: pose lint-spec ") + slug + " --ready-check)")
 		}
 	}
@@ -1052,3 +1075,18 @@ func (checker *nativeChecker) checkDocs() {
 		}
 	}
 }
+
+func findSpecFiles(root string) []string {
+	var results []string
+	matches1, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*", "spec.md"))
+	results = append(results, matches1...)
+	matches2, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*.md"))
+	for _, m := range matches2 {
+		base := filepath.Base(m)
+		if !strings.EqualFold(base, "README.md") {
+			results = append(results, m)
+		}
+	}
+	return results
+}
+

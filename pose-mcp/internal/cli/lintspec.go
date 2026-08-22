@@ -242,7 +242,10 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	frontmatter := lintParseFrontmatter(string(raw))
 	text := htmlCommentRE.ReplaceAllString(string(raw), "")
 	sections := splitLintSections(text)
-	slug := filepath.Base(filepath.Dir(specPath))
+	slug := frontmatter["slug"]
+	if slug == "" {
+		slug = filepath.Base(filepath.Dir(specPath))
+	}
 
 	if readyCheck {
 		failures := 0
