@@ -386,11 +386,49 @@ func TestPoseCloseWithLiveGitTrailerNoReport(t *testing.T) {
 	}
 	out.Reset()
 	errOut.Reset()
+	if code := cmdReviewVerify(root, []string{"spec:alpha"}, &out, &errOut); code != 0 {
+		t.Fatalf("pose review verify should honor recorded review on v1 policy: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	out.Reset()
+	errOut.Reset()
 	if code := cmdClose(root, []string{"spec:alpha"}, &out, &errOut); code != 0 {
 		t.Fatalf("pose close should succeed with live git trailer without prior report history: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
 	state, err := (posemodel.Store{Root: root}).GetCloseoutState("spec:alpha")
 	if err != nil || !state.Terminal {
 		t.Fatalf("expected terminal closeout, got state=%+v err=%v", state, err)
+	}
+}
+
+func TestUpdateMigratesReviewPolicySchemaV1ToV2(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	writeCloseoutCLIFile(t, root, ".pose/schema-version", "1\n")
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"}}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
+
+	var out, errOut bytes.Buffer
+	// Dry run should announce migration
+	if code := cmdUpdate(root, []string{"--dry-run", "--no-self"}, &out, &errOut); code != 0 {
+		t.Fatalf("update dry-run failed: code=%d err=%s", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), "would migrate review policy") {
+		t.Fatalf("expected dry-run to announce review policy migration, got: %s", out.String())
+	}
+
+	// Real update should migrate to schema v2
+	out.Reset()
+	errOut.Reset()
+	if code := cmdUpdate(root, []string{"--no-self"}, &out, &errOut); code != 0 {
+		t.Fatalf("update failed: code=%d err=%s", code, errOut.String())
+	}
+
+	store := posemodel.Store{Root: root}
+	policy, err := store.GetReviewPolicy()
+	if err != nil {
+		t.Fatalf("GetReviewPolicy failed: %v", err)
+	}
+	if policy.SchemaVersion != 2 || !policy.ComponentAware || !policy.ReviewBundles {
+		t.Fatalf("review policy not upgraded to schema v2 with component_aware and review_bundles: %+v", policy)
 	}
 }

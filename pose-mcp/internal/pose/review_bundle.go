@@ -330,6 +330,11 @@ func markdownLevelTwoSections(body string) map[string]string {
 }
 
 func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanComponent, graph DeliveryIntegrityGraph, blockers []string) (ReviewBundleSubject, []ReviewBundleInput, []string, error) {
+	if len(components) == 0 {
+		if ctx, err := s.resolveReviewPlanContext(scope); err == nil {
+			components = ctx.Components
+		}
+	}
 	subject := ReviewBundleSubject{ChangeSets: []string{}, Entries: []ReviewBundleSubjectEntry{}}
 	excluded := []ReviewBundleInput{}
 	allowedSpecs, err := s.reviewBundleScopeSpecs(scope)
@@ -1331,7 +1336,7 @@ func (s Store) ListReviewAttestations(bundleID string) ([]ReviewAttestation, err
 	}
 	sort.Slice(result, func(i, j int) bool {
 		if result[i].AttestedAt == result[j].AttestedAt {
-			return result[i].AttestationID < result[j].AttestationID
+return result[i].AttestationID < result[j].AttestationID
 		}
 		return result[i].AttestedAt < result[j].AttestedAt
 	})
@@ -1339,15 +1344,63 @@ func (s Store) ListReviewAttestations(bundleID string) ([]ReviewAttestation, err
 }
 
 func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error) {
+	policy, err := s.GetReviewPolicy()
+	if err != nil {
+		return ReviewBundleVerification{}, err
+	}
+	scopeRef, scopeErr := ParseScopeRef(scope)
+	if scopeErr != nil {
+		return ReviewBundleVerification{}, scopeErr
+	}
+
+	bundles, err := s.ListReviewBundles(scope)
+	if err != nil {
+		return ReviewBundleVerification{}, err
+	}
+
+	if (policy.SchemaVersion < ReviewPolicySchemaVersion || !policy.ReviewBundles) && len(bundles) == 0 {
+		eval, evalErr := s.ReviewCheck(scope)
+		if evalErr != nil {
+			return ReviewBundleVerification{}, evalErr
+		}
+		verification := ReviewBundleVerification{
+			Scope:    scope,
+			State:    "needs-review",
+			Fresh:    eval.Fresh,
+			Approved: eval.Approved,
+			Warnings: append([]string{}, eval.Warnings...),
+			Blockers: append([]string{}, eval.Blockers...),
+		}
+		if eval.Current != nil {
+			verification.NextAction = "record fresh review for " + scope
+			if eval.Current.Decision == "changes-requested" || eval.Current.Decision == "rejected" {
+				verification.State = eval.Current.Decision
+			} else if !eval.Fresh {
+				verification.State = "superseded"
+			}
+		} else {
+			verification.NextAction = "record review for " + scope
+		}
+		if eval.Approved && eval.Fresh {
+			done, doneErr := s.scopeLifecycleDone(scopeRef)
+			if doneErr == nil && done {
+				verification.State = "closed"
+				verification.NextAction = "scope is closed with an approved review"
+			} else {
+				verification.State = "ready-to-close"
+				verification.NextAction = "apply the guarded lifecycle transition for " + scope
+			}
+		}
+		verification.Blockers = uniqueSorted(verification.Blockers)
+		verification.Warnings = uniqueSorted(verification.Warnings)
+		return verification, nil
+	}
+
 	prepared, err := s.PrepareReviewBundle(scope)
 	if err != nil {
 		return ReviewBundleVerification{}, err
 	}
 	verification := ReviewBundleVerification{Scope: scope, State: "needs-validation", Fresh: false, Approved: false, Warnings: append([]string{}, prepared.Warnings...), Blockers: append([]string{}, prepared.Blockers...)}
-	bundles, err := s.ListReviewBundles(scope)
-	if err != nil {
-		return verification, err
-	}
 	if len(prepared.Blockers) == 0 {
 		verification.State = "ready-to-seal"
 	}

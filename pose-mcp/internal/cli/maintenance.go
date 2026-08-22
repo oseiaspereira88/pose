@@ -101,7 +101,15 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stdout, text("[INFO] schema update: v%d -> v%d\n", "[INFO] atualização de schema: v%d -> v%d\n"), current, nativeSchemaVersion)
 			fmt.Fprintln(stdout, text("[DRY-RUN] would apply: 001-baseline", "[DRY-RUN] aplicaria: 001-baseline"))
 		} else {
-			fmt.Fprintf(stdout, text("[INFO] instance already at schema v%d. Nothing to do.\n", "[INFO] instância já está no schema v%d. Nada a fazer.\n"), current)
+			fmt.Fprintf(stdout, text("[INFO] instance already at schema v%d.\n", "[INFO] instância já está no schema v%d.\n"), current)
+		}
+		if raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json")); err == nil {
+			var p map[string]any
+			if err := json.Unmarshal(raw, &p); err == nil {
+				if sv, _ := p["schema_version"].(float64); int(sv) == 1 {
+					fmt.Fprintln(stdout, text("[DRY-RUN] would migrate review policy: .pose/policy/review.json (schema v1 -> v2)", "[DRY-RUN] migraria política de review: .pose/policy/review.json (schema v1 -> v2)"))
+				}
+			}
 		}
 		if force {
 			fmt.Fprintln(stdout, text("[DRY-RUN] would refresh scaffolds and rules (--force)", "[DRY-RUN] atualizaria scaffolds e regras (--force)"))

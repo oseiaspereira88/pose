@@ -99,6 +99,9 @@ func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portu
 		}
 	}
 
+	// Migrate existing review policy / profiles from v1 to v2 if present
+	migrateInstanceReviewPolicy(dist, target, log)
+
 	// The neutral placeholders just seeded above for repo-map.json,
 	// spec-graph.json, delivery-integrity.json etc. are honestly empty, not
 	// this target's real state — cmdIndex is the one thing that computes
@@ -181,6 +184,104 @@ func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese
 	if writeAtomic(path, out, 0o644) == nil && log != nil {
 		for _, rel := range added {
 			log("module-metadata (discovered): %s", "module-metadata (descoberto): %s", rel)
+		}
+	}
+}
+
+// migrateInstanceReviewPolicy upgrades existing schema-v1 review policies and
+// review profiles to schema-v2 in an idempotent manner.
+func migrateInstanceReviewPolicy(dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
+	policyPath := filepath.Join(target, ".pose", "policy", "review.json")
+	if raw, err := os.ReadFile(policyPath); err == nil {
+		var p map[string]any
+		if err := json.Unmarshal(raw, &p); err == nil {
+			v, _ := p["schema_version"].(float64)
+			if int(v) == 1 {
+				p["schema_version"] = 2
+				if _, ok := p["component_aware"]; !ok {
+					p["component_aware"] = true
+				}
+				if caa, _ := p["component_aware_adopted_at"].(string); caa == "" {
+					if adopted, _ := p["adopted_at"].(string); adopted != "" {
+						p["component_aware_adopted_at"] = adopted
+					} else {
+						p["component_aware_adopted_at"] = "2026-08-13"
+					}
+				}
+				if ucb, _ := p["unmapped_component_behavior"].(string); ucb == "" {
+					p["unmapped_component_behavior"] = "warning"
+				}
+				if _, ok := p["review_bundles"]; !ok {
+					p["review_bundles"] = true
+				}
+				if rba, _ := p["review_bundles_adopted_at"].(string); rba == "" {
+					if adopted, _ := p["adopted_at"].(string); adopted != "" {
+						p["review_bundles_adopted_at"] = adopted
+					} else {
+						p["review_bundles_adopted_at"] = "2026-08-14"
+					}
+				}
+				if _, ok := p["allow_criterion_reuse"]; !ok {
+					p["allow_criterion_reuse"] = true
+				}
+				if profiles, ok := p["profiles"].(map[string]any); ok {
+					if _, hasMilestone := profiles["milestone"]; !hasMilestone {
+						profiles["milestone"] = "milestone-integration@1"
+					}
+					if _, hasRoadmap := profiles["roadmap"]; !hasRoadmap {
+						profiles["roadmap"] = "roadmap-outcome@1"
+					}
+				}
+				if _, ok := p["reviewer_independence"]; !ok {
+					p["reviewer_independence"] = map[string]any{
+						"spec":      "same-actor-separate-execution",
+						"milestone": "same-actor-separate-execution",
+						"roadmap":   "same-actor-separate-execution",
+					}
+				}
+				if _, ok := p["overlay_profiles"]; !ok {
+					p["overlay_profiles"] = []any{"backend-review@1", "frontend-review@1"}
+				}
+
+				if updatedRaw, err := json.MarshalIndent(p, "", "  "); err == nil {
+					_ = writeAtomic(policyPath, append(updatedRaw, '\n'), 0o644)
+					if log != nil {
+						log("policy (migrated): .pose/policy/review.json (v1 -> v2)", "política (migrada): .pose/policy/review.json (v1 -> v2)")
+					}
+				}
+			}
+		}
+	}
+
+	// Upgrade review-profiles in target if they are schema v1
+	profEntries, _ := os.ReadDir(filepath.Join(target, ".pose", "review-profiles"))
+	for _, e := range profEntries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
+			continue
+		}
+		profPath := filepath.Join(target, ".pose", "review-profiles", e.Name())
+		if raw, err := os.ReadFile(profPath); err == nil {
+			var prof map[string]any
+			if err := json.Unmarshal(raw, &prof); err == nil {
+				sv, _ := prof["schema_version"].(float64)
+				if int(sv) == 1 {
+					distProfPath := ".pose/review-profiles/" + e.Name()
+					if distRaw, err := fs.ReadFile(dist, distProfPath); err == nil {
+						_ = writeAtomic(profPath, distRaw, 0o644)
+						if log != nil {
+							log("review-profile (migrated): %s (v1 -> v2)", "perfil de review (migrado): %s (v1 -> v2)", e.Name())
+						}
+					} else {
+						prof["schema_version"] = 2
+						if updatedRaw, err := json.MarshalIndent(prof, "", "  "); err == nil {
+							_ = writeAtomic(profPath, append(updatedRaw, '\n'), 0o644)
+							if log != nil {
+								log("review-profile (migrated): %s (v1 -> v2)", "perfil de review (migrado): %s (v1 -> v2)", e.Name())
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
