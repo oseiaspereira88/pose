@@ -18,20 +18,21 @@ capabilities: read
 ## Steps
 
 1. Classify the change as feature, bugfix, refactor, documentation, or mixed.
-2. Resolve `pose review bundle <scope> --explain` to inspect effective criteria, components and tool requirements.
-3. Run active required tools first, record why each recommended tool was used or skipped, and keep completion tools deferred until attestation.
-4. Select rules with `pose suggest review --path <affected-dir>` for every mapped component.
-5. Search `.pose/knowledge/` for prior module decisions, accepted risks, and pending follow-ups.
-6. Require deterministic `pose validate --strict` evidence matching delivery targets.
-7. Evaluate every required plan criterion, including cross-component boundaries.
-8. Classify findings as critical, high, medium, or low with evidence and expected action.
-9. Run `pose recurrence-check --tolerant --window-days 14`; use recurrence escalation for a matching systemic signal.
-10. Create a handoff with `pose new-knowledge handoff <slug>` for accepted residual risk, monitoring, or deferred action.
-11. Seal the review subject with `pose review bundle <scope> --seal`.
-12. Attest the bundle automatically using `pose review auto-attest <bundle-id> --reviewer agent:reviewer-subagent --apply` (or `pose review attest` with explicit findings when requesting changes).
-13. Run `pose review verify <scope>` and `pose review-check <scope>`; close only when both confirm a valid, approved attestation.
-14. Decide: approved, approved with reservations, changes requested, or rejected.
-15. When Contributor Mode is active, if review uncovers POSE linter false-positives, diagnostic frictions, or rule gaps, stage an improvement proposal with `pose contribute stage --type enhancement --title "<summary>"`.
+2. Run `pose assess tech-debt` during code review to ensure markers (`TODO`, `FIXME`, `stub`, `panic`) are covered by follow-ups or specs. Run `pose assess integrate` when touching inter-module contracts (Protobuf, Kafka, REST, MCP).
+3. Resolve `pose review bundle <scope> --explain` to inspect effective criteria, components and tool requirements.
+4. Run active required tools first, record why each recommended tool was used or skipped, and keep completion tools deferred until attestation.
+5. Select rules with `pose suggest review --path <affected-dir>` for every mapped component.
+6. Search `.pose/knowledge/` for prior module decisions, accepted risks, and pending follow-ups.
+7. Require deterministic `pose validate --strict` evidence matching delivery targets.
+8. Evaluate every required plan criterion, including cross-component boundaries.
+9. Classify findings as critical, high, medium, or low with evidence and expected action.
+10. Run `pose recurrence-check --tolerant --window-days 14`; use recurrence escalation for a matching systemic signal.
+11. Create a handoff with `pose new-knowledge handoff <slug>` for accepted residual risk, monitoring, or deferred action.
+12. Seal the review subject with `pose review bundle <scope> --seal`.
+13. Attest the bundle automatically using `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` (or `pose review attest` with explicit findings when requesting changes).
+14. Run `pose review verify <scope>` and `pose review-check <scope>`; close only when both confirm a valid, approved attestation.
+15. Decide: approved, approved with reservations, changes requested, or rejected.
+16. When Contributor Mode is active, if review uncovers POSE linter false-positives, diagnostic frictions, or rule gaps, stage an improvement proposal with `pose contribute stage --type enhancement --title "<summary>"`.
 
 ## Output requirements
 

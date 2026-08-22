@@ -20,9 +20,10 @@ Fluxo POSE para revisão técnica de PR ou diff local.
 ## Steps
 
 1. Identificar o tipo da mudança: feature | bugfix | refactor | doc | misto.
-2. Resolver `pose review bundle <escopo> --explain` quando a policy estiver habilitada; parar em blockers e reter os digests do bundle e do plano.
-3. Executar primeiro as tools obrigatórias ativas, registrar por que cada recomendada foi usada ou dispensada e manter tools de conclusão adiadas até a atestação.
-4. Selecionar rules aplicáveis para cada componente. Use:
+2. Rodar `pose assess tech-debt` durante a revisão de código para garantir que marcadores (`TODO`, `FIXME`, `stub`, `panic`) estejam cobertos por follow-ups ou specs. Rodar `pose assess integrate` ao tocar contratos entre módulos (Protobuf, Kafka, REST, MCP).
+3. Resolver `pose review bundle <escopo> --explain` quando a policy estiver habilitada; parar em blockers e reter os digests do bundle e do plano.
+4. Executar primeiro as tools obrigatórias ativas, registrar por que cada recomendada foi usada ou dispensada e manter tools de conclusão adiadas até a atestação.
+5. Selecionar rules aplicáveis para cada componente. Use:
    ```bash
    pose suggest review --path <dir-afetado>
    ```

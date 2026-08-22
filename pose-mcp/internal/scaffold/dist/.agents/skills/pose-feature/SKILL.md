@@ -26,15 +26,17 @@ stale, go straight to the reading below — the artifact is additive, never bloc
 
 ## Steps
 
-1. Identify a short slug and create the spec with `pose new-spec <slug>`, or locate the existing `.pose/specs/<slug>/spec.md`.
-2. Search `.pose/knowledge/` for related handoffs and decision logs; cite each one used as `knowledge:<slug>` in the spec, the form `pose knowledge-usage` counts.
-3. Complete Intent, Requirements, Technical Plan, and Tasks before coding.
-4. Implement incrementally, commit changes with a `POSE-Spec: <slug>` trailer in the commit message (e.g. `POSE-Spec: <slug>`) to attribute file modifications to the spec, and run `pose validate --strict --module <affected-path> --report`.
-5. Record executed commands and results in Validation.
-6. Create a handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, follow-ups, or owner transition.
-7. Complete the Final Report with delivered scope and residual risk.
-8. Use [pose-spec-closeout](../pose-spec-closeout/SKILL.md). When review bundles are enabled, seal the validated subject, attach the independent attestation and require `pose review verify spec:<slug>` before closeout. Disposition follow-ups from `pose followups --all` and pass `pose lint-spec <slug> --strict`.
-9. When Contributor Mode is active and scope reveals missing POSE stack rules or reusable engine capabilities, stage a contribution proposal with `pose contribute stage --type enhancement --title "<summary>"`.
+1. Identify a short slug and create the spec with `pose new-spec <slug>` (creating `.pose/specs/YYYY-MM-DD-<slug>.md` by default, or with `--folder` when companion amends/assets are needed), or locate the existing spec.
+2. Run `pose assess discover [--component <dir>]` / `pose_component_discover` to obtain LOC metrics, module structure, and debts before modifying code.
+3. Search `.pose/knowledge/` for related handoffs and decision logs; cite each one used as `knowledge:<slug>` in the spec, the form `pose knowledge-usage` counts.
+4. Complete Intent, Requirements, Technical Plan, and Tasks before coding.
+5. Implement incrementally, commit changes with a `POSE-Spec: <slug>` trailer in the commit message (e.g. `POSE-Spec: <slug>`) to attribute file modifications to the spec, and run `pose validate --strict --module <affected-path> --report`.
+6. Record executed commands and results in Validation.
+7. Create a handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, follow-ups, or owner transition.
+8. Complete the Final Report with delivered scope and residual risk.
+9. Use [pose-spec-closeout](../pose-spec-closeout/SKILL.md). When review bundles are enabled, seal the validated subject (`pose review bundle spec:<slug> --seal`), attach the independent attestation (`pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` or `pose review attest`) and require `pose review verify spec:<slug>` before closeout. Disposition follow-ups from `pose followups --all` and pass `pose lint-spec <slug> --strict`.
+10. Run `pose assess discover --update-state` upon delivery completion to refresh dynamic platform metrics.
+11. When Contributor Mode is active and scope reveals missing POSE stack rules or reusable engine capabilities, stage a contribution proposal with `pose contribute stage --type enhancement --title "<summary>"`.
 
 ## Output requirements
 

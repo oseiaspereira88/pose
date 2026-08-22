@@ -79,7 +79,7 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    ```
 2. Verificar que todos os commits com as alterações da spec carregam o trailer `POSE-Spec: <slug>` na mensagem do commit. Sem esse trailer, o `pose close` e o `pose artifact-check` não conseguem atribuir os arquivos da seção `### Artifacts` à spec.
 3. Rodar uma passagem de review separada e registrá-la — a review é uma
-   tentativa imutável, não uma edição do frontmatter (quando review bundles estiverem habilitados, preparar e selar com `pose review bundle spec:<slug> --seal` e atestar com `pose review attest <bundle-id> ... --apply`; caso contrário, usar `pose review record`):
+   tentativa imutável, não uma edição do frontmatter (quando review bundles estiverem habilitados, preparar e selar com `pose review bundle spec:<slug> --seal` e atestar com `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` ou `pose review attest`; caso contrário, usar `pose review record`):
    ```bash
    pose review record spec:<slug> --reviewer <execução> --decision approved \
      --evidence report:<relatório>.md --evidence requirement-trace:spec --apply
@@ -123,11 +123,15 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    ```bash
    pose new-spec <nova-slug>     # mencione a spec de origem na seção Intent
    ```
-10. Verificação final: inspecionar o backlog restante:
+10. Atualizar métricas dinâmicas da plataforma após o fechamento da spec:
+    ```bash
+    pose assess discover --update-state
+    ```
+11. Verificação final: inspecionar o backlog restante:
     ```bash
     pose followups --open --json  # quantos [open] sobraram nesta e nas demais
     ```
-11. Se o Modo Contribuidor estiver ativo e o ciclo de entrega revelar atritos no motor POSE, falsos-positivos de linters ou lacunas de ferramentas, registre um rascunho de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
+12. Se o Modo Contribuidor estiver ativo e o ciclo de entrega revelar atritos no motor POSE, falsos-positivos de linters ou lacunas de ferramentas, registre um rascunho de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
 
 ## Output requirements
 

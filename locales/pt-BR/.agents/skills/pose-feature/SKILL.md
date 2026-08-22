@@ -30,29 +30,37 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
 
 1. Identificar slug curto e verificar/criar spec:
    ```bash
-   ls .pose/specs/<slug>/spec.md 2>/dev/null || pose new-spec <slug>
+   pose new-spec <slug>  # cria .pose/specs/YYYY-MM-DD-<slug>.md (ou use --folder se houver amends)
    ```
-2. Consultar knowledge relacionada (handoffs anteriores, decision-logs do módulo), citando cada um usado como `knowledge:<slug>` na spec — a forma que `pose knowledge-usage` conta:
+2. Obter métricas de LOC, estrutura do módulo e dívidas técnicas antes de modificar o código:
+   ```bash
+   pose assess discover --component <dir>  # ou use a tool pose_component_discover
+   ```
+3. Consultar knowledge relacionada (handoffs anteriores, decision-logs do módulo), citando cada um usado como `knowledge:<slug>` na spec — a forma que `pose knowledge-usage` conta:
    ```bash
    find .pose/knowledge -name "*<modulo>*.md" -type f -not -path '*/archive/*'
    ```
-3. Preencher seções `Intent → Requirements → Technical Plan → Tasks` da spec antes de codar.
-4. Implementar incrementalmente, comitar as alterações no Git com o trailer `POSE-Spec: <slug>` na mensagem do commit (ex: `POSE-Spec: <slug>`) e validar cada passo:
+4. Preencher seções `Intent → Requirements → Technical Plan → Tasks` da spec antes de codar.
+5. Implementar incrementalmente, comitar as alterações no Git com o trailer `POSE-Spec: <slug>` na mensagem do commit (ex: `POSE-Spec: <slug>`) e validar cada passo:
    ```bash
    pose validate --strict --module <path-afetado> --report
    ```
-5. Atualizar seção `Validation` da spec com os comandos executados e resultado.
-6. Se houver contexto reaproveitável para próxima execução (estado parcial, follow-up, transição de owner), criar handoff:
+6. Atualizar seção `Validation` da spec com os comandos executados e resultado.
+7. Se houver contexto reaproveitável para próxima execução (estado parcial, follow-up, transição de owner), criar handoff:
    ```bash
    pose new-knowledge handoff <slug>-handoff --owner @<squad>
    ```
-7. Preencher seção `Final Report` da spec com escopo entregue, riscos residuais e follow-ups.
-8. **Fechar a spec** (skill [pose-spec-closeout](../pose-spec-closeout/SKILL.md)): quando review bundles estiverem habilitados, selar o sujeito validado, anexar a atestação independente e exigir `pose review verify spec:<slug>`. Depois, definir `status: done` + `completed_at` no frontmatter, dar disposição a cada follow-up e rodar o gate de saída:
+8. Preencher seção `Final Report` da spec com escopo entregue, riscos residuais e follow-ups.
+9. **Fechar a spec** (skill [pose-spec-closeout](../pose-spec-closeout/SKILL.md)): quando review bundles estiverem habilitados, selar o sujeito com `pose review bundle spec:<slug> --seal`, anexar a atestação com `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` (ou `pose review attest`) e exigir `pose review verify spec:<slug>`. Depois, definir `status: done` + `completed_at` no frontmatter, dar disposição a cada follow-up e rodar o gate de saída:
    ```bash
    pose followups --all          # backlog cruzado + colisões antes de triar
    pose lint-spec <slug> --strict
    ```
-9. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
+10. Atualizar métricas dinâmicas da plataforma após a entrega:
+    ```bash
+    pose assess discover --update-state
+    ```
+11. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
 
 ## Output requirements
 
