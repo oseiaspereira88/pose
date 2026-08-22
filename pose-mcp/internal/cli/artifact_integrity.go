@@ -409,24 +409,42 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 		fmt.Fprintf(stderr, "pose artifact-check: spec %s has no valid artifact declaration: %v\n", spec, err)
 		return 1
 	}
-	set, err := resolveGitChangeSet(root, spec, from, to)
-	if err != nil {
-		fmt.Fprintf(stderr, "pose artifact-check: %v\n", err)
-		return 1
+	var sets []posemodel.ChangeSet
+	if from != "" || to != "" {
+		set, err := resolveGitChangeSet(root, spec, from, to)
+		if err != nil {
+			fmt.Fprintf(stderr, "pose artifact-check: %v\n", err)
+			return 1
+		}
+		sets = append(sets, set)
+	} else {
+		for _, recorded := range loadRecordedChangeSets(root) {
+			if recorded.Spec == spec {
+				sets = append(sets, recorded)
+			}
+		}
+		if set, err := resolveGitChangeSet(root, spec, "", ""); err == nil {
+			alreadyPresent := false
+			for _, existing := range sets {
+				if existing.ID == set.ID {
+					alreadyPresent = true
+					break
+				}
+			}
+			if !alreadyPresent {
+				sets = append(sets, set)
+			}
+		}
+		if len(sets) == 0 {
+			fmt.Fprintf(stderr, "pose artifact-check: no commits carry POSE-Spec: %s\n", spec)
+			return 1
+		}
 	}
+	set := sets[0]
 	tracked, err := gitTrackedPaths(root)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose artifact-check: %v\n", err)
 		return 1
-	}
-	sets := []posemodel.ChangeSet{set}
-	if from == "" && to == "" {
-		for _, recorded := range loadRecordedChangeSets(root) {
-			if recorded.Spec != spec || recorded.ID == set.ID {
-				continue
-			}
-			sets = append(sets, recorded)
-		}
 	}
 	graph := posemodel.BuildDeliveryIntegrity([]posemodel.Spec{*full}, claims, sets, tracked, policy)
 	for _, claim := range claims {

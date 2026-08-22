@@ -523,7 +523,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if path == "." || path == "" {
 		return "", false
 	}
-	if scope.Kind == "spec" && (path == ".pose/specs/"+scope.Slug+"/spec.md" || path == ".pose/specs/"+scope.Slug+".md") {
+	if scope.Kind == "spec" && (path == ".pose/specs/"+scope.Slug+"/spec.md" || path == ".pose/specs/"+scope.Slug+".md" || strings.HasPrefix(path, ".pose/specs/"+scope.Slug+"/")) {
 		return "semantic-scope", false
 	}
 	if strings.HasPrefix(path, ".pose/specs/") {
@@ -539,7 +539,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 			return "derived-index", false
 		}
 	}
-	for _, exact := range []string{".pose/indexes/validation-matrix.json", ".pose/indexes/module-metadata.json", ".pose/indexes/task-map.json"} {
+	for _, exact := range []string{".pose/indexes/validation-matrix.json", ".pose/indexes/module-metadata.json", ".pose/indexes/task-map.json", ".pose/indexes/repo-map.json"} {
 		if path == exact {
 			return "governance", true
 		}
@@ -547,8 +547,13 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if strings.HasPrefix(path, ".pose/indexes/") {
 		return "derived-index", false
 	}
-	for _, prefix := range []string{".pose/policy/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".agents/skills/", "extensions/", ".pose/changelogs/"} {
+	for _, prefix := range []string{".pose/policy/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/"} {
 		if strings.HasPrefix(path, prefix) {
+			return "governance", true
+		}
+	}
+	for _, exact := range []string{".pose/docs.json", ".pose/docs-review.jsonl", ".pose/release-policy.json", ".pose/project.json", "compatibility.json", "pose-mcp/server.json"} {
+		if path == exact {
 			return "governance", true
 		}
 	}
@@ -558,10 +563,11 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 			return "implementation", true
 		}
 	}
-	for _, prefix := range []string{"docs-site/docs/", "locales/"} {
-		if strings.HasPrefix(path, prefix) {
-			return "documentation", true
-		}
+	if strings.HasPrefix(path, "docs/decisions/") {
+		return "governance", true
+	}
+	if strings.HasPrefix(path, "docs-site/docs/") || strings.HasPrefix(path, "docs/") || strings.HasPrefix(path, "locales/") {
+		return "documentation", true
 	}
 	for _, prefix := range []string{"pose-mcp/", "mcp-enforce/", "docs-site/", "locales/", "scripts/", "tests/", ".github/"} {
 		if strings.HasPrefix(path, prefix) {
@@ -570,9 +576,6 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	}
 	if path == "POSE.md" || path == "AGENTS.md" || path == "README.md" {
 		return "documentation", true
-	}
-	if strings.HasPrefix(path, ".pose/adr/") || strings.HasPrefix(path, ".pose/knowledge/") || strings.HasPrefix(path, ".pose/changelogs/") || path == "compatibility.json" {
-		return "governance", true
 	}
 	return "", false
 }

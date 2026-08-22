@@ -343,3 +343,50 @@ func TestArtifactCheckNoneActionClaimTolerance(t *testing.T) {
 		t.Fatalf("unexpected resolvability finding on none-claim spec: %s", stdout.String())
 	}
 }
+
+func TestArtifactCheckHonorsRecordedChangeSets(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	writeArtifactTestFile(t, root, "init.txt", "initial\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "initial")
+
+	writeArtifactTestFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-03","governed_roots":["src"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
+	writeArtifactTestFile(t, root, ".pose/specs/feature-x/spec.md", "---\nslug: feature-x\nstatus: in-progress\ncreated_at: 2026-08-22\n---\n\n# Spec: feature-x\n\n## 3. Technical Plan\n\n### Artifacts\n- modified: src/feature.go\n\n## 4. Tasks\nwork\n")
+	writeArtifactTestFile(t, root, "src/feature.go", "package src\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "add feature.go")
+	headSha := artifactGit(t, root, "rev-parse", "HEAD")
+
+	// Write recorded change set in report history
+	recordedSet := posemodel.ChangeSet{
+		ID:           "cs-rec-1",
+		Spec:         "feature-x",
+		Selector:     "range:base..head",
+		Base:         headSha + "^",
+		Head:         headSha,
+		ResolvedBase: headSha + "^",
+		ResolvedHead: headSha,
+		Paths:        []posemodel.ObservedPath{{Action: "modified", Path: "src/feature.go"}},
+		DiffDigest:   "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+	}
+	record := reportRecord{
+		ReportPath: ".pose/reports/report.md",
+		Task:       "feature",
+		Spec:       "feature-x",
+		ChangeSet:  &recordedSet,
+	}
+	recordRaw, _ := json.Marshal(record)
+	writeArtifactTestFile(t, root, ".pose/reports/history/standard-feature.jsonl", string(recordRaw)+"\n")
+
+	var stdout, stderr bytes.Buffer
+	code := cmdArtifactCheck(root, []string{"--spec", "feature-x", "--strict"}, &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("cmdArtifactCheck failed for recorded change-set: code=%d stdout=%s stderr=%s", code, stdout.String(), stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "artifact.change_set=cs-rec-1") {
+		t.Fatalf("expected recorded change_set cs-rec-1 in output, got:\n%s", stdout.String())
+	}
+}

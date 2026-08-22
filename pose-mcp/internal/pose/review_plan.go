@@ -425,32 +425,128 @@ func (s Store) reviewScopeSpecs(scope ScopeRef) ([]Spec, error) {
 }
 
 func (s Store) loadReviewRepoEntries() ([]reviewRepoEntry, error) {
-	raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "repo-map.json"))
-	if err != nil {
-		return nil, fmt.Errorf("review component map unavailable: %w", err)
-	}
-	var repo struct {
-		Apps     []reviewRepoEntry `json:"apps"`
-		Services []reviewRepoEntry `json:"services"`
-		Packages []reviewRepoEntry `json:"packages"`
-	}
-	if err := json.Unmarshal(raw, &repo); err != nil {
-		return nil, fmt.Errorf("review component map is invalid: %w", err)
-	}
 	entries := []reviewRepoEntry{}
-	for kind, values := range map[string][]reviewRepoEntry{"app": repo.Apps, "service": repo.Services, "package": repo.Packages} {
-		for _, entry := range values {
-			entry.Kind = kind
-			if entry.Name == "" || entry.Path == "" {
-				continue
+	seen := map[string]bool{}
+
+	// 1. Try .pose/indexes/repo-map.json if present
+	if raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "repo-map.json")); err == nil {
+		var repo struct {
+			Apps     []reviewRepoEntry `json:"apps"`
+			Services []reviewRepoEntry `json:"services"`
+			Packages []reviewRepoEntry `json:"packages"`
+		}
+		if err := json.Unmarshal(raw, &repo); err != nil {
+			return nil, fmt.Errorf("review component map is invalid: %w", err)
+		}
+		for kind, values := range map[string][]reviewRepoEntry{"app": repo.Apps, "service": repo.Services, "package": repo.Packages} {
+			for _, entry := range values {
+				entry.Kind = kind
+				if entry.Name == "" || entry.Path == "" {
+					continue
+				}
+				entry.Path = filepath.ToSlash(filepath.Clean(entry.Path))
+				if err := validateReviewPath(s.Root, entry.Path); err != nil {
+					return nil, fmt.Errorf("review component map path %q is unsafe: %w", entry.Path, err)
+				}
+				if !seen[entry.Path] {
+					seen[entry.Path] = true
+					entries = append(entries, entry)
+				}
 			}
-			entry.Path = filepath.ToSlash(filepath.Clean(entry.Path))
-			if err := validateReviewPath(s.Root, entry.Path); err != nil {
-				return nil, fmt.Errorf("review component map path %q is unsafe: %w", entry.Path, err)
-			}
-			entries = append(entries, entry)
 		}
 	}
+
+	// 2. Load from .pose/indexes/module-metadata.json if present
+	if raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "module-metadata.json")); err == nil {
+		var meta struct {
+			Modules map[string]struct {
+				Domain            string `json:"domain"`
+				Owner             string `json:"owner"`
+				Criticality       string `json:"criticality"`
+				ValidationProfile string `json:"validationProfile"`
+			} `json:"modules"`
+		}
+		if json.Unmarshal(raw, &meta) == nil {
+			for modPath, modMeta := range meta.Modules {
+				cleanPath := filepath.ToSlash(filepath.Clean(modPath))
+				if cleanPath == "." || cleanPath == "" || strings.HasPrefix(cleanPath, ".tmp/") {
+					continue
+				}
+				if err := validateReviewPath(s.Root, cleanPath); err == nil && !seen[cleanPath] {
+					seen[cleanPath] = true
+					entries = append(entries, reviewRepoEntry{
+						Name:              filepath.Base(cleanPath),
+						Path:              cleanPath,
+						Kind:              "module",
+						Domain:            modMeta.Domain,
+						Owner:             modMeta.Owner,
+						Criticality:       modMeta.Criticality,
+						ValidationProfile: modMeta.ValidationProfile,
+					})
+				}
+			}
+		}
+	}
+
+	// 3. Load from .pose/state/components/*.json if present
+	if compFiles, err := filepath.Glob(filepath.Join(s.Root, ".pose", "state", "components", "*.json")); err == nil {
+		for _, compFile := range compFiles {
+			if raw, err := os.ReadFile(compFile); err == nil {
+				var comp struct {
+					ComponentSlug string `json:"component_slug"`
+					RootPath      string `json:"root_path"`
+					Language      string `json:"primary_language"`
+				}
+				if json.Unmarshal(raw, &comp) == nil {
+					slug := comp.ComponentSlug
+					if slug == "" {
+						slug = strings.TrimSuffix(filepath.Base(compFile), ".json")
+					}
+					path := comp.RootPath
+					if path == "" {
+						path = slug
+					}
+					cleanPath := filepath.ToSlash(filepath.Clean(path))
+					if cleanPath != "." && cleanPath != "" && !seen[cleanPath] {
+						if err := validateReviewPath(s.Root, cleanPath); err == nil {
+							seen[cleanPath] = true
+							entries = append(entries, reviewRepoEntry{
+								Name:     slug,
+								Path:     cleanPath,
+								Kind:     "component",
+								Language: comp.Language,
+							})
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// 4. Auto-discover top-level component directories in project root if they exist
+	if dirEntries, err := os.ReadDir(s.Root); err == nil {
+		for _, de := range dirEntries {
+			if !de.IsDir() {
+				continue
+			}
+			name := de.Name()
+			if strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "dist" || name == "build" || name == "target" || name == "docs" || name == "doc" || name == "locales" {
+				continue
+			}
+			cleanPath := filepath.ToSlash(filepath.Clean(name))
+			if !seen[cleanPath] {
+				if err := validateReviewPath(s.Root, cleanPath); err == nil {
+					seen[cleanPath] = true
+					entries = append(entries, reviewRepoEntry{
+						Name: name,
+						Path: cleanPath,
+						Kind: "directory",
+					})
+				}
+			}
+		}
+	}
+
 	sort.Slice(entries, func(i, j int) bool {
 		if entries[i].Path != entries[j].Path {
 			return entries[i].Path < entries[j].Path

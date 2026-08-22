@@ -802,4 +802,124 @@ func TestAutoAttestReviewBundle(t *testing.T) {
 	}
 }
 
+func TestReviewBundleComponentDiscoveryAndGovernancePaths(t *testing.T) {
+	root, store := componentReviewFixture(t)
+
+	// Create directories matching custom component roots without repo-map.json
+	writeReviewFixture(t, root, "agent/runner.go", "package agent\n")
+	writeReviewFixture(t, root, "conductor/orchestrator.go", "package conductor\n")
+	writeReviewFixture(t, root, "docs/decisions/ADR-001-custom.md", "# ADR 001\n")
+	writeReviewFixture(t, root, ".pose/roadmaps/vision.md", "---\nslug: vision\nstatus: active\n---\n# Roadmap\n")
+	writeReviewFixture(t, root, ".pose/docs.json", "{\"schema_version\": 1}\n")
+
+	writeReviewFixture(t, root, ".pose/specs/agent-feature/spec.md", `---
+slug: agent-feature
+status: in-progress
+created_at: 2026-08-22
+components: conductor, agent
+delivers: capability:agent-runner
+---
+
+# Spec: agent-feature
+
+## 1. Intent
+### Goal
+Enhance agent.
+
+## 2. Requirements
+- R1: Agent runner shall work.
+
+## 3. Technical Plan
+### Artifacts
+- modified: agent/runner.go
+- modified: conductor/orchestrator.go
+- modified: docs/decisions/ADR-001-custom.md
+- modified: .pose/roadmaps/vision.md
+- modified: .pose/docs.json
+
+### Delivery targets
+- capability:agent-runner module:agent profile:composed-capability entrypoint:agent/runner.go
+
+### Technical risks
+None.
+
+## 4. Tasks
+- [x] Done.
+
+## 5. Validation
+### Automated
+- go test ./...
+
+### Requirement trace
+- R1 [satisfied] capability:agent-runner check:delivery-integration test:TestAgent evidence:integration
+
+## 6. Delivery Evidence
+### Artifact claims
+- capability:agent-runner -> agent/runner.go
+
+## 7. Final Report
+Delivered.
+`)
+
+	graph := DeliveryIntegrityGraph{
+		SchemaVersion:    1,
+		ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+		ChangeSets: []ChangeSet{{
+			ID: "cs-agent-feature", Spec: "agent-feature", Selector: "range:base..head",
+			Base: "base", Head: "head", ResolvedBase: "base-resolved", ResolvedHead: "head-resolved",
+			Paths: []ObservedPath{
+				{Action: "modified", Path: "agent/runner.go"},
+				{Action: "modified", Path: "conductor/orchestrator.go"},
+				{Action: "modified", Path: "docs/decisions/ADR-001-custom.md"},
+				{Action: "modified", Path: ".pose/roadmaps/vision.md"},
+				{Action: "modified", Path: ".pose/docs.json"},
+			},
+			DiffDigest: "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+		}},
+		Deliveries: []DeliveryTarget{{Spec: "agent-feature", Ref: "capability:agent-runner", Kind: "capability", ID: "agent-runner", Module: "agent", Profile: "composed-capability", Entrypoint: "agent/runner.go"}},
+		ValidationResults: []DeliveryValidationResult{{
+			ID: "val-1", Module: "agent", Check: "delivery-integration", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+		}},
+		Reverse: map[string][]string{
+			"agent/runner.go":                  {"agent-feature"},
+			"conductor/orchestrator.go":        {"agent-feature"},
+			"docs/decisions/ADR-001-custom.md": {"agent-feature"},
+			".pose/roadmaps/vision.md":         {"agent-feature"},
+			".pose/docs.json":                  {"agent-feature"},
+		},
+	}
+	raw, err := json.MarshalIndent(graph, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+
+	// Verify plan resolves the components
+	plan, err := store.ReviewPlan("spec:agent-feature")
+	if err != nil {
+		t.Fatalf("ReviewPlan failed: %v", err)
+	}
+	if len(plan.Components) != 2 {
+		t.Fatalf("expected 2 components resolved, got %d: %+v", len(plan.Components), plan.Components)
+	}
+
+	// Verify review bundle prepares and seals cleanly without unclassified paths
+	bundle, err := store.PrepareReviewBundle("spec:agent-feature")
+	if err != nil {
+		t.Fatalf("PrepareReviewBundle failed: %v", err)
+	}
+	if len(bundle.Blockers) > 0 {
+		t.Fatalf("unexpected blockers: %+v", bundle.Blockers)
+	}
+
+	sealed, err := store.SealReviewBundle("spec:agent-feature", time.Now().UTC())
+	if err != nil {
+		t.Fatalf("SealReviewBundle failed: %v", err)
+	}
+	if sealed.State != "sealed" {
+		t.Fatalf("expected bundle state sealed, got %s", sealed.State)
+	}
+}
+
+
 
