@@ -729,10 +729,14 @@ func repointFragmentClaims(root, version, fragment string, restore map[string][]
 		return nil // no specs to repoint is not a prepare failure
 	}
 	for _, e := range entries {
-		if !e.IsDir() {
+		var path string
+		if e.IsDir() {
+			path = filepath.Join(specsDir, e.Name(), "spec.md")
+		} else if strings.HasSuffix(e.Name(), ".md") && !strings.EqualFold(e.Name(), "README.md") {
+			path = filepath.Join(specsDir, e.Name())
+		} else {
 			continue
 		}
-		path := filepath.Join(specsDir, e.Name(), "spec.md")
 		original, err := os.ReadFile(path)
 		if err != nil {
 			continue

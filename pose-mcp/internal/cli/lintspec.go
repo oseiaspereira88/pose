@@ -137,14 +137,39 @@ func extractFollowups(finalReport []string) []string {
 
 func collectSpecSlugs(specsDir string) map[string]bool {
 	slugs := map[string]bool{}
+	if filepath.Base(specsDir) != "specs" {
+		if _, err := os.Stat(filepath.Join(specsDir, ".pose", "specs")); err == nil {
+			specsDir = filepath.Join(specsDir, ".pose", "specs")
+		} else if _, err := os.Stat(filepath.Join(specsDir, "specs")); err == nil {
+			specsDir = filepath.Join(specsDir, "specs")
+		}
+	}
 	entries, err := os.ReadDir(specsDir)
 	if err != nil {
 		return slugs
 	}
 	for _, e := range entries {
+		name := e.Name()
 		if e.IsDir() {
-			if _, err := os.Stat(filepath.Join(specsDir, e.Name(), "spec.md")); err == nil {
-				slugs[e.Name()] = true
+			specMD := filepath.Join(specsDir, name, "spec.md")
+			if b, err := os.ReadFile(specMD); err == nil {
+				if slug := lintParseFrontmatter(string(b))["slug"]; slug != "" {
+					slugs[slug] = true
+				} else {
+					slugs[name] = true
+				}
+			}
+		} else if strings.HasSuffix(name, ".md") && !strings.EqualFold(name, "README.md") {
+			specMD := filepath.Join(specsDir, name)
+			if b, err := os.ReadFile(specMD); err == nil {
+				if slug := lintParseFrontmatter(string(b))["slug"]; slug != "" {
+					slugs[slug] = true
+				}
+				base := strings.TrimSuffix(name, ".md")
+				slugs[base] = true
+				if m := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-(.*)$`).FindStringSubmatch(base); m != nil {
+					slugs[m[1]] = true
+				}
 			}
 		}
 	}
@@ -166,11 +191,63 @@ func lintParseDependsOn(value string) []string {
 }
 
 func siblingSpecStatus(specsDir, slug string) string {
-	b, err := os.ReadFile(filepath.Join(specsDir, slug, "spec.md"))
+	if filepath.Base(specsDir) != "specs" {
+		if _, err := os.Stat(filepath.Join(specsDir, ".pose", "specs")); err == nil {
+			specsDir = filepath.Join(specsDir, ".pose", "specs")
+		} else if _, err := os.Stat(filepath.Join(specsDir, "specs")); err == nil {
+			specsDir = filepath.Join(specsDir, "specs")
+		}
+	}
+	if b, err := os.ReadFile(filepath.Join(specsDir, slug, "spec.md")); err == nil {
+		return lintParseFrontmatter(string(b))["status"]
+	}
+	if b, err := os.ReadFile(filepath.Join(specsDir, slug+".md")); err == nil {
+		return lintParseFrontmatter(string(b))["status"]
+	}
+	entries, err := os.ReadDir(specsDir)
 	if err != nil {
 		return ""
 	}
-	return lintParseFrontmatter(string(b))["status"]
+	for _, e := range entries {
+		name := e.Name()
+		if e.IsDir() {
+			if strings.HasSuffix(name, "-"+slug) || strings.HasSuffix(name, "_"+slug) {
+				if b, err := os.ReadFile(filepath.Join(specsDir, name, "spec.md")); err == nil {
+					fm := lintParseFrontmatter(string(b))
+					if fm["slug"] == slug || fm["slug"] == "" {
+						return fm["status"]
+					}
+				}
+			}
+		} else if strings.HasSuffix(name, ".md") && !strings.EqualFold(name, "README.md") {
+			base := strings.TrimSuffix(name, ".md")
+			if base == slug || strings.HasSuffix(base, "-"+slug) || strings.HasSuffix(base, "_"+slug) {
+				if b, err := os.ReadFile(filepath.Join(specsDir, name)); err == nil {
+					fm := lintParseFrontmatter(string(b))
+					if fm["slug"] == slug || fm["slug"] == "" {
+						return fm["status"]
+					}
+				}
+			}
+		}
+	}
+	for _, e := range entries {
+		var path string
+		if e.IsDir() {
+			path = filepath.Join(specsDir, e.Name(), "spec.md")
+		} else if strings.HasSuffix(e.Name(), ".md") && !strings.EqualFold(e.Name(), "README.md") {
+			path = filepath.Join(specsDir, e.Name())
+		}
+		if path != "" {
+			if b, err := os.ReadFile(path); err == nil {
+				fm := lintParseFrontmatter(string(b))
+				if fm["slug"] == slug {
+					return fm["status"]
+				}
+			}
+		}
+	}
+	return ""
 }
 
 // lintFollowupDisposition mirrors lint_followup_disposition: returns the
@@ -382,7 +459,10 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		lifecycle++
 	}
 
-	specsDir := filepath.Dir(filepath.Dir(specPath))
+	specsDir := filepath.Dir(specPath)
+	if filepath.Base(specsDir) != "specs" {
+		specsDir = filepath.Dir(specsDir)
+	}
 	if specStatus == "in-progress" {
 		for _, dep := range lintParseDependsOn(frontmatter["depends_on"]) {
 			if strings.Contains(dep, ":") {
@@ -570,9 +650,16 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	return 0
 }
 
-// cmdLintSpec mirrors pose-lint-spec.sh: <slug>|--all, --strict|--tolerant,
-// --required-only, --ready-check; aggregate lines and Resultado semantics.
 func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
+	root, err := projectRoot()
+	if err != nil {
+		fmt.Fprintf(stderr, "pose lint-spec: %v\n", err)
+		return 2
+	}
+	return cmdLintSpecInRoot(root, args, stdout, stderr)
+}
+
+func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	mode := "strict"
 	requiredOnly, readyCheck := false, false
@@ -608,47 +695,39 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, cliText(locale, "Error: provide <slug> or --all", "Erro: informe <slug> ou --all"))
 		return 2
 	}
-	root, err := projectRoot()
-	if err != nil {
-		fmt.Fprintf(stderr, "pose lint-spec: %v\n", err)
-		return 2
-	}
 	specsDir := filepath.Join(root, ".pose", "specs")
 
 	totalLinted, totalFailed := 0, 0
 	var failedSpecs []string
-	lintOne := func(path string) {
+	lintOne := func(path string, slug string) {
 		totalLinted++
 		fmt.Fprintln(stdout, "---")
 		if rc := lintOneSpec(path, requiredOnly, readyCheck, stdout, stderr); rc != 0 {
 			totalFailed++
-			failedSpecs = append(failedSpecs, filepath.Base(filepath.Dir(path)))
+			if slug == "" {
+				slug = strings.TrimSuffix(filepath.Base(path), ".md")
+				if filepath.Base(path) == "spec.md" {
+					slug = filepath.Base(filepath.Dir(path))
+				}
+			}
+			failedSpecs = append(failedSpecs, slug)
 		}
 	}
 
 	if target == "--all" {
-		entries, err := os.ReadDir(specsDir)
+		store := posepkg.Store{Root: root}
+		specs, err := store.ListSpecs("", "")
 		if err != nil {
 			fmt.Fprintf(stderr, cliText(locale, "Error: specs directory not found: %s\n", "Erro: specs dir ausente: %s\n"), specsDir)
 			return 2
 		}
-		var names []string
-		for _, e := range entries {
-			if e.IsDir() {
-				names = append(names, e.Name())
+		for _, sp := range specs {
+			specMD := sp.Path
+			if !filepath.IsAbs(specMD) {
+				specMD = filepath.Join(root, filepath.FromSlash(specMD))
 			}
-		}
-		sort.Strings(names)
-		for _, name := range names {
-			specMD := filepath.Join(specsDir, name, "spec.md")
-			if _, err := os.Stat(specMD); err == nil {
-				lintOne(specMD)
-			}
-		}
-		for _, name := range names {
-			if _, err := os.Stat(filepath.Join(specsDir, name, "spec.md")); err != nil {
-				fmt.Fprintln(stdout, "---")
-				fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: no consolidated spec.md (pre-unified-template format)\n", "[AVISO] %s: sem spec.md consolidado (formato pré-template-único)\n"), name)
+			if _, statErr := os.Stat(specMD); statErr == nil {
+				lintOne(specMD, sp.Slug)
 			}
 		}
 	}
@@ -661,7 +740,10 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 		specMD := sp.Path
-		lintOne(specMD)
+		if !filepath.IsAbs(specMD) {
+			specMD = filepath.Join(root, filepath.FromSlash(specMD))
+		}
+		lintOne(specMD, sp.Slug)
 		if totalFailed == 0 && mode == "strict" {
 			if fm, err := readFlatFrontmatter(specMD); err == nil && fm["status"] == "done" {
 				closeoutHookErr = EmitHook(root, HookEvent{Kind: "spec_closeout", Target: target, Commit: gitHeadCommit(root), At: time.Now().UTC()})

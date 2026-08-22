@@ -103,3 +103,121 @@ func TestTraceDoneWithoutTraceSectionFails(t *testing.T) {
 		t.Errorf("expected a diagnostic naming the trace section, got: %s", output)
 	}
 }
+
+func TestLintSpecCoveredDispositionRecognizesFlatAndNestedSpecs(t *testing.T) {
+	dir := t.TempDir()
+	specsDir := filepath.Join(dir, ".pose", "specs")
+	if err := os.MkdirAll(specsDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".pose", "schema-version"), []byte("1\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// 1. Target spec-b in flat dated format
+	specB := `---
+slug: spec-b
+status: in-progress
+created_at: 2026-08-22
+---
+# Spec: B
+## 1. Intent
+Content.
+## 2. Requirements
+- R1: B works.
+## 3. Technical Plan
+None.
+## 4. Tasks
+- [ ] Task.
+## 6. Validation
+### Requirement trace
+- R1 [satisfied] unit suite
+## 7. Final Report
+Pending.
+`
+	if err := os.WriteFile(filepath.Join(specsDir, "2026-08-22-spec-b.md"), []byte(specB), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// 2. Target spec-c in nested folder format
+	specC := `---
+slug: spec-c
+status: in-progress
+created_at: 2026-08-22
+---
+# Spec: C
+## 1. Intent
+Content.
+## 2. Requirements
+- R1: C works.
+## 3. Technical Plan
+None.
+## 4. Tasks
+- [ ] Task.
+## 6. Validation
+### Requirement trace
+- R1 [satisfied] unit suite
+## 7. Final Report
+Pending.
+`
+	if err := os.MkdirAll(filepath.Join(specsDir, "spec-c"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(specsDir, "spec-c", "spec.md"), []byte(specC), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// 3. Spec A in flat dated format, done, with follow-ups pointing to spec-b and spec-c
+	specA := `---
+slug: spec-a
+status: done
+created_at: 2026-08-01
+completed_at: 2026-08-02
+---
+# Spec: A
+## 1. Intent
+Content.
+## 2. Requirements
+- R1: A works.
+## 3. Technical Plan
+Content.
+## 4. Tasks
+- [x] Done.
+## 6. Validation
+### Requirement trace
+- R1 [satisfied] unit suite
+## 7. Final Report
+### Follow-ups
+- [covered: spec-b] Covered by flat dated spec B
+- [spawned: spec-c] Spawned into nested spec C
+`
+	specAPath := filepath.Join(specsDir, "2026-08-20-spec-a.md")
+	if err := os.WriteFile(specAPath, []byte(specA), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Lint individual spec-a directly via lintOneSpec
+	var out, errB bytes.Buffer
+	rc := lintOneSpec(specAPath, false, false, &out, &errB)
+	if rc != 0 {
+		t.Fatalf("lintOneSpec for spec-a failed: rc=%d\nstdout=%s\nstderr=%s", rc, out.String(), errB.String())
+	}
+	if strings.Contains(errB.String(), "points to a missing spec") {
+		t.Fatalf("falsely reported missing spec: %s", errB.String())
+	}
+
+	// Also test cmdLintSpec targeting "spec-a"
+	out.Reset()
+	errB.Reset()
+	if code := cmdLintSpecInRoot(dir, []string{"spec-a", "--strict"}, &out, &errB); code != 0 {
+		t.Fatalf("cmdLintSpec spec-a failed: code=%d\nstdout=%s\nstderr=%s", code, out.String(), errB.String())
+	}
+
+	// Also test cmdLintSpec with "--all"
+	out.Reset()
+	errB.Reset()
+	if code := cmdLintSpecInRoot(dir, []string{"--all", "--strict"}, &out, &errB); code != 0 {
+		t.Fatalf("cmdLintSpec --all failed: code=%d\nstdout=%s\nstderr=%s", code, out.String(), errB.String())
+	}
+}
+
