@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:1874a565052c87577af210c7bd511e3fa4466223f77d75322c01283b3a0bfb2b",
-  "provenance_digest": "sha256:dda528d1e6ffb7c808c65fa6a3927102ff79f87325ad467f5a40b385748f83d4",
+  "input_digest": "sha256:41807c925a53d2a2eae1bc3bb3edc8a68da1005a8cc0a3527e90d71e3237c5b7",
+  "provenance_digest": "sha256:881eb81b0a57247f00cc9c60d2237c91f3e074cfee95558992022c9532487433",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -883,6 +883,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/indexes/module-metadata.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/indexes/packages.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/indexes/packages.json"
       }
     },
     {
@@ -3910,6 +3917,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-08-22-pose-skills-harmonization.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-08-22-pose-skills-harmonization.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/pose-action-runtime-currency-gate/spec.md",
       "type": "artifact",
       "attributes": {
@@ -4677,6 +4691,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/state/integrations.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/state/machinery-manifest.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/state/machinery-manifest.json"
       }
     },
     {
@@ -10276,14 +10297,6 @@
       }
     },
     {
-      "id": "change-set:cs-3cb16037f59c",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:5f2f7d4090c7621b4a551d14dbab2bca83fd9b0bdc62e0a23873508158fa7999",
-        "selector": "trailers:pose-mcp-active-context"
-      }
-    },
-    {
       "id": "change-set:cs-3cdf716fb989",
       "type": "change-set",
       "attributes": {
@@ -10665,6 +10678,14 @@
       "attributes": {
         "diff_digest": "sha256:5eda57cde819956ef4a93c7b28e0ffc77071928ca8bbb04fa78c3b6bde056293",
         "selector": "trailers:pose-delivery-surface-assurance"
+      }
+    },
+    {
+      "id": "change-set:cs-971e8299e7bf",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:a759f84d10292313c1f8d5cb41e1632ffcf42da481470a0aca5f377b6835915a",
+        "selector": "trailers:pose-skills-harmonization"
       }
     },
     {
@@ -11081,6 +11102,14 @@
       "attributes": {
         "diff_digest": "sha256:afb4cbd57ddfd8aa4f39a3ee89079963a26a95e5abefa8232431adb6e9822755",
         "selector": "range:504fdf3c8de09c7136775d33829446d608561483..ca851a18f9c7e3a752985d9f9bfe783307ba4733"
+      }
+    },
+    {
+      "id": "change-set:cs-df0e8dcd8f00",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:7b29139c6c816af044e743ac889336f666f3dec094a1eb43e0989648c9845458",
+        "selector": "trailers:pose-mcp-active-context"
       }
     },
     {
@@ -12188,6 +12217,14 @@
       }
     },
     {
+      "id": "delivery:surface:skills-harmonization",
+      "type": "surface",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "cli-surface"
+      }
+    },
+    {
       "id": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "entrypoint",
       "attributes": {
@@ -13042,6 +13079,13 @@
       }
     },
     {
+      "id": "spec:pose-skills-harmonization",
+      "type": "spec",
+      "attributes": {
+        "status": "done"
+      }
+    },
+    {
       "id": "spec:pose-slsa-provenance",
       "type": "spec",
       "attributes": {
@@ -13368,6 +13412,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.agents/skills/pose-feature/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.agents/skills/pose-knowledge/SKILL.md",
       "to": "delivery:governance:knowledge-durable-reference-type",
       "type": "implemented-by"
@@ -13443,6 +13492,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.agents/skills/pose-review/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:governance:skill-command-parity",
       "type": "implemented-by"
@@ -13460,6 +13514,11 @@
     {
       "from": "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:surface:contributor-mode-cli-hints",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
       "type": "implemented-by"
     },
     {
@@ -16733,6 +16792,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md",
       "to": "delivery:governance:knowledge-durable-reference-type",
       "type": "implemented-by"
@@ -16793,6 +16857,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:governance:skill-closeout-gate-parity",
       "type": "implemented-by"
@@ -16810,6 +16879,11 @@
     {
       "from": "artifact:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:surface:contributor-mode-cli-hints",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
       "type": "implemented-by"
     },
     {
@@ -20073,6 +20147,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-knowledge/SKILL.md",
       "to": "delivery:governance:knowledge-durable-reference-type",
       "type": "implemented-by"
@@ -20113,6 +20192,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:governance:spec-commit-trailer-contract",
       "type": "implemented-by"
@@ -20125,6 +20209,11 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:surface:contributor-mode-cli-hints",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
       "type": "implemented-by"
     },
     {
@@ -20573,6 +20662,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md",
       "to": "delivery:governance:knowledge-durable-reference-type",
       "type": "implemented-by"
@@ -20613,6 +20707,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:governance:spec-commit-trailer-contract",
       "type": "implemented-by"
@@ -20625,6 +20724,11 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
       "to": "delivery:surface:contributor-mode-cli-hints",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "to": "delivery:surface:skills-harmonization",
       "type": "implemented-by"
     },
     {
@@ -27808,371 +27912,6 @@
       "type": "changes"
     },
     {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.github/ISSUE_TEMPLATE/engine_limitation.yml",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.github/ISSUE_TEMPLATE/feature_suggestion.yml",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/adr/2026-08-06-mcp-active-context-authorized-discovery.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/assessments/README.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/assessments/consolidated.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/assessments/integrations.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/assessments/mcp-enforce.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/assessments/pose-mcp.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/assessments/technical-debt.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/changelogs/unreleased/pose-mcp-active-context.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/indexes/delivery-integrity.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/indexes/releases.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/indexes/spec-graph.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/reports/2026-08-06-standard-test-plan-baseline-pose-mcp-active-context.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/reports/history/standard-test-plan-baseline-pose-mcp-active-context.jsonl",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/results/delivery-validation.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/reviews/rvw-20260806T224743Z-adc287c2.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/reviews/rvw-20260806T224832Z-b0fe83f7.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/reviews/rvw-20260806T233602Z-4bc2bab6.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/specs/pose-mcp-active-context/spec.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/state/components/mcp-enforce.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/state/components/pose-mcp.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/state/history.jsonl",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/state/integrations.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/state/project-state.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/state/refresh-log.jsonl",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:.pose/state/technical-debt.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:POSE.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:docs-site/docs/capability-assessment.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:docs-site/docs/index.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:docs-site/docs/mcp.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:locales/pt-BR/POSE.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/cli/doctor.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/cli/doctor_remediation_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/cli/report_limitation.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/cli/report_limitation_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/mcpserver/catalog.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/mcpserver/mcp_context_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/mcpserver/project_scope_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/mcpserver/server.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/mcpserver/server_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/pose/roots.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/pose/roots_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-06-mcp-active-context-authorized-discovery.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/README.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/consolidated.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/integrations.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/mcp-enforce.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/pose-mcp.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/technical-debt.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-mcp-active-context.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210330Z-31f2f3fc.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210330Z-ac29cb2f.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210418Z-0a42db04.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210418Z-e430531a.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210456Z-8dbdfeb2.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210456Z-c87c8aec.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210519Z-8ada974e.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210519Z-9673ff6e.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210526Z-a71ddb95.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T224743Z-adc287c2.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T224832Z-b0fe83f7.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T233602Z-4bc2bab6.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-doc-command-reference/spec.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-locales-alignment/spec.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-mcp-active-context/spec.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-3cb16037f59c",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
-      "type": "changes"
-    },
-    {
       "from": "change-set:cs-3cdf716fb989",
       "to": "artifact:.pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md",
       "type": "changes"
@@ -34940,6 +34679,96 @@
     {
       "from": "change-set:cs-96c8ddf3e260",
       "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-release-lifecycle-closure/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:.agents/skills/pose-feature/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:.agents/skills/pose-review/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:.pose/indexes/packages.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:.pose/indexes/repo-map.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:.pose/specs/2026-08-22-pose-skills-harmonization.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:.pose/state/machinery-manifest.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-971e8299e7bf",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
       "type": "changes"
     },
     {
@@ -42368,6 +42197,221 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/adr/2026-08-06-mcp-active-context-authorized-discovery.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/assessments/README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/assessments/consolidated.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/assessments/integrations.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/assessments/mcp-enforce.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/assessments/pose-mcp.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/assessments/technical-debt.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/reports/2026-08-06-standard-test-plan-baseline-pose-mcp-active-context.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/reports/history/standard-test-plan-baseline-pose-mcp-active-context.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/results/delivery-validation.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/reviews/rvw-20260806T224743Z-adc287c2.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/reviews/rvw-20260806T224832Z-b0fe83f7.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/reviews/rvw-20260806T233602Z-4bc2bab6.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/specs/pose-mcp-active-context/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/state/components/mcp-enforce.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/state/components/pose-mcp.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/state/history.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/state/integrations.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/state/project-state.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/state/refresh-log.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:.pose/state/technical-debt.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:docs-site/docs/mcp.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/mcpserver/mcp_context_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/mcpserver/server.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/pose/roots.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-06-mcp-active-context-authorized-discovery.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/consolidated.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/integrations.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/mcp-enforce.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/pose-mcp.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/assessments/technical-debt.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T224743Z-adc287c2.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T224832Z-b0fe83f7.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T233602Z-4bc2bab6.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-df0e8dcd8f00",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-mcp-active-context/spec.md",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-dfd227825e50",
       "to": "artifact:.github/workflows/ci.yml",
       "type": "changes"
@@ -46743,6 +46787,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:surface:skills-harmonization",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "reaches"
+    },
+    {
+      "from": "delivery:surface:skills-harmonization",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
@@ -47285,6 +47339,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
       "type": "validated-by"
     },
     {
@@ -51329,12 +51388,12 @@
     },
     {
       "from": "spec:pose-mcp-active-context",
-      "to": "change-set:cs-3cb16037f59c",
+      "to": "change-set:cs-d2d19e427e51",
       "type": "observed-by"
     },
     {
       "from": "spec:pose-mcp-active-context",
-      "to": "change-set:cs-d2d19e427e51",
+      "to": "change-set:cs-df0e8dcd8f00",
       "type": "observed-by"
     },
     {
@@ -52915,6 +52974,76 @@
     {
       "from": "spec:pose-skill-index-parity",
       "to": "change-set:cs-21ca73cda14b",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:.agents/skills/pose-feature/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:.agents/skills/pose-review/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "delivery:surface:skills-harmonization",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-skills-harmonization",
+      "to": "change-set:cs-971e8299e7bf",
       "type": "observed-by"
     },
     {
@@ -57728,6 +57857,66 @@
       "spec": "pose-skill-index-parity",
       "action": "modified",
       "path": "pose-mcp/internal/scaffold/skill_locale_parity_test.go"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": ".agents/skills/pose-feature/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": ".agents/skills/pose-review/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": ".agents/skills/pose-spec-closeout/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": "locales/pt-BR/.agents/skills/pose-feature/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": "locales/pt-BR/.agents/skills/pose-review/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": "locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "action": "modified",
+      "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md"
     },
     {
       "spec": "pose-spec-format-migration-command",
@@ -64354,323 +64543,6 @@
       "diff_digest": "sha256:b232333315db4cd7c823df9c8059f48039cfb4d03d9f42959b3de6b33c1d8c16"
     },
     {
-      "id": "cs-3cb16037f59c",
-      "spec": "pose-mcp-active-context",
-      "selector": "trailers:pose-mcp-active-context",
-      "base": "29a9cf52bdd207a5c4861f78378cde25c50a9488^",
-      "head": "23f94007715dc7c7ec1677fb89a15ea26a356868",
-      "resolved_base": "fec57babb87bd07531cb86f4b16e00d71ec93dbf",
-      "resolved_head": "23f94007715dc7c7ec1677fb89a15ea26a356868",
-      "commits": [
-        "29a9cf52bdd207a5c4861f78378cde25c50a9488",
-        "3a3a23d320586950ce08244c001990bc895b12a3",
-        "9f5c53a40f92db04a649351debfbf49879903941",
-        "bf1cc206bf3217a4bef862bf03818a54c3a38eb7",
-        "417deaa1a460c2036a864354c1d117677a382277",
-        "6c07f15bb9bd0a76d2e39ed05a6141ee9be1f5bd",
-        "af00d6f62425e23690dbd1a9f428327cfc1e1627",
-        "3848c4de316c2d1d1faf53614aff87ccbd40cc82",
-        "5d2d4f23147ae96801ec390c3b497e75c71fc544",
-        "5c22ef66d2c591c265dca36c55b3229e484acf14",
-        "23f94007715dc7c7ec1677fb89a15ea26a356868"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-08-06-mcp-active-context-authorized-discovery.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-mcp-active-context.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/2026-08-06-standard-test-plan-baseline-pose-mcp-active-context.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/history/standard-test-plan-baseline-pose-mcp-active-context.jsonl"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reviews/rvw-20260806T224743Z-adc287c2.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reviews/rvw-20260806T224832Z-b0fe83f7.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reviews/rvw-20260806T233602Z-4bc2bab6.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/pose-mcp-active-context/spec.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/report_limitation_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/mcpserver/mcp_context_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-06-mcp-active-context-authorized-discovery.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-mcp-active-context.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210330Z-31f2f3fc.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210330Z-ac29cb2f.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210418Z-0a42db04.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210418Z-e430531a.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210456Z-8dbdfeb2.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210456Z-c87c8aec.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210519Z-8ada974e.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210519Z-9673ff6e.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260804T210526Z-a71ddb95.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T224743Z-adc287c2.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T224832Z-b0fe83f7.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T233602Z-4bc2bab6.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-mcp-active-context/spec.md"
-        },
-        {
-          "action": "modified",
-          "path": ".github/ISSUE_TEMPLATE/engine_limitation.yml"
-        },
-        {
-          "action": "modified",
-          "path": ".github/ISSUE_TEMPLATE/feature_suggestion.yml"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/README.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/consolidated.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/integrations.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/mcp-enforce.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/pose-mcp.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/technical-debt.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/components/mcp-enforce.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/components/pose-mcp.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/history.jsonl"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/integrations.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/project-state.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/refresh-log.jsonl"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/technical-debt.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "docs-site/docs/capability-assessment.md"
-        },
-        {
-          "action": "modified",
-          "path": "docs-site/docs/index.md"
-        },
-        {
-          "action": "modified",
-          "path": "docs-site/docs/mcp.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/doctor.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/doctor_remediation_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/report_limitation.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/mcpserver/catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/mcpserver/project_scope_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/mcpserver/server.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/mcpserver/server_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/roots.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/roots_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/README.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/consolidated.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/integrations.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/mcp-enforce.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/pose-mcp.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/technical-debt.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-doc-command-reference/spec.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-locales-alignment/spec.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:5f2f7d4090c7621b4a551d14dbab2bca83fd9b0bdc62e0a23873508158fa7999"
-    },
-    {
       "id": "cs-3cdf716fb989",
       "spec": "pose-artifact-provenance-ledger",
       "selector": "range:5403f56..HEAD",
@@ -70882,6 +70754,93 @@
         }
       ],
       "diff_digest": "sha256:5eda57cde819956ef4a93c7b28e0ffc77071928ca8bbb04fa78c3b6bde056293"
+    },
+    {
+      "id": "cs-971e8299e7bf",
+      "spec": "pose-skills-harmonization",
+      "selector": "trailers:pose-skills-harmonization",
+      "base": "88aa9c65013ba8db19fd12db7c4c56ac441316f0^",
+      "head": "88aa9c65013ba8db19fd12db7c4c56ac441316f0",
+      "resolved_base": "a25ca74a942beaf1fcc48fc7db0b29083edc67c5",
+      "resolved_head": "88aa9c65013ba8db19fd12db7c4c56ac441316f0",
+      "commits": [
+        "88aa9c65013ba8db19fd12db7c4c56ac441316f0"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-08-22-pose-skills-harmonization.md"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/pose-feature/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/pose-review/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": ".agents/skills/pose-spec-closeout/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/packages.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/repo-map.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/machinery-manifest.json"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.agents/skills/pose-feature/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.agents/skills/pose-review/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md"
+        }
+      ],
+      "diff_digest": "sha256:a759f84d10292313c1f8d5cb41e1632ffcf42da481470a0aca5f377b6835915a"
     },
     {
       "id": "cs-9899a33c0d66",
@@ -77655,6 +77614,202 @@
       "diff_digest": "sha256:afb4cbd57ddfd8aa4f39a3ee89079963a26a95e5abefa8232431adb6e9822755"
     },
     {
+      "id": "cs-df0e8dcd8f00",
+      "spec": "pose-mcp-active-context",
+      "selector": "trailers:pose-mcp-active-context",
+      "base": "3a3a23d320586950ce08244c001990bc895b12a3^",
+      "head": "23f94007715dc7c7ec1677fb89a15ea26a356868",
+      "resolved_base": "29a9cf52bdd207a5c4861f78378cde25c50a9488",
+      "resolved_head": "23f94007715dc7c7ec1677fb89a15ea26a356868",
+      "commits": [
+        "3a3a23d320586950ce08244c001990bc895b12a3",
+        "9f5c53a40f92db04a649351debfbf49879903941",
+        "bf1cc206bf3217a4bef862bf03818a54c3a38eb7",
+        "417deaa1a460c2036a864354c1d117677a382277",
+        "6c07f15bb9bd0a76d2e39ed05a6141ee9be1f5bd",
+        "af00d6f62425e23690dbd1a9f428327cfc1e1627",
+        "3848c4de316c2d1d1faf53614aff87ccbd40cc82",
+        "5d2d4f23147ae96801ec390c3b497e75c71fc544",
+        "5c22ef66d2c591c265dca36c55b3229e484acf14",
+        "23f94007715dc7c7ec1677fb89a15ea26a356868"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/reviews/rvw-20260806T224743Z-adc287c2.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reviews/rvw-20260806T224832Z-b0fe83f7.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reviews/rvw-20260806T233602Z-4bc2bab6.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T224743Z-adc287c2.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T224832Z-b0fe83f7.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/reviews/rvw-20260806T233602Z-4bc2bab6.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-08-06-mcp-active-context-authorized-discovery.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/README.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/consolidated.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/integrations.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/mcp-enforce.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/pose-mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/technical-debt.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/reports/2026-08-06-standard-test-plan-baseline-pose-mcp-active-context.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/reports/history/standard-test-plan-baseline-pose-mcp-active-context.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/pose-mcp-active-context/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/mcp-enforce.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/pose-mcp.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/integrations.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/technical-debt.json"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/mcp_context_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/server.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/roots.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/adr/2026-08-06-mcp-active-context-authorized-discovery.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/README.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/consolidated.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/integrations.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/mcp-enforce.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/pose-mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/assessments/technical-debt.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-mcp-active-context/spec.md"
+        }
+      ],
+      "diff_digest": "sha256:7b29139c6c816af044e743ac889336f666f3dec094a1eb43e0989648c9845458"
+    },
+    {
       "id": "cs-dfd227825e50",
       "spec": "pose-container-build-gate",
       "selector": "trailers:pose-container-build-gate",
@@ -80123,6 +80278,7 @@
       "pose-governance-gate-activation",
       "pose-review-bundle-convergence",
       "pose-skill-command-parity",
+      "pose-skills-harmonization",
       "pose-spec-trailer-workflow-documentation"
     ],
     ".agents/skills/pose-knowledge/SKILL.md": [
@@ -80141,11 +80297,13 @@
       "pose-contributor-mode-workflow-and-cli-hints",
       "pose-review-bundle-convergence",
       "pose-skill-command-parity",
+      "pose-skills-harmonization",
       "pose-unified-review-convergence"
     ],
     ".agents/skills/pose-spec-closeout/SKILL.md": [
       "pose-contributor-mode-workflow-and-cli-hints",
       "pose-skill-command-parity",
+      "pose-skills-harmonization",
       "pose-spec-trailer-workflow-documentation"
     ],
     ".agents/skills/pose-surface-closeout/SKILL.md": [
@@ -80907,6 +81065,7 @@
     "locales/pt-BR/.agents/skills/pose-feature/SKILL.md": [
       "pose-contributor-mode-workflow-and-cli-hints",
       "pose-review-bundle-convergence",
+      "pose-skills-harmonization",
       "pose-spec-trailer-workflow-documentation"
     ],
     "locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md": [
@@ -80923,11 +81082,13 @@
     "locales/pt-BR/.agents/skills/pose-review/SKILL.md": [
       "pose-component-aware-review-plans",
       "pose-contributor-mode-workflow-and-cli-hints",
-      "pose-review-bundle-convergence"
+      "pose-review-bundle-convergence",
+      "pose-skills-harmonization"
     ],
     "locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md": [
       "pose-contributor-mode-workflow-and-cli-hints",
       "pose-skill-closeout-gate-parity",
+      "pose-skills-harmonization",
       "pose-spec-trailer-workflow-documentation"
     ],
     "locales/pt-BR/.agents/skills/pose-surface-closeout/SKILL.md": [
@@ -81558,6 +81719,7 @@
     "pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md": [
       "pose-contributor-mode-workflow-and-cli-hints",
       "pose-review-bundle-convergence",
+      "pose-skills-harmonization",
       "pose-spec-trailer-workflow-documentation"
     ],
     "pose-mcp/internal/scaffold/dist/.agents/skills/pose-knowledge/SKILL.md": [
@@ -81572,10 +81734,12 @@
     "pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md": [
       "pose-component-aware-review-plans",
       "pose-contributor-mode-workflow-and-cli-hints",
-      "pose-review-bundle-convergence"
+      "pose-review-bundle-convergence",
+      "pose-skills-harmonization"
     ],
     "pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md": [
       "pose-contributor-mode-workflow-and-cli-hints",
+      "pose-skills-harmonization",
       "pose-spec-trailer-workflow-documentation"
     ],
     "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json": [
@@ -81674,6 +81838,7 @@
     "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md": [
       "pose-contributor-mode-workflow-and-cli-hints",
       "pose-review-bundle-convergence",
+      "pose-skills-harmonization",
       "pose-spec-trailer-workflow-documentation"
     ],
     "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-knowledge/SKILL.md": [
@@ -81688,10 +81853,12 @@
     "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md": [
       "pose-component-aware-review-plans",
       "pose-contributor-mode-workflow-and-cli-hints",
-      "pose-review-bundle-convergence"
+      "pose-review-bundle-convergence",
+      "pose-skills-harmonization"
     ],
     "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md": [
       "pose-contributor-mode-workflow-and-cli-hints",
+      "pose-skills-harmonization",
       "pose-spec-trailer-workflow-documentation"
     ],
     "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/rules/knowledge-governance.md": [
@@ -84556,7 +84723,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -84565,7 +84732,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -84824,6 +84991,15 @@
       "module": "pose-mcp",
       "profile": "cli-surface",
       "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-skills-harmonization",
+      "ref": "surface:skills-harmonization",
+      "kind": "surface",
+      "id": "skills-harmonization",
+      "module": "pose-mcp",
+      "profile": "cli-surface",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
     }
   ],
   "validation_results": [
@@ -84834,9 +85010,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "cd30bd0f6e74b1cadb33f9b3ef0d85c3995510ef",
-      "generated_at": "2026-08-22T09:16:42Z",
-      "provenance_digest": "sha256:dda528d1e6ffb7c808c65fa6a3927102ff79f87325ad467f5a40b385748f83d4",
+      "git_head": "88aa9c65013ba8db19fd12db7c4c56ac441316f0",
+      "generated_at": "2026-08-22T10:17:55Z",
+      "provenance_digest": "sha256:881eb81b0a57247f00cc9c60d2237c91f3e074cfee95558992022c9532487433",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -84882,7 +85058,7 @@
         "pose-manual-and-cli-command-parity": "sha256:c6e5f9893f7c235d0be5a22ace2a01751689010c46f1b812791a41968f714bb5",
         "pose-manual-distribution-merge": "sha256:c7282a3d18af07f82cd0d81146da5843be36a4c1f660dffbfaac1ecc844cae73",
         "pose-manual-locale-parity": "sha256:9604b127712e7fd58f6cf808317fff773ab7a6f5a04e209e63034e7beaf70a76",
-        "pose-mcp-active-context": "sha256:faa6ca3029b0890cc8a20c511b856e376df5294fcff32d5a684c196c29e69094",
+        "pose-mcp-active-context": "sha256:45a36ccd7420d41dcb09271302986dc1a1f876c61aedf54e0b946eab289a9531",
         "pose-monorepo-validation-advisory": "sha256:81e5cfea30eb91032986b75cdfc5715782ad95a35de93f92be6117d2e0f3b5b8",
         "pose-new-spec-default-flat-format": "sha256:bd78fea33c2f2d9de9cb1a1a79399fe4d911149a1d8e91c7a71734e3e90a360f",
         "pose-onboarding-context-extraction": "sha256:32545f3fa681e76de2aa20a31955a39a2c9bddc9af54c1a586d14fee8fc8bfc2",
@@ -84914,6 +85090,7 @@
         "pose-skill-closeout-gate-parity": "sha256:969eb6a8a24f086779db3d2947bac7e12e14ed88013efede363ad08fee255b80",
         "pose-skill-command-parity": "sha256:c095d3b661f1e78ad292d7047a0fafe8b17bf4d72768ccb9664cd1de01cf222a",
         "pose-skill-index-parity": "sha256:c617c00c8f2221ae7990fa732a90631787cb58c6e19f8b09063e93eb1ec0fe83",
+        "pose-skills-harmonization": "sha256:79a4a5ff04fc0c2010ce2e62ce38c65dabca63d4cc54b1571bb7bb883788079d",
         "pose-spec-format-migration-command": "sha256:a1edf0f77531ee4fed58b94cd158451aae682404e58b36979c9f87f863e9c05d",
         "pose-spec-trailer-workflow-documentation": "sha256:a63e40350e03ac8a9f097787a530ef909338d391e1cb8e2f016fb437f9fdd7e1",
         "pose-specs-ergonomics-and-discovery": "sha256:e8cc8537df4e0c6660e5e7b80ac698033e4f0ab7f5cfaad7dee60f92d9127046",
@@ -84938,9 +85115,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "cd30bd0f6e74b1cadb33f9b3ef0d85c3995510ef",
-      "generated_at": "2026-08-22T09:16:42Z",
-      "provenance_digest": "sha256:dda528d1e6ffb7c808c65fa6a3927102ff79f87325ad467f5a40b385748f83d4",
+      "git_head": "88aa9c65013ba8db19fd12db7c4c56ac441316f0",
+      "generated_at": "2026-08-22T10:17:55Z",
+      "provenance_digest": "sha256:881eb81b0a57247f00cc9c60d2237c91f3e074cfee95558992022c9532487433",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -84986,7 +85163,7 @@
         "pose-manual-and-cli-command-parity": "sha256:c6e5f9893f7c235d0be5a22ace2a01751689010c46f1b812791a41968f714bb5",
         "pose-manual-distribution-merge": "sha256:c7282a3d18af07f82cd0d81146da5843be36a4c1f660dffbfaac1ecc844cae73",
         "pose-manual-locale-parity": "sha256:9604b127712e7fd58f6cf808317fff773ab7a6f5a04e209e63034e7beaf70a76",
-        "pose-mcp-active-context": "sha256:faa6ca3029b0890cc8a20c511b856e376df5294fcff32d5a684c196c29e69094",
+        "pose-mcp-active-context": "sha256:45a36ccd7420d41dcb09271302986dc1a1f876c61aedf54e0b946eab289a9531",
         "pose-monorepo-validation-advisory": "sha256:81e5cfea30eb91032986b75cdfc5715782ad95a35de93f92be6117d2e0f3b5b8",
         "pose-new-spec-default-flat-format": "sha256:bd78fea33c2f2d9de9cb1a1a79399fe4d911149a1d8e91c7a71734e3e90a360f",
         "pose-onboarding-context-extraction": "sha256:32545f3fa681e76de2aa20a31955a39a2c9bddc9af54c1a586d14fee8fc8bfc2",
@@ -85018,6 +85195,7 @@
         "pose-skill-closeout-gate-parity": "sha256:969eb6a8a24f086779db3d2947bac7e12e14ed88013efede363ad08fee255b80",
         "pose-skill-command-parity": "sha256:c095d3b661f1e78ad292d7047a0fafe8b17bf4d72768ccb9664cd1de01cf222a",
         "pose-skill-index-parity": "sha256:c617c00c8f2221ae7990fa732a90631787cb58c6e19f8b09063e93eb1ec0fe83",
+        "pose-skills-harmonization": "sha256:79a4a5ff04fc0c2010ce2e62ce38c65dabca63d4cc54b1571bb7bb883788079d",
         "pose-spec-format-migration-command": "sha256:a1edf0f77531ee4fed58b94cd158451aae682404e58b36979c9f87f863e9c05d",
         "pose-spec-trailer-workflow-documentation": "sha256:a63e40350e03ac8a9f097787a530ef909338d391e1cb8e2f016fb437f9fdd7e1",
         "pose-specs-ergonomics-and-discovery": "sha256:e8cc8537df4e0c6660e5e7b80ac698033e4f0ab7f5cfaad7dee60f92d9127046",
@@ -85042,9 +85220,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "cd30bd0f6e74b1cadb33f9b3ef0d85c3995510ef",
-      "generated_at": "2026-08-22T09:16:42Z",
-      "provenance_digest": "sha256:dda528d1e6ffb7c808c65fa6a3927102ff79f87325ad467f5a40b385748f83d4",
+      "git_head": "88aa9c65013ba8db19fd12db7c4c56ac441316f0",
+      "generated_at": "2026-08-22T10:17:55Z",
+      "provenance_digest": "sha256:881eb81b0a57247f00cc9c60d2237c91f3e074cfee95558992022c9532487433",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -85090,7 +85268,7 @@
         "pose-manual-and-cli-command-parity": "sha256:c6e5f9893f7c235d0be5a22ace2a01751689010c46f1b812791a41968f714bb5",
         "pose-manual-distribution-merge": "sha256:c7282a3d18af07f82cd0d81146da5843be36a4c1f660dffbfaac1ecc844cae73",
         "pose-manual-locale-parity": "sha256:9604b127712e7fd58f6cf808317fff773ab7a6f5a04e209e63034e7beaf70a76",
-        "pose-mcp-active-context": "sha256:faa6ca3029b0890cc8a20c511b856e376df5294fcff32d5a684c196c29e69094",
+        "pose-mcp-active-context": "sha256:45a36ccd7420d41dcb09271302986dc1a1f876c61aedf54e0b946eab289a9531",
         "pose-monorepo-validation-advisory": "sha256:81e5cfea30eb91032986b75cdfc5715782ad95a35de93f92be6117d2e0f3b5b8",
         "pose-new-spec-default-flat-format": "sha256:bd78fea33c2f2d9de9cb1a1a79399fe4d911149a1d8e91c7a71734e3e90a360f",
         "pose-onboarding-context-extraction": "sha256:32545f3fa681e76de2aa20a31955a39a2c9bddc9af54c1a586d14fee8fc8bfc2",
@@ -85122,6 +85300,7 @@
         "pose-skill-closeout-gate-parity": "sha256:969eb6a8a24f086779db3d2947bac7e12e14ed88013efede363ad08fee255b80",
         "pose-skill-command-parity": "sha256:c095d3b661f1e78ad292d7047a0fafe8b17bf4d72768ccb9664cd1de01cf222a",
         "pose-skill-index-parity": "sha256:c617c00c8f2221ae7990fa732a90631787cb58c6e19f8b09063e93eb1ec0fe83",
+        "pose-skills-harmonization": "sha256:79a4a5ff04fc0c2010ce2e62ce38c65dabca63d4cc54b1571bb7bb883788079d",
         "pose-spec-format-migration-command": "sha256:a1edf0f77531ee4fed58b94cd158451aae682404e58b36979c9f87f863e9c05d",
         "pose-spec-trailer-workflow-documentation": "sha256:a63e40350e03ac8a9f097787a530ef909338d391e1cb8e2f016fb437f9fdd7e1",
         "pose-specs-ergonomics-and-discovery": "sha256:e8cc8537df4e0c6660e5e7b80ac698033e4f0ab7f5cfaad7dee60f92d9127046",
@@ -85146,9 +85325,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "cd30bd0f6e74b1cadb33f9b3ef0d85c3995510ef",
-      "generated_at": "2026-08-22T09:16:42Z",
-      "provenance_digest": "sha256:dda528d1e6ffb7c808c65fa6a3927102ff79f87325ad467f5a40b385748f83d4",
+      "git_head": "88aa9c65013ba8db19fd12db7c4c56ac441316f0",
+      "generated_at": "2026-08-22T10:17:55Z",
+      "provenance_digest": "sha256:881eb81b0a57247f00cc9c60d2237c91f3e074cfee95558992022c9532487433",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -85194,7 +85373,7 @@
         "pose-manual-and-cli-command-parity": "sha256:c6e5f9893f7c235d0be5a22ace2a01751689010c46f1b812791a41968f714bb5",
         "pose-manual-distribution-merge": "sha256:c7282a3d18af07f82cd0d81146da5843be36a4c1f660dffbfaac1ecc844cae73",
         "pose-manual-locale-parity": "sha256:9604b127712e7fd58f6cf808317fff773ab7a6f5a04e209e63034e7beaf70a76",
-        "pose-mcp-active-context": "sha256:faa6ca3029b0890cc8a20c511b856e376df5294fcff32d5a684c196c29e69094",
+        "pose-mcp-active-context": "sha256:45a36ccd7420d41dcb09271302986dc1a1f876c61aedf54e0b946eab289a9531",
         "pose-monorepo-validation-advisory": "sha256:81e5cfea30eb91032986b75cdfc5715782ad95a35de93f92be6117d2e0f3b5b8",
         "pose-new-spec-default-flat-format": "sha256:bd78fea33c2f2d9de9cb1a1a79399fe4d911149a1d8e91c7a71734e3e90a360f",
         "pose-onboarding-context-extraction": "sha256:32545f3fa681e76de2aa20a31955a39a2c9bddc9af54c1a586d14fee8fc8bfc2",
@@ -85226,6 +85405,7 @@
         "pose-skill-closeout-gate-parity": "sha256:969eb6a8a24f086779db3d2947bac7e12e14ed88013efede363ad08fee255b80",
         "pose-skill-command-parity": "sha256:c095d3b661f1e78ad292d7047a0fafe8b17bf4d72768ccb9664cd1de01cf222a",
         "pose-skill-index-parity": "sha256:c617c00c8f2221ae7990fa732a90631787cb58c6e19f8b09063e93eb1ec0fe83",
+        "pose-skills-harmonization": "sha256:79a4a5ff04fc0c2010ce2e62ce38c65dabca63d4cc54b1571bb7bb883788079d",
         "pose-spec-format-migration-command": "sha256:a1edf0f77531ee4fed58b94cd158451aae682404e58b36979c9f87f863e9c05d",
         "pose-spec-trailer-workflow-documentation": "sha256:a63e40350e03ac8a9f097787a530ef909338d391e1cb8e2f016fb437f9fdd7e1",
         "pose-specs-ergonomics-and-discovery": "sha256:e8cc8537df4e0c6660e5e7b80ac698033e4f0ab7f5cfaad7dee60f92d9127046",
@@ -85250,9 +85430,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "cd30bd0f6e74b1cadb33f9b3ef0d85c3995510ef",
-      "generated_at": "2026-08-22T09:16:42Z",
-      "provenance_digest": "sha256:dda528d1e6ffb7c808c65fa6a3927102ff79f87325ad467f5a40b385748f83d4",
+      "git_head": "88aa9c65013ba8db19fd12db7c4c56ac441316f0",
+      "generated_at": "2026-08-22T10:17:55Z",
+      "provenance_digest": "sha256:881eb81b0a57247f00cc9c60d2237c91f3e074cfee95558992022c9532487433",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -85298,7 +85478,7 @@
         "pose-manual-and-cli-command-parity": "sha256:c6e5f9893f7c235d0be5a22ace2a01751689010c46f1b812791a41968f714bb5",
         "pose-manual-distribution-merge": "sha256:c7282a3d18af07f82cd0d81146da5843be36a4c1f660dffbfaac1ecc844cae73",
         "pose-manual-locale-parity": "sha256:9604b127712e7fd58f6cf808317fff773ab7a6f5a04e209e63034e7beaf70a76",
-        "pose-mcp-active-context": "sha256:faa6ca3029b0890cc8a20c511b856e376df5294fcff32d5a684c196c29e69094",
+        "pose-mcp-active-context": "sha256:45a36ccd7420d41dcb09271302986dc1a1f876c61aedf54e0b946eab289a9531",
         "pose-monorepo-validation-advisory": "sha256:81e5cfea30eb91032986b75cdfc5715782ad95a35de93f92be6117d2e0f3b5b8",
         "pose-new-spec-default-flat-format": "sha256:bd78fea33c2f2d9de9cb1a1a79399fe4d911149a1d8e91c7a71734e3e90a360f",
         "pose-onboarding-context-extraction": "sha256:32545f3fa681e76de2aa20a31955a39a2c9bddc9af54c1a586d14fee8fc8bfc2",
@@ -85330,6 +85510,7 @@
         "pose-skill-closeout-gate-parity": "sha256:969eb6a8a24f086779db3d2947bac7e12e14ed88013efede363ad08fee255b80",
         "pose-skill-command-parity": "sha256:c095d3b661f1e78ad292d7047a0fafe8b17bf4d72768ccb9664cd1de01cf222a",
         "pose-skill-index-parity": "sha256:c617c00c8f2221ae7990fa732a90631787cb58c6e19f8b09063e93eb1ec0fe83",
+        "pose-skills-harmonization": "sha256:79a4a5ff04fc0c2010ce2e62ce38c65dabca63d4cc54b1571bb7bb883788079d",
         "pose-spec-format-migration-command": "sha256:a1edf0f77531ee4fed58b94cd158451aae682404e58b36979c9f87f863e9c05d",
         "pose-spec-trailer-workflow-documentation": "sha256:a63e40350e03ac8a9f097787a530ef909338d391e1cb8e2f016fb437f9fdd7e1",
         "pose-specs-ergonomics-and-discovery": "sha256:e8cc8537df4e0c6660e5e7b80ac698033e4f0ab7f5cfaad7dee60f92d9127046",
@@ -85354,9 +85535,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "cd30bd0f6e74b1cadb33f9b3ef0d85c3995510ef",
-      "generated_at": "2026-08-22T09:16:42Z",
-      "provenance_digest": "sha256:dda528d1e6ffb7c808c65fa6a3927102ff79f87325ad467f5a40b385748f83d4",
+      "git_head": "88aa9c65013ba8db19fd12db7c4c56ac441316f0",
+      "generated_at": "2026-08-22T10:17:55Z",
+      "provenance_digest": "sha256:881eb81b0a57247f00cc9c60d2237c91f3e074cfee95558992022c9532487433",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -85402,7 +85583,7 @@
         "pose-manual-and-cli-command-parity": "sha256:c6e5f9893f7c235d0be5a22ace2a01751689010c46f1b812791a41968f714bb5",
         "pose-manual-distribution-merge": "sha256:c7282a3d18af07f82cd0d81146da5843be36a4c1f660dffbfaac1ecc844cae73",
         "pose-manual-locale-parity": "sha256:9604b127712e7fd58f6cf808317fff773ab7a6f5a04e209e63034e7beaf70a76",
-        "pose-mcp-active-context": "sha256:faa6ca3029b0890cc8a20c511b856e376df5294fcff32d5a684c196c29e69094",
+        "pose-mcp-active-context": "sha256:45a36ccd7420d41dcb09271302986dc1a1f876c61aedf54e0b946eab289a9531",
         "pose-monorepo-validation-advisory": "sha256:81e5cfea30eb91032986b75cdfc5715782ad95a35de93f92be6117d2e0f3b5b8",
         "pose-new-spec-default-flat-format": "sha256:bd78fea33c2f2d9de9cb1a1a79399fe4d911149a1d8e91c7a71734e3e90a360f",
         "pose-onboarding-context-extraction": "sha256:32545f3fa681e76de2aa20a31955a39a2c9bddc9af54c1a586d14fee8fc8bfc2",
@@ -85434,6 +85615,7 @@
         "pose-skill-closeout-gate-parity": "sha256:969eb6a8a24f086779db3d2947bac7e12e14ed88013efede363ad08fee255b80",
         "pose-skill-command-parity": "sha256:c095d3b661f1e78ad292d7047a0fafe8b17bf4d72768ccb9664cd1de01cf222a",
         "pose-skill-index-parity": "sha256:c617c00c8f2221ae7990fa732a90631787cb58c6e19f8b09063e93eb1ec0fe83",
+        "pose-skills-harmonization": "sha256:79a4a5ff04fc0c2010ce2e62ce38c65dabca63d4cc54b1571bb7bb883788079d",
         "pose-spec-format-migration-command": "sha256:a1edf0f77531ee4fed58b94cd158451aae682404e58b36979c9f87f863e9c05d",
         "pose-spec-trailer-workflow-documentation": "sha256:a63e40350e03ac8a9f097787a530ef909338d391e1cb8e2f016fb437f9fdd7e1",
         "pose-specs-ergonomics-and-discovery": "sha256:e8cc8537df4e0c6660e5e7b80ac698033e4f0ab7f5cfaad7dee60f92d9127046",
@@ -85458,9 +85640,9 @@
       "evidence_class": "build",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "cd30bd0f6e74b1cadb33f9b3ef0d85c3995510ef",
-      "generated_at": "2026-08-22T09:16:42Z",
-      "provenance_digest": "sha256:dda528d1e6ffb7c808c65fa6a3927102ff79f87325ad467f5a40b385748f83d4",
+      "git_head": "88aa9c65013ba8db19fd12db7c4c56ac441316f0",
+      "generated_at": "2026-08-22T10:17:55Z",
+      "provenance_digest": "sha256:881eb81b0a57247f00cc9c60d2237c91f3e074cfee95558992022c9532487433",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-action-runtime-currency-gate": "sha256:fad10f59b8ec216fe5e5a58fc4a613e53cbf35540462d66eb387e47d4a802d04",
@@ -85506,7 +85688,7 @@
         "pose-manual-and-cli-command-parity": "sha256:c6e5f9893f7c235d0be5a22ace2a01751689010c46f1b812791a41968f714bb5",
         "pose-manual-distribution-merge": "sha256:c7282a3d18af07f82cd0d81146da5843be36a4c1f660dffbfaac1ecc844cae73",
         "pose-manual-locale-parity": "sha256:9604b127712e7fd58f6cf808317fff773ab7a6f5a04e209e63034e7beaf70a76",
-        "pose-mcp-active-context": "sha256:faa6ca3029b0890cc8a20c511b856e376df5294fcff32d5a684c196c29e69094",
+        "pose-mcp-active-context": "sha256:45a36ccd7420d41dcb09271302986dc1a1f876c61aedf54e0b946eab289a9531",
         "pose-monorepo-validation-advisory": "sha256:81e5cfea30eb91032986b75cdfc5715782ad95a35de93f92be6117d2e0f3b5b8",
         "pose-new-spec-default-flat-format": "sha256:bd78fea33c2f2d9de9cb1a1a79399fe4d911149a1d8e91c7a71734e3e90a360f",
         "pose-onboarding-context-extraction": "sha256:32545f3fa681e76de2aa20a31955a39a2c9bddc9af54c1a586d14fee8fc8bfc2",
@@ -85538,6 +85720,7 @@
         "pose-skill-closeout-gate-parity": "sha256:969eb6a8a24f086779db3d2947bac7e12e14ed88013efede363ad08fee255b80",
         "pose-skill-command-parity": "sha256:c095d3b661f1e78ad292d7047a0fafe8b17bf4d72768ccb9664cd1de01cf222a",
         "pose-skill-index-parity": "sha256:c617c00c8f2221ae7990fa732a90631787cb58c6e19f8b09063e93eb1ec0fe83",
+        "pose-skills-harmonization": "sha256:79a4a5ff04fc0c2010ce2e62ce38c65dabca63d4cc54b1571bb7bb883788079d",
         "pose-spec-format-migration-command": "sha256:a1edf0f77531ee4fed58b94cd158451aae682404e58b36979c9f87f863e9c05d",
         "pose-spec-trailer-workflow-documentation": "sha256:a63e40350e03ac8a9f097787a530ef909338d391e1cb8e2f016fb437f9fdd7e1",
         "pose-specs-ergonomics-and-discovery": "sha256:e8cc8537df4e0c6660e5e7b80ac698033e4f0ab7f5cfaad7dee60f92d9127046",
@@ -87369,43 +87552,13 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-lifecycle-closure",
-      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
-      "artifact:.pose/indexes/releases.json",
-      "artifact:.pose/policy/changelog.json",
-      "artifact:.pose/release-policy.json",
-      "artifact:.pose/rules/release-integrity.md",
-      "artifact:.pose/workflows/release.md",
-      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
-      "artifact:locales/pt-BR/.pose/workflows/release.md",
-      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
-      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
-      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
-      "artifact:.agents/skills/README.md",
+      "spec:pose-release-evidence-trigger-fix",
+      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.pose/indexes/task-map.json",
-      "artifact:.pose/indexes/validation-matrix.json",
-      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
-      "artifact:POSE.md",
-      "artifact:docs-site/docs/cli.md",
-      "artifact:docs-site/docs/mcp.md",
-      "artifact:pose-mcp/internal/cli/check.go",
-      "artifact:pose-mcp/internal/cli/cli.go",
-      "artifact:pose-mcp/internal/cli/index.go",
-      "artifact:pose-mcp/internal/cli/maintenance.go",
-      "artifact:pose-mcp/internal/cli/native_only_test.go",
-      "artifact:pose-mcp/internal/cli/skills_check_test.go",
-      "artifact:pose-mcp/internal/mcpserver/catalog.go",
-      "artifact:pose-mcp/internal/mcpserver/server.go",
-      "artifact:pose-mcp/internal/mcpserver/server_test.go",
-      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "artifact:pose-mcp/internal/pose/changelogs.go",
-      "artifact:pose-mcp/internal/scaffold/scaffold.go",
-      "artifact:scripts/release.sh",
+      "artifact:.github/workflows/verify-release.yml",
+      "artifact:docs-site/docs/ci.md",
+      "artifact:pose-mcp/internal/version/contract_test.go",
+      "artifact:pose-mcp/internal/version/version.go",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -87996,6 +88149,24 @@
       "artifact:pose-mcp/internal/cli/stack_seed.go",
       "artifact:pose-mcp/internal/pose/review_bundle.go",
       "delivery:surface:review-policy-v2-migration",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-reachability"
+    ],
+    "surface:skills-harmonization": [
+      "spec:pose-skills-harmonization",
+      "artifact:.agents/skills/pose-feature/SKILL.md",
+      "artifact:.agents/skills/pose-review/SKILL.md",
+      "artifact:.agents/skills/pose-spec-closeout/SKILL.md",
+      "artifact:locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+      "artifact:locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+      "artifact:locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md",
+      "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md",
+      "artifact:pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
+      "delivery:surface:skills-harmonization",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-reachability"
     ]

@@ -433,6 +433,9 @@ func claimMatchesObserved(claims []ArtifactClaim, observed ObservedPath) bool {
 		if claimKeyNoSpec(claim) == observedKey(observed) {
 			return true
 		}
+		if claim.Action == "created" && observed.Action == "modified" && normalizeSpecPath(claim.Path) == normalizeSpecPath(observed.Path) {
+			return true
+		}
 	}
 	return false
 }

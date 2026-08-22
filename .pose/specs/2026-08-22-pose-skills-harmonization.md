@@ -1,12 +1,13 @@
 ---
 slug: pose-skills-harmonization
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-review-policy-v2-migration-and-verify-compat
 priority: 26
 components: cli, scaffold, documentation
 delivers: surface:skills-harmonization
+completed_at: 2026-08-22
 ---
 
 # Spec: Harmonization of Agent Skills with Modern Spec Layout, Assessment Tools, and Review Bundles

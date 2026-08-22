@@ -64,6 +64,22 @@ func TestDeliveryIntegrityKeepsClaimsObservationsAndReverseSeparate(t *testing.T
 	}
 }
 
+func TestDeliveryIntegrityCreatedClaimMatchesSubsequentModifications(t *testing.T) {
+	policy := ArtifactPolicy{SchemaVersion: 1, Enabled: true, GovernedRoots: []string{"internal"}, Severities: map[string]string{"action-mismatch": "error", "undeclared": "error"}}
+	specs := []Spec{{Slug: "beta", Status: "done"}}
+	claims := []ArtifactClaim{{Spec: "beta", Action: "created", Path: "internal/feature.go"}}
+	sets := []ChangeSet{
+		{ID: "cs-1", Spec: "beta", Selector: "range:a..b", Paths: []ObservedPath{{Action: "created", Path: "internal/feature.go"}}},
+		{ID: "cs-2", Spec: "beta", Selector: "trailers:beta", Paths: []ObservedPath{{Action: "modified", Path: "internal/feature.go"}}},
+	}
+	graph := BuildDeliveryIntegrity(specs, claims, sets, []string{"internal/feature.go"}, policy)
+	for _, finding := range graph.Findings {
+		if finding.Severity == "error" {
+			t.Errorf("unexpected error finding: %+v", finding)
+		}
+	}
+}
+
 func TestDeliveryIntegrityFindingIDsAndInputDigestAreStable(t *testing.T) {
 	policy := ArtifactPolicy{GovernedRoots: []string{"cmd"}}
 	args := func() DeliveryIntegrityGraph {

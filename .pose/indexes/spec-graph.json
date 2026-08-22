@@ -457,6 +457,10 @@
       "to": "pose-skill-command-parity"
     },
     {
+      "from": "pose-skills-harmonization",
+      "to": "pose-review-policy-v2-migration-and-verify-compat"
+    },
+    {
       "from": "pose-slsa-provenance",
       "to": "pose-release-signing"
     },
@@ -1378,6 +1382,14 @@
       ],
       "path": ".pose/specs/2026-08-10-pose-skill-index-parity.md",
       "priority": 1,
+      "status": "done"
+    },
+    "pose-skills-harmonization": {
+      "depends_on": [
+        "pose-review-policy-v2-migration-and-verify-compat"
+      ],
+      "path": ".pose/specs/2026-08-22-pose-skills-harmonization.md",
+      "priority": 26,
       "status": "done"
     },
     "pose-slsa-provenance": {
