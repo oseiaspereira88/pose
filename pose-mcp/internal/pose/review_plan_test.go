@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 )
 
 func componentReviewFixture(t *testing.T) (string, Store) {
@@ -572,3 +573,107 @@ func planHasTool(plan ReviewPlan, id string) bool {
 	}
 	return false
 }
+
+func TestReviewPlanOverlayProfilesWithUninstalledExtensionRulesDegradeToWarnings(t *testing.T) {
+	root, store := componentReviewFixture(t)
+	// Overlay profiles reference extension rules backend-go and frontend-react which are not on disk in .pose/rules/
+	writeReviewFixture(t, root, ".pose/review-profiles/backend-review.json", `{
+  "schema_version":2,"id":"backend-review","version":1,"scope":"spec",
+  "selectors":{"languages":["go"]},
+  "criteria":[
+    {"id":"backend-contracts","description":"Contracts and errors are compatible.","rules":["backend-go"],"evidence_classes":["integration"]}
+  ],
+  "tools":[{"id":"assess-integrate","requiredness":"recommended","criteria":["backend-contracts"]}]
+}`)
+	writeReviewFixture(t, root, ".pose/review-profiles/frontend-review.json", `{
+  "schema_version":2,"id":"frontend-review","version":1,"scope":"spec",
+  "selectors":{"languages":["typescript"]},
+  "criteria":[
+    {"id":"frontend-accessibility","description":"The interface is accessible.","rules":["frontend-react"],"evidence_classes":["a11y"]}
+  ],
+  "tools":[{"id":"surface-check","requiredness":"required","evidence_classes":["reachability"],"criteria":["frontend-accessibility"]}]
+}`)
+
+	// Scope 1: frontend scope does NOT match backend-review (Go). Backend-review should not block.
+	// Frontend-review matches TypeScript; its missing rule backend-react degrades to a warning.
+	plan, err := store.ReviewPlan("spec:frontend")
+	if err != nil {
+		t.Fatalf("ReviewPlan failed: %v", err)
+	}
+	if len(plan.Blockers) > 0 {
+		t.Fatalf("unexpected blockers: %v", plan.Blockers)
+	}
+	hasWarning := false
+	for _, w := range plan.Warnings {
+		if strings.Contains(w, `uninstalled review rule "frontend-react"`) {
+			hasWarning = true
+			break
+		}
+	}
+	if !hasWarning {
+		t.Fatalf("expected warning for uninstalled rule frontend-react, got: %v", plan.Warnings)
+	}
+
+	// Scope 2: backend scope matches backend-review; its missing rule backend-go degrades to warning.
+	writeReviewFixture(t, root, "api/server.go", "package api\n\nfunc Ready() bool { return true }\n")
+	writeReviewFixture(t, root, ".pose/specs/backend/spec.md", `---
+slug: backend
+status: in-progress
+created_at: 2026-08-13
+components: api
+delivers: contract:backend-api
+---
+# Spec: Backend
+
+## 3. Technical Plan
+### Artifacts
+- modified: api/server.go
+
+### Delivery targets
+- contract:backend-api module:api profile:api-contract entrypoint:api/server.go
+`)
+	graph := DeliveryIntegrityGraph{
+		SchemaVersion:    1,
+		ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		ChangeSets: []ChangeSet{{
+			ID: "cs-backend", Spec: "backend", Selector: "range:base..head",
+			Base: "base", Head: "head", ResolvedBase: "base-resolved", ResolvedHead: "head-resolved",
+			Paths:      []ObservedPath{{Action: "modified", Path: "api/server.go"}},
+			DiffDigest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+		}},
+		Deliveries:        []DeliveryTarget{{Spec: "backend", Ref: "contract:backend-api", Kind: "contract", ID: "backend-api", Module: "api", Profile: "api-contract", Entrypoint: "api/server.go"}},
+		ValidationResults: []DeliveryValidationResult{{ID: "validate-backend", Module: "api", Check: "go-test", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}},
+		Reverse:           map[string][]string{"api/server.go": {"backend"}}, Nodes: []DeliveryIntegrityNode{}, Edges: []DeliveryIntegrityEdge{}, Claims: []ArtifactClaim{}, Findings: []DeliveryIntegrityFinding{},
+	}
+	rawGraph, _ := json.MarshalIndent(graph, "", "  ")
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(rawGraph))
+
+	plan, err = store.ReviewPlan("spec:backend")
+	if err != nil {
+		t.Fatalf("ReviewPlan backend failed: %v", err)
+	}
+	if len(plan.Blockers) > 0 {
+		t.Fatalf("unexpected blockers: %v", plan.Blockers)
+	}
+	hasBackendWarning := false
+	for _, w := range plan.Warnings {
+		if strings.Contains(w, `uninstalled review rule "backend-go"`) {
+			hasBackendWarning = true
+			break
+		}
+	}
+	if !hasBackendWarning {
+		t.Fatalf("expected warning for uninstalled rule backend-go, got: %v", plan.Warnings)
+	}
+
+	// Verify bundle sealing succeeds despite uninstalled extension rules
+	bundle, sealErr := store.SealReviewBundle("spec:backend", time.Now().UTC())
+	if sealErr != nil {
+		t.Fatalf("SealReviewBundle failed: %v", sealErr)
+	}
+	if bundle.State != "sealed" {
+		t.Fatalf("bundle state=%s, want sealed", bundle.State)
+	}
+}
+
+

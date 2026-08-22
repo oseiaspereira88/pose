@@ -330,12 +330,8 @@ func (s Store) validateReviewContractRefs(ref string, rules, evidenceClasses []s
 		if !slugPattern.MatchString(rule) {
 			return fmt.Errorf("pose: invalid review rule %q in %s", rule, ref)
 		}
-		path := filepath.Join(s.Root, ".pose", "rules", rule+".md")
 		if err := ValidateArtifactPath(s.Root, filepath.ToSlash(filepath.Join(".pose", "rules", rule+".md")), false); err != nil {
 			return fmt.Errorf("pose: unsafe review rule %q in %s: %w", rule, ref, err)
-		}
-		if _, err := os.Stat(path); err != nil {
-			return fmt.Errorf("pose: unknown review rule %q in %s", rule, ref)
 		}
 	}
 	for _, class := range evidenceClasses {

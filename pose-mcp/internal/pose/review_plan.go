@@ -256,6 +256,14 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 		plan.Explain = append(plan.Explain, "cross-component-integration added because multiple mapped component roots are affected")
 	}
 	plan.Tools, plan.Blockers = buildReviewTools(scope, context, profiles, plan.Criteria, plan.Blockers)
+	for _, c := range plan.Criteria {
+		for _, rule := range c.Rules {
+			path := filepath.Join(s.Root, ".pose", "rules", rule+".md")
+			if _, statErr := os.Stat(path); statErr != nil {
+				plan.Warnings = append(plan.Warnings, fmt.Sprintf("uninstalled review rule %q for criterion %s (install via extension)", rule, c.ID))
+			}
+		}
+	}
 	plan.Warnings = uniqueSorted(plan.Warnings)
 	plan.Blockers = uniqueSorted(plan.Blockers)
 	plan.Explain = uniqueStable(plan.Explain)
