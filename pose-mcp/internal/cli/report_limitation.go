@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -127,19 +128,28 @@ reported_at: %s
 
 		fmt.Fprintln(stdout, text("[INFO] Submitting report upstream to oseiaspereira88/pose on GitHub...", "[INFO] Submetendo relato ao repositório upstream oseiaspereira88/pose no GitHub..."))
 
+		var outBuf bytes.Buffer
 		cmd := exec.Command("gh", "issue", "create",
 			"--repo", "oseiaspereira88/pose",
 			"--title", fmt.Sprintf("[%s] %s", strings.ToUpper(kind), title),
 			"--body", fullReport,
 			"--label", label,
 		)
-		cmd.Stdout = stdout
+		cmd.Stdout = io.MultiWriter(stdout, &outBuf)
 		cmd.Stderr = stderr
 		if err := cmd.Run(); err != nil {
 			fmt.Fprintf(stderr, text("[WARN] Could not submit issue automatically via gh CLI: %v\n", "[WARN] Não foi possível submeter issue automaticamente via gh CLI: %v\n"), err)
 			fmt.Fprintln(stdout, text("You can copy the local feedback file and post it manually at https://github.com/oseiaspereira88/pose/issues", "Você pode copiar o arquivo local de feedback e publicar manualmente em https://github.com/oseiaspereira88/pose/issues"))
 		} else {
-			fmt.Fprintln(stdout, text("Result: SUCCESS — Report published to community tracker!", "Resultado: SUCESSO — Relato publicado no rastreador da comunidade!"))
+			issueURL := strings.TrimSpace(outBuf.String())
+			_ = updateContributionStatus(localPath, "submitted", issueURL, "")
+			if IsContributorModeActive(root) {
+				ts := time.Now().UTC().Format("20060102-150405")
+				contribFilename := fmt.Sprintf("%s-%s.md", ts, slug)
+				contribPath := filepath.Join(root, filepath.FromSlash(contributionsDir), contribFilename)
+				_ = updateContributionStatus(contribPath, "submitted", issueURL, "")
+			}
+			fmt.Fprintln(stdout, text("Result: SUCCESS — Report published to community tracker and marked as submitted!", "Resultado: SUCESSO — Relato publicado no rastreador da comunidade e marcado como submetido!"))
 		}
 	} else {
 		fmt.Fprintln(stdout, text("To submit this upstream to the POSE core repository, run with --submit or post at https://github.com/oseiaspereira88/pose/issues", "Para submeter ao repositório central do POSE, rode com --submit ou publique em https://github.com/oseiaspereira88/pose/issues"))

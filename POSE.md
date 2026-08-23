@@ -447,10 +447,11 @@ POSE is the operational layer that makes agent work reliable in the repository:
 
 <!-- pose:contributor-mode -->
 
-This repository has enabled POSE Contributor Mode. Executing AI agents will automatically stage feedback, bug reports, and stack extension proposals under `.pose/contributions/` when encountering workflow friction.
+This repository has enabled POSE Contributor Mode. Executing AI agents collaborate on improving POSE engine stability and developer experience under explicit user adjudication.
 
-- **Continuous Opportunity Scouting**: On every issue resolution or task execution, agents must actively scan and investigate related edge cases, adjacent tool interactions, and potential improvement opportunities to resolve root-cause families completely.
-- Check staged contributions: `pose contribute list`
+- **Continuous Opportunity Scouting**: On every issue resolution or task execution, proactively scout for related improvements, edge cases, root-level parity gaps, or complementary corrections across adjacent tools and commands.
+- **User Consent & Explicit Adjudication**: Staging or submitting contributions upstream is ALWAYS an explicit user decision. Agents must ask the user for confirmation before staging drafts under `.pose/contributions/` or opening GitHub issues.
+- **Lifecycle & Status Integrity**: Track contribution states (`staged` -> `submitted` / `dismissed`) with `pose contribute list --status <staged|submitted|dismissed|all>`, `pose contribute submit <file>`, `pose contribute mark-submitted <file> [--issue-url <url>]`, or `pose contribute dismiss <file>`.
 - Check contributor status: `pose contribute status`
 - Stage a contribution manually: `pose contribute stage --type <bug|enhancement> --title <title>`
 - Disable contributor mode: `pose contribute disable`

@@ -1,15 +1,18 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
 
+	posepkg "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
@@ -27,12 +30,15 @@ type contributorState struct {
 }
 
 type stagedContribution struct {
-	Path      string `json:"path"`
-	Filename  string `json:"filename"`
-	Title     string `json:"title"`
-	Type      string `json:"type"`
-	CreatedAt string `json:"created_at"`
-	Status    string `json:"status"`
+	Path          string `json:"path"`
+	Filename      string `json:"filename"`
+	Title         string `json:"title"`
+	Type          string `json:"type"`
+	CreatedAt     string `json:"created_at"`
+	Status        string `json:"status"`
+	SubmittedAt   string `json:"submitted_at,omitempty"`
+	UpstreamIssue string `json:"upstream_issue,omitempty"`
+	DismissReason string `json:"dismiss_reason,omitempty"`
 }
 
 func loadContributorState(root string) (*contributorState, error) {
@@ -98,6 +104,12 @@ func cmdContribute(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdContributeStage(target, flags, stdout, stderr, commandLocale)
 	case "list":
 		return cmdContributeList(target, flags, stdout, stderr, commandLocale)
+	case "submit":
+		return cmdContributeSubmit(target, flags, stdout, stderr, commandLocale)
+	case "mark-submitted":
+		return cmdContributeMarkSubmitted(target, flags, stdout, stderr, commandLocale)
+	case "dismiss":
+		return cmdContributeDismiss(target, flags, stdout, stderr, commandLocale)
 	default:
 		fmt.Fprintf(stderr, text("pose contribute: unknown subcommand: %s\n", "pose contribute: subcomando desconhecido: %s\n"), subcmd)
 		return 2
@@ -291,28 +303,244 @@ privacy: sanitized-synthetic
 func cmdContributeList(target string, flags []string, stdout, stderr io.Writer, commandLocale cliLocale) int {
 	text := func(en, pt string) string { return cliText(commandLocale, en, pt) }
 	jsonOut := hasFlag(flags, "--json")
+	statusFilter := "all"
+	for i := 0; i < len(flags); i++ {
+		if flags[i] == "--status" && i+1 < len(flags) {
+			statusFilter = strings.ToLower(flags[i+1])
+			i++
+		}
+	}
 	items, err := listStagedContributions(target)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose contribute list: %v\n", err)
 		return 1
 	}
 
+	var filtered []stagedContribution
+	for _, it := range items {
+		st := it.Status
+		if st == "" {
+			st = "staged"
+		}
+		if statusFilter == "all" || strings.EqualFold(st, statusFilter) {
+			filtered = append(filtered, it)
+		}
+	}
+
 	if jsonOut {
 		enc := json.NewEncoder(stdout)
 		enc.SetIndent("", "  ")
-		return boolToExit(enc.Encode(items) == nil)
+		return boolToExit(enc.Encode(filtered) == nil)
 	}
 
-	if len(items) == 0 {
-		fmt.Fprintln(stdout, text("No staged contributions found in .pose/contributions/", "Nenhuma contribuição em rascunho encontrada em .pose/contributions/"))
+	if len(filtered) == 0 {
+		fmt.Fprintln(stdout, text("No contributions found matching criteria in .pose/contributions/", "Nenhuma contribuição encontrada com os critérios em .pose/contributions/"))
 		return 0
 	}
 
-	fmt.Fprintf(stdout, text("Found %d staged contribution(s):\n", "Encontrada(s) %d contribuição(ões) em rascunho:\n"), len(items))
-	for _, it := range items {
-		fmt.Fprintf(stdout, "  - [%s] %s (%s) -> %s\n", it.Type, it.Title, it.CreatedAt, it.Filename)
+	fmt.Fprintf(stdout, text("Found %d contribution(s):\n", "Encontrada(s) %d contribuição(ões):\n"), len(filtered))
+	for _, it := range filtered {
+		st := it.Status
+		if st == "" {
+			st = "staged"
+		}
+		extra := ""
+		if it.UpstreamIssue != "" {
+			extra = " (" + it.UpstreamIssue + ")"
+		} else if it.DismissReason != "" {
+			extra = " [reason: " + it.DismissReason + "]"
+		}
+		fmt.Fprintf(stdout, "  - [%s] [%s] %s (%s)%s -> %s\n", st, it.Type, it.Title, it.CreatedAt, extra, it.Filename)
 	}
 	return 0
+}
+
+func cmdContributeMarkSubmitted(target string, flags []string, stdout, stderr io.Writer, commandLocale cliLocale) int {
+	text := func(en, pt string) string { return cliText(commandLocale, en, pt) }
+	if len(flags) == 0 {
+		fmt.Fprintln(stderr, text("Usage: pose contribute mark-submitted <filename|slug> [--issue-url <url>]", "Uso: pose contribute mark-submitted <filename|slug> [--issue-url <url>]"))
+		return 2
+	}
+	query := flags[0]
+	var issueURL string
+	for i := 1; i < len(flags); i++ {
+		if (flags[i] == "--issue-url" || flags[i] == "--url") && i+1 < len(flags) {
+			issueURL = flags[i+1]
+			i++
+		}
+	}
+	filePath, err := findContributionFile(target, query)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose contribute mark-submitted: %v\n", err)
+		return 1
+	}
+	if err := updateContributionStatus(filePath, "submitted", issueURL, ""); err != nil {
+		fmt.Fprintf(stderr, "pose contribute mark-submitted: updating file: %v\n", err)
+		return 1
+	}
+	fmt.Fprintf(stdout, text("Contribution marked as submitted: %s\n", "Contribuição marcada como submetida: %s\n"), filepath.Base(filePath))
+	return 0
+}
+
+func cmdContributeDismiss(target string, flags []string, stdout, stderr io.Writer, commandLocale cliLocale) int {
+	text := func(en, pt string) string { return cliText(commandLocale, en, pt) }
+	if len(flags) == 0 {
+		fmt.Fprintln(stderr, text("Usage: pose contribute dismiss <filename|slug> [--reason <text>]", "Uso: pose contribute dismiss <filename|slug> [--reason <texto>]"))
+		return 2
+	}
+	query := flags[0]
+	var reason string
+	for i := 1; i < len(flags); i++ {
+		if flags[i] == "--reason" && i+1 < len(flags) {
+			reason = flags[i+1]
+			i++
+		}
+	}
+	filePath, err := findContributionFile(target, query)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose contribute dismiss: %v\n", err)
+		return 1
+	}
+	if err := updateContributionStatus(filePath, "dismissed", "", reason); err != nil {
+		fmt.Fprintf(stderr, "pose contribute dismiss: updating file: %v\n", err)
+		return 1
+	}
+	fmt.Fprintf(stdout, text("Contribution marked as dismissed: %s\n", "Contribuição marcada como descartada: %s\n"), filepath.Base(filePath))
+	return 0
+}
+
+func cmdContributeSubmit(target string, flags []string, stdout, stderr io.Writer, commandLocale cliLocale) int {
+	text := func(en, pt string) string { return cliText(commandLocale, en, pt) }
+	if len(flags) == 0 {
+		fmt.Fprintln(stderr, text("Usage: pose contribute submit <filename|slug>", "Uso: pose contribute submit <filename|slug>"))
+		return 2
+	}
+	query := flags[0]
+	filePath, err := findContributionFile(target, query)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose contribute submit: %v\n", err)
+		return 1
+	}
+	raw, err := os.ReadFile(filePath)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose contribute submit: reading file: %v\n", err)
+		return 1
+	}
+	c := parseStagedContribution(string(raw), filepath.Base(filePath), filePath)
+	_, body := posepkg.SplitFrontmatter(string(raw))
+
+	fmt.Fprintln(stdout, text("[INFO] Submitting contribution upstream to oseiaspereira88/pose on GitHub...", "[INFO] Submetendo contribuição ao repositório upstream oseiaspereira88/pose no GitHub..."))
+
+	label := feedbackIssueLabel(c.Type)
+	var outBuf bytes.Buffer
+	cmd := exec.Command("gh", "issue", "create",
+		"--repo", "oseiaspereira88/pose",
+		"--title", fmt.Sprintf("[%s] %s", strings.ToUpper(c.Type), c.Title),
+		"--body", strings.TrimSpace(body),
+		"--label", label,
+	)
+	cmd.Stdout = io.MultiWriter(stdout, &outBuf)
+	cmd.Stderr = stderr
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintf(stderr, text("[WARN] Could not submit issue automatically via gh CLI: %v\n", "[WARN] Não foi possível submeter issue automaticamente via gh CLI: %v\n"), err)
+		return 1
+	}
+	issueURL := strings.TrimSpace(outBuf.String())
+	_ = updateContributionStatus(filePath, "submitted", issueURL, "")
+	fmt.Fprintln(stdout, text("Result: SUCCESS — Contribution submitted upstream and status updated to 'submitted'!", "Resultado: SUCESSO — Contribuição submetida e status atualizado para 'submitted'!"))
+	return 0
+}
+
+func findContributionFile(root, query string) (string, error) {
+	contribDir := filepath.Join(root, filepath.FromSlash(contributionsDir))
+	if _, err := os.Stat(query); err == nil {
+		return query, nil
+	}
+	exact := filepath.Join(contribDir, query)
+	if _, err := os.Stat(exact); err == nil {
+		return exact, nil
+	}
+	if !strings.HasSuffix(query, ".md") {
+		if _, err := os.Stat(exact + ".md"); err == nil {
+			return exact + ".md", nil
+		}
+	}
+	entries, err := os.ReadDir(contribDir)
+	if err != nil {
+		return "", err
+	}
+	for _, e := range entries {
+		if strings.Contains(e.Name(), query) {
+			return filepath.Join(contribDir, e.Name()), nil
+		}
+	}
+	return "", fmt.Errorf("contribution file not found for query %q under %s/", query, contributionsDir)
+}
+
+func updateContributionStatus(filePath, status, issueURL, reason string) error {
+	raw, err := os.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+	content := string(raw)
+	lines := strings.Split(content, "\n")
+	var newLines []string
+	inFm := false
+	statusSet := false
+	submittedAtSet := false
+	upstreamIssueSet := false
+	now := time.Now().UTC().Format(time.RFC3339)
+
+	for i, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		if trimmed == "---" {
+			if !inFm {
+				inFm = true
+				newLines = append(newLines, l)
+				continue
+			}
+			// exiting frontmatter
+			if !statusSet {
+				newLines = append(newLines, "status: "+status)
+			}
+			if status == "submitted" && !submittedAtSet {
+				newLines = append(newLines, fmt.Sprintf("submitted_at: %q", now))
+			}
+			if issueURL != "" && !upstreamIssueSet {
+				newLines = append(newLines, fmt.Sprintf("upstream_issue: %q", issueURL))
+			}
+			if reason != "" {
+				newLines = append(newLines, fmt.Sprintf("dismiss_reason: %q", reason))
+			}
+			inFm = false
+			newLines = append(newLines, l)
+			newLines = append(newLines, lines[i+1:]...)
+			break
+		}
+		if inFm {
+			if strings.HasPrefix(trimmed, "status:") {
+				newLines = append(newLines, "status: "+status)
+				statusSet = true
+				continue
+			}
+			if strings.HasPrefix(trimmed, "submitted_at:") {
+				if status == "submitted" {
+					newLines = append(newLines, fmt.Sprintf("submitted_at: %q", now))
+					submittedAtSet = true
+				}
+				continue
+			}
+			if strings.HasPrefix(trimmed, "upstream_issue:") {
+				if issueURL != "" {
+					newLines = append(newLines, fmt.Sprintf("upstream_issue: %q", issueURL))
+					upstreamIssueSet = true
+				}
+				continue
+			}
+		}
+		newLines = append(newLines, l)
+	}
+	return os.WriteFile(filePath, []byte(strings.Join(newLines, "\n")), 0o644)
 }
 
 func listStagedContributions(root string) ([]stagedContribution, error) {
@@ -372,6 +600,12 @@ func parseStagedContribution(content, filename, path string) stagedContribution 
 				c.CreatedAt = strings.Trim(strings.TrimSpace(strings.TrimPrefix(trimmed, "created_at:")), `"`)
 			} else if strings.HasPrefix(trimmed, "status:") {
 				c.Status = strings.Trim(strings.TrimSpace(strings.TrimPrefix(trimmed, "status:")), `"`)
+			} else if strings.HasPrefix(trimmed, "submitted_at:") {
+				c.SubmittedAt = strings.Trim(strings.TrimSpace(strings.TrimPrefix(trimmed, "submitted_at:")), `"`)
+			} else if strings.HasPrefix(trimmed, "upstream_issue:") {
+				c.UpstreamIssue = strings.Trim(strings.TrimSpace(strings.TrimPrefix(trimmed, "upstream_issue:")), `"`)
+			} else if strings.HasPrefix(trimmed, "dismiss_reason:") {
+				c.DismissReason = strings.Trim(strings.TrimSpace(strings.TrimPrefix(trimmed, "dismiss_reason:")), `"`)
 			}
 		}
 	}
@@ -388,9 +622,10 @@ func injectContributorDocs(target, loc string) error {
 
 **Contributor Mode is ACTIVE.** When executing tasks, if you encounter POSE engine defects, tool frictions, missing stack rules, diagnostic false-positives, or clear improvement opportunities:
 
-1. **Stage structured feedback locally**: create a report artifact under ` + "`.pose/contributions/<timestamp>-<slug>.md`" + ` documenting the observed limitation, synthetic reproduction, and proposed solution.
-2. **Strict Privacy Invariant**: NEVER include proprietary business logic, internal hostnames/domains, customer data, API keys, credentials, or private source code in staged contributions. All examples must use generic, synthetic reproductions.
-3. **Developer Adjudication**: Staging is automatic and local. Submitting or creating upstream GitHub issues (` + "`oseiaspereira88/pose`" + `) is always an explicit developer decision.`
+1. **Continuous Opportunity Scouting**: On every issue resolution or task execution, proactively scout for related improvements, edge cases, root-level parity gaps, or complementary corrections across adjacent tools and commands.
+2. **User Consent & Explicit Adjudication**: The decision to create/stage feedback or submit contributions upstream MUST ALWAYS be made by the user. When observing a friction or opportunity, the agent must inform the user and ask for confirmation before staging a draft under ` + "`.pose/contributions/<timestamp>-<slug>.md`" + ` or submitting an upstream GitHub issue.
+3. **Strict Privacy Invariant**: NEVER include proprietary business logic, internal hostnames/domains, customer data, API keys, credentials, or private source code in staged contributions. All examples must use generic, synthetic reproductions.
+4. **Lifecycle & Status Integrity**: Contribution and feedback artifacts maintain an explicit status lifecycle (` + "`staged`" + ` -> ` + "`submitted`" + ` / ` + "`dismissed`" + `) with tracking metadata (` + "`submitted_at`" + `, ` + "`upstream_issue`" + `). Always check artifact status so subsequent sessions never mix up submitted vs pending drafts or re-submit already handled items.`
 
 	ptAgentsSection := `## Modo Contribuidor Open-Source do POSE
 
@@ -398,9 +633,10 @@ func injectContributorDocs(target, loc string) error {
 
 **Modo Contribuidor está ATIVO.** Ao executar tarefas, se você encontrar defeitos no motor POSE, atritos de ferramentas, regras de stack ausentes, falsos positivos de diagnóstico ou oportunidades de melhoria:
 
-1. **Registre o feedback localmente em rascunho**: crie um artefato de relatório sob ` + "`.pose/contributions/<timestamp>-<slug>.md`" + ` documentando a limitação observada, passos de reprodução sintética e a proposta de solução.
-2. **Invariante Rígida de Privacidade**: NUNCA inclua regras de negócio proprietárias, hostnames/domínios internos, dados de clientes, chaves de API, credenciais ou código-fonte privado nas contribuições. Todos os exemplos devem utilizar código sintético e genérico.
-3. **Decisão Soberana do Desenvolvedor**: O registro em rascunho é automático e local. Submeter ou abrir issues no GitHub upstream (` + "`oseiaspereira88/pose`" + `) é sempre uma decisão explícita do desenvolvedor humano.`
+1. **Prospecção Contínua de Oportunidades**: A cada resolução de issue ou execução de tarefa, faça prospecção proativa de melhorias relacionadas, casos de borda, lacunas de paridade na raiz ou correções complementares em ferramentas e comandos adjacentes.
+2. **Decisão do Usuário e Adjudicação Interativa**: A decisão de registrar rascunhos de feedback ou submeter contribuições upstream DEVE SEMPRE ser do usuário. Ao observar um atrito ou oportunidade, o agente deve informar o usuário e solicitar confirmação antes de registrar rascunhos sob ` + "`.pose/contributions/<timestamp>-<slug>.md`" + ` ou abrir issues upstream no GitHub.
+3. **Invariante Rígida de Privacidade**: NUNCA inclua regras de negócio proprietárias, hostnames/domínios internos, dados de clientes, chaves de API, credenciais ou código-fonte privado nas contribuições. Todos os exemplos devem utilizar código sintético e genérico.
+4. **Integridade de Ciclo de Vida e Status**: Artefatos de contribuição e feedback mantêm um ciclo de vida explícito de status (` + "`staged`" + ` -> ` + "`submitted`" + ` / ` + "`dismissed`" + `) com metadados de rastreio (` + "`submitted_at`" + `, ` + "`upstream_issue`" + `). Consulte sempre o status dos artefatos para evitar reenvio ou confusão entre itens pendentes e submetidos.`
 
 	enPoseSection := `## Open-Source POSE Contributor Mode
 

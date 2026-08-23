@@ -175,3 +175,57 @@ func TestContributePrivacyEnforcement(t *testing.T) {
 		t.Errorf("expected privacy rule in status output, got: %s", stdout.String())
 	}
 }
+
+func TestContributeStatusLifecycleTransitions(t *testing.T) {
+	root := t.TempDir()
+	var stdout, stderr bytes.Buffer
+
+	// 1. Stage a contribution
+	code := cmdContribute(root, []string{"stage", "--title", "Sample Defect", "--type", "bug", "--body", "Details"}, &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("stage failed: %d, stderr=%s", code, stderr.String())
+	}
+
+	// 2. List staged
+	stdout.Reset()
+	code = cmdContribute(root, []string{"list", "--status", "staged"}, &stdout, &stderr)
+	if code != 0 || !strings.Contains(stdout.String(), "Sample Defect") {
+		t.Fatalf("expected staged item in list --status staged, got: %s", stdout.String())
+	}
+
+	// 3. Mark as submitted
+	stdout.Reset()
+	code = cmdContribute(root, []string{"mark-submitted", "sample-defect", "--issue-url", "https://github.com/oseiaspereira88/pose/issues/99"}, &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("mark-submitted failed: %d, stderr=%s", code, stderr.String())
+	}
+
+	// 4. Verify list --status staged is now empty, and list --status submitted contains item
+	stdout.Reset()
+	code = cmdContribute(root, []string{"list", "--status", "staged"}, &stdout, &stderr)
+	if code != 0 || strings.Contains(stdout.String(), "Sample Defect") {
+		t.Fatalf("expected no staged items, got: %s", stdout.String())
+	}
+
+	stdout.Reset()
+	code = cmdContribute(root, []string{"list", "--status", "submitted"}, &stdout, &stderr)
+	if code != 0 || !strings.Contains(stdout.String(), "https://github.com/oseiaspereira88/pose/issues/99") {
+		t.Fatalf("expected submitted item with url in list, got: %s", stdout.String())
+	}
+
+	// 5. Dismiss a second staged item
+	stdout.Reset()
+	_ = cmdContribute(root, []string{"stage", "--title", "Second Suggestion", "--type", "enhancement"}, &stdout, &stderr)
+	stdout.Reset()
+	code = cmdContribute(root, []string{"dismiss", "second-suggestion", "--reason", "already solved upstream"}, &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("dismiss failed: %d, stderr=%s", code, stderr.String())
+	}
+
+	stdout.Reset()
+	code = cmdContribute(root, []string{"list", "--status", "dismissed"}, &stdout, &stderr)
+	if code != 0 || !strings.Contains(stdout.String(), "already solved upstream") {
+		t.Fatalf("expected dismissed item in list, got: %s", stdout.String())
+	}
+}
+
