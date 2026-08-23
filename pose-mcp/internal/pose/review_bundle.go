@@ -641,8 +641,20 @@ func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph
 	}
 	result := []ReviewBundleEvidence{}
 	for _, evidence := range graph.ValidationResults {
-		if evidence.Outcome != "pass" || evidence.Severity != "required" || (len(modules) > 0 && !modules[evidence.Module]) {
+		if evidence.Outcome != "pass" || evidence.Severity != "required" {
 			continue
+		}
+		if len(modules) > 0 {
+			matched := false
+			for targetMod := range modules {
+				if moduleMatchesTarget(evidence.Module, targetMod) {
+					matched = true
+					break
+				}
+			}
+			if !matched {
+				continue
+			}
 		}
 		if scope.Kind == "spec" && !deliveryEvidenceCurrent(evidence, scope.Slug, status, graph, sets) {
 			continue

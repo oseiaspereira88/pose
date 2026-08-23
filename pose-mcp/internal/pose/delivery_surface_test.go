@@ -134,3 +134,28 @@ func TestReviewBundlePreservesLegacyEvidenceOnlyForClosedScopes(t *testing.T) {
 		t.Fatal("legacy module-wide evidence was accepted for an open scope")
 	}
 }
+
+func TestDeliverySurfaceMatchesRootModuleAndSubdirectoryTargets(t *testing.T) {
+	set := ChangeSet{ID: "cs-root", Spec: "root-spec", Paths: []ObservedPath{{Action: "modified", Path: "internal/pkg/foo.go"}}}
+	base := BuildDeliveryIntegrity([]Spec{{Slug: "root-spec"}}, []ArtifactClaim{{Spec: "root-spec", Action: "modified", Path: "internal/pkg/foo.go"}}, []ChangeSet{set}, []string{"internal/pkg/foo.go"}, ArtifactPolicy{})
+	
+	// Target declared with module:internal/pkg
+	targetSub := DeliveryTarget{Spec: "root-spec", Ref: "contract:my-contract", Kind: "contract", Module: "internal/pkg", Profile: "api-contract", Entrypoint: "internal/pkg/foo.go"}
+	// Target declared with module:.
+	targetRoot := DeliveryTarget{Spec: "root-spec", Ref: "contract:root-contract", Kind: "contract", Module: ".", Profile: "api-contract", Entrypoint: "internal/pkg/foo.go"}
+
+	// Evidence generated from root module "."
+	resultRoot := DeliveryValidationResult{ID: "val-root", Module: ".", Check: "go-test", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: "root-head", ScopeProvenance: map[string]string{"root-spec": ScopedDeliveryProvenanceDigest(base, "root-spec")}}
+	profiles := map[string]DeliveryProfile{"api-contract": {Kind: "contract", RequiredEvidenceClasses: []string{"integration"}}}
+
+	graph := BuildDeliverySurface(base, []Spec{{Slug: "root-spec", Status: "in-progress"}}, []DeliveryTarget{targetSub, targetRoot}, []DeliveryValidationResult{resultRoot}, nil, profiles, DeliveryPolicy{})
+	for _, finding := range graph.Findings {
+		if finding.Code == "unconsumed-capability" || finding.Code == "stale-evidence" {
+			t.Fatalf("root module evidence should satisfy subdirectory and root targets: %+v", finding)
+		}
+	}
+	if len(graph.Paths["contract:my-contract"]) == 0 || len(graph.Paths["contract:root-contract"]) == 0 {
+		t.Fatalf("expected resolved paths for targets, got: %+v", graph.Paths)
+	}
+}
+

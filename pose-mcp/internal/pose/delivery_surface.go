@@ -615,7 +615,15 @@ func deliverySeverity(policy DeliveryPolicy, code string) string {
 	return "warning"
 }
 func moduleMatchesTarget(module, target string) bool {
-	return module == target || strings.HasPrefix(target, strings.TrimSuffix(module, "/")+"/") || strings.HasPrefix(module, strings.TrimSuffix(target, "/")+"/")
+	module = filepath.ToSlash(filepath.Clean(module))
+	target = filepath.ToSlash(filepath.Clean(target))
+	if module == target {
+		return true
+	}
+	if module == "." || module == "" || module == "root" || target == "." || target == "" || target == "root" {
+		return true
+	}
+	return strings.HasPrefix(target, strings.TrimSuffix(module, "/")+"/") || strings.HasPrefix(module, strings.TrimSuffix(target, "/")+"/")
 }
 func firstObservedDeliveryPath(path ObservedPath) string {
 	if path.Action == "renamed" {

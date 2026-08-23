@@ -117,6 +117,13 @@ func LoadArtifactPolicy(root string) (ArtifactPolicy, error) {
 }
 
 func ValidateArtifactPath(root, value string, allowDirectory bool) error {
+	if allowDirectory && (value == "." || value == "") {
+		info, err := os.Stat(root)
+		if err != nil || !info.IsDir() {
+			return fmt.Errorf("project root directory unavailable")
+		}
+		return nil
+	}
 	clean, err := validateArtifactPathSyntax(value)
 	if err != nil {
 		return err

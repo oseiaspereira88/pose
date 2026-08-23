@@ -517,6 +517,47 @@ version = "0.1.0"
 	}
 }
 
+func TestReviewBundleMatchesRootModuleValidationEvidenceForSubdirectoryTargets(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	writeReviewFixture(t, root, "internal/mypkg/lib.go", "package mypkg\n")
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Change set for target spec
+	graph.ChangeSets = []ChangeSet{{
+		ID: "cs-sub", Spec: "backend", Selector: "range:base..head", Base: "base", Head: "head", ResolvedBase: "base", ResolvedHead: "head",
+		Paths: []ObservedPath{{Action: "modified", Path: "internal/mypkg/lib.go"}},
+	}}
+	// Delivery target declared with subdirectory module: internal/mypkg
+	graph.Deliveries = []DeliveryTarget{{
+		Spec: "backend", Ref: "contract:my-contract", Kind: "contract", ID: "my-contract",
+		Module: "internal/mypkg", Profile: "api-contract", Entrypoint: "internal/mypkg/lib.go",
+	}}
+	// Validation result emitted at root module "."
+	graph.ValidationResults = []DeliveryValidationResult{{
+		ID: "val-root", Module: ".", Check: "go-test", EvidenceClass: "test", Severity: "required", Outcome: "pass",
+		GitHead: "head", ProvenanceDigest: graph.ProvenanceDigest,
+	}}
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(bundle.Blockers) > 0 {
+		t.Fatalf("expected no blockers, got: %+v", bundle.Blockers)
+	}
+	if len(bundle.Payload.Evidence) == 0 {
+		t.Fatalf("expected root validation evidence to be attributed to spec:backend, got 0")
+	}
+	if bundle.Payload.Evidence[0].ID != "val-root" {
+		t.Fatalf("expected evidence val-root, got: %+v", bundle.Payload.Evidence)
+	}
+}
+
 // TestReviewBundleClassifiesExtensionsDirectory guards spec
 // pose-domain-rule-extension-migration: extensions/ predates review-bundle
 // path classification (pose-rule-kubernetes shipped 2026-08-07, before
