@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v1.7.10",
+  "previous_version": "v1.7.9",
+  "prepared_at": "2026-08-23T05:54:22Z",
+  "specs": [
+    "pose-covered-followup-anchor-verification"
+  ],
+  "categories": {
+    "added": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-covered-followup-anchor-verification",
+      "category": "added",
+      "breaking": false,
+      "body": "Added verifiable anchor checks for `[covered: \u003ctarget-slug\u003e]` follow-up dispositions in `lint-spec`. Emits a non-blocking `[WARNING]` when the target spec has neither `depends_on: \u003csource-slug\u003e` nor an explicit reference to `\u003csource-slug\u003e`, preventing covered follow-ups from vanishing from active developer attention without an anchored tracking requirement. Enhanced `pose followups` to discover follow-ups across flat dated spec layouts. Added complete status lifecycle management (`staged` -\u003e `submitted` / `dismissed`) for POSE Contributor Mode and feedback artifacts with `pose contribute list --status`, `pose contribute submit`, `pose contribute mark-submitted`, and `pose contribute dismiss`, and formally mandated explicit user adjudication prior to staging or submitting feedback.",
+      "path": "2026-08-23-pose-covered-followup-anchor-verification.md",
+      "digest": "sha256:a6adc204f416c89bc06f1a3f87e51831df8e3fec638392b139c1fdffada68d6c"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:e7139fe14c7494fe43f5e7e541c673fc055dddb67d62d9a4d59bb9087b4e24a4",
+  "release_input_digest": "sha256:6fcaae8fbc735d88646107b7ff206f9ede4f1dcde7d1f379261b2823a62debc4",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.7.10"
+  }
+}

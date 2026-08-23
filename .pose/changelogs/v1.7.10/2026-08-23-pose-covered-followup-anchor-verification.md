@@ -1,0 +1,7 @@
+---
+spec: pose-covered-followup-anchor-verification
+category: added
+breaking: false
+---
+
+Added verifiable anchor checks for `[covered: <target-slug>]` follow-up dispositions in `lint-spec`. Emits a non-blocking `[WARNING]` when the target spec has neither `depends_on: <source-slug>` nor an explicit reference to `<source-slug>`, preventing covered follow-ups from vanishing from active developer attention without an anchored tracking requirement. Enhanced `pose followups` to discover follow-ups across flat dated spec layouts. Added complete status lifecycle management (`staged` -> `submitted` / `dismissed`) for POSE Contributor Mode and feedback artifacts with `pose contribute list --status`, `pose contribute submit`, `pose contribute mark-submitted`, and `pose contribute dismiss`, and formally mandated explicit user adjudication prior to staging or submitting feedback.
