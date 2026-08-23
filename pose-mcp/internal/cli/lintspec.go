@@ -190,7 +190,7 @@ func lintParseDependsOn(value string) []string {
 	return out
 }
 
-func siblingSpecStatus(specsDir, slug string) string {
+func siblingSpecContent(specsDir, slug string) (string, bool) {
 	if filepath.Base(specsDir) != "specs" {
 		if _, err := os.Stat(filepath.Join(specsDir, ".pose", "specs")); err == nil {
 			specsDir = filepath.Join(specsDir, ".pose", "specs")
@@ -199,14 +199,14 @@ func siblingSpecStatus(specsDir, slug string) string {
 		}
 	}
 	if b, err := os.ReadFile(filepath.Join(specsDir, slug, "spec.md")); err == nil {
-		return lintParseFrontmatter(string(b))["status"]
+		return string(b), true
 	}
 	if b, err := os.ReadFile(filepath.Join(specsDir, slug+".md")); err == nil {
-		return lintParseFrontmatter(string(b))["status"]
+		return string(b), true
 	}
 	entries, err := os.ReadDir(specsDir)
 	if err != nil {
-		return ""
+		return "", false
 	}
 	for _, e := range entries {
 		name := e.Name()
@@ -215,7 +215,7 @@ func siblingSpecStatus(specsDir, slug string) string {
 				if b, err := os.ReadFile(filepath.Join(specsDir, name, "spec.md")); err == nil {
 					fm := lintParseFrontmatter(string(b))
 					if fm["slug"] == slug || fm["slug"] == "" {
-						return fm["status"]
+						return string(b), true
 					}
 				}
 			}
@@ -225,7 +225,7 @@ func siblingSpecStatus(specsDir, slug string) string {
 				if b, err := os.ReadFile(filepath.Join(specsDir, name)); err == nil {
 					fm := lintParseFrontmatter(string(b))
 					if fm["slug"] == slug || fm["slug"] == "" {
-						return fm["status"]
+						return string(b), true
 					}
 				}
 			}
@@ -242,10 +242,17 @@ func siblingSpecStatus(specsDir, slug string) string {
 			if b, err := os.ReadFile(path); err == nil {
 				fm := lintParseFrontmatter(string(b))
 				if fm["slug"] == slug {
-					return fm["status"]
+					return string(b), true
 				}
 			}
 		}
+	}
+	return "", false
+}
+
+func siblingSpecStatus(specsDir, slug string) string {
+	if content, ok := siblingSpecContent(specsDir, slug); ok {
+		return lintParseFrontmatter(content)["status"]
 	}
 	return ""
 }
@@ -613,6 +620,32 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 					lifecycle++
 				} else if owner == "unowned" {
 					fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: open follow-up is unowned (declare '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)')\n", "[AVISO] %s: follow-up aberto sem dono (declare '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)')\n"), slug)
+				}
+			} else if disposition == "covered" {
+				m := dispositionRE.FindStringSubmatch(content)
+				if m != nil {
+					target := strings.TrimSpace(m[2])
+					if target != "" && knownSlugs[target] {
+						if targetContent, ok := siblingSpecContent(specsDir, target); ok {
+							targetFM := lintParseFrontmatter(targetContent)
+							hasAnchor := false
+							for _, dep := range lintParseDependsOn(targetFM["depends_on"]) {
+								if dep == slug {
+									hasAnchor = true
+									break
+								}
+							}
+							if !hasAnchor && strings.Contains(targetContent, slug) {
+								hasAnchor = true
+							}
+							if !hasAnchor {
+								fmt.Fprintf(stderr, cliText(locale,
+									"[WARNING] %s: follow-up [covered: %s] has no verifiable anchor (e.g. depends_on: %s or mention of '%s') in target spec %s\n",
+									"[AVISO] %s: follow-up [covered: %s] não possui âncora verificável (ex.: depends_on: %s ou menção a '%s') na spec alvo %s\n",
+								), slug, target, slug, slug, target)
+							}
+						}
+					}
 				}
 			}
 		}

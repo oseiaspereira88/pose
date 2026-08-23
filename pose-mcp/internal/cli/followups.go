@@ -240,6 +240,12 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 
 func collectFollowups(root string) []followup {
 	paths, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*", "spec.md"))
+	flatPaths, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*.md"))
+	for _, p := range flatPaths {
+		if !strings.EqualFold(filepath.Base(p), "README.md") {
+			paths = append(paths, p)
+		}
+	}
 	sort.Strings(paths)
 	entries := []followup{}
 	for _, path := range paths {
@@ -251,7 +257,11 @@ func collectFollowups(root string) []followup {
 		fm := simpleFrontmatter(path)
 		specSlug := fm["slug"]
 		if specSlug == "" {
-			specSlug = filepath.Base(filepath.Dir(path))
+			if filepath.Base(path) == "spec.md" {
+				specSlug = filepath.Base(filepath.Dir(path))
+			} else {
+				specSlug = strings.TrimSuffix(filepath.Base(path), ".md")
+			}
 		}
 		status := frontmatterStatus(body)
 		inFinal, inFollowups := false, false

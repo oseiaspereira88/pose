@@ -185,3 +185,26 @@ func TestFollowupMetadataSurvivesLineWrapping(t *testing.T) {
 		t.Errorf("the metadata group must be stripped from the text, got: %q", wrapped.Text)
 	}
 }
+
+func TestFollowupsCollectsFlatSpecFiles(t *testing.T) {
+	root := t.TempDir()
+	specsDir := filepath.Join(root, ".pose", "specs")
+	if err := os.MkdirAll(specsDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	body := "---\nslug: flat-spec\nstatus: done\ncompleted_at: 2026-07-01\n---\n\n" +
+		"## 7. Final Report\n\n### Follow-ups\n\n" +
+		"- [open] flat follow-up (owner:@core crit:medium review:2999-01-01)\n"
+	if err := os.WriteFile(filepath.Join(specsDir, "2026-08-23-flat-spec.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	entries := collectFollowups(root)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 follow-up from flat spec, got %d: %+v", len(entries), entries)
+	}
+	if entries[0].Spec != "flat-spec" || entries[0].Owner != "@core" {
+		t.Fatalf("unexpected collected follow-up: %+v", entries[0])
+	}
+}
+

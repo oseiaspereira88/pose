@@ -221,3 +221,102 @@ Content.
 	}
 }
 
+func TestLintSpecCoveredDispositionWarnsWhenNoAnchorInTargetSpec(t *testing.T) {
+	dir := t.TempDir()
+	specsDir := filepath.Join(dir, ".pose", "specs")
+	if err := os.MkdirAll(specsDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	// Target spec with no anchor / mention of source-spec
+	specTargetNoAnchor := `---
+slug: target-no-anchor
+status: in-progress
+created_at: 2026-08-22
+completed_at:
+---
+# Spec: Target No Anchor
+## 2. Requirements
+- R1: Independent requirements.
+## 3. Technical Plan
+Plan.
+## 4. Tasks
+- [ ] Task.
+`
+	if err := os.WriteFile(filepath.Join(specsDir, "target-no-anchor.md"), []byte(specTargetNoAnchor), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Target spec with depends_on anchor
+	specTargetWithAnchor := `---
+slug: target-with-anchor
+status: in-progress
+created_at: 2026-08-22
+completed_at:
+depends_on: source-spec
+---
+# Spec: Target With Anchor
+## 2. Requirements
+- R1: Anchored requirements.
+## 3. Technical Plan
+Plan.
+## 4. Tasks
+- [ ] Task.
+`
+	if err := os.WriteFile(filepath.Join(specsDir, "target-with-anchor.md"), []byte(specTargetWithAnchor), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Source spec referencing both
+	sourceSpec := `---
+slug: source-spec
+status: done
+created_at: 2026-08-20
+completed_at: 2026-08-22
+---
+# Spec: Source Spec
+## 1. Intent
+Intent.
+## 2. Requirements
+- R1: Source works.
+## 3. Technical Plan
+Plan.
+### Artifacts
+- created: doc.md
+
+### Delivery targets
+Nenhum
+## 4. Tasks
+- [x] Done.
+## 5. Validation
+- Suite passed.
+### Requirement trace
+- R1 [satisfied] suite
+## 7. Final Report
+### Follow-ups
+- [covered: target-no-anchor] Unanchored follow-up work
+- [covered: target-with-anchor] Anchored follow-up work
+`
+	sourcePath := filepath.Join(specsDir, "source-spec.md")
+	if err := os.WriteFile(sourcePath, []byte(sourceSpec), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	var out, errB bytes.Buffer
+	rc := lintOneSpec(sourcePath, false, false, &out, &errB)
+	if rc != 0 {
+		t.Fatalf("lintOneSpec failed: rc=%d err=%s", rc, errB.String())
+	}
+
+	stderrStr := errB.String()
+	// Warning must be emitted for target-no-anchor
+	if !strings.Contains(stderrStr, "[WARNING] source-spec: follow-up [covered: target-no-anchor] has no verifiable anchor") {
+		t.Fatalf("expected warning for unanchored covered target, got: %s", stderrStr)
+	}
+	// Warning must NOT be emitted for target-with-anchor
+	if strings.Contains(stderrStr, "target-with-anchor] has no verifiable anchor") {
+		t.Fatalf("unexpected warning for anchored target: %s", stderrStr)
+	}
+}
+
+
