@@ -1,0 +1,589 @@
+{
+  "schema_version": 1,
+  "bundle_id": "rvb-a27a7725db5480a6",
+  "bundle_digest": "sha256:a27a7725db5480a6b7ca9cf743f2ffb3615f20b8e669128e29da0ac385f2484f",
+  "state": "sealed",
+  "sealed_at": "2026-08-23T00:58:32Z",
+  "payload": {
+    "scope": {
+      "ref": "spec:pose-delivery-target-root-module-evidence-matching",
+      "kind": "spec",
+      "slug": "pose-delivery-target-root-module-evidence-matching",
+      "depends_on": [
+        "pose-review-bundle-root-manifests-classification"
+      ],
+      "components": [
+        "cli",
+        "pose-mcp"
+      ],
+      "deliveries": [
+        "contract:delivery-target-root-module-matching"
+      ],
+      "sections": [
+        {
+          "kind": "semantic-section",
+          "path": "intent",
+          "digest": "sha256:e95a597657801a003cd023f5fd3ff397e3e3f4f800f5dd134c8e069fd99bb136",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "requirements",
+          "digest": "sha256:7f41d2942e8da1f72ad4582d9c44aeaaeadf53d184d1af252878e1a4dc62009e",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "technical plan",
+          "digest": "sha256:4398f5cf93376dd3675a7c7b17b8b15710346d2e43c8395588cc955c62ebdb5d",
+          "reason": "governed semantic review input"
+        }
+      ]
+    },
+    "subject": {
+      "change_sets": [
+        "cs-bff062e90612"
+      ],
+      "base": "117a2c8cc7fb489cdcd75eee3c54caa8e42eecca",
+      "head": "f223ba121acc14a4358f04e6162e94366a86bf6f",
+      "patch_digest": "sha256:52a2577853ac487b8d670422d7b8b052ee8574a115b554987bfe29ab547739bc",
+      "tree_digest": "sha256:54ae76b8bf6f5632b8017ed96dfc0b1ae1c52da219269be092fef7d420529193",
+      "entries": [
+        {
+          "action": "modified",
+          "path": "AGENTS.md",
+          "class": "documentation",
+          "digest": "sha256:7b9be9863036da2c45a454808e35390c7a9ed025bc734777f3a8cb703ea06984",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md",
+          "class": "documentation",
+          "digest": "sha256:5349674d3426a23a691c5e41e274aff1cd601057bca1875e8782882ad800bd69",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout_test.go",
+          "class": "implementation",
+          "digest": "sha256:2139bd051e5ab3db178b9cf64e5e3b6550c4f5d8b5ce641f8619f4f522ce5632",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_integrity.go",
+          "class": "implementation",
+          "digest": "sha256:1e72fe52b45479ea72bce16e6c94dce611e66807210e4fcc3fc7b9abe4397bde",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_surface.go",
+          "class": "implementation",
+          "digest": "sha256:e25d745572afa0ab76a9889806021cecc319531efa39083a7c92d3e1b7285459",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_surface_test.go",
+          "class": "implementation",
+          "digest": "sha256:d79d1069a7c27ba7054fd366a6acc32f59a363f5b7467f225fc7b23c4e615458",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go",
+          "class": "implementation",
+          "digest": "sha256:f3efd4d1d13e9cd5776037605696f6a04c710f9cf78abdebe3a73893c83cbef1",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle_test.go",
+          "class": "implementation",
+          "digest": "sha256:5dfd1a27ebb68e9e4b43612c837d5d19d0cb0371faba2902e5e53d0702495603",
+          "reason": "attributed implementation path in the immutable change set"
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:f1a12c56920c248fa0880194b6068c9cc74ee2b1e541ca9a7fc2a1dd510b740a",
+      "independence": "same-actor-separate-execution",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "go",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "partial",
+          "metadata_missing": [
+            "owner"
+          ],
+          "sources": [
+            "artifact:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/cli/review_closeout_test.go",
+            "artifact:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/pose/delivery_integrity.go",
+            "artifact:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/pose/delivery_surface.go",
+            "artifact:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/pose/delivery_surface_test.go",
+            "artifact:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/pose/review_bundle.go",
+            "artifact:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/pose/review_bundle_test.go",
+            "delivery:contract:delivery-target-root-module-matching:pose-mcp",
+            "delivery:contract:delivery-target-root-module-matching:pose-mcp/cmd/pose/main.go",
+            "observed:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/cli/review_closeout_test.go",
+            "observed:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/pose/delivery_integrity.go",
+            "observed:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/pose/delivery_surface.go",
+            "observed:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/pose/delivery_surface_test.go",
+            "observed:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/pose/review_bundle.go",
+            "observed:pose-delivery-target-root-module-evidence-matching:pose-mcp/internal/pose/review_bundle_test.go",
+            "spec:pose-delivery-target-root-module-evidence-matching:component:pose-mcp"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "backend-concurrency",
+          "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.",
+          "required": true,
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "test"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-contracts",
+          "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.",
+          "required": true,
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "contract"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-input-errors",
+          "description": "Inputs, validation failures and error paths are bounded, typed and actionable.",
+          "required": true,
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "test"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-integration-impact",
+          "description": "Providers, consumers and inter-component boundaries remain integrated.",
+          "required": true,
+          "evidence_classes": [
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-observability",
+          "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.",
+          "required": true,
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "observability"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "compatibility",
+          "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+          "required": true,
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "correctness",
+          "description": "Functional and negative behavior is correct.",
+          "required": true,
+          "evidence_classes": [
+            "test",
+            "validation"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "documentation",
+          "description": "Operational docs, templates and scaffold match runtime behavior.",
+          "required": true,
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "operability",
+          "description": "Errors, explanations and remediation are actionable.",
+          "required": true,
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "requirements",
+          "description": "Every requirement has current, relevant evidence.",
+          "required": true,
+          "evidence_classes": [
+            "requirement-trace",
+            "test"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "scope",
+          "description": "The implementation matches the approved spec scope.",
+          "required": true,
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "security",
+          "description": "Inputs, paths, evidence and authority boundaries are safe.",
+          "required": true,
+          "rules": [
+            "security"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "artifact-check",
+            "--spec",
+            "pose-delivery-target-root-module-evidence-matching",
+            "--strict"
+          ],
+          "rationale": "reconcile declared artifacts with Git-observed provenance",
+          "criteria": [
+            "requirements",
+            "scope"
+          ],
+          "preconditions": [
+            "artifacts-attributed"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-integrate",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "integrate"
+          ],
+          "rationale": "inspect providers, consumers and inter-component contract gaps",
+          "evidence_classes": [
+            "integration"
+          ],
+          "criteria": [
+            "backend-contracts",
+            "backend-integration-impact"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "criteria": [
+            "correctness"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "spec:pose-delivery-target-root-module-evidence-matching"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "spec:pose-delivery-target-root-module-evidence-matching"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "validation"
+          ],
+          "criteria": [
+            "backend-concurrency",
+            "backend-input-errors",
+            "backend-observability",
+            "correctness",
+            "requirements"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "validation"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "pose-mcp/go/delivery-integration",
+        "module": "pose-mcp",
+        "check": "delivery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "f223ba121acc14a4358f04e6162e94366a86bf6f",
+        "provenance_digest": "sha256:963a6274747da1789aa967444e5aaab224694f38de9f16d6d6f2d3e387fbf547",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-reachability",
+        "module": "pose-mcp",
+        "check": "delivery-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "git_head": "f223ba121acc14a4358f04e6162e94366a86bf6f",
+        "provenance_digest": "sha256:963a6274747da1789aa967444e5aaab224694f38de9f16d6d6f2d3e387fbf547",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-bundle-convergence",
+        "module": "pose-mcp",
+        "check": "review-bundle-convergence",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "git_head": "f223ba121acc14a4358f04e6162e94366a86bf6f",
+        "provenance_digest": "sha256:963a6274747da1789aa967444e5aaab224694f38de9f16d6d6f2d3e387fbf547",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test",
+        "module": "pose-mcp",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "git_head": "f223ba121acc14a4358f04e6162e94366a86bf6f",
+        "provenance_digest": "sha256:963a6274747da1789aa967444e5aaab224694f38de9f16d6d6f2d3e387fbf547",
+        "report": ".pose/results/delivery-validation.json"
+      }
+    ],
+    "consumed_inputs": [
+      {
+        "kind": "governed-config",
+        "path": ".pose/indexes/validation-matrix.json",
+        "digest": "sha256:126305dc0cb04c1b571908d6df29c3a09bef50a415cbabc0c005e66f2ed60c9c",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "governed-config",
+        "path": ".pose/policy/review.json",
+        "digest": "sha256:89a78e6ec6e1806414c669e66239831b593c08b9a182e36fae119bccecd28b5e",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "review-plan",
+        "path": "spec-closeout@1",
+        "digest": "sha256:f1a12c56920c248fa0880194b6068c9cc74ee2b1e541ca9a7fc2a1dd510b740a",
+        "reason": "effective component-aware plan contract"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/backend-review.json",
+        "digest": "sha256:af12d354f01a3939764d1796ba772c9eff2775e253ca4386c39ba88fe0d16975",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/spec-closeout.json",
+        "digest": "sha256:2a78d4cb8cce4c8afc96a99b138dff08d52e29ea9fe1595543ac1c1a9856ec5a",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/backend-go.md",
+        "digest": "sha256:2289a86134e7d6667ae4dba4bfd68dee8acd59246912e32c35648d399e6d3e31",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/documentation-style.md",
+        "digest": "sha256:5c5c666fc6c796cf9ae3876d25d3fd4fa523d121892459dc0d681d73da1d60ae",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/security.md",
+        "digest": "sha256:1cbf29c12d09cad0799e2d8715e94f84a49ee8fa09867bb5f12a544f8df43774",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "schema",
+        "path": "review-bundle@1",
+        "digest": "sha256:e7c9643ec88eccb2a6dea3ee3291c351983d78e1d2fa44b61399514c5021bcb0",
+        "reason": "canonical bundle and attestation schema identity"
+      },
+      {
+        "kind": "tool-catalog",
+        "path": "native-review-tools@1",
+        "digest": "sha256:f1a12c56920c248fa0880194b6068c9cc74ee2b1e541ca9a7fc2a1dd510b740a",
+        "reason": "closed resolved native tool contract"
+      }
+    ]
+  },
+  "excluded_inputs": [
+    {
+      "kind": "derived-section",
+      "path": "final report",
+      "digest": "sha256:c421365034e03028eaebb57eaf6ab3cdfd9eff025a84acbadd602b7755748c5d",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "tasks",
+      "digest": "sha256:62dc10aa35a2b8009140e1454332e2296e1c0d88683c91c96e74ca4233de2127",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "validation",
+      "digest": "sha256:4932768e754bb5df18cb2a28a7f597a19a44c75472a1a227665fc988aa1161b3",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "lifecycle",
+      "path": "/home/go/IdeaProjects/harne8/pose-dist/.pose/specs/2026-08-22-pose-delivery-target-root-module-evidence-matching.md",
+      "reason": "status and completed_at do not define the reviewed semantic subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-08-22-pose-delivery-target-root-module-evidence-matching.md",
+      "reason": "attributed path is outside the semantic review subject"
+    }
+  ],
+  "warnings": [
+    "metadata-incomplete review component pose-mcp missing:owner",
+    "unmapped review component explicit:cli",
+    "unmapped review component path:AGENTS.md",
+    "unmapped review component path:POSE.md"
+  ],
+  "path": ".pose/review-bundles/rvb-a27a7725db5480a6.json"
+}

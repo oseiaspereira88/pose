@@ -113,6 +113,10 @@
       "to": "pose-artifact-provenance-ledger"
     },
     {
+      "from": "pose-delivery-target-root-module-evidence-matching",
+      "to": "pose-review-bundle-root-manifests-classification"
+    },
+    {
       "from": "pose-dependency-digest-pinning",
       "to": "pose-actions-node24-bump"
     },
@@ -744,6 +748,14 @@
       ],
       "path": ".pose/specs/2026-08-02-pose-delivery-surface-assurance.md",
       "priority": 2,
+      "status": "done"
+    },
+    "pose-delivery-target-root-module-evidence-matching": {
+      "depends_on": [
+        "pose-review-bundle-root-manifests-classification"
+      ],
+      "path": ".pose/specs/2026-08-22-pose-delivery-target-root-module-evidence-matching.md",
+      "priority": 30,
       "status": "done"
     },
     "pose-dependency-digest-pinning": {

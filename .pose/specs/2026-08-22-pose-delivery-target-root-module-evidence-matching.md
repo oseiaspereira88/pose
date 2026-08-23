@@ -1,12 +1,13 @@
 ---
 slug: pose-delivery-target-root-module-evidence-matching
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-review-bundle-root-manifests-classification
 priority: 30
 components: cli, pose-mcp
 delivers: contract:delivery-target-root-module-matching
+completed_at: 2026-08-23
 ---
 
 # Spec: Delivery Target Module Matching and Validation Evidence Attribution
