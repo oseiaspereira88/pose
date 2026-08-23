@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v1.7.9",
+  "previous_version": "v1.7.8",
+  "prepared_at": "2026-08-23T01:55:51Z",
+  "specs": [
+    "pose-review-bundle-scope-isolated-listing"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-review-bundle-scope-isolated-listing",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Fixed scope-isolated listing for review bundles (`ListReviewBundles`), attestations (`ListReviewAttestations`), and review attempts (`ListReviewAttempts`). Scoped queries inspect headers before strict integrity loading, ensuring that an invalid or corrupted review artifact belonging to an unrelated scope does not abort review verification or closeout for other specs.",
+      "path": "2026-08-22-pose-review-bundle-scope-isolated-listing.md",
+      "digest": "sha256:3c011028c18ca195c54db6340c534ded7875d55a69673f313d916d9e44c87065"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:00c100a8c6002633286155f3cd559f245dfe5a8480f17be9bec2a124ab19abe8",
+  "release_input_digest": "sha256:fc412627cdb15b7efd5071489999142384115762f1c88adba8d8ddca59c7a9ad",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.7.9"
+  }
+}

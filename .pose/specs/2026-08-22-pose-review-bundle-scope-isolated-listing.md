@@ -1,12 +1,13 @@
 ---
 slug: pose-review-bundle-scope-isolated-listing
-status: in-progress
+status: done
 created_at: 2026-08-22
 supersedes:
 depends_on: pose-delivery-target-root-module-evidence-matching
 priority: 30
 components: cli, pose-mcp
 delivers: contract:review-bundle-scope-isolated-listing
+completed_at: 2026-08-23
 ---
 
 # Spec: Review Bundle Scope-Isolated Listing and Failure Containment
