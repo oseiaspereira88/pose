@@ -558,6 +558,49 @@ func TestReviewBundleMatchesRootModuleValidationEvidenceForSubdirectoryTargets(t
 	}
 }
 
+func TestListReviewBundlesScopeIsolationFromUnrelatedCorruptedBundle(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+
+	// Bundle A for spec:backend (valid)
+	sealedA, err := store.SealReviewBundle("spec:backend", time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Corrupted Bundle B for spec:unrelated (simulate hand-edit / corruption)
+	corruptedJSON := `{
+  "schema_version": 2,
+  "bundle_id": "rvb-0000000000000000",
+  "bundle_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "sealed_at": "2026-08-22T00:00:00Z",
+  "payload": {
+    "scope": {"ref": "spec:unrelated", "kind": "spec", "slug": "unrelated"}
+  }
+}`
+	writeReviewFixture(t, root, ".pose/review-bundles/rvb-0000000000000000.json", corruptedJSON)
+
+	// Listing bundles for spec:backend must succeed and return sealedA despite corrupted rvb-0000000000000000.json
+	bundles, err := store.ListReviewBundles("spec:backend")
+	if err != nil {
+		t.Fatalf("expected ListReviewBundles(spec:backend) to succeed, got: %v", err)
+	}
+	if len(bundles) != 1 || bundles[0].BundleID != sealedA.BundleID {
+		t.Fatalf("expected 1 bundle with ID %s, got: %+v", sealedA.BundleID, bundles)
+	}
+
+	// CurrentReviewBundle for spec:backend must also succeed
+	curr, err := store.CurrentReviewBundle("spec:backend")
+	if err != nil || curr == nil || curr.BundleID != sealedA.BundleID {
+		t.Fatalf("expected CurrentReviewBundle to return sealedA, got: %+v, err=%v", curr, err)
+	}
+
+	// But listing for spec:unrelated must surface the corruption error
+	_, errUnrelated := store.ListReviewBundles("spec:unrelated")
+	if errUnrelated == nil {
+		t.Fatal("expected ListReviewBundles(spec:unrelated) to return error for corrupted bundle")
+	}
+}
+
 // TestReviewBundleClassifiesExtensionsDirectory guards spec
 // pose-domain-rule-extension-migration: extensions/ predates review-bundle
 // path classification (pose-rule-kubernetes shipped 2026-08-07, before

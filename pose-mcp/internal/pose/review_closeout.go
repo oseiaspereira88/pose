@@ -466,9 +466,23 @@ func (s Store) ListReviewAttempts(scope string) ([]ReviewAttempt, error) {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
 			continue
 		}
-		a, err := parseReviewAttempt(filepath.Join(dir, entry.Name()))
+		path := filepath.Join(dir, entry.Name())
+		if scope != "" {
+			raw, readErr := os.ReadFile(path)
+			if readErr != nil {
+				continue
+			}
+			fm, _ := SplitFrontmatter(string(raw))
+			if fm["scope"] != scope {
+				continue
+			}
+		}
+		a, err := parseReviewAttempt(path)
 		if err != nil {
-			return nil, err
+			if scope != "" {
+				return nil, err
+			}
+			continue
 		}
 		if scope == "" || a.Scope == scope {
 			attempts = append(attempts, a)

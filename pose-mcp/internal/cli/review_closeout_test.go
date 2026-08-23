@@ -798,5 +798,131 @@ delivers: contract:my-contract
 	}
 }
 
+func TestReviewVerifyScopeIsolationFromUnrelatedCorruptedBundle(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{
+  "schema_version": 2,
+  "enabled": true,
+  "adopted_at": "2026-08-02",
+  "profiles": {"spec": "spec-closeout@2"},
+  "reviewer_independence": {"spec": "same-actor-separate-execution"},
+  "component_aware": true,
+  "component_aware_adopted_at": "2026-08-13",
+  "review_bundles": true,
+  "review_bundles_adopted_at": "2026-08-13",
+  "unmapped_component_behavior": "warning"
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{
+  "schema_version": 2,
+  "id": "spec-closeout",
+  "version": 2,
+  "scope": "spec",
+  "criteria": [
+    {"id": "correctness", "description": "reviewed", "evidence_classes": ["test"]}
+  ],
+  "tools": [
+    {"id": "review-check", "requiredness": "required", "criteria": ["correctness"]}
+  ]
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","governed_roots":["docs"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/delivery.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","results_path":".pose/results/current.json"}`)
+	writeCloseoutCLIFile(t, root, ".pose/rules/security.md", "# Security\n")
+	writeCloseoutCLIFile(t, root, ".pose/rules/documentation-style.md", "# Docs\n")
+
+	writeCloseoutCLIFile(t, root, "README.md", "baseline\n")
+	writeCloseoutCLIFile(t, root, ".pose/specs/spec-a.md", `---
+slug: spec-a
+status: in-progress
+created_at: 2026-08-22
+completed_at:
+---
+
+# Spec A
+## 2. Requirements
+- R1: Works.
+## 3. Technical Plan
+### Artifacts
+- created: docs/a.md
+### Delivery targets
+Nenhum
+## 4. Tasks
+- [x] A
+`)
+	writeCloseoutCLIFile(t, root, ".pose/specs/spec-b.md", `---
+slug: spec-b
+status: in-progress
+created_at: 2026-08-22
+completed_at:
+---
+
+# Spec B
+## 2. Requirements
+- R1: Works.
+## 3. Technical Plan
+### Artifacts
+- created: docs/b.md
+### Delivery targets
+Nenhum
+## 4. Tasks
+- [x] B
+`)
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "baseline")
+
+	writeCloseoutCLIFile(t, root, "docs/a.md", "# A\n")
+	artifactGit(t, root, "add", "--", "docs/a.md")
+	artifactGit(t, root, "commit", "-q", "-m", "feat: doc a", "-m", "POSE-Spec: spec-a")
+
+	writeCloseoutCLIFile(t, root, "docs/b.md", "# B\n")
+	artifactGit(t, root, "add", "--", "docs/b.md")
+	artifactGit(t, root, "commit", "-q", "-m", "feat: doc b", "-m", "POSE-Spec: spec-b")
+
+	var out, errOut bytes.Buffer
+	// Seal bundle for spec-a
+	_ = cmdArtifactCheck(root, []string{"--spec", "spec-a", "--strict"}, &out, &errOut)
+	out.Reset(); errOut.Reset()
+	if code := cmdReviewBundle(root, []string{"spec:spec-a", "--seal"}, &out, &errOut); code != 0 {
+		t.Fatalf("bundle seal spec-a failed: %s %s", out.String(), errOut.String())
+	}
+	out.Reset(); errOut.Reset()
+	_ = cmdReviewAutoAttest(root, []string{"spec:spec-a", "--apply"}, &out, &errOut)
+
+	// Seal bundle for spec-b
+	out.Reset(); errOut.Reset()
+	_ = cmdArtifactCheck(root, []string{"--spec", "spec-b", "--strict"}, &out, &errOut)
+	out.Reset(); errOut.Reset()
+	if code := cmdReviewBundle(root, []string{"spec:spec-b", "--seal"}, &out, &errOut); code != 0 {
+		t.Fatalf("bundle seal spec-b failed: %s %s", out.String(), errOut.String())
+	}
+	out.Reset(); errOut.Reset()
+	_ = cmdReviewAutoAttest(root, []string{"spec:spec-b", "--apply"}, &out, &errOut)
+
+	// Now corrupt spec-a's review bundle file on disk (simulate external rename script / edit)
+	bundles, _ := filepath.Glob(filepath.Join(root, ".pose", "review-bundles", "*.json"))
+	for _, p := range bundles {
+		raw, _ := os.ReadFile(p)
+		if strings.Contains(string(raw), "spec:spec-a") {
+			// Alter payload bytes so digest mismatches
+			corrupted := strings.Replace(string(raw), "docs/a.md", "docs/a-altered.md", 1)
+			_ = os.WriteFile(p, []byte(corrupted), 0o644)
+		}
+	}
+
+	// Verify and close spec-b - MUST SUCCEED despite corrupted spec-a bundle
+	out.Reset(); errOut.Reset()
+	if code := cmdReviewVerify(root, []string{"spec:spec-b"}, &out, &errOut); code != 0 {
+		t.Fatalf("review verify spec-b should succeed independently of corrupted spec-a: out=%s err=%s", out.String(), errOut.String())
+	}
+	out.Reset(); errOut.Reset()
+	if code := cmdClose(root, []string{"spec:spec-b"}, &out, &errOut); code != 0 {
+		t.Fatalf("pose close spec-b failed: out=%s err=%s", out.String(), errOut.String())
+	}
+}
+
+
 
 

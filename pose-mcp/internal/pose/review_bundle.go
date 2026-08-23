@@ -1075,9 +1075,29 @@ func (s Store) ListReviewBundles(scope string) ([]ReviewBundle, error) {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
 			continue
 		}
-		bundle, loadErr := s.LoadReviewBundle(strings.TrimSuffix(entry.Name(), ".json"))
+		id := strings.TrimSuffix(entry.Name(), ".json")
+		if scope != "" {
+			raw, err := os.ReadFile(filepath.Join(dir, entry.Name()))
+			if err != nil {
+				continue
+			}
+			var header struct {
+				Payload struct {
+					Scope struct {
+						Ref string `json:"ref"`
+					} `json:"scope"`
+				} `json:"payload"`
+			}
+			if err := json.Unmarshal(raw, &header); err != nil || header.Payload.Scope.Ref != scope {
+				continue
+			}
+		}
+		bundle, loadErr := s.LoadReviewBundle(id)
 		if loadErr != nil {
-			return nil, loadErr
+			if scope != "" {
+				return nil, loadErr
+			}
+			continue
 		}
 		if scope == "" || bundle.Payload.Scope.Ref == scope {
 			bundles = append(bundles, bundle)
@@ -1400,9 +1420,25 @@ func (s Store) ListReviewAttestations(bundleID string) ([]ReviewAttestation, err
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
 			continue
 		}
-		att, loadErr := s.LoadReviewAttestation(strings.TrimSuffix(entry.Name(), ".json"))
+		id := strings.TrimSuffix(entry.Name(), ".json")
+		if bundleID != "" {
+			raw, err := os.ReadFile(filepath.Join(dir, entry.Name()))
+			if err != nil {
+				continue
+			}
+			var header struct {
+				BundleID string `json:"bundle_id"`
+			}
+			if err := json.Unmarshal(raw, &header); err != nil || header.BundleID != bundleID {
+				continue
+			}
+		}
+		att, loadErr := s.LoadReviewAttestation(id)
 		if loadErr != nil {
-			return nil, loadErr
+			if bundleID != "" {
+				return nil, loadErr
+			}
+			continue
 		}
 		if bundleID == "" || att.BundleID == bundleID {
 			result = append(result, att)
