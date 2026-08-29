@@ -22,9 +22,11 @@ humans and AI agents. It installs an operating contract in the repository and
 enforces that contract with one native Go binary:
 
 ```mermaid
+
 flowchart LR
   S[spec] --> E[execution] --> V[evidence] --> F[follow-ups] --> R[recurrence] --> K[knowledge]
   K -. learning returns to planning .-> S
+
 ```
 
 POSE is not another coding agent, IDE or project board. It is the layer that
