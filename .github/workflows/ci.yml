@@ -26,7 +26,8 @@ jobs:
             install.sh \
             scripts/*.sh \
             tests/*.sh \
-            tests/*/*.sh
+            tests/*/*.sh \
+            examples/demo/*.sh
       - name: Installer E2E
         run: bash tests/install/run.sh
       - name: Artifact-identity gate rejects what it must (spec pose-release-signing R3)
@@ -43,6 +44,12 @@ jobs:
       # (spec pose-first-governed-loop-quickstart).
       - name: Quickstart loop behaves as documented (spec pose-first-governed-loop-quickstart)
         run: bash tests/quickstart/first-governed-loop.sh
+      # The launch demo's whole argument is that every conventional check is
+      # green and the delivery still cannot close. If the scenario ever goes
+      # all-green, the recording made from it argues the opposite of the
+      # product (spec pose-launch-proof-demo).
+      - name: Launch demo scenario still blocks then closes (spec pose-launch-proof-demo)
+        run: bash examples/demo/record.sh --verify
       - name: Delivery images build and start
         # pose-mcp/Dockerfile and mcp-enforce/Dockerfile are composed in
         # production by the harne8 monorepo and were built by nothing here, so a

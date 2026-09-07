@@ -1,6 +1,6 @@
 ---
 slug: pose-launch-proof-demo
-status: draft
+status: in-progress
 created_at: 2026-09-06
 completed_at:
 supersedes:
@@ -64,9 +64,8 @@ agent, which is what every reader already assumes exists.
 - landing page and README embedding
 
 ### Artifacts
-- created: examples/demo/blocked-then-closed/
 - created: examples/demo/record.sh
-- modified: README.md
+- modified: .github/workflows/ci.yml
 
 ### Technical risks
 - A scenario contrived to fail is unconvincing. The blocked state should be
@@ -78,8 +77,8 @@ agent, which is what every reader already assumes exists.
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1: Scripted scenario reaching a genuine blocked state (R1, R3)
-- [ ] Increment 2: Resolution path to a closed delivery (R2)
+- [x] Increment 1: Scripted scenario reaching a genuine blocked state (R1, R3)
+- [x] Increment 2: Resolution path to a closed delivery (R2)
 - [ ] Increment 3: Record and trim under 60s (R4)
 - [ ] Increment 4: Embed on landing and README (R5)
 
@@ -94,8 +93,37 @@ agent, which is what every reader already assumes exists.
 - Scope: the scenario reaches the blocked state and then the closed state
 - Expected: exit 0; the recorded output matches a live run
 
+### Execution log
+- Date: 2026-09-07
+- Environment: local Linux, Go 1.26.5
+- Notes: the scenario builds a real Go module with a genuinely passing test,
+  so the green checks are green rather than staged. `go test`, `go vet`,
+  `go build` and `pose validate --strict` all pass; `pose lint-spec --strict`
+  then refuses to close the delivery because R1 has no requirement-trace
+  entry. The script fails loudly if the closeout gate ever *passes* at that
+  point — an all-green scenario would make a recording that argues against the
+  product.
+
+### Results summary
+- Successes: R1, R2, R3.
+- Failures: none.
+- Warnings: R4 and R5 need a recording and a page edit — see Known gaps.
+
 ### Requirement trace
-<!-- Filled at closeout. -->
+- R1 [satisfied] <examples/demo/record.sh; check:demo-scenario-verify asserts the block and its reason>
+- R2 [satisfied] <same script, resolution step; asserts spec.trace.missing=0 afterwards>
+- R3 [satisfied] <the scenario is a script in the repository, re-runnable and re-recordable; check:ci-demo-scenario>
+- R4 [deferred-integration: spec:pose-launch-proof-demo] <the recording itself is a capture step, not code>
+- R5 [deferred-integration: spec:harne8-pose-launch-surfaces] <landing embedding belongs to the site repository>
+
+### Known gaps
+- No recording exists yet. Producing one means pointing asciinema, vhs or a
+  screen capture at the non-`--verify` run, which is paced for exactly that.
+  Keeping the scenario as a script rather than a checked-in video means it can
+  be re-recorded when output changes instead of silently becoming a stale
+  artifact — but it also means the artifact the launch actually needs is not
+  done until someone records it.
+- Embedding on the landing page is governed by the site repository's spec.
 
 ---
 
