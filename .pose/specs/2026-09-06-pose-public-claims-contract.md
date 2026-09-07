@@ -1,8 +1,8 @@
 ---
 slug: pose-public-claims-contract
-status: done
+status: in-progress
 created_at: 2026-09-06
-completed_at: 2026-09-07
+completed_at:
 supersedes:
 depends_on: pose-release-recovery-verification
 priority: 1
@@ -181,6 +181,19 @@ is the most visible possible failure to dogfood.
 ---
 
 ## 7. Final Report
+
+> **Closeout pendente por independência de review.** A implementação está
+> completa e validada, e o review bundle `rvb-8a6f9e3fc48a412c` está **selado**
+> sobre a árvore commitada. A atestação não foi registrada nesta execução de
+> propósito: a política do projeto declara
+> `reviewer_independence: same-actor-separate-execution`, e o mesmo ator que
+> escreveu este código não pode atestá-lo na mesma execução sem esvaziar o
+> significado da atestação. O passo que falta é
+> `pose review attest rvb-8a6f9e3fc48a412c --reviewer <id> --decision approved
+> --evidence <refs>` em uma execução separada, seguido de `pose close`.
+>
+> Esta é a primeira spec fechada sob a baseline de 2026-08-23, então ela define
+> o precedente que substitui o `auto-attest`.
 
 ### Delivered scope
 `pose public-claims` with a declared-surface contract, wired into CI as a
