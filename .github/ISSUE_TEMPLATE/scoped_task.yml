@@ -1,0 +1,76 @@
+name: Scoped task (good for a first contribution)
+description: A self-contained piece of work with a known change surface and a local way to verify it
+title: "[TASK] "
+labels: ["help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This template is for work that is **already scoped** — the change
+        surface is known and the verification is a command someone can run.
+
+        It exists because POSE's repository reads, from outside, as a system
+        you must fully understand before touching anything. That is a barrier
+        to contribution, not a property of the code. An issue filed here should
+        let a contributor think *"I could finish this on a Saturday morning"*,
+        not *"I need to read 115 specs to change one line."*
+
+        If the scope is not yet known, please open a regular issue describing
+        the problem instead. An issue labelled as scoped that turns out not to
+        be costs more trust than it buys.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing
+      description: The observable behaviour, not the proposed fix.
+      placeholder: |
+        `pose <command>` reports X when the repository is in state Y, but the
+        documented contract says Z.
+    validations:
+      required: true
+  - type: textarea
+    id: surface
+    attributes:
+      label: Change surface
+      description: >-
+        The files or packages a fix is expected to touch. An estimate is fine;
+        being wrong here is useful information, not a problem.
+      placeholder: |
+        - pose-mcp/internal/cli/<file>.go
+        - a test in the same package
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: How to verify locally
+      description: >-
+        The exact command that fails now and should pass after. A contributor
+        who cannot reproduce the failure cannot know when they are done.
+      placeholder: |
+        go -C pose-mcp test ./internal/cli -run TestSomething -count=1
+        bash scripts/verify.sh --fast
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: governance
+    attributes:
+      label: Does this need a spec?
+      description: >-
+        Non-trivial changes to engine behaviour do; a docs fix or a contained
+        bugfix usually does not. If you are unsure, say so — the maintainer
+        will decide rather than bounce the pull request later.
+      placeholder: |
+        Probably not: contained bugfix, no contract change.
+    validations:
+      required: false
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Before submitting
+      options:
+        - label: I read CONTRIBUTING.md, including the `POSE-Spec:` commit trailer requirement
+          required: false
+        - label: I ran `bash scripts/verify.sh --fast` on a clean checkout
+          required: false

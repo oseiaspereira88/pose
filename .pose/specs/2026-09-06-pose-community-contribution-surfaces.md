@@ -1,6 +1,6 @@
 ---
 slug: pose-community-contribution-surfaces
-status: draft
+status: in-progress
 created_at: 2026-09-06
 completed_at:
 supersedes:
@@ -73,7 +73,8 @@ before touching. The barrier is not the code. It is that no path exists from
 
 ### Artifacts
 - modified: CONTRIBUTING.md
-- created: .github/ISSUE_TEMPLATE/scoped-task.yml
+- created: .github/ISSUE_TEMPLATE/scoped_task.yml
+- created: scripts/verify.sh
 
 ### Delivery targets
 - governance:community-contribution-surfaces module:. profile:release-governance entrypoint:CONTRIBUTING.md
@@ -88,8 +89,8 @@ before touching. The barrier is not the code. It is that no path exists from
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1: Contributor-facing governance expectations (R1)
-- [ ] Increment 2: One documented local command reproducing CI (R5)
+- [x] Increment 1: Contributor-facing governance expectations (R1)
+- [x] Increment 2: One documented local command reproducing CI (R5)
 - [ ] Increment 3: Scoped issues with verification instructions (R2)
 - [ ] Increment 4: Discussion categories including RFC (R3, R4)
 
@@ -104,8 +105,38 @@ before touching. The barrier is not the code. It is that no path exists from
 - Scope: run from a fresh clone with no maintainer credentials
 - Expected: exit 0, and its result matches what CI reports
 
+### Execution log
+- Date: 2026-09-07
+- Environment: local Linux, Go 1.26.5
+- Notes: `scripts/verify.sh --fast` was exercised in both directions — green on
+  a clean tree, and exit 1 naming "Public claims gate" with every other gate
+  still run to completion when drift was injected into a surface. A
+  contributor script that stops at the first failure forces one round trip per
+  problem.
+
+### Results summary
+- Successes: R1 and R5 delivered and verified.
+- Failures: none.
+- Warnings: R2, R3 and R4 need actions on the GitHub repository itself —
+  see Known gaps.
+
 ### Requirement trace
-<!-- Filled at closeout. -->
+- R1 [satisfied] <CONTRIBUTING.md: "Start here", the `POSE-Spec:` trailer section, and the ownership table separating contributor duties from maintainer ones>
+- R2 [deferred-integration: spec:pose-community-contribution-surfaces] <the issue template exists; the issues themselves are an action on the public repository>
+- R3 [deferred-integration: spec:pose-community-contribution-surfaces] <Discussions categories are repository settings>
+- R4 [deferred-integration: spec:pose-community-contribution-surfaces] <same>
+- R5 [satisfied] <scripts/verify.sh; check:verify-sh-green, check:verify-sh-failure-path>
+
+### Known gaps
+- R2, R3 and R4 are deliberately not executed here. Opening public issues and
+  creating Discussion categories are outward-facing actions on the project's
+  public repository, and doing them unprompted would publish content under the
+  maintainer's name. The template and the local reproduction path — the parts
+  that are code — are done; the publishing step is the maintainer's.
+- R5 carries an upkeep hazard: `scripts/verify.sh` mirrors `ci.yml` by hand.
+  A gate added to CI and not to the script produces false local confidence,
+  which is worse than having no script. The header says so; nothing enforces
+  it.
 
 ---
 
