@@ -96,7 +96,7 @@ maintainer with a warm toolchain does.
 - [ ] Confirm the recovery version number and whether it is a patch or minor
 
 ### Implementation
-- [ ] Increment 1: Run the snapshot rehearsal and fix whatever it surfaces (R1)
+- [x] Increment 1: Run the snapshot rehearsal and fix whatever it surfaces (R1)
 - [ ] Increment 2: Push the recovery tag and confirm the artifact set (R2)
 - [ ] Increment 3: Clean-container install verification (R3, R4)
 - [x] Increment 4: Scheduled latest-release liveness check (R5)
@@ -126,6 +126,28 @@ step is allowed to fail cheaply before the next one becomes expensive.
   `pose doctor` exits 0
 
 ### Execution log
+
+**Rehearsal, run 34089934192 (2026-09-07) — SUCCESS in 7m06s.**
+
+The first attempt (run 34089740483) failed at "Resolve release version" with
+`signal: broken pipe`, before any gate ran — see Decision 1. After the fix, the
+rehearsal completed and exercised, for the first time since v1.6.0:
+
+- Security gate: `no leaks found`, and `No vulnerabilities found` for both Go
+  modules. This is the gate that blocked v1.7.1 through v1.7.10; the
+  conjunctive gitleaks allowlist works in CI, not only locally.
+- goreleaser built all six archives — darwin, linux and windows × amd64 and
+  arm64.
+- `tests/release/verify.sh`: `signature OK` for all six archives plus
+  `checksums.txt`, and `SBOM OK` with license coverage for every per-archive
+  CycloneDX document.
+
+What the snapshot **could not** exercise, because those steps are guarded by
+`if: startsWith(github.ref, 'refs/tags/')` and a branch dispatch does not
+satisfy it: signing the reference extension with cosign, SLSA build-provenance
+attestation, the package-manager manifests, and the publication steps
+themselves. Those remain unproven until a real tag, which is why R2 stays open.
+
 - Date: 2026-09-07
 - Environment: local Linux
 - Notes: R5 is implemented and is expected to **fail** on its first run, which
@@ -139,7 +161,7 @@ step is allowed to fail cheaply before the next one becomes expensive.
 - Warnings: R1–R4 are blocked on operations that require pushing and tagging.
 
 ### Requirement trace
-- R1 [satisfied] <run 34089740483 surfaced a latent defect that blocked the rehearsal path entirely; fixed in .github/workflows/release.yml and re-run>
+- R1 [satisfied] <run 34089740483 surfaced a latent defect that blocked the rehearsal path entirely; fixed and re-run green as 34089934192 — security gate, goreleaser build and artifact identity all pass>
 - R2 [deferred-integration: spec:pose-release-recovery-verification] <requires pushing a recovery tag>
 - R3 [satisfied] <.github/workflows/release-liveness.yml, job installer-is-reachable — asserts HTTP 200, a non-empty file and a shebang>
 - R4 [satisfied] <.github/workflows/release-liveness.yml, job installs-on-a-clean-machine — debian:stable-slim, no Go toolchain, no checkout; runs pose version, pose install and pose doctor>
