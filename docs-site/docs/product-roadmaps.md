@@ -1,6 +1,6 @@
 # Product roadmaps
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** current stable POSE 1.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
 
 **Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-17):** all 10 roadmaps `done`
 **Canonical execution artifacts:** `.pose/roadmaps/*.md` and `.pose/specs/*/spec.md`

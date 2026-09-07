@@ -1,6 +1,6 @@
 # Technical architecture
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** current stable POSE 1.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
 
 **Status:** Reference-grade, offline-first engineering operating standard  
 **Verified:** 2026-08-17 against the `v1.4.3` release contract and

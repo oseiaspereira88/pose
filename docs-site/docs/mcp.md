@@ -1,6 +1,6 @@
 # MCP server
 
-**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** current stable POSE 1.x
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
 
 `pose serve-mcp` exposes a read-heavy governance view of a POSE instance to
 MCP-capable agents. Transports: stdio

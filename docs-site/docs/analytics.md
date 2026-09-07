@@ -1,6 +1,6 @@
 # Analytics and delivery metrics
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** current stable POSE 1.x
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
 
 POSE exposes three measurement planes. They answer different questions and
 must remain separate:
