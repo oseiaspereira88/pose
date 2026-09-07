@@ -63,6 +63,12 @@ jobs:
         run: '"$RUNNER_TEMP/pose" skills-check --strict'
       - name: History gate (pose history-check)
         run: '"$RUNNER_TEMP/pose" history-check'
+      # The landing page, the homepage, the structured metadata and thirteen
+      # docs pages described 1.4.x while the product shipped 1.7.10, and nobody
+      # noticed for weeks. Nothing tied a public claim to a released fact
+      # (spec pose-public-claims-contract).
+      - name: Public claims gate (spec pose-public-claims-contract)
+        run: '"$RUNNER_TEMP/pose" public-claims --strict'
       - name: Retain governance evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

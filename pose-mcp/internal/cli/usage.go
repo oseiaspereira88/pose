@@ -157,7 +157,7 @@ func shouldRecordCLIUsage(tool string, code int) bool {
 func isKnownCLICommand(tool string) bool {
 	switch tool {
 	case "init", "new-spec", "new-roadmap", "new-adr", "new-knowledge", "followups", "amend", "assess", "state",
-		"docs-init", "docs-check", "docs-review", "docs-sync", "report-limitation", "feedback", "report", "validate", "check",
+		"docs-init", "docs-check", "docs-review", "docs-sync", "public-claims", "report-limitation", "feedback", "report", "validate", "check",
 		"review", "review-check", "closeout-check", "close", "continuous-closeout", "artifact-check", "artifact-backfill", "surface-check", "roadmap-check",
 		"update", "index", "knowledge-check", "knowledge-housekeeping", "knowledge-usage", "knowledge-suggest", "reports-housekeeping",
 		"recurrence-check", "recurrence-effect", "hooks", "suggest", "stats", "stacks", "skills-check", "record-deployment",
@@ -190,7 +190,7 @@ func defaultCommandUsage(tool string, code int) commandUsageResult {
 
 func isGateCommand(tool string) bool {
 	switch tool {
-	case "check", "validate", "knowledge-check", "recurrence-check", "lint-spec", "history-check", "skills-check", "review-check", "review.bundle.verify", "closeout-check", "artifact-check", "surface-check", "roadmap-check":
+	case "check", "validate", "knowledge-check", "recurrence-check", "lint-spec", "history-check", "skills-check", "review-check", "review.bundle.verify", "closeout-check", "artifact-check", "surface-check", "roadmap-check", "public-claims":
 		return true
 	default:
 		return false

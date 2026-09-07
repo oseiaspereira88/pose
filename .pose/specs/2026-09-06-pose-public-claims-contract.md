@@ -1,8 +1,8 @@
 ---
 slug: pose-public-claims-contract
-status: draft
+status: done
 created_at: 2026-09-06
-completed_at:
+completed_at: 2026-09-07
 supersedes:
 depends_on: pose-release-recovery-verification
 priority: 1
@@ -48,7 +48,7 @@ is the most visible possible failure to dogfood.
 ## 2. Requirements
 
 ### Functional
-- R1: A `.pose/public/claims.yaml` contract shall declare the canonical
+- R1: A `.pose/public/claims.json` contract shall declare the canonical
   product name, category, license, repository URL, canonical docs route and
   release source — each as a single authoritative value.
 - R2: `pose public-claims` shall verify every surface declared in the contract
@@ -76,14 +76,20 @@ is the most visible possible failure to dogfood.
 
 ### Affected areas
 - `pose-mcp/internal/cli/` — new `public-claims` command
-- `.pose/public/claims.yaml` — new contract
+- `.pose/public/claims.json` — new contract
 - `.github/workflows/ci.yml` — gate wiring
 
 ### Artifacts
-- created: .pose/public/claims.yaml
+- created: .pose/public/claims.json
 - created: pose-mcp/internal/cli/publicclaims.go
 - created: pose-mcp/internal/cli/publicclaims_test.go
+- modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/usage.go
 - modified: .github/workflows/ci.yml
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 - contract:public-claims module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
@@ -100,10 +106,10 @@ is the most visible possible failure to dogfood.
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1: Contract schema and loader (R1)
-- [ ] Increment 2: `public-claims` command and per-surface verification (R2, R3)
-- [ ] Increment 3: Evergreen-surface assertion (R4)
-- [ ] Increment 4: `--json` / `--strict` and CI wiring (R5)
+- [x] Increment 1: Contract schema and loader (R1)
+- [x] Increment 2: `public-claims` command and per-surface verification (R2, R3)
+- [x] Increment 3: Evergreen-surface assertion (R4)
+- [x] Increment 4: `--json` / `--strict` and CI wiring (R5)
 
 ---
 
@@ -140,13 +146,68 @@ is the most visible possible failure to dogfood.
 - Expected: exit 0 on a compliant tree; non-zero naming the offending surface
   and claim on a drifted one
 
+### Execution log
+- Date: 2026-09-07
+- Environment: local Linux, Go 1.26.5
+- Notes: beyond the unit fixtures, the gate was exercised against the real
+  repository by injecting `POSE 1.4.3` into `docs-site/docs/concepts.md`, a
+  surface declared evergreen. It failed with exit 1 naming the file, the claim
+  and the reason, and returned to SUCCESS once the line was removed. A gate
+  that has only been seen passing has not been tested.
+
+### Results summary
+- Successes: R1, R2, R4, R5 fully; R3 for the version and docs-host clauses.
+- Failures: none.
+- Warnings: R3's download-URL clause is satisfied indirectly — see the trace.
+
 ### Requirement trace
-<!-- Filled at closeout. -->
+- R1 [satisfied] <.pose/public/claims.json; loader and schema guard in publicclaims.go; test:TestPublicClaimsFailsWithoutContractOrVersionSource>
+- R2 [satisfied] <test:TestPublicClaimsPassesOnCompliantSurfaces, test:TestPublicClaimsJSONOutputIsMachineReadable — each finding carries surface, claim and the authoritative value>
+- R3 [satisfied] <test:TestPublicClaimsFailsOnStaleVersion, test:TestPublicClaimsFailsOnSchemaOrgVersionAndNonCanonicalDocs, test:TestPublicClaimsAcceptsReleaseLineButNotAnotherPatch; live check against docs-site/docs/concepts.md>
+- R4 [satisfied] <test:TestPublicClaimsFailsWhenEvergreenSurfaceGainsAVersion — the current version fails too, which is the point>
+- R5 [satisfied] <test:TestPublicClaimsJSONOutputIsMachineReadable, test:TestPublicClaimsTolerantModeReportsWithoutFailing; check:ci-public-claims-gate>
+
+### Known gaps
+- R3's third clause — "a download URL that does not resolve in the release
+  contract" — is enforced only for *pinned* URLs, by matching
+  `releases/download/v<x.y.z>/` against the released version. A URL pointing at
+  a path that does not exist in the published release is not detected, because
+  that requires the network the offline constraint rules out. The liveness of
+  `releases/latest/download/install.sh` is covered instead by
+  `pose-release-recovery-verification` R5, where a scheduled job may use the
+  network.
 
 ---
 
 ## 7. Final Report
 
+### Delivered scope
+`pose public-claims` with a declared-surface contract, wired into CI as a
+blocking gate and listed in the command reference across all four POSE.md
+copies (root, pt-BR locale, and both embedded scaffold copies).
+
+### Files and modules changed
+See Artifacts.
+
+### Validation executed
+- Command: `go -C pose-mcp test ./... -count=1`
+- Result: pass
+- Command: `pose public-claims --strict`
+- Result: SUCCESS, 6 surfaces, 0 errors
+
+### Residual risks
+- The contract only covers surfaces someone remembered to declare. An
+  undeclared surface is unchecked, and nothing detects that omission. That is
+  the deliberate trade against false positives on changelogs and historical
+  assessments, but it is a real limit.
+
 ### Follow-ups
 
-- [open]
+- [open] The harne8 site surfaces (`site/pose.html`, `site/index.html`, the
+  shared footer) live in another repository and are not covered by this
+  contract. They carry their own gate in `site/test/static-site.test.mjs`,
+  which duplicates part of this logic. Either the site adopts
+  `pose public-claims` against its own contract, or the two gates drift apart.
+- [open] Nothing flags a public surface that exists but was never declared in
+  `claims.json`. A periodic reconciliation between the contract and the docs
+  manifest would close the residual risk noted above.

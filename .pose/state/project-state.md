@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-08-22T06:14:37Z
-baseline_commit: 3ec42d5704f05d083aa55e0581213b716698e614
+generated_at: 2026-09-07T04:29:55Z
+baseline_commit: 3ed4cc013d0efb689c0e2528116030a0c2abda10
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,24 +27,26 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:5b35c90e4603 -->
+<!-- state:derived hash:60912ebd18fd -->
 
-- specs: total=130 draft=1 in-progress=0 blocked=0 done=129 superseded=0 abandoned=0
-- roadmaps: total=10 active=0 done=10
+- specs: total=150 draft=6 in-progress=4 blocked=0 done=140 superseded=0 abandoned=0
+- roadmaps: total=11 active=1 done=10
 - últimos closeouts:
-  - spec:pose-release-closeout-skill-policy-link (2026-08-22)
-  - spec:pose-contributor-mode-workflow-and-cli-hints (2026-08-22)
-  - spec:pose-review-bundle-component-discovery-and-governance-paths (2026-08-22)
-  - spec:pose-contributor-mode-protocol (2026-08-21)
-  - spec:pose-stack-rule-extensions-expansion (2026-08-21)
-  - ... e mais 124 (ver `pose_list_specs status:done`)
+  - spec:pose-public-claims-contract (2026-09-07)
+  - spec:pose-review-bundle-scope-isolated-listing (2026-08-23)
+  - spec:pose-covered-followup-anchor-verification (2026-08-23)
+  - spec:pose-delivery-target-root-module-evidence-matching (2026-08-23)
+  - spec:pose-review-bundle-doc-only-specs (2026-08-22)
+  - ... e mais 135 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:48a16c7aa529 -->
+<!-- state:derived hash:1c6de17869c5 -->
 
-- abertos: 75
-- por criticidade: high=1 medium=20 low=36 sem-classificação=18
-- vencidos (review < hoje): 0
+- abertos: 80
+- por criticidade: high=1 medium=20 low=36 sem-classificação=23
+- vencidos (review < hoje): 2
+  - spec:pose-v1-2-2-changelog-review (owner:@pose-maintainers review:2026-09-01)
+  - spec:capability:mcp-agent-interop (owner:unowned review:2026-09-04)
 
 ## Capabilities
 <!-- state:derived hash:7db5fb52757a -->
@@ -64,10 +66,10 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:6f17695e37f9 -->
+<!-- state:derived hash:6b24a7d4c130 -->
 
 - último registro: task=feature outcome=unknown (2026-08-22T05:35:43Z)
-- últimos 30 dias: total=225 outcome_ok=155 outcome_outro=70
+- últimos 30 dias: total=123 outcome_ok=80 outcome_outro=43
 - reports revisados (.md): total=134
   - report:2026-08-22-standard-feature.md
   - report:2026-08-22-standard-validate-native.md
