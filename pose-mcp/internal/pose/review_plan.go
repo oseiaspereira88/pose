@@ -255,7 +255,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 		}, plan.Blockers)
 		plan.Explain = append(plan.Explain, "cross-component-integration added because multiple mapped component roots are affected")
 	}
-	plan.Tools, plan.Blockers = buildReviewTools(scope, context, profiles, plan.Criteria, plan.Blockers)
+	plan.Tools, plan.Blockers, plan.Warnings = buildReviewTools(scope, context, profiles, plan.Criteria, plan.Blockers, plan.Warnings)
 	for _, c := range plan.Criteria {
 		for _, rule := range c.Rules {
 			path := filepath.Join(s.Root, ".pose", "rules", rule+".md")
@@ -699,13 +699,47 @@ func addReviewCriterion(criteria []ReviewPlanCriterion, candidate ReviewPlanCrit
 	return criteria, blockers
 }
 
-func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []ReviewProfile, criteria []ReviewPlanCriterion, blockers []string) ([]ReviewPlanTool, []string) {
+func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []ReviewProfile, criteria []ReviewPlanCriterion, blockers, warnings []string) ([]ReviewPlanTool, []string, []string) {
 	tools := []ReviewPlanTool{}
+	// A tool may only demand evidence a registered check is allowed to emit.
+	// pose validate rejects any evidenceClass outside ValidEvidenceClasses, so a
+	// class demanded here but absent there can never be satisfied truthfully, and
+	// the only disposition that completes is a fabricated one. Drop such classes
+	// and say so, rather than planning a gate nothing can pass.
+	producible := func(classes []string) ([]string, []string) {
+		kept, dropped := []string{}, []string{}
+		for _, class := range classes {
+			if ValidEvidenceClasses[class] {
+				kept = append(kept, class)
+			} else {
+				dropped = append(dropped, class)
+			}
+		}
+		return kept, dropped
+	}
+	// Evidence classes for a synthesised tool come from the profile that governs
+	// it, never from a literal in this function: the profile is where a project
+	// can reconcile them, and a literal here is unreachable by definition.
+	profileEvidence := func(id string) []string {
+		classes := []string{}
+		for _, profile := range profiles {
+			for _, tool := range profile.Tools {
+				if tool.ID == id {
+					classes = append(classes, tool.EvidenceClasses...)
+				}
+			}
+		}
+		return uniqueSorted(classes)
+	}
 	add := func(id, requiredness, component string, evidence, criterionIDs []string) {
 		definition, ok := reviewToolCatalog[id]
 		if !ok {
 			blockers = append(blockers, "unknown review tool "+id)
 			return
+		}
+		evidence, dropped := producible(evidence)
+		for _, class := range dropped {
+			warnings = append(warnings, "review tool "+id+" drops evidence class "+class+": no registered check may emit it")
 		}
 		args := reviewToolArgs(id, scope, component)
 		candidate := ReviewPlanTool{ID: id, Requiredness: requiredness, Args: args, Rationale: definition.Rationale, EvidenceClasses: uniqueSorted(evidence), Criteria: uniqueSorted(criterionIDs), Component: component, Preconditions: reviewToolPreconditions(id)}
@@ -727,10 +761,10 @@ func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []Revi
 	for _, component := range context.Components {
 		add("suggest-review", "recommended", component.Path, nil, nil)
 		add("assess-discover", "recommended", component.Path, nil, nil)
-		add("validate", "required", component.Path, []string{"validation"}, nil)
+		add("validate", "required", component.Path, profileEvidence("validate"), nil)
 	}
 	if len(context.Components) == 0 && len(context.DeliveryKinds) > 0 {
-		add("validate", "required", "", []string{"validation"}, nil)
+		add("validate", "required", "", profileEvidence("validate"), nil)
 	}
 	add("assess-tech-debt", "recommended", "", nil, nil)
 	if len(context.Components) > 1 {
@@ -790,7 +824,7 @@ func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []Revi
 		}
 		return tools[i].Component < tools[j].Component
 	})
-	return tools, blockers
+	return tools, blockers, warnings
 }
 
 func reviewToolPreconditions(id string) []string {

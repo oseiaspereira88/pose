@@ -217,6 +217,31 @@ func TestReviewPlanToolsFollowLifecycleOrder(t *testing.T) {
 	}
 }
 
+func TestReviewPlanToolsOnlyDemandProducibleEvidenceClasses(t *testing.T) {
+	_, store := componentReviewFixture(t)
+	plan, err := store.ReviewPlan("spec:fullstack")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sawComponentValidate := false
+	for _, tool := range plan.Tools {
+		if tool.ID == "validate" && tool.Component != "" {
+			sawComponentValidate = true
+		}
+		for _, class := range tool.EvidenceClasses {
+			if !ValidEvidenceClasses[class] {
+				// pose validate refuses to register a check with this class, so no
+				// disposition can name it truthfully and only a fabricated one
+				// completes the attestation.
+				t.Fatalf("tool %s (component %q) demands evidence class %q, which no check may emit", tool.ID, tool.Component, class)
+			}
+		}
+	}
+	if !sawComponentValidate {
+		t.Fatal("fixture produced no component-scoped validate tool; the regression would go unobserved")
+	}
+}
+
 func TestReviewPlanDigestIsDeterministicAndIgnoresUnconsumedOwner(t *testing.T) {
 	root, store := componentReviewFixture(t)
 	first, err := store.ReviewPlan("spec:backend")
@@ -451,6 +476,7 @@ func TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage(t *testing.T) 
 		t.Fatalf("review without required tool dispositions was accepted: %+v err=%v", missingTools, err)
 	}
 	var tools strings.Builder
+	validateAPILine, validateAPILineNoEvidence := "", ""
 	for _, tool := range plan.Tools {
 		if containsFold(tool.Preconditions, "review-complete") {
 			tools.WriteString("- " + tool.ID + " [deferred] rationale:post-review-gate\n")
@@ -472,6 +498,14 @@ func TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage(t *testing.T) 
 		if tool.Component != "" {
 			tools.WriteString(" component:" + tool.Component)
 		}
+		// The class depends on what the profile declares and on what a check may
+		// actually emit, so capture the exact lines instead of assuming a class.
+		// Other tools render an identical evidence suffix, so the whole line is
+		// the only unambiguous handle.
+		if tool.ID == "validate" && tool.Component == "api" {
+			validateAPILineNoEvidence = "- " + tool.ID + " [passed] component:" + tool.Component
+			validateAPILine = validateAPILineNoEvidence + " evidence:" + class + ":review-plan"
+		}
 		tools.WriteString(" evidence:" + class + ":review-plan\n")
 	}
 	body = strings.Replace(body, "\n## Findings\n", "\n## Tools\n"+tools.String()+"\n## Findings\n", 1)
@@ -483,7 +517,7 @@ func TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage(t *testing.T) 
 		t.Fatalf("current plan-bound review was rejected: %+v err=%v", current, err)
 	}
 
-	missingEvidenceBody := strings.Replace(body, " evidence:validation:review-plan", "", 1)
+	missingEvidenceBody := strings.Replace(body, validateAPILine, validateAPILineNoEvidence, 1)
 	if err := os.WriteFile(filepath.Join(root, ".pose", "reviews", "rvw-plan.md"), []byte(missingEvidenceBody), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -492,7 +526,7 @@ func TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage(t *testing.T) 
 		t.Fatalf("required tool without evidence was accepted: %+v err=%v", missingEvidence, err)
 	}
 
-	duplicateBody := strings.Replace(body, "\n## Findings\n", "\n- validate [passed] component:api evidence:validation:review-plan\n\n## Findings\n", 1)
+	duplicateBody := strings.Replace(body, "\n## Findings\n", "\n"+validateAPILine+"\n\n## Findings\n", 1)
 	if err := os.WriteFile(filepath.Join(root, ".pose", "reviews", "rvw-plan.md"), []byte(duplicateBody), 0o644); err != nil {
 		t.Fatal(err)
 	}
