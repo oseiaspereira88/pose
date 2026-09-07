@@ -1,9 +1,18 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "pose-review-subject-submodule-classification",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A repository that vendors a dependency as a Git submodule can now seal a review\nbundle. Previously any submodule in the attributed change set blocked the seal\nwith `unclassified review subject path`, because the classifier decides from the\npath alone and a submodule has no shape that distinguishes it from a directory.\nIt is now recognised as a gitlink and reviewed as what it is: the commit it is\npinned to.",
+      "path": "pose-review-subject-submodule-classification.md",
+      "digest": "sha256:f69113ff16e92ec32a5f2343e13c91e52a5753f015c3205adf42492dfda114f3"
+    }
+  ],
   "releases": [
     {
       "version": "v1.7.10",
-      "state": "prepared",
+      "state": "tagged",
       "manifest": {
         "schema_version": 1,
         "version": "v1.7.10",

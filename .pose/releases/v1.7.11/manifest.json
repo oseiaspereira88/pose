@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v1.7.11",
+  "previous_version": "v1.7.10",
+  "prepared_at": "2026-09-07T18:17:55Z",
+  "specs": [
+    "pose-review-subject-submodule-classification"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-review-subject-submodule-classification",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A repository that vendors a dependency as a Git submodule can now seal a review\nbundle. Previously any submodule in the attributed change set blocked the seal\nwith `unclassified review subject path`, because the classifier decides from the\npath alone and a submodule has no shape that distinguishes it from a directory.\nIt is now recognised as a gitlink and reviewed as what it is: the commit it is\npinned to.",
+      "path": "pose-review-subject-submodule-classification.md",
+      "digest": "sha256:f69113ff16e92ec32a5f2343e13c91e52a5753f015c3205adf42492dfda114f3"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:da31ecc2540944a81e0324b1013016f86f8a97613619e884560d943d15f438dd",
+  "release_input_digest": "sha256:9281adbef020aadb9e93acd8816526ea14e6222c57481148e7e41ffb019dc6f2",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.7.11"
+  }
+}

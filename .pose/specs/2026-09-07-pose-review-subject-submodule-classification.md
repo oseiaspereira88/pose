@@ -77,7 +77,7 @@ been satisfied.
 
 ### Artifacts
 - created: .pose/specs/2026-09-07-pose-review-subject-submodule-classification.md
-- created: .pose/changelogs/unreleased/pose-review-subject-submodule-classification.md
+- renamed: .pose/changelogs/unreleased/pose-review-subject-submodule-classification.md -> .pose/changelogs/v1.7.11/pose-review-subject-submodule-classification.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 
@@ -173,6 +173,18 @@ must survive.
 - A submodule whose pointer is unchanged but whose contents drift in the
   working tree is reported by `reviewBundleWorkingTreeChange` as dirty, which is
   the correct signal but names the directory rather than what changed inside it.
+- This spec ships in v1.7.11 without being closed, which departs from the
+  convention of the previous release commits. Closing it requires an
+  attestation, and `pose review attest` fills any criterion whose evidence
+  class has no producer with `<class>:auto-attest` — the fallback at
+  `review_bundle.go`. `spec-closeout@1` asks for `validation` and `test`, and
+  `ValidEvidenceClasses` (`delivery_surface.go`) accepts neither, so those
+  criteria cannot be satisfied by a real check on this engine. The existing
+  attestation carried into v1.7.10 (`rva-2e2da688435296b9`) is auto-attest for
+  exactly those criteria. An attestation that records no judgment is worse than
+  an open spec: it makes the gate report green while proving nothing. The
+  release gates do not require terminal scope for this cut and all pass, so the
+  spec stays honestly open until the two evidence vocabularies are reconciled.
 
 ---
 

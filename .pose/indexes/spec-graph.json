@@ -37,6 +37,10 @@
       "to": "pose-agent-skills-conformance"
     },
     {
+      "from": "pose-canonical-positioning",
+      "to": "pose-release-recovery-verification"
+    },
+    {
       "from": "pose-changed-scope-validation",
       "to": "pose-structured-validation-results"
     },
@@ -55,6 +59,10 @@
     {
       "from": "pose-closeout-delivery-assurance-convergence",
       "to": "pose-artifact-provenance-ledger"
+    },
+    {
+      "from": "pose-community-contribution-surfaces",
+      "to": "pose-readme-evaluation-path"
     },
     {
       "from": "pose-compat-gate-candidate-integrity",
@@ -185,6 +193,10 @@
       "to": "pose-extension-reference-publication"
     },
     {
+      "from": "pose-first-governed-loop-quickstart",
+      "to": "pose-release-recovery-verification"
+    },
+    {
       "from": "pose-followup-ownership-sla",
       "to": "pose-standalone-dogfood"
     },
@@ -211,6 +223,10 @@
     {
       "from": "pose-knowledge-consumption-traceability",
       "to": "pose-requirement-evidence-traceability"
+    },
+    {
+      "from": "pose-launch-proof-demo",
+      "to": "pose-first-governed-loop-quickstart"
     },
     {
       "from": "pose-lint-spec-flat-layout-followup-resolution",
@@ -325,8 +341,16 @@
       "to": "pose-capability-mechanism"
     },
     {
+      "from": "pose-public-claims-contract",
+      "to": "pose-release-recovery-verification"
+    },
+    {
       "from": "pose-public-install-contract",
       "to": "pose-version-contract"
+    },
+    {
+      "from": "pose-readme-evaluation-path",
+      "to": "pose-canonical-positioning"
     },
     {
       "from": "pose-recurrence-effectiveness",
@@ -371,6 +395,10 @@
     {
       "from": "pose-release-lifecycle-closure",
       "to": "pose-release-compatibility-matrix"
+    },
+    {
+      "from": "pose-release-recovery-verification",
+      "to": "pose-release-security-gate-integrity"
     },
     {
       "from": "pose-release-signing",
@@ -459,6 +487,10 @@
     {
       "from": "pose-scaffold-exclusion-policy",
       "to": "pose-composition-contract"
+    },
+    {
+      "from": "pose-sdd-migration-acquisition",
+      "to": "pose-canonical-positioning"
     },
     {
       "from": "pose-semantic-governance-assist",
@@ -622,6 +654,14 @@
       "priority": 28,
       "status": "done"
     },
+    "pose-canonical-positioning": {
+      "depends_on": [
+        "pose-release-recovery-verification"
+      ],
+      "path": ".pose/specs/2026-09-06-pose-canonical-positioning.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
     "pose-capability-mechanism": {
       "depends_on": null,
       "path": ".pose/specs/2026-07-21-pose-capability-mechanism.md",
@@ -666,6 +706,14 @@
       "path": ".pose/specs/2026-08-07-pose-command-reference-parity.md",
       "priority": 2,
       "status": "done"
+    },
+    "pose-community-contribution-surfaces": {
+      "depends_on": [
+        "pose-readme-evaluation-path"
+      ],
+      "path": ".pose/specs/2026-09-06-pose-community-contribution-surfaces.md",
+      "priority": 3,
+      "status": "in-progress"
     },
     "pose-compat-gate-candidate-integrity": {
       "depends_on": [
@@ -816,6 +864,12 @@
       "priority": 1,
       "status": "done"
     },
+    "pose-docs-canonical-route": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-06-pose-docs-canonical-route.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
     "pose-doctor-guided-remediation": {
       "depends_on": [
         "pose-public-install-contract"
@@ -897,6 +951,14 @@
       "path": ".pose/specs/2026-08-07-pose-extension-signing-clean-tree.md",
       "priority": 1,
       "status": "done"
+    },
+    "pose-first-governed-loop-quickstart": {
+      "depends_on": [
+        "pose-release-recovery-verification"
+      ],
+      "path": ".pose/specs/2026-09-06-pose-first-governed-loop-quickstart.md",
+      "priority": 2,
+      "status": "in-progress"
     },
     "pose-first-release-evidence-confirmation": {
       "depends_on": null,
@@ -981,6 +1043,14 @@
       "path": ".pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md",
       "priority": 3,
       "status": "done"
+    },
+    "pose-launch-proof-demo": {
+      "depends_on": [
+        "pose-first-governed-loop-quickstart"
+      ],
+      "path": ".pose/specs/2026-09-06-pose-launch-proof-demo.md",
+      "priority": 3,
+      "status": "in-progress"
     },
     "pose-lint-spec-flat-layout-followup-resolution": {
       "depends_on": [
@@ -1175,6 +1245,14 @@
       "priority": 0,
       "status": "done"
     },
+    "pose-public-claims-contract": {
+      "depends_on": [
+        "pose-release-recovery-verification"
+      ],
+      "path": ".pose/specs/2026-09-06-pose-public-claims-contract.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
     "pose-public-install-contract": {
       "depends_on": [
         "pose-version-contract"
@@ -1182,6 +1260,14 @@
       "path": ".pose/specs/2026-07-18-pose-public-install-contract.md",
       "priority": 3,
       "status": "done"
+    },
+    "pose-readme-evaluation-path": {
+      "depends_on": [
+        "pose-canonical-positioning"
+      ],
+      "path": ".pose/specs/2026-09-06-pose-readme-evaluation-path.md",
+      "priority": 2,
+      "status": "in-progress"
     },
     "pose-recurrence-effectiveness": {
       "depends_on": [
@@ -1242,6 +1328,20 @@
       "path": ".pose/specs/2026-08-02-pose-release-lifecycle-closure.md",
       "priority": 3,
       "status": "done"
+    },
+    "pose-release-recovery-verification": {
+      "depends_on": [
+        "pose-release-security-gate-integrity"
+      ],
+      "path": ".pose/specs/2026-09-06-pose-release-recovery-verification.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
+    "pose-release-security-gate-integrity": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-06-pose-release-security-gate-integrity.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-release-signing": {
       "depends_on": [
@@ -1359,6 +1459,12 @@
       "priority": 2,
       "status": "done"
     },
+    "pose-review-subject-submodule-classification": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-07-pose-review-subject-submodule-classification.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
     "pose-rule-extension-locale-parity": {
       "depends_on": null,
       "path": ".pose/specs/2026-08-15-pose-rule-extension-locale-parity.md",
@@ -1426,6 +1532,14 @@
       "path": ".pose/specs/2026-08-15-pose-scaffold-self-referential-policy-fix.md",
       "priority": 0,
       "status": "done"
+    },
+    "pose-sdd-migration-acquisition": {
+      "depends_on": [
+        "pose-canonical-positioning"
+      ],
+      "path": ".pose/specs/2026-09-06-pose-sdd-migration-acquisition.md",
+      "priority": 3,
+      "status": "in-progress"
     },
     "pose-semantic-governance-assist": {
       "depends_on": [

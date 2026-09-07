@@ -154,6 +154,61 @@
       "path": ".pose/roadmaps/agentic-onboarding.md",
       "status": "done"
     },
+    "community-launch": {
+      "created_at": "2026-09-06",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "distribution-repair",
+          "target_start": "2026-09-06",
+          "target_due": "2026-09-13",
+          "specs": [
+            "pose-release-security-gate-integrity",
+            "pose-release-recovery-verification"
+          ]
+        },
+        {
+          "id": "single-public-truth",
+          "after": [
+            "distribution-repair"
+          ],
+          "target_start": "2026-09-13",
+          "target_due": "2026-09-24",
+          "specs": [
+            "pose-public-claims-contract",
+            "pose-canonical-positioning",
+            "pose-docs-canonical-route"
+          ]
+        },
+        {
+          "id": "evaluation-path",
+          "after": [
+            "single-public-truth"
+          ],
+          "target_start": "2026-09-24",
+          "target_due": "2026-10-08",
+          "specs": [
+            "pose-readme-evaluation-path",
+            "pose-first-governed-loop-quickstart",
+            "pose-sdd-migration-acquisition"
+          ]
+        },
+        {
+          "id": "community-surfaces",
+          "after": [
+            "evaluation-path"
+          ],
+          "target_start": "2026-10-08",
+          "target_due": "2026-10-15",
+          "specs": [
+            "pose-launch-proof-demo",
+            "pose-community-contribution-surfaces"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/community-launch.md",
+      "status": "active"
+    },
     "delivery-integrity": {
       "created_at": "2026-08-02",
       "depends_on": null,
