@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v1.7.12",
+  "previous_version": "v1.7.11",
+  "prepared_at": "2026-09-07T23:14:19Z",
+  "specs": [
+    "pose-review-plan-producible-evidence-classes"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-review-plan-producible-evidence-classes",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A manual review attestation can now be recorded for a scope with mapped\ncomponents. The planner used to synthesise a per-component `validate` tool\ndemanding evidence of class `validation`, which no registered check is allowed\nto emit, so `pose review attest` refused every truthful disposition and\n`pose review auto-attest` was the only path that completed. Tool evidence\nclasses now come from the governing profile, and any class a check cannot emit\nis dropped with a warning naming it.",
+      "path": "pose-review-plan-producible-evidence-classes.md",
+      "digest": "sha256:b6a3c996534f0d2d65627f35058cd80c3b39cdeead2441099a7ebdf5ecad71b6"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:aaf2c8f2cd03d7c243ff161ffdb48a96c52873cb251e4593fe442d08f6db8cb7",
+  "release_input_digest": "sha256:a1e0f0fde0d374a1530cb0f636aa9908054190b125e0dd7be7b23c1e7c0b1db6",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.7.12"
+  }
+}

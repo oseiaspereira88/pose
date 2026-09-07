@@ -88,7 +88,7 @@ came from the profile.
 
 ### Artifacts
 - created: .pose/specs/2026-09-07-pose-review-plan-producible-evidence-classes.md
-- created: .pose/changelogs/unreleased/pose-review-plan-producible-evidence-classes.md
+- renamed: .pose/changelogs/unreleased/pose-review-plan-producible-evidence-classes.md -> .pose/changelogs/v1.7.12/pose-review-plan-producible-evidence-classes.md
 - modified: pose-mcp/internal/pose/review_plan.go
 - modified: pose-mcp/internal/pose/review_plan_test.go
 
