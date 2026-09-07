@@ -1,6 +1,6 @@
 ---
 slug: pose-release-recovery-verification
-status: draft
+status: in-progress
 created_at: 2026-09-06
 completed_at:
 supersedes:
@@ -77,9 +77,7 @@ maintainer with a warm toolchain does.
 - `tests/install/`
 
 ### Artifacts
-- modified: .github/workflows/verify-release.yml
-- modified: tests/install/run.sh
-- created: tests/install/clean-environment.sh
+- created: .github/workflows/release-liveness.yml
 
 ### Delivery targets
 - governance:release-recovery-verification module:. profile:release-governance entrypoint:.github/workflows/verify-release.yml
@@ -100,7 +98,7 @@ maintainer with a warm toolchain does.
 - [ ] Increment 1: Run the snapshot rehearsal and fix whatever it surfaces (R1)
 - [ ] Increment 2: Push the recovery tag and confirm the artifact set (R2)
 - [ ] Increment 3: Clean-container install verification (R3, R4)
-- [ ] Increment 4: Scheduled latest-release liveness check (R5)
+- [x] Increment 4: Scheduled latest-release liveness check (R5)
 
 ### Validation
 - [ ] Verify from a container with no toolchain and no checkout
@@ -126,8 +124,35 @@ step is allowed to fail cheaply before the next one becomes expensive.
 - Expected: installs from the published URL; `pose version` matches the tag;
   `pose doctor` exits 0
 
+### Execution log
+- Date: 2026-09-07
+- Environment: local Linux
+- Notes: R5 is implemented and is expected to **fail** on its first run, which
+  is the point. `releases/latest/download/install.sh` returns 404 today, and
+  the alarm that should have been screaming for three weeks did not exist. It
+  goes green when a recovery release actually publishes its artifacts.
+
+### Results summary
+- Successes: R5.
+- Failures: none introduced.
+- Warnings: R1–R4 are blocked on operations that require pushing and tagging.
+
 ### Requirement trace
-<!-- Filled at closeout. -->
+- R1 [deferred-integration: spec:pose-release-recovery-verification] <workflow_dispatch snapshot rehearsal requires the fix to be pushed first>
+- R2 [deferred-integration: spec:pose-release-recovery-verification] <requires pushing a recovery tag>
+- R3 [satisfied] <.github/workflows/release-liveness.yml, job installer-is-reachable — asserts HTTP 200, a non-empty file and a shebang>
+- R4 [satisfied] <.github/workflows/release-liveness.yml, job installs-on-a-clean-machine — debian:stable-slim, no Go toolchain, no checkout; runs pose version, pose install and pose doctor>
+- R5 [satisfied] <same workflow, daily schedule plus workflow_dispatch; also asserts the latest release carries checksums.txt, install.sh and archives for linux_amd64, darwin_arm64 and windows_amd64>
+
+### Known gaps
+- R1 and R2 cannot be executed from here. Rehearsing the pipeline needs the
+  security-gate fix pushed, and proving publication needs a tag. Both are
+  maintainer actions on the public repository.
+- The liveness check verifies that the installer downloads and that the binary
+  runs. It does not verify the checksum or the Sigstore signature of what it
+  downloaded — `tests/release/verify.sh` does that at build time. A daily job
+  that also verified identity would be stronger; it was left out to keep the
+  alarm simple enough that a failure is unambiguous.
 
 ---
 
