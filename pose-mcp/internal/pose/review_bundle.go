@@ -384,11 +384,25 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 				path = observed.NewPath
 			}
 			class, include := reviewBundlePathClass(path, scope, components)
+			// A submodule cannot be recognised by path shape, only by asking Git:
+			// it is recorded as a gitlink rather than a blob, so it reaches this
+			// point unclassified however the repository names it. Resolving it
+			// here keeps reviewBundlePathClass a pure function of the path.
+			gitlinkSHA := ""
 			if class == "" {
+				if sha, ok := reviewBundleGitlinkSHA(s.Root, path); ok {
+					class, include, gitlinkSHA = "submodule", true, sha
+				}
+			}
+			switch {
+			case class == "":
 				blockers = append(blockers, "unclassified review subject path "+path)
 				entry.Class = "unclassified"
 				entry.Reason = "attributed path has no governed review classification"
-			} else {
+			case gitlinkSHA != "":
+				entry.Class = class
+				entry.Reason = "attributed submodule pinned to " + gitlinkSHA
+			default:
 				entry.Class = class
 				entry.Reason = "attributed " + class + " path in the immutable change set"
 			}
@@ -400,8 +414,12 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 				blockers = append(blockers, "review subject path "+path+" has working-tree-only content"+detail)
 			}
 			if include && observed.Action != "removed" {
-				digest, err := s.reviewBundleFileDigest(path)
-				if err != nil {
+				if gitlinkSHA != "" {
+					// The reviewable identity of a submodule is the commit it is
+					// pinned to. There is no file to read: the path is a directory
+					// in the working tree and a gitlink in the index.
+					entry.Digest = digestBytes([]byte(gitlinkSHA))
+				} else if digest, err := s.reviewBundleFileDigest(path); err != nil {
 					blockers = append(blockers, err.Error())
 				} else {
 					entry.Digest = digest
@@ -499,6 +517,31 @@ func (s Store) reviewBundleScopeSpecs(scope ScopeRef) (map[string]bool, error) {
 		}
 	}
 	return result, nil
+}
+
+// reviewBundleGitlinkSHA reports the commit a submodule path is pinned to, and
+// whether the path is a gitlink at all. Git records a submodule in the index
+// with mode 160000 and the commit id in place of a blob id, so this is the only
+// content a submodule has to review: the pointer that was moved.
+func reviewBundleGitlinkSHA(root, path string) (string, bool) {
+	out, err := exec.Command("git", "-C", root, "ls-files", "--stage", "--", path).Output()
+	if err != nil {
+		// Unit fixtures and exported source trees may not have Git metadata. A
+		// path that cannot be resolved stays unclassified and fails closed.
+		return "", false
+	}
+	for _, line := range strings.Split(string(out), "\n") {
+		tab := strings.IndexByte(line, '\t')
+		if tab < 0 || filepath.ToSlash(line[tab+1:]) != path {
+			continue
+		}
+		fields := strings.Fields(line[:tab])
+		if len(fields) < 2 || fields[0] != "160000" {
+			continue
+		}
+		return fields[1], true
+	}
+	return "", false
 }
 
 func reviewBundleWorkingTreeChange(root, path string) (bool, string) {
