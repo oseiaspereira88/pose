@@ -15,9 +15,10 @@ delivers: governance:release-security-gate-integrity
 ## 1. Intent
 
 ### Goal
-Restore the release pipeline to a state where a tag push publishes its full
-artifact set, by removing the two independent defects that have blocked every
-release since v1.7.1 — without weakening any detection rule.
+Restore the project's automated gates to a state where they report reality:
+a tag push publishes its full artifact set, and CI stops failing for a
+governance defect that does not exist. Three independent defects, none of
+which weakens a detection rule to fix.
 
 ### Business value
 `https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh`
@@ -63,6 +64,9 @@ fails, so this spec blocks the whole `community-launch` roadmap.
   `action.yml` at the pinned ref rather than carried over from the prior pin.
 - R5: `go test ./...` in `pose-mcp` shall pass, which is the release
   pipeline's first gate.
+- R6: The `governance` CI job shall check out enough history for the delivery
+  contract to attribute change sets, so `pose check --strict` reports the same
+  result in CI as it does locally.
 
 ### Security
 - The two exceptions are documented inline with the reason, the originating
@@ -84,6 +88,7 @@ fails, so this spec blocks the whole `community-launch` roadmap.
 - modified: .gitleaks.toml
 - modified: .gitignore
 - modified: .github/action-runtimes.json
+- modified: .github/workflows/ci.yml
 - removed: .harne8-agent-sync.json
 
 ### Delivery targets
@@ -144,6 +149,28 @@ fails, so this spec blocks the whole `community-launch` roadmap.
   downgrade below that version would silently drop the allowlist and fail the
   gate loudly, which is the safe direction.
 
+### Decision 3
+- Date: 2026-09-07
+- Context: opening the pull request ran CI for the first time on this work, and
+  the `governance` job failed `pose check --strict` on specs this branch never
+  touched — `pose-cli-ergonomics-and-stack-expansion` and others — all with
+  "no Git change sets are attributed".
+- Investigation: CI on `main` has been failing continuously since at least
+  2026-08-22 with the identical error, so it is pre-existing. `ci.yml` checks
+  out with the `actions/checkout` default (`fetch-depth: 1`) while
+  `release.yml` uses `fetch-depth: 0`. The delivery contract attributes
+  declared artifacts to change sets found by the `POSE-Spec:` trailer, and the
+  trailer for that spec sits 62 commits below `main`. Reproduced by cloning
+  this repository at depth 1: **256 errors**, against 0 on a full clone.
+- Decision: `fetch-depth: 0` on the governance job.
+- Rationale: the gate was correct and its input was truncated. Any fix that
+  relaxed the gate would have been treating a reporting defect as a governance
+  defect.
+- Consequences: the governance job clones full history, which costs seconds on
+  a 669-commit repository. More importantly, CI can go green on `main` for the
+  first time in weeks — and a red CI that everyone has learned to ignore is
+  the same failure mode as the ten silently failed releases.
+
 ### Decision 2
 - Date: 2026-09-06
 - Context: `TestActionRuntimeCurrency` fails on `main` — four actions bumped by
@@ -201,6 +228,7 @@ transition from failing to passing is caused by these changes.
 - R3 [satisfied] check:git-ls-files — `.harne8-agent-sync.json` untracked and ignored
 - R4 [satisfied] test:TestActionRuntimeCurrency — four refs refreshed, each `using` re-resolved from the pinned `action.yml`
 - R5 [satisfied] check:go-test — `go -C pose-mcp test ./... -count=1` exits 0
+- R6 [satisfied] check:shallow-clone-repro — a depth-1 clone produces 256 `pose check --strict` errors against 0 on a full clone; `fetch-depth: 0` added to the governance job
 
 ### Known gaps
 - The steps after the security gate (cosign signing, goreleaser publish,
@@ -232,6 +260,11 @@ are separate, independently verifiable steps.
 
 - [spawned: pose-release-recovery-verification] Prove end to end that a tagged
   release publishes its artifacts and installs on a clean machine.
+- [open] CI has been red on `main` since at least 2026-08-22 and nobody acted
+  on it, exactly as with the ten failed releases. Two independent automated
+  signals were screaming and neither reached a human. Whatever notification
+  gap causes that is the real defect; the two fixes here only remove today's
+  noise.
 - [open] The release workflow fails silently: ten consecutive failed releases
   produced no notification, and the drift was found only by an audit. A failed
   release on a tag should page the maintainer.

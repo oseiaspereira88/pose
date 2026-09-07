@@ -69,7 +69,16 @@ jobs:
     # identified development build, and CI retains the evidence.
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 is load-bearing, not hygiene. The delivery contract
+      # attributes a spec's declared artifacts to Git change sets found by the
+      # `POSE-Spec:` commit trailer, and those commits are wherever the work
+      # happened — the trailer for pose-cli-ergonomics-and-stack-expansion sits
+      # 62 commits below main. Under the default shallow clone the gate sees
+      # one commit, finds no attribution, and fails every spec with declared
+      # artifacts. CI had been red on main since at least 2026-08-22 for
+      # exactly this reason, reporting a governance defect that did not exist.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 0 }
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with: { go-version: "1.26.6", cache: true, cache-dependency-path: pose-mcp/go.mod }
       - name: Build development pose binary
