@@ -16,25 +16,74 @@ pertencente ao repositório e verificável por máquina.**
 [![CI](https://img.shields.io/github/actions/workflow/status/oseiaspereira88/pose/ci.yml?label=CI)](https://github.com/oseiaspereira88/pose/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/oseiaspereira88/pose?label=license)](LICENSE)
 ![Platforms](https://img.shields.io/badge/platforms-linux%20%7C%20macOS%20%7C%20windows-lightgrey)
-[![Docs](https://img.shields.io/badge/docs-online-009688)](https://oseiaspereira88.github.io/pose/)
+[![Docs](https://img.shields.io/badge/docs-online-009688)](https://docs.harne8.com/POSE/)
 
 </div>
 
-O POSE é o núcleo de governança gratuito, Apache-2.0, para equipes que
-constroem software com humanos e agentes de IA. Ele instala um contrato
-operacional no repositório e aplica esse contrato com um único binário Go
-nativo:
+**Spec-Driven Development para entrega de software agêntica governada.**
+
+O POSE é um framework SDD open source que transforma especificações, política,
+execução, evidência, follow-ups e conhecimento de engenharia em um sistema de
+entrega versionado no repositório e verificável por máquina. Um único binário
+Go nativo, Apache-2.0, local-first.
 
 ```mermaid
 flowchart LR
-  S[spec] --> E[execução] --> V[evidência] --> F[follow-ups] --> R[recorrência] --> K[conhecimento]
-  K -. aprendizado retorna ao planejamento .-> S
+  D[discover] --> S[specify] --> R[route] --> E[execute] --> P[prove] --> C[close] --> L[learn]
+  L -. contexto versionado no repositório .-> D
 ```
 
-O POSE não é mais um agente de código, IDE ou quadro de projetos. Ele é a
-camada que torna o trabalho portátil entre essas ferramentas: o que pode
-começar, quais regras se aplicam, quais verificações precisam passar, qual
-evidência prova a conclusão e o que a próxima execução precisa lembrar.
+Agentes de código são cada vez mais capazes de implementar o trabalho. O POSE
+governa as condições em volta dele:
+
+- o que está pronto para começar;
+- quais requisitos e regras são autoritativos;
+- qual workflow e quais checks se aplicam;
+- qual evidência prova a conclusão;
+- como o trabalho residual precisa ser tratado;
+- qual conhecimento de engenharia deve sobreviver à sessão.
+
+O repositório continua sendo a fonte da verdade enquanto agentes, modelos, IDEs
+e provedores de CI mudam.
+
+O POSE não é mais um agente de código, IDE ou quadro de projetos. Ele é o
+contrato de engenharia contra o qual humanos, agentes e CI executam.
+
+## Por que o POSE
+
+O Spec-Driven Development melhorou o caminho da intenção até a implementação:
+requisitos deixaram de viver apenas no prompt.
+
+O POSE estende essa ideia para o resto da entrega. O mesmo contrato que define
+o trabalho também determina quando ele está pronto para começar, quais regras
+se aplicam, quais checks precisam passar, qual evidência comprova a entrega,
+como o trabalho residual é tratado e o que deve ser lembrado no próximo ciclo.
+
+Uma spec não é bem-sucedida só porque código foi gerado. O POSE aplica gates de
+readiness antes da execução e de closeout depois dela, com checks nativos do
+repositório e evidência versionada.
+
+**O agente pode dizer que terminou. O POSE exige que o repositório consiga
+provar.**
+
+## Agent-neutral, autoritativo no lifecycle
+
+O POSE funciona com diferentes agentes de código por instruções de repositório,
+skills portáteis, CLI e MCP. Ele não escolhe seu agente, modelo ou editor.
+
+O POSE é, ele próprio, um framework SDD. Quando adotado, ele passa a ser a
+autoridade do lifecycle de especificação e entrega daquele repositório — IDs de
+requisito, status, dependências, readiness, definição de pronto, closeout e
+conhecimento.
+
+Rodar um segundo framework SDD base sobre o mesmo lifecycle cria autoridades
+concorrentes exatamente sobre esses artefatos. Por isso o modelo atual de
+interoperabilidade favorece **migração em vez de posse concorrente**: trabalho
+existente de Spec Kit e OpenSpec pode ser importado para o POSE, revisado e
+então governado sob o lifecycle do POSE.
+
+Agent-neutral não é o mesmo que neutro quanto a framework SDD. O POSE é neutro
+sobre quem executa; ele não é neutro sobre quem é dono do lifecycle.
 
 ## Quickstart
 
@@ -63,7 +112,7 @@ para Linux e macOS, `zip` para Windows — em
 Linux e macOS (bash ou zsh; substitua `linux_amd64` pela sua plataforma):
 
 ```bash
-V=1.4.3
+V=1.7.10
 curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/pose_${V}_linux_amd64.tar.gz"
 curl -fsSLO "https://github.com/oseiaspereira88/pose/releases/download/v${V}/checksums.txt"
 sha256sum --check --ignore-missing checksums.txt   # macOS: shasum -a 256 -c
@@ -75,7 +124,7 @@ pose install /caminho/do/seu/repo
 Windows (PowerShell):
 
 ```powershell
-$V = "1.4.3"
+$V = "1.7.10"
 Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/pose_${V}_windows_amd64.zip" -OutFile "pose_${V}_windows_amd64.zip"
 Invoke-WebRequest "https://github.com/oseiaspereira88/pose/releases/download/v$V/checksums.txt" -OutFile checksums.txt
 (Get-FileHash "pose_${V}_windows_amd64.zip" -Algorithm SHA256).Hash -eq ((Get-Content checksums.txt | Select-String "pose_${V}_windows_amd64.zip") -split '\s+')[0]
@@ -203,34 +252,11 @@ convertem essas descobertas em roadmaps, specs de implementação e gates de
 release conscientes de dependências — 10 roadmaps e 115 specs hoje,
 acompanhados em `.pose/roadmaps/` e `.pose/specs/`.
 
-## Novidades da v1.4.3
+## Release mais recente
 
-Notas completas: [`.pose/changelogs/v1.4.0.md`](.pose/changelogs/v1.4.0.md),
-[`v1.4.1`](.pose/changelogs/v1.4.1.md), [`v1.4.2`](.pose/changelogs/v1.4.2.md),
-[`v1.4.3`](.pose/changelogs/v1.4.3.md).
-
-- `pose extension install <extension-id>` agora resolve o ID contra a
-  última release publicada no GitHub — sem precisar de diretório local.
-- `pose init`/`pose install` agora extrai o `README.md`/`CLAUDE.md` de um
-  alvo brownfield para popular a seção "Project context" de `AGENTS.md`,
-  em vez do placeholder genérico.
-- `pose extension install` ganhou a flag `--locale`; `pose-rule-backend-go`
-  e `pose-rule-frontend-react` agora têm variante pt-BR.
-- `pose index`/`pose validate`/`pose install`/`pose init` agora usam um
-  único detector de stack compartilhado; Cloudflare Workers, Python e .NET
-  passaram a ser reconhecidos.
-- Uma auditoria de campo do `pose update`/`pose install` contra sete
-  repositórios reais e independentes encontrou e corrigiu 11 defeitos de
-  atualização: tratamento não confiável de `--locale` sem `--force`
-  (incluindo manual duplicado, em vez de trocado, numa mudança de locale);
-  customizações de AGENTS.md/POSE.md fora de seções `instance-owned`
-  descartadas silenciosamente (agora avisadas e salvas em backup); uma
-  instância antiga sem diretórios obrigatórios ou config seedada após um
-  update simples (duas novas verificações no `pose doctor` fecham essa
-  lacuna); descoberta descendo em árvores excluídas por `.gitignore` ou
-  duplicando uma entrada de módulo raiz já com alias; e o scaffold embutido
-  vazando os próprios dados computados de índice/grafo do pose-dist para
-  instâncias novas.
+Consulte a página de [Releases](https://github.com/oseiaspereira88/pose/releases)
+para as notas atuais e os artefatos verificados. As notas por ciclo ficam em
+[`.pose/changelogs/`](.pose/changelogs/).
 
 ## Onde o POSE é mais forte
 
@@ -257,7 +283,9 @@ nativos e seguros para ambos.
 
 ## Como o POSE se compara
 
-Esses produtos resolvem problemas adjacentes e podem ser complementares. A
+As ferramentas abaixo são adjacentes, não intercambiáveis. Os frameworks SDD
+das duas primeiras linhas são a exceção: o POSE importa deles em vez de rodar
+ao lado deles. A
 pergunta útil não é “qual ferramenta vence?”, mas “qual parte da entrega cada
 ferramenta torna autoritativa?”
 
@@ -274,10 +302,12 @@ O POSE não substitui as forças especializadas acima. Ele fornece a espinha
 de governança que permanece estável enquanto agentes, editores, provedores
 de CI e portais mudam.
 
-## O núcleo gratuito e o caminho de escala
+## POSE e Harne8
 
-O POSE é a porta de entrada open-source para a plataforma **Harne8** mais
-ampla.
+O POSE é Apache-2.0, local-first e completo dentro do seu domínio: ele não
+precisa de conta Harne8 nem de serviço hospedado para cumprir sua função. O
+Harne8 usa o POSE como engine de governança e resolve outro problema — o que
+aparece quando a unidade deixa de ser um repositório.
 
 | Comece com o POSE                     | Escale com o Harne8                                   |
 |---------------------------------------|-------------------------------------------------------|
@@ -288,9 +318,10 @@ ampla.
 | API de governança MCP nativa          | Enriquecimento de contexto através do GraphForge      |
 | Aplicação opcional de política OPA    | Identidade central, aprovações, auditoria e operações |
 
-A fronteira é intencional: o núcleo gratuito permanece útil por si só,
-offline e neutro a fornecedor. O Harne8 adiciona coordenação e operação
-visual quando a governança local ao repositório não é mais suficiente.
+A fronteira é intencional, e não é paywall: nada é retirado do POSE para criar
+demanda pelo Harne8. Eles governam escopos diferentes. O Harne8 passa a ser
+relevante quando a governança local ao repositório deixa de bastar — muitos
+repositórios, muitas pessoas, política compartilhada, aprovações centrais.
 
 ## Adote progressivamente
 
@@ -304,7 +335,7 @@ visual quando a governança local ao repositório não é mais suficiente.
 Equipes que usam pre-commit.com podem habilitar `pose-check`, `pose-lint-spec`
 e `pose-history-check`. Veja o [guia de CI](docs-site/docs/ci.md), a
 [referência da CLI](docs-site/docs/cli.md) e o
-[docs site](https://oseiaspereira88.github.io/pose/) para o restante.
+[docs site](https://docs.harne8.com/POSE/) para o restante.
 
 ## Segurança e privacidade
 
@@ -337,5 +368,6 @@ o trabalho necessário para alcançar o próximo nível de maturidade.
 Apache-2.0 — veja [LICENSE](LICENSE) e [NOTICE](NOTICE).
 
 Contribuições são bem-vindas: veja [CONTRIBUTING.md](CONTRIBUTING.md).
-O POSE é desenvolvido como o plano de governança da plataforma de engenharia
-AI-native **Harne8**.
+
+O POSE é open source sob Apache-2.0 e é desenvolvido abertamente como projeto
+independente. Ele também move o modelo de governança usado pelo **Harne8**.

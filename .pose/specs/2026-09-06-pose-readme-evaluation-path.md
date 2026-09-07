@@ -1,6 +1,6 @@
 ---
 slug: pose-readme-evaluation-path
-status: draft
+status: in-progress
 created_at: 2026-09-06
 completed_at:
 supersedes:
@@ -78,10 +78,10 @@ evaluator sees.
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1: Restructure the opening around the lifecycle (R1)
-- [ ] Increment 2: Remove per-release content and hardcoded counts (R2, R3)
-- [ ] Increment 3: Rewrite the fit and closing sections (R4, R5)
-- [ ] Increment 4: Mirror into `README.pt-BR.md`
+- [x] Increment 1: Restructure the opening around the lifecycle (R1)
+- [x] Increment 2: Remove per-release content and hardcoded counts (R2, R3)
+- [x] Increment 3: Rewrite the fit and closing sections (R4, R5)
+- [x] Increment 4: Mirror into `README.pt-BR.md`
 
 ---
 

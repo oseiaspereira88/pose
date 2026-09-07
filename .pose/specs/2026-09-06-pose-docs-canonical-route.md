@@ -1,6 +1,6 @@
 ---
 slug: pose-docs-canonical-route
-status: draft
+status: in-progress
 created_at: 2026-09-06
 completed_at:
 supersedes:
@@ -99,7 +99,7 @@ link the launch generates would be divided between them.
 - [ ] Increment 1: Declare the canonical route in the claims contract (R1)
 - [ ] Increment 2: Emit canonical links from every page (R2)
 - [ ] Increment 3: Redirect the non-canonical host path-preservingly (R3)
-- [ ] Increment 4: Repoint README badge and links (R4)
+- [x] Increment 4: Repoint README badge and links (R4)
 - [ ] Increment 5: Gate on it (R5)
 
 ---

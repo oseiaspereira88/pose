@@ -1,6 +1,6 @@
 ---
 slug: pose-canonical-positioning
-status: draft
+status: in-progress
 created_at: 2026-09-06
 completed_at:
 supersedes:
@@ -103,9 +103,9 @@ README into a dual-framework setup will hit contradictions POSE cannot resolve.
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1: Canonical description and lifecycle across surfaces (R1, R2)
-- [ ] Increment 2: Rewrite the interoperability section (R3, R4)
-- [ ] Increment 3: Replace the free-core framing (R5)
+- [x] Increment 1: Canonical description and lifecycle across surfaces (R1, R2)
+- [x] Increment 2: Rewrite the interoperability section (R3, R4)
+- [x] Increment 3: Replace the free-core framing (R5)
 
 ---
 
