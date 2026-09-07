@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -424,6 +425,53 @@ func TestReviewBundleRejectsUnclassifiedSubjectPath(t *testing.T) {
 	}
 	if _, err := store.SealReviewBundle("spec:backend", time.Now()); err == nil {
 		t.Fatal("unclassified subject was sealable")
+	}
+}
+
+func TestReviewBundleClassifiesSubmodulePath(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	for _, args := range [][]string{
+		{"init", "-q"},
+		{"config", "user.email", "fixture@example.test"},
+		{"config", "user.name", "fixture"},
+		{"add", "-A"},
+		{"commit", "-q", "-m", "fixture"},
+		// A gitlink without a checked-out submodule: enough for the index to
+		// record mode 160000, and no network.
+		{"update-index", "--add", "--cacheinfo", "160000,0000000000000000000000000000000000000001,vendor/dep"},
+	} {
+		if out, err := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v: %s", args, err, out)
+		}
+	}
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "modified", Path: "vendor/dep"})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(strings.Join(bundle.Blockers, " "), "unclassified review subject path vendor/dep") {
+		t.Fatalf("submodule was treated as unclassified: %+v", bundle.Blockers)
+	}
+	var entry ReviewBundleSubjectEntry
+	for _, candidate := range bundle.Payload.Subject.Entries {
+		if candidate.Path == "vendor/dep" {
+			entry = candidate
+		}
+	}
+	if entry.Class != "submodule" {
+		t.Fatalf("submodule class = %q, want submodule", entry.Class)
+	}
+	if entry.Digest == "" {
+		t.Fatal("submodule entry carries no digest")
+	}
+	if !strings.Contains(entry.Reason, "0000000000000000000000000000000000000001") {
+		t.Fatalf("reason does not name the pinned commit: %q", entry.Reason)
 	}
 }
 
