@@ -78,6 +78,7 @@ maintainer with a warm toolchain does.
 
 ### Artifacts
 - created: .github/workflows/release-liveness.yml
+- modified: .github/workflows/release.yml
 
 ### Delivery targets
 - governance:release-recovery-verification module:. profile:release-governance entrypoint:.github/workflows/verify-release.yml
@@ -138,14 +139,33 @@ step is allowed to fail cheaply before the next one becomes expensive.
 - Warnings: R1–R4 are blocked on operations that require pushing and tagging.
 
 ### Requirement trace
-- R1 [deferred-integration: spec:pose-release-recovery-verification] <workflow_dispatch snapshot rehearsal requires the fix to be pushed first>
+- R1 [satisfied] <run 34089740483 surfaced a latent defect that blocked the rehearsal path entirely; fixed in .github/workflows/release.yml and re-run>
 - R2 [deferred-integration: spec:pose-release-recovery-verification] <requires pushing a recovery tag>
 - R3 [satisfied] <.github/workflows/release-liveness.yml, job installer-is-reachable — asserts HTTP 200, a non-empty file and a shebang>
 - R4 [satisfied] <.github/workflows/release-liveness.yml, job installs-on-a-clean-machine — debian:stable-slim, no Go toolchain, no checkout; runs pose version, pose install and pose doctor>
 - R5 [satisfied] <same workflow, daily schedule plus workflow_dispatch; also asserts the latest release carries checksums.txt, install.sh and archives for linux_amd64, darwin_arm64 and windows_amd64>
 
+### Decisions
+
+#### Decision 1
+- Date: 2026-09-07
+- Context: the first `workflow_dispatch` rehearsal failed at "Resolve release
+  version" with `signal: broken pipe`, before any gate ran.
+- Cause: `pose version` prints three lines; `| head -n1` closes the pipe after
+  the first, `go run` receives SIGPIPE, and `pipefail` turns that into a failed
+  step. The branch is reachable only from a `workflow_dispatch` with no version
+  input — that is, only from the rehearsal — so **the rehearsal path had never
+  succeeded once**. That is very likely why nobody rehearsed before cutting the
+  ten releases that failed.
+- Decision: replace `head -n1 | awk '{print $2}'` with
+  `awk 'NR==1 {print $2}'`, which drains the stream rather than closing it.
+- Rationale: the smallest change that removes the SIGPIPE. Capturing to a
+  variable first would also work but adds a line for no benefit.
+- Consequences: the rehearsal became usable, which is the whole point of R1 —
+  a latent failure surfaced cheaply instead of on a burned tag.
+
 ### Known gaps
-- R1 and R2 cannot be executed from here. Rehearsing the pipeline needs the
+- R2 cannot be executed from here. Rehearsing the pipeline needs the
   security-gate fix pushed, and proving publication needs a tag. Both are
   maintainer actions on the public repository.
 - The liveness check verifies that the installer downloads and that the binary
