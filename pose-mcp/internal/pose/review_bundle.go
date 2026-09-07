@@ -552,7 +552,11 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if strings.HasPrefix(path, ".pose/indexes/") {
 		return "derived-index", false
 	}
-	for _, prefix := range []string{".pose/policy/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/"} {
+	// .pose/public/ holds the public claims contract (spec
+	// pose-public-claims-contract): what the project asserts about itself in
+	// public. It is authored policy, not derived output, so a change to it
+	// belongs in the review subject exactly like a rule or a workflow.
+	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}

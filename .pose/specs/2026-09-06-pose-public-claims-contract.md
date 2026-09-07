@@ -84,6 +84,7 @@ is the most visible possible failure to dogfood.
 - created: pose-mcp/internal/cli/publicclaims.go
 - created: pose-mcp/internal/cli/publicclaims_test.go
 - modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/cli/usage.go
 - modified: .github/workflows/ci.yml
 - modified: POSE.md
@@ -196,6 +197,12 @@ See Artifacts.
 - Result: SUCCESS, 6 surfaces, 0 errors
 
 ### Residual risks
+- Introducing `.pose/public/` surfaced a gap in the review-bundle path
+  classifier: an unknown `.pose/` subdirectory blocks sealing with
+  "unclassified review subject path" rather than defaulting to a safe class.
+  That is arguably the right default — an unrecognized governed path should
+  not silently drop out of a review subject — but it means every new
+  `.pose/` location needs a classifier change, which is easy to miss.
 - The contract only covers surfaces someone remembered to declare. An
   undeclared surface is unchecked, and nothing detects that omission. That is
   the deliberate trade against false positives on changelogs and historical
