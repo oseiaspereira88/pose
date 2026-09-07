@@ -1,6 +1,6 @@
 ---
 slug: pose-first-governed-loop-quickstart
-status: draft
+status: in-progress
 created_at: 2026-09-06
 completed_at:
 supersedes:
@@ -75,6 +75,7 @@ has not been released.
 ### Artifacts
 - modified: docs-site/docs/quickstart.md
 - created: tests/quickstart/first-governed-loop.sh
+- modified: .github/workflows/ci.yml
 
 ### Technical risks
 - A documentation test that only asserts exit codes will pass while the prose
@@ -86,12 +87,21 @@ has not been released.
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1: Rewrite as one linear loop ending in a gate result (R1, R3)
-- [ ] Increment 2: Add the blocked-then-resolved beat (R2)
-- [ ] Increment 3: Executable documentation test (R5)
+- [x] Increment 1: Rewrite as one linear loop ending in a gate result (R1, R3)
+- [x] Increment 2: Add the blocked-then-resolved beat (R2)
+- [x] Increment 3: Executable documentation test (R5)
 
 ### Validation
-- [ ] Measure on a clean environment and publish the measurement (R4)
+- [x] Executable documentation test passes
+- [ ] Measure on a clean environment and publish the measurement (R4) — blocked
+      on pose-release-recovery-verification
+
+### Known gaps
+- No time budget is published. The previous "first validation in under 10
+  minutes" claim predates the current lifecycle and was never re-measured, so
+  repeating it would be publishing an unmeasured promise — the same class of
+  error as publishing an unreleased version. The page states the loop and its
+  steps; the number waits for the measurement.
 
 ---
 
@@ -109,12 +119,30 @@ nothing installed, following only what is written.
 - Expected: exit 0; the blocked step blocks, the resolved step passes
 
 ### Execution log
-- Date:
-- Environment: clean container, no Go toolchain, no checkout
-- Notes: record the measured elapsed time here; it becomes the published budget
+- Date: 2026-09-07
+- Environment: local Linux, Go 1.26.5, throwaway git repository
+- Notes: every command and its output was captured from a real run in a
+  disposable instance before being written into the page — none of the shown
+  output is illustrative. The loop turned out to have a better blocking beat
+  than the one planned: rather than an undispositioned follow-up, the closeout
+  gate refuses a spec marked `done` whose `R1` has no requirement-trace entry.
+  That is a sharper demonstration, because it says the thing directly — you
+  claimed it is done, and the promise is not connected to any evidence.
+- The clean-environment measurement (R4) has not been made: it depends on the
+  published installer, which is still returning 404 until
+  `pose-release-recovery-verification` closes.
+
+### Results summary
+- Successes: R1, R2, R3, R5.
+- Failures: none.
+- Warnings: R4 blocked upstream, not skipped — see Known gaps.
 
 ### Requirement trace
-<!-- Filled at closeout. -->
+- R1 [satisfied] <docs-site/docs/quickstart.md "The first governed loop" — seven ordered steps, no branch to choose>
+- R2 [satisfied] <steps 2 and 6 block, steps 3 and 7 resolve; check:quickstart-loop asserts both refusals>
+- R3 [satisfied] <every shown output captured from a real run; check:quickstart-loop asserts the quoted strings>
+- R4 [deferred-integration: spec:pose-release-recovery-verification] <cannot be measured while the published installer returns 404>
+- R5 [satisfied] <tests/quickstart/first-governed-loop.sh; check:ci-quickstart-loop>
 
 ---
 

@@ -63,7 +63,7 @@ Re-running the installer updates the machinery and **never touches your
 instance content** (specs, ADRs, knowledge, reports, roadmaps). Custom rules,
 workflows and templates you added are preserved.
 
-## Onboard your stacks
+## Detect your stacks
 
 ```bash
 pose init --wizard        # interactive; --yes accepts all suggestions
@@ -73,23 +73,136 @@ The wizard detects modules by stack markers (`go.mod`, `package.json`,
 `Cargo.toml`, `pom.xml`, `build.gradle`) and seeds them into the validation
 matrix in `tolerant` mode — promote to `strict` when the checks stabilize.
 
-## First spec
+## The first governed loop
+
+This is the whole point of the quickstart: not to show you twenty commands,
+but to make one thing happen — **a gate that blocks for a reason you
+understand, and then passes**. Follow it in order; there is nothing to choose
+between.
+
+An all-green run would not show you anything. Any tool can agree with you.
+
+### 1. Scaffold a spec
 
 ```bash
-pose new-spec my-first-feature   # scaffold
-pose suggest feature             # canonical trail: workflow + skill + rules
-# fill Intent / Requirements (R-IDs!) / Technical Plan, then:
-pose lint-spec my-first-feature --ready-check   # entry gate
-# ... implement, validate ...
-pose validate --strict --report                 # project checks + evidence
-pose lint-spec my-first-feature --strict        # lifecycle closeout gate
+pose new-spec customer-export
 ```
 
-The task trail is repository-owned: `pose suggest feature --path <module>`
-resolves the applicable workflow, skill, cumulative rules and validation
-command before an agent edits code. For medium/high-risk work, write the test
-plan in the spec before implementation; after delivery, link each requirement
-to current evidence and explicitly disposition every follow-up.
+```
+Spec created: .pose/specs/2026-09-07-customer-export.md (status: draft)
+```
+
+### 2. Watch the entry gate refuse it
+
+```bash
+pose lint-spec customer-export --ready-check
+```
+
+```
+[ERROR] customer-export: DoR: section Intent is missing, empty, or skeletal
+spec.ready=false
+spec.ready.failures=1
+```
+
+The spec exists, but nothing about it is decided yet. POSE will not let work
+start against a spec that has not said what it is for. This is the *entry*
+gate — Definition of Ready — and most tools do not have one.
+
+### 3. Say what the work is
+
+Open the spec and fill two things: the **Intent** section, and at least one
+acceptance criterion with a stable ID under Requirements.
+
+```markdown
+### Goal
+Export customer records as CSV for audit.
+
+### Business value
+Auditors currently request exports by hand.
+```
+
+```markdown
+- R1: The exporter shall write customer records as CSV.
+```
+
+Run the entry gate again:
+
+```bash
+pose lint-spec customer-export --ready-check
+```
+
+```
+spec.ready=true
+spec.ready.failures=0
+Resultado: SUCESSO
+```
+
+### 4. Find out what applies here
+
+```bash
+pose suggest feature
+```
+
+This resolves the workflow, skill, cumulative rules and validation commands
+for this kind of work in this repository — before an agent edits anything. The
+agent does not have to be told your engineering process in a prompt; it can
+ask.
+
+### 5. Implement, then prove it
+
+```bash
+pose validate --strict
+```
+
+POSE runs *your* repository's declared checks — the test, lint and build
+commands in the validation matrix — not commands it invented.
+
+### 6. Declare it done, and watch the exit gate refuse that too
+
+Set `status: done` and `completed_at` in the spec frontmatter, then:
+
+```bash
+pose lint-spec customer-export --strict
+```
+
+```
+[ERROR] customer-export: requirement trace: R1 has no trace entry
+        (declare satisfied, waived or withdrawn)
+```
+
+Read that error slowly, because it is the product in one line.
+
+You said the work is done. POSE is not disputing your code — the checks
+passed. It is pointing out that **R1, the thing you promised, is not connected
+to any evidence that it happened**. "Done" is a claim by whoever executed;
+POSE requires it to be a property of the repository.
+
+### 7. Connect the promise to the proof
+
+Under `### Requirement trace`, say how R1 was satisfied:
+
+```markdown
+- R1 [satisfied] test:TestCustomerExportWritesCSV
+```
+
+```bash
+pose lint-spec customer-export --strict
+```
+
+```
+spec.trace.present=true
+spec.trace.entries=1
+spec.trace.missing=0
+Resultado: SUCESSO
+```
+
+That is a governed delivery. An entry gate that refused to start
+under-specified work, real repository checks, and an exit gate that refused to
+close until every promise pointed at evidence.
+
+If a requirement turned out not to apply, you say that instead — `[waived:
+<reason>]` or `[withdrawn: <reason>]`. What you cannot do is stay silent,
+which is the option most processes leave open.
 
 ## See the first analytics
 

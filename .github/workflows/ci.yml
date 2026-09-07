@@ -37,6 +37,12 @@ jobs:
       # expectations (spec pose-sdd-migration-acquisition).
       - name: Documented migration paths still hold (spec pose-sdd-migration-acquisition)
         run: bash tests/import/migration-guides.sh
+      # The quickstart shows the output of each step so a reader can tell
+      # whether their run diverged. That only holds while the shown output is
+      # the real one, and two of the steps depend on a gate *failing*
+      # (spec pose-first-governed-loop-quickstart).
+      - name: Quickstart loop behaves as documented (spec pose-first-governed-loop-quickstart)
+        run: bash tests/quickstart/first-governed-loop.sh
       - name: Delivery images build and start
         # pose-mcp/Dockerfile and mcp-enforce/Dockerfile are composed in
         # production by the harne8 monorepo and were built by nothing here, so a
