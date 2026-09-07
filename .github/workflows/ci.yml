@@ -31,6 +31,12 @@ jobs:
         run: bash tests/install/run.sh
       - name: Artifact-identity gate rejects what it must (spec pose-release-signing R3)
         run: bash tests/release/verify-negative.sh
+      # The migration guides make specific claims about what transfers and what
+      # does not, and those claims are what users act on. A guide that drifts
+      # from the importer is worse than none — it produces confident wrong
+      # expectations (spec pose-sdd-migration-acquisition).
+      - name: Documented migration paths still hold (spec pose-sdd-migration-acquisition)
+        run: bash tests/import/migration-guides.sh
       - name: Delivery images build and start
         # pose-mcp/Dockerfile and mcp-enforce/Dockerfile are composed in
         # production by the harne8 monorepo and were built by nothing here, so a

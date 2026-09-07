@@ -185,6 +185,12 @@ The importer validates the complete batch before writing, rejects symlinks,
 never overwrites an existing spec and reports everything that still needs
 human curation.
 
+Full guides, including what does **not** transfer — requirement IDs are
+renumbered, status and dependencies do not carry over, validation is a
+placeholder — are in
+[Migrating from Spec Kit](https://docs.harne8.com/POSE/migrate/spec-kit/) and
+[Migrating from OpenSpec](https://docs.harne8.com/POSE/migrate/openspec/).
+
 See [`examples/brownfield-kits/`](examples/brownfield-kits/) for three
 real, executable adoption journeys — direct adoption, Spec Kit import and
 OpenSpec import — each with a staged visibility-to-blocking-gate guide and
