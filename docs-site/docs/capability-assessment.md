@@ -1,6 +1,6 @@
 # Capability assessment
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.4.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
 
 **Assessment date:** 2026-08-17
 **Scope:** POSE open-source distribution  

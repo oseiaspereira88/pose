@@ -1,0 +1,47 @@
+{
+  "_comment": "Public claims contract (spec pose-public-claims-contract). Surfaces are declared, never discovered: a scanner that flagged every version-shaped string would fail on changelogs, historical assessments and release notes, which are supposed to name old versions. Only what a surface claims about the CURRENT product is checked. Verified by `pose public-claims --strict`.",
+  "schema_version": 1,
+  "product": {
+    "name": "POSE",
+    "category": "open-source Spec-Driven Development framework for governed agentic software delivery",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/oseiaspereira88/pose",
+    "docs_canonical": "https://docs.harne8.com/POSE/"
+  },
+  "version_source": "compatibility.json",
+  "docs_hosts": {
+    "canonical": "https://docs.harne8.com/POSE/",
+    "deprecated": [
+      "oseiaspereira88.github.io/pose"
+    ]
+  },
+  "surfaces": [
+    {
+      "path": "README.md",
+      "version_claims": "current-only",
+      "note": "The verified-install block pins an exact version on purpose; POSE publishes no moving v1 tag. Every other version mention was removed."
+    },
+    {
+      "path": "README.pt-BR.md",
+      "version_claims": "current-only",
+      "note": "Mirrors README.md. It previously pinned 1.4.3 in the same block, instructing readers to install a release four minors behind."
+    },
+    {
+      "path": "docs-site/docs/index.md",
+      "version_claims": "none",
+      "note": "The docs home describes the current architecture and must not be pinned to a minor."
+    },
+    {
+      "path": "docs-site/docs/concepts.md",
+      "version_claims": "none"
+    },
+    {
+      "path": "docs-site/docs/quickstart.md",
+      "version_claims": "none"
+    },
+    {
+      "path": "docs-site/docs/mcp.md",
+      "version_claims": "none"
+    }
+  ]
+}

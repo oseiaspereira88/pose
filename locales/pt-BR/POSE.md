@@ -197,6 +197,10 @@ pose knowledge-check [--strict|--tolerant] [--max-overdue N]
 pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T] [--include-pass]
 pose history-check [--strict|--tolerant]
 pose skills-check [--strict|--tolerant]
+pose public-claims [--strict|--tolerant] [--json]
+                                   # superfícies públicas vs. o fato lançado:
+                                   # versão obsoleta, superfície evergreen que
+                                   # ganhou versão, host de docs não canônico
 pose artifact-check --spec <slug> [--from <rev> --to <rev>] [--strict|--tolerant] [--json]
 pose surface-check [--spec <slug>] [--results <path>] [--strict|--tolerant] [--json]
 pose roadmap-check <slug> [--strict|--tolerant] [--json]

@@ -1,0 +1,82 @@
+# Is the published install command actually alive?
+# (spec pose-release-recovery-verification, R5)
+#
+# Releases v1.7.1 through v1.7.10 all failed and published no artifacts, so
+# `releases/latest/download/install.sh` — the exact command on the landing page
+# and in the README — returned HTTP 404 for about three weeks. Nothing noticed.
+# Ten consecutive failed releases produced no signal anyone acted on, and the
+# breakage was found by an audit rather than by a gate.
+#
+# Every other check in this repository verifies the release at the moment it is
+# built. This one verifies what a stranger actually gets, on a schedule, from
+# outside — which is the only way an assetless `latest` becomes visible.
+#
+# A failure here is not a flaky test. It means the install command published to
+# the world does not work right now.
+name: Release liveness
+on:
+  schedule:
+    # Daily. The cost of a broken installer compounds with every visitor who
+    # copies the first command and leaves.
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  installer-is-reachable:
+    runs-on: ubuntu-latest
+    steps:
+      - name: The published install command resolves
+        run: |
+          set -euo pipefail
+          URL="https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh"
+          code="$(curl -fsSL -o /tmp/install.sh -w '%{http_code}' --retry 3 --retry-delay 5 "$URL" || true)"
+          if [ "$code" != "200" ]; then
+            echo "::error::$URL returned HTTP $code."
+            echo "The install command published on harne8.com/pose and in the README is dead."
+            echo "This usually means the latest release published no assets — check the Release workflow."
+            exit 1
+          fi
+          test -s /tmp/install.sh || { echo "::error::installer downloaded but is empty"; exit 1; }
+          head -1 /tmp/install.sh | grep -q '^#!' || { echo "::error::downloaded file is not a script"; exit 1; }
+          echo "installer reachable (HTTP 200, $(wc -c < /tmp/install.sh) bytes)"
+
+      - name: The latest release carries archives and checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          names="$(gh release view --repo "${{ github.repository }}" --json assets -q '.assets[].name')"
+          if [ -z "$names" ]; then
+            echo "::error::the latest release has no assets at all."
+            echo "Every release from v1.7.1 to v1.7.10 ended in this state."
+            exit 1
+          fi
+          missing=0
+          grep -q '^checksums.txt$'      <<<"$names" || { echo "::error::checksums.txt missing"; missing=1; }
+          grep -q '^install.sh$'         <<<"$names" || { echo "::error::install.sh missing"; missing=1; }
+          grep -q 'linux_amd64\.tar\.gz$' <<<"$names" || { echo "::error::no linux_amd64 archive"; missing=1; }
+          grep -q 'darwin_arm64\.tar\.gz$' <<<"$names" || { echo "::error::no darwin_arm64 archive"; missing=1; }
+          grep -q 'windows_amd64\.zip$'  <<<"$names" || { echo "::error::no windows_amd64 archive"; missing=1; }
+          [ "$missing" -eq 0 ] || exit 1
+          echo "latest release carries $(wc -l <<<"$names") assets"
+
+  installs-on-a-clean-machine:
+    # A container with no Go toolchain, no repository checkout and no cached
+    # modules. Verifying on a machine that already has the project proves
+    # nothing about the visitor's experience.
+    runs-on: ubuntu-latest
+    container: debian:stable-slim
+    steps:
+      - name: Install from the published command and run the binary
+        run: |
+          set -eu
+          apt-get update -qq && apt-get install -y -qq curl ca-certificates git >/dev/null
+          curl -fsSL https://github.com/oseiaspereira88/pose/releases/latest/download/install.sh -o /tmp/install.sh
+          bash /tmp/install.sh
+          export PATH="$HOME/.local/bin:$PATH"
+          pose version
+          pose doctor || true   # outside a POSE project, doctor is expected to report findings
+          mkdir -p /tmp/fresh && cd /tmp/fresh && git init -q
+          git config user.email liveness@example.com && git config user.name Liveness
+          pose install /tmp/fresh
+          pose doctor

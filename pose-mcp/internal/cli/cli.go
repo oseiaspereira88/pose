@@ -151,6 +151,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdDocsReview(root, args, stdout, stderr)
+	case "public-claims":
+		root, err := projectRoot()
+		if err != nil {
+			fmt.Fprintf(stderr, "pose public-claims: %v\n", err)
+			return 1
+		}
+		return cmdPublicClaims(root, args, stdout, stderr)
 	case "docs-sync":
 		root, err := projectRoot()
 		if err != nil {
@@ -396,7 +403,7 @@ Scaffolds:
 Deterministic gates:
   check | validate | knowledge-check | recurrence-check | lint-spec |
   followups | amend | history-check | skills-check | review-check | closeout-check |
-  artifact-check | surface-check | roadmap-check
+  artifact-check | surface-check | roadmap-check | public-claims
 
 Governed closeout:
   review-plan <scope> [--explain]     Resolve component-aware criteria and tools

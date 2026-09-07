@@ -26,11 +26,30 @@ jobs:
             install.sh \
             scripts/*.sh \
             tests/*.sh \
-            tests/*/*.sh
+            tests/*/*.sh \
+            examples/demo/*.sh
       - name: Installer E2E
         run: bash tests/install/run.sh
       - name: Artifact-identity gate rejects what it must (spec pose-release-signing R3)
         run: bash tests/release/verify-negative.sh
+      # The migration guides make specific claims about what transfers and what
+      # does not, and those claims are what users act on. A guide that drifts
+      # from the importer is worse than none — it produces confident wrong
+      # expectations (spec pose-sdd-migration-acquisition).
+      - name: Documented migration paths still hold (spec pose-sdd-migration-acquisition)
+        run: bash tests/import/migration-guides.sh
+      # The quickstart shows the output of each step so a reader can tell
+      # whether their run diverged. That only holds while the shown output is
+      # the real one, and two of the steps depend on a gate *failing*
+      # (spec pose-first-governed-loop-quickstart).
+      - name: Quickstart loop behaves as documented (spec pose-first-governed-loop-quickstart)
+        run: bash tests/quickstart/first-governed-loop.sh
+      # The launch demo's whole argument is that every conventional check is
+      # green and the delivery still cannot close. If the scenario ever goes
+      # all-green, the recording made from it argues the opposite of the
+      # product (spec pose-launch-proof-demo).
+      - name: Launch demo scenario still blocks then closes (spec pose-launch-proof-demo)
+        run: bash examples/demo/record.sh --verify
       - name: Delivery images build and start
         # pose-mcp/Dockerfile and mcp-enforce/Dockerfile are composed in
         # production by the harne8 monorepo and were built by nothing here, so a
@@ -63,6 +82,12 @@ jobs:
         run: '"$RUNNER_TEMP/pose" skills-check --strict'
       - name: History gate (pose history-check)
         run: '"$RUNNER_TEMP/pose" history-check'
+      # The landing page, the homepage, the structured metadata and thirteen
+      # docs pages described 1.4.x while the product shipped 1.7.10, and nobody
+      # noticed for weeks. Nothing tied a public claim to a released fact
+      # (spec pose-public-claims-contract).
+      - name: Public claims gate (spec pose-public-claims-contract)
+        run: '"$RUNNER_TEMP/pose" public-claims --strict'
       - name: Retain governance evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

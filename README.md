@@ -13,26 +13,74 @@ delivery system.**
 [![CI](https://img.shields.io/github/actions/workflow/status/oseiaspereira88/pose/ci.yml?label=CI)](https://github.com/oseiaspereira88/pose/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/oseiaspereira88/pose?label=license)](LICENSE)
 ![Platforms](https://img.shields.io/badge/platforms-linux%20%7C%20macOS%20%7C%20windows-lightgrey)
-[![Docs](https://img.shields.io/badge/docs-online-009688)](https://oseiaspereira88.github.io/pose/)
+[![Docs](https://img.shields.io/badge/docs-online-009688)](https://docs.harne8.com/POSE/)
 
 </div>
 
-POSE is the free, Apache-2.0 governance core for teams building software with
-humans and AI agents. It installs an operating contract in the repository and
-enforces that contract with one native Go binary:
+**Spec-Driven Development for governed agentic software delivery.**
+
+POSE is an open-source SDD framework that turns specifications, policy,
+execution, evidence, follow-ups and engineering knowledge into a
+repository-owned, machine-checkable delivery system. One native Go binary,
+Apache-2.0, local-first.
 
 ```mermaid
 
 flowchart LR
-  S[spec] --> E[execution] --> V[evidence] --> F[follow-ups] --> R[recurrence] --> K[knowledge]
-  K -. learning returns to planning .-> S
+  D[discover] --> S[specify] --> R[route] --> E[execute] --> P[prove] --> C[close] --> L[learn]
+  L -. repository-owned context .-> D
 
 ```
 
-POSE is not another coding agent, IDE or project board. It is the layer that
-makes work portable across those tools: what may start, which rules apply,
-which checks must pass, what evidence proves completion and what the next
-execution needs to remember.
+Coding agents are increasingly capable of implementing work. POSE governs the
+conditions around that work:
+
+- what is ready to start;
+- which requirements and rules are authoritative;
+- which workflow and checks apply;
+- what evidence proves completion;
+- how residual work must be dispositioned;
+- what engineering knowledge should survive the session.
+
+The repository stays the source of truth while agents, models, IDEs and CI
+providers change.
+
+POSE is not another coding agent, IDE or project board. It is the engineering
+contract that humans, agents and CI execute against.
+
+## Why POSE
+
+Spec-Driven Development improved the path from intent to implementation:
+requirements stopped living only in the prompt.
+
+POSE extends that idea across the rest of delivery. The same contract that
+defines the work also determines when it is ready to start, which rules apply,
+which checks must pass, what evidence proves the delivery, how leftover work
+is dispositioned, and what should be remembered next cycle.
+
+A spec is not successful merely because code was generated. POSE gates
+readiness before execution and closeout after it, using repository-native
+checks and versioned evidence.
+
+**The agent can say it finished. POSE requires the repository to prove it.**
+
+## Agent-neutral, lifecycle-authoritative
+
+POSE works with different coding agents through repository instructions,
+portable skills, the CLI and MCP. It does not pick your agent, model or editor.
+
+POSE is itself an SDD framework. When adopted, it owns the authoritative
+specification and delivery lifecycle for that repository — requirement IDs,
+status, dependencies, readiness, definition of done, closeout and knowledge.
+
+Running a second base SDD framework over the same lifecycle creates competing
+authorities for exactly those artifacts. So the current interoperability model
+favours **migration over concurrent ownership**: existing Spec Kit and
+OpenSpec work can be imported into POSE, reviewed, and then governed under the
+POSE lifecycle.
+
+Agent-neutral is not the same as SDD-framework-neutral. POSE is neutral about
+who executes; it is not neutral about who owns the lifecycle.
 
 ## Quickstart
 
@@ -137,12 +185,18 @@ The importer validates the complete batch before writing, rejects symlinks,
 never overwrites an existing spec and reports everything that still needs
 human curation.
 
+Full guides, including what does **not** transfer — requirement IDs are
+renumbered, status and dependencies do not carry over, validation is a
+placeholder — are in
+[Migrating from Spec Kit](https://docs.harne8.com/POSE/migrate/spec-kit/) and
+[Migrating from OpenSpec](https://docs.harne8.com/POSE/migrate/openspec/).
+
 See [`examples/brownfield-kits/`](examples/brownfield-kits/) for three
 real, executable adoption journeys — direct adoption, Spec Kit import and
 OpenSpec import — each with a staged visibility-to-blocking-gate guide and
 a rollback story, exercised end to end by the test suite.
 
-## Why POSE
+## What makes it different
 
 AI coding tools accelerate implementation, but speed alone does not solve the
 system-level problems they amplify:
@@ -192,37 +246,15 @@ component and mechanism. Read the
 [capability assessment](docs-site/docs/capability-assessment.md) for current
 maturity and best-of-breed gaps. The governed
 [product roadmaps](docs-site/docs/product-roadmaps.md) convert those findings
-into roadmaps, implementation specs and dependency-aware release gates —
-10 roadmaps and 115 specs today, tracked under `.pose/roadmaps/` and
-`.pose/specs/`.
+into roadmaps, implementation specs and dependency-aware release gates.
+POSE itself is developed under POSE-governed roadmaps and specifications,
+tracked under `.pose/roadmaps/` and `.pose/specs/`.
 
-## What's new in v1.4.3
+## Latest release
 
-Full notes: [`.pose/changelogs/v1.4.0.md`](.pose/changelogs/v1.4.0.md),
-[`v1.4.1`](.pose/changelogs/v1.4.1.md), [`v1.4.2`](.pose/changelogs/v1.4.2.md),
-[`v1.4.3`](.pose/changelogs/v1.4.3.md).
-
-- `pose extension install <extension-id>` now resolves the ID against the
-  latest published GitHub release's signed assets — no local directory
-  required.
-- `pose init`/`pose install` now excerpts a brownfield target's own
-  `README.md`/`CLAUDE.md` into `AGENTS.md`'s "Project context" section on
-  first install, instead of the generic placeholder.
-- `pose extension install` gained a `--locale` flag; `pose-rule-backend-go`
-  and `pose-rule-frontend-react` now ship pt-BR variants.
-- `pose index`/`pose validate`/`pose install`/`pose init` now share one
-  stack detector; Cloudflare Workers, Python and .NET modules are
-  recognized.
-- A field audit of `pose update`/`pose install` against seven real,
-  independently-owned repositories found and fixed 11 upgrade-path defects:
-  unreliable `--locale` handling without `--force` (including a duplicated,
-  not switched, manual on a locale change); silently dropped AGENTS.md/POSE.md
-  customizations outside `instance-owned` sections (now warned and backed
-  up); an old instance missing required directories or seeded config after a
-  plain update (two new `pose doctor` checks close the blind spot); discovery
-  descending into `.gitignore`-excluded trees or duplicating an aliased root
-  module entry; and the embedded scaffold leaking pose-dist's own computed
-  index/graph data into fresh instances.
+See the [Releases](https://github.com/oseiaspereira88/pose/releases) page
+for current release notes and verified artifacts. Per-cycle notes live in
+[`.pose/changelogs/`](.pose/changelogs/).
 
 ## Where POSE is strongest
 
@@ -241,15 +273,41 @@ That combination is especially valuable for:
 - platform teams standardizing engineering without forcing one IDE;
 - organizations preparing for governed agent orchestration.
 
-If you only need a prompt template or a lightweight planning folder, POSE may
-be more structure than you need. Start with Spec Kit or OpenSpec and import the
-result later; POSE includes native, safe importers for both.
+POSE deliberately carries more lifecycle structure than lightweight SDD
+approaches. If your only goal is to turn a prompt into a short-lived
+implementation plan, that governance will not pay for itself. POSE is built for
+repositories where readiness, deterministic validation, evidence, residual work
+and reusable engineering context actually matter.
+
+## POSE and other SDD frameworks
+
+POSE is itself a complete Spec-Driven Development framework. When adopted, it
+owns the authoritative lifecycle for specifications, requirements,
+dependencies, readiness, delivery evidence, follow-ups and learning.
+
+Running two base SDD frameworks over the same lifecycle creates competing
+authorities for those artifacts — who owns requirement IDs, status,
+dependencies, the definition of done, closeout. For that reason POSE favours
+**migration interoperability rather than concurrent lifecycle ownership**:
+
+```mermaid
+
+flowchart LR
+  SK[Spec Kit] --> I[import]
+  OS[OpenSpec] --> I
+  I --> P[POSE lifecycle]
+
+```
+
+Existing work is imported, reviewed, and then governed under POSE — see
+[Bring specs from another SDD tool](#bring-specs-from-another-sdd-tool).
 
 ## How POSE compares
 
-These products solve adjacent problems and can be complementary. The useful
-question is not “which tool wins?” but “which part of delivery does each tool
-make authoritative?”
+The tools below are adjacent rather than interchangeable. The useful question
+is not “which tool wins?” but “which part of delivery does each tool make
+authoritative?” The SDD frameworks in the first two rows are the exception
+noted above: POSE imports from them rather than running alongside them.
 
 | Solution                                                                                   | Primary strength                                                                          | POSE's distinction                                                                                                                  |
 |--------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
@@ -264,9 +322,12 @@ POSE does not replace the specialist strengths above. It provides the
 governance spine that remains stable while agents, editors, CI providers and
 portals change.
 
-## The free core and the scale path
+## POSE and Harne8
 
-POSE is the open-source entry point to the broader **Harne8** platform.
+POSE is Apache-2.0, local-first and complete within its domain: it needs no
+Harne8 account and no hosted service to do its job. Harne8 uses POSE as its
+governance engine and solves a different problem — the one that appears when
+the unit stops being a repository.
 
 | Start with POSE                       | Scale with Harne8                                 |
 |---------------------------------------|---------------------------------------------------|
@@ -277,9 +338,10 @@ POSE is the open-source entry point to the broader **Harne8** platform.
 | Native MCP governance API             | Context enrichment through GraphForge             |
 | Optional OPA policy enforcement       | Central identity, approvals, audit and operations |
 
-The boundary is intentional: the free core remains useful by itself, offline
-and vendor neutral. Harne8 adds coordination and visual operation when
-repository-local governance is no longer enough.
+The boundary is intentional, and it is not a paywall: nothing is withheld from
+POSE to create demand for Harne8. They govern different scopes. Harne8 becomes
+relevant when repository-local governance stops being enough — many
+repositories, many people, shared policy, central approvals.
 
 ## Adopt progressively
 
@@ -293,7 +355,7 @@ repository-local governance is no longer enough.
 Teams using pre-commit.com can enable `pose-check`, `pose-lint-spec` and
 `pose-history-check`. See the [CI guide](docs-site/docs/ci.md), the
 [CLI reference](docs-site/docs/cli.md) and the
-[docs site](https://oseiaspereira88.github.io/pose/) for the rest.
+[docs site](https://docs.harne8.com/POSE/) for the rest.
 
 ## Security and privacy
 
@@ -326,5 +388,6 @@ work required to reach the next maturity level.
 Apache-2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
-POSE is developed as the governance plane of the **Harne8** AI-native
-engineering platform.
+
+POSE is open source under Apache-2.0 and is developed in the open as a
+standalone project. It also powers the governance model used by **Harne8**.

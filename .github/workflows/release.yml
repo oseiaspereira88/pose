@@ -31,7 +31,15 @@ jobs:
             VERSION="${GITHUB_REF_NAME}"
           fi
           if [ -z "$VERSION" ]; then
-            VERSION="v$(go -C pose-mcp run ./cmd/pose version | head -n1 | awk '{print $2}' | sed 's/-dev//')"
+            # `pose version` prints three lines. Piping into `head -n1` closes
+            # the pipe after the first, `go run` takes SIGPIPE, and pipefail
+            # turns that into a failed step — "signal: broken pipe", before any
+            # gate has run. This branch is reachable only from a
+            # workflow_dispatch with no version input, which is exactly the
+            # snapshot rehearsal, so the rehearsal path had never once
+            # succeeded. awk drains the stream instead of closing it
+            # (spec pose-release-recovery-verification).
+            VERSION="v$(go -C pose-mcp run ./cmd/pose version | awk 'NR==1 {print $2}' | sed 's/-dev//')"
           fi
           echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0

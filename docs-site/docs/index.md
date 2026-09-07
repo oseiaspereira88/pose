@@ -1,13 +1,14 @@
 # POSE
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.4.x
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
 
-**Repository-owned governance for agentic engineering.**
+**Spec-Driven Development for governed agentic software delivery.**
 
-POSE (Project Operating Standard for Engineering) is the local operating
-contract around humans, coding agents and CI. It turns intent, policy,
-execution, evidence and learning into versioned artifacts and deterministic
-gates:
+POSE (Project Operating Standard for Engineering) is an open-source SDD
+framework built around an executable repository contract. It is the local
+operating contract around humans, coding agents and CI, and it turns intent,
+policy, execution, evidence and learning into versioned artifacts and
+deterministic gates:
 
 ```text
 discover → specify → route → execute → prove → close → learn
