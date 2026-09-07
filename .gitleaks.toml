@@ -18,3 +18,24 @@ regexes = [
   '''component key: 'proj\.harne8\.[a-z0-9._-]+''',
   '''"dedup_key":"[0-9a-f]{16}"''',
 ]
+
+# The agent-sync cache is a local file→SHA-256 manifest. It was swept into
+# acff2e5 (v1.7.1 prep) by accident and is untracked from that point on, but
+# git-mode scanning reads history, so the blob stays reachable forever and
+# generic-api-key keeps matching entries whose path ends in a credential-ish
+# word ("...auth.py":"<digest>"). Every release from v1.7.1 to v1.7.10 failed
+# on exactly this finding (spec pose-release-security-gate-integrity).
+#
+# The exception is rule-scoped and conjunctive: it applies only inside that
+# one file AND only to entries whose value is a bare 64-char lowercase hex
+# digest. A real credential in the same file — different shape — still fails,
+# and the shape alone is not exempt anywhere else in the repository.
+[[rules]]
+id = "generic-api-key"
+
+  [[rules.allowlists]]
+  description = "Path→SHA-256 entries of the historical .harne8-agent-sync.json blob (see note above)."
+  condition = "and"
+  paths = ['''^\.harne8-agent-sync\.json$''']
+  regexTarget = "line"
+  regexes = ['''"[^"]+":"[0-9a-f]{64}"''']
