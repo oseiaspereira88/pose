@@ -76,7 +76,7 @@ link the launch generates would be divided between them.
 - modified: .github/workflows/docs.yml
 - modified: README.md
 - modified: README.pt-BR.md
-- created: .pose/adr/docs-canonical-route.md
+- created: .pose/adr/2026-09-07-one-canonical-documentation-address.md
 
 ### Delivery targets
 - governance:docs-canonical-route module:. profile:release-governance entrypoint:docs-site/mkdocs.yml
@@ -87,20 +87,28 @@ link the launch generates would be divided between them.
   weaker for SEO. If that proves insufficient, the fallback is to stop
   publishing to Pages entirely once inbound traffic has decayed.
 
+### Known gaps at this point
+- R3 (path-preserving redirect from the non-canonical host) is **not**
+  implemented. `rel=canonical` is emitted from every page, which addresses the
+  ranking split, but a reader who lands on the GitHub Pages URL stays there.
+  Deferred deliberately: removing or redirecting a live address before its
+  inbound traffic has decayed breaks existing links for no gain, and the
+  canonical tag is the reversible half of the change.
+
 ---
 
 ## 4. Tasks
 
 ### Planning
-- [ ] Record the ADR: which host is canonical and why
-- [ ] Confirm the decision against the published sitemap contract
+- [x] Record the ADR: which host is canonical and why
+- [x] Confirm the decision against the published sitemap contract
 
 ### Implementation
-- [ ] Increment 1: Declare the canonical route in the claims contract (R1)
-- [ ] Increment 2: Emit canonical links from every page (R2)
+- [x] Increment 1: Declare the canonical route in the claims contract (R1)
+- [x] Increment 2: Emit canonical links from every page (R2)
 - [ ] Increment 3: Redirect the non-canonical host path-preservingly (R3)
 - [x] Increment 4: Repoint README badge and links (R4)
-- [ ] Increment 5: Gate on it (R5)
+- [x] Increment 5: Gate on it (R5)
 
 ---
 

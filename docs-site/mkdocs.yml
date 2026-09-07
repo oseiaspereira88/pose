@@ -3,8 +3,17 @@
 # CI deploy: .github/workflows/docs.yml (GitHub Pages).
 site_name: POSE
 site_description: >-
-  Repository-owned governance for agentic engineering — intent, policy,
-  execution, evidence and learning in one verifiable loop.
+  Open-source Spec-Driven Development framework for governed agentic software
+  delivery — specs, policy, execution, evidence and learning in one verifiable
+  loop, owned by the repository.
+# Canonical documentation address (spec pose-docs-canonical-route, ADR
+# docs-canonical-route). Two complete POSE documentation sites are live and
+# both serve 200: this build on GitHub Pages, and docs.harne8.com/POSE/. That
+# splits search ranking and leaves a reader unable to tell which is current.
+# site_url makes mkdocs-material emit <link rel="canonical"> pointing at the
+# canonical host from every page, including the pages served by the
+# non-canonical one.
+site_url: https://docs.harne8.com/POSE/
 repo_name: POSE
 docs_dir: docs
 site_dir: ../.docs-site-build
