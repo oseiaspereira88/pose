@@ -16,6 +16,10 @@ var deliveryRefRE = regexp.MustCompile(`^(surface|contract|capability|infrastruc
 var roadmapCriterionRE = regexp.MustCompile(`^\s*-\s*(C[0-9]+):\s*(.+?)\s*$`)
 var criterionRefRE = regexp.MustCompile(`\b(surface|contract|capability|infrastructure|governance|check|evidence|manual-review):[^\s,;)\]]+`)
 
+// ValidEvidenceClasses is the single vocabulary of evidence classes: what a
+// registered check may emit, and therefore what a review profile may demand.
+// `pose validate` refuses to register a check outside it, and a review profile
+// that declares a class outside it fails to load.
 var ValidEvidenceClasses = map[string]bool{
 	"build": true, "unit": true, "integration": true, "e2e": true,
 	"reachability": true, "a11y": true, "design-system": true,
@@ -696,4 +700,15 @@ func (s Store) GetSurfaceAssurance(ref, roadmap string) (DeliveryIntegrityGraph,
 		graph.RoadmapCriteria = filtered
 	}
 	return graph, nil
+}
+
+// sortedEvidenceClasses lists the vocabulary for an error message, so a profile
+// author is told what they may write rather than only what they may not.
+func sortedEvidenceClasses() []string {
+	classes := make([]string, 0, len(ValidEvidenceClasses))
+	for class := range ValidEvidenceClasses {
+		classes = append(classes, class)
+	}
+	sort.Strings(classes)
+	return classes
 }
