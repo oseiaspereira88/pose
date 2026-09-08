@@ -75,7 +75,7 @@ Pending.
 			// for class `test`. Without a result that emits it the fixture is a
 			// repository whose own plan cannot be satisfied, and every
 			// attestation built on it can only cite evidence that is not there.
-			{ID: "unit-backend", Module: "api", Check: "go-unit", EvidenceClass: "test", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+			{ID: "unit-backend", Module: "api", Check: "go-unit", EvidenceClass: "unit", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
 		},
 		Reverse: map[string][]string{"api/server.go": {"backend"}}, Nodes: []DeliveryIntegrityNode{}, Edges: []DeliveryIntegrityEdge{}, Claims: []ArtifactClaim{}, Findings: []DeliveryIntegrityFinding{},
 	}
@@ -735,7 +735,7 @@ func TestReviewBundleMatchesRootModuleValidationEvidenceForSubdirectoryTargets(t
 	}}
 	// Validation result emitted at root module "."
 	graph.ValidationResults = []DeliveryValidationResult{{
-		ID: "val-root", Module: ".", Check: "go-test", EvidenceClass: "test", Severity: "required", Outcome: "pass",
+		ID: "val-root", Module: ".", Check: "go-test", EvidenceClass: "unit", Severity: "required", Outcome: "pass",
 		GitHead: "head", ProvenanceDigest: graph.ProvenanceDigest,
 	}}
 	raw, _ := json.Marshal(graph)
@@ -1457,5 +1457,40 @@ func TestReviewCriterionReuseIsInvalidatedByAnUnclassifiedRemoval(t *testing.T) 
 	attestation.ReusedFrom = []ReviewAttestationReuse{{Criterion: criterion.ID, FromAttestation: prior.AttestationID, InputDigest: reviewCriterionInputDigest(first, priorCriterion)}}
 	if blockers := store.validateBundleAttestation(second, attestation); !strings.Contains(strings.Join(blockers, " "), "input digest changed") {
 		t.Fatalf("a verdict issued before the deletion was reused over it: %v", blockers)
+	}
+}
+
+func TestEvidenceSupportIsWaivedOnlyForApprovalsPredatingTheRule(t *testing.T) {
+	// The exemption that lets 52 completed closeouts survive this engine change
+	// must not become a way in. It is dated: an attestation recorded after the
+	// reconciliation gets no waiver, and one recorded before gets it only while
+	// the scope is done.
+	_, store := reviewBundleFixture(t)
+	now := time.Date(2026, 9, 8, 12, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	att := approvedBundleAttestation(bundle, "agent:unsupported")
+	att.BundleDigest = bundle.BundleDigest
+	att.AttestedAt = now.Format(time.RFC3339)
+	att.Criteria[0].Disposition, att.Criteria[0].Evidence = "passed", "integration:never-ran"
+
+	if blockers := store.validateBundleAttestationWith(bundle, att, false); len(blockers) == 0 {
+		t.Fatal("an unsupported criterion passed without the waiver")
+	}
+	waived := store.validateBundleAttestationWith(bundle, att, true)
+	for _, blocker := range waived {
+		if strings.Contains(blocker, "absent from the sealed bundle") || strings.Contains(blocker, "requires evidence class") {
+			t.Fatalf("the waiver did not cover the evidence-support blocker: %v", waived)
+		}
+	}
+
+	// It waives only that. A malformed attestation is still rejected.
+	broken := att
+	broken.Criteria = append([]ReviewCriterion{}, att.Criteria...)
+	broken.Criteria[0].Disposition = "definitely-fine"
+	if blockers := store.validateBundleAttestationWith(bundle, broken, true); len(blockers) == 0 {
+		t.Fatal("the waiver suppressed unrelated validation")
 	}
 }

@@ -1686,7 +1686,16 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 	return verification, nil
 }
 
+// validateBundleAttestation reports why an attestation does not stand for its
+// bundle. skipEvidenceSupport waives only the checks introduced by
+// pose-attestation-evidence-must-be-in-the-bundle, for a completed scope whose
+// approval predates them; everything else still applies. See
+// evidenceVocabularyLegacyExempt for why that exemption exists and its bounds.
 func (s Store) validateBundleAttestation(bundle ReviewBundle, att ReviewAttestation) []string {
+	return s.validateBundleAttestationWith(bundle, att, false)
+}
+
+func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAttestation, skipEvidenceSupport bool) []string {
 	blockers := []string{}
 	policy, _, policyErr := s.loadReviewPolicy()
 	if policyErr != nil {
@@ -1737,7 +1746,7 @@ func (s Store) validateBundleAttestation(bundle ReviewBundle, att ReviewAttestat
 		if criterion.Disposition == "not-applicable" && criterion.Rationale == "" {
 			blockers = append(blockers, "criterion "+criterion.ID+" lacks not-applicable rationale")
 		}
-		if criterion.Disposition == "passed" {
+		if criterion.Disposition == "passed" && !skipEvidenceSupport {
 			blockers = append(blockers, reviewCriterionEvidenceBlockers(bundle, required[criterion.ID], criterion)...)
 		}
 	}

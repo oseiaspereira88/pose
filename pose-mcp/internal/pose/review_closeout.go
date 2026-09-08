@@ -106,6 +106,7 @@ type ReviewPolicy struct {
 	RequireReviewForLegacyDoneScopes bool              `json:"require_review_for_legacy_done_scopes,omitempty"`
 	ComponentAware                   bool              `json:"component_aware,omitempty"`
 	ComponentAwareAdoptedAt          string            `json:"component_aware_adopted_at,omitempty"`
+	EvidenceVocabularyReconciledAt   string            `json:"evidence_vocabulary_reconciled_at,omitempty"`
 	UnmappedComponentBehavior        string            `json:"unmapped_component_behavior,omitempty"`
 	OverlayProfiles                  []string          `json:"overlay_profiles,omitempty"`
 	ReviewBundles                    bool              `json:"review_bundles,omitempty"`
@@ -656,7 +657,14 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 					attestations, attErr := s.ListReviewAttestations(bundles[i].BundleID)
 					if attErr == nil && len(attestations) > 0 {
 						att := attestations[len(attestations)-1]
-						if len(s.validateBundleAttestation(bundles[i], att)) == 0 {
+						// A completed scope keeps an approval recorded before this
+						// engine began requiring a passed criterion to cite sealed
+						// evidence of a demanded class. The approval was not made
+						// less considered by a rule that did not exist when it was
+						// given; what it needs is a superseding attestation, which
+						// an operator can record when the work is next touched.
+						waiveEvidence := s.evidenceVocabularyLegacyExempt(scope, policy, ReviewAttempt{ReviewedAt: att.AttestedAt})
+						if len(s.validateBundleAttestationWith(bundles[i], att, waiveEvidence)) == 0 {
 							eval.Fresh = true
 							eval.Approved = true
 							eval.BundleState = "closed"
@@ -739,6 +747,17 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	current := attempts[len(attempts)-1]
 	eval.Current = &current
 	legacyPlanExempt := s.componentAwareLegacyAttemptExempt(scope, policy, current)
+	// Reconciling a profile's evidence classes changes the effective plan, and a
+	// completed scope's attempt is compared against the plan as it is today. So
+	// renaming `test` to the three classes that can actually be produced makes
+	// every past closeout stale, without any of them having become less
+	// reviewed. This exemption is narrower than legacyPlanExempt: the criteria
+	// and tools still stand, only the digest comparison and the class match are
+	// waived, and only for a scope already done whose review predates the date.
+	vocabularyExempt := s.evidenceVocabularyLegacyExempt(scope, policy, current)
+	if vocabularyExempt {
+		eval.Warnings = append(eval.Warnings, "completed scope retains its approved review recorded before the evidence vocabulary was reconciled")
+	}
 	if legacyPlanExempt {
 		requiredCriteria = append([]ReviewCriterionProfile{}, baseRequiredCriteria...)
 		effectiveTools = nil
@@ -753,7 +772,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	} else {
 		eval.Fresh = true
 	}
-	if eval.PlanDigest != "" && current.PlanDigest != eval.PlanDigest && !legacyPlanExempt {
+	if eval.PlanDigest != "" && current.PlanDigest != eval.PlanDigest && !legacyPlanExempt && !vocabularyExempt {
 		eval.Fresh = false
 		if current.PlanDigest == "" {
 			eval.Blockers = append(eval.Blockers, "review is stale: effective plan digest is missing")
@@ -837,7 +856,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 		default:
 			eval.Blockers = append(eval.Blockers, "criterion "+required.ID+" has invalid disposition")
 		}
-		if len(required.EvidenceClasses) > 0 && criterion.Disposition == "passed" {
+		if len(required.EvidenceClasses) > 0 && criterion.Disposition == "passed" && !vocabularyExempt {
 			matched := false
 			refs := append([]string{criterion.Evidence}, current.EvidenceRefs...)
 			for _, ref := range refs {
@@ -991,6 +1010,35 @@ func reviewToolLabel(id, component string) string {
 		return id
 	}
 	return id + " (component " + component + ")"
+}
+
+// evidenceVocabularyLegacyExempt keeps a completed scope's approval when the
+// only thing that changed under it is which class name a criterion asks for.
+//
+// A criterion's evidence classes are read from the profile as it is today, not
+// as it was when the review happened, so reconciling a profile to classes a
+// check can actually emit retroactively invalidates every closeout that cited
+// the old name. In POSE's own repository that was 54 of them — work that was
+// genuinely reviewed, failing because `test` became `unit, integration, e2e`.
+//
+// This mirrors componentAwareLegacyAttemptExempt exactly, which exists for the
+// same reason one contract change earlier. It is dated and opt-in, so it cannot
+// silently excuse a review recorded after the reconciliation, and it is bounded
+// to scopes already done: an open scope is re-reviewed anyway.
+func (s Store) evidenceVocabularyLegacyExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
+	if policy.EvidenceVocabularyReconciledAt == "" {
+		return false
+	}
+	reconciled, err := time.Parse(time.DateOnly, policy.EvidenceVocabularyReconciledAt)
+	if err != nil {
+		return false
+	}
+	reviewed, err := time.Parse(time.RFC3339, attempt.ReviewedAt)
+	if err != nil || !reviewed.Before(reconciled) {
+		return false
+	}
+	done, err := s.scopeLifecycleDone(scope)
+	return err == nil && done
 }
 
 func (s Store) componentAwareLegacyAttemptExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {

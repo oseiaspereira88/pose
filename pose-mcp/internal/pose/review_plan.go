@@ -676,6 +676,12 @@ func matchReviewOverlay(selectors ReviewProfileSelectors, context reviewPlanCont
 // evidenceClass outside ValidEvidenceClasses, so a class demanded in a review
 // profile but absent there can never be satisfied truthfully: the only
 // disposition that completes is a fabricated one.
+//
+// The two consumers act on that differently, and the difference is deliberate.
+// A tool stripped of an unproducible class still runs and still reports; the
+// class was only ever a label on its output. A criterion stripped of one stops
+// constraining anything, because a criterion with no class accepts any sealed
+// evidence — so for criteria the answer is to block, not to strip.
 func producibleEvidenceClasses(classes []string) (kept, dropped []string) {
 	for _, class := range classes {
 		if ValidEvidenceClasses[class] {
@@ -692,14 +698,16 @@ func composeReviewCriteria(profiles []ReviewProfile, blockers, warnings []string
 	for _, profile := range profiles {
 		for _, item := range profile.Criteria {
 			required := item.Required == nil || *item.Required
-			// The same treatment tools received: a criterion demanding a class
-			// no check may emit plans a gate nothing can pass, and the only way
-			// through it is to invent a reference. Drop the class and say so.
-			// A criterion left with none is not discarded — it still has to be
-			// dispositioned, and any sealed evidence can support it.
-			classes, dropped := producibleEvidenceClasses(uniqueSorted(item.EvidenceClasses))
-			for _, class := range dropped {
-				warnings = append(warnings, "criterion "+item.ID+" in "+profile.Ref()+" demands evidence class "+class+", which no registered check may emit; dropped from the plan")
+			// A criterion demanding a class no registered check may emit plans a
+			// gate nothing can pass, and the only way through it is to invent a
+			// reference. Dropping the class — the treatment tools receive — is
+			// wrong here: a criterion left with no class accepts any sealed
+			// evidence, so the demand does not become weaker, it becomes empty.
+			// A criterion asking for `test` would be satisfied by a build
+			// result. Block instead, and name the profile that has to be fixed.
+			classes := uniqueSorted(item.EvidenceClasses)
+			if _, unproducible := producibleEvidenceClasses(classes); len(unproducible) > 0 {
+				blockers = append(blockers, "criterion "+item.ID+" in "+profile.Ref()+" demands evidence class "+strings.Join(unproducible, ", ")+", which no registered check may emit")
 			}
 			criterion := ReviewPlanCriterion{ID: item.ID, Description: item.Description, Required: required, Rules: uniqueSorted(item.Rules), EvidenceClasses: classes, Profiles: []string{profile.Ref()}}
 			criteria, blockers = addReviewCriterion(criteria, criterion, blockers)

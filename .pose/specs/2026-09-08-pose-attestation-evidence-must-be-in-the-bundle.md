@@ -91,7 +91,13 @@ unsatisfiable the moment evidence is actually required.
   the missing class and the way out; where it is not, it shall record the
   criterion `not-applicable` with a rationale naming what is absent.
 - R5: A criterion demanding an evidence class no registered check may emit shall
-  have that class dropped from the plan with a warning, as tools already do.
+  block the plan, naming the criterion, the class and the profile. The class
+  shall not be erased.
+- R6: The review profiles shipped with POSE shall demand only classes a
+  registered check may emit.
+- R7: A completed scope whose approval was recorded before a dated
+  `evidence_vocabulary_reconciled_at` shall retain it, and the waiver shall
+  cover only the evidence-support checks this spec introduces.
 
 ### Non-functional
 - The existing review suite passes, with its fixtures corrected where they were
@@ -105,6 +111,11 @@ unsatisfiable the moment evidence is actually required.
 - `pose-mcp/internal/pose/review_bundle.go` — attestation validation and
   `AutoAttestReviewBundle`
 - `pose-mcp/internal/pose/review_plan.go` — criterion evidence classes
+- `pose-mcp/internal/pose/review_closeout.go` — the dated migration exemption
+- `.pose/policy/review.json` — the reconciliation date
+- `.pose/review-profiles/*.json` — the shipped profiles' demands
+- `.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md` — the
+  attestation clause this revises
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-attestation-evidence-must-be-in-the-bundle.md
@@ -113,8 +124,25 @@ unsatisfiable the moment evidence is actually required.
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: pose-mcp/internal/pose/review_plan.go
 - modified: pose-mcp/internal/cli/review_closeout_test.go
+- modified: pose-mcp/internal/pose/review_plan_test.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: .pose/policy/review.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/policy/review.json
+- modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
+- modified: .pose/review-profiles/backend-review.json
+- modified: .pose/review-profiles/frontend-review.json
+- modified: .pose/review-profiles/milestone-integration.json
+- modified: .pose/review-profiles/spec-closeout.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/review-profiles/backend-review.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/review-profiles/frontend-review.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/review-profiles/milestone-integration.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/review-profiles/spec-closeout.json
 
 ### Technical risks
+- The exemption is a waiver, and a waiver is a place a future change could hide.
+  It is dated, opt-in, bounded to completed scopes, and covers only the checks
+  this spec adds — but nothing stops a project setting the date forward. That is
+  the same exposure `component_aware_adopted_at` already carries.
 - This fails attestations that already exist. That is the intent — they are
   unsupported and were reported as sound — but an instance updating to it will
   see closeouts it considered finished stop verifying. The remedy is a
@@ -132,7 +160,9 @@ unsatisfiable the moment evidence is actually required.
 ### Implementation
 - [x] Increment 1: Reject a passed criterion the bundle does not support (R1, R2, R3)
 - [x] Increment 2: Make auto-attest refuse or disposition instead of fabricating (R4)
-- [x] Increment 3: Drop unproducible classes from criteria, as tools already do (R5)
+- [x] Increment 3: Block on an unproducible criterion class instead of erasing it (R5)
+- [x] Increment 4: Reconcile the shipped profiles to producible classes (R6)
+- [x] Increment 5: Keep completed closeouts recorded before the reconciliation (R7)
 
 ### Validation
 - [x] Each rejection asserted, and each assertion shown to fail without its change
@@ -164,14 +194,73 @@ unsatisfiable the moment evidence is actually required.
 - Date: 2026-09-08
 - Context: whether the criterion-side vocabulary filter belongs here. The spec
   that fixed the tool side deliberately deferred it.
-- Decision: include it.
-- Rationale: it stopped being optional. The shipped profiles demand `test` and
-  `validation`, neither of which any check may emit, so with R1 in place every
-  plan built from them becomes unsatisfiable and the only way through is the
-  fabrication R4 removes. The deferral was correct while nothing checked the
-  reference; it is not once something does.
-- Consequences: a criterion left with no producible class is not discarded — it
-  still has to be dispositioned, and any sealed evidence can support it.
+- Decision: include it. The shipped profiles demand `test` and `validation`,
+  neither of which any check may emit, so with R1 in place every plan built from
+  them becomes unsatisfiable and the only way through is the fabrication R4
+  removes. The deferral was correct while nothing checked the reference; it is
+  not once something does.
+
+### Decision 4
+- Date: 2026-09-08
+- Context: this spec first gave criteria the same treatment as tools — drop the
+  unproducible class, warn, continue. Review caught what that does, and it is
+  the opposite of the spec's own goal: a criterion left with no class accepts
+  any sealed evidence, so `backend-observability`, which asked for `test`, would
+  have been satisfied by a `build` result. The demand did not weaken; it
+  disappeared.
+- Options considered: (a) drop and warn; (b) widen `ValidEvidenceClasses` so the
+  demands become true; (c) reconcile the shipped profiles to producible classes
+  and block on anything left.
+- Decision: (c).
+- Rationale: (a) is the self-defeating case above — in a change whose whole
+  argument is that a `passed` must mean something, it makes a class of criteria
+  mean nothing. (b) keeps every instance working without editing a profile, but
+  it ratifies an overlapping vocabulary — `test` alongside `unit`,
+  `integration`, `e2e` — which is the confusion the earlier reconciliation was
+  undoing, and it would let a check declare `manual-review` as its evidence
+  class. (c) fixes the data that was wrong and leaves a blocker as the backstop
+  so it cannot silently recur.
+- Consequences: an instance whose own profiles demand an unproducible class is
+  now blocked at plan time rather than quietly permissive. `pose doctor`'s
+  `review.evidence-vocabulary` check, shipped in 1.8.0 and scoped to selected
+  profiles in 1.8.1, already names exactly which profile to fix.
+
+### Decision 6
+- Date: 2026-09-08
+- Context: with the engine changes in place, `pose check --strict` on POSE's own
+  repository reported **106** failing closeouts. Reconciling the shipped
+  profiles brought it to 52. Both numbers are work that was genuinely reviewed,
+  failing because a rule that did not exist when the review happened now
+  applies, or because `test` became `unit, integration, e2e`.
+- Options considered: (a) re-review 52 completed specs; (b) ship anyway and let
+  every adopting instance discover it; (c) a dated migration exemption.
+- Decision: (c), as `evidence_vocabulary_reconciled_at` in the review policy.
+- Rationale: (a) is not review, it is re-signing to satisfy a tool. (b) makes
+  POSE's own gate fail on `main`, which is the least credible way to ship a
+  change about governance integrity. (c) is the pattern this engine already uses
+  for exactly this situation: `component_aware_adopted_at` exists because the
+  criteria contract changed once before. It is opt-in, dated, and bounded to a
+  scope already done, so it cannot excuse a review recorded afterwards, and it
+  waives only the evidence-support checks — a malformed attestation is still
+  rejected, which is asserted.
+- Consequences: an instance adopting this sets its own date, or accepts that its
+  historical closeouts need superseding attestations. The exemption is visible
+  in the policy file rather than compiled in.
+
+### Decision 5
+- Date: 2026-09-08
+- Context: mapping each unproducible demand to what actually supports it.
+- Decision: `test` → `unit, integration, e2e`; `contract` → `integration, e2e`;
+  `observability` → `unit, integration`; `integration-test` → `integration`;
+  `requirement-trace` and `validation`, on `requirements` and `correctness`,
+  fold into the test classes those criteria already imply.
+- Rationale: `evidence_classes` is a list of acceptable classes, any one of
+  which satisfies the criterion, so the mapping is about naming the real
+  producers rather than picking one. `test` was plainly an umbrella for the
+  three that exist. `observability` is the weakest of these: nothing emits it,
+  and it is diagnosability, which in practice is asserted by the tests that
+  exercise the failure paths — recorded as a known gap rather than pretended
+  away.
 
 ### Decision 3
 - Date: 2026-09-08
@@ -212,7 +301,13 @@ depends on it.
 ### Execution log
 - Date: 2026-09-08
 - Environment: local, Go 1.26
-- Notes: all eight packages pass. Disabling the validator branch leaves
+- Notes: all eight packages pass. Restoring the drop-and-warn behaviour turns
+  `TestCriterionDemandingAnUnproducibleClassBlocksThePlan` red on `blockers = []`.
+  `pose check --strict`, run with a binary built from this branch, went 106
+  errors → 52 after the profiles were reconciled → SUCCESS after the dated
+  exemption. Each number was measured, not predicted: the first attempt at
+  isolating the cause compared the installed v1.8.1 binary against this one and
+  was not a comparison at all. Disabling the validator branch leaves
   `blockers = ""` where the test wants "absent from the sealed bundle"; restoring
   the fabrication in `auto-attest` fails the refusal test on "auto-attest
   invented a reference for a class the bundle does not seal". Both new
@@ -220,7 +315,7 @@ depends on it.
   so neither can pass by rejecting everything.
 
 ### Results summary
-- Successes: R1, R2, R3, R4, R5 verified.
+- Successes: R1, R2, R3, R4, R5, R6, R7 verified.
 - Failures: none.
 
 ### Requirement trace
@@ -228,9 +323,32 @@ depends on it.
 - R2 [satisfied] <the same function compares the cited ref's class against planned.EvidenceClasses; TestAttestationCriterionMustCiteEvidenceOfARequiredClass picks a sealed ref of a class the criterion does not ask for and asserts the blocker names both>
 - R3 [satisfied] <the empty-evidence branch; TestAttestationCriterionMustCiteEvidenceTheBundleSeals/nothing_at_all>
 - R4 [satisfied] <AutoAttestReviewBundle returns an error naming the criterion, class and remedy when requiresEvidence, and appends a not-applicable criterion with a rationale otherwise; TestAutoAttestRefusesRatherThanInventingAReference strips the integration results and asserts the error names the class and the way out>
-- R5 [satisfied] <composeReviewCriteria filters through producibleEvidenceClasses and warns per dropped class, the same helper buildReviewTools now shares; the suite passes only because the shipped profiles' test and validation demands stop reaching the plan>
+- R5 [satisfied] <composeReviewCriteria appends a blocker naming the criterion, the unproducible classes and the profile, and leaves EvidenceClasses intact; TestCriterionDemandingAnUnproducibleClassBlocksThePlan asserts both the blocker and that the class was not erased>
+- R7 [satisfied] <evidenceVocabularyLegacyExempt mirrors componentAwareLegacyAttemptExempt: a date in policy, an attempt reviewed before it, and a scope already done; it waives the plan-digest comparison, the legacy evidence-class match and, through validateBundleAttestationWith, the sealed-bundle evidence checks. TestEvidenceSupportIsWaivedOnlyForApprovalsPredatingTheRule asserts the waiver covers the evidence blockers and nothing else>
+- R6 [satisfied] <the four shipped profiles demand only classes in ValidEvidenceClasses, asserted by a script over .pose/review-profiles and mirrored into the embedded scaffold by go generate; the suite would block on any that were missed>
 
 ### Known gaps
+- **The two vocabularies are still two.** `ValidEvidenceClasses` says what a
+  check may emit; `reviewEvidenceClassCatalog` says what a profile may demand.
+  Six of nineteen classes are in both. Ten a profile may demand can never be
+  produced — `contract`, `integration-test`, `lint`, `manual-review`,
+  `observability`, `requirement-trace`, `security-scan`, `test`, `typecheck`,
+  `validation` — and three a check may emit can never be demanded:
+  `contrast`, `design-system`, `visual-regression`. This spec reconciles the
+  shipped profiles to the intersection and blocks on the rest; it does not
+  unify the lists, which would stop a profile declaring an unsatisfiable class
+  at load time instead of at plan time, and is a larger break because it fails
+  profile loading rather than planning.
+- `backend-observability` now asks for `unit, integration`. Nothing emits an
+  observability class, and diagnosability is not the same property as a test
+  passing; the mapping is the closest true statement available, not an exact
+  one.
+- Evidence is matched by reference and class, not by component. In a
+  multi-component bundle an `integration` result from one component can support
+  a criterion scoped to another, because the sealed set is consulted globally.
+  All three closeouts that motivated this spec are caught anyway — two by class,
+  one because the references were not in the bundle at all — but the narrower
+  case is open.
 - Tool dispositions are still not checked against sealed evidence. The tool path
   has its own coverage evaluation and its own `validation:auto-attest`
   fabrication, which this spec does not touch.
@@ -245,4 +363,5 @@ depends on it.
 ### Follow-ups
 
 - [open] Check tool dispositions against sealed evidence and remove the validation:auto-attest fabrication, the way criteria now are — owner:unowned crit:high review:2026-11-08
-- [open] Add a direct test for criterion evidence-class filtering rather than relying on the suite — owner:unowned crit:medium review:2026-11-08
+- [open] Unify ValidEvidenceClasses and reviewEvidenceClassCatalog so a profile cannot declare a class no check may emit — owner:unowned crit:high review:2026-11-08
+- [open] Match evidence to the criterion's component, so a sibling component's result cannot support it — owner:unowned crit:high review:2026-11-08

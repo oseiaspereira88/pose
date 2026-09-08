@@ -27,7 +27,7 @@ func componentReviewFixture(t *testing.T) (string, Store) {
 }`)
 	writeReviewFixture(t, root, ".pose/review-profiles/spec-closeout.json", `{
   "schema_version":2,"id":"spec-closeout","version":2,"scope":"spec",
-  "criteria":[{"id":"correctness","description":"Scope behavior is correct.","evidence_classes":["test"]}],
+  "criteria":[{"id":"correctness","description":"Scope behavior is correct.","evidence_classes":["unit"]}],
   "tools":[{"id":"review-check","requiredness":"required","criteria":["correctness"]}]
 }`)
 	writeReviewFixture(t, root, ".pose/review-profiles/frontend-review.json", `{
@@ -35,7 +35,7 @@ func componentReviewFixture(t *testing.T) (string, Store) {
   "selectors":{"languages":["typescript"]},
   "criteria":[
     {"id":"frontend-accessibility","description":"The interface is accessible.","evidence_classes":["a11y"]},
-    {"id":"frontend-failure-state","description":"Network and state failures remain usable.","evidence_classes":["test"]}
+    {"id":"frontend-failure-state","description":"Network and state failures remain usable.","evidence_classes":["unit"]}
   ],
   "tools":[{"id":"surface-check","requiredness":"required","evidence_classes":["reachability"],"criteria":["frontend-accessibility"]}]
 }`)
@@ -44,7 +44,7 @@ func componentReviewFixture(t *testing.T) (string, Store) {
   "selectors":{"languages":["go"]},
   "criteria":[
     {"id":"backend-contracts","description":"Contracts and errors are compatible.","evidence_classes":["integration"]},
-    {"id":"backend-observability","description":"Failures are diagnosable.","evidence_classes":["test"]}
+    {"id":"backend-observability","description":"Failures are diagnosable.","evidence_classes":["unit"]}
   ],
   "tools":[{"id":"assess-integrate","requiredness":"recommended","criteria":["backend-contracts"]}]
 }`)
@@ -509,7 +509,7 @@ func TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage(t *testing.T) 
 			criteria.WriteString("- " + criterion.ID + " [passed] evidence:" + class + ":review-plan\n")
 		}
 	}
-	body := "---\nschema_version: 1\nreview_id: rvw-plan\nscope: spec:backend\nscope_digest: " + plan.ScopeDigest + "\nprofile: spec-closeout@2\nreviewer: agent:separate-review\ndecision: approved\nreviewed_at: 2026-08-13T12:00:00Z\nevidence_refs: [test:review-plan, integration:review-plan]\n---\n\n## Criteria\n" + criteria.String() + "\n## Findings\n"
+	body := "---\nschema_version: 1\nreview_id: rvw-plan\nscope: spec:backend\nscope_digest: " + plan.ScopeDigest + "\nprofile: spec-closeout@2\nreviewer: agent:separate-review\ndecision: approved\nreviewed_at: 2026-08-13T12:00:00Z\nevidence_refs: [unit:review-plan, integration:review-plan]\n---\n\n## Criteria\n" + criteria.String() + "\n## Findings\n"
 	writeReviewFixture(t, root, ".pose/reviews/rvw-plan.md", body)
 	stale, err := store.ReviewCheck("spec:backend")
 	if err != nil || stale.Approved || stale.Fresh || !strings.Contains(strings.Join(stale.Blockers, " "), "effective plan digest is missing") {
@@ -614,11 +614,11 @@ profile: spec-closeout@2
 reviewer: agent:legacy-review
 decision: approved
 reviewed_at: 2026-08-12T12:00:00Z
-evidence_refs: [test:legacy]
+evidence_refs: [unit:legacy]
 ---
 
 ## Criteria
-- correctness [passed] evidence:test:legacy
+- correctness [passed] evidence:unit:legacy
 
 ## Findings
 `)
@@ -758,4 +758,28 @@ delivers: contract:backend-api
 	}
 }
 
-
+func TestCriterionDemandingAnUnproducibleClassBlocksThePlan(t *testing.T) {
+	// Dropping the class was the first answer and it was wrong: a criterion
+	// left with no class accepts any sealed evidence, so the demand does not
+	// weaken, it disappears — a criterion asking for `security-scan` would be
+	// satisfied by a build result, in the same engine whose point is that a
+	// passed criterion means something. Blocking names the profile to fix.
+	root, store := componentReviewFixture(t)
+	writeReviewFixture(t, root, ".pose/review-profiles/spec-closeout.json", `{
+  "schema_version":2,"id":"spec-closeout","version":2,"scope":"spec",
+  "criteria":[{"id":"correctness","description":"Scope behavior is correct.","evidence_classes":["security-scan"]}],
+  "tools":[{"id":"review-check","requiredness":"required","criteria":["correctness"]}]
+}`)
+	plan, err := store.ReviewPlan("spec:fullstack")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if joined := strings.Join(plan.Blockers, " "); !strings.Contains(joined, "correctness") || !strings.Contains(joined, "security-scan") {
+		t.Fatalf("blockers = %v, want one naming the criterion and the unproducible class", plan.Blockers)
+	}
+	for _, criterion := range plan.Criteria {
+		if criterion.ID == "correctness" && len(criterion.EvidenceClasses) == 0 {
+			t.Fatal("the declared class was erased instead of reported; the criterion now accepts anything")
+		}
+	}
+}
