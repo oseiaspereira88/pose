@@ -82,7 +82,7 @@ content behind the path to review.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-review-subject-unclassified-removals.md
-- created: .pose/changelogs/unreleased/pose-review-subject-unclassified-removals.md
+- renamed: .pose/changelogs/unreleased/pose-review-subject-unclassified-removals.md -> .pose/changelogs/v2.0.0/pose-review-subject-unclassified-removals.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md

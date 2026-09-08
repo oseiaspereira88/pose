@@ -14,12 +14,13 @@ demanded: `contrast`, `design-system`, `visual-regression`. They agreed on six
 of nineteen.
 
 A profile demanding an unproducible class plans a gate only a fabricated
-disposition can pass, which is the failure the last four releases closed one
-consumer at a time. Refusing the profile is where it stops being expressible,
+disposition can pass, which is the failure the four specs before it in
+this release closed one consumer at a time. Refusing the profile is where it stops being expressible,
 and it makes those downstream guards unnecessary: the criterion blocker, the
 tool class drop and the filter behind both are removed.
 
 **A profile declaring one of the ten dropped names now fails to load**, which
 fails review planning rather than degrading it. `pose doctor`'s
 `review.evidence-vocabulary` has reported exactly this since 1.8.0. The profiles
-shipped with POSE were reconciled to the intersection in 1.9 and load unchanged.
+shipped with POSE were reconciled to the intersection earlier in this same
+release and load unchanged.

@@ -88,7 +88,7 @@ noticed. A gate against that failure which no one can turn on protects nothing.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-public-claims-onboarding.md
-- created: .pose/changelogs/unreleased/pose-public-claims-onboarding.md
+- renamed: .pose/changelogs/unreleased/pose-public-claims-onboarding.md -> .pose/changelogs/v2.0.0/pose-public-claims-onboarding.md
 - created: .pose/templates/public-claims.json
 - created: pose-mcp/internal/scaffold/dist/.pose/templates/public-claims.json
 - modified: pose-mcp/internal/cli/publicclaims.go

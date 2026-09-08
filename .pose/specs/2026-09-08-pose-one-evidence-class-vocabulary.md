@@ -83,7 +83,7 @@ downstream guards unnecessary rather than merely redundant.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-one-evidence-class-vocabulary.md
-- created: .pose/changelogs/unreleased/pose-one-evidence-class-vocabulary.md
+- renamed: .pose/changelogs/unreleased/pose-one-evidence-class-vocabulary.md -> .pose/changelogs/v2.0.0/pose-one-evidence-class-vocabulary.md
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/review_plan.go
 - modified: pose-mcp/internal/pose/review_plan_test.go

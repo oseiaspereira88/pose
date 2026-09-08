@@ -119,7 +119,7 @@ unsatisfiable the moment evidence is actually required.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-attestation-evidence-must-be-in-the-bundle.md
-- created: .pose/changelogs/unreleased/pose-attestation-evidence-must-be-in-the-bundle.md
+- renamed: .pose/changelogs/unreleased/pose-attestation-evidence-must-be-in-the-bundle.md -> .pose/changelogs/v2.0.0/pose-attestation-evidence-must-be-in-the-bundle.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: pose-mcp/internal/pose/review_plan.go

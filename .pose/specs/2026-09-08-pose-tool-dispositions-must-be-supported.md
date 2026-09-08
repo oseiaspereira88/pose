@@ -76,7 +76,7 @@ a class the tool demands and an id that appears nowhere, and verify.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-tool-dispositions-must-be-supported.md
-- created: .pose/changelogs/unreleased/pose-tool-dispositions-must-be-supported.md
+- renamed: .pose/changelogs/unreleased/pose-tool-dispositions-must-be-supported.md -> .pose/changelogs/v2.0.0/pose-tool-dispositions-must-be-supported.md
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go

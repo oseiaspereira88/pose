@@ -94,7 +94,7 @@ closeouts in this repository, and would have happened again in the adopting one.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-contract-adoption-registry.md
-- created: .pose/changelogs/unreleased/pose-contract-adoption-registry.md
+- renamed: .pose/changelogs/unreleased/pose-contract-adoption-registry.md -> .pose/changelogs/v2.0.0/pose-contract-adoption-registry.md
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/cli/stack_seed.go
 - modified: pose-mcp/internal/cli/stack_seed_test.go

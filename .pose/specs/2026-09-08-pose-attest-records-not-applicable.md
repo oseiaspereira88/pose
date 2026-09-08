@@ -82,7 +82,7 @@ automated path.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-attest-records-not-applicable.md
-- created: .pose/changelogs/unreleased/pose-attest-records-not-applicable.md
+- renamed: .pose/changelogs/unreleased/pose-attest-records-not-applicable.md -> .pose/changelogs/v2.0.0/pose-attest-records-not-applicable.md
 - created: pose-mcp/internal/cli/review_criterion_disposition_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/help_catalog.go

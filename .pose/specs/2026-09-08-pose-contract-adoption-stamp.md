@@ -90,7 +90,7 @@ skim the gate.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-contract-adoption-stamp.md
-- created: .pose/changelogs/unreleased/pose-contract-adoption-stamp.md
+- renamed: .pose/changelogs/unreleased/pose-contract-adoption-stamp.md -> .pose/changelogs/v2.0.0/pose-contract-adoption-stamp.md
 - modified: pose-mcp/internal/cli/stack_seed.go
 - modified: pose-mcp/internal/cli/stack_seed_test.go
 - modified: pose-mcp/internal/cli/doctor.go
