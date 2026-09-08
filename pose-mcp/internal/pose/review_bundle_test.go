@@ -538,6 +538,58 @@ func TestReviewBundleClassifiesSubmoduleUnderAMappedComponent(t *testing.T) {
 	}
 }
 
+func TestReviewBundleDoesNotBlockOnAnUnclassifiedRemoval(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A root-level dotfile the shape rules do not recognise. As a creation it
+	// blocks, and should; as a removal there is nothing left to read and the
+	// deletion is the reviewable fact.
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "removed", Path: ".agent-sync-cache.json"})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if joined := strings.Join(bundle.Blockers, " "); strings.Contains(joined, ".agent-sync-cache.json") {
+		t.Fatalf("an unclassified removal blocked the bundle: %s", joined)
+	}
+	var entry ReviewBundleSubjectEntry
+	for _, candidate := range bundle.Payload.Subject.Entries {
+		if candidate.Path == ".agent-sync-cache.json" {
+			entry = candidate
+		}
+	}
+	if entry.Class != "removed" {
+		t.Fatalf("class = %q, want removed", entry.Class)
+	}
+	if entry.Digest != "" {
+		t.Fatalf("a removal carries a digest: %q", entry.Digest)
+	}
+}
+
+func TestReviewBundleStillBlocksOnAnUnclassifiedCreation(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	writeReviewFixture(t, root, ".agent-sync-cache.json", "{}")
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "created", Path: ".agent-sync-cache.json"})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(strings.Join(bundle.Blockers, " "), "unclassified review subject path .agent-sync-cache.json") {
+		t.Fatalf("an unclassified creation stopped failing closed: %+v", bundle.Blockers)
+	}
+}
+
 func TestReviewBundleClassifiesRootReleaseFiles(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	writeReviewFixture(t, root, "README.md", "# root readme\n")

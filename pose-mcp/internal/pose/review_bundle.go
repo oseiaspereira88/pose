@@ -408,6 +408,14 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 				class, include = "submodule", true
 			}
 			switch {
+			case class == "" && observed.Action == "removed":
+				// A removal has no content to classify and none to read. The
+				// reviewable fact is the deletion itself, and it is in the
+				// subject either way — so refusing the whole bundle because the
+				// shape rules do not recognise a path that no longer exists
+				// costs the reviewer the entire review to tell them nothing.
+				entry.Class, include = "removed", true
+				entry.Reason = "attributed removal of a path with no governed classification"
 			case class == "":
 				blockers = append(blockers, "unclassified review subject path "+path)
 				entry.Class = "unclassified"
