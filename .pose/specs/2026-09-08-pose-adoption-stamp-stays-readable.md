@@ -147,24 +147,51 @@ the key, update, and read the result with the previously released binary.
 ### Execution log
 - Date: 2026-09-08
 - Environment: local, Go 1.26
-- Notes: all eight packages pass. The compatibility check was run end to end
-  against the real previous binary: installed a fresh instance with this engine,
-  removed both the map and the legacy key, ran `pose update --no-self`, and the
-  policy came back with `evidence_vocabulary_reconciled_at: 2026-09-08` and no
-  `contract_adoptions` at all. `pose check --strict` under the installed 1.8.1
-  then reported zero `unknown field` errors, against five before the change.
+- Notes: all eight packages pass. The stamp writes
+  `evidence_vocabulary_reconciled_at` and no `contract_adoptions`, confirmed by
+  installing a fresh instance with this engine, removing both keys and running
+  `pose update --no-self`.
+
+- **Correction, same day.** That run also reported zero `unknown field` errors
+  under the installed 1.8.1, and I recorded it as evidence that a policy written
+  by this release loads under the previous one. It is not. The fresh instance
+  had no specs, so `pose check` never loaded the policy through the closeout
+  path — the measurement exercised a case where the file is not read. Run
+  against the adopting repository, which has closeouts, 1.8.1 rejects the policy
+  with `unknown field "evidence_vocabulary_reconciled_at"`.
+
+  The reason is that this key is not a legacy key. It was introduced in
+  `pose-attestation-evidence-must-be-in-the-bundle`, which shipped in 2.0.0, so
+  1.8.1 does not know it either. Checked directly against the released source:
+  1.8.1 declares `component_aware_adopted_at` and `review_bundles_adopted_at`
+  and not this one, and removing the key from the adopting repository's policy
+  takes its errors from five to zero.
+
+  So the accurate claim is narrower than the one this spec first made. What the
+  change buys is stated in Results below; what it cannot buy is readability by
+  an engine that predates the contract itself, because the key names a contract
+  that engine has never heard of. No encoding fixes that.
 
 ### Results summary
 - Successes: R1, R2, R3, R4 verified.
 - Failures: none.
+- Not achieved, and initially claimed: a policy that has adopted a contract
+  introduced in 2.0.0 does not load under 1.8.1. The two contracts whose keys
+  predate 2.0.0 stay readable, and every engine from 2.0.2 forward ignores keys
+  it does not know — so this stops the *next* occurrence rather than curing
+  this one. An instance adopting 2.0.x needs its other binaries updated too.
 
 ### Requirement trace
 - R1 [satisfied] <stampContractAdoption writes LegacyContractField(id) when it is non-empty; the stamp test asserts the legacy key carries the date and that the contract is absent from the map>
 - R2 [satisfied] <the map is only assigned when non-empty; asserted by a subtest that fails if an empty contract_adoptions is written, guarded so it means something only while every contract has a legacy key>
 - R3 [satisfied] <the else branch writes the map, and the same subtest returns early for any contract without a legacy key>
-- R4 [satisfied] <the review policy decoder no longer disallows unknown fields; the end-to-end run above is the evidence, since 1.8.1 is the strict reader>
+- R4 [satisfied] <the review policy decoder no longer disallows unknown fields, so a field added after 2.0.2 is ignored rather than fatal by any engine from 2.0.2 on. This is forward-looking by construction and cannot be demonstrated against 1.8.1, which is the strict reader it does not change>
 
 ### Known gaps
+- **An instance that adopts a 2.0.x contract cannot be read by 1.8.1.** The key
+  names a contract that engine does not know, so this is a property of adopting
+  the contract, not of how the date is encoded. The remedy is to update the
+  other binaries reading that repository; nothing in the engine can avoid it.
 - An unrecognised policy key is now silently ignored, so a misspelling reads as
   a default rather than an error.
 - Nothing in the suite runs a previous release's binary; the compatibility claim
@@ -177,4 +204,5 @@ the key, update, and read the result with the previously released binary.
 ### Follow-ups
 
 - [open] Report unrecognised review policy keys as a doctor finding, recovering what dropping DisallowUnknownFields gave up — owner:unowned crit:medium review:2026-11-08
+- [open] Say in the release notes that adopting a contract makes the instance unreadable to engines predating it, since no encoding avoids that — owner:unowned crit:medium review:2026-10-08
 - [open] Run the previous release's binary against a policy this one writes, as a test rather than by hand — owner:unowned crit:medium review:2026-12-08
