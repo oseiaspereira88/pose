@@ -425,11 +425,11 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	var target, reviewer, decision, expectedPlanDigest string
-	var evidence, findings, rawTools []string
+	var evidence, findings, rawTools, rawCriteria []string
 	apply := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
-		case "--reviewer", "--decision", "--evidence", "--finding", "--tool", "--plan-digest":
+		case "--reviewer", "--decision", "--evidence", "--finding", "--tool", "--criterion", "--plan-digest":
 			if i+1 >= len(args) {
 				fmt.Fprintln(stderr, "pose review attest: missing option value")
 				return 2
@@ -444,6 +444,8 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 				evidence = append(evidence, args[i])
 			case "--finding":
 				findings = append(findings, args[i])
+			case "--criterion":
+				rawCriteria = append(rawCriteria, args[i])
 			case "--tool":
 				rawTools = append(rawTools, args[i])
 			case "--plan-digest":
@@ -497,11 +499,10 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	sort.Strings(evidence)
-	criteria := make([]posemodel.ReviewCriterion, 0, len(plan.Criteria))
-	for _, criterion := range plan.Criteria {
-		if criterion.Required {
-			criteria = append(criteria, posemodel.ReviewCriterion{ID: criterion.ID, Disposition: "passed", Evidence: reviewCriterionEvidence(criterion, evidence)})
-		}
+	criteria, err := reviewCriterionDispositions(plan, evidence, rawCriteria)
+	if err != nil {
+		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
+		return 2
 	}
 	att := posemodel.ReviewAttestation{BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest, Reviewer: reviewer, Decision: decision, Criteria: criteria, Tools: tools, EvidenceRefs: evidence, Findings: parsedFindings}
 	if !apply {
@@ -779,6 +780,65 @@ func renderReviewAttempt(id, scope, digest string, plan posemodel.ReviewPlan, pr
 		b.WriteByte('\n')
 	}
 	return b.String(), nil
+}
+
+// reviewCriterionDispositions builds the attestation's criteria, defaulting each
+// required one to `passed` with evidence picked from the refs the reviewer
+// supplied, and letting --criterion override that.
+//
+// The override exists because the engine has always modelled three dispositions
+// and this command could only write one. A criterion that genuinely does not
+// apply — an accessibility criterion on a change with no user-visible surface —
+// had no honest expression here: the reviewer's choices were to claim it passed
+// on evidence that does not support it, or to leave the closeout blocked.
+// `auto-attest` gained the ability to record `not-applicable` with a rationale;
+// a human reviewer should not have fewer options than the automated path.
+func reviewCriterionDispositions(plan posemodel.ReviewPlan, evidence, raw []string) ([]posemodel.ReviewCriterion, error) {
+	planned := map[string]posemodel.ReviewPlanCriterion{}
+	for _, criterion := range plan.Criteria {
+		planned[criterion.ID] = criterion
+	}
+	overrides := map[string]posemodel.ReviewCriterion{}
+	for _, value := range raw {
+		parts := strings.Split(value, "|")
+		if len(parts) < 3 || len(parts) > 4 || posemodel.ValidateSlug(parts[0]) != nil {
+			return nil, fmt.Errorf("criterion must be ID|disposition|evidence|rationale")
+		}
+		criterion, ok := planned[parts[0]]
+		if !ok || !criterion.Required {
+			return nil, fmt.Errorf("criterion disposition does not match a required criterion in the effective plan: %s", parts[0])
+		}
+		if _, seen := overrides[parts[0]]; seen {
+			return nil, fmt.Errorf("duplicate criterion disposition: %s", parts[0])
+		}
+		disposition := posemodel.ReviewCriterion{ID: parts[0], Disposition: parts[1], Evidence: parts[2]}
+		if len(parts) == 4 {
+			disposition.Rationale = parts[3]
+		}
+		switch disposition.Disposition {
+		case "passed", "not-applicable", "finding":
+		default:
+			return nil, fmt.Errorf("criterion %s has invalid disposition %q: expected passed, not-applicable or finding", disposition.ID, disposition.Disposition)
+		}
+		// Sealing rejects this too, but saying it here names the flag the
+		// reviewer has to change rather than the artifact they cannot see.
+		if disposition.Disposition == "not-applicable" && disposition.Rationale == "" {
+			return nil, fmt.Errorf("criterion %s is not-applicable and needs a rationale: ID|not-applicable||<why>", disposition.ID)
+		}
+		overrides[parts[0]] = disposition
+	}
+	criteria := make([]posemodel.ReviewCriterion, 0, len(plan.Criteria))
+	for _, criterion := range plan.Criteria {
+		if !criterion.Required {
+			continue
+		}
+		if override, ok := overrides[criterion.ID]; ok {
+			criteria = append(criteria, override)
+			continue
+		}
+		criteria = append(criteria, posemodel.ReviewCriterion{ID: criterion.ID, Disposition: "passed", Evidence: reviewCriterionEvidence(criterion, evidence)})
+	}
+	return criteria, nil
 }
 
 func reviewToolDispositions(plan posemodel.ReviewPlan, raw []string, componentAware bool) ([]posemodel.ReviewToolDisposition, error) {
