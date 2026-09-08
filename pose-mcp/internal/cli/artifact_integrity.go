@@ -469,7 +469,13 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 	if jsonOutput {
 		_ = writeJSON(stdout, graph)
 	} else {
-		fmt.Fprintf(stdout, "artifact.spec=%s\nartifact.change_set=%s\nartifact.diff_digest=%s\nartifact.claims=%d\nartifact.observed=%d\nartifact.findings=%d\n", spec, set.ID, set.DiffDigest, len(claims), len(set.Paths), len(graph.Findings))
+		// The change set's provenance is what an operator needs first when
+		// `observed` exceeds `claims`: which revisions were attributed, and how
+		// many commits they span. Hiding it behind --json leaves the default
+		// output advising "narrow the attributed change set" without saying what
+		// the change set is (spec pose-diagnose-invisible-governance-failures).
+		fmt.Fprintf(stdout, "artifact.spec=%s\nartifact.change_set=%s\nartifact.change_set.base=%s\nartifact.change_set.head=%s\nartifact.change_set.commits=%d\nartifact.diff_digest=%s\nartifact.claims=%d\nartifact.observed=%d\nartifact.findings=%d\n",
+			spec, set.ID, set.ResolvedBase, set.ResolvedHead, len(set.Commits), set.DiffDigest, len(claims), len(set.Paths), len(graph.Findings))
 		for _, finding := range graph.Findings {
 			fmt.Fprintf(stdout, "[%s] %s %s: %s; remediation: %s\n", strings.ToUpper(finding.Severity), finding.Code, finding.Path, finding.Message, finding.Remediation)
 		}

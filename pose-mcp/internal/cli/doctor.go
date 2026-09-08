@@ -674,6 +674,108 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		}
 	}
 
+	// 12. Invisible governance failures (spec
+	// pose-diagnose-invisible-governance-failures). Both of the below are cases
+	// where POSE silently reduces what it knows and reports a downstream symptom
+	// instead of the upstream loss, so the operator ends up reading the engine's
+	// source to find a cause POSE already had.
+
+	// 12a. A review profile may name an evidence class that `pose validate`
+	// refuses to register on a check. Nothing cross-validates the two
+	// vocabularies, so the divergence only shows up as a bundle resolving
+	// evidence=0, with no indication that the class was unsatisfiable by
+	// construction.
+	if entries, err := os.ReadDir(filepath.Join(root, ".pose", "review-profiles")); err == nil {
+		unreachable := map[string][]string{}
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+				continue
+			}
+			raw, readErr := os.ReadFile(filepath.Join(root, ".pose", "review-profiles", entry.Name()))
+			if readErr != nil {
+				continue
+			}
+			var profile struct {
+				Criteria []struct {
+					EvidenceClasses []string `json:"evidence_classes"`
+				} `json:"criteria"`
+				Tools []struct {
+					EvidenceClasses []string `json:"evidence_classes"`
+				} `json:"tools"`
+			}
+			if json.Unmarshal(raw, &profile) != nil {
+				continue
+			}
+			seen := map[string]bool{}
+			for _, criterion := range profile.Criteria {
+				for _, class := range criterion.EvidenceClasses {
+					if !posemodel.ValidEvidenceClasses[class] && !seen[class] {
+						seen[class] = true
+						unreachable[entry.Name()] = append(unreachable[entry.Name()], class)
+					}
+				}
+			}
+			for _, tool := range profile.Tools {
+				for _, class := range tool.EvidenceClasses {
+					if !posemodel.ValidEvidenceClasses[class] && !seen[class] {
+						seen[class] = true
+						unreachable[entry.Name()] = append(unreachable[entry.Name()], class)
+					}
+				}
+			}
+		}
+		if len(unreachable) > 0 {
+			names := make([]string, 0, len(unreachable))
+			for file, classes := range unreachable {
+				sort.Strings(classes)
+				names = append(names, fmt.Sprintf("%s (%s)", file, strings.Join(classes, ", ")))
+			}
+			sort.Strings(names)
+			add("review.evidence-vocabulary", "warn",
+				fmt.Sprintf(text("%d review profile(s) demand evidence classes no registered check may emit: %s",
+					"%d review profile(s) exigem classes de evidência que nenhum check registrado pode emitir: %s"),
+					len(unreachable), strings.Join(names, "; ")),
+				text("pose validate only accepts the classes in the delivery contract's vocabulary; a criterion demanding another one can never be satisfied by a real check, leaving auto-attest as the only path that completes — reconcile the profile or register a check that emits the class",
+					"o pose validate só aceita as classes do vocabulário do contrato de entrega; um critério que exige outra jamais é satisfeito por check real, e sobra o auto-attest como único caminho que completa — reconcilie o profile ou registre um check que emita a classe"))
+		} else {
+			add("review.evidence-vocabulary", "ok", text("every evidence class the review profiles demand can be emitted by a check", "toda classe de evidência exigida pelos review profiles pode ser emitida por um check"), "")
+		}
+	}
+
+	// 12b. A check with no evidenceClass still runs and still passes, but its
+	// result carries no class, so review evidence collection discards it. The
+	// module looks covered and contributes nothing.
+	if raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json")); err == nil {
+		if matrix, parseErr := parseValidationMatrix(raw); parseErr == nil {
+			unclassed := []string{}
+			for name, override := range matrix.ModuleOverrides {
+				for _, check := range override.Checks {
+					if strings.TrimSpace(check.EvidenceClass) == "" {
+						unclassed = append(unclassed, name+"/"+check.Name)
+					}
+				}
+			}
+			for name, stack := range matrix.Stacks {
+				for _, check := range stack.Checks {
+					if strings.TrimSpace(check.EvidenceClass) == "" {
+						unclassed = append(unclassed, "stack:"+name+"/"+check.Name)
+					}
+				}
+			}
+			sort.Strings(unclassed)
+			if len(unclassed) > 0 {
+				add("validate.evidence-class-coverage", "warn",
+					fmt.Sprintf(text("%d registered check(s) declare no evidenceClass, so their results are discarded when a review collects evidence: %s",
+						"%d check(s) registrado(s) não declaram evidenceClass, então os resultados deles são descartados quando uma review coleta evidência: %s"),
+						len(unclassed), strings.Join(unclassed, ", ")),
+					text("declare the class each check actually produces in .pose/indexes/validation-matrix.json — a passing check with no class leaves the module looking covered while contributing nothing to a review",
+						"declare em .pose/indexes/validation-matrix.json a classe que cada check de fato produz — um check verde sem classe deixa o módulo parecendo coberto sem contribuir nada para uma review"))
+			} else {
+				add("validate.evidence-class-coverage", "ok", text("every registered check declares an evidence class", "todo check registrado declara uma classe de evidência"), "")
+			}
+		}
+	}
+
 	return root, findings
 }
 
