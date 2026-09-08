@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "version": "v1.8.0",
+  "previous_version": "v1.7.12",
+  "prepared_at": "2026-09-08T05:51:41Z",
+  "specs": [
+    "pose-diagnose-invisible-governance-failures",
+    "pose-review-subject-and-scope-precision"
+  ],
+  "categories": {
+    "added": 1,
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-diagnose-invisible-governance-failures",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose doctor` now reports two conditions that used to surface only as a\ndownstream symptom: a review profile demanding an evidence class no registered\ncheck may emit, and a check declaring no evidence class at all, whose results\nare discarded when a review collects evidence. `pose artifact-check` also prints\nthe resolved change set's base, head and commit count in its default output, so\nan inflated change set can be diagnosed without re-running with `--json`.",
+      "path": "pose-diagnose-invisible-governance-failures.md",
+      "digest": "sha256:58142932c4672d5bb35a1055579d8afae8140580b01e288a2d43899f525653b1"
+    },
+    {
+      "spec": "pose-review-subject-and-scope-precision",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A submodule is now recognised wherever it sits. Previously the gitlink was only\nresolved when no other rule claimed the path, so a submodule under a mapped\ncomponent or a known prefix was classified as implementation and the bundle then\nfailed trying to read a directory. Component-scoped `validate` tools also stop\naccepting evidence from components they do not govern: an overlay's evidence\nclasses now apply only to the components its selectors matched, while the\nrepository-wide tool keeps the union.",
+      "path": "pose-review-subject-and-scope-precision.md",
+      "digest": "sha256:2cfd6400d0948c57df8ccf7fb1cd08683985a7bb60948fa14498f75e0802f861"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:c74717b44bba599d8eef627c6351153b617e991be428637c0719fce679403ef2",
+  "release_input_digest": "sha256:69c1c88bd26027162dc40e1fd2067a067a5ebf9c26e31ba5a534a8e3002a89f4",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.8.0"
+  }
+}

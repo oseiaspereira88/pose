@@ -94,7 +94,7 @@ works in the layout that motivated it and one that works generally.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-review-subject-and-scope-precision.md
-- created: .pose/changelogs/unreleased/pose-review-subject-and-scope-precision.md
+- renamed: .pose/changelogs/unreleased/pose-review-subject-and-scope-precision.md -> .pose/changelogs/v1.8.0/pose-review-subject-and-scope-precision.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: pose-mcp/internal/pose/review_plan.go

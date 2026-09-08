@@ -101,7 +101,7 @@ what it knows and reports a downstream symptom instead of the upstream loss.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-diagnose-invisible-governance-failures.md
-- created: .pose/changelogs/unreleased/pose-diagnose-invisible-governance-failures.md
+- renamed: .pose/changelogs/unreleased/pose-diagnose-invisible-governance-failures.md -> .pose/changelogs/v1.8.0/pose-diagnose-invisible-governance-failures.md
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: pose-mcp/internal/cli/doctor_test.go
 - modified: pose-mcp/internal/cli/artifact_integrity.go
