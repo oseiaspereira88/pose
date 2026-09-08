@@ -255,7 +255,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 		}, plan.Blockers)
 		plan.Explain = append(plan.Explain, "cross-component-integration added because multiple mapped component roots are affected")
 	}
-	plan.Tools, plan.Blockers, plan.Warnings = buildReviewTools(scope, context, profiles, plan.Criteria, plan.Blockers, plan.Warnings)
+	plan.Tools, plan.Blockers, plan.Warnings = buildReviewTools(scope, context, profiles, plan.SelectedProfiles, plan.Criteria, plan.Blockers, plan.Warnings)
 	for _, c := range plan.Criteria {
 		for _, rule := range c.Rules {
 			path := filepath.Join(s.Root, ".pose", "rules", rule+".md")
@@ -699,7 +699,7 @@ func addReviewCriterion(criteria []ReviewPlanCriterion, candidate ReviewPlanCrit
 	return criteria, blockers
 }
 
-func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []ReviewProfile, criteria []ReviewPlanCriterion, blockers, warnings []string) ([]ReviewPlanTool, []string, []string) {
+func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []ReviewProfile, selected []ReviewPlanProfile, criteria []ReviewPlanCriterion, blockers, warnings []string) ([]ReviewPlanTool, []string, []string) {
 	tools := []ReviewPlanTool{}
 	// A tool may only demand evidence a registered check is allowed to emit.
 	// pose validate rejects any evidenceClass outside ValidEvidenceClasses, so a
@@ -717,12 +717,31 @@ func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []Revi
 		}
 		return kept, dropped
 	}
+	// Which components each profile was selected for. A base profile carries no
+	// component list and governs all of them; an overlay carries the components
+	// its selector matched.
+	profileComponents := map[string][]string{}
+	for _, selection := range selected {
+		profileComponents[selection.Ref] = selection.Components
+	}
 	// Evidence classes for a synthesised tool come from the profile that governs
 	// it, never from a literal in this function: the profile is where a project
 	// can reconcile them, and a literal here is unreachable by definition.
-	profileEvidence := func(id string) []string {
+	//
+	// Scoped to the component, so an overlay's classes do not leak onto a
+	// component it never matched. Unioning across every selected profile would
+	// let a Go API's validate disposition be satisfied by a web app's e2e
+	// evidence, which is the opposite of component-level provenance. The
+	// repository-wide tool (component "") keeps the full union, since it is the
+	// one that answers for everything.
+	profileEvidence := func(id, component string) []string {
 		classes := []string{}
 		for _, profile := range profiles {
+			if component != "" {
+				if matched, known := profileComponents[profile.Ref()]; known && len(matched) > 0 && !containsFold(matched, component) {
+					continue
+				}
+			}
 			for _, tool := range profile.Tools {
 				if tool.ID == id {
 					classes = append(classes, tool.EvidenceClasses...)
@@ -761,10 +780,10 @@ func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []Revi
 	for _, component := range context.Components {
 		add("suggest-review", "recommended", component.Path, nil, nil)
 		add("assess-discover", "recommended", component.Path, nil, nil)
-		add("validate", "required", component.Path, profileEvidence("validate"), nil)
+		add("validate", "required", component.Path, profileEvidence("validate", component.Path), nil)
 	}
 	if len(context.Components) == 0 && len(context.DeliveryKinds) > 0 {
-		add("validate", "required", "", profileEvidence("validate"), nil)
+		add("validate", "required", "", profileEvidence("validate", ""), nil)
 	}
 	add("assess-tech-debt", "recommended", "", nil, nil)
 	if len(context.Components) > 1 {

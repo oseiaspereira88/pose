@@ -475,6 +475,69 @@ func TestReviewBundleClassifiesSubmodulePath(t *testing.T) {
 	}
 }
 
+func TestReviewBundleClassifiesSubmoduleUnderAMappedComponent(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	for _, args := range [][]string{
+		{"init", "-q"},
+		{"config", "user.email", "fixture@example.test"},
+		{"config", "user.name", "fixture"},
+		{"add", "-A"},
+		{"commit", "-q", "-m", "fixture"},
+	} {
+		if out, err := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v: %s", args, err, out)
+		}
+	}
+	// A real nested repository, so the gitlink is genuine and the working tree
+	// is clean — `update-index --cacheinfo` alone leaves the path added in the
+	// index and absent on disk, which is not what a checked-out submodule looks
+	// like. It sits under the mapped component `api`, so the path-shape rules
+	// classify it before anything asks Git whether it is a gitlink.
+	writeReviewFixture(t, root, "api/dep/README.md", "# dep\n")
+	for _, args := range [][]string{
+		{"init", "-q"},
+		{"config", "user.email", "fixture@example.test"},
+		{"config", "user.name", "fixture"},
+		{"add", "-A"},
+		{"commit", "-q", "-m", "dep"},
+	} {
+		if out, err := exec.Command("git", append([]string{"-C", filepath.Join(root, "api", "dep")}, args...)...).CombinedOutput(); err != nil {
+			t.Fatalf("git dep %v: %v: %s", args, err, out)
+		}
+	}
+	for _, args := range [][]string{{"add", "api/dep"}, {"commit", "-q", "-m", "vendor dep"}} {
+		if out, err := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v: %s", args, err, out)
+		}
+	}
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "modified", Path: "api/dep"})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if joined := strings.Join(bundle.Blockers, " "); strings.Contains(joined, "api/dep") {
+		t.Fatalf("submodule under a mapped component blocked the bundle: %s", joined)
+	}
+	var entry ReviewBundleSubjectEntry
+	for _, candidate := range bundle.Payload.Subject.Entries {
+		if candidate.Path == "api/dep" {
+			entry = candidate
+		}
+	}
+	if entry.Class != "submodule" {
+		t.Fatalf("class = %q, want submodule: a gitlink is a gitlink wherever it sits", entry.Class)
+	}
+	if entry.Digest == "" {
+		t.Fatal("submodule entry carries no digest")
+	}
+}
+
 func TestReviewBundleClassifiesRootReleaseFiles(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	writeReviewFixture(t, root, "README.md", "# root readme\n")
