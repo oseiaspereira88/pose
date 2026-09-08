@@ -14,6 +14,8 @@ import (
 
 func TestDoctorWarnsOnUnproducibleEvidenceClass(t *testing.T) {
 	root := doctorTrailerFixture(t)
+	mustWrite(t, filepath.Join(root, ".pose", "policy", "review.json"),
+		`{"schema_version":2,"enabled":true,"profiles":{"spec":"spec-closeout@1"}}`)
 	// `validation` is the class the shipped spec-closeout profile demanded for
 	// years while pose validate refused to register it on any check, leaving
 	// auto-attest as the only path that completed a review.
@@ -41,6 +43,8 @@ func TestDoctorWarnsOnUnproducibleEvidenceClass(t *testing.T) {
 
 func TestDoctorSilentWhenEveryEvidenceClassIsProducible(t *testing.T) {
 	root := doctorTrailerFixture(t)
+	mustWrite(t, filepath.Join(root, ".pose", "policy", "review.json"),
+		`{"schema_version":2,"enabled":true,"profiles":{"spec":"spec-closeout@1"}}`)
 	mustWrite(t, filepath.Join(root, ".pose", "review-profiles", "spec-closeout.json"),
 		`{"schema_version":2,"id":"spec-closeout","version":1,"scope":"spec",`+
 			`"criteria":[{"id":"correctness","description":"d","evidence_classes":["unit","integration"]}],`+
@@ -52,6 +56,34 @@ func TestDoctorSilentWhenEveryEvidenceClassIsProducible(t *testing.T) {
 	}
 	if f.Level != "ok" {
 		t.Errorf("level=%q, want ok: %s", f.Level, f.Message)
+	}
+}
+
+func TestDoctorIgnoresAProfileThePolicyDoesNotSelect(t *testing.T) {
+	root := doctorTrailerFixture(t)
+	// The shape a project lands in the moment it owns its profiles and leaves
+	// the shipped ones on disk: the unselected file still names unproducible
+	// classes, but it builds no plan, so reporting it is noise to dismiss.
+	mustWrite(t, filepath.Join(root, ".pose", "policy", "review.json"),
+		`{"schema_version":2,"enabled":true,"profiles":{"spec":"acme-spec-closeout@1"}}`)
+	mustWrite(t, filepath.Join(root, ".pose", "review-profiles", "acme-spec-closeout.json"),
+		`{"schema_version":2,"id":"acme-spec-closeout","version":1,"scope":"spec",`+
+			`"criteria":[{"id":"correctness","description":"d","evidence_classes":["unit"]}],`+
+			`"tools":[{"id":"validate","requiredness":"required","evidence_classes":["build"]}]}`)
+	mustWrite(t, filepath.Join(root, ".pose", "review-profiles", "spec-closeout.json"),
+		`{"schema_version":2,"id":"spec-closeout","version":1,"scope":"spec",`+
+			`"criteria":[{"id":"correctness","description":"d","evidence_classes":["validation"]}],`+
+			`"tools":[{"id":"validate","requiredness":"required","evidence_classes":["validation"]}]}`)
+
+	f, ok := findDoctorFinding(runDoctorJSON(t, root), "review.evidence-vocabulary")
+	if !ok {
+		t.Fatal("expected a review.evidence-vocabulary finding")
+	}
+	if f.Level != "ok" {
+		t.Errorf("level=%q, want ok — the unselected profile builds no plan: %s", f.Level, f.Message)
+	}
+	if strings.Contains(f.Message, "spec-closeout.json") {
+		t.Errorf("reported a profile the policy does not select: %q", f.Message)
 	}
 }
 

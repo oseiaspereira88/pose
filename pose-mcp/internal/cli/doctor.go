@@ -685,16 +685,31 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	// vocabularies, so the divergence only shows up as a bundle resolving
 	// evidence=0, with no indication that the class was unsatisfiable by
 	// construction.
-	if entries, err := os.ReadDir(filepath.Join(root, ".pose", "review-profiles")); err == nil {
+	//
+	// Only the profiles policy actually selects. A profile sitting on disk that
+	// no scope resolves to and no overlay list names builds no plan, so
+	// reporting it is noise an operator has to investigate to dismiss — the case
+	// that appears the moment a project owns its profiles and leaves the shipped
+	// ones in place.
+	if policy, policyErr := (posemodel.Store{Root: root}).GetReviewPolicy(); policyErr == nil {
+		selected := map[string]bool{}
+		for _, ref := range policy.Profiles {
+			selected[strings.SplitN(ref, "@", 2)[0]] = true
+		}
+		for _, ref := range policy.OverlayProfiles {
+			selected[strings.SplitN(ref, "@", 2)[0]] = true
+		}
 		unreachable := map[string][]string{}
-		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+		for id := range selected {
+			if id == "" {
 				continue
 			}
-			raw, readErr := os.ReadFile(filepath.Join(root, ".pose", "review-profiles", entry.Name()))
+			entryName := id + ".json"
+			raw, readErr := os.ReadFile(filepath.Join(root, ".pose", "review-profiles", entryName))
 			if readErr != nil {
 				continue
 			}
+			entry := struct{ name string }{entryName}
 			var profile struct {
 				Criteria []struct {
 					EvidenceClasses []string `json:"evidence_classes"`
@@ -711,7 +726,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				for _, class := range criterion.EvidenceClasses {
 					if !posemodel.ValidEvidenceClasses[class] && !seen[class] {
 						seen[class] = true
-						unreachable[entry.Name()] = append(unreachable[entry.Name()], class)
+						unreachable[entry.name] = append(unreachable[entry.name], class)
 					}
 				}
 			}
@@ -719,7 +734,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				for _, class := range tool.EvidenceClasses {
 					if !posemodel.ValidEvidenceClasses[class] && !seen[class] {
 						seen[class] = true
-						unreachable[entry.Name()] = append(unreachable[entry.Name()], class)
+						unreachable[entry.name] = append(unreachable[entry.name], class)
 					}
 				}
 			}
@@ -732,13 +747,13 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 			}
 			sort.Strings(names)
 			add("review.evidence-vocabulary", "warn",
-				fmt.Sprintf(text("%d review profile(s) demand evidence classes no registered check may emit: %s",
-					"%d review profile(s) exigem classes de evidência que nenhum check registrado pode emitir: %s"),
+				fmt.Sprintf(text("%d selected review profile(s) demand evidence classes no registered check may emit: %s",
+					"%d review profile(s) selecionado(s) exigem classes de evidência que nenhum check registrado pode emitir: %s"),
 					len(unreachable), strings.Join(names, "; ")),
 				text("pose validate only accepts the classes in the delivery contract's vocabulary; a criterion demanding another one can never be satisfied by a real check, leaving auto-attest as the only path that completes — reconcile the profile or register a check that emits the class",
 					"o pose validate só aceita as classes do vocabulário do contrato de entrega; um critério que exige outra jamais é satisfeito por check real, e sobra o auto-attest como único caminho que completa — reconcilie o profile ou registre um check que emita a classe"))
 		} else {
-			add("review.evidence-vocabulary", "ok", text("every evidence class the review profiles demand can be emitted by a check", "toda classe de evidência exigida pelos review profiles pode ser emitida por um check"), "")
+			add("review.evidence-vocabulary", "ok", text("every evidence class the selected review profiles demand can be emitted by a check", "toda classe de evidência exigida pelos review profiles selecionados pode ser emitida por um check"), "")
 		}
 	}
 
