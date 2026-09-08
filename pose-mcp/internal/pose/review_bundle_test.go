@@ -538,6 +538,58 @@ func TestReviewBundleClassifiesSubmoduleUnderAMappedComponent(t *testing.T) {
 	}
 }
 
+func TestReviewBundleDoesNotBlockOnAnUnclassifiedRemoval(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A root-level dotfile the shape rules do not recognise. As a creation it
+	// blocks, and should; as a removal there is nothing left to read and the
+	// deletion is the reviewable fact.
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "removed", Path: ".agent-sync-cache.json"})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if joined := strings.Join(bundle.Blockers, " "); strings.Contains(joined, ".agent-sync-cache.json") {
+		t.Fatalf("an unclassified removal blocked the bundle: %s", joined)
+	}
+	var entry ReviewBundleSubjectEntry
+	for _, candidate := range bundle.Payload.Subject.Entries {
+		if candidate.Path == ".agent-sync-cache.json" {
+			entry = candidate
+		}
+	}
+	if entry.Class != "removed" {
+		t.Fatalf("class = %q, want removed", entry.Class)
+	}
+	if entry.Digest != "" {
+		t.Fatalf("a removal carries a digest: %q", entry.Digest)
+	}
+}
+
+func TestReviewBundleStillBlocksOnAnUnclassifiedCreation(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	writeReviewFixture(t, root, ".agent-sync-cache.json", "{}")
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "created", Path: ".agent-sync-cache.json"})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(strings.Join(bundle.Blockers, " "), "unclassified review subject path .agent-sync-cache.json") {
+		t.Fatalf("an unclassified creation stopped failing closed: %+v", bundle.Blockers)
+	}
+}
+
 func TestReviewBundleClassifiesRootReleaseFiles(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	writeReviewFixture(t, root, "README.md", "# root readme\n")
@@ -1173,5 +1225,72 @@ Delivered.
 	}
 }
 
+func TestReviewCriterionReuseIsInvalidatedByAnUnclassifiedRemoval(t *testing.T) {
+	// A criterion that is not subject-sensitive sees only the documentation and
+	// governance slice of the subject, so an unrelated implementation edit
+	// legitimately leaves its digest alone and its prior verdict reusable. A
+	// `removed` entry cannot be dismissed that way: the path carries no governed
+	// classification and no content survives to prove it belonged to neither
+	// category. It must reach every criterion, or the deletion is reviewed by
+	// reusing a verdict issued before it existed.
+	root, store := reviewBundleFixture(t)
+	policyPath := filepath.Join(root, ".pose/policy/review.json")
+	policyRaw, _ := os.ReadFile(policyPath)
+	policy := strings.Replace(string(policyRaw), `"component_aware": true,`, `"component_aware": true,
+  "allow_criterion_reuse": true,`, 1)
+	if err := os.WriteFile(policyPath, []byte(policy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	profilePath := filepath.Join(root, ".pose/review-profiles/spec-closeout.json")
+	profileRaw, _ := os.ReadFile(profilePath)
+	profile := strings.Replace(string(profileRaw), `"criteria":[`, `"criteria":[{"id":"documentation","description":"Docs stay aligned.","rules":["documentation-style"]},`, 1)
+	if err := os.WriteFile(profilePath, []byte(profile), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, ".pose/rules/documentation-style.md", "# Documentation Style\n")
+	now := time.Date(2026, 9, 8, 12, 0, 0, 0, time.UTC)
+	first, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	prior, err := store.RecordReviewAttestation(approvedBundleAttestation(first, "agent:first-review"), now.Add(time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "removed", Path: ".agent-sync-cache.json"})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	second, err := store.SealReviewBundle("spec:backend", now.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	criterion := second.Payload.Plan.Criteria[0]
+	priorCriterion := first.Payload.Plan.Criteria[0]
+	found := false
+	for i, candidate := range second.Payload.Plan.Criteria {
+		if !reviewCriterionSubjectSensitive(candidate) {
+			criterion, priorCriterion, found = candidate, first.Payload.Plan.Criteria[i], true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("fixture has no reusable criterion: %+v", second.Payload.Plan.Criteria)
+	}
+	if reviewCriterionInputDigest(first, priorCriterion) == reviewCriterionInputDigest(second, criterion) {
+		t.Fatalf("criterion %s digest survived an unclassified removal", criterion.ID)
+	}
+
+	attestation := approvedBundleAttestation(second, "agent:targeted-review")
+	attestation.BundleDigest = second.BundleDigest
+	attestation.AttestedAt = now.Add(3 * time.Minute).Format(time.RFC3339)
+	attestation.ReusedFrom = []ReviewAttestationReuse{{Criterion: criterion.ID, FromAttestation: prior.AttestationID, InputDigest: reviewCriterionInputDigest(first, priorCriterion)}}
+	if blockers := store.validateBundleAttestation(second, attestation); !strings.Contains(strings.Join(blockers, " "), "input digest changed") {
+		t.Fatalf("a verdict issued before the deletion was reused over it: %v", blockers)
+	}
+}
