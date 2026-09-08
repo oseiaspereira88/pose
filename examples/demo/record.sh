@@ -92,6 +92,7 @@ SPEC="$(find .pose/specs -name '*customer-export*' -type f | head -1)"
 # reports success.
 python3 - "$SPEC" <<'PY'
 import sys, io, re
+from datetime import date
 p = sys.argv[1]
 s = io.open(p, encoding='utf-8').read()
 s = s.replace("### Goal\n<!-- What this feature delivers, in one sentence. -->",
@@ -100,7 +101,10 @@ s = s.replace("### Business value\n<!-- Why it is worth doing now. -->",
               "### Business value\nAuditors currently request exports by hand.")
 s = re.sub(r'- R1: \n', '- R1: The exporter shall write customer records as CSV.\n', s, count=1)
 s = re.sub(r'^status: draft', 'status: done', s, count=1, flags=re.M)
-s = re.sub(r'^completed_at:\s*.*$', 'completed_at: 2026-09-07', s, count=1, flags=re.M)
+# Today, not a literal: the scaffold stamps created_at with the current date, so
+# a fixed completion date fails the lifecycle gate with
+# "completed_at is earlier than created_at" on every run after that date.
+s = re.sub(r'^completed_at:\s*.*$', 'completed_at: ' + date.today().isoformat(), s, count=1, flags=re.M)
 io.open(p, 'w', encoding='utf-8').write(s)
 PY
 
