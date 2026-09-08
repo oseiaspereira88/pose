@@ -408,6 +408,14 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 				class, include = "submodule", true
 			}
 			switch {
+			case class == "" && observed.Action == "removed":
+				// A removal has no content to classify and none to read. The
+				// reviewable fact is the deletion itself, and it is in the
+				// subject either way — so refusing the whole bundle because the
+				// shape rules do not recognise a path that no longer exists
+				// costs the reviewer the entire review to tell them nothing.
+				entry.Class, include = "removed", true
+				entry.Reason = "attributed removal of a path with no governed classification"
 			case class == "":
 				blockers = append(blockers, "unclassified review subject path "+path)
 				entry.Class = "unclassified"
@@ -1916,7 +1924,13 @@ func reviewCriterionInputDigest(bundle ReviewBundle, criterion ReviewPlanCriteri
 	} else {
 		contract.Scope = append([]ReviewBundleInput{}, bundle.Payload.Scope.Sections...)
 		for _, entry := range bundle.Payload.Subject.Entries {
-			if entry.Class == "documentation" || entry.Class == "governance" {
+			// `removed` is the one class whose category is unknown: the path
+			// carries no governed classification and there is no content left to
+			// read, so it cannot be shown to be irrelevant to this criterion the
+			// way an unrelated implementation file can. Omitting it would leave
+			// the digest unchanged when a superseding bundle adds the deletion,
+			// and a passed criterion would be reused over a subject it never saw.
+			if entry.Class == "documentation" || entry.Class == "governance" || entry.Class == "removed" {
 				contract.Subject = append(contract.Subject, entry)
 			}
 		}

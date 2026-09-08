@@ -2,6 +2,7 @@
 
 ## Status
 Accepted (2026-08-13) — implemented by spec `pose-review-bundle-convergence`
+Amended (2026-09-08) by spec `pose-review-subject-unclassified-removals` — see Amendments
 
 ## Context
 
@@ -56,7 +57,8 @@ rendered operational reports or derived state that the closeout itself creates.
 
 Classify attributed inputs through a closed, explainable registry. Parse the
 spec and roadmap into typed semantic projections instead of hashing their
-entire Markdown bytes. Unknown attributed paths fail sealing. Consumed policy,
+entire Markdown bytes. Unknown attributed paths fail sealing, except removals
+(amended 2026-09-08). Consumed policy,
 profile, rule and index slices remain governed even when their containing files
 are generally generated or shared.
 
@@ -116,8 +118,9 @@ offline closeout.
 - Trade-off: canonical payloads, classification, schemas and digest algorithms
   become public compatibility contracts that require golden fixtures and
   schema-versioned evolution.
-- Trade-off: sealing fails on unclassified attributed paths, creating explicit
-  maintenance when new artifact classes are introduced.
+- Trade-off: sealing fails on unclassified attributed paths that still exist,
+  creating explicit maintenance when new artifact classes are introduced. An
+  unclassified removal is admitted as `removed` instead (amended 2026-09-08).
 - Trade-off: immutable bundles add repository artifacts, although deterministic
   IDs and idempotent writes prevent duplicate logical state.
 - Trade-off: signed external envelopes add trust-policy complexity; they remain
@@ -132,3 +135,42 @@ freshness, if patch/tree identities are insufficient for a supported provider,
 if targeted reuse cannot be bounded safely, if signed envelope verification
 requires a new trust root, or if a future online-only product mode proposes
 moving closeout authority out of POSE.
+
+## Amendments
+
+### 2026-09-08 — an unclassified removal is admitted as `removed`
+
+Spec `pose-review-subject-unclassified-removals`.
+
+The accepted decision made every unclassified attributed path fail sealing. It
+was written when classification always had content behind it: a path the shape
+rules do not recognise is a class POSE has not been taught, and refusing to seal
+is how that stays visible instead of being reviewed as nothing.
+
+A removal is the case that premise does not cover. The path is gone, so there is
+no content to classify and none to read; the reviewable fact is the deletion,
+and the deletion is already in the subject. Refusing the whole bundle over it
+spends the entire review to tell the reviewer nothing they cannot see — the
+third time in a week an unrecognised path blocked everything, after gitlinks in
+1.7.11 and their precedence in 1.8.0. The previous two were fixed by teaching
+the classifier the case; this is the first where the classification genuinely
+does not exist.
+
+The revision is bounded on purpose:
+
+- Only `action: removed` is admitted. Creations and modifications of an
+  unclassified path still fail sealing, and both directions are asserted so the
+  change cannot be read as a general relaxation.
+- The entry is **included** in the subject as class `removed`, never excluded.
+  Excluding it would make the gate pass by hiding a real change, which is the
+  failure this subsystem exists to prevent.
+- `removed` joins `documentation` and `governance` in the subject slice every
+  criterion digests, including criteria that are not subject-sensitive. Its
+  category is unknown and no content survives to show it belonged to neither, so
+  a deletion must invalidate reuse rather than let a verdict issued before it
+  stand over it.
+
+This narrows the compatibility contract on the subject-class registry: `removed`
+is a new public class, and consumers pinned to the previous closed set will see
+it. Nothing else in the decision changes — the payload shape, digest algorithm,
+attestation separation and lifecycle gates are untouched.
