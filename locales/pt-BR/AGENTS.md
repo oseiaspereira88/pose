@@ -34,6 +34,23 @@ profundo no diretório afetado); (3) `AGENTS.md` mais abrangente (raiz). Leia ap
   Sem esse trailer, o `pose artifact-check` e o `pose close` não conseguem atribuir
   os change sets do Git à seção `### Artifacts` da spec.
 
+  O POSE encontra essa linha varrendo a mensagem do commit pelo prefixo
+  `POSE-Spec:` (`allCommitsWithSpecTrailers`). Ele **não** usa o parser de
+  trailers do Git, e nada na distribuição chama `%(trailers` ou
+  `interpret-trailers`. Uma linha `POSE-Spec:` separada do resto do bloco por
+  uma linha em branco é, portanto, invisível para `git log
+  --format=%(trailers:...)` e para revisores que medem com ele — um deles
+  reportou "sem trailer `POSE-Spec:`" em três commits seguidos que o continham —
+  enquanto o POSE atribui corretamente. Mantenha o bloco contíguo por causa de
+  ferramenta git-native e legibilidade; não conclua que a atribuição quebrou a
+  partir de uma leitura feita com o parser do Git. Confirme com
+  `pose artifact-check --spec <slug>` e compare `claims` com `observed`.
+
+  Quando a atribuição está de fato errada, a causa costuma ser o slug, não o
+  formato: um change set resolve como um **intervalo** de commits, então todos
+  carregando o mesmo slug fazem ele abranger o branch inteiro — comportamento
+  correto para aquela entrada.
+
 ## Paths ativos no fluxo
 
 - Manual operacional POSE: [`POSE.md`](POSE.md)

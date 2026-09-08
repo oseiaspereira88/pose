@@ -34,6 +34,23 @@ On conflict: (1) direct instruction of the current task; (2) the most specific
   Without this trailer, `pose artifact-check` and `pose close` cannot attribute
   Git change sets to the spec's `### Artifacts` section.
 
+  POSE finds this line by scanning the commit message for the `POSE-Spec:`
+  prefix (`allCommitsWithSpecTrailers`). It does not use Git's trailer parser,
+  and nothing in the distribution calls `%(trailers` or `interpret-trailers`.
+  So a `POSE-Spec:` line separated from the rest of the trailer block by a blank
+  line is invisible to `git log --format=%(trailers:...)` and to reviewers that
+  measure with it — one has reported "no `POSE-Spec:` trailer" on three
+  consecutive commits that carried it — while POSE attributes it correctly.
+  Keep the block contiguous for git-native tooling and readability; do not
+  conclude that attribution is broken from a reading taken with Git's parser.
+  Confirm with `pose artifact-check --spec <slug>` and compare `claims` against
+  `observed`.
+
+  When attribution really is wrong, the usual cause is the slug rather than the
+  format: a change set resolves as a commit **range**, so every commit carrying
+  the same slug makes it span the whole branch, which is correct behaviour for
+  that input.
+
 ## Active paths in the flow
 
 - POSE operating manual: [`POSE.md`](POSE.md)
