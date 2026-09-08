@@ -794,7 +794,8 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 		}
 	}
 	if len(effectiveTools) > 0 {
-		toolWarnings, toolBlockers := evaluateReviewToolCoverage(s.Root, effectiveTools, current.Tools)
+		toolWarnings, toolBlockers := // The legacy attempt path has no sealed bundle to check against.
+			evaluateReviewToolCoverage(s.Root, effectiveTools, current.Tools, nil, true)
 		eval.Warnings = append(eval.Warnings, toolWarnings...)
 		eval.Blockers = append(eval.Blockers, toolBlockers...)
 	}
@@ -911,7 +912,15 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	return eval, nil
 }
 
-func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, dispositions []ReviewToolDisposition) ([]string, []string) {
+// evaluateReviewToolCoverage reports why a set of tool dispositions does not
+// cover the plan.
+//
+// scopeHasDeliveryTarget says whether the scope collects validation evidence at
+// all. A tool gated on `delivery-target-declared` cannot run in a scope that has
+// none, and requiring it to have passed there is requiring a fabricated
+// disposition — which is what auto-attest used to produce. Such a tool is
+// treated the way `review-complete` already is: deferrable, with a reason.
+func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, dispositions []ReviewToolDisposition, sealed map[string]bool, scopeHasDeliveryTarget bool) ([]string, []string) {
 	warnings, blockers := []string{}, []string{}
 	planned := map[string]ReviewPlanTool{}
 	for _, tool := range planTools {
@@ -936,10 +945,11 @@ func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, disposi
 				blockers = append(blockers, err.Error())
 			}
 		}
-		completion := containsFold(tool.Preconditions, "review-complete")
+		completion := containsFold(tool.Preconditions, "review-complete") ||
+			(!scopeHasDeliveryTarget && containsFold(tool.Preconditions, "delivery-target-declared"))
 		switch disposition.Disposition {
 		case "passed", "failed":
-			message := reviewToolEvidenceBlocker(tool, disposition)
+			message := reviewToolEvidenceBlocker(tool, disposition, sealed)
 			if message != "" {
 				if tool.Requiredness == "required" {
 					blockers = append(blockers, message)
@@ -991,7 +1001,17 @@ func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, disposi
 	return uniqueSorted(warnings), uniqueSorted(blockers)
 }
 
-func reviewToolEvidenceBlocker(tool ReviewPlanTool, disposition ReviewToolDisposition) string {
+// reviewToolEvidenceBlocker reports why a tool disposition is not supported.
+//
+// `sealed` is the bundle's evidence, keyed `class:id`, or nil where there is no
+// bundle to check against — the legacy attempt path, which has none.
+//
+// The class was already checked; presence was not, so a disposition could name
+// a class the tool asks for and an id that appears nowhere. Only a tool that
+// declares evidence classes is held to the sealed set: tools that declare none
+// cite other kinds of reference — a check id, a report path — which the bundle
+// does not carry and is not meant to.
+func reviewToolEvidenceBlocker(tool ReviewPlanTool, disposition ReviewToolDisposition, sealed map[string]bool) string {
 	label := reviewToolLabel(tool.ID, tool.Component)
 	if disposition.Evidence == "" {
 		return "review tool " + label + " has no evidence"
@@ -1000,10 +1020,13 @@ func reviewToolEvidenceBlocker(tool ReviewPlanTool, disposition ReviewToolDispos
 		return ""
 	}
 	class := strings.SplitN(disposition.Evidence, ":", 2)[0]
-	if containsFold(tool.EvidenceClasses, class) {
-		return ""
+	if !containsFold(tool.EvidenceClasses, class) {
+		return "review tool " + label + " lacks a required evidence class"
 	}
-	return "review tool " + label + " lacks a required evidence class"
+	if sealed != nil && !sealed[disposition.Evidence] {
+		return "review tool " + label + " cites evidence absent from the sealed bundle: " + disposition.Evidence
+	}
+	return ""
 }
 
 func reviewToolKey(id, component string) string {

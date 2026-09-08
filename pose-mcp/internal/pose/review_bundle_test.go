@@ -129,12 +129,16 @@ func approvedBundleAttestation(bundle ReviewBundle, reviewer string) ReviewAttes
 			disposition.Disposition, disposition.Rationale = "deferred", "post-review gate"
 		} else if tool.Requiredness == "recommended" {
 			disposition.Disposition, disposition.Rationale = "not-used", "not needed for fixture"
+		} else if ev := pick(tool.EvidenceClasses); ev != "" {
+			disposition.Disposition, disposition.Evidence = "passed", ev
+		} else if len(tool.EvidenceClasses) == 0 {
+			// A tool that declares no class is supported by having run, which
+			// naming it records. This used to cite `integration:bundle-test`,
+			// which appeared in no bundle — the same fabrication the criteria
+			// half of this helper carried.
+			disposition.Disposition, disposition.Evidence = "passed", "check:"+tool.ID
 		} else {
-			evidenceClass := "integration"
-			if len(tool.EvidenceClasses) > 0 {
-				evidenceClass = tool.EvidenceClasses[0]
-			}
-			disposition.Disposition, disposition.Evidence = "passed", evidenceClass+":bundle-test"
+			disposition.Disposition, disposition.Rationale = "not-used", "the fixture seals no evidence of a class this tool reports"
 		}
 		tools = append(tools, disposition)
 	}
@@ -1507,5 +1511,92 @@ func TestEvidenceSupportIsWaivedOnlyForApprovalsPredatingTheRule(t *testing.T) {
 	broken.Criteria[0].Disposition = "definitely-fine"
 	if blockers := store.validateBundleAttestationWith(bundle, broken, true); len(blockers) == 0 {
 		t.Fatal("the waiver suppressed unrelated validation")
+	}
+}
+
+func TestToolDispositionMustCiteEvidenceTheBundleSeals(t *testing.T) {
+	// The criteria half of this was fixed one spec ago; the tool half kept the
+	// same hole. A disposition could name a class the tool asks for and an id
+	// that appears nowhere, and the attestation verified.
+	root, store := reviewBundleFixture(t)
+	// The shipped profile's `validate` declares evidence classes; the fixture's
+	// does not, and the presence check only applies to a tool that demands one.
+	// Seeding it here is what makes this test exercise the rule rather than the
+	// absence of a demand.
+	profilePath := filepath.Join(root, ".pose/review-profiles/spec-closeout.json")
+	profileRaw, _ := os.ReadFile(profilePath)
+	profile := strings.Replace(string(profileRaw), `"tools":[`, `"tools":[{"id":"validate","requiredness":"required","evidence_classes":["integration"],"criteria":["correctness"]},`, 1)
+	if err := os.WriteFile(profilePath, []byte(profile), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	now := time.Date(2026, 9, 8, 12, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var classed ReviewPlanTool
+	for _, tool := range bundle.Payload.Plan.Tools {
+		if len(tool.EvidenceClasses) > 0 {
+			classed = tool
+			break
+		}
+	}
+	if classed.ID == "" {
+		t.Fatal("the fixture plan has no tool demanding a class")
+	}
+
+	att := approvedBundleAttestation(bundle, "agent:did-the-work")
+	att.BundleDigest = bundle.BundleDigest
+	att.AttestedAt = now.Add(time.Minute).Format(time.RFC3339)
+	if blockers := store.validateBundleAttestation(bundle, att); len(blockers) != 0 {
+		t.Fatalf("a supported attestation was rejected: %v", blockers)
+	}
+
+	for i := range att.Tools {
+		if att.Tools[i].ID == classed.ID && att.Tools[i].Component == classed.Component {
+			// Right class, and an id the bundle does not carry.
+			att.Tools[i].Disposition = "passed"
+			att.Tools[i].Evidence = classed.EvidenceClasses[0] + ":never-ran"
+		}
+	}
+	blockers := strings.Join(store.validateBundleAttestation(bundle, att), " ")
+	if !strings.Contains(blockers, "absent from the sealed bundle") {
+		t.Fatalf("blockers = %q, want one naming the absent tool evidence", blockers)
+	}
+}
+
+func TestAutoAttestDoesNotInventToolEvidence(t *testing.T) {
+	// `validation:auto-attest`, `<class>:auto-attest`, `docs:auto-attest`: the
+	// same invention the criteria path stopped doing, on the other half of the
+	// attestation.
+	//
+	// The demand is `reachability`, which no criterion in this fixture asks for
+	// and the bundle does not seal — so the refusal can only come from the tool
+	// half. Asserting it on a class a criterion also demands would pass whether
+	// or not the tool path was fixed.
+	root, store := reviewBundleFixture(t)
+	profilePath := filepath.Join(root, ".pose/review-profiles/spec-closeout.json")
+	profileRaw, _ := os.ReadFile(profilePath)
+	profile := strings.Replace(string(profileRaw), `"tools":[`, `"tools":[{"id":"validate","requiredness":"required","evidence_classes":["reachability"],"criteria":["correctness"]},`, 1)
+	if err := os.WriteFile(profilePath, []byte(profile), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	now := time.Date(2026, 9, 8, 12, 0, 0, 0, time.UTC)
+	sealed, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, ev := range sealed.Payload.Evidence {
+		if ev.EvidenceClass == "reachability" {
+			t.Fatal("the fixture seals reachability, so this test cannot show a refusal")
+		}
+	}
+	_, err = store.AutoAttestReviewBundle(sealed.BundleID, "", false, now.Add(time.Minute))
+	if err == nil {
+		t.Fatal("auto-attest invented tool evidence for a class the bundle does not seal")
+	}
+	if !strings.Contains(err.Error(), "review tool") || !strings.Contains(err.Error(), "reachability") {
+		t.Fatalf("error = %q, want it to name the tool and the missing class", err)
 	}
 }

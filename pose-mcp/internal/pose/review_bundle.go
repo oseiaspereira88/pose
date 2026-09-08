@@ -1309,19 +1309,37 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 					toolEv = refs[0]
 					break
 				}
-				if class == "validation" {
-					toolEv = "validation:auto-attest"
-					break
-				}
+			}
+			if toolEv == "" && len(tool.EvidenceClasses) == 0 {
+				// A tool that declares no evidence class does not report a
+				// validation result at all — `artifact-check` and `review-check`
+				// are POSE commands, and what supports their disposition is that
+				// the command ran. Naming the tool is a real reference to that;
+				// reaching for an unrelated sealed result, as this used to, said
+				// nothing about whether the tool ran.
+				toolEv = "check:" + tool.ID
 			}
 			if toolEv == "" {
-				if len(tool.EvidenceClasses) > 0 {
-					toolEv = tool.EvidenceClasses[0] + ":auto-attest"
-				} else if len(evidenceRefs) > 0 {
-					toolEv = evidenceRefs[0]
-				} else {
-					toolEv = "docs:auto-attest"
+				// The same invention the criteria path stopped doing one spec
+				// ago, on the other half of the attestation: `validation:auto-
+				// attest`, `<class>:auto-attest`, `docs:auto-attest` — none of
+				// them pointing at anything, and nothing downstream checking.
+				// The distinction between a judged review and a stamped one
+				// does not survive one half of it being fabricated.
+				if requiresEvidence {
+					if len(tool.EvidenceClasses) > 0 {
+						return ReviewAttestation{}, fmt.Errorf("pose: review tool %s requires evidence class %s and bundle %s seals none; run the tool, or record its disposition with `pose review attest --tool`", tool.ID, strings.Join(tool.EvidenceClasses, "|"), bundleID)
+					}
+					return ReviewAttestation{}, fmt.Errorf("pose: review tool %s has no evidence in bundle %s; run the tool, or record its disposition with `pose review attest --tool`", tool.ID, bundleID)
 				}
+				// `deferred`, not `not-used`: a required tool recorded not-used
+				// is a blocker whatever the reason, while a deferral is the
+				// disposition the engine already accepts for a tool whose
+				// precondition this scope cannot meet.
+				disposition.Disposition = "deferred"
+				disposition.Rationale = "the scope carries no delivery target, so no evidence this tool reports is collected for it"
+				tools = append(tools, disposition)
+				continue
 			}
 			disposition.Disposition = "passed"
 			disposition.Evidence = toolEv
@@ -1804,7 +1822,17 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 			blockers = append(blockers, "reused criterion "+reuse.Criterion+" is not unchanged and passed in the referenced attestation")
 		}
 	}
-	toolWarnings, toolBlockers := evaluateReviewToolCoverage(s.Root, bundle.Payload.Plan.Tools, att.Tools)
+	sealedEvidence := map[string]bool{}
+	for _, ev := range bundle.Payload.Evidence {
+		sealedEvidence[ev.EvidenceClass+":"+ev.ID] = true
+	}
+	if skipEvidenceSupport {
+		sealedEvidence = nil
+	}
+	toolScope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
+	toolGraph, _ := s.GetDeliveryIntegrity("")
+	hasDeliveryTarget := s.reviewScopeRequiresValidationEvidence(toolScope, bundle.Payload.Plan, toolGraph)
+	toolWarnings, toolBlockers := evaluateReviewToolCoverage(s.Root, bundle.Payload.Plan.Tools, att.Tools, sealedEvidence, hasDeliveryTarget)
 	_ = toolWarnings
 	blockers = append(blockers, toolBlockers...)
 	for _, finding := range att.Findings {
