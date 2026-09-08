@@ -362,6 +362,22 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 			}
 		}
 	}
+	// Resolve every gitlink up front, in one call. A submodule is a gitlink in
+	// the index and a directory in the working tree, so it has no blob to read —
+	// and it is not recognisable by path shape, which means asking after the
+	// shape rules have already classified it is too late: a submodule under a
+	// mapped component or a known prefix is classified as implementation, skips
+	// the lookup, and then fails when the digest step tries to read a directory.
+	candidatePaths := []string{}
+	for _, set := range sets {
+		for _, observed := range set.Paths {
+			candidatePaths = append(candidatePaths, observed.Path)
+			if observed.NewPath != "" {
+				candidatePaths = append(candidatePaths, observed.NewPath)
+			}
+		}
+	}
+	gitlinks := reviewBundleGitlinks(s.Root, uniqueSorted(candidatePaths))
 	for _, set := range sets {
 		subject.ChangeSets = append(subject.ChangeSets, set.ID)
 		if subject.Base == "" {
@@ -384,15 +400,12 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 				path = observed.NewPath
 			}
 			class, include := reviewBundlePathClass(path, scope, components)
-			// A submodule cannot be recognised by path shape, only by asking Git:
-			// it is recorded as a gitlink rather than a blob, so it reaches this
-			// point unclassified however the repository names it. Resolving it
-			// here keeps reviewBundlePathClass a pure function of the path.
-			gitlinkSHA := ""
-			if class == "" {
-				if sha, ok := reviewBundleGitlinkSHA(s.Root, path); ok {
-					class, include, gitlinkSHA = "submodule", true, sha
-				}
+			// Git's answer wins over the path's shape. reviewBundlePathClass stays
+			// a pure function of the path; being a gitlink is a fact about the
+			// index that no path shape can express.
+			gitlinkSHA := gitlinks[path]
+			if gitlinkSHA != "" {
+				class, include = "submodule", true
 			}
 			switch {
 			case class == "":
@@ -519,29 +532,36 @@ func (s Store) reviewBundleScopeSpecs(scope ScopeRef) (map[string]bool, error) {
 	return result, nil
 }
 
-// reviewBundleGitlinkSHA reports the commit a submodule path is pinned to, and
-// whether the path is a gitlink at all. Git records a submodule in the index
-// with mode 160000 and the commit id in place of a blob id, so this is the only
-// content a submodule has to review: the pointer that was moved.
-func reviewBundleGitlinkSHA(root, path string) (string, bool) {
-	out, err := exec.Command("git", "-C", root, "ls-files", "--stage", "--", path).Output()
+// reviewBundleGitlinks maps each of the given paths that is a gitlink to the
+// commit it is pinned to. Git records a submodule in the index with mode 160000
+// and the commit id in place of a blob id, so that pointer is the only content a
+// submodule has to review. Resolved in one call over the candidate set rather
+// than one call per path, and bounded by the subject's own size.
+func reviewBundleGitlinks(root string, paths []string) map[string]string {
+	links := map[string]string{}
+	if len(paths) == 0 {
+		return links
+	}
+	args := append([]string{"-C", root, "ls-files", "--stage", "--"}, paths...)
+	out, err := exec.Command("git", args...).Output()
 	if err != nil {
 		// Unit fixtures and exported source trees may not have Git metadata. A
-		// path that cannot be resolved stays unclassified and fails closed.
-		return "", false
+		// path that cannot be resolved keeps its shape-based class and fails
+		// closed downstream if it has no readable content.
+		return links
 	}
 	for _, line := range strings.Split(string(out), "\n") {
 		tab := strings.IndexByte(line, '\t')
-		if tab < 0 || filepath.ToSlash(line[tab+1:]) != path {
+		if tab < 0 {
 			continue
 		}
 		fields := strings.Fields(line[:tab])
 		if len(fields) < 2 || fields[0] != "160000" {
 			continue
 		}
-		return fields[1], true
+		links[filepath.ToSlash(line[tab+1:])] = fields[1]
 	}
-	return "", false
+	return links
 }
 
 func reviewBundleWorkingTreeChange(root, path string) (bool, string) {

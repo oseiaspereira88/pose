@@ -217,6 +217,54 @@ func TestReviewPlanToolsFollowLifecycleOrder(t *testing.T) {
 	}
 }
 
+func TestReviewPlanScopesOverlayEvidenceToItsMatchedComponent(t *testing.T) {
+	root, store := componentReviewFixture(t)
+	// Two overlays demanding different, both-producible classes for validate.
+	// Unioning them would let the Go component's disposition be satisfied with
+	// the web component's evidence, which defeats component-level provenance.
+	writeReviewFixture(t, root, ".pose/review-profiles/frontend-review.json", `{
+  "schema_version":2,"id":"frontend-review","version":1,"scope":"spec",
+  "selectors":{"languages":["typescript"]},
+  "criteria":[{"id":"frontend-accessibility","description":"The interface is accessible.","evidence_classes":["a11y"]}],
+  "tools":[{"id":"validate","requiredness":"required","evidence_classes":["e2e"]}]
+}`)
+	writeReviewFixture(t, root, ".pose/review-profiles/backend-review.json", `{
+  "schema_version":2,"id":"backend-review","version":1,"scope":"spec",
+  "selectors":{"languages":["go"]},
+  "criteria":[{"id":"backend-contracts","description":"Contracts and errors are compatible.","evidence_classes":["integration"]}],
+  "tools":[{"id":"validate","requiredness":"required","evidence_classes":["unit"]}]
+}`)
+	plan, err := store.ReviewPlan("spec:fullstack")
+	if err != nil {
+		t.Fatal(err)
+	}
+	byComponent := map[string][]string{}
+	for _, tool := range plan.Tools {
+		if tool.ID == "validate" {
+			byComponent[tool.Component] = tool.EvidenceClasses
+		}
+	}
+	if len(byComponent) < 2 {
+		t.Fatalf("fixture produced no component-scoped validate tools: %+v", byComponent)
+	}
+	for component, classes := range byComponent {
+		if component == "" {
+			continue // the repository-wide tool answers for everything
+		}
+		joined := strings.Join(classes, ",")
+		switch {
+		case strings.HasPrefix(component, "web"):
+			if !containsFold(classes, "e2e") || containsFold(classes, "unit") {
+				t.Errorf("web validate classes = %s, want the frontend overlay's only", joined)
+			}
+		case strings.HasPrefix(component, "api"):
+			if !containsFold(classes, "unit") || containsFold(classes, "e2e") {
+				t.Errorf("api validate classes = %s, want the backend overlay's only", joined)
+			}
+		}
+	}
+}
+
 func TestReviewPlanToolsOnlyDemandProducibleEvidenceClasses(t *testing.T) {
 	_, store := componentReviewFixture(t)
 	plan, err := store.ReviewPlan("spec:fullstack")
