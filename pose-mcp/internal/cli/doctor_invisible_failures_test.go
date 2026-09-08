@@ -136,8 +136,13 @@ func TestDoctorWarnsWhenRecordedReviewsPredateTheContract(t *testing.T) {
 	root := doctorTrailerFixture(t)
 	mustWrite(t, filepath.Join(root, ".pose", "policy", "review.json"),
 		`{"schema_version":2,"enabled":true,"profiles":{"spec":"spec-closeout@1"}}`)
-	mustWrite(t, filepath.Join(root, ".pose", "review-attestations", "rva-old.json"),
-		`{"schema_version":1,"attestation_id":"rva-old","bundle_id":"rvb-old","decision":"approved"}`)
+	// A pre-bundle instance: its reviews are markdown attempts under
+	// `.pose/reviews/`, the directory Store.ListReviewAttempts reads. Seeding
+	// an attestation instead would exercise a path this instance does not have,
+	// and is how an earlier version of this check passed while globbing a
+	// directory nothing writes.
+	mustWrite(t, filepath.Join(root, ".pose", "reviews", "rvw-legacy.md"),
+		"---\nschema_version: 1\nreview_id: rvw-legacy\nscope: spec:backend\ndecision: approved\n---\n")
 
 	f, ok := findDoctorFinding(runDoctorJSON(t, root), "review.contract-adoption")
 	if !ok {
@@ -161,13 +166,24 @@ func TestDoctorWarnsWhenRecordedReviewsPredateTheContract(t *testing.T) {
 		t.Errorf("level=%q, want ok once the date is recorded: %s", f.Level, f.Message)
 	}
 
+	// A sealed-bundle instance is diagnosed too, so neither storage shape is
+	// the only one that counts.
+	mustWrite(t, filepath.Join(root, ".pose", "policy", "review.json"),
+		`{"schema_version":2,"enabled":true,"profiles":{"spec":"spec-closeout@1"}}`)
+	if err := os.Remove(filepath.Join(root, ".pose", "reviews", "rvw-legacy.md")); err != nil {
+		t.Fatal(err)
+	}
+	mustWrite(t, filepath.Join(root, ".pose", "review-attestations", "rva-old.json"),
+		`{"schema_version":1,"attestation_id":"rva-old","bundle_id":"rvb-old","decision":"approved"}`)
+	if f, ok := findDoctorFinding(runDoctorJSON(t, root), "review.contract-adoption"); !ok || f.Level != "warn" {
+		t.Errorf("a sealed-bundle instance was not diagnosed: %+v", f)
+	}
+
 	// And an instance with no recorded review has nothing to grandfather, so it
 	// is not nagged into setting a date it does not need.
 	if err := os.Remove(filepath.Join(root, ".pose", "review-attestations", "rva-old.json")); err != nil {
 		t.Fatal(err)
 	}
-	mustWrite(t, filepath.Join(root, ".pose", "policy", "review.json"),
-		`{"schema_version":2,"enabled":true,"profiles":{"spec":"spec-closeout@1"}}`)
 	if f, ok := findDoctorFinding(runDoctorJSON(t, root), "review.contract-adoption"); !ok || f.Level != "ok" {
 		t.Errorf("a fresh instance was asked for an adoption date: %+v", f)
 	}

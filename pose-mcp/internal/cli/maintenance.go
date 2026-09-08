@@ -16,8 +16,10 @@ import (
 	"strings"
 	"time"
 
+	"errors"
 	"github.com/harne8/pose-mcp/internal/scaffold"
 	"github.com/harne8/pose-mcp/internal/version"
+	"os/exec"
 )
 
 func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
@@ -62,11 +64,25 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	}
 
 	if !dry && !skipSelf {
-		if err := performSelfUpdate(stdout, stderr); err != nil {
+		replaced, err := performSelfUpdate(stdout, stderr)
+		if err != nil {
 			// Don't treat missing binary or offline dev environment as fatal
 			if !strings.Contains(err.Error(), "404") && !strings.Contains(err.Error(), "no such file") {
 				fmt.Fprintf(stderr, text("[WARN] self-update check: %v\n", "[WARN] checagem de auto-atualização: %v\n"), err)
 			}
+		}
+		if replaced {
+			// The binary on disk is the new one; this process is still the old
+			// one. Everything below — machinery, seeds, migrations — would run
+			// from the engine being replaced, so a migration shipped in the new
+			// release does not happen on the update that delivers it. Hand off
+			// to the new binary and return its result.
+			//
+			// `--no-self` on the handoff is what makes this terminate: the new
+			// process finds itself at the latest release and would not update
+			// again, but saying so explicitly means a version check that
+			// disagrees cannot loop.
+			return runSelfUpdatedBinary(args, stdout, stderr, text)
 		}
 	}
 
@@ -196,14 +212,16 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
-func performSelfUpdate(stdout, stderr io.Writer) error {
+// performSelfUpdate reports whether it replaced the executable on disk, so
+// the caller can hand off to it: this process is still the old engine.
+func performSelfUpdate(stdout, stderr io.Writer) (bool, error) {
 	execPath, err := os.Executable()
 	if err != nil {
-		return fmt.Errorf("finding current binary path: %w", err)
+		return false, fmt.Errorf("finding current binary path: %w", err)
 	}
 	execPath, err = filepath.EvalSymlinks(execPath)
 	if err != nil {
-		return fmt.Errorf("resolving binary symlink: %w", err)
+		return false, fmt.Errorf("resolving binary symlink: %w", err)
 	}
 
 	fmt.Fprintf(stdout, "[INFO] checking latest release from github.com/%s...\n", releaseRepo)
@@ -211,27 +229,27 @@ func performSelfUpdate(stdout, stderr io.Writer) error {
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", releaseRepo), nil)
 	if err != nil {
-		return err
+		return false, err
 	}
 	req.Header.Set("User-Agent", "pose-cli/"+version.ReleaseBase())
 
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Fprintf(stdout, "[INFO] offline or network unreachable; skipping binary self-update: %v\n", err)
-		return nil
+		return false, nil
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		fmt.Fprintf(stdout, "[INFO] GitHub release check returned status %d; skipping binary self-update\n", resp.StatusCode)
-		return nil
+		return false, nil
 	}
 
 	var relData struct {
 		TagName string `json:"tag_name"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&relData); err != nil {
-		return fmt.Errorf("parsing release JSON: %w", err)
+		return false, fmt.Errorf("parsing release JSON: %w", err)
 	}
 
 	latestVer := strings.TrimPrefix(relData.TagName, "v")
@@ -239,7 +257,7 @@ func performSelfUpdate(stdout, stderr io.Writer) error {
 
 	if latestVer == currentVer {
 		fmt.Fprintf(stdout, "[INFO] pose binary is already at latest release (v%s)\n", latestVer)
-		return nil
+		return false, nil
 	}
 
 	fmt.Fprintf(stdout, "[INFO] updating pose binary: v%s -> v%s...\n", currentVer, latestVer)
@@ -256,42 +274,66 @@ func performSelfUpdate(stdout, stderr io.Writer) error {
 
 	assetResp, err := client.Get(assetURL)
 	if err != nil || assetResp.StatusCode != http.StatusOK {
-		return fmt.Errorf("downloading release asset failed")
+		return false, fmt.Errorf("downloading release asset failed")
 	}
 	defer assetResp.Body.Close()
 
 	tmpFile, err := os.CreateTemp("", "pose-update-*")
 	if err != nil {
-		return fmt.Errorf("creating temp file: %w", err)
+		return false, fmt.Errorf("creating temp file: %w", err)
 	}
 	defer os.Remove(tmpFile.Name())
 
 	if _, err := io.Copy(tmpFile, assetResp.Body); err != nil {
 		tmpFile.Close()
-		return fmt.Errorf("writing release archive: %w", err)
+		return false, fmt.Errorf("writing release archive: %w", err)
 	}
 	_ = tmpFile.Close()
 
 	extractedBin, err := extractPoseBinary(tmpFile.Name(), goos)
 	if err != nil {
-		return fmt.Errorf("extracting pose binary: %w", err)
+		return false, fmt.Errorf("extracting pose binary: %w", err)
 	}
 	defer os.Remove(extractedBin)
 
 	backupPath := execPath + ".old"
 	_ = os.Remove(backupPath)
 	if err := os.Rename(execPath, backupPath); err != nil {
-		return fmt.Errorf("backing up current binary: %w", err)
+		return false, fmt.Errorf("backing up current binary: %w", err)
 	}
 
 	if err := copyDiskFile(extractedBin, execPath, 0o755); err != nil {
 		_ = os.Rename(backupPath, execPath)
-		return fmt.Errorf("replacing binary: %w", err)
+		return false, fmt.Errorf("replacing binary: %w", err)
 	}
 	_ = os.Remove(backupPath)
 
 	fmt.Fprintf(stdout, "[INFO] pose binary updated successfully to v%s at %s\n", latestVer, execPath)
-	return nil
+	return true, nil
+}
+
+// runSelfUpdatedBinary re-runs `pose update` from the executable that was just
+// replaced, so migrations shipped with the new engine apply on the update that
+// delivers it rather than the one after.
+func runSelfUpdatedBinary(args []string, stdout, stderr io.Writer, text func(english, portuguese string) string) int {
+	execPath, err := os.Executable()
+	if err != nil {
+		fmt.Fprintf(stderr, text("[WARN] handing off to the updated binary: %v\n", "[WARN] repassando para o binário atualizado: %v\n"), err)
+		return 1
+	}
+	forwarded := append([]string{"update", "--no-self"}, args...)
+	cmd := exec.Command(execPath, forwarded...)
+	cmd.Stdout, cmd.Stderr = stdout, stderr
+	cmd.Stdin = os.Stdin
+	if err := cmd.Run(); err != nil {
+		var exit *exec.ExitError
+		if errors.As(err, &exit) {
+			return exit.ExitCode()
+		}
+		fmt.Fprintf(stderr, text("[WARN] running the updated binary: %v\n", "[WARN] executando o binário atualizado: %v\n"), err)
+		return 1
+	}
+	return 0
 }
 
 func extractPoseBinary(archivePath, goos string) (string, error) {

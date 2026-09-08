@@ -1029,28 +1029,44 @@ func (s Store) evidenceVocabularyLegacyExempt(scope ScopeRef, policy ReviewPolic
 	if policy.EvidenceVocabularyReconciledAt == "" {
 		return false
 	}
-	reconciled, err := time.Parse(time.DateOnly, policy.EvidenceVocabularyReconciledAt)
-	if err != nil {
-		return false
-	}
-	reviewed, err := time.Parse(time.RFC3339, attempt.ReviewedAt)
-	if err != nil || !reviewed.Before(reconciled) {
+	if !reviewPredatesAdoption(policy.EvidenceVocabularyReconciledAt, attempt.ReviewedAt) {
 		return false
 	}
 	done, err := s.scopeLifecycleDone(scope)
 	return err == nil && done
 }
 
+// reviewPredatesAdoption reports whether a review was recorded before the
+// instance received a contract, given the date it recorded for that contract.
+//
+// The stamp is a date, not an instant, and it names the day the contract
+// arrived. A review recorded at 09:00 on that day happened before the 15:00
+// update that delivered it, so the cutoff is the end of the stamped day rather
+// than its midnight — a midnight cutoff would fail exactly the same-day work
+// the exemption promises to keep.
+//
+// An absent or unparseable date exempts nothing. The waiver has to be something
+// the instance said, never a parsing accident.
+func reviewPredatesAdoption(stamped, reviewedAt string) bool {
+	if stamped == "" {
+		return false
+	}
+	adopted, err := time.Parse(time.DateOnly, stamped)
+	if err != nil {
+		return false
+	}
+	reviewed, err := time.Parse(time.RFC3339, reviewedAt)
+	if err != nil {
+		return false
+	}
+	return reviewed.Before(adopted.AddDate(0, 0, 1))
+}
+
 func (s Store) componentAwareLegacyAttemptExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
 	if !policy.ComponentAware || policy.ComponentAwareAdoptedAt == "" || attempt.PlanDigest != "" {
 		return false
 	}
-	adopted, err := time.Parse(time.DateOnly, policy.ComponentAwareAdoptedAt)
-	if err != nil {
-		return false
-	}
-	reviewed, err := time.Parse(time.RFC3339, attempt.ReviewedAt)
-	if err != nil || !reviewed.Before(adopted) {
+	if !reviewPredatesAdoption(policy.ComponentAwareAdoptedAt, attempt.ReviewedAt) {
 		return false
 	}
 	done, err := s.scopeLifecycleDone(scope)

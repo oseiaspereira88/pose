@@ -68,7 +68,11 @@ skim the gate.
 - R3: A policy the engine cannot parse shall not be rewritten.
 - R4: The stamp shall be reported in the update's output.
 - R5: `pose doctor` shall report an instance that has recorded reviews and no
-  reconciliation date, naming the key and how to set it.
+  reconciliation date, naming the key and how to set it, counting reviews in
+  both the legacy markdown and the sealed-bundle storage.
+- R6: A `pose update` that replaces the binary shall hand off to it, so a
+  migration shipped in the new release applies on the update that delivers it.
+- R7: A review recorded earlier on the adoption day shall be exempt.
 
 ### Non-functional
 - The existing update and doctor suites pass.
@@ -81,6 +85,8 @@ skim the gate.
 - `pose-mcp/internal/cli/stack_seed.go` — the stamp, beside the existing
   additive policy migration
 - `pose-mcp/internal/cli/doctor.go` — the diagnostic
+- `pose-mcp/internal/cli/maintenance.go` — the handoff to the replaced binary
+- `pose-mcp/internal/pose/review_closeout.go` — the adoption cutoff
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-contract-adoption-stamp.md
@@ -89,6 +95,9 @@ skim the gate.
 - modified: pose-mcp/internal/cli/stack_seed_test.go
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: pose-mcp/internal/cli/doctor_invisible_failures_test.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- created: pose-mcp/internal/pose/review_closeout_contract_test.go
 
 ### Technical risks
 - The stamp waives a rule for everything reviewed before the update. Someone who
@@ -106,6 +115,8 @@ skim the gate.
 ### Implementation
 - [x] Increment 1: Stamp the date on update when absent, and report it (R1, R2, R3, R4)
 - [x] Increment 2: Report an instance without the date that has history (R5)
+- [x] Increment 3: Hand off to the replaced binary so the migration runs (R6)
+- [x] Increment 4: Make the adoption day inclusive (R7)
 
 ### Validation
 - [x] Each behaviour asserted, and the wiring confirmed end to end
@@ -142,6 +153,34 @@ skim the gate.
   history judged by the current contract says so by clearing the field and the
   update respects it.
 
+### Decision 3
+- Date: 2026-09-08
+- Context: review pointed out that `pose update` replaces the executable and
+  then keeps running the old process, so the stamp shipped in a release does
+  not happen on the update that delivers it — the instance runs the stricter
+  engine against all its history until someone updates a second time.
+- Options considered: (a) accept it and document that `pose update` must be run
+  twice; (b) re-exec the replaced binary to finish the update.
+- Decision: (b), forwarding the original arguments with `--no-self`.
+- Rationale: (a) is a footgun aimed at exactly the moment this spec exists to
+  protect, and no adopter would know to do it. (b) also fixes the general case:
+  every future migration now lands on the update that ships it, not the one
+  after. `--no-self` on the handoff makes termination explicit rather than
+  relying on the new process's own version check agreeing it is current.
+
+### Decision 4
+- Date: 2026-09-08
+- Context: the stamp is a date, and the exemption compared the review timestamp
+  against its midnight. A review at 09:00 followed by an update at 15:00 the
+  same day was not exempt.
+- Decision: the cutoff is the end of the stamped day.
+- Rationale: the date names the day the contract reached the instance, and work
+  reviewed earlier that day was reviewed before it arrived. The alternative
+  fails exactly the work most likely to be affected — the reviews closest to the
+  update — while the cost is waiving a few hours of same-day reviews recorded
+  after it, which is the conservative direction. Applied to the
+  component-aware exemption too, since it reads the same kind of date.
+
 ---
 
 ## 6. Validation
@@ -173,9 +212,17 @@ test of the function would pass even if nothing called it.
   then `pose update --no-self` printed
   `[INFO] policy (contract adoption): evidence_vocabulary_reconciled_at=2026-09-08`
   and the key was present afterwards.
+- Review then found two things the suite had been green through. The diagnostic
+  globbed `.pose/review-attempts/`, which nothing in the repository writes:
+  `Store.ListReviewAttempts` reads `.pose/reviews/*.md`. So the pre-bundle
+  instance the check exists to diagnose always counted zero and got an `ok` —
+  and its test passed because the fixture seeded an attestation, exercising the
+  one path that did work. Restoring the wrong directory now fails the test on
+  `level="ok", want warn`. Reverting the day-inclusive cutoff fails the same-day
+  case on `exempt=false, want true`.
 
 ### Results summary
-- Successes: R1, R2, R3, R4, R5 verified.
+- Successes: R1, R2, R3, R4, R5, R6, R7 verified.
 - Failures: none.
 
 ### Requirement trace
@@ -183,9 +230,14 @@ test of the function would pass even if nothing called it.
 - R2 [satisfied] <two subtests: an existing date is unchanged, and an explicitly empty value is not re-stamped>
 - R3 [satisfied] <a truncated policy is left byte-identical, asserted>
 - R4 [satisfied] <the log line names the key and the date, and was observed in the real run>
-- R5 [satisfied] <doctor's review.contract-adoption warns with recorded reviews and no date, reports ok once it is set, and stays ok on an instance with no history so a fresh project is not nagged>
+- R5 [satisfied] <doctor's review.contract-adoption warns with recorded reviews and no date, reports ok once it is set, and stays ok on an instance with no history; the test drives it through a legacy `.pose/reviews/*.md` attempt and again through a sealed attestation, so neither storage shape is the only one that counts>
+- R6 [satisfied] <performSelfUpdate reports whether it replaced the executable, and cmdUpdate hands off to it with --no-self, returning its exit code>
+- R7 [satisfied] <reviewPredatesAdoption compares against the end of the stamped day; four cases assert the day before, earlier and later the same day, and the next day, and three more assert an absent, unparseable or wrongly-formatted date exempts nothing>
 
 ### Known gaps
+- The handoff runs the new binary as a child process rather than replacing this
+  one, so the update's output is relayed rather than emitted directly. That is
+  the portable choice; `syscall.Exec` is not available on Windows.
 - The stamp covers one contract. The next contract change needs another field,
   another stamp and another diagnostic — which is the argument for the general
   mechanism rather than a defect in this one.
