@@ -261,7 +261,15 @@ func TestReviewBundleCLISealsAttestsAndVerifies(t *testing.T) {
 	}
 	out.Reset()
 	errOut.Reset()
-	attest := []string{"attest", sealed.BundleID, "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", "test:bundle", "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
+	// Cite what the bundle actually seals. This used to pass a fixed
+	// `test:bundle` that appeared in no bundle, so the test proved the command
+	// accepted an evidence flag — not that the attestation it wrote was
+	// supported by the subject it approves.
+	if len(sealed.Payload.Evidence) == 0 {
+		t.Fatalf("the fixture seals no evidence, so this test cannot show an attestation is supported: %+v", sealed.Payload)
+	}
+	sealedEvidence := sealed.Payload.Evidence[0].EvidenceClass + ":" + sealed.Payload.Evidence[0].ID
+	attest := []string{"attest", sealed.BundleID, "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", sealedEvidence, "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
 	if code := cmdReview(root, attest, &out, &errOut); code != 0 {
 		t.Fatalf("attest code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
@@ -755,7 +763,8 @@ delivers: contract:my-contract
   "generated_at": "2026-08-22T00:00:00Z",
   "provenance_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
   "checks": [
-    {"id": "test-root", "module": ".", "name": "go-test", "evidence_class": "integration", "severity": "required", "outcome": "pass"}
+    {"id": "test-root", "module": ".", "name": "go-test", "evidence_class": "integration", "severity": "required", "outcome": "pass"},
+    {"id": "unit-root", "module": ".", "name": "go-unit", "evidence_class": "test", "severity": "required", "outcome": "pass"}
   ]
 }`, headSha))
 
@@ -884,21 +893,26 @@ Nenhum
 	var out, errOut bytes.Buffer
 	// Seal bundle for spec-a
 	_ = cmdArtifactCheck(root, []string{"--spec", "spec-a", "--strict"}, &out, &errOut)
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	if code := cmdReviewBundle(root, []string{"spec:spec-a", "--seal"}, &out, &errOut); code != 0 {
 		t.Fatalf("bundle seal spec-a failed: %s %s", out.String(), errOut.String())
 	}
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	_ = cmdReviewAutoAttest(root, []string{"spec:spec-a", "--apply"}, &out, &errOut)
 
 	// Seal bundle for spec-b
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	_ = cmdArtifactCheck(root, []string{"--spec", "spec-b", "--strict"}, &out, &errOut)
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	if code := cmdReviewBundle(root, []string{"spec:spec-b", "--seal"}, &out, &errOut); code != 0 {
 		t.Fatalf("bundle seal spec-b failed: %s %s", out.String(), errOut.String())
 	}
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	_ = cmdReviewAutoAttest(root, []string{"spec:spec-b", "--apply"}, &out, &errOut)
 
 	// Now corrupt spec-a's review bundle file on disk (simulate external rename script / edit)
@@ -913,16 +927,14 @@ Nenhum
 	}
 
 	// Verify and close spec-b - MUST SUCCEED despite corrupted spec-a bundle
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	if code := cmdReviewVerify(root, []string{"spec:spec-b"}, &out, &errOut); code != 0 {
 		t.Fatalf("review verify spec-b should succeed independently of corrupted spec-a: out=%s err=%s", out.String(), errOut.String())
 	}
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	if code := cmdClose(root, []string{"spec:spec-b"}, &out, &errOut); code != 0 {
 		t.Fatalf("pose close spec-b failed: out=%s err=%s", out.String(), errOut.String())
 	}
 }
-
-
-
-

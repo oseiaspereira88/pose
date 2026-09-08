@@ -1209,7 +1209,8 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 	}
 	scope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
 	graph, _ := s.GetDeliveryIntegrity("")
-	if len(bundle.Payload.Evidence) == 0 && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
+	requiresEvidence := s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph)
+	if len(bundle.Payload.Evidence) == 0 && requiresEvidence {
 		return ReviewAttestation{}, fmt.Errorf("pose: bundle %s has no passed structured validation evidence", bundleID)
 	}
 	evidenceRefs := make([]string, 0, len(bundle.Payload.Evidence))
@@ -1233,14 +1234,44 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 				break
 			}
 		}
+		if critEvidence == "" && len(criterion.EvidenceClasses) == 0 && len(bundle.Payload.Evidence) > 0 {
+			// A criterion that asks for no particular class is satisfied by any
+			// sealed evidence. Citing the first is weak, but it is real and in
+			// the bundle, which is the property that was missing.
+			first := bundle.Payload.Evidence[0]
+			critEvidence = first.EvidenceClass + ":" + first.ID
+		}
 		if critEvidence == "" {
-			if len(criterion.EvidenceClasses) > 0 {
-				critEvidence = criterion.EvidenceClasses[0] + ":auto-attest"
-			} else if len(evidenceRefs) > 0 {
-				critEvidence = evidenceRefs[0]
-			} else {
-				critEvidence = "docs:auto-attest"
+			// This used to invent a reference — `<class>:auto-attest`, or the
+			// first unrelated ref in the bundle, or `docs:auto-attest`. The
+			// invented ref pointed at nothing, and nothing downstream checked
+			// it, so the command recorded a passed criterion that no evidence
+			// supported.
+			//
+			// Where the scope is expected to carry validation evidence, the
+			// honest answer is to refuse: the check exists and was not run, and
+			// a reviewer must run it or disposition the criterion themselves
+			// with a reason. Where it is not — a documentation-only spec with no
+			// delivery target, the case the same distinction already exempts
+			// above — the criterion is recorded not-applicable, naming what is
+			// missing. Either way the absence is visible instead of dressed as
+			// a pass.
+			if requiresEvidence {
+				if len(criterion.EvidenceClasses) > 0 {
+					return ReviewAttestation{}, fmt.Errorf("pose: criterion %s requires evidence class %s and bundle %s seals none; run the check, or record the criterion as not-applicable with a rationale using `pose review attest`", criterion.ID, strings.Join(criterion.EvidenceClasses, "|"), bundleID)
+				}
+				return ReviewAttestation{}, fmt.Errorf("pose: criterion %s has no evidence in bundle %s; run a check, or record the criterion as not-applicable with a rationale using `pose review attest`", criterion.ID, bundleID)
 			}
+			rationale := "the scope carries no delivery target, so no validation evidence is collected for it"
+			if len(criterion.EvidenceClasses) > 0 {
+				rationale = "the scope carries no delivery target, so no evidence of class " + strings.Join(criterion.EvidenceClasses, "|") + " is collected for it"
+			}
+			criteria = append(criteria, ReviewCriterion{
+				ID:          criterion.ID,
+				Disposition: "not-applicable",
+				Rationale:   rationale,
+			})
+			continue
 		}
 		evidenceRefs = append(evidenceRefs, critEvidence)
 		criteria = append(criteria, ReviewCriterion{
@@ -1513,7 +1544,7 @@ func (s Store) ListReviewAttestations(bundleID string) ([]ReviewAttestation, err
 	}
 	sort.Slice(result, func(i, j int) bool {
 		if result[i].AttestedAt == result[j].AttestedAt {
-return result[i].AttestationID < result[j].AttestationID
+			return result[i].AttestationID < result[j].AttestationID
 		}
 		return result[i].AttestedAt < result[j].AttestedAt
 	})
@@ -1698,6 +1729,9 @@ func (s Store) validateBundleAttestation(bundle ReviewBundle, att ReviewAttestat
 		if criterion.Disposition == "not-applicable" && criterion.Rationale == "" {
 			blockers = append(blockers, "criterion "+criterion.ID+" lacks not-applicable rationale")
 		}
+		if criterion.Disposition == "passed" {
+			blockers = append(blockers, reviewCriterionEvidenceBlockers(bundle, required[criterion.ID], criterion)...)
+		}
 	}
 	for id := range required {
 		if !seen[id] {
@@ -1777,6 +1811,44 @@ func (s Store) verifyStoredReviewAttestationSignature(att ReviewAttestation) err
 	unsigned.Envelope = nil
 	_, err := s.VerifyReviewAttestationEnvelope(ReviewAttestationEnvelope{SchemaVersion: ReviewBundleSchemaVersion, Issuer: proof.Issuer, Subject: proof.Subject, Algorithm: proof.Algorithm, PublicKey: proof.PublicKey, Signature: proof.Signature, Attestation: unsigned})
 	return err
+}
+
+// reviewCriterionEvidenceBlockers checks that a criterion recorded as passed is
+// supported by evidence the sealed bundle actually contains, of a class the
+// criterion asks for.
+//
+// Nothing checked this before. A `passed` disposition could cite evidence
+// absent from the bundle, evidence of the wrong class, or nothing at all, and
+// the attestation verified — which is how three closeouts in an adopting
+// repository were approved against a bundle carrying zero evidence, and how a
+// criterion requiring `integration` passed on a `go vet` result. An attestation
+// that cannot be checked against its own subject is a signature on an empty
+// page.
+//
+// Only `passed` is constrained. `not-applicable` already requires a rationale,
+// which is the reviewer's judgement standing in for evidence, and `finding`
+// records a problem rather than a clearance.
+func reviewCriterionEvidenceBlockers(bundle ReviewBundle, planned ReviewPlanCriterion, attested ReviewCriterion) []string {
+	if attested.Evidence == "" {
+		return []string{"criterion " + attested.ID + " is passed with no evidence"}
+	}
+	sealed := map[string]string{}
+	for _, ev := range bundle.Payload.Evidence {
+		sealed[ev.EvidenceClass+":"+ev.ID] = ev.EvidenceClass
+	}
+	class, ok := sealed[attested.Evidence]
+	if !ok {
+		return []string{"criterion " + attested.ID + " cites evidence absent from the sealed bundle: " + attested.Evidence}
+	}
+	if len(planned.EvidenceClasses) == 0 {
+		return nil
+	}
+	for _, want := range planned.EvidenceClasses {
+		if want == class {
+			return nil
+		}
+	}
+	return []string{"criterion " + attested.ID + " requires evidence class " + strings.Join(planned.EvidenceClasses, "|") + " but cites " + class + ": " + attested.Evidence}
 }
 
 func reviewCriterionInputDigest(bundle ReviewBundle, criterion ReviewPlanCriterion) string {
