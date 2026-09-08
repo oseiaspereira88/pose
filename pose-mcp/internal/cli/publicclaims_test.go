@@ -222,3 +222,27 @@ func TestPublicClaimsFailsWithoutContractOrVersionSource(t *testing.T) {
 		t.Errorf("missing version source should exit 2, got %d", code)
 	}
 }
+
+func TestPublicClaimsExplainsAnAbsentContract(t *testing.T) {
+	// The command is listed in `pose help` among the deterministic gates and no
+	// scaffold creates its contract, so the first thing most operators see is
+	// this path. It must say what is missing, that it is opt-in, and how to
+	// start — not `open ...: no such file or directory`.
+	root := t.TempDir()
+	code, out := runClaims(t, root, "--strict")
+	if code != 2 {
+		t.Errorf("code = %d, want 2: the gate still cannot run", code)
+	}
+	for _, want := range []string{
+		"declares no public claims contract",
+		"opt-in",
+		".pose/templates/public-claims.json",
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("output does not mention %q: %s", want, out)
+		}
+	}
+	if strings.Contains(out, "no such file or directory") {
+		t.Errorf("output still leads with the raw stat error: %s", out)
+	}
+}

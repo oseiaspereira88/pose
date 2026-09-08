@@ -15,6 +15,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -216,6 +217,22 @@ func cmdPublicClaims(root string, args []string, stdout, stderr io.Writer) int {
 	}
 
 	contract, err := loadPublicClaims(root)
+	if errors.Is(err, os.ErrNotExist) {
+		// Still an error — the gate cannot run and saying otherwise would let a
+		// pipeline report claims as verified when nothing was checked. What
+		// changes is what the operator is told: `open ...: no such file or
+		// directory` names a symptom and hides that the contract is opt-in, that
+		// nothing scaffolds it, and how to start one.
+		fmt.Fprintln(stderr, "pose public-claims: this instance declares no public claims contract")
+		fmt.Fprintln(stderr, "  .pose/public/claims.json is absent. The contract is opt-in and no scaffold")
+		fmt.Fprintln(stderr, "  creates it: it declares which surfaces make claims about the current")
+		fmt.Fprintln(stderr, "  product, so one that contradicts a released fact fails this gate instead")
+		fmt.Fprintln(stderr, "  of ageing quietly. Surfaces are declared, never discovered — scanning for")
+		fmt.Fprintln(stderr, "  version-shaped strings would flag changelogs and release notes, which are")
+		fmt.Fprintln(stderr, "  supposed to name old versions.")
+		fmt.Fprintln(stderr, "  To start: cp .pose/templates/public-claims.json .pose/public/claims.json")
+		return 2
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, "pose public-claims: %v\n", err)
 		return 2
