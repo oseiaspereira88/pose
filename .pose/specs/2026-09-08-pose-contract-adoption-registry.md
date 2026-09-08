@@ -73,6 +73,10 @@ closeouts in this repository, and would have happened again in the adopting one.
   date, naming the contract and what it requires.
 - R5: Adding a contract to the registry shall be sufficient for R3 and R4 —
   neither command shall need to learn about it.
+- R6: Every registered contract's date shall be read through the registry
+  wherever it is validated or consumed, not only where the map was introduced.
+- R7: A legacy field explicitly set to empty shall be treated as a decision, and
+  never stamped over.
 
 ### Non-functional
 - The existing review, update and doctor suites pass.
@@ -96,6 +100,7 @@ closeouts in this repository, and would have happened again in the adopting one.
 - modified: pose-mcp/internal/cli/stack_seed_test.go
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: pose-mcp/internal/cli/doctor_invisible_failures_test.go
+- modified: pose-mcp/internal/pose/review_closeout_contract_test.go
 
 ### Technical risks
 - Two places can now record the same contract's date. The map wins, and a
@@ -115,6 +120,8 @@ closeouts in this repository, and would have happened again in the adopting one.
 - [x] Increment 1: Declare the registry and resolve a contract's adoption date (R1, R2)
 - [x] Increment 2: Rewrite the exemptions onto the shared predicate (R2)
 - [x] Increment 3: Stamp and report over the registry (R3, R4, R5)
+- [x] Increment 4: Read every contract's date through the registry (R6)
+- [x] Increment 5: Treat a cleared legacy field as a decision (R7)
 
 ### Validation
 - [x] A contract added to the registry is stamped and reported with no other change
@@ -150,6 +157,35 @@ closeouts in this repository, and would have happened again in the adopting one.
   few lines and makes the change invisible to every existing instance.
 - Consequences: the legacy fields are permanent, and a new contract simply never
   gets one.
+
+### Decision 4
+- Date: 2026-09-08
+- Context: review found the map-first contract was true for one contract and
+  false for two. `loadReviewPolicy` still required and parsed
+  `component_aware_adopted_at` and `review_bundles_adopted_at` directly, so a
+  policy recording those dates only in `contract_adoptions` failed to load, and
+  `reviewBundlesLegacyAttemptExempt` still read the legacy field.
+- Decision: validate and consume every registered contract's date through
+  `ContractAdoptedAt`.
+- Rationale: a registry that advertises a shape working in one place out of
+  three is worse than no registry — it invites a project to adopt the map and
+  then fail to load. The rewrite covered the exemptions I happened to touch, not
+  the ones the contract promised.
+
+### Decision 5
+- Date: 2026-09-08
+- Context: an instance that deliberately empties a legacy field is asking for
+  its whole history to be judged by the current contract. The typed policy
+  renders that identically to an absent field, so the stamp wrote a real date
+  into the map — and the map wins, silently reversing the choice on the update
+  after.
+- Decision: check the raw document for the legacy key's presence before
+  stamping, and expose `LegacyContractField` so the caller can.
+- Rationale: the distinction only survives in the raw JSON, which is also why
+  the stamp already writes through the raw document rather than the struct. The
+  previous spec was careful about a cleared value in the map and I carried that
+  care to the map alone; the legacy field needed it too, and more, since it is
+  the shape every existing instance has.
 
 ### Decision 3
 - Date: 2026-09-08
@@ -194,9 +230,15 @@ handle it.
   stamped it and `pose doctor` named it, with no change to either command. That
   probe also exposed the hard-coded fixture in Decision 3, which was corrected
   before the probe was removed.
+- Review then found the map-first contract held for one contract out of three,
+  and that a legacy field deliberately set to empty was stamped over — reversing
+  the instance's own choice. Both are asserted, and both assertions fail against
+  the previous code: `pose: review-bundles adoption date must be YYYY-MM-DD` on
+  a policy that records it only in the map, and `stamped 2026-09-08 over a
+  deliberately cleared legacy field`.
 
 ### Results summary
-- Successes: R1, R2, R3, R4, R5 verified.
+- Successes: R1, R2, R3, R4, R5, R6, R7 verified.
 - Failures: none.
 
 ### Requirement trace
@@ -205,8 +247,13 @@ handle it.
 - R3 [satisfied] <stampContractAdoption iterates ReviewContracts() and skips anything ContractAdoptionRecorded reports, so a legacy field is never rewritten into the map; six subtests cover stamped, legacy, existing, cleared, unmodelled keys and malformed>
 - R4 [satisfied] <doctor's review.contract-adoption iterates the registry and names each unrecorded contract with its summary>
 - R5 [satisfied] <a probe contract with no other code was stamped and reported; neither command references a contract id>
+- R6 [satisfied] <loadReviewPolicy validates the component-aware and review-bundles dates through ContractAdoptedAt, and reviewBundlesLegacyAttemptExempt consumes it the same way; TestPolicyRecordingDatesOnlyInTheMapIsValidAndHonoured loads a policy carrying no legacy field and asserts all three resolve, plus that the legacy field is still read when the map is silent and loses when both are present>
+- R7 [satisfied] <stampContractAdoption checks the raw document for LegacyContractField before stamping; TestStampContractAdoptionRespectsAClearedLegacyField asserts the cleared contract is skipped while a contract the policy says nothing about is still stamped>
 
 ### Known gaps
+- The error text for an invalid adoption date no longer names the legacy key,
+  since the value may have come from either place. It names the contract
+  instead, which is the thing to look up.
 - `adopted_at` stays outside the registry. It is not a per-contract marker — it
   dates POSE's governance of the repository and is read by delivery and
   readiness rather than by an exemption — but that means one of the four dates

@@ -365,3 +365,38 @@ func TestStampContractAdoptionRecordsTodayOnlyWhenAbsent(t *testing.T) {
 		}
 	})
 }
+
+func TestStampContractAdoptionRespectsAClearedLegacyField(t *testing.T) {
+	// A policy that deliberately empties a legacy field is asking for its whole
+	// history to be judged by the current contract. The typed policy renders
+	// that identically to an absent field, so stamping from the typed view
+	// wrote a real date into the map — and the map wins, silently reversing the
+	// choice on the very next update.
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".pose", "policy"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(root, ".pose", "policy", "review.json")
+	if err := os.WriteFile(path, []byte(`{"schema_version":2,"evidence_vocabulary_reconciled_at":""}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	stampContractAdoption(root, time.Date(2026, 9, 8, 0, 0, 0, 0, time.UTC), nil)
+
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatal(err)
+	}
+	adoptions, _ := doc["contract_adoptions"].(map[string]any)
+	if got, ok := adoptions["evidence-vocabulary"]; ok && got != "" {
+		t.Errorf("stamped %v over a deliberately cleared legacy field", got)
+	}
+	// The other contracts, which the policy says nothing about, are still
+	// stamped — the exemption is per contract, not a whole-file opt-out.
+	if adoptions["review-bundles"] != "2026-09-08" {
+		t.Errorf("a contract the policy is silent about was not stamped: %v", adoptions["review-bundles"])
+	}
+}

@@ -223,14 +223,18 @@ func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
 		if p.UnmappedComponentBehavior != "warning" && p.UnmappedComponentBehavior != "blocker" {
 			return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid unmapped component behavior %q", p.UnmappedComponentBehavior)
 		}
+		// Read through the registry, not the legacy field: a policy that
+		// records these dates in `contract_adoptions` is valid, and requiring
+		// the old key as well would make the map-first contract true for one
+		// contract and false for the other two.
 		if p.ComponentAware {
-			if _, err := time.Parse(time.DateOnly, p.ComponentAwareAdoptedAt); err != nil {
-				return ReviewPolicy{}, nil, fmt.Errorf("pose: component_aware_adopted_at must be YYYY-MM-DD when component-aware review is enabled")
+			if _, err := time.Parse(time.DateOnly, p.ContractAdoptedAt("component-aware")); err != nil {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: component-aware adoption date must be YYYY-MM-DD when component-aware review is enabled")
 			}
 		}
 		if p.ReviewBundles {
-			if _, err := time.Parse(time.DateOnly, p.ReviewBundlesAdoptedAt); err != nil {
-				return ReviewPolicy{}, nil, fmt.Errorf("pose: review_bundles_adopted_at must be YYYY-MM-DD when review bundles are enabled")
+			if _, err := time.Parse(time.DateOnly, p.ContractAdoptedAt("review-bundles")); err != nil {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: review-bundles adoption date must be YYYY-MM-DD when review bundles are enabled")
 			}
 		}
 		for _, issuer := range p.TrustedAttestationIssuers {
@@ -1109,6 +1113,19 @@ func (p ReviewPolicy) ContractAdoptionRecorded(id string) bool {
 	return p.ContractAdoptedAt(id) != ""
 }
 
+// LegacyContractField is the top-level policy key that carried a contract's
+// date before the registry, or "" if the contract never had one. A caller that
+// needs to tell an absent legacy field from one deliberately set to "" has to
+// look at the raw document, because the typed struct renders both as empty.
+func LegacyContractField(id string) string {
+	for _, contract := range reviewContracts {
+		if contract.ID == id {
+			return contract.LegacyField
+		}
+	}
+	return ""
+}
+
 // reviewCompletedBeforeContract is the shared half of every exemption: the
 // scope is done, and the review predates the date this instance received the
 // contract. The per-contract conditions stay with their own functions.
@@ -1174,14 +1191,15 @@ func (s Store) componentAwareLegacyAttemptExempt(scope ScopeRef, policy ReviewPo
 }
 
 func (s Store) reviewBundlesLegacyAttemptExempt(scope ScopeRef, policy ReviewPolicy) bool {
-	if !policy.ReviewBundles || policy.ReviewBundlesAdoptedAt == "" {
+	adoptedAt := policy.ContractAdoptedAt("review-bundles")
+	if !policy.ReviewBundles || adoptedAt == "" {
 		return false
 	}
 	done, err := s.scopeLifecycleDone(scope)
 	if err != nil || !done {
 		return false
 	}
-	adopted, err := time.Parse(time.DateOnly, policy.ReviewBundlesAdoptedAt)
+	adopted, err := time.Parse(time.DateOnly, adoptedAt)
 	if err != nil {
 		return false
 	}

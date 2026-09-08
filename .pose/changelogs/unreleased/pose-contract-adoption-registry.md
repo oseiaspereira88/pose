@@ -20,3 +20,9 @@ Before this, each tightening of a rule cost a new policy field, a bespoke
 exemption and — because `.pose/policy/` is not machinery — a release in which
 every adopting instance saw its historical closeouts fail with no indication
 that a date was what was missing.
+
+Every registered contract's date is read through the registry wherever it is
+validated or consumed, so a policy recording them only in `contract_adoptions`
+loads and is honoured. A legacy field explicitly set to empty is a decision —
+judge my whole history by the current contract — and is never stamped over.
+

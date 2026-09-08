@@ -233,8 +233,18 @@ func stampContractAdoption(target string, now time.Time, log func(english, portu
 		if policy.ContractAdoptionRecorded(contract.ID) {
 			continue
 		}
+		// An explicitly empty value — in the map or in the legacy field — is a
+		// decision, not an absence: the instance is saying to judge its whole
+		// history by the current contract. The typed policy renders both as "",
+		// so the raw document is the only place that distinction survives, and
+		// stamping over it would reverse the choice on every update.
 		if _, present := adoptions[contract.ID]; present {
-			continue // explicitly cleared: the instance wants its history re-judged
+			continue
+		}
+		if legacy := posemodel.LegacyContractField(contract.ID); legacy != "" {
+			if _, present := doc[legacy]; present {
+				continue
+			}
 		}
 		adoptions[contract.ID] = now.Format(time.DateOnly)
 		stamped = append(stamped, contract.ID)
