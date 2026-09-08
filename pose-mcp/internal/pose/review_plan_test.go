@@ -758,28 +758,46 @@ delivers: contract:backend-api
 	}
 }
 
-func TestCriterionDemandingAnUnproducibleClassBlocksThePlan(t *testing.T) {
-	// Dropping the class was the first answer and it was wrong: a criterion
-	// left with no class accepts any sealed evidence, so the demand does not
-	// weaken, it disappears — a criterion asking for `security-scan` would be
-	// satisfied by a build result, in the same engine whose point is that a
-	// passed criterion means something. Blocking names the profile to fix.
+func TestProfileDeclaringAClassNoCheckMayEmitDoesNotLoad(t *testing.T) {
+	// Two vocabularies governed evidence classes and disagreed in both
+	// directions: a profile could declare from sixteen names, a check could emit
+	// nine, and they agreed on six. Ten a profile could demand were impossible
+	// to satisfy — `test`, `contract`, `validation`, `observability` among them
+	// — so the profile planned a gate only a fabricated disposition could pass.
+	// Four specs closed that downstream, one consumer at a time. Refusing the
+	// profile is where it stops being expressible.
 	root, store := componentReviewFixture(t)
 	writeReviewFixture(t, root, ".pose/review-profiles/spec-closeout.json", `{
   "schema_version":2,"id":"spec-closeout","version":2,"scope":"spec",
-  "criteria":[{"id":"correctness","description":"Scope behavior is correct.","evidence_classes":["security-scan"]}],
+  "criteria":[{"id":"correctness","description":"Scope behavior is correct.","evidence_classes":["test"]}],
   "tools":[{"id":"review-check","requiredness":"required","criteria":["correctness"]}]
 }`)
-	plan, err := store.ReviewPlan("spec:fullstack")
-	if err != nil {
-		t.Fatal(err)
+	_, err := store.ReviewPlan("spec:fullstack")
+	if err == nil {
+		t.Fatal("a profile demanding a class no check may emit was accepted")
 	}
-	if joined := strings.Join(plan.Blockers, " "); !strings.Contains(joined, "correctness") || !strings.Contains(joined, "security-scan") {
-		t.Fatalf("blockers = %v, want one naming the criterion and the unproducible class", plan.Blockers)
+	// The message says what may be written, not only what may not: a profile
+	// author reading it should not have to find the vocabulary elsewhere.
+	for _, want := range []string{"test", "not one a registered check may emit", "integration", "unit"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("error %q does not mention %q", err, want)
+		}
 	}
-	for _, criterion := range plan.Criteria {
-		if criterion.ID == "correctness" && len(criterion.EvidenceClasses) == 0 {
-			t.Fatal("the declared class was erased instead of reported; the criterion now accepts anything")
+}
+
+func TestProfileMayDemandEveryClassACheckMayEmit(t *testing.T) {
+	// The disagreement ran both ways: three classes a check could emit could
+	// never be demanded by a profile. A single vocabulary has to fix that
+	// direction too, or it is not single.
+	root, store := componentReviewFixture(t)
+	for _, class := range []string{"design-system", "contrast", "visual-regression"} {
+		writeReviewFixture(t, root, ".pose/review-profiles/spec-closeout.json", `{
+  "schema_version":2,"id":"spec-closeout","version":2,"scope":"spec",
+  "criteria":[{"id":"correctness","description":"Scope behavior is correct.","evidence_classes":["`+class+`"]}],
+  "tools":[{"id":"review-check","requiredness":"required","criteria":["correctness"]}]
+}`)
+		if _, err := store.ReviewPlan("spec:fullstack"); err != nil {
+			t.Errorf("a profile demanding %q, which a check may emit, failed to load: %v", class, err)
 		}
 	}
 }

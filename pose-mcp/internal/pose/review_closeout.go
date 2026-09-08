@@ -340,9 +340,16 @@ func (s Store) validateReviewContractRefs(ref string, rules, evidenceClasses []s
 			return fmt.Errorf("pose: unsafe review rule %q in %s: %w", rule, ref, err)
 		}
 	}
+	// One vocabulary. A profile used to declare from a list of sixteen while a
+	// check could emit from a different nine, and the two agreed on six: ten
+	// classes a profile could demand were impossible to satisfy, and three a
+	// check could emit were impossible to ask for. A profile demanding a class
+	// no check may emit plans a gate that only a fabricated disposition can
+	// pass, which is the failure the attestation work spent four specs closing
+	// downstream; refusing the profile is where it stops being possible.
 	for _, class := range evidenceClasses {
-		if !reviewEvidenceClassCatalog[class] {
-			return fmt.Errorf("pose: unknown review evidence class %q in %s", class, ref)
+		if !ValidEvidenceClasses[class] {
+			return fmt.Errorf("pose: evidence class %q in %s is not one a registered check may emit (%s)", class, ref, strings.Join(sortedEvidenceClasses(), ", "))
 		}
 	}
 	return nil
