@@ -121,6 +121,7 @@ what it knows and reports a downstream symptom instead of the upstream loss.
 - [x] Increment 1: Report unproducible evidence classes in active profiles (R1)
 - [x] Increment 2: Report matrix checks with no evidence class (R2)
 - [x] Increment 3: Print change-set provenance by default (R3)
+- [x] Increment 4: Report only the profiles policy selects (R1, after v1.8.0)
 
 ### Validation
 - [x] Each diagnostic red on a fixture that reproduces the failure, green otherwise
@@ -198,15 +199,20 @@ accident.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <doctor.go: review.evidence-vocabulary; test asserts warn on a profile naming a class outside ValidEvidenceClasses and ok otherwise>
+- R1 [satisfied] <doctor.go: review.evidence-vocabulary, scoped to the profiles .pose/policy/review.json selects; tests assert warn on a selected profile naming a class outside ValidEvidenceClasses, ok when every class is producible, and ok when the offending profile is on disk but unselected>
 - R2 [satisfied] <doctor.go: validate.evidence-class-coverage; test asserts warn on a matrix check with no evidenceClass and ok otherwise>
 - R3 [satisfied] <artifact_integrity.go prints artifact.change_set.base/head/commits by default; test asserts the fields appear without --json>
 
 ### Known gaps
-- Both checks read what an instance declares, not what it runs. A profile that
-  is never selected by policy still reports, and a module whose checks never
-  feed a review still reports. Warning rather than erroring is what keeps that
-  proportionate.
+- Closed after v1.8.0 shipped: `review.evidence-vocabulary` reported every
+  profile on disk, so the first real run against an adopting instance flagged
+  the four shipped profiles that instance had already replaced — noise the
+  operator has to investigate to dismiss, and precisely the shape a project
+  lands in when it owns its profiles and leaves the originals in place. The
+  check now reads `.pose/policy/review.json` and inspects only the profiles
+  policy selects. `validate.evidence-class-coverage` still reads what is
+  declared rather than what runs, which is intended: a check with no class is
+  discarded wherever it is used.
 - The criterion side of the evidence vocabulary is reported but not enforced
   anywhere: a criterion naming an unproducible class still drives
   `pose review auto-attest` to invent a ref. The diagnostic makes it visible;
