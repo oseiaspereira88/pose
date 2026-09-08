@@ -14,6 +14,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 func TestInstallSeedsModuleMetadataFromRealBrownfieldStacks(t *testing.T) {
@@ -270,59 +272,86 @@ func TestStampContractAdoptionRecordsTodayOnlyWhenAbsent(t *testing.T) {
 	// delivers a stricter engine and never a statement of when the instance
 	// received it, so every closeout recorded under the previous contract
 	// fails. Today is the honest date — work reviewed between adopting POSE
-	// and receiving this contract was reviewed under the previous one.
+	// and receiving a contract was reviewed under the previous one.
 	now := time.Date(2026, 9, 8, 0, 0, 0, 0, time.UTC)
-	read := func(t *testing.T, root string) map[string]any {
+	path := func(root string) string { return filepath.Join(root, ".pose", "policy", "review.json") }
+	adoptions := func(t *testing.T, root string) map[string]any {
 		t.Helper()
-		raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json"))
+		raw, err := os.ReadFile(path(root))
 		if err != nil {
 			t.Fatal(err)
 		}
-		var p map[string]any
-		if err := json.Unmarshal(raw, &p); err != nil {
+		var doc map[string]any
+		if err := json.Unmarshal(raw, &doc); err != nil {
 			t.Fatal(err)
 		}
-		return p
+		got, _ := doc["contract_adoptions"].(map[string]any)
+		return got
 	}
 	write := func(t *testing.T, root, body string) {
 		t.Helper()
 		if err := os.MkdirAll(filepath.Join(root, ".pose", "policy"), 0o755); err != nil {
 			t.Fatal(err)
 		}
-		if err := os.WriteFile(filepath.Join(root, ".pose", "policy", "review.json"), []byte(body), 0o644); err != nil {
+		if err := os.WriteFile(path(root), []byte(body), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
 
-	t.Run("absent is stamped with today", func(t *testing.T) {
+	t.Run("every registered contract is stamped with today", func(t *testing.T) {
 		root := t.TempDir()
 		write(t, root, `{"schema_version":2,"adopted_at":"2026-08-23"}`)
 		stampContractAdoption(root, now, nil)
-		if got := read(t, root)["evidence_vocabulary_reconciled_at"]; got != "2026-09-08" {
+		got := adoptions(t, root)
+		for _, contract := range posemodel.ReviewContracts() {
 			// Not adopted_at: reviews recorded between adopting POSE and
-			// receiving this contract were judged by the previous one.
-			t.Errorf("stamped %v, want today", got)
+			// receiving the contract were judged by the previous one.
+			if got[contract.ID] != "2026-09-08" {
+				t.Errorf("contract %s stamped %v, want today", contract.ID, got[contract.ID])
+			}
+		}
+	})
+
+	t.Run("a legacy field still counts as recorded", func(t *testing.T) {
+		// A policy written before the registry keeps working and is never
+		// rewritten into the map behind the project's back.
+		root := t.TempDir()
+		write(t, root, `{"schema_version":2,"component_aware":true,"component_aware_adopted_at":"2026-01-01"}`)
+		stampContractAdoption(root, now, nil)
+		if got := adoptions(t, root)["component-aware"]; got != nil {
+			t.Errorf("re-stamped a contract the legacy field already records: %v", got)
 		}
 	})
 
 	t.Run("an existing date is left alone", func(t *testing.T) {
 		root := t.TempDir()
-		write(t, root, `{"schema_version":2,"evidence_vocabulary_reconciled_at":"2026-01-01"}`)
+		write(t, root, `{"schema_version":2,"contract_adoptions":{"evidence-vocabulary":"2026-01-01"}}`)
 		stampContractAdoption(root, now, nil)
-		if got := read(t, root)["evidence_vocabulary_reconciled_at"]; got != "2026-01-01" {
+		if got := adoptions(t, root)["evidence-vocabulary"]; got != "2026-01-01" {
 			t.Errorf("overwrote the instance's own date with %v", got)
 		}
 	})
 
 	t.Run("an explicitly cleared date stays cleared", func(t *testing.T) {
 		// A project that wants its whole history judged by the current
-		// contract says so by emptying the field. Re-stamping would undo a
+		// contract says so by emptying the value. Re-stamping would undo a
 		// deliberate choice on every update.
 		root := t.TempDir()
-		write(t, root, `{"schema_version":2,"evidence_vocabulary_reconciled_at":""}`)
+		write(t, root, `{"schema_version":2,"contract_adoptions":{"evidence-vocabulary":""}}`)
 		stampContractAdoption(root, now, nil)
-		if got := read(t, root)["evidence_vocabulary_reconciled_at"]; got != "" {
+		if got := adoptions(t, root)["evidence-vocabulary"]; got != "" {
 			t.Errorf("re-stamped a deliberately cleared date with %v", got)
+		}
+	})
+
+	t.Run("keys the engine does not model survive", func(t *testing.T) {
+		root := t.TempDir()
+		write(t, root, `{"schema_version":2,"acme_local_setting":"keep me"}`)
+		stampContractAdoption(root, now, nil)
+		raw, _ := os.ReadFile(path(root))
+		var doc map[string]any
+		if json.Unmarshal(raw, &doc) != nil || doc["acme_local_setting"] != "keep me" {
+			t.Errorf("round-tripping dropped an unmodelled key: %s", raw)
 		}
 	})
 
@@ -330,7 +359,7 @@ func TestStampContractAdoptionRecordsTodayOnlyWhenAbsent(t *testing.T) {
 		root := t.TempDir()
 		write(t, root, `{"schema_version":2,`)
 		stampContractAdoption(root, now, nil)
-		raw, _ := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json"))
+		raw, _ := os.ReadFile(path(root))
 		if string(raw) != `{"schema_version":2,` {
 			t.Errorf("rewrote a file it could not parse: %s", raw)
 		}

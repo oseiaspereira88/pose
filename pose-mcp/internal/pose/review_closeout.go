@@ -107,6 +107,7 @@ type ReviewPolicy struct {
 	ComponentAware                   bool              `json:"component_aware,omitempty"`
 	ComponentAwareAdoptedAt          string            `json:"component_aware_adopted_at,omitempty"`
 	EvidenceVocabularyReconciledAt   string            `json:"evidence_vocabulary_reconciled_at,omitempty"`
+	ContractAdoptions                map[string]string `json:"contract_adoptions,omitempty"`
 	UnmappedComponentBehavior        string            `json:"unmapped_component_behavior,omitempty"`
 	OverlayProfiles                  []string          `json:"overlay_profiles,omitempty"`
 	ReviewBundles                    bool              `json:"review_bundles,omitempty"`
@@ -1012,6 +1013,122 @@ func reviewToolLabel(id, component string) string {
 	return id + " (component " + component + ")"
 }
 
+// ReviewContract names a governance contract whose rules judge work that was
+// completed before the contract existed.
+//
+// Every one of these has arrived the same way: a rule tightens, and every
+// closeout recorded under the previous rule starts failing — not because it
+// became less considered, but because it is being read against a contract that
+// did not exist when it was written. The engine's answer each time has been a
+// dated field in the review policy, and by the fourth one the pattern was
+// clearly accreting: a field, a validation, a bespoke exemption, and an
+// adopting instance that breaks on update until someone finds the field.
+//
+// The registry makes the date lookup one mechanism. What stays per-contract is
+// the predicate — what "completed before" means differs, and pretending
+// otherwise would be a worse abstraction than four fields.
+type ReviewContract struct {
+	// ID is how a policy names the contract in `contract_adoptions`.
+	ID string
+	// LegacyField is the top-level policy key that carried this date before
+	// the registry existed. Policies written against it keep working, and are
+	// never rewritten to the map.
+	LegacyField string
+	// Summary says what the contract requires, for `pose doctor` to quote when
+	// an instance has history and no date.
+	Summary string
+}
+
+// ReviewContracts returns the registry. Adding a contract to it is what makes
+// `pose update` stamp it and `pose doctor` report it; nothing else needs to
+// learn about it.
+func ReviewContracts() []ReviewContract {
+	out := make([]ReviewContract, len(reviewContracts))
+	copy(out, reviewContracts)
+	return out
+}
+
+// reviewContracts is the registry. Adding a contract here is what makes
+// `pose update` stamp it and `pose doctor` report it; nothing else needs to
+// learn about it.
+var reviewContracts = []ReviewContract{
+	{
+		ID:          "component-aware",
+		LegacyField: "component_aware_adopted_at",
+		Summary:     "review plans are resolved per component",
+	},
+	{
+		ID:          "review-bundles",
+		LegacyField: "review_bundles_adopted_at",
+		Summary:     "review approval is recorded against an immutable sealed bundle",
+	},
+	{
+		ID:          "evidence-vocabulary",
+		LegacyField: "evidence_vocabulary_reconciled_at",
+		Summary:     "a passed criterion must cite evidence the sealed bundle contains, of a class the criterion asks for",
+	},
+}
+
+// ContractAdoptedAt is the date this instance received the named contract, or
+// "" if it has not recorded one.
+//
+// `contract_adoptions` wins over the legacy field so a project can migrate at
+// its own pace, and an explicitly empty value in either place is a decision —
+// judge my whole history by the current contract — not an absence.
+func (p ReviewPolicy) ContractAdoptedAt(id string) string {
+	if p.ContractAdoptions != nil {
+		if date, ok := p.ContractAdoptions[id]; ok {
+			return date
+		}
+	}
+	for _, contract := range reviewContracts {
+		if contract.ID != id {
+			continue
+		}
+		switch contract.LegacyField {
+		case "component_aware_adopted_at":
+			return p.ComponentAwareAdoptedAt
+		case "review_bundles_adopted_at":
+			return p.ReviewBundlesAdoptedAt
+		case "evidence_vocabulary_reconciled_at":
+			return p.EvidenceVocabularyReconciledAt
+		}
+	}
+	return ""
+}
+
+// ContractAdoptionRecorded reports whether the instance has said anything about
+// this contract at all, including saying "no date". `pose update` stamps only
+// what has never been recorded.
+func (p ReviewPolicy) ContractAdoptionRecorded(id string) bool {
+	if p.ContractAdoptions != nil {
+		if _, ok := p.ContractAdoptions[id]; ok {
+			return true
+		}
+	}
+	return p.ContractAdoptedAt(id) != ""
+}
+
+// reviewCompletedBeforeContract is the shared half of every exemption: the
+// scope is done, and the review predates the date this instance received the
+// contract. The per-contract conditions stay with their own functions.
+func (s Store) reviewCompletedBeforeContract(scope ScopeRef, policy ReviewPolicy, contractID, reviewedAt string) bool {
+	stamped := policy.ContractAdoptedAt(contractID)
+	if stamped == "" {
+		return false
+	}
+	adopted, err := time.Parse(time.DateOnly, stamped)
+	if err != nil {
+		return false
+	}
+	reviewed, err := time.Parse(time.RFC3339, reviewedAt)
+	if err != nil || !reviewed.Before(adopted) {
+		return false
+	}
+	done, err := s.scopeLifecycleDone(scope)
+	return err == nil && done
+}
+
 // evidenceVocabularyLegacyExempt keeps a completed scope's approval when the
 // only thing that changed under it is which class name a criterion asks for.
 //
@@ -1026,35 +1143,17 @@ func reviewToolLabel(id, component string) string {
 // silently excuse a review recorded after the reconciliation, and it is bounded
 // to scopes already done: an open scope is re-reviewed anyway.
 func (s Store) evidenceVocabularyLegacyExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
-	if policy.EvidenceVocabularyReconciledAt == "" {
-		return false
-	}
-	reconciled, err := time.Parse(time.DateOnly, policy.EvidenceVocabularyReconciledAt)
-	if err != nil {
-		return false
-	}
-	reviewed, err := time.Parse(time.RFC3339, attempt.ReviewedAt)
-	if err != nil || !reviewed.Before(reconciled) {
-		return false
-	}
-	done, err := s.scopeLifecycleDone(scope)
-	return err == nil && done
+	return s.reviewCompletedBeforeContract(scope, policy, "evidence-vocabulary", attempt.ReviewedAt)
 }
 
 func (s Store) componentAwareLegacyAttemptExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
-	if !policy.ComponentAware || policy.ComponentAwareAdoptedAt == "" || attempt.PlanDigest != "" {
+	// The extra condition is this contract's own: an attempt that already
+	// carries a plan digest was recorded under component-aware planning, so it
+	// is not legacy however old it is.
+	if !policy.ComponentAware || attempt.PlanDigest != "" {
 		return false
 	}
-	adopted, err := time.Parse(time.DateOnly, policy.ComponentAwareAdoptedAt)
-	if err != nil {
-		return false
-	}
-	reviewed, err := time.Parse(time.RFC3339, attempt.ReviewedAt)
-	if err != nil || !reviewed.Before(adopted) {
-		return false
-	}
-	done, err := s.scopeLifecycleDone(scope)
-	return err == nil && done
+	return s.reviewCompletedBeforeContract(scope, policy, "component-aware", attempt.ReviewedAt)
 }
 
 func (s Store) reviewBundlesLegacyAttemptExempt(scope ScopeRef, policy ReviewPolicy) bool {
