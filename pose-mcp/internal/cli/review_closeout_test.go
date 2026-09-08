@@ -122,12 +122,12 @@ func TestReviewPlanCLIProjectsJSONAndPinsReviewRecord(t *testing.T) {
 func TestReviewRecordRequiresRequiredToolDispositions(t *testing.T) {
 	root := t.TempDir()
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@2"},"reviewer_independence":{"spec":"same-actor-separate-execution"},"component_aware":true,"component_aware_adopted_at":"2026-08-13","unmapped_component_behavior":"warning"}`)
-	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":2,"id":"spec-closeout","version":2,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed","evidence_classes":["test"]}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":2,"id":"spec-closeout","version":2,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed","evidence_classes":["unit"]}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{"apps":[],"services":[],"packages":[{"name":"module","path":"module space","language":"go","owner":"@team","domain":"backend","criticality":"high","validationProfile":"baseline","metadataStatus":{"source":"declared","isComplete":true,"missingFields":[]}}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", `{"reverse":{}}`)
 	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-13\ncomponents: module\n---\n\n# Spec: alpha\n\n### Artifacts\n- modified: module space/main.go\n")
 
-	baseArgs := []string{"spec:alpha", "--reviewer", "agent:review-pass", "--decision", "approved", "--evidence", "test:unit"}
+	baseArgs := []string{"spec:alpha", "--reviewer", "agent:review-pass", "--decision", "approved", "--evidence", "unit:unit"}
 	var out, errOut bytes.Buffer
 	if code := cmdReviewRecord(root, baseArgs, &out, &errOut); code != 2 || !strings.Contains(errOut.String(), "required review tool") {
 		t.Fatalf("missing required tools were accepted: code=%d out=%s err=%s", code, out.String(), errOut.String())
@@ -173,7 +173,7 @@ func reviewBundleCLIFixture(t *testing.T) string {
 }`)
 	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{
   "schema_version":2,"id":"spec-closeout","version":2,"scope":"spec",
-  "criteria":[{"id":"correctness","description":"reviewed","evidence_classes":["test"]}]
+  "criteria":[{"id":"correctness","description":"reviewed","evidence_classes":["unit"]}]
 }`)
 	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{
   "apps":[],"services":[],
@@ -221,7 +221,7 @@ Pending.
   "nodes":[],"edges":[],"claims":[],"reverse":{"pose-mcp/main.go":["bundle"]},"findings":[],
   "change_sets":[{"id":"cs-bundle","spec":"bundle","selector":"range:a..b","base":"a","head":"b","resolved_base":"a","resolved_head":"b","paths":[{"action":"modified","path":"pose-mcp/main.go"}],"diff_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}],
   "deliveries":[{"spec":"bundle","ref":"contract:bundle","kind":"contract","id":"bundle","module":"pose-mcp","profile":"api-contract","entrypoint":"pose-mcp/main.go"}],
-  "validation_results":[{"id":"bundle-test","module":"pose-mcp","check":"test","evidence_class":"test","severity":"required","outcome":"pass","provenance_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
+  "validation_results":[{"id":"bundle-test","module":"pose-mcp","check":"test","evidence_class":"unit","severity":"required","outcome":"pass","provenance_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
 }`)
 	return root
 }
@@ -261,7 +261,15 @@ func TestReviewBundleCLISealsAttestsAndVerifies(t *testing.T) {
 	}
 	out.Reset()
 	errOut.Reset()
-	attest := []string{"attest", sealed.BundleID, "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", "test:bundle", "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
+	// Cite what the bundle actually seals. This used to pass a fixed
+	// `test:bundle` that appeared in no bundle, so the test proved the command
+	// accepted an evidence flag — not that the attestation it wrote was
+	// supported by the subject it approves.
+	if len(sealed.Payload.Evidence) == 0 {
+		t.Fatalf("the fixture seals no evidence, so this test cannot show an attestation is supported: %+v", sealed.Payload)
+	}
+	sealedEvidence := sealed.Payload.Evidence[0].EvidenceClass + ":" + sealed.Payload.Evidence[0].ID
+	attest := []string{"attest", sealed.BundleID, "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", sealedEvidence, "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
 	if code := cmdReview(root, attest, &out, &errOut); code != 0 {
 		t.Fatalf("attest code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
@@ -287,7 +295,7 @@ func TestReviewRecordDelegatesToBundleAttestationWhenAdopted(t *testing.T) {
 	}
 	out.Reset()
 	errOut.Reset()
-	args := []string{"record", "spec:bundle", "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", "test:bundle", "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
+	args := []string{"record", "spec:bundle", "--reviewer", "agent:bundle-review", "--decision", "approved", "--evidence", "unit:bundle", "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--apply"}
 	if code := cmdReview(root, args, &out, &errOut); code != 0 {
 		t.Fatalf("record adapter code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
@@ -459,16 +467,16 @@ func TestReviewBundleSealAndCloseoutForDocOnlySpecWithNoDeliveryTargets(t *testi
   "version": 2,
   "scope": "spec",
   "criteria": [
-    {"id": "correctness", "description": "reviewed", "evidence_classes": ["test"]},
-    {"id": "delivery-verification", "description": "verified", "evidence_classes": ["validation"]}
+    {"id": "correctness", "description": "reviewed", "evidence_classes": ["unit"]},
+    {"id": "delivery-verification", "description": "verified", "evidence_classes": ["build", "unit", "integration", "e2e"]}
   ],
   "tools": [
     {"id": "review-check", "requiredness": "required", "criteria": ["correctness", "delivery-verification"]},
-    {"id": "validate", "requiredness": "required", "evidence_classes": ["validation"], "criteria": ["delivery-verification"], "preconditions": ["delivery-target-declared"]}
+    {"id": "validate", "requiredness": "required", "evidence_classes": ["build", "unit", "integration", "e2e"], "criteria": ["delivery-verification"], "preconditions": ["delivery-target-declared"]}
   ]
 }`)
 	writeCloseoutCLIFile(t, root, ".pose/review-profiles/backend-review.json", `{"schema_version":2,"id":"backend-review","version":1,"scope":"spec","selectors":{"languages":["go"]},"criteria":[{"id":"backend-contracts","description":"contracts","rules":["backend-go"],"evidence_classes":["integration"]}],"tools":[{"id":"assess-integrate","requiredness":"recommended","criteria":["backend-contracts"]}]}`)
-	writeCloseoutCLIFile(t, root, ".pose/review-profiles/frontend-review.json", `{"schema_version":2,"id":"frontend-review","version":1,"scope":"spec","selectors":{"languages":["javascript"]},"criteria":[{"id":"frontend-user-visible-behavior","description":"ui","rules":["frontend-react"],"evidence_classes":["test"]}],"tools":[{"id":"surface-check","requiredness":"recommended","evidence_classes":["reachability"],"criteria":["frontend-user-visible-behavior"],"preconditions":["delivery-target-declared"]}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/frontend-review.json", `{"schema_version":2,"id":"frontend-review","version":1,"scope":"spec","selectors":{"languages":["javascript"]},"criteria":[{"id":"frontend-user-visible-behavior","description":"ui","rules":["frontend-react"],"evidence_classes":["unit"]}],"tools":[{"id":"surface-check","requiredness":"recommended","evidence_classes":["reachability"],"criteria":["frontend-user-visible-behavior"],"preconditions":["delivery-target-declared"]}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","governed_roots":[".pose/adr"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
 	writeCloseoutCLIFile(t, root, ".pose/policy/delivery.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","results_path":".pose/results/current.json"}`)
 	writeCloseoutCLIFile(t, root, ".pose/rules/security.md", "# Security\n")
@@ -570,8 +578,8 @@ func TestReviewBundleSealSingleModuleRootFilesAndManifests(t *testing.T) {
   "version": 2,
   "scope": "spec",
   "criteria": [
-    {"id": "correctness", "description": "reviewed", "evidence_classes": ["test"]},
-    {"id": "delivery-verification", "description": "verified", "evidence_classes": ["validation"]}
+    {"id": "correctness", "description": "reviewed", "evidence_classes": ["unit"]},
+    {"id": "delivery-verification", "description": "verified", "evidence_classes": ["build", "unit", "integration", "e2e"]}
   ],
   "tools": [
     {"id": "review-check", "requiredness": "required", "criteria": ["correctness", "delivery-verification"]}
@@ -686,8 +694,8 @@ func TestReviewBundleSealSingleModuleSubdirectoryDeliveryTarget(t *testing.T) {
   "version": 2,
   "scope": "spec",
   "criteria": [
-    {"id": "correctness", "description": "reviewed", "evidence_classes": ["test"]},
-    {"id": "delivery-verification", "description": "verified", "evidence_classes": ["validation"]}
+    {"id": "correctness", "description": "reviewed", "evidence_classes": ["unit"]},
+    {"id": "delivery-verification", "description": "verified", "evidence_classes": ["build", "unit", "integration", "e2e"]}
   ],
   "tools": [
     {"id": "review-check", "requiredness": "required", "criteria": ["correctness", "delivery-verification"]}
@@ -755,7 +763,8 @@ delivers: contract:my-contract
   "generated_at": "2026-08-22T00:00:00Z",
   "provenance_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
   "checks": [
-    {"id": "test-root", "module": ".", "name": "go-test", "evidence_class": "integration", "severity": "required", "outcome": "pass"}
+    {"id": "test-root", "module": ".", "name": "go-test", "evidence_class": "integration", "severity": "required", "outcome": "pass"},
+    {"id": "unit-root", "module": ".", "name": "go-unit", "evidence_class": "unit", "severity": "required", "outcome": "pass"}
   ]
 }`, headSha))
 
@@ -822,7 +831,7 @@ func TestReviewVerifyScopeIsolationFromUnrelatedCorruptedBundle(t *testing.T) {
   "version": 2,
   "scope": "spec",
   "criteria": [
-    {"id": "correctness", "description": "reviewed", "evidence_classes": ["test"]}
+    {"id": "correctness", "description": "reviewed", "evidence_classes": ["unit"]}
   ],
   "tools": [
     {"id": "review-check", "requiredness": "required", "criteria": ["correctness"]}
@@ -884,21 +893,26 @@ Nenhum
 	var out, errOut bytes.Buffer
 	// Seal bundle for spec-a
 	_ = cmdArtifactCheck(root, []string{"--spec", "spec-a", "--strict"}, &out, &errOut)
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	if code := cmdReviewBundle(root, []string{"spec:spec-a", "--seal"}, &out, &errOut); code != 0 {
 		t.Fatalf("bundle seal spec-a failed: %s %s", out.String(), errOut.String())
 	}
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	_ = cmdReviewAutoAttest(root, []string{"spec:spec-a", "--apply"}, &out, &errOut)
 
 	// Seal bundle for spec-b
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	_ = cmdArtifactCheck(root, []string{"--spec", "spec-b", "--strict"}, &out, &errOut)
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	if code := cmdReviewBundle(root, []string{"spec:spec-b", "--seal"}, &out, &errOut); code != 0 {
 		t.Fatalf("bundle seal spec-b failed: %s %s", out.String(), errOut.String())
 	}
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	_ = cmdReviewAutoAttest(root, []string{"spec:spec-b", "--apply"}, &out, &errOut)
 
 	// Now corrupt spec-a's review bundle file on disk (simulate external rename script / edit)
@@ -913,16 +927,14 @@ Nenhum
 	}
 
 	// Verify and close spec-b - MUST SUCCEED despite corrupted spec-a bundle
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	if code := cmdReviewVerify(root, []string{"spec:spec-b"}, &out, &errOut); code != 0 {
 		t.Fatalf("review verify spec-b should succeed independently of corrupted spec-a: out=%s err=%s", out.String(), errOut.String())
 	}
-	out.Reset(); errOut.Reset()
+	out.Reset()
+	errOut.Reset()
 	if code := cmdClose(root, []string{"spec:spec-b"}, &out, &errOut); code != 0 {
 		t.Fatalf("pose close spec-b failed: out=%s err=%s", out.String(), errOut.String())
 	}
 }
-
-
-
-

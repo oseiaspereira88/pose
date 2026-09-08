@@ -5,8 +5,8 @@
   "scope": "spec",
   "criteria": [
     {"id": "scope", "description": "The implementation matches the approved spec scope.", "rules": ["documentation-style"]},
-    {"id": "requirements", "description": "Every requirement has current, relevant evidence.", "evidence_classes": ["requirement-trace", "test"]},
-    {"id": "correctness", "description": "Functional and negative behavior is correct.", "evidence_classes": ["test", "validation"]},
+    {"id": "requirements", "description": "Every requirement has current, relevant evidence.", "evidence_classes": ["unit", "integration", "e2e"]},
+    {"id": "correctness", "description": "Functional and negative behavior is correct.", "evidence_classes": ["build", "unit", "integration", "e2e"]},
     {"id": "security", "description": "Inputs, paths, evidence and authority boundaries are safe.", "rules": ["security"]},
     {"id": "compatibility", "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated."},
     {"id": "operability", "description": "Errors, explanations and remediation are actionable."},
@@ -15,6 +15,6 @@
   "tools": [
     {"id": "artifact-check", "requiredness": "required", "criteria": ["scope", "requirements"], "preconditions": ["artifacts-attributed"]},
     {"id": "assess-tech-debt", "requiredness": "recommended", "criteria": ["correctness"]},
-    {"id": "validate", "requiredness": "required", "evidence_classes": ["validation"], "criteria": ["requirements", "correctness"], "preconditions": ["delivery-target-declared"]}
+    {"id": "validate", "requiredness": "required", "evidence_classes": ["build", "unit", "integration", "e2e"], "criteria": ["requirements", "correctness"], "preconditions": ["delivery-target-declared"]}
   ]
 }

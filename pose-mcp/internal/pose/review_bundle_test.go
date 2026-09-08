@@ -68,9 +68,16 @@ Pending.
 			Paths:      []ObservedPath{{Action: "modified", Path: "api/server.go"}},
 			DiffDigest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
 		}},
-		Deliveries:        []DeliveryTarget{{Spec: "backend", Ref: "contract:backend-api", Kind: "contract", ID: "backend-api", Module: "api", Profile: "api-contract", Entrypoint: "api/server.go"}},
-		ValidationResults: []DeliveryValidationResult{{ID: "validate-backend", Module: "api", Check: "go-test", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}},
-		Reverse:           map[string][]string{"api/server.go": {"backend"}}, Nodes: []DeliveryIntegrityNode{}, Edges: []DeliveryIntegrityEdge{}, Claims: []ArtifactClaim{}, Findings: []DeliveryIntegrityFinding{},
+		Deliveries: []DeliveryTarget{{Spec: "backend", Ref: "contract:backend-api", Kind: "contract", ID: "backend-api", Module: "api", Profile: "api-contract", Entrypoint: "api/server.go"}},
+		ValidationResults: []DeliveryValidationResult{
+			{ID: "validate-backend", Module: "api", Check: "go-test", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+			// The plan's `backend-observability` and `correctness` criteria ask
+			// for class `test`. Without a result that emits it the fixture is a
+			// repository whose own plan cannot be satisfied, and every
+			// attestation built on it can only cite evidence that is not there.
+			{ID: "unit-backend", Module: "api", Check: "go-unit", EvidenceClass: "unit", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+		},
+		Reverse: map[string][]string{"api/server.go": {"backend"}}, Nodes: []DeliveryIntegrityNode{}, Edges: []DeliveryIntegrityEdge{}, Claims: []ArtifactClaim{}, Findings: []DeliveryIntegrityFinding{},
 	}
 	raw, err := json.MarshalIndent(graph, "", "  ")
 	if err != nil {
@@ -80,12 +87,40 @@ Pending.
 	return root, store
 }
 
+// approvedBundleAttestation builds the attestation a reviewer who did the work
+// would record: every criterion cites evidence the bundle actually seals, of a
+// class the criterion asks for. It used to cite a fixed `integration:bundle-test`
+// that appeared in no bundle, so the whole suite proved only that a signature
+// was well-formed — never that it was supported.
 func approvedBundleAttestation(bundle ReviewBundle, reviewer string) ReviewAttestation {
+	sealed := []string{}
+	byClass := map[string][]string{}
+	for _, ev := range bundle.Payload.Evidence {
+		ref := ev.EvidenceClass + ":" + ev.ID
+		sealed = append(sealed, ref)
+		byClass[ev.EvidenceClass] = append(byClass[ev.EvidenceClass], ref)
+	}
+	pick := func(classes []string) string {
+		for _, class := range classes {
+			if refs := byClass[class]; len(refs) > 0 {
+				return refs[0]
+			}
+		}
+		if len(classes) == 0 && len(sealed) > 0 {
+			return sealed[0]
+		}
+		return ""
+	}
 	criteria := []ReviewCriterion{}
 	for _, criterion := range bundle.Payload.Plan.Criteria {
-		if criterion.Required {
-			criteria = append(criteria, ReviewCriterion{ID: criterion.ID, Disposition: "passed", Evidence: "integration:bundle-test"})
+		if !criterion.Required {
+			continue
 		}
+		if evidence := pick(criterion.EvidenceClasses); evidence != "" {
+			criteria = append(criteria, ReviewCriterion{ID: criterion.ID, Disposition: "passed", Evidence: evidence})
+			continue
+		}
+		criteria = append(criteria, ReviewCriterion{ID: criterion.ID, Disposition: "not-applicable", Rationale: "the fixture seals no evidence of a class this criterion asks for"})
 	}
 	tools := []ReviewToolDisposition{}
 	for _, tool := range bundle.Payload.Plan.Tools {
@@ -103,7 +138,7 @@ func approvedBundleAttestation(bundle ReviewBundle, reviewer string) ReviewAttes
 		}
 		tools = append(tools, disposition)
 	}
-	return ReviewAttestation{BundleID: bundle.BundleID, Reviewer: reviewer, Decision: "approved", Criteria: criteria, Tools: tools, EvidenceRefs: []string{"integration:bundle-test"}, Findings: []ReviewFinding{}}
+	return ReviewAttestation{BundleID: bundle.BundleID, Reviewer: reviewer, Decision: "approved", Criteria: criteria, Tools: tools, EvidenceRefs: sealed, Findings: []ReviewFinding{}}
 }
 
 func TestReviewBundleCanonicalAndDigestStable(t *testing.T) {
@@ -700,7 +735,7 @@ func TestReviewBundleMatchesRootModuleValidationEvidenceForSubdirectoryTargets(t
 	}}
 	// Validation result emitted at root module "."
 	graph.ValidationResults = []DeliveryValidationResult{{
-		ID: "val-root", Module: ".", Check: "go-test", EvidenceClass: "test", Severity: "required", Outcome: "pass",
+		ID: "val-root", Module: ".", Check: "go-test", EvidenceClass: "unit", Severity: "required", Outcome: "pass",
 		GitHead: "head", ProvenanceDigest: graph.ProvenanceDigest,
 	}}
 	raw, _ := json.Marshal(graph)
@@ -918,13 +953,15 @@ func TestReviewBundleDeltaIncludesChangedComponentsAndEvidenceClasses(t *testing
 	to.Payload.Plan.Components = append([]ReviewPlanComponent{}, from.Payload.Plan.Components...)
 	to.Payload.Plan.Components[0].Owner = "@new-owner"
 	to.Payload.Evidence = append([]ReviewBundleEvidence{}, from.Payload.Evidence...)
+	replaced := from.Payload.Evidence[0].EvidenceClass
 	to.Payload.Evidence[0].EvidenceClass = "e2e"
 	delta := ReviewBundleDiff(from, to)
+	wantClasses := "e2e," + replaced
 	if strings.Join(delta.ChangedComponents, ",") != from.Payload.Plan.Components[0].ID {
 		t.Fatalf("changed components = %v", delta.ChangedComponents)
 	}
-	if strings.Join(delta.ChangedEvidence, ",") != from.Payload.Evidence[0].ID || strings.Join(delta.ChangedEvidenceClasses, ",") != "e2e,integration" {
-		t.Fatalf("changed evidence = %v classes=%v", delta.ChangedEvidence, delta.ChangedEvidenceClasses)
+	if strings.Join(delta.ChangedEvidence, ",") != from.Payload.Evidence[0].ID || strings.Join(delta.ChangedEvidenceClasses, ",") != wantClasses {
+		t.Fatalf("changed evidence = %v classes=%v, want %s", delta.ChangedEvidence, delta.ChangedEvidenceClasses, wantClasses)
 	}
 }
 
@@ -1225,6 +1262,134 @@ Delivered.
 	}
 }
 
+// An attestation is a claim that criteria were judged against a subject. Until
+// now nothing tied the claim to the subject: `passed` could cite evidence the
+// bundle never sealed, evidence of a class the criterion did not ask for, or
+// nothing at all, and the attestation verified. Three closeouts in an adopting
+// repository were approved that way — one against a bundle carrying zero
+// evidence — and the gate reported them clean.
+func TestAttestationCriterionMustCiteEvidenceTheBundleSeals(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	now := time.Date(2026, 9, 8, 12, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(bundle.Payload.Evidence) == 0 {
+		t.Fatal("the fixture must seal evidence for this test to mean anything")
+	}
+
+	supported := approvedBundleAttestation(bundle, "agent:did-the-work")
+	supported.BundleDigest = bundle.BundleDigest
+	supported.AttestedAt = now.Add(time.Minute).Format(time.RFC3339)
+	if blockers := store.validateBundleAttestation(bundle, supported); len(blockers) != 0 {
+		t.Fatalf("a supported attestation was rejected: %v", blockers)
+	}
+
+	for _, tc := range []struct {
+		name     string
+		evidence string
+		want     string
+	}{
+		{"absent from the bundle", "integration:never-ran", "absent from the sealed bundle"},
+		{"nothing at all", "", "passed with no evidence"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			att := approvedBundleAttestation(bundle, "agent:stamped")
+			att.BundleDigest = bundle.BundleDigest
+			att.AttestedAt = now.Add(time.Minute).Format(time.RFC3339)
+			att.Criteria[0].Disposition = "passed"
+			att.Criteria[0].Evidence = tc.evidence
+			blockers := strings.Join(store.validateBundleAttestation(bundle, att), " ")
+			if !strings.Contains(blockers, tc.want) {
+				t.Fatalf("blockers = %q, want one mentioning %q", blockers, tc.want)
+			}
+		})
+	}
+}
+
+func TestAttestationCriterionMustCiteEvidenceOfARequiredClass(t *testing.T) {
+	// The failure that let `backend-integration-impact` pass on a `go vet`
+	// result: the reference was real and in the bundle, but of a class the
+	// criterion did not ask for.
+	_, store := reviewBundleFixture(t)
+	now := time.Date(2026, 9, 8, 12, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var classed ReviewPlanCriterion
+	for _, criterion := range bundle.Payload.Plan.Criteria {
+		if criterion.Required && len(criterion.EvidenceClasses) > 0 {
+			classed = criterion
+			break
+		}
+	}
+	if classed.ID == "" {
+		t.Fatal("the fixture plan has no criterion demanding a class")
+	}
+	wrong := ""
+	for _, ev := range bundle.Payload.Evidence {
+		if !containsFold(classed.EvidenceClasses, ev.EvidenceClass) {
+			wrong = ev.EvidenceClass + ":" + ev.ID
+			break
+		}
+	}
+	if wrong == "" {
+		t.Fatalf("the fixture seals no evidence of a class %s does not ask for", classed.ID)
+	}
+
+	att := approvedBundleAttestation(bundle, "agent:wrong-class")
+	att.BundleDigest = bundle.BundleDigest
+	att.AttestedAt = now.Add(time.Minute).Format(time.RFC3339)
+	for i := range att.Criteria {
+		if att.Criteria[i].ID == classed.ID {
+			att.Criteria[i].Disposition, att.Criteria[i].Evidence = "passed", wrong
+		}
+	}
+	blockers := strings.Join(store.validateBundleAttestation(bundle, att), " ")
+	if !strings.Contains(blockers, "requires evidence class") || !strings.Contains(blockers, classed.ID) {
+		t.Fatalf("blockers = %q, want one naming %s and the required class", blockers, classed.ID)
+	}
+}
+
+func TestAutoAttestRefusesRatherThanInventingAReference(t *testing.T) {
+	// Auto-attest used to fabricate `<class>:auto-attest` whenever the bundle
+	// sealed nothing of a required class. Nothing downstream checked the
+	// reference, so the command produced a passed criterion supported by a
+	// string. It must refuse instead, and name what is missing.
+	root, store := reviewBundleFixture(t)
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	kept := []DeliveryValidationResult{}
+	for _, result := range graph.ValidationResults {
+		if result.EvidenceClass != "integration" {
+			kept = append(kept, result)
+		}
+	}
+	if len(kept) == len(graph.ValidationResults) {
+		t.Fatal("the fixture seals no integration evidence to remove")
+	}
+	graph.ValidationResults = kept
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+
+	now := time.Date(2026, 9, 8, 12, 0, 0, 0, time.UTC)
+	sealed, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = store.AutoAttestReviewBundle(sealed.BundleID, "", false, now.Add(time.Minute))
+	if err == nil {
+		t.Fatal("auto-attest invented a reference for a class the bundle does not seal")
+	}
+	if !strings.Contains(err.Error(), "integration") || !strings.Contains(err.Error(), "not-applicable") {
+		t.Fatalf("error = %q, want it to name the missing class and the way out", err)
+	}
+}
+
 func TestReviewCriterionReuseIsInvalidatedByAnUnclassifiedRemoval(t *testing.T) {
 	// A criterion that is not subject-sensitive sees only the documentation and
 	// governance slice of the subject, so an unrelated implementation edit
@@ -1292,5 +1457,40 @@ func TestReviewCriterionReuseIsInvalidatedByAnUnclassifiedRemoval(t *testing.T) 
 	attestation.ReusedFrom = []ReviewAttestationReuse{{Criterion: criterion.ID, FromAttestation: prior.AttestationID, InputDigest: reviewCriterionInputDigest(first, priorCriterion)}}
 	if blockers := store.validateBundleAttestation(second, attestation); !strings.Contains(strings.Join(blockers, " "), "input digest changed") {
 		t.Fatalf("a verdict issued before the deletion was reused over it: %v", blockers)
+	}
+}
+
+func TestEvidenceSupportIsWaivedOnlyForApprovalsPredatingTheRule(t *testing.T) {
+	// The exemption that lets 52 completed closeouts survive this engine change
+	// must not become a way in. It is dated: an attestation recorded after the
+	// reconciliation gets no waiver, and one recorded before gets it only while
+	// the scope is done.
+	_, store := reviewBundleFixture(t)
+	now := time.Date(2026, 9, 8, 12, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	att := approvedBundleAttestation(bundle, "agent:unsupported")
+	att.BundleDigest = bundle.BundleDigest
+	att.AttestedAt = now.Format(time.RFC3339)
+	att.Criteria[0].Disposition, att.Criteria[0].Evidence = "passed", "integration:never-ran"
+
+	if blockers := store.validateBundleAttestationWith(bundle, att, false); len(blockers) == 0 {
+		t.Fatal("an unsupported criterion passed without the waiver")
+	}
+	waived := store.validateBundleAttestationWith(bundle, att, true)
+	for _, blocker := range waived {
+		if strings.Contains(blocker, "absent from the sealed bundle") || strings.Contains(blocker, "requires evidence class") {
+			t.Fatalf("the waiver did not cover the evidence-support blocker: %v", waived)
+		}
+	}
+
+	// It waives only that. A malformed attestation is still rejected.
+	broken := att
+	broken.Criteria = append([]ReviewCriterion{}, att.Criteria...)
+	broken.Criteria[0].Disposition = "definitely-fine"
+	if blockers := store.validateBundleAttestationWith(bundle, broken, true); len(blockers) == 0 {
+		t.Fatal("the waiver suppressed unrelated validation")
 	}
 }

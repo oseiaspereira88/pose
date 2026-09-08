@@ -3,6 +3,7 @@
 ## Status
 Accepted (2026-08-13) — implemented by spec `pose-review-bundle-convergence`
 Amended (2026-09-08) by spec `pose-review-subject-unclassified-removals` — see Amendments
+Amended (2026-09-08) by spec `pose-attestation-evidence-must-be-in-the-bundle` — see Amendments
 
 ## Context
 
@@ -69,7 +70,8 @@ base/head and provider merge SHAs as advisory provenance rather than the sole
 verification key.
 
 Record review approval as a separate immutable attestation referencing the
-exact bundle ID and digest. Creating, importing, superseding or verifying an
+exact bundle ID and digest. A criterion recorded `passed` must cite evidence the
+bundle contains, of a class the criterion asks for (amended 2026-09-08). Creating, importing, superseding or verifying an
 attestation never changes the bundle. `review-check`, `closeout-check` and
 `pose close` verify the attestation and then perform their own lifecycle and
 bookkeeping gates without adding new inputs to the approved subject.
@@ -174,3 +176,52 @@ This narrows the compatibility contract on the subject-class registry: `removed`
 is a new public class, and consumers pinned to the previous closed set will see
 it. Nothing else in the decision changes — the payload shape, digest algorithm,
 attestation separation and lifecycle gates are untouched.
+
+### 2026-09-08 — a passed criterion must be supported by the bundle
+
+Spec `pose-attestation-evidence-must-be-in-the-bundle`.
+
+The accepted decision separated approval from the subject and said verification
+"verifies the attestation", without stating what that verification owes the
+subject. In practice it owed nothing: every check was on the shape of the
+attestation — that required criteria appeared, that dispositions were spelled
+correctly, that `not-applicable` carried a rationale — and none on whether a
+`passed` was supported. A criterion could cite evidence absent from the bundle,
+evidence of a class it never asked for, or nothing at all, and verify.
+
+Three closeouts in an adopting repository were approved that way, one against a
+bundle sealing zero evidence. The separation of attestation from bundle is what
+makes this decision sound; it is also what left the two free to disagree, and
+nothing was closing the loop.
+
+The revision states the missing obligation:
+
+- A criterion recorded `passed` must cite a reference present in the bundle's
+  sealed evidence, and where the criterion declares evidence classes, the cited
+  evidence must be of one of them. `not-applicable` and `finding` are unchanged:
+  the first already carries a reviewer's rationale in place of evidence, and the
+  second records a problem rather than a clearance.
+- `pose review auto-attest` no longer synthesises a reference. Where the scope
+  is expected to carry validation evidence it refuses; where it is not, it
+  records the criterion `not-applicable` with a rationale.
+- A criterion demanding an evidence class no registered check may emit blocks
+  the plan. Dropping the class — the treatment tools receive — is wrong for a
+  criterion, because one left with no class accepts any sealed evidence: the
+  demand does not weaken, it disappears.
+
+**Compatibility.** This fails attestations that already verify. They are
+unsupported and were reported as sound, so the failure is the correction, not a
+regression; the remedy is a superseding attestation, which this decision's
+append-only model already provides, and no edit path is added. Plan digests
+change wherever a profile is reconciled, and therefore bundle digests, which is
+the ordinary consequence of a governed input changing and what supersession
+exists for.
+
+**The vocabulary underneath.** Two lists govern evidence classes and they
+disagree in both directions: `ValidEvidenceClasses`, what a check may emit, and
+`reviewEvidenceClassCatalog`, what a profile may demand. Six of nineteen classes
+appear in both. Ten a profile may demand — including `test`, `contract`,
+`validation` and `observability` — can never be produced; three a check may emit
+can never be demanded. The profiles shipped with POSE are reconciled to the
+intersection here, and the plan now blocks on the rest. Unifying the two lists
+is not done, and is recorded as a follow-up.
