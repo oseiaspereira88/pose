@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 )
 
 // computedIndexFiles are the `.pose/indexes/*.json` files `cmdIndex` itself
@@ -101,6 +102,7 @@ func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portu
 
 	// Migrate existing review policy / profiles from v1 to v2 if present
 	migrateInstanceReviewPolicy(dist, target, log)
+	stampContractAdoption(target, time.Now().UTC(), log)
 
 	// The neutral placeholders just seeded above for repo-map.json,
 	// spec-graph.json, delivery-integrity.json etc. are honestly empty, not
@@ -185,6 +187,47 @@ func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese
 		for _, rel := range added {
 			log("module-metadata (discovered): %s", "module-metadata (descoberto): %s", rel)
 		}
+	}
+}
+
+// stampContractAdoption records, in an instance's own review policy, the date
+// it received a governance contract that judges work retroactively.
+//
+// `.pose/policy/` is not machinery, so an update delivers the engine but never
+// the policy: an instance receives a stricter rule and no statement of when it
+// arrived, and every closeout recorded under the previous contract fails. In
+// POSE's own repository that was 106 of them, and the only reason it did not
+// happen here is that the date was added by hand in the same change.
+//
+// Today is the honest date, not `adopted_at`: work reviewed between adopting
+// POSE and receiving this contract was reviewed under the previous one. The
+// stamp is additive — an existing value is never touched, so a project that set
+// its own date, or deliberately cleared it to re-judge its history, keeps it.
+func stampContractAdoption(target string, now time.Time, log func(english, portuguese string, a ...any)) {
+	policyPath := filepath.Join(target, ".pose", "policy", "review.json")
+	raw, err := os.ReadFile(policyPath)
+	if err != nil {
+		return
+	}
+	var p map[string]any
+	if json.Unmarshal(raw, &p) != nil {
+		return // don't fight a hand-edited or malformed file
+	}
+	if existing, _ := p["evidence_vocabulary_reconciled_at"].(string); existing != "" {
+		return
+	}
+	if _, present := p["evidence_vocabulary_reconciled_at"]; present {
+		return // explicitly cleared: the instance wants its history re-judged
+	}
+	p["evidence_vocabulary_reconciled_at"] = now.Format(time.DateOnly)
+	updated, err := json.MarshalIndent(p, "", "  ")
+	if err != nil {
+		return
+	}
+	if writeAtomic(policyPath, append(updated, '\n'), 0o644) == nil && log != nil {
+		log("policy (contract adoption): evidence_vocabulary_reconciled_at=%s — closeouts reviewed before today keep their approval",
+			"política (adoção de contrato): evidence_vocabulary_reconciled_at=%s — closeouts revisados antes de hoje mantêm sua aprovação",
+			now.Format(time.DateOnly))
 	}
 }
 
