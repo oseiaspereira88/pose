@@ -10,10 +10,14 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
 func writeClaimsFixture(t *testing.T, root string, surfaces string) {
@@ -244,5 +248,51 @@ func TestPublicClaimsExplainsAnAbsentContract(t *testing.T) {
 	}
 	if strings.Contains(out, "no such file or directory") {
 		t.Errorf("output still leads with the raw stat error: %s", out)
+	}
+}
+
+// The message names a command, and a command that does not work is worse than
+// no instruction: the operator has already been told the gate is opt-in, and
+// now the one way in fails too. So run the command the output actually prints,
+// against the structure a fresh install produces — where `.pose/public` does
+// not exist, which is precisely what every other test in this file misses,
+// since writeClaimsFixture creates that directory itself.
+func TestPublicClaimsStartCommandWorksOnAFreshInstance(t *testing.T) {
+	root := t.TempDir()
+	template, err := fs.ReadFile(scaffold.Dist(), ".pose/templates/public-claims.json")
+	if err != nil {
+		t.Fatalf("the template must be delivered with the scaffold: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, ".pose", "templates"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".pose", "templates", "public-claims.json"), template, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	_, out := runClaims(t, root, "--strict")
+	command := ""
+	for _, line := range strings.Split(out, "\n") {
+		if _, after, found := strings.Cut(line, "To start: "); found {
+			command = after
+			break
+		}
+	}
+	if command == "" {
+		t.Fatalf("the output names no start command: %s", out)
+	}
+
+	cmd := exec.Command("sh", "-c", command)
+	cmd.Dir = root
+	if combined, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("the printed start command failed: %v\n$ %s\n%s", err, command, combined)
+	}
+	if _, err := os.Stat(filepath.Join(root, ".pose", "public", "claims.json")); err != nil {
+		t.Fatalf("the start command did not produce the contract: %v", err)
+	}
+
+	// And the gate must now get past the absent-contract path.
+	if _, after := runClaims(t, root, "--strict"); strings.Contains(after, "declares no public claims contract") {
+		t.Errorf("the contract was created but the gate still reports it absent: %s", after)
 	}
 }

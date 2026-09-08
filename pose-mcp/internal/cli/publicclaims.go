@@ -230,7 +230,10 @@ func cmdPublicClaims(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "  of ageing quietly. Surfaces are declared, never discovered — scanning for")
 		fmt.Fprintln(stderr, "  version-shaped strings would flag changelogs and release notes, which are")
 		fmt.Fprintln(stderr, "  supposed to name old versions.")
-		fmt.Fprintln(stderr, "  To start: cp .pose/templates/public-claims.json .pose/public/claims.json")
+		// `.pose/public` is not in instanceDirs and would not survive a clone if
+		// it were, since Git does not track empty directories. The instruction
+		// creates it, so it works on a fresh install and on a checkout alike.
+		fmt.Fprintln(stderr, "  To start: mkdir -p .pose/public && cp .pose/templates/public-claims.json .pose/public/claims.json")
 		return 2
 	}
 	if err != nil {

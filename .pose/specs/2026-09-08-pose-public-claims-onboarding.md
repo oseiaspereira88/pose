@@ -72,6 +72,8 @@ noticed. A gate against that failure which no one can turn on protects nothing.
   reads an unrun gate as a passing one.
 - R3: A template shall be delivered to every instance as machinery, and the
   message shall point at it by path.
+- R4: The command the message prints shall succeed against the structure a
+  fresh install produces, where `.pose/public` does not exist.
 
 ### Non-functional
 - The existing public-claims suite passes unchanged.
@@ -93,6 +95,10 @@ noticed. A gate against that failure which no one can turn on protects nothing.
 - modified: pose-mcp/internal/cli/publicclaims_test.go
 
 ### Technical risks
+- The instruction creates its own destination rather than relying on
+  `instanceDirs`. Adding `.pose/public` there would not be enough: Git does not
+  track empty directories, so a clone of an inited instance still would not have
+  it, and the same message would fail for the next operator.
 - The template's `surfaces` entries are examples, and a project that copies them
   without editing declares surfaces it may not have. The message says to copy
   and the template says to edit; a wrong path is reported by the gate itself
@@ -105,6 +111,7 @@ noticed. A gate against that failure which no one can turn on protects nothing.
 ### Implementation
 - [x] Increment 1: Explain an absent contract instead of reporting a stat error (R1, R2)
 - [x] Increment 2: Ship a template and point the message at it (R3)
+- [x] Increment 3: Make the printed command work on a fresh instance (R4)
 
 ### Validation
 - [x] The message is asserted, and the assertion fails without the change
@@ -128,6 +135,23 @@ noticed. A gate against that failure which no one can turn on protects nothing.
   was the message, and that is what this changes.
 - Consequences: an instance without the contract still fails the gate, now with
   a message that says why and what to do.
+
+### Decision 3
+- Date: 2026-09-08
+- Context: review reproduced the printed command against a fresh install and it
+  failed — `.pose/public` is in neither `instanceDirs` nor the embedded
+  scaffold, so `cp` had no destination.
+- Options considered: (a) add `.pose/public` to `instanceDirs`; (b) put
+  `mkdir -p` in the instruction; (c) both.
+- Decision: (b).
+- Rationale: (a) alone does not hold. Git does not track empty directories, so a
+  clone of an inited instance still lacks the path and the same message fails
+  for the next operator; and creating a directory in every instance for an
+  opt-in gate most never enable is clutter that buys nothing. An instruction
+  that creates its own destination works on a fresh install and a checkout
+  alike.
+- Consequences: the message is one clause longer and depends on nothing about
+  how the instance was created.
 
 ### Decision 2
 - Date: 2026-09-08
@@ -161,7 +185,13 @@ against the previous behaviour.
 ### Execution log
 - Date: 2026-09-08
 - Environment: local, Go 1.26
-- Notes: all eight packages pass, and the pre-existing
+- Notes: the R4 test does not assert a string — it runs the command the output
+  actually prints, in a temp root holding only the template, and then checks the
+  gate gets past the absent-contract path. Restoring the bare `cp` reproduces
+  the operator's failure verbatim: `cp: cannot create regular file
+  '.pose/public/claims.json': No such file or directory`. The same command was
+  confirmed by hand against `pose install` into an empty directory. All eight
+  packages pass, and the pre-existing
   `TestPublicClaimsFailsWithoutContractOrVersionSource` passes unchanged, which
   is the evidence that the exit contract was preserved. Disabling the new branch
   reproduces the original output verbatim —
@@ -170,7 +200,7 @@ against the previous behaviour.
   102 files so the embedded scaffold carries the template.
 
 ### Results summary
-- Successes: R1, R2, R3 verified.
+- Successes: R1, R2, R3, R4 verified.
 - Failures: none.
 
 ### Requirement trace
@@ -178,7 +208,13 @@ against the previous behaviour.
 - R2 [satisfied] <the branch returns 2, and the pre-existing failure test passes unchanged>
 - R3 [satisfied] <.pose/templates/public-claims.json is under a machinery root and mirrored into the embedded scaffold by go generate; the message names it by path and the test asserts the path appears>
 
+- R4 [satisfied] <the instruction carries mkdir -p; TestPublicClaimsStartCommandWorksOnAFreshInstance parses the printed command out of the output, executes it in a root that has only the template, and asserts the contract lands and the gate stops reporting it absent>
+
 ### Known gaps
+- Every other test in the public-claims suite calls `writeClaimsFixture`, which
+  creates `.pose/public` itself — which is why none of them ever exercised the
+  shape a real first run has. That is the second fixture family in this session
+  to confirm the case that works rather than the case that runs.
 - The template documents `current-only` and `none` by example in its notes. If
   the contract gains a third mode, the template is a second place to update and
   nothing enforces that it is.
