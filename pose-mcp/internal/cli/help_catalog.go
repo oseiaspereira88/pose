@@ -249,7 +249,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Subcommands: []SubcommandHelp{
 			{"bundle", "pose review bundle <scope> [--seal] [--explain]", "Prepare or seal an immutable review subject bundle", "Prepara ou sela o bundle imutável de revisão"},
 			{"auto-attest", "pose review auto-attest <scope|bundle-id> [--apply]", "Extract validation results and automatically record attestation", "Extrai resultados de validação e registra atestação automaticamente"},
-			{"attest", "pose review attest <bundle-id> --reviewer <id> --decision <decision> --evidence <ref> [--apply]", "Record a manual review decision attestation", "Registra manualmente uma atestação de decisão de review"},
+			{"attest", "pose review attest <bundle-id> --reviewer <id> --decision <decision> --evidence <ref> [--criterion ID|disposition|evidence|rationale] [--apply]", "Record a manual review decision attestation; --criterion overrides one criterion, e.g. ID|not-applicable||<why>", "Registra manualmente uma atestação de decisão de review; --criterion sobrepõe um critério, ex. ID|not-applicable||<motivo>"},
 			{"verify", "pose review verify <scope|bundle-id>", "Verify freshness and closeout readiness of review bundles", "Verifica atualidade e prontidão do review bundle para fechamento"},
 			{"record", "pose review record <scope> ...", "Compatibility entrypoint for review recording", "Ponto de entrada de compatibilidade para registro de review"},
 		},
