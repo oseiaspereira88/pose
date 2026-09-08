@@ -70,10 +70,14 @@ ok "step 4: suggest resolves the applicable trail"
 # the beat the whole page is built around.
 python3 - "$SPEC" <<'PY'
 import sys, io, re
+from datetime import date
 p = sys.argv[1]
 s = io.open(p, encoding='utf-8').read()
 s = re.sub(r'^status: draft', 'status: done', s, count=1, flags=re.M)
-s = re.sub(r'^completed_at:\s*.*$', 'completed_at: 2026-09-07', s, count=1, flags=re.M)
+# Today, not a literal: the scaffold stamps created_at with the current date, so
+# a fixed completion date fails the lifecycle gate with
+# "completed_at is earlier than created_at" on every run after that date.
+s = re.sub(r'^completed_at:\s*.*$', 'completed_at: ' + date.today().isoformat(), s, count=1, flags=re.M)
 io.open(p, 'w', encoding='utf-8').write(s)
 PY
 if out="$("$BIN" lint-spec customer-export --strict 2>&1)"; then :; fi
