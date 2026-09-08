@@ -499,7 +499,7 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	sort.Strings(evidence)
-	criteria, err := reviewCriterionDispositions(plan, evidence, rawCriteria)
+	criteria, err := reviewCriterionDispositions(plan, evidence, rawCriteria, parsedFindings)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 		return 2
@@ -793,7 +793,11 @@ func renderReviewAttempt(id, scope, digest string, plan posemodel.ReviewPlan, pr
 // on evidence that does not support it, or to leave the closeout blocked.
 // `auto-attest` gained the ability to record `not-applicable` with a rationale;
 // a human reviewer should not have fewer options than the automated path.
-func reviewCriterionDispositions(plan posemodel.ReviewPlan, evidence, raw []string) ([]posemodel.ReviewCriterion, error) {
+func reviewCriterionDispositions(plan posemodel.ReviewPlan, evidence, raw []string, findings []posemodel.ReviewFinding) ([]posemodel.ReviewCriterion, error) {
+	recordedFindings := map[string]bool{}
+	for _, finding := range findings {
+		recordedFindings[finding.ID] = true
+	}
 	planned := map[string]posemodel.ReviewPlanCriterion{}
 	for _, criterion := range plan.Criteria {
 		planned[criterion.ID] = criterion
@@ -824,6 +828,21 @@ func reviewCriterionDispositions(plan posemodel.ReviewPlan, evidence, raw []stri
 		// reviewer has to change rather than the artifact they cannot see.
 		if disposition.Disposition == "not-applicable" && disposition.Rationale == "" {
 			return nil, fmt.Errorf("criterion %s is not-applicable and needs a rationale: ID|not-applicable||<why>", disposition.ID)
+		}
+		// `finding` says a criterion did not clear and a problem was recorded.
+		// Nothing downstream ties the two together: validateBundleAttestation
+		// checks the disposition and then only rejects findings that exist and
+		// are open, so a criterion marked `finding` with none filed reports a
+		// clean closeout for a criterion the reviewer explicitly did not pass.
+		// The evidence slot names the finding, which is the reference the
+		// disposition is claiming.
+		if disposition.Disposition == "finding" {
+			if disposition.Evidence == "" {
+				return nil, fmt.Errorf("criterion %s is a finding and must name the recorded finding: ID|finding|<finding-id>|<note>", disposition.ID)
+			}
+			if !recordedFindings[disposition.Evidence] {
+				return nil, fmt.Errorf("criterion %s names finding %q, which this attestation does not record; add it with --finding", disposition.ID, disposition.Evidence)
+			}
 		}
 		overrides[parts[0]] = disposition
 	}

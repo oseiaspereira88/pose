@@ -22,7 +22,7 @@ func dispositionPlan() posemodel.ReviewPlan {
 // reviewer should not have fewer options than the automated path.
 func TestAttestRecordsNotApplicableWithARationale(t *testing.T) {
 	criteria, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"},
-		[]string{"frontend-accessibility|not-applicable||the change has no user-visible surface"})
+		[]string{"frontend-accessibility|not-applicable||the change has no user-visible surface"}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,16 +51,42 @@ func TestAttestRejectsDispositionsItCannotStandBehind(t *testing.T) {
 		{"optional criterion", "optional-one|not-applicable||why", "does not match a required criterion"},
 		{"duplicate", "correctness|passed|unit:api/go/test|", "duplicate"},
 		{"malformed", "correctness", "must be ID|disposition|evidence|rationale"},
+		{"finding with nothing filed", "correctness|finding||", "must name the recorded finding"},
+		{"finding naming one that is not recorded", "correctness|finding|f-nope|", "does not record"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			raw := []string{tc.arg}
 			if tc.name == "duplicate" {
 				raw = append(raw, tc.arg)
 			}
-			_, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"}, raw)
+			_, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"}, raw, nil)
 			if err == nil || !strings.Contains(err.Error(), tc.want) {
 				t.Fatalf("err = %v, want one mentioning %q", err, tc.want)
 			}
 		})
+	}
+}
+
+// `finding` says a criterion did not clear and a problem was recorded. Nothing
+// downstream ties the two together — validateBundleAttestation checks the
+// disposition, then only rejects findings that exist and are open — so a
+// criterion marked `finding` with none filed reported a clean closeout for a
+// criterion the reviewer explicitly did not pass. --criterion is what made that
+// reachable by hand.
+func TestAttestTiesAFindingCriterionToARecordedFinding(t *testing.T) {
+	filed := []posemodel.ReviewFinding{{ID: "f-1", Severity: "medium", Disposition: "resolved"}}
+	criteria, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"},
+		[]string{"correctness|finding|f-1|the race is filed and fixed"}, filed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range criteria {
+		if c.ID == "correctness" && (c.Disposition != "finding" || c.Evidence != "f-1") {
+			t.Errorf("criterion = %+v", c)
+		}
+	}
+	if _, err := reviewCriterionDispositions(dispositionPlan(), []string{"unit:api/go/test"},
+		[]string{"correctness|finding|f-1|"}, nil); err == nil {
+		t.Error("a finding criterion was accepted with no finding recorded")
 	}
 }

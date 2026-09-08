@@ -66,6 +66,8 @@ automated path.
 - R4: A criterion not named shall keep the current default.
 - R5: A `--criterion` naming something outside the plan's required criteria, or
   naming one twice, shall be refused.
+- R6: A criterion dispositioned `finding` shall name a finding this attestation
+  records.
 
 ### Non-functional
 - The existing review suite passes unchanged.
@@ -99,6 +101,7 @@ automated path.
 ### Implementation
 - [x] Increment 1: Parse and apply --criterion, keeping the default (R1, R4)
 - [x] Increment 2: Refuse what the attestation could not stand behind (R2, R3, R5)
+- [x] Increment 3: Tie a finding criterion to a recorded finding (R6)
 
 ### Validation
 - [x] Each rejection asserted, and the override shown to be load-bearing
@@ -115,6 +118,21 @@ automated path.
 - Rationale: the command already has one multi-field flag and a reviewer using
   both should not have to remember two conventions. The rationale stays last, so
   the common `ID|not-applicable||<why>` reads the same way as the tool form.
+
+### Decision 3
+- Date: 2026-09-08
+- Context: review pointed out that `--criterion ID|finding||` is accepted with no
+  finding filed, and that an `approved` attestation then passes verification —
+  `validateBundleAttestation` checks the disposition and afterwards only rejects
+  findings that exist and remain open. So a criterion the reviewer explicitly did
+  not pass reported a clean closeout.
+- Decision: a `finding` criterion must name a finding this attestation records,
+  in the evidence slot.
+- Rationale: the hole predates this change, but `--criterion` is what made it
+  reachable by hand, so filing it as a follow-up would have meant shipping the
+  reachability and deferring the guard. The evidence slot already exists and a
+  finding id is exactly the reference the disposition is claiming, so this costs
+  no new syntax.
 
 ### Decision 2
 - Date: 2026-09-08
@@ -153,10 +171,10 @@ each refusal separately.
   `{ID:frontend-accessibility Disposition:passed Evidence:unit:api/go/test
   Rationale:}` — which is precisely the state this spec exists to correct: a
   criterion claiming to have passed on evidence of a class it never asked for.
-  Six refusal cases are asserted individually.
+  Eight refusal cases are asserted individually.
 
 ### Results summary
-- Successes: R1, R2, R3, R4, R5 verified.
+- Successes: R1, R2, R3, R4, R5, R6 verified.
 - Failures: none.
 
 ### Requirement trace
@@ -165,11 +183,12 @@ each refusal separately.
 - R3 [satisfied] <the "no rationale" case asserts the error names the flag shape>
 - R4 [satisfied] <the same test asserts the unnamed criterion keeps passed with the picked evidence, and that optional criteria stay out>
 - R5 [satisfied] <the "criterion not in the plan", "optional criterion" and "duplicate" cases>
+- R6 [satisfied] <the finding branch requires the evidence slot to name a finding present in the parsed --finding list; TestAttestTiesAFindingCriterionToARecordedFinding asserts the accepted form and that the same criterion is refused with no finding recorded, plus two refusal cases for an empty and an unknown id>
 
 ### Known gaps
-- `finding` is accepted as a disposition but nothing here links it to a recorded
-  finding, so a reviewer can mark a criterion `finding` without filing one. The
-  engine's own finding gates still apply at closeout.
+- The finding is named by id, and nothing checks that it is the finding that
+  actually describes this criterion's problem. That is a judgement the record
+  carries rather than a property the engine can verify.
 
 ---
 
@@ -177,4 +196,4 @@ each refusal separately.
 
 ### Follow-ups
 
-- [open] Require a criterion dispositioned finding to reference a recorded finding id — owner:unowned crit:medium review:2026-12-08
+- [open] Check that a finding named by a criterion is the one describing that criterion's problem, not merely a recorded id — owner:unowned crit:low review:2027-01-08
