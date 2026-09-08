@@ -757,6 +757,46 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		}
 	}
 
+	// 12c. `.pose/policy/` is not machinery, so an update delivers a stricter
+	// engine and never a statement of when the instance received it. Without a
+	// date, rules introduced after a closeout was recorded judge it anyway, and
+	// an operator sees a wall of failures about work nobody touched.
+	if raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json")); err == nil {
+		var policy map[string]any
+		if json.Unmarshal(raw, &policy) == nil {
+			stamped, _ := policy["evidence_vocabulary_reconciled_at"].(string)
+			_, present := policy["evidence_vocabulary_reconciled_at"]
+			// Legacy attempts live in `.pose/reviews/*.md` — the directory
+			// Store.ListReviewAttempts reads. An earlier version of this check
+			// globbed `.pose/review-attempts/`, which nothing writes, so the
+			// pre-bundle instance it exists to diagnose always counted zero and
+			// got an ok. Its test seeded an attestation, which does exist, and
+			// passed over the dead path.
+			attestations, _ := filepath.Glob(filepath.Join(root, ".pose", "review-attestations", "*.json"))
+			attempts, _ := filepath.Glob(filepath.Join(root, ".pose", "reviews", "*.md"))
+			history := len(attestations) + len(attempts)
+			switch {
+			case stamped != "":
+				add("review.contract-adoption", "ok",
+					fmt.Sprintf(text("review contracts introduced after %s do not judge closeouts recorded before it",
+						"contratos de review introduzidos após %s não julgam closeouts registrados antes"), stamped), "")
+			case present:
+				add("review.contract-adoption", "ok",
+					text("the reconciliation date is explicitly cleared, so every recorded review is judged by the current contract",
+						"a data de reconciliação está explicitamente vazia, então toda review registrada é julgada pelo contrato atual"), "")
+			case history > 0:
+				add("review.contract-adoption", "warn",
+					fmt.Sprintf(text("the review policy records no evidence_vocabulary_reconciled_at, and %d recorded review(s) predate the current contract",
+						"a política de review não registra evidence_vocabulary_reconciled_at, e %d review(s) registrada(s) precedem o contrato atual"), history),
+					text("a passed criterion must now cite evidence the sealed bundle contains, of a class the criterion asks for; reviews recorded before that rule existed fail it without having become less considered — `pose update` stamps today's date, or set it by hand to the day this instance received the contract",
+						"um critério passed agora precisa citar evidência que o bundle selado contém, de uma classe que o critério exige; reviews registradas antes dessa regra reprovam sem terem se tornado menos criteriosas — o `pose update` carimba a data de hoje, ou defina à mão o dia em que esta instância recebeu o contrato"))
+			default:
+				add("review.contract-adoption", "ok",
+					text("no recorded review predates the current contract", "nenhuma review registrada precede o contrato atual"), "")
+			}
+		}
+	}
+
 	// 12b. A check with no evidenceClass still runs and still passes, but its
 	// result carries no class, so review evidence collection discards it. The
 	// module looks covered and contributes nothing.

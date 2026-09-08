@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func TestInstallSeedsModuleMetadataFromRealBrownfieldStacks(t *testing.T) {
@@ -262,4 +263,76 @@ func mustWrite(t *testing.T, path, content string) {
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestStampContractAdoptionRecordsTodayOnlyWhenAbsent(t *testing.T) {
+	// The stamp exists because `.pose/policy/` is not machinery: an update
+	// delivers a stricter engine and never a statement of when the instance
+	// received it, so every closeout recorded under the previous contract
+	// fails. Today is the honest date — work reviewed between adopting POSE
+	// and receiving this contract was reviewed under the previous one.
+	now := time.Date(2026, 9, 8, 0, 0, 0, 0, time.UTC)
+	read := func(t *testing.T, root string) map[string]any {
+		t.Helper()
+		raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var p map[string]any
+		if err := json.Unmarshal(raw, &p); err != nil {
+			t.Fatal(err)
+		}
+		return p
+	}
+	write := func(t *testing.T, root, body string) {
+		t.Helper()
+		if err := os.MkdirAll(filepath.Join(root, ".pose", "policy"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(root, ".pose", "policy", "review.json"), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	t.Run("absent is stamped with today", func(t *testing.T) {
+		root := t.TempDir()
+		write(t, root, `{"schema_version":2,"adopted_at":"2026-08-23"}`)
+		stampContractAdoption(root, now, nil)
+		if got := read(t, root)["evidence_vocabulary_reconciled_at"]; got != "2026-09-08" {
+			// Not adopted_at: reviews recorded between adopting POSE and
+			// receiving this contract were judged by the previous one.
+			t.Errorf("stamped %v, want today", got)
+		}
+	})
+
+	t.Run("an existing date is left alone", func(t *testing.T) {
+		root := t.TempDir()
+		write(t, root, `{"schema_version":2,"evidence_vocabulary_reconciled_at":"2026-01-01"}`)
+		stampContractAdoption(root, now, nil)
+		if got := read(t, root)["evidence_vocabulary_reconciled_at"]; got != "2026-01-01" {
+			t.Errorf("overwrote the instance's own date with %v", got)
+		}
+	})
+
+	t.Run("an explicitly cleared date stays cleared", func(t *testing.T) {
+		// A project that wants its whole history judged by the current
+		// contract says so by emptying the field. Re-stamping would undo a
+		// deliberate choice on every update.
+		root := t.TempDir()
+		write(t, root, `{"schema_version":2,"evidence_vocabulary_reconciled_at":""}`)
+		stampContractAdoption(root, now, nil)
+		if got := read(t, root)["evidence_vocabulary_reconciled_at"]; got != "" {
+			t.Errorf("re-stamped a deliberately cleared date with %v", got)
+		}
+	})
+
+	t.Run("a malformed policy is not rewritten", func(t *testing.T) {
+		root := t.TempDir()
+		write(t, root, `{"schema_version":2,`)
+		stampContractAdoption(root, now, nil)
+		raw, _ := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json"))
+		if string(raw) != `{"schema_version":2,` {
+			t.Errorf("rewrote a file it could not parse: %s", raw)
+		}
+	})
 }
