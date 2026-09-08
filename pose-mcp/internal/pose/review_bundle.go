@@ -1852,7 +1852,13 @@ func reviewCriterionInputDigest(bundle ReviewBundle, criterion ReviewPlanCriteri
 	} else {
 		contract.Scope = append([]ReviewBundleInput{}, bundle.Payload.Scope.Sections...)
 		for _, entry := range bundle.Payload.Subject.Entries {
-			if entry.Class == "documentation" || entry.Class == "governance" {
+			// `removed` is the one class whose category is unknown: the path
+			// carries no governed classification and there is no content left to
+			// read, so it cannot be shown to be irrelevant to this criterion the
+			// way an unrelated implementation file can. Omitting it would leave
+			// the digest unchanged when a superseding bundle adds the deletion,
+			// and a passed criterion would be reused over a subject it never saw.
+			if entry.Class == "documentation" || entry.Class == "governance" || entry.Class == "removed" {
 				contract.Subject = append(contract.Subject, entry)
 			}
 		}

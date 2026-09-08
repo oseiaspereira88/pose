@@ -45,6 +45,8 @@ content behind the path to review.
   file is how a governed subject stops meaning anything.
 - The removal stays in the subject. Excluding it would hide a real change to
   make the gate pass, which is the opposite of the intent.
+- Admitting a new subject class revises an accepted ADR, which must be amended
+  rather than silently contradicted by runtime.
 
 ### Non-goals
 - Widening the shape rules to recognise arbitrary root-level dotfiles. That
@@ -61,6 +63,9 @@ content behind the path to review.
 - R2: A created or modified path the shape rules leave unclassified shall keep
   producing `unclassified review subject path` and shall keep blocking.
 - R3: A removal shall carry no digest, since there is no content to hash.
+- R4: A `removed` entry shall reach the input digest of every criterion,
+  including those that are not subject-sensitive, so a deletion invalidates
+  criterion reuse instead of being covered by a verdict issued before it.
 
 ### Non-functional
 - The existing bundle suite passes unchanged.
@@ -70,13 +75,17 @@ content behind the path to review.
 ## 3. Technical Plan
 
 ### Affected areas
-- `pose-mcp/internal/pose/review_bundle.go` — subject classification
+- `pose-mcp/internal/pose/review_bundle.go` — subject classification and the
+  criterion input digest
+- `.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md` — the sealing
+  clause this revises
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-review-subject-unclassified-removals.md
 - created: .pose/changelogs/unreleased/pose-review-subject-unclassified-removals.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
+- modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
 
 ### Technical risks
 - A path could be removed to get an unknown file past the gate. The removal is
@@ -91,6 +100,7 @@ content behind the path to review.
 ### Implementation
 - [x] Increment 1: Classify an unclassified removal instead of blocking (R1, R3)
 - [x] Increment 2: Keep creations and modifications failing closed (R2)
+- [x] Increment 3: Invalidate criterion reuse on a removal, and amend the ADR (R4)
 
 ### Validation
 - [x] Both directions asserted on the same path
@@ -115,6 +125,39 @@ content behind the path to review.
   fatal — the reviewer decides whether deleting it mattered, which is the
   judgement a review is for.
 
+### Decision 2
+- Date: 2026-09-08
+- Context: a criterion that is not subject-sensitive digests only the
+  documentation and governance slice of the subject, so an unrelated
+  implementation edit legitimately leaves its verdict reusable. Review raised
+  that a `removed` entry fell outside that slice and therefore left the digest
+  unchanged.
+- Decision: include `removed` in the slice every criterion digests.
+- Rationale: the exclusion is sound for a class that is known to be neither
+  documentation nor governance. `removed` is the one class where the category is
+  unknown — the path carries no governed classification and no content survives
+  to show which it was. Reusing a passed verdict over it would mean the deletion
+  was reviewed by an attestation issued before it existed. Widening the digest
+  costs at most an unnecessary re-review; narrowing it costs a review that never
+  happened.
+- Consequences: any bundle carrying an unclassified removal invalidates reuse
+  for all criteria, which is the conservative direction.
+
+### Decision 3
+- Date: 2026-09-08
+- Context: the accepted ADR states "Unknown attributed paths fail sealing", and
+  this change makes that false for removals.
+- Options considered: (a) supersede the ADR; (b) amend it; (c) leave it, since
+  the exception is narrow.
+- Decision: (b).
+- Rationale: (c) is what review caught, and in this repository specifically it
+  is the failure the product exists to prevent — an accepted decision record
+  contradicted by runtime is worse here than anywhere else. (a) is too heavy:
+  the payload shape, digest algorithm, attestation separation and lifecycle
+  gates are all untouched, and superseding would retire a decision that still
+  holds. The amendment states the revision, its bound, and that `removed` is a
+  new public class on the subject-class compatibility contract.
+
 ---
 
 ## 6. Validation
@@ -138,19 +181,23 @@ general relaxation.
 ### Execution log
 - Date: 2026-09-08
 - Environment: local, Go 1.26
-- Notes: `.agent-sync-cache.json` is asserted twice — as a removal it must not
+- Notes: reverting the digest widening turns
+  `TestReviewCriterionReuseIsInvalidatedByAnUnclassifiedRemoval` red on the
+  digest comparison, so the reuse assertion is not vacuous.
+  `.agent-sync-cache.json` is asserted twice — as a removal it must not
   appear in the blockers and must carry class `removed` with no digest; as a
   creation it must still produce `unclassified review subject path`. All eight
   packages pass.
 
 ### Results summary
-- Successes: R1, R2, R3 verified.
+- Successes: R1, R2, R3, R4 verified.
 - Failures: none.
 
 ### Requirement trace
 - R1 [satisfied] <review_bundle.go — the removal branch precedes the unclassified one and sets class removed with include true; TestReviewBundleDoesNotBlockOnAnUnclassifiedRemoval asserts no blocker names the path>
 - R2 [satisfied] <TestReviewBundleStillBlocksOnAnUnclassifiedCreation asserts the same path still blocks when created>
 - R3 [satisfied] <the digest branch already skips action removed; the test asserts an empty digest>
+- R4 [satisfied] <reviewCriterionInputDigest includes class removed in the non-subject-sensitive subject slice; TestReviewCriterionReuseIsInvalidatedByAnUnclassifiedRemoval asserts the digest changes and that reuse of the prior verdict is rejected with "input digest changed">
 
 ### Known gaps
 - A rename whose new path is unclassified still blocks, which is correct: the
