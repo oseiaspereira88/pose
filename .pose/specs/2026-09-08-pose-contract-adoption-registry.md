@@ -251,6 +251,10 @@ handle it.
 - R7 [satisfied] <stampContractAdoption checks the raw document for LegacyContractField before stamping; TestStampContractAdoptionRespectsAClearedLegacyField asserts the cleared contract is skipped while a contract the policy says nothing about is still stamped>
 
 ### Known gaps
+- Only the three git fixtures in `review_bundle_test.go` disable auto gc. Every
+  other test package that inits a repository has the same exposure, and a
+  package-level default would cover them; that is a wider change than this spec
+  should carry.
 - The error text for an invalid adoption date no longer names the legacy key,
   since the value may have come from either place. It names the contract
   instead, which is the thing to look up.
@@ -269,3 +273,4 @@ handle it.
 
 - [open] Seal the governing contract version into the review bundle and validate against it, rather than dating exemptions in policy — owner:unowned crit:medium review:2027-01-08
 - [open] Report a policy whose contract_adoptions and legacy field disagree about the same contract — owner:unowned crit:low review:2026-12-08
+- [open] Disable git auto gc for every test fixture that inits a repository, not only the three that flaked — owner:unowned crit:low review:2026-12-08
