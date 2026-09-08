@@ -73,6 +73,28 @@ func TestArtifactCheckMatchesExplicitGitChangeSetAndRejectsUnsafeRevision(t *tes
 	}
 }
 
+// The default output must carry the change set's provenance, not only --json.
+// When observed exceeds claims, the first question is which revisions were
+// attributed and how many commits they span; advising "narrow the attributed
+// change set" without naming it leaves the operator nothing to pull on (spec
+// pose-diagnose-invisible-governance-failures).
+func TestArtifactCheckPrintsChangeSetProvenanceWithoutJSON(t *testing.T) {
+	root, base, head := artifactGitFixture(t)
+	var out, errOut bytes.Buffer
+	if code := cmdArtifactCheck(root, []string{"--spec", "alpha", "--from", base, "--to", head}, &out, &errOut); code != 0 {
+		t.Fatalf("artifact-check code=%d err=%s", code, errOut.String())
+	}
+	text := out.String()
+	for _, want := range []string{"artifact.change_set.base=", "artifact.change_set.head=", "artifact.change_set.commits="} {
+		if !strings.Contains(text, want) {
+			t.Errorf("default output omits %s: %s", want, text)
+		}
+	}
+	if strings.Contains(text, "artifact.change_set.base=\n") {
+		t.Errorf("base printed empty, so it names no revision: %s", text)
+	}
+}
+
 func TestArtifactCheckFindsUndeclaredAndActionMismatch(t *testing.T) {
 	root, base, head := artifactGitFixture(t)
 	path := filepath.Join(root, ".pose/specs/alpha/spec.md")
