@@ -1,0 +1,30 @@
+{
+  "_comment": "Template for .pose/public/claims.json — copy it there and edit. Declares what your public surfaces claim about the CURRENT product, so a surface that contradicts a released fact fails `pose public-claims` instead of ageing quietly. Surfaces are declared, never discovered: a scanner that flagged every version-shaped string would fail on changelogs, historical assessments and release notes, which are supposed to name old versions.",
+  "schema_version": 1,
+  "product": {
+    "name": "<product name as the public surfaces call it>",
+    "category": "<one line: what it is>",
+    "license": "<SPDX identifier, e.g. Apache-2.0>",
+    "repository": "https://github.com/<owner>/<repo>",
+    "docs_canonical": "https://<the one URL docs should point at>"
+  },
+  "version_source": "compatibility.json",
+  "docs_hosts": {
+    "canonical": "https://<the one URL docs should point at>",
+    "deprecated": [
+      "<any host still linked from somewhere, so a stale link is reported>"
+    ]
+  },
+  "surfaces": [
+    {
+      "path": "README.md",
+      "version_claims": "current-only",
+      "note": "current-only: a version may appear, but only the released one. Use it where an install command has to pin an exact version."
+    },
+    {
+      "path": "docs/index.md",
+      "version_claims": "none",
+      "note": "none: this surface must not name a version at all. Use it for evergreen pages, where a version is the thing that goes stale."
+    }
+  ]
+}
