@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v2.0.1",
+  "previous_version": "v2.0.0",
+  "prepared_at": "2026-09-08T22:05:00Z",
+  "specs": [
+    "pose-self-update-handoff-path"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-self-update-handoff-path",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose update` hands off to the binary it just downloaded by the path it wrote,\ninstead of re-resolving it with `os.Executable()`. The self-update renames the\nrunning executable to `\u003cpath\u003e.old` before copying the new one in, and on Linux\n`os.Executable()` resolves through `/proc/self/exe` to that removed name — so\nthe handoff introduced in 2.0.0 could fail with\n`fork/exec .../pose.old: no such file or directory` on the very update it was\nmeant to complete.",
+      "path": "pose-self-update-handoff-path.md",
+      "digest": "sha256:e4cdef9b65f7b14c854287830a1f0b99e658e28f2cd998435a188eed5a3d8b31"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:6592b3dbccb6ef8adaff12092f66bc2380dd6f5cd0b262c0280b625d59c928ba",
+  "release_input_digest": "sha256:ca972d020a5dc66a8b4a1363dc69892262934406ebb2a2c2dc11ec69e9eec2c2",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v2.0.1"
+  }
+}

@@ -1,0 +1,14 @@
+---
+spec: pose-self-update-handoff-path
+category: fixed
+breaking: false
+refs:
+---
+
+`pose update` hands off to the binary it just downloaded by the path it wrote,
+instead of re-resolving it with `os.Executable()`. The self-update renames the
+running executable to `<path>.old` before copying the new one in, and on Linux
+`os.Executable()` resolves through `/proc/self/exe` to that removed name — so
+the handoff introduced in 2.0.0 could fail with
+`fork/exec .../pose.old: no such file or directory` on the very update it was
+meant to complete.

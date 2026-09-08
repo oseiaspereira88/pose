@@ -64,14 +64,14 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	}
 
 	if !dry && !skipSelf {
-		replaced, err := performSelfUpdate(stdout, stderr)
+		replacedAt, err := performSelfUpdate(stdout, stderr)
 		if err != nil {
 			// Don't treat missing binary or offline dev environment as fatal
 			if !strings.Contains(err.Error(), "404") && !strings.Contains(err.Error(), "no such file") {
 				fmt.Fprintf(stderr, text("[WARN] self-update check: %v\n", "[WARN] checagem de auto-atualização: %v\n"), err)
 			}
 		}
-		if replaced {
+		if replacedAt != "" {
 			// The binary on disk is the new one; this process is still the old
 			// one. Everything below — machinery, seeds, migrations — would run
 			// from the engine being replaced, so a migration shipped in the new
@@ -82,7 +82,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 			// process finds itself at the latest release and would not update
 			// again, but saying so explicitly means a version check that
 			// disagrees cannot loop.
-			return runSelfUpdatedBinary(args, stdout, stderr, text)
+			return runSelfUpdatedBinary(replacedAt, args, stdout, stderr, text)
 		}
 	}
 
@@ -214,14 +214,14 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 
 // performSelfUpdate reports whether it replaced the executable on disk, so
 // the caller can hand off to it: this process is still the old engine.
-func performSelfUpdate(stdout, stderr io.Writer) (bool, error) {
+func performSelfUpdate(stdout, stderr io.Writer) (string, error) {
 	execPath, err := os.Executable()
 	if err != nil {
-		return false, fmt.Errorf("finding current binary path: %w", err)
+		return "", fmt.Errorf("finding current binary path: %w", err)
 	}
 	execPath, err = filepath.EvalSymlinks(execPath)
 	if err != nil {
-		return false, fmt.Errorf("resolving binary symlink: %w", err)
+		return "", fmt.Errorf("resolving binary symlink: %w", err)
 	}
 
 	fmt.Fprintf(stdout, "[INFO] checking latest release from github.com/%s...\n", releaseRepo)
@@ -229,27 +229,27 @@ func performSelfUpdate(stdout, stderr io.Writer) (bool, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", releaseRepo), nil)
 	if err != nil {
-		return false, err
+		return "", err
 	}
 	req.Header.Set("User-Agent", "pose-cli/"+version.ReleaseBase())
 
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Fprintf(stdout, "[INFO] offline or network unreachable; skipping binary self-update: %v\n", err)
-		return false, nil
+		return "", nil
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		fmt.Fprintf(stdout, "[INFO] GitHub release check returned status %d; skipping binary self-update\n", resp.StatusCode)
-		return false, nil
+		return "", nil
 	}
 
 	var relData struct {
 		TagName string `json:"tag_name"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&relData); err != nil {
-		return false, fmt.Errorf("parsing release JSON: %w", err)
+		return "", fmt.Errorf("parsing release JSON: %w", err)
 	}
 
 	latestVer := strings.TrimPrefix(relData.TagName, "v")
@@ -257,7 +257,7 @@ func performSelfUpdate(stdout, stderr io.Writer) (bool, error) {
 
 	if latestVer == currentVer {
 		fmt.Fprintf(stdout, "[INFO] pose binary is already at latest release (v%s)\n", latestVer)
-		return false, nil
+		return "", nil
 	}
 
 	fmt.Fprintf(stdout, "[INFO] updating pose binary: v%s -> v%s...\n", currentVer, latestVer)
@@ -274,53 +274,51 @@ func performSelfUpdate(stdout, stderr io.Writer) (bool, error) {
 
 	assetResp, err := client.Get(assetURL)
 	if err != nil || assetResp.StatusCode != http.StatusOK {
-		return false, fmt.Errorf("downloading release asset failed")
+		return "", fmt.Errorf("downloading release asset failed")
 	}
 	defer assetResp.Body.Close()
 
 	tmpFile, err := os.CreateTemp("", "pose-update-*")
 	if err != nil {
-		return false, fmt.Errorf("creating temp file: %w", err)
+		return "", fmt.Errorf("creating temp file: %w", err)
 	}
 	defer os.Remove(tmpFile.Name())
 
 	if _, err := io.Copy(tmpFile, assetResp.Body); err != nil {
 		tmpFile.Close()
-		return false, fmt.Errorf("writing release archive: %w", err)
+		return "", fmt.Errorf("writing release archive: %w", err)
 	}
 	_ = tmpFile.Close()
 
 	extractedBin, err := extractPoseBinary(tmpFile.Name(), goos)
 	if err != nil {
-		return false, fmt.Errorf("extracting pose binary: %w", err)
+		return "", fmt.Errorf("extracting pose binary: %w", err)
 	}
 	defer os.Remove(extractedBin)
 
 	backupPath := execPath + ".old"
 	_ = os.Remove(backupPath)
 	if err := os.Rename(execPath, backupPath); err != nil {
-		return false, fmt.Errorf("backing up current binary: %w", err)
+		return "", fmt.Errorf("backing up current binary: %w", err)
 	}
 
 	if err := copyDiskFile(extractedBin, execPath, 0o755); err != nil {
 		_ = os.Rename(backupPath, execPath)
-		return false, fmt.Errorf("replacing binary: %w", err)
+		return "", fmt.Errorf("replacing binary: %w", err)
 	}
 	_ = os.Remove(backupPath)
 
 	fmt.Fprintf(stdout, "[INFO] pose binary updated successfully to v%s at %s\n", latestVer, execPath)
-	return true, nil
+	// The path the new binary was written to, not one re-resolved later: this
+	// process renamed itself out of the way, and on Linux os.Executable()
+	// afterwards resolves through /proc/self/exe to that removed `.old` name.
+	return execPath, nil
 }
 
 // runSelfUpdatedBinary re-runs `pose update` from the executable that was just
 // replaced, so migrations shipped with the new engine apply on the update that
 // delivers it rather than the one after.
-func runSelfUpdatedBinary(args []string, stdout, stderr io.Writer, text func(english, portuguese string) string) int {
-	execPath, err := os.Executable()
-	if err != nil {
-		fmt.Fprintf(stderr, text("[WARN] handing off to the updated binary: %v\n", "[WARN] repassando para o binário atualizado: %v\n"), err)
-		return 1
-	}
+func runSelfUpdatedBinary(execPath string, args []string, stdout, stderr io.Writer, text func(english, portuguese string) string) int {
 	forwarded := append([]string{"update", "--no-self"}, args...)
 	cmd := exec.Command(execPath, forwarded...)
 	cmd.Stdout, cmd.Stderr = stdout, stderr
