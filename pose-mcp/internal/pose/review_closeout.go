@@ -1113,16 +1113,7 @@ func (p ReviewPolicy) ContractAdoptionRecorded(id string) bool {
 // scope is done, and the review predates the date this instance received the
 // contract. The per-contract conditions stay with their own functions.
 func (s Store) reviewCompletedBeforeContract(scope ScopeRef, policy ReviewPolicy, contractID, reviewedAt string) bool {
-	stamped := policy.ContractAdoptedAt(contractID)
-	if stamped == "" {
-		return false
-	}
-	adopted, err := time.Parse(time.DateOnly, stamped)
-	if err != nil {
-		return false
-	}
-	reviewed, err := time.Parse(time.RFC3339, reviewedAt)
-	if err != nil || !reviewed.Before(adopted) {
+	if !reviewPredatesAdoption(policy.ContractAdoptedAt(contractID), reviewedAt) {
 		return false
 	}
 	done, err := s.scopeLifecycleDone(scope)
@@ -1144,6 +1135,32 @@ func (s Store) reviewCompletedBeforeContract(scope ScopeRef, policy ReviewPolicy
 // to scopes already done: an open scope is re-reviewed anyway.
 func (s Store) evidenceVocabularyLegacyExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
 	return s.reviewCompletedBeforeContract(scope, policy, "evidence-vocabulary", attempt.ReviewedAt)
+}
+
+// reviewPredatesAdoption reports whether a review was recorded before the
+// instance received a contract, given the date it recorded for that contract.
+//
+// The stamp is a date, not an instant, and it names the day the contract
+// arrived. A review recorded at 09:00 on that day happened before the 15:00
+// update that delivered it, so the cutoff is the end of the stamped day rather
+// than its midnight — a midnight cutoff would fail exactly the same-day work
+// the exemption promises to keep.
+//
+// An absent or unparseable date exempts nothing. The waiver has to be something
+// the instance said, never a parsing accident.
+func reviewPredatesAdoption(stamped, reviewedAt string) bool {
+	if stamped == "" {
+		return false
+	}
+	adopted, err := time.Parse(time.DateOnly, stamped)
+	if err != nil {
+		return false
+	}
+	reviewed, err := time.Parse(time.RFC3339, reviewedAt)
+	if err != nil {
+		return false
+	}
+	return reviewed.Before(adopted.AddDate(0, 0, 1))
 }
 
 func (s Store) componentAwareLegacyAttemptExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {

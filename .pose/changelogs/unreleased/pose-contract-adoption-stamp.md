@@ -20,3 +20,10 @@ update's output.
 `pose doctor` gains `review.contract-adoption`, which reports an instance
 carrying recorded reviews and no reconciliation date, rather than leaving the
 operator to read a wall of failing closeouts.
+
+A `pose update` that replaces the binary now hands off to it instead of
+finishing in the old process, so a migration shipped in a release applies on
+the update that delivers it rather than the one after. And the adoption date is
+inclusive of its own day: a review recorded at 09:00 was recorded before the
+15:00 update that brought the contract.
+

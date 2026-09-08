@@ -766,8 +766,14 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	if raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json")); err == nil {
 		var policy posemodel.ReviewPolicy
 		if json.Unmarshal(raw, &policy) == nil {
+			// Legacy attempts live in `.pose/reviews/*.md` — the directory
+			// Store.ListReviewAttempts reads. An earlier version of this check
+			// globbed `.pose/review-attempts/`, which nothing writes, so the
+			// pre-bundle instance it exists to diagnose always counted zero and
+			// got an ok. Its test seeded an attestation, which does exist, and
+			// passed over the dead path.
 			attestations, _ := filepath.Glob(filepath.Join(root, ".pose", "review-attestations", "*.json"))
-			attempts, _ := filepath.Glob(filepath.Join(root, ".pose", "review-attempts", "*.json"))
+			attempts, _ := filepath.Glob(filepath.Join(root, ".pose", "reviews", "*.md"))
 			history := len(attestations) + len(attempts)
 			unrecorded := []string{}
 			summaries := map[string]string{}
