@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v2.0.2",
+  "previous_version": "v2.0.1",
+  "prepared_at": "2026-09-08T22:55:34Z",
+  "specs": [
+    "pose-adoption-stamp-stays-readable"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-adoption-stamp-stays-readable",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose update` writes a contract's adoption date to the top-level key that held\nit before `contract_adoptions` existed, and only uses the map for a contract\nthat has no such key. The review policy decoder refused unknown fields, so a\npolicy carrying `contract_adoptions` was rejected outright by any engine older\nthan 2.0.0 — not ignored, rejected:\n\n```\npose: invalid schema-v2 review policy: json: unknown field \"contract_adoptions\"\n```\n\nA release meant to let an instance adopt new rules without losing its history\nmade that instance unreadable to the engine it was adopting from. Every\nenvironment not yet updated was affected: a developer's machine, a pinned CI\njob, a container image built last week.\n\nThe decoder now ignores fields it does not know, so the next field added does\nnot repeat this.",
+      "path": "pose-adoption-stamp-stays-readable.md",
+      "digest": "sha256:ed30525a85a9ac1bff7a4594bf1c78edc8279418a61b306ede7f422b95f6ea52"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:84b287002ef16572769a995adfd6523cd546563c2739eb73ca7dd96cdc6f8756",
+  "release_input_digest": "sha256:5e8e345f438c89aebea8c704d4b6e78a60995db0e16ae5d2eb779b425fadfe0b",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v2.0.2"
+  }
+}

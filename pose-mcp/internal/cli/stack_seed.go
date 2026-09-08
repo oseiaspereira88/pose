@@ -246,14 +246,26 @@ func stampContractAdoption(target string, now time.Time, log func(english, portu
 				continue
 			}
 		}
-		adoptions[contract.ID] = now.Format(time.DateOnly)
+		// Prefer the legacy key where the contract has one. An engine older
+		// than the registry rejects a review policy carrying `contract_adoptions`
+		// outright — the policy decoder disallows unknown fields — so stamping
+		// the map would make this repository unreadable to any binary still on
+		// the previous release: a developer who has not updated, a pinned CI.
+		// The legacy field says the same thing to both.
+		if legacy := posemodel.LegacyContractField(contract.ID); legacy != "" {
+			doc[legacy] = now.Format(time.DateOnly)
+		} else {
+			adoptions[contract.ID] = now.Format(time.DateOnly)
+		}
 		stamped = append(stamped, contract.ID)
 	}
 	if len(stamped) == 0 {
 		return
 	}
 	sort.Strings(stamped)
-	doc["contract_adoptions"] = adoptions
+	if len(adoptions) > 0 {
+		doc["contract_adoptions"] = adoptions
+	}
 	updated, err := json.MarshalIndent(doc, "", "  ")
 	if err != nil {
 		return

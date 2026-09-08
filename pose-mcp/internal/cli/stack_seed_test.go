@@ -298,17 +298,61 @@ func TestStampContractAdoptionRecordsTodayOnlyWhenAbsent(t *testing.T) {
 		}
 	}
 
+	doc := func(t *testing.T, root string) map[string]any {
+		t.Helper()
+		raw, err := os.ReadFile(path(root))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out map[string]any
+		if err := json.Unmarshal(raw, &out); err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+
 	t.Run("every registered contract is stamped with today", func(t *testing.T) {
 		root := t.TempDir()
 		write(t, root, `{"schema_version":2,"adopted_at":"2026-08-23"}`)
 		stampContractAdoption(root, now, nil)
-		got := adoptions(t, root)
+		d, got := doc(t, root), adoptions(t, root)
 		for _, contract := range posemodel.ReviewContracts() {
-			// Not adopted_at: reviews recorded between adopting POSE and
-			// receiving the contract were judged by the previous one.
+			// Where the contract has a legacy key the stamp writes that, so a
+			// binary older than the registry can still read this policy — its
+			// decoder refuses unknown fields, and `contract_adoptions` would
+			// make the whole file unreadable to it.
+			//
+			// Not adopted_at either way: reviews recorded between adopting POSE
+			// and receiving the contract were judged by the previous one.
+			if legacy := posemodel.LegacyContractField(contract.ID); legacy != "" {
+				if d[legacy] != "2026-09-08" {
+					t.Errorf("contract %s stamped %v in %s, want today", contract.ID, d[legacy], legacy)
+				}
+				if _, inMap := got[contract.ID]; inMap {
+					t.Errorf("contract %s was stamped into the map despite having the legacy key %s", contract.ID, legacy)
+				}
+				continue
+			}
 			if got[contract.ID] != "2026-09-08" {
 				t.Errorf("contract %s stamped %v, want today", contract.ID, got[contract.ID])
 			}
+		}
+	})
+
+	t.Run("a policy with nothing to stamp in the map keeps none", func(t *testing.T) {
+		// Every registered contract has a legacy key today, so a freshly
+		// stamped policy carries no `contract_adoptions` at all — which is what
+		// keeps it readable by the previous release.
+		root := t.TempDir()
+		write(t, root, `{"schema_version":2}`)
+		stampContractAdoption(root, now, nil)
+		if _, present := doc(t, root)["contract_adoptions"]; present {
+			for _, contract := range posemodel.ReviewContracts() {
+				if posemodel.LegacyContractField(contract.ID) == "" {
+					return // a contract with no legacy key legitimately needs the map
+				}
+			}
+			t.Error("an empty contract_adoptions was written, which an older engine refuses")
 		}
 	})
 
@@ -323,12 +367,15 @@ func TestStampContractAdoptionRecordsTodayOnlyWhenAbsent(t *testing.T) {
 		}
 	})
 
-	t.Run("an existing date is left alone", func(t *testing.T) {
+	t.Run("an existing date in the map is left alone", func(t *testing.T) {
 		root := t.TempDir()
 		write(t, root, `{"schema_version":2,"contract_adoptions":{"evidence-vocabulary":"2026-01-01"}}`)
 		stampContractAdoption(root, now, nil)
 		if got := adoptions(t, root)["evidence-vocabulary"]; got != "2026-01-01" {
 			t.Errorf("overwrote the instance's own date with %v", got)
+		}
+		if d := doc(t, root)["evidence_vocabulary_reconciled_at"]; d != nil {
+			t.Errorf("wrote the legacy key over a date the instance already recorded in the map: %v", d)
 		}
 	})
 
@@ -395,8 +442,14 @@ func TestStampContractAdoptionRespectsAClearedLegacyField(t *testing.T) {
 		t.Errorf("stamped %v over a deliberately cleared legacy field", got)
 	}
 	// The other contracts, which the policy says nothing about, are still
-	// stamped — the exemption is per contract, not a whole-file opt-out.
-	if adoptions["review-bundles"] != "2026-09-08" {
-		t.Errorf("a contract the policy is silent about was not stamped: %v", adoptions["review-bundles"])
+	// stamped — the exemption is per contract, not a whole-file opt-out. They
+	// land in their legacy key, which is what keeps the file readable by an
+	// engine older than the registry.
+	legacy := posemodel.LegacyContractField("review-bundles")
+	if legacy == "" {
+		t.Fatal("review-bundles has no legacy key, so this assertion measures nothing")
+	}
+	if doc[legacy] != "2026-09-08" {
+		t.Errorf("a contract the policy is silent about was not stamped: %v", doc[legacy])
 	}
 }

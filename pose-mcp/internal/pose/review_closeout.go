@@ -208,7 +208,11 @@ func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
 	}
 	if p.SchemaVersion == ReviewPolicySchemaVersion {
 		decoder := json.NewDecoder(bytes.NewReader(raw))
-		decoder.DisallowUnknownFields()
+		// Deliberately permissive: a field this engine does not know is a field a
+		// newer one added, and refusing the whole policy over it makes every
+		// future addition break every older binary reading the same repository.
+		// That already happened once, with contract_adoptions.
+		// decoder.DisallowUnknownFields() intentionally omitted.
 		if err := decoder.Decode(&p); err != nil {
 			return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid schema-v2 review policy: %w", err)
 		}
