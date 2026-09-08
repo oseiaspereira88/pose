@@ -469,6 +469,11 @@ func TestReviewBundleClassifiesSubmodulePath(t *testing.T) {
 		{"init", "-q"},
 		{"config", "user.email", "fixture@example.test"},
 		{"config", "user.name", "fixture"},
+		// `git commit` can spawn `gc --auto`, which keeps writing into
+		// .git/objects after the test returns and races t.TempDir's cleanup:
+		// `unlinkat .git/objects: directory not empty`, intermittently and only
+		// under load. The assertions had already passed.
+		{"config", "gc.auto", "0"},
 		{"add", "-A"},
 		{"commit", "-q", "-m", "fixture"},
 		// A gitlink without a checked-out submodule: enough for the index to
@@ -516,6 +521,11 @@ func TestReviewBundleClassifiesSubmoduleUnderAMappedComponent(t *testing.T) {
 		{"init", "-q"},
 		{"config", "user.email", "fixture@example.test"},
 		{"config", "user.name", "fixture"},
+		// `git commit` can spawn `gc --auto`, which keeps writing into
+		// .git/objects after the test returns and races t.TempDir's cleanup:
+		// `unlinkat .git/objects: directory not empty`, intermittently and only
+		// under load. The assertions had already passed.
+		{"config", "gc.auto", "0"},
 		{"add", "-A"},
 		{"commit", "-q", "-m", "fixture"},
 	} {
@@ -533,6 +543,11 @@ func TestReviewBundleClassifiesSubmoduleUnderAMappedComponent(t *testing.T) {
 		{"init", "-q"},
 		{"config", "user.email", "fixture@example.test"},
 		{"config", "user.name", "fixture"},
+		// `git commit` can spawn `gc --auto`, which keeps writing into
+		// .git/objects after the test returns and races t.TempDir's cleanup:
+		// `unlinkat .git/objects: directory not empty`, intermittently and only
+		// under load. The assertions had already passed.
+		{"config", "gc.auto", "0"},
 		{"add", "-A"},
 		{"commit", "-q", "-m", "dep"},
 	} {

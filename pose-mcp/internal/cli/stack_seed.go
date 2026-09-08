@@ -25,6 +25,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // computedIndexFiles are the `.pose/indexes/*.json` files `cmdIndex` itself
@@ -191,7 +193,7 @@ func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese
 }
 
 // stampContractAdoption records, in an instance's own review policy, the date
-// it received a governance contract that judges work retroactively.
+// it received each governance contract that judges work retroactively.
 //
 // `.pose/policy/` is not machinery, so an update delivers the engine but never
 // the policy: an instance receives a stricter rule and no statement of when it
@@ -199,35 +201,69 @@ func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese
 // POSE's own repository that was 106 of them, and the only reason it did not
 // happen here is that the date was added by hand in the same change.
 //
+// The contracts come from posemodel.ReviewContracts, so a future one is stamped
+// by adding it there rather than by teaching this function about it.
+//
 // Today is the honest date, not `adopted_at`: work reviewed between adopting
-// POSE and receiving this contract was reviewed under the previous one. The
-// stamp is additive — an existing value is never touched, so a project that set
-// its own date, or deliberately cleared it to re-judge its history, keeps it.
+// POSE and receiving a contract was reviewed under the previous one. The stamp
+// is additive — a date the instance already recorded, in the map or in the
+// legacy field, is never touched, and neither is one deliberately cleared.
 func stampContractAdoption(target string, now time.Time, log func(english, portuguese string, a ...any)) {
 	policyPath := filepath.Join(target, ".pose", "policy", "review.json")
 	raw, err := os.ReadFile(policyPath)
 	if err != nil {
 		return
 	}
-	var p map[string]any
-	if json.Unmarshal(raw, &p) != nil {
+	var policy posemodel.ReviewPolicy
+	if json.Unmarshal(raw, &policy) != nil {
 		return // don't fight a hand-edited or malformed file
 	}
-	if existing, _ := p["evidence_vocabulary_reconciled_at"].(string); existing != "" {
+	// Round-tripping through the typed struct would drop any key the engine
+	// does not model, so the write goes through the raw document.
+	var doc map[string]any
+	if json.Unmarshal(raw, &doc) != nil {
 		return
 	}
-	if _, present := p["evidence_vocabulary_reconciled_at"]; present {
-		return // explicitly cleared: the instance wants its history re-judged
+	adoptions, _ := doc["contract_adoptions"].(map[string]any)
+	if adoptions == nil {
+		adoptions = map[string]any{}
 	}
-	p["evidence_vocabulary_reconciled_at"] = now.Format(time.DateOnly)
-	updated, err := json.MarshalIndent(p, "", "  ")
+	stamped := []string{}
+	for _, contract := range posemodel.ReviewContracts() {
+		if policy.ContractAdoptionRecorded(contract.ID) {
+			continue
+		}
+		// An explicitly empty value — in the map or in the legacy field — is a
+		// decision, not an absence: the instance is saying to judge its whole
+		// history by the current contract. The typed policy renders both as "",
+		// so the raw document is the only place that distinction survives, and
+		// stamping over it would reverse the choice on every update.
+		if _, present := adoptions[contract.ID]; present {
+			continue
+		}
+		if legacy := posemodel.LegacyContractField(contract.ID); legacy != "" {
+			if _, present := doc[legacy]; present {
+				continue
+			}
+		}
+		adoptions[contract.ID] = now.Format(time.DateOnly)
+		stamped = append(stamped, contract.ID)
+	}
+	if len(stamped) == 0 {
+		return
+	}
+	sort.Strings(stamped)
+	doc["contract_adoptions"] = adoptions
+	updated, err := json.MarshalIndent(doc, "", "  ")
 	if err != nil {
 		return
 	}
 	if writeAtomic(policyPath, append(updated, '\n'), 0o644) == nil && log != nil {
-		log("policy (contract adoption): evidence_vocabulary_reconciled_at=%s — closeouts reviewed before today keep their approval",
-			"política (adoção de contrato): evidence_vocabulary_reconciled_at=%s — closeouts revisados antes de hoje mantêm sua aprovação",
-			now.Format(time.DateOnly))
+		for _, id := range stamped {
+			log("policy (contract adoption): %s=%s — closeouts reviewed before today keep their approval",
+				"política (adoção de contrato): %s=%s — closeouts revisados antes de hoje mantêm sua aprovação",
+				id, now.Format(time.DateOnly))
+		}
 	}
 }
 

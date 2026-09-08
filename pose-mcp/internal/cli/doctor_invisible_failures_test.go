@@ -7,10 +7,13 @@ package cli
 // that does not, so a check that observes nothing cannot pass by accident.
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 func TestDoctorWarnsOnUnproducibleEvidenceClass(t *testing.T) {
@@ -151,19 +154,31 @@ func TestDoctorWarnsWhenRecordedReviewsPredateTheContract(t *testing.T) {
 	if f.Level != "warn" {
 		t.Errorf("level=%q, want warn: %s", f.Level, f.Message)
 	}
-	if !strings.Contains(f.Message, "evidence_vocabulary_reconciled_at") {
-		t.Errorf("the finding does not name the field to set: %q", f.Message)
+	// Every registered contract is named, so adding one to the registry is
+	// enough to have it reported here.
+	for _, contract := range posemodel.ReviewContracts() {
+		if !strings.Contains(f.Message, contract.ID) {
+			t.Errorf("the finding does not name contract %q: %q", contract.ID, f.Message)
+		}
 	}
 
-	// With the date recorded, there is nothing to report.
+	// A date recorded for every contract leaves nothing to report. The dates are
+	// built from the registry rather than listed here: a fixture that names the
+	// contracts it expects would pass whatever the registry holds, which is the
+	// property under test.
+	entries := []string{}
+	for _, contract := range posemodel.ReviewContracts() {
+		entries = append(entries, fmt.Sprintf("%q:%q", contract.ID, "2026-08-13"))
+	}
 	mustWrite(t, filepath.Join(root, ".pose", "policy", "review.json"),
-		`{"schema_version":2,"enabled":true,"profiles":{"spec":"spec-closeout@1"},"evidence_vocabulary_reconciled_at":"2026-09-08"}`)
+		`{"schema_version":2,"enabled":true,"profiles":{"spec":"spec-closeout@1"},`+
+			`"contract_adoptions":{`+strings.Join(entries, ",")+`}}`)
 	f, ok = findDoctorFinding(runDoctorJSON(t, root), "review.contract-adoption")
 	if !ok {
 		t.Fatal("expected a review.contract-adoption finding")
 	}
 	if f.Level != "ok" {
-		t.Errorf("level=%q, want ok once the date is recorded: %s", f.Level, f.Message)
+		t.Errorf("level=%q, want ok once every contract has a date: %s", f.Level, f.Message)
 	}
 
 	// A sealed-bundle instance is diagnosed too, so neither storage shape is
@@ -180,7 +195,7 @@ func TestDoctorWarnsWhenRecordedReviewsPredateTheContract(t *testing.T) {
 	}
 
 	// And an instance with no recorded review has nothing to grandfather, so it
-	// is not nagged into setting a date it does not need.
+	// is not nagged into setting dates it does not need.
 	if err := os.Remove(filepath.Join(root, ".pose", "review-attestations", "rva-old.json")); err != nil {
 		t.Fatal(err)
 	}
