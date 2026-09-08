@@ -77,7 +77,7 @@ attention the check was built to earn, and teaches them to skim it.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-doctor-selected-profiles-only.md
-- created: .pose/changelogs/unreleased/pose-doctor-selected-profiles-only.md
+- renamed: .pose/changelogs/unreleased/pose-doctor-selected-profiles-only.md -> .pose/changelogs/v1.8.1/pose-doctor-selected-profiles-only.md
 - modified: .pose/specs/2026-09-08-pose-diagnose-invisible-governance-failures.md
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: pose-mcp/internal/cli/doctor_invisible_failures_test.go

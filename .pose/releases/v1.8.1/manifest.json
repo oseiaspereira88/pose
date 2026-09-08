@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v1.8.1",
+  "previous_version": "v1.8.0",
+  "prepared_at": "2026-09-08T07:25:43Z",
+  "specs": [
+    "pose-doctor-selected-profiles-only"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-doctor-selected-profiles-only",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose doctor`'s `review.evidence-vocabulary` check now inspects only the review\nprofiles that `.pose/policy/review.json` selects. It previously reported every\nprofile on disk, so a project that owns its profiles and leaves the shipped ones\nin place was warned about files that build no plan.",
+      "path": "pose-doctor-selected-profiles-only.md",
+      "digest": "sha256:4a5736238f546c86285ee94af16c82c4bf081cd511d705dd5a53f0e0bc7d03f4"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:fe7a5937f9b18e95300fba2e8ed7b37fb00af5b4775f80352dca4e62d19e8f53",
+  "release_input_digest": "sha256:24351e6dbb1fc94d5b5e5676a63ac59142c649b0b6d5c216260766c5942a3112",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v1.8.1"
+  }
+}
