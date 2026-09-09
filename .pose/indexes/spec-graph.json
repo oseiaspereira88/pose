@@ -17,12 +17,24 @@
       "to": "pose-stack-detection-consolidation"
     },
     {
+      "from": "pose-adoption-stamp-stays-readable",
+      "to": "pose-contract-adoption-registry"
+    },
+    {
       "from": "pose-agent-skills-conformance",
       "to": "pose-standalone-dogfood"
     },
     {
       "from": "pose-artifact-provenance-ledger",
       "to": "pose-hierarchical-review-closeout"
+    },
+    {
+      "from": "pose-attest-records-not-applicable",
+      "to": "pose-attestation-evidence-must-be-in-the-bundle"
+    },
+    {
+      "from": "pose-attestation-evidence-must-be-in-the-bundle",
+      "to": "pose-review-plan-producible-evidence-classes"
     },
     {
       "from": "pose-brownfield-reference-kits",
@@ -89,6 +101,14 @@
       "to": "pose-dependency-pin-refresh"
     },
     {
+      "from": "pose-contract-adoption-registry",
+      "to": "pose-contract-adoption-stamp"
+    },
+    {
+      "from": "pose-contract-adoption-stamp",
+      "to": "pose-attestation-evidence-must-be-in-the-bundle"
+    },
+    {
       "from": "pose-contributor-mode-protocol",
       "to": "pose-engine-discovery-consolidation-and-onboarding"
     },
@@ -141,8 +161,20 @@
       "to": "pose-package-channel-delivery"
     },
     {
+      "from": "pose-doctor-fixtures-exercise-production-path",
+      "to": "pose-doctor-selected-profiles-only"
+    },
+    {
       "from": "pose-doctor-guided-remediation",
       "to": "pose-public-install-contract"
+    },
+    {
+      "from": "pose-doctor-reports-unread-policy-keys",
+      "to": "pose-adoption-stamp-stays-readable"
+    },
+    {
+      "from": "pose-doctor-selected-profiles-only",
+      "to": "pose-diagnose-invisible-governance-failures"
     },
     {
       "from": "pose-dora-adoption-metrics",
@@ -167,6 +199,10 @@
     {
       "from": "pose-engine-stability-and-diagnostics-convergence",
       "to": "pose-spec-trailer-workflow-documentation"
+    },
+    {
+      "from": "pose-evidence-scoped-to-component",
+      "to": "pose-tool-dispositions-must-be-supported"
     },
     {
       "from": "pose-extension-catalog-lifecycle",
@@ -301,6 +337,10 @@
       "to": "pose-release-closeout-skill-policy-link"
     },
     {
+      "from": "pose-one-evidence-class-vocabulary",
+      "to": "pose-tool-dispositions-must-be-supported"
+    },
+    {
       "from": "pose-ossf-security-baseline",
       "to": "pose-version-contract"
     },
@@ -337,12 +377,24 @@
       "to": "pose-release-compatibility-matrix"
     },
     {
+      "from": "pose-policy-keys-and-release-surface-coverage",
+      "to": "pose-doctor-reports-unread-policy-keys"
+    },
+    {
+      "from": "pose-policy-keys-and-release-surface-coverage",
+      "to": "pose-doctor-fixtures-exercise-production-path"
+    },
+    {
       "from": "pose-project-agnostic-assessment-engines",
       "to": "pose-capability-mechanism"
     },
     {
       "from": "pose-public-claims-contract",
       "to": "pose-release-recovery-verification"
+    },
+    {
+      "from": "pose-public-claims-onboarding",
+      "to": "pose-public-claims-contract"
     },
     {
       "from": "pose-public-install-contract",
@@ -355,6 +407,14 @@
     {
       "from": "pose-recurrence-effectiveness",
       "to": "pose-followup-ownership-sla"
+    },
+    {
+      "from": "pose-release-boundary-rehearsal",
+      "to": "pose-self-update-handoff-path"
+    },
+    {
+      "from": "pose-release-boundary-rehearsal",
+      "to": "pose-adoption-stamp-stays-readable"
     },
     {
       "from": "pose-release-clean-tree-attribution",
@@ -395,6 +455,10 @@
     {
       "from": "pose-release-lifecycle-closure",
       "to": "pose-release-compatibility-matrix"
+    },
+    {
+      "from": "pose-release-notes-name-contract-adoption",
+      "to": "pose-adoption-stamp-stays-readable"
     },
     {
       "from": "pose-release-recovery-verification",
@@ -493,6 +557,14 @@
       "to": "pose-canonical-positioning"
     },
     {
+      "from": "pose-seal-names-carried-forward-evidence",
+      "to": "pose-closeout-regenerates-before-sealing"
+    },
+    {
+      "from": "pose-self-update-handoff-path",
+      "to": "pose-contract-adoption-stamp"
+    },
+    {
       "from": "pose-semantic-governance-assist",
       "to": "pose-recurrence-effectiveness"
     },
@@ -557,6 +629,10 @@
       "to": "pose-standalone-dogfood"
     },
     {
+      "from": "pose-tool-dispositions-must-be-supported",
+      "to": "pose-attestation-evidence-must-be-in-the-bundle"
+    },
+    {
       "from": "pose-upgrade-compatibility-lab",
       "to": "pose-release-compatibility-matrix"
     },
@@ -616,6 +692,14 @@
       "priority": 3,
       "status": "done"
     },
+    "pose-adoption-stamp-stays-readable": {
+      "depends_on": [
+        "pose-contract-adoption-registry"
+      ],
+      "path": ".pose/specs/2026-09-08-pose-adoption-stamp-stays-readable.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-agent-skills-conformance": {
       "depends_on": [
         "pose-standalone-dogfood"
@@ -643,6 +727,22 @@
       "path": ".pose/specs/2026-08-07-pose-assessment-engine-precision.md",
       "priority": 2,
       "status": "done"
+    },
+    "pose-attest-records-not-applicable": {
+      "depends_on": [
+        "pose-attestation-evidence-must-be-in-the-bundle"
+      ],
+      "path": ".pose/specs/2026-09-08-pose-attest-records-not-applicable.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
+    "pose-attestation-evidence-must-be-in-the-bundle": {
+      "depends_on": [
+        "pose-review-plan-producible-evidence-classes"
+      ],
+      "path": ".pose/specs/2026-09-08-pose-attestation-evidence-must-be-in-the-bundle.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-brownfield-reference-kits": {
       "depends_on": [
@@ -701,6 +801,12 @@
       "priority": 0,
       "status": "done"
     },
+    "pose-closeout-regenerates-before-sealing": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-08-pose-closeout-regenerates-before-sealing.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
     "pose-command-reference-parity": {
       "depends_on": null,
       "path": ".pose/specs/2026-08-07-pose-command-reference-parity.md",
@@ -755,6 +861,22 @@
       "path": ".pose/specs/2026-08-09-pose-container-build-gate.md",
       "priority": 1,
       "status": "done"
+    },
+    "pose-contract-adoption-registry": {
+      "depends_on": [
+        "pose-contract-adoption-stamp"
+      ],
+      "path": ".pose/specs/2026-09-08-pose-contract-adoption-registry.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
+    "pose-contract-adoption-stamp": {
+      "depends_on": [
+        "pose-attestation-evidence-must-be-in-the-bundle"
+      ],
+      "path": ".pose/specs/2026-09-08-pose-contract-adoption-stamp.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-contributor-mode-protocol": {
       "depends_on": [
@@ -844,6 +966,12 @@
       "priority": 0,
       "status": "done"
     },
+    "pose-diagnose-invisible-governance-failures": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-08-pose-diagnose-invisible-governance-failures.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-discovery-gitignore-and-root-alias-fix": {
       "depends_on": null,
       "path": ".pose/specs/2026-08-17-pose-discovery-gitignore-and-root-alias-fix.md",
@@ -870,6 +998,14 @@
       "priority": 1,
       "status": "in-progress"
     },
+    "pose-doctor-fixtures-exercise-production-path": {
+      "depends_on": [
+        "pose-doctor-selected-profiles-only"
+      ],
+      "path": ".pose/specs/2026-09-09-pose-doctor-fixtures-exercise-production-path.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
     "pose-doctor-guided-remediation": {
       "depends_on": [
         "pose-public-install-contract"
@@ -877,6 +1013,22 @@
       "path": ".pose/specs/2026-07-18-pose-doctor-guided-remediation.md",
       "priority": 27,
       "status": "done"
+    },
+    "pose-doctor-reports-unread-policy-keys": {
+      "depends_on": [
+        "pose-adoption-stamp-stays-readable"
+      ],
+      "path": ".pose/specs/2026-09-09-pose-doctor-reports-unread-policy-keys.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
+    "pose-doctor-selected-profiles-only": {
+      "depends_on": [
+        "pose-diagnose-invisible-governance-failures"
+      ],
+      "path": ".pose/specs/2026-09-08-pose-doctor-selected-profiles-only.md",
+      "priority": 1,
+      "status": "in-progress"
     },
     "pose-domain-rule-extension-migration": {
       "depends_on": null,
@@ -917,6 +1069,14 @@
       "path": ".pose/specs/2026-08-21-pose-engine-stability-and-diagnostics-convergence.md",
       "priority": 0,
       "status": "done"
+    },
+    "pose-evidence-scoped-to-component": {
+      "depends_on": [
+        "pose-tool-dispositions-must-be-supported"
+      ],
+      "path": ".pose/specs/2026-09-09-pose-evidence-scoped-to-component.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-extension-catalog-lifecycle": {
       "depends_on": [
@@ -1186,6 +1346,14 @@
       "priority": 1,
       "status": "done"
     },
+    "pose-one-evidence-class-vocabulary": {
+      "depends_on": [
+        "pose-tool-dispositions-must-be-supported"
+      ],
+      "path": ".pose/specs/2026-09-08-pose-one-evidence-class-vocabulary.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-ossf-security-baseline": {
       "depends_on": [
         "pose-version-contract"
@@ -1237,6 +1405,15 @@
       "priority": 25,
       "status": "done"
     },
+    "pose-policy-keys-and-release-surface-coverage": {
+      "depends_on": [
+        "pose-doctor-reports-unread-policy-keys",
+        "pose-doctor-fixtures-exercise-production-path"
+      ],
+      "path": ".pose/specs/2026-09-09-pose-policy-keys-and-release-surface-coverage.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-project-agnostic-assessment-engines": {
       "depends_on": [
         "pose-capability-mechanism"
@@ -1250,6 +1427,14 @@
         "pose-release-recovery-verification"
       ],
       "path": ".pose/specs/2026-09-06-pose-public-claims-contract.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
+    "pose-public-claims-onboarding": {
+      "depends_on": [
+        "pose-public-claims-contract"
+      ],
+      "path": ".pose/specs/2026-09-08-pose-public-claims-onboarding.md",
       "priority": 1,
       "status": "in-progress"
     },
@@ -1276,6 +1461,15 @@
       "path": ".pose/specs/2026-07-18-pose-recurrence-effectiveness.md",
       "priority": 13,
       "status": "done"
+    },
+    "pose-release-boundary-rehearsal": {
+      "depends_on": [
+        "pose-self-update-handoff-path",
+        "pose-adoption-stamp-stays-readable"
+      ],
+      "path": ".pose/specs/2026-09-09-pose-release-boundary-rehearsal.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-release-clean-tree-attribution": {
       "depends_on": [
@@ -1328,6 +1522,14 @@
       "path": ".pose/specs/2026-08-02-pose-release-lifecycle-closure.md",
       "priority": 3,
       "status": "done"
+    },
+    "pose-release-notes-name-contract-adoption": {
+      "depends_on": [
+        "pose-adoption-stamp-stays-readable"
+      ],
+      "path": ".pose/specs/2026-09-09-pose-release-notes-name-contract-adoption.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-release-recovery-verification": {
       "depends_on": [
@@ -1445,6 +1647,12 @@
       "priority": 27,
       "status": "done"
     },
+    "pose-review-plan-producible-evidence-classes": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-07-pose-review-plan-producible-evidence-classes.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-review-policy-v2-migration-and-verify-compat": {
       "depends_on": [
         "pose-new-spec-default-flat-format"
@@ -1459,9 +1667,21 @@
       "priority": 2,
       "status": "done"
     },
+    "pose-review-subject-and-scope-precision": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-08-pose-review-subject-and-scope-precision.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-review-subject-submodule-classification": {
       "depends_on": null,
       "path": ".pose/specs/2026-09-07-pose-review-subject-submodule-classification.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
+    "pose-review-subject-unclassified-removals": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-08-pose-review-subject-unclassified-removals.md",
       "priority": 1,
       "status": "in-progress"
     },
@@ -1539,6 +1759,22 @@
       ],
       "path": ".pose/specs/2026-09-06-pose-sdd-migration-acquisition.md",
       "priority": 3,
+      "status": "in-progress"
+    },
+    "pose-seal-names-carried-forward-evidence": {
+      "depends_on": [
+        "pose-closeout-regenerates-before-sealing"
+      ],
+      "path": ".pose/specs/2026-09-09-pose-seal-names-carried-forward-evidence.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
+    "pose-self-update-handoff-path": {
+      "depends_on": [
+        "pose-contract-adoption-stamp"
+      ],
+      "path": ".pose/specs/2026-09-08-pose-self-update-handoff-path.md",
+      "priority": 0,
       "status": "in-progress"
     },
     "pose-semantic-governance-assist": {
@@ -1672,6 +1908,14 @@
       "path": ".pose/specs/2026-08-15-pose-test-self-exec-flake-fix.md",
       "priority": 1,
       "status": "done"
+    },
+    "pose-tool-dispositions-must-be-supported": {
+      "depends_on": [
+        "pose-attestation-evidence-must-be-in-the-bundle"
+      ],
+      "path": ".pose/specs/2026-09-08-pose-tool-dispositions-must-be-supported.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-unified-review-convergence": {
       "depends_on": null,
