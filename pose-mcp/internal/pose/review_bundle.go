@@ -70,6 +70,14 @@ type ReviewBundlePlan struct {
 	Components   []ReviewPlanComponent `json:"components"`
 	Criteria     []ReviewPlanCriterion `json:"criteria"`
 	Tools        []ReviewPlanTool      `json:"tools"`
+	// SelectedProfiles records which components each profile was selected for.
+	// A criterion names the profiles it came from, and without this mapping the
+	// sealed subject cannot say which components that criterion answers for —
+	// so evidence could only be matched by reference and class, never by where
+	// it came from. Re-reading it from the current policy at verification time
+	// would judge an immutable bundle by today's selection, which is the whole
+	// thing sealing exists to prevent.
+	SelectedProfiles []ReviewPlanProfile `json:"selected_profiles,omitempty"`
 }
 
 type ReviewBundleEvidence struct {
@@ -194,7 +202,7 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 	if err != nil {
 		return ReviewBundle{}, err
 	}
-	bundle.Payload.Plan = ReviewBundlePlan{PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...)}
+	bundle.Payload.Plan = ReviewBundlePlan{PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...)}
 
 	scopeProjection, excluded, err := s.reviewBundleScopeProjection(scope)
 	if err != nil {
@@ -1822,9 +1830,9 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 			blockers = append(blockers, "reused criterion "+reuse.Criterion+" is not unchanged and passed in the referenced attestation")
 		}
 	}
-	sealedEvidence := map[string]bool{}
+	sealedEvidence := map[string]ReviewBundleEvidence{}
 	for _, ev := range bundle.Payload.Evidence {
-		sealedEvidence[ev.EvidenceClass+":"+ev.ID] = true
+		sealedEvidence[ev.EvidenceClass+":"+ev.ID] = ev
 	}
 	if skipEvidenceSupport {
 		sealedEvidence = nil
@@ -1877,23 +1885,76 @@ func reviewCriterionEvidenceBlockers(bundle ReviewBundle, planned ReviewPlanCrit
 	if attested.Evidence == "" {
 		return []string{"criterion " + attested.ID + " is passed with no evidence"}
 	}
-	sealed := map[string]string{}
+	sealed := map[string]ReviewBundleEvidence{}
 	for _, ev := range bundle.Payload.Evidence {
-		sealed[ev.EvidenceClass+":"+ev.ID] = ev.EvidenceClass
+		sealed[ev.EvidenceClass+":"+ev.ID] = ev
 	}
-	class, ok := sealed[attested.Evidence]
+	evidence, ok := sealed[attested.Evidence]
 	if !ok {
 		return []string{"criterion " + attested.ID + " cites evidence absent from the sealed bundle: " + attested.Evidence}
 	}
-	if len(planned.EvidenceClasses) == 0 {
-		return nil
-	}
-	for _, want := range planned.EvidenceClasses {
-		if want == class {
-			return nil
+	if len(planned.EvidenceClasses) > 0 {
+		matched := false
+		for _, want := range planned.EvidenceClasses {
+			if want == evidence.EvidenceClass {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			return []string{"criterion " + attested.ID + " requires evidence class " + strings.Join(planned.EvidenceClasses, "|") + " but cites " + evidence.EvidenceClass + ": " + attested.Evidence}
 		}
 	}
-	return []string{"criterion " + attested.ID + " requires evidence class " + strings.Join(planned.EvidenceClasses, "|") + " but cites " + class + ": " + attested.Evidence}
+	if components := reviewCriterionComponents(bundle.Payload.Plan, planned); len(components) > 0 {
+		for _, component := range components {
+			if moduleMatchesTarget(evidence.Module, component) {
+				return nil
+			}
+		}
+		return []string{"criterion " + attested.ID + " is scoped to " + strings.Join(components, "|") + " but cites evidence from " + evidenceModuleLabel(evidence) + ": " + attested.Evidence}
+	}
+	return nil
+}
+
+// reviewCriterionComponents resolves the components a criterion answers for, or
+// nil when it answers for all of them.
+//
+// A criterion comes from one or more profiles, and the plan records which
+// components each profile was selected for. An overlay matched specific
+// components; a base profile carries none and governs every one. So a criterion
+// governed by any base profile has no component constraint, and one governed
+// only by overlays is constrained to what they matched.
+//
+// Without this, evidence was matched by reference and class alone: a backend
+// criterion could be satisfied by a frontend sibling's integration result, in a
+// bundle that seals both. The reference was real, the class was demanded, and
+// the result said nothing about the component the criterion is about.
+func reviewCriterionComponents(plan ReviewBundlePlan, criterion ReviewPlanCriterion) []string {
+	selected := map[string][]string{}
+	for _, profile := range plan.SelectedProfiles {
+		selected[profile.Ref] = profile.Components
+	}
+	components := []string{}
+	for _, ref := range criterion.Profiles {
+		scoped, known := selected[ref]
+		if !known {
+			// A profile the plan does not record cannot be scoped, and guessing
+			// would narrow a criterion on no evidence.
+			return nil
+		}
+		if len(scoped) == 0 {
+			return nil
+		}
+		components = append(components, scoped...)
+	}
+	return uniqueSorted(components)
+}
+
+func evidenceModuleLabel(evidence ReviewBundleEvidence) string {
+	if evidence.Module == "" {
+		return "the repository root"
+	}
+	return evidence.Module
 }
 
 func reviewCriterionInputDigest(bundle ReviewBundle, criterion ReviewPlanCriterion) string {

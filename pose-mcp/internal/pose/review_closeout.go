@@ -931,7 +931,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 // none, and requiring it to have passed there is requiring a fabricated
 // disposition — which is what auto-attest used to produce. Such a tool is
 // treated the way `review-complete` already is: deferrable, with a reason.
-func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, dispositions []ReviewToolDisposition, sealed map[string]bool, scopeHasDeliveryTarget bool) ([]string, []string) {
+func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, dispositions []ReviewToolDisposition, sealed map[string]ReviewBundleEvidence, scopeHasDeliveryTarget bool) ([]string, []string) {
 	warnings, blockers := []string{}, []string{}
 	planned := map[string]ReviewPlanTool{}
 	for _, tool := range planTools {
@@ -1022,7 +1022,7 @@ func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, disposi
 // declares evidence classes is held to the sealed set: tools that declare none
 // cite other kinds of reference — a check id, a report path — which the bundle
 // does not carry and is not meant to.
-func reviewToolEvidenceBlocker(tool ReviewPlanTool, disposition ReviewToolDisposition, sealed map[string]bool) string {
+func reviewToolEvidenceBlocker(tool ReviewPlanTool, disposition ReviewToolDisposition, sealed map[string]ReviewBundleEvidence) string {
 	label := reviewToolLabel(tool.ID, tool.Component)
 	if disposition.Evidence == "" {
 		return "review tool " + label + " has no evidence"
@@ -1034,8 +1034,18 @@ func reviewToolEvidenceBlocker(tool ReviewPlanTool, disposition ReviewToolDispos
 	if !containsFold(tool.EvidenceClasses, class) {
 		return "review tool " + label + " lacks a required evidence class"
 	}
-	if sealed != nil && !sealed[disposition.Evidence] {
+	if sealed == nil {
+		return ""
+	}
+	evidence, present := sealed[disposition.Evidence]
+	if !present {
 		return "review tool " + label + " cites evidence absent from the sealed bundle: " + disposition.Evidence
+	}
+	// A tool scoped to a component answers for that component. Evidence from a
+	// sibling is real, of a demanded class, and says nothing about the thing the
+	// tool was planned to check.
+	if tool.Component != "" && !moduleMatchesTarget(evidence.Module, tool.Component) {
+		return "review tool " + label + " cites evidence from " + evidenceModuleLabel(evidence) + ": " + disposition.Evidence
 	}
 	return ""
 }
