@@ -17,6 +17,14 @@
       "digest": "sha256:adaa31d8888a7a0755acab22e622dc628904c334244d61a2cd5f91ac5eebbb82"
     },
     {
+      "spec": "pose-emittable-analysis-evidence-classes",
+      "category": "added",
+      "breaking": true,
+      "body": "`lint`, `typecheck`, `security-scan` and `contract` are now evidence classes a\ncheck may emit and a review profile may demand. They were reported as `build`,\nor declared nothing at all — so a criterion asking for security assurance was\nsatisfied by a successful compilation, and the results of `npm run lint` and\n`npm run typecheck` were discarded when a review collected evidence.\n\nThat is the same indistinction the single vocabulary closed between profiles and\nchecks, one level down: a gate that reads as met by evidence saying nothing\nabout it.\n\n`go vet` now emits `lint` rather than `build`; it is a linter, and calling it a\nbuild was the collapse in its clearest form. Because it was the Go stack's only\n`build` producer, a `go build ./...` check was added — its absence is why vet\ncarried the label.\n\nAn instance that declares one of the four cannot be validated by an engine\npredating them — `pose check --strict` on an older binary fails with `unknown\nevidenceClass`. That is the adoption cost of any change to a closed set, and the\nset being closed is what makes it worth having. No shipped profile demands any\nof the four, so nothing changes for an instance until it opts in.\n\nThe stacks catalog exists twice — in a repository's own matrix and in the\nshipped scaffold, because the file is excluded from the byte-for-byte sync — and\nthe two are now held equal by a test. They had agreed by hand, with nothing\nchecking, and the first edit of this change moved one and not the other.",
+      "path": "pose-emittable-analysis-evidence-classes.md",
+      "digest": "sha256:ccc1265ac496e7811520a532e56fbbc750506ff76ddb631d63a152c708eebafa"
+    },
+    {
       "spec": "pose-policy-keys-and-release-surface-coverage",
       "category": "added",
       "breaking": false,

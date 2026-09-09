@@ -287,16 +287,17 @@ func NeutralIndexTemplates() map[string][]byte {
   "stacks": {
     "node": {
       "checks": [
-        {"name": "lint", "program": "npm", "args": ["run", "lint", "--if-present"], "severity": "optional"},
+        {"name": "lint", "program": "npm", "args": ["run", "lint", "--if-present"], "severity": "optional", "evidenceClass": "lint"},
         {"name": "test", "program": "npm", "args": ["test", "--if-present"], "severity": "required"},
         {"name": "build", "program": "npm", "args": ["run", "build", "--if-present"], "severity": "required"},
-        {"name": "typecheck", "program": "npm", "args": ["run", "typecheck", "--if-present"], "severity": "optional"}
+        {"name": "typecheck", "program": "npm", "args": ["run", "typecheck", "--if-present"], "severity": "optional", "evidenceClass": "typecheck"}
       ]
     },
     "go": {
       "checks": [
+        {"name": "build", "program": "go", "args": ["build", "./..."], "severity": "required", "evidenceClass": "build"},
         {"name": "test", "program": "go", "args": ["test", "./..."], "severity": "required", "evidenceClass": "unit"},
-        {"name": "vet", "program": "go", "args": ["vet", "./..."], "severity": "optional", "evidenceClass": "build"}
+        {"name": "vet", "program": "go", "args": ["vet", "./..."], "severity": "optional", "evidenceClass": "lint"}
       ]
     },
     "rust": {
@@ -463,5 +464,3 @@ func StripDynamicContributorSection(content string) string {
 func StripDynamicContributorSectionBytes(b []byte) []byte {
 	return []byte(StripDynamicContributorSection(string(b)))
 }
-
-
