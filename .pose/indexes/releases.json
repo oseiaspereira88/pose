@@ -1,6 +1,22 @@
 {
   "pending": [
     {
+      "spec": "pose-changelog-and-dor-policy-types",
+      "category": "added",
+      "breaking": false,
+      "body": "`changelog.json`'s `categories` is now the setting it always looked like. It\nshipped from the start and nothing read it: the set of valid fragment categories\nwas written out three times instead — in the fragment loader, in `pose check`,\nand implicitly in the notes renderer. Configuring it now governs all three, and\nthe refusal an author reads quotes the configured set rather than a list written\nbeside it.\n\nAn absent policy, or one declaring no categories, keeps the six defaults, so an\ninstance that never touches the file behaves exactly as before. A category a\nproject adds renders under a heading of its own, after the known ones. The\nsection order itself stays in code: putting `security` first is a reading\ndecision, not a configuration one.\n\n`dor.json` now says that the Definition of Ready is opt-in. `readiness.go`\nlooked for `adopted_at` in a file that never shipped it, so the gate read as\nunadopted everywhere — which is the intent, but an omitted key is\nindistinguishable from an oversight. The policy carries an explicit empty date\nand a comment saying what setting it does. No instance changes behaviour: empty\nis what absent already meant.\n\nBoth files are read through one named type each, covering the whole file rather\nthan the half a given command needed, and both are now held to their keys by\n`pose doctor` — the exemption list that named them is empty.",
+      "path": "pose-changelog-and-dor-policy-types.md",
+      "digest": "sha256:e69fa324e36320e68063601b6042552d14a18ac8cb6f1fea88422cde05f08846"
+    },
+    {
+      "spec": "pose-component-evidence-is-not-inherited-upward",
+      "category": "fixed",
+      "breaking": true,
+      "body": "A validation result from a directory inside a component no longer satisfies a\ncriterion or delivery target about the component. It covered one directory of it\nand was accepted as covering all of it.\n\nThat is the same shape as the sibling case closed one spec earlier: real\nevidence, of the class the criterion demands, silent about most of what it was\nasked about. `moduleMatchesTarget` accepted a path prefix in either direction,\nso refusing siblings left containment open in both readings.\n\nThe other direction stays, because it is a claim the result actually supports: a\nmodule-wide run exercises its subtree, and running checks once at the module root\nis how nearly every project is laid out. A result registered for `web` still\nanswers for a target at `web/api`. The repository root is untouched — a\nsingle-module project is its own component.\n\nA scope whose only evidence sits in a directory inside the component now has\nnone, and stops closing until a check is registered for the component or the\ntarget is declared where the evidence already is.",
+      "path": "pose-component-evidence-is-not-inherited-upward.md",
+      "digest": "sha256:fb5dd9e16191188e8398ce50dc680609be5c9b78eb5fde0a99dcaa64da8bad43"
+    },
+    {
       "spec": "pose-doctor-fixtures-exercise-production-path",
       "category": "changed",
       "breaking": false,

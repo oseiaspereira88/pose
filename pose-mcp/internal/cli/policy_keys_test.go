@@ -25,15 +25,11 @@ import (
 // hold to a key list, and why. Each entry is a decision, not a backlog item:
 // removing one means wiring the file into policyKeyChecks.
 var policyFilesWithoutAModelledStruct = map[string]string{
-	// Both are read through anonymous structs declared inside the commands that
-	// use them, so there is no single declaration to derive a key list from —
-	// and writing one out here would be the restated list this whole mechanism
-	// exists to avoid. Worse, both would report true findings the engine itself
-	// causes: changelog.json ships `categories`, which its only reader does not
-	// model, and dor.json ships neither of the keys readiness.go looks for.
-	// Giving them named structs is its own change.
-	"changelog.json": "read through an anonymous struct in check.go; no named policy type to derive keys from",
-	"dor.json":       "read through anonymous structs in readiness.go and check.go; no named policy type to derive keys from",
+	// Empty on purpose. Both entries that were here — changelog.json and
+	// dor.json — got named types in pose-changelog-and-dor-policy-types, and
+	// the exemption existed only because they had none. The map stays so a
+	// future policy without a type has somewhere to be recorded, in writing,
+	// rather than being left out of the check silently.
 }
 
 func TestEveryShippedPolicyIsHeldToItsKeysOrExempted(t *testing.T) {

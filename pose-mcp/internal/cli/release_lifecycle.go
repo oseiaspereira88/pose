@@ -102,7 +102,7 @@ func releaseInputs(root, target string) (posemodel.ReleasePolicy, []posemodel.Re
 	if policy.AdoptedAt == "" || policy.Provider == "" || policy.Repository == "" {
 		return policy, nil, "", nil, fmt.Errorf("release policy is not adopted: set adopted_at, provider and repository in .pose/policy/release.json")
 	}
-	fragments, err := posemodel.LoadReleaseFragments(filepath.Join(root, ".pose", "changelogs", "unreleased"))
+	fragments, err := posemodel.LoadReleaseFragments(filepath.Join(root, ".pose", "changelogs", "unreleased"), posemodel.LoadChangelogPolicy(root))
 	if err != nil {
 		return policy, nil, "", nil, err
 	}
@@ -176,7 +176,7 @@ func cmdReleasePlan(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "pose release plan: %v\n", err)
 		return 1
 	}
-	manifest := posemodel.NewReleaseManifest(target, previous, "", fragments, policy, evidence)
+	manifest := posemodel.NewReleaseManifest(target, previous, "", fragments, policy, posemodel.LoadChangelogPolicy(root), evidence)
 	recommendation := "patch"
 	for _, f := range fragments {
 		if f.Breaking {
@@ -210,7 +210,7 @@ func cmdReleasePrepare(root string, args []string, stdout, stderr io.Writer) int
 		fmt.Fprintf(stderr, "pose release prepare: %v\n", err)
 		return 1
 	}
-	manifest := posemodel.NewReleaseManifest(target, previous, time.Now().UTC().Format(time.RFC3339), fragments, policy, evidence)
+	manifest := posemodel.NewReleaseManifest(target, previous, time.Now().UTC().Format(time.RFC3339), fragments, policy, posemodel.LoadChangelogPolicy(root), evidence)
 	if existing, err := posemodel.LoadReleaseManifest(root, target); err == nil {
 		if existing.ReleaseInputDigest == manifest.ReleaseInputDigest {
 			fmt.Fprintf(stdout, "Release %s already prepared (idempotent).\n", target)
@@ -273,7 +273,7 @@ func cmdReleasePrepare(root string, args []string, stdout, stderr io.Writer) int
 			return 1
 		}
 	}
-	notes := posemodel.RenderReleaseNotes(target, fragments)
+	notes := posemodel.RenderReleaseNotes(target, fragments, posemodel.LoadChangelogPolicy(root))
 	if err := os.WriteFile(notesPath, []byte(notes), 0o644); err != nil {
 		rollback()
 		fmt.Fprintln(stderr, err)
@@ -300,7 +300,7 @@ func checkRelease(root, target string) ([]string, *posemodel.ReleaseManifest) {
 	} else if manifest.PolicyDigest != posemodel.ReleaseDigest(policy) {
 		gaps = append(gaps, "policy digest differs from prepared manifest")
 	}
-	archive, err := posemodel.LoadReleaseFragments(filepath.Join(root, ".pose", "changelogs", target))
+	archive, err := posemodel.LoadReleaseFragments(filepath.Join(root, ".pose", "changelogs", target), posemodel.LoadChangelogPolicy(root))
 	if err != nil {
 		gaps = append(gaps, err.Error())
 	}
@@ -323,12 +323,12 @@ func checkRelease(root, target string) ([]string, *posemodel.ReleaseManifest) {
 		}
 	}
 	if policy, err := posemodel.LoadReleasePolicy(root); err == nil {
-		rebuilt := posemodel.NewReleaseManifest(manifest.Version, manifest.PreviousVersion, manifest.PreparedAt, archive, policy, manifest.VersionEvidence)
+		rebuilt := posemodel.NewReleaseManifest(manifest.Version, manifest.PreviousVersion, manifest.PreparedAt, archive, policy, posemodel.LoadChangelogPolicy(root), manifest.VersionEvidence)
 		if rebuilt.ReleaseInputDigest != manifest.ReleaseInputDigest {
 			gaps = append(gaps, "release input digest mismatch")
 		}
 	}
-	pending, _ := posemodel.LoadReleaseFragments(filepath.Join(root, ".pose", "changelogs", "unreleased"))
+	pending, _ := posemodel.LoadReleaseFragments(filepath.Join(root, ".pose", "changelogs", "unreleased"), posemodel.LoadChangelogPolicy(root))
 	for _, p := range pending {
 		if _, ok := bySpec[p.Spec]; ok {
 			gaps = append(gaps, "fragment exists in pending and released locations: "+p.Spec)
@@ -674,7 +674,7 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 	_ = policy
 	seen := map[string]string{}
 	base := filepath.Join(checker.root, ".pose", "changelogs")
-	if pending, err := posemodel.LoadReleaseFragments(filepath.Join(base, "unreleased")); err == nil {
+	if pending, err := posemodel.LoadReleaseFragments(filepath.Join(base, "unreleased"), posemodel.LoadChangelogPolicy(checker.root)); err == nil {
 		for _, fragment := range pending {
 			seen[fragment.Spec] = "unreleased"
 		}
@@ -684,7 +684,7 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 		if !entry.IsDir() || posemodel.ValidateReleaseVersion(entry.Name()) != nil {
 			continue
 		}
-		fragments, err := posemodel.LoadReleaseFragments(filepath.Join(base, entry.Name()))
+		fragments, err := posemodel.LoadReleaseFragments(filepath.Join(base, entry.Name()), posemodel.LoadChangelogPolicy(checker.root))
 		if err != nil {
 			checker.failOrWarn("release: " + err.Error())
 			continue
