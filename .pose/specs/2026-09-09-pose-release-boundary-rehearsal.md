@@ -67,6 +67,8 @@ by-hand check precisely because the by-hand check was wrong.
 - R5: The compatibility test shall skip locally when its precondition is
   genuinely absent — a shallow clone with no tag objects — and fail on CI, where
   that precondition is configured rather than incidental.
+- R6: A check shall require every workflow job that runs the Go suite to check
+  out full history, rather than the jobs being listed by hand.
 
 ---
 
@@ -76,7 +78,9 @@ by-hand check precisely because the by-hand check was wrong.
 - `pose-mcp/internal/cli/maintenance.go` — the release endpoints
 - `pose-mcp/internal/cli/self_update_release_test.go` — R1
 - `pose-mcp/internal/cli/release_compatibility_test.go` — R3, R4, R5
-- `.github/workflows/ci.yml` — full history on the test job, so R5 holds
+- `.github/workflows/ci.yml`, `.github/workflows/security.yml` — full history
+  on the jobs that run the suite, so R5 holds
+- `pose-mcp/internal/version/workflow_history_depth_test.go` — R6
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-release-boundary-rehearsal.md
@@ -85,6 +89,8 @@ by-hand check precisely because the by-hand check was wrong.
 - created: .pose/changelogs/unreleased/pose-release-boundary-rehearsal.md
 - modified: pose-mcp/internal/cli/maintenance.go
 - modified: .github/workflows/ci.yml
+- modified: .github/workflows/security.yml
+- created: pose-mcp/internal/version/workflow_history_depth_test.go
 - modified: .pose/specs/2026-09-08-pose-self-update-handoff-path.md
 - modified: .pose/specs/2026-09-08-pose-adoption-stamp-stays-readable.md
 
@@ -103,6 +109,7 @@ by-hand check precisely because the by-hand check was wrong.
 - [x] Increment 2: End-to-end download, replace and handoff (R1)
 - [x] Increment 3: Previous release against this engine's policy (R3, R4)
 - [x] Increment 4: A skipped precondition fails on CI (R5)
+- [x] Increment 5: The full-history pairing is checked, not enumerated (R6)
 
 ### Validation
 - [x] Each test shown to fail against the defect it covers
@@ -129,6 +136,17 @@ by-hand check precisely because the by-hand check was wrong.
 - Rationale: a recorded list is a second source of truth, and its only failure
   mode is being stale on precisely the release that needed it. `git archive`
   reads the tag without touching the working checkout.
+
+### Decision 5
+- Date: 2026-09-09
+- Context: `fetch-depth: 0` was added to the one job known to run the suite, and
+  CI immediately reported the test skipping in another — `validation-findings`
+  runs `pose validate`, which runs the suite, from a different workflow.
+- Decision: check the pairing instead of listing the jobs.
+- Rationale: this is the enumerate-by-hand shape three of this repository's own
+  follow-ups already complain about — the shellcheck file list, the docs-parity
+  source list, the clean-tree assertions. It was wrong within one CI run of
+  being written. The check found exactly the job CI found, and nothing else.
 
 ### Decision 4
 - Date: 2026-09-09
@@ -195,9 +213,13 @@ pass against the current code.
 - R2 [satisfied] <releaseAPIBase and releaseDownloadBase are package variables set by the test's `go build -ldflags -X`; nothing reads them from the environment>
 - R3 [satisfied] <TestPreviousReleaseReadsThisEnginesReviewPolicy resolves the highest tag below this version, extracts it with `git archive`, builds `./cmd/pose` from it, and runs it against an instance installed in-process by this engine>
 - R4 [satisfied] <the same test first writes a policy whose `enabled` is a string and requires the previous release to reject it through the same command; a probe that never reaches the loader fails this control, as `check --strict` does>
-- R5 [satisfied] <skipUnlessCI calls t.Fatalf when CI is set; ci.yml's test job checks out with fetch-depth: 0, which is what makes the tag present there>
+- R5 [satisfied] <skipUnlessCI calls t.Fatalf when CI is set, verified in both directions locally; ci.yml's test job and security.yml's validation-findings job check out with fetch-depth: 0, which is what makes the tag present there>
+- R6 [satisfied] <TestJobsRunningTheGoSuiteCheckOutFullHistory scans every workflow for jobs whose steps run `go test ./...` or `pose validate` and requires fetch-depth: 0 on their checkout; it named validation-findings before the fix and passes after>
 
 ### Known gaps
+- R6 detects the commands by pattern. A job that runs the suite through a
+  wrapper this pattern does not recognise is not covered, and would skip
+  silently again.
 - The compatibility test compares against one release. An instance two or more
   releases behind is not covered, and the engine makes no promise about that.
 

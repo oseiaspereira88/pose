@@ -25,7 +25,12 @@ local server with `-ldflags -X`. They are deliberately not read from the
 environment: where `pose update` fetches its own replacement from is not
 something a shell variable should decide.
 
-The CI test job now checks out full history: `git archive` needs the tag, and a
-shallow checkout would have made the cross-version test skip on the one machine
-whose verdict gates a release. A missing precondition there is a configuration
-failure, and the test says so rather than skipping.
+Jobs that run the Go suite now check out full history: `git archive` needs the
+tag, and a shallow checkout would have made the cross-version test skip on the
+machines whose verdict gates a release. A missing precondition there is a
+configuration failure, and the test says so rather than skipping.
+
+Which jobs those are is checked rather than listed. Adding the flag to the one
+job known to run the suite missed `validation-findings`, which reaches it
+through `pose validate` in another workflow — the same enumerate-by-hand gap
+this repository already tracks for its shellcheck and docs-parity lists.
