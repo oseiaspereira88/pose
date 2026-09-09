@@ -212,6 +212,17 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
+// Release endpoints, as variables so a test can build a binary pointed at a
+// local server with `-ldflags -X`. Deliberately not read from the environment:
+// a runtime override of where an update downloads from is a supply-chain
+// surface, and this seam exists to let a test run the download, replacement and
+// handoff at all — the release workflow was the first thing that ever executed
+// that path, and it failed there.
+var (
+	releaseAPIBase      = "https://api.github.com"
+	releaseDownloadBase = "https://github.com"
+)
+
 // performSelfUpdate reports whether it replaced the executable on disk, so
 // the caller can hand off to it: this process is still the old engine.
 func performSelfUpdate(stdout, stderr io.Writer) (string, error) {
@@ -227,7 +238,7 @@ func performSelfUpdate(stdout, stderr io.Writer) (string, error) {
 	fmt.Fprintf(stdout, "[INFO] checking latest release from github.com/%s...\n", releaseRepo)
 
 	client := &http.Client{Timeout: 10 * time.Second}
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", releaseRepo), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/repos/%s/releases/latest", releaseAPIBase, releaseRepo), nil)
 	if err != nil {
 		return "", err
 	}
@@ -269,7 +280,7 @@ func performSelfUpdate(stdout, stderr io.Writer) (string, error) {
 		assetName = fmt.Sprintf("pose_%s_%s_%s.zip", latestVer, goos, goarch)
 	}
 
-	assetURL := fmt.Sprintf("https://github.com/%s/releases/download/v%s/%s", releaseRepo, latestVer, assetName)
+	assetURL := fmt.Sprintf("%s/%s/releases/download/v%s/%s", releaseDownloadBase, releaseRepo, latestVer, assetName)
 	fmt.Fprintf(stdout, "[INFO] downloading %s...\n", assetURL)
 
 	assetResp, err := client.Get(assetURL)

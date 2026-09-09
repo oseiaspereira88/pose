@@ -152,4 +152,4 @@ assertion fails when the path is re-resolved instead.
 
 ### Follow-ups
 
-- [open] Exercise the download-replace-handoff sequence against a local release fixture, so the release run is not the first to run it — owner:unowned crit:medium review:2026-11-08
+- [done] Exercise the download-replace-handoff sequence against a local release fixture, so the release run is not the first to run it. Done in `pose-release-boundary-rehearsal`: a local server serves the release metadata and archive, a pose binary built at an older version downloads and replaces itself, and restoring `os.Executable()` in the handoff reproduces the v2.0.0 `fork/exec .../pose.old` failure locally. — owner:unowned crit:medium review:2026-11-08
