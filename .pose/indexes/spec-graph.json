@@ -489,6 +489,10 @@
       "to": "pose-ossf-security-baseline"
     },
     {
+      "from": "pose-remaining-command-surfaces-coverage",
+      "to": "pose-policy-keys-and-release-surface-coverage"
+    },
+    {
       "from": "pose-reproducible-release-verification",
       "to": "pose-slsa-provenance"
     },
@@ -1604,6 +1608,14 @@
       "path": ".pose/specs/2026-08-07-pose-release-workflow-hardening.md",
       "priority": 1,
       "status": "done"
+    },
+    "pose-remaining-command-surfaces-coverage": {
+      "depends_on": [
+        "pose-policy-keys-and-release-surface-coverage"
+      ],
+      "path": ".pose/specs/2026-09-09-pose-remaining-command-surfaces-coverage.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-reproducible-release-verification": {
       "depends_on": [
