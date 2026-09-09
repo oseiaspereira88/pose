@@ -807,6 +807,40 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		}
 	}
 
+	// 12d. The review policy decoder ignores keys it does not know, so a newer
+	// field never breaks an older binary reading the same repository. What that
+	// gives up is telling an operator that a key they wrote is not one the
+	// engine reads: a misspelling takes the default and the setting silently
+	// does nothing. Reported here, where it costs a finding instead of a
+	// refusal.
+	if raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json")); err == nil {
+		var document map[string]json.RawMessage
+		if json.Unmarshal(raw, &document) == nil {
+			known := map[string]bool{}
+			for _, key := range posemodel.ReviewPolicyKnownKeys() {
+				known[key] = true
+			}
+			unknown := []string{}
+			for key := range document {
+				if !known[key] {
+					unknown = append(unknown, key)
+				}
+			}
+			sort.Strings(unknown)
+			if len(unknown) > 0 {
+				add("review.policy-keys", "warn",
+					fmt.Sprintf(text("the review policy carries %d key(s) this engine does not read: %s",
+						"a política de review carrega %d chave(s) que este engine não lê: %s"), len(unknown), strings.Join(unknown, ", ")),
+					fmt.Sprintf(text("a key the engine does not model is ignored, so its setting has no effect — check the spelling, or remove it; the keys read are: %s",
+						"uma chave que o engine não modela é ignorada, então o ajuste não tem efeito — confira a grafia, ou remova; as chaves lidas são: %s"),
+						strings.Join(posemodel.ReviewPolicyKnownKeys(), ", ")))
+			} else {
+				add("review.policy-keys", "ok",
+					text("every key in the review policy is one this engine reads", "toda chave da política de review é lida por este engine"), "")
+			}
+		}
+	}
+
 	// 12b. A check with no evidenceClass still runs and still passes, but its
 	// result carries no class, so review evidence collection discards it. The
 	// module looks covered and contributes nothing.

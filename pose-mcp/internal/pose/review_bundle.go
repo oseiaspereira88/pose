@@ -225,6 +225,7 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 		if len(bundle.Payload.Evidence) == 0 && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
 			bundle.Blockers = append(bundle.Blockers, "no passed structured validation evidence is attributed to the review scope")
 		}
+		bundle.Warnings = append(bundle.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
 	}
 
 	if scope.Kind != "spec" {
@@ -701,6 +702,45 @@ func (s Store) reviewBundleFileDigest(rel string) (string, error) {
 		return "", fmt.Errorf("review subject path %s cannot be read: %w", rel, err)
 	}
 	return digestBytes(bytes.ReplaceAll(raw, []byte("\r\n"), []byte("\n"))), nil
+}
+
+// staleEvidenceWarnings names evidence that ran against a commit other than the
+// head this bundle approves.
+//
+// A warning, not a blocker. `deliveryEvidenceCurrent` already decides what
+// counts as current, and it accepts a result whose provenance digest matches the
+// graph or whose scope is closed — legitimately, since re-running every check to
+// re-seal a finished spec would be theatre. What it does not do is say so, and a
+// reviewer reading a sealed bundle cannot tell a result produced against this
+// subject from one carried forward.
+//
+// That distinction is the whole question an attestation answers, so it belongs
+// where the reviewer sees it rather than inferred from two commit hashes nobody
+// compares.
+func staleEvidenceWarnings(subject ReviewBundleSubject, evidence []ReviewBundleEvidence) []string {
+	if subject.Head == "" {
+		return nil
+	}
+	stale := []string{}
+	for _, ev := range evidence {
+		if ev.GitHead == "" || ev.GitHead == subject.Head {
+			continue
+		}
+		stale = append(stale, ev.EvidenceClass+":"+ev.ID)
+	}
+	if len(stale) == 0 {
+		return nil
+	}
+	sort.Strings(stale)
+	return []string{"sealed evidence ran against a commit other than the subject head " + shortCommit(subject.Head) +
+		"; it is current by provenance, not by having observed this change: " + strings.Join(stale, ", ")}
+}
+
+func shortCommit(commit string) string {
+	if len(commit) > 12 {
+		return commit[:12]
+	}
+	return commit
 }
 
 func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph) []ReviewBundleEvidence {

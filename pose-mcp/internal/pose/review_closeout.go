@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -115,6 +116,29 @@ type ReviewPolicy struct {
 	AllowCriterionReuse              bool              `json:"allow_criterion_reuse,omitempty"`
 	RequireSignedAttestations        bool              `json:"require_signed_attestations,omitempty"`
 	TrustedAttestationIssuers        []string          `json:"trusted_attestation_issuers,omitempty"`
+}
+
+// ReviewPolicyKnownKeys lists the top-level keys the engine models, derived from
+// the struct rather than restated, so the list cannot drift from what is read.
+//
+// The decoder deliberately ignores unknown keys: refusing the whole policy over
+// one makes every future field break every older binary reading the same
+// repository, which happened once with `contract_adoptions`. What that gave up
+// was telling an operator that a key they wrote is not a key the engine knows —
+// a misspelling now reads as a default. This is how that is recovered, as a
+// finding rather than a refusal.
+func ReviewPolicyKnownKeys() []string {
+	t := reflect.TypeOf(ReviewPolicy{})
+	keys := make([]string, 0, t.NumField())
+	for i := 0; i < t.NumField(); i++ {
+		tag := t.Field(i).Tag.Get("json")
+		if tag == "" || tag == "-" {
+			continue
+		}
+		keys = append(keys, strings.Split(tag, ",")[0])
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 type ReviewCriterion struct {
