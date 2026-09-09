@@ -1600,3 +1600,234 @@ func TestAutoAttestDoesNotInventToolEvidence(t *testing.T) {
 		t.Fatalf("error = %q, want it to name the tool and the missing class", err)
 	}
 }
+
+// Evidence was matched by reference and class alone, so a criterion scoped to
+// one component could be satisfied by a sibling's result: real, of a demanded
+// class, and saying nothing about the thing the criterion is about. The bundle
+// could not decide otherwise — it sealed no mapping from a criterion's profiles
+// to the components they were selected for.
+// seedMultiComponentEvidence gives the fixture a second delivery target and a
+// result from that module, which is the only shape where component scoping can
+// decide anything: with one target the bundle already filters to one module.
+func seedMultiComponentEvidence(t *testing.T, root string, store Store) {
+	t.Helper()
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.Deliveries = append(graph.Deliveries, DeliveryTarget{
+		Spec: "backend", Ref: "surface:web-app", Kind: "surface", ID: "web-app",
+		Module: "web", Profile: "web-ui", Entrypoint: "web/index.html",
+	})
+	graph.ValidationResults = append(graph.ValidationResults, DeliveryValidationResult{
+		// The id sorts before the api result on purpose: with the component
+		// ignored, the first of the class is this one, so the assertion fails
+		// against the defect instead of passing by alphabetical luck.
+		ID: "a-web-integration", Module: "web", Check: "node-test", EvidenceClass: "integration",
+		Severity: "required", Outcome: "pass", GitHead: "head-resolved",
+		ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+	})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+}
+
+func multiComponentFixtureBundle(t *testing.T) ReviewBundle {
+	t.Helper()
+	root, store := reviewBundleFixture(t)
+	seedMultiComponentEvidence(t, root, store)
+	bundle, err := store.SealReviewBundle("spec:backend", time.Date(2026, 9, 9, 12, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return bundle
+}
+
+func TestCriterionRejectsEvidenceFromAnotherComponent(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+
+	// Seed a result from a module the scoped criterion does not answer for, of
+	// a class it demands. Hoping the fixture already had one made this test
+	// skip, and a skipping test asserts nothing.
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The bundle filters evidence by the spec's delivery targets, so a second
+	// target is what makes a bundle carry two components at once — the shape
+	// where per-criterion scoping is the only thing left to tell them apart.
+	graph.Deliveries = append(graph.Deliveries, DeliveryTarget{
+		Spec: "backend", Ref: "surface:web-app", Kind: "surface", ID: "web-app",
+		Module: "web", Profile: "web-ui", Entrypoint: "web/index.html",
+	})
+	graph.ValidationResults = append(graph.ValidationResults, DeliveryValidationResult{
+		ID: "a-web-integration", Module: "web", Check: "node-test", EvidenceClass: "integration",
+		Severity: "required", Outcome: "pass", GitHead: "head-resolved",
+		ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+	})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+
+	now := time.Date(2026, 9, 9, 12, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(bundle.Payload.Plan.SelectedProfiles) == 0 {
+		t.Fatal("the sealed plan records no profile selection, so nothing can be scoped")
+	}
+	foreign := "integration:a-web-integration"
+	sealed := false
+	for _, ev := range bundle.Payload.Evidence {
+		if ev.EvidenceClass+":"+ev.ID == foreign {
+			sealed = true
+		}
+	}
+	if !sealed {
+		t.Fatalf("the seeded evidence was not sealed, so the assertion would measure nothing: %+v", bundle.Payload.Evidence)
+	}
+
+	var scoped ReviewPlanCriterion
+	var components []string
+	for _, criterion := range bundle.Payload.Plan.Criteria {
+		c := reviewCriterionComponents(bundle.Payload.Plan, criterion)
+		if criterion.Required && len(c) > 0 && containsFold(criterion.EvidenceClasses, "integration") {
+			scoped, components = criterion, c
+			break
+		}
+	}
+	if scoped.ID == "" {
+		t.Fatal("the fixture has no required criterion scoped to a component and demanding integration")
+	}
+	for _, component := range components {
+		if moduleMatchesTarget("web", component) {
+			t.Fatalf("the seeded module matches %s, so it is not foreign to this criterion", component)
+		}
+	}
+
+	att := approvedBundleAttestation(bundle, "agent:wrong-component")
+	att.BundleDigest = bundle.BundleDigest
+	att.AttestedAt = now.Add(time.Minute).Format(time.RFC3339)
+	for i := range att.Criteria {
+		if att.Criteria[i].ID == scoped.ID {
+			att.Criteria[i].Disposition, att.Criteria[i].Evidence = "passed", foreign
+		}
+	}
+	blockers := strings.Join(store.validateBundleAttestation(bundle, att), " ")
+	if !strings.Contains(blockers, "is scoped to") || !strings.Contains(blockers, scoped.ID) {
+		t.Fatalf("blockers = %q, want one naming %s and its components", blockers, scoped.ID)
+	}
+}
+
+// A criterion governed by a base profile answers for every component, so it must
+// not be narrowed. Getting this backwards would fail every closeout whose
+// criteria come from the shipped spec-closeout profile.
+func TestCriterionFromABaseProfileIsNotScoped(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	now := time.Date(2026, 9, 9, 12, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	base := ""
+	for _, profile := range bundle.Payload.Plan.SelectedProfiles {
+		if len(profile.Components) == 0 {
+			base = profile.Ref
+			break
+		}
+	}
+	if base == "" {
+		t.Fatal("the fixture selects no base profile, so this asserts nothing")
+	}
+	for _, criterion := range bundle.Payload.Plan.Criteria {
+		if containsFold(criterion.Profiles, base) {
+			if got := reviewCriterionComponents(bundle.Payload.Plan, criterion); got != nil {
+				t.Errorf("criterion %s from base profile %s was scoped to %v", criterion.ID, base, got)
+			}
+		}
+	}
+}
+
+// The spec's non-goals said a criterion demanding no class is not scoped, and
+// the first implementation scoped it anyway. Without a demanded class the plan
+// made no claim about what the evidence shows, so narrowing it by module
+// invents a constraint the plan never stated — and auto-attest deliberately
+// takes any sealed evidence for such a criterion, so the engine would have been
+// rejecting its own output.
+func TestCriterionWithNoDemandedClassIsNotScoped(t *testing.T) {
+	bundle := multiComponentFixtureBundle(t)
+
+	// Take a criterion the plan really scopes, and strip its classes. Searching
+	// the fixture for one that happens to be classless made this skip, and a
+	// skipping test asserts nothing — the second time in this spec.
+	var scoped ReviewPlanCriterion
+	for _, criterion := range bundle.Payload.Plan.Criteria {
+		if criterion.Required && len(reviewCriterionComponents(bundle.Payload.Plan, criterion)) > 0 {
+			scoped = criterion
+			break
+		}
+	}
+	if scoped.ID == "" {
+		t.Fatal("the fixture has no criterion scoped to a component, so this asserts nothing")
+	}
+	classless := scoped
+	classless.EvidenceClasses = nil
+
+	checked := 0
+	for _, ev := range bundle.Payload.Evidence {
+		ref := ev.EvidenceClass + ":" + ev.ID
+		if blockers := reviewCriterionEvidenceBlockers(bundle, classless,
+			ReviewCriterion{ID: classless.ID, Disposition: "passed", Evidence: ref}); len(blockers) != 0 {
+			t.Fatalf("a criterion demanding no class was scoped away from %s: %v", ref, blockers)
+		}
+		checked++
+	}
+	if checked == 0 {
+		t.Fatal("the bundle sealed no evidence, so nothing was checked")
+	}
+
+	// And the same criterion, with its classes restored, is still scoped —
+	// otherwise this would pass by the scope check being dead.
+	foreign := ""
+	components := reviewCriterionComponents(bundle.Payload.Plan, scoped)
+	for _, ev := range bundle.Payload.Evidence {
+		matches := false
+		for _, component := range components {
+			if moduleMatchesTarget(ev.Module, component) {
+				matches = true
+			}
+		}
+		if !matches && containsFold(scoped.EvidenceClasses, ev.EvidenceClass) {
+			foreign = ev.EvidenceClass + ":" + ev.ID
+		}
+	}
+	if foreign == "" {
+		t.Fatal("the bundle seals no foreign evidence of a demanded class, so the contrast measures nothing")
+	}
+	if blockers := reviewCriterionEvidenceBlockers(bundle, scoped,
+		ReviewCriterion{ID: scoped.ID, Disposition: "passed", Evidence: foreign}); len(blockers) == 0 {
+		t.Error("the scope check is dead: the same criterion with its classes accepted foreign evidence")
+	}
+}
+
+// auto-attest picked the first evidence of a demanded class, ignoring the
+// module. With the validator now comparing modules that produces an immutable
+// attestation the engine rejects — and `--apply` reports success before
+// verification runs, so the invalid record is written first and refused later.
+func TestAutoAttestPicksEvidenceFromTheRightComponent(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	seedMultiComponentEvidence(t, root, store)
+	now := time.Date(2026, 9, 9, 12, 0, 0, 0, time.UTC)
+	sealed, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	att, err := store.AutoAttestReviewBundle(sealed.BundleID, "", false, now.Add(time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+	att.BundleDigest = sealed.BundleDigest
+	att.AttestedAt = now.Add(time.Minute).Format(time.RFC3339)
+	if blockers := store.validateBundleAttestation(sealed, att); len(blockers) != 0 {
+		t.Fatalf("auto-attest produced an attestation the engine rejects: %v", blockers)
+	}
+}
