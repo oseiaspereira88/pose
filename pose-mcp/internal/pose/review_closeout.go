@@ -1139,6 +1139,11 @@ type ReviewContract struct {
 	// Summary says what the contract requires, for `pose doctor` to quote when
 	// an instance has history and no date.
 	Summary string
+	// IntroducedIn is the release that first shipped this contract. Adopting it
+	// writes a key an engine predating that release does not know, which is a
+	// property of the contract and not of how the date is encoded — the release
+	// notes say so, and this is where they get the version from.
+	IntroducedIn string
 }
 
 // ReviewContracts returns the registry. Adding a contract to it is what makes
@@ -1155,20 +1160,38 @@ func ReviewContracts() []ReviewContract {
 // learn about it.
 var reviewContracts = []ReviewContract{
 	{
-		ID:          "component-aware",
-		LegacyField: "component_aware_adopted_at",
-		Summary:     "review plans are resolved per component",
+		ID:           "component-aware",
+		LegacyField:  "component_aware_adopted_at",
+		Summary:      "review plans are resolved per component",
+		IntroducedIn: "1.1.0",
 	},
 	{
-		ID:          "review-bundles",
-		LegacyField: "review_bundles_adopted_at",
-		Summary:     "review approval is recorded against an immutable sealed bundle",
+		ID:           "review-bundles",
+		LegacyField:  "review_bundles_adopted_at",
+		Summary:      "review approval is recorded against an immutable sealed bundle",
+		IntroducedIn: "1.1.0",
 	},
 	{
-		ID:          "evidence-vocabulary",
-		LegacyField: "evidence_vocabulary_reconciled_at",
-		Summary:     "a passed criterion must cite evidence the sealed bundle contains, of a class the criterion asks for",
+		ID:           "evidence-vocabulary",
+		LegacyField:  "evidence_vocabulary_reconciled_at",
+		Summary:      "a passed criterion must cite evidence the sealed bundle contains, of a class the criterion asks for",
+		IntroducedIn: "2.0.0",
 	},
+}
+
+// ContractsIntroducedIn returns the contracts a release first shipped, in
+// registry order. It is what lets the release notes say, without anyone
+// remembering to, that this release is one an older engine cannot follow a
+// repository through.
+func ContractsIntroducedIn(version string) []ReviewContract {
+	version = strings.TrimPrefix(version, "v")
+	out := []ReviewContract{}
+	for _, contract := range reviewContracts {
+		if contract.IntroducedIn == version {
+			out = append(out, contract)
+		}
+	}
+	return out
 }
 
 // ContractAdoptedAt is the date this instance received the named contract, or

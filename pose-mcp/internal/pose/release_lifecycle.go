@@ -181,6 +181,24 @@ func LoadReleaseFragments(dir string) ([]ReleaseFragment, error) {
 func RenderReleaseNotes(version string, fragments []ReleaseFragment) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "# POSE %s\n\n", version)
+	// A release that introduces a governance contract says so before it says
+	// anything else. Adopting the contract writes a key an engine predating this
+	// release does not know, and that engine then refuses the whole policy — a
+	// property of the contract, not of how the date is encoded, so no future
+	// change makes it go away. It cost a repository a day of confusion once, and
+	// the notes said nothing.
+	if contracts := ContractsIntroducedIn(version); len(contracts) > 0 {
+		subject := "a governance contract"
+		if len(contracts) > 1 {
+			subject = fmt.Sprintf("%d governance contracts", len(contracts))
+		}
+		b.WriteString("## Compatibility\n\n")
+		fmt.Fprintf(&b, "This release introduces %s. Once an instance adopts one, engines older than %s can no longer read that repository's review policy, so every tool reading it has to move together. Nothing in the engine avoids this: the adoption writes a key those versions do not know, and they refuse the whole policy over it.\n\n", subject, version)
+		for _, contract := range contracts {
+			fmt.Fprintf(&b, "- `%s` — %s\n", contract.ID, contract.Summary)
+		}
+		b.WriteString("\n")
+	}
 	order := []string{"security", "removed", "deprecated", "added", "changed", "fixed"}
 	labels := map[string]string{"security": "Security", "removed": "Removed", "deprecated": "Deprecated", "added": "Added", "changed": "Changed", "fixed": "Fixed"}
 	for _, category := range order {
