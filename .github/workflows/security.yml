@@ -80,7 +80,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions: { contents: read, security-events: write }
     steps:
+      # fetch-depth: 0 — `pose validate` runs the Go suite, and the
+      # cross-version test in it builds the previous release from its own tag
+      # (spec pose-release-boundary-rehearsal).
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 0 }
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with: { go-version: "1.26.6", cache: true, cache-dependency-path: pose-mcp/go.mod }
       - name: Deterministic validation to SARIF
