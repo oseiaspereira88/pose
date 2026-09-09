@@ -5,6 +5,7 @@ Accepted (2026-08-13) — implemented by spec `pose-review-bundle-convergence`
 Amended (2026-09-08) by spec `pose-review-subject-unclassified-removals` — see Amendments
 Amended (2026-09-08) by spec `pose-attestation-evidence-must-be-in-the-bundle` — see Amendments
 Amended (2026-09-09) by spec `pose-evidence-scoped-to-component` — see Amendments
+Amended (2026-09-09) by spec `pose-component-evidence-is-not-inherited-upward` — see Amendments
 
 ## Context
 
@@ -73,7 +74,8 @@ verification key.
 Record review approval as a separate immutable attestation referencing the
 exact bundle ID and digest. A criterion recorded `passed` must cite evidence the
 bundle contains, of a class the criterion asks for (amended 2026-09-08), from a
-component it answers for (amended 2026-09-09). Creating, importing, superseding or verifying an
+component it answers for — which a component containing it does, and a directory
+inside it does not (amended 2026-09-09). Creating, importing, superseding or verifying an
 attestation never changes the bundle. `review-check`, `closeout-check` and
 `pose close` verify the attestation and then perform their own lifecycle and
 bookkeeping gates without adding new inputs to the approved subject.
@@ -270,3 +272,46 @@ the ordinary consequence of a governed input changing and is what supersession
 exists for. The dated adoption exemption covers these checks as it covers the
 rest of the evidence-support rules, so a completed closeout recorded before an
 instance received the contract keeps its approval.
+
+### 2026-09-09 — component evidence answers downward, not upward
+
+Spec `pose-component-evidence-is-not-inherited-upward`.
+
+**What changed.** A result registered for a module answers for a target or
+criterion inside that module. It no longer answers for one that contains it.
+
+**Why.** `moduleMatchesTarget` accepted a path prefix in either direction, so a
+result from `site/api` satisfied a criterion about `site`. It covers one
+directory of the component and was accepted as covering all of it, which is the
+same shape as the sibling case the previous amendment closed: real evidence, of
+the demanded class, silent about most of what it was asked about.
+
+The other direction is not the same claim. A module-wide run — `go test ./...`,
+`npm test` — does exercise its subtree, and running checks once at the module
+root is how nearly every project is laid out. Refusing it would not tighten the
+gate; it would make the ordinary layout unsatisfiable and push projects to
+declare per-directory checks that run the same command.
+
+**Options considered.**
+
+1. Leave both directions. Rejected: partial coverage accepted as complete is the
+   defect this ADR's previous amendment exists to prevent.
+2. Refuse both prefixes and require an exact module match. Rejected: it breaks
+   the layout where a module runs its checks once, and POSE would be inferring a
+   stricter claim than the result actually makes in the other direction too.
+3. Keep downward, refuse upward. Selected.
+
+**Consequences.**
+
+- A component whose evidence sits only in a directory inside it now has no
+  evidence. That is the correct reading and it is a new refusal: such a scope
+  stops closing until a check is registered for the component, or the target is
+  declared at the directory that actually has one.
+- The repository-root rule is untouched. A single-module project is its own
+  component, and refusing that would break every repository that never split.
+- Nothing in this repository exercised either prefix direction: its delivery
+  targets carry module `.` or `pose-mcp` and its results carry `pose-mcp`, so
+  matching is by equality or by the root rule. The change was verified against
+  fixtures, and `surface-check` produces the same 524 `validated-by` edges
+  before and after.
+
