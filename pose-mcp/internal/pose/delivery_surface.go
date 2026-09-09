@@ -24,6 +24,12 @@ var ValidEvidenceClasses = map[string]bool{
 	"build": true, "unit": true, "integration": true, "e2e": true,
 	"reachability": true, "a11y": true, "design-system": true,
 	"contrast": true, "visual-regression": true,
+	// Static analysis, type checking, dependency and contract verification used
+	// to have no class of their own and were reported as `build`. A criterion
+	// asking for security assurance could then be satisfied by a successful
+	// compilation — the same indistinction the single vocabulary closed one
+	// level up, still open one level down.
+	"lint": true, "typecheck": true, "security-scan": true, "contract": true,
 }
 
 type DeliveryPolicy struct {
