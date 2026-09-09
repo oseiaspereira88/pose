@@ -2,8 +2,10 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
@@ -83,20 +85,33 @@ func extendCurrentDeliveryGraph(root string, base posemodel.DeliveryIntegrityGra
 	if err != nil {
 		return base, err
 	}
+	// An absent profile index or specs directory used to return here, before a
+	// single roadmap was loaded — so `pose roadmap-check` reported zero cut
+	// criteria and exited 0 on a repository whose roadmap declared several. A
+	// gate that cannot evaluate its criteria was reading as a gate that passed
+	// them (spec pose-roadmap-check-reaches-its-gate).
+	//
+	// Neither absence is a reason to skip the evaluation. Without profiles there
+	// are no delivery targets, so a criterion naming one is unresolved — which
+	// the criteria loop already reports as `unknown delivery ref`, and which is
+	// the honest answer. `check:` and `manual-review:` refs need neither.
 	profiles, err := loadDeliveryProfiles(root)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return base, nil
+		if !errors.Is(err, fs.ErrNotExist) {
+			return base, err
 		}
-		return base, err
+		profiles = map[string]posemodel.DeliveryProfile{}
 	}
 	store := posemodel.Store{Root: root}
 	specs, err := store.ListSpecs("", "")
 	if err != nil {
-		if os.IsNotExist(err) {
-			return base, nil
+		// errors.Is, not os.IsNotExist: the store wraps the cause, and
+		// os.IsNotExist does not unwrap. Reaching this at all is new — the
+		// profiles branch above used to return before it.
+		if !errors.Is(err, fs.ErrNotExist) {
+			return base, err
 		}
-		return base, err
+		specs = nil
 	}
 	fullSpecs, targets, err := collectDeliveryTargets(root, specs, profiles)
 	if err != nil {
