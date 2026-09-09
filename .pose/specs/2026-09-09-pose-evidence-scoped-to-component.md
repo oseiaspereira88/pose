@@ -229,4 +229,4 @@ confirm the first depends on it.
 
 ### Follow-ups
 
-- [open] Decide whether root-level evidence should satisfy a component-scoped criterion, or whether module coverage needs a stricter definition here — owner:unowned crit:medium review:2026-12-09
+- [done] Decide whether root-level evidence should satisfy a component-scoped criterion, or whether module coverage needs a stricter definition here. Decided in `pose-component-evidence-is-not-inherited-upward` (ADR amendment 2026-09-09): root keeps answering, a containing module keeps answering, and a directory inside the component stops answering for it — the upward prefix was partial coverage read as complete. — owner:unowned crit:medium review:2026-12-09

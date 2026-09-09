@@ -624,16 +624,35 @@ func deliverySeverity(policy DeliveryPolicy, code string) string {
 	}
 	return "warning"
 }
+
+// moduleMatchesTarget reports whether a result registered for `module` answers
+// for `target`.
+//
+// It is directional, and it did not used to be. A result from a module that
+// contains the target answers for it: a module-wide run — `go test ./...`, `npm
+// test` — really does exercise the subtree, and running checks once at the
+// module root is how nearly every project is laid out.
+//
+// The reverse does not follow. A result from `site/api` covers part of `site`
+// and was accepted as if it covered all of it, so a criterion about a component
+// could be satisfied by evidence from one directory inside it while the rest
+// went unchecked. That is the same shape as evidence from a sibling component,
+// which is already refused (spec pose-evidence-scoped-to-component): real
+// evidence, of the right class, silent about most of the thing it was asked
+// about.
 func moduleMatchesTarget(module, target string) bool {
 	module = filepath.ToSlash(filepath.Clean(module))
 	target = filepath.ToSlash(filepath.Clean(target))
 	if module == target {
 		return true
 	}
+	// The repository root answers for everything, and everything answers for a
+	// target declared at the root: a single-module project is its own component,
+	// and refusing that would break every repository that never split.
 	if module == "." || module == "" || module == "root" || target == "." || target == "" || target == "root" {
 		return true
 	}
-	return strings.HasPrefix(target, strings.TrimSuffix(module, "/")+"/") || strings.HasPrefix(module, strings.TrimSuffix(target, "/")+"/")
+	return strings.HasPrefix(target, strings.TrimSuffix(module, "/")+"/")
 }
 func firstObservedDeliveryPath(path ObservedPath) string {
 	if path.Action == "renamed" {
