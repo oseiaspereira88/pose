@@ -24,3 +24,8 @@ The release endpoints became package variables so a test can point a build at a
 local server with `-ldflags -X`. They are deliberately not read from the
 environment: where `pose update` fetches its own replacement from is not
 something a shell variable should decide.
+
+The CI test job now checks out full history: `git archive` needs the tag, and a
+shallow checkout would have made the cross-version test skip on the one machine
+whose verdict gates a release. A missing precondition there is a configuration
+failure, and the test says so rather than skipping.

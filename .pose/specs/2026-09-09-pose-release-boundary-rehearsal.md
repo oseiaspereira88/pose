@@ -64,8 +64,9 @@ by-hand check precisely because the by-hand check was wrong.
 
 ### Non-functional
 - Both tests run offline, given a warm module cache.
-- Both skip, rather than fail, when their precondition is genuinely absent — a
-  shallow clone with no tag objects.
+- R5: The compatibility test shall skip locally when its precondition is
+  genuinely absent — a shallow clone with no tag objects — and fail on CI, where
+  that precondition is configured rather than incidental.
 
 ---
 
@@ -74,7 +75,8 @@ by-hand check precisely because the by-hand check was wrong.
 ### Affected areas
 - `pose-mcp/internal/cli/maintenance.go` — the release endpoints
 - `pose-mcp/internal/cli/self_update_release_test.go` — R1
-- `pose-mcp/internal/cli/release_compatibility_test.go` — R3, R4
+- `pose-mcp/internal/cli/release_compatibility_test.go` — R3, R4, R5
+- `.github/workflows/ci.yml` — full history on the test job, so R5 holds
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-release-boundary-rehearsal.md
@@ -82,6 +84,7 @@ by-hand check precisely because the by-hand check was wrong.
 - created: pose-mcp/internal/cli/release_compatibility_test.go
 - created: .pose/changelogs/unreleased/pose-release-boundary-rehearsal.md
 - modified: pose-mcp/internal/cli/maintenance.go
+- modified: .github/workflows/ci.yml
 - modified: .pose/specs/2026-09-08-pose-self-update-handoff-path.md
 - modified: .pose/specs/2026-09-08-pose-adoption-stamp-stays-readable.md
 
@@ -99,6 +102,7 @@ by-hand check precisely because the by-hand check was wrong.
 - [x] Increment 1: Build-time seam for the release endpoints (R2)
 - [x] Increment 2: End-to-end download, replace and handoff (R1)
 - [x] Increment 3: Previous release against this engine's policy (R3, R4)
+- [x] Increment 4: A skipped precondition fails on CI (R5)
 
 ### Validation
 - [x] Each test shown to fail against the defect it covers
@@ -125,6 +129,19 @@ by-hand check precisely because the by-hand check was wrong.
 - Rationale: a recorded list is a second source of truth, and its only failure
   mode is being stale on precisely the release that needed it. `git archive`
   reads the tag without touching the working checkout.
+
+### Decision 4
+- Date: 2026-09-09
+- Context: the test job checked out shallow, so `git archive` would find no tag
+  and the compatibility test would skip — on the only machine whose verdict
+  gates a release.
+- Decision: give the test job full history, and make the skip a failure when
+  `CI` is set.
+- Rationale: a skip is indistinguishable from a pass in a CI summary. Every
+  precondition this test has is one the workflow provides, so on CI a missing
+  one is a configuration defect and should read as one. This session already
+  spent an hour on a conclusion drawn from thirty runs of code that was never
+  the code under test.
 
 ### Decision 3
 - Date: 2026-09-09
@@ -178,6 +195,7 @@ pass against the current code.
 - R2 [satisfied] <releaseAPIBase and releaseDownloadBase are package variables set by the test's `go build -ldflags -X`; nothing reads them from the environment>
 - R3 [satisfied] <TestPreviousReleaseReadsThisEnginesReviewPolicy resolves the highest tag below this version, extracts it with `git archive`, builds `./cmd/pose` from it, and runs it against an instance installed in-process by this engine>
 - R4 [satisfied] <the same test first writes a policy whose `enabled` is a string and requires the previous release to reject it through the same command; a probe that never reaches the loader fails this control, as `check --strict` does>
+- R5 [satisfied] <skipUnlessCI calls t.Fatalf when CI is set; ci.yml's test job checks out with fetch-depth: 0, which is what makes the tag present there>
 
 ### Known gaps
 - The compatibility test compares against one release. An instance two or more

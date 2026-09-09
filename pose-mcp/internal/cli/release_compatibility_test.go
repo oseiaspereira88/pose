@@ -74,6 +74,18 @@ func mentionsPolicy(out string) bool {
 	return strings.Contains(out, "review policy")
 }
 
+// skipUnlessCI skips locally and fails on CI. Every precondition this test has
+// is one CI is configured to provide — the workflow checks out full history so
+// the tags exist — so a skip there is not a missing precondition, it is this
+// test quietly not running on the only machine whose verdict gates a release.
+func skipUnlessCI(t *testing.T, format string, args ...any) {
+	t.Helper()
+	if os.Getenv("CI") != "" {
+		t.Fatalf("on CI this is a configuration failure, not a missing precondition: "+format, args...)
+	}
+	t.Skipf(format, args...)
+}
+
 // distributionRoot is the repository root, three levels up from this package.
 func distributionRoot(t *testing.T) string {
 	t.Helper()
@@ -111,7 +123,7 @@ func previousReleaseTag(t *testing.T, root string) string {
 		}
 	}
 	if best == "" {
-		t.Skipf("no tag below v%s is present; a shallow clone has none", version.ReleaseBase())
+		skipUnlessCI(t, "no tag below v%s is present; a shallow clone has none", version.ReleaseBase())
 	}
 	return best
 }
@@ -170,7 +182,7 @@ func buildReleaseFromTag(t *testing.T, root, tag string) string {
 	if archiveWait != nil {
 		// A shallow clone has no tag objects; that is a missing precondition,
 		// not a failure of the contract under test.
-		t.Skipf("git archive %s unavailable (%v): %s", tag, archiveWait, archiveErr.String())
+		skipUnlessCI(t, "git archive %s unavailable (%v): %s", tag, archiveWait, archiveErr.String())
 	}
 	if extractWait != nil {
 		t.Fatalf("extracting %s: %v\n%s", tag, extractWait, extractErr.String())
