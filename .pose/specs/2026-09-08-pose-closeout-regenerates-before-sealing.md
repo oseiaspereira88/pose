@@ -73,7 +73,7 @@ so the sequence has to end with the commit.
 
 ### Artifacts
 - created: .pose/specs/2026-09-08-pose-closeout-regenerates-before-sealing.md
-- created: .pose/changelogs/unreleased/pose-closeout-regenerates-before-sealing.md
+- renamed: .pose/changelogs/unreleased/pose-closeout-regenerates-before-sealing.md -> .pose/changelogs/v3.0.0/pose-closeout-regenerates-before-sealing.md
 - modified: .agents/skills/pose-spec-closeout/SKILL.md
 - modified: locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "version": "v3.0.0",
+  "previous_version": "v2.0.2",
+  "prepared_at": "2026-09-09T14:08:28Z",
+  "specs": [
+    "pose-closeout-regenerates-before-sealing",
+    "pose-evidence-scoped-to-component"
+  ],
+  "categories": {
+    "changed": 1,
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-closeout-regenerates-before-sealing",
+      "category": "changed",
+      "breaking": false,
+      "body": "The closeout skill now states the order a closeout has to follow — regenerate\nthe evidence into the path `results_path` names, index, seal, attest, and commit\nlast — and why. The engine reads that one file and nothing else under\n`.pose/results/`, and skipping the regeneration does not fail: the bundle\nsilently seals the previous run's evidence and the attestation cites checks the\nbundle does not contain.\n\nIn one adopting repository every sealed bundle carried the same two results from\nan unrelated component, whatever the spec covered, because `results_path` named\na file nothing regenerated.",
+      "path": "pose-closeout-regenerates-before-sealing.md",
+      "digest": "sha256:2ff2958248e2716f1bfe33cf27df4bbfb8ec440e58010023bfe0c4a40b598c3e"
+    },
+    {
+      "spec": "pose-evidence-scoped-to-component",
+      "category": "fixed",
+      "breaking": true,
+      "body": "A criterion or tool scoped to a component is rejected when it cites evidence\nfrom outside it. Evidence was matched by reference and class alone, so a backend\ncriterion could be satisfied by a frontend sibling's integration result — real,\nof a demanded class, and silent about the thing the criterion is about.\n\nThe sealed plan now records which components each profile was selected for.\nWithout it the bundle could not decide this even in principle: a criterion names\nits profiles and nothing mapped a profile to what it matched. Reading that from\nthe current policy at verification time would judge an immutable bundle by\ntoday's configuration, which is what sealing exists to prevent.\n\nA criterion governed by any base profile still answers for every component and is\nnot narrowed. The bundle payload gains a field, so a bundle sealed by this\nrelease does not digest the same as one sealed before it.\n\nOnly a criterion demanding an evidence class is scoped: without one the plan made\nno claim about what the evidence shows. `pose review auto-attest` picks evidence\nfrom a component the criterion or tool answers for, so it no longer records an\nattestation the engine itself rejects.",
+      "path": "pose-evidence-scoped-to-component.md",
+      "digest": "sha256:2b7ff9805284486a120003c72ebdf15ee4996a3f6cb017cae6075d2cbcaa1975"
+    }
+  ],
+  "breaking": true,
+  "notes_digest": "sha256:741cde659b0e6b0a62e4d9ca7bb742a093f7e1a4605e5107f5b2cc1131947329",
+  "release_input_digest": "sha256:3194e89bfb043bd72908f941a42fb8dc34c71d9e64659083439e80717b20b731",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v3.0.0"
+  }
+}

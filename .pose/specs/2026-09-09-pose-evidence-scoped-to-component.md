@@ -90,7 +90,7 @@ attempt recorded.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-evidence-scoped-to-component.md
-- created: .pose/changelogs/unreleased/pose-evidence-scoped-to-component.md
+- renamed: .pose/changelogs/unreleased/pose-evidence-scoped-to-component.md -> .pose/changelogs/v3.0.0/pose-evidence-scoped-to-component.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: pose-mcp/internal/pose/review_closeout.go
