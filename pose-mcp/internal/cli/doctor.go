@@ -807,37 +807,53 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		}
 	}
 
-	// 12d. The review policy decoder ignores keys it does not know, so a newer
-	// field never breaks an older binary reading the same repository. What that
-	// gives up is telling an operator that a key they wrote is not one the
-	// engine reads: a misspelling takes the default and the setting silently
-	// does nothing. Reported here, where it costs a finding instead of a
-	// refusal.
-	if raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json")); err == nil {
+	// 12d. Every policy decoder ignores keys it does not know, so a newer field
+	// never breaks an older binary reading the same repository. What that gives
+	// up is telling an operator that a key they wrote is not one the engine
+	// reads: a misspelling takes the default and the setting silently does
+	// nothing. Reported here, where it costs a finding instead of a refusal.
+	//
+	// The review policy was the first to get this, because that is where the
+	// strict decoder had to be dropped. The exposure is identical in every
+	// other policy the engine models, and identical is the point: an operator
+	// who learns the finding exists for one file has no way to know it does not
+	// exist for the next.
+	for _, policy := range policyKeyChecks() {
+		var raw []byte
+		var err error
+		for _, candidate := range policy.paths() {
+			if raw, err = os.ReadFile(filepath.Join(root, ".pose", "policy", candidate)); err == nil {
+				break
+			}
+		}
+		if err != nil {
+			continue
+		}
 		var document map[string]json.RawMessage
-		if json.Unmarshal(raw, &document) == nil {
-			known := map[string]bool{}
-			for _, key := range posemodel.ReviewPolicyKnownKeys() {
-				known[key] = true
+		if json.Unmarshal(raw, &document) != nil {
+			continue
+		}
+		known := map[string]bool{}
+		for _, key := range policy.known {
+			known[key] = true
+		}
+		unknown := []string{}
+		for key := range document {
+			if !known[key] && !posemodel.PolicyKeyIsAnnotation(key) {
+				unknown = append(unknown, key)
 			}
-			unknown := []string{}
-			for key := range document {
-				if !known[key] {
-					unknown = append(unknown, key)
-				}
-			}
-			sort.Strings(unknown)
-			if len(unknown) > 0 {
-				add("review.policy-keys", "warn",
-					fmt.Sprintf(text("the review policy carries %d key(s) this engine does not read: %s",
-						"a política de review carrega %d chave(s) que este engine não lê: %s"), len(unknown), strings.Join(unknown, ", ")),
-					fmt.Sprintf(text("a key the engine does not model is ignored, so its setting has no effect — check the spelling, or remove it; the keys read are: %s",
-						"uma chave que o engine não modela é ignorada, então o ajuste não tem efeito — confira a grafia, ou remova; as chaves lidas são: %s"),
-						strings.Join(posemodel.ReviewPolicyKnownKeys(), ", ")))
-			} else {
-				add("review.policy-keys", "ok",
-					text("every key in the review policy is one this engine reads", "toda chave da política de review é lida por este engine"), "")
-			}
+		}
+		sort.Strings(unknown)
+		if len(unknown) > 0 {
+			add(policy.check, "warn",
+				fmt.Sprintf(text("the %s policy carries %d key(s) this engine does not read: %s",
+					"a política de %s carrega %d chave(s) que este engine não lê: %s"), policy.label, len(unknown), strings.Join(unknown, ", ")),
+				fmt.Sprintf(text("a key the engine does not model is ignored, so its setting has no effect — check the spelling, or remove it; the keys read are: %s",
+					"uma chave que o engine não modela é ignorada, então o ajuste não tem efeito — confira a grafia, ou remova; as chaves lidas são: %s"),
+					strings.Join(policy.known, ", ")))
+		} else {
+			add(policy.check, "ok",
+				fmt.Sprintf(text("every key in the %s policy is one this engine reads", "toda chave da política de %s é lida por este engine"), policy.label), "")
 		}
 	}
 

@@ -128,17 +128,47 @@ type ReviewPolicy struct {
 // a misspelling now reads as a default. This is how that is recovered, as a
 // finding rather than a refusal.
 func ReviewPolicyKnownKeys() []string {
-	t := reflect.TypeOf(ReviewPolicy{})
-	keys := make([]string, 0, t.NumField())
-	for i := 0; i < t.NumField(); i++ {
-		tag := t.Field(i).Tag.Get("json")
-		if tag == "" || tag == "-" {
-			continue
+	return PolicyKnownKeys(ReviewPolicy{})
+}
+
+// PolicyKnownKeys lists the top-level json keys the given policy structs model,
+// derived from the structs rather than restated so the list cannot drift from
+// what is read.
+//
+// It takes more than one because a policy file may be read by more than one
+// struct: `.pose/policy/capabilities.json` is decoded once for the staleness
+// thresholds and again for the trigger thresholds, and neither half alone
+// describes the file. Passing one of them would report the other's keys as
+// unread, which is the opposite of the finding.
+func PolicyKnownKeys(values ...any) []string {
+	keys := []string{}
+	seen := map[string]bool{}
+	for _, value := range values {
+		t := reflect.TypeOf(value)
+		for i := 0; i < t.NumField(); i++ {
+			tag := t.Field(i).Tag.Get("json")
+			if tag == "" || tag == "-" {
+				continue
+			}
+			name := strings.Split(tag, ",")[0]
+			if name == "" || seen[name] {
+				continue
+			}
+			seen[name] = true
+			keys = append(keys, name)
 		}
-		keys = append(keys, strings.Split(tag, ",")[0])
 	}
 	sort.Strings(keys)
 	return keys
+}
+
+// PolicyKeyIsAnnotation reports whether a key is one the convention marks as
+// documentation rather than configuration. The shipped policies carry
+// `_comment` to say what the file is for and why it ships disabled; reporting
+// it as unread would make the finding noisy on every fresh install and teach
+// operators to ignore it.
+func PolicyKeyIsAnnotation(key string) bool {
+	return strings.HasPrefix(key, "_")
 }
 
 type ReviewCriterion struct {

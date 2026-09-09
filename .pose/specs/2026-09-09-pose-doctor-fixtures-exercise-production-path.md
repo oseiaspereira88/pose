@@ -169,4 +169,4 @@ are the ones now executed.
 
 ### Follow-ups
 
-- [open] Run the same coverage audit over the other command surfaces, since this one found three unreached behavioural branches in a single command — owner:unowned crit:medium review:2026-12-09
+- [done] Run the same coverage audit over the other command surfaces, since this one found three unreached behavioural branches in a single command. Run in `pose-policy-keys-and-release-surface-coverage`: it found 36 functions at zero, the largest being the whole release surface, which now runs under test from 0 of 20 functions to 20 of 20; the rest are carried as a follow-up there. — owner:unowned crit:medium review:2026-12-09
