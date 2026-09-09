@@ -68,6 +68,11 @@ attempt recorded.
   outside it.
 - R5: The dated adoption exemption shall cover these checks, as it covers the
   rest of the evidence-support rules.
+- R6: A criterion demanding no evidence class shall not be scoped, and
+  `auto-attest` shall pick evidence from a component the criterion or tool
+  answers for.
+- R7: The payload change shall be recorded as an amendment to the sealed-review
+  -bundles ADR.
 
 ### Non-functional
 - The existing review suite passes.
@@ -80,6 +85,8 @@ attempt recorded.
 - `pose-mcp/internal/pose/review_bundle.go` — the sealed plan and criterion
   scoping
 - `pose-mcp/internal/pose/review_closeout.go` — tool scoping
+- `.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md` — the payload
+  clause this revises
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-evidence-scoped-to-component.md
@@ -87,6 +94,7 @@ attempt recorded.
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: pose-mcp/internal/pose/review_closeout.go
+- modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
 
 ### Technical risks
 - The bundle payload gains a field, so a bundle sealed by this release does not
@@ -105,6 +113,8 @@ attempt recorded.
 - [x] Increment 1: Seal the profile selection (R1)
 - [x] Increment 2: Scope criteria, leaving base-profile ones alone (R2, R3, R5)
 - [x] Increment 3: Scope tools by their component (R4, R5)
+- [x] Increment 4: Honour the classless non-goal and pick scoped evidence in auto-attest (R6)
+- [x] Increment 5: Amend the ADR the payload change revises (R7)
 
 ### Validation
 - [x] Both directions asserted, and the rejection shown to depend on the change
@@ -125,6 +135,21 @@ attempt recorded.
   re-scoped after the fact would silently change what an old attestation means.
   This engine already made that mistake once, resolving a profile ref against
   the current policy rather than what the attempt recorded.
+
+### Decision 3
+- Date: 2026-09-09
+- Context: review found the implementation contradicted this spec's own
+  non-goals — the scope check ran unconditionally, including for a criterion
+  demanding no evidence class — and that `auto-attest` still picked the first
+  evidence of a class regardless of module, so it would record an immutable
+  attestation the engine rejects, reporting success before verification runs.
+- Decision: guard the scope check on a demanded class, and give auto-attest a
+  scoped picker used for both criteria and tools.
+- Rationale: writing a boundary in the non-goals and not implementing it is
+  worse than not stating it, because the spec then reads as a guarantee nothing
+  enforces. The auto-attest half is the more serious of the two: `--apply`
+  writes an append-only record, so the engine would have been producing evidence
+  it refuses, and the operator would learn at closeout rather than at write.
 
 ### Decision 2
 - Date: 2026-09-09
@@ -167,9 +192,15 @@ confirm the first depends on it.
   named. The whole suite passing before any test was added is the measure of how
   little was exercising this: sealing `selected_profiles` and scoping tools
   changed nothing any existing test could see.
+- Review then found the scope check ignoring this spec's own non-goal, and
+  auto-attest able to write an attestation the engine rejects. Both are
+  asserted, and both assertions fail against the previous code. The second took
+  two attempts: the first version passed because the api result happened to sort
+  before the foreign one, so the assertion held whether or not the component was
+  consulted. The seeded id now sorts first on purpose.
 
 ### Results summary
-- Successes: R1, R2, R3, R4, R5 verified.
+- Successes: R1, R2, R3, R4, R5, R6, R7 verified.
 - Failures: none.
 
 ### Requirement trace
@@ -178,6 +209,8 @@ confirm the first depends on it.
 - R3 [satisfied] <a profile with no components returns nil, so the criterion is unscoped; TestCriterionFromABaseProfileIsNotScoped asserts every criterion from the base profile is unscoped, and fails the fixture if no base profile is selected>
 - R4 [satisfied] <reviewToolEvidenceBlocker compares the evidence module against tool.Component through moduleMatchesTarget>
 - R5 [satisfied] <both run under the sealed-evidence map that validateBundleAttestationWith nils out when skipEvidenceSupport is set>
+- R6 [satisfied] <reviewCriterionEvidenceBlockers returns early when the criterion demands no class, asserted by TestCriterionWithNoDemandedClassIsNotScoped, which strips the classes from a criterion the plan really scopes and then checks the scope is still live for the same criterion with its classes; auto-attest uses pickScoped for criteria and tools, asserted by TestAutoAttestPicksEvidenceFromTheRightComponent validating its own output>
+- R7 [satisfied] <the sealed-review-bundles ADR carries a 2026-09-09 amendment stating the payload gains plan.selected_profiles, why re-reading the selection was rejected, the bounds of the rule and the compatibility consequence>
 
 ### Known gaps
 - Root-level evidence satisfies any scope, because `moduleMatchesTarget` treats
@@ -186,7 +219,9 @@ confirm the first depends on it.
   by scope.
 - A criterion demanding no evidence class is not scoped, so a bundle can still
   record one satisfied by a sibling's result. Without a demanded class the plan
-  made no claim about what the evidence shows.
+  made no claim about what the evidence shows, and `auto-attest` deliberately
+  takes any sealed evidence for such a criterion — scoping it would make the
+  engine reject its own output.
 
 ---
 

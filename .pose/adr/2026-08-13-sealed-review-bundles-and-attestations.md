@@ -4,6 +4,7 @@
 Accepted (2026-08-13) — implemented by spec `pose-review-bundle-convergence`
 Amended (2026-09-08) by spec `pose-review-subject-unclassified-removals` — see Amendments
 Amended (2026-09-08) by spec `pose-attestation-evidence-must-be-in-the-bundle` — see Amendments
+Amended (2026-09-09) by spec `pose-evidence-scoped-to-component` — see Amendments
 
 ## Context
 
@@ -71,7 +72,8 @@ verification key.
 
 Record review approval as a separate immutable attestation referencing the
 exact bundle ID and digest. A criterion recorded `passed` must cite evidence the
-bundle contains, of a class the criterion asks for (amended 2026-09-08). Creating, importing, superseding or verifying an
+bundle contains, of a class the criterion asks for (amended 2026-09-08), from a
+component it answers for (amended 2026-09-09). Creating, importing, superseding or verifying an
 attestation never changes the bundle. `review-check`, `closeout-check` and
 `pose close` verify the attestation and then perform their own lifecycle and
 bookkeeping gates without adding new inputs to the approved subject.
@@ -225,3 +227,46 @@ appear in both. Ten a profile may demand — including `test`, `contract`,
 can never be demanded. The profiles shipped with POSE are reconciled to the
 intersection here, and the plan now blocks on the rest. Unifying the two lists
 is not done, and is recorded as a follow-up.
+
+### 2026-09-09 — evidence answers for the component it was asked about
+
+Spec `pose-evidence-scoped-to-component`.
+
+The 2026-09-08 amendment tied a passed criterion to evidence the bundle
+contains, of a class the criterion demands. It did not tie it to a component,
+and recorded that as a known gap: a backend criterion could be satisfied by a
+frontend sibling's integration result, which is real, demanded, and silent about
+the thing the criterion is about.
+
+Closing it required a change to the payload this decision defines, which is why
+it is recorded here rather than left to the spec.
+
+**The canonical payload gains `plan.selected_profiles`**, recording which
+components each profile was selected for. A criterion names the profiles it came
+from; nothing mapped a profile to what it matched, so the sealed subject could
+not decide component scope even in principle. The alternative — re-reading the
+selection from the current policy at verification time — was rejected: it would
+judge an immutable bundle by today's configuration, which is the property this
+decision exists to establish. This engine had already made that mistake once,
+resolving a profile ref against `policy.Profiles` rather than against what the
+attempt recorded.
+
+The rule is bounded:
+
+- Only a criterion demanding an evidence class is scoped. Without one the plan
+  made no claim about what the evidence shows, and narrowing by module would
+  invent a constraint the plan never stated.
+- A criterion governed by any base profile answers for every component and is
+  never narrowed. Only one governed solely by overlays is constrained, to what
+  those overlays matched.
+- A tool is scoped by its own `component`, which the plan already recorded.
+- `moduleMatchesTarget` decides coverage, so a repository-root result satisfies
+  any scope. That is the engine's single definition of module coverage, kept
+  rather than forked here.
+
+**Compatibility.** A bundle sealed by this release does not digest the same as
+one sealed before it, because the payload carries a field it did not. That is
+the ordinary consequence of a governed input changing and is what supersession
+exists for. The dated adoption exemption covers these checks as it covers the
+rest of the evidence-support rules, so a completed closeout recorded before an
+instance received the contract keeps its approval.

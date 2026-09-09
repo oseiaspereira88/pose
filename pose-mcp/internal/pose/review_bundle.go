@@ -1231,10 +1231,32 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 	}
 	evidenceRefs := make([]string, 0, len(bundle.Payload.Evidence))
 	byClass := map[string][]string{}
+	evidenceModule := map[string]string{}
 	for _, ev := range bundle.Payload.Evidence {
 		ref := ev.EvidenceClass + ":" + ev.ID
 		evidenceRefs = append(evidenceRefs, ref)
 		byClass[ev.EvidenceClass] = append(byClass[ev.EvidenceClass], ref)
+		evidenceModule[ref] = ev.Module
+	}
+	// Pick evidence that answers for the component being asked about. Taking the
+	// first of a class was fine while nothing compared modules; now that the
+	// validator does, it would make this command record an immutable
+	// attestation the engine itself rejects — and `--apply` reports success
+	// before verification ever runs.
+	pickScoped := func(classes []string, components []string) string {
+		for _, class := range classes {
+			for _, ref := range byClass[class] {
+				if len(components) == 0 {
+					return ref
+				}
+				for _, component := range components {
+					if moduleMatchesTarget(evidenceModule[ref], component) {
+						return ref
+					}
+				}
+			}
+		}
+		return ""
 	}
 	sort.Strings(evidenceRefs)
 
@@ -1243,13 +1265,7 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 		if !criterion.Required {
 			continue
 		}
-		critEvidence := ""
-		for _, class := range criterion.EvidenceClasses {
-			if refs, ok := byClass[class]; ok && len(refs) > 0 {
-				critEvidence = refs[0]
-				break
-			}
-		}
+		critEvidence := pickScoped(criterion.EvidenceClasses, reviewCriterionComponents(bundle.Payload.Plan, criterion))
 		if critEvidence == "" && len(criterion.EvidenceClasses) == 0 && len(bundle.Payload.Evidence) > 0 {
 			// A criterion that asks for no particular class is satisfied by any
 			// sealed evidence. Citing the first is weak, but it is real and in
@@ -1312,12 +1328,11 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 			disposition.Rationale = "not used during automated attestation"
 		} else {
 			toolEv := ""
-			for _, class := range tool.EvidenceClasses {
-				if refs, ok := byClass[class]; ok && len(refs) > 0 {
-					toolEv = refs[0]
-					break
-				}
+			toolComponents := []string{}
+			if tool.Component != "" {
+				toolComponents = append(toolComponents, tool.Component)
 			}
+			toolEv = pickScoped(tool.EvidenceClasses, toolComponents)
 			if toolEv == "" && len(tool.EvidenceClasses) == 0 {
 				// A tool that declares no evidence class does not report a
 				// validation result at all — `artifact-check` and `review-check`
@@ -1904,6 +1919,15 @@ func reviewCriterionEvidenceBlockers(bundle ReviewBundle, planned ReviewPlanCrit
 		if !matched {
 			return []string{"criterion " + attested.ID + " requires evidence class " + strings.Join(planned.EvidenceClasses, "|") + " but cites " + evidence.EvidenceClass + ": " + attested.Evidence}
 		}
+	}
+	// Only a criterion that demands a class is scoped. Without one the plan made
+	// no claim about what the evidence shows, so narrowing it by module would
+	// invent a constraint the plan never stated — and auto-attest deliberately
+	// takes any sealed evidence for such a criterion, so scoping it here would
+	// make the engine reject its own output. The spec said this in its
+	// non-goals and the first implementation did it anyway.
+	if len(planned.EvidenceClasses) == 0 {
+		return nil
 	}
 	if components := reviewCriterionComponents(bundle.Payload.Plan, planned); len(components) > 0 {
 		for _, component := range components {

@@ -19,3 +19,9 @@ today's configuration, which is what sealing exists to prevent.
 A criterion governed by any base profile still answers for every component and is
 not narrowed. The bundle payload gains a field, so a bundle sealed by this
 release does not digest the same as one sealed before it.
+
+Only a criterion demanding an evidence class is scoped: without one the plan made
+no claim about what the evidence shows. `pose review auto-attest` picks evidence
+from a component the criterion or tool answers for, so it no longer records an
+attestation the engine itself rejects.
+
