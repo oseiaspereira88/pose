@@ -47,12 +47,28 @@ when transitioning to `done`.
 
 1. Confirm strict deterministic validation passed for affected modules (`pose validate --strict --module <affected-path>`).
 2. Verify that all implementation commits modifying the spec's declared `### Artifacts` carry a `POSE-Spec: <slug>` trailer in their commit message. Commits lacking this trailer cannot be attributed during `pose close` or `pose artifact-check`.
-3. Run a separate review pass: prepare and seal via `pose review bundle spec:<slug> --seal`, attest via `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` (or `pose review attest`), and verify with `pose review verify spec:<slug>` (or use `pose review record spec:<slug> ... --apply` for legacy policies without review bundles).
-4. Require `pose review verify spec:<slug>` and `pose review-check spec:<slug>`; remediate, revalidate and supersede stale or rejected attempts.
-5. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
-6. Propose each consequential disposition and obtain confirmation before writing it.
-7. Apply `pose close spec:<slug>`; use a manual lifecycle edit only when the Git workflow requires it and preserve the same gate.
-8. Produce a **changelog fragment** for the delivered spec:
+3. Regenerate the evidence the bundle will seal, **before** sealing it, into
+   the path `.pose/policy/delivery.json` declares as `results_path`:
+   ```bash
+   pose validate --tolerant --json <results_path>
+   pose index
+   ```
+   The engine reads that **one file** and nothing else under `.pose/results/`.
+   Skipping this does not fail: the bundle silently seals the previous run's
+   evidence, and the attestation then cites checks the bundle does not contain.
+   In one adopting repository every sealed bundle carried the same two results
+   from an unrelated component, whatever the spec covered, because the path
+   named a file that nothing regenerated.
+
+   Order matters. Generate, index, seal, attest, and commit **last**: the commit
+   that stores a result moves the head and invalidates that result's provenance
+   for a scope still open.
+4. Run a separate review pass: prepare and seal via `pose review bundle spec:<slug> --seal`, attest via `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` (or `pose review attest`), and verify with `pose review verify spec:<slug>` (or use `pose review record spec:<slug> ... --apply` for legacy policies without review bundles).
+5. Require `pose review verify spec:<slug>` and `pose review-check spec:<slug>`; remediate, revalidate and supersede stale or rejected attempts.
+6. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
+7. Propose each consequential disposition and obtain confirmation before writing it.
+8. Apply `pose close spec:<slug>`; use a manual lifecycle edit only when the Git workflow requires it and preserve the same gate.
+9. Produce a **changelog fragment** for the delivered spec:
    ```bash
    cp .pose/templates/changelog-fragment.md .pose/changelogs/unreleased/<slug>.md
    # fill category/breaking and the user-facing summary (derive from Intent, not implementation)
@@ -60,11 +76,11 @@ when transitioning to `done`.
    Internal work with no user-facing effect: set `changelog: none` in the spec
    frontmatter instead of creating a fragment. `pose check` warns on done specs
    without a fragment (post-adoption).
-9. Run `pose lint-spec <slug> --strict`.
-10. Create any confirmed successor spec with `pose new-spec <slug>` (defaults to dated flat `.pose/specs/YYYY-MM-DD-<slug>.md`) and revalidate its intent instead of copying follow-up text verbatim.
-11. Run `pose assess discover --update-state` upon spec closure to update dynamic platform assessments.
-12. Inspect residual live backlog with `pose followups --open --json`.
-13. When Contributor Mode is active, if the delivery cycle revealed POSE engine friction, false-positive linters, or tooling gaps, stage a sanitized feedback report with `pose contribute stage --type enhancement --title "<summary>"`.
+10. Run `pose lint-spec <slug> --strict`.
+11. Create any confirmed successor spec with `pose new-spec <slug>` (defaults to dated flat `.pose/specs/YYYY-MM-DD-<slug>.md`) and revalidate its intent instead of copying follow-up text verbatim.
+12. Run `pose assess discover --update-state` upon spec closure to update dynamic platform assessments.
+13. Inspect residual live backlog with `pose followups --open --json`.
+14. When Contributor Mode is active, if the delivery cycle revealed POSE engine friction, false-positive linters, or tooling gaps, stage a sanitized feedback report with `pose contribute stage --type enhancement --title "<summary>"`.
 
 ## Output requirements
 

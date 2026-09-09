@@ -78,7 +78,23 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    pose validate --strict --module <path-afetado>
    ```
 2. Verificar que todos os commits com as alterações da spec carregam o trailer `POSE-Spec: <slug>` na mensagem do commit. Sem esse trailer, o `pose close` e o `pose artifact-check` não conseguem atribuir os arquivos da seção `### Artifacts` à spec.
-3. Rodar uma passagem de review separada e registrá-la — a review é uma
+3. Regenerar a evidência que o bundle vai selar, **antes** de selar, no caminho
+   que `.pose/policy/delivery.json` declara em `results_path`:
+   ```bash
+   pose validate --tolerant --json <results_path>
+   pose index
+   ```
+   O motor lê **esse único arquivo** e mais nada em `.pose/results/`. Pular não
+   falha: o bundle sela silenciosamente a evidência da execução anterior, e a
+   atestação passa a citar checks que o bundle não contém. Num repositório
+   adotante, todo bundle selado carregava os mesmos dois resultados de um
+   componente sem relação, qualquer que fosse a spec — porque o caminho nomeava
+   um arquivo que nada regenerava.
+
+   A ordem importa. Gerar, indexar, selar, atestar e commitar **por último**: o
+   commit que guarda um resultado move o head e invalida a proveniência dele
+   para um escopo ainda aberto.
+4. Rodar uma passagem de review separada e registrá-la — a review é uma
    tentativa imutável, não uma edição do frontmatter (quando review bundles estiverem habilitados, preparar e selar com `pose review bundle spec:<slug> --seal` e atestar com `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` ou `pose review attest`; caso contrário, usar `pose review record`):
    ```bash
    pose review record spec:<slug> --reviewer <execução> --decision approved \
@@ -87,26 +103,26 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    Sem `--apply` o comando é dry-run. A independência exigida é
    `same-actor-separate-execution`: a mesma pessoa/agente pode revisar, desde
    que numa execução distinta da implementação.
-4. Exigir o gate de review antes de qualquer transição:
+5. Exigir o gate de review antes de qualquer transição:
    ```bash
    pose review-check spec:<slug>   # review.fresh + review.approved precisam ser true (ou pose review verify spec:<slug>)
    ```
    Tentativas obsoletas (a spec mudou depois da review) ou rejeitadas precisam
    ser remediadas e supersedidas por uma nova tentativa — nunca editadas.
-5. Triagem dos follow-ups (ver "Triagem em duas camadas" acima):
+6. Triagem dos follow-ups (ver "Triagem em duas camadas" acima):
    ```bash
    pose followups --all                 # backlog + candidatos a near-duplicate
    pose followups --all --similarity 45  # afrouxa o limiar para ver mais candidatos
    ```
    Para cada follow-up da spec: julgue semanticamente, proponha a disposição e
    **confirme com o usuário antes de gravar** `spawned`/`covered`/`duplicate`.
-6. Aplicar a transição de ciclo de vida pelo gate, não à mão:
+7. Aplicar a transição de ciclo de vida pelo gate, não à mão:
    ```bash
    pose close spec:<slug>   # exige review aprovada e fresca; preenche a transição
    ```
    Edição manual do frontmatter (`status: done`, `completed_at: <YYYY-MM-DD>`)
    só quando o fluxo Git exigir — e preservando o mesmo gate, nunca contornando-o.
-7. Produzir o **changelog fragment** (pose-release-changelog) — o registro
+8. Produzir o **changelog fragment** (pose-release-changelog) — o registro
    user-facing da entrega, consolidado por release no corte:
    ```bash
    cp .pose/templates/changelog-fragment.md .pose/changelogs/unreleased/<slug>.md
@@ -115,23 +131,23 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    Trabalho interno sem efeito user-facing: marque `changelog: none` no
    frontmatter da spec em vez de criar fragment. O `pose check` avisa specs
    done sem fragment (pós-adoção).
-8. Gate de saída — bloqueia "done com follow-up sem disposição" e "done sem completed_at":
+9. Gate de saída — bloqueia "done com follow-up sem disposição" e "done sem completed_at":
    ```bash
    pose lint-spec <slug> --strict
    ```
-9. Se algum follow-up `[spawned: <slug>]` exigir nova spec, criá-la e referenciar a origem:
+10. Se algum follow-up `[spawned: <slug>]` exigir nova spec, criá-la e referenciar a origem:
    ```bash
    pose new-spec <nova-slug>     # mencione a spec de origem na seção Intent
    ```
-10. Atualizar métricas dinâmicas da plataforma após o fechamento da spec:
+11. Atualizar métricas dinâmicas da plataforma após o fechamento da spec:
     ```bash
     pose assess discover --update-state
     ```
-11. Verificação final: inspecionar o backlog restante:
+12. Verificação final: inspecionar o backlog restante:
     ```bash
     pose followups --open --json  # quantos [open] sobraram nesta e nas demais
     ```
-12. Se o Modo Contribuidor estiver ativo e o ciclo de entrega revelar atritos no motor POSE, falsos-positivos de linters ou lacunas de ferramentas, registre um rascunho de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
+13. Se o Modo Contribuidor estiver ativo e o ciclo de entrega revelar atritos no motor POSE, falsos-positivos de linters ou lacunas de ferramentas, registre um rascunho de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
 
 ## Output requirements
 
