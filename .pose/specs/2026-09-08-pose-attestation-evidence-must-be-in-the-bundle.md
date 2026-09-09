@@ -362,6 +362,6 @@ depends on it.
 
 ### Follow-ups
 
-- [open] Check tool dispositions against sealed evidence and remove the validation:auto-attest fabrication, the way criteria now are — owner:unowned crit:high review:2026-11-08
-- [open] Unify ValidEvidenceClasses and reviewEvidenceClassCatalog so a profile cannot declare a class no check may emit — owner:unowned crit:high review:2026-11-08
-- [open] Match evidence to the criterion's component, so a sibling component's result cannot support it — owner:unowned crit:high review:2026-11-08
+- [done] Check tool dispositions against sealed evidence and remove the validation:auto-attest fabrication, the way criteria now are. Delivered by `pose-tool-dispositions-must-be-supported`: `reviewToolEvidenceBlocker` holds a tool's disposition to the sealed bundle, and both halves of `AutoAttestReviewBundle` refuse rather than invent — `validation:auto-attest` appears nowhere in the engine. Verified against the code, not the record. — owner:unowned crit:high review:2026-11-08
+- [done] Unify ValidEvidenceClasses and reviewEvidenceClassCatalog so a profile cannot declare a class no check may emit. Delivered by `pose-one-evidence-class-vocabulary` in v3.0.0: `reviewEvidenceClassCatalog` no longer exists, and `validateReviewContractRefs` holds every schema-v2 criterion and tool to `ValidEvidenceClasses`. Verified against the code, not the record. — owner:unowned crit:high review:2026-11-08
+- [done] Match evidence to the criterion's component, so a sibling component's result cannot support it. Delivered by `pose-evidence-scoped-to-component`, and narrowed further by `pose-component-evidence-is-not-inherited-upward`: `reviewCriterionComponents` resolves the components a criterion answers for, and evidence now answers downward only. Verified against the code, not the record. — owner:unowned crit:high review:2026-11-08
