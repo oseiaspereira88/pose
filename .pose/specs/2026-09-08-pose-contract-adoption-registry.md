@@ -271,6 +271,6 @@ handle it.
 
 ### Follow-ups
 
-- [open] Seal the governing contract version into the review bundle and validate against it, rather than dating exemptions in policy — owner:unowned crit:medium review:2027-01-08
+- [done] Seal the governing contract version into the review bundle and validate against it, rather than dating exemptions in policy. Done in `pose-bundles-seal-the-contracts-that-govern-them` (ADR amendment 2026-09-09): the payload names the contracts in force at seal time and verification reads them from there; the dated rule is demoted to the reading of a bundle that predates the field, and of the legacy attempt path, which has no bundle. — owner:unowned crit:medium review:2027-01-08
 - [open] Report a policy whose contract_adoptions and legacy field disagree about the same contract — owner:unowned crit:low review:2026-12-08
 - [open] Disable git auto gc for every test fixture that inits a repository, not only the three that flaked — owner:unowned crit:low review:2026-12-08

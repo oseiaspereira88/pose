@@ -733,7 +733,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 						// less considered by a rule that did not exist when it was
 						// given; what it needs is a superseding attestation, which
 						// an operator can record when the work is next touched.
-						waiveEvidence := s.evidenceVocabularyLegacyExempt(scope, policy, ReviewAttempt{ReviewedAt: att.AttestedAt})
+						waiveEvidence := s.bundleContractExempt(scope, policy, bundles[i], "evidence-vocabulary", att.AttestedAt)
 						if len(s.validateBundleAttestationWith(bundles[i], att, waiveEvidence)) == 0 {
 							eval.Fresh = true
 							eval.Approved = true
@@ -1296,6 +1296,29 @@ func (s Store) reviewCompletedBeforeContract(scope ScopeRef, policy ReviewPolicy
 // to scopes already done: an open scope is re-reviewed anyway.
 func (s Store) evidenceVocabularyLegacyExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
 	return s.reviewCompletedBeforeContract(scope, policy, "evidence-vocabulary", attempt.ReviewedAt)
+}
+
+// bundleContractExempt answers the same question as reviewCompletedBeforeContract
+// for a scope that has a sealed bundle, from the bundle instead of from the date.
+//
+// A bundle that names the contracts in force when it was sealed settles this
+// permanently: the contract either governed it or did not, and no later edit to
+// `contract_adoptions` can change that. The dated rule remains only for a bundle
+// sealed before the field existed, and for the legacy attempt path, which has no
+// bundle at all (spec pose-bundles-seal-the-contracts-that-govern-them).
+func (s Store) bundleContractExempt(scope ScopeRef, policy ReviewPolicy, bundle ReviewBundle, contractID, reviewedAt string) bool {
+	governed, stamped := BundleGovernedBy(bundle, contractID)
+	if !stamped {
+		return s.reviewCompletedBeforeContract(scope, policy, contractID, reviewedAt)
+	}
+	if governed {
+		return false
+	}
+	// Not governed, and still bounded to a finished scope: an open one is
+	// re-reviewed anyway, and a bundle sealed before a contract existed is not a
+	// licence to leave work half-reviewed under it.
+	done, err := s.scopeLifecycleDone(scope)
+	return err == nil && done
 }
 
 // reviewPredatesAdoption reports whether a review was recorded before the

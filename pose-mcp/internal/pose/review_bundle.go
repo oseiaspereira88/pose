@@ -98,12 +98,50 @@ type ReviewBundleChild struct {
 }
 
 type ReviewBundlePayload struct {
-	Scope          ReviewBundleScope      `json:"scope"`
-	Subject        ReviewBundleSubject    `json:"subject"`
-	Plan           ReviewBundlePlan       `json:"plan"`
-	Evidence       []ReviewBundleEvidence `json:"evidence"`
-	Children       []ReviewBundleChild    `json:"children,omitempty"`
-	ConsumedInputs []ReviewBundleInput    `json:"consumed_inputs"`
+	Scope    ReviewBundleScope      `json:"scope"`
+	Subject  ReviewBundleSubject    `json:"subject"`
+	Plan     ReviewBundlePlan       `json:"plan"`
+	Evidence []ReviewBundleEvidence `json:"evidence"`
+	// GoverningContracts are the governance contracts in force when this bundle
+	// was sealed, so verification judges it by the rules that existed then
+	// rather than by an editable date in today's policy
+	// (spec pose-bundles-seal-the-contracts-that-govern-them).
+	//
+	// A bundle sealed before this field existed carries none, and is read by the
+	// dated rule it was always read by. That is the only thing the dates are
+	// for now.
+	GoverningContracts []string            `json:"governing_contracts,omitempty"`
+	Children           []ReviewBundleChild `json:"children,omitempty"`
+	ConsumedInputs     []ReviewBundleInput `json:"consumed_inputs"`
+}
+
+// BundleGovernedBy reports whether the contract governed this bundle, and
+// whether the bundle says so at all. An unstamped bundle answers `false, false`
+// and its caller falls back to the dated reading.
+func BundleGovernedBy(bundle ReviewBundle, contractID string) (governed, stamped bool) {
+	if len(bundle.Payload.GoverningContracts) == 0 {
+		return false, false
+	}
+	for _, id := range bundle.Payload.GoverningContracts {
+		if id == contractID {
+			return true, true
+		}
+	}
+	return false, true
+}
+
+// governingContractsAtSeal is every contract this engine knows. A bundle sealed
+// now is held to all of them; one sealed by an engine that did not know a
+// contract never lists it, and is never retroactively held to it. That is the
+// property the adoption date could not have, because a date can be edited after
+// the fact and this cannot.
+func governingContractsAtSeal() []string {
+	ids := []string{}
+	for _, contract := range ReviewContracts() {
+		ids = append(ids, contract.ID)
+	}
+	sort.Strings(ids)
+	return ids
 }
 
 type ReviewBundle struct {
@@ -238,6 +276,7 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 	}
 
 	bundle.Payload.ConsumedInputs = s.reviewBundleConsumedInputs(plan)
+	bundle.Payload.GoverningContracts = governingContractsAtSeal()
 	bundle.Blockers = uniqueSorted(bundle.Blockers)
 	bundle.Warnings = uniqueSorted(bundle.Warnings)
 	bundle.ExcludedInputs = sortedBundleInputs(bundle.ExcludedInputs)
