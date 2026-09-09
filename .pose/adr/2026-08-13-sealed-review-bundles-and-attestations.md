@@ -6,6 +6,7 @@ Amended (2026-09-08) by spec `pose-review-subject-unclassified-removals` — see
 Amended (2026-09-08) by spec `pose-attestation-evidence-must-be-in-the-bundle` — see Amendments
 Amended (2026-09-09) by spec `pose-evidence-scoped-to-component` — see Amendments
 Amended (2026-09-09) by spec `pose-component-evidence-is-not-inherited-upward` — see Amendments
+Amended (2026-09-09) by spec `pose-bundles-seal-the-contracts-that-govern-them` — see Amendments
 
 ## Context
 
@@ -70,6 +71,10 @@ append-only under `.pose/review-bundles/`. Use canonical patch and sorted
 tree/content-manifest digests as stable implementation identity; retain
 base/head and provider merge SHAs as advisory provenance rather than the sole
 verification key.
+
+The sealed payload also names the governance contracts in force when it was
+sealed, so verification judges the bundle by the rules that existed then rather
+than by a date in today's policy (amended 2026-09-09).
 
 Record review approval as a separate immutable attestation referencing the
 exact bundle ID and digest. A criterion recorded `passed` must cite evidence the
@@ -314,4 +319,65 @@ declare per-directory checks that run the same command.
   matching is by equality or by the root rule. The change was verified against
   fixtures, and `surface-check` produces the same 524 `validated-by` edges
   before and after.
+
+### 2026-09-09 — a bundle names the contracts that govern it
+
+Spec `pose-bundles-seal-the-contracts-that-govern-them`.
+
+**What changed.** The sealed payload gains `governing_contracts`: the ids of the
+governance contracts this engine knew when the bundle was sealed. Verification
+asks the bundle whether a contract governed it. The adoption date in the policy
+is consulted only for a bundle that carries no such list.
+
+**Why.** The exemption that keeps a finished scope's approval when a contract
+arrives after it compared the review's timestamp against
+`contract_adoptions` in the live policy. That date is editable and re-read on
+every verification, so moving it forward retroactively exempts more historical
+closeouts, and an immutable bundle was judged by today's configuration. It is the
+same objection this ADR already accepted for `selected_profiles` one amendment
+earlier, applied to the other thing verification still read live.
+
+Sealing the contract set also removes the need for a new dated marker per
+contract. A bundle sealed by an engine that did not know a contract never lists
+it and is never retroactively held to it — a property a date cannot have,
+because a date can be edited afterwards and a sealed digest cannot.
+
+**Options considered.**
+
+1. Keep the dated exemption. Rejected: the defect is that an editable value
+   decides a historical verdict.
+2. Stamp the contracts in the envelope rather than the payload, so digests do not
+   change. Rejected: what is outside the digest is not sealed, and therefore
+   editable — the defect in a new place.
+3. Derive the governing contracts from the bundle's own content — `selected_profiles`
+   implies component-aware, classed citations imply evidence-vocabulary. Rejected
+   as the primary mechanism: it infers what should be declared, and it does not
+   generalise to a contract that leaves no observable trace. It is what makes the
+   483 already-sealed bundles readable, and that is what the dated fallback does
+   instead, explicitly.
+4. Seal the contract ids in the payload, with the dated rule demoted to the
+   reading of an unstamped bundle. Selected.
+
+**Consequences.**
+
+- A bundle sealed by this release does not digest the same as one sealed before
+  it, exactly as the previous amendment's field change.
+- The 483 bundles already sealed carry no list and keep the dated reading. They
+  cannot be back-filled: rewriting an append-only immutable artifact is what this
+  ADR exists to prevent, and re-sealing would break the attestations bound to
+  their digests.
+- The dated exemption is therefore not removed. It is demoted: it governs only
+  bundles predating the field, and the legacy attempt path, which has no bundle
+  at all. It can be deleted when no unstamped bundle is reachable, and not
+  before.
+- A contract added to the registry governs every bundle sealed after it, with no
+  date to stamp. What is sealed is asserted to be the registry, so a contract in
+  one and not the other cannot happen silently.
+- Scope: this amendment covers the contracts. Verification still reads
+  `allow_criterion_reuse`, `require_signed_attestations`, `reviewer_independence`,
+  `accepted_risk_severities`, `allow_approved_with_reservations` and
+  `component_aware` from the live policy, and each needs its own answer —
+  `require_signed_attestations` most likely *should* be live, since tightening a
+  signing requirement is not something an old bundle should escape. Recorded as a
+  follow-up rather than settled here.
 
