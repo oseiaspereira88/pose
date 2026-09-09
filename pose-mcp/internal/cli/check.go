@@ -774,7 +774,10 @@ func graphHasCycle(edges map[string][]string) bool {
 
 func (checker *nativeChecker) checkChangelogs() {
 	paths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "changelogs", "unreleased", "*.md"))
-	valid := map[string]bool{"added": true, "changed": true, "fixed": true, "removed": true, "deprecated": true, "security": true}
+	// The third copy of this list used to live here. It is one setting in one
+	// file now (spec pose-changelog-and-dor-policy-types).
+	changelogPolicy := pose.LoadChangelogPolicy(checker.root)
+	valid := changelogPolicy.ValidCategories()
 	covered := map[string]bool{}
 	for _, path := range paths {
 		if strings.EqualFold(filepath.Base(path), "README.md") {
@@ -916,22 +919,18 @@ func specReady(root, path string) bool {
 		taskType = "feature"
 	}
 	required := []string{"Intent", "Requirements", "Technical Plan"}
-	policyRaw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "dor.json"))
-	if err == nil {
-		var policy struct {
-			DefaultTaskType string              `json:"defaultTaskType"`
-			TaskTypes       map[string][]string `json:"taskTypes"`
-		}
-		if json.Unmarshal(policyRaw, &policy) == nil {
-			if fields["task_type"] == "" && policy.DefaultTaskType != "" {
-				taskType = policy.DefaultTaskType
-			}
-			if configured, ok := policy.TaskTypes[taskType]; ok {
-				required = configured
-			} else if configured, ok := policy.TaskTypes[policy.DefaultTaskType]; ok {
-				taskType, required = policy.DefaultTaskType, configured
-			}
-		}
+	// The second half of the file, read through the same type as the first
+	// (spec pose-changelog-and-dor-policy-types). It used to be an anonymous
+	// struct here and another one in readiness.go, and between them neither
+	// described the policy.
+	policy := pose.LoadDoRPolicy(root)
+	if fields["task_type"] == "" && policy.DefaultTaskType != "" {
+		taskType = policy.DefaultTaskType
+	}
+	if configured, ok := policy.TaskTypes[taskType]; ok {
+		required = configured
+	} else if configured, ok := policy.TaskTypes[policy.DefaultTaskType]; ok {
+		taskType, required = policy.DefaultTaskType, configured
 	}
 	sections := specSections(stripHTMLComments(string(raw)))
 	for _, name := range required {
@@ -1091,4 +1090,3 @@ func findSpecFiles(root string) []string {
 	}
 	return results
 }
-

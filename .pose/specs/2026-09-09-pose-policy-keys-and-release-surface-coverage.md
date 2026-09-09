@@ -209,5 +209,5 @@ the release command surface runs under test for the first time.
 
 ### Follow-ups
 
-- [open] Give changelog.json and dor.json named policy types, and reconcile what they ship with what is read — changelog.json ships `categories` that nothing models, dor.json ships none of the keys readiness.go looks for — owner:unowned crit:medium review:2026-12-09
+- [done] Give changelog.json and dor.json named policy types, and reconcile what they ship with what is read. Done in `pose-changelog-and-dor-policy-types`: `categories` now governs the valid set in all three places it was written out, dor.json ships an explicit empty `adopted_at` saying the gate is opt-in, and both are held to their keys — the exemption list is empty — owner:unowned crit:medium review:2026-12-09
 - [open] Cover the remaining command surfaces the audit found at zero: review-check, history-check, docs-sync, docs-review, contribute-submit, roadmap-check and the spec-readiness helpers in check.go — owner:unowned crit:medium review:2026-12-09

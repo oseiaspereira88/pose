@@ -12,9 +12,9 @@ func TestReleaseManifestAndNotesAreDeterministic(t *testing.T) {
 	fragments := []ReleaseFragment{{Spec: "alpha", Category: "added", Body: "Adds alpha.", Path: "alpha.md", Digest: "sha256:a"}, {Spec: "beta", Category: "fixed", Body: "Fixes beta.", Path: "beta.md", Digest: "sha256:b"}}
 	policy := ReleasePolicy{SchemaVersion: 1, AdoptedAt: "2026-08-03", Provider: "github", Repository: "owner/repo"}
 	evidence := map[string]string{"source": "version.go", "value": "v1.2.0"}
-	a := NewReleaseManifest("v1.2.0", "v1.1.0", "2026-08-03T00:00:00Z", fragments, policy, evidence)
-	b := NewReleaseManifest("v1.2.0", "v1.1.0", "2026-08-03T00:00:00Z", fragments, policy, evidence)
-	if ReleaseDigest(a) != ReleaseDigest(b) || a.NotesDigest != ReleaseDigest(RenderReleaseNotes("v1.2.0", fragments)) {
+	a := NewReleaseManifest("v1.2.0", "v1.1.0", "2026-08-03T00:00:00Z", fragments, policy, ChangelogPolicy{}, evidence)
+	b := NewReleaseManifest("v1.2.0", "v1.1.0", "2026-08-03T00:00:00Z", fragments, policy, ChangelogPolicy{}, evidence)
+	if ReleaseDigest(a) != ReleaseDigest(b) || a.NotesDigest != ReleaseDigest(RenderReleaseNotes("v1.2.0", fragments, ChangelogPolicy{})) {
 		t.Fatalf("release snapshot is not deterministic: %+v %+v", a, b)
 	}
 }
@@ -24,7 +24,7 @@ func TestReleaseFragmentsRejectMalformedDuplicateAndSymlink(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "bad.md"), []byte("missing frontmatter"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := LoadReleaseFragments(dir); err == nil {
+	if _, err := LoadReleaseFragments(dir, ChangelogPolicy{}); err == nil {
 		t.Fatal("malformed fragment accepted")
 	}
 	if err := os.Remove(filepath.Join(dir, "bad.md")); err != nil {
@@ -36,7 +36,7 @@ func TestReleaseFragmentsRejectMalformedDuplicateAndSymlink(t *testing.T) {
 	if err := os.Symlink(filepath.Join(outside, "secret.md"), filepath.Join(dir, "escape.md")); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := LoadReleaseFragments(dir); err == nil {
+	if _, err := LoadReleaseFragments(dir, ChangelogPolicy{}); err == nil {
 		t.Fatal("symlink release fragment escaped confinement")
 	}
 }

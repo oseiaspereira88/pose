@@ -1,10 +1,7 @@
 package pose
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -72,17 +69,7 @@ func (s Store) dorApplies(createdAt string) bool {
 	if createdAt == "" {
 		return false
 	}
-	raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "policy", "dor.json"))
-	if err != nil {
-		return false
-	}
-	var policy struct {
-		AdoptedAt string `json:"adopted_at"`
-	}
-	if json.Unmarshal(raw, &policy) != nil || policy.AdoptedAt == "" {
-		return false
-	}
-	return createdAt >= policy.AdoptedAt
+	return LoadDoRPolicy(s.Root).AppliesTo(createdAt)
 }
 
 // WaitingRef is one unsatisfied dependency of a spec, with the reason it does

@@ -21,7 +21,7 @@ import (
 func TestReleaseNotesWarnWhenTheReleaseIntroducesAContract(t *testing.T) {
 	notes := RenderReleaseNotes("2.0.0", []ReleaseFragment{
 		{Spec: "alpha", Category: "added", Body: "Something."},
-	})
+	}, ChangelogPolicy{})
 	if !strings.Contains(notes, "## Compatibility") {
 		t.Fatalf("a release that introduces a contract says nothing about it:\n%s", notes)
 	}
@@ -52,7 +52,7 @@ func TestReleaseNotesWarnWhenTheReleaseIntroducesAContract(t *testing.T) {
 func TestReleaseNotesAreSilentWhenNoContractIsIntroduced(t *testing.T) {
 	notes := RenderReleaseNotes("2.0.1", []ReleaseFragment{
 		{Spec: "alpha", Category: "fixed", Body: "Something."},
-	})
+	}, ChangelogPolicy{})
 	if strings.Contains(notes, "## Compatibility") {
 		t.Errorf("a release introducing no contract carried the warning:\n%s", notes)
 	}
@@ -100,7 +100,7 @@ func TestTheWarningMatchesHowTheAdoptionIsWritten(t *testing.T) {
 		if !contract.AdoptionAddsATopLevelKey() {
 			continue
 		}
-		notes := RenderReleaseNotes(contract.IntroducedIn, nil)
+		notes := RenderReleaseNotes(contract.IntroducedIn, nil, ChangelogPolicy{})
 		if !strings.Contains(notes, contract.LegacyField) {
 			t.Errorf("%s is carried by %q and the notes do not name it:\n%s", contract.ID, contract.LegacyField, notes)
 		}

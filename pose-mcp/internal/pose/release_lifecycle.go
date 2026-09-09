@@ -123,7 +123,7 @@ func LoadReleasePolicy(root string) (ReleasePolicy, error) {
 	return policy, nil
 }
 
-func LoadReleaseFragments(dir string) ([]ReleaseFragment, error) {
+func LoadReleaseFragments(dir string, policy ChangelogPolicy) ([]ReleaseFragment, error) {
 	entries, err := os.ReadDir(dir)
 	if os.IsNotExist(err) {
 		return []ReleaseFragment{}, nil
@@ -155,11 +155,11 @@ func LoadReleaseFragments(dir string) ([]ReleaseFragment, error) {
 		if spec == "" {
 			problems = append(problems, "missing `spec:` in frontmatter")
 		}
-		if !map[string]bool{"added": true, "changed": true, "fixed": true, "removed": true, "security": true, "deprecated": true}[category] {
+		if !policy.ValidCategories()[category] {
 			if category == "" {
-				problems = append(problems, "missing `category:` (added|changed|fixed|removed|security|deprecated)")
+				problems = append(problems, "missing `category:` ("+policy.CategoryList()+")")
 			} else {
-				problems = append(problems, fmt.Sprintf("invalid `category: %s` (want added|changed|fixed|removed|security|deprecated)", category))
+				problems = append(problems, fmt.Sprintf("invalid `category: %s` (want %s)", category, policy.CategoryList()))
 			}
 		}
 		if body == "" {
@@ -178,7 +178,7 @@ func LoadReleaseFragments(dir string) ([]ReleaseFragment, error) {
 	return fragments, nil
 }
 
-func RenderReleaseNotes(version string, fragments []ReleaseFragment) string {
+func RenderReleaseNotes(version string, fragments []ReleaseFragment, policy ChangelogPolicy) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "# POSE %s\n\n", version)
 	// A release that introduces a governance contract says so before it says
@@ -209,9 +209,7 @@ func RenderReleaseNotes(version string, fragments []ReleaseFragment) string {
 		}
 		b.WriteString("\n")
 	}
-	order := []string{"security", "removed", "deprecated", "added", "changed", "fixed"}
-	labels := map[string]string{"security": "Security", "removed": "Removed", "deprecated": "Deprecated", "added": "Added", "changed": "Changed", "fixed": "Fixed"}
-	for _, category := range order {
+	for _, category := range policy.RenderOrder() {
 		items := []ReleaseFragment{}
 		for _, fragment := range fragments {
 			if fragment.Category == category {
@@ -221,7 +219,7 @@ func RenderReleaseNotes(version string, fragments []ReleaseFragment) string {
 		if len(items) == 0 {
 			continue
 		}
-		fmt.Fprintf(&b, "## %s\n\n", labels[category])
+		fmt.Fprintf(&b, "## %s\n\n", CategoryLabel(category))
 		for _, fragment := range items {
 			fmt.Fprintf(&b, "- %s (%s)\n", strings.ReplaceAll(fragment.Body, "\n", " "), fragment.Spec)
 		}
@@ -311,7 +309,7 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 			return nil, err
 		}
 	}
-	pending, err := LoadReleaseFragments(filepath.Join(s.Root, ".pose", "changelogs", "unreleased"))
+	pending, err := LoadReleaseFragments(filepath.Join(s.Root, ".pose", "changelogs", "unreleased"), LoadChangelogPolicy(s.Root))
 	if err != nil {
 		return nil, err
 	}
@@ -369,7 +367,7 @@ func compareReleaseVersions(a, b string) int {
 	return strings.Compare(a, b)
 }
 
-func NewReleaseManifest(version, previous, preparedAt string, fragments []ReleaseFragment, policy ReleasePolicy, versionEvidence map[string]string) ReleaseManifest {
+func NewReleaseManifest(version, previous, preparedAt string, fragments []ReleaseFragment, policy ReleasePolicy, changelog ChangelogPolicy, versionEvidence map[string]string) ReleaseManifest {
 	specs := []string{}
 	categories := map[string]int{}
 	breaking := false
@@ -378,7 +376,7 @@ func NewReleaseManifest(version, previous, preparedAt string, fragments []Releas
 		categories[f.Category]++
 		breaking = breaking || f.Breaking
 	}
-	notes := RenderReleaseNotes(version, fragments)
+	notes := RenderReleaseNotes(version, fragments, changelog)
 	input := struct {
 		Version   string            `json:"version"`
 		Previous  string            `json:"previous"`
