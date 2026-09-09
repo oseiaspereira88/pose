@@ -28,11 +28,17 @@ func TestReleaseNotesWarnWhenTheReleaseIntroducesAContract(t *testing.T) {
 	if !strings.Contains(notes, "evidence-vocabulary") {
 		t.Errorf("the section does not name the contract:\n%s", notes)
 	}
-	// The reason has to be there, not just the fact: an operator who is not told
-	// that every reader must move together will move one.
-	for _, phrase := range []string{"older than 2.0.0", "move together"} {
+	// The reason has to be there, not just the fact.
+	for _, phrase := range []string{"older than 2.0.0", "never applies it"} {
 		if !strings.Contains(notes, phrase) {
 			t.Errorf("the section does not say %q:\n%s", phrase, notes)
+		}
+	}
+	// evidence-vocabulary is carried by a top-level key, so for this one the
+	// stronger claim is true and has to be made.
+	for _, phrase := range []string{"evidence_vocabulary_reconciled_at", "before 2.0.2", "move together"} {
+		if !strings.Contains(notes, phrase) {
+			t.Errorf("the section does not say %q for a contract carried by a top-level key:\n%s", phrase, notes)
 		}
 	}
 	// The fragments still render; the section is added, not substituted.
@@ -73,6 +79,56 @@ func TestEveryContractRecordsTheReleaseThatIntroducedIt(t *testing.T) {
 	for _, contract := range ReviewContracts() {
 		if contract.IntroducedIn == "" {
 			t.Errorf("contract %q does not say which release introduced it, so that release's notes will not warn about it", contract.ID)
+		}
+	}
+}
+
+// The claim has to match how the adoption is actually written. A contract
+// recorded as an id inside `contract_adoptions` does not make the policy
+// unreadable: the map is a key those engines already model, and the strict
+// decoder that refused unknown keys was dropped in 2.0.2 anyway. Telling every
+// user of a future contract to upgrade in lockstep would be false, and false in
+// the direction that costs them work.
+func TestTheWarningMatchesHowTheAdoptionIsWritten(t *testing.T) {
+	carried := ReviewContract{
+		ID: "carried-in-the-map", Summary: "something", IntroducedIn: "9.9.9",
+	}
+	if carried.AdoptionAddsATopLevelKey() {
+		t.Fatal("a contract with no legacy field must not claim a top-level key")
+	}
+	for _, contract := range ReviewContracts() {
+		if !contract.AdoptionAddsATopLevelKey() {
+			continue
+		}
+		notes := RenderReleaseNotes(contract.IntroducedIn, nil)
+		if !strings.Contains(notes, contract.LegacyField) {
+			t.Errorf("%s is carried by %q and the notes do not name it:\n%s", contract.ID, contract.LegacyField, notes)
+		}
+		if !strings.Contains(notes, "move together") {
+			t.Errorf("%s adds a top-level key and the notes do not say readers must move together", contract.ID)
+		}
+	}
+}
+
+// Every recorded version has to round-trip through the lookup, or a registry
+// entry written `v3.1.0` is a release that silently carries no section.
+func TestEveryContractRoundTripsThroughTheLookup(t *testing.T) {
+	for _, contract := range ReviewContracts() {
+		found := false
+		for _, got := range ContractsIntroducedIn(contract.IntroducedIn) {
+			if got.ID == contract.ID {
+				found = true
+			}
+		}
+		if !found {
+			t.Errorf("contract %q records IntroducedIn=%q but ContractsIntroducedIn(%q) does not return it", contract.ID, contract.IntroducedIn, contract.IntroducedIn)
+		}
+		// And with the other spelling, since both reach this: the manifest
+		// carries `v2.0.0` and the registry records `2.0.0`.
+		for _, spelling := range []string{"v" + strings.TrimPrefix(contract.IntroducedIn, "v"), strings.TrimPrefix(contract.IntroducedIn, "v")} {
+			if len(ContractsIntroducedIn(spelling)) == 0 {
+				t.Errorf("contract %q is not found under the spelling %q", contract.ID, spelling)
+			}
 		}
 	}
 }

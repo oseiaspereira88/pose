@@ -1139,12 +1139,30 @@ type ReviewContract struct {
 	// Summary says what the contract requires, for `pose doctor` to quote when
 	// an instance has history and no date.
 	Summary string
-	// IntroducedIn is the release that first shipped this contract. Adopting it
-	// writes a key an engine predating that release does not know, which is a
-	// property of the contract and not of how the date is encoded — the release
-	// notes say so, and this is where they get the version from.
+	// IntroducedIn is the release that first shipped this contract, without a
+	// leading v. An engine older than it does not know the id, so it never
+	// applies the contract; whether it can still read the policy at all depends
+	// on LegacyField. The release notes say both, and this is where they get the
+	// version from.
 	IntroducedIn string
 }
+
+// StrictPolicyDecoderDroppedIn is the release that stopped refusing a review
+// policy over a key the engine does not model. It is the compatibility boundary
+// for a contract carried by a top-level field: before it, an unknown key
+// invalidates the whole file; from it on, the key is ignored.
+const StrictPolicyDecoderDroppedIn = "2.0.2"
+
+// AdoptionAddsATopLevelKey reports whether adopting this contract writes a key
+// at the top level of the review policy rather than an id inside
+// `contract_adoptions`.
+//
+// The distinction is the whole compatibility story. A top-level key is what an
+// older strict decoder refuses the file over. An id inside the map is not a new
+// key to anything that already models the map, so the policy still loads and the
+// older engine simply does not apply the contract. stampContractAdoption prefers
+// the legacy field wherever a contract has one, which is why this is the test.
+func (c ReviewContract) AdoptionAddsATopLevelKey() bool { return c.LegacyField != "" }
 
 // ReviewContracts returns the registry. Adding a contract to it is what makes
 // `pose update` stamp it and `pose doctor` report it; nothing else needs to
@@ -1184,10 +1202,15 @@ var reviewContracts = []ReviewContract{
 // remembering to, that this release is one an older engine cannot follow a
 // repository through.
 func ContractsIntroducedIn(version string) []ReviewContract {
-	version = strings.TrimPrefix(version, "v")
+	// Both sides are normalised. Stripping the v from the argument alone was
+	// enough for today's registry and silently wrong for the first entry written
+	// as `v3.1.0` — the release would carry no Compatibility section and nothing
+	// would say so, which is the failure this exists to prevent, one contract
+	// later.
+	want := strings.TrimPrefix(version, "v")
 	out := []ReviewContract{}
 	for _, contract := range reviewContracts {
-		if contract.IntroducedIn == version {
+		if strings.TrimPrefix(contract.IntroducedIn, "v") == want {
 			out = append(out, contract)
 		}
 	}

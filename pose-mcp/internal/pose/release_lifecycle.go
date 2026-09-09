@@ -182,20 +182,30 @@ func RenderReleaseNotes(version string, fragments []ReleaseFragment) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "# POSE %s\n\n", version)
 	// A release that introduces a governance contract says so before it says
-	// anything else. Adopting the contract writes a key an engine predating this
-	// release does not know, and that engine then refuses the whole policy — a
-	// property of the contract, not of how the date is encoded, so no future
-	// change makes it go away. It cost a repository a day of confusion once, and
-	// the notes said nothing.
+	// anything else, because adopting one costs something an operator cannot see
+	// from the fragment list.
+	//
+	// What it costs depends on how the adoption is written, and the first draft
+	// of this got it wrong in the direction that matters: it told every reader of
+	// every future contract to upgrade in lockstep. A contract carried by a
+	// top-level policy key does refuse older strict decoders. A contract recorded
+	// as an id inside `contract_adoptions` does not — the map is a key those
+	// engines already model, so the policy still loads and they simply do not
+	// apply the contract. The registry knows which kind each one is.
 	if contracts := ContractsIntroducedIn(version); len(contracts) > 0 {
-		subject := "a governance contract"
+		subject, pronoun := "a governance contract", "it"
 		if len(contracts) > 1 {
-			subject = fmt.Sprintf("%d governance contracts", len(contracts))
+			subject, pronoun = fmt.Sprintf("%d governance contracts", len(contracts)), "them"
 		}
 		b.WriteString("## Compatibility\n\n")
-		fmt.Fprintf(&b, "This release introduces %s. Once an instance adopts one, engines older than %s can no longer read that repository's review policy, so every tool reading it has to move together. Nothing in the engine avoids this: the adoption writes a key those versions do not know, and they refuse the whole policy over it.\n\n", subject, version)
+		fmt.Fprintf(&b, "This release introduces %s. An engine older than %s does not know %s, so it never applies %s: reviews it performs are judged by the rules it has.\n\n", subject, version, pronoun, pronoun)
 		for _, contract := range contracts {
 			fmt.Fprintf(&b, "- `%s` — %s\n", contract.ID, contract.Summary)
+			if contract.AdoptionAddsATopLevelKey() {
+				fmt.Fprintf(&b, "  Adopting it writes `%s` at the top level of the review policy. Engines before %s refuse a policy carrying a key they do not model, so they stop reading this repository altogether until they are updated — every tool reading it has to move together.\n", contract.LegacyField, StrictPolicyDecoderDroppedIn)
+			} else {
+				fmt.Fprintf(&b, "  Adopting it records the id inside `contract_adoptions`, which older engines already model, so they keep reading the repository — they only stop enforcing this contract.\n")
+			}
 		}
 		b.WriteString("\n")
 	}

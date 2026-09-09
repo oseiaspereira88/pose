@@ -54,9 +54,12 @@ it.
 ### Functional
 - R1: Release notes shall carry a Compatibility section when the release
   introduces a governance contract, naming each contract and what it requires.
-- R2: The section shall say that engines older than the release can no longer
-  read the repository's review policy, that every tool must move together, and
-  that nothing in the engine avoids it.
+- R2: The section shall state the boundary each contract actually has: that an
+  engine older than the release never applies it, and — only where adopting it
+  writes a top-level policy key — that engines before the strict decoder was
+  dropped stop reading the repository at all.
+- R5: A recorded introducing version shall be found by the lookup in either
+  spelling, enforced for every registry entry.
 - R3: A release that introduces no contract shall carry no such section.
 - R4: Every contract in the registry shall record the release that introduced
   it, enforced, so the next contract's release is not silent.
@@ -92,7 +95,9 @@ it.
 
 ### Implementation
 - [x] Increment 1: The registry records which release introduced each contract (R4)
-- [x] Increment 2: The notes carry the section, and only when they should (R1, R2, R3)
+- [x] Increment 2: The notes carry the section, and only when they should (R1, R3)
+- [x] Increment 3: The section states each contract's real boundary (R2)
+- [x] Increment 4: The lookup normalises both spellings, enforced (R5)
 
 ### Validation
 - [x] Past releases still check out against their frozen notes
@@ -111,6 +116,20 @@ it.
   it. Making it also what the notes say costs one field, and removes the only
   step that depended on someone remembering. A test fails if a contract is added
   without it.
+
+### Decision 3
+- Date: 2026-09-09
+- Context: the first draft told every reader of every future contract to upgrade
+  in lockstep. That is false for a contract recorded as an id inside
+  `contract_adoptions`: the map is a key those engines already model, and the
+  decoder stopped refusing unknown keys in 2.0.2 regardless.
+- Decision: derive the claim from how the adoption is written.
+  `stampContractAdoption` prefers a contract's legacy top-level field where it
+  has one and otherwise records the id in the map, so `LegacyField != ""` is the
+  test, and `StrictPolicyDecoderDroppedIn` names the boundary.
+- Rationale: the false version is false in the direction that costs users work —
+  it would tell a whole team to upgrade for a contract that breaks nothing they
+  read. Raised in review on PR #73.
 
 ### Decision 2
 - Date: 2026-09-09
@@ -148,7 +167,11 @@ and confirm the releases already frozen still validate.
   `pose release check` reports both v2.0.0 and v3.0.0 as valid prepared
   snapshots under the new binary, so nothing re-renders a frozen file. The first
   run of the new test failed on the wording, which is the assertion doing its
-  job — the phrase had been edited after it was written.
+  job — the phrase had been edited after it was written. Review on PR #73 found
+  the first draft's claim was false for any contract recorded in the map, and
+  that the lookup normalised only its argument: writing `v2.0.0` in the registry
+  and stripping the v from the argument alone fails three tests now and would
+  have shipped a silent omission before.
 
 ### Results summary
 - Successes: R1, R2, R3, R4 verified.
@@ -156,11 +179,15 @@ and confirm the releases already frozen still validate.
 
 ### Requirement trace
 - R1 [satisfied] <RenderReleaseNotes emits a Compatibility section from ContractsIntroducedIn(version), listing each contract's id and summary; TestReleaseNotesWarnWhenTheReleaseIntroducesAContract>
-- R2 [satisfied] <the same test requires the section to say "older than <version>" and "move together"; the sentence also says the adoption writes a key those versions do not know>
+- R2 [satisfied] <TestTheWarningMatchesHowTheAdoptionIsWritten requires the stronger "move together" claim exactly for the contracts whose adoption writes a top-level key, and names that key; a contract carried in the map gets the weaker, true statement>
+- R5 [satisfied] <TestEveryContractRoundTripsThroughTheLookup finds every registry entry under both spellings; reverting to stripping the argument alone fails it along with two others>
 - R3 [satisfied] <TestReleaseNotesAreSilentWhenNoContractIsIntroduced renders v2.0.1 and requires no section>
 - R4 [satisfied] <TestEveryContractRecordsTheReleaseThatIntroducedIt fails on any registry entry with an empty IntroducedIn>
 
 ### Known gaps
+- The boundary is derived from whether the adoption writes a top-level key. A
+  future contract that changes compatibility some other way — a value shape
+  rather than a key — would need the registry to say so.
 - Only review-policy contracts are covered. A future contract carried somewhere
   else would need its own registry to be named this way.
 

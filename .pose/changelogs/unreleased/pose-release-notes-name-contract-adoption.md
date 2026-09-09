@@ -7,14 +7,18 @@ refs:
 
 A release that introduces a governance contract now says so, in a Compatibility
 section at the top of its own notes: which contracts, what each requires, and
-that engines older than this release can no longer read the repository's review
-policy once an instance adopts one.
+what adopting one costs a reader that does not have it.
 
-That is a property of adopting a contract, not of how the adoption date is
-encoded. Dropping the strict policy decoder stopped a *new field* from breaking
-an older binary; it does nothing for the contract itself, because the key names
-something the older engine does not have. Every tool reading the repository has
-to move together, and v2.0.0's notes said none of it.
+The cost is stated per contract, because it differs. An engine older than the
+release never applies the contract — it does not know the id — and judges
+reviews by the rules it has. On top of that, a contract carried by a top-level
+policy key is refused outright by engines from before the strict decoder was
+dropped in 2.0.2: they stop reading the repository until they are updated, so
+every tool has to move together. A contract recorded as an id inside
+`contract_adoptions` costs none of that, because the map is a key those engines
+already model.
+
+v2.0.0 introduced one of the first kind and its notes said none of it.
 
 The text comes from the contract registry, which is already the one place a
 contract is declared — adding one there is what makes `pose update` stamp it and
