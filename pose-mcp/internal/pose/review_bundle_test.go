@@ -1831,3 +1831,60 @@ func TestAutoAttestPicksEvidenceFromTheRightComponent(t *testing.T) {
 		t.Fatalf("auto-attest produced an attestation the engine rejects: %v", blockers)
 	}
 }
+
+// `deliveryEvidenceCurrent` accepts a result whose provenance matches the graph
+// or whose scope is closed, which is right — re-running every check to re-seal a
+// finished spec would be theatre. What it does not do is say so, and a reviewer
+// reading a sealed bundle cannot tell a result produced against this subject
+// from one carried forward. That distinction is the question an attestation
+// answers.
+func TestSealWarnsWhenEvidenceRanAgainstAnotherCommit(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := range graph.ValidationResults {
+		if graph.ValidationResults[i].ID == "validate-backend" {
+			graph.ValidationResults[i].GitHead = "head-from-an-earlier-run"
+		}
+	}
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bundle.Payload.Subject.Head == "" {
+		t.Fatal("the subject records no head, so nothing can be compared")
+	}
+	joined := strings.Join(bundle.Warnings, " ")
+	if !strings.Contains(joined, "integration:validate-backend") {
+		t.Fatalf("warnings = %v, want one naming the evidence that ran elsewhere", bundle.Warnings)
+	}
+	// It is a warning, not a blocker: the engine already decided this evidence
+	// is current, and this says how it is current.
+	if joined := strings.Join(bundle.Blockers, " "); strings.Contains(joined, "validate-backend") {
+		t.Errorf("stale-by-commit evidence blocked the bundle: %v", bundle.Blockers)
+	}
+}
+
+func TestSealIsSilentWhenEvidenceObservedTheSubject(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(bundle.Payload.Evidence) == 0 {
+		t.Fatal("the fixture seals no evidence, so silence proves nothing")
+	}
+	for _, ev := range bundle.Payload.Evidence {
+		if ev.GitHead != bundle.Payload.Subject.Head {
+			t.Fatalf("the fixture's %s did not observe the subject head, so this asserts nothing", ev.ID)
+		}
+	}
+	if joined := strings.Join(bundle.Warnings, " "); strings.Contains(joined, "ran against a commit other than") {
+		t.Errorf("evidence that observed the subject was reported as carried forward: %v", bundle.Warnings)
+	}
+}
