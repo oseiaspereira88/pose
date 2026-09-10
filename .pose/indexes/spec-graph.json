@@ -109,6 +109,10 @@
       "to": "pose-compat-gate-candidate-integrity"
     },
     {
+      "from": "pose-compat-gate-pose-md-preservation",
+      "to": "pose-compat-gate-manual-refresh-assertion"
+    },
+    {
       "from": "pose-component-aware-review-plans",
       "to": "pose-hierarchical-review-closeout"
     },
@@ -421,6 +425,10 @@
       "to": "pose-release-compatibility-matrix"
     },
     {
+      "from": "pose-parity-reads-the-cli-surface",
+      "to": "pose-skill-command-parity"
+    },
+    {
       "from": "pose-policy-keys-and-release-surface-coverage",
       "to": "pose-doctor-reports-unread-policy-keys"
     },
@@ -531,6 +539,10 @@
     {
       "from": "pose-report-coverage-that-rests-on-inference",
       "to": "pose-component-evidence-is-not-inherited-upward"
+    },
+    {
+      "from": "pose-report-help-names-every-flag",
+      "to": "pose-manual-locale-parity"
     },
     {
       "from": "pose-reproducible-release-verification",
@@ -945,6 +957,14 @@
       "path": ".pose/specs/2026-08-07-pose-compat-gate-manual-refresh-assertion.md",
       "priority": 1,
       "status": "done"
+    },
+    "pose-compat-gate-pose-md-preservation": {
+      "depends_on": [
+        "pose-compat-gate-manual-refresh-assertion"
+      ],
+      "path": ".pose/specs/2026-09-10-pose-compat-gate-pose-md-preservation.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-component-aware-review-plans": {
       "depends_on": [
@@ -1561,6 +1581,14 @@
       "priority": 25,
       "status": "done"
     },
+    "pose-parity-reads-the-cli-surface": {
+      "depends_on": [
+        "pose-skill-command-parity"
+      ],
+      "path": ".pose/specs/2026-09-10-pose-parity-reads-the-cli-surface.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-policy-keys-and-release-surface-coverage": {
       "depends_on": [
         "pose-doctor-reports-unread-policy-keys",
@@ -1746,6 +1774,14 @@
         "pose-component-evidence-is-not-inherited-upward"
       ],
       "path": ".pose/specs/2026-09-10-pose-report-coverage-that-rests-on-inference.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
+    "pose-report-help-names-every-flag": {
+      "depends_on": [
+        "pose-manual-locale-parity"
+      ],
+      "path": ".pose/specs/2026-09-10-pose-report-help-names-every-flag.md",
       "priority": 0,
       "status": "in-progress"
     },

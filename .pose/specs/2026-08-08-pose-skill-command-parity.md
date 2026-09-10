@@ -216,4 +216,4 @@ commands the English rewrite had dropped restored to their skills.
 
 ### Follow-ups
 
-- [open] The multi-word command list (`review record`, `assess snapshot`, …) is maintained by hand and under-reports when a new two-word verb appears — a guard failing quiet is the wrong direction. Consider deriving it from the CLI's own dispatch table at test time, which would also fix the same weakness in the manual parity check's command discovery. (owner:@pose-maintainers crit:low review:2026-11-06)
+- [done] The multi-word command list (`review record`, `assess snapshot`, …) is maintained by hand and under-reports when a new two-word verb appears — a guard failing quiet is the wrong direction. Consider deriving it from the CLI's own dispatch table at test time, which would also fix the same weakness in the manual parity check's command discovery. Done in `pose-parity-reads-the-cli-surface`: there is no table, so the dispatch is read from the CLI's source; it yields 13 groups where the list had 8, one of which (`roadmap`) is not a command. (owner:@pose-maintainers crit:low review:2026-11-06)

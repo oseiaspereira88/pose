@@ -223,9 +223,11 @@ user to trigger.
 - None.
 
 ### Follow-ups
-- [open] Actually run `pose release prepare --version v1.2.2` when the user
-  chooses to cut (owner:@pose-maintainers crit:low review:2026-09-01)
-- [open] `cmdArtifactCheck` (`pose-mcp/internal/cli/artifact_integrity.go`
+- [done] Actually run `pose release prepare --version v1.2.2` when the user
+  chooses to cut. Cut: `.pose/releases/v1.2.2` and `.pose/changelogs/v1.2.2.md`
+  record it, and the `v1.2.2` tag exists (owner:@pose-maintainers crit:low
+  review:2026-09-01)
+- [done] `cmdArtifactCheck` (`pose-mcp/internal/cli/artifact_integrity.go`
   ~line 318-332) reports a spurious `resolvability` error on any spec whose
   `### Artifacts` declares `- none: <reason>` — it validates `claim.Path`
   for every claim regardless of `Action`, and a none-action claim's `Path`
@@ -233,5 +235,8 @@ user to trigger.
   --spec pose-v1-2-2-changelog-review --strict` (exit 1) even though `pose
   check --strict`'s own delivery-graph build handles none-claims correctly
   (exit 0) — the bug is confined to this one standalone command's extra
-  validation loop. Fix: skip claims with `Action == "none"` in that loop
-  (owner:@pose-maintainers crit:low review:2026-09-15)
+  validation loop. Fix: skip claims with `Action == "none"` in that loop.
+  Fixed in `pose-engine-stability-and-diagnostics-convergence` (7a6488c): the
+  loop skips none-claims, and `pose artifact-check --spec
+  pose-v1-2-2-changelog-review --strict` exits 0 (owner:@pose-maintainers
+  crit:low review:2026-09-15)

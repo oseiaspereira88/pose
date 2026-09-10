@@ -161,4 +161,4 @@ makes.
 
 ### Follow-ups
 
-- [open] Assert the same preservation property for POSE.md, which takes the same merge path but is not customized by the upgrade-lab fixture. (owner:@pose-maintainers crit:low review:2026-11-20)
+- [done] Assert the same preservation property for POSE.md, which takes the same merge path but is not customized by the upgrade-lab fixture. Done in `pose-compat-gate-pose-md-preservation`; it turned out not to be the same path — the appended note stays in AGENTS.md but is dropped from POSE.md and survives only in `POSE.md.pose-backup`, so the gate now exercises the backup branch it never had. (owner:@pose-maintainers crit:low review:2026-11-20)

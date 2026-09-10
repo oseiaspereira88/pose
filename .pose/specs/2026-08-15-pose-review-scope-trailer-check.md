@@ -237,7 +237,7 @@ root-cause attribution from issue #17's own investigation comments (Decision
   discovery is out of scope here).
 
 ### Follow-ups
-- [open] Note in `AGENTS.md`/the feature workflow that `POSE-Spec: <slug>`
+- [wont-do: the premise inverted — a sealed bundle's subject is the trailer-attributed change sets, and sealing is blocked without them] Note in `AGENTS.md`/the feature workflow that `POSE-Spec: <slug>`
   trailers are useful for `pose artifact-check`/`artifact-backfill
   --from-git` ergonomics (live discovery without `--from`/`--to`), but do
   not by themselves satisfy review-bundle sealing — only `pose report
