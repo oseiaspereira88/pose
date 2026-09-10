@@ -65,7 +65,7 @@ pull request whose only content was the adoption.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-cross-version-guard-is-this-repositorys.md
-- created: .pose/changelogs/unreleased/pose-cross-version-guard-is-this-repositorys.md
+- renamed: .pose/changelogs/unreleased/pose-cross-version-guard-is-this-repositorys.md -> .pose/changelogs/v4.0.1/pose-cross-version-guard-is-this-repositorys.md
 - modified: pose-mcp/internal/cli/release_compatibility_test.go
 
 ### Technical risks

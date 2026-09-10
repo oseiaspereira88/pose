@@ -72,7 +72,7 @@ changed.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-shipped-review-profiles-are-schema-v2.md
-- created: .pose/changelogs/unreleased/pose-shipped-review-profiles-are-schema-v2.md
+- renamed: .pose/changelogs/unreleased/pose-shipped-review-profiles-are-schema-v2.md -> .pose/changelogs/v4.0.1/pose-shipped-review-profiles-are-schema-v2.md
 - created: pose-mcp/internal/cli/shipped_profiles_schema_test.go
 - modified: .pose/review-profiles/milestone-integration.json
 - modified: .pose/review-profiles/roadmap-outcome.json
