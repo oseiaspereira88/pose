@@ -93,3 +93,23 @@ func TestBilingualHelpParity(t *testing.T) {
 		t.Errorf("expected Portuguese text in validate help, got: %s", stdoutPT.String())
 	}
 }
+
+// TestReportHelpNamesEveryFlag holds `pose report --help` to the parser: four
+// of its sixteen flags were documented, and `--validate-output` — which decides
+// the report's derived outcome — was in no help, no manual and no reference.
+func TestReportHelpNamesEveryFlag(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	if code := Main([]string{"report", "--help"}, &stdout, &stderr); code != 0 {
+		t.Fatalf("pose report --help exit=%d stderr=%s", code, stderr.String())
+	}
+	help := stdout.String()
+	flags := []string{"git-stage"}
+	for flag := range reportValueFlags {
+		flags = append(flags, flag)
+	}
+	for _, flag := range flags {
+		if !strings.Contains(help, "--"+flag+" ") {
+			t.Errorf("pose report accepts --%s and its help does not name it", flag)
+		}
+	}
+}

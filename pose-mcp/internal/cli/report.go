@@ -44,16 +44,22 @@ type reportRecord struct {
 	CostUSD         *float64 `json:"cost_usd,omitempty"`
 }
 
+// reportValueFlags are the flags `pose report` accepts with a value. `pose
+// report --help` is held to documenting every one of them: a flag the parser
+// accepts and no help names is one nobody finds (spec
+// pose-report-help-names-every-flag).
+var reportValueFlags = map[string]bool{
+	"task": true, "spec": true, "risk": true, "workflow": true, "rules": true,
+	"validate-output": true, "type": true, "context": true,
+	"validation-profile": true, "outcome": true, "since": true,
+	"duration-seconds": true, "cost-usd": true, "change-from": true, "change-to": true,
+}
+
 func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	values := map[string]string{"type": "standard", "outcome": "", "context": "not-provided", "validation-profile": "not-provided"}
 	gitStage := false
-	valueFlags := map[string]bool{
-		"task": true, "spec": true, "risk": true, "workflow": true, "rules": true,
-		"validate-output": true, "type": true, "context": true,
-		"validation-profile": true, "outcome": true, "since": true,
-		"duration-seconds": true, "cost-usd": true, "change-from": true, "change-to": true,
-	}
+	valueFlags := reportValueFlags
 	for i := 0; i < len(args); i++ {
 		if args[i] == "--git-stage" {
 			gitStage = true
