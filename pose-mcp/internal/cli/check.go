@@ -830,8 +830,15 @@ func (checker *nativeChecker) checkChangelogs() {
 	var policy struct {
 		AdoptedAt string `json:"adopted_at"`
 	}
-	if json.Unmarshal(policyRaw, &policy) != nil || policy.AdoptedAt == "" {
-		checker.failOrWarn("changelog: invalid policy; adopted_at is required")
+	if json.Unmarshal(policyRaw, &policy) != nil {
+		checker.failOrWarn("changelog: invalid policy")
+		return
+	}
+	// An empty date is a decision, not a malformed file: the contract is not
+	// adopted, and no spec is held to it. `pose install` and `pose update` stamp
+	// the day this instance received the policy, so this is reached only where
+	// someone deliberately cleared it (spec pose-changelog-adoption-is-the-instances).
+	if strings.TrimSpace(policy.AdoptedAt) == "" {
 		return
 	}
 	specPaths := findSpecFiles(checker.root)

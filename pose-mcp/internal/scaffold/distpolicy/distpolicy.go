@@ -77,6 +77,14 @@ var SelfReferentialPolicyFiles = []string{
 	"delivery.json",
 	"artifacts.json",
 	"release.json",
+	// changelog.json carries `adopted_at`, and this repository's own date was
+	// travelling to every instance. For a project starting today that reads as
+	// "gate everything", harmless by accident; for one migrating in with a
+	// history of specs it silently exempts everything completed before a date
+	// belonging to someone else. The neutral template ships it empty, and
+	// `pose install`/`pose update` stamp the day this instance received the
+	// policy (spec pose-changelog-adoption-is-the-instances).
+	"changelog.json",
 }
 
 // SelfReferentialIndexFiles are `.pose/indexes/` files whose live content in
@@ -189,6 +197,13 @@ func IsIncluded(rel string) bool {
 // drift guard once did before this package existed.
 func NeutralPolicyTemplates() map[string][]byte {
 	return map[string][]byte{
+		".pose/policy/changelog.json": []byte(`{
+  "_comment": "Changelog policy (spec pose-release-changelog). adopted_at is stamped with the day this instance received the policy; a done spec completed on or after it needs a changelog fragment. An empty value means the contract is not adopted and no spec is held to it. categories lists the fragment categories this project accepts.",
+  "schema_version": 1,
+  "adopted_at": "",
+  "categories": ["added", "changed", "fixed", "removed", "deprecated", "security"]
+}
+`),
 		".pose/policy/delivery.json": []byte(`{
   "_comment": "Delivery-integrity policy (spec pose-delivery-surface-assurance). Disabled by default: roots/entrypoints must name this project's own source paths, not pose-mcp's. Set enabled=true and populate roots once configured for this project.",
   "schema_version": 1,

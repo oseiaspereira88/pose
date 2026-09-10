@@ -105,6 +105,7 @@ func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portu
 	// Migrate existing review policy / profiles from v1 to v2 if present
 	migrateInstanceReviewPolicy(dist, target, log)
 	stampContractAdoption(target, time.Now().UTC(), log)
+	stampChangelogAdoption(target, time.Now().UTC(), log)
 
 	// The neutral placeholders just seeded above for repo-map.json,
 	// spec-graph.json, delivery-integrity.json etc. are honestly empty, not
@@ -189,6 +190,45 @@ func seedModuleMetadataFromDiscovery(target string, log func(english, portuguese
 		for _, rel := range added {
 			log("module-metadata (discovered): %s", "module-metadata (descoberto): %s", rel)
 		}
+	}
+}
+
+// stampChangelogAdoption records the date this instance received the changelog
+// contract, in its own policy (spec pose-changelog-adoption-is-the-instances).
+//
+// The shipped policy used to carry this repository's own adoption date, and
+// every instance inherited it. For a project starting today that reads as "gate
+// everything", which is harmless by accident; for a project migrating in with a
+// history of specs, it silently exempts every spec completed before a date that
+// belongs to someone else.
+//
+// Stamping is what the review contracts already do, and it is the only answer
+// that is true: the engine cannot know when a project adopted the contract, but
+// it can know when it first put the policy there.
+func stampChangelogAdoption(target string, now time.Time, log func(english, portuguese string, a ...any)) {
+	path := filepath.Join(target, ".pose", "policy", "changelog.json")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return
+	}
+	// Through the raw document, so a key the engine does not model survives the
+	// write — the same reason stampContractAdoption does.
+	var doc map[string]any
+	if json.Unmarshal(raw, &doc) != nil {
+		return
+	}
+	if adopted, ok := doc["adopted_at"].(string); !ok || strings.TrimSpace(adopted) != "" {
+		return
+	}
+	doc["adopted_at"] = now.Format(time.DateOnly)
+	updated, err := json.MarshalIndent(doc, "", "  ")
+	if err != nil {
+		return
+	}
+	if writeAtomic(path, append(updated, '\n'), 0o644) == nil && log != nil {
+		log("policy (changelog adoption): adopted_at=%s — specs completed before today keep their exemption",
+			"política (adoção do changelog): adopted_at=%s — specs concluídas antes de hoje mantêm sua isenção",
+			now.Format(time.DateOnly))
 	}
 }
 
