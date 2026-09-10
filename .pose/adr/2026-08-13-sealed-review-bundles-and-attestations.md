@@ -7,6 +7,7 @@ Amended (2026-09-08) by spec `pose-attestation-evidence-must-be-in-the-bundle` �
 Amended (2026-09-09) by spec `pose-evidence-scoped-to-component` — see Amendments
 Amended (2026-09-09) by spec `pose-component-evidence-is-not-inherited-upward` — see Amendments
 Amended (2026-09-09) by spec `pose-bundles-seal-the-contracts-that-govern-them` — see Amendments
+Amended (2026-09-10) by spec `pose-bundle-findings-take-the-contract-the-legacy-path-had` — see Amendments
 
 ## Context
 
@@ -74,7 +75,9 @@ verification key.
 
 The sealed payload also names the governance contracts in force when it was
 sealed, so verification judges the bundle by the rules that existed then rather
-than by a date in today's policy (amended 2026-09-09).
+than by a date in today's policy (amended 2026-09-09), and the two closeout
+gates that depend on policy — whether reservations may close a scope, and which
+risk severities may be accepted (amended 2026-09-10).
 
 Record review approval as a separate immutable attestation referencing the
 exact bundle ID and digest. A criterion recorded `passed` must cite evidence the
@@ -380,4 +383,49 @@ because a date can be edited afterwards and a sealed digest cannot.
   `require_signed_attestations` most likely *should* be live, since tightening a
   signing requirement is not something an old bundle should escape. Recorded as a
   follow-up rather than settled here.
+
+### 2026-09-10 — the bundle path enforces the finding contract
+
+Spec `pose-bundle-findings-take-the-contract-the-legacy-path-had`.
+
+**What changed.** Attestation validation against a sealed bundle now applies the
+same finding contract the legacy attempt path always applied, and the sealed
+payload gains `gates`: the accepted risk severities and the reservations flag in
+force when the bundle was sealed.
+
+**Why.** This was not a design decision that had been made and could be revisited.
+`validateBundleAttestationWith` blocked a finding only when its disposition was
+`open` or `changes-requested`. Everything else passed with no blocker: a
+`critical` accepted risk with no owner, no rationale and no review date; a
+disposition the engine does not know; a finding with neither severity nor
+action. `accepted_risk_severities` and `allow_approved_with_reservations` were
+not consulted at all on this path.
+
+So a project that adopted review bundles — the mechanism this ADR introduced to
+make review *more* rigorous — silently lost a gate it had before, and two policy
+settings stopped taking effect without anything saying so.
+
+**Options considered.**
+
+1. Read the two settings live at verification. Rejected for the reason the
+   previous amendment gives: a flag flipped today would approve a closeout
+   recorded years ago.
+2. Seal the whole contract, structural parts included. Rejected: a finding
+   without a severity is incomplete under any policy, and sealing it would imply
+   a project could configure it away.
+3. Seal the two policy-dependent gates, apply the rest unconditionally.
+   Selected.
+
+**Consequences.**
+
+- The sealed payload changes again, so a bundle sealed by this release does not
+  digest the same as one sealed before it.
+- A bundle carrying no `gates` reads as reservations refused and no severity
+  accepted, which is precisely what this path did before — so no bundle already
+  sealed changes verdict. Measured rather than assumed: the 469 attestations
+  recorded in this repository carry no findings at all, and none is
+  approved-with-reservations.
+- The structural half applies to every bundle, old ones included. It is not
+  configuration, and grandfathering it would be preserving a defect rather than
+  a contract.
 

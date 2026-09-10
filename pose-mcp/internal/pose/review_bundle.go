@@ -110,9 +110,23 @@ type ReviewBundlePayload struct {
 	// A bundle sealed before this field existed carries none, and is read by the
 	// dated rule it was always read by. That is the only thing the dates are
 	// for now.
-	GoverningContracts []string            `json:"governing_contracts,omitempty"`
-	Children           []ReviewBundleChild `json:"children,omitempty"`
-	ConsumedInputs     []ReviewBundleInput `json:"consumed_inputs"`
+	GoverningContracts []string `json:"governing_contracts,omitempty"`
+	// Gates are the two closeout settings that depend on policy, frozen at seal
+	// time for the same reason the contracts are: read live, a flag flipped
+	// today would approve a closeout recorded years ago
+	// (spec pose-bundle-findings-take-the-contract-the-legacy-path-had).
+	Gates          ReviewBundleGates   `json:"gates,omitempty"`
+	Children       []ReviewBundleChild `json:"children,omitempty"`
+	ConsumedInputs []ReviewBundleInput `json:"consumed_inputs"`
+}
+
+// ReviewBundleGates are the policy-dependent parts of the closeout contract.
+// The rest of it — a finding needing a severity, an action, a disposition the
+// engine knows, and an accepted risk needing an owner, a rationale and a review
+// date — is not configuration and is not sealed.
+type ReviewBundleGates struct {
+	AllowApprovedWithReservations bool     `json:"allow_approved_with_reservations,omitempty"`
+	AcceptedRiskSeverities        []string `json:"accepted_risk_severities,omitempty"`
 }
 
 // BundleGovernedBy reports whether the contract governed this bundle, and
@@ -277,6 +291,12 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 
 	bundle.Payload.ConsumedInputs = s.reviewBundleConsumedInputs(plan)
 	bundle.Payload.GoverningContracts = governingContractsAtSeal()
+	if policy, _, policyErr := s.loadReviewPolicy(); policyErr == nil {
+		bundle.Payload.Gates = ReviewBundleGates{
+			AllowApprovedWithReservations: policy.AllowApprovedWithReservations,
+			AcceptedRiskSeverities:        append([]string{}, policy.AcceptedRiskSeverities...),
+		}
+	}
 	bundle.Blockers = uniqueSorted(bundle.Blockers)
 	bundle.Warnings = uniqueSorted(bundle.Warnings)
 	bundle.ExcludedInputs = sortedBundleInputs(bundle.ExcludedInputs)
@@ -1937,12 +1957,43 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	toolWarnings, toolBlockers := evaluateReviewToolCoverage(s.Root, bundle.Payload.Plan.Tools, att.Tools, sealedEvidence, hasDeliveryTarget)
 	_ = toolWarnings
 	blockers = append(blockers, toolBlockers...)
+	// The finding contract, which this path did not have. It accepted a
+	// `critical` risk with no owner, no rationale and no review date; a
+	// disposition the engine does not know; and a finding with neither severity
+	// nor action — all three with no blocker at all, while the legacy attempt
+	// path refused every one of them. A project that adopted review bundles
+	// silently lost the gate (spec
+	// pose-bundle-findings-take-the-contract-the-legacy-path-had).
+	//
+	// Only the accepted-risk severities and the reservations flag come from the
+	// sealed gates. The rest is not configuration: a finding without a severity
+	// is incomplete under any policy.
+	allowedRisk := map[string]bool{}
+	for _, severity := range bundle.Payload.Gates.AcceptedRiskSeverities {
+		allowedRisk[severity] = true
+	}
+	seenFindings := map[string]bool{}
 	for _, finding := range att.Findings {
-		if finding.Disposition == "open" || finding.Disposition == "changes-requested" {
+		if seenFindings[finding.ID] {
+			blockers = append(blockers, "duplicate finding "+finding.ID)
+		}
+		seenFindings[finding.ID] = true
+		if finding.Severity == "" || finding.Action == "" {
+			blockers = append(blockers, "finding "+finding.ID+" lacks severity or action")
+		}
+		switch finding.Disposition {
+		case "resolved", "wont-fix":
+		case "accepted-risk":
+			if !allowedRisk[finding.Severity] || finding.Owner == "" || finding.Rationale == "" || finding.ReviewBy == "" {
+				blockers = append(blockers, "finding "+finding.ID+" has unapproved or incomplete accepted risk")
+			}
+		case "open", "changes-requested":
 			blockers = append(blockers, "finding "+finding.ID+" is "+finding.Disposition)
+		default:
+			blockers = append(blockers, "finding "+finding.ID+" has invalid disposition")
 		}
 	}
-	if att.Decision != "approved" {
+	if att.Decision != "approved" && !(att.Decision == "approved-with-reservations" && bundle.Payload.Gates.AllowApprovedWithReservations) {
 		blockers = append(blockers, "review decision does not permit closeout: "+att.Decision)
 	}
 	return blockers
