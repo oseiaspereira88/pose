@@ -74,7 +74,7 @@ while it checks less.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-parity-reads-the-cli-surface.md
-- created: .pose/changelogs/unreleased/pose-parity-reads-the-cli-surface.md
+- renamed: .pose/changelogs/unreleased/pose-parity-reads-the-cli-surface.md -> .pose/changelogs/v5.0.1/pose-parity-reads-the-cli-surface.md
 - created: pose-mcp/internal/scaffold/cli_surface_test.go
 - modified: pose-mcp/internal/scaffold/skill_locale_parity_test.go
 - modified: pose-mcp/internal/scaffold/manual_locale_parity_test.go

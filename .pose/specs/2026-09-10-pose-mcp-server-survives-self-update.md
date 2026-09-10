@@ -68,7 +68,7 @@ resolving one afterwards. The one caller that outlives an update kept resolving.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md
-- created: .pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md
+- renamed: .pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md -> .pose/changelogs/v5.0.1/pose-mcp-server-survives-self-update.md
 - created: pose-mcp/internal/cli/mcp_self_update_test.go
 - modified: pose-mcp/internal/pose/cli.go
 - modified: pose-mcp/internal/cli/self_update_release_test.go

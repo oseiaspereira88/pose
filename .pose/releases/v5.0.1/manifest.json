@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "version": "v5.0.1",
+  "previous_version": "v5.0.0",
+  "prepared_at": "2026-09-10T22:06:32Z",
+  "specs": [
+    "pose-class-producers-reads-the-disjunction",
+    "pose-compat-gate-pose-md-preservation",
+    "pose-mcp-server-survives-self-update",
+    "pose-parity-reads-the-cli-surface",
+    "pose-report-help-names-every-flag"
+  ],
+  "categories": {
+    "changed": 2,
+    "fixed": 3
+  },
+  "fragments": [
+    {
+      "spec": "pose-class-producers-reads-the-disjunction",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`validate.class-producers` reports a review criterion none of whose accepted\nevidence classes is produced, instead of reporting each class on its own — and\nskips a profile whose language selector names nothing the repository has.\n\nBoth were false alarms, and both surfaced only by acting on the check's own\noutput. `evidence_classes` is a disjunction: the attestation cites one of them\nand the first match satisfies the criterion. Reporting classes individually named\n`e2e` while every criterion listing it also accepted `integration` or `unit` —\na true statement naming nothing to fix, which is how a check earns being ignored.\nAnd `a11y` was named for a profile selected by `languages: [javascript,\ntypescript]` in a repository that has none, so the criterion could never apply.\n\nNeither correction weakens it. The case it exists for still fires: a criterion\nwhose only accepted class lost its producer.\n\nOnly the language selector is evaluated, and only to skip — a profile selected by\ncomponent id or delivery kind is unaffected.",
+      "path": "pose-class-producers-reads-the-disjunction.md",
+      "digest": "sha256:12141e1f565ccefb49526d9454cfc8745708ad4f68ab43594262795748d4f876"
+    },
+    {
+      "spec": "pose-compat-gate-pose-md-preservation",
+      "category": "changed",
+      "breaking": false,
+      "body": "The release compatibility gate customizes POSE.md as well as AGENTS.md in its\nupgrade lab, and fails a supported upgrade that loses the customization.\n\nThe two manuals do not take the same path. A note appended to AGENTS.md stays in\nit; the same note appended to POSE.md is dropped from the manual on upgrade and\nkept in `POSE.md.pose-backup`. Only the first had ever been exercised against a\nreal prior release — the backup, the one thing that turns that removal into\nsomething other than a silent loss, had not.",
+      "path": "pose-compat-gate-pose-md-preservation.md",
+      "digest": "sha256:f7fbcdd8ad5048d898afa57f9e9419476cfc0c7b80ecc4a76c463784121dea41"
+    },
+    {
+      "spec": "pose-mcp-server-survives-self-update",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A `pose serve-mcp` that was running when `pose update` replaced its binary can\nrun its CLI-backed tools again. It failed every one of them with\n`fork/exec …/pose.old: no such file or directory` until it was restarted — a\nmessage that reads as a missing binary, not as a server needing a restart.\n\nThe server found the CLI by calling `os.Executable()` on every call. `pose\nupdate` renames the running binary to `.old` and removes it once the new one is\nin place, and on Linux `os.Executable()` then names the removed file. It is the\ndefect v2.0.0 hit in the update handoff; the fix there stayed in the handoff,\nand the one caller that outlives an update kept resolving.\n\nThe path is now resolved once, when the process starts. After an update it holds\nthe updated engine, which is what a restarted server would run as well.\n`POSE_EXECUTABLE` still takes precedence.",
+      "path": "pose-mcp-server-survives-self-update.md",
+      "digest": "sha256:dbfb07c0f3c15fcc0d0e59ef035c46cf52205f1c6309daa13e37f2b94ac8707d"
+    },
+    {
+      "spec": "pose-parity-reads-the-cli-surface",
+      "category": "changed",
+      "breaking": false,
+      "body": "The locale parity checks learn what a pose command is from the CLI's own\ndispatch, read from its source.\n\nThe skill check kept a hand-written list of eight commands that take a\nsubcommand; the CLI has thirteen. `contribute` was missing, so a translation\nteaching `contribute submit` where the English skill teaches `contribute stage`\npassed — and `roadmap`, which is not a command, was on the list. The manual\ncheck recognised a command only when a manual listed it as an entry, so seven\ncommands AGENTS.md mentions only in prose had no signal.\n\nBoth failed quiet. No shipped skill or manual had drifted behind them.",
+      "path": "pose-parity-reads-the-cli-surface.md",
+      "digest": "sha256:7e5496d384a405b19cadd3efc70ee9bd66f8928bac6b40ccb119b110c3b9f636"
+    },
+    {
+      "spec": "pose-report-help-names-every-flag",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose report --help` names all sixteen flags `pose report` accepts. It named\nfour. Among the missing were `--validate-output`, which chooses the validation\nlog a report derives its outcome from and was documented nowhere, and\n`--change-from`/`--change-to`, which record a spec's immutable change set. The\nhelp also listed `--outcome` as `pass|fail|partial`; `skipped` and `unknown` are\naccepted too.\n\nA test now holds the help to the flags the parser accepts.",
+      "path": "pose-report-help-names-every-flag.md",
+      "digest": "sha256:776235d2e077556e066e9d128e1ffdcbd47b0f8947526038297580ea42a75fd0"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:1694d54eb18a64021505af23a9a71c041ae792ae5ed30041a42a6a82ba4da0d6",
+  "release_input_digest": "sha256:55557dbcc01e7cd09e6f4e8c16ae1c7ad30b58b1373a427d6771b8ddc663da2f",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v5.0.1"
+  }
+}

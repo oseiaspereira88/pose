@@ -72,7 +72,7 @@ criterion whose only accepted class lost its producer.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-class-producers-reads-the-disjunction.md
-- created: .pose/changelogs/unreleased/pose-class-producers-reads-the-disjunction.md
+- renamed: .pose/changelogs/unreleased/pose-class-producers-reads-the-disjunction.md -> .pose/changelogs/v5.0.1/pose-class-producers-reads-the-disjunction.md
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: pose-mcp/internal/cli/doctor_class_producers_test.go
 - modified: .pose/specs/2026-09-10-pose-report-a-demanded-class-nothing-produces.md
