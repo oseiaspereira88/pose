@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "version": "v4.0.1",
+  "previous_version": "v4.0.0",
+  "prepared_at": "2026-09-10T01:40:31Z",
+  "specs": [
+    "pose-cross-version-guard-is-this-repositorys",
+    "pose-shipped-review-profiles-are-schema-v2"
+  ],
+  "categories": {
+    "fixed": 2
+  },
+  "fragments": [
+    {
+      "spec": "pose-cross-version-guard-is-this-repositorys",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The cross-version compatibility test fails on this repository's CI and skips\neverywhere else. It used to fail on any CI at all.\n\nThe guard exists because a skip on the machine whose verdict gates a release is a\ntest quietly not running. But a repository that vendors this engine as a submodule\nand runs its suite is also CI, and its submodule checkout has no tags: it cannot\nbuild the previous release, it is not responsible for this engine's release\nhistory, and there is nothing for it to configure. The guard told it to fix\nsomething that was not its to fix, and broke the adopting repository's build the\nsame day v4.0.0 reached it — on a pull request whose only content was the\nadoption.\n\nThe signal is now the repository the workflow runs for, compared against the\nrelease repository the engine already names as a constant. The protection\nsurvives: a shallow checkout in this repository's own CI still fails rather than\nskips.\n\nThe alternative — having consumers fetch tags for the submodule — would spread\nthis engine's test preconditions to everyone who vendors it, which is the shape of\nthe defect rather than a fix for it.",
+      "path": "pose-cross-version-guard-is-this-repositorys.md",
+      "digest": "sha256:29ac54ce0c4e35ae8dd99420103ee22408a1dc3087e9ae859543b72d1588d246"
+    },
+    {
+      "spec": "pose-shipped-review-profiles-are-schema-v2",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`milestone-integration.json` and `roadmap-outcome.json` ship at schema v2. They\nshipped at v1, and the v1-to-v2 migration copies the distribution's own profile\nover the instance's — so it copied a v1 file over a v1 file and logged\n`review-profile (migrated): \u003cname\u003e (v1 -\u003e v2)` on every `pose update`, forever,\ntelling the operator a migration had succeeded that never happened.\n\nTwo costs, not one. The instance never reached v2 for those profiles, so their\ncriteria stayed outside the closed rule and evidence catalogs schema v2 enforces\n— the check that stops a profile demanding a class no check may emit. And a log\nline that claims work it did not do is worse than silence.\n\nThe migration now verifies that the file replacing the instance's is actually at\nthe target schema before saying so, and a test requires every shipped profile to\nbe current, so the copy branch's assumption is checked rather than trusted.\n\nFound while adopting the release in a consumer repository, not from a report: the\nlog said migrated twice per run and the files never changed.",
+      "path": "pose-shipped-review-profiles-are-schema-v2.md",
+      "digest": "sha256:a6f07baa596eb2524c80201eb3c1415cd8ff4d5b964592773fc46104e1495b80"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:2683e03d7cc0836d3cbf038226fd6ab99f98f51ba384cb07a8c1f50d47c45931",
+  "release_input_digest": "sha256:1e8f51a2279906d65adb3ca770b42356dca7328f0a71d0506a7e6321e2698a9c",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v4.0.1"
+  }
+}
