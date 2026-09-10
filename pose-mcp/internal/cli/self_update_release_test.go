@@ -58,45 +58,12 @@ func TestSelfUpdateDownloadsReplacesAndHandsOff(t *testing.T) {
 
 	work := t.TempDir()
 	fixtureBin := buildFixturePose(t, work)
-	archive := tarGzPoseBinary(t, work, fixtureBin)
-
-	assetName := fmt.Sprintf("pose_%s_%s_%s.tar.gz", latest, runtime.GOOS, runtime.GOARCH)
-	var served struct {
-		api   int
-		asset int
-	}
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch {
-		case strings.HasSuffix(r.URL.Path, "/releases/latest"):
-			served.api++
-			_ = json.NewEncoder(w).Encode(map[string]string{"tag_name": "v" + latest})
-		case strings.HasSuffix(r.URL.Path, "/"+assetName):
-			served.asset++
-			w.Header().Set("Content-Type", "application/gzip")
-			_, _ = w.Write(archive)
-		default:
-			w.WriteHeader(http.StatusNotFound)
-		}
-	}))
-	defer srv.Close()
+	srv, served := serveFixtureRelease(t, latest, tarGzPoseBinary(t, work, fixtureBin))
 
 	// The binary under test is built at an older version and pointed at the
 	// local server, then run from a directory it is free to overwrite.
-	pkg := "github.com/harne8/pose-mcp/internal"
 	posePath := filepath.Join(work, "install", "pose")
-	if err := os.MkdirAll(filepath.Dir(posePath), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	build := exec.Command("go", "build",
-		"-ldflags", strings.Join([]string{
-			"-X " + pkg + "/version.Version=" + current,
-			"-X " + pkg + "/cli.releaseAPIBase=" + srv.URL,
-			"-X " + pkg + "/cli.releaseDownloadBase=" + srv.URL,
-		}, " "),
-		"-o", posePath, "github.com/harne8/pose-mcp/cmd/pose")
-	if out, err := build.CombinedOutput(); err != nil {
-		t.Fatalf("building the pose binary under test: %v\n%s", err, out)
-	}
+	buildPoseAgainstRelease(t, posePath, current, srv.URL)
 
 	cmd := exec.Command(posePath, "update")
 	cmd.Dir = work
@@ -131,6 +98,55 @@ func TestSelfUpdateDownloadsReplacesAndHandsOff(t *testing.T) {
 	}
 	if _, err := os.Stat(posePath + ".old"); err == nil {
 		t.Errorf("the backup at %s.old outlived a successful update", posePath)
+	}
+}
+
+// fixtureReleaseRequests counts what the local release server was asked for.
+type fixtureReleaseRequests struct {
+	api   int
+	asset int
+}
+
+// serveFixtureRelease stands in for both the release API and the asset host:
+// it announces latest and serves archive under the name the real release uses.
+func serveFixtureRelease(t *testing.T, latest string, archive []byte) (*httptest.Server, *fixtureReleaseRequests) {
+	t.Helper()
+	assetName := fmt.Sprintf("pose_%s_%s_%s.tar.gz", latest, runtime.GOOS, runtime.GOARCH)
+	served := &fixtureReleaseRequests{}
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasSuffix(r.URL.Path, "/releases/latest"):
+			served.api++
+			_ = json.NewEncoder(w).Encode(map[string]string{"tag_name": "v" + latest})
+		case strings.HasSuffix(r.URL.Path, "/"+assetName):
+			served.asset++
+			w.Header().Set("Content-Type", "application/gzip")
+			_, _ = w.Write(archive)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	t.Cleanup(srv.Close)
+	return srv, served
+}
+
+// buildPoseAgainstRelease builds the real pose binary at posePath, reporting
+// version current and fetching its updates from releaseURL.
+func buildPoseAgainstRelease(t *testing.T, posePath, current, releaseURL string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(posePath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	pkg := "github.com/harne8/pose-mcp/internal"
+	build := exec.Command("go", "build",
+		"-ldflags", strings.Join([]string{
+			"-X " + pkg + "/version.Version=" + current,
+			"-X " + pkg + "/cli.releaseAPIBase=" + releaseURL,
+			"-X " + pkg + "/cli.releaseDownloadBase=" + releaseURL,
+		}, " "),
+		"-o", posePath, "github.com/harne8/pose-mcp/cmd/pose")
+	if out, err := build.CombinedOutput(); err != nil {
+		t.Fatalf("building the pose binary under test: %v\n%s", err, out)
 	}
 }
 

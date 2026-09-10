@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:98873303bb268b2543960cec25022f1902950b3cdcf3177163073013dd44b772",
-  "provenance_digest": "sha256:8ba93eca229a9d7f6a09aa54194e945cf2faeaf09148264e29d219130395d59f",
+  "input_digest": "sha256:4c3faa947db0fbb96fab682c42d43ef79e61a246eb9433809d4e6ce5e0fb06fc",
+  "provenance_digest": "sha256:7aa42955295d9586764d554ed7528561a5c80f9e3f3f4c76358f81df05bd3e57",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -652,6 +652,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-mcp-active-context.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md"
       }
     },
     {
@@ -4771,6 +4778,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/2026-09-10-pose-only-the-signing-gate-is-read-live.md",
       "type": "artifact",
       "attributes": {
@@ -6672,6 +6686,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/cli/managed_docs_test.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/cli/mcp_self_update_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/mcp_self_update_test.go"
       }
     },
     {
@@ -11419,6 +11440,14 @@
       }
     },
     {
+      "id": "change-set:cs-10582b50d452",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:2b9db962f305510d4af89a51adf449e1222cbd1dd1745e2c2a97d27b83bbaf67",
+        "selector": "trailers:pose-class-producers-reads-the-disjunction"
+      }
+    },
+    {
       "id": "change-set:cs-10bfd095c5a5",
       "type": "change-set",
       "attributes": {
@@ -11592,6 +11621,14 @@
       "attributes": {
         "diff_digest": "sha256:5cb2b461596cf3320d9ef63f3cedabfd5c6d211152dfc3aee8a6a2ec9c954c1e",
         "selector": "trailers:pose-doctor-fixtures-exercise-production-path"
+      }
+    },
+    {
+      "id": "change-set:cs-301b5c06b2be",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:e0211d864786c1fd25b025a695bfaec23608ab36912936dc55566a2e96f43d07",
+        "selector": "trailers:pose-mcp-server-survives-self-update"
       }
     },
     {
@@ -12643,27 +12680,11 @@
       }
     },
     {
-      "id": "change-set:cs-dee0d3d2af0d",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:292f3c026d76a874f2a826cda0e75d01dfe8181a567ff3cd06f3bdbbbcd541db",
-        "selector": "trailers:pose-class-producers-reads-the-disjunction"
-      }
-    },
-    {
       "id": "change-set:cs-dfc8d02de295",
       "type": "change-set",
       "attributes": {
         "diff_digest": "sha256:4150970686d56a68434f3741fa23a6ac274f3e63a82fbe217bac317c75c05e90",
         "selector": "trailers:pose-review-subject-submodule-classification"
-      }
-    },
-    {
-      "id": "change-set:cs-dfd227825e50",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:248bccffd367849f2bfb13e3704f237b02d01e8676e0307ead4194b928904add",
-        "selector": "trailers:pose-container-build-gate"
       }
     },
     {
@@ -14673,6 +14694,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-mcp-server-survives-self-update",
+      "type": "spec",
+      "attributes": {
+        "status": "in-progress"
       }
     },
     {
@@ -28437,6 +28465,56 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-10582b50d452",
+      "to": "artifact:.pose/changelogs/unreleased/pose-class-producers-reads-the-disjunction.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-10582b50d452",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-10582b50d452",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-10582b50d452",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-10582b50d452",
+      "to": "artifact:.pose/reports/2026-09-10-standard-validate-native.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-10582b50d452",
+      "to": "artifact:.pose/reports/history/standard-validate-native.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-10582b50d452",
+      "to": "artifact:.pose/specs/2026-09-10-pose-class-producers-reads-the-disjunction.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-10582b50d452",
+      "to": "artifact:.pose/specs/2026-09-10-pose-report-a-demanded-class-nothing-produces.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-10582b50d452",
+      "to": "artifact:pose-mcp/internal/cli/doctor.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-10582b50d452",
+      "to": "artifact:pose-mcp/internal/cli/doctor_class_producers_test.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-10bfd095c5a5",
       "to": "artifact:.github/workflows/package-channels.yml",
       "type": "changes"
@@ -30164,6 +30242,31 @@
     {
       "from": "change-set:cs-2f528daae7c2",
       "to": "artifact:pose-mcp/internal/pose/review_closeout.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-301b5c06b2be",
+      "to": "artifact:.pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-301b5c06b2be",
+      "to": "artifact:.pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-301b5c06b2be",
+      "to": "artifact:pose-mcp/internal/cli/mcp_self_update_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-301b5c06b2be",
+      "to": "artifact:pose-mcp/internal/cli/self_update_release_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-301b5c06b2be",
+      "to": "artifact:pose-mcp/internal/pose/cli.go",
       "type": "changes"
     },
     {
@@ -44532,31 +44635,6 @@
       "type": "changes"
     },
     {
-      "from": "change-set:cs-dee0d3d2af0d",
-      "to": "artifact:.pose/changelogs/unreleased/pose-class-producers-reads-the-disjunction.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dee0d3d2af0d",
-      "to": "artifact:.pose/specs/2026-09-10-pose-class-producers-reads-the-disjunction.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dee0d3d2af0d",
-      "to": "artifact:.pose/specs/2026-09-10-pose-report-a-demanded-class-nothing-produces.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dee0d3d2af0d",
-      "to": "artifact:pose-mcp/internal/cli/doctor.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dee0d3d2af0d",
-      "to": "artifact:pose-mcp/internal/cli/doctor_class_producers_test.go",
-      "type": "changes"
-    },
-    {
       "from": "change-set:cs-dfc8d02de295",
       "to": "artifact:.pose/changelogs/unreleased/pose-review-subject-submodule-classification.md",
       "type": "changes"
@@ -44574,66 +44652,6 @@
     {
       "from": "change-set:cs-dfc8d02de295",
       "to": "artifact:pose-mcp/internal/pose/review_bundle_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:.github/workflows/ci.yml",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:.pose/changelogs/unreleased/pose-container-build-gate.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:.pose/indexes/delivery-integrity.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:.pose/indexes/spec-graph.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:.pose/results/delivery-validation.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:.pose/specs/pose-container-build-gate/spec.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-container-build-gate.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/specs/pose-container-build-gate/spec.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-dfd227825e50",
-      "to": "artifact:tests/release/container-build.sh",
       "type": "changes"
     },
     {
@@ -51328,7 +51346,7 @@
     },
     {
       "from": "spec:pose-class-producers-reads-the-disjunction",
-      "to": "change-set:cs-dee0d3d2af0d",
+      "to": "change-set:cs-10582b50d452",
       "type": "observed-by"
     },
     {
@@ -52139,11 +52157,6 @@
     {
       "from": "spec:pose-container-build-gate",
       "to": "change-set:cs-56f1f7cb644d",
-      "type": "observed-by"
-    },
-    {
-      "from": "spec:pose-container-build-gate",
-      "to": "change-set:cs-dfd227825e50",
       "type": "observed-by"
     },
     {
@@ -54949,6 +54962,36 @@
     {
       "from": "spec:pose-mcp-active-context",
       "to": "change-set:cs-d2d19e427e51",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-mcp-server-survives-self-update",
+      "to": "artifact:.pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-mcp-server-survives-self-update",
+      "to": "artifact:.pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-mcp-server-survives-self-update",
+      "to": "artifact:pose-mcp/internal/cli/mcp_self_update_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-mcp-server-survives-self-update",
+      "to": "artifact:pose-mcp/internal/cli/self_update_release_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-mcp-server-survives-self-update",
+      "to": "artifact:pose-mcp/internal/pose/cli.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-mcp-server-survives-self-update",
+      "to": "change-set:cs-301b5c06b2be",
       "type": "observed-by"
     },
     {
@@ -62232,6 +62275,31 @@
       "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
     },
     {
+      "spec": "pose-mcp-server-survives-self-update",
+      "action": "created",
+      "path": ".pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md"
+    },
+    {
+      "spec": "pose-mcp-server-survives-self-update",
+      "action": "created",
+      "path": ".pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md"
+    },
+    {
+      "spec": "pose-mcp-server-survives-self-update",
+      "action": "created",
+      "path": "pose-mcp/internal/cli/mcp_self_update_test.go"
+    },
+    {
+      "spec": "pose-mcp-server-survives-self-update",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/self_update_release_test.go"
+    },
+    {
+      "spec": "pose-mcp-server-survives-self-update",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/cli.go"
+    },
+    {
       "spec": "pose-monorepo-validation-advisory",
       "action": "created",
       "path": "pose-mcp/internal/cli/doctor_workspace_execution_test.go"
@@ -69119,6 +69187,62 @@
       "diff_digest": "sha256:a1432aaf63ba44e26b93618f1a54a10e7f8429dbe45c8df603c4fa92f7548a3c"
     },
     {
+      "id": "cs-10582b50d452",
+      "spec": "pose-class-producers-reads-the-disjunction",
+      "selector": "trailers:pose-class-producers-reads-the-disjunction",
+      "base": "e5998330310e75b82d96996b7ad6e0be48556389^",
+      "head": "01cea9d3928110484e4309a680e86020ccb1588f",
+      "resolved_base": "a7f4b744cf13f77deda66498f21c81fdef2c5f68",
+      "resolved_head": "01cea9d3928110484e4309a680e86020ccb1588f",
+      "commits": [
+        "e5998330310e75b82d96996b7ad6e0be48556389",
+        "01cea9d3928110484e4309a680e86020ccb1588f"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-class-producers-reads-the-disjunction.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-10-pose-class-producers-reads-the-disjunction.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/reports/2026-09-10-standard-validate-native.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/reports/history/standard-validate-native.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-09-10-pose-report-a-demanded-class-nothing-produces.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor_class_producers_test.go"
+        }
+      ],
+      "diff_digest": "sha256:2b9db962f305510d4af89a51adf449e1222cbd1dd1745e2c2a97d27b83bbaf67"
+    },
+    {
       "id": "cs-10bfd095c5a5",
       "spec": "pose-package-channel-delivery",
       "selector": "range:8b4fdf3..0494442",
@@ -70853,6 +70977,41 @@
         }
       ],
       "diff_digest": "sha256:5cb2b461596cf3320d9ef63f3cedabfd5c6d211152dfc3aee8a6a2ec9c954c1e"
+    },
+    {
+      "id": "cs-301b5c06b2be",
+      "spec": "pose-mcp-server-survives-self-update",
+      "selector": "trailers:pose-mcp-server-survives-self-update",
+      "base": "fe2c2bdee4fbe7bfd28db5c6ae83e1393e84707a^",
+      "head": "fe2c2bdee4fbe7bfd28db5c6ae83e1393e84707a",
+      "resolved_base": "01cea9d3928110484e4309a680e86020ccb1588f",
+      "resolved_head": "fe2c2bdee4fbe7bfd28db5c6ae83e1393e84707a",
+      "commits": [
+        "fe2c2bdee4fbe7bfd28db5c6ae83e1393e84707a"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/mcp_self_update_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/self_update_release_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/cli.go"
+        }
+      ],
+      "diff_digest": "sha256:e0211d864786c1fd25b025a695bfaec23608ab36912936dc55566a2e96f43d07"
     },
     {
       "id": "cs-302789f9fbf6",
@@ -84445,41 +84604,6 @@
       "diff_digest": "sha256:afb4cbd57ddfd8aa4f39a3ee89079963a26a95e5abefa8232431adb6e9822755"
     },
     {
-      "id": "cs-dee0d3d2af0d",
-      "spec": "pose-class-producers-reads-the-disjunction",
-      "selector": "trailers:pose-class-producers-reads-the-disjunction",
-      "base": "e5998330310e75b82d96996b7ad6e0be48556389^",
-      "head": "e5998330310e75b82d96996b7ad6e0be48556389",
-      "resolved_base": "a7f4b744cf13f77deda66498f21c81fdef2c5f68",
-      "resolved_head": "e5998330310e75b82d96996b7ad6e0be48556389",
-      "commits": [
-        "e5998330310e75b82d96996b7ad6e0be48556389"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-class-producers-reads-the-disjunction.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-09-10-pose-class-producers-reads-the-disjunction.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-09-10-pose-report-a-demanded-class-nothing-produces.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/doctor.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/doctor_class_producers_test.go"
-        }
-      ],
-      "diff_digest": "sha256:292f3c026d76a874f2a826cda0e75d01dfe8181a567ff3cd06f3bdbbbcd541db"
-    },
-    {
       "id": "cs-dfc8d02de295",
       "spec": "pose-review-subject-submodule-classification",
       "selector": "trailers:pose-review-subject-submodule-classification",
@@ -84509,70 +84633,6 @@
         }
       ],
       "diff_digest": "sha256:4150970686d56a68434f3741fa23a6ac274f3e63a82fbe217bac317c75c05e90"
-    },
-    {
-      "id": "cs-dfd227825e50",
-      "spec": "pose-container-build-gate",
-      "selector": "trailers:pose-container-build-gate",
-      "base": "04bf6824695edd12906d0bc30bc2192c10e629e9^",
-      "head": "838c2fd3f4a44c87224c9e5c72ec575de116c110",
-      "resolved_base": "d9256bda86532bab020e19aab856cea17d80ae64",
-      "resolved_head": "838c2fd3f4a44c87224c9e5c72ec575de116c110",
-      "commits": [
-        "04bf6824695edd12906d0bc30bc2192c10e629e9",
-        "838c2fd3f4a44c87224c9e5c72ec575de116c110"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-container-build-gate.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/pose-container-build-gate/spec.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-container-build-gate.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/specs/pose-container-build-gate/spec.md"
-        },
-        {
-          "action": "created",
-          "path": "tests/release/container-build.sh"
-        },
-        {
-          "action": "modified",
-          "path": ".github/workflows/ci.yml"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/results/delivery-validation.json"
-        }
-      ],
-      "diff_digest": "sha256:248bccffd367849f2bfb13e3704f237b02d01e8676e0307ead4194b928904add"
     },
     {
       "id": "cs-e03dd5bc76c7",
@@ -87289,6 +87349,9 @@
     ".pose/changelogs/unreleased/pose-evidence-scoped-to-component.md": [
       "pose-evidence-scoped-to-component"
     ],
+    ".pose/changelogs/unreleased/pose-mcp-server-survives-self-update.md": [
+      "pose-mcp-server-survives-self-update"
+    ],
     ".pose/changelogs/unreleased/pose-one-evidence-class-vocabulary.md": [
       "pose-one-evidence-class-vocabulary"
     ],
@@ -87784,6 +87847,9 @@
     ],
     ".pose/specs/2026-09-10-pose-doctor-reports-a-profile-left-behind.md": [
       "pose-doctor-reports-a-profile-left-behind"
+    ],
+    ".pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md": [
+      "pose-mcp-server-survives-self-update"
     ],
     ".pose/specs/2026-09-10-pose-only-the-signing-gate-is-read-live.md": [
       "pose-only-the-signing-gate-is-read-live"
@@ -88672,6 +88738,9 @@
       "pose-manual-distribution-merge",
       "pose-upgrade-path-audit-fixes"
     ],
+    "pose-mcp/internal/cli/mcp_self_update_test.go": [
+      "pose-mcp-server-survives-self-update"
+    ],
     "pose-mcp/internal/cli/native_only_test.go": [
       "pose-release-lifecycle-closure"
     ],
@@ -88776,6 +88845,7 @@
       "pose-self-update-handoff-path"
     ],
     "pose-mcp/internal/cli/self_update_release_test.go": [
+      "pose-mcp-server-survives-self-update",
       "pose-release-boundary-rehearsal"
     ],
     "pose-mcp/internal/cli/shipped_profiles_schema_test.go": [
@@ -88966,6 +89036,7 @@
       "pose-release-lifecycle-closure"
     ],
     "pose-mcp/internal/pose/cli.go": [
+      "pose-mcp-server-survives-self-update",
       "pose-usage-metrics"
     ],
     "pose-mcp/internal/pose/contract_release_note_test.go": [
@@ -89678,6 +89749,16 @@
       "spec": "pose-the-guard-signal-is-declared-not-inherited",
       "path": "pose-mcp/internal/cli/doctor_profile_schema_test.go",
       "change_set": "cs-7bbc5c62d840",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-07e70b676dd1",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-mcp-server-survives-self-update",
+      "path": "pose-mcp/internal/cli/mcp_self_update_test.go",
+      "change_set": "cs-301b5c06b2be",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
@@ -90504,6 +90585,16 @@
       "spec": "pose-package-manager-distribution",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-4397c254787b",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-class-producers-reads-the-disjunction",
+      "path": "pose-mcp/internal/cli/doctor_class_producers_test.go",
+      "change_set": "cs-10582b50d452",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-43d69edb9d1c",
@@ -91406,6 +91497,16 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-7888fa4c688d",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-mcp-server-survives-self-update",
+      "path": "pose-mcp/internal/cli/self_update_release_test.go",
+      "change_set": "cs-301b5c06b2be",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-7944aad304c3",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -91638,16 +91739,6 @@
       "spec": "pose-self-update-handoff-path",
       "path": "pose-mcp/internal/cli/maintenance.go",
       "change_set": "cs-6406459b1511",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-865e1e223e95",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-class-producers-reads-the-disjunction",
-      "path": "pose-mcp/internal/cli/doctor.go",
-      "change_set": "cs-dee0d3d2af0d",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
@@ -92119,6 +92210,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-a810eec743ba",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-mcp-server-survives-self-update",
+      "path": "pose-mcp/internal/pose/cli.go",
+      "change_set": "cs-301b5c06b2be",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-a87dbcd53a46",
       "code": "orphan",
       "severity": "warning",
@@ -92311,6 +92412,16 @@
       "path": "pose-mcp/internal/cli/state_hooks.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-b3c48cce6659",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-class-producers-reads-the-disjunction",
+      "path": "pose-mcp/internal/cli/doctor.go",
+      "change_set": "cs-10582b50d452",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-b3dfbead859e",
@@ -92887,16 +92998,6 @@
       "path": "pose-mcp/internal/pose/delivery_surface.go",
       "change_set": "cs-0deb92c04bfc",
       "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-d5c1fa14941e",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-class-producers-reads-the-disjunction",
-      "path": "pose-mcp/internal/cli/doctor_class_producers_test.go",
-      "change_set": "cs-dee0d3d2af0d",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
