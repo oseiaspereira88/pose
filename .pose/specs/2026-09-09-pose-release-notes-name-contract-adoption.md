@@ -77,7 +77,7 @@ it.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-release-notes-name-contract-adoption.md
-- created: .pose/changelogs/unreleased/pose-release-notes-name-contract-adoption.md
+- renamed: .pose/changelogs/unreleased/pose-release-notes-name-contract-adoption.md -> .pose/changelogs/v4.0.0/pose-release-notes-name-contract-adoption.md
 - created: pose-mcp/internal/pose/contract_release_note_test.go
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/release_lifecycle.go

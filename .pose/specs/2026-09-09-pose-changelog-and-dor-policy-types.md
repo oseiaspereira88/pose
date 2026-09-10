@@ -78,7 +78,7 @@ indistinguishable from an oversight.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-changelog-and-dor-policy-types.md
-- created: .pose/changelogs/unreleased/pose-changelog-and-dor-policy-types.md
+- renamed: .pose/changelogs/unreleased/pose-changelog-and-dor-policy-types.md -> .pose/changelogs/v4.0.0/pose-changelog-and-dor-policy-types.md
 - created: pose-mcp/internal/pose/changelog_policy.go
 - created: pose-mcp/internal/pose/dor_policy.go
 - created: pose-mcp/internal/pose/changelog_dor_policy_test.go

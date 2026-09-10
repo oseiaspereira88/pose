@@ -69,7 +69,7 @@ catching: an obviously wrong key gets noticed, a nearly-right one does not.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-doctor-reports-unread-policy-keys.md
-- created: .pose/changelogs/unreleased/pose-doctor-reports-unread-policy-keys.md
+- renamed: .pose/changelogs/unreleased/pose-doctor-reports-unread-policy-keys.md -> .pose/changelogs/v4.0.0/pose-doctor-reports-unread-policy-keys.md
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: pose-mcp/internal/cli/doctor_fixture_audit_test.go

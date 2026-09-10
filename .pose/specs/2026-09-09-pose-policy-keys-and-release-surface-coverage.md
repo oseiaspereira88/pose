@@ -88,7 +88,7 @@ That is the surface this month's two release failures came from.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-policy-keys-and-release-surface-coverage.md
-- created: .pose/changelogs/unreleased/pose-policy-keys-and-release-surface-coverage.md
+- renamed: .pose/changelogs/unreleased/pose-policy-keys-and-release-surface-coverage.md -> .pose/changelogs/v4.0.0/pose-policy-keys-and-release-surface-coverage.md
 - created: pose-mcp/internal/cli/policy_keys.go
 - created: pose-mcp/internal/cli/policy_keys_test.go
 - created: pose-mcp/internal/cli/doctor_policy_keys_test.go

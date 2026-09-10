@@ -74,7 +74,7 @@ refusal exists to prevent, one relation over.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-component-evidence-is-not-inherited-upward.md
-- created: .pose/changelogs/unreleased/pose-component-evidence-is-not-inherited-upward.md
+- renamed: .pose/changelogs/unreleased/pose-component-evidence-is-not-inherited-upward.md -> .pose/changelogs/v4.0.0/pose-component-evidence-is-not-inherited-upward.md
 - created: pose-mcp/internal/pose/module_scope_direction_test.go
 - modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
 - modified: pose-mcp/internal/pose/delivery_surface.go
