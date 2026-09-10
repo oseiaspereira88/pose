@@ -74,14 +74,23 @@ func mentionsPolicy(out string) bool {
 	return strings.Contains(out, "review policy")
 }
 
-// skipUnlessCI skips locally and fails on CI. Every precondition this test has
-// is one CI is configured to provide — the workflow checks out full history so
-// the tags exist — so a skip there is not a missing precondition, it is this
-// test quietly not running on the only machine whose verdict gates a release.
+// skipUnlessCI skips unless this is the engine's own CI, where it fails.
+//
+// The distinction is the repository, not the presence of CI. This engine's
+// workflows check out full history so the tags exist, so a skip there is this
+// test quietly not running on the machine whose verdict gates a release. A
+// consumer that vendors the engine as a submodule and runs its suite is in a
+// different position: its checkout has no tags, it is not responsible for this
+// engine's release history, and there is nothing for it to configure.
+//
+// The first version keyed on `CI` alone, and broke the adopting repository's
+// build the same day the release reached it — the suite demanded a precondition
+// only this repository can provide (spec
+// pose-cross-version-guard-is-this-repositorys).
 func skipUnlessCI(t *testing.T, format string, args ...any) {
 	t.Helper()
-	if os.Getenv("CI") != "" {
-		t.Fatalf("on CI this is a configuration failure, not a missing precondition: "+format, args...)
+	if os.Getenv("CI") != "" && os.Getenv("GITHUB_REPOSITORY") == releaseRepo {
+		t.Fatalf("on this repository's CI a missing tag is a configuration failure, not a missing precondition: "+format, args...)
 	}
 	t.Skipf(format, args...)
 }
