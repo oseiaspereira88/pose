@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:520e6f21cd70171385c50cf6347858218d1791988e8b474856b0b21992d95189",
-  "provenance_digest": "sha256:446271ddd0366a3abd4599939dee90041a4b35acccd50a721e522e13a73e8ebd",
+  "input_digest": "sha256:2c47a8512359c510ad80870ce9b35ea36b286df7b8a62d7d38ac48d2d2f342a6",
+  "provenance_digest": "sha256:e6044d9f33261bc58997c1df3a46fa471248bf1853814c65c410462ecde395ca",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -11280,6 +11280,14 @@
       }
     },
     {
+      "id": "change-set:cs-143dc7ffa161",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:eca83187d6e1f7a55cffb0276a632826ec114fb17ed1aee66b7977ac9fc8adbc",
+        "selector": "trailers:pose-reuse-is-sealed-signing-stays-live"
+      }
+    },
+    {
       "id": "change-set:cs-14541eff3983",
       "type": "change-set",
       "attributes": {
@@ -12349,14 +12357,6 @@
       "attributes": {
         "diff_digest": "sha256:e6cabd0ce36ad48b2a9717756015f004cc60418112f31db0667b988924dae1ba",
         "selector": "range:9da4fbb..10f1846"
-      }
-    },
-    {
-      "id": "change-set:cs-c748034ceeda",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:3c1744fbe078eb24c42c9ba4c5efa778fd129433a183dd196bc2441e6ffab27e",
-        "selector": "trailers:pose-reuse-is-sealed-signing-stays-live"
       }
     },
     {
@@ -28581,6 +28581,51 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-143dc7ffa161",
+      "to": "artifact:.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-143dc7ffa161",
+      "to": "artifact:.pose/changelogs/unreleased/pose-reuse-is-sealed-signing-stays-live.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-143dc7ffa161",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-143dc7ffa161",
+      "to": "artifact:.pose/specs/2026-09-09-pose-bundles-seal-the-contracts-that-govern-them.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-143dc7ffa161",
+      "to": "artifact:.pose/specs/2026-09-10-pose-bundle-findings-take-the-contract-the-legacy-path-had.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-143dc7ffa161",
+      "to": "artifact:.pose/specs/2026-09-10-pose-reuse-is-sealed-signing-stays-live.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-143dc7ffa161",
+      "to": "artifact:pose-mcp/internal/pose/bundle_finding_contract_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-143dc7ffa161",
+      "to": "artifact:pose-mcp/internal/pose/reuse_and_signing_gates_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-143dc7ffa161",
+      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-14541eff3983",
       "to": "artifact:.pose/changelogs/unreleased/pose-one-evidence-class-vocabulary.md",
       "type": "changes"
@@ -41733,51 +41778,6 @@
     {
       "from": "change-set:cs-c520197c369c",
       "to": "artifact:pose-mcp/internal/scaffold/manual_locale_parity_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-c748034ceeda",
-      "to": "artifact:.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-c748034ceeda",
-      "to": "artifact:.pose/changelogs/unreleased/pose-reuse-is-sealed-signing-stays-live.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-c748034ceeda",
-      "to": "artifact:.pose/indexes/delivery-integrity.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-c748034ceeda",
-      "to": "artifact:.pose/specs/2026-09-09-pose-bundles-seal-the-contracts-that-govern-them.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-c748034ceeda",
-      "to": "artifact:.pose/specs/2026-09-10-pose-bundle-findings-take-the-contract-the-legacy-path-had.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-c748034ceeda",
-      "to": "artifact:.pose/specs/2026-09-10-pose-reuse-is-sealed-signing-stays-live.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-c748034ceeda",
-      "to": "artifact:pose-mcp/internal/pose/bundle_finding_contract_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-c748034ceeda",
-      "to": "artifact:pose-mcp/internal/pose/reuse_and_signing_gates_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-c748034ceeda",
-      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
       "type": "changes"
     },
     {
@@ -55567,12 +55567,27 @@
     },
     {
       "from": "spec:pose-reuse-is-sealed-signing-stays-live",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reuse-is-sealed-signing-stays-live",
       "to": "artifact:.pose/specs/2026-09-09-pose-bundles-seal-the-contracts-that-govern-them.md",
       "type": "declares"
     },
     {
       "from": "spec:pose-reuse-is-sealed-signing-stays-live",
+      "to": "artifact:.pose/specs/2026-09-10-pose-bundle-findings-take-the-contract-the-legacy-path-had.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reuse-is-sealed-signing-stays-live",
       "to": "artifact:.pose/specs/2026-09-10-pose-reuse-is-sealed-signing-stays-live.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-reuse-is-sealed-signing-stays-live",
+      "to": "artifact:pose-mcp/internal/pose/bundle_finding_contract_test.go",
       "type": "declares"
     },
     {
@@ -55587,7 +55602,7 @@
     },
     {
       "from": "spec:pose-reuse-is-sealed-signing-stays-live",
-      "to": "change-set:cs-c748034ceeda",
+      "to": "change-set:cs-143dc7ffa161",
       "type": "observed-by"
     },
     {
@@ -62406,7 +62421,22 @@
     {
       "spec": "pose-reuse-is-sealed-signing-stays-live",
       "action": "modified",
+      "path": ".pose/indexes/delivery-integrity.json"
+    },
+    {
+      "spec": "pose-reuse-is-sealed-signing-stays-live",
+      "action": "modified",
+      "path": ".pose/specs/2026-09-10-pose-bundle-findings-take-the-contract-the-legacy-path-had.md"
+    },
+    {
+      "spec": "pose-reuse-is-sealed-signing-stays-live",
+      "action": "modified",
       "path": ".pose/specs/2026-09-09-pose-bundles-seal-the-contracts-that-govern-them.md"
+    },
+    {
+      "spec": "pose-reuse-is-sealed-signing-stays-live",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/bundle_finding_contract_test.go"
     },
     {
       "spec": "pose-reuse-is-sealed-signing-stays-live",
@@ -68653,6 +68683,57 @@
         }
       ],
       "diff_digest": "sha256:7267a35ae89c34a83ce043e70f07c9378f54ec430205f5a1cd91122b82c7f28d"
+    },
+    {
+      "id": "cs-143dc7ffa161",
+      "spec": "pose-reuse-is-sealed-signing-stays-live",
+      "selector": "trailers:pose-reuse-is-sealed-signing-stays-live",
+      "base": "54a85b49b17dbb1fd61a1fb3b8bb4b957f383ca8^",
+      "head": "54a85b49b17dbb1fd61a1fb3b8bb4b957f383ca8",
+      "resolved_base": "f6e2a611bbd06880a80d8425c806ab8b42b609e9",
+      "resolved_head": "54a85b49b17dbb1fd61a1fb3b8bb4b957f383ca8",
+      "commits": [
+        "54a85b49b17dbb1fd61a1fb3b8bb4b957f383ca8"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-reuse-is-sealed-signing-stays-live.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-10-pose-reuse-is-sealed-signing-stays-live.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/reuse_and_signing_gates_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-09-09-pose-bundles-seal-the-contracts-that-govern-them.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-09-10-pose-bundle-findings-take-the-contract-the-legacy-path-had.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/bundle_finding_contract_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        }
+      ],
+      "diff_digest": "sha256:eca83187d6e1f7a55cffb0276a632826ec114fb17ed1aee66b7977ac9fc8adbc"
     },
     {
       "id": "cs-14541eff3983",
@@ -81309,57 +81390,6 @@
       "diff_digest": "sha256:e6cabd0ce36ad48b2a9717756015f004cc60418112f31db0667b988924dae1ba"
     },
     {
-      "id": "cs-c748034ceeda",
-      "spec": "pose-reuse-is-sealed-signing-stays-live",
-      "selector": "trailers:pose-reuse-is-sealed-signing-stays-live",
-      "base": "9b0d8742254e1e73181cb5633595ea5449b5e266^",
-      "head": "9b0d8742254e1e73181cb5633595ea5449b5e266",
-      "resolved_base": "f6e2a611bbd06880a80d8425c806ab8b42b609e9",
-      "resolved_head": "9b0d8742254e1e73181cb5633595ea5449b5e266",
-      "commits": [
-        "9b0d8742254e1e73181cb5633595ea5449b5e266"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-reuse-is-sealed-signing-stays-live.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-09-10-pose-reuse-is-sealed-signing-stays-live.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/reuse_and_signing_gates_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-09-09-pose-bundles-seal-the-contracts-that-govern-them.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-09-10-pose-bundle-findings-take-the-contract-the-legacy-path-had.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/bundle_finding_contract_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        }
-      ],
-      "diff_digest": "sha256:3c1744fbe078eb24c42c9ba4c5efa778fd129433a183dd196bc2441e6ffab27e"
-    },
-    {
       "id": "cs-c8476a91710a",
       "spec": "pose-instance-engine-version-tracking",
       "selector": "trailers:pose-instance-engine-version-tracking",
@@ -86495,6 +86525,7 @@
       "pose-artifact-provenance-ledger",
       "pose-component-aware-review-plans",
       "pose-delivery-surface-assurance",
+      "pose-reuse-is-sealed-signing-stays-live",
       "pose-usage-metrics"
     ],
     ".pose/indexes/extensions.lock.json": [
@@ -86769,7 +86800,8 @@
       "pose-seal-names-carried-forward-evidence"
     ],
     ".pose/specs/2026-09-10-pose-bundle-findings-take-the-contract-the-legacy-path-had.md": [
-      "pose-bundle-findings-take-the-contract-the-legacy-path-had"
+      "pose-bundle-findings-take-the-contract-the-legacy-path-had",
+      "pose-reuse-is-sealed-signing-stays-live"
     ],
     ".pose/specs/2026-09-10-pose-cross-version-guard-is-this-repositorys.md": [
       "pose-cross-version-guard-is-this-repositorys"
@@ -87926,7 +87958,8 @@
       "pose-project-agnostic-assessment-engines"
     ],
     "pose-mcp/internal/pose/bundle_finding_contract_test.go": [
-      "pose-bundle-findings-take-the-contract-the-legacy-path-had"
+      "pose-bundle-findings-take-the-contract-the-legacy-path-had",
+      "pose-reuse-is-sealed-signing-stays-live"
     ],
     "pose-mcp/internal/pose/changelog_dor_policy_test.go": [
       "pose-changelog-and-dor-policy-types"
@@ -88913,6 +88946,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-1a698f76a062",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-reuse-is-sealed-signing-stays-live",
+      "path": "pose-mcp/internal/pose/bundle_finding_contract_test.go",
+      "change_set": "cs-143dc7ffa161",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-1a81fdc75729",
       "code": "legacy-narrative",
       "severity": "info",
@@ -89810,6 +89853,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-5b63598b738e",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-reuse-is-sealed-signing-stays-live",
+      "path": "pose-mcp/internal/pose/review_bundle.go",
+      "change_set": "cs-143dc7ffa161",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-5bba873d4d07",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -90040,16 +90093,6 @@
       "path": "pose-mcp/internal/cli/import.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-6a1d28040100",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-reuse-is-sealed-signing-stays-live",
-      "path": "pose-mcp/internal/pose/review_bundle.go",
-      "change_set": "cs-c748034ceeda",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-6bc7f24712f2",
@@ -90328,16 +90371,6 @@
       "spec": "pose-upgrade-compatibility-lab",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-7d28f9d82a9d",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-reuse-is-sealed-signing-stays-live",
-      "path": "pose-mcp/internal/pose/reuse_and_signing_gates_test.go",
-      "change_set": "cs-c748034ceeda",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-8165d7e283e3",
@@ -91557,16 +91590,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-cd7ba2d5d734",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-reuse-is-sealed-signing-stays-live",
-      "path": "pose-mcp/internal/pose/bundle_finding_contract_test.go",
-      "change_set": "cs-c748034ceeda",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-ce49e710d734",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -91862,16 +91885,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-e6c0c1bd1bfc",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-reuse-is-sealed-signing-stays-live",
-      "path": "pose-mcp/internal/pose/bundle_finding_contract_test.go",
-      "change_set": "cs-c748034ceeda",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-e6c9bc0ee2e1",
       "code": "action-mismatch",
       "severity": "error",
@@ -91915,6 +91928,16 @@
       "spec": "pose-changelog-and-dor-policy-types",
       "path": "pose-mcp/internal/pose/dor_policy.go",
       "change_set": "cs-a11ddaa230b3",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-e9ef3283f7c5",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-reuse-is-sealed-signing-stays-live",
+      "path": "pose-mcp/internal/pose/reuse_and_signing_gates_test.go",
+      "change_set": "cs-143dc7ffa161",
       "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },

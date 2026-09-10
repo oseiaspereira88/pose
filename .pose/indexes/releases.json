@@ -1,87 +1,481 @@
 {
   "pending": [
     {
-      "spec": "pose-changelog-and-dor-policy-types",
-      "category": "added",
-      "breaking": false,
-      "body": "`changelog.json`'s `categories` is now the setting it always looked like. It\nshipped from the start and nothing read it: the set of valid fragment categories\nwas written out three times instead — in the fragment loader, in `pose check`,\nand implicitly in the notes renderer. Configuring it now governs all three, and\nthe refusal an author reads quotes the configured set rather than a list written\nbeside it.\n\nAn absent policy, or one declaring no categories, keeps the six defaults, so an\ninstance that never touches the file behaves exactly as before. A category a\nproject adds renders under a heading of its own, after the known ones. The\nsection order itself stays in code: putting `security` first is a reading\ndecision, not a configuration one.\n\n`dor.json` now says that the Definition of Ready is opt-in. `readiness.go`\nlooked for `adopted_at` in a file that never shipped it, so the gate read as\nunadopted everywhere — which is the intent, but an omitted key is\nindistinguishable from an oversight. The policy carries an explicit empty date\nand a comment saying what setting it does. No instance changes behaviour: empty\nis what absent already meant.\n\nBoth files are read through one named type each, covering the whole file rather\nthan the half a given command needed, and both are now held to their keys by\n`pose doctor` — the exemption list that named them is empty.",
-      "path": "pose-changelog-and-dor-policy-types.md",
-      "digest": "sha256:e69fa324e36320e68063601b6042552d14a18ac8cb6f1fea88422cde05f08846"
-    },
-    {
-      "spec": "pose-component-evidence-is-not-inherited-upward",
+      "spec": "pose-bundle-findings-take-the-contract-the-legacy-path-had",
       "category": "fixed",
       "breaking": true,
-      "body": "A validation result from a directory inside a component no longer satisfies a\ncriterion or delivery target about the component. It covered one directory of it\nand was accepted as covering all of it.\n\nThat is the same shape as the sibling case closed one spec earlier: real\nevidence, of the class the criterion demands, silent about most of what it was\nasked about. `moduleMatchesTarget` accepted a path prefix in either direction,\nso refusing siblings left containment open in both readings.\n\nThe other direction stays, because it is a claim the result actually supports: a\nmodule-wide run exercises its subtree, and running checks once at the module root\nis how nearly every project is laid out. A result registered for `web` still\nanswers for a target at `web/api`. The repository root is untouched — a\nsingle-module project is its own component.\n\nA scope whose only evidence sits in a directory inside the component now has\nnone, and stops closing until a check is registered for the component or the\ntarget is declared where the evidence already is.",
-      "path": "pose-component-evidence-is-not-inherited-upward.md",
-      "digest": "sha256:fb5dd9e16191188e8398ce50dc680609be5c9b78eb5fde0a99dcaa64da8bad43"
+      "body": "Validating an attestation against a sealed bundle now applies the finding\ncontract the legacy attempt path always applied.\n\nIt blocked a finding only when its disposition was `open` or\n`changes-requested`. Everything else passed with no blocker: an accepted risk of\nseverity `critical` with no owner, no rationale and no review date; a disposition\nthe engine does not know; a finding with neither severity nor action. And two\npolicy settings were not consulted on this path at all —\n`allow_approved_with_reservations` lost to a literal check for `approved`, so a\nproject that enabled reservations found them refused anyway, and\n`accepted_risk_severities` decided nothing.\n\nA project that adopted review bundles therefore lost a gate it had before, and\ntwo settings quietly stopped taking effect. Review bundles exist to make review\nmore rigorous; on this axis they had made it less.\n\nThe two policy-dependent parts are sealed into the bundle rather than read live,\nfor the reason the governance contracts already are: a flag flipped today would\notherwise approve a closeout recorded years ago. The rest is not configuration —\na finding without a severity is incomplete under any policy — and applies to\nevery bundle, including those sealed before the field existed. Nothing already\nrecorded is re-judged: the 469 attestations in this repository carry no findings\nat all.\n\nThe sealed payload changes, so a bundle sealed by this release does not digest\nthe same as one sealed before it.",
+      "path": "pose-bundle-findings-take-the-contract-the-legacy-path-had.md",
+      "digest": "sha256:b6f10f7e9694a7afd40c60a11c4e06106e587916cf59f03ce60ba94a0413da54"
     },
     {
-      "spec": "pose-doctor-fixtures-exercise-production-path",
+      "spec": "pose-doctor-reports-a-profile-left-behind",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose doctor` reports any review profile in the instance below the schema the\nengine enforces, naming it and the command that migrates it.\n\nTwo profiles shipped at `schema_version: 1` for long enough that every instance\ninstalled in that window still carries them, and the migration that should have\nmoved them reported success without doing so. The shipped files are current now,\nso the next `pose update` migrates them — but until it runs, those profiles are\nexempt from the closed rule and evidence catalogs schema v2 enforces.\n\nThat exemption is the substance rather than the version number: a v1 profile\nskips the check that stops a profile demanding an evidence class no registered\ncheck may emit, so the instance can plan a gate only a fabricated disposition\ncould pass. An instance with no profiles produces no finding.",
+      "path": "pose-doctor-reports-a-profile-left-behind.md",
+      "digest": "sha256:eafcee8099441c0dd4fcb970f64ccd5c9cffc5df10029035b10f9f736ae3f887"
+    },
+    {
+      "spec": "pose-reuse-is-sealed-signing-stays-live",
       "category": "changed",
       "breaking": false,
-      "body": "Three `pose doctor` branches that no test executed are now covered: the tool\nhalf of `review.evidence-vocabulary`, which inspects a profile's criteria and\nits tools and only ever ran the criteria half; the `ok` answer of\n`policy.artifact-roots`, which had only ever been proven to warn; and\n`mcp.config` for a configuration that exists and points somewhere other than the\nnative binary.\n\nThey were found by measuring which statements the suite executes rather than by\nre-reading the tests, which is how the same class of gap survived twice.",
-      "path": "pose-doctor-fixtures-exercise-production-path.md",
-      "digest": "sha256:6df179395c4806689001c9728de6538881fe52c89a4da8f86e6afb45d596ceff"
+      "body": "`allow_criterion_reuse` is sealed into the review bundle.\n`require_signed_attestations` stays read from the live policy, deliberately, and\nis now the only gate a sealed bundle is judged by that is not sealed with it.\n\nThe two look alike and point opposite ways. Reuse carries a prior criterion\ndisposition into this attestation, so whether it was permitted is a property of\nthe review that happened — read live, a project enabling reuse today\nretroactively legitimises an attestation that reused a criterion when its own\npolicy forbade it.\n\nThe signing requirement is a bar rather than a permission. A project that starts\nrequiring signed attestations is raising it, and a bundle sealed before that must\nnot be permanently exempt; sealing it would mean the new requirement applies only\nto future work, which is the opposite of adopting it. The exception is annotated\nwhere the code makes it, not only in the ADR.\n\nA bundle sealed before this gate refuses reuse, which is the conservative reading\nand matches what an instance with reuse disabled already got.",
+      "path": "pose-reuse-is-sealed-signing-stays-live.md",
+      "digest": "sha256:60ec0943c4b99402de11fb5333615f13b346ac91b4d46a74a25a19ef6217db61"
     },
     {
-      "spec": "pose-doctor-reports-unread-policy-keys",
-      "category": "added",
+      "spec": "pose-the-guard-signal-is-declared-not-inherited",
+      "category": "changed",
       "breaking": false,
-      "body": "`pose doctor` reports any top-level key in `.pose/policy/review.json` that the\nengine does not model, and lists the keys it does read.\n\nThe decoder stopped refusing unknown keys in 2.0.2, so a newer field never\nbreaks an older binary reading the same repository. The cost was that a\nmisspelling — `contract_adoption` for `contract_adoptions`,\n`allow_criteria_reuse` for `allow_criterion_reuse` — is silently ignored, and\nthe file reads as configured while the setting does nothing. This is a finding,\nnot a refusal; the refusal is what was removed on purpose.\n\nThe known-key list is derived from the policy struct, so it cannot drift into\nreporting a real key as unknown.",
-      "path": "pose-doctor-reports-unread-policy-keys.md",
-      "digest": "sha256:adaa31d8888a7a0755acab22e622dc628904c334244d61a2cd5f91ac5eebbb82"
-    },
-    {
-      "spec": "pose-emittable-analysis-evidence-classes",
-      "category": "added",
-      "breaking": true,
-      "body": "`lint`, `typecheck`, `security-scan` and `contract` are now evidence classes a\ncheck may emit and a review profile may demand. They were reported as `build`,\nor declared nothing at all — so a criterion asking for security assurance was\nsatisfied by a successful compilation, and the results of `npm run lint` and\n`npm run typecheck` were discarded when a review collected evidence.\n\nThat is the same indistinction the single vocabulary closed between profiles and\nchecks, one level down: a gate that reads as met by evidence saying nothing\nabout it.\n\n`go vet` now emits `lint` rather than `build`; it is a linter, and calling it a\nbuild was the collapse in its clearest form. Because it was the Go stack's only\n`build` producer, a `go build ./...` check was added — its absence is why vet\ncarried the label.\n\nAn instance that declares one of the four cannot be validated by an engine\npredating them — `pose check --strict` on an older binary fails with `unknown\nevidenceClass`. That is the adoption cost of any change to a closed set, and the\nset being closed is what makes it worth having. No shipped profile demands any\nof the four, so nothing changes for an instance until it opts in.\n\nThe stacks catalog exists twice — in a repository's own matrix and in the\nshipped scaffold, because the file is excluded from the byte-for-byte sync — and\nthe two are now held equal by a test. They had agreed by hand, with nothing\nchecking, and the first edit of this change moved one and not the other.",
-      "path": "pose-emittable-analysis-evidence-classes.md",
-      "digest": "sha256:ccc1265ac496e7811520a532e56fbbc750506ff76ddb631d63a152c708eebafa"
-    },
-    {
-      "spec": "pose-policy-keys-and-release-surface-coverage",
-      "category": "added",
-      "breaking": false,
-      "body": "Every policy the engine models now reports the keys it carries and the engine\ndoes not read. It was the review policy alone, because that is where\n`DisallowUnknownFields` had to be dropped; the exposure is identical in the\ndelivery, artifact, capability, docs, release and state policies, and identical\nis the point — an operator who learns the finding exists for one file has no way\nto know it does not exist for the next.\n\nThe keys come from the structs that read the file, so adding a field is enough\nand the list cannot drift. A file read by two structs is held to the union:\n`capabilities.json` is decoded once for the staleness thresholds and again for\nthe trigger thresholds, and either half alone would report the other's keys as\nunread — the finding inverted, telling an operator to delete settings that work.\nThe `_comment` the shipped policies carry is not reported. The release policy is\nexamined wherever the engine reads it, including the location it still falls\nback to.\n\nWhich policies are covered is checked rather than listed: a shipped policy is\neither held to its keys or recorded, in writing, as having no type to derive\nthem from. `changelog.json` and `dor.json` are the two, and both would report\nfindings the engine itself causes.\n\nThe coverage audit that found three unreached branches in the doctor was run\nover the rest of the CLI. The largest thing it found was that the entire release\ncommand surface executed zero statements under the suite — including the rule\nthat release evidence must name the commit the tag points at, which is what\nkeeps a release record honest. That surface now runs under test, from 0 of 20\nfunctions to 20 of 20.",
-      "path": "pose-policy-keys-and-release-surface-coverage.md",
-      "digest": "sha256:0c22dce2002bb393b4314d1728ffeb2d85e6ccc9b5aeebdbb4de7da3af6c96ab"
-    },
-    {
-      "spec": "pose-release-boundary-rehearsal",
-      "category": "fixed",
-      "breaking": false,
-      "body": "The two sequences that only a real release had ever run now run in tests.\n\n`pose update` is exercised end to end against a local release server: a binary\nbuilt at an older version fetches the release metadata, downloads the archive,\nreplaces itself on disk and hands off to what it wrote. Reintroducing the\n`os.Executable()` call that failed the v2.0.0 release reproduces that failure\nlocally, which nothing could do before — reaching the handoff used to require an\nactual download.\n\nThe review policy this engine writes is loaded by the binary of the previous\nrelease, built from its own tag. The probe is `review-plan` rather than `check\n--strict`, because `check` reads the policy through a small struct of its own\nand never reaches the loader that enforces the schema; that wrong probe is what\nmade the v2.0.2 compatibility claim look true when it was not.\n\nThe release endpoints became package variables so a test can point a build at a\nlocal server with `-ldflags -X`. They are deliberately not read from the\nenvironment: where `pose update` fetches its own replacement from is not\nsomething a shell variable should decide.\n\nJobs that run the Go suite now check out full history: `git archive` needs the\ntag, and a shallow checkout would have made the cross-version test skip on the\nmachines whose verdict gates a release. A missing precondition there is a\nconfiguration failure, and the test says so rather than skipping.\n\nWhich jobs those are is checked rather than listed. Adding the flag to the one\njob known to run the suite missed `validation-findings`, which reaches it\nthrough `pose validate` in another workflow — the same enumerate-by-hand gap\nthis repository already tracks for its shellcheck and docs-parity lists.",
-      "path": "pose-release-boundary-rehearsal.md",
-      "digest": "sha256:3ca805e55a228e650b40cca97c90d49752ab943991374c043200613cff6cd23d"
-    },
-    {
-      "spec": "pose-release-notes-name-contract-adoption",
-      "category": "added",
-      "breaking": false,
-      "body": "A release that introduces a governance contract now says so, in a Compatibility\nsection at the top of its own notes: which contracts, what each requires, and\nwhat adopting one costs a reader that does not have it.\n\nThe cost is stated per contract, because it differs. An engine older than the\nrelease never applies the contract — it does not know the id — and judges\nreviews by the rules it has. On top of that, a contract carried by a top-level\npolicy key is refused outright by engines from before the strict decoder was\ndropped in 2.0.2: they stop reading the repository until they are updated, so\nevery tool has to move together. A contract recorded as an id inside\n`contract_adoptions` costs none of that, because the map is a key those engines\nalready model.\n\nv2.0.0 introduced one of the first kind and its notes said none of it.\n\nThe text comes from the contract registry, which is already the one place a\ncontract is declared — adding one there is what makes `pose update` stamp it and\n`pose doctor` report it, and now also what the notes say. A contract added\nwithout recording which release introduced it fails a test, so the next one is\nnot silent.\n\nReleases already prepared keep their frozen notes and their digests: nothing\nre-renders them.",
-      "path": "pose-release-notes-name-contract-adoption.md",
-      "digest": "sha256:f347a080d765bfcfdf2cf15268459ef0d2129af3681fd7537d43d2208c9a3694"
-    },
-    {
-      "spec": "pose-remaining-command-surfaces-coverage",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`review-check`, `history-check`, `docs-sync`, `docs-review`, `contribute\nsubmit`, `roadmap-check` and the helpers the Definition of Ready is built from\nnow execute under test, through the dispatch a user reaches them by. None of\nthem had run a statement under the suite, so every refusal each one makes was\nan assumption — and a refusal is an exit code a script branches on.\n\n`contribute submit` reaches `gh issue create` and `docs-sync push` writes to a\nConductor: both are covered up to the outward call and no further. The\ncontribute assertion also requires the refusal to happen *before* the command\nannounces a submission.\n\nThree fixtures had to be corrected against what the commands actually require\nrather than against what they happened to answer, each found by an assertion\nfailing. The last one surfaced something worth its own change: `roadmap-check`\nreturns before loading any roadmap when the delivery profile index is absent, so\nit reports zero cut criteria and exits 0 — a gate reading as met because the\npath that would fail is never reached. The behaviour is pinned here and recorded\nas a follow-up.",
-      "path": "pose-remaining-command-surfaces-coverage.md",
-      "digest": "sha256:a51e84962b782c57871369289b788848bceb65c2f08cec0d5b94796236e8465f"
-    },
-    {
-      "spec": "pose-seal-names-carried-forward-evidence",
-      "category": "added",
-      "breaking": false,
-      "body": "Sealing a review bundle now names the evidence that ran against a commit other\nthan the head the bundle approves. The engine already accepts such a result as\ncurrent — by provenance digest, or because the scope is closed — and never said\nso, leaving a reviewer unable to tell a result produced against this subject\nfrom one carried forward.\n\nIt is a warning, not a blocker: the engine's decision about currency does not\nchange, and blocking would refuse the closed-scope case the bridge exists for.",
-      "path": "pose-seal-names-carried-forward-evidence.md",
-      "digest": "sha256:e2b5f85e1dfbf623fd4f2072cb40268527a45101132c41c987402b17d9ccda83"
+      "body": "The cross-version compatibility guard reads `POSE_RELEASE_HISTORY_AVAILABLE`, a\nvariable this repository's workflows declare, instead of inferring from the\nprovider's environment.\n\nIt had been wrong twice in opposite directions, both times for reading a signal\nsomeone else owns. Keying on `CI` broke every repository that vendors the engine\nand runs its suite. Keying on `GITHUB_REPOSITORY` fixed that and left the other\nhalf open: the variable is the provider's to set, so on a provider that does not\nset it this repository's own CI would skip in silence — the hole the guard exists\nto close.\n\nA declared variable is set only where a checkout was prepared with the release\nhistory, cannot be inherited by a consumer, and can be asserted statically. The\nworkflow contract now requires every job that runs the Go suite to declare it,\nalongside the full-history checkout it promises.\n\nThat assertion found a third such job on its first run — the release workflow's\nown `Tests + installer E2E`, the run whose verdict cuts the release, which both\nearlier fixes had enumerated by hand and missed.",
+      "path": "pose-the-guard-signal-is-declared-not-inherited.md",
+      "digest": "sha256:8d213543f35e2b39fcc171889db25a24a63555346b891b5c8586685f3c7c0128"
     }
   ],
   "releases": [
+    {
+      "version": "v4.0.1",
+      "state": "verified",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v4.0.1",
+        "previous_version": "v4.0.0",
+        "prepared_at": "2026-09-10T01:40:31Z",
+        "specs": [
+          "pose-cross-version-guard-is-this-repositorys",
+          "pose-shipped-review-profiles-are-schema-v2"
+        ],
+        "categories": {
+          "fixed": 2
+        },
+        "fragments": [
+          {
+            "spec": "pose-cross-version-guard-is-this-repositorys",
+            "category": "fixed",
+            "breaking": false,
+            "body": "The cross-version compatibility test fails on this repository's CI and skips\neverywhere else. It used to fail on any CI at all.\n\nThe guard exists because a skip on the machine whose verdict gates a release is a\ntest quietly not running. But a repository that vendors this engine as a submodule\nand runs its suite is also CI, and its submodule checkout has no tags: it cannot\nbuild the previous release, it is not responsible for this engine's release\nhistory, and there is nothing for it to configure. The guard told it to fix\nsomething that was not its to fix, and broke the adopting repository's build the\nsame day v4.0.0 reached it — on a pull request whose only content was the\nadoption.\n\nThe signal is now the repository the workflow runs for, compared against the\nrelease repository the engine already names as a constant. The protection\nsurvives: a shallow checkout in this repository's own CI still fails rather than\nskips.\n\nThe alternative — having consumers fetch tags for the submodule — would spread\nthis engine's test preconditions to everyone who vendors it, which is the shape of\nthe defect rather than a fix for it.",
+            "path": "pose-cross-version-guard-is-this-repositorys.md",
+            "digest": "sha256:29ac54ce0c4e35ae8dd99420103ee22408a1dc3087e9ae859543b72d1588d246"
+          },
+          {
+            "spec": "pose-shipped-review-profiles-are-schema-v2",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`milestone-integration.json` and `roadmap-outcome.json` ship at schema v2. They\nshipped at v1, and the v1-to-v2 migration copies the distribution's own profile\nover the instance's — so it copied a v1 file over a v1 file and logged\n`review-profile (migrated): \u003cname\u003e (v1 -\u003e v2)` on every `pose update`, forever,\ntelling the operator a migration had succeeded that never happened.\n\nTwo costs, not one. The instance never reached v2 for those profiles, so their\ncriteria stayed outside the closed rule and evidence catalogs schema v2 enforces\n— the check that stops a profile demanding a class no check may emit. And a log\nline that claims work it did not do is worse than silence.\n\nThe migration now verifies that the file replacing the instance's is actually at\nthe target schema before saying so, and a test requires every shipped profile to\nbe current, so the copy branch's assumption is checked rather than trusted.\n\nFound while adopting the release in a consumer repository, not from a report: the\nlog said migrated twice per run and the files never changed.",
+            "path": "pose-shipped-review-profiles-are-schema-v2.md",
+            "digest": "sha256:a6f07baa596eb2524c80201eb3c1415cd8ff4d5b964592773fc46104e1495b80"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:2683e03d7cc0836d3cbf038226fd6ab99f98f51ba384cb07a8c1f50d47c45931",
+        "release_input_digest": "sha256:1e8f51a2279906d65adb3ca770b42356dca7328f0a71d0506a7e6321e2698a9c",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v4.0.1"
+        }
+      },
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v4.0.1",
+          "state": "tagged",
+          "recorded_at": "2026-09-10T02:10:38Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v4.0.1",
+            "tag": "v4.0.1",
+            "commit": "6b9b1224dd03a66610dac2a190056edb2f44f422",
+            "published_at": "",
+            "url": "",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34427672873"
+          },
+          "evidence_digest": "sha256:cde33877d0b778c0b1591b6ac5e7d51e63a005c310c3a5d16f606e84aad9f6c6"
+        },
+        {
+          "schema_version": 1,
+          "version": "v4.0.1",
+          "state": "published",
+          "recorded_at": "2026-09-10T02:10:38Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v4.0.1",
+            "tag": "v4.0.1",
+            "commit": "6b9b1224dd03a66610dac2a190056edb2f44f422",
+            "published_at": "2026-09-10T02:06:36Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v4.0.1",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34427672873",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:e6d5ad29c31db5e2a6c88273becb87015ac7712e02b0863eee63f902b202cbc1",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:c9db38d4b7c34194c746c004b25bab48a1f24f1e7dc1d29af18cf53e8ed9d19f",
+              "Harne8.Pose.yaml": "sha256:5f1a949dc7a8ba00654aa7a263322258bdd9b61543aafcf77d5440e0eb3ed839",
+              "checksums.txt": "sha256:42e45207f104d2732b7a318eaf2ec962b2d0d3eae99715264d913b9b3b5a850a",
+              "checksums.txt.sigstore.json": "sha256:85ea545d004693ecca14c46d134f035307c884dd53c276fa52b8f8da35b27338",
+              "compatibility-report.md": "sha256:a9b4987fab6f18c32fc8bdd6f65050604cf5b835cbb4bcb20fce470f67747355",
+              "compatibility.json": "sha256:405578ff75a3493b7ce1aa882b2103e85c95a847bbca15fc503a593df2d416fb",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:51f1156556a1aef45a213a10c4f65dcd55828064f3d59b359d66525852a96322",
+              "pose-rule-kubernetes.tar.gz": "sha256:ef5764847ae66e83fe344b4717a16ba3bf82f9c5bf629df7926af105170bf059",
+              "pose.rb": "sha256:5e34b2533798f265fa96c7015429f4ee967e524a58bfdb261103b09492928ce6",
+              "pose_4.0.1_darwin_amd64.tar.gz": "sha256:6e0ef4cd0023774f297779e2b93f79499a326034269c820a6ab7d4d304c7bb46",
+              "pose_4.0.1_darwin_amd64.tar.gz.cdx.json": "sha256:721a1617f75ea2b75766938dedad420ee058c19e2b9b66a3107f939e941e9c75",
+              "pose_4.0.1_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:3599c7a8aa0b64a2f97fe1517261a3aed2c4dab89cbd2cf0912e479426c34028",
+              "pose_4.0.1_darwin_amd64.tar.gz.sigstore.json": "sha256:a75b9e946901e96e150a229d129767e93e606945bc1ec87a8952196689ca19a7",
+              "pose_4.0.1_darwin_arm64.tar.gz": "sha256:5292ee76b8a0adab29d61657fdbef0902edc317dde4c1c4433cc4d1dec20dcff",
+              "pose_4.0.1_darwin_arm64.tar.gz.cdx.json": "sha256:f180cd564d24082788774b331607ae52e29dc62740c15bedea94f72cd356fbde",
+              "pose_4.0.1_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:16ca455a0aad15fad535fa330b4c4df39c4087e4c2844d19637cec6ef8903437",
+              "pose_4.0.1_darwin_arm64.tar.gz.sigstore.json": "sha256:351632d9df20d2b4258e7bdee262cefea2e8ccf2162823971f7821771834ee11",
+              "pose_4.0.1_linux_amd64.tar.gz": "sha256:afae9434bb0a8abd2e914936913b1ecccb9d52936ce1a5e0ddeccf81ed3cec16",
+              "pose_4.0.1_linux_amd64.tar.gz.cdx.json": "sha256:a2daae927ad68e72e058d6cd2dfc045f7c9a084177ac95ef1fbd5df8b451606c",
+              "pose_4.0.1_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:fef0542a103e0b62cbd8c1d432f505382bc1d85b8d2224d73addc71e28f3e28e",
+              "pose_4.0.1_linux_amd64.tar.gz.sigstore.json": "sha256:699b9b06a6282993e99142095a36cb676c956eeb5f33ff6d59718247841158a9",
+              "pose_4.0.1_linux_arm64.tar.gz": "sha256:06f7d99d79b3e49943c5eb322f84f1d7af997ef1c39baaa3f46197a6451dffbb",
+              "pose_4.0.1_linux_arm64.tar.gz.cdx.json": "sha256:37560de61e326f85f91c84246f05cc76088678ba92c4e6c3fe1319bce2c07513",
+              "pose_4.0.1_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:3ce86422a9cdde3dc9f26f9bc3bce171d41a63a2f5533f8478de208e1ad54c29",
+              "pose_4.0.1_linux_arm64.tar.gz.sigstore.json": "sha256:cc8120b8157e4cb38084ffed441868acbf9ce1b59d6a1ae915e9faeccaaf702b",
+              "pose_4.0.1_windows_amd64.zip": "sha256:c2843148af3839692253db573c086ab11f3c2729b20153e3be40673ed35219f3",
+              "pose_4.0.1_windows_amd64.zip.cdx.json": "sha256:306e5a9f01fc248f09ec8df5df50d5864b56addc644a4d506a762788be4dd7bb",
+              "pose_4.0.1_windows_amd64.zip.cdx.json.sigstore.json": "sha256:49983fa5b0299f5e4b1a0242438daf155748201a538d5693b1f1955c232762a9",
+              "pose_4.0.1_windows_amd64.zip.sigstore.json": "sha256:c36e21d528881d42cc692471f648b0ede037bb9f752c06c2dbdaee82fc461329",
+              "pose_4.0.1_windows_arm64.zip": "sha256:3126495440f24efd5e12cbe1a7d949bdf98509e41dc2372b5fecd8095d095a21",
+              "pose_4.0.1_windows_arm64.zip.cdx.json": "sha256:9c9e55356e90d047be8a91038ff7c587a8d4bad27386f21eae6dc4de776a3713",
+              "pose_4.0.1_windows_arm64.zip.cdx.json.sigstore.json": "sha256:7ebe68a3af86b00ffe672083178f6cb770a0521f869270799a4d27db188e1bc2",
+              "pose_4.0.1_windows_arm64.zip.sigstore.json": "sha256:992025af3e53bb4ac1062833e9d52a2176f6749cce0bd92f9e0f50e8b5e1ea26"
+            }
+          },
+          "evidence_digest": "sha256:bd7f2ef5f9a1f115210eb0468d0620680f350c09ff8e168ee286ca05e0131e1b"
+        },
+        {
+          "schema_version": 1,
+          "version": "v4.0.1",
+          "state": "verified",
+          "recorded_at": "2026-09-10T02:10:38Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v4.0.1",
+            "tag": "v4.0.1",
+            "commit": "6b9b1224dd03a66610dac2a190056edb2f44f422",
+            "published_at": "2026-09-10T02:06:36Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v4.0.1",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34428146360",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:e6d5ad29c31db5e2a6c88273becb87015ac7712e02b0863eee63f902b202cbc1",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:c9db38d4b7c34194c746c004b25bab48a1f24f1e7dc1d29af18cf53e8ed9d19f",
+              "Harne8.Pose.yaml": "sha256:5f1a949dc7a8ba00654aa7a263322258bdd9b61543aafcf77d5440e0eb3ed839",
+              "checksums.txt": "sha256:42e45207f104d2732b7a318eaf2ec962b2d0d3eae99715264d913b9b3b5a850a",
+              "checksums.txt.sigstore.json": "sha256:85ea545d004693ecca14c46d134f035307c884dd53c276fa52b8f8da35b27338",
+              "compatibility-report.md": "sha256:a9b4987fab6f18c32fc8bdd6f65050604cf5b835cbb4bcb20fce470f67747355",
+              "compatibility.json": "sha256:405578ff75a3493b7ce1aa882b2103e85c95a847bbca15fc503a593df2d416fb",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:51f1156556a1aef45a213a10c4f65dcd55828064f3d59b359d66525852a96322",
+              "pose-rule-kubernetes.tar.gz": "sha256:ef5764847ae66e83fe344b4717a16ba3bf82f9c5bf629df7926af105170bf059",
+              "pose.rb": "sha256:5e34b2533798f265fa96c7015429f4ee967e524a58bfdb261103b09492928ce6",
+              "pose_4.0.1_darwin_amd64.tar.gz": "sha256:6e0ef4cd0023774f297779e2b93f79499a326034269c820a6ab7d4d304c7bb46",
+              "pose_4.0.1_darwin_amd64.tar.gz.cdx.json": "sha256:721a1617f75ea2b75766938dedad420ee058c19e2b9b66a3107f939e941e9c75",
+              "pose_4.0.1_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:3599c7a8aa0b64a2f97fe1517261a3aed2c4dab89cbd2cf0912e479426c34028",
+              "pose_4.0.1_darwin_amd64.tar.gz.sigstore.json": "sha256:a75b9e946901e96e150a229d129767e93e606945bc1ec87a8952196689ca19a7",
+              "pose_4.0.1_darwin_arm64.tar.gz": "sha256:5292ee76b8a0adab29d61657fdbef0902edc317dde4c1c4433cc4d1dec20dcff",
+              "pose_4.0.1_darwin_arm64.tar.gz.cdx.json": "sha256:f180cd564d24082788774b331607ae52e29dc62740c15bedea94f72cd356fbde",
+              "pose_4.0.1_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:16ca455a0aad15fad535fa330b4c4df39c4087e4c2844d19637cec6ef8903437",
+              "pose_4.0.1_darwin_arm64.tar.gz.sigstore.json": "sha256:351632d9df20d2b4258e7bdee262cefea2e8ccf2162823971f7821771834ee11",
+              "pose_4.0.1_linux_amd64.tar.gz": "sha256:afae9434bb0a8abd2e914936913b1ecccb9d52936ce1a5e0ddeccf81ed3cec16",
+              "pose_4.0.1_linux_amd64.tar.gz.cdx.json": "sha256:a2daae927ad68e72e058d6cd2dfc045f7c9a084177ac95ef1fbd5df8b451606c",
+              "pose_4.0.1_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:fef0542a103e0b62cbd8c1d432f505382bc1d85b8d2224d73addc71e28f3e28e",
+              "pose_4.0.1_linux_amd64.tar.gz.sigstore.json": "sha256:699b9b06a6282993e99142095a36cb676c956eeb5f33ff6d59718247841158a9",
+              "pose_4.0.1_linux_arm64.tar.gz": "sha256:06f7d99d79b3e49943c5eb322f84f1d7af997ef1c39baaa3f46197a6451dffbb",
+              "pose_4.0.1_linux_arm64.tar.gz.cdx.json": "sha256:37560de61e326f85f91c84246f05cc76088678ba92c4e6c3fe1319bce2c07513",
+              "pose_4.0.1_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:3ce86422a9cdde3dc9f26f9bc3bce171d41a63a2f5533f8478de208e1ad54c29",
+              "pose_4.0.1_linux_arm64.tar.gz.sigstore.json": "sha256:cc8120b8157e4cb38084ffed441868acbf9ce1b59d6a1ae915e9faeccaaf702b",
+              "pose_4.0.1_windows_amd64.zip": "sha256:c2843148af3839692253db573c086ab11f3c2729b20153e3be40673ed35219f3",
+              "pose_4.0.1_windows_amd64.zip.cdx.json": "sha256:306e5a9f01fc248f09ec8df5df50d5864b56addc644a4d506a762788be4dd7bb",
+              "pose_4.0.1_windows_amd64.zip.cdx.json.sigstore.json": "sha256:49983fa5b0299f5e4b1a0242438daf155748201a538d5693b1f1955c232762a9",
+              "pose_4.0.1_windows_amd64.zip.sigstore.json": "sha256:c36e21d528881d42cc692471f648b0ede037bb9f752c06c2dbdaee82fc461329",
+              "pose_4.0.1_windows_arm64.zip": "sha256:3126495440f24efd5e12cbe1a7d949bdf98509e41dc2372b5fecd8095d095a21",
+              "pose_4.0.1_windows_arm64.zip.cdx.json": "sha256:9c9e55356e90d047be8a91038ff7c587a8d4bad27386f21eae6dc4de776a3713",
+              "pose_4.0.1_windows_arm64.zip.cdx.json.sigstore.json": "sha256:7ebe68a3af86b00ffe672083178f6cb770a0521f869270799a4d27db188e1bc2",
+              "pose_4.0.1_windows_arm64.zip.sigstore.json": "sha256:992025af3e53bb4ac1062833e9d52a2176f6749cce0bd92f9e0f50e8b5e1ea26"
+            },
+            "publication_digest": "sha256:bd7f2ef5f9a1f115210eb0468d0620680f350c09ff8e168ee286ca05e0131e1b"
+          },
+          "evidence_digest": "sha256:2e66174277d461467a926a6c082d484cd7fd8fec1589413a597cd64143a271be"
+        }
+      ],
+      "gaps": []
+    },
+    {
+      "version": "v4.0.0",
+      "state": "verified",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v4.0.0",
+        "previous_version": "v3.0.0",
+        "prepared_at": "2026-09-10T00:10:55Z",
+        "specs": [
+          "pose-bundles-seal-the-contracts-that-govern-them",
+          "pose-changelog-and-dor-policy-types",
+          "pose-component-evidence-is-not-inherited-upward",
+          "pose-doctor-fixtures-exercise-production-path",
+          "pose-doctor-reports-unread-policy-keys",
+          "pose-emittable-analysis-evidence-classes",
+          "pose-policy-keys-and-release-surface-coverage",
+          "pose-release-boundary-rehearsal",
+          "pose-release-notes-name-contract-adoption",
+          "pose-remaining-command-surfaces-coverage",
+          "pose-roadmap-check-reaches-its-gate",
+          "pose-seal-names-carried-forward-evidence"
+        ],
+        "categories": {
+          "added": 6,
+          "changed": 2,
+          "fixed": 4
+        },
+        "fragments": [
+          {
+            "spec": "pose-bundles-seal-the-contracts-that-govern-them",
+            "category": "changed",
+            "breaking": true,
+            "body": "A sealed review bundle now names the governance contracts that were in force when\nit was sealed, and verification asks the bundle instead of asking today's policy.\n\nThe exemption that keeps a finished scope's approval when a contract arrives\nafter it compared the review's timestamp against `contract_adoptions` in the live\npolicy. That date is editable and re-read on every verification, so moving it\nforward retroactively exempted more historical closeouts — an immutable bundle\njudged by today's configuration, which is the objection this repository already\naccepted when it sealed `selected_profiles` rather than reading profile selection\nlive.\n\nSealing the set also removes the need for a new dated marker per contract, and\ngives a property the date could not: a bundle sealed by an engine that did not\nknow a contract never lists it, permanently, and no later edit reaches it.\n\nA bundle sealed by this release does not digest the same as one sealed before it.\nBundles already sealed carry no list and keep the dated reading — they cannot be\nback-filled, because rewriting an append-only immutable artifact is what sealing\nexists to prevent and re-sealing would break the attestations bound to their\ndigests. The dated rule is therefore demoted rather than removed: it governs only\nbundles predating the field, and the legacy attempt path, which has no bundle at\nall.\n\nThis covers the contracts. Verification still reads six other policy fields live,\nand each needs its own answer — tightening a signing requirement probably should\nreach an old bundle. That is recorded as a follow-up rather than settled.",
+            "path": "pose-bundles-seal-the-contracts-that-govern-them.md",
+            "digest": "sha256:0bf52f5f296e85bccb59526e0683cf4fb26ecbf8f8689ed9112d0cdd42802eda"
+          },
+          {
+            "spec": "pose-changelog-and-dor-policy-types",
+            "category": "added",
+            "breaking": false,
+            "body": "`changelog.json`'s `categories` is now the setting it always looked like. It\nshipped from the start and nothing read it: the set of valid fragment categories\nwas written out three times instead — in the fragment loader, in `pose check`,\nand implicitly in the notes renderer. Configuring it now governs all three, and\nthe refusal an author reads quotes the configured set rather than a list written\nbeside it.\n\nAn absent policy, or one declaring no categories, keeps the six defaults, so an\ninstance that never touches the file behaves exactly as before. A category a\nproject adds renders under a heading of its own, after the known ones. The\nsection order itself stays in code: putting `security` first is a reading\ndecision, not a configuration one.\n\n`dor.json` now says that the Definition of Ready is opt-in. `readiness.go`\nlooked for `adopted_at` in a file that never shipped it, so the gate read as\nunadopted everywhere — which is the intent, but an omitted key is\nindistinguishable from an oversight. The policy carries an explicit empty date\nand a comment saying what setting it does. No instance changes behaviour: empty\nis what absent already meant.\n\nBoth files are read through one named type each, covering the whole file rather\nthan the half a given command needed, and both are now held to their keys by\n`pose doctor` — the exemption list that named them is empty.",
+            "path": "pose-changelog-and-dor-policy-types.md",
+            "digest": "sha256:e69fa324e36320e68063601b6042552d14a18ac8cb6f1fea88422cde05f08846"
+          },
+          {
+            "spec": "pose-component-evidence-is-not-inherited-upward",
+            "category": "fixed",
+            "breaking": true,
+            "body": "A validation result from a directory inside a component no longer satisfies a\ncriterion or delivery target about the component. It covered one directory of it\nand was accepted as covering all of it.\n\nThat is the same shape as the sibling case closed one spec earlier: real\nevidence, of the class the criterion demands, silent about most of what it was\nasked about. `moduleMatchesTarget` accepted a path prefix in either direction,\nso refusing siblings left containment open in both readings.\n\nThe other direction stays, because it is a claim the result actually supports: a\nmodule-wide run exercises its subtree, and running checks once at the module root\nis how nearly every project is laid out. A result registered for `web` still\nanswers for a target at `web/api`. The repository root is untouched — a\nsingle-module project is its own component.\n\nA scope whose only evidence sits in a directory inside the component now has\nnone, and stops closing until a check is registered for the component or the\ntarget is declared where the evidence already is.",
+            "path": "pose-component-evidence-is-not-inherited-upward.md",
+            "digest": "sha256:fb5dd9e16191188e8398ce50dc680609be5c9b78eb5fde0a99dcaa64da8bad43"
+          },
+          {
+            "spec": "pose-doctor-fixtures-exercise-production-path",
+            "category": "changed",
+            "breaking": false,
+            "body": "Three `pose doctor` branches that no test executed are now covered: the tool\nhalf of `review.evidence-vocabulary`, which inspects a profile's criteria and\nits tools and only ever ran the criteria half; the `ok` answer of\n`policy.artifact-roots`, which had only ever been proven to warn; and\n`mcp.config` for a configuration that exists and points somewhere other than the\nnative binary.\n\nThey were found by measuring which statements the suite executes rather than by\nre-reading the tests, which is how the same class of gap survived twice.",
+            "path": "pose-doctor-fixtures-exercise-production-path.md",
+            "digest": "sha256:6df179395c4806689001c9728de6538881fe52c89a4da8f86e6afb45d596ceff"
+          },
+          {
+            "spec": "pose-doctor-reports-unread-policy-keys",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose doctor` reports any top-level key in `.pose/policy/review.json` that the\nengine does not model, and lists the keys it does read.\n\nThe decoder stopped refusing unknown keys in 2.0.2, so a newer field never\nbreaks an older binary reading the same repository. The cost was that a\nmisspelling — `contract_adoption` for `contract_adoptions`,\n`allow_criteria_reuse` for `allow_criterion_reuse` — is silently ignored, and\nthe file reads as configured while the setting does nothing. This is a finding,\nnot a refusal; the refusal is what was removed on purpose.\n\nThe known-key list is derived from the policy struct, so it cannot drift into\nreporting a real key as unknown.",
+            "path": "pose-doctor-reports-unread-policy-keys.md",
+            "digest": "sha256:adaa31d8888a7a0755acab22e622dc628904c334244d61a2cd5f91ac5eebbb82"
+          },
+          {
+            "spec": "pose-emittable-analysis-evidence-classes",
+            "category": "added",
+            "breaking": true,
+            "body": "`lint`, `typecheck`, `security-scan` and `contract` are now evidence classes a\ncheck may emit and a review profile may demand. They were reported as `build`,\nor declared nothing at all — so a criterion asking for security assurance was\nsatisfied by a successful compilation, and the results of `npm run lint` and\n`npm run typecheck` were discarded when a review collected evidence.\n\nThat is the same indistinction the single vocabulary closed between profiles and\nchecks, one level down: a gate that reads as met by evidence saying nothing\nabout it.\n\n`go vet` now emits `lint` rather than `build`; it is a linter, and calling it a\nbuild was the collapse in its clearest form. Because it was the Go stack's only\n`build` producer, a `go build ./...` check was added — its absence is why vet\ncarried the label.\n\nAn instance that declares one of the four cannot be validated by an engine\npredating them — `pose check --strict` on an older binary fails with `unknown\nevidenceClass`. That is the adoption cost of any change to a closed set, and the\nset being closed is what makes it worth having. No shipped profile demands any\nof the four, so nothing changes for an instance until it opts in.\n\nThe stacks catalog exists twice — in a repository's own matrix and in the\nshipped scaffold, because the file is excluded from the byte-for-byte sync — and\nthe two are now held equal by a test. They had agreed by hand, with nothing\nchecking, and the first edit of this change moved one and not the other.",
+            "path": "pose-emittable-analysis-evidence-classes.md",
+            "digest": "sha256:ccc1265ac496e7811520a532e56fbbc750506ff76ddb631d63a152c708eebafa"
+          },
+          {
+            "spec": "pose-policy-keys-and-release-surface-coverage",
+            "category": "added",
+            "breaking": false,
+            "body": "Every policy the engine models now reports the keys it carries and the engine\ndoes not read. It was the review policy alone, because that is where\n`DisallowUnknownFields` had to be dropped; the exposure is identical in the\ndelivery, artifact, capability, docs, release and state policies, and identical\nis the point — an operator who learns the finding exists for one file has no way\nto know it does not exist for the next.\n\nThe keys come from the structs that read the file, so adding a field is enough\nand the list cannot drift. A file read by two structs is held to the union:\n`capabilities.json` is decoded once for the staleness thresholds and again for\nthe trigger thresholds, and either half alone would report the other's keys as\nunread — the finding inverted, telling an operator to delete settings that work.\nThe `_comment` the shipped policies carry is not reported. The release policy is\nexamined wherever the engine reads it, including the location it still falls\nback to.\n\nWhich policies are covered is checked rather than listed: a shipped policy is\neither held to its keys or recorded, in writing, as having no type to derive\nthem from. `changelog.json` and `dor.json` are the two, and both would report\nfindings the engine itself causes.\n\nThe coverage audit that found three unreached branches in the doctor was run\nover the rest of the CLI. The largest thing it found was that the entire release\ncommand surface executed zero statements under the suite — including the rule\nthat release evidence must name the commit the tag points at, which is what\nkeeps a release record honest. That surface now runs under test, from 0 of 20\nfunctions to 20 of 20.",
+            "path": "pose-policy-keys-and-release-surface-coverage.md",
+            "digest": "sha256:0c22dce2002bb393b4314d1728ffeb2d85e6ccc9b5aeebdbb4de7da3af6c96ab"
+          },
+          {
+            "spec": "pose-release-boundary-rehearsal",
+            "category": "fixed",
+            "breaking": false,
+            "body": "The two sequences that only a real release had ever run now run in tests.\n\n`pose update` is exercised end to end against a local release server: a binary\nbuilt at an older version fetches the release metadata, downloads the archive,\nreplaces itself on disk and hands off to what it wrote. Reintroducing the\n`os.Executable()` call that failed the v2.0.0 release reproduces that failure\nlocally, which nothing could do before — reaching the handoff used to require an\nactual download.\n\nThe review policy this engine writes is loaded by the binary of the previous\nrelease, built from its own tag. The probe is `review-plan` rather than `check\n--strict`, because `check` reads the policy through a small struct of its own\nand never reaches the loader that enforces the schema; that wrong probe is what\nmade the v2.0.2 compatibility claim look true when it was not.\n\nThe release endpoints became package variables so a test can point a build at a\nlocal server with `-ldflags -X`. They are deliberately not read from the\nenvironment: where `pose update` fetches its own replacement from is not\nsomething a shell variable should decide.\n\nJobs that run the Go suite now check out full history: `git archive` needs the\ntag, and a shallow checkout would have made the cross-version test skip on the\nmachines whose verdict gates a release. A missing precondition there is a\nconfiguration failure, and the test says so rather than skipping.\n\nWhich jobs those are is checked rather than listed. Adding the flag to the one\njob known to run the suite missed `validation-findings`, which reaches it\nthrough `pose validate` in another workflow — the same enumerate-by-hand gap\nthis repository already tracks for its shellcheck and docs-parity lists.",
+            "path": "pose-release-boundary-rehearsal.md",
+            "digest": "sha256:3ca805e55a228e650b40cca97c90d49752ab943991374c043200613cff6cd23d"
+          },
+          {
+            "spec": "pose-release-notes-name-contract-adoption",
+            "category": "added",
+            "breaking": false,
+            "body": "A release that introduces a governance contract now says so, in a Compatibility\nsection at the top of its own notes: which contracts, what each requires, and\nwhat adopting one costs a reader that does not have it.\n\nThe cost is stated per contract, because it differs. An engine older than the\nrelease never applies the contract — it does not know the id — and judges\nreviews by the rules it has. On top of that, a contract carried by a top-level\npolicy key is refused outright by engines from before the strict decoder was\ndropped in 2.0.2: they stop reading the repository until they are updated, so\nevery tool has to move together. A contract recorded as an id inside\n`contract_adoptions` costs none of that, because the map is a key those engines\nalready model.\n\nv2.0.0 introduced one of the first kind and its notes said none of it.\n\nThe text comes from the contract registry, which is already the one place a\ncontract is declared — adding one there is what makes `pose update` stamp it and\n`pose doctor` report it, and now also what the notes say. A contract added\nwithout recording which release introduced it fails a test, so the next one is\nnot silent.\n\nReleases already prepared keep their frozen notes and their digests: nothing\nre-renders them.",
+            "path": "pose-release-notes-name-contract-adoption.md",
+            "digest": "sha256:f347a080d765bfcfdf2cf15268459ef0d2129af3681fd7537d43d2208c9a3694"
+          },
+          {
+            "spec": "pose-remaining-command-surfaces-coverage",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`review-check`, `history-check`, `docs-sync`, `docs-review`, `contribute\nsubmit`, `roadmap-check` and the helpers the Definition of Ready is built from\nnow execute under test, through the dispatch a user reaches them by. None of\nthem had run a statement under the suite, so every refusal each one makes was\nan assumption — and a refusal is an exit code a script branches on.\n\n`contribute submit` reaches `gh issue create` and `docs-sync push` writes to a\nConductor: both are covered up to the outward call and no further. The\ncontribute assertion also requires the refusal to happen *before* the command\nannounces a submission.\n\nThree fixtures had to be corrected against what the commands actually require\nrather than against what they happened to answer, each found by an assertion\nfailing. The last one surfaced something worth its own change: `roadmap-check`\nreturns before loading any roadmap when the delivery profile index is absent, so\nit reports zero cut criteria and exits 0 — a gate reading as met because the\npath that would fail is never reached. The behaviour is pinned here and recorded\nas a follow-up.",
+            "path": "pose-remaining-command-surfaces-coverage.md",
+            "digest": "sha256:a51e84962b782c57871369289b788848bceb65c2f08cec0d5b94796236e8465f"
+          },
+          {
+            "spec": "pose-roadmap-check-reaches-its-gate",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose roadmap-check` reported zero cut criteria and exited 0 — in both\n`--strict` and `--tolerant` — on a repository whose roadmap declared several.\nThe delivery graph builder returned before it loaded a single roadmap when\n`.pose/indexes/validation-matrix.json` or `.pose/specs` was absent.\n\nA gate that cannot evaluate its criteria was reading as a gate that passed\nthem. Neither absence justifies the skip: without delivery profiles there are no\ntargets, so a criterion naming one is unresolved — which the criteria loop\nalready reports as `unknown delivery ref` — and a `check:` or `manual-review:`\nref needs no profile index at all.\n\nA repository that has adopted delivery integrity is unaffected: it never took\nthe early return, and `surface-check` here reports the same edges and findings\nbefore and after. What changes is the answer given to a repository with roadmaps\nand no profile index, where the previous answer was wrong.\n\nFound while writing a coverage fixture rather than by a report: the fixture had\nno profile index, and both modes returned 0 on a criterion naming a delivery\ntarget that does not exist.",
+            "path": "pose-roadmap-check-reaches-its-gate.md",
+            "digest": "sha256:5d598a9c76110940295654163819e742ce84005bea315b336378f75d98a5009b"
+          },
+          {
+            "spec": "pose-seal-names-carried-forward-evidence",
+            "category": "added",
+            "breaking": false,
+            "body": "Sealing a review bundle now names the evidence that ran against a commit other\nthan the head the bundle approves. The engine already accepts such a result as\ncurrent — by provenance digest, or because the scope is closed — and never said\nso, leaving a reviewer unable to tell a result produced against this subject\nfrom one carried forward.\n\nIt is a warning, not a blocker: the engine's decision about currency does not\nchange, and blocking would refuse the closed-scope case the bridge exists for.",
+            "path": "pose-seal-names-carried-forward-evidence.md",
+            "digest": "sha256:e2b5f85e1dfbf623fd4f2072cb40268527a45101132c41c987402b17d9ccda83"
+          }
+        ],
+        "breaking": true,
+        "notes_digest": "sha256:2b2fd2e2ceb9b7582cfe30951dec6e0154a4a18934e1a6a378d3340b97d62ba8",
+        "release_input_digest": "sha256:9f841baf27e8d442e9ee187553feadd8196e4e7e56117cb2f3cd32afadb925b5",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v4.0.0"
+        }
+      },
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v4.0.0",
+          "state": "tagged",
+          "recorded_at": "2026-09-10T00:40:24Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v4.0.0",
+            "tag": "v4.0.0",
+            "commit": "331cea1da5db785f47a8e1861b5637332dff470c",
+            "published_at": "",
+            "url": "",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34421523200"
+          },
+          "evidence_digest": "sha256:82dccd31e29792c7fd6ad966569db1c7a9abca72defe54eaa0093e639f1566da"
+        },
+        {
+          "schema_version": 1,
+          "version": "v4.0.0",
+          "state": "published",
+          "recorded_at": "2026-09-10T00:40:33Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v4.0.0",
+            "tag": "v4.0.0",
+            "commit": "331cea1da5db785f47a8e1861b5637332dff470c",
+            "published_at": "2026-09-10T00:36:16Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v4.0.0",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34421523200",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:391f4c21c6654506e965ffbd995f971a73d324dcb2edbec361363a3e88377e99",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:e3305bc25fa558b282a7dc6ca41fe6630e4cc99b279760c5a8a556d54ae5f58d",
+              "Harne8.Pose.yaml": "sha256:7154325d2f266d535513a189158e16477430591eb20d3682ab3ea72e9b7faee6",
+              "checksums.txt": "sha256:b6279a495d9180f27b3187e4874638d9f0e497c0af34b87f893252ea04d16adb",
+              "checksums.txt.sigstore.json": "sha256:78fc60eb72c508671e4a546538da0fd45395ea936190b688f69dad4431d951cc",
+              "compatibility-report.md": "sha256:b677597f0032fa7909503a165115f826f52c678da380d678ce0a0e9bd550b484",
+              "compatibility.json": "sha256:fc8802d88ccf6352d5865bbd0abccec3566d28386356865c4f219bc5becc1f25",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:8e93851ea2a74a15183370ebd1877d27b9c5a046f949b09963a3158d11c066a6",
+              "pose-rule-kubernetes.tar.gz": "sha256:abc537e9eeaedd9ecd3ed45fdd980c2ec6a3e46002ac937456709dc04580d082",
+              "pose.rb": "sha256:8108fef2bebb7c5741d880d7ba7a83cb25f58d16f718ccfe62226a0fb4c356e9",
+              "pose_4.0.0_darwin_amd64.tar.gz": "sha256:186dbbfb2d5224d54e066f6b04fd11900f9081d66b3b19eaf3069206dac51bcf",
+              "pose_4.0.0_darwin_amd64.tar.gz.cdx.json": "sha256:9f0cca565c2e3eb2a4178ec6d14a62afb2f468ed5b011388bdd8055c61d15bf5",
+              "pose_4.0.0_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:1eef6b135802eef5e5cec86e414588b3fa4606db538b2fde10681a45fa52a060",
+              "pose_4.0.0_darwin_amd64.tar.gz.sigstore.json": "sha256:5453e2e97bbbe057109167ffd06425e1df8cb01a7ff24456f7a8938186f4fc73",
+              "pose_4.0.0_darwin_arm64.tar.gz": "sha256:62df1a5470c4ce084d1f6eb00e68772fa69e45961625dd865f9982653119c0fe",
+              "pose_4.0.0_darwin_arm64.tar.gz.cdx.json": "sha256:94e507e0ac952ad268f84629838570410a00ce1591182fe89c10629211a94659",
+              "pose_4.0.0_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:0bd1460898bcd727757ccb6cb5fa5fe990ff8e619a249072b77772f79305f532",
+              "pose_4.0.0_darwin_arm64.tar.gz.sigstore.json": "sha256:c2c150afcae8e2c52b7b19a8c1ab815b15165cb2a14f566f9406f78cdd24fbf7",
+              "pose_4.0.0_linux_amd64.tar.gz": "sha256:b6cc602aaab4f8e0904d957e93887868885122b115c45ab72ee13c364ffa8b38",
+              "pose_4.0.0_linux_amd64.tar.gz.cdx.json": "sha256:800daa27d93e27991b6bdd010b9c79d2cbe4305a4be4ccefffd030249ed7b2e8",
+              "pose_4.0.0_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:0f911ec1d07ca754d78b6a214b49bd6756fac0763d8da026d5933d721f1a3d21",
+              "pose_4.0.0_linux_amd64.tar.gz.sigstore.json": "sha256:5835e76f41140da73fe9988831ec2255e85103c87bfb049da61ec4ec050da9fb",
+              "pose_4.0.0_linux_arm64.tar.gz": "sha256:75c7c70cf51eb9643c77c9c0319d0949fec7d8319570eae93db568586cfafae5",
+              "pose_4.0.0_linux_arm64.tar.gz.cdx.json": "sha256:b3b935d1ccbd8c849abb16f64da8a02f27a440e8dbdafbbac426331bb5568b0f",
+              "pose_4.0.0_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:2a5f125b8917ef372356188a47738a75ec773e4fc1e36d57ca71e21e07be3628",
+              "pose_4.0.0_linux_arm64.tar.gz.sigstore.json": "sha256:3361e253cda55368bbb3ddeb16da6193e8ed7b1a257fa943d75cfb2e1dd5e72d",
+              "pose_4.0.0_windows_amd64.zip": "sha256:00666a7a8bad422c3510b3b1dcd8e4f6c888ca5964cab4459b400acbd83df6cd",
+              "pose_4.0.0_windows_amd64.zip.cdx.json": "sha256:348948e8219c880d90cd3e76c82686872c3430d804992f51369922f9df94e4c4",
+              "pose_4.0.0_windows_amd64.zip.cdx.json.sigstore.json": "sha256:74b93ad70d1d6c651f51b8c1006f202232fb6adb0f82e771a2327193f636e963",
+              "pose_4.0.0_windows_amd64.zip.sigstore.json": "sha256:45cadcca6e0825c9350993e14bf9ed7245c05a34cd3ac004d92ba5f2757dd136",
+              "pose_4.0.0_windows_arm64.zip": "sha256:143c1c9c923f441c78028f6bffc27b72c9bb321708d1d5f91e7beaeaa6f5dc23",
+              "pose_4.0.0_windows_arm64.zip.cdx.json": "sha256:6e348c680f9bf7343c0a86d5419dd1dc9ed3a6fc2f102be9ef1d94c5d17b8ffd",
+              "pose_4.0.0_windows_arm64.zip.cdx.json.sigstore.json": "sha256:43f995b5ffa3cb7d40ee7a09d87a3761281ee7fa91db78c077af082109c73334",
+              "pose_4.0.0_windows_arm64.zip.sigstore.json": "sha256:8816f9abf4c83b0a0418358567c5f847e19a14c33a6a5d4c060c62ac5025ae5d"
+            }
+          },
+          "evidence_digest": "sha256:f772eeefe8ee5571d0aaa8054ad79f2e3f6c457ed131c9f4b3bf2f0b9cfb7e27"
+        },
+        {
+          "schema_version": 1,
+          "version": "v4.0.0",
+          "state": "verified",
+          "recorded_at": "2026-09-10T00:40:57Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v4.0.0",
+            "tag": "v4.0.0",
+            "commit": "331cea1da5db785f47a8e1861b5637332dff470c",
+            "published_at": "2026-09-10T00:36:16Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v4.0.0",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34422003627",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:391f4c21c6654506e965ffbd995f971a73d324dcb2edbec361363a3e88377e99",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:e3305bc25fa558b282a7dc6ca41fe6630e4cc99b279760c5a8a556d54ae5f58d",
+              "Harne8.Pose.yaml": "sha256:7154325d2f266d535513a189158e16477430591eb20d3682ab3ea72e9b7faee6",
+              "checksums.txt": "sha256:b6279a495d9180f27b3187e4874638d9f0e497c0af34b87f893252ea04d16adb",
+              "checksums.txt.sigstore.json": "sha256:78fc60eb72c508671e4a546538da0fd45395ea936190b688f69dad4431d951cc",
+              "compatibility-report.md": "sha256:b677597f0032fa7909503a165115f826f52c678da380d678ce0a0e9bd550b484",
+              "compatibility.json": "sha256:fc8802d88ccf6352d5865bbd0abccec3566d28386356865c4f219bc5becc1f25",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:8e93851ea2a74a15183370ebd1877d27b9c5a046f949b09963a3158d11c066a6",
+              "pose-rule-kubernetes.tar.gz": "sha256:abc537e9eeaedd9ecd3ed45fdd980c2ec6a3e46002ac937456709dc04580d082",
+              "pose.rb": "sha256:8108fef2bebb7c5741d880d7ba7a83cb25f58d16f718ccfe62226a0fb4c356e9",
+              "pose_4.0.0_darwin_amd64.tar.gz": "sha256:186dbbfb2d5224d54e066f6b04fd11900f9081d66b3b19eaf3069206dac51bcf",
+              "pose_4.0.0_darwin_amd64.tar.gz.cdx.json": "sha256:9f0cca565c2e3eb2a4178ec6d14a62afb2f468ed5b011388bdd8055c61d15bf5",
+              "pose_4.0.0_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:1eef6b135802eef5e5cec86e414588b3fa4606db538b2fde10681a45fa52a060",
+              "pose_4.0.0_darwin_amd64.tar.gz.sigstore.json": "sha256:5453e2e97bbbe057109167ffd06425e1df8cb01a7ff24456f7a8938186f4fc73",
+              "pose_4.0.0_darwin_arm64.tar.gz": "sha256:62df1a5470c4ce084d1f6eb00e68772fa69e45961625dd865f9982653119c0fe",
+              "pose_4.0.0_darwin_arm64.tar.gz.cdx.json": "sha256:94e507e0ac952ad268f84629838570410a00ce1591182fe89c10629211a94659",
+              "pose_4.0.0_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:0bd1460898bcd727757ccb6cb5fa5fe990ff8e619a249072b77772f79305f532",
+              "pose_4.0.0_darwin_arm64.tar.gz.sigstore.json": "sha256:c2c150afcae8e2c52b7b19a8c1ab815b15165cb2a14f566f9406f78cdd24fbf7",
+              "pose_4.0.0_linux_amd64.tar.gz": "sha256:b6cc602aaab4f8e0904d957e93887868885122b115c45ab72ee13c364ffa8b38",
+              "pose_4.0.0_linux_amd64.tar.gz.cdx.json": "sha256:800daa27d93e27991b6bdd010b9c79d2cbe4305a4be4ccefffd030249ed7b2e8",
+              "pose_4.0.0_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:0f911ec1d07ca754d78b6a214b49bd6756fac0763d8da026d5933d721f1a3d21",
+              "pose_4.0.0_linux_amd64.tar.gz.sigstore.json": "sha256:5835e76f41140da73fe9988831ec2255e85103c87bfb049da61ec4ec050da9fb",
+              "pose_4.0.0_linux_arm64.tar.gz": "sha256:75c7c70cf51eb9643c77c9c0319d0949fec7d8319570eae93db568586cfafae5",
+              "pose_4.0.0_linux_arm64.tar.gz.cdx.json": "sha256:b3b935d1ccbd8c849abb16f64da8a02f27a440e8dbdafbbac426331bb5568b0f",
+              "pose_4.0.0_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:2a5f125b8917ef372356188a47738a75ec773e4fc1e36d57ca71e21e07be3628",
+              "pose_4.0.0_linux_arm64.tar.gz.sigstore.json": "sha256:3361e253cda55368bbb3ddeb16da6193e8ed7b1a257fa943d75cfb2e1dd5e72d",
+              "pose_4.0.0_windows_amd64.zip": "sha256:00666a7a8bad422c3510b3b1dcd8e4f6c888ca5964cab4459b400acbd83df6cd",
+              "pose_4.0.0_windows_amd64.zip.cdx.json": "sha256:348948e8219c880d90cd3e76c82686872c3430d804992f51369922f9df94e4c4",
+              "pose_4.0.0_windows_amd64.zip.cdx.json.sigstore.json": "sha256:74b93ad70d1d6c651f51b8c1006f202232fb6adb0f82e771a2327193f636e963",
+              "pose_4.0.0_windows_amd64.zip.sigstore.json": "sha256:45cadcca6e0825c9350993e14bf9ed7245c05a34cd3ac004d92ba5f2757dd136",
+              "pose_4.0.0_windows_arm64.zip": "sha256:143c1c9c923f441c78028f6bffc27b72c9bb321708d1d5f91e7beaeaa6f5dc23",
+              "pose_4.0.0_windows_arm64.zip.cdx.json": "sha256:6e348c680f9bf7343c0a86d5419dd1dc9ed3a6fc2f102be9ef1d94c5d17b8ffd",
+              "pose_4.0.0_windows_arm64.zip.cdx.json.sigstore.json": "sha256:43f995b5ffa3cb7d40ee7a09d87a3761281ee7fa91db78c077af082109c73334",
+              "pose_4.0.0_windows_arm64.zip.sigstore.json": "sha256:8816f9abf4c83b0a0418358567c5f847e19a14c33a6a5d4c060c62ac5025ae5d"
+            },
+            "publication_digest": "sha256:f772eeefe8ee5571d0aaa8054ad79f2e3f6c457ed131c9f4b3bf2f0b9cfb7e27"
+          },
+          "evidence_digest": "sha256:321f64f3bfa28a5afab71299f4763d9d4b9c7d66bf6bd872bb5c1479c1d95d86"
+        }
+      ],
+      "gaps": []
+    },
     {
       "version": "v3.0.0",
       "state": "verified",
