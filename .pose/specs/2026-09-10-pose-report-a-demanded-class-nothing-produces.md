@@ -69,7 +69,7 @@ demand `a11y` and `e2e`, and no registered check emits either.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-report-a-demanded-class-nothing-produces.md
-- created: .pose/changelogs/unreleased/pose-report-a-demanded-class-nothing-produces.md
+- renamed: .pose/changelogs/unreleased/pose-report-a-demanded-class-nothing-produces.md -> .pose/changelogs/v5.0.0/pose-report-a-demanded-class-nothing-produces.md
 - created: pose-mcp/internal/cli/doctor_class_producers_test.go
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: .pose/specs/2026-09-09-pose-emittable-analysis-evidence-classes.md

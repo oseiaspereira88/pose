@@ -69,7 +69,7 @@ default — in a file that fix did not cover.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-changelog-adoption-is-the-instances.md
-- created: .pose/changelogs/unreleased/pose-changelog-adoption-is-the-instances.md
+- renamed: .pose/changelogs/unreleased/pose-changelog-adoption-is-the-instances.md -> .pose/changelogs/v5.0.0/pose-changelog-adoption-is-the-instances.md
 - modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
 - modified: pose-mcp/internal/scaffold/dist/.pose/policy/changelog.json
 - modified: pose-mcp/internal/cli/stack_seed.go

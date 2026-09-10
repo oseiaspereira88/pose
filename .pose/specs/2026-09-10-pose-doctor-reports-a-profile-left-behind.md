@@ -63,7 +63,7 @@ has already been fixed — the instance just has not heard.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-doctor-reports-a-profile-left-behind.md
-- created: .pose/changelogs/unreleased/pose-doctor-reports-a-profile-left-behind.md
+- renamed: .pose/changelogs/unreleased/pose-doctor-reports-a-profile-left-behind.md -> .pose/changelogs/v5.0.0/pose-doctor-reports-a-profile-left-behind.md
 - created: pose-mcp/internal/cli/doctor_profile_schema_test.go
 - modified: pose-mcp/internal/cli/doctor.go
 

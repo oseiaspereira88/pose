@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "version": "v5.0.0",
+  "previous_version": "v4.0.1",
+  "prepared_at": "2026-09-10T14:56:21Z",
+  "specs": [
+    "pose-bundle-findings-take-the-contract-the-legacy-path-had",
+    "pose-changelog-adoption-is-the-instances",
+    "pose-doctor-reports-a-profile-left-behind",
+    "pose-only-the-signing-gate-is-read-live",
+    "pose-report-a-demanded-class-nothing-produces",
+    "pose-report-coverage-that-rests-on-inference",
+    "pose-reuse-is-sealed-signing-stays-live",
+    "pose-the-guard-signal-is-declared-not-inherited"
+  ],
+  "categories": {
+    "added": 4,
+    "changed": 2,
+    "fixed": 2
+  },
+  "fragments": [
+    {
+      "spec": "pose-bundle-findings-take-the-contract-the-legacy-path-had",
+      "category": "fixed",
+      "breaking": true,
+      "body": "Validating an attestation against a sealed bundle now applies the finding\ncontract the legacy attempt path always applied.\n\nIt blocked a finding only when its disposition was `open` or\n`changes-requested`. Everything else passed with no blocker: an accepted risk of\nseverity `critical` with no owner, no rationale and no review date; a disposition\nthe engine does not know; a finding with neither severity nor action. And two\npolicy settings were not consulted on this path at all —\n`allow_approved_with_reservations` lost to a literal check for `approved`, so a\nproject that enabled reservations found them refused anyway, and\n`accepted_risk_severities` decided nothing.\n\nA project that adopted review bundles therefore lost a gate it had before, and\ntwo settings quietly stopped taking effect. Review bundles exist to make review\nmore rigorous; on this axis they had made it less.\n\nThe two policy-dependent parts are sealed into the bundle rather than read live,\nfor the reason the governance contracts already are: a flag flipped today would\notherwise approve a closeout recorded years ago. The rest is not configuration —\na finding without a severity is incomplete under any policy — and applies to\nevery bundle, including those sealed before the field existed. Nothing already\nrecorded is re-judged: the 469 attestations in this repository carry no findings\nat all.\n\nThe sealed payload changes, so a bundle sealed by this release does not digest\nthe same as one sealed before it.",
+      "path": "pose-bundle-findings-take-the-contract-the-legacy-path-had.md",
+      "digest": "sha256:b6f10f7e9694a7afd40c60a11c4e06106e587916cf59f03ce60ba94a0413da54"
+    },
+    {
+      "spec": "pose-changelog-adoption-is-the-instances",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The shipped changelog policy carries an empty `adopted_at`, and `pose install`\nand `pose update` stamp the day the instance received it.\n\n`.pose/policy/changelog.json` was synced byte-for-byte into the scaffold, so\nevery install inherited POSE's own adoption date. For a project starting today\nthat reads as \"gate everything\", harmless by accident. For a project migrating in\nwith a history of specs it is not: every spec completed before that date is\nsilently exempt from needing a changelog fragment, by a date belonging to someone\nelse — the gate looks adopted and covers less than the project thinks.\n\nSame family as the self-referential delivery roots of issue #17, in a file that\nfix did not cover.\n\nShipping an empty date alone would have broken every fresh install, because\n`pose check` refused one with `adopted_at is required`. An empty date now means\nthe contract is not adopted rather than that the policy is malformed, and the\nstamp means a fresh install does not stay in that state. An instance that already\ncarries a date keeps it.",
+      "path": "pose-changelog-adoption-is-the-instances.md",
+      "digest": "sha256:ba0cda1a7ee93a266bef0c3843a191f94fb1854a6c527649294f64632dc8e46a"
+    },
+    {
+      "spec": "pose-doctor-reports-a-profile-left-behind",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose doctor` reports any review profile in the instance below the schema the\nengine enforces, naming it and the command that migrates it.\n\nTwo profiles shipped at `schema_version: 1` for long enough that every instance\ninstalled in that window still carries them, and the migration that should have\nmoved them reported success without doing so. The shipped files are current now,\nso the next `pose update` migrates them — but until it runs, those profiles are\nexempt from the closed rule and evidence catalogs schema v2 enforces.\n\nThat exemption is the substance rather than the version number: a v1 profile\nskips the check that stops a profile demanding an evidence class no registered\ncheck may emit, so the instance can plan a gate only a fabricated disposition\ncould pass. An instance with no profiles produces no finding.",
+      "path": "pose-doctor-reports-a-profile-left-behind.md",
+      "digest": "sha256:eafcee8099441c0dd4fcb970f64ccd5c9cffc5df10029035b10f9f736ae3f887"
+    },
+    {
+      "spec": "pose-only-the-signing-gate-is-read-live",
+      "category": "added",
+      "breaking": false,
+      "body": "A test fails if a second policy field is read from the live policy while judging\na sealed bundle, or if the signing requirement stops being read that way.\n\nEverything a sealed bundle is judged by is sealed with it, so a setting flipped\ntoday cannot re-judge a review recorded years ago.\n`require_signed_attestations` is the one deliberate exception: it is a bar rather\nthan a permission, and a bundle sealed before a project started requiring\nsignatures must not be permanently exempt from it.\n\nThat exception was one line of code and one paragraph of ADR. Sealing it by\nsymmetry with its neighbours would look like tidying and would quietly exempt\nevery existing bundle from a security requirement; adding a second live read\nwould reopen the retroactive judgement three amendments have closed. Both are\nchanges that pass review by looking consistent, so the count is asserted rather\nthan remembered.",
+      "path": "pose-only-the-signing-gate-is-read-live.md",
+      "digest": "sha256:1ed8148383ddb456f9d0ce5ac3a116c0392c4960e700167449d73912e4f15a25"
+    },
+    {
+      "spec": "pose-report-a-demanded-class-nothing-produces",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose doctor` reports an evidence class the selected review profiles demand that\nno registered check in the repository produces.\n\n`review.evidence-vocabulary` asks whether a class *could* be emitted by some\ncheck somewhere — it holds a profile to the closed vocabulary. It says nothing\nabout whether this repository generates that evidence, and the two came apart\nwhen `go vet` moved from `build` to `lint`: `build` stayed a valid class, the\nprofiles kept demanding it, and nothing produced it any more. A criterion\ndepending on evidence the repository does not generate, with nothing saying so.\n\nIt is a warning rather than a refusal, because evidence can be imported from\nelsewhere. A module override counts as a producer: the question is whether the\nrepository generates the class, not which stack does.\n\nRun against POSE's own repository it has two findings on the first execution:\nthe selected profiles demand `a11y` and `e2e`, and no registered check emits\neither.",
+      "path": "pose-report-a-demanded-class-nothing-produces.md",
+      "digest": "sha256:11d5488a402237093eeffc4b3b26c62b4b27f931084e5eb85dfb9512d58446c2"
+    },
+    {
+      "spec": "pose-report-coverage-that-rests-on-inference",
+      "category": "added",
+      "breaking": false,
+      "body": "A delivery target whose only passing evidence for a class comes from a module\ncontaining it now carries an `inferred-coverage` finding. Nothing is refused.\n\nEvidence answers downward because a module-wide run does exercise its subtree.\nUsually — a run configured to skip a directory inside it does not, and nothing\nin the result says which. That is the one part of the containment rule the engine\ncannot check.\n\nClosing it properly means a check declaring what it walked: a change to the\nvalidation result contract and a migration for every project. Making the\ninference visible costs nothing, refuses nothing, and produces what that decision\nneeds — how many targets in real repositories are gated on a run of something\nlarger than themselves. In POSE's own the answer is none, so the contract would\nhave been designed against no case at all.\n\nThe finding fires only when no result names the target's own module: a target\nwith its own check is not resting on the inference, whatever else also matched.",
+      "path": "pose-report-coverage-that-rests-on-inference.md",
+      "digest": "sha256:f09387ca99647aedcd0f141b2267ec4c0889fa8685cf11f25ac9ed8705717e4e"
+    },
+    {
+      "spec": "pose-reuse-is-sealed-signing-stays-live",
+      "category": "changed",
+      "breaking": false,
+      "body": "`allow_criterion_reuse` is sealed into the review bundle.\n`require_signed_attestations` stays read from the live policy, deliberately, and\nis now the only gate a sealed bundle is judged by that is not sealed with it.\n\nThe two look alike and point opposite ways. Reuse carries a prior criterion\ndisposition into this attestation, so whether it was permitted is a property of\nthe review that happened — read live, a project enabling reuse today\nretroactively legitimises an attestation that reused a criterion when its own\npolicy forbade it.\n\nThe signing requirement is a bar rather than a permission. A project that starts\nrequiring signed attestations is raising it, and a bundle sealed before that must\nnot be permanently exempt; sealing it would mean the new requirement applies only\nto future work, which is the opposite of adopting it. The exception is annotated\nwhere the code makes it, not only in the ADR.\n\nA bundle sealed before this gate refuses reuse, which is the conservative reading\nand matches what an instance with reuse disabled already got.",
+      "path": "pose-reuse-is-sealed-signing-stays-live.md",
+      "digest": "sha256:60ec0943c4b99402de11fb5333615f13b346ac91b4d46a74a25a19ef6217db61"
+    },
+    {
+      "spec": "pose-the-guard-signal-is-declared-not-inherited",
+      "category": "changed",
+      "breaking": false,
+      "body": "The cross-version compatibility guard reads `POSE_RELEASE_HISTORY_AVAILABLE`, a\nvariable this repository's workflows declare, instead of inferring from the\nprovider's environment.\n\nIt had been wrong twice in opposite directions, both times for reading a signal\nsomeone else owns. Keying on `CI` broke every repository that vendors the engine\nand runs its suite. Keying on `GITHUB_REPOSITORY` fixed that and left the other\nhalf open: the variable is the provider's to set, so on a provider that does not\nset it this repository's own CI would skip in silence — the hole the guard exists\nto close.\n\nA declared variable is set only where a checkout was prepared with the release\nhistory, cannot be inherited by a consumer, and can be asserted statically. The\nworkflow contract now requires every job that runs the Go suite to declare it,\nalongside the full-history checkout it promises.\n\nThat assertion found a third such job on its first run — the release workflow's\nown `Tests + installer E2E`, the run whose verdict cuts the release, which both\nearlier fixes had enumerated by hand and missed.",
+      "path": "pose-the-guard-signal-is-declared-not-inherited.md",
+      "digest": "sha256:8d213543f35e2b39fcc171889db25a24a63555346b891b5c8586685f3c7c0128"
+    }
+  ],
+  "breaking": true,
+  "notes_digest": "sha256:86d12abd8ba03fa0fde65c9efc00d412d53fa3a691d94fc464cd50bc449916f2",
+  "release_input_digest": "sha256:26eb3abdf4d13f481f773a29c7f328e1243dc2cd1756911203ff407768cf7997",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v5.0.0"
+  }
+}

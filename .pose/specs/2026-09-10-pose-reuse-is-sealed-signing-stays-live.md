@@ -71,7 +71,7 @@ only to future work, which is the opposite of what adopting it means.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-reuse-is-sealed-signing-stays-live.md
-- created: .pose/changelogs/unreleased/pose-reuse-is-sealed-signing-stays-live.md
+- renamed: .pose/changelogs/unreleased/pose-reuse-is-sealed-signing-stays-live.md -> .pose/changelogs/v5.0.0/pose-reuse-is-sealed-signing-stays-live.md
 - created: pose-mcp/internal/pose/reuse_and_signing_gates_test.go
 - modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
 - modified: pose-mcp/internal/pose/review_bundle.go

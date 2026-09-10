@@ -68,7 +68,7 @@ jobs which need it declare it.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-the-guard-signal-is-declared-not-inherited.md
-- created: .pose/changelogs/unreleased/pose-the-guard-signal-is-declared-not-inherited.md
+- renamed: .pose/changelogs/unreleased/pose-the-guard-signal-is-declared-not-inherited.md -> .pose/changelogs/v5.0.0/pose-the-guard-signal-is-declared-not-inherited.md
 - modified: pose-mcp/internal/cli/release_compatibility_test.go
 - modified: pose-mcp/internal/version/workflow_history_depth_test.go
 - modified: .github/workflows/ci.yml
