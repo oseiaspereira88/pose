@@ -74,6 +74,7 @@ default — in a file that fix did not cover.
 - modified: pose-mcp/internal/scaffold/dist/.pose/policy/changelog.json
 - modified: pose-mcp/internal/cli/stack_seed.go
 - modified: pose-mcp/internal/cli/check.go
+- modified: .pose/specs/2026-09-09-pose-changelog-and-dor-policy-types.md
 
 ### Technical risks
 - Emptying the date in the scaffold copy alone would have been undone by the
