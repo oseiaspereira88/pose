@@ -7,6 +7,30 @@
       "body": "`validate.class-producers` reports a review criterion none of whose accepted\nevidence classes is produced, instead of reporting each class on its own — and\nskips a profile whose language selector names nothing the repository has.\n\nBoth were false alarms, and both surfaced only by acting on the check's own\noutput. `evidence_classes` is a disjunction: the attestation cites one of them\nand the first match satisfies the criterion. Reporting classes individually named\n`e2e` while every criterion listing it also accepted `integration` or `unit` —\na true statement naming nothing to fix, which is how a check earns being ignored.\nAnd `a11y` was named for a profile selected by `languages: [javascript,\ntypescript]` in a repository that has none, so the criterion could never apply.\n\nNeither correction weakens it. The case it exists for still fires: a criterion\nwhose only accepted class lost its producer.\n\nOnly the language selector is evaluated, and only to skip — a profile selected by\ncomponent id or delivery kind is unaffected.",
       "path": "pose-class-producers-reads-the-disjunction.md",
       "digest": "sha256:12141e1f565ccefb49526d9454cfc8745708ad4f68ab43594262795748d4f876"
+    },
+    {
+      "spec": "pose-compat-gate-pose-md-preservation",
+      "category": "changed",
+      "breaking": false,
+      "body": "The release compatibility gate customizes POSE.md as well as AGENTS.md in its\nupgrade lab, and fails a supported upgrade that loses the customization.\n\nThe two manuals do not take the same path. A note appended to AGENTS.md stays in\nit; the same note appended to POSE.md is dropped from the manual on upgrade and\nkept in `POSE.md.pose-backup`. Only the first had ever been exercised against a\nreal prior release — the backup, the one thing that turns that removal into\nsomething other than a silent loss, had not.",
+      "path": "pose-compat-gate-pose-md-preservation.md",
+      "digest": "sha256:f7fbcdd8ad5048d898afa57f9e9419476cfc0c7b80ecc4a76c463784121dea41"
+    },
+    {
+      "spec": "pose-parity-reads-the-cli-surface",
+      "category": "changed",
+      "breaking": false,
+      "body": "The locale parity checks learn what a pose command is from the CLI's own\ndispatch, read from its source.\n\nThe skill check kept a hand-written list of eight commands that take a\nsubcommand; the CLI has thirteen. `contribute` was missing, so a translation\nteaching `contribute submit` where the English skill teaches `contribute stage`\npassed — and `roadmap`, which is not a command, was on the list. The manual\ncheck recognised a command only when a manual listed it as an entry, so seven\ncommands AGENTS.md mentions only in prose had no signal.\n\nBoth failed quiet. No shipped skill or manual had drifted behind them.",
+      "path": "pose-parity-reads-the-cli-surface.md",
+      "digest": "sha256:7e5496d384a405b19cadd3efc70ee9bd66f8928bac6b40ccb119b110c3b9f636"
+    },
+    {
+      "spec": "pose-report-help-names-every-flag",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose report --help` names all sixteen flags `pose report` accepts. It named\nfour. Among the missing were `--validate-output`, which chooses the validation\nlog a report derives its outcome from and was documented nowhere, and\n`--change-from`/`--change-to`, which record a spec's immutable change set. The\nhelp also listed `--outcome` as `pass|fail|partial`; `skipped` and `unknown` are\naccepted too.\n\nA test now holds the help to the flags the parser accepts.",
+      "path": "pose-report-help-names-every-flag.md",
+      "digest": "sha256:776235d2e077556e066e9d128e1ffdcbd47b0f8947526038297580ea42a75fd0"
     }
   ],
   "releases": [
