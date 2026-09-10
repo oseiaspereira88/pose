@@ -86,7 +86,7 @@ by-hand check precisely because the by-hand check was wrong.
 - created: .pose/specs/2026-09-09-pose-release-boundary-rehearsal.md
 - created: pose-mcp/internal/cli/self_update_release_test.go
 - created: pose-mcp/internal/cli/release_compatibility_test.go
-- created: .pose/changelogs/unreleased/pose-release-boundary-rehearsal.md
+- renamed: .pose/changelogs/unreleased/pose-release-boundary-rehearsal.md -> .pose/changelogs/v4.0.0/pose-release-boundary-rehearsal.md
 - modified: pose-mcp/internal/cli/maintenance.go
 - modified: .github/workflows/ci.yml
 - modified: .github/workflows/security.yml

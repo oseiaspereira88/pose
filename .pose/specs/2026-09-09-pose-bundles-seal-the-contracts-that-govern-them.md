@@ -83,7 +83,7 @@ gate, from one sealed after adoption by an instance whose date was edited.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-bundles-seal-the-contracts-that-govern-them.md
-- created: .pose/changelogs/unreleased/pose-bundles-seal-the-contracts-that-govern-them.md
+- renamed: .pose/changelogs/unreleased/pose-bundles-seal-the-contracts-that-govern-them.md -> .pose/changelogs/v4.0.0/pose-bundles-seal-the-contracts-that-govern-them.md
 - created: pose-mcp/internal/pose/governing_contracts_test.go
 - modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
 - modified: pose-mcp/internal/pose/review_bundle.go

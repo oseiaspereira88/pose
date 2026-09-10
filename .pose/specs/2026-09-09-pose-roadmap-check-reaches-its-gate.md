@@ -72,7 +72,7 @@ target that does not exist.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-roadmap-check-reaches-its-gate.md
-- created: .pose/changelogs/unreleased/pose-roadmap-check-reaches-its-gate.md
+- renamed: .pose/changelogs/unreleased/pose-roadmap-check-reaches-its-gate.md -> .pose/changelogs/v4.0.0/pose-roadmap-check-reaches-its-gate.md
 - created: pose-mcp/internal/cli/roadmap_check_gate_test.go
 - modified: pose-mcp/internal/cli/surface_check.go
 - modified: .pose/specs/2026-09-09-pose-remaining-command-surfaces-coverage.md

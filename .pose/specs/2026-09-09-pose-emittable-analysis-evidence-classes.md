@@ -74,7 +74,7 @@ contribute nothing.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-emittable-analysis-evidence-classes.md
-- created: .pose/changelogs/unreleased/pose-emittable-analysis-evidence-classes.md
+- renamed: .pose/changelogs/unreleased/pose-emittable-analysis-evidence-classes.md -> .pose/changelogs/v4.0.0/pose-emittable-analysis-evidence-classes.md
 - created: pose-mcp/internal/pose/evidence_class_vocabulary_test.go
 - created: pose-mcp/internal/scaffold/distpolicy/stacks_agreement_test.go
 - modified: .pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md

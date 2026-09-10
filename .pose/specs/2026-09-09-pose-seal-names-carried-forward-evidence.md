@@ -67,7 +67,7 @@ so nothing tells the operator it happened.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-seal-names-carried-forward-evidence.md
-- created: .pose/changelogs/unreleased/pose-seal-names-carried-forward-evidence.md
+- renamed: .pose/changelogs/unreleased/pose-seal-names-carried-forward-evidence.md -> .pose/changelogs/v4.0.0/pose-seal-names-carried-forward-evidence.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 

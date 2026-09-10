@@ -65,7 +65,7 @@ had been observed returning it.
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-remaining-command-surfaces-coverage.md
-- created: .pose/changelogs/unreleased/pose-remaining-command-surfaces-coverage.md
+- renamed: .pose/changelogs/unreleased/pose-remaining-command-surfaces-coverage.md -> .pose/changelogs/v4.0.0/pose-remaining-command-surfaces-coverage.md
 - created: pose-mcp/internal/cli/remaining_surfaces_coverage_test.go
 - modified: .pose/specs/2026-09-09-pose-policy-keys-and-release-surface-coverage.md
 

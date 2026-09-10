@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "version": "v4.0.0",
+  "previous_version": "v3.0.0",
+  "prepared_at": "2026-09-10T00:10:55Z",
+  "specs": [
+    "pose-bundles-seal-the-contracts-that-govern-them",
+    "pose-changelog-and-dor-policy-types",
+    "pose-component-evidence-is-not-inherited-upward",
+    "pose-doctor-fixtures-exercise-production-path",
+    "pose-doctor-reports-unread-policy-keys",
+    "pose-emittable-analysis-evidence-classes",
+    "pose-policy-keys-and-release-surface-coverage",
+    "pose-release-boundary-rehearsal",
+    "pose-release-notes-name-contract-adoption",
+    "pose-remaining-command-surfaces-coverage",
+    "pose-roadmap-check-reaches-its-gate",
+    "pose-seal-names-carried-forward-evidence"
+  ],
+  "categories": {
+    "added": 6,
+    "changed": 2,
+    "fixed": 4
+  },
+  "fragments": [
+    {
+      "spec": "pose-bundles-seal-the-contracts-that-govern-them",
+      "category": "changed",
+      "breaking": true,
+      "body": "A sealed review bundle now names the governance contracts that were in force when\nit was sealed, and verification asks the bundle instead of asking today's policy.\n\nThe exemption that keeps a finished scope's approval when a contract arrives\nafter it compared the review's timestamp against `contract_adoptions` in the live\npolicy. That date is editable and re-read on every verification, so moving it\nforward retroactively exempted more historical closeouts — an immutable bundle\njudged by today's configuration, which is the objection this repository already\naccepted when it sealed `selected_profiles` rather than reading profile selection\nlive.\n\nSealing the set also removes the need for a new dated marker per contract, and\ngives a property the date could not: a bundle sealed by an engine that did not\nknow a contract never lists it, permanently, and no later edit reaches it.\n\nA bundle sealed by this release does not digest the same as one sealed before it.\nBundles already sealed carry no list and keep the dated reading — they cannot be\nback-filled, because rewriting an append-only immutable artifact is what sealing\nexists to prevent and re-sealing would break the attestations bound to their\ndigests. The dated rule is therefore demoted rather than removed: it governs only\nbundles predating the field, and the legacy attempt path, which has no bundle at\nall.\n\nThis covers the contracts. Verification still reads six other policy fields live,\nand each needs its own answer — tightening a signing requirement probably should\nreach an old bundle. That is recorded as a follow-up rather than settled.",
+      "path": "pose-bundles-seal-the-contracts-that-govern-them.md",
+      "digest": "sha256:0bf52f5f296e85bccb59526e0683cf4fb26ecbf8f8689ed9112d0cdd42802eda"
+    },
+    {
+      "spec": "pose-changelog-and-dor-policy-types",
+      "category": "added",
+      "breaking": false,
+      "body": "`changelog.json`'s `categories` is now the setting it always looked like. It\nshipped from the start and nothing read it: the set of valid fragment categories\nwas written out three times instead — in the fragment loader, in `pose check`,\nand implicitly in the notes renderer. Configuring it now governs all three, and\nthe refusal an author reads quotes the configured set rather than a list written\nbeside it.\n\nAn absent policy, or one declaring no categories, keeps the six defaults, so an\ninstance that never touches the file behaves exactly as before. A category a\nproject adds renders under a heading of its own, after the known ones. The\nsection order itself stays in code: putting `security` first is a reading\ndecision, not a configuration one.\n\n`dor.json` now says that the Definition of Ready is opt-in. `readiness.go`\nlooked for `adopted_at` in a file that never shipped it, so the gate read as\nunadopted everywhere — which is the intent, but an omitted key is\nindistinguishable from an oversight. The policy carries an explicit empty date\nand a comment saying what setting it does. No instance changes behaviour: empty\nis what absent already meant.\n\nBoth files are read through one named type each, covering the whole file rather\nthan the half a given command needed, and both are now held to their keys by\n`pose doctor` — the exemption list that named them is empty.",
+      "path": "pose-changelog-and-dor-policy-types.md",
+      "digest": "sha256:e69fa324e36320e68063601b6042552d14a18ac8cb6f1fea88422cde05f08846"
+    },
+    {
+      "spec": "pose-component-evidence-is-not-inherited-upward",
+      "category": "fixed",
+      "breaking": true,
+      "body": "A validation result from a directory inside a component no longer satisfies a\ncriterion or delivery target about the component. It covered one directory of it\nand was accepted as covering all of it.\n\nThat is the same shape as the sibling case closed one spec earlier: real\nevidence, of the class the criterion demands, silent about most of what it was\nasked about. `moduleMatchesTarget` accepted a path prefix in either direction,\nso refusing siblings left containment open in both readings.\n\nThe other direction stays, because it is a claim the result actually supports: a\nmodule-wide run exercises its subtree, and running checks once at the module root\nis how nearly every project is laid out. A result registered for `web` still\nanswers for a target at `web/api`. The repository root is untouched — a\nsingle-module project is its own component.\n\nA scope whose only evidence sits in a directory inside the component now has\nnone, and stops closing until a check is registered for the component or the\ntarget is declared where the evidence already is.",
+      "path": "pose-component-evidence-is-not-inherited-upward.md",
+      "digest": "sha256:fb5dd9e16191188e8398ce50dc680609be5c9b78eb5fde0a99dcaa64da8bad43"
+    },
+    {
+      "spec": "pose-doctor-fixtures-exercise-production-path",
+      "category": "changed",
+      "breaking": false,
+      "body": "Three `pose doctor` branches that no test executed are now covered: the tool\nhalf of `review.evidence-vocabulary`, which inspects a profile's criteria and\nits tools and only ever ran the criteria half; the `ok` answer of\n`policy.artifact-roots`, which had only ever been proven to warn; and\n`mcp.config` for a configuration that exists and points somewhere other than the\nnative binary.\n\nThey were found by measuring which statements the suite executes rather than by\nre-reading the tests, which is how the same class of gap survived twice.",
+      "path": "pose-doctor-fixtures-exercise-production-path.md",
+      "digest": "sha256:6df179395c4806689001c9728de6538881fe52c89a4da8f86e6afb45d596ceff"
+    },
+    {
+      "spec": "pose-doctor-reports-unread-policy-keys",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose doctor` reports any top-level key in `.pose/policy/review.json` that the\nengine does not model, and lists the keys it does read.\n\nThe decoder stopped refusing unknown keys in 2.0.2, so a newer field never\nbreaks an older binary reading the same repository. The cost was that a\nmisspelling — `contract_adoption` for `contract_adoptions`,\n`allow_criteria_reuse` for `allow_criterion_reuse` — is silently ignored, and\nthe file reads as configured while the setting does nothing. This is a finding,\nnot a refusal; the refusal is what was removed on purpose.\n\nThe known-key list is derived from the policy struct, so it cannot drift into\nreporting a real key as unknown.",
+      "path": "pose-doctor-reports-unread-policy-keys.md",
+      "digest": "sha256:adaa31d8888a7a0755acab22e622dc628904c334244d61a2cd5f91ac5eebbb82"
+    },
+    {
+      "spec": "pose-emittable-analysis-evidence-classes",
+      "category": "added",
+      "breaking": true,
+      "body": "`lint`, `typecheck`, `security-scan` and `contract` are now evidence classes a\ncheck may emit and a review profile may demand. They were reported as `build`,\nor declared nothing at all — so a criterion asking for security assurance was\nsatisfied by a successful compilation, and the results of `npm run lint` and\n`npm run typecheck` were discarded when a review collected evidence.\n\nThat is the same indistinction the single vocabulary closed between profiles and\nchecks, one level down: a gate that reads as met by evidence saying nothing\nabout it.\n\n`go vet` now emits `lint` rather than `build`; it is a linter, and calling it a\nbuild was the collapse in its clearest form. Because it was the Go stack's only\n`build` producer, a `go build ./...` check was added — its absence is why vet\ncarried the label.\n\nAn instance that declares one of the four cannot be validated by an engine\npredating them — `pose check --strict` on an older binary fails with `unknown\nevidenceClass`. That is the adoption cost of any change to a closed set, and the\nset being closed is what makes it worth having. No shipped profile demands any\nof the four, so nothing changes for an instance until it opts in.\n\nThe stacks catalog exists twice — in a repository's own matrix and in the\nshipped scaffold, because the file is excluded from the byte-for-byte sync — and\nthe two are now held equal by a test. They had agreed by hand, with nothing\nchecking, and the first edit of this change moved one and not the other.",
+      "path": "pose-emittable-analysis-evidence-classes.md",
+      "digest": "sha256:ccc1265ac496e7811520a532e56fbbc750506ff76ddb631d63a152c708eebafa"
+    },
+    {
+      "spec": "pose-policy-keys-and-release-surface-coverage",
+      "category": "added",
+      "breaking": false,
+      "body": "Every policy the engine models now reports the keys it carries and the engine\ndoes not read. It was the review policy alone, because that is where\n`DisallowUnknownFields` had to be dropped; the exposure is identical in the\ndelivery, artifact, capability, docs, release and state policies, and identical\nis the point — an operator who learns the finding exists for one file has no way\nto know it does not exist for the next.\n\nThe keys come from the structs that read the file, so adding a field is enough\nand the list cannot drift. A file read by two structs is held to the union:\n`capabilities.json` is decoded once for the staleness thresholds and again for\nthe trigger thresholds, and either half alone would report the other's keys as\nunread — the finding inverted, telling an operator to delete settings that work.\nThe `_comment` the shipped policies carry is not reported. The release policy is\nexamined wherever the engine reads it, including the location it still falls\nback to.\n\nWhich policies are covered is checked rather than listed: a shipped policy is\neither held to its keys or recorded, in writing, as having no type to derive\nthem from. `changelog.json` and `dor.json` are the two, and both would report\nfindings the engine itself causes.\n\nThe coverage audit that found three unreached branches in the doctor was run\nover the rest of the CLI. The largest thing it found was that the entire release\ncommand surface executed zero statements under the suite — including the rule\nthat release evidence must name the commit the tag points at, which is what\nkeeps a release record honest. That surface now runs under test, from 0 of 20\nfunctions to 20 of 20.",
+      "path": "pose-policy-keys-and-release-surface-coverage.md",
+      "digest": "sha256:0c22dce2002bb393b4314d1728ffeb2d85e6ccc9b5aeebdbb4de7da3af6c96ab"
+    },
+    {
+      "spec": "pose-release-boundary-rehearsal",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The two sequences that only a real release had ever run now run in tests.\n\n`pose update` is exercised end to end against a local release server: a binary\nbuilt at an older version fetches the release metadata, downloads the archive,\nreplaces itself on disk and hands off to what it wrote. Reintroducing the\n`os.Executable()` call that failed the v2.0.0 release reproduces that failure\nlocally, which nothing could do before — reaching the handoff used to require an\nactual download.\n\nThe review policy this engine writes is loaded by the binary of the previous\nrelease, built from its own tag. The probe is `review-plan` rather than `check\n--strict`, because `check` reads the policy through a small struct of its own\nand never reaches the loader that enforces the schema; that wrong probe is what\nmade the v2.0.2 compatibility claim look true when it was not.\n\nThe release endpoints became package variables so a test can point a build at a\nlocal server with `-ldflags -X`. They are deliberately not read from the\nenvironment: where `pose update` fetches its own replacement from is not\nsomething a shell variable should decide.\n\nJobs that run the Go suite now check out full history: `git archive` needs the\ntag, and a shallow checkout would have made the cross-version test skip on the\nmachines whose verdict gates a release. A missing precondition there is a\nconfiguration failure, and the test says so rather than skipping.\n\nWhich jobs those are is checked rather than listed. Adding the flag to the one\njob known to run the suite missed `validation-findings`, which reaches it\nthrough `pose validate` in another workflow — the same enumerate-by-hand gap\nthis repository already tracks for its shellcheck and docs-parity lists.",
+      "path": "pose-release-boundary-rehearsal.md",
+      "digest": "sha256:3ca805e55a228e650b40cca97c90d49752ab943991374c043200613cff6cd23d"
+    },
+    {
+      "spec": "pose-release-notes-name-contract-adoption",
+      "category": "added",
+      "breaking": false,
+      "body": "A release that introduces a governance contract now says so, in a Compatibility\nsection at the top of its own notes: which contracts, what each requires, and\nwhat adopting one costs a reader that does not have it.\n\nThe cost is stated per contract, because it differs. An engine older than the\nrelease never applies the contract — it does not know the id — and judges\nreviews by the rules it has. On top of that, a contract carried by a top-level\npolicy key is refused outright by engines from before the strict decoder was\ndropped in 2.0.2: they stop reading the repository until they are updated, so\nevery tool has to move together. A contract recorded as an id inside\n`contract_adoptions` costs none of that, because the map is a key those engines\nalready model.\n\nv2.0.0 introduced one of the first kind and its notes said none of it.\n\nThe text comes from the contract registry, which is already the one place a\ncontract is declared — adding one there is what makes `pose update` stamp it and\n`pose doctor` report it, and now also what the notes say. A contract added\nwithout recording which release introduced it fails a test, so the next one is\nnot silent.\n\nReleases already prepared keep their frozen notes and their digests: nothing\nre-renders them.",
+      "path": "pose-release-notes-name-contract-adoption.md",
+      "digest": "sha256:f347a080d765bfcfdf2cf15268459ef0d2129af3681fd7537d43d2208c9a3694"
+    },
+    {
+      "spec": "pose-remaining-command-surfaces-coverage",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`review-check`, `history-check`, `docs-sync`, `docs-review`, `contribute\nsubmit`, `roadmap-check` and the helpers the Definition of Ready is built from\nnow execute under test, through the dispatch a user reaches them by. None of\nthem had run a statement under the suite, so every refusal each one makes was\nan assumption — and a refusal is an exit code a script branches on.\n\n`contribute submit` reaches `gh issue create` and `docs-sync push` writes to a\nConductor: both are covered up to the outward call and no further. The\ncontribute assertion also requires the refusal to happen *before* the command\nannounces a submission.\n\nThree fixtures had to be corrected against what the commands actually require\nrather than against what they happened to answer, each found by an assertion\nfailing. The last one surfaced something worth its own change: `roadmap-check`\nreturns before loading any roadmap when the delivery profile index is absent, so\nit reports zero cut criteria and exits 0 — a gate reading as met because the\npath that would fail is never reached. The behaviour is pinned here and recorded\nas a follow-up.",
+      "path": "pose-remaining-command-surfaces-coverage.md",
+      "digest": "sha256:a51e84962b782c57871369289b788848bceb65c2f08cec0d5b94796236e8465f"
+    },
+    {
+      "spec": "pose-roadmap-check-reaches-its-gate",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose roadmap-check` reported zero cut criteria and exited 0 — in both\n`--strict` and `--tolerant` — on a repository whose roadmap declared several.\nThe delivery graph builder returned before it loaded a single roadmap when\n`.pose/indexes/validation-matrix.json` or `.pose/specs` was absent.\n\nA gate that cannot evaluate its criteria was reading as a gate that passed\nthem. Neither absence justifies the skip: without delivery profiles there are no\ntargets, so a criterion naming one is unresolved — which the criteria loop\nalready reports as `unknown delivery ref` — and a `check:` or `manual-review:`\nref needs no profile index at all.\n\nA repository that has adopted delivery integrity is unaffected: it never took\nthe early return, and `surface-check` here reports the same edges and findings\nbefore and after. What changes is the answer given to a repository with roadmaps\nand no profile index, where the previous answer was wrong.\n\nFound while writing a coverage fixture rather than by a report: the fixture had\nno profile index, and both modes returned 0 on a criterion naming a delivery\ntarget that does not exist.",
+      "path": "pose-roadmap-check-reaches-its-gate.md",
+      "digest": "sha256:5d598a9c76110940295654163819e742ce84005bea315b336378f75d98a5009b"
+    },
+    {
+      "spec": "pose-seal-names-carried-forward-evidence",
+      "category": "added",
+      "breaking": false,
+      "body": "Sealing a review bundle now names the evidence that ran against a commit other\nthan the head the bundle approves. The engine already accepts such a result as\ncurrent — by provenance digest, or because the scope is closed — and never said\nso, leaving a reviewer unable to tell a result produced against this subject\nfrom one carried forward.\n\nIt is a warning, not a blocker: the engine's decision about currency does not\nchange, and blocking would refuse the closed-scope case the bridge exists for.",
+      "path": "pose-seal-names-carried-forward-evidence.md",
+      "digest": "sha256:e2b5f85e1dfbf623fd4f2072cb40268527a45101132c41c987402b17d9ccda83"
+    }
+  ],
+  "breaking": true,
+  "notes_digest": "sha256:2b2fd2e2ceb9b7582cfe30951dec6e0154a4a18934e1a6a378d3340b97d62ba8",
+  "release_input_digest": "sha256:9f841baf27e8d442e9ee187553feadd8196e4e7e56117cb2f3cd32afadb925b5",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v4.0.0"
+  }
+}

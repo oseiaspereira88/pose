@@ -75,7 +75,7 @@ testing them buys little. Three describe behaviour:
 
 ### Artifacts
 - created: .pose/specs/2026-09-09-pose-doctor-fixtures-exercise-production-path.md
-- created: .pose/changelogs/unreleased/pose-doctor-fixtures-exercise-production-path.md
+- renamed: .pose/changelogs/unreleased/pose-doctor-fixtures-exercise-production-path.md -> .pose/changelogs/v4.0.0/pose-doctor-fixtures-exercise-production-path.md
 - created: pose-mcp/internal/cli/doctor_fixture_audit_test.go
 
 ### Technical risks
