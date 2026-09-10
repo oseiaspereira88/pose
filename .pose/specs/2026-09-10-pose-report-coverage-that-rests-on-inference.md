@@ -71,7 +71,7 @@ of something larger than themselves.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-report-coverage-that-rests-on-inference.md
-- created: .pose/changelogs/unreleased/pose-report-coverage-that-rests-on-inference.md
+- renamed: .pose/changelogs/unreleased/pose-report-coverage-that-rests-on-inference.md -> .pose/changelogs/v5.0.0/pose-report-coverage-that-rests-on-inference.md
 - created: pose-mcp/internal/pose/inferred_coverage_test.go
 - modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
 - modified: pose-mcp/internal/pose/delivery_surface.go

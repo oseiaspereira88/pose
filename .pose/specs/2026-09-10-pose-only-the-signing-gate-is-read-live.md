@@ -66,7 +66,7 @@ Both are the kind of change that passes review by looking consistent.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-only-the-signing-gate-is-read-live.md
-- created: .pose/changelogs/unreleased/pose-only-the-signing-gate-is-read-live.md
+- renamed: .pose/changelogs/unreleased/pose-only-the-signing-gate-is-read-live.md -> .pose/changelogs/v5.0.0/pose-only-the-signing-gate-is-read-live.md
 - created: pose-mcp/internal/pose/live_policy_reads_test.go
 - modified: .pose/specs/2026-09-10-pose-cross-version-guard-is-this-repositorys.md
 - modified: .pose/specs/2026-09-10-pose-reuse-is-sealed-signing-stays-live.md

@@ -79,7 +79,7 @@ nothing would have reported it.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-bundle-findings-take-the-contract-the-legacy-path-had.md
-- created: .pose/changelogs/unreleased/pose-bundle-findings-take-the-contract-the-legacy-path-had.md
+- renamed: .pose/changelogs/unreleased/pose-bundle-findings-take-the-contract-the-legacy-path-had.md -> .pose/changelogs/v5.0.0/pose-bundle-findings-take-the-contract-the-legacy-path-had.md
 - created: pose-mcp/internal/pose/bundle_finding_contract_test.go
 - modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
 - modified: pose-mcp/internal/pose/review_bundle.go
