@@ -96,6 +96,7 @@ else
       "$prior_bin" new-spec upgrade-lab-fixture >/dev/null
       "$prior_bin" new-knowledge handoff upgrade-lab-fixture --owner @pose-maintainers >/dev/null
       printf '\n<!-- upgrade-lab: user customization preserved across upgrade -->\n' >> AGENTS.md
+      printf '\n<!-- upgrade-lab: user customization preserved across upgrade -->\n' >> POSE.md
     ) || return 1
     local marker
     marker="upgrade-lab: user customization preserved across upgrade"
@@ -114,9 +115,14 @@ else
     # merge writes when it cannot keep it in place. Asserting a byte-identical
     # AGENTS.md contradicted the upgrade contract and blocked every pair whose
     # manual legitimately changed (spec pose-compat-gate-manual-refresh-assertion).
-    grep -q "$marker" "$fixture/AGENTS.md" ||
-      grep -q "$marker" "$fixture/AGENTS.md.pose-backup" 2>/dev/null ||
-      return 1
+    # POSE.md takes the same merge path, so it is held to the same property
+    # (spec pose-compat-gate-pose-md-preservation).
+    local manual
+    for manual in AGENTS.md POSE.md; do
+      grep -q "$marker" "$fixture/$manual" ||
+        grep -q "$marker" "$fixture/$manual.pose-backup" 2>/dev/null ||
+        return 1
+    done
     [[ -f "$fixture/.pose/specs/upgrade-lab-fixture/spec.md" ]] || return 1
     compgen -G "$fixture/.pose/knowledge/*upgrade-lab-fixture*.md" >/dev/null || return 1
   }
