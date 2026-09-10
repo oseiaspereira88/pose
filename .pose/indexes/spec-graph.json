@@ -361,6 +361,10 @@
       "to": "pose-mcp-project-scope-contract"
     },
     {
+      "from": "pose-mcp-server-survives-self-update",
+      "to": "pose-self-update-handoff-path"
+    },
+    {
       "from": "pose-monorepo-validation-recipes",
       "to": "pose-changed-scope-validation"
     },
@@ -1452,6 +1456,14 @@
       "path": ".pose/specs/2026-07-18-pose-mcp-protocol-completeness.md",
       "priority": 21,
       "status": "done"
+    },
+    "pose-mcp-server-survives-self-update": {
+      "depends_on": [
+        "pose-self-update-handoff-path"
+      ],
+      "path": ".pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-monorepo-validation-advisory": {
       "depends_on": null,
