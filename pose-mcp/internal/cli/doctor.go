@@ -755,6 +755,84 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		} else {
 			add("review.evidence-vocabulary", "ok", text("every evidence class the selected review profiles demand can be emitted by a check", "toda classe de evidência exigida pelos review profiles selecionados pode ser emitida por um check"), "")
 		}
+
+		// 12f. The vocabulary check above asks whether a class *could* be
+		// emitted by some check somewhere. This asks whether one actually is,
+		// here. The two came apart when `go vet` moved from `build` to `lint`:
+		// `build` stayed a perfectly valid class, the profiles kept demanding
+		// it, and no registered check produced it any more — a gate depending
+		// on evidence this repository does not generate, with nothing saying so
+		// (spec pose-report-a-demanded-class-nothing-produces).
+		demanded := map[string]bool{}
+		for id := range selected {
+			if id == "" {
+				continue
+			}
+			raw, readErr := os.ReadFile(filepath.Join(root, ".pose", "review-profiles", id+".json"))
+			if readErr != nil {
+				continue
+			}
+			var profile struct {
+				Criteria []struct {
+					EvidenceClasses []string `json:"evidence_classes"`
+				} `json:"criteria"`
+				Tools []struct {
+					EvidenceClasses []string `json:"evidence_classes"`
+				} `json:"tools"`
+			}
+			if json.Unmarshal(raw, &profile) != nil {
+				continue
+			}
+			for _, criterion := range profile.Criteria {
+				for _, class := range criterion.EvidenceClasses {
+					demanded[class] = true
+				}
+			}
+			for _, tool := range profile.Tools {
+				for _, class := range tool.EvidenceClasses {
+					demanded[class] = true
+				}
+			}
+		}
+		if len(demanded) > 0 {
+			produced := map[string]bool{}
+			if raw, matrixErr := os.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json")); matrixErr == nil {
+				if matrix, parseErr := parseValidationMatrix(raw); parseErr == nil {
+					for _, stack := range matrix.Stacks {
+						for _, check := range stack.Checks {
+							if class := strings.TrimSpace(check.EvidenceClass); class != "" {
+								produced[class] = true
+							}
+						}
+					}
+					for _, override := range matrix.ModuleOverrides {
+						for _, check := range override.Checks {
+							if class := strings.TrimSpace(check.EvidenceClass); class != "" {
+								produced[class] = true
+							}
+						}
+					}
+				}
+			}
+			unproduced := []string{}
+			for class := range demanded {
+				if !produced[class] {
+					unproduced = append(unproduced, class)
+				}
+			}
+			sort.Strings(unproduced)
+			if len(unproduced) > 0 {
+				add("validate.class-producers", "warn",
+					fmt.Sprintf(text("%d evidence class(es) the selected review profiles demand are produced by no registered check: %s",
+						"%d classe(s) de evidência exigida(s) pelos review profiles selecionados não são produzidas por nenhum check registrado: %s"),
+						len(unproduced), strings.Join(unproduced, ", ")),
+					text("a criterion demanding one can only be satisfied by evidence this repository does not generate — register a check that emits the class in .pose/indexes/validation-matrix.json, or reconcile the profile",
+						"um critério que exige uma delas só é satisfeito por evidência que este repositório não gera — registre em .pose/indexes/validation-matrix.json um check que emita a classe, ou reconcilie o profile"))
+			} else {
+				add("validate.class-producers", "ok",
+					text("every evidence class the selected review profiles demand is produced by a registered check", "toda classe de evidência exigida pelos review profiles selecionados é produzida por um check registrado"), "")
+			}
+		}
 	}
 
 	// 12c. `.pose/policy/` is not machinery, so an update delivers a stricter
