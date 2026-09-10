@@ -115,7 +115,12 @@ type ReviewBundlePayload struct {
 	// time for the same reason the contracts are: read live, a flag flipped
 	// today would approve a closeout recorded years ago
 	// (spec pose-bundle-findings-take-the-contract-the-legacy-path-had).
-	Gates          ReviewBundleGates   `json:"gates,omitempty"`
+	// A pointer, not a value: `omitempty` does nothing for a struct, so a value
+	// here serialised as `"gates":{}` in every payload and changed the digest of
+	// every bundle already sealed. Nil means the bundle predates the field; a
+	// pointer to an empty struct means it was sealed with the defaults, and the
+	// two are different facts.
+	Gates          *ReviewBundleGates  `json:"gates,omitempty"`
 	Children       []ReviewBundleChild `json:"children,omitempty"`
 	ConsumedInputs []ReviewBundleInput `json:"consumed_inputs"`
 }
@@ -127,6 +132,22 @@ type ReviewBundlePayload struct {
 type ReviewBundleGates struct {
 	AllowApprovedWithReservations bool     `json:"allow_approved_with_reservations,omitempty"`
 	AcceptedRiskSeverities        []string `json:"accepted_risk_severities,omitempty"`
+	// AllowCriterionReuse is sealed for the same reason: reuse carries a prior
+	// disposition into this attestation, and whether that was permitted is a
+	// property of the review, not of the policy as it stands today
+	// (spec pose-reuse-is-sealed-signing-stays-live).
+	AllowCriterionReuse bool `json:"allow_criterion_reuse,omitempty"`
+}
+
+// SealedGates returns the gates sealed into the bundle, or the conservative
+// defaults when it predates the field: reservations refused, no risk severity
+// accepted, no criterion reuse. That is exactly what this path enforced before
+// the gates existed, so no bundle already sealed changes verdict.
+func (p ReviewBundlePayload) SealedGates() ReviewBundleGates {
+	if p.Gates == nil {
+		return ReviewBundleGates{}
+	}
+	return *p.Gates
 }
 
 // BundleGovernedBy reports whether the contract governed this bundle, and
@@ -292,9 +313,10 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 	bundle.Payload.ConsumedInputs = s.reviewBundleConsumedInputs(plan)
 	bundle.Payload.GoverningContracts = governingContractsAtSeal()
 	if policy, _, policyErr := s.loadReviewPolicy(); policyErr == nil {
-		bundle.Payload.Gates = ReviewBundleGates{
+		bundle.Payload.Gates = &ReviewBundleGates{
 			AllowApprovedWithReservations: policy.AllowApprovedWithReservations,
 			AcceptedRiskSeverities:        append([]string{}, policy.AcceptedRiskSeverities...),
+			AllowCriterionReuse:           policy.AllowCriterionReuse,
 		}
 	}
 	bundle.Blockers = uniqueSorted(bundle.Blockers)
@@ -1844,6 +1866,13 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	if att.BundleDigest != bundle.BundleDigest || att.BundleID != bundle.BundleID {
 		blockers = append(blockers, "attestation does not reference the exact sealed bundle")
 	}
+	// The one gate that stays live, deliberately. Everything else a bundle is
+	// judged by is sealed with it, because a setting flipped today must not
+	// re-judge a review recorded years ago. Signing is the opposite case: a
+	// project that starts requiring signed attestations is raising a bar, and a
+	// bundle sealed before that must not be permanently exempt from it — the
+	// exemption would be exactly the work an attacker or a hurry would want
+	// (spec pose-reuse-is-sealed-signing-stays-live).
 	if policy.RequireSignedAttestations || att.Envelope != nil {
 		if err := s.verifyStoredReviewAttestationSignature(att); err != nil {
 			blockers = append(blockers, err.Error())
@@ -1902,8 +1931,8 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 			continue
 		}
 		reused[reuse.Criterion] = true
-		if !policy.AllowCriterionReuse {
-			blockers = append(blockers, "criterion reuse is disabled by review policy")
+		if !bundle.Payload.SealedGates().AllowCriterionReuse {
+			blockers = append(blockers, "criterion reuse is not permitted by the bundle's sealed gates")
 			continue
 		}
 		current, ok := required[reuse.Criterion]
@@ -1969,7 +1998,7 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	// sealed gates. The rest is not configuration: a finding without a severity
 	// is incomplete under any policy.
 	allowedRisk := map[string]bool{}
-	for _, severity := range bundle.Payload.Gates.AcceptedRiskSeverities {
+	for _, severity := range bundle.Payload.SealedGates().AcceptedRiskSeverities {
 		allowedRisk[severity] = true
 	}
 	seenFindings := map[string]bool{}
@@ -1993,7 +2022,7 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 			blockers = append(blockers, "finding "+finding.ID+" has invalid disposition")
 		}
 	}
-	if att.Decision != "approved" && !(att.Decision == "approved-with-reservations" && bundle.Payload.Gates.AllowApprovedWithReservations) {
+	if att.Decision != "approved" && !(att.Decision == "approved-with-reservations" && bundle.Payload.SealedGates().AllowApprovedWithReservations) {
 		blockers = append(blockers, "review decision does not permit closeout: "+att.Decision)
 	}
 	return blockers

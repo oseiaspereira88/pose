@@ -85,6 +85,12 @@ nothing would have reported it.
 - modified: pose-mcp/internal/pose/review_bundle.go
 
 ### Technical risks
+- `omitempty` does nothing for a struct value. The first version of `Gates` was
+  one, so every payload serialised `"gates":{}` and the digest of all 483
+  bundles already sealed changed — `pose check --strict` reported the mismatch
+  across dozens of closed scopes. It is a pointer now: nil means the bundle
+  predates the field, and a pointer to an empty struct means it was sealed with
+  the defaults, which are different facts.
 - Applying the structural contract to bundles sealed earlier could invalidate a
   historical closeout. Measured before deciding: the 469 attestations recorded
   in this repository carry no findings at all and none is
@@ -154,7 +160,12 @@ assertions to fail against the gate as it was.
 ### Execution log
 - Date: 2026-09-10
 - Environment: local, Go 1.26
-- Notes: restoring the previous two-case loop fails six of the new assertions.
+- Notes: the first version of the sealed field was a struct value, and
+  `pose check --strict` failed across dozens of closed scopes with digest
+  mismatches — `omitempty` is a no-op on a struct, so every sealed bundle's
+  payload gained `"gates":{}`. With a pointer the gate is clean again and the
+  483 recorded bundles keep their digests. Restoring the previous two-case loop
+  fails six of the new assertions.
   Before the fix, a probe of the three cases returned `blockers=[]` for all
   three. A scan of `.pose/review-attestations/` found 469 attestations and zero
   findings, which is why the structural half could apply retroactively without

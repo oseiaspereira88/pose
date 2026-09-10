@@ -22,7 +22,7 @@ func gateFixture(gates ReviewBundleGates) (Store, ReviewBundle, ReviewAttestatio
 	store := Store{Root: "."}
 	bundle := ReviewBundle{
 		BundleID: "rvb-x", BundleDigest: "sha256:x", State: "sealed",
-		Payload: ReviewBundlePayload{Scope: ReviewBundleScope{Ref: "spec:alpha"}, Gates: gates},
+		Payload: ReviewBundlePayload{Scope: ReviewBundleScope{Ref: "spec:alpha"}, Gates: &gates},
 	}
 	att := ReviewAttestation{
 		AttestationID: "rva-x", BundleID: "rvb-x", BundleDigest: "sha256:x",

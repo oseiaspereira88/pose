@@ -8,6 +8,7 @@ Amended (2026-09-09) by spec `pose-evidence-scoped-to-component` — see Amendme
 Amended (2026-09-09) by spec `pose-component-evidence-is-not-inherited-upward` — see Amendments
 Amended (2026-09-09) by spec `pose-bundles-seal-the-contracts-that-govern-them` — see Amendments
 Amended (2026-09-10) by spec `pose-bundle-findings-take-the-contract-the-legacy-path-had` — see Amendments
+Amended (2026-09-10) by spec `pose-reuse-is-sealed-signing-stays-live` — see Amendments
 
 ## Context
 
@@ -428,4 +429,42 @@ settings stopped taking effect without anything saying so.
 - The structural half applies to every bundle, old ones included. It is not
   configuration, and grandfathering it would be preserving a defect rather than
   a contract.
+
+### 2026-09-10 — reuse is sealed, the signing requirement is not
+
+Spec `pose-reuse-is-sealed-signing-stays-live`.
+
+**What changed.** `allow_criterion_reuse` joins the sealed gates.
+`require_signed_attestations` stays read from the live policy, deliberately, and
+is now the only gate a sealed bundle is judged by that is not sealed with it.
+
+**Why.** The two look alike and point opposite ways.
+
+Reuse carries a prior criterion disposition into this attestation. Whether that
+was permitted is a property of the review that happened, so reading it live lets
+a project enabling reuse today retroactively legitimise an attestation that
+reused a criterion when its own policy forbade it.
+
+The signing requirement is a bar, not a permission. A project that starts
+requiring signed attestations is raising it, and a bundle sealed before that must
+not be permanently exempt — an exemption is precisely what a hurry, or an
+attacker, would reach for. Sealing it would mean the new requirement only ever
+applies to future work, which is the opposite of what adopting it means.
+
+**Options considered.**
+
+1. Seal both, for consistency. Rejected: consistency here would freeze a security
+   requirement at the moment it was weakest.
+2. Read both live, for consistency. Rejected: it reopens the retroactive
+   legitimisation this ADR has now closed three times.
+3. Seal reuse, keep signing live. Selected.
+
+**Consequences.**
+
+- Every gate a sealed bundle is judged by is now sealed with it except one, and
+  that exception is stated at the call site rather than left to be inferred.
+- A bundle sealed before the gates existed carries no reuse permission, so an
+  attestation reusing a criterion against it is refused. That is the
+  conservative reading and matches what an instance with reuse disabled already
+  got.
 
