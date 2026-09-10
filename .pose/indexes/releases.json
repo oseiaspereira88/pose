@@ -33,6 +33,14 @@
       "digest": "sha256:1ed8148383ddb456f9d0ce5ac3a116c0392c4960e700167449d73912e4f15a25"
     },
     {
+      "spec": "pose-report-a-demanded-class-nothing-produces",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose doctor` reports an evidence class the selected review profiles demand that\nno registered check in the repository produces.\n\n`review.evidence-vocabulary` asks whether a class *could* be emitted by some\ncheck somewhere — it holds a profile to the closed vocabulary. It says nothing\nabout whether this repository generates that evidence, and the two came apart\nwhen `go vet` moved from `build` to `lint`: `build` stayed a valid class, the\nprofiles kept demanding it, and nothing produced it any more. A criterion\ndepending on evidence the repository does not generate, with nothing saying so.\n\nIt is a warning rather than a refusal, because evidence can be imported from\nelsewhere. A module override counts as a producer: the question is whether the\nrepository generates the class, not which stack does.\n\nRun against POSE's own repository it has two findings on the first execution:\nthe selected profiles demand `a11y` and `e2e`, and no registered check emits\neither.",
+      "path": "pose-report-a-demanded-class-nothing-produces.md",
+      "digest": "sha256:11d5488a402237093eeffc4b3b26c62b4b27f931084e5eb85dfb9512d58446c2"
+    },
+    {
       "spec": "pose-reuse-is-sealed-signing-stays-live",
       "category": "changed",
       "breaking": false,
