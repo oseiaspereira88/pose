@@ -172,4 +172,4 @@ the evidence.
 
 ### Follow-ups
 
-- [open] Have a check declare the subtree it actually walked, so containment is read from the run rather than inferred from the module path — it is the durable answer to both directions, and the downward one is still an inference — owner:unowned crit:medium review:2027-01-09
+- [done] Have a check declare the subtree it actually walked, so containment is read from the run rather than inferred from the module path — it is the durable answer to both directions, and the downward one is still an inference. Answered in two steps rather than one. `pose-report-coverage-that-rests-on-inference` makes the inference visible now, at no cost and refusing nothing; the declared-subtree contract is deferred with its four approaches recorded in the ADR amendment, because this repository offers no case to calibrate it against — every match here is by equality or by the root. — owner:unowned crit:medium review:2027-01-09

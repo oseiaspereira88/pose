@@ -9,6 +9,7 @@ Amended (2026-09-09) by spec `pose-component-evidence-is-not-inherited-upward` �
 Amended (2026-09-09) by spec `pose-bundles-seal-the-contracts-that-govern-them` — see Amendments
 Amended (2026-09-10) by spec `pose-bundle-findings-take-the-contract-the-legacy-path-had` — see Amendments
 Amended (2026-09-10) by spec `pose-reuse-is-sealed-signing-stays-live` — see Amendments
+Amended (2026-09-10) by spec `pose-report-coverage-that-rests-on-inference` — see Amendments
 
 ## Context
 
@@ -84,7 +85,9 @@ Record review approval as a separate immutable attestation referencing the
 exact bundle ID and digest. A criterion recorded `passed` must cite evidence the
 bundle contains, of a class the criterion asks for (amended 2026-09-08), from a
 component it answers for — which a component containing it does, and a directory
-inside it does not (amended 2026-09-09). Creating, importing, superseding or verifying an
+inside it does not (amended 2026-09-09). Coverage that rests on the containing
+module rather than on a result naming the target is reported, not refused
+(amended 2026-09-10). Creating, importing, superseding or verifying an
 attestation never changes the bundle. `review-check`, `closeout-check` and
 `pose close` verify the attestation and then perform their own lifecycle and
 bookkeeping gates without adding new inputs to the approved subject.
@@ -467,4 +470,50 @@ applies to future work, which is the opposite of what adopting it means.
   attestation reusing a criterion against it is refused. That is the
   conservative reading and matches what an instance with reuse disabled already
   got.
+
+### 2026-09-10 — coverage that rests on an inference is reported
+
+Spec `pose-report-coverage-that-rests-on-inference`.
+
+**What changed.** A delivery target whose only passing evidence for a class comes
+from a module containing it now carries an `inferred-coverage` finding. Nothing
+is refused.
+
+**Why.** The 2026-09-09 amendment settled the direction: a result from a
+containing module answers for a target inside it, because a module-wide run does
+exercise its subtree. Usually. A run configured to skip a directory inside it
+does not, and nothing in the result says which — that is the one part of the
+rule POSE cannot check, and it was left as a known gap.
+
+Closing it properly means a check declaring what it walked, which is a change to
+the validation result contract and a migration for every project. Making the
+inference visible costs nothing, breaks nothing, and produces the evidence that
+decision needs: how many targets, in real repositories, actually rest on it. In
+this one the answer is none — its targets and results name the same module, so
+the rule matches by equality or by the root.
+
+**Options considered.**
+
+1. Have a check declare the subtree it walked, in the validation matrix.
+   Deferred: it replaces the engine's inference with the matrix author's
+   assertion, which is better because someone is accountable, but it is still a
+   claim rather than the run — and it is a contract change designed against no
+   observed case.
+2. Derive the subtree from the check's arguments. Rejected: it reads `./...` and
+   says nothing about `npm test`. Parsing a command line is inference with
+   another name.
+3. Have the check report what it walked. Rejected as the first step: it is the
+   only option that observes rather than asserts, and it requires every tool to
+   cooperate. Most do not.
+4. Report the inference and keep the rule. Selected.
+
+**Consequences.**
+
+- A repository laid out with checks at the module root and targets inside it
+  will see one finding per target and class. That is the intended visibility and
+  it is a warning, so nothing stops closing.
+- The finding fires only when *no* result names the target's own module: a
+  target with its own check is not resting on the inference.
+- Nothing changes in this repository, which is the point of measuring before
+  designing the contract that would.
 

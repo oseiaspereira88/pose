@@ -422,8 +422,14 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 		profile := profiles[target.Profile]
 		classes := append([]string{}, profile.RequiredEvidenceClasses...)
 		missing := []string{}
+		// Classes whose only passing evidence came from a containing module.
+		// Reported once per target below, rather than per result: the question
+		// an operator acts on is whether this target's coverage rests on an
+		// inference, not which of several results happened to be inferred.
+		inferredOnly := []string{}
 		for _, class := range classes {
 			passed := false
+			passedExactly := false
 			staleCandidate := ""
 			for _, result := range graph.ValidationResults {
 				if result.EvidenceClass != class || !moduleMatchesTarget(result.Module, target.Module) {
@@ -431,6 +437,9 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 				}
 				if result.Outcome == "pass" && result.Severity == "required" && deliveryEvidenceCurrent(result, target.Spec, specStatus[target.Spec], graph, setsBySpec[target.Spec]) {
 					passed = true
+					if !moduleCoverageIsInferred(result.Module, target.Module) {
+						passedExactly = true
+					}
 					graph.Edges = append(graph.Edges, DeliveryIntegrityEdge{From: targetNode, To: "validation-result:" + result.ID, Type: "validated-by"})
 					graph.Edges = append(graph.Edges, DeliveryIntegrityEdge{From: entryNode, To: "validation-result:" + result.ID, Type: "validated-by"})
 					path = append(path, "validation-result:"+result.ID)
@@ -444,6 +453,16 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 			if !passed {
 				missing = append(missing, class)
 			}
+			if passed && !passedExactly {
+				inferredOnly = append(inferredOnly, class)
+			}
+		}
+		if len(inferredOnly) > 0 {
+			sort.Strings(inferredOnly)
+			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding(
+				"inferred-coverage", deliverySeverity(policy, "inferred-coverage"), target.Spec, target.Ref, "",
+				"evidence for "+strings.Join(inferredOnly, ", ")+" comes only from a module containing "+target.Module+", so covering it is inferred rather than reported",
+				"register a check for "+target.Module+", or accept that a run of the containing module is what this target is gated on"))
 		}
 		if len(profile.AnyEvidenceClasses) > 0 {
 			any := false
@@ -651,6 +670,26 @@ func moduleMatchesTarget(module, target string) bool {
 	// and refusing that would break every repository that never split.
 	if module == "." || module == "" || module == "root" || target == "." || target == "" || target == "root" {
 		return true
+	}
+	return strings.HasPrefix(target, strings.TrimSuffix(module, "/")+"/")
+}
+
+// moduleCoverageIsInferred reports whether a result answers for a target only
+// because the target sits inside the result's module — as opposed to naming the
+// same module, or one of the two being the repository root.
+//
+// That match is an inference, and the one part of this rule POSE cannot check:
+// a module-wide run usually does exercise its subtree, and a run configured to
+// skip a directory inside it does not, and nothing in the result says which
+// (spec pose-report-coverage-that-rests-on-inference).
+func moduleCoverageIsInferred(module, target string) bool {
+	module = filepath.ToSlash(filepath.Clean(module))
+	target = filepath.ToSlash(filepath.Clean(target))
+	if module == target {
+		return false
+	}
+	if module == "." || module == "" || module == "root" || target == "." || target == "" || target == "root" {
+		return false
 	}
 	return strings.HasPrefix(target, strings.TrimSuffix(module, "/")+"/")
 }
