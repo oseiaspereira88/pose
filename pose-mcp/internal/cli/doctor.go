@@ -763,7 +763,43 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		// it, and no registered check produced it any more — a gate depending
 		// on evidence this repository does not generate, with nothing saying so
 		// (spec pose-report-a-demanded-class-nothing-produces).
-		demanded := map[string]bool{}
+		// A criterion's `evidence_classes` is a disjunction: the attestation cites
+		// one of them, and the first match satisfies it. So the unit that can be
+		// unsatisfiable is the criterion, not the class — reporting classes one
+		// by one said `e2e` was unproduced while every criterion listing it also
+		// accepted `integration` or `unit`, both of which are produced. A true
+		// statement that names nothing to fix, which is how a check earns being
+		// ignored (spec pose-class-producers-reads-the-disjunction).
+		type classDemand struct {
+			where   string
+			classes []string
+		}
+		// A profile selected by a language this repository does not have can never
+		// be selected for any component, so its criteria are not ones anyone here
+		// will be held to. Reporting them is the second kind of false alarm this
+		// check had: `frontend-review` demands `a11y`, and there is no JavaScript
+		// or TypeScript module for it to apply to.
+		//
+		// Only the language selector is evaluated. The others need the
+		// component-aware planner, and a partial evaluation can only make this
+		// quieter, never wrongly loud: a profile is skipped solely when it names
+		// languages and none of them is present.
+		domains := map[string]bool{}
+		if raw, metaErr := os.ReadFile(filepath.Join(root, ".pose", "indexes", "module-metadata.json")); metaErr == nil {
+			var metadata struct {
+				Modules map[string]struct {
+					Domain string `json:"domain"`
+				} `json:"modules"`
+			}
+			if json.Unmarshal(raw, &metadata) == nil {
+				for _, module := range metadata.Modules {
+					if module.Domain != "" {
+						domains[module.Domain] = true
+					}
+				}
+			}
+		}
+		demands := []classDemand{}
 		for id := range selected {
 			if id == "" {
 				continue
@@ -773,28 +809,45 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 				continue
 			}
 			var profile struct {
+				Selectors struct {
+					Languages []string `json:"languages"`
+				} `json:"selectors"`
 				Criteria []struct {
+					ID              string   `json:"id"`
 					EvidenceClasses []string `json:"evidence_classes"`
 				} `json:"criteria"`
 				Tools []struct {
+					ID              string   `json:"id"`
 					EvidenceClasses []string `json:"evidence_classes"`
 				} `json:"tools"`
 			}
 			if json.Unmarshal(raw, &profile) != nil {
 				continue
 			}
+			if len(profile.Selectors.Languages) > 0 && len(domains) > 0 {
+				applies := false
+				for _, language := range profile.Selectors.Languages {
+					if domains[language] {
+						applies = true
+						break
+					}
+				}
+				if !applies {
+					continue
+				}
+			}
 			for _, criterion := range profile.Criteria {
-				for _, class := range criterion.EvidenceClasses {
-					demanded[class] = true
+				if len(criterion.EvidenceClasses) > 0 {
+					demands = append(demands, classDemand{id + "/" + criterion.ID, criterion.EvidenceClasses})
 				}
 			}
 			for _, tool := range profile.Tools {
-				for _, class := range tool.EvidenceClasses {
-					demanded[class] = true
+				if len(tool.EvidenceClasses) > 0 {
+					demands = append(demands, classDemand{id + "/tool:" + tool.ID, tool.EvidenceClasses})
 				}
 			}
 		}
-		if len(demanded) > 0 {
+		if len(demands) > 0 {
 			produced := map[string]bool{}
 			if raw, matrixErr := os.ReadFile(filepath.Join(root, ".pose", "indexes", "validation-matrix.json")); matrixErr == nil {
 				if matrix, parseErr := parseValidationMatrix(raw); parseErr == nil {
@@ -814,23 +867,30 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 					}
 				}
 			}
-			unproduced := []string{}
-			for class := range demanded {
-				if !produced[class] {
-					unproduced = append(unproduced, class)
+			unsatisfiable := []string{}
+			for _, demand := range demands {
+				satisfiable := false
+				for _, class := range demand.classes {
+					if produced[class] {
+						satisfiable = true
+						break
+					}
+				}
+				if !satisfiable {
+					unsatisfiable = append(unsatisfiable, demand.where+" ("+strings.Join(demand.classes, "|")+")")
 				}
 			}
-			sort.Strings(unproduced)
-			if len(unproduced) > 0 {
+			sort.Strings(unsatisfiable)
+			if len(unsatisfiable) > 0 {
 				add("validate.class-producers", "warn",
-					fmt.Sprintf(text("%d evidence class(es) the selected review profiles demand are produced by no registered check: %s",
-						"%d classe(s) de evidência exigida(s) pelos review profiles selecionados não são produzidas por nenhum check registrado: %s"),
-						len(unproduced), strings.Join(unproduced, ", ")),
-					text("a criterion demanding one can only be satisfied by evidence this repository does not generate — register a check that emits the class in .pose/indexes/validation-matrix.json, or reconcile the profile",
-						"um critério que exige uma delas só é satisfeito por evidência que este repositório não gera — registre em .pose/indexes/validation-matrix.json um check que emita a classe, ou reconcilie o profile"))
+					fmt.Sprintf(text("%d review criterion/criteria demand evidence no registered check produces: %s",
+						"%d critério(s) de review exigem evidência que nenhum check registrado produz: %s"),
+						len(unsatisfiable), strings.Join(unsatisfiable, ", ")),
+					text("none of the classes a criterion accepts is emitted here, so it can only be satisfied by evidence this repository does not generate — register a check that emits one of them in .pose/indexes/validation-matrix.json, or reconcile the profile",
+						"nenhuma das classes que o critério aceita é emitida aqui, então ele só é satisfeito por evidência que este repositório não gera — registre em .pose/indexes/validation-matrix.json um check que emita uma delas, ou reconcilie o profile"))
 			} else {
 				add("validate.class-producers", "ok",
-					text("every evidence class the selected review profiles demand is produced by a registered check", "toda classe de evidência exigida pelos review profiles selecionados é produzida por um check registrado"), "")
+					text("every review criterion the selected profiles declare accepts a class some registered check produces", "todo critério de review declarado pelos profiles selecionados aceita uma classe que algum check registrado produz"), "")
 			}
 		}
 	}
