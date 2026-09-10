@@ -29,18 +29,16 @@ var (
 	poseCommandRe = regexp.MustCompile(`\bpose ([a-z][a-z0-9-]{2,})(?: ([a-z][a-z0-9-]{2,}))?`)
 	// MCP tools are named directly: pose_project_state, pose_closeout_state.
 	poseToolRe = regexp.MustCompile(`\bpose_([a-z][a-z0-9_]{2,})`)
-	// Second words that are arguments or prose, never a subcommand.
-	notSubcommands = map[string]bool{
-		"spec": true, "specs": true, "the": true, "and": true, "for": true,
-		"with": true, "from": true, "que": true, "com": true, "para": true,
-		"que a": true, "the spec": true, "roadmap": true, "milestone": true,
-	}
 )
 
 // taughtCommands returns the POSE commands and MCP tools a skill tells an agent
 // to run. Flags and arguments are deliberately excluded: a translation is free
 // to show more or fewer options, but not a different set of commands.
-func taughtCommands(content string) map[string]bool {
+//
+// A second word is kept only when the CLI dispatches on it (see
+// cli_surface_test.go); anything else is an argument or prose and would
+// fragment the comparison.
+func taughtCommands(content string, surface cliSurface) map[string]bool {
 	// A wrapped code span puts `pose` and its subcommand on different lines, so
 	// matching line by line reports a command as untaught because a paragraph was
 	// reflowed. That is a false negative in the gate, and it disarms it silently:
@@ -50,12 +48,8 @@ func taughtCommands(content string) map[string]bool {
 	out := map[string]bool{}
 	for _, m := range poseCommandRe.FindAllStringSubmatch(content, -1) {
 		cmd := m[1]
-		if m[2] != "" && !notSubcommands[m[2]] && !strings.HasPrefix(m[2], "--") {
-			// Only a known multi-word command keeps its second word; anything
-			// else is an argument and would fragment the comparison.
-			if multiWordCommands[cmd] {
-				cmd = cmd + " " + m[2]
-			}
+		if m[2] != "" && surface.isSubcommand(cmd, m[2]) {
+			cmd = cmd + " " + m[2]
 		}
 		out[cmd] = true
 	}
@@ -63,18 +57,6 @@ func taughtCommands(content string) map[string]bool {
 		out["pose_"+m[1]] = true
 	}
 	return out
-}
-
-// multiWordCommands are the CLI verbs whose subcommand changes what runs.
-var multiWordCommands = map[string]bool{
-	"review":      true,
-	"assess":      true,
-	"extension":   true,
-	"release":     true,
-	"docs-review": true,
-	"state":       true,
-	"telemetry":   true,
-	"roadmap":     true,
 }
 
 func TestSkillLocaleParity(t *testing.T) {
@@ -89,6 +71,7 @@ func TestSkillLocaleParity(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reading locales/: %v", err)
 	}
+	surface := loadCLISurface(t)
 	compared := 0
 	for _, loc := range locales {
 		if !loc.IsDir() {
@@ -109,8 +92,8 @@ func TestSkillLocaleParity(t *testing.T) {
 				continue
 			}
 			compared++
-			src := taughtCommands(readManual(t, source))
-			tgt := taughtCommands(readManual(t, translated))
+			src := taughtCommands(readManual(t, source), surface)
+			tgt := taughtCommands(readManual(t, translated), surface)
 			if missing := diffTokens(src, tgt); len(missing) > 0 {
 				t.Errorf("%s/%s: teaches %d POSE command(s) the translation does not — an agent following the translation runs a different workflow: %s",
 					loc.Name(), slug, len(missing), strings.Join(capTokens(missing), ", "))
@@ -129,20 +112,34 @@ func TestSkillLocaleParity(t *testing.T) {
 // TestSkillParityRejectsAndAllows pins the contract's reach: a dropped command
 // must fail, and the format difference that motivated this check must not.
 func TestSkillParityRejectsAndAllows(t *testing.T) {
+	surface := loadCLISurface(t)
 	english := "Run `pose review record spec:<slug> --apply`, then `pose review-check spec:<slug>` and `pose close spec:<slug>`."
 
 	dropped := "Rode `pose review-check spec:<slug>` e edite o frontmatter."
-	if missing := diffTokens(taughtCommands(english), taughtCommands(dropped)); len(missing) == 0 {
+	if missing := diffTokens(taughtCommands(english, surface), taughtCommands(dropped, surface)); len(missing) == 0 {
 		t.Error("a translation that drops review record and close was accepted — that is the exact defect this check exists for")
 	}
 
 	// Same commands, opposite format: terse English against example-rich pt-BR.
 	verbose := "Registre a review:\n```bash\npose review record spec:<slug> --reviewer <x> --apply\n```\nExija o gate:\n```bash\npose review-check spec:<slug>\n```\nAplique:\n```bash\npose close spec:<slug>\n```"
-	if missing := diffTokens(taughtCommands(english), taughtCommands(verbose)); len(missing) > 0 {
+	if missing := diffTokens(taughtCommands(english, surface), taughtCommands(verbose, surface)); len(missing) > 0 {
 		t.Errorf("the format difference was reported as drift (%v) — this check must compare commands, not shape", missing)
 	}
-	if extra := diffTokens(taughtCommands(verbose), taughtCommands(english)); len(extra) > 0 {
+	if extra := diffTokens(taughtCommands(verbose, surface), taughtCommands(english, surface)); len(extra) > 0 {
 		t.Errorf("extra flags in the verbose form were reported as drift (%v) — flags are deliberately out of scope", extra)
+	}
+
+	// A subcommand of a group the hand-written list never named: `contribute`
+	// was missing from it, so both sides read as plain `contribute` and a
+	// translation teaching a different step passed.
+	staged := "Record it with `pose contribute stage --type bug`."
+	submitted := "Registre com `pose contribute submit`."
+	if missing := diffTokens(taughtCommands(staged, surface), taughtCommands(submitted, surface)); len(missing) == 0 {
+		t.Error("a translation teaching `contribute submit` for `contribute stage` was accepted — the subcommand set is not the CLI's")
+	}
+	// And a second word the CLI does not dispatch on stays an argument.
+	if got := taughtCommands("Run `pose close spec-x`.", surface); !got["close"] || len(got) != 1 {
+		t.Errorf("an argument was read as a subcommand: %v", got)
 	}
 }
 

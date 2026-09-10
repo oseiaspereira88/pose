@@ -37,11 +37,30 @@ var (
 	// word never has: a flag, a file extension, or an internal -, _, . or /.
 	// A bare lowercase word is deliberately NOT matched here — `check` is a
 	// command but `when` and `unless` are prose, and no pattern separates them.
-	// Single-word commands are recovered from the manuals themselves below.
+	// Single-word identifiers are recovered below instead.
 	technicalRe = regexp.MustCompile(`^(--?[a-z][\w-]*|[\w./-]+\.(json|md|jsonl|yaml|yml|go|sh)|[a-z][a-z0-9]*([-_./][a-z0-9]+)+)$`)
-	// A command entry looks like "- `name` — description" in either manual.
-	commandEntryRe = regexp.MustCompile("(?m)^- `([a-z][a-z0-9-]*)")
+	// A list entry looks like "- `name` — description" in either manual.
+	listEntryRe = regexp.MustCompile("(?m)^- `([a-z][a-z0-9-]*)")
 )
+
+// singleWordIdentifiers are the bare words that count as technical: every
+// command the CLI dispatches on, plus every word either manual documents as a
+// list entry. The CLI half is what the list entries alone missed — a command
+// described only in prose had no signal, and seven in AGENTS.md were that
+// case. The list half stays because it also catches keys (`required`,
+// `optional`, `module`) that are not commands and that the CLI cannot name.
+func singleWordIdentifiers(commands map[string]bool, sources ...string) map[string]bool {
+	out := map[string]bool{}
+	for c := range commands {
+		out[c] = true
+	}
+	for _, s := range sources {
+		for _, m := range listEntryRe.FindAllStringSubmatch(s, -1) {
+			out[m[1]] = true
+		}
+	}
+	return out
+}
 
 // translatedPlaceholders are the `<...>` slots in usage strings. Their contents
 // are prose inside syntax — `<reason>` is written `<motivo>`, `<execution-id>`
@@ -59,19 +78,6 @@ var translatedPlaceholders = map[string]bool{
 	"repo-relative-target": true, "alvo-relativo-ao-repo": true,
 	"doc-path": true, "caminho-do-doc": true,
 	"other-spec": true, "outra-spec": true,
-}
-
-// commandNames collects the single-word commands each manual documents as a
-// list entry, so `check` counts as technical while `when` does not — derived
-// from the manuals rather than from a hand-maintained list that would drift.
-func commandNames(sources ...string) map[string]bool {
-	out := map[string]bool{}
-	for _, s := range sources {
-		for _, m := range commandEntryRe.FindAllStringSubmatch(s, -1) {
-			out[m[1]] = true
-		}
-	}
-	return out
 }
 
 // splitFences separates fenced code blocks from the surrounding prose. Fences
@@ -176,6 +182,7 @@ func TestManualLocaleParity(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reading locales/: %v", err)
 	}
+	cliCommands := loadCLISurface(t).commands
 	checked := 0
 	for _, loc := range locales {
 		if !loc.IsDir() {
@@ -195,7 +202,7 @@ func TestManualLocaleParity(t *testing.T) {
 					loc.Name(), doc, doc, len(a), len(b))
 			}
 
-			commands := commandNames(source, target)
+			commands := singleWordIdentifiers(cliCommands, source, target)
 			src, tgt := technicalTokens(source, commands), technicalTokens(target, commands)
 			if missing := diffTokens(src, tgt); len(missing) > 0 {
 				t.Errorf("%s/%s: %d technical token(s) documented in %s and absent from the translation — the translated manual is stale and `pose upgrade` ships it to every %s instance: %s",
@@ -255,4 +262,22 @@ func itoa(n int) string {
 		n /= 10
 	}
 	return string(b)
+}
+
+// TestManualParitySeesACommandDocumentedOnlyInProse pins the half the list
+// entries missed: a command no manual lists as `- \`name\`` was not technical,
+// so a translation dropping it passed.
+func TestManualParitySeesACommandDocumentedOnlyInProse(t *testing.T) {
+	cli := loadCLISurface(t).commands
+	source := "After a change, run `suggest` to see which rules apply."
+	target := "Depois de uma mudança, veja quais regras se aplicam."
+	commands := singleWordIdentifiers(cli, source, target)
+	if missing := diffTokens(technicalTokens(source, commands), technicalTokens(target, commands)); len(missing) != 1 || missing[0] != "suggest" {
+		t.Errorf("a translation dropping the prose-only `suggest` was not reported; missing=%v", missing)
+	}
+	// The list-entry half still carries keys the CLI cannot name.
+	keys := singleWordIdentifiers(cli, "- `required` — must be present")
+	if !keys["required"] {
+		t.Error("a key documented as a list entry stopped counting as technical")
+	}
 }

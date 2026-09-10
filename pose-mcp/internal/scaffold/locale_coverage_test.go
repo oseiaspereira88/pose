@@ -98,6 +98,7 @@ func TestLocaleCoverage(t *testing.T) {
 		t.Fatalf("reading locales/: %v", err)
 	}
 
+	surface := loadCLISurface(t)
 	checked := 0
 	for _, loc := range locales {
 		if !loc.IsDir() {
@@ -135,7 +136,7 @@ func TestLocaleCoverage(t *testing.T) {
 				}
 			}
 			if how == structural || how == commandsOnly {
-				s, g := taughtCommands(src), taughtCommands(tgt)
+				s, g := taughtCommands(src, surface), taughtCommands(tgt, surface)
 				if missing := diffTokens(s, g); len(missing) > 0 {
 					t.Errorf("%s/%s: source teaches %d POSE command(s) the translation does not: %s",
 						loc.Name(), rel, len(missing), strings.Join(capTokens(missing), ", "))
