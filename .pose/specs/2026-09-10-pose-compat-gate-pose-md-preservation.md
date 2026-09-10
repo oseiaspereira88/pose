@@ -61,7 +61,7 @@ real prior release.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-compat-gate-pose-md-preservation.md
-- created: .pose/changelogs/unreleased/pose-compat-gate-pose-md-preservation.md
+- renamed: .pose/changelogs/unreleased/pose-compat-gate-pose-md-preservation.md -> .pose/changelogs/v5.0.1/pose-compat-gate-pose-md-preservation.md
 - modified: tests/release/compat.sh
 - modified: .pose/specs/2026-08-07-pose-compat-gate-manual-refresh-assertion.md
 

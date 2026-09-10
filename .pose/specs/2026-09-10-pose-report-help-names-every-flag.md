@@ -67,7 +67,7 @@ record a spec's immutable change set, were among the missing. The help also gave
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-report-help-names-every-flag.md
-- created: .pose/changelogs/unreleased/pose-report-help-names-every-flag.md
+- renamed: .pose/changelogs/unreleased/pose-report-help-names-every-flag.md -> .pose/changelogs/v5.0.1/pose-report-help-names-every-flag.md
 - modified: pose-mcp/internal/cli/report.go
 - modified: pose-mcp/internal/cli/help_catalog.go
 - modified: pose-mcp/internal/cli/help_test.go
