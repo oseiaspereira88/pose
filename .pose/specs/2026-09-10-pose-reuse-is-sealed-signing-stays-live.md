@@ -167,4 +167,4 @@ requirement, and that exception is stated where it is made.
 
 ### Follow-ups
 
-- [open] Assert that `require_signed_attestations` is the only live policy read left in the bundle validator, so sealing it by symmetry with the others fails rather than passing quietly — owner:unowned crit:medium review:2026-12-10
+- [done] Assert that `require_signed_attestations` is the only live policy read left in the bundle validator, so sealing it by symmetry with the others fails rather than passing quietly. Done in `pose-only-the-signing-gate-is-read-live`: the validator's own source is read and any policy field but that one fails, naming the field; the signing requirement going missing fails too, naming what a bundle sealed earlier would be exempt from. A companion assertion requires every sealed gate to be consulted. — owner:unowned crit:medium review:2026-12-10
