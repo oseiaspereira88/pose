@@ -41,6 +41,14 @@
       "digest": "sha256:11d5488a402237093eeffc4b3b26c62b4b27f931084e5eb85dfb9512d58446c2"
     },
     {
+      "spec": "pose-report-coverage-that-rests-on-inference",
+      "category": "added",
+      "breaking": false,
+      "body": "A delivery target whose only passing evidence for a class comes from a module\ncontaining it now carries an `inferred-coverage` finding. Nothing is refused.\n\nEvidence answers downward because a module-wide run does exercise its subtree.\nUsually — a run configured to skip a directory inside it does not, and nothing\nin the result says which. That is the one part of the containment rule the engine\ncannot check.\n\nClosing it properly means a check declaring what it walked: a change to the\nvalidation result contract and a migration for every project. Making the\ninference visible costs nothing, refuses nothing, and produces what that decision\nneeds — how many targets in real repositories are gated on a run of something\nlarger than themselves. In POSE's own the answer is none, so the contract would\nhave been designed against no case at all.\n\nThe finding fires only when no result names the target's own module: a target\nwith its own check is not resting on the inference, whatever else also matched.",
+      "path": "pose-report-coverage-that-rests-on-inference.md",
+      "digest": "sha256:f09387ca99647aedcd0f141b2267ec4c0889fa8685cf11f25ac9ed8705717e4e"
+    },
+    {
       "spec": "pose-reuse-is-sealed-signing-stays-live",
       "category": "changed",
       "breaking": false,
