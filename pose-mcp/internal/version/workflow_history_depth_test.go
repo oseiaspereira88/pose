@@ -31,6 +31,9 @@ var (
 	fullSuiteRe  = regexp.MustCompile(`go\s+(-C\s+\S+\s+)?test\s+\./\.\.\.|cmd/pose\s+validate|pose\s+validate\b`)
 	fetchDepthRe = regexp.MustCompile(`fetch-depth:\s*0\b`)
 	checkoutRe   = regexp.MustCompile(`uses:\s*actions/checkout@`)
+	// The variable the cross-version test reads to know the checkout carries the
+	// release history. Declared by the workflow, not inherited from the provider.
+	promiseRe = regexp.MustCompile(`POSE_RELEASE_HISTORY_AVAILABLE`)
 )
 
 // jobsRunningFullSuite returns, per workflow job, whether it runs the whole Go
@@ -40,6 +43,7 @@ type jobDepth struct {
 	runsFullSuite bool
 	hasCheckout   bool
 	fullHistory   bool
+	promisesTags  bool
 }
 
 func scanJobDepths(t *testing.T, path string) []jobDepth {
@@ -93,6 +97,9 @@ func scanJobDepths(t *testing.T, path string) []jobDepth {
 		if fullSuiteRe.MatchString(line) {
 			current.runsFullSuite = true
 		}
+		if promiseRe.MatchString(line) {
+			current.promisesTags = true
+		}
 	}
 	if current != nil {
 		jobs = append(jobs, *current)
@@ -114,6 +121,15 @@ func TestJobsRunningTheGoSuiteCheckOutFullHistory(t *testing.T) {
 			examined++
 			if !job.fullHistory {
 				t.Errorf("%s job %q runs the Go suite on a shallow checkout: the cross-version test needs tag objects to build the previous release, and without them it skips rather than fails — add `with: { fetch-depth: 0 }` to its actions/checkout",
+					job.workflow, job.job)
+			}
+			// Full history is the promise; the variable is the job saying so
+			// where the test can read it. Without the variable the test skips,
+			// and a skip on this repository's own CI is the failure the guard
+			// exists to prevent — which is how the first two versions of it went
+			// wrong, once for every consumer and once for every provider.
+			if !job.promisesTags {
+				t.Errorf("%s job %q runs the Go suite with full history but does not declare POSE_RELEASE_HISTORY_AVAILABLE, so the cross-version test skips instead of failing when a tag is missing — add `env: { POSE_RELEASE_HISTORY_AVAILABLE: \"true\" }` to the step",
 					job.workflow, job.job)
 			}
 		}

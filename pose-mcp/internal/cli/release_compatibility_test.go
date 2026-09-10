@@ -74,23 +74,29 @@ func mentionsPolicy(out string) bool {
 	return strings.Contains(out, "review policy")
 }
 
-// skipUnlessCI skips unless this is the engine's own CI, where it fails.
+// ReleaseHistoryPromised is the environment variable a workflow sets to say the
+// checkout it prepared carries this engine's release history — that is, that it
+// asked for full history and the tags are there.
 //
-// The distinction is the repository, not the presence of CI. This engine's
-// workflows check out full history so the tags exist, so a skip there is this
-// test quietly not running on the machine whose verdict gates a release. A
-// consumer that vendors the engine as a submodule and runs its suite is in a
-// different position: its checkout has no tags, it is not responsible for this
-// engine's release history, and there is nothing for it to configure.
+// It is declared by the workflow rather than inferred from the provider. The
+// first version of this guard keyed on `CI`, which broke every repository that
+// vendors the engine and runs its suite: those are CI too, their submodule
+// checkouts have no tags, and there was nothing for them to configure. The
+// second keyed on `GITHUB_REPOSITORY`, which is right but is the provider's to
+// set — on a provider that does not, this repository's own CI would skip in
+// silence, which is the hole the guard exists to close.
 //
-// The first version keyed on `CI` alone, and broke the adopting repository's
-// build the same day the release reached it — the suite demanded a precondition
-// only this repository can provide (spec
-// pose-cross-version-guard-is-this-repositorys).
+// A variable this repository's workflows declare has neither problem, and a
+// workflow contract test asserts every job that runs the suite declares it
+// (spec pose-the-guard-signal-is-declared-not-inherited).
+const ReleaseHistoryPromised = "POSE_RELEASE_HISTORY_AVAILABLE"
+
+// skipUnlessCI fails where the release history was promised, and skips
+// everywhere else.
 func skipUnlessCI(t *testing.T, format string, args ...any) {
 	t.Helper()
-	if os.Getenv("CI") != "" && os.Getenv("GITHUB_REPOSITORY") == releaseRepo {
-		t.Fatalf("on this repository's CI a missing tag is a configuration failure, not a missing precondition: "+format, args...)
+	if os.Getenv(ReleaseHistoryPromised) != "" {
+		t.Fatalf("this workflow declares "+ReleaseHistoryPromised+", so a missing tag is a configuration failure rather than a missing precondition: "+format, args...)
 	}
 	t.Skipf(format, args...)
 }

@@ -50,6 +50,10 @@ jobs:
       # anonymous failure into an immediate, attributed one
       # (spec pose-release-clean-tree-attribution).
       - name: Tests + installer E2E
+        # This is the run whose verdict cuts the release, so it is the one place
+        # the cross-version test must never skip in silence
+        # (spec pose-the-guard-signal-is-declared-not-inherited).
+        env: { POSE_RELEASE_HISTORY_AVAILABLE: "true" }
         run: |
           go -C pose-mcp test ./... -count=1
           bash tests/install/run.sh

@@ -807,6 +807,47 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		}
 	}
 
+	// 12e. A review profile left at schema v1 is exempt from the closed rule and
+	// evidence catalogs v2 enforces — the check that stops a profile demanding a
+	// class no check may emit. Two profiles shipped at v1 for long enough that
+	// every instance installed in that window still carries them, and the
+	// migration that should have moved them reported success without doing so
+	// (spec pose-doctor-reports-a-profile-left-behind).
+	if entries, err := os.ReadDir(filepath.Join(root, ".pose", "review-profiles")); err == nil {
+		behind := []string{}
+		examined := 0
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+				continue
+			}
+			raw, readErr := os.ReadFile(filepath.Join(root, ".pose", "review-profiles", entry.Name()))
+			if readErr != nil {
+				continue
+			}
+			var profile struct {
+				SchemaVersion int `json:"schema_version"`
+			}
+			if json.Unmarshal(raw, &profile) != nil {
+				continue
+			}
+			examined++
+			if profile.SchemaVersion < posemodel.ReviewPolicySchemaVersion {
+				behind = append(behind, fmt.Sprintf("%s (v%d)", entry.Name(), profile.SchemaVersion))
+			}
+		}
+		sort.Strings(behind)
+		if len(behind) > 0 {
+			add("review.profile-schema", "warn",
+				fmt.Sprintf(text("%d review profile(s) are below schema v%d: %s",
+					"%d review profile(s) abaixo do schema v%d: %s"), len(behind), posemodel.ReviewPolicySchemaVersion, strings.Join(behind, ", ")),
+				text("a schema-v1 profile is exempt from the closed rule and evidence catalogs, so it can demand a class no check may emit — run `pose update` to migrate it",
+					"um profile schema-v1 fica isento dos catálogos fechados de rules e classes, então pode exigir uma classe que nenhum check emite — rode `pose update` para migrá-lo"))
+		} else if examined > 0 {
+			add("review.profile-schema", "ok",
+				fmt.Sprintf(text("every review profile is at schema v%d", "todo review profile está no schema v%d"), posemodel.ReviewPolicySchemaVersion), "")
+		}
+	}
+
 	// 12d. Every policy decoder ignores keys it does not know, so a newer field
 	// never breaks an older binary reading the same repository. What that gives
 	// up is telling an operator that a key they wrote is not one the engine

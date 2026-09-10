@@ -17,6 +17,12 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with: { go-version: "1.26.6", cache: true, cache-dependency-path: pose-mcp/go.mod }
       - name: Go tests (engine drift guard included)
+        # The variable says this checkout carries the release history the
+        # cross-version test needs — the promise the fetch-depth above keeps.
+        # Declared rather than inferred from the provider, so a provider that
+        # sets fewer variables cannot turn that test's failure into a silent
+        # skip (spec pose-the-guard-signal-is-declared-not-inherited).
+        env: { POSE_RELEASE_HISTORY_AVAILABLE: "true" }
         run: go -C pose-mcp test ./... -count=1
       - name: Shellcheck
         # Covers every shipped or executed script, not just the installer.
