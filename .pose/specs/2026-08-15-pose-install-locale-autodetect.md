@@ -273,9 +273,13 @@ edge case a naive fix would have missed (Decision 1).
   either gating before mutation (dry-run the check first) or explicitly
   documenting that a failed install/update can still leave mutated files
   (owner:@pose-maintainers crit:medium review:2026-09-15)
-- [open] `MergeManagedDoc` matches sections by heading text, so an explicit
+- [done] `MergeManagedDoc` matches sections by heading text, so an explicit
   `--locale` switch on `AGENTS.md`/`POSE.md` without `--force` concatenates
   both languages instead of cleanly switching (Decision 2) — only the
   merge (unforced) path is affected; `--force` already produces a clean
   result. Consider a language-neutral section identifier if this proves to
-  matter in practice (owner:@pose-maintainers crit:low review:2026-10-01)
+  matter in practice. Fixed in `pose-upgrade-path-audit-fixes` (7746ff9) by
+  pairing the two shipped translations' headings by position rather than by an
+  identifier; TestRefreshManagedDocsSwitchesLocaleWithoutDuplicating switches
+  pt-BR to en without --force and requires one section 1, in English
+  (owner:@pose-maintainers crit:low review:2026-10-01)
