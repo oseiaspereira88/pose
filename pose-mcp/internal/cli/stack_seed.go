@@ -279,6 +279,17 @@ func stampContractAdoption(target string, now time.Time, log func(english, portu
 	}
 }
 
+// shippedProfileIsCurrentSchema reports whether the profile the distribution
+// carries is already at the schema an instance is being migrated to. When it is
+// not, replacing the instance's file with it migrates nothing, and the honest
+// path is the explicit rewrite below rather than a log line.
+func shippedProfileIsCurrentSchema(raw []byte) bool {
+	var profile struct {
+		SchemaVersion int `json:"schema_version"`
+	}
+	return json.Unmarshal(raw, &profile) == nil && profile.SchemaVersion == posemodel.ReviewPolicySchemaVersion
+}
+
 // migrateInstanceReviewPolicy upgrades existing schema-v1 review policies and
 // review profiles to schema-v2 in an idempotent manner.
 func migrateInstanceReviewPolicy(dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
@@ -357,7 +368,13 @@ func migrateInstanceReviewPolicy(dist fs.FS, target string, log func(english, po
 				sv, _ := prof["schema_version"].(float64)
 				if int(sv) == 1 {
 					distProfPath := ".pose/review-profiles/" + e.Name()
-					if distRaw, err := fs.ReadFile(dist, distProfPath); err == nil {
+					// Only claim the migration if the file that replaces it is
+					// actually v2. Two shipped profiles were themselves v1, so
+					// this branch copied a v1 file over a v1 file and logged a
+					// migration that never happened — on every `pose update`,
+					// forever, with the operator told it had succeeded (spec
+					// pose-shipped-review-profiles-are-schema-v2).
+					if distRaw, err := fs.ReadFile(dist, distProfPath); err == nil && shippedProfileIsCurrentSchema(distRaw) {
 						_ = writeAtomic(profPath, distRaw, 0o644)
 						if log != nil {
 							log("review-profile (migrated): %s (v1 -> v2)", "perfil de review (migrado): %s (v1 -> v2)", e.Name())
