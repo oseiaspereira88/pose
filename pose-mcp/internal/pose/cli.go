@@ -180,6 +180,16 @@ func (s Store) runCLIExit(ctx context.Context, args []string) ([]byte, int, erro
 	return combined.Bytes(), 0, nil
 }
 
+// executableAtStart is the path this process was started from, resolved
+// before anything could move it. `pose update` renames the running binary to
+// `.old`, writes the new one in its place and removes the `.old`; resolving
+// again afterwards, as os.Executable() does through /proc/self/exe on Linux,
+// names the removed file — and a long-running `pose serve-mcp` could not run a
+// single CLI-backed tool until it was restarted (spec
+// pose-mcp-server-survives-self-update). The path is where the operator
+// installed pose, so after an update it holds the updated engine.
+var executableAtStart, executableAtStartErr = os.Executable()
+
 func (s Store) nativeExecutablePath() (string, error) {
 	if configured := os.Getenv("POSE_EXECUTABLE"); configured != "" {
 		if !filepath.IsAbs(configured) {
@@ -187,7 +197,7 @@ func (s Store) nativeExecutablePath() (string, error) {
 		}
 		return configured, nil
 	}
-	executable, err := os.Executable()
+	executable, err := executableAtStart, executableAtStartErr
 	if err != nil {
 		return "", fmt.Errorf("pose: resolving native executable: %w", err)
 	}
