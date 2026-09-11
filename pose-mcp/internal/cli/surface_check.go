@@ -182,7 +182,7 @@ func cmdSurfaceCheck(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "pose surface-check: %v\n", err)
 		return 1
 	}
-	base := posemodel.BuildDeliveryIntegrity(baseSpecs, claims, sets, tracked, artifactPolicy)
+	base := posemodel.BuildDeliveryIntegrityWithReleases(baseSpecs, claims, sets, tracked, artifactPolicy, posemodel.LoadArchivedFragments(root))
 	profiles, err := loadDeliveryProfiles(root)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose surface-check: %v\n", err)

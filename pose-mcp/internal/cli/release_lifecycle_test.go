@@ -92,20 +92,19 @@ func TestReleaseEvidenceRejectsCredentialsAndUnsafeAssetNames(t *testing.T) {
 	}
 }
 
-// A spec that declared its changelog fragment as an artifact must keep pointing
-// at it after the cut. Before this, every release broke the structural gate for
-// the specs it consumed: the declared unreleased path no longer existed
-// (spec pose-release-cycle-debt-closure, R2).
-func TestReleasePrepareRepointsConsumedSpecArtifactClaims(t *testing.T) {
+// Prepare never edits a spec (spec pose-release-archival-attested-by-the-ledger).
+// It used to rewrite a consumed spec's fragment claim into a rename no commit of
+// the spec performed: every released spec then failed artifact-check, and a
+// spec closed before the cut had its sealed review subject changed by the cut.
+func TestReleasePrepareLeavesEverySpecByteIdentical(t *testing.T) {
 	root := t.TempDir()
 	target := "v" + version.ReleaseBase()
 	writeReleaseFixture(t, root, ".pose/release-policy.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo"}`)
-	writeReleaseFixture(t, root, ".pose/specs/alpha/spec.md",
-		"---\nslug: alpha\nstatus: done\n---\n\n### Artifacts\n"+
-			"- created: .pose/changelogs/unreleased/alpha.md\n"+
-			"- modified: internal/alpha.go\n")
+	claimed := "---\nslug: alpha\nstatus: done\n---\n\n### Artifacts\n" +
+		"- created: .pose/changelogs/unreleased/alpha.md\n" +
+		"- modified: internal/alpha.go\n"
+	writeReleaseFixture(t, root, ".pose/specs/alpha/spec.md", claimed)
 	writeReleaseFixture(t, root, ".pose/changelogs/unreleased/alpha.md", "---\nspec: alpha\ncategory: added\nbreaking: false\n---\n\nAdds alpha.\n")
-	// A spec that never mentions the fragment must not be touched at all.
 	untouched := "---\nslug: beta\nstatus: done\n---\n\n### Artifacts\n- modified: internal/beta.go\n"
 	writeReleaseFixture(t, root, ".pose/specs/beta/spec.md", untouched)
 
@@ -113,27 +112,81 @@ func TestReleasePrepareRepointsConsumedSpecArtifactClaims(t *testing.T) {
 	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply"}, &out, &errOut); code != 0 {
 		t.Fatalf("apply=%d %s", code, errOut.String())
 	}
+	for path, want := range map[string]string{".pose/specs/alpha/spec.md": claimed, ".pose/specs/beta/spec.md": untouched} {
+		if got, _ := os.ReadFile(filepath.Join(root, filepath.FromSlash(path))); string(got) != want {
+			t.Errorf("prepare edited %s:\n%s", path, got)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(root, ".pose/changelogs", target, "alpha.md")); err != nil {
+		t.Errorf("the fragment must still be archived: %v", err)
+	}
+}
 
-	claimed, err := os.ReadFile(filepath.Join(root, ".pose/specs/alpha/spec.md"))
+// releasedSpecFixture commits a spec that declares its fragment, with the
+// spec's trailer, then cuts a release and commits the cut without one — the
+// way a release commit is made.
+func releasedSpecFixture(t *testing.T) (root, target string) {
+	t.Helper()
+	root = t.TempDir()
+	target = "v" + version.ReleaseBase()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	writeArtifactTestFile(t, root, "README.md", "fixture\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "baseline")
+	writeArtifactTestFile(t, root, ".pose/release-policy.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo"}`)
+	// The fragments are governed, so an archived one left unclaimed would be an
+	// orphan; the release notes are the release's, not a spec's, and excluded.
+	writeArtifactTestFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-03","governed_roots":["internal",".pose/changelogs"],"exclusions":[".pose/changelogs/`+target+`.md"],"severities":{"existence":"error","action-mismatch":"error","undeclared":"error","orphan":"error"}}`)
+	writeArtifactTestFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: done\ncreated_at: 2026-08-03\n---\n\n# Spec: alpha\n\n## 3. Technical Plan\n\n### Artifacts\n- created: internal/alpha.go\n- created: .pose/changelogs/unreleased/alpha.md\n")
+	writeArtifactTestFile(t, root, "internal/alpha.go", "package internal\n")
+	writeArtifactTestFile(t, root, ".pose/changelogs/unreleased/alpha.md", "---\nspec: alpha\ncategory: added\nbreaking: false\n---\n\nAdds <alpha> & more.\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "implement alpha", "-m", "POSE-Spec: alpha")
+	var out, errOut bytes.Buffer
+	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("prepare=%d %s", code, errOut.String())
+	}
+	artifactGit(t, root, "add", "-A", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "chore(release): prepare "+target)
+	return root, target
+}
+
+// The released spec passes artifact-check after the cut, and says where its
+// fragment went. Against the rewriting prepare this failed with action-mismatch.
+func TestAReleasedSpecStillPassesArtifactCheckAfterTheCut(t *testing.T) {
+	root, target := releasedSpecFixture(t)
+	var out, errOut bytes.Buffer
+	if code := cmdArtifactCheck(root, []string{"--spec", "alpha", "--strict"}, &out, &errOut); code != 0 {
+		t.Fatalf("artifact-check=%d err=%s out=%s", code, errOut.String(), out.String())
+	}
+	want := "artifact.archived=.pose/changelogs/unreleased/alpha.md -> .pose/changelogs/" + target + "/alpha.md (release " + target + ")"
+	if !strings.Contains(out.String(), want) {
+		t.Errorf("artifact-check must say where the fragment went; want %q in:\n%s", want, out.String())
+	}
+	// The archived fragment is governed here, and claimed through the release,
+	// so the whole-repository graph must not call it an orphan either.
+	graph, err := buildCurrentDeliveryGraph(root)
 	if err != nil {
 		t.Fatal(err)
 	}
-	archived := ".pose/changelogs/" + target + "/alpha.md"
-	oldClaim := ".pose/changelogs/unreleased/alpha.md"
-	if !strings.Contains(string(claimed), "- renamed: "+oldClaim+" -> "+archived) {
-		t.Errorf("the consumed spec must claim the archived path, got:\n%s", claimed)
+	for _, f := range graph.Findings {
+		if f.Spec == "alpha" || strings.Contains(f.Path, "alpha.md") {
+			t.Errorf("unexpected finding: %+v", f)
+		}
 	}
-	if strings.Contains(string(claimed), "- created: "+archived) {
-		t.Error("the archived fragment must be recorded as a rename, not a creation")
-	}
-	if !strings.Contains(string(claimed), "- modified: internal/alpha.go") {
-		t.Error("unrelated claims must survive untouched")
-	}
-	// The claim must resolve on disk, which is the whole point.
-	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(archived))); err != nil {
-		t.Errorf("the repointed claim does not resolve: %v", err)
-	}
-	if after, _ := os.ReadFile(filepath.Join(root, ".pose/specs/beta/spec.md")); string(after) != untouched {
-		t.Error("a spec that does not claim the fragment must not be rewritten")
+}
+
+// A spec an earlier release rewrote keeps passing, through the manifest of the
+// version its rename names, with nothing migrated.
+func TestASpecAnEarlierReleaseRewroteStillPasses(t *testing.T) {
+	root, target := releasedSpecFixture(t)
+	writeArtifactTestFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: done\ncreated_at: 2026-08-03\n---\n\n# Spec: alpha\n\n## 3. Technical Plan\n\n### Artifacts\n- created: internal/alpha.go\n- renamed: .pose/changelogs/unreleased/alpha.md -> .pose/changelogs/"+target+"/alpha.md\n")
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "an older engine rewrote the claim")
+	var out, errOut bytes.Buffer
+	if code := cmdArtifactCheck(root, []string{"--spec", "alpha", "--strict"}, &out, &errOut); code != 0 {
+		t.Fatalf("artifact-check=%d err=%s out=%s", code, errOut.String(), out.String())
 	}
 }

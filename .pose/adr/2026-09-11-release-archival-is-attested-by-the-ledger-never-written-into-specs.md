@@ -2,9 +2,9 @@
 
 ## Status
 Accepted (2026-09-11) — implemented by spec
-`pose-release-archival-attested-by-the-ledger`. Extends the delivery integrity graph ADR
-(`2026-08-02-delivery-integrity-graph-and-git-observed-provenance`) with one
-witness, and replaces the mechanism — not the requirement — of
+`pose-release-archival-attested-by-the-ledger`. Extends the delivery integrity
+graph ADR (`2026-08-02-delivery-integrity-graph-and-git-observed-provenance`)
+with one witness, and replaces the mechanism — not the requirement — of
 `pose-release-cycle-debt-closure` R2.
 
 ## Context

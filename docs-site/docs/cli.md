@@ -415,3 +415,13 @@ adopting it costs an engine that does not know it. That text comes from the
 contract registry, so it cannot be forgotten. The compatibility alias
 `release-notes --version` reads only the prepared snapshot; use `--preview`
 explicitly for the pending queue.
+
+`release prepare` moves each selected fragment from
+`.pose/changelogs/unreleased/` to `.pose/changelogs/<version>/` and never edits
+a spec. A spec that declared its fragment keeps the claim it wrote:
+`artifact-check` resolves it through the manifest, which records each
+fragment's spec and digest, and prints
+`artifact.archived=<pending> -> <archived> (release <version>)`. A claim an
+earlier release rewrote into `renamed: … -> …` resolves the same way. An
+archived fragment edited after the cut, or claimed by a spec the manifest does
+not name, stays a finding.

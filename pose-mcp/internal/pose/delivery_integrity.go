@@ -90,6 +90,9 @@ type DeliveryIntegrityGraph struct {
 	ValidationResults []DeliveryValidationResult `json:"validation_results,omitempty"`
 	RoadmapCriteria   []RoadmapCriterion         `json:"roadmap_criteria,omitempty"`
 	Paths             map[string][]string        `json:"paths,omitempty"`
+	// Archivals lists the release archivals that resolved a claim (spec
+	// pose-release-archival-attested-by-the-ledger).
+	Archivals []ArchivedFragment `json:"archivals,omitempty"`
 }
 
 func LoadArtifactPolicy(root string) (ArtifactPolicy, error) {
@@ -236,6 +239,13 @@ func ParseArtifactClaims(spec Spec, policy ArtifactPolicy) ([]ArtifactClaim, boo
 }
 
 func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []ChangeSet, tracked []string, policy ArtifactPolicy) DeliveryIntegrityGraph {
+	return BuildDeliveryIntegrityWithReleases(specs, claims, changeSets, tracked, policy, nil)
+}
+
+// BuildDeliveryIntegrityWithReleases builds the graph with what the release
+// manifests attest (LoadArchivedFragments) as a witness for claims on changelog
+// fragments a release archived.
+func BuildDeliveryIntegrityWithReleases(specs []Spec, claims []ArtifactClaim, changeSets []ChangeSet, tracked []string, policy ArtifactPolicy, archived []ArchivedFragment) DeliveryIntegrityGraph {
 	graph := DeliveryIntegrityGraph{SchemaVersion: DeliveryIntegritySchemaVersion, Claims: append([]ArtifactClaim{}, claims...), ChangeSets: append([]ChangeSet{}, changeSets...), Reverse: map[string][]string{}, Nodes: []DeliveryIntegrityNode{}, Edges: []DeliveryIntegrityEdge{}, Findings: []DeliveryIntegrityFinding{}}
 	sort.Slice(graph.Claims, func(i, j int) bool { return claimKey(graph.Claims[i]) < claimKey(graph.Claims[j]) })
 	sort.Slice(graph.ChangeSets, func(i, j int) bool { return graph.ChangeSets[i].ID < graph.ChangeSets[j].ID })
@@ -247,6 +257,28 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 		p := filepath.ToSlash(path)
 		trackedSet[p] = true
 		normalizedTrackedSet[normalizeSpecPath(p)] = true
+	}
+	isTracked := func(path string) bool {
+		return len(tracked) == 0 || trackedSet[path] || normalizedTrackedSet[normalizeSpecPath(path)]
+	}
+	ledger := newArchivalLedger(archived, isTracked)
+	// recordArchival records a release archival that resolved a claim: the
+	// declared artifact is archived-by the release, which archives the file at
+	// its new path, and that path counts as claimed by the spec.
+	recordArchival := func(a ArchivedFragment) {
+		for _, used := range graph.Archivals {
+			if used == a {
+				return
+			}
+		}
+		graph.Archivals = append(graph.Archivals, a)
+		claimedPaths[a.Archived] = true
+		graph.Reverse[a.Archived] = appendUnique(graph.Reverse[a.Archived], a.Spec)
+		graph.Nodes = appendNode(graph.Nodes, DeliveryIntegrityNode{ID: "release:" + a.Version, Type: "release", Attributes: map[string]string{"version": a.Version}})
+		graph.Nodes = appendNode(graph.Nodes, DeliveryIntegrityNode{ID: "artifact:" + a.Archived, Type: "artifact", Attributes: map[string]string{"path": a.Archived}})
+		graph.Edges = append(graph.Edges,
+			DeliveryIntegrityEdge{From: "artifact:" + a.Pending, To: "release:" + a.Version, Type: "archived-by"},
+			DeliveryIntegrityEdge{From: "release:" + a.Version, To: "artifact:" + a.Archived, Type: "archives"})
 	}
 	for _, claim := range graph.Claims {
 		claimBySpec[claim.Spec] = append(claimBySpec[claim.Spec], claim)
@@ -269,7 +301,20 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 			existencePath = claim.NewPath
 		}
 		if len(tracked) > 0 && (claim.Action == "created" || claim.Action == "modified" || claim.Action == "renamed") && !trackedSet[existencePath] && !normalizedTrackedSet[normalizeSpecPath(existencePath)] {
-			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("existence", severity(policy, "existence"), claim.Spec, existencePath, "", "declared current artifact is not tracked at the selected head", "correct the exact path or commit the artifact before closeout"))
+			message := "declared current artifact is not tracked at the selected head"
+			if claim.Action != "renamed" {
+				// A fragment the spec created and a release then archived
+				// is where the manifest says it went.
+				a, note, ok := ledger.resolve(claim.Spec, claim.Path, "")
+				if ok {
+					recordArchival(a)
+					continue
+				}
+				if note != "" {
+					message += "; " + note
+				}
+			}
+			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("existence", severity(policy, "existence"), claim.Spec, existencePath, "", message, "correct the exact path or commit the artifact before closeout"))
 		}
 	}
 	for _, spec := range specs {
@@ -292,15 +337,26 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 			if claim.Action == "none" || observedBySpec[spec][claimKeyNoSpec(claim)] {
 				continue
 			}
+			message := "declared artifact action is absent from the attributed Git change sets"
 			path := claim.Path
 			if claim.Action == "renamed" {
 				path = claim.OldPath + " -> " + claim.NewPath
+				// An earlier release wrote this rename into the spec; its
+				// manifest, not the spec's change set, performed it.
+				a, note, ok := ledger.resolve(spec, claim.OldPath, claim.NewPath)
+				if ok {
+					recordArchival(a)
+					continue
+				}
+				if note != "" {
+					message += "; " + note
+				}
 			}
 			details := "correct the action or record the exact attributed revisions"
 			if len(observedBySpec[spec]) == 0 {
 				details = fmt.Sprintf("no Git change sets are attributed to spec %s (ensure commits carry 'POSE-Spec: %s' trailer or generate report with pose report)", spec, spec)
 			}
-			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("action-mismatch", severity(policy, "action-mismatch"), spec, path, "", "declared artifact action is absent from the attributed Git change sets", details))
+			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("action-mismatch", severity(policy, "action-mismatch"), spec, path, "", message, details))
 		}
 	}
 	for _, set := range graph.ChangeSets {
@@ -319,7 +375,7 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 		}
 		declared := claimBySpec[set.Spec]
 		for _, path := range set.Paths {
-			if !claimMatchesObserved(declared, path) && governedPath(firstObservedPath(path), policy) {
+			if !claimMatchesObserved(declared, path) && !ledger.explainsCreation(set.Spec, declared, path) && governedPath(firstObservedPath(path), policy) {
 				graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding("undeclared", severity(policy, "undeclared"), set.Spec, firstObservedPath(path), set.ID, "Git observed a governed path not declared by the spec", "declare the exact action or narrow the attributed change set"))
 			}
 		}
@@ -339,12 +395,16 @@ func BuildDeliveryIntegrity(specs []Spec, claims []ArtifactClaim, changeSets []C
 	for path := range graph.Reverse {
 		sort.Strings(graph.Reverse[path])
 	}
+	sort.Slice(graph.Archivals, func(i, j int) bool { return graph.Archivals[i].Archived < graph.Archivals[j].Archived })
+	// Archived is omitted when empty, so a repository with no releases keeps
+	// the digest it had before archivals were an input.
 	input := struct {
-		Claims     []ArtifactClaim `json:"claims"`
-		ChangeSets []ChangeSet     `json:"change_sets"`
-		Tracked    []string        `json:"tracked"`
-		Policy     ArtifactPolicy  `json:"policy"`
-	}{graph.Claims, graph.ChangeSets, append([]string{}, tracked...), policy}
+		Claims     []ArtifactClaim    `json:"claims"`
+		ChangeSets []ChangeSet        `json:"change_sets"`
+		Tracked    []string           `json:"tracked"`
+		Policy     ArtifactPolicy     `json:"policy"`
+		Archived   []ArchivedFragment `json:"archived,omitempty"`
+	}{graph.Claims, graph.ChangeSets, append([]string{}, tracked...), policy, archived}
 	sort.Strings(input.Tracked)
 	raw, _ := json.Marshal(input)
 	sum := sha256.Sum256(raw)
