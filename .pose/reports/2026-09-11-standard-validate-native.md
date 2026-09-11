@@ -15,8 +15,6 @@
 
 ## Files Changed
 - pose/indexes/delivery-integrity.json
-- .pose/indexes/releases.json
-- .pose/indexes/spec-graph.json
 
 ## Validation Commands
 - go build ./...
@@ -33,14 +31,14 @@
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-11T20:19:24Z
+- Generated at (UTC): 2026-09-11T20:39:45Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 119
+- Sequence for task/spec: 120
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-11T18:12:58Z
+- Previous execution: 2026-09-11T20:19:24Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
