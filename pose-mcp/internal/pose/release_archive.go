@@ -16,6 +16,8 @@ package pose
 // distinct from declaration and from Git observation.
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"os"
 	"path/filepath"
 	"sort"
@@ -34,6 +36,12 @@ type ArchivedFragment struct {
 	// Intact reports whether the archived file still has the digest the
 	// manifest froze. A changed fragment is not the one the release attests.
 	Intact bool `json:"intact"`
+	// Manifest is the manifest that attests it, and ManifestDigest the SHA-256
+	// of its bytes, so the graph's input changes if the attestation does. Like
+	// the archived file, the manifest must be tracked to count: an untracked
+	// manifest is not part of the selected head.
+	Manifest       string `json:"manifest"`
+	ManifestDigest string `json:"manifest_digest"`
 }
 
 const pendingFragmentDir = ".pose/changelogs/unreleased/"
@@ -55,6 +63,12 @@ func LoadArchivedFragments(root string) []ArchivedFragment {
 		if err != nil {
 			continue
 		}
+		manifestPath := ".pose/releases/" + entry.Name() + "/manifest.json"
+		manifestRaw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(manifestPath)))
+		if err != nil {
+			continue
+		}
+		manifestSum := sha256.Sum256(manifestRaw)
 		for _, fragment := range manifest.Fragments {
 			if fragment.Spec == "" || fragment.Path == "" || strings.ContainsAny(fragment.Path, `/\`) {
 				continue
@@ -65,11 +79,13 @@ func LoadArchivedFragments(root string) []ArchivedFragment {
 			at := ".pose/changelogs/" + entry.Name() + "/" + fragment.Path
 			raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(at)))
 			archived = append(archived, ArchivedFragment{
-				Version:  entry.Name(),
-				Spec:     fragment.Spec,
-				Pending:  pendingFragmentDir + fragment.Path,
-				Archived: at,
-				Intact:   err == nil && ReleaseDigest(string(raw)) == fragment.Digest,
+				Version:        entry.Name(),
+				Spec:           fragment.Spec,
+				Pending:        pendingFragmentDir + fragment.Path,
+				Archived:       at,
+				Intact:         err == nil && ReleaseDigest(string(raw)) == fragment.Digest,
+				Manifest:       manifestPath,
+				ManifestDigest: "sha256:" + hex.EncodeToString(manifestSum[:]),
 			})
 		}
 	}
@@ -105,6 +121,18 @@ func (l archivalLedger) resolve(spec, pending, archivedAt string) (ArchivedFragm
 	if len(candidates) == 0 {
 		return ArchivedFragment{}, "no release manifest archives " + pending, false
 	}
+	// A fragment lives in exactly one lifecycle location
+	// (pose-release-lifecycle-closure R7). Two manifests archiving it for the
+	// same spec is that contract broken, and picking either would hide it.
+	versions := []string{}
+	for _, a := range candidates {
+		if a.Spec == spec {
+			versions = append(versions, a.Version)
+		}
+	}
+	if len(versions) > 1 {
+		return ArchivedFragment{}, "releases " + strings.Join(versions, ", ") + " each archive it for spec " + spec + ", and a fragment belongs to exactly one release", false
+	}
 	notes := []string{}
 	for _, a := range candidates {
 		switch {
@@ -116,6 +144,8 @@ func (l archivalLedger) resolve(spec, pending, archivedAt string) (ArchivedFragm
 			notes = append(notes, "release "+a.Version+" archived it at "+a.Archived+", which no longer has the digest the manifest froze")
 		case !l.tracked(a.Archived):
 			notes = append(notes, "release "+a.Version+" archived it at "+a.Archived+", which is not tracked")
+		case !l.tracked(a.Manifest):
+			notes = append(notes, "release "+a.Version+" attests it in "+a.Manifest+", which is not tracked")
 		default:
 			return a, "", true
 		}

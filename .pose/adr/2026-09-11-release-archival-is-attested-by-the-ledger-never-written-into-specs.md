@@ -101,9 +101,13 @@ delivery integrity ADR requires.
 
 **Resolving a fragment claim.** A `created` or `modified` claim on
 `.pose/changelogs/unreleased/X` that is no longer tracked passes existence when
-all three of these hold:
+all of these hold:
 
-- some release manifest lists fragment `X` for the same spec;
+- exactly one release manifest lists fragment `X` for the same spec — two would
+  break the rule that a fragment lives in one lifecycle location
+  (`pose-release-lifecycle-closure` R7), and picking either would hide it;
+- that manifest is tracked at the selected head, like everything else existence
+  reads, and its digest enters the graph's input;
 - `.pose/changelogs/<version>/X` is tracked at the selected head;
 - its content still has the digest the manifest froze (`ReleaseDigest` of the
   raw file, which is how prepare computed it).
@@ -123,7 +127,8 @@ findings, as they are today, with a message naming the manifest that was
 consulted:
 
 - a fragment the manifest lists for another spec;
-- a fragment no manifest lists;
+- a fragment no manifest lists, or more than one lists for the same spec;
+- a manifest that is not tracked;
 - an archived fragment whose digest changed;
 - any other path.
 

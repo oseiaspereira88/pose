@@ -52,16 +52,17 @@ six options it rejects, is recorded in ADR
 ### Functional
 - R1: `pose release prepare` shall leave every spec file byte-identical.
 - R2: A `created` or `modified` claim on `.pose/changelogs/unreleased/X` that is
-  no longer tracked shall pass existence when three conditions hold: a release
-  manifest lists fragment `X` for the same spec; the archived path
-  `.pose/changelogs/<version>/X` is tracked; and the archived file still has
-  the digest the manifest froze.
+  no longer tracked shall pass existence when these conditions hold: exactly one
+  release manifest lists fragment `X` for the same spec; that manifest is
+  tracked; the archived path `.pose/changelogs/<version>/X` is tracked; and the
+  archived file still has the digest the manifest froze.
 - R3: A `renamed: .pose/changelogs/unreleased/X -> .pose/changelogs/vN/X` claim
   written by an earlier release shall pass the action check under the same
   conditions, with the manifest of `vN`.
 - R4: Any other case shall stay a finding, as today: a fragment another spec
-  owns, one no manifest lists, one whose archived content changed, or any other
-  path. Its message shall say what the manifests showed.
+  owns, one no manifest lists, one two manifests list for the same spec, one
+  attested by an untracked manifest, one whose archived content changed, or any
+  other path. Its message shall say what the manifests showed.
 - R5: The delivery integrity graph shall record each archival it used as edges of
   its own, separate from change-set edges. The declared artifact is
   `archived-by` a `release:<version>` node, which `archives` the file at its new
@@ -146,6 +147,19 @@ names it.
   that rename the spec did perform, so leaving it undeclared would keep the claim
   failing in any repository that governs its changelogs.
 
+### Decision 3
+- Date: 2026-09-11
+- Context: review of pose#106. The first version accepted "some" manifest, read
+  from the working tree whether tracked or not. An untracked manifest could
+  attest a fragment the selected head holds no record of, and two manifests
+  archiving a fragment for the same spec — the lifecycle contract broken —
+  resolved through whichever qualified.
+- Decision: the manifest must be tracked, its digest enters the graph's input,
+  and exactly one manifest may archive the spec's fragment.
+- Rationale: existence already means "tracked at the selected head", so the
+  witness answers to the same head; and the ledger must not paper over a
+  violation `pose check` reports as one.
+
 ---
 
 ## 6. Validation
@@ -187,7 +201,7 @@ measure this repository's own graph.
 - R1 [satisfied] <TestReleasePrepareLeavesEverySpecByteIdentical requires both specs byte-identical after prepare, and the fragment archived>
 - R2 [satisfied] <TestAnArchivedFragmentClaimResolvesThroughTheRelease; TestAReleasedSpecStillPassesArtifactCheckAfterTheCut passes a real cut end to end>
 - R3 [satisfied] <TestARenameAnEarlierReleaseWroteResolvesThroughItsManifest, including a governed changelog root and a manifest of another version; TestASpecAnEarlierReleaseRewroteStillPasses>
-- R4 [satisfied] <TestOnlyAnArchivalTheReleaseAttestsResolvesAClaim: another spec, no manifest, edited archive, untracked archive each name what the manifests showed; a non-fragment path keeps its exact message>
+- R4 [satisfied] <TestOnlyAnArchivalTheReleaseAttestsResolvesAClaim: another spec, no manifest, two releases for one spec, untracked manifest, edited archive, untracked archive each name what the manifests showed; a non-fragment path keeps its exact message>
 - R5 [satisfied] <archived-by and archives edges and the reverse entry asserted; no changes edge to the archive; no orphan for a governed archived fragment in the end-to-end test>
 - R6 [satisfied] <the end-to-end test requires artifact.archived=<pending> -> <archived> (release <version>)>
 

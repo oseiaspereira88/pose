@@ -12,9 +12,10 @@ import (
 
 const fragmentPending = ".pose/changelogs/unreleased/alpha.md"
 const fragmentArchived = ".pose/changelogs/v1.2.0/alpha.md"
+const fragmentManifest = ".pose/releases/v1.2.0/manifest.json"
 
 func archivedAlpha() ArchivedFragment {
-	return ArchivedFragment{Version: "v1.2.0", Spec: "alpha", Pending: fragmentPending, Archived: fragmentArchived, Intact: true}
+	return ArchivedFragment{Version: "v1.2.0", Spec: "alpha", Pending: fragmentPending, Archived: fragmentArchived, Intact: true, Manifest: fragmentManifest}
 }
 
 func findingsWith(graph DeliveryIntegrityGraph, code string) []DeliveryIntegrityFinding {
@@ -35,7 +36,7 @@ func alphaCreatedTheFragment() []ChangeSet {
 
 func TestAnArchivedFragmentClaimResolvesThroughTheRelease(t *testing.T) {
 	claims := []ArtifactClaim{{Spec: "alpha", Action: "created", Path: fragmentPending}}
-	tracked := []string{fragmentArchived}
+	tracked := []string{fragmentArchived, fragmentManifest}
 
 	without := BuildDeliveryIntegrity([]Spec{{Slug: "alpha"}}, claims, alphaCreatedTheFragment(), tracked, ArtifactPolicy{})
 	if len(findingsWith(without, "existence")) != 1 {
@@ -76,7 +77,7 @@ func TestAnArchivedFragmentClaimResolvesThroughTheRelease(t *testing.T) {
 // manifest of the version it names, with no spec edited.
 func TestARenameAnEarlierReleaseWroteResolvesThroughItsManifest(t *testing.T) {
 	claims := []ArtifactClaim{{Spec: "alpha", Action: "renamed", OldPath: fragmentPending, NewPath: fragmentArchived}}
-	tracked := []string{fragmentArchived}
+	tracked := []string{fragmentArchived, fragmentManifest}
 
 	without := BuildDeliveryIntegrity([]Spec{{Slug: "alpha"}}, claims, alphaCreatedTheFragment(), tracked, ArtifactPolicy{})
 	if len(findingsWith(without, "action-mismatch")) != 1 {
@@ -104,16 +105,21 @@ func TestARenameAnEarlierReleaseWroteResolvesThroughItsManifest(t *testing.T) {
 // what the manifests showed.
 func TestOnlyAnArchivalTheReleaseAttestsResolvesAClaim(t *testing.T) {
 	claims := []ArtifactClaim{{Spec: "alpha", Action: "created", Path: fragmentPending}}
-	tracked := []string{fragmentArchived}
+	tracked := []string{fragmentArchived, fragmentManifest}
 	cases := map[string]struct {
 		archived []ArchivedFragment
 		tracked  []string
 		note     string
 	}{
-		"another spec's fragment": {[]ArchivedFragment{{Version: "v1.2.0", Spec: "beta", Pending: fragmentPending, Archived: fragmentArchived, Intact: true}}, tracked, "release v1.2.0 archived it for spec beta"},
+		"another spec's fragment": {[]ArchivedFragment{{Version: "v1.2.0", Spec: "beta", Pending: fragmentPending, Archived: fragmentArchived, Intact: true, Manifest: fragmentManifest}}, tracked, "release v1.2.0 archived it for spec beta"},
 		"no manifest lists it":    {nil, tracked, "no release manifest archives " + fragmentPending},
-		"archived content edited": {[]ArchivedFragment{{Version: "v1.2.0", Spec: "alpha", Pending: fragmentPending, Archived: fragmentArchived}}, tracked, "no longer has the digest the manifest froze"},
-		"archived file untracked": {[]ArchivedFragment{archivedAlpha()}, []string{"README.md"}, "which is not tracked"},
+		"archived content edited": {[]ArchivedFragment{{Version: "v1.2.0", Spec: "alpha", Pending: fragmentPending, Archived: fragmentArchived, Manifest: fragmentManifest}}, tracked, "no longer has the digest the manifest froze"},
+		"archived file untracked": {[]ArchivedFragment{archivedAlpha()}, []string{"README.md", fragmentManifest}, "archived it at " + fragmentArchived + ", which is not tracked"},
+		// Review of pose#106: a manifest outside the selected head attests nothing.
+		"manifest untracked": {[]ArchivedFragment{archivedAlpha()}, []string{fragmentArchived}, "attests it in " + fragmentManifest + ", which is not tracked"},
+		// Review of pose#106: a fragment belongs to exactly one release
+		// (pose-release-lifecycle-closure R7); picking either would hide it.
+		"two releases for one spec": {[]ArchivedFragment{archivedAlpha(), {Version: "v1.3.0", Spec: "alpha", Pending: fragmentPending, Archived: ".pose/changelogs/v1.3.0/alpha.md", Intact: true, Manifest: ".pose/releases/v1.3.0/manifest.json"}}, []string{fragmentArchived, fragmentManifest, ".pose/changelogs/v1.3.0/alpha.md", ".pose/releases/v1.3.0/manifest.json"}, "releases v1.2.0, v1.3.0 each archive it for spec alpha"},
 	}
 	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
@@ -174,7 +180,11 @@ func TestLoadArchivedFragmentsReadsWhatEachManifestAttests(t *testing.T) {
 	write(".pose/releases/not-a-version/manifest.json", string(manifest))
 
 	got := LoadArchivedFragments(root)
-	if len(got) != 1 || got[0] != archivedAlpha() {
+	if len(got) != 1 || !strings.HasPrefix(got[0].ManifestDigest, "sha256:") {
+		t.Fatalf("want exactly the attested fragment with its manifest digest, got %+v", got)
+	}
+	got[0].ManifestDigest = ""
+	if got[0] != archivedAlpha() {
 		t.Fatalf("want exactly the attested fragment, intact, got %+v", got)
 	}
 	write(fragmentArchived, body+"edited after the cut\n")
