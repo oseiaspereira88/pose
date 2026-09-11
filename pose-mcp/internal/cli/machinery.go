@@ -56,6 +56,34 @@ type machineryManifest struct {
 	// pose-machinery-backs-up-only-local-edits). Without it, every file a
 	// release changed was backed up and reported as "customized".
 	Digests map[string]string `json:"digests,omitempty"`
+	// Manuals records, for each managed manual, the digest of every section
+	// POSE last wrote (the preamble under ""). A merge uses it to tell a section
+	// the instance edited from one an older release wrote, the same question
+	// Digests answers for machinery (spec pose-manual-merge-backs-up-only-local-edits).
+	Manuals map[string]map[string]string `json:"manuals,omitempty"`
+}
+
+// readMachineryManifest returns the manifest as stored, or an empty one.
+func readMachineryManifest(target string) machineryManifest {
+	var m machineryManifest
+	raw, err := os.ReadFile(machineryManifestPath(target))
+	if err != nil || json.Unmarshal(raw, &m) != nil {
+		return machineryManifest{}
+	}
+	return m
+}
+
+func storeMachineryManifest(target string, m machineryManifest) error {
+	m.SchemaVersion = 1
+	raw, err := json.MarshalIndent(m, "", "  ")
+	if err != nil {
+		return err
+	}
+	path := machineryManifestPath(target)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	return writeAtomic(path, append(raw, '\n'), 0o644)
 }
 
 // instanceEngineVersion reads the engine version this instance's machinery
@@ -104,16 +132,11 @@ func loadMachineryDigests(target string) map[string]string {
 
 func saveMachineryManifest(target string, paths []string, digests map[string]string) error {
 	sort.Strings(paths)
-	m := machineryManifest{SchemaVersion: 1, Paths: paths, EngineVersion: Version, Digests: digests}
-	raw, err := json.MarshalIndent(m, "", "  ")
-	if err != nil {
-		return err
-	}
-	path := machineryManifestPath(target)
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return err
-	}
-	return writeAtomic(path, append(raw, '\n'), 0o644)
+	// The manual records are written by the manual merge, which runs before
+	// machinery delivery on the same update; keep them.
+	m := readMachineryManifest(target)
+	m.Paths, m.EngineVersion, m.Digests = paths, Version, digests
+	return storeMachineryManifest(target, m)
 }
 
 // deliverMachinery refreshes every engine-owned machinery tree into target.

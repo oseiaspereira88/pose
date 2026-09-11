@@ -327,3 +327,142 @@ func TestMergeDropsLocalContentDetectsTextWithoutItsOwnHeading(t *testing.T) {
 		t.Error("an untouched manual drops nothing")
 	}
 }
+
+// olderReleaseManual installs POSE and rewrites the first engine-owned section
+// of POSE.md with other text, as if an older release had delivered it.
+func olderReleaseManual(t *testing.T) (repo, path, older string) {
+	t.Helper()
+	repo = newGitRepo(t)
+	var out, errB bytes.Buffer
+	if code := cmdInstall([]string{repo, "--locale", "en", "--skip-mcp"}, &out, &errB); code != 0 {
+		t.Fatalf("install exit=%d err=%s", code, errB.String())
+	}
+	path = filepath.Join(repo, "POSE.md")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	preamble, sections := splitDocSections(string(raw))
+	rewritten := false
+	for i, section := range sections {
+		if !sectionIsInstanceOwned(section) {
+			sections[i].Body = []string{"", "Text an older release wrote here.", ""}
+			rewritten = true
+			break
+		}
+	}
+	if !rewritten {
+		t.Fatal("fixture POSE.md has no engine-owned section")
+	}
+	lines := append([]string{}, preamble...)
+	for _, section := range sections {
+		lines = append(lines, section.Heading)
+		lines = append(lines, section.Body...)
+	}
+	older = strings.Join(lines, "\n")
+	if err := os.WriteFile(path, []byte(older), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return repo, path, older
+}
+
+// A release that rewords an engine-owned section must replace the older text
+// without a backup: nobody edited it. Comparing every line reported each
+// release's own rewording as local content being discarded (spec
+// pose-manual-merge-backs-up-only-local-edits).
+func TestRefreshManagedDocsReplacesAnOlderReleaseSectionWithoutABackup(t *testing.T) {
+	repo, path, older := olderReleaseManual(t)
+	if err := recordDeliveredManual(repo, "POSE.md", older); err != nil {
+		t.Fatal(err)
+	}
+	var out strings.Builder
+	if err := refreshManagedDocs(repo, "en", &out, localeEN); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(path + ".pose-backup"); err == nil {
+		t.Errorf("a section only an older release wrote was backed up:\n%s", out.String())
+	}
+	if strings.Contains(out.String(), "backed up") {
+		t.Errorf("an unedited manual was reported as backed up:\n%s", out.String())
+	}
+	refreshed, _ := os.ReadFile(path)
+	if strings.Contains(string(refreshed), "Text an older release wrote here.") {
+		t.Error("the older release's text was not replaced")
+	}
+}
+
+// With no record of what POSE delivered, an engine-section difference could be
+// an edit, so the manual is still backed up — and the report says why instead
+// of calling it customized. The refresh then records what it wrote.
+func TestRefreshManagedDocsWithoutARecordSaysWhyItBacksUp(t *testing.T) {
+	repo, path, _ := olderReleaseManual(t)
+	m := readMachineryManifest(repo)
+	m.Manuals = nil
+	if err := storeMachineryManifest(repo, m); err != nil {
+		t.Fatal(err)
+	}
+	var out strings.Builder
+	if err := refreshManagedDocs(repo, "en", &out, localeEN); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(path + ".pose-backup"); err != nil {
+		t.Fatalf("with no record, a local edit cannot be ruled out, so a backup is kept: %v", err)
+	}
+	if !strings.Contains(out.String(), "no record of what POSE delivered") || strings.Contains(out.String(), "customized") {
+		t.Errorf("the report must say why it backed up, not claim a customization:\n%s", out.String())
+	}
+	if deliveredManual(repo, "POSE.md") == nil {
+		t.Error("the refresh must record what it delivered")
+	}
+}
+
+// A section the instance invented must never be recorded as delivered. If it
+// were, a later release shipping an engine section under the same heading
+// would replace the instance's text with no backup, because its body would
+// match the record (review of pose#103).
+func TestAnInventedSectionIsNeverRecordedAsDelivered(t *testing.T) {
+	repo, path, older := olderReleaseManual(t)
+	if err := recordDeliveredManual(repo, "POSE.md", older); err != nil {
+		t.Fatal(err)
+	}
+	const invented = "## Notes nobody shipped"
+	if err := os.WriteFile(path, []byte(older+"\n"+invented+"\n\nOur own notes.\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var out strings.Builder
+	if err := refreshManagedDocs(repo, "en", &out, localeEN); err != nil {
+		t.Fatal(err)
+	}
+	record := deliveredManual(repo, "POSE.md")
+	if record == nil {
+		t.Fatal("the refresh wrote the manual and recorded nothing")
+	}
+	if _, ok := record[invented]; ok {
+		t.Error("a section the instance invented was recorded as if POSE had delivered it")
+	}
+	raw, _ := os.ReadFile(path)
+	_, sections := splitDocSections(string(raw))
+	for _, section := range sections {
+		if sectionIsInstanceOwned(section) {
+			if _, ok := record[section.Heading]; ok {
+				t.Errorf("an instance-owned section was recorded as delivered: %s", section.Heading)
+			}
+		}
+	}
+}
+
+// The case the record must not hide: the instance wrote a section, and a later
+// release ships an engine-owned section under the same heading. The merge takes
+// the engine's body, so the instance's text must reach a backup.
+func TestAReleaseClaimingAnInventedHeadingStillBacksItUp(t *testing.T) {
+	olderCanonical := "# Manual\n\n## Rules\n\nengine rules\n"
+	newerCanonical := olderCanonical + "\n## Shared\n\nengine text for shared\n"
+	local := olderCanonical + "\n## Shared\n\nour own notes\n"
+	merged, _ := MergeManagedDoc(newerCanonical, local)
+	if strings.Contains(merged, "our own notes") {
+		t.Fatalf("premise: the merge should take the engine's body for an engine-owned heading:\n%s", merged)
+	}
+	if !manualDropsLocalEdits(local, merged, manualSectionDigests(olderCanonical)) {
+		t.Error("the instance's section was replaced and not reported as lost")
+	}
+}
