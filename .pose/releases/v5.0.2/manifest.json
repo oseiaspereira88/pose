@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "version": "v5.0.2",
+  "previous_version": "v5.0.1",
+  "prepared_at": "2026-09-11T05:00:38Z",
+  "specs": [
+    "pose-one-follow-up-format",
+    "pose-stdio-server-honours-sigterm",
+    "pose-update-reports-what-it-delivered",
+    "pose-validate-report-carries-its-run"
+  ],
+  "categories": {
+    "fixed": 4
+  },
+  "fragments": [
+    {
+      "spec": "pose-one-follow-up-format",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The spec template and the closeout skill show the one follow-up format POSE\nreads — `- [open] \u003ctext\u003e (owner:@alias crit:low|medium|high review:YYYY-MM-DD)`,\nthe group last, in parentheses — and `pose lint-spec` warns, in any spec\nstatus, when ownership is written anywhere else.\n\nWritten any other way, ownership is ignored: the item reads as unowned, with no\ncriticality and no review date, and never becomes overdue. The template showed\n`- [open] ` with no metadata at the one place an author writes a follow-up, and\nthe lint checked ownership only on done specs, so a wrong format could go\nunnoticed indefinitely — this repository had 27 open items that way.\n\nThe lint also reads a follow-up's continuation lines now, as `pose followups`\ndoes. It read only the first line, so a wrapped ownership group was owned for\none and \"unowned\" for the other.",
+      "path": "pose-one-follow-up-format.md",
+      "digest": "sha256:c04c7578d051fc22c9b90712658d05f6b38ee782c079912c602f33ba47096224"
+    },
+    {
+      "spec": "pose-stdio-server-honours-sigterm",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose serve-mcp --stdio` exits on SIGTERM, with status 0. It caught the signal\nand then kept waiting on stdin, looking at it only when the next request\narrived — which it then dropped unanswered. A client or supervisor stopping the\nserver the usual way left it running until the next call, and that call failed\nwith a closed connection.",
+      "path": "pose-stdio-server-honours-sigterm.md",
+      "digest": "sha256:1b7ac806c329c8eeede60e0d289999c139fefb0f07afaf8e0a88dbc4943d06cd"
+    },
+    {
+      "spec": "pose-update-reports-what-it-delivered",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose update --force` and `pose install` no longer stop at the index step when\nthe instance's own state is invalid. A corrupt changelog fragment used to end a\nrun that had already delivered every machinery tree with \"scaffold refresh\nfailed\", without saying what had been written or that the fragment was there\nbefore the run.\n\nThe run now reaches the final gate, which reports the failure, whether it\npredates this run, and that the delivered files are not rolled back. The exit\ncode is still non-zero — the instance fails its strict gate — but the message is\nabout the instance, not about a refresh that succeeded.",
+      "path": "pose-update-reports-what-it-delivered.md",
+      "digest": "sha256:1cdb4ffb953cba282d0a92deb8b60a1a6f1aea0fdbb35258ec794aa71e73debf"
+    },
+    {
+      "spec": "pose-validate-report-carries-its-run",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose validate --report` records the run it made: the report lists the commands\nexecuted and the Result line, and derives its outcome from them.\n\nIt never had. The report looked for a `pose-validate.latest.log` that native\nvalidation does not write, so every report said `_Fill manually_` and `_No\nvalidation output detected_` beside an outcome recorded as manual — a pass\nnothing in the report supported. The run's output is now handed to the report\ndirectly; no log file is written to the tree.",
+      "path": "pose-validate-report-carries-its-run.md",
+      "digest": "sha256:accd1406e229d3b615e3aa112233d508f08cf16e00e1a465d691515d299bd66f"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:d1bd98191251dfff87d0c06d198bdd5c310bb05e16f0ca05ba11d85f02f120e7",
+  "release_input_digest": "sha256:bc962a6f43f25056c8b283f7090dfad0dbe37ef5a96a8ab9cb63ca6270d9bc69",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v5.0.2"
+  }
+}

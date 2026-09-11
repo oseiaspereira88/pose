@@ -87,7 +87,7 @@ among them. That repository is migrated separately.
 
 ### Artifacts
 - created: .pose/specs/2026-09-10-pose-one-follow-up-format.md
-- created: .pose/changelogs/unreleased/pose-one-follow-up-format.md
+- renamed: .pose/changelogs/unreleased/pose-one-follow-up-format.md -> .pose/changelogs/v5.0.2/pose-one-follow-up-format.md
 - modified: pose-mcp/internal/cli/lintspec.go
 - modified: pose-mcp/internal/cli/followups.go
 - modified: pose-mcp/internal/cli/followups_owner_test.go
