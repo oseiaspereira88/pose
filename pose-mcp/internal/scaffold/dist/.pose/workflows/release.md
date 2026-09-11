@@ -12,7 +12,9 @@ separate evidence-backed facts.
 2. Update and review the authoritative project version.
 3. Run `pose release plan --version vX.Y.Z`; resolve every blocker.
 4. Run `pose release prepare --version vX.Y.Z --apply` and version only the
-   manifest, archived fragments and canonical notes it creates.
+   manifest, archived fragments and canonical notes it creates. When the release
+   introduces a governance contract, the notes open with a generated
+   Compatibility section — review it; it is what an adopter reads first.
 5. Run `pose release check --version vX.Y.Z --strict`, full validation,
    compatibility, signing/SBOM and independent-verification gates.
 6. Require a clean worktree and create a new annotated tag without overwrite or

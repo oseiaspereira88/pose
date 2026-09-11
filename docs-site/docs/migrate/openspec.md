@@ -1,6 +1,6 @@
 # Migrating from OpenSpec
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 `pose import openspec` reads OpenSpec capability specs and change folders and
 produces POSE specs from them, so existing work comes with you.

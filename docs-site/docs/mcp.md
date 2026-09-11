@@ -1,13 +1,13 @@
 # MCP server
 
-**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 `pose serve-mcp` exposes a read-heavy governance view of a POSE instance to
 MCP-capable agents. Transports: stdio
 (`--stdio`, ideal for agent runtimes) and Streamable HTTP (`POSE_MCP_ADDR`,
 default `:8790`).
 
-The v1.4.3 golden catalog contains **50 tools**: 47 project-scoped POSE
+The golden catalog contains **50 tools**: 47 project-scoped POSE
 governance tools and 3 optional Conductor run reporters. The count is a
 release contract, not a hand-maintained marketing number.
 
@@ -63,6 +63,12 @@ Prefer the `stdio` transport for local agents and let the client start
 `pose serve-mcp --stdio` from `.mcp.json`; do not keep a manual daemon running
 alongside it. Reserve the HTTP transport for an explicitly configured shared
 server.
+
+The stdio server exits cleanly on SIGTERM or an interrupt, so a client stopping
+it does not leave it running. Most tools answer by running the `pose` CLI, and
+the server resolves that executable once, at start: a server started before
+`pose update` keeps working and runs the updated binary at the same path. It
+serves the updated tool catalog only after the client restarts it.
 
 In Codex, mirror the same overlay in `.codex/config.toml`. Reuse the global
 server name to override it at project scope, and neutralize inherited

@@ -1,12 +1,13 @@
 # Technical architecture
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 **Status:** Reference-grade, offline-first engineering operating standard  
-**Verified:** 2026-08-17 against the `v1.4.3` release contract and
-validation matrix, after four consecutive real releases (v1.4.0-v1.4.3)
-closed an 11-defect upgrade-path field audit against real, independently-owned
-repositories
+**Updated:** 2026-09-11 for the `v5.0.2` release — mechanisms 2, 6, 7, 10, 11,
+14 and 16 checked against the code of that release. The others were last
+verified 2026-08-17 against `v1.4.3`, after four consecutive real releases
+closed an 11-defect upgrade-path field audit against independently-owned
+repositories.
 
 POSE is a repository-local governance system for human and AI-assisted software
 delivery. It combines a versioned operating contract, a native deterministic
@@ -149,7 +150,9 @@ stateDiagram-v2
 ```
 
 - `lint-spec --ready-check` requires intent, requirements with stable `R<N>`
-  identifiers and a technical plan before execution.
+  identifiers and a technical plan before execution. The Definition of Ready is
+  opt-in: `.pose/policy/dor.json` ships with an empty `adopted_at`, and the gate
+  applies to specs created on or after the date a project sets there.
 - `lint-spec --strict` requires `completed_at` and a disposition for every
   follow-up before `done`.
 - `check` validates status transitions and references at repository scope.
@@ -252,7 +255,17 @@ process group on Unix (documented Windows fallback); an
 `isolation: "required"` classification routes checks that must not run
 against untrusted local state to the Harness instead. Results emit through a
 canonical, versioned model with additive `--json`/`--junit`/`--sarif`
-projections alongside the native report.
+projections alongside the native report; `--report` writes a report that
+lists the commands the run executed and derives its outcome from the run's
+own result.
+
+Every check declares the `evidenceClass` it produces from one closed
+vocabulary — `build`, `unit`, `integration`, `e2e`, `reachability`, `a11y`,
+`design-system`, `contrast`, `visual-regression`, `lint`, `typecheck`,
+`security-scan`, `contract` — which is also the only vocabulary a review
+profile may demand. `pose validate` refuses a check outside it, and a profile
+that declares a class outside it fails to load. Static analysis is not
+reported as `build`: `go vet` emits `lint`.
 
 ## Mechanism 7: evidence, history and insights
 
@@ -270,8 +283,9 @@ are observed automatically at their execution boundaries; the allowlisted
 schema keeps bounded outcomes, timing, counts and project-local HMAC
 fingerprints while excluding arguments, output, paths, source content and
 identity. Complete comparable finding sets support new/resolved/reopened
-transitions without agent-maintained counters. Human adjudication remains an
-explicit follow-up rather than an inferred state.
+transitions without agent-maintained counters. Human adjudication is not
+inferred; recording it is designed in the draft spec
+`pose-usage-findings-adjudication`.
 
 `pose record-deployment`/`record-incident` capture quality-gated delivery
 events; `pose dora-metrics` derives all five current, production-scoped DORA
@@ -328,7 +342,10 @@ One changelog fragment is associated with each delivered spec. `pose release
 prepare --apply` consumes the selected queue exactly once and freezes canonical
 notes plus a candidate manifest; later tagged, published and verified records
 reconcile external facts against that immutable candidate rather than editing
-the tag or regenerating mutable notes. The pipeline builds six native platform
+the tag or regenerating mutable notes. A release that introduces a governance
+contract carries a **Compatibility** section at the top of its notes, generated
+from the contract registry: what the contract requires and what adopting it
+costs an engine that does not know it. The pipeline builds six native platform
 targets through GoReleaser. GitHub Actions, pre-commit and native Git hooks
 provide progressively stronger adoption paths.
 
@@ -350,8 +367,8 @@ results on every PR, push to `main` and weekly schedule.
 full POSE governance surface — specs, readiness, roadmaps, changelogs,
 follow-ups, structural gates, task routing, workflows, rules, skills,
 knowledge, reports, insights and safe validation orchestration — frozen by a
-golden catalog fixture with an explicit risk class per tool. The v1.1.0
-catalog contains 47 POSE tools plus 3 optional Conductor reporters. Optional
+golden catalog fixture with an explicit risk class per tool. The catalog
+contains 47 POSE tools plus 3 optional Conductor reporters. Optional
 `pose_validate_submit` and `conductor_run_*` tools report external runs or
 submit to a Harness only when the corresponding Harne8 endpoints are
 configured.
@@ -360,7 +377,10 @@ MCP tools use JSON schemas and project-scoped root resolution. The server
 supports a default project plus explicit or directory-discovered roots. The
 [MCP tools contract](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
 provides discovery and invocation; POSE keeps file mutations in the execution
-sandbox instead of exposing general-purpose write tools.
+sandbox instead of exposing general-purpose write tools. Most tools answer by
+running the `pose` CLI: the server resolves that executable once, at start, so a
+server started before `pose update` keeps working with the binary installed at
+the same path. The stdio server exits on SIGTERM.
 
 ## Mechanism 12: policy, identity and audit
 
@@ -398,7 +418,13 @@ one editor, model provider or hosted service.
 
 The embedded distribution supports English and Brazilian Portuguese. Unknown
 locales fall back to English. `pose doctor --json` checks the binary,
-dependencies, instance, schema, skill links, MCP configuration and Git hooks.
+dependencies, instance, schema, skill links, MCP configuration and Git hooks,
+and diagnoses governance that would otherwise fail only downstream: a review
+profile demanding a class no check emits or no check produces, checks with no
+`evidenceClass`, a profile below the enforced schema, a contract with no
+adoption date, and keys in any of nine policies that the engine does not read —
+the way a misspelled setting silently does nothing. The full list is in the
+[CLI reference](cli.md#maintenance).
 
 Telemetry is disabled by default. Enabling it still sends nothing until an
 endpoint is explicitly configured. The payload is limited to anonymous ID,
@@ -449,6 +475,40 @@ else. SLOs, backpressure, retry policy and disaster recovery for the
 own operational responsibility, out of this repository's scope by design
 (Non-goal: never move repository authority into a required hosted
 service).
+
+## Mechanism 16: component-aware review and sealed bundles
+
+`pose review-plan` resolves, per component, which review profiles apply and
+which criteria and tools they demand; each criterion lists the evidence classes
+that satisfy it, any one of which is enough. `pose review bundle --seal` then
+freezes the review subject as an immutable `rvb-` bundle: the attributed change
+sets, the plan and the profiles it selected, the required evidence identities,
+the governance contracts in force, and the gates that decide it —
+reservations, accepted-risk severities and criterion reuse. Verification reads
+all of these from the bundle, never from the policy as it stands later; only the
+signing requirement is read live, so tightening it reaches old bundles.
+
+Three governance contracts are registered — `component-aware`,
+`review-bundles` and `evidence-vocabulary` — each with the release that
+introduced it and an adoption date in the review policy. Adding one to the
+registry is what makes `pose update` stamp it, `pose doctor` report it and the
+release notes announce it.
+
+An attestation binds to one bundle digest. A criterion recorded `passed` must
+cite evidence the bundle contains, of an accepted class, from the component the
+criterion is about — evidence from a directory inside a component does not
+answer for the component. Findings carry severity, action and a disposition;
+an accepted risk needs a severity the sealed gates accept, an owner, a rationale
+and a review date. `pose review verify`, `review-check` and `closeout-check`
+then decide freshness, completeness and closure.
+
+```mermaid
+flowchart LR
+    P[review-plan per component] --> V[validate with evidence classes]
+    V --> B[review bundle --seal]
+    B --> A[attest: criteria, tools, findings]
+    A --> C[review verify / closeout-check]
+```
 
 ## Primary data flows
 

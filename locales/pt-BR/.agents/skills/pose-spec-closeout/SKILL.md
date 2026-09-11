@@ -16,7 +16,7 @@ duplicados entre specs.
 
 ## Required reading (na ordem)
 
-1. A própria spec em `.pose/specs/<slug>/spec.md` (frontmatter + Final Report).
+1. A própria spec — `.pose/specs/YYYY-MM-DD-<slug>.md` por padrão, ou `YYYY-MM-DD-<slug>/spec.md` e `<slug>/spec.md` nos layouts em pasta (frontmatter + Final Report).
 2. [`.pose/templates/spec.md`](../../../.pose/templates/spec.md) — frontmatter de ciclo de vida + disposições de follow-up.
 3. [AGENTS.md](../../../AGENTS.md) — obrigatoriedade de spec/checks.
 

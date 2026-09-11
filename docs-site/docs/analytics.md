@@ -1,6 +1,6 @@
 # Analytics and delivery metrics
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 POSE exposes three measurement planes. They answer different questions and
 must remain separate:
@@ -78,9 +78,10 @@ existing events remain queryable.
 !!! note "Human confirmation is a recorded evolution"
 
     POSE does not infer whether an observed finding is `valid`,
-    `wont-fix` or `false-positive`. That explicit adjudication is an owned
-    follow-up of `pose-usage-metrics`. Automatic observation counts remain
-    separate so a future human decision cannot rewrite what the gate saw.
+    `wont-fix` or `false-positive`. Recording that verdict is designed in the
+    draft spec `pose-usage-findings-adjudication`, whose storage decision is
+    still open. Automatic observation counts remain separate so a later human
+    decision cannot rewrite what the gate saw.
 
 ## Measure adoption
 

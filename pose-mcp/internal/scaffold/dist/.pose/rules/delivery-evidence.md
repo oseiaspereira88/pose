@@ -24,6 +24,10 @@ current-state sections in specs or proposals, and messages that say something is
   a production entrypoint to current structured validation results. A surface
   requires reachability plus integration/e2e evidence; a composed capability
   requires integration evidence.
+- Evidence answers for the component it ran in or for a component inside it: a
+  module-wide run covers its subtree, but a result from a directory inside a
+  component does not answer for the whole component. Coverage that rests only
+  on a containing module is reported as `inferred-coverage` — name it as such.
 
 ## Blocking anti-patterns
 

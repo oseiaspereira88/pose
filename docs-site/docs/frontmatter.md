@@ -1,12 +1,16 @@
 # Frontmatter contracts
 
-**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 POSE frontmatter is **flat by contract** — inline comma-separated lists, never
 multi-line YAML lists. This keeps every artifact parseable by simple
 deterministic tooling (and by agents) without a YAML edge-case zoo.
 
-## Spec (`.pose/specs/<slug>/spec.md`)
+## Spec (`.pose/specs/YYYY-MM-DD-<slug>.md`)
+
+`pose new-spec` writes the dated flat file by default; `--folder` writes
+`.pose/specs/YYYY-MM-DD-<slug>/spec.md`, and specs in the older
+`.pose/specs/<slug>/spec.md` layout stay readable.
 
 ```yaml
 ---
@@ -18,6 +22,8 @@ supersedes:          # slug of the superseded spec
 depends_on: other-spec, milestone:my-roadmap/m1, roadmap:other-roadmap
 priority: 1          # integer >= 0; lower = attack first; never blocks
 components:          # optional, inline comma-separated: affected modules/components
+task_type: feature   # optional; a key of taskTypes in .pose/policy/dor.json (default: defaultTaskType)
+delivers:            # optional typed refs: surface:id, contract:id, capability:id, infrastructure:id, governance:id
 ---
 ```
 
@@ -25,7 +31,16 @@ Rules enforced by `pose check` / `pose lint-spec`:
 
 - `depends_on` refs must exist; the graph must be acyclic.
 - `status: done` requires `completed_at` + a disposition on every follow-up.
-- Entering `in-progress` requires the Definition of Ready (`--ready-check`).
+  An open follow-up ends with its ownership group,
+  `(owner:@alias crit:low|medium|high review:YYYY-MM-DD)` — the only format
+  read.
+- Entering `in-progress` requires the Definition of Ready (`--ready-check`)
+  once the project sets `adopted_at` in `.pose/policy/dor.json`; `task_type`
+  selects which sections it requires.
+- A review bundle is sealed only for a spec with an attributed change set —
+  commits carrying its `POSE-Spec:` trailer, or a range recorded with
+  `pose report --change-from/--change-to`; `pose doctor` names specs that
+  `delivers:` a target without one.
 - Acceptance criteria use stable IDs (`- R<N>:`); published IDs are never
   renumbered — a withdrawn criterion is marked as withdrawn.
 - `components` is free-form (no enforced vocabulary) — tag a spec with the

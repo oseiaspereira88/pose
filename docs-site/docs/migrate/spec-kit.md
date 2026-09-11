@@ -1,6 +1,6 @@
 # Migrating from GitHub Spec Kit
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 If you already write specs with Spec Kit, you do not have to abandon them to
 try POSE. `pose import spec-kit` reads your existing feature specs and produces

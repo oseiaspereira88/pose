@@ -12,7 +12,7 @@ Consumir fragmentos unreleased revisados em um candidato imutável e manter prep
 
 3. Executar `pose release plan --version vX.Y.Z`; resolver todos os impedimentos.
 
-4. Executar `pose release prepare --version vX.Y.Z --apply` e versionar apenas o manifesto, fragmentos arquivados e notas canônicas gerados.
+4. Executar `pose release prepare --version vX.Y.Z --apply` e versionar apenas o manifesto, fragmentos arquivados e notas canônicas gerados. Quando a release introduz um contrato de governança, as notas abrem com uma seção Compatibility gerada — revise-a; é o que quem adota lê primeiro.
 
 5. Executar `pose release check --version vX.Y.Z --strict`, validação completa, compatibilidade, assinatura/SBOM e gates de verificação independente.
 

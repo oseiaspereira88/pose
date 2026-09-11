@@ -64,7 +64,7 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
 
 ## Output requirements
 
-- `.pose/specs/<slug>/spec.md` com todas as seções obrigatórias preenchidas (zero placeholders restantes).
+- A spec (`.pose/specs/YYYY-MM-DD-<slug>.md` por padrão) com todas as seções obrigatórias preenchidas (zero placeholders restantes).
 - `pose validate --strict` em SUCESSO para o(s) módulo(s) afetado(s).
 - Frontmatter com `status: done` + `completed_at`; follow-ups com disposição.
 - `pose lint-spec <slug> --strict` em SUCESSO.

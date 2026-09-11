@@ -1,6 +1,6 @@
 # CLI reference
 
-**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** Reference &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 The `pose` CLI is a single native Go binary. Every command below executes
 without Bash or Python fallbacks and works offline.
@@ -12,7 +12,7 @@ without Bash or Python fallbacks and works offline.
 | `pose init [--wizard [--yes]]` | Ensure the minimal structure; the wizard detects stacks and seeds the validation matrix |
 | `pose specs [--recent N] [--status S] [--since D] [--json]` | List and discover specifications chronologically (newest first) |
 | `pose spec-format <migrate|status> [<slug>|--all] [--format folder|flat] [--dry-run]` | Inspect and migrate specifications to chronological layout with companion preservation |
-| `pose new-spec <slug>` | Create `.pose/specs/YYYY-MM-DD-<slug>/spec.md` from the template (hybrid engine resolution) |
+| `pose new-spec <slug> [--folder\|--legacy]` | Create `.pose/specs/YYYY-MM-DD-<slug>.md` from the template; `--folder` writes `YYYY-MM-DD-<slug>/spec.md`, `--legacy` writes `<slug>/spec.md` |
 | `pose new-roadmap <slug>` | Create a governed roadmap in `.pose/roadmaps/` |
 | `pose new-adr "<title>"` | Create a dated ADR |
 | `pose new-knowledge <type> <slug>` | Create handoff/note/decision-log (`--owner`, `--ttl-days`, `--restricted`) |
@@ -22,9 +22,9 @@ without Bash or Python fallbacks and works offline.
 | Command | Purpose |
 |---|---|
 | `pose check [--strict\|--tolerant]` | Structural integrity + matrix schema + task-map sync + spec graph + schema version |
-| `pose validate [--strict\|--tolerant] [--stack s] [--module p] [--report]` | Run the validation matrix |
-| `pose lint-spec <slug>\|--all [--ready-check]` | Section content, DoR entry gate, done-lifecycle gate |
-| `pose followups [--open\|--all] [--json]` | Aggregate follow-ups + near-duplicate candidates |
+| `pose validate [--strict\|--tolerant] [--stack s] [--module p\|--workspace w\|--root-only] [--changed-from A --changed-to B] [--explain] [--report [--report-task T]] [--json P] [--junit P] [--sarif P] [--emit-plan P]` | Run the validation matrix; `--report` writes a report that lists the commands this run executed and its result |
+| `pose lint-spec <slug>\|--all [--ready-check]` | Section content, DoR entry gate, done-lifecycle gate; warns in any status when a follow-up's ownership is outside its trailing group |
+| `pose followups [--open\|--all] [--overdue] [--owner @alias] [--fail-overdue] [--similarity N] [--json]` | Aggregate follow-ups, overdue triage dates and near-duplicate candidates |
 | `pose knowledge-check [--max-overdue N]` | Knowledge schema + overdue backlog |
 | `pose recurrence-check [--window-days N] [--threshold T]` | Recurring failing task slugs |
 | `pose history-check` | All history JSONL must be git-tracked |
@@ -39,9 +39,10 @@ without Bash or Python fallbacks and works offline.
 | `pose review-plan <scope> [--json] [--explain]` | Resolve the deterministic component-aware plan, provenance, criteria, safe native-tool guidance and plan digest |
 | `pose review bundle <scope> [--json] [--explain] [--seal]` | Prepare the semantic review subject or persist it as an immutable `rvb-` bundle after required evidence is current |
 | `pose review auto-attest <bundle-id\|scope-ref> [--reviewer <id>] [--apply]` | Extract matching evidence from validation results, resolve tool dispositions and record attestation |
-| `pose review attest <bundle-id> --reviewer ID --decision D --evidence REF [--plan-digest SHA] [--tool DISPOSITION] [--finding FINDING] [--apply]` | Preview or append a local `rva-` attestation bound to the exact sealed bundle |
+| `pose review attest <bundle-id> --reviewer ID --decision D --evidence REF [--criterion C] [--tool DISPOSITION] [--finding F] [--plan-digest SHA] [--apply]` | Preview or append a local `rva-` attestation bound to the exact sealed bundle |
 | `pose review attest --envelope <project-relative-path> [--apply]` | Verify and preview/import a policy-trusted external attestation envelope |
 | `pose review verify <scope\|bundle-id\|bundle-path> [--json]` | Verify bundle freshness, attestation completeness and closeout readiness |
+| `pose review record <scope> --reviewer ID --decision D --evidence REF [--finding F] [--tool DISPOSITION] [--plan-digest SHA] [--apply]` | Record a review against the scope's current plan; when review bundles are enabled it requires a current sealed bundle and binds to it |
 | `pose review-check <scope> [--json]` | Enforce the current review plan and accepted attempt/attestation |
 | `pose closeout-check <scope> [--json]` | Evaluate hierarchical spec, milestone or roadmap closure |
 
@@ -68,6 +69,46 @@ changes create a superseding bundle with a typed delta; derived closeout
 updates do not force a mechanical rereview. Plan resolution, bundle preview
 and verification never execute recommended tools or widen caller authority.
 
+### What a sealed bundle fixes
+
+Sealing records, inside the bundle, everything later verification judges it
+by, so an old approval is never re-judged by today's configuration:
+
+- the attributed change sets and subject, the plan and the review profiles it
+  selected per component, and the identities of the required evidence;
+- the governance contracts in force when it was sealed — `component-aware`,
+  `review-bundles`, `evidence-vocabulary` — so a contract adopted later never
+  reaches it;
+- the gates that decide it: whether `approved-with-reservations` closes, which
+  severities an accepted risk may carry, and whether a prior criterion
+  disposition may be reused.
+
+The one setting read live is `require_signed_attestations`: tightening signing
+deliberately applies to bundles sealed before the change. A bundle sealed by an
+older engine carries none of these fields and is judged by the dated
+`contract_adoptions` rule and conservative gates instead. Sealing warns about
+evidence produced against a commit other than the head it approves — accepted
+as current, but named so a reviewer can tell carried-forward evidence apart.
+
+### What an attestation has to show
+
+- A criterion recorded `passed` must cite evidence the sealed bundle contains,
+  of a class the criterion accepts. `evidence_classes` is a disjunction: any one
+  of the listed classes satisfies it.
+- Evidence for a criterion or tool scoped to a component must come from that
+  component. A result from a directory *inside* a component does not answer for
+  the whole component; a module-wide run does answer for its subtree.
+- `--criterion ID|disposition|evidence|rationale` records a disposition for a
+  required criterion: `passed`, `not-applicable` (a rationale is required) or
+  `finding` (the evidence slot names a finding this attestation records).
+- `--finding ID|severity|disposition|action|evidence[|owner|rationale|review-by]`
+  records a finding. Every finding needs a severity and an action. `resolved`
+  and `wont-fix` close it; `accepted-risk` closes it only for a severity the
+  sealed gates accept and only with an owner, a rationale and a review date;
+  `open` and `changes-requested` block closeout.
+- The decision must be `approved`, or `approved-with-reservations` where the
+  sealed gates allow it.
+
 ## Discovery, metrics, artifacts
 
 | Command | Purpose |
@@ -76,7 +117,8 @@ and verification never execute recommended tools or widen caller authority.
 | `pose stats [workflows\|tasks\|contexts] [--since-days N]` | Outcome aggregation from history |
 | `pose usage [--since-days N] [--tool NAME] [--surface cli\|mcp] [--json]` | Automatic local tool calls, outcomes, finding lifecycle and latency by CLI/MCP surface |
 | `pose index` | Regenerate all indexes (repo-map, spec-graph, roadmaps…) |
-| `pose report --task "..." [--outcome ...] [--since ref]` | Versionable report + history JSONL |
+| `pose report --task "..." [--outcome pass\|fail\|partial\|skipped\|unknown] [--spec S] [--since ref] [--change-from A --change-to B] [--validate-output P] [--git-stage] [...]` | Versionable report + history JSONL; `pose report --help` lists all sixteen flags |
+| `pose public-claims [--strict\|--tolerant] [--json]` | Check that every surface a project declares (site, README, docs) claims the version it actually released, from `.pose/public/claims.json` (opt-in; start from `.pose/templates/public-claims.json`) |
 
 `pose usage` needs no counters from agents. POSE records recognized terminal
 CLI commands and project-backed MCP tool calls at their execution boundaries;
@@ -97,9 +139,10 @@ Set `POSE_USAGE_DIR` only when an operator needs an explicit absolute local
 state directory (for example, a persistent container mount); the default Git
 common-dir/user-cache resolution is preferred.
 
-POSE does not infer the future human adjudication states `valid`,
-`wont-fix` or `false-positive`; that evolution remains an owned follow-up and
-will stay separate from automatic observation counts. See
+POSE does not infer the human adjudication states `valid`, `wont-fix` or
+`false-positive`. Recording them is designed in the draft spec
+`pose-usage-findings-adjudication`, which keeps verdicts separate from the
+automatic observation counts and still has its storage decision open. See
 [Analytics and delivery metrics](analytics.md) for interpretation and examples.
 
 ## DORA and adoption metrics
@@ -301,7 +344,8 @@ When enabled, executing AI agents automatically stage feedback, bug reports, and
 
 | Command | Purpose |
 |---|---|
-| `pose update [--dry-run]` | Migrate the instance contract to the engine version |
+| `pose install <dir> [--locale <tag>] [--skip-mcp] [--force] [--no-backup] [--allow-non-git] [--project-id ID] [--project-name N]` | Install POSE into a Git repository and run the strict gate |
+| `pose update [--dry-run] [--force] [--no-self] [--locale <tag>]` | Update the binary to the latest release and migrate the instance; `--no-self` keeps the current binary, `--force` also refreshes scaffolds, rules, workflows and MCP config |
 | `pose doctor [--json] [--fix [--yes] [--only <check>]]` | Read-only diagnostics; `--fix` previews confined remediation, `--fix --yes` applies and rechecks it |
 | `pose knowledge-housekeeping <op> [--apply]` | List/archive/purge expired knowledge |
 | `pose reports-housekeeping <op> [--apply]` | Same for reports (never touches `history/`) |
@@ -309,13 +353,59 @@ When enabled, executing AI agents automatically stage feedback, bug reports, and
 | `pose serve-mcp [--stdio]` | Start the MCP server (unified binary) |
 | `pose version` | Binary version + instance schema version |
 
+`pose update` replaces its own binary first and then hands off to it, so
+migrations shipped with the new engine apply on the update that delivers them.
+Managed manuals (`AGENTS.md`, `POSE.md`) are merged rather than overwritten:
+sections the instance owns keep their content, and anything a merge cannot keep
+in place is saved to `<file>.pose-backup` and reported. A run that has delivered
+its files but finds the instance's own state invalid — a corrupt changelog
+fragment, say — reports that through the final gate, which says whether the
+failure predates the run; nothing is rolled back.
+
+`pose doctor` diagnoses the instance without changing it. Beyond the binary,
+dependencies, schema, skills, hooks and MCP configuration, it reports:
+
+- `review.evidence-vocabulary` — a selected review profile demands a class no
+  check may emit;
+- `validate.class-producers` — a selected profile's criterion accepts only
+  classes no registered check produces;
+- `validate.evidence-class-coverage` — registered checks declare no
+  `evidenceClass`, so their results never reach a review;
+- `review.profile-schema` — a review profile below the schema the engine
+  enforces, with the command that migrates it;
+- `review.contract-adoption` — a governance contract with no adoption date;
+- `review.scope-change-set` — a spec that `delivers:` a target but has no
+  attributed change set;
+- `<policy>.policy-keys`, for the review, delivery, artifact, capability, docs,
+  release, state, changelog and definition-of-ready policies — keys the engine
+  does not read, which is how a misspelled setting silently does nothing;
+- `policy.delivery-roots`, `policy.artifact-roots`,
+  `instance.config-completeness`, `machinery.retired-on-disk`,
+  `module-metadata.orphan-entries`, `validate.redundant-workspace-execution`
+  and `rules.stack-extension-available`.
+
+`pose serve-mcp --stdio` exits on SIGTERM, and a server started before a
+`pose update` keeps running the CLI installed at the path it started from.
+
 Every gate is offline by design — no network calls, stdlib only. A gate
 observed doing network I/O is a reportable bug (see SECURITY.md).
-# Release lifecycle
 
-`pose release plan --version vX.Y.Z` previews a cut. `pose release prepare
---version vX.Y.Z --apply` freezes selected fragments, canonical notes and a
-manifest. `check`, `notes`, `record`, `status`, `open-next` and `backfill`
-reconcile the candidate through tagged, published and verified states. The
-compatibility alias `release-notes --version` reads only the prepared snapshot;
-use `--preview` explicitly for the pending queue.
+## Release lifecycle
+
+| Command | Purpose |
+|---|---|
+| `pose release plan --version vX.Y.Z` | Preview the cut: fragments selected, version recommendation, blockers |
+| `pose release prepare --version vX.Y.Z --apply` | Freeze the selected fragments, canonical notes and manifest |
+| `pose release check --version vX.Y.Z [--strict]` | Validate the prepared snapshot |
+| `pose release notes --version vX.Y.Z` | Print the frozen notes (what tagged CI publishes) |
+| `pose release record --version vX.Y.Z --event tagged\|published\|verified\|failed\|yanked --evidence P` | Import provider or verification evidence as an append-only event |
+| `pose release status --version vX.Y.Z` | Project the release's state from its events |
+| `pose release open-next --version vX.Y.Z` | Confirm the latest release is verified and the next version is greater; changes nothing |
+| `pose release backfill --from-git [--apply] [--json]` | Reconstruct release records from existing `v*` Git tags |
+
+A release that introduces a governance contract says so in a **Compatibility**
+section at the top of its notes: which contract, what it requires, and what
+adopting it costs an engine that does not know it. That text comes from the
+contract registry, so it cannot be forgotten. The compatibility alias
+`release-notes --version` reads only the prepared snapshot; use `--preview`
+explicitly for the pending queue.
