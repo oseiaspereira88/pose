@@ -213,4 +213,4 @@ Valid dispositions:
   [wont-do: <reason>]     consciously discarded
 -->
 
-- [open] Document the `POSE-Spec: <slug>` trailer workflow in `AGENTS.md` and `.pose/workflows/feature.md` (Issue #29). (owner:@pose-maintainers crit:medium review:2026-09-21)
+- [done] Document the `POSE-Spec: <slug>` trailer workflow in `AGENTS.md` and `.pose/workflows/feature.md` (Issue #29). Both carry it, in both locales: `AGENTS.md` under "Commit trailer" and `feature.md` as the commit step. (owner:@pose-maintainers crit:medium review:2026-09-21)

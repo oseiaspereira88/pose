@@ -267,11 +267,13 @@ edge case a naive fix would have missed (Decision 1).
   merge-by-heading language matching), both pre-existing and out of scope.
 
 ### Follow-ups
-- [open] `pose install`'s final `--strict` gate (install.go:262) runs after
+- [covered: pose-install-gate-failure-recovery-notice] `pose install`'s final `--strict` gate (install.go:262) runs after
   every file is already written and does not roll back on failure —
   recoverable via `.pose-backup` + git, but not transactional. Consider
   either gating before mutation (dry-run the check first) or explicitly
-  documenting that a failed install/update can still leave mutated files
+  documenting that a failed install/update can still leave mutated files.
+  That spec took the second option: a failed gate says files were written and
+  how to recover them, and rollback stays out of scope
   (owner:@pose-maintainers crit:medium review:2026-09-15)
 - [done] `MergeManagedDoc` matches sections by heading text, so an explicit
   `--locale` switch on `AGENTS.md`/`POSE.md` without `--force` concatenates
