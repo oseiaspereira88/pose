@@ -117,12 +117,32 @@ func classifySection(lines []string) string {
 	return "empty"
 }
 
+// warnMisplacedFollowupMeta names the one format POSE reads for follow-up
+// ownership, for an item that wrote it some other way.
+func warnMisplacedFollowupMeta(stderr io.Writer, locale cliLocale, slug, content string) {
+	snippet := content
+	if len([]rune(snippet)) > 60 {
+		snippet = string([]rune(snippet)[:60]) + "…"
+	}
+	fmt.Fprintf(stderr, cliText(locale,
+		"[WARNING] %s: follow-up ownership is outside the trailing group and is ignored — end the bullet with '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)' → \"%s\"\n",
+		"[AVISO] %s: ownership do follow-up está fora do grupo final e é ignorado — termine o bullet com '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)' → \"%s\"\n"),
+		slug, snippet)
+}
+
+// extractFollowups returns each follow-up bullet with its continuation lines
+// joined, the way `pose followups` reads it: a bullet runs until the next
+// bullet, heading or blank line. Reading only the first line made the lint
+// report a wrapped "(owner:… review:…)" group as unowned while `pose
+// followups` read the same item as owned (spec pose-one-follow-up-format).
 func extractFollowups(finalReport []string) []string {
 	var bullets []string
 	in := false
+	current := -1
 	for _, line := range finalReport {
 		if m := subheadingRE.FindStringSubmatch(line); m != nil {
 			in = strings.HasPrefix(strings.ToLower(strings.TrimSpace(m[1])), "follow-up")
+			current = -1
 			continue
 		}
 		if !in {
@@ -130,6 +150,15 @@ func extractFollowups(finalReport []string) []string {
 		}
 		if m := bulletRE.FindStringSubmatch(line); m != nil {
 			bullets = append(bullets, strings.TrimSpace(m[1]))
+			current = len(bullets) - 1
+			continue
+		}
+		if current >= 0 {
+			if trimmed := strings.TrimSpace(line); trimmed != "" {
+				bullets[current] += " " + trimmed
+			} else {
+				current = -1
+			}
 		}
 	}
 	return bullets
@@ -618,6 +647,8 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 				if metaErr != "" {
 					fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: open follow-up ownership: %s\n", "[ERRO] %s: ownership de follow-up aberto: %s\n"), slug, metaErr)
 					lifecycle++
+				} else if followupMetaMisplaced(content) {
+					warnMisplacedFollowupMeta(stderr, locale, slug, content)
 				} else if owner == "unowned" {
 					fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: open follow-up is unowned (declare '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)')\n", "[AVISO] %s: follow-up aberto sem dono (declare '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)')\n"), slug)
 				}
@@ -654,6 +685,11 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			disposition, _ := lintFollowupDisposition(content, nil, "", locale)
 			if disposition == "open" || disposition == "" {
 				followupsOpen++
+				// Before closeout an unowned item is not reported, but metadata
+				// the parser ignores is: it was meant, and nothing reads it.
+				if followupMetaMisplaced(content) {
+					warnMisplacedFollowupMeta(stderr, locale, slug, content)
+				}
 			}
 		}
 	}

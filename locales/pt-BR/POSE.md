@@ -138,8 +138,11 @@ priority:                # inteiro >= 0 (menor = mais prioritário)
   descartado. Itens abertos declaram adicionalmente titularidade e um nível de
   serviço de triagem com um grupo final
   `(owner:@alias crit:low|medium|high review:YYYY-MM-DD)` — o SLA é uma promessa
-  de triagem, não um prazo de implementação. Itens legados sem o grupo são
-  reportados como `unowned` (aviso no fechamento).
+  de triagem, não um prazo de implementação. Esse grupo é o único formato lido:
+  precisa ser a última coisa do bullet, entre parênteses, e o bullet pode
+  quebrar linha. Ownership escrito de qualquer outro jeito é ignorado, então o
+  item fica `unowned` e nunca vence; `pose lint-spec` avisa sobre isso. Itens
+  legados sem o grupo são reportados como `unowned` (aviso no fechamento).
 - **Trace de requisitos:** no fechamento, a subseção
   `Validation > Requirement trace` mapeia cada `R<N>` declarado ao seu desfecho —
   `[satisfied]` com evidência (texto livre mais refs estruturadas `check:`,

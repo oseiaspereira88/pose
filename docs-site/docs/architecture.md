@@ -291,8 +291,9 @@ Git-history-integrity-protected rather than independently signed.
 Closeout dispositions form a controlled vocabulary: open, spawned, covered,
 duplicate, done or wont-do. `pose followups` aggregates the live backlog and
 suggests lexical near-duplicates. Semantic equivalence remains a reviewed
-decision. Open follow-ups declare ownership and a triage SLA
-(`owner:@alias crit:low|medium|high review:YYYY-MM-DD`); `pose followups
+decision. Open follow-ups end with ownership and a triage SLA in one trailing
+group, `(owner:@alias crit:low|medium|high review:YYYY-MM-DD)` — the only
+format read; `pose followups
 --overdue` and opt-in closeout blocking keep unowned or stale entries
 visible instead of silent.
 

@@ -191,17 +191,26 @@ Missing or orphaned IDs fail `pose lint-spec --strict` on done specs. -->
 ### Follow-ups
 
 <!--
-Every follow-up starts with a bracketed disposition. When the spec is marked
-`status: done`, every follow-up MUST have one (use `[open]` for the untriaged
-ones — `pose followups --open` aggregates them).
+One format, one bullet per follow-up:
+
+  - [<disposition>] <what remains and why> (owner:@alias crit:low|medium|high review:YYYY-MM-DD)
+
+The ownership group is required on [open] items and must be the LAST thing on
+the bullet, in parentheses. The bullet may wrap onto indented lines. Ownership
+written any other way — after a dash, mid-sentence, without parentheses — is
+ignored: the item reads as unowned, with no criticality and no review date, and
+never becomes overdue. `pose lint-spec` warns when it sees that.
 
 Valid dispositions:
-  [open]                  not yet triaged (live backlog)
+  [open]                  live backlog without a dedicated spec (needs the ownership group)
   [spawned: <slug>]       became/seeded a new spec
   [covered: <slug>]       already covered by another existing spec
   [duplicate: <slug>]     same follow-up already triaged in another spec
   [done]                  resolved directly, without a separate spec
   [wont-do: <reason>]     consciously discarded
+
+When the spec is marked `status: done`, every follow-up MUST have a
+disposition — `pose followups --open` aggregates the open ones.
 -->
 
 - [open] 

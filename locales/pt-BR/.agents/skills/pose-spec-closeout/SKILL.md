@@ -34,7 +34,7 @@ Toda spec `done` exige disposição explícita em cada follow-up (o gate de
 
 | Disposição | Quando usar |
 |---|---|
-| `[open]` | ainda relevante, sem owner/spec — vira backlog vivo |
+| `[open]` | ainda relevante, sem spec dedicada — vira backlog vivo (exige o grupo de ownership) |
 | `[spawned: <slug>]` | originou/alimentou uma nova spec |
 | `[covered: <slug>]` | já contemplado por outra spec existente |
 | `[duplicate: <slug>]` | mesmo ponto já triado em outra spec |
@@ -43,6 +43,18 @@ Toda spec `done` exige disposição explícita em cada follow-up (o gate de
 
 `[open]` é uma disposição legítima: significa "triado e mantido em aberto", não
 "esquecido". `pose followups --open` agrega esses para o próximo planejamento.
+
+Todo follow-up é um bullet num formato só — o único que o POSE lê:
+
+```markdown
+- [open] <o que falta e por quê> (owner:@alias crit:low|medium|high review:YYYY-MM-DD)
+```
+
+O grupo de ownership é obrigatório em itens `[open]` e precisa ser a última coisa
+do bullet, entre parênteses; o bullet pode quebrar em linhas indentadas.
+Ownership escrito de qualquer outro jeito — depois de um travessão, no meio da
+frase, sem parênteses — é ignorado: o item fica sem dono, sem criticidade e sem
+data de revisão, e nunca vence. `pose lint-spec` avisa quando encontra isso.
 
 ## Triagem em duas camadas (determinística → semântica → confirmação)
 
@@ -167,3 +179,4 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
 - Tratar os candidatos do `pose followups` como veredito — eles são pistas léxicas; a equivalência de intenção é julgamento seu + confirmação humana.
 - Deixar follow-up sem tag (o gate bloqueia, mas a tentação é remover o follow-up — registre-o como `[wont-do: …]` em vez de apagar o histórico).
 - Usar `[open]` como lixeira: se não há intenção real de retomar, é `[wont-do: <motivo>]`.
+- Escrever ownership em qualquer lugar que não o grupo final `(owner:… crit:… review:…)`.

@@ -46,6 +46,17 @@ var followupDisposition = regexp.MustCompile(`^\[\s*([a-z-]+)(?:\s*:\s*([^\]]+))
 var followupHTMLComment = regexp.MustCompile(`(?s)<!--.*?-->`)
 var followupMetaGroup = regexp.MustCompile(`\(([^()]*\bowner:[^()]*)\)\s*$`)
 var followupReviewDate = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+var followupMetaField = regexp.MustCompile(`\b(?:owner|crit|review):\S`)
+
+// followupMetaMisplaced reports whether a follow-up carries ownership fields
+// that are not in its trailing parenthesized group — after a dash, mid-sentence,
+// or in parentheses that are not last. parseFollowupMeta reads only that group,
+// so such fields are ignored and the item reads as unowned, with no crit and no
+// review date, and never becomes overdue (spec pose-one-follow-up-format).
+func followupMetaMisplaced(text string) bool {
+	return !followupMetaGroup.MatchString(text) && followupMetaField.MatchString(text)
+}
+
 var followupCriticality = map[string]bool{"low": true, "medium": true, "high": true}
 
 // parseFollowupMeta extracts the trailing ownership group from a follow-up

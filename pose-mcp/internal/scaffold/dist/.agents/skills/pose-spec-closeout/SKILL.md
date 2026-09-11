@@ -36,6 +36,18 @@ when transitioning to `done`.
 
 `[open]` is a deliberate live disposition, not an untriaged item.
 
+Every follow-up is one bullet in one format — the only one POSE reads:
+
+```markdown
+- [open] <what remains and why> (owner:@alias crit:low|medium|high review:YYYY-MM-DD)
+```
+
+The ownership group is required on `[open]` items and must be the last thing on
+the bullet, in parentheses; the bullet may wrap onto indented lines. Ownership
+written any other way — after a dash, mid-sentence, without parentheses — is
+ignored: the item reads as unowned, with no criticality or review date, and
+never becomes overdue. `pose lint-spec` warns when it sees that.
+
 ## Deterministic, semantic, and human triage
 
 1. Run `pose followups --all` to aggregate backlog and lexical near-duplicate candidates.
@@ -98,3 +110,4 @@ when transitioning to `done`.
 - Treating lexical candidates as semantic verdicts.
 - Deleting history instead of using `wont-do`.
 - Using `open` as a dumping ground when no real intent remains.
+- Writing ownership anywhere but the trailing `(owner:… crit:… review:…)` group.

@@ -135,8 +135,12 @@ priority:                # integer >= 0 (lower = higher priority)
   spec, is already covered elsewhere, was triaged before, or was discarded.
   Open items additionally declare ownership and a triage service level with a
   trailing `(owner:@alias crit:low|medium|high review:YYYY-MM-DD)` group —
-  the SLA is a triage promise, not an implementation deadline. Legacy items
-  without the group are reported as `unowned` (warning at closeout).
+  the SLA is a triage promise, not an implementation deadline. That group is
+  the only format read: it must be the last thing on the bullet, in
+  parentheses, and the bullet may wrap. Ownership written any other way is
+  ignored, so the item reads as `unowned` and never becomes overdue;
+  `pose lint-spec` warns about it. Legacy items without the group are reported
+  as `unowned` (warning at closeout).
 - **Requirement trace:** at closeout, the `Validation > Requirement trace`
   subsection maps every declared `R<N>` to its outcome — `[satisfied]` with
   evidence (free text plus structured refs `check:`, `test:`, `report:`,
