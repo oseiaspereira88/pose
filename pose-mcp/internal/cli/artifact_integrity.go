@@ -362,7 +362,7 @@ func buildCurrentDeliveryGraph(root string) (posemodel.DeliveryIntegrityGraph, e
 	if err != nil {
 		return posemodel.DeliveryIntegrityGraph{}, err
 	}
-	return extendCurrentDeliveryGraph(root, posemodel.BuildDeliveryIntegrity(specs, claims, sets, tracked, policy))
+	return extendCurrentDeliveryGraph(root, posemodel.BuildDeliveryIntegrityWithReleases(specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragments(root)))
 }
 
 func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int {
@@ -446,7 +446,7 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 		fmt.Fprintf(stderr, "pose artifact-check: %v\n", err)
 		return 1
 	}
-	graph := posemodel.BuildDeliveryIntegrity([]posemodel.Spec{*full}, claims, sets, tracked, policy)
+	graph := posemodel.BuildDeliveryIntegrityWithReleases([]posemodel.Spec{*full}, claims, sets, tracked, policy, posemodel.LoadArchivedFragments(root))
 	for _, claim := range claims {
 		if claim.Action == "none" {
 			continue
@@ -476,6 +476,12 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 		// the change set is (spec pose-diagnose-invisible-governance-failures).
 		fmt.Fprintf(stdout, "artifact.spec=%s\nartifact.change_set=%s\nartifact.change_set.base=%s\nartifact.change_set.head=%s\nartifact.change_set.commits=%d\nartifact.diff_digest=%s\nartifact.claims=%d\nartifact.observed=%d\nartifact.findings=%d\n",
 			spec, set.ID, set.ResolvedBase, set.ResolvedHead, len(set.Commits), set.DiffDigest, len(claims), len(set.Paths), len(graph.Findings))
+		// A claim resolved through a release names a path that is no longer
+		// there; say where it went, or the pass reads as magic (spec
+		// pose-release-archival-attested-by-the-ledger).
+		for _, a := range graph.Archivals {
+			fmt.Fprintf(stdout, "artifact.archived=%s -> %s (release %s)\n", a.Pending, a.Archived, a.Version)
+		}
 		for _, finding := range graph.Findings {
 			fmt.Fprintf(stdout, "[%s] %s %s: %s; remediation: %s\n", strings.ToUpper(finding.Severity), finding.Code, finding.Path, finding.Message, finding.Remediation)
 		}
