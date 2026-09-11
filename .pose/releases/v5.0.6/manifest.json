@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v5.0.6",
+  "previous_version": "v5.0.5",
+  "prepared_at": "2026-09-11T21:01:23Z",
+  "specs": [
+    "pose-release-archival-attested-by-the-ledger"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-release-archival-attested-by-the-ledger",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A spec that declared its changelog fragment now passes `pose artifact-check` after the release that archives it. `pose release prepare` used to rewrite the spec's claim into a rename no commit of the spec performed — failing every released spec with `action-mismatch`, and changing the sealed review subject of a spec closed before the cut. It no longer edits specs: the release manifest attests where the fragment went, and the check resolves the claim through it. Claims rewritten by earlier releases resolve the same way, with nothing to migrate.",
+      "path": "pose-release-archival-attested-by-the-ledger.md",
+      "digest": "sha256:852befc04ea6cddca44fe56761fb0d177441ebd1f1821593f9309ad8781f28fd"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:c8ae38600954eb95c83697a9a19754a3753dfe295f4b9f92fb85cee4457021a1",
+  "release_input_digest": "sha256:2b3bc4c25c0040360fdd6f9681dccf5b46703caf40d6c880ce51d4d65a5598a7",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v5.0.6"
+  }
+}

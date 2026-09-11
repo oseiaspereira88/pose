@@ -14,7 +14,16 @@
 - _Not provided_
 
 ## Files Changed
-- pose/indexes/delivery-integrity.json
+- pose/changelogs/unreleased/pose-release-archival-attested-by-the-ledger.md
+- README.md
+- README.pt-BR.md
+- compatibility.json
+- docs-site/docs/ci.md
+- pose-mcp/internal/version/version.go
+- pose-mcp/server.json
+- .pose/changelogs/v5.0.6.md
+- .pose/changelogs/v5.0.6/
+- .pose/releases/v5.0.6/
 
 ## Validation Commands
 - go build ./...
@@ -31,14 +40,14 @@
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-11T20:39:45Z
+- Generated at (UTC): 2026-09-11T21:02:37Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 120
+- Sequence for task/spec: 121
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-11T20:19:24Z
+- Previous execution: 2026-09-11T20:39:45Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
