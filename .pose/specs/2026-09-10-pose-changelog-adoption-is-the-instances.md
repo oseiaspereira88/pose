@@ -159,3 +159,4 @@ day this repository did.
 ### Follow-ups
 
 - [open] Report a changelog adoption date earlier than the instance's own first spec, so an instance that inherited this repository's date before the fix can see that it is gating by a date that is not its own (owner:unowned crit:low review:2027-03-10)
+- [open] The shipped review policy still carries this repository's adoption dates — `adopted_at` 2026-08-02, `component_aware_adopted_at` 2026-08-13, `review_bundles_adopted_at` 2026-08-14, `evidence_vocabulary_reconciled_at` 2026-09-08 — and a fresh `pose install` copies them, while the changelog policy beside it is stamped with the install day. `adopted_at` is the cutoff `pose check` uses to require review closeouts, so an instance importing a history of done specs is judged by someone else's date. Measured 2026-09-11 on a 5.0.2 install. Decide whether install stamps these like the changelog date (owner:unowned crit:medium review:2026-10-11)
