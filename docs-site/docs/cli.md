@@ -356,8 +356,10 @@ When enabled, executing AI agents automatically stage feedback, bug reports, and
 `pose update` replaces its own binary first and then hands off to it, so
 migrations shipped with the new engine apply on the update that delivers them.
 Managed manuals (`AGENTS.md`, `POSE.md`) are merged rather than overwritten:
-sections the instance owns keep their content, and anything a merge cannot keep
-in place is saved to `<file>.pose-backup` and reported. Machinery (rules,
+sections the instance owns keep their content, and an edit the instance made
+that a merge cannot keep in place is saved to `<file>.pose-backup` and reported.
+The manifest records what POSE wrote to each section, so a release rewording
+one of its own sections is not mistaken for such an edit. Machinery (rules,
 workflows, templates, skills) is replaced file by file; the delivery manifest
 records the digest of each file POSE delivered, so only a file the instance
 edited since is backed up — a file a release changed and nobody touched is

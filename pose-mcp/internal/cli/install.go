@@ -259,6 +259,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			// pose-upgrade-path-audit-fixes).
 			var merged string
 			var preserved, dropsContent bool
+			delivered := deliveredManual(target, doc)
 			existingResolved := resolveDocLocale(dist, doc, string(existing), "", false)
 			targetResolved := strings.TrimSuffix(strings.TrimPrefix(docsPrefix, "locales/"), "/")
 			if targetResolved != existingResolved {
@@ -272,13 +273,18 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 					translation = buildHeadingTranslation(string(existingCanonical), content)
 				}
 				merged, preserved = MergeManagedDocAcrossLocale(content, string(existing), translation)
-				dropsContent = MergeAcrossLocaleDropsLocalContent(content, string(existing), translation)
 			} else {
 				merged, preserved = MergeManagedDoc(content, string(existing))
-				dropsContent = MergeDropsLocalContent(content, string(existing))
 			}
+			// Sections still matching what POSE last delivered are an older
+			// release's text; only the rest counts as the instance's (spec
+			// pose-manual-merge-backs-up-only-local-edits).
+			dropsContent = manualDropsLocalEdits(string(existing), merged, delivered)
 			content = merged
 			if string(existing) == content {
+				if delivered == nil {
+					_ = recordDeliveredManual(target, doc, content)
+				}
 				log("unchanged: %s", "inalterado: %s", doc)
 				continue
 			}
@@ -287,13 +293,18 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			// rather than lose it silently.
 			if dropsContent && !noBackup {
 				if err := os.WriteFile(dst+".pose-backup", existing, 0o644); err == nil {
-					fmt.Fprintf(stderr, "[pose-install] backed up customized: %s → %s.pose-backup\n", doc, doc)
+					if delivered != nil {
+						fmt.Fprintf(stderr, "[pose-install] backed up customized: %s → %s.pose-backup\n", doc, doc)
+					} else {
+						fmt.Fprintf(stderr, "[pose-install] backed up: %s → %s.pose-backup (no record of what POSE delivered, so a local edit cannot be ruled out)\n", doc, doc)
+					}
 				}
 			}
 			if err := os.WriteFile(dst, []byte(content), 0o644); err != nil {
 				fmt.Fprintf(stderr, "pose install: %v\n", err)
 				return 1
 			}
+			_ = recordDeliveredManual(target, doc, content)
 			if preserved {
 				log("merged: %s (instance-owned sections preserved)", "mesclado: %s (seções da instância preservadas)", doc)
 			} else {
@@ -305,6 +316,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "pose install: %v\n", err)
 			return 1
 		}
+		_ = recordDeliveredManual(target, doc, content)
 		log("installed: %s", "instalado: %s", doc)
 	}
 

@@ -252,6 +252,7 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 		// The instance already resolved the scaffold placeholders; reuse its
 		// own values so a refresh never reintroduces {{PROJECT_NAME}}.
 		content := restoreDocPlaceholders(string(canonical), string(existing), root)
+		delivered := deliveredManual(root, doc)
 
 		var merged string
 		var preserved, dropsContent bool
@@ -271,12 +272,19 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 				translation = buildHeadingTranslation(string(existingCanonical), string(canonical))
 			}
 			merged, preserved = MergeManagedDocAcrossLocale(content, string(existing), translation)
-			dropsContent = MergeAcrossLocaleDropsLocalContent(content, string(existing), translation)
 		} else {
 			merged, preserved = MergeManagedDoc(content, string(existing))
-			dropsContent = MergeDropsLocalContent(content, string(existing))
 		}
+		dropsContent = manualDropsLocalEdits(string(existing), merged, delivered)
 		if merged == string(existing) {
+			// Nothing to write. A manual with no record gets one now — this is
+			// what POSE would deliver, and the next release's merge needs it;
+			// an existing record stays, so a no-op update changes nothing.
+			if delivered == nil {
+				if err := recordDeliveredManual(root, doc, merged); err != nil {
+					return err
+				}
+			}
 			continue
 		}
 		// Hard guard: a refresh that cannot resolve every placeholder would
@@ -297,9 +305,16 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 			if err := os.WriteFile(filepath.Join(root, doc)+".pose-backup", existing, 0o644); err != nil {
 				return err
 			}
-			fmt.Fprintf(stdout, cliText(localeText, "[WARN] backed up customized: %s -> %s.pose-backup (content outside instance-owned sections was not preserved)\n", "[AVISO] backup de conteúdo customizado: %s -> %s.pose-backup (conteúdo fora das seções da instância não foi preservado)\n"), doc, doc)
+			if delivered != nil {
+				fmt.Fprintf(stdout, cliText(localeText, "[WARN] backed up customized: %s -> %s.pose-backup (content outside instance-owned sections was not preserved)\n", "[AVISO] backup de conteúdo customizado: %s -> %s.pose-backup (conteúdo fora das seções da instância não foi preservado)\n"), doc, doc)
+			} else {
+				fmt.Fprintf(stdout, cliText(localeText, "[WARN] backed up: %s -> %s.pose-backup (no record of what POSE delivered, so a local edit cannot be ruled out)\n", "[AVISO] backup: %s -> %s.pose-backup (sem registro do que o POSE entregou, não dá para descartar uma edição local)\n"), doc, doc)
+			}
 		}
 		if err := writeAtomic(filepath.Join(root, doc), []byte(merged), 0o644); err != nil {
+			return err
+		}
+		if err := recordDeliveredManual(root, doc, merged); err != nil {
 			return err
 		}
 		if preserved {
@@ -428,4 +443,63 @@ func detectProjectIdentity(existing, root string) (name, id string) {
 		id = "proj." + name
 	}
 	return name, id
+}
+
+// manualSectionDigests returns the digest of each section of a manual as it is
+// written — the preamble under "" — keeping the first of any repeated heading,
+// as the merge does.
+func manualSectionDigests(doc string) map[string]string {
+	preamble, sections := splitDocSections(doc)
+	out := map[string]string{"": contentDigest([]byte(strings.Join(preamble, "\n")))}
+	for _, section := range sections {
+		if _, seen := out[section.Heading]; !seen {
+			out[section.Heading] = contentDigest([]byte(strings.Join(section.Body, "\n")))
+		}
+	}
+	return out
+}
+
+// recordDeliveredManual stores what POSE wrote to doc, so the next merge can
+// tell the instance's edits from text an older release wrote.
+func recordDeliveredManual(target, doc, written string) error {
+	m := readMachineryManifest(target)
+	if m.Manuals == nil {
+		m.Manuals = map[string]map[string]string{}
+	}
+	m.Manuals[doc] = manualSectionDigests(written)
+	return storeMachineryManifest(target, m)
+}
+
+// deliveredManual returns the section digests recorded for doc, or nil when
+// POSE has no record of what it wrote there.
+func deliveredManual(target, doc string) map[string]string {
+	return readMachineryManifest(target).Manuals[doc]
+}
+
+// manualDropsLocalEdits reports whether merged loses a line the instance wrote.
+//
+// A section that still matches what POSE last delivered holds an older
+// release's text, not the instance's, and replacing it is the point of the
+// refresh — so it is left out of the comparison. Comparing every line made each
+// release's own rewording read as a local edit being discarded, and every
+// update backed up a manual nobody had touched (spec
+// pose-manual-merge-backs-up-only-local-edits). With no record, every line
+// counts, as before.
+func manualDropsLocalEdits(local, merged string, delivered map[string]string) bool {
+	if delivered == nil {
+		return droppedLocalContent(local, merged)
+	}
+	preamble, sections := splitDocSections(local)
+	var edited []string
+	if delivered[""] != contentDigest([]byte(strings.Join(preamble, "\n"))) {
+		edited = append(edited, preamble...)
+	}
+	for _, section := range sections {
+		if digest, ok := delivered[section.Heading]; ok && digest == contentDigest([]byte(strings.Join(section.Body, "\n"))) {
+			continue
+		}
+		edited = append(edited, section.Heading)
+		edited = append(edited, section.Body...)
+	}
+	return droppedLocalContent(strings.Join(edited, "\n"), merged)
 }
