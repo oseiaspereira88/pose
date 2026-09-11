@@ -3,7 +3,9 @@
 **Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 **Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-17):** all 10 roadmaps `done`
-**Canonical execution artifacts:** `.pose/roadmaps/*.md` and `.pose/specs/*/spec.md`
+**Canonical execution artifacts:** `.pose/roadmaps/*.md` and the specs under
+`.pose/specs/` — `YYYY-MM-DD-<slug>.md` by default, or `<dir>/spec.md` in the
+folder layouts (`pose import` writes `<slug>/spec.md`)
 
 This portfolio converted the [capability assessment](capability-assessment.md)
 into an original 7 governed roadmaps and 35 implementation specs. A later
