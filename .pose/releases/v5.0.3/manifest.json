@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "version": "v5.0.3",
+  "previous_version": "v5.0.2",
+  "prepared_at": "2026-09-11T09:04:30Z",
+  "specs": [
+    "pose-docs-and-manuals-match-5-0-2",
+    "pose-help-names-flags-the-parser-accepts"
+  ],
+  "categories": {
+    "changed": 1,
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-docs-and-manuals-match-5-0-2",
+      "category": "changed",
+      "breaking": false,
+      "body": "The docs site, POSE.md, the spec template, the rules, the workflows and the\nskills describe 5.0.2. The site had not been revised since before v1.8.0: it now\ndocuments what a sealed review bundle fixes and what an attestation has to show,\nthe closed evidence vocabulary, every `pose doctor` diagnostic, `pose install`,\n`pose public-claims`, release Compatibility sections, and the MCP server's\nlifecycle, and gains an architecture mechanism for component-aware review.\n\nChecking each claim against the code also corrected errors: `pose update` has no\n`--schema-only` (it has `--no-self`) and merges POSE.md/AGENTS.md on every run;\n`pose new-spec` writes a dated flat file by default; `pose dora-metrics` takes\n`--window-days`; and the Definition of Ready is opt-in through\n`.pose/policy/dor.json`. The spec template gains `task_type`, which the\nDefinition of Ready reads.",
+      "path": "pose-docs-and-manuals-match-5-0-2.md",
+      "digest": "sha256:f7451fd093568147761cdc825922a4d0253ecdc10e31387508e6742e9dd09e4f"
+    },
+    {
+      "spec": "pose-help-names-flags-the-parser-accepts",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Five `--help` screens named flags their commands refuse. `pose update` offered\n`--schema-only` and omitted `--no-self` and `--locale`; `pose dora-metrics`\noffered `--app`, `--env` and `--since-days` for `--application`, `--environment`\nand `--window-days` (default 30 days, not 90); `pose adoption-metrics` offered\n`--since-days` and `pose state` offered `--json`, neither accepted; and\n`pose release record` showed `--provider-state` where the command takes\n`--event` and `--evidence`. Each help entry now matches the command.",
+      "path": "pose-help-names-flags-the-parser-accepts.md",
+      "digest": "sha256:7f3a22b2a559de4176cd79b0b74c6392ae1c019a9eae8d5ab2b4ccb0556ee746"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:9d9200267b13f004b264fd59bff3d902276c4c454b13be510168199d9e6b86dc",
+  "release_input_digest": "sha256:5c81312c09e23ecaadd4bd1f12af128110217f540b9c13dc0a8f21ac236c40d6",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v5.0.3"
+  }
+}
