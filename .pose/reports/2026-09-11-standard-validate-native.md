@@ -14,23 +14,9 @@
 - _Not provided_
 
 ## Files Changed
-- pose/changelogs/unreleased/pose-one-follow-up-format.md
-- .pose/changelogs/unreleased/pose-stdio-server-honours-sigterm.md
-- .pose/changelogs/unreleased/pose-update-reports-what-it-delivered.md
-- .pose/changelogs/unreleased/pose-validate-report-carries-its-run.md
-- .pose/specs/2026-09-10-pose-one-follow-up-format.md
-- .pose/specs/2026-09-11-pose-stdio-server-honours-sigterm.md
-- .pose/specs/2026-09-11-pose-update-reports-what-it-delivered.md
-- .pose/specs/2026-09-11-pose-validate-report-carries-its-run.md
-- README.md
-- README.pt-BR.md
-- compatibility.json
-- docs-site/docs/ci.md
-- pose-mcp/internal/version/version.go
-- pose-mcp/server.json
-- .pose/changelogs/v5.0.2.md
-- .pose/changelogs/v5.0.2/
-- .pose/releases/v5.0.2/
+- pose/indexes/delivery-integrity.json
+- .pose/indexes/releases.json
+- .pose/indexes/spec-graph.json
 
 ## Validation Commands
 - go build ./...
@@ -47,14 +33,14 @@
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-11T05:02:01Z
+- Generated at (UTC): 2026-09-11T06:51:48Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 111
+- Sequence for task/spec: 112
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-11T04:40:06Z
+- Previous execution: 2026-09-11T05:02:01Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
