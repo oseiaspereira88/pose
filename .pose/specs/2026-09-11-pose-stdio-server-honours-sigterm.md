@@ -46,6 +46,8 @@ never does.
 - R1: The stdio server shall exit within a bounded time after SIGTERM while idle
   with stdin open.
 - R2: A requested shutdown shall exit with status 0.
+- R3: The `mcp-agent-interop` capability, stale since 2026-08-21, shall be
+  reassessed with this fix and `pose-mcp-server-survives-self-update` as evidence.
 
 ### Non-functional
 - EOF on stdin still ends the server, and a read error is still returned.
@@ -63,6 +65,8 @@ never does.
 - created: pose-mcp/internal/cli/mcp_sigterm_test.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: .pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md
+- modified: .pose/capabilities/assessment.md
+- modified: .pose/capabilities/history.jsonl
 
 ### Technical risks
 - The reader goroutine stays blocked on stdin after a shutdown; the process is
@@ -74,6 +78,7 @@ never does.
 
 ### Implementation
 - [x] Increment 1: Read stdin apart from the loop, and let the loop select on the context (R1, R2)
+- [x] Increment 2: Reassess `mcp-agent-interop` and snapshot (R3)
 
 ### Validation
 - [x] The test fails against the previous loop with the server still running
@@ -125,6 +130,7 @@ its exit.
 ### Requirement trace
 - R1 [satisfied] <TestStdioMCPServerExitsOnSIGTERMWhileIdle answers a ping, sends SIGTERM with stdin open, and requires the process to exit within 10 s>
 - R2 [satisfied] <the same test requires server.Wait() to return no error>
+- R3 [satisfied] <assessment.md cites both lifecycle fixes and the triggering spec, keeps the score at 5 with the reason; `pose assess snapshot` cleared the mark and appended a snapshot>
 
 ### Known gaps
 - Windows is skipped; SIGTERM is POSIX. Ctrl+C there takes the same path through

@@ -110,12 +110,18 @@ Usage traceability and explainable semantic-advisory retrieval delivered.
 - title: MCP and agent interoperability
 - score: 5
 - target: 5
-- evidence: spec:pose-mcp-catalog-conformance, spec:pose-mcp-project-scope-contract, spec:pose-mcp-protocol-completeness, spec:pose-capability-mechanism, spec:pose-component-aware-review-plans, spec:pose-review-bundle-convergence
+- evidence: spec:pose-mcp-catalog-conformance, spec:pose-mcp-project-scope-contract, spec:pose-mcp-protocol-completeness, spec:pose-capability-mechanism, spec:pose-component-aware-review-plans, spec:pose-review-bundle-convergence, spec:pose-specs-ergonomics-and-discovery, spec:pose-mcp-server-survives-self-update, spec:pose-stdio-server-honours-sigterm
 - gaps:
 - paths: pose-mcp/internal/mcpserver/*.go
-- stale: since=2026-08-21T23:44:08Z;trigger=spec:pose-specs-ergonomics-and-discovery;hits=pose-mcp/internal/mcpserver/server.go,pose-mcp/internal/mcpserver/server_test.go
 
 Golden-fixture catalog conformance, uniform project scoping, pagination and 50 tools.
+
+Reassessed 2026-09-11 after the 2026-08-21 trigger (`pose-specs-ergonomics-and-discovery`
+added spec discovery tools, no regression). Two lifecycle defects found since held
+the score back in practice and are fixed: a server outliving `pose update` failed
+every CLI-backed tool (`pose-mcp-server-survives-self-update`), and a stdio server
+ignored SIGTERM until its next request (`pose-stdio-server-honours-sigterm`). Both
+are covered by tests that run a real server process. Score holds at 5.
 
 ## Mechanism: policy-identity-audit
 - title: Policy, identity and audit
