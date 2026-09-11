@@ -8,7 +8,7 @@
 - Task slug: validate-native
 
 ## Outcome
-- Outcome: pass (source: manual)
+- Outcome: pass (source: derived)
 
 ## Rules Applied
 - _Not provided_
@@ -19,23 +19,31 @@
 - .pose/indexes/spec-graph.json
 
 ## Validation Commands
-- _Fill manually_
+- go build ./...
+- go test ./...
+- go vet ./...
+- go build ./...
+- go test ./...
+- go vet ./...
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run Delivery|Surface|RoadmapCheck|Contributor -count=1
+- go test ./internal/cli ./internal/mcpserver -run Surface|DeliveryIntegrity|RoadmapCheck|Contributor -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run ReviewBundle|ReviewAttestation|ReviewPlanGroupsRepeatedWarnings|ReviewPlanActionableToolPhases|ToolCatalog -count=1
 
 ## Results
-- _No validation output detected_
+- Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-11T01:24:10Z
+- Generated at (UTC): 2026-09-11T03:20:30Z
 - Context: auto-validate
-- Validation profile: tolerant
-- Sequence for task/spec: 108
-- Stable comparison hash: 5698000da1fa3d1dc09c88a5c178e5fab91c31deecd321ea182a96719596b628
+- Validation profile: strict
+- Sequence for task/spec: 109
+- Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-10T22:08:04Z
-- Status: stable
+- Previous execution: 2026-09-11T01:24:10Z
+- Status: changed
 - Stable field diffs:
-- _No changes in stable fields_
+- validation_profile: "tolerant" -> "strict"
 
 ## Risks
 - _No risks provided_

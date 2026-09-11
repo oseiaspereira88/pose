@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:fa192017387f97b3bee27ae9e2550976a39dbff5cdd84d4f66e4ef1a07c10741",
-  "provenance_digest": "sha256:26a316f9d4866e87c72a54572bd61a5742a721de8431cb3eb4590fe68b296f7c",
+  "input_digest": "sha256:67cd28ea7ca83514f5865f2b1843b81c264b869fdc281024b043e63a44de7fac",
+  "provenance_digest": "sha256:409728543f3892a7c7d4e5b311b9689308051784c8b119165084dfb5f3f45f30",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -1044,6 +1044,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-usage-metrics.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-validate-report-carries-its-run.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-validate-report-carries-its-run.md"
       }
     },
     {
@@ -4957,6 +4964,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/2026-09-10-pose-the-guard-signal-is-declared-not-inherited.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/2026-09-11-pose-validate-report-carries-its-run.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-09-11-pose-validate-report-carries-its-run.md"
       }
     },
     {
@@ -11504,7 +11518,7 @@
       "type": "change-set",
       "attributes": {
         "diff_digest": "sha256:dedc7a037f9bd70aeaeeaaf3cf21e6c7bd5b3ab64dd98b29274a181b8ad7a60a",
-        "selector": "trailers:pose-dependency-digest-pinning"
+        "selector": "range:66d5209..218468a"
       }
     },
     {
@@ -12777,6 +12791,14 @@
       "attributes": {
         "diff_digest": "sha256:b265ba3e9fb4729c5c7818a7bdafebcd8a7d2d23f5af5cbc065bcfff8243c3c7",
         "selector": "range:fec57babb87bd07531cb86f4b16e00d71ec93dbf..6c07f15bb9bd0a76d2e39ed05a6141ee9be1f5bd"
+      }
+    },
+    {
+      "id": "change-set:cs-d49b9d547e88",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:0c2d874ccc2a98a3c0332339363b991823b70f075a0075ee6a70f1d5012265d7",
+        "selector": "trailers:pose-validate-report-carries-its-run"
       }
     },
     {
@@ -15570,6 +15592,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-validate-report-carries-its-run",
+      "type": "spec",
+      "attributes": {
+        "status": "in-progress"
       }
     },
     {
@@ -43777,6 +43806,31 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-d49b9d547e88",
+      "to": "artifact:.pose/changelogs/unreleased/pose-validate-report-carries-its-run.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-d49b9d547e88",
+      "to": "artifact:.pose/specs/2026-09-11-pose-validate-report-carries-its-run.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-d49b9d547e88",
+      "to": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-d49b9d547e88",
+      "to": "artifact:pose-mcp/internal/cli/report.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-d49b9d547e88",
+      "to": "artifact:pose-mcp/internal/cli/validate.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-d4a1306bb856",
       "to": "artifact:.github/workflows/package-channels.yml",
       "type": "changes"
@@ -59872,6 +59926,36 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-validate-report-carries-its-run",
+      "to": "artifact:.pose/changelogs/unreleased/pose-validate-report-carries-its-run.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validate-report-carries-its-run",
+      "to": "artifact:.pose/specs/2026-09-11-pose-validate-report-carries-its-run.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validate-report-carries-its-run",
+      "to": "artifact:pose-mcp/internal/cli/cli_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validate-report-carries-its-run",
+      "to": "artifact:pose-mcp/internal/cli/report.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validate-report-carries-its-run",
+      "to": "artifact:pose-mcp/internal/cli/validate.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validate-report-carries-its-run",
+      "to": "change-set:cs-d49b9d547e88",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-validation-scanner-consolidation",
       "to": "artifact:.pose/indexes/validation-matrix.json",
       "type": "declares"
@@ -66493,6 +66577,31 @@
       "reason": "governance"
     },
     {
+      "spec": "pose-validate-report-carries-its-run",
+      "action": "created",
+      "path": ".pose/changelogs/unreleased/pose-validate-report-carries-its-run.md"
+    },
+    {
+      "spec": "pose-validate-report-carries-its-run",
+      "action": "created",
+      "path": ".pose/specs/2026-09-11-pose-validate-report-carries-its-run.md"
+    },
+    {
+      "spec": "pose-validate-report-carries-its-run",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/cli_test.go"
+    },
+    {
+      "spec": "pose-validate-report-carries-its-run",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/report.go"
+    },
+    {
+      "spec": "pose-validate-report-carries-its-run",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/validate.go"
+    },
+    {
       "spec": "pose-validation-scanner-consolidation",
       "action": "created",
       "path": "pose-mcp/internal/cli/stack_manifest.go"
@@ -69304,9 +69413,9 @@
     {
       "id": "cs-08769463bdbf",
       "spec": "pose-dependency-digest-pinning",
-      "selector": "trailers:pose-dependency-digest-pinning",
-      "base": "218468a75b110fcf09b0eb819e4db8738b2f3cf6^",
-      "head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
+      "selector": "range:66d5209..218468a",
+      "base": "66d5209",
+      "head": "218468a",
       "resolved_base": "66d5209d5196efabcff8cc8630d868a4d8c7b284",
       "resolved_head": "218468a75b110fcf09b0eb819e4db8738b2f3cf6",
       "commits": [
@@ -84988,6 +85097,41 @@
       "diff_digest": "sha256:b265ba3e9fb4729c5c7818a7bdafebcd8a7d2d23f5af5cbc065bcfff8243c3c7"
     },
     {
+      "id": "cs-d49b9d547e88",
+      "spec": "pose-validate-report-carries-its-run",
+      "selector": "trailers:pose-validate-report-carries-its-run",
+      "base": "a628e9dc1d1cf08a3e3f6548205a8187819d109f^",
+      "head": "a628e9dc1d1cf08a3e3f6548205a8187819d109f",
+      "resolved_base": "17cbce98bf53af4279d1d19e6cb5cbef655be300",
+      "resolved_head": "a628e9dc1d1cf08a3e3f6548205a8187819d109f",
+      "commits": [
+        "a628e9dc1d1cf08a3e3f6548205a8187819d109f"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-validate-report-carries-its-run.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-11-pose-validate-report-carries-its-run.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/cli_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/report.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate.go"
+        }
+      ],
+      "diff_digest": "sha256:0c2d874ccc2a98a3c0332339363b991823b70f075a0075ee6a70f1d5012265d7"
+    },
+    {
       "id": "cs-d4a1306bb856",
       "spec": "pose-package-channel-install-repair",
       "selector": "trailers:pose-package-channel-install-repair",
@@ -89468,6 +89612,9 @@
     ".pose/changelogs/unreleased/pose-tool-dispositions-must-be-supported.md": [
       "pose-tool-dispositions-must-be-supported"
     ],
+    ".pose/changelogs/unreleased/pose-validate-report-carries-its-run.md": [
+      "pose-validate-report-carries-its-run"
+    ],
     ".pose/changelogs/unreleased/review-legacy-done-scope-exemption.md": [
       "pose-component-aware-review-plans"
     ],
@@ -89960,6 +90107,9 @@
     ],
     ".pose/specs/2026-09-10-pose-the-guard-signal-is-declared-not-inherited.md": [
       "pose-the-guard-signal-is-declared-not-inherited"
+    ],
+    ".pose/specs/2026-09-11-pose-validate-report-carries-its-run.md": [
+      "pose-validate-report-carries-its-run"
     ],
     ".pose/specs/pose-action-runtime-currency-gate/spec.md": [
       "pose-action-runtime-currency-gate"
@@ -90646,7 +90796,8 @@
       "pose-new-spec-default-flat-format",
       "pose-review-bundle-convergence",
       "pose-upgrade-path-audit-fixes",
-      "pose-usage-metrics"
+      "pose-usage-metrics",
+      "pose-validate-report-carries-its-run"
     ],
     "pose-mcp/internal/cli/command_reference.go": [
       "pose-command-reference-parity"
@@ -90892,7 +91043,8 @@
     ],
     "pose-mcp/internal/cli/report.go": [
       "pose-artifact-provenance-ledger",
-      "pose-report-help-names-every-flag"
+      "pose-report-help-names-every-flag",
+      "pose-validate-report-carries-its-run"
     ],
     "pose-mcp/internal/cli/report_limitation.go": [
       "pose-contributor-mode-workflow-and-cli-hints",
@@ -91035,6 +91187,7 @@
       "pose-review-bundle-convergence",
       "pose-upgrade-path-audit-fixes",
       "pose-usage-metrics",
+      "pose-validate-report-carries-its-run",
       "pose-validation-scanner-consolidation"
     ],
     "pose-mcp/internal/cli/validate_results.go": [
@@ -91889,6 +92042,16 @@
       "spec": "pose-roadmap-check-reaches-its-gate",
       "path": "pose-mcp/internal/cli/roadmap_check_gate_test.go",
       "change_set": "cs-891df8c2de58",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-08758f534d7a",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-report-carries-its-run",
+      "path": "pose-mcp/internal/cli/report.go",
+      "change_set": "cs-d49b9d547e88",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
@@ -94527,6 +94690,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-a7fdf938f408",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-report-carries-its-run",
+      "path": "pose-mcp/internal/cli/cli_test.go",
+      "change_set": "cs-d49b9d547e88",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-a81b8078213e",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -95496,6 +95669,16 @@
       "path": "pose-mcp/internal/mcpserver/server.go",
       "change_set": "cs-5ba3b2d3828c",
       "message": "changed delivery root pose-mcp/internal/mcpserver has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-e23145d68015",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-report-carries-its-run",
+      "path": "pose-mcp/internal/cli/validate.go",
+      "change_set": "cs-d49b9d547e88",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {

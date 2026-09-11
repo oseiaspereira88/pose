@@ -7,6 +7,14 @@
       "body": "The spec template and the closeout skill show the one follow-up format POSE\nreads — `- [open] \u003ctext\u003e (owner:@alias crit:low|medium|high review:YYYY-MM-DD)`,\nthe group last, in parentheses — and `pose lint-spec` warns, in any spec\nstatus, when ownership is written anywhere else.\n\nWritten any other way, ownership is ignored: the item reads as unowned, with no\ncriticality and no review date, and never becomes overdue. The template showed\n`- [open] ` with no metadata at the one place an author writes a follow-up, and\nthe lint checked ownership only on done specs, so a wrong format could go\nunnoticed indefinitely — this repository had 27 open items that way.\n\nThe lint also reads a follow-up's continuation lines now, as `pose followups`\ndoes. It read only the first line, so a wrapped ownership group was owned for\none and \"unowned\" for the other.",
       "path": "pose-one-follow-up-format.md",
       "digest": "sha256:c04c7578d051fc22c9b90712658d05f6b38ee782c079912c602f33ba47096224"
+    },
+    {
+      "spec": "pose-validate-report-carries-its-run",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose validate --report` records the run it made: the report lists the commands\nexecuted and the Result line, and derives its outcome from them.\n\nIt never had. The report looked for a `pose-validate.latest.log` that native\nvalidation does not write, so every report said `_Fill manually_` and `_No\nvalidation output detected_` beside an outcome recorded as manual — a pass\nnothing in the report supported. The run's output is now handed to the report\ndirectly; no log file is written to the tree.",
+      "path": "pose-validate-report-carries-its-run.md",
+      "digest": "sha256:accd1406e229d3b615e3aa112233d508f08cf16e00e1a465d691515d299bd66f"
     }
   ],
   "releases": [
