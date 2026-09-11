@@ -181,7 +181,7 @@ func (s Store) FindComponentDirectories() []string {
 
 		// Skip hidden dirs, common build output dirs, and synthetic
 		// testdata/fixture(s) content — see cli/index.go's scanModules for
-		// why (spec pose-fixture-directory-discovery-exclusion).
+		// why (spec pose-upgrade-path-audit-fixes).
 		name := info.Name()
 		if strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "target" || name == "dist" || name == "testdata" || name == "fixture" || name == "fixtures" {
 			return filepath.SkipDir

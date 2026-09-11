@@ -1,4 +1,4 @@
-// Cross-version policy compatibility (spec pose-release-compatibility-rehearsal).
+// Cross-version policy compatibility (spec pose-release-boundary-rehearsal).
 //
 // v2.0.0 wrote `contract_adoptions` into an instance's review policy and the
 // v1.8.1 binary could no longer read it: its decoder used

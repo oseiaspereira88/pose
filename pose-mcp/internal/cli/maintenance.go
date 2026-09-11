@@ -185,7 +185,7 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 		// a plain update has nothing to protect by skipping it, and skipping
 		// it left older instances with docs referencing subsystems nothing
 		// had actually seeded (spec
-		// pose-update-instance-config-completeness).
+		// pose-upgrade-path-audit-fixes).
 		seedAbsentInstanceConfig(dist, root, machineryLog)
 	}
 

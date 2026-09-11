@@ -201,7 +201,7 @@ func TestRefreshManagedDocsIgnoresAbsentManual(t *testing.T) {
 }
 
 // TestResolveDocLocaleHonorsExplicitEnglish regression-covers spec
-// pose-locale-switch-section-identity, root cause 1: an explicit "en"
+// pose-upgrade-path-audit-fixes, root cause 1: an explicit "en"
 // preference must win even against a pt-BR-detected existing manual —
 // before this fix, resolveDocLocale's own short-circuit only recognized a
 // non-"en" explicit preference, so "en" silently fell through to
@@ -227,7 +227,7 @@ func TestResolveDocLocaleHonorsExplicitEnglish(t *testing.T) {
 }
 
 // TestRefreshManagedDocsSwitchesLocaleWithoutDuplicating regression-covers
-// spec pose-locale-switch-section-identity, root cause 2: switching
+// spec pose-upgrade-path-audit-fixes, root cause 2: switching
 // `--locale` on a plain `pose update` (no --force) must replace the
 // manual's language, not concatenate both — literal heading matching
 // treated a translated section as unknown content and appended it instead

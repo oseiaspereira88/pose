@@ -91,7 +91,7 @@ real prior release.
 - Decision: keep the either-or assertion rather than require the marker in the
   manual.
 - Rationale: dropping content from an engine-owned section is the documented
-  contract (pose-managed-doc-content-preservation); losing it without a backup
+  contract (pose-compat-gate-candidate-integrity); losing it without a backup
   is what is not allowed. Requiring it in place would fail every pair for
   behaviour that is correct.
 

@@ -100,7 +100,7 @@ func TestDiscoverValidationModules_IgnoresQwenWorktrees(t *testing.T) {
 }
 
 // TestDiscoverValidationModules_IgnoresFixtureDirectories regression-covers
-// spec pose-fixture-directory-discovery-exclusion: a synthetic go.mod under
+// spec pose-upgrade-path-audit-fixes: a synthetic go.mod under
 // an adoption-kit example's fixture/testdata directory was previously
 // discovered as a real deliverable module, which recomputed pose-dist's own
 // provenance digest and invalidated closed specs' review evidence on every
@@ -169,7 +169,7 @@ func TestDiscoverValidationModules_RespectsGitignore(t *testing.T) {
 }
 
 // TestDiscoverValidationModules_ClassifiesAndroidSeparatelyFromJava
-// regression-covers spec pose-android-stack-detection: a Gradle module
+// regression-covers spec pose-upgrade-path-audit-fixes: a Gradle module
 // carrying AndroidManifest.xml must classify as "android", not the generic
 // "java" every other Gradle/Maven module gets.
 func TestDiscoverValidationModules_ClassifiesAndroidSeparatelyFromJava(t *testing.T) {

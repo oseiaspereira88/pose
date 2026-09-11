@@ -48,7 +48,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 				// command's own diagnostic output (log lines, the
 				// post-install gate report), not just the scaffold
 				// content — matching --locale's meaning on `pose update`
-				// (spec pose-post-install-gate-locale).
+				// (spec pose-upgrade-path-audit-fixes).
 				if v == "pt-BR" {
 					commandLocale = localePtBR
 				} else {
@@ -197,7 +197,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// spec-graph.json, policy/) it never actually seeded — that produced a
 	// "Result: SUCCESS" update whose very next `pose check --strict` failed
 	// with broken references, undetected by `pose doctor`
-	// (spec pose-update-instance-config-completeness).
+	// (spec pose-upgrade-path-audit-fixes).
 	seedAbsentInstanceConfig(dist, target, log)
 
 	// 3. Legal texts vendored under .pose/.
@@ -256,7 +256,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			// them literally would treat every local section as unknown to
 			// the engine and append it as a duplicate instead of recognizing
 			// it as the same section (spec
-			// pose-locale-switch-section-identity).
+			// pose-upgrade-path-audit-fixes).
 			var merged string
 			var preserved, dropsContent bool
 			existingResolved := resolveDocLocale(dist, doc, string(existing), "", false)
@@ -352,7 +352,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// this gate's report, not the shell's $LANG — an explicit `pose install
 	// --locale en` reporting its own final gate in Portuguese because the
 	// shell happens to be pt-BR would read as if the flag had failed
-	// (spec pose-post-install-gate-locale).
+	// (spec pose-upgrade-path-audit-fixes).
 	if rc := cmdCheckWithLocale(target, []string{"--strict"}, stdout, stderr, commandLocale); rc != 0 {
 		fmt.Fprintln(stderr, text("pose install: post-install gate failed (check --strict)", "pose install: gate pós-instalação falhou (check --strict)"))
 		if preExistingFailure {

@@ -1,4 +1,4 @@
-// Self-update end-to-end (spec pose-self-update-handoff-rehearsal).
+// Self-update end-to-end (spec pose-release-boundary-rehearsal).
 //
 // The download, binary replacement and handoff to the replaced binary had
 // never been executed by anything but a real release. The v2.0.0 run was the
