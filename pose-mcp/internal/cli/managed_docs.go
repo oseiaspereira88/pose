@@ -281,7 +281,7 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 			// what POSE would deliver, and the next release's merge needs it;
 			// an existing record stays, so a no-op update changes nothing.
 			if delivered == nil {
-				if err := recordDeliveredManual(root, doc, merged); err != nil {
+				if err := recordDeliveredManual(root, doc, content); err != nil {
 					return err
 				}
 			}
@@ -314,7 +314,7 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 		if err := writeAtomic(filepath.Join(root, doc), []byte(merged), 0o644); err != nil {
 			return err
 		}
-		if err := recordDeliveredManual(root, doc, merged); err != nil {
+		if err := recordDeliveredManual(root, doc, content); err != nil {
 			return err
 		}
 		if preserved {
@@ -445,13 +445,22 @@ func detectProjectIdentity(existing, root string) (name, id string) {
 	return name, id
 }
 
-// manualSectionDigests returns the digest of each section of a manual as it is
-// written — the preamble under "" — keeping the first of any repeated heading,
-// as the merge does.
-func manualSectionDigests(doc string) map[string]string {
-	preamble, sections := splitDocSections(doc)
+// manualSectionDigests returns the digest of each section POSE itself writes
+// from the canonical manual — its engine-owned sections and the preamble (under
+// "") — keeping the first of any repeated heading, as the merge does.
+//
+// Only canonical, engine-owned sections are recorded. The merged manual also
+// holds instance-owned sections and sections the instance invented; recording
+// those as delivered would let a later release that ships an engine section
+// under the same heading replace the instance's text with no backup, because
+// its body would match the record.
+func manualSectionDigests(canonical string) map[string]string {
+	preamble, sections := splitDocSections(canonical)
 	out := map[string]string{"": contentDigest([]byte(strings.Join(preamble, "\n")))}
 	for _, section := range sections {
+		if sectionIsInstanceOwned(section) {
+			continue
+		}
 		if _, seen := out[section.Heading]; !seen {
 			out[section.Heading] = contentDigest([]byte(strings.Join(section.Body, "\n")))
 		}
@@ -459,14 +468,15 @@ func manualSectionDigests(doc string) map[string]string {
 	return out
 }
 
-// recordDeliveredManual stores what POSE wrote to doc, so the next merge can
-// tell the instance's edits from text an older release wrote.
-func recordDeliveredManual(target, doc, written string) error {
+// recordDeliveredManual stores what POSE wrote to doc from canonical — the
+// shipped manual with the instance's placeholders restored — so the next merge
+// can tell the instance's edits from text an older release wrote.
+func recordDeliveredManual(target, doc, canonical string) error {
 	m := readMachineryManifest(target)
 	if m.Manuals == nil {
 		m.Manuals = map[string]map[string]string{}
 	}
-	m.Manuals[doc] = manualSectionDigests(written)
+	m.Manuals[doc] = manualSectionDigests(canonical)
 	return storeMachineryManifest(target, m)
 }
 

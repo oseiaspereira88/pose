@@ -58,6 +58,8 @@ machinery, one path over. Reported upstream by `harne8-adopt-pose-v5-0-4`.
 - R4: A manual with no record shall be compared as before, backed up with a
   report saying a local edit could not be ruled out, and then recorded.
 - R5: An update that changes nothing shall not rewrite the record.
+- R6: Only sections POSE writes from the canonical manual shall be recorded —
+  never an instance-owned section or one the instance invented.
 
 ### Non-functional
 - `install` and `update` apply the same rule.
@@ -96,6 +98,7 @@ machinery, one path over. Reported upstream by `harne8-adopt-pose-v5-0-4`.
 ### Implementation
 - [x] Increment 1: Record each manual's sections as written (R1, R5)
 - [x] Increment 2: Compare only sections that differ from the record (R2, R3, R4)
+- [x] Increment 3: Record from the canonical manual, not the merged one (R6)
 
 ### Validation
 - [x] The main test fails with the record ignored, with the reported symptom
@@ -119,6 +122,20 @@ machinery, one path over. Reported upstream by `harne8-adopt-pose-v5-0-4`.
 - Rationale: the record means "what POSE wrote". Refreshing it on a no-op
   changed the manifest on an update that changed nothing, which the upgrade
   idempotency test caught.
+
+### Decision 3
+- Date: 2026-09-11
+- Context: review of pose#103 — the first version recorded every section of the
+  merged manual, including instance-owned sections and sections the instance
+  invented. A later release shipping an engine section under an invented
+  heading would then replace the instance's text, and the comparison would skip
+  it because its body matched the record: a silent loss, the opposite of what
+  the change is for.
+- Decision: record digests from the canonical manual, engine-owned sections and
+  preamble only.
+- Rationale: the record means "what POSE wrote". Every engine-owned section of
+  the merged manual is the canonical body verbatim, so recording the canonical
+  describes the file exactly where POSE wrote it and nowhere else.
 
 ---
 
@@ -162,6 +179,7 @@ no record, and read what the merge backs up and reports.
 - R3 [satisfied] <TestRefreshManagedDocsWarnsAndBacksUpDroppedContent still requires "backed up customized" and the note in the backup>
 - R4 [satisfied] <TestRefreshManagedDocsWithoutARecordSaysWhyItBacksUp requires the backup, "no record of what POSE delivered", no "customized", and a record>
 - R5 [satisfied] <TestUpgradeApplyIsIdempotentAndPreservesInstanceContent requires only schema-version to change on a no-op update>
+- R6 [satisfied] <TestAnInventedSectionIsNeverRecordedAsDelivered requires neither an invented nor an instance-owned heading in the record, and fails against the first version; TestAReleaseClaimingAnInventedHeadingStillBacksItUp requires the replaced invented section to count as lost>
 
 ### Known gaps
 - An instance's first update after adopting this has no manual record, so a

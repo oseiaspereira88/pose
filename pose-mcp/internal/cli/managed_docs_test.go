@@ -415,3 +415,54 @@ func TestRefreshManagedDocsWithoutARecordSaysWhyItBacksUp(t *testing.T) {
 		t.Error("the refresh must record what it delivered")
 	}
 }
+
+// A section the instance invented must never be recorded as delivered. If it
+// were, a later release shipping an engine section under the same heading
+// would replace the instance's text with no backup, because its body would
+// match the record (review of pose#103).
+func TestAnInventedSectionIsNeverRecordedAsDelivered(t *testing.T) {
+	repo, path, older := olderReleaseManual(t)
+	if err := recordDeliveredManual(repo, "POSE.md", older); err != nil {
+		t.Fatal(err)
+	}
+	const invented = "## Notes nobody shipped"
+	if err := os.WriteFile(path, []byte(older+"\n"+invented+"\n\nOur own notes.\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var out strings.Builder
+	if err := refreshManagedDocs(repo, "en", &out, localeEN); err != nil {
+		t.Fatal(err)
+	}
+	record := deliveredManual(repo, "POSE.md")
+	if record == nil {
+		t.Fatal("the refresh wrote the manual and recorded nothing")
+	}
+	if _, ok := record[invented]; ok {
+		t.Error("a section the instance invented was recorded as if POSE had delivered it")
+	}
+	raw, _ := os.ReadFile(path)
+	_, sections := splitDocSections(string(raw))
+	for _, section := range sections {
+		if sectionIsInstanceOwned(section) {
+			if _, ok := record[section.Heading]; ok {
+				t.Errorf("an instance-owned section was recorded as delivered: %s", section.Heading)
+			}
+		}
+	}
+}
+
+// The case the record must not hide: the instance wrote a section, and a later
+// release ships an engine-owned section under the same heading. The merge takes
+// the engine's body, so the instance's text must reach a backup.
+func TestAReleaseClaimingAnInventedHeadingStillBacksItUp(t *testing.T) {
+	olderCanonical := "# Manual\n\n## Rules\n\nengine rules\n"
+	newerCanonical := olderCanonical + "\n## Shared\n\nengine text for shared\n"
+	local := olderCanonical + "\n## Shared\n\nour own notes\n"
+	merged, _ := MergeManagedDoc(newerCanonical, local)
+	if strings.Contains(merged, "our own notes") {
+		t.Fatalf("premise: the merge should take the engine's body for an engine-owned heading:\n%s", merged)
+	}
+	if !manualDropsLocalEdits(local, merged, manualSectionDigests(olderCanonical)) {
+		t.Error("the instance's section was replaced and not reported as lost")
+	}
+}

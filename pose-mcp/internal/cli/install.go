@@ -244,6 +244,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			raw = injectExtractedProjectContext(raw, target)
 		}
 		content := replacer.Replace(raw)
+		canonical := content
 		// An existing manual is merged, never skipped: engine-owned sections
 		// refresh while the instance keeps what it wrote under the sections the
 		// canonical manual tags as instance-owned. Skipping (the pre-existing
@@ -283,7 +284,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			content = merged
 			if string(existing) == content {
 				if delivered == nil {
-					_ = recordDeliveredManual(target, doc, content)
+					_ = recordDeliveredManual(target, doc, canonical)
 				}
 				log("unchanged: %s", "inalterado: %s", doc)
 				continue
@@ -304,7 +305,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 				fmt.Fprintf(stderr, "pose install: %v\n", err)
 				return 1
 			}
-			_ = recordDeliveredManual(target, doc, content)
+			_ = recordDeliveredManual(target, doc, canonical)
 			if preserved {
 				log("merged: %s (instance-owned sections preserved)", "mesclado: %s (seções da instância preservadas)", doc)
 			} else {
@@ -316,7 +317,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "pose install: %v\n", err)
 			return 1
 		}
-		_ = recordDeliveredManual(target, doc, content)
+		_ = recordDeliveredManual(target, doc, canonical)
 		log("installed: %s", "instalado: %s", doc)
 	}
 
