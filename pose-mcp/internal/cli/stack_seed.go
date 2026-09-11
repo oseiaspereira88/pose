@@ -55,7 +55,7 @@ var computedIndexFiles = map[string]bool{
 // AGENTS.md/POSE.md already reference these subsystems while nothing had
 // ever seeded them, so it reported "Result: SUCCESS" and then failed its own
 // very next `pose check --strict` with broken references that `pose doctor`
-// did not catch (spec pose-update-instance-config-completeness).
+// did not catch (spec pose-upgrade-path-audit-fixes).
 func seedAbsentInstanceConfig(dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
 	idxEntries, _ := fs.ReadDir(dist, ".pose/indexes")
 	_ = os.MkdirAll(filepath.Join(target, ".pose", "indexes"), 0o755)

@@ -164,4 +164,4 @@ instead of failing every CLI-backed tool with a missing-binary error.
 
 ### Follow-ups
 
-- [open] `pose serve-mcp --stdio` ignores SIGTERM until its next request: `bootstrap.Run` catches the signal with `signal.NotifyContext`, but `ServeStdio` blocks in `scanner.Scan()` and checks the context only after a line arrives, then exits without answering it. Observed stopping this repository's own server after installing 5.0.1: SIGTERM left it running, and the next tool call closed the connection. Make the stdio loop return when the context is cancelled (owner:unowned crit:medium review:2026-10-10)
+- [spawned: pose-stdio-server-honours-sigterm] `pose serve-mcp --stdio` ignores SIGTERM until its next request: `bootstrap.Run` catches the signal with `signal.NotifyContext`, but `ServeStdio` blocks in `scanner.Scan()` and checks the context only after a line arrives, then exits without answering it. Observed stopping this repository's own server after installing 5.0.1: SIGTERM left it running, and the next tool call closed the connection. Make the stdio loop return when the context is cancelled (owner:unowned crit:medium review:2026-10-10)

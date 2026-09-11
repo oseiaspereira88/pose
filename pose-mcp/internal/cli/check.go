@@ -59,7 +59,7 @@ func (checker *nativeChecker) failOrWarn(message string) {
 // `pose update`'s post-install gate, driven by their own --locale — report
 // in that locale instead, matching the language the operator actually asked
 // for on the outer command rather than whatever the shell's $LANG happens to
-// be (spec pose-post-install-gate-locale).
+// be (spec pose-upgrade-path-audit-fixes).
 func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 	return cmdCheckWithLocale(root, args, stdout, stderr, cliLocaleValue())
 }

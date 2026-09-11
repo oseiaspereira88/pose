@@ -123,7 +123,7 @@ func scanModules(root string) ([]indexedModule, []string, []string, []string, []
 	// deliverable modules — a fixture go.mod under an adoption-kit example
 	// was otherwise discovered as a real module and invalidated closed
 	// specs' review evidence on every reindex (spec
-	// pose-fixture-directory-discovery-exclusion).
+	// pose-upgrade-path-audit-fixes).
 	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, ".gradle": true, "build": true, "dist": true, "target": true, "vendor": true, "__pycache__": true, "testdata": true, "fixture": true, "fixtures": true}
 	// See discoverValidationModules (validate.go) for why a gitignored
 	// subtree is excluded the same way (spec

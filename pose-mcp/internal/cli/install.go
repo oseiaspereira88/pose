@@ -48,7 +48,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 				// command's own diagnostic output (log lines, the
 				// post-install gate report), not just the scaffold
 				// content — matching --locale's meaning on `pose update`
-				// (spec pose-post-install-gate-locale).
+				// (spec pose-upgrade-path-audit-fixes).
 				if v == "pt-BR" {
 					commandLocale = localePtBR
 				} else {
@@ -197,7 +197,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	// spec-graph.json, policy/) it never actually seeded — that produced a
 	// "Result: SUCCESS" update whose very next `pose check --strict` failed
 	// with broken references, undetected by `pose doctor`
-	// (spec pose-update-instance-config-completeness).
+	// (spec pose-upgrade-path-audit-fixes).
 	seedAbsentInstanceConfig(dist, target, log)
 
 	// 3. Legal texts vendored under .pose/.
@@ -256,7 +256,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			// them literally would treat every local section as unknown to
 			// the engine and append it as a duplicate instead of recognizing
 			// it as the same section (spec
-			// pose-locale-switch-section-identity).
+			// pose-upgrade-path-audit-fixes).
 			var merged string
 			var preserved, dropsContent bool
 			existingResolved := resolveDocLocale(dist, doc, string(existing), "", false)
@@ -337,15 +337,22 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 	if rc := cmdInit(target, io.Discard, stderr); rc != 0 {
 		return rc
 	}
-	if rc := cmdIndex(target, nil, io.Discard, stderr); rc != 0 {
-		return rc
+	// Everything above is already on disk. An index failure here is about the
+	// instance's own state — a corrupt changelog fragment, say — not about what
+	// this run delivered, so it does not end the run: the final gate reports it,
+	// and already knows whether it predates this run and that nothing is rolled
+	// back. Returning here said none of that (spec
+	// pose-update-reports-what-it-delivered).
+	indexFailed := cmdIndex(target, nil, io.Discard, stderr) != 0
+	if indexFailed {
+		log("index failed on instance state (above); machinery delivery is complete", "índice falhou no estado da instância (acima); a entrega da maquinaria está completa")
 	}
 	log("running native final gate", "executando gate final nativo")
 	// The operator's own --locale (or the auto-detected commandLocale) drives
 	// this gate's report, not the shell's $LANG — an explicit `pose install
 	// --locale en` reporting its own final gate in Portuguese because the
 	// shell happens to be pt-BR would read as if the flag had failed
-	// (spec pose-post-install-gate-locale).
+	// (spec pose-upgrade-path-audit-fixes).
 	if rc := cmdCheckWithLocale(target, []string{"--strict"}, stdout, stderr, commandLocale); rc != 0 {
 		fmt.Fprintln(stderr, text("pose install: post-install gate failed (check --strict)", "pose install: gate pós-instalação falhou (check --strict)"))
 		if preExistingFailure {
@@ -366,6 +373,15 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, text(
 			"pose install: files were already written before this failure — this command does not roll back. Recover with the .pose-backup copies (unless --no-backup) and/or `git status`/`git diff` in the target.",
 			"pose install: os arquivos já foram gravados antes desta falha — este comando não desfaz a operação. Recupere com as cópias .pose-backup (a menos que --no-backup tenha sido usado) e/ou `git status`/`git diff` no alvo.",
+		))
+		return 1
+	}
+	if indexFailed {
+		// The gate passed but the index did not: the instance's indexes are
+		// stale, which a later command will trip over. Delivery still happened.
+		fmt.Fprintln(stderr, text(
+			"pose install: machinery was delivered, but `pose index` failed on the instance state reported above — fix it and run `pose index`.",
+			"pose install: a maquinaria foi entregue, mas o `pose index` falhou no estado da instância reportado acima — corrija e rode `pose index`.",
 		))
 		return 1
 	}

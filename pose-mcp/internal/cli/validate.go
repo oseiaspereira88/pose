@@ -101,7 +101,7 @@ func confinedRelativePath(path string) bool {
 
 func discoverValidationModules(root string) ([]validationModule, error) {
 	// testdata/fixture(s): see index.go's scanModules for why these are
-	// excluded (spec pose-fixture-directory-discovery-exclusion).
+	// excluded (spec pose-upgrade-path-audit-fixes).
 	ignored := map[string]bool{".git": true, ".qwen": true, "node_modules": true, "vendor": true, ".venv": true, ".pnpm-store": true, "target": true, "dist": true, "build": true, ".next": true, "coverage": true, ".pose": true, "testdata": true, "fixture": true, "fixtures": true}
 	// A gitignored subtree (a locally-checked-out project the repository
 	// deliberately excludes, e.g. a vendored tool) is never a governed
@@ -149,7 +149,7 @@ func discoverValidationModules(root string) ([]validationModule, error) {
 			// A Gradle module carrying an AndroidManifest.xml is an Android
 			// app/library, not a generic JVM backend module — conflating the
 			// two under "java" made every Android module's domain
-			// misleading (spec pose-android-stack-detection). Kotlin-only
+			// misleading (spec pose-upgrade-path-audit-fixes). Kotlin-only
 			// non-Android Gradle modules are unaffected: they have no
 			// AndroidManifest.xml and keep classifying as "java".
 			stack = "android"

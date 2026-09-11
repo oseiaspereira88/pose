@@ -370,7 +370,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	// 8a. Instance config completeness. A `.pose/schema-version` stamp means
 	// this instance considers itself current, so the subsystems every other
 	// current instance has should exist too. Before spec
-	// pose-update-instance-config-completeness, a plain `pose update`
+	// pose-upgrade-path-audit-fixes, a plain `pose update`
 	// (without --force) refreshed AGENTS.md/POSE.md to reference these
 	// subsystems without ever seeding them on an old instance, so `Result:
 	// SUCCESS` could be followed immediately by `pose check --strict`
@@ -550,7 +550,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 			}
 
 			// 11a. Orphaned module-metadata entries (specs
-			// pose-fixture-directory-discovery-exclusion,
+			// pose-upgrade-path-audit-fixes,
 			// pose-stack-detection-consolidation): discovery is additive-only
 			// and never removes an entry, so a path that stopped existing —
 			// a stale self-referential entry from an old scaffold version, a

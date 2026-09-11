@@ -1,7 +1,7 @@
 package cli
 
 // Instance config completeness and module-metadata orphan detection (specs
-// pose-update-instance-config-completeness, pose-fixture-directory-discovery-exclusion):
+// pose-upgrade-path-audit-fixes, pose-upgrade-path-audit-fixes):
 // an old instance whose schema-version claims it is current but is missing
 // subsystems its own manuals reference used to pass `pose doctor` silently.
 

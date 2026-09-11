@@ -75,7 +75,7 @@ func MergeManagedDoc(canonical, local string) (string, bool) {
 // each of local's headings to the canonical heading it corresponds to (built
 // by buildHeadingTranslation), so a section translated between locales is
 // recognized as the same section instead of being appended as unrelated
-// content the merge has never seen (spec pose-locale-switch-section-identity).
+// content the merge has never seen (spec pose-upgrade-path-audit-fixes).
 func MergeManagedDocAcrossLocale(canonical, local string, headingTranslation map[string]string) (string, bool) {
 	merged, preserved, _ := mergeManagedDoc(canonical, local, headingTranslation)
 	return merged, preserved
@@ -86,7 +86,7 @@ func MergeManagedDocAcrossLocale(canonical, local string, headingTranslation map
 // appended to the end of the file, for instance — belongs to no local heading,
 // so the refresh legitimately overwrites it. Losing it silently is what is not
 // acceptable: the caller keeps a `.pose-backup` copy when this returns true
-// (spec pose-managed-doc-content-preservation).
+// (spec pose-compat-gate-candidate-integrity).
 func MergeDropsLocalContent(canonical, local string) bool {
 	_, _, dropped := mergeManagedDoc(canonical, local, nil)
 	return dropped
@@ -129,7 +129,7 @@ func mergeManagedDoc(canonical, local string, headingTranslation map[string]stri
 	// it when the instance is merging across a locale switch — otherwise a
 	// translated section reads as content the engine has never seen and gets
 	// appended as a duplicate instead of recognized as the same section
-	// (spec pose-locale-switch-section-identity).
+	// (spec pose-upgrade-path-audit-fixes).
 	effectiveHeading := func(heading string) string {
 		if translated, ok := headingTranslation[heading]; ok {
 			return translated
@@ -260,7 +260,7 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 			// language than canonical's, so literal heading matching would
 			// treat every local section as unknown-to-the-engine and append
 			// it as a duplicate instead of recognizing it as the same
-			// section (spec pose-locale-switch-section-identity).
+			// section (spec pose-upgrade-path-audit-fixes).
 			existingCanonicalPrefix := ""
 			if existingResolved != "" {
 				existingCanonicalPrefix = "locales/" + existingResolved + "/"
@@ -291,7 +291,7 @@ func refreshManagedDocs(root, locale string, stdout io.Writer, localeText cliLoc
 		// a copy and say so explicitly — the merge only preserves what it can
 		// recognize as a whole section, and a generic "merged" log would
 		// otherwise read as if nothing had been lost (spec
-		// pose-managed-doc-content-preservation, matching the warning `pose
+		// pose-compat-gate-candidate-integrity, matching the warning `pose
 		// install`'s own merge path already gives for the same case).
 		if dropsContent {
 			if err := os.WriteFile(filepath.Join(root, doc)+".pose-backup", existing, 0o644); err != nil {

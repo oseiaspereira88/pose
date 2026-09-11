@@ -1,7 +1,7 @@
 package cli
 
 // Install auto-detect message clarity and project-identity preservation
-// (specs pose-post-install-gate-locale, pose-install-identity-preservation):
+// (specs pose-upgrade-path-audit-fixes, pose-install-identity-preservation):
 // two small operator-facing correctness gaps found auditing `pose install`/
 // `pose update` across real repositories ahead of the v1.4.0 release.
 

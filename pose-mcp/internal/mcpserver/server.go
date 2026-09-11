@@ -676,15 +676,43 @@ func (s *Server) dispatchRPC(ctx context.Context, req rpcRequest) rpcResponse {
 // ServeStdio runs the MCP server over stdin/stdout (one JSON-RPC message per
 // line). All diagnostic output goes to stderr. This is the transport for
 // claude-native (subprocess) deployments — no HTTP daemon needed.
+//
+// Reading stdin blocks until a line or EOF arrives, so it runs apart from the
+// loop: the loop must answer a cancelled context — SIGTERM, Ctrl+C — while
+// idle, not when the next request happens to arrive. Checking the context
+// only after a read left the server running after SIGTERM and closed the next
+// request unanswered (spec pose-stdio-server-honours-sigterm). A requested
+// shutdown returns nil: it is not a failure.
 func (s *Server) ServeStdio(ctx context.Context) error {
 	enc := json.NewEncoder(os.Stdout)
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Buffer(make([]byte, 4*1024*1024), 4*1024*1024)
-	for scanner.Scan() {
-		if ctx.Err() != nil {
-			return ctx.Err()
+	lines := make(chan []byte)
+	readErr := make(chan error, 1)
+	go func() {
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Buffer(make([]byte, 4*1024*1024), 4*1024*1024)
+		for scanner.Scan() {
+			line := append([]byte(nil), scanner.Bytes()...)
+			select {
+			case lines <- line:
+			case <-ctx.Done():
+				return
+			}
 		}
-		line := bytes.TrimSpace(scanner.Bytes())
+		readErr <- scanner.Err()
+		close(lines)
+	}()
+	for {
+		var raw []byte
+		select {
+		case <-ctx.Done():
+			return nil
+		case next, ok := <-lines:
+			if !ok {
+				return <-readErr
+			}
+			raw = next
+		}
+		line := bytes.TrimSpace(raw)
 		if len(line) == 0 {
 			continue
 		}
@@ -699,7 +727,6 @@ func (s *Server) ServeStdio(ctx context.Context) error {
 		}
 		_ = enc.Encode(s.dispatchRPC(ctx, req))
 	}
-	return scanner.Err()
 }
 
 type unknownToolError struct{ name string }
