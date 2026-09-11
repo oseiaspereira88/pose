@@ -198,7 +198,10 @@ func cmdUpdate(root string, args []string, stdout, stderr io.Writer) int {
 			installArgs = append(installArgs, "--locale", "pt-BR")
 		}
 		if code := cmdInstall(installArgs, stdout, stderr); code != 0 {
-			fmt.Fprintln(stderr, text("pose update: scaffold refresh failed", "pose update: falha na atualização de scaffolds"))
+			// Install has already said what it wrote and what failed; a failure
+			// here is usually the instance's state after delivery, not the
+			// refresh (spec pose-update-reports-what-it-delivered).
+			fmt.Fprintln(stderr, text("pose update: the scaffold refresh did not finish cleanly — see above for what was written and what failed", "pose update: a atualização de scaffolds não terminou limpa — veja acima o que foi gravado e o que falhou"))
 			return code
 		}
 	}
