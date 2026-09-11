@@ -175,8 +175,8 @@ measure this repository's own graph.
   went; with the ledger disabled it fails with the existence finding, and the
   rewritten-claim test with the reported `action-mismatch`. Measured on this
   repository in a single-branch clone with the source-built binary:
-  `action-mismatch` findings fall from 81 to 30, the graph lists 52 archivals
-  with 104 edges, and `artifact-check --strict` passes for the specs released
+  `action-mismatch` findings fall from 81 to 29 — exactly the 52 the ledger now
+  resolves — the graph lists 52 archivals with 104 edges, and `artifact-check --strict` passes for the specs released
   in 5.0.4 and 5.0.5, which failed before.
 
 ### Results summary
