@@ -1,8 +1,8 @@
 # ADR: Release archival is attested by the ledger, never written into specs
 
 ## Status
-Proposed (2026-09-11) — awaiting the maintainer's decision; to be implemented by
-a spec once accepted. Extends the delivery integrity graph ADR
+Accepted (2026-09-11) — implemented by spec
+`pose-release-archival-attested-by-the-ledger`. Extends the delivery integrity graph ADR
 (`2026-08-02-delivery-integrity-graph-and-git-observed-provenance`) with one
 witness, and replaces the mechanism — not the requirement — of
 `pose-release-cycle-debt-closure` R2.
@@ -93,8 +93,9 @@ is the part of prepare's rollback that restores specs.
 
 **The release manifest attests one fact, and nothing else:** fragment `X` of spec
 `S` was archived at `.pose/changelogs/<version>/X`. The delivery integrity graph
-records this as its own edge, from the artifact to a `release:<version>` node.
-It is never recorded as a Git change observed for the spec. Declaration, Git
+records it with edges of its own: the declared artifact is `archived-by` a
+`release:<version>` node, which `archives` the file at its new path. It is never
+recorded as a Git change observed for the spec. Declaration, Git
 observation and ledger attestation stay three distinct witnesses, as the
 delivery integrity ADR requires.
 
@@ -141,10 +142,11 @@ consulted:
 - Trade-off: a claim can now resolve to a path it does not name. The graph and
   the `artifact-check` output must say so — "archived by release vN at …" — or
   the resolution reads as magic.
-- Trade-off: the delivery integrity graph gains a node type and an edge type, and
-  a new input: `.pose/releases/*/manifest.json`. The change is additive and
-  schema-versioned, with golden fixtures updated. Manifests are immutable under
-  ADR-018, so the new input causes no freshness churn.
+- Trade-off: the delivery integrity graph gains a node type, two edge types and a
+  new input: `.pose/releases/*/manifest.json`. The change is additive, so the
+  schema version stays; a repository with no manifests builds the same graph,
+  digests included. Manifests are immutable under ADR-018, so the new input
+  causes no freshness churn.
 - Neutral: `TestReleasePrepareRepointsConsumedSpecArtifactClaims` asserts the
   behaviour being removed. It is replaced by a test that prepare leaves every
   spec byte-identical, and that `artifact-check` passes for the released spec
