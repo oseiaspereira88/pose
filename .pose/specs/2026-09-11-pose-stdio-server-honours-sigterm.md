@@ -61,7 +61,7 @@ never does.
 
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-stdio-server-honours-sigterm.md
-- created: .pose/changelogs/unreleased/pose-stdio-server-honours-sigterm.md
+- renamed: .pose/changelogs/unreleased/pose-stdio-server-honours-sigterm.md -> .pose/changelogs/v5.0.2/pose-stdio-server-honours-sigterm.md
 - created: pose-mcp/internal/cli/mcp_sigterm_test.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: .pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md

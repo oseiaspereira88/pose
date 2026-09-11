@@ -71,7 +71,7 @@ had not.
 
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-update-reports-what-it-delivered.md
-- created: .pose/changelogs/unreleased/pose-update-reports-what-it-delivered.md
+- renamed: .pose/changelogs/unreleased/pose-update-reports-what-it-delivered.md -> .pose/changelogs/v5.0.2/pose-update-reports-what-it-delivered.md
 - created: pose-mcp/internal/cli/update_reports_delivered_state_test.go
 - modified: pose-mcp/internal/cli/install.go
 - modified: pose-mcp/internal/cli/maintenance.go

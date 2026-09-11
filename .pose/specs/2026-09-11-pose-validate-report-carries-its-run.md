@@ -67,7 +67,7 @@ produced the same empty report. The generator had to be fixed first.
 
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-validate-report-carries-its-run.md
-- created: .pose/changelogs/unreleased/pose-validate-report-carries-its-run.md
+- renamed: .pose/changelogs/unreleased/pose-validate-report-carries-its-run.md -> .pose/changelogs/v5.0.2/pose-validate-report-carries-its-run.md
 - modified: pose-mcp/internal/cli/validate.go
 - modified: pose-mcp/internal/cli/report.go
 - modified: pose-mcp/internal/cli/cli_test.go
