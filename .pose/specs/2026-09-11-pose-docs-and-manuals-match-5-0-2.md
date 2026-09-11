@@ -91,7 +91,7 @@ claim against the code rather than against memory:
 
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-docs-and-manuals-match-5-0-2.md
-- created: .pose/changelogs/unreleased/pose-docs-and-manuals-match-5-0-2.md
+- renamed: .pose/changelogs/unreleased/pose-docs-and-manuals-match-5-0-2.md -> .pose/changelogs/v5.0.3/pose-docs-and-manuals-match-5-0-2.md
 - modified: .agents/skills/pose-review/SKILL.md
 - modified: .agents/skills/pose-spec-closeout/SKILL.md
 - modified: docs-site/docs/analytics.md

@@ -69,7 +69,7 @@ first time it is followed.
 
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-help-names-flags-the-parser-accepts.md
-- created: .pose/changelogs/unreleased/pose-help-names-flags-the-parser-accepts.md
+- renamed: .pose/changelogs/unreleased/pose-help-names-flags-the-parser-accepts.md -> .pose/changelogs/v5.0.3/pose-help-names-flags-the-parser-accepts.md
 - modified: pose-mcp/internal/cli/help_catalog.go
 
 ### Technical risks
