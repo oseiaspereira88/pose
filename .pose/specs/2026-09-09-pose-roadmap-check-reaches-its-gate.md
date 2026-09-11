@@ -175,4 +175,4 @@ has adopted delivery integrity.
 
 ### Follow-ups
 
-- [open] Have `roadmap-check` say when a roadmap declares no cut criteria, so a roadmap with nothing to gate on is distinguishable from one that passed — owner:unowned crit:low review:2027-01-09
+- [open] Have `roadmap-check` say when a roadmap declares no cut criteria, so a roadmap with nothing to gate on is distinguishable from one that passed (owner:unowned crit:low review:2027-01-09)

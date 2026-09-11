@@ -209,4 +209,4 @@ general relaxation.
 
 ### Follow-ups
 
-- [open] Consider reporting unclassified paths as a finding on the bundle rather than a blocker, so a reviewer sees them without the gate refusing — owner:unowned crit:low review:2026-12-08
+- [open] Consider reporting unclassified paths as a finding on the bundle rather than a blocker, so a reviewer sees them without the gate refusing (owner:unowned crit:low review:2026-12-08)

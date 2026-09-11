@@ -201,4 +201,4 @@ costs, from the registry rather than from memory.
 
 ### Follow-ups
 
-- [open] Say the same thing where an operator meets it rather than only in the notes: `pose update` stamps a contract adoption without mentioning that older engines stop reading the repository — owner:unowned crit:low review:2026-12-09
+- [open] Say the same thing where an operator meets it rather than only in the notes: `pose update` stamps a contract adoption without mentioning that older engines stop reading the repository (owner:unowned crit:low review:2026-12-09)

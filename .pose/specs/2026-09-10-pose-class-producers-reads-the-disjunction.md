@@ -170,4 +170,4 @@ that happens to have no producer.
 
 ### Follow-ups
 
-- [open] Resolve profile selection through the component-aware planner rather than by reading the language selector, so a profile that cannot apply for any reason is skipped and not only for an absent language — owner:unowned crit:low review:2027-03-10
+- [open] Resolve profile selection through the component-aware planner rather than by reading the language selector, so a profile that cannot apply for any reason is skipped and not only for an absent language (owner:unowned crit:low review:2027-03-10)

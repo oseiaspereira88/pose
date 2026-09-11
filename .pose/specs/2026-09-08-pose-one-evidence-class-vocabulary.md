@@ -205,5 +205,5 @@ the first.
 
 ### Follow-ups
 
-- [done] Decide whether lint, typecheck, security-scan and contract should be emittable classes rather than reported as build. Decided yes, in `pose-emittable-analysis-evidence-classes` (ADR amendment 2026-09-09): all four join the closed vocabulary, `go vet` moves to `lint` and a `go build ./...` check restores the Go stack's `build` producer. — owner:unowned crit:medium review:2026-12-08
-- [open] Consider whether the evidence-class vocabulary should be extensible by an instance rather than compiled in — owner:unowned crit:low review:2027-03-08
+- [done] Decide whether lint, typecheck, security-scan and contract should be emittable classes rather than reported as build. Decided yes, in `pose-emittable-analysis-evidence-classes` (ADR amendment 2026-09-09): all four join the closed vocabulary, `go vet` moves to `lint` and a `go build ./...` check restores the Go stack's `build` producer. (owner:unowned crit:medium review:2026-12-08)
+- [open] Consider whether the evidence-class vocabulary should be extensible by an instance rather than compiled in (owner:unowned crit:low review:2027-03-08)

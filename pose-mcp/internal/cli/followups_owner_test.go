@@ -208,3 +208,64 @@ func TestFollowupsCollectsFlatSpecFiles(t *testing.T) {
 	}
 }
 
+// The lint and `pose followups` must read a follow-up the same way. The lint
+// read only a bullet's first line, so a wrapped ownership group — which `pose
+// followups` reads as owned — was reported as unowned at closeout (spec
+// pose-one-follow-up-format).
+func TestLintReadsAWrappedOwnershipGroupLikeFollowups(t *testing.T) {
+	spec := ownershipLintBase("done") +
+		"- [open] a follow-up whose text runs on for a while and\n" +
+		"  wraps before its metadata\n" +
+		"  (owner:@core crit:medium review:2999-01-01)\n"
+	rc, output := lintFixture(t, spec)
+	if rc != 0 {
+		t.Fatalf("a wrapped, owned follow-up must lint clean: %s", output)
+	}
+	if strings.Contains(output, "unowned") {
+		t.Errorf("the lint read a wrapped ownership group as unowned: %s", output)
+	}
+}
+
+// Ownership written any way but the trailing group is ignored by the parser,
+// so the item reads as unowned with no crit and no review date. The lint names
+// the one format that works, in any status — before closeout an unowned item
+// is not reported, but metadata nothing reads is.
+func TestLintWarnsOwnershipOutsideTheTrailingGroup(t *testing.T) {
+	dashed := "- [open] something left — owner:unowned crit:low review:2999-01-01\n"
+	for _, status := range []string{"in-progress", "done"} {
+		rc, output := lintFixture(t, ownershipLintBase(status)+dashed)
+		if rc != 0 {
+			t.Fatalf("%s: misplaced ownership must warn, not fail: %s", status, output)
+		}
+		if !strings.Contains(output, "outside the trailing group") || !strings.Contains(output, "(owner:@alias crit:low|medium|high review:YYYY-MM-DD)") {
+			t.Errorf("%s: expected the misplaced-ownership warning naming the format, got: %s", status, output)
+		}
+	}
+	canonical := "- [open] something left (owner:unowned crit:low review:2999-01-01)\n"
+	if _, output := lintFixture(t, ownershipLintBase("in-progress")+canonical); strings.Contains(output, "outside the trailing group") {
+		t.Errorf("the canonical group was reported as misplaced: %s", output)
+	}
+}
+
+func TestFollowupMetaMisplaced(t *testing.T) {
+	for text, want := range map[string]bool{
+		"left over (owner:@a crit:low review:2026-01-01)":             false,
+		"left over — owner:@a crit:low review:2026-01-01":             true,
+		"left over (owner:@a crit:low review:2026-01-01), then prose": true,
+		"no metadata at all": false,
+	} {
+		if got := followupMetaMisplaced(text); got != want {
+			t.Errorf("followupMetaMisplaced(%q) = %v, want %v", text, got, want)
+		}
+	}
+}
+
+func ownershipLintBase(status string) string {
+	completed := ""
+	if status == "done" {
+		completed = "2026-07-02"
+	}
+	return "---\nslug: fixture\nstatus: " + status + "\ncreated_at: 2026-07-01\ncompleted_at: " + completed + "\n---\n\n" +
+		"## 1. Intent\nContent.\n## 2. Requirements\n- R1: behave.\n## 3. Technical Plan\nContent.\n## 4. Tasks\n- [x] done\n" +
+		"## 6. Validation\n### Requirement trace\n- R1 [satisfied] check:test\n## 7. Final Report\n### Follow-ups\n"
+}

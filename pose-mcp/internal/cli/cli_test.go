@@ -726,3 +726,54 @@ func hasPortugueseAccent(s string) bool {
 	}
 	return false
 }
+
+// `pose validate --report` records the run it just made. It used to look for a
+// pose-validate.latest.log native validation never writes, so every report
+// said "Fill manually" and "No validation output detected" beside an outcome
+// passed in as manual (spec pose-validate-report-carries-its-run).
+func TestValidateReportRecordsTheRunItMade(t *testing.T) {
+	repo := newGitRepo(t)
+	module := filepath.Join(repo, "service")
+	if err := os.MkdirAll(module, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(module, "go.mod"), []byte("module example.test/service\n\ngo 1.22\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	truePath, err := exec.LookPath("true")
+	if err != nil {
+		t.Fatal(err)
+	}
+	matrixDir := filepath.Join(repo, ".pose", "indexes")
+	if err := os.MkdirAll(matrixDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	matrix := fmt.Sprintf(`{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"self","program":%q,"args":[],"severity":"required"}]}}}`, truePath)
+	if err := os.WriteFile(filepath.Join(matrixDir, "validation-matrix.json"), []byte(matrix), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		if code := Main([]string{"validate", "--module", "service", "--report"}, &out, &errB); code != 0 {
+			t.Fatalf("validate --report exit=%d out=%s err=%s", code, out.String(), errB.String())
+		}
+		matches, _ := filepath.Glob(filepath.Join(repo, ".pose", "reports", "*-standard-validate-native.md"))
+		if len(matches) != 1 {
+			t.Fatalf("expected one validate report, got %v", matches)
+		}
+		report, _ := os.ReadFile(matches[0])
+		for _, want := range []string{truePath, "Result: SUCCESS", "Validation profile: strict", "Outcome: pass (source: derived)"} {
+			if !strings.Contains(string(report), want) {
+				t.Errorf("the report does not record %q:\n%s", want, report)
+			}
+		}
+		for _, unsupported := range []string{"_Fill manually_", "_No validation output detected_"} {
+			if strings.Contains(string(report), unsupported) {
+				t.Errorf("the report still says %q:\n%s", unsupported, report)
+			}
+		}
+		if _, err := os.Stat(filepath.Join(repo, ".pose", "reports", "pose-validate.latest.log")); err == nil {
+			t.Error("the run's output was written to the tree; it is handed to the report in memory")
+		}
+	})
+}

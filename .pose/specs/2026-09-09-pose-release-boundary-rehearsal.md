@@ -233,4 +233,4 @@ against the defects that motivated them.
 
 ### Follow-ups
 
-- [open] Consider asserting the archive layout against what `.goreleaser.yaml` actually produces, rather than against the name `extractPoseBinary` expects — the fixture and the extractor agree by construction here — owner:unowned crit:low review:2026-12-09
+- [open] Consider asserting the archive layout against what `.goreleaser.yaml` actually produces, rather than against the name `extractPoseBinary` expects — the fixture and the extractor agree by construction here (owner:unowned crit:low review:2026-12-09)

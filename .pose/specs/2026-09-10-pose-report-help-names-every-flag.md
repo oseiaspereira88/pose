@@ -151,4 +151,4 @@ cannot be added without it.
 
 ### Follow-ups
 
-- [open] Hold every command's help to the flags its parser accepts, not only `pose report`'s — measure how many commands accept flags their help does not name before deciding whether it is worth one check — owner:unowned crit:low review:2027-03-10
+- [open] Hold every command's help to the flags its parser accepts, not only `pose report`'s — measure how many commands accept flags their help does not name before deciding whether it is worth one check (owner:unowned crit:low review:2027-03-10)

@@ -153,4 +153,4 @@ everyone who vendors it alone.
 
 ### Follow-ups
 
-- [done] Assert in the workflow contract that this repository's CI sets the environment the guard keys on, so a provider or workflow change cannot turn the failure back into a silent skip. Done in `pose-the-guard-signal-is-declared-not-inherited`, and better than asked: rather than asserting the provider sets something, the workflow declares `POSE_RELEASE_HISTORY_AVAILABLE` and the contract test requires every job running the suite to declare it — which found a third such job, the release workflow's own. — owner:unowned crit:medium review:2026-12-10
+- [done] Assert in the workflow contract that this repository's CI sets the environment the guard keys on, so a provider or workflow change cannot turn the failure back into a silent skip. Done in `pose-the-guard-signal-is-declared-not-inherited`, and better than asked: rather than asserting the provider sets something, the workflow declares `POSE_RELEASE_HISTORY_AVAILABLE` and the contract test requires every job running the suite to declare it — which found a third such job, the release workflow's own. (owner:unowned crit:medium review:2026-12-10)

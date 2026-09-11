@@ -170,4 +170,4 @@ workflow contract keeps every job that needs it saying so.
 
 ### Follow-ups
 
-- [open] Read the declaration per step rather than per job, so a job that runs the suite twice and declares it once is not reported as covered — owner:unowned crit:low review:2027-03-10
+- [open] Read the declaration per step rather than per job, so a job that runs the suite twice and declares it once is not reported as covered (owner:unowned crit:low review:2027-03-10)

@@ -146,4 +146,4 @@ waiting for someone to notice.
 
 ### Follow-ups
 
-- [open] Report what a stale profile actually declares that schema v2 would refuse, so the finding names the harm rather than the condition — owner:unowned crit:low review:2027-03-10
+- [open] Report what a stale profile actually declares that schema v2 would refuse, so the finding names the harm rather than the condition (owner:unowned crit:low review:2027-03-10)

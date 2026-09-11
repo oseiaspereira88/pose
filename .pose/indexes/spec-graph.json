@@ -385,6 +385,10 @@
       "to": "pose-tool-dispositions-must-be-supported"
     },
     {
+      "from": "pose-one-follow-up-format",
+      "to": "pose-followup-ownership-sla"
+    },
+    {
       "from": "pose-only-the-signing-gate-is-read-live",
       "to": "pose-reuse-is-sealed-signing-stays-live"
     },
@@ -727,6 +731,10 @@
     {
       "from": "pose-usage-metrics",
       "to": "pose-dora-adoption-metrics"
+    },
+    {
+      "from": "pose-validate-report-carries-its-run",
+      "to": "pose-one-follow-up-format"
     },
     {
       "from": "pose-validation-runtime-guardrails",
@@ -1522,6 +1530,14 @@
       "priority": 0,
       "status": "in-progress"
     },
+    "pose-one-follow-up-format": {
+      "depends_on": [
+        "pose-followup-ownership-sla"
+      ],
+      "path": ".pose/specs/2026-09-10-pose-one-follow-up-format.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
     "pose-only-the-signing-gate-is-read-live": {
       "depends_on": [
         "pose-reuse-is-sealed-signing-stays-live"
@@ -2204,6 +2220,14 @@
       "path": ".pose/specs/2026-08-15-pose-v1-2-2-changelog-review.md",
       "priority": 3,
       "status": "done"
+    },
+    "pose-validate-report-carries-its-run": {
+      "depends_on": [
+        "pose-one-follow-up-format"
+      ],
+      "path": ".pose/specs/2026-09-11-pose-validate-report-carries-its-run.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-validation-runtime-guardrails": {
       "depends_on": [

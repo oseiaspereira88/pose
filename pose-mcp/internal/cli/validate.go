@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -393,6 +394,15 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 	}
+	// The report --report writes records this run, so it reads this run's own
+	// output. It used to look for a pose-validate.latest.log that native
+	// validation never writes, and every report said "Fill manually" and "No
+	// validation output detected" under an outcome it could not support (spec
+	// pose-validate-report-carries-its-run).
+	var runOutput bytes.Buffer
+	if autoReport {
+		stdout = io.MultiWriter(stdout, &runOutput)
+	}
 	if stackFilter != "" && !map[string]bool{"node": true, "go": true, "rust": true, "java": true, "python": true, "dotnet": true, "contract": true}[stackFilter] {
 		fmt.Fprintf(stderr, cliText(locale, "Error: invalid --stack: %s\n", "Erro: --stack inválido: %s\n"), stackFilter)
 		return 2
@@ -761,7 +771,13 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		if reportTask == "" {
 			reportTask = "validate-native"
 		}
-		_ = cmdReport(root, []string{"--task", reportTask, "--outcome", result, "--context", "auto-validate", "--validation-profile", mode}, io.Discard, stderr)
+		reportArgs := []string{"--task", reportTask, "--context", "auto-validate", "--validation-profile", mode}
+		// The outcome is derived from the run's own Result line when it agrees
+		// with the verdict; stating it explicitly would record it as manual.
+		if _, _, derived := parseValidationLines(runOutput.Bytes()); derived != result {
+			reportArgs = append(reportArgs, "--outcome", result)
+		}
+		_ = runReport(root, reportArgs, runOutput.Bytes(), io.Discard, stderr)
 	}
 	if failures > 0 {
 		return 1

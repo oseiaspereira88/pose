@@ -192,4 +192,4 @@ Assert each half against a bundle that reproduces it, and disable each in turn.
 
 ### Follow-ups
 
-- [done] Match tool evidence to the tool's component, alongside the same work for criteria. Delivered by `pose-evidence-scoped-to-component`: `reviewToolEvidenceBlocker` refuses a component-scoped tool citing evidence from outside that component, the same check the criteria path got. Verified against the code, not the record. — owner:unowned crit:high review:2026-11-08
+- [done] Match tool evidence to the tool's component, alongside the same work for criteria. Delivered by `pose-evidence-scoped-to-component`: `reviewToolEvidenceBlocker` refuses a component-scoped tool citing evidence from outside that component, the same check the criteria path got. Verified against the code, not the record. (owner:unowned crit:high review:2026-11-08)

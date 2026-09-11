@@ -155,4 +155,4 @@ the scaffold copies match.
 
 ### Follow-ups
 
-- [done] Warn when a bundle seals evidence whose run predates the change set it approves. Delivered by `pose-seal-names-carried-forward-evidence`, which names such evidence at seal time rather than leaving it silent. — owner:unowned crit:medium review:2026-11-08
+- [done] Warn when a bundle seals evidence whose run predates the change set it approves. Delivered by `pose-seal-names-carried-forward-evidence`, which names such evidence at seal time rather than leaving it silent. (owner:unowned crit:medium review:2026-11-08)

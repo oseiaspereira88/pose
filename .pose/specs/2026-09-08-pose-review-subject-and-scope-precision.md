@@ -202,4 +202,4 @@ in both directions so neither test can pass by observing nothing.
 
 ### Follow-ups
 
-- [open] Review whether other synthesised tools should be component-scoped like validate, rather than only the one this defect exposed — owner:unowned crit:low review:2026-12-08
+- [open] Review whether other synthesised tools should be component-scoped like validate, rather than only the one this defect exposed (owner:unowned crit:low review:2026-12-08)

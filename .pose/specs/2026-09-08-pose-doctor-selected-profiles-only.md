@@ -166,4 +166,4 @@ cover the original one.
 
 ### Follow-ups
 
-- [done] Audit the doctor fixtures for others that pass by scanning rather than through the path production takes. Delivered by `pose-doctor-fixtures-exercise-production-path`, which found three unreached behavioural branches and covered them. — owner:unowned crit:medium review:2026-11-08
+- [done] Audit the doctor fixtures for others that pass by scanning rather than through the path production takes. Delivered by `pose-doctor-fixtures-exercise-production-path`, which found three unreached behavioural branches and covered them. (owner:unowned crit:medium review:2026-11-08)

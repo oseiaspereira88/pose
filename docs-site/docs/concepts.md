@@ -41,8 +41,9 @@ draft ──(DoR gate)──► in-progress ──(closeout gate)──► done
   dispositioned — `[open]`, `[spawned: slug]`, `[covered: slug]`,
   `[duplicate: slug]`, `[done]`, `[wont-do: reason]`. For
   spawned/covered/duplicate the target spec must exist (no "covered" by a
-  typo). Open follow-ups declare ownership and a triage SLA —
-  `(owner:@alias crit:low|medium|high review:YYYY-MM-DD)` — and every
+  typo). Open follow-ups declare ownership and a triage SLA as the last thing
+  on the bullet — `(owner:@alias crit:low|medium|high review:YYYY-MM-DD)`, the
+  only format read; written any other way it is ignored — and every
   declared `R<N>` gets a trace entry (`[satisfied]` with evidence refs,
   `[waived: reason]` or `[withdrawn: reason]`) in the
   `Requirement trace` subsection; `pose followups --overdue` and the MCP

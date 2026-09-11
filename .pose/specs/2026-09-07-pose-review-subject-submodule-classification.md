@@ -192,4 +192,4 @@ must survive.
 
 ### Follow-ups
 
-- [open] Report the submodule's own dirty detail rather than just the directory — owner:unowned crit:low review:2026-12-07
+- [open] Report the submodule's own dirty detail rather than just the directory (owner:unowned crit:low review:2026-12-07)

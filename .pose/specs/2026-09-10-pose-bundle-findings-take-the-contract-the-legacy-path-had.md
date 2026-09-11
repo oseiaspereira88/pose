@@ -195,4 +195,4 @@ the two settings that govern it are frozen with the bundle.
 
 ### Follow-ups
 
-- [open] Report how many sealed bundles carry no `gates`, alongside the same count for `governing_contracts` — both are pre-field bundles reading by a fallback, and neither has a signal for when the fallback can go — owner:unowned crit:low review:2027-03-10
+- [open] Report how many sealed bundles carry no `gates`, alongside the same count for `governing_contracts` — both are pre-field bundles reading by a fallback, and neither has a signal for when the fallback can go (owner:unowned crit:low review:2027-03-10)

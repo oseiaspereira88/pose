@@ -190,17 +190,26 @@ IDs ausentes ou órfãos falham `pose lint-spec --strict` em specs done. -->
 ### Follow-ups
 
 <!--
-Cada follow-up começa com uma disposição entre colchetes. Quando a spec é
-marcada `status: done`, todo follow-up DEVE ter disposição (use `[open]` para
-os que ainda não foram triados — `pose followups --open` os agrega).
+Um formato, um bullet por follow-up:
+
+  - [<disposição>] <o que falta e por quê> (owner:@alias crit:low|medium|high review:YYYY-MM-DD)
+
+O grupo de ownership é obrigatório em itens [open] e precisa ser a ÚLTIMA coisa
+do bullet, entre parênteses. O bullet pode quebrar em linhas indentadas.
+Ownership escrito de qualquer outro jeito — depois de um travessão, no meio da
+frase, sem parênteses — é ignorado: o item fica sem dono, sem criticidade e sem
+data de revisão, e nunca vence. `pose lint-spec` avisa quando encontra isso.
 
 Disposições válidas:
-  [open]                  ainda não triado (backlog vivo)
+  [open]                  backlog vivo sem spec dedicada (exige o grupo de ownership)
   [spawned: <slug>]       virou/alimentou uma nova spec
   [covered: <slug>]       já coberto por outra spec existente
   [duplicate: <slug>]     mesmo follow-up já triado em outra spec
   [done]                  resolvido direto, sem spec separada
   [wont-do: <motivo>]     descartado conscientemente
+
+Quando a spec é marcada `status: done`, todo follow-up DEVE ter disposição —
+`pose followups --open` agrega os abertos.
 -->
 
 - [open] 
