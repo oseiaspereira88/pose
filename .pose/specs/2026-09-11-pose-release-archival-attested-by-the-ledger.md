@@ -86,7 +86,6 @@ six options it rejects, is recorded in ADR
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-release-archival-attested-by-the-ledger.md
 - created: .pose/changelogs/unreleased/pose-release-archival-attested-by-the-ledger.md
-- created: .pose/adr/2026-09-11-release-archival-is-attested-by-the-ledger-never-written-into-specs.md
 - created: pose-mcp/internal/pose/release_archive.go
 - created: pose-mcp/internal/pose/release_archive_test.go
 - modified: pose-mcp/internal/pose/delivery_integrity.go
@@ -100,6 +99,10 @@ six options it rejects, is recorded in ADR
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
+The ADR is not claimed here: it was created before this spec existed, in a
+commit outside its change set, and `.pose/adr` is not a governed root. Decision 1
+names it.
+
 ### Technical risks
 - The graph's input digest must not change for a repository with no releases,
   or every instance's index churns on upgrade for nothing. The archivals enter
@@ -110,12 +113,12 @@ six options it rejects, is recorded in ADR
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1: Read what each manifest attests, and resolve claims through it (R2, R3, R4, R5)
-- [ ] Increment 2: Prepare stops editing specs (R1)
-- [ ] Increment 3: Say it in `artifact-check` and the manuals (R6)
+- [x] Increment 1: Read what each manifest attests, and resolve claims through it (R2, R3, R4, R5)
+- [x] Increment 2: Prepare stops editing specs (R1)
+- [x] Increment 3: Say it in `artifact-check` and the manuals (R6)
 
 ### Validation
-- [ ] On this repository, the released specs' `action-mismatch` findings resolve
+- [x] On this repository, the released specs' `action-mismatch` findings resolve
   with no spec edited
 
 ---
@@ -130,6 +133,18 @@ six options it rejects, is recorded in ADR
   — ADR `2026-09-11-release-archival-is-attested-by-the-ledger-never-written-into-specs`.
 - Rationale: it is the only option that fixes `artifact-check` without the cut
   changing a sealed subject, and without a manual step per spec per release.
+
+### Decision 2
+- Date: 2026-09-11
+- Context: with `.pose/changelogs` governed, a rename claim an earlier release
+  wrote left the spec's own creation of the fragment undeclared: the claim names
+  the rename, the change set shows the creation. The old engine had the same
+  gap; this repository does not govern the path, so it never showed.
+- Decision: an observed creation of a pending fragment is explained by a
+  declared rename the ledger attests.
+- Rationale: R3 promises the rewritten claim passes; the creation is the half of
+  that rename the spec did perform, so leaving it undeclared would keep the claim
+  failing in any repository that governs its changelogs.
 
 ---
 
@@ -154,23 +169,40 @@ measure this repository's own graph.
 ### Execution log
 - Date: 2026-09-11
 - Environment: local, Go 1.26
-- Notes: pending.
+- Notes: TestAReleasedSpecStillPassesArtifactCheckAfterTheCut commits a spec
+  with its trailer, cuts a release in the fixture, commits the cut without one,
+  and requires `artifact-check --strict` to pass and name where the fragment
+  went; with the ledger disabled it fails with the existence finding, and the
+  rewritten-claim test with the reported `action-mismatch`. Measured on this
+  repository in a single-branch clone with the source-built binary:
+  `action-mismatch` findings fall from 81 to 30, the graph lists 52 archivals
+  with 104 edges, and `artifact-check --strict` passes for the specs released
+  in 5.0.4 and 5.0.5, which failed before.
 
 ### Results summary
-- Pending.
+- Successes: R1–R6 verified.
+- Failures: none.
 
 ### Requirement trace
-- Pending.
+- R1 [satisfied] <TestReleasePrepareLeavesEverySpecByteIdentical requires both specs byte-identical after prepare, and the fragment archived>
+- R2 [satisfied] <TestAnArchivedFragmentClaimResolvesThroughTheRelease; TestAReleasedSpecStillPassesArtifactCheckAfterTheCut passes a real cut end to end>
+- R3 [satisfied] <TestARenameAnEarlierReleaseWroteResolvesThroughItsManifest, including a governed changelog root and a manifest of another version; TestASpecAnEarlierReleaseRewroteStillPasses>
+- R4 [satisfied] <TestOnlyAnArchivalTheReleaseAttestsResolvesAClaim: another spec, no manifest, edited archive, untracked archive each name what the manifests showed; a non-fragment path keeps its exact message>
+- R5 [satisfied] <archived-by and archives edges and the reverse entry asserted; no changes edge to the archive; no orphan for a governed archived fragment in the end-to-end test>
+- R6 [satisfied] <the end-to-end test requires artifact.archived=<pending> -> <archived> (release <version>)>
 
 ### Known gaps
-- Pending.
+- Two claims from v0.16.2 and v0.16.3 still fail: they were repointed by hand
+  to the archive path before release manifests existed, so no manifest attests
+  them. Unchanged by this spec, and outside what the ledger can speak for.
 
 ---
 
 ## 7. Final Report
 
 ### Summary
-Pending.
+A release no longer edits the specs it ships, and a released spec passes
+`artifact-check` through what the release manifest attests.
 
 ### Follow-ups
 
