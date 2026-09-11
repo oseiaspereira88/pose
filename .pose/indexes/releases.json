@@ -9,6 +9,22 @@
       "digest": "sha256:c04c7578d051fc22c9b90712658d05f6b38ee782c079912c602f33ba47096224"
     },
     {
+      "spec": "pose-stdio-server-honours-sigterm",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose serve-mcp --stdio` exits on SIGTERM, with status 0. It caught the signal\nand then kept waiting on stdin, looking at it only when the next request\narrived — which it then dropped unanswered. A client or supervisor stopping the\nserver the usual way left it running until the next call, and that call failed\nwith a closed connection.",
+      "path": "pose-stdio-server-honours-sigterm.md",
+      "digest": "sha256:1b7ac806c329c8eeede60e0d289999c139fefb0f07afaf8e0a88dbc4943d06cd"
+    },
+    {
+      "spec": "pose-update-reports-what-it-delivered",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose update --force` and `pose install` no longer stop at the index step when\nthe instance's own state is invalid. A corrupt changelog fragment used to end a\nrun that had already delivered every machinery tree with \"scaffold refresh\nfailed\", without saying what had been written or that the fragment was there\nbefore the run.\n\nThe run now reaches the final gate, which reports the failure, whether it\npredates this run, and that the delivered files are not rolled back. The exit\ncode is still non-zero — the instance fails its strict gate — but the message is\nabout the instance, not about a refresh that succeeded.",
+      "path": "pose-update-reports-what-it-delivered.md",
+      "digest": "sha256:1cdb4ffb953cba282d0a92deb8b60a1a6f1aea0fdbb35258ec794aa71e73debf"
+    },
+    {
       "spec": "pose-validate-report-carries-its-run",
       "category": "fixed",
       "breaking": false,
