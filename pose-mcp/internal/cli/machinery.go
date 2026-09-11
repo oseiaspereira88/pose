@@ -4,9 +4,11 @@ package cli
 //
 // Rules, workflows, templates and skills are engine-owned *files*: unlike the
 // managed manuals, they carry no headings, so there is no sub-file unit to
-// negotiate. The ownership unit is the whole file, and the contract is the one
-// copyFileWithBackup already implements — identical content is a no-op, and
-// divergent content is backed up to <file>.pose-backup before the refresh.
+// negotiate. The ownership unit is the whole file: identical content is a
+// no-op, and content the instance edited is backed up to <file>.pose-backup
+// before the refresh. Which content the instance edited is read from the
+// digest the manifest recorded when POSE delivered it (see
+// deliverMachineryFile).
 //
 // What did not exist before is delivery on a plain `pose upgrade`: machinery
 // only ever reached an instance through `pose install --force`, so instances
@@ -19,6 +21,9 @@ package cli
 // has never seen is new engine content and is delivered.
 
 import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -45,6 +50,12 @@ type machineryManifest struct {
 	// pose-instance-engine-version-tracking) — omitted, not guessed, for a
 	// manifest written before this field existed.
 	EngineVersion string `json:"engine_version,omitempty"`
+	// Digests records the SHA-256 of the content delivered to each path, so a
+	// later delivery can tell a file the instance edited from one it merely
+	// received from an older release (spec
+	// pose-machinery-backs-up-only-local-edits). Without it, every file a
+	// release changed was backed up and reported as "customized".
+	Digests map[string]string `json:"digests,omitempty"`
 }
 
 // instanceEngineVersion reads the engine version this instance's machinery
@@ -77,9 +88,23 @@ func loadMachineryManifest(target string) map[string]bool {
 	return delivered
 }
 
-func saveMachineryManifest(target string, paths []string) error {
+// loadMachineryDigests returns the digest recorded for each delivered path, or
+// an empty map for a manifest written before digests were recorded.
+func loadMachineryDigests(target string) map[string]string {
+	raw, err := os.ReadFile(machineryManifestPath(target))
+	if err != nil {
+		return map[string]string{}
+	}
+	var m machineryManifest
+	if json.Unmarshal(raw, &m) != nil || m.Digests == nil {
+		return map[string]string{}
+	}
+	return m.Digests
+}
+
+func saveMachineryManifest(target string, paths []string, digests map[string]string) error {
 	sort.Strings(paths)
-	m := machineryManifest{SchemaVersion: 1, Paths: paths, EngineVersion: Version}
+	m := machineryManifest{SchemaVersion: 1, Paths: paths, EngineVersion: Version, Digests: digests}
 	raw, err := json.MarshalIndent(m, "", "  ")
 	if err != nil {
 		return err
@@ -105,7 +130,9 @@ func saveMachineryManifest(target string, paths []string) error {
 // copy, matching the flag of the same name.
 func deliverMachinery(src fs.FS, target, locale string, force, noBackup bool, stderr io.Writer, log func(english, portuguese string, a ...any)) error {
 	deliveredBefore := loadMachineryManifest(target)
+	recordedDigest := loadMachineryDigests(target)
 	var deliveredNow []string
+	digestsNow := map[string]string{}
 
 	for _, root := range machineryRoots {
 		if _, err := fs.Stat(src, root); err != nil {
@@ -129,7 +156,12 @@ func deliverMachinery(src fs.FS, target, locale string, force, noBackup bool, st
 					return nil
 				}
 			}
-			return copyFileWithBackup(src, machinerySource(src, path, locale), dst, filePerm(path), noBackup, stderr, target)
+			digest, err := deliverMachineryFile(src, machinerySource(src, path, locale), dst, filePerm(path), recordedDigest[path], noBackup, stderr, target)
+			if err != nil {
+				return err
+			}
+			digestsNow[path] = digest
+			return nil
 		})
 		if err != nil {
 			return fmt.Errorf("%s: %w", root, err)
@@ -139,7 +171,52 @@ func deliverMachinery(src fs.FS, target, locale string, force, noBackup bool, st
 		}
 	}
 
-	return saveMachineryManifest(target, deliveredNow)
+	return saveMachineryManifest(target, deliveredNow, digestsNow)
+}
+
+// deliverMachineryFile writes one machinery file and returns the digest of the
+// content it delivered.
+//
+// Identical content is a no-op. A file that still matches what POSE delivered
+// last time is refreshed without a backup: nobody edited it, so there is
+// nothing to keep. A file that differs from its recorded digest was edited by
+// the instance and is backed up as customized. With no recorded digest — a
+// manifest older than digests — a local edit cannot be ruled out, so it is
+// backed up, and the report says why rather than calling it customized.
+func deliverMachineryFile(src fs.FS, from, dst string, perm os.FileMode, recorded string, noBackup bool, stderr io.Writer, target string) (string, error) {
+	content, err := fs.ReadFile(src, from)
+	if err != nil {
+		return "", err
+	}
+	digest := contentDigest(content)
+	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+		return "", err
+	}
+	if existing, err := os.ReadFile(dst); err == nil {
+		if bytes.Equal(existing, content) {
+			return digest, nil
+		}
+		unedited := recorded != "" && contentDigest(existing) == recorded
+		if !unedited && !noBackup {
+			if err := os.WriteFile(dst+".pose-backup", existing, perm); err == nil {
+				rel, _ := filepath.Rel(target, dst)
+				if recorded != "" {
+					fmt.Fprintf(stderr, "[pose-install] backed up customized: %s → %s.pose-backup (changed since POSE delivered it)\n", rel, rel)
+				} else {
+					fmt.Fprintf(stderr, "[pose-install] backed up: %s → %s.pose-backup (no record of what POSE delivered, so a local edit cannot be ruled out)\n", rel, rel)
+				}
+			}
+		}
+	}
+	if err := os.WriteFile(dst, content, perm); err != nil {
+		return "", err
+	}
+	return digest, nil
+}
+
+func contentDigest(content []byte) string {
+	sum := sha256.Sum256(content)
+	return "sha256:" + hex.EncodeToString(sum[:])
 }
 
 // machinerySource returns the distribution path to deliver for a canonical

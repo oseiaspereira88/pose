@@ -1,0 +1,18 @@
+---
+spec: pose-machinery-backs-up-only-local-edits
+category: fixed
+breaking: false
+refs:
+---
+
+`pose update` backs up only the machinery files an instance edited. It backed
+up every rule, workflow, template or skill a release changed and reported each
+as "backed up customized", because the delivery manifest recorded which paths
+it had delivered but not what — so a release's own changes read as local edits
+being thrown away. The manifest now records the digest of each file delivered;
+a file still matching it is refreshed quietly, and a file edited since is backed
+up as before.
+
+The first update on an instance whose manifest predates digests still backs up
+changed files, saying that a local edit could not be ruled out, and records the
+digests that make the next update exact.
