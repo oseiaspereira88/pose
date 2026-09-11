@@ -489,6 +489,10 @@
       "to": "pose-followup-ownership-sla"
     },
     {
+      "from": "pose-release-archival-attested-by-the-ledger",
+      "to": "pose-release-cycle-debt-closure"
+    },
+    {
       "from": "pose-release-boundary-rehearsal",
       "to": "pose-self-update-handoff-path"
     },
@@ -1745,6 +1749,14 @@
       "path": ".pose/specs/2026-07-18-pose-recurrence-effectiveness.md",
       "priority": 13,
       "status": "done"
+    },
+    "pose-release-archival-attested-by-the-ledger": {
+      "depends_on": [
+        "pose-release-cycle-debt-closure"
+      ],
+      "path": ".pose/specs/2026-09-11-pose-release-archival-attested-by-the-ledger.md",
+      "priority": 0,
+      "status": "in-progress"
     },
     "pose-release-boundary-rehearsal": {
       "depends_on": [
