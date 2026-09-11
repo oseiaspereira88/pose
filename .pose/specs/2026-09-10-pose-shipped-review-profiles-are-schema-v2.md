@@ -160,4 +160,4 @@ longer reports a copy that migrates nothing.
 
 ### Follow-ups
 
-- [open] Report an instance profile still at schema v1 as a `pose doctor` finding, so an instance that has not run an update since the fix is visible rather than waiting to be noticed — owner:unowned crit:low review:2027-01-10
+- [open] Report an instance profile still at schema v1 as a `pose doctor` finding, so an instance that has not run an update since the fix is visible rather than waiting to be noticed (owner:unowned crit:low review:2027-01-10)

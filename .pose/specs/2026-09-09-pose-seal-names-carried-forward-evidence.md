@@ -151,4 +151,4 @@ there being nothing to say.
 
 ### Follow-ups
 
-- [open] Carry the carried-forward warning into review verify, so it is visible when reading an attestation rather than only when sealing — owner:unowned crit:low review:2027-01-09
+- [open] Carry the carried-forward warning into review verify, so it is visible when reading an attestation rather than only when sealing (owner:unowned crit:low review:2027-01-09)

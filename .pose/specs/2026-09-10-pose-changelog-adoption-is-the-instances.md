@@ -158,4 +158,4 @@ day this repository did.
 
 ### Follow-ups
 
-- [open] Report a changelog adoption date earlier than the instance's own first spec, so an instance that inherited this repository's date before the fix can see that it is gating by a date that is not its own — owner:unowned crit:low review:2027-03-10
+- [open] Report a changelog adoption date earlier than the instance's own first spec, so an instance that inherited this repository's date before the fix can see that it is gating by a date that is not its own (owner:unowned crit:low review:2027-03-10)

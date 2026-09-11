@@ -252,4 +252,4 @@ test of the function would pass even if nothing called it.
 
 ### Follow-ups
 
-- [done] Collapse the four dated adoption markers into one contract-adoption mechanism. Delivered by `pose-contract-adoption-registry`: `ReviewContracts()` is the one mechanism, and adding a contract there is what makes `pose update` stamp it and `pose doctor` report it. The legacy top-level fields stay on disk on purpose — `stampContractAdoption` prefers them so an engine predating the registry can still read the policy — which is a compatibility encoding, not a second mechanism. — owner:unowned crit:high review:2026-11-08
+- [done] Collapse the four dated adoption markers into one contract-adoption mechanism. Delivered by `pose-contract-adoption-registry`: `ReviewContracts()` is the one mechanism, and adding a contract there is what makes `pose update` stamp it and `pose doctor` report it. The legacy top-level fields stay on disk on purpose — `stampContractAdoption` prefers them so an engine predating the registry can still read the policy — which is a compatibility encoding, not a second mechanism. (owner:unowned crit:high review:2026-11-08)

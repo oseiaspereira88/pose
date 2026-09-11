@@ -224,4 +224,4 @@ accident.
 
 ### Follow-ups
 
-- [done] Decide the fate of pose review auto-attest, which fabricates evidence for criteria whose classes have no producer. Decided: it stays and refuses. `AutoAttestReviewBundle` no longer invents a reference for either criteria or tools — where the scope carries validation evidence it errors and names what to run, and where it does not it records not-applicable with the reason. The fabrication the question was about is gone. — owner:unowned crit:high review:2026-10-08
+- [done] Decide the fate of pose review auto-attest, which fabricates evidence for criteria whose classes have no producer. Decided: it stays and refuses. `AutoAttestReviewBundle` no longer invents a reference for either criteria or tools — where the scope carries validation evidence it errors and names what to run, and where it does not it records not-applicable with the reason. The fabrication the question was about is gone. (owner:unowned crit:high review:2026-10-08)

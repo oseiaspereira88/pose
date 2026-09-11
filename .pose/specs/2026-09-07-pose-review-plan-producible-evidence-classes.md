@@ -184,5 +184,5 @@ outside `ValidEvidenceClasses` — and prove the assertion fails without the fix
 
 ### Follow-ups
 
-- [done] Apply the same producible filter to criterion evidence classes so auto-attest stops inventing refs. Delivered by `pose-one-evidence-class-vocabulary` and the auto-attest specs after it, not by a filter: validateReviewContractRefs holds a schema-v2 criterion's classes to ValidEvidenceClasses, so `evidence class "validation" ... is not one a registered check may emit` refuses the profile at load, and both halves of auto-attest now refuse rather than invent a ref. Verified against the engine, not read. — owner:unowned crit:medium review:2026-12-07
-- [open] Derive tool evidence classes from the module's registered checks once the planner can reach the matrix — owner:unowned crit:low review:2026-12-07
+- [done] Apply the same producible filter to criterion evidence classes so auto-attest stops inventing refs. Delivered by `pose-one-evidence-class-vocabulary` and the auto-attest specs after it, not by a filter: validateReviewContractRefs holds a schema-v2 criterion's classes to ValidEvidenceClasses, so `evidence class "validation" ... is not one a registered check may emit` refuses the profile at load, and both halves of auto-attest now refuse rather than invent a ref. Verified against the engine, not read. (owner:unowned crit:medium review:2026-12-07)
+- [open] Derive tool evidence classes from the module's registered checks once the planner can reach the matrix (owner:unowned crit:low review:2026-12-07)

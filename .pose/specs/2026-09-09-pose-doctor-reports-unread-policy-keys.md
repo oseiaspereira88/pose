@@ -159,4 +159,4 @@ the key list is derived rather than restated.
 
 ### Follow-ups
 
-- [done] Extend the unread-key finding to the delivery, artifact and capability policies, which have the same silent-default exposure. Done in `pose-policy-keys-and-release-surface-coverage`, and to docs, release and state as well — seven policies, keys derived from the structs, with a check that fails if a shipped policy is neither held to its keys nor exempted in writing. — owner:unowned crit:medium review:2026-12-09
+- [done] Extend the unread-key finding to the delivery, artifact and capability policies, which have the same silent-default exposure. Done in `pose-policy-keys-and-release-surface-coverage`, and to docs, release and state as well — seven policies, keys derived from the structs, with a check that fails if a shipped policy is neither held to its keys nor exempted in writing. (owner:unowned crit:medium review:2026-12-09)

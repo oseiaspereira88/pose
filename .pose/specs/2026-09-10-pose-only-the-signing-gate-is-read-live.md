@@ -151,4 +151,4 @@ The single deliberate exception to sealing is enforced rather than remembered.
 
 ### Follow-ups
 
-- [open] Read the validator with the AST rather than a regular expression, so a policy field reached through a local variable is seen too — owner:unowned crit:low review:2027-03-10
+- [open] Read the validator with the AST rather than a regular expression, so a policy field reached through a local variable is seen too (owner:unowned crit:low review:2027-03-10)

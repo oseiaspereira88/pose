@@ -171,4 +171,4 @@ would remove it can now be designed against real cases.
 
 ### Follow-ups
 
-- [open] Revisit the declared-subtree contract once `inferred-coverage` has been observed in real repositories — the four approaches and why each was set aside are in the ADR amendment, and the missing input was how much anyone actually relies on the inference — owner:unowned crit:low review:2027-06-10
+- [open] Revisit the declared-subtree contract once `inferred-coverage` has been observed in real repositories — the four approaches and why each was set aside are in the ADR amendment, and the missing input was how much anyone actually relies on the inference (owner:unowned crit:low review:2027-06-10)

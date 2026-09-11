@@ -196,4 +196,4 @@ each refusal separately.
 
 ### Follow-ups
 
-- [open] Check that a finding named by a criterion is the one describing that criterion's problem, not merely a recorded id — owner:unowned crit:low review:2027-01-08
+- [open] Check that a finding named by a criterion is the one describing that criterion's problem, not merely a recorded id (owner:unowned crit:low review:2027-01-08)

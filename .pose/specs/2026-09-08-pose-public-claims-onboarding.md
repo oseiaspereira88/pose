@@ -225,4 +225,4 @@ against the previous behaviour.
 
 ### Follow-ups
 
-- [open] Have the template's version_claims modes derive from the contract schema so a new mode cannot be documented in only one place — owner:unowned crit:low review:2026-12-08
+- [open] Have the template's version_claims modes derive from the contract schema so a new mode cannot be documented in only one place (owner:unowned crit:low review:2026-12-08)
