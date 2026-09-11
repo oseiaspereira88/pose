@@ -71,7 +71,7 @@ upstream from `harne8-adopt-pose-v5-0-3`.
 
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-machinery-backs-up-only-local-edits.md
-- created: .pose/changelogs/unreleased/pose-machinery-backs-up-only-local-edits.md
+- renamed: .pose/changelogs/unreleased/pose-machinery-backs-up-only-local-edits.md -> .pose/changelogs/v5.0.4/pose-machinery-backs-up-only-local-edits.md
 - modified: pose-mcp/internal/cli/machinery.go
 - modified: pose-mcp/internal/cli/machinery_test.go
 - modified: docs-site/docs/cli.md
