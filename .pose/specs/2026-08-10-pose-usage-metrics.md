@@ -228,4 +228,4 @@ Automatic local usage analytics for recognized CLI commands and authorized proje
 
 ### Follow-ups
 - [covered: pose-dora-five-metrics-v2] Migrate the DORA event/metric contract to production-scoped deployment rework rate and deployment-caused recovery semantics. (owner:@pose-maintainers crit:high review:2026-09-10)
-- [open] Add explicit human confirmation of observed findings as `valid`, `wont-fix` or `false-positive`, preserving automatic observation counts separately from adjudicated outcomes. (owner:@pose-maintainers crit:medium review:2026-09-10)
+- [spawned: pose-usage-findings-adjudication] Add explicit human confirmation of observed findings as `valid`, `wont-fix` or `false-positive`, preserving automatic observation counts separately from adjudicated outcomes. (owner:@pose-maintainers crit:medium review:2026-09-10)
