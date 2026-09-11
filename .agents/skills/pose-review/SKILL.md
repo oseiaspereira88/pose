@@ -29,7 +29,7 @@ capabilities: read
 10. Run `pose recurrence-check --tolerant --window-days 14`; use recurrence escalation for a matching systemic signal.
 11. Create a handoff with `pose new-knowledge handoff <slug>` for accepted residual risk, monitoring, or deferred action.
 12. Seal the review subject with `pose review bundle <scope> --seal`.
-13. Attest the bundle automatically using `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` (or `pose review attest` with explicit findings when requesting changes).
+13. Attest the bundle automatically using `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` (or `pose review attest` with explicit findings when requesting changes). An explicit attestation records `--criterion ID|passed|evidence` (or `not-applicable` with a rationale, or `finding` naming a recorded finding) and `--finding ID|severity|disposition|action|evidence[|owner|rationale|review-by]`; every finding needs a severity and an action, and an `accepted-risk` finding also needs an owner, a rationale and a review date. A `passed` criterion may cite only evidence the sealed bundle contains, of a class the criterion accepts.
 14. Run `pose review verify <scope>` and `pose review-check <scope>`; close only when both confirm a valid, approved attestation.
 15. Decide: approved, approved with reservations, changes requested, or rejected.
 16. When Contributor Mode is active, if review uncovers POSE linter false-positives, diagnostic frictions, or rule gaps, stage an improvement proposal with `pose contribute stage --type enhancement --title "<summary>"`.

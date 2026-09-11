@@ -19,6 +19,11 @@ módulo, seções de "estado atual" em specs/PROPOSTA, ou mensagens de "X comple
 - Separe artifact declarado, mudança Git observada e composição verificada.
 - Para delivery targets, exija path até entrypoint de produção e resultado atual:
   surfaces usam reachability + integration/e2e; capabilities usam integration.
+- Evidência responde pelo componente em que rodou ou por um componente dentro
+  dele: uma execução no módulo inteiro cobre sua subárvore, mas um resultado de
+  um diretório dentro de um componente não responde pelo componente inteiro.
+  Cobertura que depende apenas de um módulo que contém o alvo é reportada como
+  `inferred-coverage` — nomeie-a assim.
 
 ## Anti-padrões bloqueadores
 

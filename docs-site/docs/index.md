@@ -1,6 +1,6 @@
 # POSE
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 **Spec-Driven Development for governed agentic software delivery.**
 
@@ -26,10 +26,11 @@ those changes are ready, valid, reachable and complete.
 |---|---|
 | **Executable repository contract** | `AGENTS.md`, workflows, cumulative rules and task-aware skills travel with the code instead of living only in prompts or a hosted board. |
 | **Entry and exit gates** | Definition of Ready blocks under-specified work; closeout requires completion metadata, requirement evidence and explicit follow-up disposition. |
-| **Deterministic proof** | Module-aware test/lint/typecheck/build checks emit one canonical result as text, JSON, JUnit or SARIF. |
-| **Convergent technical review** | Component-aware plans select the relevant criteria and tools; a sealed semantic/source bundle is approved by a separate append-only attestation. |
+| **Deterministic proof** | Module-aware test/lint/typecheck/build checks emit one canonical result as text, JSON, JUnit or SARIF, each tagged with an evidence class from one closed vocabulary that review profiles share. |
+| **Convergent technical review** | Component-aware plans select the relevant criteria and tools; a sealed semantic/source bundle — which also seals the contracts and gates that judge it — is approved by a separate append-only attestation that may cite only evidence the bundle contains. |
 | **Composition assurance** | Artifact and surface gates distinguish “a file exists” from “the capability is reachable through a production entrypoint with current evidence.” |
 | **Operational learning** | Follow-ups, recurrence effectiveness and expiring knowledge keep residual work and reusable context alive without turning every note into permanent policy. |
+| **Self-diagnosis** | `pose doctor` names governance that would otherwise fail only downstream: a criterion no check can satisfy, a profile left below the enforced schema, a policy key the engine silently ignores. |
 | **Verifiable distribution** | The native binary ships with checksums, keyless Sigstore signatures, CycloneDX SBOMs, SLSA provenance and independent rebuild verification. |
 
 ## One engine, three interfaces
@@ -67,7 +68,7 @@ curl -fsSLO https://github.com/oseiaspereira88/pose/releases/latest/download/ins
 For a pinned, checksum- and Sigstore-verified installation, use the
 [Quickstart](quickstart.md#verified-install).
 
-1. Follow the [Quickstart](quickstart.md) to install v1 and close a first loop.
+1. Follow the [Quickstart](quickstart.md) to install the latest release and close a first loop.
 2. Read [Concepts](concepts.md) for lifecycle, evidence and knowledge semantics.
 3. Use the [CLI reference](cli.md) or [MCP reference](mcp.md) for exact surfaces.
 4. Review the [technical architecture](architecture.md) and the evidence-based

@@ -1,6 +1,6 @@
 # Concepts
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 ## The closed loop
 
@@ -35,8 +35,10 @@ draft ──(DoR gate)──► in-progress ──(closeout gate)──► done
 ```
 
 - **Entry (Definition of Ready):** Intent/Requirements/Technical Plan filled,
-  acceptance criteria with stable IDs (`- R<N>:`). `pose check` enforces it
-  automatically on the `→ in-progress` transition.
+  acceptance criteria with stable IDs (`- R<N>:`). The gate is opt-in: it
+  applies to specs created on or after `adopted_at` in `.pose/policy/dor.json`,
+  which ships empty. Once set, `pose check` enforces it on the `→ in-progress`
+  transition, and `taskTypes` names the sections each kind of spec must fill.
 - **Exit (closeout):** `completed_at` stamped and every follow-up
   dispositioned — `[open]`, `[spawned: slug]`, `[covered: slug]`,
   `[duplicate: slug]`, `[done]`, `[wont-do: reason]`. For
@@ -66,7 +68,13 @@ exclusively (one active roadmap per spec).
 `.pose/indexes/validation-matrix.json` declares checks per stack (Node.js, Go,
 Rust, Java, Python and .NET) with per-module overrides and two severities:
 `required` failures block; `optional` failures inform. Modes `strict`/`tolerant`
-decide whether structural warnings block. `--changed-from/--changed-to` selects
+decide whether structural warnings block. Each check declares the
+`evidenceClass` it produces, from one closed vocabulary shared with review
+profiles: `build`, `unit`, `integration`, `e2e`, `reachability`, `a11y`,
+`design-system`, `contrast`, `visual-regression`, `lint`, `typecheck`,
+`security-scan` and `contract`. A profile cannot demand a class no check may
+emit, and a check with no class contributes nothing when a review collects
+evidence — `pose doctor` reports both. `--changed-from/--changed-to` selects
 the minimum safe check set from declared dependency edges and policy widening.
 Per-check timeout/output-ceiling guardrails and an `isolation: "required"`
 classification route untrusted execution to the Harness instead of running
@@ -78,8 +86,12 @@ locally. `pose init --wizard` seeds modules from a repository scan.
 results, immutable review bundles and separate attestations, follow-up
 dispositions and Git history. The review bundle hashes semantic/source inputs
 without hashing the attestation or closeout bookkeeping that follows, so the
-approval cannot invalidate its own subject. It answers “why was this change
-accepted?”
+approval cannot invalidate its own subject. It also seals the governance
+contracts in force and the gates that judge it, so an approval is never
+re-judged by a policy edited afterwards. An attestation may only cite evidence
+the bundle contains, of a class the criterion accepts, from the component the
+criterion is about — see [the CLI reference](cli.md#what-an-attestation-has-to-show).
+It answers “why was this change accepted?”
 
 **Delivery composition evidence** proves that an implementation claim reaches
 a production entrypoint. `artifact-check` reconciles declared files against an

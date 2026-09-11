@@ -1,6 +1,6 @@
 # Package-manager channels
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 Every channel below installs the exact same signed release artifact used by
 the [verified install contract](quickstart.md#install) — no channel ever

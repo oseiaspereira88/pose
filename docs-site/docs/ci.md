@@ -1,6 +1,6 @@
 # CI integration
 
-**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** How-to &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 ## GitHub Action
 
@@ -41,6 +41,30 @@ receive staged filenames. Run one manually with
 `pre-commit run pose-check --hook-stage manual --all-files`. Skip a single
 hook temporarily with `SKIP=pose-history-check git commit ...`; CI remains the
 delivery authority and should not skip required gates.
+
+## Give CI the full history
+
+POSE attributes a spec's declared artifacts to the commits that carry its
+`POSE-Spec: <slug>` trailer, and those commits can sit dozens of commits back.
+A shallow clone shows the gate one commit: it finds no attribution and fails
+every spec that declares artifacts, reporting a governance defect that does not
+exist. Check out full history in any job that runs `pose check --strict`,
+`pose artifact-check` or a review closeout:
+
+```yaml
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+```
+
+## Record the validation run
+
+`pose validate --strict --report` runs the matrix and writes
+`.pose/reports/<date>-standard-validate-native.md` plus an append-only entry in
+`.pose/reports/history/`. The report lists the commands the run executed and
+its result, and derives its outcome from them. Publish it as a build artifact,
+or commit it with the change: `pose history-check` fails while a history file has
+changes that are not committed.
 
 ## Recommended rollout
 

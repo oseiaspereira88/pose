@@ -1,6 +1,6 @@
 # Capability assessment
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 1.x (current stable)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
 
 **Assessment date:** 2026-08-17
 **Scope:** POSE open-source distribution  
@@ -34,6 +34,29 @@ only to improve a score. Compare each mechanism with the strongest relevant
 practice while preserving POSE's boundary.
 
 ## Executive result
+
+!!! note "Since this narrative sync"
+
+    The narrative below was synced against `v1.4.3`; the scores in the matrix
+    are current and match `.pose/capabilities/assessment.md`. Releases
+    `v1.5.0` through `v5.0.2` changed how several mechanisms work without
+    changing a score:
+
+    - **Evidence and review:** one closed evidence vocabulary shared by checks
+      and review profiles, now including `lint`, `typecheck`, `security-scan`
+      and `contract`; sealed bundles that carry the governance contracts and
+      gates that judge them; attestations that may only cite evidence the
+      bundle contains, of an accepted class, from the right component; and the
+      finding contract on the bundle path.
+    - **Diagnostics:** `pose doctor` reports demanded classes no check emits or
+      produces, profiles below the enforced schema, contracts without an
+      adoption date, and unread keys across nine policies.
+    - **Release:** notes announce any governance contract a release introduces.
+    - **MCP:** `mcp-agent-interop` was reassessed on 2026-09-11 after a server
+      that outlived `pose update`, and a stdio server that ignored SIGTERM, were
+      both fixed; the score holds at 5.
+
+    The repository now carries 10 completed roadmaps and 139 completed specs.
 
 Since the previous narrative sync (2026-08-14, against the v1.2.0 release
 contract), the repository shipped four consecutive real releases — v1.4.0

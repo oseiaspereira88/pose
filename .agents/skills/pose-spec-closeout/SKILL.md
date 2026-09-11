@@ -13,7 +13,7 @@ Close a spec lifecycle and triage every follow-up without silently losing intent
 
 ## Required reading
 
-1. The spec under `.pose/specs/<slug>.md` or `.pose/specs/<slug>/spec.md`.
+1. The spec — `.pose/specs/YYYY-MM-DD-<slug>.md` by default, or `YYYY-MM-DD-<slug>/spec.md` and `<slug>/spec.md` in folder layouts.
 2. [`.pose/templates/spec.md`](../../../.pose/templates/spec.md).
 3. [AGENTS.md](../../../AGENTS.md).
 
