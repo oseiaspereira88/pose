@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -56,6 +57,14 @@ var reportValueFlags = map[string]bool{
 }
 
 func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
+	return runReport(root, args, nil, stdout, stderr)
+}
+
+// runReport is cmdReport with the validation output supplied by the caller.
+// When validationLog is non-nil it is the output of the run being recorded —
+// `pose validate --report` passes its own — and takes the place of reading one
+// from --validate-output or the default log paths.
+func runReport(root string, args []string, validationLog []byte, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	values := map[string]string{"type": "standard", "outcome": "", "context": "not-provided", "validation-profile": "not-provided"}
 	gitStage := false
@@ -104,7 +113,7 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		validateOutput = clean
 	}
-	if validateOutput == "" {
+	if validateOutput == "" && validationLog == nil {
 		for _, candidate := range []string{filepath.Join(root, ".pose", "reports", "pose-validate.latest.log"), filepath.Join(root, ".pose", "pose-validate.log")} {
 			if _, err := os.Stat(candidate); err == nil {
 				validateOutput = candidate
@@ -113,6 +122,9 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	validationCommands, validationResults, derivedOutcome := parseValidationLog(validateOutput)
+	if validationLog != nil {
+		validationCommands, validationResults, derivedOutcome = parseValidationLines(validationLog)
+	}
 	if outcome == "" && derivedOutcome != "" {
 		outcome, outcomeSource = derivedOutcome, "derived"
 	}
@@ -226,12 +238,18 @@ func parseValidationLog(path string) ([]string, []string, string) {
 	if path == "" {
 		return commands, results, outcome
 	}
-	file, err := os.Open(path)
+	raw, err := os.ReadFile(path)
 	if err != nil {
 		return commands, results, outcome
 	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+	return parseValidationLines(raw)
+}
+
+// parseValidationLines reads validation output in the shape `pose validate`
+// prints: "  -> <command>" per check, and a final Result line.
+func parseValidationLines(raw []byte) ([]string, []string, string) {
+	commands, results, outcome := []string{}, []string{}, ""
+	scanner := bufio.NewScanner(bytes.NewReader(raw))
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "  -> ") {
