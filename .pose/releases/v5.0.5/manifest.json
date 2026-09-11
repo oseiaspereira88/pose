@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v5.0.5",
+  "previous_version": "v5.0.4",
+  "prepared_at": "2026-09-11T18:11:48Z",
+  "specs": [
+    "pose-manual-merge-backs-up-only-local-edits"
+  ],
+  "categories": {
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-manual-merge-backs-up-only-local-edits",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The POSE.md/AGENTS.md merge backs up only what an instance edited. It counted\nany line of the local manual missing from the merged result as lost, so every\nrelease that reworded one of its own sections backed the manual up with\n\"content outside instance-owned sections was not preserved\" — the same false\npositive 5.0.4 removed from machinery delivery. The delivery manifest now\nrecords what POSE wrote to each section; a section still matching it is simply\nreplaced, and a note the instance wrote inside an engine-owned section is still\nbacked up. A manual with no record yet is backed up once, saying why, and\nrecorded.",
+      "path": "pose-manual-merge-backs-up-only-local-edits.md",
+      "digest": "sha256:7887391e534f9f7768c9b65482551c757444d25046843f1ddd9c1e9c7e963bf5"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:6763656f425b16ad8f8706753d2f4a58009a0481fa708d2cc19c1fd9f9cf5980",
+  "release_input_digest": "sha256:e4a31ba3584bbc224d701decd7288a77653ca6322501a7b8594433a6de4aec09",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v5.0.5"
+  }
+}

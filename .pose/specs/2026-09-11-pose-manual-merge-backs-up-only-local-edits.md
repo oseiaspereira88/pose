@@ -75,7 +75,7 @@ machinery, one path over. Reported upstream by `harne8-adopt-pose-v5-0-4`.
 
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-manual-merge-backs-up-only-local-edits.md
-- created: .pose/changelogs/unreleased/pose-manual-merge-backs-up-only-local-edits.md
+- renamed: .pose/changelogs/unreleased/pose-manual-merge-backs-up-only-local-edits.md -> .pose/changelogs/v5.0.5/pose-manual-merge-backs-up-only-local-edits.md
 - modified: pose-mcp/internal/cli/managed_docs.go
 - modified: pose-mcp/internal/cli/managed_docs_test.go
 - modified: pose-mcp/internal/cli/install.go

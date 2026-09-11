@@ -14,7 +14,17 @@
 - _Not provided_
 
 ## Files Changed
-- pose/indexes/delivery-integrity.json
+- pose/changelogs/unreleased/pose-manual-merge-backs-up-only-local-edits.md
+- .pose/specs/2026-09-11-pose-manual-merge-backs-up-only-local-edits.md
+- README.md
+- README.pt-BR.md
+- compatibility.json
+- docs-site/docs/ci.md
+- pose-mcp/internal/version/version.go
+- pose-mcp/server.json
+- .pose/changelogs/v5.0.5.md
+- .pose/changelogs/v5.0.5/
+- .pose/releases/v5.0.5/
 
 ## Validation Commands
 - go build ./...
@@ -31,14 +41,14 @@
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-11T16:42:23Z
+- Generated at (UTC): 2026-09-11T18:12:58Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 117
+- Sequence for task/spec: 118
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-11T16:18:31Z
+- Previous execution: 2026-09-11T16:42:23Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
