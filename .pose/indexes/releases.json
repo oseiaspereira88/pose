@@ -1,47 +1,218 @@
 {
   "pending": [
     {
-      "spec": "pose-class-producers-reads-the-disjunction",
+      "spec": "pose-one-follow-up-format",
       "category": "fixed",
       "breaking": false,
-      "body": "`validate.class-producers` reports a review criterion none of whose accepted\nevidence classes is produced, instead of reporting each class on its own — and\nskips a profile whose language selector names nothing the repository has.\n\nBoth were false alarms, and both surfaced only by acting on the check's own\noutput. `evidence_classes` is a disjunction: the attestation cites one of them\nand the first match satisfies the criterion. Reporting classes individually named\n`e2e` while every criterion listing it also accepted `integration` or `unit` —\na true statement naming nothing to fix, which is how a check earns being ignored.\nAnd `a11y` was named for a profile selected by `languages: [javascript,\ntypescript]` in a repository that has none, so the criterion could never apply.\n\nNeither correction weakens it. The case it exists for still fires: a criterion\nwhose only accepted class lost its producer.\n\nOnly the language selector is evaluated, and only to skip — a profile selected by\ncomponent id or delivery kind is unaffected.",
-      "path": "pose-class-producers-reads-the-disjunction.md",
-      "digest": "sha256:12141e1f565ccefb49526d9454cfc8745708ad4f68ab43594262795748d4f876"
-    },
-    {
-      "spec": "pose-compat-gate-pose-md-preservation",
-      "category": "changed",
-      "breaking": false,
-      "body": "The release compatibility gate customizes POSE.md as well as AGENTS.md in its\nupgrade lab, and fails a supported upgrade that loses the customization.\n\nThe two manuals do not take the same path. A note appended to AGENTS.md stays in\nit; the same note appended to POSE.md is dropped from the manual on upgrade and\nkept in `POSE.md.pose-backup`. Only the first had ever been exercised against a\nreal prior release — the backup, the one thing that turns that removal into\nsomething other than a silent loss, had not.",
-      "path": "pose-compat-gate-pose-md-preservation.md",
-      "digest": "sha256:f7fbcdd8ad5048d898afa57f9e9419476cfc0c7b80ecc4a76c463784121dea41"
-    },
-    {
-      "spec": "pose-mcp-server-survives-self-update",
-      "category": "fixed",
-      "breaking": false,
-      "body": "A `pose serve-mcp` that was running when `pose update` replaced its binary can\nrun its CLI-backed tools again. It failed every one of them with\n`fork/exec …/pose.old: no such file or directory` until it was restarted — a\nmessage that reads as a missing binary, not as a server needing a restart.\n\nThe server found the CLI by calling `os.Executable()` on every call. `pose\nupdate` renames the running binary to `.old` and removes it once the new one is\nin place, and on Linux `os.Executable()` then names the removed file. It is the\ndefect v2.0.0 hit in the update handoff; the fix there stayed in the handoff,\nand the one caller that outlives an update kept resolving.\n\nThe path is now resolved once, when the process starts. After an update it holds\nthe updated engine, which is what a restarted server would run as well.\n`POSE_EXECUTABLE` still takes precedence.",
-      "path": "pose-mcp-server-survives-self-update.md",
-      "digest": "sha256:dbfb07c0f3c15fcc0d0e59ef035c46cf52205f1c6309daa13e37f2b94ac8707d"
-    },
-    {
-      "spec": "pose-parity-reads-the-cli-surface",
-      "category": "changed",
-      "breaking": false,
-      "body": "The locale parity checks learn what a pose command is from the CLI's own\ndispatch, read from its source.\n\nThe skill check kept a hand-written list of eight commands that take a\nsubcommand; the CLI has thirteen. `contribute` was missing, so a translation\nteaching `contribute submit` where the English skill teaches `contribute stage`\npassed — and `roadmap`, which is not a command, was on the list. The manual\ncheck recognised a command only when a manual listed it as an entry, so seven\ncommands AGENTS.md mentions only in prose had no signal.\n\nBoth failed quiet. No shipped skill or manual had drifted behind them.",
-      "path": "pose-parity-reads-the-cli-surface.md",
-      "digest": "sha256:7e5496d384a405b19cadd3efc70ee9bd66f8928bac6b40ccb119b110c3b9f636"
-    },
-    {
-      "spec": "pose-report-help-names-every-flag",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose report --help` names all sixteen flags `pose report` accepts. It named\nfour. Among the missing were `--validate-output`, which chooses the validation\nlog a report derives its outcome from and was documented nowhere, and\n`--change-from`/`--change-to`, which record a spec's immutable change set. The\nhelp also listed `--outcome` as `pass|fail|partial`; `skipped` and `unknown` are\naccepted too.\n\nA test now holds the help to the flags the parser accepts.",
-      "path": "pose-report-help-names-every-flag.md",
-      "digest": "sha256:776235d2e077556e066e9d128e1ffdcbd47b0f8947526038297580ea42a75fd0"
+      "body": "The spec template and the closeout skill show the one follow-up format POSE\nreads — `- [open] \u003ctext\u003e (owner:@alias crit:low|medium|high review:YYYY-MM-DD)`,\nthe group last, in parentheses — and `pose lint-spec` warns, in any spec\nstatus, when ownership is written anywhere else.\n\nWritten any other way, ownership is ignored: the item reads as unowned, with no\ncriticality and no review date, and never becomes overdue. The template showed\n`- [open] ` with no metadata at the one place an author writes a follow-up, and\nthe lint checked ownership only on done specs, so a wrong format could go\nunnoticed indefinitely — this repository had 27 open items that way.\n\nThe lint also reads a follow-up's continuation lines now, as `pose followups`\ndoes. It read only the first line, so a wrapped ownership group was owned for\none and \"unowned\" for the other.",
+      "path": "pose-one-follow-up-format.md",
+      "digest": "sha256:c04c7578d051fc22c9b90712658d05f6b38ee782c079912c602f33ba47096224"
     }
   ],
   "releases": [
+    {
+      "version": "v5.0.1",
+      "state": "verified",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v5.0.1",
+        "previous_version": "v5.0.0",
+        "prepared_at": "2026-09-10T22:06:32Z",
+        "specs": [
+          "pose-class-producers-reads-the-disjunction",
+          "pose-compat-gate-pose-md-preservation",
+          "pose-mcp-server-survives-self-update",
+          "pose-parity-reads-the-cli-surface",
+          "pose-report-help-names-every-flag"
+        ],
+        "categories": {
+          "changed": 2,
+          "fixed": 3
+        },
+        "fragments": [
+          {
+            "spec": "pose-class-producers-reads-the-disjunction",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`validate.class-producers` reports a review criterion none of whose accepted\nevidence classes is produced, instead of reporting each class on its own — and\nskips a profile whose language selector names nothing the repository has.\n\nBoth were false alarms, and both surfaced only by acting on the check's own\noutput. `evidence_classes` is a disjunction: the attestation cites one of them\nand the first match satisfies the criterion. Reporting classes individually named\n`e2e` while every criterion listing it also accepted `integration` or `unit` —\na true statement naming nothing to fix, which is how a check earns being ignored.\nAnd `a11y` was named for a profile selected by `languages: [javascript,\ntypescript]` in a repository that has none, so the criterion could never apply.\n\nNeither correction weakens it. The case it exists for still fires: a criterion\nwhose only accepted class lost its producer.\n\nOnly the language selector is evaluated, and only to skip — a profile selected by\ncomponent id or delivery kind is unaffected.",
+            "path": "pose-class-producers-reads-the-disjunction.md",
+            "digest": "sha256:12141e1f565ccefb49526d9454cfc8745708ad4f68ab43594262795748d4f876"
+          },
+          {
+            "spec": "pose-compat-gate-pose-md-preservation",
+            "category": "changed",
+            "breaking": false,
+            "body": "The release compatibility gate customizes POSE.md as well as AGENTS.md in its\nupgrade lab, and fails a supported upgrade that loses the customization.\n\nThe two manuals do not take the same path. A note appended to AGENTS.md stays in\nit; the same note appended to POSE.md is dropped from the manual on upgrade and\nkept in `POSE.md.pose-backup`. Only the first had ever been exercised against a\nreal prior release — the backup, the one thing that turns that removal into\nsomething other than a silent loss, had not.",
+            "path": "pose-compat-gate-pose-md-preservation.md",
+            "digest": "sha256:f7fbcdd8ad5048d898afa57f9e9419476cfc0c7b80ecc4a76c463784121dea41"
+          },
+          {
+            "spec": "pose-mcp-server-survives-self-update",
+            "category": "fixed",
+            "breaking": false,
+            "body": "A `pose serve-mcp` that was running when `pose update` replaced its binary can\nrun its CLI-backed tools again. It failed every one of them with\n`fork/exec …/pose.old: no such file or directory` until it was restarted — a\nmessage that reads as a missing binary, not as a server needing a restart.\n\nThe server found the CLI by calling `os.Executable()` on every call. `pose\nupdate` renames the running binary to `.old` and removes it once the new one is\nin place, and on Linux `os.Executable()` then names the removed file. It is the\ndefect v2.0.0 hit in the update handoff; the fix there stayed in the handoff,\nand the one caller that outlives an update kept resolving.\n\nThe path is now resolved once, when the process starts. After an update it holds\nthe updated engine, which is what a restarted server would run as well.\n`POSE_EXECUTABLE` still takes precedence.",
+            "path": "pose-mcp-server-survives-self-update.md",
+            "digest": "sha256:dbfb07c0f3c15fcc0d0e59ef035c46cf52205f1c6309daa13e37f2b94ac8707d"
+          },
+          {
+            "spec": "pose-parity-reads-the-cli-surface",
+            "category": "changed",
+            "breaking": false,
+            "body": "The locale parity checks learn what a pose command is from the CLI's own\ndispatch, read from its source.\n\nThe skill check kept a hand-written list of eight commands that take a\nsubcommand; the CLI has thirteen. `contribute` was missing, so a translation\nteaching `contribute submit` where the English skill teaches `contribute stage`\npassed — and `roadmap`, which is not a command, was on the list. The manual\ncheck recognised a command only when a manual listed it as an entry, so seven\ncommands AGENTS.md mentions only in prose had no signal.\n\nBoth failed quiet. No shipped skill or manual had drifted behind them.",
+            "path": "pose-parity-reads-the-cli-surface.md",
+            "digest": "sha256:7e5496d384a405b19cadd3efc70ee9bd66f8928bac6b40ccb119b110c3b9f636"
+          },
+          {
+            "spec": "pose-report-help-names-every-flag",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose report --help` names all sixteen flags `pose report` accepts. It named\nfour. Among the missing were `--validate-output`, which chooses the validation\nlog a report derives its outcome from and was documented nowhere, and\n`--change-from`/`--change-to`, which record a spec's immutable change set. The\nhelp also listed `--outcome` as `pass|fail|partial`; `skipped` and `unknown` are\naccepted too.\n\nA test now holds the help to the flags the parser accepts.",
+            "path": "pose-report-help-names-every-flag.md",
+            "digest": "sha256:776235d2e077556e066e9d128e1ffdcbd47b0f8947526038297580ea42a75fd0"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:1694d54eb18a64021505af23a9a71c041ae792ae5ed30041a42a6a82ba4da0d6",
+        "release_input_digest": "sha256:55557dbcc01e7cd09e6f4e8c16ae1c7ad30b58b1373a427d6771b8ddc663da2f",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v5.0.1"
+        }
+      },
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v5.0.1",
+          "state": "tagged",
+          "recorded_at": "2026-09-10T22:36:31Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v5.0.1",
+            "tag": "v5.0.1",
+            "commit": "318fd82fe2760b6af5f1ef3f7f5905a3f8210985",
+            "published_at": "",
+            "url": "",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34537541763"
+          },
+          "evidence_digest": "sha256:9d0b57947d16dd340b971ebfefdd940e38d180d2adcbc7db5883a2186227ddf9"
+        },
+        {
+          "schema_version": 1,
+          "version": "v5.0.1",
+          "state": "published",
+          "recorded_at": "2026-09-10T22:36:31Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v5.0.1",
+            "tag": "v5.0.1",
+            "commit": "318fd82fe2760b6af5f1ef3f7f5905a3f8210985",
+            "published_at": "2026-09-10T22:34:05Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v5.0.1",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34537541763",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:dd6db49a5460c612e1db4f70ffd78a702909fa68f85f6308f6a35f1da3e5c5b8",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:f624dc88fe5a662dbba770e456b7c612b73445ef72c7df2eae12f74e426f2537",
+              "Harne8.Pose.yaml": "sha256:4c013fe9810f584498d773afb7d46161eb9bd4c3e658d8a229c4722568d0d280",
+              "checksums.txt": "sha256:1c530716970ce7e206adf10c175c8b33991729fce5258f346f2dbaa62f23b465",
+              "checksums.txt.sigstore.json": "sha256:7d1c6a9c036581a56e10d8a72621093afb3f5992b7545c7daba26c07b98cd292",
+              "compatibility-report.md": "sha256:e784d574752f9c184dbf2573cda9fa0c1da1e9b42a82c7d676f45247d3cf076f",
+              "compatibility.json": "sha256:5bfc90ccdf3715bcd18b425ea661709c96b30ec6dd34b929cf22d4f94eb54d9c",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:84bbc3709c54c4f0c2ed102cae0e2067206bf528e67518b0a1e07ac48db2bc77",
+              "pose-rule-kubernetes.tar.gz": "sha256:3fb1905ab9fea0645fb2c6f79b1a957706783da90f89b9ebb92e6065d772b76c",
+              "pose.rb": "sha256:a0057ac9fe6a8e3e45fd3bbaf8b31e0d5bed529af74c55a2d11a175ac82fab11",
+              "pose_5.0.1_darwin_amd64.tar.gz": "sha256:bc95422da4017d9302b3b92010b34add3321d342597ecbcf864f875a02576bd8",
+              "pose_5.0.1_darwin_amd64.tar.gz.cdx.json": "sha256:76aadf07c610f6d40524784d57ff9a572f01e803f89c6cc3f88162d7ed88d4b0",
+              "pose_5.0.1_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:c229070f197c7f4443ce95d056be3946b9b9f44e7fe37bcb7edee9de43725e1f",
+              "pose_5.0.1_darwin_amd64.tar.gz.sigstore.json": "sha256:ed4349bcddbb1c1d5b6806bb973210896b20afd5d5abe0580fc01385aff69ee7",
+              "pose_5.0.1_darwin_arm64.tar.gz": "sha256:3a4076ef08960a769563f039ff6c3e7cdbebf6204293f1a61da7d48194a03ce6",
+              "pose_5.0.1_darwin_arm64.tar.gz.cdx.json": "sha256:ee3f43dfd20915f40ada0e45f540ddaa34961fda8895202f83814db3c0de1956",
+              "pose_5.0.1_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:b62ab663bf7f84b1273fc83ec971566136a9511b34200ed82429d930bd584233",
+              "pose_5.0.1_darwin_arm64.tar.gz.sigstore.json": "sha256:4f4b4c35e7adae2086faf24e0d7997e5cf830f162229ebfdbabee34c33a9c194",
+              "pose_5.0.1_linux_amd64.tar.gz": "sha256:6ac67af8f6580e6d0d6be22c4f5b188ff4828f061f7bfce3c29dadff048f0866",
+              "pose_5.0.1_linux_amd64.tar.gz.cdx.json": "sha256:e9d74539a1396f0ac76b676ada97a841f6cd682320f1d80acde9d3d9f6e34fee",
+              "pose_5.0.1_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:4ad2364b5f5dadef50fcc5da6de752b34de0bafe6e05a6e0e0f9d16aa77291b8",
+              "pose_5.0.1_linux_amd64.tar.gz.sigstore.json": "sha256:44ba0458d3ff6f275644775ed88b0acf8695b75a41ed72598ee225c987f0b19f",
+              "pose_5.0.1_linux_arm64.tar.gz": "sha256:f331b076386cc6a7e48a141ab752358063d242ee0833850d39d2172f5ac0a2a5",
+              "pose_5.0.1_linux_arm64.tar.gz.cdx.json": "sha256:73cfd05b78e089539bf84ae83f9e4e563d36b8a3511f0b0b788a6a5d8209c8a4",
+              "pose_5.0.1_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:a94537b7af5def225764c5cc611ab1222aa6f3050f16c388496eabee52dfb54b",
+              "pose_5.0.1_linux_arm64.tar.gz.sigstore.json": "sha256:a0388907390d33aec3768bcfefd4998b023a791fecd0939794e8cffc90aee587",
+              "pose_5.0.1_windows_amd64.zip": "sha256:b3531b83916193d387d5e7e7843edd8a87355c0e6fb24fe0ba1d8dab6e967adf",
+              "pose_5.0.1_windows_amd64.zip.cdx.json": "sha256:5a6e1e32a306c89355d835bd01885b56d2199381c3c3c3f6ef75a2695e829842",
+              "pose_5.0.1_windows_amd64.zip.cdx.json.sigstore.json": "sha256:281ddbff3a797133a5a968ca8fe7e8348f8e7c11c29d1adebb23f2c2bc60997c",
+              "pose_5.0.1_windows_amd64.zip.sigstore.json": "sha256:a633bf67b7ff7d4a2f112fcdb1a76388eca2ea8dff33eed63f9aa2f9b488d789",
+              "pose_5.0.1_windows_arm64.zip": "sha256:baae2f8f50288604d4e4994172216035dd2005e0fcd761ce1b6c0f294d5d92c0",
+              "pose_5.0.1_windows_arm64.zip.cdx.json": "sha256:3b5cf1be8604cbadeaeacd37b08e435297959d3d1f958ab6703274daa4bc6a63",
+              "pose_5.0.1_windows_arm64.zip.cdx.json.sigstore.json": "sha256:00188cc58694e6974c6a2c48bac941c105dc5c670f6b9a6c97148750afef4fe5",
+              "pose_5.0.1_windows_arm64.zip.sigstore.json": "sha256:e9e4ae1d0681d7416d97863fe9531cd11184aa448eb4b20631127b27ff271a6a"
+            }
+          },
+          "evidence_digest": "sha256:673f22807b8f462ee4b33fd22eb9530128685a4437feef3f3d4b308be5cd6703"
+        },
+        {
+          "schema_version": 1,
+          "version": "v5.0.1",
+          "state": "verified",
+          "recorded_at": "2026-09-10T22:36:45Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v5.0.1",
+            "tag": "v5.0.1",
+            "commit": "318fd82fe2760b6af5f1ef3f7f5905a3f8210985",
+            "published_at": "2026-09-10T22:34:05Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v5.0.1",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34538089700",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:dd6db49a5460c612e1db4f70ffd78a702909fa68f85f6308f6a35f1da3e5c5b8",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:f624dc88fe5a662dbba770e456b7c612b73445ef72c7df2eae12f74e426f2537",
+              "Harne8.Pose.yaml": "sha256:4c013fe9810f584498d773afb7d46161eb9bd4c3e658d8a229c4722568d0d280",
+              "checksums.txt": "sha256:1c530716970ce7e206adf10c175c8b33991729fce5258f346f2dbaa62f23b465",
+              "checksums.txt.sigstore.json": "sha256:7d1c6a9c036581a56e10d8a72621093afb3f5992b7545c7daba26c07b98cd292",
+              "compatibility-report.md": "sha256:e784d574752f9c184dbf2573cda9fa0c1da1e9b42a82c7d676f45247d3cf076f",
+              "compatibility.json": "sha256:5bfc90ccdf3715bcd18b425ea661709c96b30ec6dd34b929cf22d4f94eb54d9c",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:84bbc3709c54c4f0c2ed102cae0e2067206bf528e67518b0a1e07ac48db2bc77",
+              "pose-rule-kubernetes.tar.gz": "sha256:3fb1905ab9fea0645fb2c6f79b1a957706783da90f89b9ebb92e6065d772b76c",
+              "pose.rb": "sha256:a0057ac9fe6a8e3e45fd3bbaf8b31e0d5bed529af74c55a2d11a175ac82fab11",
+              "pose_5.0.1_darwin_amd64.tar.gz": "sha256:bc95422da4017d9302b3b92010b34add3321d342597ecbcf864f875a02576bd8",
+              "pose_5.0.1_darwin_amd64.tar.gz.cdx.json": "sha256:76aadf07c610f6d40524784d57ff9a572f01e803f89c6cc3f88162d7ed88d4b0",
+              "pose_5.0.1_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:c229070f197c7f4443ce95d056be3946b9b9f44e7fe37bcb7edee9de43725e1f",
+              "pose_5.0.1_darwin_amd64.tar.gz.sigstore.json": "sha256:ed4349bcddbb1c1d5b6806bb973210896b20afd5d5abe0580fc01385aff69ee7",
+              "pose_5.0.1_darwin_arm64.tar.gz": "sha256:3a4076ef08960a769563f039ff6c3e7cdbebf6204293f1a61da7d48194a03ce6",
+              "pose_5.0.1_darwin_arm64.tar.gz.cdx.json": "sha256:ee3f43dfd20915f40ada0e45f540ddaa34961fda8895202f83814db3c0de1956",
+              "pose_5.0.1_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:b62ab663bf7f84b1273fc83ec971566136a9511b34200ed82429d930bd584233",
+              "pose_5.0.1_darwin_arm64.tar.gz.sigstore.json": "sha256:4f4b4c35e7adae2086faf24e0d7997e5cf830f162229ebfdbabee34c33a9c194",
+              "pose_5.0.1_linux_amd64.tar.gz": "sha256:6ac67af8f6580e6d0d6be22c4f5b188ff4828f061f7bfce3c29dadff048f0866",
+              "pose_5.0.1_linux_amd64.tar.gz.cdx.json": "sha256:e9d74539a1396f0ac76b676ada97a841f6cd682320f1d80acde9d3d9f6e34fee",
+              "pose_5.0.1_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:4ad2364b5f5dadef50fcc5da6de752b34de0bafe6e05a6e0e0f9d16aa77291b8",
+              "pose_5.0.1_linux_amd64.tar.gz.sigstore.json": "sha256:44ba0458d3ff6f275644775ed88b0acf8695b75a41ed72598ee225c987f0b19f",
+              "pose_5.0.1_linux_arm64.tar.gz": "sha256:f331b076386cc6a7e48a141ab752358063d242ee0833850d39d2172f5ac0a2a5",
+              "pose_5.0.1_linux_arm64.tar.gz.cdx.json": "sha256:73cfd05b78e089539bf84ae83f9e4e563d36b8a3511f0b0b788a6a5d8209c8a4",
+              "pose_5.0.1_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:a94537b7af5def225764c5cc611ab1222aa6f3050f16c388496eabee52dfb54b",
+              "pose_5.0.1_linux_arm64.tar.gz.sigstore.json": "sha256:a0388907390d33aec3768bcfefd4998b023a791fecd0939794e8cffc90aee587",
+              "pose_5.0.1_windows_amd64.zip": "sha256:b3531b83916193d387d5e7e7843edd8a87355c0e6fb24fe0ba1d8dab6e967adf",
+              "pose_5.0.1_windows_amd64.zip.cdx.json": "sha256:5a6e1e32a306c89355d835bd01885b56d2199381c3c3c3f6ef75a2695e829842",
+              "pose_5.0.1_windows_amd64.zip.cdx.json.sigstore.json": "sha256:281ddbff3a797133a5a968ca8fe7e8348f8e7c11c29d1adebb23f2c2bc60997c",
+              "pose_5.0.1_windows_amd64.zip.sigstore.json": "sha256:a633bf67b7ff7d4a2f112fcdb1a76388eca2ea8dff33eed63f9aa2f9b488d789",
+              "pose_5.0.1_windows_arm64.zip": "sha256:baae2f8f50288604d4e4994172216035dd2005e0fcd761ce1b6c0f294d5d92c0",
+              "pose_5.0.1_windows_arm64.zip.cdx.json": "sha256:3b5cf1be8604cbadeaeacd37b08e435297959d3d1f958ab6703274daa4bc6a63",
+              "pose_5.0.1_windows_arm64.zip.cdx.json.sigstore.json": "sha256:00188cc58694e6974c6a2c48bac941c105dc5c670f6b9a6c97148750afef4fe5",
+              "pose_5.0.1_windows_arm64.zip.sigstore.json": "sha256:e9e4ae1d0681d7416d97863fe9531cd11184aa448eb4b20631127b27ff271a6a"
+            },
+            "publication_digest": "sha256:673f22807b8f462ee4b33fd22eb9530128685a4437feef3f3d4b308be5cd6703"
+          },
+          "evidence_digest": "sha256:1b9465d65476401016e310c67d05dee573d61c38c50a526ec7b44b23d6c082a4"
+        }
+      ],
+      "gaps": []
+    },
     {
       "version": "v5.0.0",
       "state": "verified",
