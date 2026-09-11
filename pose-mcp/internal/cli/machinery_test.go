@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/harne8/pose-mcp/internal/scaffold"
 )
@@ -118,5 +119,87 @@ func TestDeliverMachineryHonoursTheInstanceLocale(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(target, ".pose", "workflows", "review.md.pose-backup")); err == nil {
 		t.Error("a localized instance must not back itself up on every upgrade")
+	}
+}
+
+// A release changes machinery the instance never touched. That file must be
+// refreshed quietly: backing it up and calling it "customized" made every
+// release read as if local edits were being discarded (spec
+// pose-machinery-backs-up-only-local-edits). A file the instance did edit
+// still gets its backup.
+func TestDeliverMachineryBacksUpOnlyWhatTheInstanceEdited(t *testing.T) {
+	target := t.TempDir()
+	var errB bytes.Buffer
+	older := fstest.MapFS{
+		".pose/rules/untouched.md": {Data: []byte("release one\n")},
+		".pose/rules/edited.md":    {Data: []byte("release one\n")},
+	}
+	if err := deliverMachinery(older, target, "", false, false, &errB, nil); err != nil {
+		t.Fatalf("first delivery: %v", err)
+	}
+	if loadMachineryDigests(target)[".pose/rules/untouched.md"] == "" {
+		t.Fatal("the manifest must record the digest of what was delivered")
+	}
+	edited := filepath.Join(target, ".pose", "rules", "edited.md")
+	if err := os.WriteFile(edited, []byte("an instance edit\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	newer := fstest.MapFS{
+		".pose/rules/untouched.md": {Data: []byte("release two\n")},
+		".pose/rules/edited.md":    {Data: []byte("release two\n")},
+	}
+	errB.Reset()
+	if err := deliverMachinery(newer, target, "", false, false, &errB, nil); err != nil {
+		t.Fatalf("second delivery: %v", err)
+	}
+	untouched := filepath.Join(target, ".pose", "rules", "untouched.md")
+	if got, _ := os.ReadFile(untouched); string(got) != "release two\n" {
+		t.Errorf("an untouched file must take the new release, got %q", got)
+	}
+	if _, err := os.Stat(untouched + ".pose-backup"); err == nil {
+		t.Error("an untouched file was backed up as if the instance had edited it")
+	}
+	if strings.Contains(errB.String(), "untouched.md") {
+		t.Errorf("an untouched file was reported: %q", errB.String())
+	}
+	backup, err := os.ReadFile(edited + ".pose-backup")
+	if err != nil || string(backup) != "an instance edit\n" {
+		t.Fatalf("an edited file must keep its edit as a backup, got %q (%v)", backup, err)
+	}
+	if !strings.Contains(errB.String(), "backed up customized: .pose/rules/edited.md") {
+		t.Errorf("the edited file must be reported as customized, got %q", errB.String())
+	}
+}
+
+// A manifest written before digests existed cannot tell an edit from an older
+// release, so the file is still backed up — and the report says that instead
+// of calling it customized. The delivery then records a digest, so the next
+// release needs no guess.
+func TestDeliverMachineryWithoutADigestSaysWhyItBacksUp(t *testing.T) {
+	target := t.TempDir()
+	rule := filepath.Join(target, ".pose", "rules", "rule.md")
+	if err := os.MkdirAll(filepath.Dir(rule), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(rule, []byte("an older release\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := saveMachineryManifest(target, []string{".pose/rules/rule.md"}, nil); err != nil {
+		t.Fatal(err)
+	}
+	var errB bytes.Buffer
+	dist := fstest.MapFS{".pose/rules/rule.md": {Data: []byte("this release\n")}}
+	if err := deliverMachinery(dist, target, "", false, false, &errB, nil); err != nil {
+		t.Fatalf("delivery: %v", err)
+	}
+	if _, err := os.Stat(rule + ".pose-backup"); err != nil {
+		t.Fatalf("with no digest a local edit cannot be ruled out, so a backup is kept: %v", err)
+	}
+	if !strings.Contains(errB.String(), "no record of what POSE delivered") || strings.Contains(errB.String(), "customized") {
+		t.Errorf("the report must say why it backed up, not claim a customization: %q", errB.String())
+	}
+	if loadMachineryDigests(target)[".pose/rules/rule.md"] == "" {
+		t.Error("the delivery must record a digest for the next release")
 	}
 }

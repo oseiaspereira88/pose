@@ -1,23 +1,191 @@
 {
   "pending": [
     {
-      "spec": "pose-docs-and-manuals-match-5-0-2",
-      "category": "changed",
-      "breaking": false,
-      "body": "The docs site, POSE.md, the spec template, the rules, the workflows and the\nskills describe 5.0.2. The site had not been revised since before v1.8.0: it now\ndocuments what a sealed review bundle fixes and what an attestation has to show,\nthe closed evidence vocabulary, every `pose doctor` diagnostic, `pose install`,\n`pose public-claims`, release Compatibility sections, and the MCP server's\nlifecycle, and gains an architecture mechanism for component-aware review.\n\nChecking each claim against the code also corrected errors: `pose update` has no\n`--schema-only` (it has `--no-self`) and merges POSE.md/AGENTS.md on every run;\n`pose new-spec` writes a dated flat file by default; `pose dora-metrics` takes\n`--window-days`; and the Definition of Ready is opt-in through\n`.pose/policy/dor.json`. The spec template gains `task_type`, which the\nDefinition of Ready reads.",
-      "path": "pose-docs-and-manuals-match-5-0-2.md",
-      "digest": "sha256:f7451fd093568147761cdc825922a4d0253ecdc10e31387508e6742e9dd09e4f"
-    },
-    {
-      "spec": "pose-help-names-flags-the-parser-accepts",
+      "spec": "pose-machinery-backs-up-only-local-edits",
       "category": "fixed",
       "breaking": false,
-      "body": "Five `--help` screens named flags their commands refuse. `pose update` offered\n`--schema-only` and omitted `--no-self` and `--locale`; `pose dora-metrics`\noffered `--app`, `--env` and `--since-days` for `--application`, `--environment`\nand `--window-days` (default 30 days, not 90); `pose adoption-metrics` offered\n`--since-days` and `pose state` offered `--json`, neither accepted; and\n`pose release record` showed `--provider-state` where the command takes\n`--event` and `--evidence`. Each help entry now matches the command.",
-      "path": "pose-help-names-flags-the-parser-accepts.md",
-      "digest": "sha256:7f3a22b2a559de4176cd79b0b74c6392ae1c019a9eae8d5ab2b4ccb0556ee746"
+      "body": "`pose update` backs up only the machinery files an instance edited. It backed\nup every rule, workflow, template or skill a release changed and reported each\nas \"backed up customized\", because the delivery manifest recorded which paths\nit had delivered but not what — so a release's own changes read as local edits\nbeing thrown away. The manifest now records the digest of each file delivered;\na file still matching it is refreshed quietly, and a file edited since is backed\nup as before.\n\nThe first update on an instance whose manifest predates digests still backs up\nchanged files, saying that a local edit could not be ruled out, and records the\ndigests that make the next update exact.",
+      "path": "pose-machinery-backs-up-only-local-edits.md",
+      "digest": "sha256:1662c13351b3e75cf5aee90a34dbd7fad99bb4268a95bc0f048f15ab3fcb67cf"
     }
   ],
   "releases": [
+    {
+      "version": "v5.0.3",
+      "state": "verified",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v5.0.3",
+        "previous_version": "v5.0.2",
+        "prepared_at": "2026-09-11T09:04:30Z",
+        "specs": [
+          "pose-docs-and-manuals-match-5-0-2",
+          "pose-help-names-flags-the-parser-accepts"
+        ],
+        "categories": {
+          "changed": 1,
+          "fixed": 1
+        },
+        "fragments": [
+          {
+            "spec": "pose-docs-and-manuals-match-5-0-2",
+            "category": "changed",
+            "breaking": false,
+            "body": "The docs site, POSE.md, the spec template, the rules, the workflows and the\nskills describe 5.0.2. The site had not been revised since before v1.8.0: it now\ndocuments what a sealed review bundle fixes and what an attestation has to show,\nthe closed evidence vocabulary, every `pose doctor` diagnostic, `pose install`,\n`pose public-claims`, release Compatibility sections, and the MCP server's\nlifecycle, and gains an architecture mechanism for component-aware review.\n\nChecking each claim against the code also corrected errors: `pose update` has no\n`--schema-only` (it has `--no-self`) and merges POSE.md/AGENTS.md on every run;\n`pose new-spec` writes a dated flat file by default; `pose dora-metrics` takes\n`--window-days`; and the Definition of Ready is opt-in through\n`.pose/policy/dor.json`. The spec template gains `task_type`, which the\nDefinition of Ready reads.",
+            "path": "pose-docs-and-manuals-match-5-0-2.md",
+            "digest": "sha256:f7451fd093568147761cdc825922a4d0253ecdc10e31387508e6742e9dd09e4f"
+          },
+          {
+            "spec": "pose-help-names-flags-the-parser-accepts",
+            "category": "fixed",
+            "breaking": false,
+            "body": "Five `--help` screens named flags their commands refuse. `pose update` offered\n`--schema-only` and omitted `--no-self` and `--locale`; `pose dora-metrics`\noffered `--app`, `--env` and `--since-days` for `--application`, `--environment`\nand `--window-days` (default 30 days, not 90); `pose adoption-metrics` offered\n`--since-days` and `pose state` offered `--json`, neither accepted; and\n`pose release record` showed `--provider-state` where the command takes\n`--event` and `--evidence`. Each help entry now matches the command.",
+            "path": "pose-help-names-flags-the-parser-accepts.md",
+            "digest": "sha256:7f3a22b2a559de4176cd79b0b74c6392ae1c019a9eae8d5ab2b4ccb0556ee746"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:9d9200267b13f004b264fd59bff3d902276c4c454b13be510168199d9e6b86dc",
+        "release_input_digest": "sha256:5c81312c09e23ecaadd4bd1f12af128110217f540b9c13dc0a8f21ac236c40d6",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v5.0.3"
+        }
+      },
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v5.0.3",
+          "state": "tagged",
+          "recorded_at": "2026-09-11T09:35:33Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v5.0.3",
+            "tag": "v5.0.3",
+            "commit": "7555c2a40dabd61a0af088c2ad8e81bb36c53e67",
+            "published_at": "",
+            "url": "",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34584243199"
+          },
+          "evidence_digest": "sha256:2c48c00fcf4f365e130a332ed63055a9010325fe7598c98bdb0911913318f2cc"
+        },
+        {
+          "schema_version": 1,
+          "version": "v5.0.3",
+          "state": "published",
+          "recorded_at": "2026-09-11T09:35:33Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v5.0.3",
+            "tag": "v5.0.3",
+            "commit": "7555c2a40dabd61a0af088c2ad8e81bb36c53e67",
+            "published_at": "2026-09-11T09:33:41Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v5.0.3",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34584243199",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:3cf9ff9b73515c808293148c3166eac4231c6b75cd137503f6fed93170bf2e60",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:86ca9ac791ccd14b1e947b37aeb2e2f2d2ef11abb352d26f037415496871c19a",
+              "Harne8.Pose.yaml": "sha256:bca5966f45f3c96d01fd65175e5575631487e8d19e92792528df6f2c30719a6e",
+              "checksums.txt": "sha256:756a458cbd8d554eba0f8a4fe3f2462c3fc9fdd5d57f131950ad634aec6e9618",
+              "checksums.txt.sigstore.json": "sha256:b1da5fd36c8c81bbd7db7681920d94f314cd9782723392ba55be17568683ef47",
+              "compatibility-report.md": "sha256:7ee14e88530e413183abcadaac914d40677d9f26dfbce1dda819affb95f085b4",
+              "compatibility.json": "sha256:cb4ef939eddb58796960cc6246d0b44cb123e97120902ee2884444b83c002a12",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:d5971f5c1ffa53e412314f400469670aa610abd70ca9848886fd45f31bbafb62",
+              "pose-rule-kubernetes.tar.gz": "sha256:393e95123cd9f9ca2e3422b96ebadfa064892a837de0811d500d3df35e4e19fd",
+              "pose.rb": "sha256:485f5180779116dbcb77d9ad404e865d2f21d3d0d473115b8aedecc76f19e4ad",
+              "pose_5.0.3_darwin_amd64.tar.gz": "sha256:b5af2051f0846412cd4e5a6f94cbb9135b1e1d5857f7ca52c3308eb4f8cb8583",
+              "pose_5.0.3_darwin_amd64.tar.gz.cdx.json": "sha256:af4ab2aa42194d6d5d56a14e2fd62407d274b55bffc3756f3848e342111f5d7d",
+              "pose_5.0.3_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:96ee187910702fed822827685edd64839b75dc4d393d82bc320c70cf812d8277",
+              "pose_5.0.3_darwin_amd64.tar.gz.sigstore.json": "sha256:e403dc2379ad5fc1f22a4fa67d8d91993a78a464c0e14983dba99e08308284cb",
+              "pose_5.0.3_darwin_arm64.tar.gz": "sha256:e6a85775ae65ddee59f378a63d7d5f54063af0225ae5c46bfdf2926517231082",
+              "pose_5.0.3_darwin_arm64.tar.gz.cdx.json": "sha256:deef663eda1bf79df9ff4806f174980fcfd63a0ae578e30ff148dfa450400306",
+              "pose_5.0.3_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:52224d3625f0997cbd26dfb639a93291dabf47746129ec71a4c79bb492dc2cff",
+              "pose_5.0.3_darwin_arm64.tar.gz.sigstore.json": "sha256:b966ff91c838e42f598d3f48ed4013a8522ca9722af202bee13aada953b0abcc",
+              "pose_5.0.3_linux_amd64.tar.gz": "sha256:1ea9f516b66a24d393158f1482f545b41f9fa89d7e53579b4ef16fea366a330f",
+              "pose_5.0.3_linux_amd64.tar.gz.cdx.json": "sha256:7a4cf2cf998fcde7036a297a018b7f352e2090566d3252054115d76aaaf64b84",
+              "pose_5.0.3_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:18c420722ef75a6a1d6c06730412b17b793a692f2daf41ede1873a94c3f0a0d5",
+              "pose_5.0.3_linux_amd64.tar.gz.sigstore.json": "sha256:917257cde4ddb6d4d464195ebd22aa314b9fcb57ac31995c6e41efb8dfe12519",
+              "pose_5.0.3_linux_arm64.tar.gz": "sha256:338b022ea87227da287cb5c98d84356d3e2bad22ce3cb48eac6c75cec46a2514",
+              "pose_5.0.3_linux_arm64.tar.gz.cdx.json": "sha256:89f4eee4006f2ace03644266ba84c290a4a123c20cfd2fafbbf9cabb1d3800b6",
+              "pose_5.0.3_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:b855c21d3b0cfb5ad7a8a0784745ac25a6cf7f3c774b38356251a9058788a746",
+              "pose_5.0.3_linux_arm64.tar.gz.sigstore.json": "sha256:d24f85544cd46215fdb53bcff13043175ce8dc3587377cc2b9018ebd620fcddb",
+              "pose_5.0.3_windows_amd64.zip": "sha256:cf900ebd2f9542d15ac5057ddbe3ba83664fa189bafa526eef3b06ad8b24d202",
+              "pose_5.0.3_windows_amd64.zip.cdx.json": "sha256:d4a490ac43431ddb8cd58f99177a7ba8752ab41c20d23d82f40e1e04769666c8",
+              "pose_5.0.3_windows_amd64.zip.cdx.json.sigstore.json": "sha256:f7a6fd54be9cc77f4766edcd715f9ee94ba4f03827a0f914196a0e6552f77cb7",
+              "pose_5.0.3_windows_amd64.zip.sigstore.json": "sha256:7429103d1cf665dcdef02e0ae13fe133c69feaf81b1bd15979ff3e6684ef038e",
+              "pose_5.0.3_windows_arm64.zip": "sha256:b26b0828cfd39125c1d74090b03a7502394cdb0f096af761408239f4b1d382e7",
+              "pose_5.0.3_windows_arm64.zip.cdx.json": "sha256:8f4ff9a7c9b47484d6a568bc23b364ba855ec223281eece8aece7949d17746e3",
+              "pose_5.0.3_windows_arm64.zip.cdx.json.sigstore.json": "sha256:43af288f6acd5442a7df519ea56c2457e44e7068ded1e973878a8ac2559a0aa3",
+              "pose_5.0.3_windows_arm64.zip.sigstore.json": "sha256:afca3c1e15c9218fb561a1efb40e437412504295481a3781688d517b0db3c0b4"
+            }
+          },
+          "evidence_digest": "sha256:e9982cf29dab10b70af7bc9082cf061537c82c59ee4a16a5c819785141b8a951"
+        },
+        {
+          "schema_version": 1,
+          "version": "v5.0.3",
+          "state": "verified",
+          "recorded_at": "2026-09-11T09:35:33Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v5.0.3",
+            "tag": "v5.0.3",
+            "commit": "7555c2a40dabd61a0af088c2ad8e81bb36c53e67",
+            "published_at": "2026-09-11T09:33:41Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v5.0.3",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/34584834573",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:3cf9ff9b73515c808293148c3166eac4231c6b75cd137503f6fed93170bf2e60",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:86ca9ac791ccd14b1e947b37aeb2e2f2d2ef11abb352d26f037415496871c19a",
+              "Harne8.Pose.yaml": "sha256:bca5966f45f3c96d01fd65175e5575631487e8d19e92792528df6f2c30719a6e",
+              "checksums.txt": "sha256:756a458cbd8d554eba0f8a4fe3f2462c3fc9fdd5d57f131950ad634aec6e9618",
+              "checksums.txt.sigstore.json": "sha256:b1da5fd36c8c81bbd7db7681920d94f314cd9782723392ba55be17568683ef47",
+              "compatibility-report.md": "sha256:7ee14e88530e413183abcadaac914d40677d9f26dfbce1dda819affb95f085b4",
+              "compatibility.json": "sha256:cb4ef939eddb58796960cc6246d0b44cb123e97120902ee2884444b83c002a12",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:d5971f5c1ffa53e412314f400469670aa610abd70ca9848886fd45f31bbafb62",
+              "pose-rule-kubernetes.tar.gz": "sha256:393e95123cd9f9ca2e3422b96ebadfa064892a837de0811d500d3df35e4e19fd",
+              "pose.rb": "sha256:485f5180779116dbcb77d9ad404e865d2f21d3d0d473115b8aedecc76f19e4ad",
+              "pose_5.0.3_darwin_amd64.tar.gz": "sha256:b5af2051f0846412cd4e5a6f94cbb9135b1e1d5857f7ca52c3308eb4f8cb8583",
+              "pose_5.0.3_darwin_amd64.tar.gz.cdx.json": "sha256:af4ab2aa42194d6d5d56a14e2fd62407d274b55bffc3756f3848e342111f5d7d",
+              "pose_5.0.3_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:96ee187910702fed822827685edd64839b75dc4d393d82bc320c70cf812d8277",
+              "pose_5.0.3_darwin_amd64.tar.gz.sigstore.json": "sha256:e403dc2379ad5fc1f22a4fa67d8d91993a78a464c0e14983dba99e08308284cb",
+              "pose_5.0.3_darwin_arm64.tar.gz": "sha256:e6a85775ae65ddee59f378a63d7d5f54063af0225ae5c46bfdf2926517231082",
+              "pose_5.0.3_darwin_arm64.tar.gz.cdx.json": "sha256:deef663eda1bf79df9ff4806f174980fcfd63a0ae578e30ff148dfa450400306",
+              "pose_5.0.3_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:52224d3625f0997cbd26dfb639a93291dabf47746129ec71a4c79bb492dc2cff",
+              "pose_5.0.3_darwin_arm64.tar.gz.sigstore.json": "sha256:b966ff91c838e42f598d3f48ed4013a8522ca9722af202bee13aada953b0abcc",
+              "pose_5.0.3_linux_amd64.tar.gz": "sha256:1ea9f516b66a24d393158f1482f545b41f9fa89d7e53579b4ef16fea366a330f",
+              "pose_5.0.3_linux_amd64.tar.gz.cdx.json": "sha256:7a4cf2cf998fcde7036a297a018b7f352e2090566d3252054115d76aaaf64b84",
+              "pose_5.0.3_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:18c420722ef75a6a1d6c06730412b17b793a692f2daf41ede1873a94c3f0a0d5",
+              "pose_5.0.3_linux_amd64.tar.gz.sigstore.json": "sha256:917257cde4ddb6d4d464195ebd22aa314b9fcb57ac31995c6e41efb8dfe12519",
+              "pose_5.0.3_linux_arm64.tar.gz": "sha256:338b022ea87227da287cb5c98d84356d3e2bad22ce3cb48eac6c75cec46a2514",
+              "pose_5.0.3_linux_arm64.tar.gz.cdx.json": "sha256:89f4eee4006f2ace03644266ba84c290a4a123c20cfd2fafbbf9cabb1d3800b6",
+              "pose_5.0.3_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:b855c21d3b0cfb5ad7a8a0784745ac25a6cf7f3c774b38356251a9058788a746",
+              "pose_5.0.3_linux_arm64.tar.gz.sigstore.json": "sha256:d24f85544cd46215fdb53bcff13043175ce8dc3587377cc2b9018ebd620fcddb",
+              "pose_5.0.3_windows_amd64.zip": "sha256:cf900ebd2f9542d15ac5057ddbe3ba83664fa189bafa526eef3b06ad8b24d202",
+              "pose_5.0.3_windows_amd64.zip.cdx.json": "sha256:d4a490ac43431ddb8cd58f99177a7ba8752ab41c20d23d82f40e1e04769666c8",
+              "pose_5.0.3_windows_amd64.zip.cdx.json.sigstore.json": "sha256:f7a6fd54be9cc77f4766edcd715f9ee94ba4f03827a0f914196a0e6552f77cb7",
+              "pose_5.0.3_windows_amd64.zip.sigstore.json": "sha256:7429103d1cf665dcdef02e0ae13fe133c69feaf81b1bd15979ff3e6684ef038e",
+              "pose_5.0.3_windows_arm64.zip": "sha256:b26b0828cfd39125c1d74090b03a7502394cdb0f096af761408239f4b1d382e7",
+              "pose_5.0.3_windows_arm64.zip.cdx.json": "sha256:8f4ff9a7c9b47484d6a568bc23b364ba855ec223281eece8aece7949d17746e3",
+              "pose_5.0.3_windows_arm64.zip.cdx.json.sigstore.json": "sha256:43af288f6acd5442a7df519ea56c2457e44e7068ded1e973878a8ac2559a0aa3",
+              "pose_5.0.3_windows_arm64.zip.sigstore.json": "sha256:afca3c1e15c9218fb561a1efb40e437412504295481a3781688d517b0db3c0b4"
+            },
+            "publication_digest": "sha256:e9982cf29dab10b70af7bc9082cf061537c82c59ee4a16a5c819785141b8a951"
+          },
+          "evidence_digest": "sha256:89ec1661f62e667ac643bce995499e4fb7f287ec1920132a5d95833c5f246053"
+        }
+      ],
+      "gaps": []
+    },
     {
       "version": "v5.0.2",
       "state": "verified",

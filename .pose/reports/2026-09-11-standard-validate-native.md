@@ -14,19 +14,9 @@
 - _Not provided_
 
 ## Files Changed
-- pose/changelogs/unreleased/pose-docs-and-manuals-match-5-0-2.md
-- .pose/changelogs/unreleased/pose-help-names-flags-the-parser-accepts.md
-- .pose/specs/2026-09-11-pose-docs-and-manuals-match-5-0-2.md
-- .pose/specs/2026-09-11-pose-help-names-flags-the-parser-accepts.md
-- README.md
-- README.pt-BR.md
-- compatibility.json
-- docs-site/docs/ci.md
-- pose-mcp/internal/version/version.go
-- pose-mcp/server.json
-- .pose/changelogs/v5.0.3.md
-- .pose/changelogs/v5.0.3/
-- .pose/releases/v5.0.3/
+- pose/indexes/delivery-integrity.json
+- .pose/indexes/releases.json
+- .pose/indexes/spec-graph.json
 
 ## Validation Commands
 - go build ./...
@@ -43,14 +33,14 @@
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-11T09:05:46Z
+- Generated at (UTC): 2026-09-11T12:51:00Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 113
+- Sequence for task/spec: 114
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-11T06:51:48Z
+- Previous execution: 2026-09-11T09:05:46Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
