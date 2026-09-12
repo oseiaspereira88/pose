@@ -32,6 +32,10 @@ type usageOutput struct {
 	result *commandUsageResult
 }
 
+// UnwrapWriter exposes the stream underneath, so capability detection sees the
+// terminal rather than this wrapper (spec pose-cli-output-rendering-system R1).
+func (w *usageOutput) UnwrapWriter() io.Writer { return w.Writer }
+
 func (w *usageOutput) note(result commandUsageResult) {
 	copy := result
 	w.result = &copy

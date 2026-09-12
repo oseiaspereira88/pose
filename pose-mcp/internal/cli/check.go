@@ -145,7 +145,8 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 		noteCommandUsage(stdout, countedUsageResult("fail", checker.errors, checker.warnings, false))
 		out.Verdict(cliout.Verdict{State: cliout.StateFail,
 			Text: fmt.Sprintf(cliText(locale, "POSE structure has %d error(s).", "estrutura POSE com %d erro(s)."), checker.errors)})
-		if !asJSON {
+		if !asJSON && !quiet {
+			// --quiet is the verdict alone; a hint is not the verdict.
 			PrintContributorFailureHint(checker.root, stdout, locale)
 		}
 		return 1

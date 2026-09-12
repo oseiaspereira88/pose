@@ -185,6 +185,8 @@ The architecture, and the alternatives rejected, are in ADR
 - modified: pose-mcp/internal/cli/surface_check.go
 - modified: pose-mcp/internal/cli/cli.go
 - created: pose-mcp/internal/cli/cliout/record.go
+- created: pose-mcp/internal/cli/output_contract_test.go
+- modified: pose-mcp/internal/cli/usage.go
 - modified: pose-mcp/internal/cli/check.go
 - modified: docs-site/docs/cli.md
 - modified: POSE.md
@@ -287,6 +289,18 @@ depend on today (Decision 7).
 - Rationale: the enforcement point lands everywhere at once; the restyle lands
   where a human spends time first, and the allowlist makes the remainder
   visible instead of forgotten.
+
+### Decision 8
+- Date: 2026-09-12
+- Context: review of pose#111 — `mainWithUsage` wraps stdout to record usage, so
+  capability detection, which asserted `*os.File`, classified every shipped
+  invocation as non-terminal.
+- Decision: detection unwraps through an `UnwrapWriter` interface, bounded
+  against cycles; and animation requires colour, so `NO_COLOR` and
+  `--color=never` stop the repainting line as R6 says.
+- Rationale: a wrapper says nothing about the destination, and the defect was
+  invisible in tests because tests write to buffers. Repainting is an escape
+  sequence, so it belongs with the others under the reader's choice.
 
 ### Decision 7
 - Date: 2026-09-12

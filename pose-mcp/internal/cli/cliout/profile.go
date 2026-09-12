@@ -114,18 +114,33 @@ func Plain() Profile {
 	return Profile{Width: defaultWidth, Locale: LocaleEN}
 }
 
+// Unwrapper is a writer that wraps another one — a stream decorated for
+// analytics, say. Capability detection asks for what is underneath, because a
+// wrapper says nothing about the destination.
+type Unwrapper interface {
+	UnwrapWriter() io.Writer
+}
+
 // IsTerminal reports whether w is a character device. Stdlib only: a Stat on
-// the file answers this without a dependency.
+// the file answers this without a dependency. Wrappers are unwrapped first, and
+// the chain is bounded so a cycle cannot hang a gate.
 func IsTerminal(w io.Writer) bool {
-	f, ok := w.(*os.File)
-	if !ok {
-		return false
+	for i := 0; i < 8; i++ {
+		if f, ok := w.(*os.File); ok {
+			info, err := f.Stat()
+			return err == nil && info.Mode()&os.ModeCharDevice != 0
+		}
+		wrapper, ok := w.(Unwrapper)
+		if !ok {
+			return false
+		}
+		next := wrapper.UnwrapWriter()
+		if next == nil || next == w {
+			return false
+		}
+		w = next
 	}
-	info, err := f.Stat()
-	if err != nil {
-		return false
-	}
-	return info.Mode()&os.ModeCharDevice != 0
+	return false
 }
 
 // unicodeCapable keeps box drawing and symbols away from consoles that would

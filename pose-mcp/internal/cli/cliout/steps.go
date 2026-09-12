@@ -67,10 +67,12 @@ func (r *Renderer) Steps(total int) *StepSet {
 	return &StepSet{r: r, w: r.err, p: r.errP, total: total, now: time.Now, tick: spinnerInterval, counts: map[State]int{}}
 }
 
-// animated reports whether this destination may repaint. A redirected stream,
-// a dumb terminal and --quiet all get plain lines instead.
+// animated reports whether this destination may repaint. A redirected stream, a
+// dumb terminal, NO_COLOR, --color=never, --quiet and --verbose all get plain
+// lines instead: repainting is an escape sequence like any other, and a reader
+// who asked for none should not receive one (R6, review of pose#111).
 func (s *StepSet) animated() bool {
-	return s.p.TTY && !s.p.Quiet && !s.p.Verbose
+	return s.p.TTY && s.p.Color && !s.p.Quiet && !s.p.Verbose
 }
 
 // Start opens a step. label is the unit's name; detail is what it runs.
