@@ -1,6 +1,6 @@
 ---
 slug: pose-cli-output-rendering-system
-status: draft
+status: in-progress
 created_at: 2026-09-11
 completed_at:
 supersedes:
@@ -159,6 +159,14 @@ The architecture, and the alternatives rejected, are in ADR
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-cli-output-rendering-system.md
 - created: .pose/adr/2026-09-11-the-cli-has-one-rendering-layer-and-its-printed-lines-are-a-contract.md
+- created: pose-mcp/internal/cli/cliout/profile.go
+- created: pose-mcp/internal/cli/cliout/state.go
+- created: pose-mcp/internal/cli/cliout/catalog.go
+- created: pose-mcp/internal/cli/cliout/render.go
+- created: pose-mcp/internal/cli/cliout/steps.go
+- created: pose-mcp/internal/cli/cliout/cliout_test.go
+- created: pose-mcp/internal/cli/print_guard_test.go
+- created: pose-mcp/internal/cli/testdata/direct-print-sites.json
 
 Implementation artifacts are declared as each increment lands; the list above is
 what this spec creates before code.
@@ -184,7 +192,7 @@ depend on today (Decision 7).
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1 — the layer, invisible: profile, emitters, vocabulary, catalog
+- [x] Increment 1 — the layer, invisible: profile, emitters, vocabulary, catalog
       skeleton, guard test with a full allowlist. Output stays byte-identical,
       proven by the existing assertions (R1, R2, R3, R10).
 - [ ] Increment 2 — the contract: enumerate contract lines with golden tests,
