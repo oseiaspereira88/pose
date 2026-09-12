@@ -8,8 +8,8 @@ last_reviewed_at: 2026-09-12
 expires_at: 2026-12-11
 source_refs:
   spec: ""
-  workflow: ""
-  commands: ["pose validate", "pose check", "pose artifact-check", "pose specs", "pose lint-spec", "pose index"]
+  workflow: documentation-update
+  commands: ["pose check --strict", "pose knowledge-check --strict", "pose specs --json", "pose followups --json", "pose usage --json", "pose doctor --json", "pose review-plan spec:<slug> --json", "pose artifact-check --spec <slug> --json", "pose check --json", "pose lint-spec <slug> --json", "pose history-check --json", "pose knowledge-check --json", "pose skills-check --json", "pose recurrence-check --json", "pose index --json", "pose state --json"]
   external_sources: []
 ---
 
@@ -24,6 +24,18 @@ assumed — and lists what each category would contain if we pursued it. It take
 no decisions: it exists so the spec and the ADRs that follow are written against
 facts, and so the parts that need the maintainer's call are visible before code
 is written.
+
+**Why the 90-day TTL** (the knowledge rule allows it only with a recorded
+reason): this note is the input to a spec and to a rendering-layer ADR, and it
+stays the reference for the phases while they are implemented across releases. A
+30-day expiry would retire it in the middle of that work. It should be reviewed
+when the spec closes, and retired when the ADR and `docs-site/docs/cli.md` carry
+the decisions.
+
+The commands in `source_refs` are of two kinds, and are not interchangeable:
+`pose check --strict` and `pose knowledge-check --strict` are the validation this
+note ran; everything else was executed only to observe the surface it describes
+(which commands accept `--json`, and what they print).
 
 Two audiences read this output, and they are not the same reader:
 
@@ -56,16 +68,21 @@ Measured on `main` at 2ff75f1 (POSE 5.0.6), in `pose-mcp/internal/cli`
 
 | Shape | Sites | Where it goes |
 |---|---|---|
-| `[ERROR]` / `[WARN]` / `[INFO]` | 37 / 14 / 26 | stdout — these are *findings*, the command's result |
+| `[ERROR]` / `[WARN]` / `[INFO]` | 37 / 14 / 26 | stdout **and** stderr (27 / 43 sites) — these are *findings*, the command's result |
 | `Error: …` | 116 | stderr — the command itself failed |
 | `[pose-install] …` | 6 | stderr — one command's private prefix |
 | `Usage: …` | 134 | stderr |
 | `Result: …` / `Resultado: …` | 54 / 22 | stdout — the verdict line |
 | `name.field=value` | 50 | stdout — machine-oriented diagnostics |
 
-The channel split is actually sound today (results and findings on stdout, the
-command's own failures on stderr); what is missing is a rule that says so, and a
-single vocabulary.
+**And the channel split is mixed, not merely undocumented.** Counting call
+sites: 27 `[ERROR]`/`[WARN]`/`[INFO]` lines go to **stdout**, and 43 go to
+**stderr** — including findings that are the command's result, such as
+`lint-spec`'s DoR errors (`lintspec.go`) and `knowledge-usage`'s unresolved
+references. So the same class of output lands on either channel depending on the
+command, and `pose x 2>/dev/null` silently drops real findings in some commands
+and not others. A rule is needed, and so is a migration: this is not a matter of
+writing down what already holds.
 
 **Localisation is 28% covered.** 315 of the 1138 print sites pass through
 `cliText`; the rest print English regardless of `POSE_LOCALE`. `POSE_LOCALE`
@@ -89,12 +106,18 @@ channel at all: `check`, `history-check`, `knowledge-check`, `skills-check`,
 `recurrence-check`, `lint-spec`, `index`, `state`.
 
 **The human output is already an API.** `pose report` parses `pose validate`'s
-printed lines (`parseValidationLines`) to derive the recorded outcome. Reports
-also embed captured output in `.pose/reports/history/*.jsonl`, and
-`delivery-validation.json` stores each check's `Output`. So: text we restyle can
-break an internal consumer, and any decoration we add can end up inside
-evidence. **144 assertions across 37 test files** match literal output text —
-both the safety net and the migration bill.
+printed lines (`parseValidationLines`) to derive the recorded outcome. So text we
+restyle can break an internal consumer. **144 assertions across 37 test files**
+match literal output text — both the safety net and the migration bill.
+
+Three persistence paths exist, and they carry different things — worth keeping
+apart, because they size the evidence risk differently:
+
+| Path | What it stores | Exposed to a restyle? |
+|---|---|---|
+| `.pose/results/*.json` (validation result) | each check's own captured `Output` (tail, secrets redacted), outcome, duration, exit code | only if we change what we capture from the child, not how we print |
+| `.pose/reports/*.md` (Markdown report) | the subset `parseValidationLines` extracts from the printed run — commands and result lines | yes: directly coupled to the printed shape |
+| `.pose/reports/history/*.jsonl` | report metadata only (`reportRecord`: task, outcome, hash, change set…) — **no captured output** | no |
 
 **`pose validate` is the sharpest human gap.** It pipes every check's raw
 stdout/stderr straight to the terminal (`io.MultiWriter`), and prints **no
@@ -307,9 +330,11 @@ seven gates have no machine channel; the human channel is parsed internally.
 1. **Output is a contract.** Internal parsers, CI greps, 144 test assertions and
    agents read it. Sequence: identify the contract lines, give the consumers a
    structured source, then restyle.
-2. **Evidence must stay clean.** No escape sequences in JSON, JUnit, SARIF,
-   reports or history. Changing what `validate` captures changes recorded
-   evidence, which is expected but must be deliberate.
+2. **Evidence must stay clean.** No escape sequences in JSON, JUnit, SARIF or
+   reports. The exposure is uneven (see the table above): the Markdown report is
+   built from the printed run, so it moves with any restyle, while the validation
+   JSON only moves if we change what we capture from a child process, and the
+   history JSONL stores no output at all.
 3. **Determinism.** Same inputs, same bytes, with timings the only variable —
    otherwise golden tests and reproducible reports suffer. Spinner frames never
    reach a non-TTY.
@@ -368,8 +393,9 @@ seven gates have no machine channel; the human channel is parsed internally.
 - **Test churn**: 144 literal-output assertions will move. They are also the
   regression net, so they should be migrated deliberately, not regenerated
   wholesale.
-- **Evidence noise**: any change to captured output changes recorded evidence
-  and its digests. Expected, but it should land in one release, announced.
+- **Evidence noise**: the Markdown report is assembled from the printed run, so
+  restyling moves it; the validation JSON moves only if capture changes. Expected
+  either way, but it should land in one release, announced.
 - **Interleaving**: a spinner and a child process writing to the same terminal
   corrupt each other. Whoever owns the child's output owns the spinner.
 - **Scope creep into a framework**: the goal is a thin renderer, not a TUI.
