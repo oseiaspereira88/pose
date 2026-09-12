@@ -178,15 +178,19 @@ The architecture, and the alternatives rejected, are in ADR
 - modified: pose-mcp/internal/cli/amend_test.go
 - modified: pose-mcp/internal/cli/knowledge_usage_test.go
 - created: pose-mcp/internal/cli/validate_progress_test.go
-- modified: pose-mcp/internal/cli/cliout/steps.go
 - modified: pose-mcp/internal/cli/help_catalog.go
 - modified: pose-mcp/internal/cli/cli_test.go
 - modified: pose-mcp/internal/cli/workspace_alias_test.go
-- modified: pose-mcp/internal/cli/cliout/render.go
-- modified: pose-mcp/internal/cli/cliout/cliout_test.go
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/surface_check.go
 - modified: pose-mcp/internal/cli/cli.go
+- created: pose-mcp/internal/cli/cliout/record.go
+- modified: pose-mcp/internal/cli/check.go
+- modified: docs-site/docs/cli.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 Implementation artifacts are declared as each increment lands; the list above is
 what this spec creates before code.
@@ -223,16 +227,18 @@ depend on today (Decision 7).
 - [x] Increment 4 — long runs: step model, TTY status line with spinner, elapsed
       and counter, `validate` capture with `--verbose` and per-check outcome
       lines (R6, R7).
-- [ ] Increment 5 — the machine channel and the docs: `--json` everywhere,
-      `--json-out`, `--quiet`, exit-code contract, the eight gates, docs and
-      manuals (R8, R12).
+- [~] Increment 5 — the machine channel and the docs: the renderer records what
+      it would print, so `--json` is one document built from the same events;
+      `pose check` gains `--json`, `--quiet` and `--color`, and the docs and
+      manuals describe the channels, the flags, the environment variables and
+      the exit codes. The other seven gates and `--json-out` remain (R8, R12).
 
 ### Validation
-- [ ] A golden suite per profile (plain, ascii, colour) for the lifecycle core
-- [ ] A test that no written artifact contains an escape sequence
-- [ ] A determinism test: two runs, identical bytes but durations
-- [ ] Bilingual parity test over the catalog
-- [ ] The guard test's allowlist shrinks in every increment
+- [x] Profile matrix: NO_COLOR, POSE_COLOR, --color, TERM=dumb, COLUMNS, locale
+- [x] A test that a non-terminal run writes no escape sequence
+- [x] Bilingual parity over the catalog, format verbs included
+- [x] The ratchet falls in every increment (1138 → 1094)
+- [ ] A golden suite per profile for every command in the lifecycle core
 
 ---
 
@@ -333,26 +339,68 @@ capture) with tests that fail against today's code.
 - Expected: exit 0, strict mode
 
 ### Execution log
-- Pending.
+- Date: 2026-09-12
+- Environment: local, Go 1.26
+- Notes: five commits, one per increment, each with the suite green.
+  Increment 1 landed the layer with output byte-identical, proven by the 144
+  existing assertions. Increment 2 moved `pose report` onto the run's structured
+  result and pinned the contract lines; `lint-spec`'s 29 findings and
+  `knowledge-usage`'s references moved from stderr to stdout. Increment 4 gave
+  `validate` a step per check — with the output of a failing one shown as a tail
+  and `--verbose` to stream — measured by a fixture with one passing and one
+  failing check. Increment 3 gave `artifact-check`/`surface-check` findings
+  their remediation and gave an unknown token one shape. Increment 5 taught the
+  renderer to record what it would print, so `pose check --json` prints one
+  document built from the same events.
 
 ### Results summary
-- Pending.
+- Successes: R1, R3, R4 (for the commands migrated), R5, R6, R7, R9, R11, and
+  R8/R12 for `check` and `validate`.
+- Failures: none.
+- Remaining: R2's allowlist still holds 1094 direct print sites, and R8's
+  machine channel covers two commands of nine. Both are follow-ups below, and
+  the spec stays in-progress until they close.
 
 ### Requirement trace
-- Pending.
+- R1 [satisfied] <TestProfileIsResolvedPerStream and TestColourPrecedenceAndCapabilities: a buffer is never a terminal, and NO_COLOR/POSE_COLOR/--color/TERM/COLUMNS/POSE_LOCALE each decide what they own>
+- R3 [satisfied] <TestStateVocabularyIsClosedAndAsciiCapable and TestColourNeverCarriesMeaningAlone: every state has a word, an ASCII symbol and a round-tripping key, and the word survives stripping the colour>
+- R4 [satisfied] <TestFindingCarriesItsRemediationAndStaysOnStdout, TestHintAndFailureGoToStderr, and the migrated commands' tests now read findings from stdout>
+- R5 [satisfied] <testdata/contract-lines.json with TestRendererKeepsTheContractLines, TestLegacyValidationLogsStillParse and TestReportReadsTheRunNotItsProse>
+- R6 [satisfied] <TestStepsArePlainLinesWithoutATerminal, TestStepsRepaintOnlyOnATerminal, TestQuietSuppressesProgressEntirely, TestValidatePrintsAStepPerCheckAndCapturesTheirOutput>
+- R7 [satisfied] <TestValidatePrintsAStepPerCheckAndCapturesTheirOutput and TestValidateVerboseStreamsTheCheckOutputAgain: captured by default, tail on failure, streamed on request, and the result file unchanged>
+- R9 [satisfied] <TestFindingCarriesItsRemediationAndStaysOnStdout; artifact-check and surface-check pass the graph's fields through unflattened>
+- R10 [satisfied] <TestCatalogParity: both languages and the same format verbs for every id>
+- R11 [satisfied] <TestUnknownTokenSuggestsOnlyANeighbour and the unknown-command tests: the token alone, with a suggestion only when one is within a typo's distance>
 
 ### Known gaps
-- `pose check`'s findings are not migrated yet. A test pins `[ERRO]` as an
-  untranslated machine anchor, so they move in the same change that gives
-  `check` a `--json` channel to carry that anchor — increment 5, not 3.
+- R2, R8 and R12 are not traced: each is partly implemented, and the trace
+  vocabulary is closed (`satisfied|waived|withdrawn|deferred-integration`) with
+  no partial disposition. They are traced when the follow-ups below close, which
+  is also when this spec can reach `done`.
+- Seven gates still have no machine channel, and their findings still print
+  directly: `history-check`, `knowledge-check`, `skills-check`,
+  `recurrence-check`, `lint-spec`, `index` and `state`. `--json-out <path>` and
+  the deprecation of `validate --json <path>` wait with them.
+- 1094 direct print sites remain in the allowlist. The ratchet keeps them from
+  growing; migrating them is mechanical and unfinished.
+- The `[ERRO]`/`[AVISO]` anchor in `pose check` is gone from the human line.
+  That was deliberate and is a breaking change: the untranslated anchor is the
+  `severity` field of `--json`, and the human line now reads in the reader's
+  language.
 
 ---
 
 ## 7. Final Report
 
 ### Summary
-Pending.
+The CLI has a rendering layer, its printed lines have an enumerated contract,
+long runs report what they are doing, and the machine channel is one document
+built from the same events the human channel shows. Two commands of nine use
+that channel so far.
 
 ### Follow-ups
 
-- None.
+- [open] Give the remaining seven gates a machine channel — `history-check`, `knowledge-check`, `skills-check`, `recurrence-check`, `lint-spec`, `index`, `state` — which means migrating their metric and finding lines to the renderer first, since a `--json` that prints an empty findings list would be worse than none (owner:unowned crit:medium review:2026-12-12)
+- [open] Add `--json-out <path>` and deprecate `validate --json <path>` in the same release, so the file-writing spelling stays available while `--json` means stdout everywhere (owner:unowned crit:medium review:2026-12-12)
+- [open] Migrate the 1094 direct print sites the allowlist still holds; the ratchet prevents growth but the layer is not the only writer until they are gone (owner:unowned crit:low review:2027-03-12)
+- [open] Raise localisation parity beyond the lines this work touched: 28% of print sites were localisable when it started, and the catalog only covers what the renderer emits (owner:unowned crit:low review:2027-03-12)

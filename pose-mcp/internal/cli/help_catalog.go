@@ -123,6 +123,9 @@ var commandHelpCatalog = map[string]CommandHelp{
 		DescriptionEN:   "Performs comprehensive structural verification on all POSE files, broken markdown links, frontmatter syntax, matrix JSON schemas, and spec graphs.",
 		DescriptionPtBR: "Realiza verificação estrutural completa em todos os arquivos do POSE, links quebrados em markdown, sintaxe de frontmatter, schemas JSON e grafos de specs.",
 		Flags: []FlagHelp{
+			{"--json", "Print one JSON document with the verdict, findings and counts instead of the human report", "Imprime um documento JSON com veredito, findings e contagens no lugar do relatório humano"},
+			{"--quiet", "Print the verdict alone", "Imprime apenas o veredito"},
+			{"--color auto|always|never", "Force or suppress colour; NO_COLOR and POSE_COLOR are honoured", "Força ou suprime cor; NO_COLOR e POSE_COLOR são respeitados"},
 			{"--strict", "Treat structural warnings as fatal validation failures", "Trata avisos estruturais como falhas fatais de validação"},
 			{"--tolerant", "Report warnings without returning non-zero exit code", "Exibe avisos sem retornar código de saída diferente de zero"},
 		},

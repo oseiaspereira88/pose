@@ -452,7 +452,7 @@ func TestCheckNativeParityAndSchemaFailures(t *testing.T) {
 			t.Fatal(err)
 		}
 		nativeOut.Reset()
-		if code := Main([]string{"check", "--tolerant"}, &nativeOut, &nativeErr); code != 0 || !strings.Contains(nativeOut.String(), "[AVISO] schema:") {
+		if code := Main([]string{"check", "--tolerant"}, &nativeOut, &nativeErr); code != 0 || !strings.Contains(nativeOut.String(), "warning schema:") {
 			t.Fatalf("tolerant schema behavior: exit=%d out=%s", code, nativeOut.String())
 		}
 	})
@@ -480,10 +480,10 @@ func TestNativeCommandLocaleMessagesAndStableAnchors(t *testing.T) {
 	old := os.Getenv("POSE_LOCALE")
 	t.Cleanup(func() { _ = os.Setenv("POSE_LOCALE", old) })
 	for _, tc := range []struct {
-		locale, wantUsage, wantError, wantHelp, wantReport, wantCheck string
+		locale, wantUsage, wantError, wantHelp, wantReport, wantCheck, wantIssue string
 	}{
-		{"en", "Usage: pose new-spec", "Error: provide <slug> or --all", "Usage: pose <command>", "Error: --task is required.", "Result: FAILURE"},
-		{"pt-BR", "Uso: pose new-spec", "Erro: informe <slug> ou --all", "Uso: pose <comando>", "Erro: --task é obrigatório.", "Resultado: FALHA"},
+		{"en", "Usage: pose new-spec", "Error: provide <slug> or --all", "Usage: pose <command>", "Error: --task is required.", "Result: FAILURE", "error Required path missing"},
+		{"pt-BR", "Uso: pose new-spec", "Erro: informe <slug> ou --all", "Uso: pose <comando>", "Erro: --task é obrigatório.", "Resultado: FALHA", "erro Path obrigatório ausente"},
 	} {
 		_ = os.Setenv("POSE_LOCALE", tc.locale)
 		var out, errB bytes.Buffer
@@ -510,11 +510,41 @@ func TestNativeCommandLocaleMessagesAndStableAnchors(t *testing.T) {
 		if code := cmdCheck(t.TempDir(), []string{"--tolerant"}, &out, &errB); code != 1 || !strings.Contains(out.String(), tc.wantCheck) {
 			t.Fatalf("locale=%s check summary exit=%d out=%q", tc.locale, code, out.String())
 		}
-		// [ERRO]/[AVISO] issue-level tags are stable anchors: unlike the
-		// summary line, they never translate, so tooling that greps for
-		// them works the same regardless of locale.
-		if !strings.Contains(out.String(), "[ERRO]") {
-			t.Fatalf("locale=%s issue-level anchor [ERRO] must stay untranslated: out=%q", tc.locale, out.String())
+		// A finding's severity used to be the literal "[ERRO]" in every
+		// language — an untranslated anchor for tooling, and a Portuguese word
+		// in an English interface. The human line now reads in the reader's
+		// language, and the stable anchor moved to the machine channel, where a
+		// tool should have been reading it all along
+		// (spec pose-cli-output-rendering-system R3, R8).
+		if !strings.Contains(out.String(), tc.wantIssue) {
+			t.Fatalf("locale=%s finding must read in the reader's language: out=%q", tc.locale, out.String())
+		}
+		out.Reset()
+		errB.Reset()
+		if code := cmdCheck(t.TempDir(), []string{"--tolerant", "--json"}, &out, &errB); code != 1 {
+			t.Fatalf("locale=%s check --json exit=%d out=%q", tc.locale, code, out.String())
+		}
+		var document struct {
+			SchemaVersion int    `json:"schema_version"`
+			Command       string `json:"command"`
+			Outcome       string `json:"outcome"`
+			Findings      []struct {
+				Severity string `json:"severity"`
+				Message  string `json:"message"`
+			} `json:"findings"`
+			Counts map[string]int `json:"counts"`
+		}
+		if err := json.Unmarshal(out.Bytes(), &document); err != nil {
+			t.Fatalf("locale=%s --json must print one parseable document: %v in %q", tc.locale, err, out.String())
+		}
+		if document.SchemaVersion != 1 || document.Command != "check" || document.Outcome != "fail" || len(document.Findings) == 0 {
+			t.Fatalf("locale=%s unexpected document: %+v", tc.locale, document)
+		}
+		if document.Findings[0].Severity != "error" {
+			t.Fatalf("locale=%s the severity anchor must stay untranslated: %+v", tc.locale, document.Findings[0])
+		}
+		if document.Counts["errors"] == 0 {
+			t.Fatalf("locale=%s the document must carry the counts: %+v", tc.locale, document.Counts)
 		}
 	}
 }

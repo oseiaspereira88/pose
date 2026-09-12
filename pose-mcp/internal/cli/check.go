@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"github.com/harne8/pose-mcp/internal/pose"
 )
 
@@ -28,6 +29,7 @@ type nativeChecker struct {
 	mode     string
 	locale   cliLocale
 	stdout   io.Writer
+	out      *cliout.Renderer
 	errors   int
 	warnings int
 }
@@ -36,20 +38,35 @@ func (checker *nativeChecker) message(english, portuguese string) string {
 	return cliText(checker.locale, english, portuguese)
 }
 
-func (checker *nativeChecker) issue(level, message string) {
-	fmt.Fprintf(checker.stdout, "[%s] %s\n", level, message)
-	if level == "ERRO" {
+// issue emits one gate finding. The level used to be the literal string "ERRO"
+// or "AVISO" printed as-is — a Portuguese anchor in an English interface, and a
+// counter that compared prose to decide what had failed. The state comes from
+// the closed vocabulary, its word is rendered in the reader's language, and the
+// untranslated anchor a tool needs is the severity in `--json`
+// (spec pose-cli-output-rendering-system R3, R8).
+func (checker *nativeChecker) issue(state cliout.State, message string) {
+	checker.renderer().Finding(cliout.Finding{State: state, Message: message})
+	if state == cliout.StateError {
 		checker.errors++
 	} else {
 		checker.warnings++
 	}
 }
 
+// renderer resolves the checker's output lazily, so a caller that builds a
+// checker for one sub-check — the tests do — still reports through the layer.
+func (checker *nativeChecker) renderer() *cliout.Renderer {
+	if checker.out == nil {
+		checker.out = render(checker.stdout, io.Discard)
+	}
+	return checker.out
+}
+
 func (checker *nativeChecker) failOrWarn(message string) {
 	if checker.mode == "tolerant" {
-		checker.issue("AVISO", message)
+		checker.issue(cliout.StateWarning, message)
 	} else {
-		checker.issue("ERRO", message)
+		checker.issue(cliout.StateError, message)
 	}
 }
 
@@ -66,21 +83,46 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 
 func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, locale cliLocale) int {
 	mode := "strict"
-	if len(args) > 1 {
-		fmt.Fprintln(stderr, cliText(locale, "Usage: pose check [--strict|--tolerant]", "Uso: pose check [--strict|--tolerant]"))
-		return 2
-	}
-	if len(args) == 1 {
-		switch args[0] {
+	usage := cliText(locale, "Usage: pose check [--strict|--tolerant] [--json] [--quiet] [--color auto|always|never]",
+		"Uso: pose check [--strict|--tolerant] [--json] [--quiet] [--color auto|always|never]")
+	known := []string{"--strict", "--tolerant", "--json", "--quiet", "--color"}
+	asJSON, quiet := false, false
+	colorMode := cliout.ColorAuto
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
 		case "--strict":
+			mode = "strict"
 		case "--tolerant":
 			mode = "tolerant"
+		case "--json":
+			asJSON = true
+		case "--quiet":
+			quiet = true
+		case "--color":
+			if i+1 >= len(args) {
+				fmt.Fprintf(stderr, cliText(locale, "Error: %s requires a value.\n", "Erro: %s exige um valor.\n"), args[i])
+				return 2
+			}
+			i++
+			parsed, ok := cliout.ParseColorMode(args[i])
+			if !ok {
+				render(stdout, stderr).UnknownToken(cliText(locale, "value", "valor"), args[i], []string{"auto", "always", "never"})
+				return 2
+			}
+			colorMode = parsed
 		default:
-			fmt.Fprintf(stderr, cliText(locale, "Error: invalid argument: %s\n", "Erro: argumento inválido: %s\n"), args[0])
+			r := render(stdout, stderr)
+			r.UnknownToken(cliText(locale, "flag", "flag"), args[i], known)
+			r.Usage(usage)
 			return 2
 		}
 	}
-	checker := &nativeChecker{root: root, mode: mode, locale: locale, stdout: stdout}
+	out := renderWithColor(stdout, stderr, colorMode)
+	out.SetQuiet(quiet)
+	if asJSON {
+		out.RecordJSON("check")
+	}
+	checker := &nativeChecker{root: root, mode: mode, locale: locale, stdout: stdout, out: out}
 	checker.checkRequiredStructure()
 	checker.checkSchemaVersion()
 	checker.checkReferences()
@@ -96,19 +138,27 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 	checker.checkCapabilities()
 	checker.checkDocs()
 	checker.checkCommandReference()
+	out.RecordCount("errors", checker.errors)
+	out.RecordCount("warnings", checker.warnings)
+	defer func() { _ = out.FlushJSON() }()
 	if checker.errors > 0 {
 		noteCommandUsage(stdout, countedUsageResult("fail", checker.errors, checker.warnings, false))
-		fmt.Fprintf(stdout, cliText(locale, "Result: FAILURE — POSE structure has %d error(s).\n", "Resultado: FALHA — estrutura POSE com %d erro(s).\n"), checker.errors)
-		PrintContributorFailureHint(checker.root, stdout, locale)
+		out.Verdict(cliout.Verdict{State: cliout.StateFail,
+			Text: fmt.Sprintf(cliText(locale, "POSE structure has %d error(s).", "estrutura POSE com %d erro(s)."), checker.errors)})
+		if !asJSON {
+			PrintContributorFailureHint(checker.root, stdout, locale)
+		}
 		return 1
 	}
 	if checker.warnings > 0 {
 		noteCommandUsage(stdout, countedUsageResult("partial", 0, checker.warnings, false))
-		fmt.Fprintf(stdout, cliText(locale, "Result: SUCCESS (tolerant mode) with %d warning(s).\n", "Resultado: SUCESSO (modo tolerant) com %d aviso(s).\n"), checker.warnings)
+		out.Verdict(cliout.Verdict{State: cliout.StatePass,
+			Text: fmt.Sprintf(cliText(locale, "(tolerant mode) with %d warning(s).", "(modo tolerant) com %d aviso(s)."), checker.warnings)})
 		return 0
 	}
 	noteCommandUsage(stdout, countedUsageResult("pass", 0, 0, false))
-	fmt.Fprintf(stdout, cliText(locale, "Result: SUCCESS — valid POSE structure (%s mode).\n", "Resultado: SUCESSO — estrutura POSE válida (modo %s).\n"), mode)
+	out.Verdict(cliout.Verdict{State: cliout.StatePass,
+		Text: fmt.Sprintf(cliText(locale, "valid POSE structure (%s mode).", "estrutura POSE válida (modo %s)."), mode)})
 	return 0
 }
 
@@ -243,7 +293,7 @@ func (checker *nativeChecker) checkRequiredStructure() {
 	required := []string{"AGENTS.md", "POSE.md", ".pose", ".pose/workflows", ".pose/templates", ".pose/rules", ".pose/workflows/feature.md", ".pose/workflows/review.md", ".pose/workflows/bugfix.md", ".pose/templates/spec.md"}
 	for _, rel := range required {
 		if _, err := os.Stat(filepath.Join(checker.root, filepath.FromSlash(rel))); err != nil {
-			checker.issue("ERRO", checker.message("Required path missing: ", "Path obrigatório ausente: ")+filepath.Join(checker.root, filepath.FromSlash(rel)))
+			checker.issue(cliout.StateError, checker.message("Required path missing: ", "Path obrigatório ausente: ")+filepath.Join(checker.root, filepath.FromSlash(rel)))
 		}
 	}
 }
@@ -257,11 +307,11 @@ func (checker *nativeChecker) checkSchemaVersion() {
 	}
 	version, err := strconv.Atoi(strings.TrimSpace(string(content)))
 	if err != nil {
-		checker.issue("ERRO", fmt.Sprintf(checker.message("schema: invalid .pose/schema-version (%q)", "schema: .pose/schema-version inválido (%q)"), strings.TrimSpace(string(content))))
+		checker.issue(cliout.StateError, fmt.Sprintf(checker.message("schema: invalid .pose/schema-version (%q)", "schema: .pose/schema-version inválido (%q)"), strings.TrimSpace(string(content))))
 		return
 	}
 	if version > nativeSchemaVersion {
-		checker.issue("ERRO", fmt.Sprintf(checker.message("schema: instance v%d is newer than engine v%d", "schema: instância v%d é mais nova que o motor v%d"), version, nativeSchemaVersion))
+		checker.issue(cliout.StateError, fmt.Sprintf(checker.message("schema: instance v%d is newer than engine v%d", "schema: instância v%d é mais nova que o motor v%d"), version, nativeSchemaVersion))
 	}
 	if version < nativeSchemaVersion {
 		checker.failOrWarn(fmt.Sprintf(checker.message("schema: instance v%d is behind engine v%d — run 'pose update'", "schema: instância v%d atrás do motor v%d — rode 'pose update'"), version, nativeSchemaVersion))
@@ -297,7 +347,7 @@ func (checker *nativeChecker) checkReferences() {
 			}
 		}
 		if len(seen) == 0 {
-			checker.issue("ERRO", checker.message("No POSE reference found to validate in ", "Nenhuma referência POSE encontrada para validar em ")+rel)
+			checker.issue(cliout.StateError, checker.message("No POSE reference found to validate in ", "Nenhuma referência POSE encontrada para validar em ")+rel)
 		}
 	}
 }
@@ -549,7 +599,7 @@ func (checker *nativeChecker) checkSpecs() {
 		seen := map[string]bool{}
 		for _, ref := range splitInlineList(spec.dependsOn) {
 			if seen[ref] {
-				checker.issue("AVISO", fmt.Sprintf(checker.message("spec deps: %s: duplicate dependency: %s", "spec deps: %s: dependência duplicada: %s"), slug, ref))
+				checker.issue(cliout.StateWarning, fmt.Sprintf(checker.message("spec deps: %s: duplicate dependency: %s", "spec deps: %s: dependência duplicada: %s"), slug, ref))
 				continue
 			}
 			seen[ref] = true
@@ -849,7 +899,7 @@ func (checker *nativeChecker) checkChangelogs() {
 			slug = filepath.Base(filepath.Dir(path))
 		}
 		if fields["status"] == "done" && fields["changelog"] != "none" && fields["completed_at"] >= policy.AdoptedAt && !covered[slug] {
-			checker.issue("AVISO", checker.message("changelog: done spec without a changelog fragment: ", "changelog: spec done sem changelog fragment: ")+slug)
+			checker.issue(cliout.StateWarning, checker.message("changelog: done spec without a changelog fragment: ", "changelog: spec done sem changelog fragment: ")+slug)
 		}
 	}
 }
@@ -1054,7 +1104,7 @@ func (checker *nativeChecker) checkCapabilities() {
 		checker.failOrWarn(checker.message("capabilities: ", "capabilities: ") + issue)
 	}
 	for _, warning := range report.Warnings {
-		checker.issue("AVISO", checker.message("capabilities: ", "capabilities: ")+warning)
+		checker.issue(cliout.StateWarning, checker.message("capabilities: ", "capabilities: ")+warning)
 	}
 }
 
@@ -1079,7 +1129,7 @@ func (checker *nativeChecker) checkDocs() {
 		if issue.Severity == "error" {
 			checker.failOrWarn(text)
 		} else {
-			checker.issue("AVISO", text)
+			checker.issue(cliout.StateWarning, text)
 		}
 	}
 }
