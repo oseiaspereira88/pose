@@ -14,9 +14,15 @@
 - _Not provided_
 
 ## Files Changed
-- pose/indexes/delivery-integrity.json
-- .pose/indexes/releases.json
-- .pose/indexes/spec-graph.json
+- EADME.md
+- README.pt-BR.md
+- compatibility.json
+- docs-site/docs/ci.md
+- pose-mcp/internal/version/version.go
+- pose-mcp/server.json
+- .pose/changelogs/v5.0.7.md
+- .pose/changelogs/v5.0.7/
+- .pose/releases/v5.0.7/
 
 ## Validation Commands
 - go build ./...
@@ -30,26 +36,26 @@
 - go test ./internal/pose ./internal/cli ./internal/mcpserver -run ReviewBundle|ReviewAttestation|ReviewPlanGroupsRepeatedWarnings|ReviewPlanActionableToolPhases|ToolCatalog -count=1
 
 ## Results
-- - [pass] mcp-enforce/go/build (0.4s)
-- - [pass] mcp-enforce/go/test (0.4s)
-- - [pass] mcp-enforce/go/vet (0.2s)
-- - [pass] pose-mcp/go/build (1.2s)
-- - [pass] pose-mcp/go/test (15.7s)
-- - [pass] pose-mcp/go/vet (0.5s)
-- - [pass] pose-mcp/go/delivery-integration (0.9s)
-- - [pass] pose-mcp/go/delivery-reachability (0.8s)
-- - [pass] pose-mcp/go/review-bundle-convergence (0.9s)
+- - [pass] mcp-enforce/go/build (0.3s)
+- - [pass] mcp-enforce/go/test (0.1s)
+- - [pass] mcp-enforce/go/vet (0.1s)
+- - [pass] pose-mcp/go/build (0.9s)
+- - [pass] pose-mcp/go/test (13.7s)
+- - [pass] pose-mcp/go/vet (1.4s)
+- - [pass] pose-mcp/go/delivery-integration (5.5s)
+- - [pass] pose-mcp/go/delivery-reachability (4.1s)
+- - [pass] pose-mcp/go/review-bundle-convergence (2.8s)
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-12T04:34:06Z
+- Generated at (UTC): 2026-09-12T11:31:59Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 122
+- Sequence for task/spec: 123
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-11T21:02:37Z
+- Previous execution: 2026-09-12T04:34:06Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

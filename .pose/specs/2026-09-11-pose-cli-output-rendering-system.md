@@ -103,12 +103,13 @@ The architecture, and the alternatives rejected, are in ADR
   print the tail on failure with a pointer to the full result, and restore
   streaming under `--verbose`; the per-check outcome, duration and exit code
   shall always be printed.
-- R8: `--json` shall print one JSON document to stdout for every command with a
-  result, including the eight that have none today; `--json-out <path>` shall
-  write a file; `validate --json <path>` shall keep working as a deprecated
-  alias; `--quiet` shall print the verdict only; and the exit-code contract
-  (`0` success, `1` gate failure, `2` usage error) shall be documented and
-  tested.
+- R8: The renderer shall record what it would print, so `--json` is one document
+  — verdict, findings, counts — built from the same events the human channel
+  shows; `pose check` shall print it, and shall accept `--quiet` (the verdict
+  alone) and `--color`. The exit-code contract (`0` success, `1` gate failure,
+  `2` usage error) shall be documented and tested. Extending the channel to the
+  remaining gates, and `--json-out <path>`, belong to
+  `pose-cli-output-machine-channel` (Decision 9).
 - R9: A finding shall carry the same fields in both channels — code, severity,
   path, message, remediation, message id — and the human rendering shall show
   the remediation rather than dropping it.
@@ -117,9 +118,10 @@ The architecture, and the alternatives rejected, are in ADR
 - R11: Unknown-flag and unknown-command errors shall have one shape across
   commands, name the offending token alone, and suggest the nearest valid name
   when one is close.
-- R12: `docs-site/docs/cli.md` and POSE.md (both locales) shall document
-  `--json`, `--json-out`, `--quiet`, `--verbose`, `--color`, `POSE_COLOR`,
-  `NO_COLOR`, `POSE_LOCALE` and the exit-code contract.
+- R12: `docs-site/docs/cli.md` and POSE.md (both locales) shall document the two
+  channels, `--json`, `--quiet`, `--verbose`, `--color`, `POSE_COLOR`,
+  `NO_COLOR`, `POSE_LOCALE`, `COLUMNS` and the exit-code contract. `--json-out`
+  is documented by the spec that adds it.
 
 ### Non-functional
 - Deterministic bytes for a given profile and input: two runs of the same command
@@ -186,6 +188,7 @@ The architecture, and the alternatives rejected, are in ADR
 - modified: pose-mcp/internal/cli/cli.go
 - created: pose-mcp/internal/cli/cliout/record.go
 - created: pose-mcp/internal/cli/output_contract_test.go
+- created: .pose/changelogs/unreleased/pose-cli-output-rendering-system.md
 - modified: pose-mcp/internal/cli/usage.go
 - modified: pose-mcp/internal/cli/check.go
 - modified: docs-site/docs/cli.md
@@ -290,6 +293,21 @@ depend on today (Decision 7).
   where a human spends time first, and the allowlist makes the remainder
   visible instead of forgotten.
 
+### Decision 9
+- Date: 2026-09-12
+- Context: review of pose#112 — the fragment shipped in v5.0.7 while this spec
+  still listed the remaining gates as its own scope. The release checker assigns
+  a spec to exactly one release, so a second fragment under this slug could
+  never be released, and `pose check --strict` would reject it.
+- Decision: this spec's scope is what shipped. R8 and R12 are narrowed to it, and
+  the remainder moves to `pose-cli-output-machine-channel`, which carries its own
+  fragment when it ships.
+- Rationale: Decision 7 deferred the fragment so a cut could not announce work
+  that did not exist; the work exists and shipped, so the fragment belongs to
+  this release. What does not belong is a scope this spec cannot deliver a second
+  time. The alternative — holding the fragment — would have released the change
+  with no release note at all, which is worse for the reader it is written for.
+
 ### Decision 8
 - Date: 2026-09-12
 - Context: review of pose#111 — `mainWithUsage` wraps stdout to record usage, so
@@ -387,16 +405,15 @@ capture) with tests that fail against today's code.
 - R11 [satisfied] <TestUnknownTokenSuggestsOnlyANeighbour and the unknown-command tests: the token alone, with a suggestion only when one is within a typo's distance>
 
 ### Known gaps
-- R2, R8 and R12 are not traced: each is partly implemented, and the trace
-  vocabulary is closed (`satisfied|waived|withdrawn|deferred-integration`) with
-  no partial disposition. They are traced when the follow-ups below close, which
-  is also when this spec can reach `done`.
-- Seven gates still have no machine channel, and their findings still print
-  directly: `history-check`, `knowledge-check`, `skills-check`,
-  `recurrence-check`, `lint-spec`, `index` and `state`. `--json-out <path>` and
-  the deprecation of `validate --json <path>` wait with them.
-- 1094 direct print sites remain in the allowlist. The ratchet keeps them from
-  growing; migrating them is mechanical and unfinished.
+- R2, R8 and R12 are not traced yet: the trace vocabulary is closed
+  (`satisfied|waived|withdrawn|deferred-integration`) and this spec is still
+  in-progress, like every other spec in this repository.
+- 1094 direct print sites remain in the allowlist. R2 asks for the ratchet and
+  the emitters, both of which exist; emptying the list is the work of
+  `pose-cli-output-machine-channel`.
+- `pose amend` cannot record an amendment for a spec in the flat dated layout —
+  it looks only for `.pose/specs/<slug>/spec.md` — so Decision 9 carries the
+  scope change that an amendment event would otherwise hold.
 - The `[ERRO]`/`[AVISO]` anchor in `pose check` is gone from the human line.
   That was deliberate and is a breaking change: the untranslated anchor is the
   `severity` field of `--json`, and the human line now reads in the reader's
@@ -414,7 +431,6 @@ that channel so far.
 
 ### Follow-ups
 
-- [open] Give the remaining seven gates a machine channel — `history-check`, `knowledge-check`, `skills-check`, `recurrence-check`, `lint-spec`, `index`, `state` — which means migrating their metric and finding lines to the renderer first, since a `--json` that prints an empty findings list would be worse than none (owner:unowned crit:medium review:2026-12-12)
-- [open] Add `--json-out <path>` and deprecate `validate --json <path>` in the same release, so the file-writing spelling stays available while `--json` means stdout everywhere (owner:unowned crit:medium review:2026-12-12)
-- [open] Migrate the 1094 direct print sites the allowlist still holds; the ratchet prevents growth but the layer is not the only writer until they are gone (owner:unowned crit:low review:2027-03-12)
+- [covered: pose-cli-output-machine-channel] Give the remaining seven gates a machine channel, add `--json-out <path>`, deprecate `validate --json <path>`, and empty the allowlist the ratchet holds at 1094.
+- [open] `pose report` records the first changed file with its leading character cut: `reportChangedFiles` trims the whole `git status --porcelain` output before slicing the three-character prefix, so `README.md` is written as `EADME.md`, as this release's own evidence shows. Found by the review of pose#112 and carried as R4 of `pose-cli-output-machine-channel` (owner:unowned crit:low review:2026-12-12)
 - [open] Raise localisation parity beyond the lines this work touched: 28% of print sites were localisable when it started, and the catalog only covers what the renderer emits (owner:unowned crit:low review:2027-03-12)
