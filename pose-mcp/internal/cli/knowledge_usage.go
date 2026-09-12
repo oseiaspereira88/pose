@@ -9,6 +9,7 @@ package cli
 
 import (
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"os"
 	"path/filepath"
@@ -86,7 +87,7 @@ func collectKnowledgeRefs(root string) map[string][]string {
 
 // validateKnowledgeRefs reports dangling knowledge:<slug> citations (R1:
 // stable references must resolve to a governed artifact).
-func validateKnowledgeRefs(root string, stderr io.Writer) int {
+func validateKnowledgeRefs(root string, stdout, stderr io.Writer) int {
 	artifacts, err := loadKnowledgeArtifacts(root)
 	if err != nil {
 		return 0 // no knowledge dir: nothing to validate
@@ -98,7 +99,13 @@ func validateKnowledgeRefs(root string, stderr io.Writer) int {
 	failures := 0
 	for slug, specs := range collectKnowledgeRefs(root) {
 		if !known[slug] {
-			fmt.Fprintf(stderr, "[ERROR] knowledge ref: knowledge:%s cited by %s does not resolve to a governed artifact\n", slug, strings.Join(specs, ", "))
+			// A finding is the command's result, so it goes to stdout
+			// (spec pose-cli-output-rendering-system R4).
+			render(stdout, stderr).Finding(cliout.Finding{
+				State: cliout.StateError, Code: "knowledge-ref", Path: "knowledge:" + slug,
+				Message:     fmt.Sprintf("cited by %s does not resolve to a governed artifact", strings.Join(specs, ", ")),
+				Remediation: "create the artifact with pose new-knowledge, or correct the citation",
+			})
 			failures++
 		}
 	}

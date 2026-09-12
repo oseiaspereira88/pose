@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	posepkg "github.com/harne8/pose-mcp/internal/pose"
 )
 
@@ -345,6 +346,28 @@ func parseISOInstant(value string) (time.Time, bool) {
 
 // lintOneSpec lints a single spec.md, printing the same machine lines and
 // stderr diagnostics as the python engine. Returns 0/1 (2 on IO error).
+// specFindings routes one spec's lint findings through the renderer. They are
+// the command's result, so they belong on stdout: they used to go to stderr,
+// where `pose lint-spec 2>/dev/null` dropped them silently while other commands
+// kept theirs (spec pose-cli-output-rendering-system R4).
+type specFindings struct {
+	r    *cliout.Renderer
+	slug string
+}
+
+func (f specFindings) finding(state cliout.State, code, message string) {
+	f.r.Finding(cliout.Finding{State: state, Code: code, Path: f.slug, Message: message})
+}
+
+// sectionState reads the section's own requiredness: a missing required section
+// is an error, an optional one a warning.
+func sectionState(required bool) cliout.State {
+	if required {
+		return cliout.StateError
+	}
+	return cliout.StateWarning
+}
+
 func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	raw, err := os.ReadFile(specPath)
@@ -359,25 +382,26 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	if slug == "" {
 		slug = filepath.Base(filepath.Dir(specPath))
 	}
+	lint := specFindings{r: render(stdout, stderr), slug: slug}
 
 	if readyCheck {
 		failures := 0
 		for _, name := range []string{"Intent", "Requirements", "Technical Plan"} {
 			lines, ok := sections[name]
 			if !ok || classifySection(lines) != "filled" {
-				fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: DoR: section %s is missing, empty, or skeletal\n", "[ERRO] %s: DoR: seção %s ausente/vazia/esquelética\n"), slug, name)
+				lint.finding(cliout.StateError, "dor", fmt.Sprintf(cliText(locale, "DoR: section %s is missing, empty, or skeletal", "DoR: seção %s ausente/vazia/esquelética"), name))
 				failures++
 			}
 		}
 		if len(parseRequirementIDs(sections["Requirements"])) == 0 {
-			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: DoR: no acceptance criterion has a stable ID (use '- R<N>: ...' bullets in Requirements)\n", "[ERRO] %s: DoR: nenhum acceptance criterion com ID estável (use bullets '- R<N>: ...' em Requirements)\n"), slug)
+			lint.finding(cliout.StateError, "dor", cliText(locale, "DoR: no acceptance criterion has a stable ID (use '- R<N>: ...' bullets in Requirements)", "DoR: nenhum acceptance criterion com ID estável (use bullets '- R<N>: ...' em Requirements)"))
 			failures++
 		}
 		for _, ref := range lintParseDependsOn(frontmatter["depends_on"]) {
 			if depSlugRE.MatchString(ref) || depMilestoneRE.MatchString(ref) || depRoadmapRE.MatchString(ref) || depXrefRE.MatchString(ref) {
 				continue
 			}
-			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: DoR: invalid depends_on reference: '%s'\n", "[ERRO] %s: DoR: ref inválida em depends_on: '%s'\n"), slug, ref)
+			lint.finding(cliout.StateError, "dor", fmt.Sprintf(cliText(locale, "DoR: invalid depends_on reference: '%s'", "DoR: ref inválida em depends_on: '%s'"), ref))
 			failures++
 		}
 		ready := "true"
@@ -406,30 +430,26 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		lines, ok := sections[name]
 		if !ok {
 			if isRequired[name] {
-				fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: required section missing: %s\n", "[ERRO] %s: seção obrigatória ausente: %s\n"), slug, name)
+				lint.finding(cliout.StateError, "section", fmt.Sprintf(cliText(locale, "required section missing: %s", "seção obrigatória ausente: %s"), name))
 				requiredMissing++
 			} else {
-				fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: optional section missing: %s\n", "[AVISO] %s: seção opcional ausente: %s\n"), slug, name)
+				lint.finding(cliout.StateWarning, "section", fmt.Sprintf(cliText(locale, "optional section missing: %s", "seção opcional ausente: %s"), name))
 			}
 			continue
 		}
 		total++
-		level := cliText(locale, "WARNING", "AVISO")
-		if isRequired[name] {
-			level = cliText(locale, "ERROR", "ERRO")
-		}
 		switch classifySection(lines) {
 		case "filled":
 			filled++
 		case "skeleton":
 			skeleton++
-			fmt.Fprintf(stderr, cliText(locale, "[%s] %s: %s: skeletal (placeholders or comments only)\n", "[%s] %s: %s: esqueleto (apenas placeholders/comentários)\n"), level, slug, name)
+			lint.finding(sectionState(isRequired[name]), "section", fmt.Sprintf(cliText(locale, "%s: skeletal (placeholders or comments only)", "%s: esqueleto (apenas placeholders/comentários)"), name))
 			if isRequired[name] {
 				requiredMissing++
 			}
 		default:
 			empty++
-			fmt.Fprintf(stderr, cliText(locale, "[%s] %s: %s: empty\n", "[%s] %s: %s: vazia\n"), level, slug, name)
+			lint.finding(sectionState(isRequired[name]), "section", fmt.Sprintf(cliText(locale, "%s: empty", "%s: vazia"), name))
 			if isRequired[name] {
 				requiredMissing++
 			}
@@ -442,7 +462,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	}
 	lifecycle := 0
 	if specStatus != "unset" && !validStatus[specStatus] {
-		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: invalid frontmatter status: '%s' (use draft|in-progress|done|blocked|superseded|abandoned)\n", "[ERRO] %s: status inválido no frontmatter: '%s' (use draft|in-progress|done|blocked|superseded|abandoned)\n"), slug, specStatus)
+		lint.finding(cliout.StateError, "frontmatter", fmt.Sprintf(cliText(locale, "invalid frontmatter status: '%s' (use draft|in-progress|done|blocked|superseded|abandoned)", "status inválido no frontmatter: '%s' (use draft|in-progress|done|blocked|superseded|abandoned)"), specStatus))
 		lifecycle++
 	}
 
@@ -456,13 +476,13 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		if t, ok := parseISOInstant(value); ok {
 			parsed[field] = t
 		} else {
-			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: %s must use ISO 8601: '%s'\n", "[ERRO] %s: %s deve usar ISO 8601: '%s'\n"), slug, field, value)
+			lint.finding(cliout.StateError, "frontmatter", fmt.Sprintf(cliText(locale, "%s must use ISO 8601: '%s'", "%s deve usar ISO 8601: '%s'"), field, value))
 			lifecycle++
 		}
 	}
 	if c, ok1 := parsed["created_at"]; ok1 {
 		if d, ok2 := parsed["completed_at"]; ok2 && d.Before(c) {
-			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: completed_at is earlier than created_at\n", "[ERRO] %s: completed_at anterior a created_at\n"), slug)
+			lint.finding(cliout.StateError, "frontmatter", cliText(locale, "completed_at is earlier than created_at", "completed_at anterior a created_at"))
 			lifecycle++
 		}
 	}
@@ -487,11 +507,11 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	}
 	sort.Strings(dupNames)
 	for _, n := range dupNames {
-		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: duplicate canonical heading: %s appears %d times\n", "[ERRO] %s: heading canônico duplicado: %s aparece %d vezes\n"), slug, n, nameCount[n])
+		lint.finding(cliout.StateError, "heading", fmt.Sprintf(cliText(locale, "duplicate canonical heading: %s appears %d times", "heading canônico duplicado: %s aparece %d vezes"), n, nameCount[n]))
 		lifecycle++
 	}
 	if followupHeadings > 1 {
-		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: duplicate canonical heading: Follow-ups appears %d times\n", "[ERRO] %s: heading canônico duplicado: Follow-ups aparece %d vezes\n"), slug, followupHeadings)
+		lint.finding(cliout.StateError, "heading", fmt.Sprintf(cliText(locale, "duplicate canonical heading: Follow-ups appears %d times", "heading canônico duplicado: Follow-ups aparece %d vezes"), followupHeadings))
 		lifecycle++
 	}
 
@@ -505,7 +525,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 				continue
 			}
 			if st := siblingSpecStatus(specsDir, dep); st != "" && st != "done" {
-				fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: in-progress with unsatisfied dependency: '%s' (status: %s)\n", "[AVISO] %s: in-progress com dependência não satisfeita: '%s' (status: %s)\n"), slug, dep, st)
+				lint.finding(cliout.StateWarning, "dependency", fmt.Sprintf(cliText(locale, "in-progress with unsatisfied dependency: '%s' (status: %s)", "in-progress com dependência não satisfeita: '%s' (status: %s)"), dep, st))
 			}
 		}
 	}
@@ -524,7 +544,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	}
 	sort.Strings(rids)
 	for _, id := range rids {
-		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: duplicate R-ID: %s appears %d times in Requirements\n", "[ERRO] %s: R-ID duplicado: %s aparece %d vezes em Requirements\n"), slug, id, seen[id])
+		lint.finding(cliout.StateError, "requirement", fmt.Sprintf(cliText(locale, "duplicate R-ID: %s appears %d times in Requirements", "R-ID duplicado: %s aparece %d vezes em Requirements"), id, seen[id]))
 		ridFailures++
 	}
 
@@ -535,11 +555,11 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	trace := posepkg.ParseRequirementTrace(text)
 	traceFailures := 0
 	for _, msg := range trace.Errors {
-		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: requirement trace: %s\n", "[ERRO] %s: requirement trace: %s\n"), slug, msg)
+		lint.finding(cliout.StateError, "requirement-trace", fmt.Sprintf(cliText(locale, "requirement trace: %s", "requirement trace: %s"), msg))
 		traceFailures++
 	}
 	for _, id := range trace.Orphans {
-		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: requirement trace: %s is traced but not declared in Requirements\n", "[ERRO] %s: requirement trace: %s rastreado mas não declarado em Requirements\n"), slug, id)
+		lint.finding(cliout.StateError, "requirement-trace", fmt.Sprintf(cliText(locale, "requirement trace: %s is traced but not declared in Requirements", "requirement trace: %s rastreado mas não declarado em Requirements"), id))
 		traceFailures++
 	}
 	traceEntries := 0
@@ -551,7 +571,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	if specStatus == "done" {
 		if trace.HasSection {
 			for _, id := range trace.Missing {
-				fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: requirement trace: %s has no trace entry (declare satisfied, waived or withdrawn)\n", "[ERRO] %s: requirement trace: %s sem entrada de trace (declare satisfied, waived ou withdrawn)\n"), slug, id)
+				lint.finding(cliout.StateError, "requirement-trace", fmt.Sprintf(cliText(locale, "requirement trace: %s has no trace entry (declare satisfied, waived or withdrawn)", "requirement trace: %s sem entrada de trace (declare satisfied, waived ou withdrawn)"), id))
 				traceFailures++
 			}
 		} else if len(trace.Requirements) > 0 {
@@ -559,20 +579,20 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			// trace. They now have one, so a done spec with requirements and no
 			// trace is a real gap rather than a legacy artefact
 			// (spec pose-governance-gate-activation, R2).
-			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: done without a '### Requirement trace' subsection in Validation (every done spec must trace its R-IDs)\n", "[ERRO] %s: done sem subseção '### Requirement trace' em Validation (toda spec done deve rastrear seus R-IDs)\n"), slug)
+			lint.finding(cliout.StateError, "requirement-trace", cliText(locale, "done without a '### Requirement trace' subsection in Validation (every done spec must trace its R-IDs)", "done sem subseção '### Requirement trace' em Validation (toda spec done deve rastrear seus R-IDs)"))
 			traceFailures++
 		}
 	}
 	if root, err := projectRoot(); err == nil {
 		if deliveryPolicy, err := posepkg.LoadDeliveryPolicy(root); err != nil {
-			fmt.Fprintf(stderr, "[ERROR] %s: delivery policy: %v\n", slug, err)
+			lint.finding(cliout.StateError, "delivery", fmt.Sprintf("delivery policy: %v", err))
 			traceFailures++
 		} else if deliveryPolicy.Enabled {
 			store := posepkg.Store{Root: root}
 			if full, err := store.GetSpec(slug); err == nil {
 				targets, found, parseErr := posepkg.ParseDeliveryTargets(*full)
 				if parseErr != nil {
-					fmt.Fprintf(stderr, "[ERROR] %s: delivery targets: %v\n", slug, parseErr)
+					lint.finding(cliout.StateError, "delivery", fmt.Sprintf("delivery targets: %v", parseErr))
 					traceFailures++
 				} else if (found || len(full.Delivers) > 0) && specStatus == "done" {
 					statuses := map[string]string{}
@@ -582,7 +602,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 						}
 					}
 					for _, message := range posepkg.ValidateDeliveryTrace(*full, targets, statuses) {
-						fmt.Fprintf(stderr, "[ERROR] %s: delivery trace: %s\n", slug, message)
+						lint.finding(cliout.StateError, "delivery", fmt.Sprintf("delivery trace: %s", message))
 						traceFailures++
 					}
 				}
@@ -595,13 +615,13 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	// requirement state — silent post-evidence rewrites are rejected.
 	amendFailures, amendEvents := 0, 0
 	if events, aerr := posepkg.LoadAmendments(posepkg.AmendmentsPath(specPath)); aerr != nil {
-		fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: amendments.jsonl: %v\n", "[ERRO] %s: amendments.jsonl: %v\n"), slug, aerr)
+		lint.finding(cliout.StateError, "amendments", fmt.Sprintf(cliText(locale, "amendments.jsonl: %v", "amendments.jsonl: %v"), aerr))
 		amendFailures++
 	} else if events != nil {
 		amendEvents = len(events)
 		if specStatus == "done" {
 			for _, finding := range posepkg.UnacknowledgedChanges(text, events) {
-				fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: amendment history: %s\n", "[ERRO] %s: amendment history: %s\n"), slug, finding)
+				lint.finding(cliout.StateError, "amendments", fmt.Sprintf(cliText(locale, "amendment history: %s", "amendment history: %s"), finding))
 				amendFailures++
 			}
 		}
@@ -613,17 +633,17 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 
 	if specStatus == "done" {
 		if strings.TrimSpace(frontmatter["completed_at"]) == "" {
-			fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: status: done requires populated 'completed_at' frontmatter\n", "[ERRO] %s: status: done exige 'completed_at' preenchido no frontmatter\n"), slug)
+			lint.finding(cliout.StateError, "frontmatter", cliText(locale, "status: done requires populated 'completed_at' frontmatter", "status: done exige 'completed_at' preenchido no frontmatter"))
 			lifecycle++
 		}
 		if root, err := projectRoot(); err == nil {
 			if policy, err := posepkg.LoadArtifactPolicy(root); err != nil {
-				fmt.Fprintf(stderr, "[ERROR] %s: artifact policy: %v\n", slug, err)
+				lint.finding(cliout.StateError, "artifacts", fmt.Sprintf("artifact policy: %v", err))
 				lifecycle++
 			} else if policy.Enabled && strings.TrimSpace(frontmatter["completed_at"]) >= policy.AdoptedAt {
 				claims, found, err := posepkg.ParseArtifactClaims(posepkg.Spec{Slug: slug, Body: text}, policy)
 				if err != nil || !found || len(claims) == 0 {
-					fmt.Fprintf(stderr, "[ERROR] %s: structured Artifacts declaration required after %s: %v\n", slug, policy.AdoptedAt, err)
+					lint.finding(cliout.StateError, "artifacts", fmt.Sprintf("structured Artifacts declaration required after %s: %v", policy.AdoptedAt, err))
 					lifecycle++
 				}
 			}
@@ -635,7 +655,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 				if len([]rune(snippet)) > 60 {
 					snippet = string([]rune(snippet)[:60]) + "…"
 				}
-				fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: follow-up lacks a valid disposition: %s → \"%s\"\n", "[ERRO] %s: follow-up sem disposição válida: %s → \"%s\"\n"), slug, errMsg, snippet)
+				lint.finding(cliout.StateError, "follow-up", fmt.Sprintf(cliText(locale, "follow-up lacks a valid disposition: %s → \"%s\"", "follow-up sem disposição válida: %s → \"%s\""), errMsg, snippet))
 				lifecycle++
 			} else if disposition == "open" {
 				followupsOpen++
@@ -645,12 +665,12 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 				// warnings; malformed metadata is an error.
 				_, owner, _, _, _, metaErr := parseFollowupMeta(content)
 				if metaErr != "" {
-					fmt.Fprintf(stderr, cliText(locale, "[ERROR] %s: open follow-up ownership: %s\n", "[ERRO] %s: ownership de follow-up aberto: %s\n"), slug, metaErr)
+					lint.finding(cliout.StateError, "follow-up", fmt.Sprintf(cliText(locale, "open follow-up ownership: %s", "ownership de follow-up aberto: %s"), metaErr))
 					lifecycle++
 				} else if followupMetaMisplaced(content) {
 					warnMisplacedFollowupMeta(stderr, locale, slug, content)
 				} else if owner == "unowned" {
-					fmt.Fprintf(stderr, cliText(locale, "[WARNING] %s: open follow-up is unowned (declare '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)')\n", "[AVISO] %s: follow-up aberto sem dono (declare '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)')\n"), slug)
+					lint.finding(cliout.StateWarning, "follow-up", cliText(locale, "open follow-up is unowned (declare '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)')", "follow-up aberto sem dono (declare '(owner:@alias crit:low|medium|high review:YYYY-MM-DD)')"))
 				}
 			} else if disposition == "covered" {
 				m := dispositionRE.FindStringSubmatch(content)

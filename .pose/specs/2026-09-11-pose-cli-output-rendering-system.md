@@ -172,6 +172,11 @@ The architecture, and the alternatives rejected, are in ADR
 - created: pose-mcp/internal/cli/testdata/contract-lines.json
 - modified: pose-mcp/internal/cli/report.go
 - modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/cli/knowledge_usage.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/amend_test.go
+- modified: pose-mcp/internal/cli/knowledge_usage_test.go
 
 Implementation artifacts are declared as each increment lands; the list above is
 what this spec creates before code.
@@ -200,7 +205,7 @@ depend on today (Decision 7).
 - [x] Increment 1 — the layer, invisible: profile, emitters, vocabulary, catalog
       skeleton, guard test with a full allowlist. Output stays byte-identical,
       proven by the existing assertions (R1, R2, R3, R10).
-- [ ] Increment 2 — the contract: enumerate contract lines with golden tests,
+- [x] Increment 2 — the contract: enumerate contract lines with golden tests,
       move `pose report` to structured input, fix the 43 misplaced sites (R4, R5).
 - [ ] Increment 3 — the human channel: symbols with ASCII fallback, palette,
       `tabwriter` alignment, prose wrapping, summary blocks, findings with their

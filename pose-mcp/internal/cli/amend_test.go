@@ -82,8 +82,10 @@ func TestAmendBaselineAndCloseoutGate(t *testing.T) {
 	if rc := lintOneSpec(specPath, false, false, &o, &e); rc == 0 {
 		t.Fatal("unacknowledged semantic change at done must fail")
 	}
-	if !strings.Contains(e.String(), "R2 changed after its last acknowledged amendment") {
-		t.Errorf("expected unacknowledged-change diagnostic, got: %s", e.String())
+	// The diagnostic is the command's result, so it is read from stdout
+	// (spec pose-cli-output-rendering-system R4).
+	if !strings.Contains(o.String(), "R2 changed after its last acknowledged amendment") {
+		t.Errorf("expected unacknowledged-change diagnostic, got: %s", o.String()+e.String())
 	}
 	// Acknowledging the change clears the gate.
 	if code, out := runAmend(t, root, "amended", "--ids", "R2", "--change", "semantic", "--rationale", "scope pivot", "--author", "@core", "--reviewer", "@lead"); code != 0 {
@@ -110,8 +112,10 @@ func TestAmendRemovalNeedsWithdrawnEvent(t *testing.T) {
 	if rc := lintOneSpec(specPath, false, false, &o, &e); rc == 0 {
 		t.Fatal("silent removal must fail closeout")
 	}
-	if !strings.Contains(e.String(), "R2 was removed without a withdrawn amendment event") {
-		t.Errorf("expected removal diagnostic, got: %s", e.String())
+	// The diagnostic is the command's result, so it is read from stdout
+	// (spec pose-cli-output-rendering-system R4).
+	if !strings.Contains(o.String(), "R2 was removed without a withdrawn amendment event") {
+		t.Errorf("expected removal diagnostic, got: %s", o.String()+e.String())
 	}
 	if code, out := runAmend(t, root, "amended", "--ids", "R2", "--change", "withdrawn", "--rationale", "descoped", "--author", "@core"); code != 0 {
 		t.Fatalf("withdrawn amend exit=%d: %s", code, out)
