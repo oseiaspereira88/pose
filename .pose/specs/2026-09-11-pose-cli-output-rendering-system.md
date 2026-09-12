@@ -182,6 +182,11 @@ The architecture, and the alternatives rejected, are in ADR
 - modified: pose-mcp/internal/cli/help_catalog.go
 - modified: pose-mcp/internal/cli/cli_test.go
 - modified: pose-mcp/internal/cli/workspace_alias_test.go
+- modified: pose-mcp/internal/cli/cliout/render.go
+- modified: pose-mcp/internal/cli/cliout/cliout_test.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/surface_check.go
+- modified: pose-mcp/internal/cli/cli.go
 
 Implementation artifacts are declared as each increment lands; the list above is
 what this spec creates before code.
@@ -212,7 +217,7 @@ depend on today (Decision 7).
       proven by the existing assertions (R1, R2, R3, R10).
 - [x] Increment 2 — the contract: enumerate contract lines with golden tests,
       move `pose report` to structured input, fix the 43 misplaced sites (R4, R5).
-- [ ] Increment 3 — the human channel: symbols with ASCII fallback, palette,
+- [~] Increment 3 — the human channel: symbols with ASCII fallback, palette,
       `tabwriter` alignment, prose wrapping, summary blocks, findings with their
       remediation, one error shape with suggestions (R3, R9, R11).
 - [x] Increment 4 — long runs: step model, TTY status line with spinner, elapsed
@@ -337,7 +342,9 @@ capture) with tests that fail against today's code.
 - Pending.
 
 ### Known gaps
-- Pending.
+- `pose check`'s findings are not migrated yet. A test pins `[ERRO]` as an
+  untranslated machine anchor, so they move in the same change that gives
+  `check` a `--json` channel to carry that anchor — increment 5, not 3.
 
 ---
 

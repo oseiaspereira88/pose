@@ -328,7 +328,10 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 
-	fmt.Fprintf(stderr, "%s: %s\n", cliText(locale, "Unknown command", "Comando desconhecido"), cmd)
+	// It used to print the whole argv as if it were the command's name, and
+	// offered nothing when the input was a typo (spec
+	// pose-cli-output-rendering-system R11).
+	render(stdout, stderr).UnknownToken(cliText(locale, "command", "comando"), cmd, knownCommandNames())
 	fmt.Fprintln(stderr, cliText(locale, "Run 'pose help' to see available commands.", "Execute 'pose help' para ver os comandos disponíveis."))
 	return 2
 }
@@ -377,7 +380,6 @@ func cmdVersion(w io.Writer, target string) int {
 	}
 	return 0
 }
-
 
 const helpTextEN = `POSE - Project Operating Standard for Engineering
 

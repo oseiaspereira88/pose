@@ -123,9 +123,15 @@ func (r *Renderer) Finding(f Finding) {
 	if f.Path != "" {
 		head += " " + paint(r.outP, sgrBold, f.Path)
 	}
-	fmt.Fprintln(r.out, head)
-	for _, line := range r.wrap(f.Message, 4) {
-		fmt.Fprintln(r.out, line)
+	if f.Code == "" && f.Path == "" {
+		// Nothing identifies the subject but the sentence itself, so it stays on
+		// the head line instead of being indented under an empty one.
+		fmt.Fprintln(r.out, head+" "+f.Message)
+	} else {
+		fmt.Fprintln(r.out, head)
+		for _, line := range r.wrap(f.Message, 4) {
+			fmt.Fprintln(r.out, line)
+		}
 	}
 	if f.Remediation != "" {
 		for i, line := range r.wrap(Msg(MsgFix, r.locale)+": "+f.Remediation, 4) {

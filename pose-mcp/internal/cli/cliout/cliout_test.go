@@ -123,6 +123,17 @@ func TestFindingCarriesItsRemediationAndStaysOnStdout(t *testing.T) {
 	}
 }
 
+// A finding with nothing but a sentence keeps the sentence on the head line:
+// indenting it under an empty head wastes a line and reads worse.
+func TestAFindingWithoutCodeOrPathStaysOnOneLine(t *testing.T) {
+	out := &bytes.Buffer{}
+	r := NewPlain(out, &bytes.Buffer{})
+	r.Finding(Finding{State: StateWarning, Message: "schema: instance has no .pose/schema-version"})
+	if out.String() != "[!] warning schema: instance has no .pose/schema-version\n" {
+		t.Fatalf("got %q", out.String())
+	}
+}
+
 // Quiet keeps the verdict and drops everything else; the exit code and the
 // decision are what a script needs.
 func TestQuietKeepsOnlyTheVerdict(t *testing.T) {

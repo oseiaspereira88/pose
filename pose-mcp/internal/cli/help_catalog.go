@@ -1,5 +1,7 @@
 package cli
 
+import "sort"
+
 // FlagHelp describes a single command flag or option.
 type FlagHelp struct {
 	Flag            string
@@ -9,10 +11,10 @@ type FlagHelp struct {
 
 // SubcommandHelp describes a subcommand within a command group.
 type SubcommandHelp struct {
-	Name            string
-	Usage           string
-	SummaryEN       string
-	SummaryPtBR     string
+	Name        string
+	Usage       string
+	SummaryEN   string
+	SummaryPtBR string
 }
 
 // CommandHelp contains full structured documentation for a CLI command.
@@ -26,6 +28,18 @@ type CommandHelp struct {
 	Flags           []FlagHelp
 	Subcommands     []SubcommandHelp
 	Examples        []string
+}
+
+// knownCommandNames lists the commands the help catalog documents, sorted, so an
+// unknown command can be matched against real names instead of guessed at
+// (spec pose-cli-output-rendering-system R11).
+func knownCommandNames() []string {
+	names := make([]string, 0, len(commandHelpCatalog))
+	for name := range commandHelpCatalog {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 // commandHelpCatalog maps command names to their structured help definitions.

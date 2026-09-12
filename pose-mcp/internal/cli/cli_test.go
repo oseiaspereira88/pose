@@ -110,7 +110,9 @@ func TestUnknownCommandExit2(t *testing.T) {
 	if code != 2 {
 		t.Fatalf("unknown command exit=%d, want 2", code)
 	}
-	if !strings.Contains(errB.String(), "Unknown command") {
+	// One shape for every unrecognised token, naming the token alone
+	// (spec pose-cli-output-rendering-system R11).
+	if !strings.Contains(errB.String(), `unknown command: "definitely-not-a-command"`) {
 		t.Fatalf("missing error message: %q", errB.String())
 	}
 }
@@ -462,9 +464,9 @@ func TestCLILocaleSelectionAndFallback(t *testing.T) {
 	for _, tc := range []struct {
 		locale, want string
 	}{
-		{"en", "Unknown command"},
-		{"pt-BR", "Comando desconhecido"},
-		{"fr", "Unknown command"},
+		{"en", `unknown command: "not-a-command"`},
+		{"pt-BR", `comando desconhecido: "not-a-command"`},
+		{"fr", `unknown command: "not-a-command"`},
 	} {
 		_ = os.Setenv("POSE_LOCALE", tc.locale)
 		var out, errB bytes.Buffer
