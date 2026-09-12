@@ -51,12 +51,15 @@ colours or alignment themselves. A guard test forbids direct `fmt.Fprint*` in
 command code against an allowlist that may only shrink, which is how POSE
 already keeps the help catalog and the tool catalog from eroding.
 
-**2. Decoration happens at the edge; the data stays plain.** One capability
-profile per process resolves TTY-ness, colour, unicode, width and locale from
-`--color`/`POSE_COLOR`, `NO_COLOR`, `TERM`, `COLUMNS` and `os.Stdout.Stat()`.
-Colour, symbols and animation are applied while writing to a terminal. Nothing
-written to a file, a JSON document, a report or any evidence record ever carries
-an escape sequence.
+**2. Decoration happens at the edge; the data stays plain.** A capability
+profile — TTY-ness, colour, unicode, width, locale — is resolved **per output
+stream**, from `--color`/`POSE_COLOR`, `NO_COLOR`, `TERM`, `COLUMNS` and that
+stream's own `Stat`. Streams are redirected independently (`pose validate
+2>progress.log` leaves stdout on a terminal while stderr is a file), so one
+process-wide profile would let a spinner write control sequences into a
+redirected log. Colour, symbols and animation are applied only while writing to
+a stream that is itself a terminal. Nothing written to a file, a JSON document, a
+report or any evidence record ever carries an escape sequence.
 
 **3. Channels are a rule, not a habit.** stdout carries the command's result —
 its verdict, findings and data. stderr carries progress, usage, and the failures
@@ -141,8 +144,8 @@ one line per event.
 - Trade-off: the Markdown report is assembled from the printed run, so its shape
   moves with the restyle; the validation JSON moves only if capture changes, and
   the history JSONL, which stores no output, does not move at all.
-- Trade-off: a catalog plus a capability profile is more machinery than
-  `Fprintf`, and every new message costs two strings.
+- Trade-off: a catalog plus a per-stream capability profile is more machinery
+  than `Fprintf`, and every new message costs two strings.
 - Neutral: `--json`'s file-path spelling in `validate` survives as a deprecated
   alias, so no script breaks on upgrade.
 

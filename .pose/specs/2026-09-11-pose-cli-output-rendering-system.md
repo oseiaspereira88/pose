@@ -72,10 +72,11 @@ The architecture, and the alternatives rejected, are in ADR
 ## 2. Requirements
 
 ### Functional
-- R1: A `cliout` package shall resolve one capability profile per process — TTY,
-  colour, unicode, width, locale — from `--color`, `POSE_COLOR`, `NO_COLOR`,
-  `TERM`, `COLUMNS` and the streams themselves, and shall own every byte the CLI
-  prints.
+- R1: A `cliout` package shall resolve a capability profile — TTY, colour,
+  unicode, width, locale — **per output stream**, from `--color`, `POSE_COLOR`,
+  `NO_COLOR`, `TERM`, `COLUMNS` and that stream's own `Stat`, and shall own every
+  byte the CLI prints. A stream that is not a terminal shall receive no escape
+  sequence even when the other one is.
 - R2: Commands shall emit semantic events — `Verdict`, `Finding`, `Step`,
   `Field`, `Table`, `Section`, `Hint` — and shall not format severities,
   symbols, colours or alignment themselves. A guard test shall fail on a direct
@@ -157,11 +158,17 @@ The architecture, and the alternatives rejected, are in ADR
 
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-cli-output-rendering-system.md
-- created: .pose/changelogs/unreleased/pose-cli-output-rendering-system.md
 - created: .pose/adr/2026-09-11-the-cli-has-one-rendering-layer-and-its-printed-lines-are-a-contract.md
 
 Implementation artifacts are declared as each increment lands; the list above is
 what this spec creates before code.
+
+The changelog fragment is **not** created here. `releaseInputs` consumes any
+fragment whose spec merely exists, so a cut taken before the work lands would
+publish a release note for a feature that does not exist yet. It is written at
+closeout, and it carries `breaking: true`: R4 moves findings between stdout and
+stderr and R7 stops streaming a check's output, both of which a script can
+depend on today (Decision 7).
 
 ### Technical risks
 - The Markdown report is assembled from the printed run, so its shape moves with
@@ -246,6 +253,19 @@ what this spec creates before code.
 - Rationale: the enforcement point lands everywhere at once; the restyle lands
   where a human spends time first, and the allowlist makes the remainder
   visible instead of forgotten.
+
+### Decision 7
+- Date: 2026-09-12
+- Context: review of pose#110 — the fragment written with the spec advertises the
+  feature before it exists, and `breaking: false` would classify the release that
+  ships R4 and R7 as a patch.
+- Decision: the fragment is created at closeout, with `breaking: true`.
+- Rationale: `releaseInputs` does not require a spec to be `done`, so the
+  fragment is a release note waiting to be published by any cut; and moving
+  findings between streams while changing what `validate` streams is a change a
+  script can break on, which is what the field is for. If staying non-breaking
+  matters more than the default, R7 can ship behind a flag — that is a scope
+  decision, not a relabelling.
 
 ### Decision 6
 - Date: 2026-09-11
