@@ -390,7 +390,10 @@ func TestValidateNativeRunsStructuredChecksWithoutShell(t *testing.T) {
 			t.Fatalf("validate not native: out=%q err=%q", out.String(), errB.String())
 		}
 		out.Reset()
-		if code := Main([]string{"validate", "--module", "contracts"}, &out, &errB); code != 0 || !strings.Contains(out.String(), "[module] contracts") {
+		errB.Reset()
+		// The module header is progress and lands on stderr
+		// (spec pose-cli-output-rendering-system R4).
+		if code := Main([]string{"validate", "--module", "contracts"}, &out, &errB); code != 0 || !strings.Contains(errB.String(), "[module] contracts") {
 			t.Fatalf("override-only module not discovered: exit=%d out=%s err=%s", code, out.String(), errB.String())
 		}
 		if code := Main([]string{"validate", "--module", "../escape"}, &out, &errB); code != 2 {

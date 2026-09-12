@@ -145,6 +145,23 @@ func (st *Step) Detail(text, fullOutputPath string) {
 	}
 }
 
+// Note prints a progress line that belongs to the group rather than to one
+// step — a module header, for instance. Any painted status line is cleared
+// first, so the two never overwrite each other.
+func (s *StepSet) Note(text string) {
+	if s.p.Quiet || strings.TrimSpace(text) == "" {
+		return
+	}
+	s.clear()
+	fmt.Fprintln(s.w, text)
+	s.mu.Lock()
+	active := s.active != nil
+	s.mu.Unlock()
+	if active {
+		s.paint()
+	}
+}
+
 // Summary closes the group with the counts and the elapsed time.
 func (s *StepSet) Summary() {
 	s.stopTicker()

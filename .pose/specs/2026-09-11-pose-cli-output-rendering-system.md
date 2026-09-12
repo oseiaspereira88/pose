@@ -177,6 +177,11 @@ The architecture, and the alternatives rejected, are in ADR
 - modified: pose-mcp/internal/cli/maintenance.go
 - modified: pose-mcp/internal/cli/amend_test.go
 - modified: pose-mcp/internal/cli/knowledge_usage_test.go
+- created: pose-mcp/internal/cli/validate_progress_test.go
+- modified: pose-mcp/internal/cli/cliout/steps.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/cli_test.go
+- modified: pose-mcp/internal/cli/workspace_alias_test.go
 
 Implementation artifacts are declared as each increment lands; the list above is
 what this spec creates before code.
@@ -210,7 +215,7 @@ depend on today (Decision 7).
 - [ ] Increment 3 — the human channel: symbols with ASCII fallback, palette,
       `tabwriter` alignment, prose wrapping, summary blocks, findings with their
       remediation, one error shape with suggestions (R3, R9, R11).
-- [ ] Increment 4 — long runs: step model, TTY status line with spinner, elapsed
+- [x] Increment 4 — long runs: step model, TTY status line with spinner, elapsed
       and counter, `validate` capture with `--verbose` and per-check outcome
       lines (R6, R7).
 - [ ] Increment 5 — the machine channel and the docs: `--json` everywhere,

@@ -81,7 +81,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "validate",
 		SummaryEN:       "Execute the deterministic validation matrix across all modules",
 		SummaryPtBR:     "Executa a matriz determinística de validação em todos os módulos",
-		Usage:           "pose validate [--strict|--tolerant] [--stack <s>] [--module <p>] [--report] [--json <path>]",
+		Usage:           "pose validate [--strict|--tolerant] [--stack <s>] [--module <p>] [--report] [--json <path>] [--verbose]",
 		DescriptionEN:   "Executes deterministic verification commands (tests, linters, typechecks, builds) declared in .pose/indexes/validation-matrix.json.",
 		DescriptionPtBR: "Executa comandos de verificação determinísticos (testes, linters, checagens de tipo, builds) declarados em .pose/indexes/validation-matrix.json.",
 		Flags: []FlagHelp{
@@ -92,9 +92,11 @@ var commandHelpCatalog = map[string]CommandHelp{
 			{"--report", "Persist validation findings into .pose/reports/", "Persiste os achados de validação sob .pose/reports/"},
 			{"--json <path>", "Write structured validation outcome to the specified JSON path", "Grava o resultado da validação no caminho JSON especificado"},
 			{"--changed-from <rev>", "Validate only modules affected between git revisions", "Valida apenas módulos afetados entre as revisões git"},
+			{"--verbose", "Stream each check's output as it runs; by default it is captured and a failing check's tail is shown", "Transmite a saída de cada check durante a execução; por padrão ela é capturada e o final da saída de um check que falha é exibido"},
 		},
 		Examples: []string{
 			"pose validate --strict",
+			"pose validate --module pose-mcp --verbose",
 			"pose validate --module pose-mcp --strict",
 			"pose validate --json .pose/results/delivery-validation.json",
 		},

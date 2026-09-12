@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"os"
 	"os/exec"
@@ -320,6 +321,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	jsonOut, junitOut, sarifOut, planOut := "", "", "", ""
 	changedFrom, changedTo := "", ""
 	explain := false
+	verbose := false
 	autoReport := false
 	rootOnly := false
 	workspaceFilter := ""
@@ -334,6 +336,10 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			autoReport = true
 		case "--explain":
 			explain = true
+		case "--verbose":
+			// A check's output is captured by default; --verbose streams it
+			// (spec pose-cli-output-rendering-system R7).
+			verbose = true
 		case "--root-only":
 			// Documented alias of --module . (spec
 			// pose-monorepo-validation-advisory, R2) — sugar over the
@@ -535,6 +541,29 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	failures := 0
 	optionalFailures := 0
 	executed := 0
+	r := render(stdout, stderr)
+	r.SetVerbose(verbose)
+	// The counter needs the whole plan up front, so the checks a module runs are
+	// resolved by one helper called twice: counting here, executing below. A
+	// second copy of the filter logic would drift from this one.
+	planned := 0
+	for _, module := range modules {
+		_, checks, selected := moduleValidationChecks(module, matrix, stackFilter, moduleFilter)
+		if !selected {
+			continue
+		}
+		if scope != nil {
+			if _, inScope := scope.Selected[module.Rel]; !inScope {
+				continue
+			}
+		}
+		for _, check := range checks {
+			if check.Program != "" {
+				planned++
+			}
+		}
+	}
+	steps := r.Steps(planned)
 	for _, module := range modules {
 		override := matrix.ModuleOverrides[module.Rel]
 		stack := module.Stack
@@ -576,7 +605,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		if override.Mode != "" {
 			moduleMode = override.Mode
 		}
-		fmt.Fprintf(stdout, "[module] %s (%s, mode=%s)\n", module.Rel, stack, moduleMode)
+		steps.Note(fmt.Sprintf("[module] %s (%s, mode=%s)", module.Rel, stack, moduleMode))
 		for _, check := range checks {
 			if check.Program == "" {
 				continue
@@ -599,18 +628,21 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 				run.Counts.Skipped++
 				run.Checks = append(run.Checks, result)
 				isolationChecks = append(isolationChecks, result)
-				fmt.Fprintf(stdout, "  -- %s: skipped (%s)\n", check.Name, result.SkipReason)
+				steps.Start(check.Name, "").Resolve(cliout.StateSkipped, result.SkipReason)
 				continue
 			}
 			if reason := validationSkipReason(module.Abs, check.When); reason != "" {
 				result.Outcome, result.SkipReason = "skipped", reason
 				run.Counts.Skipped++
 				run.Checks = append(run.Checks, result)
+				// A skipped check used to print nothing at all, so a reader
+				// could not tell it from one that never existed (R7).
+				steps.Start(check.Name, "").Resolve(cliout.StateSkipped, reason)
 				continue
 			}
 			executed++
 			run.Counts.Executed++
-			fmt.Fprintf(stdout, "  -> %s %s\n", check.Program, strings.Join(check.Args, " "))
+			step := steps.Start(check.Name, strings.TrimSpace(check.Program+" "+strings.Join(check.Args, " ")))
 			timeout := check.TimeoutSeconds
 			if timeout <= 0 {
 				timeout = matrix.Defaults.TimeoutSeconds
@@ -630,8 +662,19 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			setProcessGroup(cmd)
 			cmd.Cancel = func() error { return killProcessGroup(cmd) }
 			cmd.Dir = module.Abs
-			cmd.Stdout = io.MultiWriter(stdout, capture, limiter)
-			cmd.Stderr = io.MultiWriter(stderr, capture, limiter)
+			// The renderer owns the terminal while a step is active: a child
+			// writing to it would fight the status line, and streaming every
+			// check's output is what buried the run's own verdict. The output is
+			// captured and shown when the check fails; --verbose streams it
+			// (spec pose-cli-output-rendering-system R7).
+			if verbose {
+				steps.Release()
+				cmd.Stdout = io.MultiWriter(stdout, capture, limiter)
+				cmd.Stderr = io.MultiWriter(stderr, capture, limiter)
+			} else {
+				cmd.Stdout = io.MultiWriter(capture, limiter)
+				cmd.Stderr = io.MultiWriter(capture, limiter)
+			}
 			cmd.Env = os.Environ()
 			for key, value := range check.Env {
 				cmd.Env = append(cmd.Env, key+"="+value)
@@ -688,22 +731,34 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 					optionalFailures++
 				}
 			}
+			note := ""
+			if result.LimitState != "" {
+				note = result.LimitState
+			} else if result.ExitCode != nil {
+				note = fmt.Sprintf("exit=%d", *result.ExitCode)
+			}
+			step.Resolve(cliout.StateFromKey(result.Outcome), note)
+			if !verbose && (result.Outcome == "fail" || result.Outcome == "error") {
+				step.Detail(tailLines(result.Output, 10), jsonOut)
+			}
 			run.Checks = append(run.Checks, result)
 		}
 	}
+	steps.Summary()
 	if executed == 0 {
 		fmt.Fprintln(stdout, "No modules/checks matched the matrix and filters.")
 	}
 	result := "pass"
 	if failures > 0 {
 		result = "fail"
-		fmt.Fprintln(stdout, "Result: FAILURE (required check failed)")
+		r.Verdict(cliout.Verdict{State: cliout.StateFail, Text: cliText(locale, "required check failed", "check obrigatório falhou")})
 	} else {
 		if optionalFailures > 0 {
 			result = "partial"
-			fmt.Fprintf(stdout, "Warning: %d optional check(s) failed.\n", optionalFailures)
+			r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "optional-check",
+				Message: fmt.Sprintf(cliText(locale, "%d optional check(s) failed", "%d check(s) opcional(is) falharam"), optionalFailures)})
 		}
-		fmt.Fprintln(stdout, "Result: SUCCESS")
+		r.Verdict(cliout.Verdict{State: cliout.StatePass})
 	}
 	run.Outcome = result
 	usageFindings := make([]usageFinding, 0, run.Counts.Failed+run.Counts.OptionalFailed+run.Counts.Errored)
@@ -785,6 +840,36 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 // it executed and one line per check, with the outcome the run reached. It is
 // the structured replacement for parsing the printed output (spec
 // pose-cli-output-rendering-system R5).
+// moduleValidationChecks resolves the stack and checks one module runs after
+// overrides, and whether the stack/module filters select it at all. The counting
+// pass and the executing pass share it so a filter can never mean two things
+// (spec pose-cli-output-rendering-system R6).
+func moduleValidationChecks(module validationModule, matrix validationMatrix, stackFilter, moduleFilter string) (string, []validationCheck, bool) {
+	override := matrix.ModuleOverrides[module.Rel]
+	stack := module.Stack
+	if override.Stack != "" {
+		stack = override.Stack
+	}
+	if stackFilter != "" && stack != stackFilter || moduleFilter != "" && module.Rel != moduleFilter {
+		return stack, nil, false
+	}
+	checks := append([]validationCheck(nil), matrix.Stacks[stack].Checks...)
+	if override.ReplaceDefaultChecks {
+		checks = nil
+	}
+	return stack, append(checks, override.Checks...), true
+}
+
+// tailLines keeps the last n lines of a check's captured output: enough to see
+// why it failed, with the full output one path away.
+func tailLines(text string, n int) string {
+	lines := strings.Split(strings.TrimRight(text, "\n"), "\n")
+	if len(lines) <= n {
+		return strings.Join(lines, "\n")
+	}
+	return strings.Join(lines[len(lines)-n:], "\n")
+}
+
 func validationSummaryOf(run validationRunResult) *validationSummary {
 	summary := &validationSummary{Outcome: run.Outcome}
 	for _, check := range run.Checks {
