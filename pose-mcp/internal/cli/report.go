@@ -64,7 +64,22 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 // When validationLog is non-nil it is the output of the run being recorded —
 // `pose validate --report` passes its own — and takes the place of reading one
 // from --validate-output or the default log paths.
+// validationSummary is what a validation run hands to `pose report` directly:
+// the commands it executed, one line per check, and the outcome it reached.
+// Before this the report parsed the run's printed output, which made every
+// verdict line a contract nobody could restyle (spec
+// pose-cli-output-rendering-system R5).
+type validationSummary struct {
+	Commands []string
+	Results  []string
+	Outcome  string
+}
+
 func runReport(root string, args []string, validationLog []byte, stdout, stderr io.Writer) int {
+	return runReportWith(root, args, validationLog, nil, stdout, stderr)
+}
+
+func runReportWith(root string, args []string, validationLog []byte, summary *validationSummary, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	values := map[string]string{"type": "standard", "outcome": "", "context": "not-provided", "validation-profile": "not-provided"}
 	gitStage := false
@@ -122,7 +137,14 @@ func runReport(root string, args []string, validationLog []byte, stdout, stderr 
 		}
 	}
 	validationCommands, validationResults, derivedOutcome := parseValidationLog(validateOutput)
-	if validationLog != nil {
+	switch {
+	case summary != nil:
+		// The run reports itself. Nothing here parses prose, so restyling the
+		// printed output cannot change what a report records.
+		validationCommands, validationResults, derivedOutcome = summary.Commands, summary.Results, summary.Outcome
+	case validationLog != nil:
+		// A log written by an older engine, or handed in with
+		// --validate-output, is still read line-wise.
 		validationCommands, validationResults, derivedOutcome = parseValidationLines(validationLog)
 	}
 	if outcome == "" && derivedOutcome != "" {

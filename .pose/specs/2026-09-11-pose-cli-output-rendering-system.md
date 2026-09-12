@@ -167,6 +167,11 @@ The architecture, and the alternatives rejected, are in ADR
 - created: pose-mcp/internal/cli/cliout/cliout_test.go
 - created: pose-mcp/internal/cli/print_guard_test.go
 - created: pose-mcp/internal/cli/testdata/direct-print-sites.json
+- created: pose-mcp/internal/cli/output.go
+- created: pose-mcp/internal/cli/contract_lines_test.go
+- created: pose-mcp/internal/cli/testdata/contract-lines.json
+- modified: pose-mcp/internal/cli/report.go
+- modified: pose-mcp/internal/cli/validate.go
 
 Implementation artifacts are declared as each increment lands; the list above is
 what this spec creates before code.

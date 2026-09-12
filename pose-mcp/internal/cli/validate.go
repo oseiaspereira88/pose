@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -399,10 +398,10 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	// validation never writes, and every report said "Fill manually" and "No
 	// validation output detected" under an outcome it could not support (spec
 	// pose-validate-report-carries-its-run).
-	var runOutput bytes.Buffer
-	if autoReport {
-		stdout = io.MultiWriter(stdout, &runOutput)
-	}
+	// The report records this run from the run's own structured result, not
+	// from its printed output (spec pose-cli-output-rendering-system R5).
+	// Capturing stdout to re-parse it is what made every printed line a
+	// contract.
 	if stackFilter != "" && !map[string]bool{"node": true, "go": true, "rust": true, "java": true, "python": true, "dotnet": true, "contract": true}[stackFilter] {
 		fmt.Fprintf(stderr, cliText(locale, "Error: invalid --stack: %s\n", "Erro: --stack inválido: %s\n"), stackFilter)
 		return 2
@@ -772,17 +771,52 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			reportTask = "validate-native"
 		}
 		reportArgs := []string{"--task", reportTask, "--context", "auto-validate", "--validation-profile", mode}
-		// The outcome is derived from the run's own Result line when it agrees
-		// with the verdict; stating it explicitly would record it as manual.
-		if _, _, derived := parseValidationLines(runOutput.Bytes()); derived != result {
-			reportArgs = append(reportArgs, "--outcome", result)
-		}
-		_ = runReport(root, reportArgs, runOutput.Bytes(), io.Discard, stderr)
+		// The outcome travels inside the summary, so it stays derived rather
+		// than being recorded as a manual assertion.
+		_ = runReportWith(root, reportArgs, nil, validationSummaryOf(run), io.Discard, stderr)
 	}
 	if failures > 0 {
 		return 1
 	}
 	return 0
+}
+
+// validationSummaryOf projects a finished run for `pose report`: the commands
+// it executed and one line per check, with the outcome the run reached. It is
+// the structured replacement for parsing the printed output (spec
+// pose-cli-output-rendering-system R5).
+func validationSummaryOf(run validationRunResult) *validationSummary {
+	summary := &validationSummary{Outcome: run.Outcome}
+	for _, check := range run.Checks {
+		command := strings.TrimSpace(check.Program + " " + strings.Join(check.Args, " "))
+		if check.Outcome != "skipped" && command != "" {
+			summary.Commands = append(summary.Commands, command)
+		}
+		line := "- [" + check.Outcome + "] " + check.ID
+		switch {
+		case check.SkipReason != "":
+			line += " (" + check.SkipReason + ")"
+		case check.DurationSeconds > 0:
+			line += fmt.Sprintf(" (%.1fs)", check.DurationSeconds)
+		}
+		if check.ExitCode != nil {
+			line += fmt.Sprintf(" exit=%d", *check.ExitCode)
+		}
+		summary.Results = append(summary.Results, line)
+	}
+	// The report records the run's verdict too, built from the outcome rather
+	// than copied from the printed line, so the recorded evidence keeps its
+	// shape while the terminal is free to change.
+	if run.Counts.OptionalFailed > 0 {
+		summary.Results = append(summary.Results, fmt.Sprintf("Warning: %d optional check(s) failed.", run.Counts.OptionalFailed))
+	}
+	switch run.Outcome {
+	case "fail":
+		summary.Results = append(summary.Results, "Result: FAILURE (required check failed)")
+	default:
+		summary.Results = append(summary.Results, "Result: SUCCESS")
+	}
+	return summary
 }
 
 func sanitizeGoCheckArgs(dir, program string, args []string) []string {

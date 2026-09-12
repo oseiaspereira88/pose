@@ -1,0 +1,42 @@
+{
+  "_comment": "Lines machines depend on (spec pose-cli-output-rendering-system R5). Everything the CLI prints that is not listed here is prose the renderer may restyle between releases. Adding a line here is a promise; changing one is a breaking change for the consumer named.",
+  "schema_version": 1,
+  "lines": [
+    {
+      "id": "verdict.en",
+      "shape": "^Result: [A-Z]+( — .*)?$",
+      "example": "Result: SUCCESS — valid POSE structure (strict mode).",
+      "consumers": ["operators", "pose report (legacy logs)", "release scripts"]
+    },
+    {
+      "id": "verdict.pt-BR",
+      "shape": "^Resultado: [A-ZÇÃÕÁÉÍÓÚ]+( — .*)?$",
+      "example": "Resultado: SUCESSO — estrutura POSE válida (modo strict).",
+      "consumers": ["operators", "pose report (legacy logs)"]
+    },
+    {
+      "id": "field",
+      "shape": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+=.*$",
+      "example": "artifact.claims=14",
+      "consumers": ["agents", "CI assertions", "operators"]
+    },
+    {
+      "id": "validate.command",
+      "shape": "^  -> .+$",
+      "example": "  -> go test -count=1 ./...",
+      "consumers": ["pose report (legacy logs written before 5.0.7)"]
+    },
+    {
+      "id": "validate.step",
+      "shape": "^  <- [^ ]+ (pass|fail|error|skipped|warning) [0-9]+\\.[0-9]s( .*)?$",
+      "example": "  <- test pass 18.4s",
+      "consumers": ["operators", "CI logs"]
+    },
+    {
+      "id": "report.result",
+      "shape": "^- \\[(pass|fail|error|skipped|partial)\\] .+$",
+      "example": "- [pass] pose-mcp/go/test (18.4s)",
+      "consumers": ["pose report markdown", "operators"]
+    }
+  ]
+}
