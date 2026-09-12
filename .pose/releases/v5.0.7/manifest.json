@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "version": "v5.0.7",
+  "previous_version": "v5.0.6",
+  "prepared_at": "2026-09-12T11:30:22Z",
+  "specs": [
+    "pose-cli-output-rendering-system"
+  ],
+  "categories": {
+    "changed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-cli-output-rendering-system",
+      "category": "changed",
+      "breaking": true,
+      "refs": "PR#111",
+      "body": "The CLI prints through one rendering layer. The result — a verdict, its findings, the data you asked for — goes to stdout, and progress, usage and the command's own failures go to stderr, so `pose check --json | jq` is safe and `2\u003e/dev/null` no longer hides a finding. A finding carries its remediation, colour and symbols appear only on a terminal (with an ASCII profile where UTF-8 cannot be trusted, and never as the only carrier of meaning), and `--color`, `NO_COLOR`, `POSE_COLOR`, `POSE_LOCALE` and `COLUMNS` decide what a stream gets, resolved per stream.\n\n`pose validate` now reports each check as a step with its outcome and duration — a live status line on a terminal, one line per event anywhere else — and captures a check's output instead of streaming it, showing a failing one's tail with a pointer to the full result; `--verbose` restores streaming. `pose check` gains `--json`, `--quiet` and `--color`, and `--json` prints one document carrying the verdict, the findings and the counts.\n\n**Breaking.** Findings that used to reach stderr now reach stdout (`lint-spec`, `knowledge-usage`), `pose validate`'s progress moved to stderr and it no longer streams a passing check's output, and `pose check`'s human line no longer carries the `[ERRO]`/`[AVISO]` anchor — that anchor is the untranslated `severity` field of `check --json`. Scripts that redirect a stream or grep those lines need updating; `pose report` no longer parses printed output at all.",
+      "path": "pose-cli-output-rendering-system.md",
+      "digest": "sha256:d963dfa0a1e587450048f541907556cf0d03b50741a828f1f4ade11a921a59fc"
+    }
+  ],
+  "breaking": true,
+  "notes_digest": "sha256:eababb989b12922a7dad25d074530e2b96e920d9736defab11fd42d17c380310",
+  "release_input_digest": "sha256:91195be982cf4bf1c0f6498b8b657fe30de54583c5362aa9ff29241e3d1d2920",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v5.0.7"
+  }
+}
