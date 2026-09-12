@@ -46,11 +46,13 @@ func TestValidateRootOnlySelectsRootModule(t *testing.T) {
 		if code := Main([]string{"validate", "--root-only"}, &out, &errB); code != 0 {
 			t.Fatalf("validate --root-only exit=%d out=%s err=%s", code, out.String(), errB.String())
 		}
-		if !strings.Contains(out.String(), "[module] .") {
-			t.Errorf("expected only the root module to run, got: %s", out.String())
+		// A module header is progress, so it is read from stderr
+		// (spec pose-cli-output-rendering-system R4).
+		if !strings.Contains(errB.String(), "[module] .") {
+			t.Errorf("expected only the root module to run, got: %s", errB.String())
 		}
-		if strings.Contains(out.String(), "[module] web") || strings.Contains(out.String(), "[module] worker") {
-			t.Errorf("--root-only ran a non-root module: %s", out.String())
+		if strings.Contains(errB.String(), "[module] web") || strings.Contains(errB.String(), "[module] worker") {
+			t.Errorf("--root-only ran a non-root module: %s", errB.String())
 		}
 	})
 }
@@ -62,8 +64,8 @@ func TestValidateWorkspaceResolvesNodePackageName(t *testing.T) {
 		if code := Main([]string{"validate", "--workspace", "my-web-app"}, &out, &errB); code != 0 {
 			t.Fatalf("validate --workspace exit=%d out=%s err=%s", code, out.String(), errB.String())
 		}
-		if !strings.Contains(out.String(), "[module] web") {
-			t.Errorf("expected the web module to run, got: %s", out.String())
+		if !strings.Contains(errB.String(), "[module] web") {
+			t.Errorf("expected the web module to run, got: %s", errB.String())
 		}
 	})
 }
@@ -75,8 +77,8 @@ func TestValidateWorkspaceResolvesCargoPackageName(t *testing.T) {
 		if code := Main([]string{"validate", "--workspace", "my-worker"}, &out, &errB); code != 0 {
 			t.Fatalf("validate --workspace exit=%d out=%s err=%s", code, out.String(), errB.String())
 		}
-		if !strings.Contains(out.String(), "[module] worker") {
-			t.Errorf("expected the worker module to run, got: %s", out.String())
+		if !strings.Contains(errB.String(), "[module] worker") {
+			t.Errorf("expected the worker module to run, got: %s", errB.String())
 		}
 	})
 }

@@ -84,8 +84,10 @@ func TestKnowledgeUsageProjection(t *testing.T) {
 
 func TestKnowledgeRefValidation(t *testing.T) {
 	root := knowledgeFixture(t)
-	var errB bytes.Buffer
-	if n := validateKnowledgeRefs(root, &errB); n != 0 {
+	// The finding is the command's result and is read from stdout
+	// (spec pose-cli-output-rendering-system R4).
+	var out, errB bytes.Buffer
+	if n := validateKnowledgeRefs(root, &out, &errB); n != 0 {
 		t.Fatalf("valid refs should pass, got %d: %s", n, errB.String())
 	}
 	spec := filepath.Join(root, ".pose", "specs", "consumer", "spec.md")
@@ -93,11 +95,12 @@ func TestKnowledgeRefValidation(t *testing.T) {
 	if err := os.WriteFile(spec, append(raw, []byte("\nAlso cites knowledge:ghost-artifact.\n")...), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	out.Reset()
 	errB.Reset()
-	if n := validateKnowledgeRefs(root, &errB); n != 1 {
+	if n := validateKnowledgeRefs(root, &out, &errB); n != 1 {
 		t.Fatalf("dangling ref should fail once, got %d", n)
 	}
-	if !strings.Contains(errB.String(), "knowledge:ghost-artifact") || !strings.Contains(errB.String(), "consumer") {
+	if !strings.Contains(out.String(), "knowledge:ghost-artifact") || !strings.Contains(out.String(), "consumer") {
 		t.Errorf("diagnostic should name the ref and the citing spec: %s", errB.String())
 	}
 }

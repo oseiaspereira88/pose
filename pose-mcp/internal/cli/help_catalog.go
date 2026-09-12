@@ -1,5 +1,7 @@
 package cli
 
+import "sort"
+
 // FlagHelp describes a single command flag or option.
 type FlagHelp struct {
 	Flag            string
@@ -9,10 +11,10 @@ type FlagHelp struct {
 
 // SubcommandHelp describes a subcommand within a command group.
 type SubcommandHelp struct {
-	Name            string
-	Usage           string
-	SummaryEN       string
-	SummaryPtBR     string
+	Name        string
+	Usage       string
+	SummaryEN   string
+	SummaryPtBR string
 }
 
 // CommandHelp contains full structured documentation for a CLI command.
@@ -26,6 +28,18 @@ type CommandHelp struct {
 	Flags           []FlagHelp
 	Subcommands     []SubcommandHelp
 	Examples        []string
+}
+
+// knownCommandNames lists the commands the help catalog documents, sorted, so an
+// unknown command can be matched against real names instead of guessed at
+// (spec pose-cli-output-rendering-system R11).
+func knownCommandNames() []string {
+	names := make([]string, 0, len(commandHelpCatalog))
+	for name := range commandHelpCatalog {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 // commandHelpCatalog maps command names to their structured help definitions.
@@ -81,7 +95,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "validate",
 		SummaryEN:       "Execute the deterministic validation matrix across all modules",
 		SummaryPtBR:     "Executa a matriz determinística de validação em todos os módulos",
-		Usage:           "pose validate [--strict|--tolerant] [--stack <s>] [--module <p>] [--report] [--json <path>]",
+		Usage:           "pose validate [--strict|--tolerant] [--stack <s>] [--module <p>] [--report] [--json <path>] [--verbose]",
 		DescriptionEN:   "Executes deterministic verification commands (tests, linters, typechecks, builds) declared in .pose/indexes/validation-matrix.json.",
 		DescriptionPtBR: "Executa comandos de verificação determinísticos (testes, linters, checagens de tipo, builds) declarados em .pose/indexes/validation-matrix.json.",
 		Flags: []FlagHelp{
@@ -92,9 +106,11 @@ var commandHelpCatalog = map[string]CommandHelp{
 			{"--report", "Persist validation findings into .pose/reports/", "Persiste os achados de validação sob .pose/reports/"},
 			{"--json <path>", "Write structured validation outcome to the specified JSON path", "Grava o resultado da validação no caminho JSON especificado"},
 			{"--changed-from <rev>", "Validate only modules affected between git revisions", "Valida apenas módulos afetados entre as revisões git"},
+			{"--verbose", "Stream each check's output as it runs; by default it is captured and a failing check's tail is shown", "Transmite a saída de cada check durante a execução; por padrão ela é capturada e o final da saída de um check que falha é exibido"},
 		},
 		Examples: []string{
 			"pose validate --strict",
+			"pose validate --module pose-mcp --verbose",
 			"pose validate --module pose-mcp --strict",
 			"pose validate --json .pose/results/delivery-validation.json",
 		},
@@ -107,6 +123,9 @@ var commandHelpCatalog = map[string]CommandHelp{
 		DescriptionEN:   "Performs comprehensive structural verification on all POSE files, broken markdown links, frontmatter syntax, matrix JSON schemas, and spec graphs.",
 		DescriptionPtBR: "Realiza verificação estrutural completa em todos os arquivos do POSE, links quebrados em markdown, sintaxe de frontmatter, schemas JSON e grafos de specs.",
 		Flags: []FlagHelp{
+			{"--json", "Print one JSON document with the verdict, findings and counts instead of the human report", "Imprime um documento JSON com veredito, findings e contagens no lugar do relatório humano"},
+			{"--quiet", "Print the verdict alone", "Imprime apenas o veredito"},
+			{"--color auto|always|never", "Force or suppress colour; NO_COLOR and POSE_COLOR are honoured", "Força ou suprime cor; NO_COLOR e POSE_COLOR são respeitados"},
 			{"--strict", "Treat structural warnings as fatal validation failures", "Trata avisos estruturais como falhas fatais de validação"},
 			{"--tolerant", "Report warnings without returning non-zero exit code", "Exibe avisos sem retornar código de saída diferente de zero"},
 		},

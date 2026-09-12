@@ -396,6 +396,59 @@ dependencies, schema, skills, hooks and MCP configuration, it reports:
 Every gate is offline by design — no network calls, stdlib only. A gate
 observed doing network I/O is a reportable bug (see SECURITY.md).
 
+## Output: two channels, one contract
+
+POSE prints for two readers and keeps them apart.
+
+| Channel | Carries | Where |
+|---|---|---|
+| **Result** | the verdict, the findings, the data a command was asked for | stdout |
+| **Progress** | steps, module headers, usage, and the command's own failures | stderr |
+
+So `pose check --json \| jq` is always safe, and `pose check 2>/dev/null` never
+swallows a finding.
+
+| Flag / variable | Effect |
+|---|---|
+| `--json` | Print one JSON document — `schema_version`, `command`, `outcome`, `findings[]`, `counts` — instead of the human result. A finding's `severity` is the untranslated anchor (`error`, `warning`, …); the human line reads in the reader's language. |
+| `--quiet` | Print the verdict alone. |
+| `--verbose` | `pose validate` only: stream each check's output as it runs instead of capturing it. |
+| `--color auto\|always\|never` | Force or suppress colour. |
+| `NO_COLOR`, `POSE_COLOR=auto\|always\|never` | The same choice from the environment; the flag wins. |
+| `POSE_LOCALE=en\|pt-BR` | The language of every message POSE composes. |
+| `COLUMNS` | The width prose wraps to (80 by default). Contract lines are never wrapped. |
+
+Colour, symbols and the spinner exist only when the stream is a terminal, and
+the profile is resolved per stream: `pose validate 2>progress.log` keeps stdout
+decorated and writes a clean log. `TERM=dumb`, a redirected stream and
+`--quiet` all fall back to plain lines, and a terminal that cannot be trusted
+with UTF-8 gets an ASCII profile (`[ok]`, `[x]`, `[!]`). Colour never carries
+meaning alone: the state's word is printed in every profile.
+
+A long run reports each step with its outcome and duration. On a terminal the
+active step is one line that repaints with a spinner, a counter and the elapsed
+time; anywhere else the same facts arrive one line per event, with no escape
+sequences:
+
+```text
+[module] pose-mcp (go, mode=strict)
+  -> test go test -count=1 ./...
+  <- test pass 18.4s
+  <- typecheck fail 2.1s exit=3
+      internal/cli/x.go:42: unreachable code
+      full output in .pose/results/validate.json
+2 step(s) · 1 pass · 1 fail · 20.8s
+Result: FAILURE — required check failed
+```
+
+**Exit codes.** `0` the gate passed, `1` the gate failed, `2` the command was
+used wrongly (an unknown flag, a missing value, a path outside the project).
+
+Lines machines depend on — the `Result:`/`Resultado:` verdicts and the
+`name.field=value` diagnostics — are enumerated in the engine's
+`testdata/contract-lines.json` and pinned by tests. Everything else is prose
+that may be restyled between releases; read `--json` if you need stability.
+
 ## Release lifecycle
 
 | Command | Purpose |

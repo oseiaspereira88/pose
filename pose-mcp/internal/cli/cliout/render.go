@@ -19,10 +19,12 @@ import (
 // Renderer owns every byte a command prints. It holds one profile per stream,
 // because stdout and stderr are redirected independently.
 type Renderer struct {
-	out, err       io.Writer
-	outP, errP     Profile
-	locale         string
-	activeStepSets []*StepSet
+	out, err   io.Writer
+	outP, errP Profile
+	locale     string
+	// record is non-nil when the result channel is a JSON document
+	// (spec pose-cli-output-rendering-system R8).
+	record *Record
 }
 
 // New builds a renderer for two streams and their resolved profiles.
@@ -80,7 +82,9 @@ type Verdict struct {
 	Text string
 }
 
-// Verdict writes the decision to Out, in every profile including --quiet.
+// Verdict writes the decision to Out, in every profile including --quiet. With
+// --json it is recorded instead: the document carries the outcome, and stdout
+// stays one parseable object.
 func (r *Renderer) Verdict(v Verdict) {
 	word := v.Word
 	if word == "" {
@@ -88,6 +92,13 @@ func (r *Renderer) Verdict(v Verdict) {
 		if v.State == StateFail || v.State == StateError {
 			word = Msg(MsgResultFail, r.locale)
 		}
+	}
+	if r.record != nil {
+		r.record.Outcome, r.record.Verdict = v.State.Key(), word
+		if v.Text != "" {
+			r.record.Verdict = word + " — " + v.Text
+		}
+		return
 	}
 	line := Msg(MsgResultLabel, r.locale) + ": " + paint(r.outP, v.State.color()+sgrBold, word)
 	if v.Text != "" {
@@ -113,6 +124,13 @@ type Finding struct {
 // Finding writes a diagnostic to Out — it is part of the command's result, not
 // of its progress. The remediation is shown rather than dropped.
 func (r *Renderer) Finding(f Finding) {
+	if r.record != nil {
+		r.record.Findings = append(r.record.Findings, RecordedFinding{
+			Severity: f.State.Key(), Code: f.Code, Path: f.Path,
+			Message: f.Message, Remediation: f.Remediation, MessageID: f.ID,
+		})
+		return
+	}
 	if r.outP.Quiet {
 		return
 	}
@@ -123,9 +141,15 @@ func (r *Renderer) Finding(f Finding) {
 	if f.Path != "" {
 		head += " " + paint(r.outP, sgrBold, f.Path)
 	}
-	fmt.Fprintln(r.out, head)
-	for _, line := range r.wrap(f.Message, 4) {
-		fmt.Fprintln(r.out, line)
+	if f.Code == "" && f.Path == "" {
+		// Nothing identifies the subject but the sentence itself, so it stays on
+		// the head line instead of being indented under an empty one.
+		fmt.Fprintln(r.out, head+" "+f.Message)
+	} else {
+		fmt.Fprintln(r.out, head)
+		for _, line := range r.wrap(f.Message, 4) {
+			fmt.Fprintln(r.out, line)
+		}
 	}
 	if f.Remediation != "" {
 		for i, line := range r.wrap(Msg(MsgFix, r.locale)+": "+f.Remediation, 4) {
@@ -140,12 +164,16 @@ func (r *Renderer) Finding(f Finding) {
 // Field is a machine-oriented `name.field=value` diagnostic. It is a contract
 // line: never wrapped, never decorated.
 func (r *Renderer) Field(name, value string) {
+	if r.record != nil {
+		r.RecordField(name, value)
+		return
+	}
 	fmt.Fprintf(r.out, "%s=%s\n", name, value)
 }
 
 // Section titles a block of result output.
 func (r *Renderer) Section(title string) {
-	if r.outP.Quiet {
+	if r.outP.Quiet || r.record != nil {
 		return
 	}
 	fmt.Fprintln(r.out, paint(r.outP, sgrBold, title))
@@ -189,7 +217,7 @@ type Table struct {
 }
 
 func (r *Renderer) Table(t Table) {
-	if r.outP.Quiet {
+	if r.outP.Quiet || r.record != nil {
 		return
 	}
 	w := tabwriter.NewWriter(r.out, 0, 0, 2, ' ', 0)

@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"os"
 	"os/exec"
@@ -483,7 +484,10 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 			fmt.Fprintf(stdout, "artifact.archived=%s -> %s (release %s)\n", a.Pending, a.Archived, a.Version)
 		}
 		for _, finding := range graph.Findings {
-			fmt.Fprintf(stdout, "[%s] %s %s: %s; remediation: %s\n", strings.ToUpper(finding.Severity), finding.Code, finding.Path, finding.Message, finding.Remediation)
+			render(stdout, stderr).Finding(cliout.Finding{
+				State: cliout.StateFromKey(finding.Severity), Code: finding.Code, Path: finding.Path,
+				Message: finding.Message, Remediation: finding.Remediation,
+			})
 		}
 	}
 	if strict {

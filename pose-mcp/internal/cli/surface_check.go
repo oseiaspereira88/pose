@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"io/fs"
 	"os"
@@ -207,7 +208,10 @@ func cmdSurfaceCheck(root string, args []string, stdout, stderr io.Writer) int {
 	} else {
 		fmt.Fprintf(stdout, "surface.spec=%s\nsurface.targets=%d\nsurface.results=%d\nsurface.findings=%d\nsurface.provenance_digest=%s\n", spec, len(graph.Deliveries), len(graph.ValidationResults), len(graph.Findings), graph.ProvenanceDigest)
 		for _, finding := range graph.Findings {
-			fmt.Fprintf(stdout, "[%s] %s %s: %s; remediation: %s\n", strings.ToUpper(finding.Severity), finding.Code, finding.Path, finding.Message, finding.Remediation)
+			render(stdout, stderr).Finding(cliout.Finding{
+				State: cliout.StateFromKey(finding.Severity), Code: finding.Code, Path: finding.Path,
+				Message: finding.Message, Remediation: finding.Remediation,
+			})
 		}
 	}
 	return deliveryFindingExit(graph.Findings, strict)

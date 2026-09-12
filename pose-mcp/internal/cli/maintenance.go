@@ -689,7 +689,7 @@ func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int
 	}
 	// Consumption refs (spec pose-knowledge-consumption-traceability R1):
 	// knowledge:<slug> citations in specs must resolve to governed artifacts.
-	refFailures := validateKnowledgeRefs(root, stderr)
+	refFailures := validateKnowledgeRefs(root, stdout, stderr)
 	errors += refFailures
 	fmt.Fprintf(stdout, "knowledge.schema.errors=%d\nknowledge.schema.warnings=%d\nknowledge.schema.checked=%d\nknowledge.overdue_count=%d\nknowledge.max_overdue=%d\nknowledge.ref_failures=%d\n", errors, warnings, checked, overdue, max, refFailures)
 	if errors > 0 || overdue > max {
