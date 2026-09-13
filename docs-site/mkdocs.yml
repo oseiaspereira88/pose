@@ -58,6 +58,17 @@ extra_css:
 
 markdown_extensions:
   - admonition
-  - pymdownx.superfences
+  # `custom_fences` é o que separa um diagrama de um bloco de código. Sem a
+  # entrada abaixo, ```mermaid segue o caminho normal do superfences e sai
+  # como `<div class="highlight"><pre><code>`: o leitor recebe o texto-fonte
+  # do grafo em vez do grafo. Era o caso dos 6 diagramas de architecture.md
+  # neste site — verificado no HTML publicado em GitHub Pages antes da
+  # correção. Renderizado, o bloco vira `<pre class="mermaid">` e o tema o
+  # desenha com mermaid.
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight
   - tables
