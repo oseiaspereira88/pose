@@ -14,7 +14,7 @@ import (
 
 // GitIgnoredPaths returns the set of paths (relative to root, slash-
 // separated, directories carrying a trailing slash) git considers ignored —
-// computed once via a single `git ls-files` invocation, not looked up per
+// computed up front, one `git ls-files` per repository, not looked up per
 // path, so a discovery walker can skip an entire ignored subtree with one
 // map lookup per directory instead of one git process per directory. `git
 // ls-files --directory` reports an ignored directory itself and does not
@@ -29,19 +29,33 @@ import (
 // this codebase knew about .gitignore at all (spec
 // pose-discovery-gitignore-and-root-alias-fix).
 //
+// `git ls-files` never descends into a submodule, so each initialised
+// submodule is asked separately and its answers are prefixed with its path.
+// Without that, a path a submodule's own .gitignore excludes reached every
+// walker as tracked content: a pytest cache inside a vendored submodule
+// entered repo-map.json on one machine and not in a clean clone (spec
+// pose-discovery-gitignore-inside-submodules).
+//
 // Returns an empty (non-nil) set — never an error — when git is
 // unavailable or root is not a repository: discovery degrades to "nothing
 // is ignored," the behavior every caller already had before this existed.
 func GitIgnoredPaths(root string) map[string]bool {
 	ignored := map[string]bool{}
-	out, err := exec.Command("git", "-C", root, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory").Output()
+	collectGitIgnoredPaths(root, "", ignored)
+	return ignored
+}
+
+func collectGitIgnoredPaths(dir, prefix string, ignored map[string]bool) {
+	// -z: line output C-quotes a non-ASCII name and trimming a line strips a
+	// leading space that is part of the name; either way the path never
+	// matched the directory a walker visits.
+	out, err := exec.Command("git", "-C", dir, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "-z").Output()
 	if err != nil {
-		return ignored
+		return
 	}
-	for _, line := range strings.Split(string(out), "\n") {
-		line = strings.TrimSpace(line)
-		if line != "" {
-			normalized := filepath.ToSlash(line)
+	for _, entry := range strings.Split(string(out), "\x00") {
+		if entry != "" {
+			normalized := prefix + filepath.ToSlash(entry)
 			ignored[normalized] = true
 			if strings.HasSuffix(normalized, "/") {
 				ignored[strings.TrimSuffix(normalized, "/")] = true
@@ -50,7 +64,32 @@ func GitIgnoredPaths(root string) map[string]bool {
 			}
 		}
 	}
-	return ignored
+	for _, submodule := range gitSubmodulePaths(dir) {
+		path := filepath.Join(dir, filepath.FromSlash(submodule))
+		// An uninitialised submodule is an empty directory, and git run
+		// inside it resolves to the enclosing repository, which lists the
+		// same gitlink again: without this check the walk never ends.
+		if _, err := os.Stat(filepath.Join(path, ".git")); err != nil {
+			continue
+		}
+		collectGitIgnoredPaths(path, prefix+submodule+"/", ignored)
+	}
+}
+
+// gitSubmodulePaths lists the gitlinks (mode 160000) recorded in dir's index.
+func gitSubmodulePaths(dir string) []string {
+	out, err := exec.Command("git", "-C", dir, "ls-files", "--stage", "-z").Output()
+	if err != nil {
+		return nil
+	}
+	paths := []string{}
+	for _, entry := range strings.Split(string(out), "\x00") {
+		meta, path, ok := strings.Cut(entry, "\t")
+		if ok && strings.HasPrefix(meta, "160000 ") {
+			paths = append(paths, filepath.ToSlash(path))
+		}
+	}
+	return paths
 }
 
 // ComponentDiscoveryMetrics holds code metrics for a discovered component.
