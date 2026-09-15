@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-bb9bdf5ac658ecf5",
+  "bundle_id": "rvb-1475e69819c2d8d4",
+  "bundle_digest": "sha256:1475e69819c2d8d4299edbb53fb1ea8e269ae994080c1c6fa2d2b95baac8ad33",
+  "reviewer": "agent:claude-code",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "not-applicable",
+      "rationale": "sequential git invocations per repository; no goroutines, shared state or cancellation introduced"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "not-applicable",
+      "rationale": "repo-map.json, packages.json and validate module schemas are unchanged; only paths git ignores stop appearing"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "uninitialised submodule is skipped and returns within a deadline; git unavailable still degrades to an empty set; NUL parsing keeps quoted and space-led names"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "not-applicable",
+      "rationale": "no provider or consumer boundary changes; the in-process callers are exercised by the internal/cli tests"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "not-applicable",
+      "rationale": "the function never errors and degrades to nothing-ignored, a contract this spec does not change; no new failure path to surface"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "a repository without submodules or quoted names yields the same set as before; existing discovery tests pass"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "GitIgnoredPaths keys match the walkers' rel and rel+/ lookups at root, inside a submodule, and for names git quotes"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "reviewed by reading: changelog fragment and the GitIgnoredPaths doc comment describe the submodule walk and NUL parsing"
+    },
+    {
+      "id": "operability",
+      "disposition": "not-applicable",
+      "rationale": "no flag, configuration or runtime dependency added; one extra git ls-files per initialised submodule"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1-R5 each map to a test in internal/pose or internal/cli that fails without its change (spec section 6)"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "proven by the artifact-check tool disposition, not by this test: artifact-check --strict passes with the five declared artifacts and no undeclared path"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "git runs via exec with fixed arguments and no shell; paths read from git are used only as map keys"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-discovery-gitignore-inside-submodules",
+      "rationale": "artifact-check --spec pose-discovery-gitignore-inside-submodules --strict exits 0; change set is exactly ac517a0"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "surface-check --spec pose-discovery-gitignore-inside-submodules --strict: 1 target, 0 findings; GitIgnoredPaths is composed into cmd/pose through pose index (index.go:131) and pose validate (validate.go:110); the behaviour itself is proven by unit:pose-mcp/go/test"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "full pose validate run at ac517a0: 9 of 9 checks pass"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "go test ./... in pose-mcp passes, including the five discovery submodule tests"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "requirement-trace:pose-discovery-gitignore-inside-submodules",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-15T18:16:14Z",
+  "path": ".pose/review-attestations/rva-bb9bdf5ac658ecf5.json"
+}

@@ -1,14 +1,14 @@
 ---
 slug: pose-discovery-gitignore-inside-submodules
-status: in-progress
-completed_at:
+status: done
+completed_at: 2026-09-15
 created_at: 2026-09-15
 supersedes:
 depends_on: pose-discovery-gitignore-and-root-alias-fix
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: capability:discovery-honours-submodule-gitignore
 ---
 
 # Spec: Discovery honours a submodule's own .gitignore
@@ -81,6 +81,9 @@ honour `.gitignore` and does not mention submodules.
 - modified: pose-mcp/internal/pose/discovery.go
 - created: pose-mcp/internal/pose/discovery_submodule_test.go
 - created: pose-mcp/internal/cli/discovery_submodule_test.go
+
+### Delivery targets
+- capability:discovery-honours-submodule-gitignore module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 - Git run inside an uninitialised submodule, an empty directory, resolves to
