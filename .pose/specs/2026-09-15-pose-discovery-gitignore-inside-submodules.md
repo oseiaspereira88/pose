@@ -59,6 +59,9 @@ honour `.gitignore` and does not mention submodules.
   directory a submodule ignores.
 - R4: An uninitialised submodule shall be skipped, and `GitIgnoredPaths` shall
   return.
+- R5: `GitIgnoredPaths` shall report an ignored name byte for byte, including a
+  non-ASCII name git would C-quote and a name with a leading space, at the root
+  and inside a submodule.
 
 ### Non-functional
 - One `git ls-files` for the ignored paths and one for the gitlinks per
@@ -92,6 +95,7 @@ honour `.gitignore` and does not mention submodules.
 ### Implementation
 - [x] Increment 1: Ask each initialised submodule for its ignored paths (R1, R2, R3)
 - [x] Increment 2: Skip an uninitialised submodule (R4)
+- [x] Increment 3: Read ignored paths NUL-separated (R5)
 
 ### Validation
 - [x] Each new test fails against the code without the corresponding change
@@ -114,6 +118,17 @@ honour `.gitignore` and does not mention submodules.
 - Decision: read gitlinks (mode 160000) from the index with `git ls-files --stage`.
 - Rationale: the index is what git checks out; `.gitmodules` can name paths
   that no longer exist or omit ones that do.
+
+### Decision 3
+- Date: 2026-09-15
+- Context: review of PR #115 pointed out that line output C-quotes a
+  non-ASCII name (`"caf\303\251/"`), and the per-line `TrimSpace` strips a
+  leading space that belongs to the name. Both predate this spec at the root,
+  and the submodule walk reuses the same parsing.
+- Decision: pass `-z` and split on NUL, without trimming.
+- Rationale: the reported path has to equal the directory a walker visits;
+  `core.quotePath` is on by default, so the quoted form is what most machines
+  produce.
 
 ---
 
@@ -151,10 +166,15 @@ leave a manifest and a README in `mod/cache/` next to a tracked module in
   the `go test` timeout. On harne8 at 493d377, with the cache still in the
   checkout, `pose index` built from origin/main writes the `.pytest_cache` line
   into `repo-map.json`; built from this branch it leaves `repo-map.json`
-  identical to the committed one.
+  identical to the committed one. With line output,
+  TestGitIgnoredPathsKeepsNamesGitWouldQuote fails missing `café/`, ` spaced/`
+  and `mod/café/` (the set holds `"caf\303\251/"` and `spaced/`). In a
+  repository ignoring `/café/` that holds `café/go.mod`, `pose index` built
+  without `-z` writes it into `repo-map.json` and `packages.json`; built with it,
+  neither file mentions it and the tracked `app` module is still indexed.
 
 ### Results summary
-- Successes: R1–R4 verified.
+- Successes: R1–R5 verified.
 - Failures: none.
 
 ### Requirement trace
@@ -162,6 +182,7 @@ leave a manifest and a README in `mod/cache/` next to a tracked module in
 - R2 [satisfied] <TestScanModules_RespectsGitignoreInsideSubmodule requires no mod/cache module, manifest or README and still requires mod/tool>
 - R3 [satisfied] <TestDiscoverValidationModules_RespectsGitignoreInsideSubmodule requires exactly [mod/tool]>
 - R4 [satisfied] <TestGitIgnoredPathsSkipsAnUninitialisedSubmodule requires a return within 10 s, the parent's scratch/, and nothing under mod/; fails on the deadline with the check removed>
+- R5 [satisfied] <TestGitIgnoredPathsKeepsNamesGitWouldQuote requires café/, " spaced/", mod/café/ and mod/cache/ with core.quotePath forced on; fails on the first three with line output>
 
 ### Known gaps
 - Nested submodules follow the same recursion, but no test builds one.

@@ -12,4 +12,6 @@ into submodules there, while the walkers do. A cache a submodule ignores reached
 pytest cache inside the POSE submodule entered `repo-map.json` on one machine
 and not in a clean clone, and a manifest in such a directory would have become a
 governed module. Each initialised submodule is now asked for its own ignored
-paths; an uninitialised one is skipped.
+paths; an uninitialised one is skipped. Ignored paths are read NUL-separated,
+so a non-ASCII name git quotes, or one with a leading space, is no longer
+missed.

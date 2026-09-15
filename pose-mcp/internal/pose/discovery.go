@@ -46,14 +46,16 @@ func GitIgnoredPaths(root string) map[string]bool {
 }
 
 func collectGitIgnoredPaths(dir, prefix string, ignored map[string]bool) {
-	out, err := exec.Command("git", "-C", dir, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory").Output()
+	// -z: line output C-quotes a non-ASCII name and trimming a line strips a
+	// leading space that is part of the name; either way the path never
+	// matched the directory a walker visits.
+	out, err := exec.Command("git", "-C", dir, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "-z").Output()
 	if err != nil {
 		return
 	}
-	for _, line := range strings.Split(string(out), "\n") {
-		line = strings.TrimSpace(line)
-		if line != "" {
-			normalized := prefix + filepath.ToSlash(line)
+	for _, entry := range strings.Split(string(out), "\x00") {
+		if entry != "" {
+			normalized := prefix + filepath.ToSlash(entry)
 			ignored[normalized] = true
 			if strings.HasSuffix(normalized, "/") {
 				ignored[strings.TrimSuffix(normalized, "/")] = true

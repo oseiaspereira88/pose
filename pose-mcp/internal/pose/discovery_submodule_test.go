@@ -66,6 +66,31 @@ func TestGitIgnoredPathsReportsPathsIgnoredInsideASubmodule(t *testing.T) {
 	}
 }
 
+// git's line-oriented output C-quotes a non-ASCII name ("caf\303\251/"), and
+// trimming each line strips a leading space that belongs to the name: either
+// way the reported path never matched the directory a walker visits. Reading
+// NUL-separated output keeps names byte for byte, at the root and inside a
+// submodule. core.quotePath is forced on so a developer who turned it off
+// globally still sees the test fail without the fix.
+func TestGitIgnoredPathsKeepsNamesGitWouldQuote(t *testing.T) {
+	t.Setenv("GIT_CONFIG_COUNT", "1")
+	t.Setenv("GIT_CONFIG_KEY_0", "core.quotePath")
+	t.Setenv("GIT_CONFIG_VALUE_0", "true")
+	root := submoduleWithIgnoredCache(t)
+	writeFixtureFile(t, filepath.Join(root, ".gitignore"), "/café/\n/ spaced/\n")
+	writeFixtureFile(t, filepath.Join(root, "café", "go.mod"), "module example.com/cafe\n")
+	writeFixtureFile(t, filepath.Join(root, " spaced", "go.mod"), "module example.com/spaced\n")
+	writeFixtureFile(t, filepath.Join(root, "mod", ".gitignore"), "cache/\ncafé/\n")
+	writeFixtureFile(t, filepath.Join(root, "mod", "café", "go.mod"), "module example.com/modcafe\n")
+
+	ignored := pose.GitIgnoredPaths(root)
+	for _, want := range []string{"café/", " spaced/", "mod/café/", "mod/cache/"} {
+		if !ignored[want] {
+			t.Errorf("GitIgnoredPaths is missing %q: %v", want, ignored)
+		}
+	}
+}
+
 // An uninitialised submodule is an empty directory. Running git inside it
 // resolves to the parent repository, which lists the same gitlink again, so
 // descending into it without a check never returns.
