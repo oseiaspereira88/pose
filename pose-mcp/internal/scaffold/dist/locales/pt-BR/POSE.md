@@ -189,13 +189,15 @@ pose new-roadmap <slug>            # cria roadmap governado em .pose/roadmaps/
 pose new-adr "<título>"            # cria ADR datada
 pose new-knowledge <type> <slug>   # cria handoff/note/decision-log em .pose/knowledge/
                                    # (opções: --owner @x --ttl-days N --restricted)
+# `pose lint-spec <slug> --design-check` projeta nós estruturados de premissa/
+# decisão em modo read-only; é advisory e não altera o lifecycle.
 
 # Gates determinísticos
 pose check [--strict|--tolerant]   # integridade estrutural + matrix schema +
                                    # task-map sync + grafo de specs + schema version
 pose validate [--strict|--tolerant] [--stack s] [--module path] [--report] [--json f] [--junit f] [--sarif f]
               [--changed-from rev [--changed-to rev]] [--explain] [--emit-plan f]
-pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]
+pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check]
 pose knowledge-check [--strict|--tolerant] [--max-overdue N]
 pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T] [--include-pass]
 pose history-check [--strict|--tolerant]

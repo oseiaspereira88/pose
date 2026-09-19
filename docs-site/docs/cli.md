@@ -23,7 +23,7 @@ without Bash or Python fallbacks and works offline.
 |---|---|
 | `pose check [--strict\|--tolerant]` | Structural integrity + matrix schema + task-map sync + spec graph + schema version |
 | `pose validate [--strict\|--tolerant] [--stack s] [--module p\|--workspace w\|--root-only] [--changed-from A --changed-to B] [--explain] [--report [--report-task T]] [--json P] [--junit P] [--sarif P] [--emit-plan P]` | Run the validation matrix; `--report` writes a report that lists the commands this run executed and its result |
-| `pose lint-spec <slug>\|--all [--ready-check]` | Section content, DoR entry gate, done-lifecycle gate; warns in any status when a follow-up's ownership is outside its trailing group |
+| `pose lint-spec <slug>\|--all [--ready-check] [--design-check]` | Section content and lifecycle gates; `--design-check` projects structured Assumption/Decision basis read-only with objective diagnostics |
 | `pose followups [--open\|--all] [--overdue] [--owner @alias] [--fail-overdue] [--similarity N] [--json]` | Aggregate follow-ups, overdue triage dates and near-duplicate candidates |
 | `pose knowledge-check [--max-overdue N]` | Knowledge schema + overdue backlog |
 | `pose recurrence-check [--window-days N] [--threshold T]` | Recurring failing task slugs |

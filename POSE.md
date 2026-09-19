@@ -186,13 +186,15 @@ pose new-roadmap <slug>            # create a governed roadmap in .pose/roadmaps
 pose new-adr "<title>"             # create a dated ADR
 pose new-knowledge <type> <slug>   # create handoff/note/decision-log
                                    # (options: --owner @x --ttl-days N --restricted)
+# `pose lint-spec <slug> --design-check` projects structured Assumption/Decision
+# basis nodes read-only; it is advisory and never changes lifecycle state.
 
 # Deterministic gates
 pose check [--strict|--tolerant]   # structural integrity + matrix schema +
                                    # task-map sync + spec graph + schema version
 pose validate [--strict|--tolerant] [--stack s] [--module path] [--report] [--json f] [--junit f] [--sarif f]
               [--changed-from rev [--changed-to rev]] [--explain] [--emit-plan f]
-pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]
+pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check]
 pose knowledge-check [--strict|--tolerant] [--max-overdue N]
 pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold T] [--include-pass]
 pose history-check [--strict|--tolerant]

@@ -93,9 +93,10 @@ func (s Store) SkillsCheck(ctx context.Context, strict bool) (*GateResult, error
 	return s.runGate(ctx, []string{"skills-check", modeFlag(strict)})
 }
 
-// LintSpec evaluates `pose lint-spec <slug>|--all` (spec content +
-// lifecycle gate). Empty slug evaluates every spec.
-func (s Store) LintSpec(ctx context.Context, slug string, strict bool) (*GateResult, error) {
+// LintSpec evaluates `pose lint-spec <slug>|--all` (spec content + lifecycle
+// gate). Empty slug evaluates every spec. The optional designCheck flag adds
+// the read-only ABM Decisions projection without changing the default gate.
+func (s Store) LintSpec(ctx context.Context, slug string, strict bool, designCheck ...bool) (*GateResult, error) {
 	target := "--all"
 	if slug != "" {
 		if err := ValidateSlug(slug); err != nil {
@@ -103,7 +104,11 @@ func (s Store) LintSpec(ctx context.Context, slug string, strict bool) (*GateRes
 		}
 		target = slug
 	}
-	return s.runGate(ctx, []string{"lint-spec", target, modeFlag(strict)})
+	args := []string{"lint-spec", target, modeFlag(strict)}
+	if len(designCheck) > 0 && designCheck[0] {
+		args = append(args, "--design-check")
+	}
+	return s.runGate(ctx, args)
 }
 
 func modeFlag(strict bool) string {

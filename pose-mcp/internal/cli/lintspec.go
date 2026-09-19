@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -368,7 +369,7 @@ func sectionState(required bool) cliout.State {
 	return cliout.StateWarning
 }
 
-func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr io.Writer) int {
+func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr io.Writer, designCheck ...bool) int {
 	locale := cliLocaleValue()
 	raw, err := os.ReadFile(specPath)
 	if err != nil {
@@ -383,6 +384,56 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		slug = filepath.Base(filepath.Dir(specPath))
 	}
 	lint := specFindings{r: render(stdout, stderr), slug: slug}
+	checkDesign := len(designCheck) > 0 && designCheck[0]
+	designFailures := 0
+	emitDesignBasis := func() {
+		if !checkDesign {
+			return
+		}
+		root, rootErr := projectRootAt(filepath.Dir(specPath))
+		if rootErr != nil {
+			root = ""
+		}
+		report := posepkg.ValidateDesignBasis(string(raw), root)
+		var designOutput strings.Builder
+		designOutput.WriteString("spec.design_basis.present=")
+		designOutput.WriteString(strconv.FormatBool(report.HasSection))
+		designOutput.WriteByte('\n')
+		designOutput.WriteString("spec.design_basis.assumptions=")
+		designOutput.WriteString(strconv.Itoa(len(report.Assumptions)))
+		designOutput.WriteByte('\n')
+		designOutput.WriteString("spec.design_basis.decisions=")
+		designOutput.WriteString(strconv.Itoa(len(report.Decisions)))
+		designOutput.WriteByte('\n')
+		designOutput.WriteString("spec.design_basis.diagnostics=")
+		designOutput.WriteString(strconv.Itoa(len(report.Diagnostics)))
+		designOutput.WriteByte('\n')
+		errors, warnings := 0, 0
+		for _, diagnostic := range report.Diagnostics {
+			state := cliout.StateWarning
+			if diagnostic.Severity == "error" {
+				state = cliout.StateError
+				errors++
+			} else {
+				warnings++
+			}
+			message := fmt.Sprintf("design basis line %d: %s", diagnostic.Line, diagnostic.Message)
+			lint.finding(state, "design-basis/"+diagnostic.Code, message)
+		}
+		designFailures = errors
+		designOutput.WriteString("spec.design_basis.errors=")
+		designOutput.WriteString(strconv.Itoa(errors))
+		designOutput.WriteByte('\n')
+		designOutput.WriteString("spec.design_basis.warnings=")
+		designOutput.WriteString(strconv.Itoa(warnings))
+		designOutput.WriteByte('\n')
+		if report.Digest != "" {
+			designOutput.WriteString("spec.design_basis.digest=")
+			designOutput.WriteString(report.Digest)
+			designOutput.WriteByte('\n')
+		}
+		_, _ = io.WriteString(stdout, designOutput.String())
+	}
 
 	if readyCheck {
 		failures := 0
@@ -404,6 +455,8 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			lint.finding(cliout.StateError, "dor", fmt.Sprintf(cliText(locale, "DoR: invalid depends_on reference: '%s'", "DoR: ref inválida em depends_on: '%s'"), ref))
 			failures++
 		}
+		emitDesignBasis()
+		failures += designFailures
 		ready := "true"
 		if failures > 0 {
 			ready = "false"
@@ -732,8 +785,9 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	fmt.Fprintf(stdout, "spec.trace.failures=%d\n", traceFailures)
 	fmt.Fprintf(stdout, "spec.amendments.events=%d\n", amendEvents)
 	fmt.Fprintf(stdout, "spec.amendments.failures=%d\n", amendFailures)
+	emitDesignBasis()
 
-	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 || traceFailures > 0 || amendFailures > 0 {
+	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 || traceFailures > 0 || amendFailures > 0 || designFailures > 0 {
 		return 1
 	}
 	return 0
@@ -751,7 +805,7 @@ func cmdLintSpec(args []string, stdout, stderr io.Writer) int {
 func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	mode := "strict"
-	requiredOnly, readyCheck := false, false
+	requiredOnly, readyCheck, designCheck := false, false, false
 	target := ""
 	for _, a := range args {
 		switch a {
@@ -763,10 +817,12 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 			requiredOnly = true
 		case "--ready-check":
 			readyCheck = true
+		case "--design-check":
+			designCheck = true
 		case "--all":
 			target = "--all"
 		case "-h", "--help":
-			fmt.Fprintln(stdout, cliText(locale, "Usage: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]", "Uso: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check]"))
+			fmt.Fprintln(stdout, cliText(locale, "Usage: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check]", "Uso: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check]"))
 			return 0
 		default:
 			if strings.HasPrefix(a, "--") {
@@ -791,7 +847,7 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 	lintOne := func(path string, slug string) {
 		totalLinted++
 		fmt.Fprintln(stdout, "---")
-		if rc := lintOneSpec(path, requiredOnly, readyCheck, stdout, stderr); rc != 0 {
+		if rc := lintOneSpec(path, requiredOnly, readyCheck, stdout, stderr, designCheck); rc != 0 {
 			totalFailed++
 			if slug == "" {
 				slug = strings.TrimSuffix(filepath.Base(path), ".md")

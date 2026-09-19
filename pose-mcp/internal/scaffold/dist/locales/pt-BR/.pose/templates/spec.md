@@ -106,6 +106,26 @@ delivers:            # refs tipadas opcionais: surface:id, contract:id, capabili
 ## 5. Decisions
 
 > Seção opcional. Use quando a implementação envolver trade-offs ou alternativas.
+> Para uma base material, mantenha nós estruturados `Premissa A<N>` e
+> `Decisão D<N>` nesta seção e execute `pose lint-spec <slug> --design-check`
+> (advisory).
+
+```markdown
+### Premissa A1
+- Afirmação: uma premissa material
+- Estado: unverified
+- Evidência: contract:example
+- Escopo: versão ou contexto delimitado
+- Afeta: R1
+
+### Decisão D1
+- Base: R1, A1
+- Opção mínima: manter o fluxo atual
+- Opção selecionada: manter o fluxo atual
+- Racional: motivo concreto
+- Consequências: efeito durável
+- Falsificador: condição que invalidaria a escolha
+```
 
 ### Decisão <N>
 - Data:

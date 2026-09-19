@@ -732,9 +732,13 @@
       "name": "pose_skills_check"
     },
     {
-      "description": "Evaluate the spec content + lifecycle gate (pose lint-spec) in read-only mode: skeletal sections, done-without-completed_at, follow-ups without disposition. Without a slug, evaluates every spec.",
+      "description": "Evaluate the spec content + lifecycle gate (pose lint-spec) in read-only mode: skeletal sections, done-without-completed_at, follow-ups without disposition. Set design_check to project the structured Decisions basis (assumptions/decisions) and objective diagnostics; it is advisory and never writes. Without a slug, evaluates every spec.",
       "inputSchema": {
         "properties": {
+          "design_check": {
+            "description": "Project Assumption/Decision basis and objective diagnostics (advisory, default false)",
+            "type": "boolean"
+          },
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
             "type": "string"

@@ -1174,13 +1174,14 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		return store.SkillsCheck(ctx, a.Strict == nil || *a.Strict)
 	case "pose_lint_spec":
 		var a struct {
-			Slug   string `json:"slug"`
-			Strict *bool  `json:"strict"`
+			Slug        string `json:"slug"`
+			Strict      *bool  `json:"strict"`
+			DesignCheck *bool  `json:"design_check"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_lint_spec: invalid arguments")
 		}
-		return store.LintSpec(ctx, a.Slug, a.Strict == nil || *a.Strict)
+		return store.LintSpec(ctx, a.Slug, a.Strict == nil || *a.Strict, a.DesignCheck != nil && *a.DesignCheck)
 	case "pose_list_knowledge":
 		var a struct {
 			Cursor string `json:"cursor"`
@@ -2276,7 +2277,9 @@ func toolDefinitions() []map[string]any {
 			"name": "pose_lint_spec",
 			"description": "Evaluate the spec content + lifecycle gate (pose lint-spec) in " +
 				"read-only mode: skeletal sections, done-without-completed_at, follow-ups " +
-				"without disposition. Without a slug, evaluates every spec.",
+				"without disposition. Set design_check to project the structured Decisions " +
+				"basis (assumptions/decisions) and objective diagnostics; it is advisory " +
+				"and never writes. Without a slug, evaluates every spec.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
@@ -2287,6 +2290,10 @@ func toolDefinitions() []map[string]any {
 					"strict": map[string]any{
 						"type":        "boolean",
 						"description": "Strict mode (default true)",
+					},
+					"design_check": map[string]any{
+						"type":        "boolean",
+						"description": "Project Assumption/Decision basis and objective diagnostics (advisory, default false)",
 					},
 					"project_id": map[string]any{
 						"type":        "string",

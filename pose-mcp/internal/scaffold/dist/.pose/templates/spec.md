@@ -106,7 +106,26 @@ delivers:            # optional typed refs: surface:id, contract:id, capability:
 ## 5. Decisions
 
 > Optional section. Use it when the implementation involves trade-offs or
-> alternatives.
+> alternatives. For a material basis, keep structured `Assumption A<N>` and
+> `Decision D<N>` nodes in this section and run
+> `pose lint-spec <slug> --design-check` (advisory).
+
+```markdown
+### Assumption A1
+- Claim: a material premise
+- Status: unverified
+- Evidence: contract:example
+- Scope: version or bounded context
+- Affects: R1
+
+### Decision D1
+- Basis: R1, A1
+- Minimal option: keep the current flow
+- Selected option: keep the current flow
+- Rationale: concrete reason
+- Consequences: durable effect
+- Falsifier: condition that would invalidate the choice
+```
 
 ### Decision <N>
 - Date:

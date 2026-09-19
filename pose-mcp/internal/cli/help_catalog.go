@@ -138,14 +138,15 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "lint-spec",
 		SummaryEN:       "Lint specification lifecycle, sections, and requirement traceability",
 		SummaryPtBR:     "Valida ciclo de vida, seções e rastreabilidade de requisitos da spec",
-		Usage:           "pose lint-spec <slug>|--all [--strict|--tolerant] [--ready-check] [--required-only]",
-		DescriptionEN:   "Validates that a spec document conforms to the 7-section template, has stable requirement IDs (R1, R2), complete frontmatter, and valid traceability evidence upon closeout.",
-		DescriptionPtBR: "Valida se a spec está em conformidade com o template de 7 seções, IDs estáveis de requisitos (R1, R2), frontmatter completo e evidências válidas de rastreabilidade.",
+		Usage:           "pose lint-spec <slug>|--all [--strict|--tolerant] [--ready-check] [--required-only] [--design-check]",
+		DescriptionEN:   "Validates that a spec document conforms to the 7-section template, has stable requirement IDs (R1, R2), complete frontmatter, valid traceability evidence upon closeout, and an optional read-only design-basis projection.",
+		DescriptionPtBR: "Valida se a spec está em conformidade com o template de 7 seções, IDs estáveis de requisitos (R1, R2), frontmatter completo, evidências válidas de rastreabilidade e uma projeção advisory opcional da base de decisões.",
 		Flags: []FlagHelp{
 			{"--ready-check", "Enforce Definition of Ready (DoR) gate before transitioning to in-progress", "Aplica o gate de Definition of Ready (DoR) antes de transicionar para in-progress"},
 			{"--strict", "Fail on any missing requirement trace or unfilled section in done specs", "Falha em qualquer rastreio ausente ou seção não preenchida em specs concluídas"},
 			{"--all", "Lint all specifications present under .pose/specs/", "Valida todas as especificações presentes sob .pose/specs/"},
 			{"--required-only", "Check only mandatory core sections without optional decisions", "Verifica apenas seções obrigatórias sem decisões opcionais"},
+			{"--design-check", "Project structured Assumption/Decision basis and objective diagnostics (advisory, read-only)", "Projeta base estruturada de premissas/decisões e diagnósticos objetivos (advisory, read-only)"},
 		},
 		Examples: []string{
 			"pose lint-spec my-feature --ready-check",
