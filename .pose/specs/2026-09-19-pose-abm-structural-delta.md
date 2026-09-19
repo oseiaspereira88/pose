@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-structural-delta
-status: in-progress        # draft | in-progress | done | blocked | superseded | abandoned
+status: done
 created_at: 2026-09-19
-completed_at:
+completed_at: 2026-09-19
 supersedes:
 depends_on: pose-abm-subject-evidence
 priority: 1
