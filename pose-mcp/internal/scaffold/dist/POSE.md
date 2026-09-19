@@ -455,3 +455,13 @@ POSE is the operational layer that makes agent work reliable in the repository:
 - operational depth in [`.pose/`](.pose/)
 - assisted execution via [`pose`](pose) (CLI)
 - progressive maturity with skills in [`.agents/skills/`](.agents/skills/)
+
+## Verified review authority (ABM)
+
+When a review policy sets `identity_assurance` to `verified` for a scope kind,
+`agent:`/`human:` prefixes remain labels only. The attestation must carry a
+`ReviewAuthorityClaim` signed by a trusted Ed25519 envelope, bound to the exact
+bundle digest, project audience, reviewer principal and executions required by
+the review plan. A human role also needs a dedicated authority grant. Existing
+bundles without this sealed gate remain auditable in `declared` mode; POSE does
+not infer cognitive independence or require Harne8 for offline review.

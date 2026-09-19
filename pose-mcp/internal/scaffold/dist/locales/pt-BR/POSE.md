@@ -468,3 +468,13 @@ POSE é a camada operacional para tornar uso de agentes mais confiável no repos
 - profundidade operacional em [`.pose/`](.pose/)
 - execução assistida por [`pose`](pose) (CLI)
 - maturidade progressiva com skills em [`.agents/skills/`](.agents/skills/)
+## Autoridade verificável de review (ABM)
+
+Quando uma policy define `identity_assurance` como `verified` para um tipo de
+escopo, os prefixos `agent:`/`human:` continuam sendo apenas rótulos. A
+attestation precisa carregar uma `ReviewAuthorityClaim` assinada por envelope
+Ed25519 confiável, vinculada ao digest exato do bundle, à audience do projeto,
+ao principal do revisor e às execuções exigidas pelo plano. O papel humano
+também exige um grant específico. Bundles sem esse gate selado continuam
+auditáveis em modo `declared`; o POSE não infere independência cognitiva nem
+exige Harne8 para review offline.

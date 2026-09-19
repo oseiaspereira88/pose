@@ -148,7 +148,44 @@ type ReviewPolicy struct {
 	AllowCriterionReuse              bool              `json:"allow_criterion_reuse,omitempty"`
 	RequireSignedAttestations        bool              `json:"require_signed_attestations,omitempty"`
 	TrustedAttestationIssuers        []string          `json:"trusted_attestation_issuers,omitempty"`
+	// IdentityAssurance is per scope kind and holds `declared` or `verified`.
+	//
+	// It is a second axis, not a stronger value of the first. Independence says
+	// what separation the review requires; assurance says whether the reviewer's
+	// identity is taken from the string they wrote or from an authority an
+	// authorized issuer signed. `different-actor` under `declared` is satisfied
+	// by the prefix `agent:independent-`, which anyone can type — a real
+	// property of the current engine, and one the enum alone reads as proof.
+	//
+	// Absent means `declared`, which is what every instance does today.
+	IdentityAssurance map[string]string `json:"identity_assurance,omitempty"`
+	// HumanAuthorityIssuers are the pins, in the same `<issuer>#sha256:<digest>`
+	// form as TrustedAttestationIssuers, permitted to assert that a principal is
+	// a person. Signing is not the same authority as vouching for who someone
+	// is, so asserting a human role needs its own grant.
+	HumanAuthorityIssuers []string `json:"human_authority_issuers,omitempty"`
+	// AuthorityAudience is the identifier this repository answers to. A claim
+	// issued for another project names that project and stops satisfying this
+	// one, which is what makes replay across repositories fail. It lives in the
+	// policy rather than being derived from a path, so it comes from the
+	// protected baseline an administrator controls and not from whatever
+	// directory the engine happens to be run in.
+	AuthorityAudience string `json:"authority_audience,omitempty"`
 }
+
+// ReviewIdentityAssurance resolves the assurance a scope kind requires,
+// defaulting to `declared`.
+func (p ReviewPolicy) ReviewIdentityAssurance(kind string) string {
+	if value := p.IdentityAssurance[kind]; value == ReviewIdentityAssuranceVerified {
+		return ReviewIdentityAssuranceVerified
+	}
+	return ReviewIdentityAssuranceDeclared
+}
+
+const (
+	ReviewIdentityAssuranceDeclared = "declared"
+	ReviewIdentityAssuranceVerified = "verified"
+)
 
 // ReviewPolicyKnownKeys lists the top-level keys the engine models, derived from
 // the struct rather than restated, so the list cannot drift from what is read.
@@ -330,6 +367,32 @@ func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
 		for _, issuer := range p.TrustedAttestationIssuers {
 			if strings.TrimSpace(issuer) == "" || strings.ContainsAny(issuer, "\r\n") {
 				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid trusted attestation issuer")
+			}
+		}
+		verified := false
+		for scope, assurance := range p.IdentityAssurance {
+			if scope == "" || strings.ContainsAny(scope, "\r\n") {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid identity assurance scope")
+			}
+			switch assurance {
+			case ReviewIdentityAssuranceDeclared:
+			case ReviewIdentityAssuranceVerified:
+				verified = true
+			default:
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid identity assurance %q for %s", assurance, scope)
+			}
+		}
+		if verified {
+			if strings.TrimSpace(p.AuthorityAudience) == "" || strings.ContainsAny(p.AuthorityAudience, "\r\n") {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: verified identity assurance requires a non-empty authority_audience")
+			}
+			if len(p.TrustedAttestationIssuers) == 0 {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: verified identity assurance requires at least one trusted attestation issuer")
+			}
+		}
+		for _, issuer := range p.HumanAuthorityIssuers {
+			if strings.TrimSpace(issuer) == "" || strings.ContainsAny(issuer, "\r\n") {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid human authority issuer")
 			}
 		}
 	}

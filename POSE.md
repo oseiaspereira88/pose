@@ -469,3 +469,12 @@ This repository has enabled POSE Contributor Mode. Executing AI agents collabora
 - Stage a contribution manually: `pose contribute stage --type <bug|enhancement> --title <title>`
 - Disable contributor mode: `pose contribute disable`
 - Privacy guarantee: staged reports strictly isolate POSE engine mechanics and never leak proprietary code.
+## Verified review authority (ABM)
+
+When a review policy sets `identity_assurance` to `verified` for a scope kind,
+`agent:`/`human:` prefixes remain labels only. The attestation must carry a
+`ReviewAuthorityClaim` signed by a trusted Ed25519 envelope, bound to the exact
+bundle digest, project audience, reviewer principal and executions required by
+the review plan. A human role also needs a dedicated authority grant. Existing
+bundles without this sealed gate remain auditable in `declared` mode; POSE does
+not infer cognitive independence or require Harne8 for offline review.

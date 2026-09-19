@@ -186,17 +186,31 @@ type ReviewBundleGates struct {
 	// property of the review, not of the policy as it stands today
 	// (spec pose-reuse-is-sealed-signing-stays-live).
 	AllowCriterionReuse bool `json:"allow_criterion_reuse,omitempty"`
+	// IdentityAssurance is sealed for the same reason as the rest: whether this
+	// review had to prove the reviewer's identity, or could declare it, is a
+	// property of the review and not of the policy as it stands today.
+	IdentityAssurance string `json:"identity_assurance,omitempty"`
 }
 
 // SealedGates returns the gates sealed into the bundle, or the conservative
 // defaults when it predates the field: reservations refused, no risk severity
 // accepted, no criterion reuse. That is exactly what this path enforced before
 // the gates existed, so no bundle already sealed changes verdict.
+//
+// Identity assurance is the one gate whose conservative default is the weaker
+// value. A bundle sealed before the field existed was reviewed under an engine
+// where a prefix was the only identity there was; reading its absence as
+// `verified` would retroactively claim a proof that was never asked for, and
+// fail every review already recorded.
 func (p ReviewBundlePayload) SealedGates() ReviewBundleGates {
 	if p.Gates == nil {
-		return ReviewBundleGates{}
+		return ReviewBundleGates{IdentityAssurance: ReviewIdentityAssuranceDeclared}
 	}
-	return *p.Gates
+	gates := *p.Gates
+	if gates.IdentityAssurance == "" {
+		gates.IdentityAssurance = ReviewIdentityAssuranceDeclared
+	}
+	return gates
 }
 
 // BundleGovernedBy reports whether the contract governed this bundle, and
@@ -264,6 +278,36 @@ type ReviewAttestationSignature struct {
 	Signature string `json:"signature"`
 }
 
+// ReviewAuthorityClaim is what an authorized issuer asserts about who reviewed,
+// bound to the exact bundle they reviewed.
+//
+// The engine does not learn who anyone is from this. It verifies that an issuer
+// it trusts, holding the grant for the role being claimed, signed a statement
+// binding these principals and executions to this bundle — and that the
+// statement is current and addressed to this project. Whether the issuer told
+// the truth is the issuer's authority, not POSE's inference, and that boundary
+// is the honest one: the alternative is a local engine claiming to know
+// something no local evidence can show.
+type ReviewAuthorityClaim struct {
+	SchemaVersion int    `json:"schema_version"`
+	Project       string `json:"project"`
+	BundleDigest  string `json:"bundle_digest"`
+	// Principal and Role describe the reviewer. Role is `agent` or `human`.
+	Principal string `json:"principal"`
+	Role      string `json:"role"`
+	// ReviewExecution and ImplementationExecution are the two runs the
+	// separation is about; ImplementationPrincipal is who produced the change.
+	ReviewExecution         string `json:"review_execution"`
+	ImplementationPrincipal string `json:"implementation_principal"`
+	ImplementationExecution string `json:"implementation_execution"`
+	Issuer                  string `json:"issuer"`
+	IssuedAt                string `json:"issued_at"`
+	ExpiresAt               string `json:"expires_at,omitempty"`
+	// Audience is the project this claim was issued for. A claim replayed from
+	// another project names that project here and stops being satisfied.
+	Audience string `json:"audience"`
+}
+
 type ReviewAttestation struct {
 	SchemaVersion int                         `json:"schema_version"`
 	AttestationID string                      `json:"attestation_id"`
@@ -275,6 +319,7 @@ type ReviewAttestation struct {
 	Tools         []ReviewToolDisposition     `json:"tools,omitempty"`
 	EvidenceRefs  []string                    `json:"evidence_refs,omitempty"`
 	Findings      []ReviewFinding             `json:"findings"`
+	Authority     *ReviewAuthorityClaim       `json:"authority,omitempty"`
 	ReusedFrom    []ReviewAttestationReuse    `json:"reused_from,omitempty"`
 	Supersedes    string                      `json:"supersedes,omitempty"`
 	Envelope      *ReviewAttestationSignature `json:"envelope,omitempty"`
@@ -398,6 +443,7 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 			AllowApprovedWithReservations: policy.AllowApprovedWithReservations,
 			AcceptedRiskSeverities:        append([]string{}, policy.AcceptedRiskSeverities...),
 			AllowCriterionReuse:           policy.AllowCriterionReuse,
+			IdentityAssurance:             policy.ReviewIdentityAssurance(scope.Kind),
 		}
 	}
 	bundle.Blockers = uniqueSorted(bundle.Blockers)
@@ -2159,14 +2205,28 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	if !strings.HasPrefix(att.Reviewer, "agent:") && !strings.HasPrefix(att.Reviewer, "human:") {
 		blockers = append(blockers, "reviewer execution identity is malformed")
 	}
-	switch bundle.Payload.Plan.Independence {
-	case "different-actor":
-		if !strings.HasPrefix(att.Reviewer, "agent:independent-") && !strings.HasPrefix(att.Reviewer, "human:") {
-			blockers = append(blockers, "review policy requires an independent reviewer identity")
-		}
-	case "mandatory-human":
-		if !strings.HasPrefix(att.Reviewer, "human:") {
-			blockers = append(blockers, "review policy requires human approval")
+	// Two axes, kept apart. Independence says what separation the review
+	// requires; assurance says whether the reviewer's identity is read from the
+	// string they wrote or from an authority an authorized issuer signed.
+	//
+	// Under `declared` this is the prefix check it always was, and the warning
+	// beside it stops the enum being read as proof: `agent:independent-anything`
+	// satisfies `different-actor`, and `human:` satisfies `mandatory-human`,
+	// because nothing here compares a principal, a session or a grant
+	// (spec pose-abm-review-authority).
+	switch bundle.Payload.SealedGates().IdentityAssurance {
+	case ReviewIdentityAssuranceVerified:
+		blockers = append(blockers, s.verifiedAuthorityBlockers(bundle, att)...)
+	default:
+		switch bundle.Payload.Plan.Independence {
+		case "different-actor":
+			if !strings.HasPrefix(att.Reviewer, "agent:independent-") && !strings.HasPrefix(att.Reviewer, "human:") {
+				blockers = append(blockers, "review policy requires an independent reviewer identity")
+			}
+		case "mandatory-human":
+			if !strings.HasPrefix(att.Reviewer, "human:") {
+				blockers = append(blockers, "review policy requires human approval")
+			}
 		}
 	}
 	required := map[string]ReviewPlanCriterion{}
@@ -2689,4 +2749,131 @@ func reviewBundleEntryPath(entry ReviewBundleSubjectEntry) string {
 		return entry.NewPath
 	}
 	return entry.Path
+}
+
+// verifiedAuthorityBlockers holds an attestation to a signed authority claim
+// instead of to the string the reviewer wrote.
+//
+// What it proves is bounded and worth stating exactly: that an issuer this
+// repository pinned, holding the grant for the role being claimed, signed a
+// statement binding these principals and executions to this bundle, addressed
+// to this project, still current. It does not prove the issuer told the truth,
+// and it does not prove two principals think differently. Independence of
+// execution and identity is what the contract can carry; cognitive
+// independence is not, and the engine must not be read as claiming it.
+func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestation) []string {
+	blockers := []string{}
+	claim := att.Authority
+	if claim == nil {
+		return append(blockers, "review policy requires verified identity assurance and the attestation carries no authority claim; a reviewer prefix is a declaration, not a proof")
+	}
+	if att.Envelope == nil {
+		return append(blockers, "an authority claim is only as good as its signature and this attestation carries none")
+	}
+	policy, _, policyErr := s.loadReviewPolicy()
+	if policyErr != nil {
+		return append(blockers, policyErr.Error())
+	}
+	if claim.SchemaVersion != ReviewSchemaVersion {
+		blockers = append(blockers, fmt.Sprintf("the authority claim has unsupported schema version %d", claim.SchemaVersion))
+	}
+	if claim.BundleDigest != bundle.BundleDigest {
+		blockers = append(blockers, "the authority claim binds a different bundle than the one attested")
+	}
+	if claim.Issuer != att.Envelope.Issuer {
+		blockers = append(blockers, "the authority claim names an issuer other than the one that signed the attestation")
+	}
+	if claim.Principal == "" || claim.Principal != att.Reviewer {
+		blockers = append(blockers, "the authority claim principal does not match the attestation reviewer")
+	}
+	// Replay from another project names that project here. An instance that
+	// requires verified authority and does not say who it is cannot check that,
+	// so the configuration is the blocker rather than the claim.
+	switch {
+	case policy.AuthorityAudience == "":
+		blockers = append(blockers, "review policy requires verified identity assurance but declares no authority_audience, so a claim issued for any project would satisfy it")
+	default:
+		if claim.Audience == "" {
+			blockers = append(blockers, "the authority claim names no audience, so it is satisfied by any project that replays it")
+		} else if claim.Audience != policy.AuthorityAudience {
+			blockers = append(blockers, "the authority claim is addressed to "+claim.Audience+" and this project answers to "+policy.AuthorityAudience)
+		}
+		if claim.Project == "" {
+			blockers = append(blockers, "the authority claim names no project")
+		} else if claim.Project != policy.AuthorityAudience {
+			blockers = append(blockers, "the authority claim names project "+claim.Project+" and this project answers to "+policy.AuthorityAudience)
+		}
+	}
+	if _, err := time.Parse(time.RFC3339, claim.IssuedAt); err != nil {
+		blockers = append(blockers, "the authority claim has no valid issued_at")
+	}
+	if claim.ExpiresAt != "" {
+		expiry, err := time.Parse(time.RFC3339, claim.ExpiresAt)
+		switch {
+		case err != nil:
+			blockers = append(blockers, "the authority claim has an unparseable expires_at")
+		case expiry.Before(time.Now().UTC()):
+			blockers = append(blockers, "the authority claim expired at "+claim.ExpiresAt)
+		}
+	}
+	if claim.ReviewExecution == "" {
+		blockers = append(blockers, "the authority claim must name the reviewing execution")
+	}
+	switch claim.Role {
+	case "agent":
+		if !strings.HasPrefix(claim.Principal, "agent:") {
+			blockers = append(blockers, "an agent authority claim must name an agent principal")
+		}
+	case "human":
+		if !strings.HasPrefix(claim.Principal, "human:") {
+			blockers = append(blockers, "a human authority claim must name a human principal")
+		}
+		// Signing an attestation and vouching for a person being a person are
+		// different authorities, so asserting a human role needs its own grant.
+		if !reviewIssuerHoldsGrant(policy.HumanAuthorityIssuers, att.Envelope.Issuer, att.Envelope.PublicKey) {
+			blockers = append(blockers, "issuer "+att.Envelope.Issuer+" is trusted to sign attestations but is not authorised to assert a human principal")
+		}
+	default:
+		blockers = append(blockers, "the authority claim names an unknown role "+claim.Role)
+	}
+	switch bundle.Payload.Plan.Independence {
+	case "same-actor-separate-execution":
+		if claim.ImplementationPrincipal == "" || claim.ImplementationExecution == "" {
+			blockers = append(blockers, "review policy requires the implementation principal and execution in the authority claim")
+		} else if claim.Principal != claim.ImplementationPrincipal {
+			blockers = append(blockers, "review policy requires the same actor and the authority claim names different principals")
+		} else if claim.ReviewExecution == claim.ImplementationExecution {
+			blockers = append(blockers, "review policy requires a separate execution and the claim names the implementation's own run")
+		}
+	case "different-actor":
+		if claim.ImplementationPrincipal == "" || claim.ImplementationExecution == "" {
+			blockers = append(blockers, "review policy requires a different actor and the claim does not say who implemented")
+		} else if claim.Principal == claim.ImplementationPrincipal {
+			blockers = append(blockers, "review policy requires a different actor and the same principal implemented and reviewed")
+		} else if claim.ReviewExecution == claim.ImplementationExecution {
+			blockers = append(blockers, "review policy requires a separate review execution and the claim names the implementation's own run")
+		}
+	case "mandatory-human":
+		if claim.Role != "human" {
+			blockers = append(blockers, "review policy requires human approval and the claim asserts role "+claim.Role)
+		}
+	}
+	return blockers
+}
+
+// reviewIssuerHoldsGrant compares against the same `<issuer>#sha256:<digest>`
+// pin form the attestation trust list uses, so a grant follows the key rather
+// than the name: rotating a key revokes the grant until the new pin is added.
+func reviewIssuerHoldsGrant(grants []string, issuer, publicKey string) bool {
+	raw, err := base64.StdEncoding.DecodeString(publicKey)
+	if err != nil {
+		return false
+	}
+	pin := issuer + "#" + digestBytes(raw)
+	for _, grant := range grants {
+		if grant == pin {
+			return true
+		}
+	}
+	return false
 }

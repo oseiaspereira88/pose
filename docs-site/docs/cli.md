@@ -478,3 +478,11 @@ fragment's spec and digest, and prints
 earlier release rewrote into `renamed: … -> …` resolves the same way. An
 archived fragment edited after the cut, or claimed by a spec the manifest does
 not name, stays a finding.
+## Verified review authority
+
+Review independence and identity assurance are separate. With
+`identity_assurance: verified`, a reviewer prefix is only a declaration: the
+attestation must carry a trusted, signed authority claim bound to the sealed
+bundle, project audience, reviewer principal and required executions. Human
+claims need a separate authority grant. Legacy bundles remain auditable under
+the assurance mode sealed when they were created.

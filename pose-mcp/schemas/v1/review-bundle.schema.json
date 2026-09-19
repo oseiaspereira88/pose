@@ -33,6 +33,12 @@
           "required": ["plan_digest", "independence", "components", "criteria", "tools"],
           "properties": {"plan_digest": {"$ref": "#/$defs/digest"}}
         },
+        "gates": {
+          "type": "object",
+          "properties": {
+            "identity_assurance": {"enum": ["declared", "verified"]}
+          }
+        },
         "evidence": {"type": "array", "items": {"type": "object", "properties": {"subject_observation": {"type": "string", "enum": ["observed", "carried-forward", "unknown"]}}}},
         "children": {"type": "array", "items": {"type": "object"}},
         "consumed_inputs": {"type": "array", "items": {"type": "object"}}
