@@ -83,8 +83,6 @@ review-bundle schema, the manual and its pt-BR translation, the embedded scaffol
 - modified: .pose/indexes/delivery-integrity.json
 - modified: .pose/indexes/spec-graph.json
 - modified: .pose/results/delivery-validation.json
-- created: .pose/review-bundles/rvb-7b347f8282053b63.json
-- created: .pose/review-attestations/rva-c16c83e4453d5d19.json
 - modified: .pose/state/project-state.md
 - modified: .pose/state/history.jsonl
 - modified: .pose/state/refresh-log.jsonl
