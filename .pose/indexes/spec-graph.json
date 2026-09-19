@@ -1,6 +1,10 @@
 {
   "edges": [
     {
+      "from": "pose-abm-authority-fixture-clock",
+      "to": "pose-abm-review-authority"
+    },
+    {
       "from": "pose-abm-design-basis",
       "to": "pose-abm-review-authority"
     },
@@ -10,6 +14,10 @@
     },
     {
       "from": "pose-abm-review-authority",
+      "to": "pose-abm-review-soundness"
+    },
+    {
+      "from": "pose-abm-review-tool-deferred-without-delivery",
       "to": "pose-abm-review-soundness"
     },
     {
@@ -823,6 +831,14 @@
   ],
   "schemaVersion": 1,
   "specs": {
+    "pose-abm-authority-fixture-clock": {
+      "depends_on": [
+        "pose-abm-review-authority"
+      ],
+      "path": ".pose/specs/2026-09-19-pose-abm-authority-fixture-clock.md",
+      "priority": 1,
+      "status": "done"
+    },
     "pose-abm-design-basis": {
       "depends_on": [
         "pose-abm-review-authority"
@@ -851,6 +867,14 @@
       "depends_on": null,
       "path": ".pose/specs/2026-09-19-pose-abm-review-soundness.md",
       "priority": 0,
+      "status": "done"
+    },
+    "pose-abm-review-tool-deferred-without-delivery": {
+      "depends_on": [
+        "pose-abm-review-soundness"
+      ],
+      "path": ".pose/specs/2026-09-19-pose-abm-review-tool-deferred-without-delivery.md",
+      "priority": 1,
       "status": "done"
     },
     "pose-abm-structural-delta": {
