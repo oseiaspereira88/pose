@@ -144,6 +144,9 @@ func TestABMReviewSoundnessBlanketNotApplicableRefused(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// Sealed by this engine, so stamped with the contract. A bundle sealed
+	// before it keeps its verdict, which is what
+	// TestABMReviewSoundnessLegacyApplicabilityIsNotRejudged covers.
 	att := approvedBundleAttestation(bundle, "agent:audit")
 	for i := range att.Criteria {
 		att.Criteria[i].Disposition = "not-applicable"
@@ -303,5 +306,31 @@ func TestABMReviewSoundnessToolWithoutProducerIsDispensable(t *testing.T) {
 		[]ReviewToolDisposition{{ID: "validate", Component: "docs-only", Disposition: "not-used"}}, nil, true)
 	if !containsSubstring(blockers, "still needs a not-used rationale") {
 		t.Fatalf("the dispensation must state the fact: %v", blockers)
+	}
+}
+
+// The applicability rules are stricter judgment defaults, so a bundle sealed
+// before the contract is not re-judged by them. Twelve of the 499 attestations
+// stored across the two repositories dispense with a criterion whose class the
+// bundle seals, and `pose check --strict` failed on the first of them when this
+// rule shipped ungated (spec pose-abm-review-soundness).
+func TestABMReviewSoundnessLegacyApplicabilityIsNotRejudged(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	now := time.Date(2026, 9, 18, 15, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	att := approvedBundleAttestation(bundle, "agent:audit")
+	for i := range att.Criteria {
+		att.Criteria[i] = ReviewCriterion{ID: att.Criteria[i].ID, Disposition: "not-applicable", Rationale: "recorded before the contract existed"}
+	}
+	if blockers := store.validateBundleAttestation(bundle, att); !containsSubstring(blockers, "not-applicable") {
+		t.Fatalf("a bundle sealed under the contract must be held to it: %v", blockers)
+	}
+	legacy := bundle
+	legacy.Payload.GoverningContracts = []string{"component-aware", "review-bundles", "evidence-vocabulary"}
+	if blockers := store.validateBundleAttestation(legacy, att); containsSubstring(blockers, "not-applicable") {
+		t.Fatalf("a bundle sealed before the contract must keep its verdict: %v", blockers)
 	}
 }

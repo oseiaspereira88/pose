@@ -875,6 +875,20 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	if vocabularyExempt {
 		eval.Warnings = append(eval.Warnings, "completed scope retains its approved review recorded before the evidence vocabulary was reconciled")
 	}
+	// The same shape again, one contract later. Resolving a criterion's kind put
+	// a field into the sealed plan, so every plan digest moved — including those
+	// of scopes closed years of commits ago, whose reviews became `superseded`
+	// without anything about them having become less reviewed.
+	//
+	// The spec that introduced the field predicted this and claimed the existing
+	// exemption covered completed scopes. It did not: the two above are keyed to
+	// their own contracts, and `pose check --strict` failed on the first
+	// unrelated done spec it reached. Naming the third one is the fix the
+	// pattern already prescribes.
+	judgmentExempt := s.explicitJudgmentLegacyExempt(scope, policy, current)
+	if judgmentExempt {
+		eval.Warnings = append(eval.Warnings, "completed scope retains its approved review recorded before criterion kinds entered the plan")
+	}
 	if legacyPlanExempt {
 		requiredCriteria = append([]ReviewCriterionProfile{}, baseRequiredCriteria...)
 		effectiveTools = nil
@@ -889,7 +903,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	} else {
 		eval.Fresh = true
 	}
-	if eval.PlanDigest != "" && current.PlanDigest != eval.PlanDigest && !legacyPlanExempt && !vocabularyExempt {
+	if eval.PlanDigest != "" && current.PlanDigest != eval.PlanDigest && !legacyPlanExempt && !vocabularyExempt && !judgmentExempt {
 		eval.Fresh = false
 		if current.PlanDigest == "" {
 			eval.Blockers = append(eval.Blockers, "review is stale: effective plan digest is missing")
@@ -1356,6 +1370,14 @@ func (s Store) reviewCompletedBeforeContract(scope ScopeRef, policy ReviewPolicy
 // to scopes already done: an open scope is re-reviewed anyway.
 func (s Store) evidenceVocabularyLegacyExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
 	return s.reviewCompletedBeforeContract(scope, policy, "evidence-vocabulary", attempt.ReviewedAt)
+}
+
+// explicitJudgmentLegacyExempt waives the plan-digest comparison for a scope
+// already done whose review predates criterion kinds. It waives nothing else:
+// the criteria, the tools and the independence requirement all still stand, and
+// an open scope is re-prepared and re-reviewed as it should be.
+func (s Store) explicitJudgmentLegacyExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
+	return s.reviewCompletedBeforeContract(scope, policy, "explicit-judgment", attempt.ReviewedAt)
 }
 
 // bundleContractExempt answers the same question as reviewCompletedBeforeContract

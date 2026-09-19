@@ -2217,7 +2217,15 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 			// them is an answer. A criterion that asks for a class the bundle
 			// actually seals is applicable by construction: dispensing with it
 			// would be reading missing judgment as missing relevance.
-			if known {
+			//
+			// Gated, unlike the finding-reference rule beside it. That one is
+			// referential integrity — a criterion naming a finding nobody filed
+			// is incomplete under any policy, and no stored record does it. This
+			// one is a stricter judgment default, and 12 of the 499 attestations
+			// in the two repositories would fail it. Holding a review to a rule
+			// that did not exist when it was given is what the sealed-contract
+			// mechanism exists to prevent.
+			if known && judgmentGoverned {
 				for _, class := range planned.EvidenceClasses {
 					if sealedClasses[class] {
 						blockers = append(blockers, "criterion "+criterion.ID+" is not-applicable while the bundle seals evidence of class "+class+"; missing judgment is a pendency, not inapplicability")
@@ -2263,7 +2271,7 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	// not-applicable — naming what is missing — is the answer the engine itself
 	// prepares for it. Refusing that would break the distinction this contract
 	// depends on rather than reinforce it.
-	if hasDeliveryTarget && len(required) > 0 && notApplicable == len(required) && len(att.Criteria) == len(required) {
+	if judgmentGoverned && hasDeliveryTarget && len(required) > 0 && notApplicable == len(required) && len(att.Criteria) == len(required) {
 		blockers = append(blockers, "every required criterion is not-applicable; a scope where the whole plan is inapplicable is not reviewed by it")
 	}
 	reused := map[string]bool{}

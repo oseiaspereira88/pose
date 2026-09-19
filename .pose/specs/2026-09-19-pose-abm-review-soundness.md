@@ -190,10 +190,19 @@ will notice.
   conclusion rule on it.
 - Rationale: a date can be edited after the fact; a stamp cannot. The repository's own
   mechanism already says so, one contract earlier.
-- Consequences: the finding-reference and applicability rules are not gated, because
-  measurement showed they invalidate nothing: across 495 attestations in both repositories
-  there are zero findings, zero criteria disposed as `finding`, zero all-inapplicable
-  attestations and zero not-applicable dispositions lacking a rationale.
+- Consequences: only the finding-reference rule is ungated. It is referential integrity —
+  a criterion naming a finding nobody filed is incomplete under any policy — and no stored
+  record does it: zero criteria disposed as `finding` across the 499 attestations whose
+  bundle resolves in the two repositories.
+
+  The two applicability rules are gated with the judgment rule, and the first measurement
+  behind this decision was wrong. It counted not-applicable dispositions and their
+  rationales, and never asked the question the rule actually asks: whether the bundle seals
+  evidence of the class the dispensed criterion demands. Twelve of the 499 attestations do,
+  and `pose check --strict` failed on the first of them the moment the contract shipped.
+  They are stricter judgment defaults, so they belong behind the contract the bundle sealed;
+  what the corrected measurement changed is which side of that line they fall on, not the
+  rule itself.
 
 ## 6. Validation
 
@@ -234,6 +243,12 @@ has a positive case, so the suite proves discrimination rather than blanket refu
 - Date: 2026-09-19 (R8 added during implementation, after the first hand-answered review
   reached a required tool nothing could feed; the spec had no baseline to amend against,
   since `pose start` does not exist yet)
+- Date: 2026-09-19, after the first closeout: `pose check --strict` failed on an unrelated
+  completed spec. Two causes, both this increment's: the applicability rules were ungated
+  on a measurement that had not asked the right question, and resolving a criterion's kind
+  moved every plan digest without a matching exemption. The rules are now gated and
+  `explicitJudgmentLegacyExempt` joins the two exemptions that already exist for the same
+  shape. Both specs were re-sealed and re-attested over the corrected content.
 - Environment: local worktree, Go toolchain, no network
 - Notes: the characterization file from the originating review was copied into the tree,
   run against the change and removed. Three of its four tests now fail, which is the
@@ -252,7 +267,7 @@ has a positive case, so the suite proves discrimination rather than blanket refu
 - R3 [satisfied] test:TestABMReviewSoundnessOrphanFindingRefusedByStore
 - R4 [satisfied] test:TestABMReviewSoundnessBlanketNotApplicableRefused test:TestABMReviewSoundnessNotApplicableContradictedBySealedEvidence
 - R5 [satisfied] test:TestABMReviewSoundnessJudgmentNeedsAConclusion
-- R6 [satisfied] test:TestABMReviewSoundnessUnstampedBundleKeepsItsVerdict
+- R6 [satisfied] test:TestABMReviewSoundnessUnstampedBundleKeepsItsVerdict test:TestABMReviewSoundnessLegacyApplicabilityIsNotRejudged
 - R7 [satisfied] test:TestABMReviewSoundnessMechanicalCriterionNeedsAProducer
 - R8 [satisfied] test:TestABMReviewSoundnessToolWithoutProducerIsDispensable
 
@@ -288,8 +303,10 @@ observation and governance outcomes are not in this increment.
 - Result: SUCCESS
 
 ### Residual risks
-- Open reviews are re-prepared under the new plan digest; completed scopes are exempt by
-  the sealed-contract mechanism.
+- Open reviews are re-prepared under the new plan digest. Completed scopes are exempt, but
+  not by the mechanism this spec first claimed: the exemption for this contract had to be
+  registered explicitly, the way the two before it were. The original claim was checked
+  only after it had already failed in the instance.
 - A profile author can still ask for judgment everywhere and make review expensive. The
   engine does not police proportionality; that is the progressive-review contract.
 
