@@ -1,14 +1,14 @@
 ---
 slug: pose-abm-review-tool-deferred-without-delivery
-status: in-progress
+status: done
 created_at: 2026-09-19
-completed_at:
+completed_at: 2026-09-19
 supersedes:
 depends_on: pose-abm-review-soundness
 priority: 1
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: governance:review-tool-deferred
 ---
 
 # Spec: Review tools delivery-gated podem ser deferidas honestamente
@@ -47,6 +47,9 @@ review; não relaxar `review-complete`.
 ### Affected areas
 `pose-mcp/internal/cli/review_closeout.go` e teste de contrato CLI.
 
+### Delivery targets
+- governance:review-tool-deferred module:pose-mcp profile:structural-delta entrypoint:pose-mcp/internal/cli/review_closeout.go
+
 ### Artifacts
 - created: .pose/specs/2026-09-19-pose-abm-review-tool-deferred-without-delivery.md
 - modified: pose-mcp/internal/cli/review_closeout.go
@@ -60,7 +63,7 @@ Mudança aditiva no parser de disposição; revert simples, sem migração.
 - [x] Reproduzir a impossibilidade de atestar scope sem delivery target.
 - [x] Permitir defer explícito delivery-gated com rationale.
 - [x] Cobrir o parser com teste determinístico.
-- [ ] Rodar suíte e review final.
+- [x] Rodar suíte e review final.
 
 ## 5. Decisions
 
@@ -88,17 +91,27 @@ Mudança aditiva no parser de disposição; revert simples, sem migração.
 2026-09-19: discovered while sealing the date-independent authority fixture
 bugfix; the evaluator already understood no-target deferral, but the CLI
 rejected the disposition before it could reach that evaluator.
+2026-09-19: focused parser regression, full Go suite, vet, build and review
+convergence validation passed; target-bearing tool coverage remained strict.
+2026-09-19: sealed review bundle `rvb-fa979be05b5ed2ad` and approved
+attestation `rva-64d05201a93ae700` verified fresh.
 
 ### Requirement trace
-Pending focused, review and full-module evidence.
+- R1 [satisfied] <TestRequiredDeliveryToolMayBeDeferredWithoutDeliveryTarget accepts a rationale-bearing delivery-gated disposition> evidence:unit:pose-mcp/go/test
+- R2 [satisfied] <review evaluator keeps target-bearing required tools strict> evidence:integration:pose-mcp/go/review-bundle-convergence
+- R3 [satisfied] <the implementation changes only CLI disposition parsing and preserves validation behavior> evidence:build:pose-mcp/go/build evidence:unit:pose-mcp/go/test
 
 ## 7. Final Report
 
 ### Delivered scope
-In progress; parser-only governance fix.
+Parser-only governance fix delivered. Delivery-gated tools may be recorded as
+deferred before scope evaluation, while final review verification remains the
+authority and rejects deferral when a delivery target exists.
 
 ### Residual risks
-The evaluator remains the final authority and must be covered by review tests.
+The CLI intentionally does not inspect the delivery graph; callers must still
+run the final review verification gate. This boundary is covered by the
+existing target-bearing review tests and the sealed validation evidence.
 
 ### Follow-ups
-None beyond review and closeout.
+None.

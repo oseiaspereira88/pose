@@ -1,14 +1,14 @@
 ---
 slug: pose-abm-authority-fixture-clock
-status: in-progress
+status: done
 created_at: 2026-09-19
-completed_at:
+completed_at: 2026-09-19
 supersedes:
 depends_on: pose-abm-review-authority
 priority: 1
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: governance:authority-fixture-clock
 ---
 
 # Spec: Fixture de autoridade não expira com o calendário
@@ -46,6 +46,9 @@ mas preservar a capacidade do corpus de recusar claims expiradas.
 ### Affected areas
 `pose-mcp/internal/pose/review_authority_test.go` e este registro.
 
+### Delivery targets
+- governance:authority-fixture-clock module:pose-mcp profile:structural-delta entrypoint:pose-mcp/internal/pose/review_authority_test.go
+
 ### Artifacts
 - created: .pose/specs/2026-09-19-pose-abm-authority-fixture-clock.md
 - modified: pose-mcp/internal/pose/review_authority_test.go
@@ -62,7 +65,7 @@ o relógio ultrapassar a data hardcoded.
 - [x] Reproduzir a falha após a data fixa de expiração.
 - [x] Tornar o fixture positivo relativo ao relógio de execução.
 - [x] Tornar o caso negativo relativo ao instante do fixture.
-- [ ] Rodar matriz raiz e revisão final.
+- [x] Rodar matriz raiz e revisão final.
 
 ## 5. Decisions
 
@@ -91,14 +94,24 @@ o relógio ultrapassar a data hardcoded.
 ### Execution log
 2026-09-19: root Harne8 validation reproduced a failure in the positive
 authority fixture because its fixed `ExpiresAt` was `2026-09-19T13:00:00Z`.
+2026-09-19: focused authority tests, full `go test ./...`, `go vet ./...`,
+`go build ./...` and the root Harne8 strict module validation passed after the
+fixture clock was made relative to the execution instant.
+2026-09-19: sealed review bundle `rvb-5e01174a8bdc7801` and approved
+attestation `rva-5f4d839c303b73c0` verified fresh; delivery-gated validation
+evidence was collected from the affected `pose-mcp` component.
 
 ### Requirement trace
-Pending until focused, full-module and root validation evidence are recorded.
+- R1 [satisfied] <TestABMReviewAuthorityValid uses an execution-relative fixture window> evidence:unit:pose-mcp/go/test
+- R2 [satisfied] <TestABMReviewAuthorityRejectsReplayAndExpiry retains the explicit expiry rejection> evidence:unit:pose-mcp/go/test
+- R3 [satisfied] <full module tests, build and vet pass without production authority changes> evidence:build:pose-mcp/go/build evidence:unit:pose-mcp/go/test
 
 ## 7. Final Report
 
 ### Delivered scope
-In progress; fixture-only correction, no production contract change.
+Fixture-only correction delivered. The positive authority corpus is now
+calendar-independent while the expiry negative path remains explicit; no
+production authority or public contract changed.
 
 ### Residual risks
 The positive fixture has a one-hour validity window; unusually suspended test
@@ -106,4 +119,5 @@ processes could still cross it, which is preferable to freezing production time
 and remains visible if it occurs.
 
 ### Follow-ups
-None beyond review and closeout of this bugfix spec.
+None. Review and closeout are recorded by the sealed bundle and attestation
+above.

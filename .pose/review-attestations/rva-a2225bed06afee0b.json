@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-a2225bed06afee0b",
+  "bundle_id": "rvb-c4656a578452ae84",
+  "bundle_digest": "sha256:c4656a578452ae849d932c1e0621abac13e0b4877dde8541c31b899f1d922fc6",
+  "reviewer": "agent:codex",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "not-applicable",
+      "rationale": "Fixture-only bugfix spec has no delivery target; no e2e/integration/unit evidence is collected by the bundle policy."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "not-applicable",
+      "rationale": "No runtime or contract surface changes are in this fixture-only bugfix."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "not-applicable",
+      "rationale": "No runtime input/error path changes are in this fixture-only bugfix."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "not-applicable",
+      "rationale": "No inter-component integration is declared for this fixture-only bugfix."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "not-applicable",
+      "rationale": "No runtime observability surface changes are in this fixture-only bugfix."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-beb1dbd1d63b8f29",
+      "rationale": "The change is confined to the authority test fixture and does not alter production or public contracts."
+    },
+    {
+      "id": "correctness",
+      "disposition": "not-applicable",
+      "rationale": "The focused and full Go tests passed directly, but this no-delivery-target scope does not collect validation evidence in the sealed bundle."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-beb1dbd1d63b8f29",
+      "rationale": "The bugfix spec records the reproduction, clock decision and validation commands; no product documentation changed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-beb1dbd1d63b8f29",
+      "rationale": "The fix removes calendar-dependent flakiness without changing the engine clock or operational behavior."
+    },
+    {
+      "id": "requirements",
+      "disposition": "not-applicable",
+      "rationale": "The spec is a test-fixture correction without a delivery target; direct focused/full test evidence is recorded in its execution workflow."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-beb1dbd1d63b8f29",
+      "rationale": "The sealed subject contains only the fixture spec and review-authority test correction."
+    },
+    {
+      "id": "security",
+      "disposition": "not-applicable",
+      "rationale": "No production security or authority-validation logic changed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Two declared artifacts reconcile with observed provenance."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "deferred",
+      "rationale": "Scope has no delivery target, so the delivery-gated validator is deferred."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "deferred",
+      "rationale": "Scope has no delivery target, so component validation is deferred."
+    }
+  ],
+  "evidence_refs": [
+    "structure:design-beb1dbd1d63b8f29"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-19T16:10:17Z",
+  "path": ".pose/review-attestations/rva-a2225bed06afee0b.json"
+}
