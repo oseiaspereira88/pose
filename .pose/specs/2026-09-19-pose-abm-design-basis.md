@@ -258,10 +258,15 @@ evidence inacessível; a matriz de Go permanece obrigatória.
 - 2026-09-19: `pose validate --strict --module pose-mcp --report` passed all
   six matrix steps and persisted the standard validation report/history and
   delivery-integrity projection for review evidence.
+- 2026-09-19: sealed review bundle `rvb-91654b0568782f68` and approved
+  attestation `rva-e39a822c7d959c07` were verified fresh. The review retained
+  the repository's existing metadata/unmapped-path warnings; none was promoted
+  to a finding for this advisory slice.
 
 ### Results summary
 - Successes: parser, hostile-Markdown, digest, CLI/MCP compatibility, locale
-  parity, full Go test/vet/build and assessment checks passed.
+  parity, full Go test/vet/build, strict validation, structured evidence and
+  sealed review/attestation checks passed.
 - Failures: none in the executed validation matrix.
 - Warnings: the delivery profile/producer is intentionally not registered;
   integration assessment retains 52 pre-existing gaps and therefore does not
@@ -300,10 +305,16 @@ profile/producer is registered.
   ./...`; `pose lint-spec ... --design-check --strict`; integration and
   technical-debt assessments.
 - Result: passed; see the execution log and residual warnings above.
+- Review: `pose review verify spec:pose-abm-design-basis` returned
+  `ready-to-close` with `approved=true` and the exact bundle/attestation IDs
+  recorded above.
 
 ### Residual risks
 - A validly formatted rationale can still be technically wrong; the projection
   exposes basis but does not certify engineering judgment.
+- The guarded lifecycle transition remains intentionally unapplied: no typed
+  delivery profile/producer exists for this advisory projection, and the open
+  follow-up must be resolved before claiming a composed capability.
 
 ### Follow-ups
 
