@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-design-basis
-status: in-progress
+status: done
 created_at: 2026-09-19
-completed_at:        # stamped on the transition to status: done
+completed_at: 2026-09-19
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on: pose-abm-review-authority
 priority: 1

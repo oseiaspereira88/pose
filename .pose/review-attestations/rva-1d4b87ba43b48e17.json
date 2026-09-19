@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-1d4b87ba43b48e17",
+  "bundle_id": "rvb-cce91680e37a9b63",
+  "bundle_digest": "sha256:cce91680e37a9b63bb5d89718a2f881c48d4afc2d3f74e3d4fb9de1b03b80c5c",
+  "reviewer": "agent:claude-opus-5-abm-design-basis-20260919",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "TestABMDesignBasisLegacySpecIsNoop prova que uma spec sem a seção não muda de comportamento, e TestABMDesignCheckFlagIsOptIn que o gate só age sob o flag; nenhuma spec existente passa a falhar"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "manual, tradução, referência de CLI e scaffold descrevem o --design-check; a spec deixou de carregar o comentário do template no frontmatter"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "ausência, referência externa inacessível e referência local quebrada são estados distintos na saída, em vez de um único erro. R7 citava um teste inexistente; corrigi a referência e registrei como follow-up que o lint conta entradas sem resolvê-las"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "parser tipado de A/D, projeção canônica e um flag advisory opt-in; não altera lifecycle nem digest semântico. O alvo de entrega foi declarado porque a policy exige alvo tipado de quem altera pose-mcp/internal/pose, e compor no Harne8 ficou como follow-up"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "o teste de resolução de evidência cobre traversal e referência local inacessível, e o parser trata Markdown hostil — cerca de código e heading em português — sem executar nada do repositório"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "rodou com --strict, saída 0"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "rodou limpo"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "passed",
+      "evidence": "check:closeout-check",
+      "rationale": "rodou como parte deste closeout"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "check:history-check",
+      "rationale": "rodou limpo"
+    },
+    {
+      "id": "review-check",
+      "disposition": "passed",
+      "evidence": "check:review-check",
+      "rationale": "rodou antes desta atestação; o único item pendente era a própria atestação"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "matriz completa verde contra a proveniência atual"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "evidence": "check:validate",
+      "rationale": "a matriz declara que docs-site não roda check algum, então nenhum produtor emite as classes que esta tool aceita"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "9 de 9 checks no módulo que carrega a mudança"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-262517a46344a9b4",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-19T17:27:14Z",
+  "path": ".pose/review-attestations/rva-1d4b87ba43b48e17.json"
+}
