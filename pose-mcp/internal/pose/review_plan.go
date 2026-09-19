@@ -143,6 +143,7 @@ type reviewToolDefinition struct {
 var reviewToolCatalog = map[string]reviewToolDefinition{
 	"suggest-review":   {Rationale: "resolve the component-specific workflow, skill, rules and validation trail", Phase: 10},
 	"assess-discover":  {Rationale: "inspect component structure, language, size and visible debt", Phase: 20},
+	"assess-design":    {Rationale: "observe bounded structural deltas on the canonical review subject", Phase: 20},
 	"assess-tech-debt": {Rationale: "inspect unresolved TODO, FIXME, panic and stub findings", Phase: 20},
 	"assess-integrate": {Rationale: "inspect providers, consumers and inter-component contract gaps", Phase: 20},
 	"artifact-check":   {Rationale: "reconcile declared artifacts with Git-observed provenance", Phase: 30},
@@ -862,6 +863,12 @@ func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []Revi
 	if len(context.Components) == 0 && len(context.DeliveryKinds) > 0 {
 		add("validate", "required", "", profileEvidence("validate", ""), nil)
 	}
+	if scope.Kind == "spec" {
+		// Recommended rather than required: a scope with no immutable subject
+		// must remain able to prepare a truthful bundle with an explicit unknown
+		// state, without a new mandatory gate.
+		add("assess-design", "recommended", "", []string{"structure"}, nil)
+	}
 	add("assess-tech-debt", "recommended", "", nil, nil)
 	if len(context.Components) > 1 {
 		add("assess-integrate", "required", "", []string{"integration"}, []string{"cross-component-integration"})
@@ -955,6 +962,8 @@ func reviewToolArgs(id string, scope ScopeRef, component string) []string {
 			args = append(args, "--component", component)
 		}
 		return args
+	case "assess-design":
+		return []string{"pose", "assess", "design", "--spec", scope.Slug, "--json"}
 	case "assess-integrate":
 		return []string{"pose", "assess", "integrate"}
 	case "assess-tech-debt":

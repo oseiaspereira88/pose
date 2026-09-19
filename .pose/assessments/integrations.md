@@ -1,14 +1,14 @@
 # Integration Assessment: pose-dist
 
 > **Gerado por**: POSE Integration Engine (`pose assess integrate`)
-> **Data de Avaliação**: 2026-09-19T06:39:46Z
-> **Baseline Commit**: 045b6a8244a2
+> **Data de Avaliação**: 2026-09-19T12:51:18Z
+> **Baseline Commit**: 3f011be80755
 
 ## 1. Resumo Executivo
 
-- **Total de Contratos Observados**: 54
+- **Total de Contratos Observados**: 55
 - **Contratos com Provedor e Consumidor**: 1
-- **Gaps de Integração**: 53
+- **Gaps de Integração**: 54
 
 ## 2. Matriz de Contratos
 
@@ -24,6 +24,7 @@
 | MCP tool pose_closeout_state | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_component_discover | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_delivery_integrity | `mcp` | `pose-mcp` | `unobserved` | `gap` |
+| MCP tool pose_design_delta | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_docs_state | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_extension_list | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_get_assessment | `mcp` | `pose-mcp` | `unobserved` | `gap` |
@@ -126,6 +127,12 @@
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
 ### [GAP-4d3323ce] No consumer observed for MCP tool pose_delivery_integrity
+- **Severidade**: medium
+- **Provedor**: `pose-mcp`
+- **Consumidor**: `unobserved`
+- **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
+
+### [GAP-975000d8] No consumer observed for MCP tool pose_design_delta
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`

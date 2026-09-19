@@ -30,6 +30,10 @@ var ValidEvidenceClasses = map[string]bool{
 	// compilation — the same indistinction the single vocabulary closed one
 	// level up, still open one level down.
 	"lint": true, "typecheck": true, "security-scan": true, "contract": true,
+	// Structural delta is emitted by the sealed review subject producer, not
+	// by a generic build. It remains a distinct class so structure is never
+	// mistaken for compilation or test evidence.
+	"structure": true,
 }
 
 type DeliveryPolicy struct {

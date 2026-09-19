@@ -1140,6 +1140,31 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_governance_stats: %w", err)
 		}
 		return report, nil
+	case "pose_design_delta":
+		var a struct {
+			Slug     string `json:"slug"`
+			MaxFiles int    `json:"max_files"`
+			MaxBytes int    `json:"max_bytes"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_design_delta: invalid arguments")
+		}
+		if a.Slug == "" {
+			return nil, fmt.Errorf("pose_design_delta: required argument %q missing", "slug")
+		}
+		bundle, err := store.PrepareReviewBundle("spec:" + a.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("pose_design_delta: %w", err)
+		}
+		report, err := pose.AssessDesignDelta(store.Root, bundle.Payload.Subject, "spec:"+a.Slug, pose.DesignDeltaOptions{MaxFiles: a.MaxFiles, MaxBytes: a.MaxBytes})
+		if err != nil {
+			return nil, fmt.Errorf("pose_design_delta: %w", err)
+		}
+		if len(bundle.Blockers) > 0 {
+			report.Warnings = append(report.Warnings, "review subject blockers: "+strings.Join(bundle.Blockers, "; "))
+			sort.Strings(report.Warnings)
+		}
+		return report, nil
 	case "pose_usage":
 		var a struct {
 			SinceDays *int   `json:"since_days"`
@@ -2213,6 +2238,37 @@ func toolDefinitions() []map[string]any {
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
+			},
+		},
+		{
+			"name": "pose_design_delta",
+			"description": "Observe bounded structural deltas from the canonical sealed review subject. " +
+				"Returns deterministic dependency, component, delivery-metadata, governance-contract and public-contract observations with explicit unknown/unsupported coverage; it never scores architecture or writes state.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"slug": map[string]any{
+						"type":        "string",
+						"description": "Spec slug whose canonical review subject will be assessed",
+					},
+					"max_files": map[string]any{
+						"type":        "integer",
+						"minimum":     1,
+						"default":     4096,
+						"description": "Optional bounded number of subject entries to inspect",
+					},
+					"max_bytes": map[string]any{
+						"type":        "integer",
+						"minimum":     1,
+						"default":     16777216,
+						"description": "Optional bounded bytes of manifest content to read",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"slug"},
 			},
 		},
 		{

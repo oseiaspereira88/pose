@@ -151,6 +151,22 @@ func TestSubjectEvidenceObservationHasThreeStates(t *testing.T) {
 	}
 }
 
+func TestDerivedSubjectEvidenceUsesImplementationIdentity(t *testing.T) {
+	subject := ReviewBundleSubject{Head: "provider-head", ImplementationDigest: "sha256:implementation"}
+	evidence := ReviewBundleEvidence{SubjectDigest: subject.ImplementationDigest}
+	if got := ReviewEvidenceObservationForSubject(subject, evidence); got != "observed" {
+		t.Fatalf("matching semantic subject digest: got %q", got)
+	}
+	subject.Head = "provider-head-after-derived-only-commit"
+	if got := ReviewEvidenceObservationForSubject(subject, evidence); got != "observed" {
+		t.Fatalf("derived-only ref movement must remain current: got %q", got)
+	}
+	evidence.SubjectDigest = "sha256:older-implementation"
+	if got := ReviewEvidenceObservationForSubject(subject, evidence); got != "carried-forward" {
+		t.Fatalf("stale semantic subject digest: got %q", got)
+	}
+}
+
 // The state is recorded on the sealed evidence and surfaced, so a reviewer
 // reading a bundle can tell a result that observed this change from one carried
 // forward, without comparing two commit hashes nobody compares.

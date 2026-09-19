@@ -37,6 +37,9 @@
     "pose_delivery_integrity": {
       "risk": "read"
     },
+    "pose_design_delta": {
+      "risk": "read"
+    },
     "pose_docs_state": {
       "risk": "read"
     },
@@ -669,6 +672,38 @@
         "type": "object"
       },
       "name": "pose_governance_stats"
+    },
+    {
+      "description": "Observe bounded structural deltas from the canonical sealed review subject. Returns deterministic dependency, component, delivery-metadata, governance-contract and public-contract observations with explicit unknown/unsupported coverage; it never scores architecture or writes state.",
+      "inputSchema": {
+        "properties": {
+          "max_bytes": {
+            "default": 16777216,
+            "description": "Optional bounded bytes of manifest content to read",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "max_files": {
+            "default": 4096,
+            "description": "Optional bounded number of subject entries to inspect",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Spec slug whose canonical review subject will be assessed",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_design_delta"
     },
     {
       "description": "Aggregate privacy-bounded local POSE tool usage and outcome events. Shows which CLI/MCP tools are used, gate value signals, finding lifecycle and latency; never returns command arguments, paths, output, source content or identities.",

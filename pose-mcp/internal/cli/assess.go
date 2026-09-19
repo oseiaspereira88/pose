@@ -69,12 +69,14 @@ func cmdAssess(root string, args []string, stdout, stderr io.Writer) int {
 			return assessIntegrate(root, args[1:], stdout, stderr, locale)
 		case "tech-debt":
 			return assessTechDebt(root, args[1:], stdout, stderr, locale)
+		case "design":
+			return assessDesign(root, args[1:], stdout, stderr, locale)
 		case "--json":
 			return assessValidate(root, true, stdout, stderr, locale)
 		default:
 			fmt.Fprintln(stderr, cliText(locale,
-				"Usage: pose assess [init|snapshot|diff|stale|request|discover|integrate|tech-debt [--json] [--update-state]|--json]",
-				"Uso: pose assess [init|snapshot|diff|stale|request|discover|integrate|tech-debt [--json] [--update-state]|--json]"))
+				"Usage: pose assess [init|snapshot|diff|stale|request|discover|integrate|tech-debt|design [options]|--json]",
+				"Uso: pose assess [init|snapshot|diff|stale|request|discover|integrate|tech-debt|design [opções]|--json]"))
 			return 2
 		}
 	}

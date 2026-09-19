@@ -60,6 +60,7 @@ var catalogGovernance = map[string]toolGovernance{
 	"pose_get_rules":              {Risk: RiskRead},
 	"pose_insights":               {Risk: RiskRead},
 	"pose_governance_stats":       {Risk: RiskRead},
+	"pose_design_delta":           {Risk: RiskRead},
 	"pose_usage":                  {Risk: RiskRead},
 	"pose_get_followups":          {Risk: RiskRead},
 	"pose_check":                  {Risk: RiskGate},

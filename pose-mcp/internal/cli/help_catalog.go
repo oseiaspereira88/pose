@@ -456,17 +456,19 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "assess",
 		SummaryEN:       "Discover module metrics, integration contracts, and technical debt",
 		SummaryPtBR:     "Descobre métricas de módulos, contratos de integração e débito técnico",
-		Usage:           "pose assess <discover|integrate|tech-debt> [--json] [--update-state]",
-		DescriptionEN:   "Runs deep static scanners to assess component LOC, dependencies, technical debt markers (TODO, FIXME, panic), and public contract interfaces.",
-		DescriptionPtBR: "Executa scanners estáticos profundos para avaliar LOC dos componentes, dependências, marcadores de débito técnico (TODO, FIXME, panic) e contratos públicos.",
+		Usage:           "pose assess <discover|integrate|tech-debt|design> [options]",
+		DescriptionEN:   "Runs bounded local assessments for component LOC, dependencies, technical debt markers, public contracts, and structural deltas on a canonical review subject.",
+		DescriptionPtBR: "Executa assessments locais e bounded de LOC, dependências, débito técnico, contratos públicos e deltas estruturais sobre um subject canônico de review.",
 		Subcommands: []SubcommandHelp{
 			{"discover", "pose assess discover [--component <dir>] [--update-state]", "Discover LOC metrics, debts, and module structure", "Descobre métricas de LOC, débitos e estrutura de módulos"},
 			{"integrate", "pose assess integrate", "Check inter-module contracts (REST, Protobuf, Kafka, MCP)", "Verifica contratos inter-módulos (REST, Protobuf, Kafka, MCP)"},
 			{"tech-debt", "pose assess tech-debt", "Scan codebase for technical debt markers and uncovered stubs", "Escaneia a base de código por marcadores de débito e stubs"},
+			{"design", "pose assess design --spec <slug> [--json] [--max-files N] [--max-bytes N]", "Observe bounded structural deltas from the sealed review subject", "Observa deltas estruturais bounded a partir do subject selado de review"},
 		},
 		Examples: []string{
 			"pose assess discover --update-state",
 			"pose assess tech-debt",
+			"pose assess design --spec customer-cache --json",
 		},
 	},
 	"serve-mcp": {

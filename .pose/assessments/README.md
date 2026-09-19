@@ -8,7 +8,7 @@
 |----|------------|---------------|-----------|--------------|------------|----------|--------|--------------------|
 | 01 | `docs-site` | `docs-site` | `n/a` | 0 | 0 | 0 | `verified` | [docs-site.md](./docs-site.md) |
 | 02 | `mcp-enforce` | `mcp-enforce` | `go` | 870 | 1029 | 17 | `verified` | [mcp-enforce.md](./mcp-enforce.md) |
-| 03 | `pose-mcp` | `pose-mcp` | `go` | 41747 | 32114 | 294 | `verified` | [pose-mcp.md](./pose-mcp.md) |
+| 03 | `pose-mcp` | `pose-mcp` | `go` | 42334 | 32281 | 298 | `verified` | [pose-mcp.md](./pose-mcp.md) |
 
 ## Assessments Consolidados & Governança Global
 

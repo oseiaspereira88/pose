@@ -778,7 +778,14 @@ func TestReviewBundleMatchesRootModuleValidationEvidenceForSubdirectoryTargets(t
 	if len(bundle.Payload.Evidence) == 0 {
 		t.Fatalf("expected root validation evidence to be attributed to spec:backend, got 0")
 	}
-	if bundle.Payload.Evidence[0].ID != "val-root" {
+	foundRoot := false
+	for _, evidence := range bundle.Payload.Evidence {
+		if evidence.ID == "val-root" {
+			foundRoot = true
+			break
+		}
+	}
+	if !foundRoot {
 		t.Fatalf("expected evidence val-root, got: %+v", bundle.Payload.Evidence)
 	}
 }
@@ -1544,7 +1551,7 @@ func TestToolDispositionMustCiteEvidenceTheBundleSeals(t *testing.T) {
 	}
 	var classed ReviewPlanTool
 	for _, tool := range bundle.Payload.Plan.Tools {
-		if len(tool.EvidenceClasses) > 0 {
+		if tool.Requiredness == "required" && len(tool.EvidenceClasses) > 0 {
 			classed = tool
 			break
 		}
@@ -1888,6 +1895,12 @@ func TestSealIsSilentWhenEvidenceObservedTheSubject(t *testing.T) {
 		t.Fatal("the fixture seals no evidence, so silence proves nothing")
 	}
 	for _, ev := range bundle.Payload.Evidence {
+		if ev.SubjectDigest != "" {
+			if ev.SubjectDigest != bundle.Payload.Subject.ImplementationDigest || ev.SubjectObservation != "observed" {
+				t.Fatalf("the fixture's derived %s did not observe the semantic subject, evidence=%+v subject=%+v", ev.ID, ev, bundle.Payload.Subject)
+			}
+			continue
+		}
 		if ev.GitHead != bundle.Payload.Subject.Head {
 			t.Fatalf("the fixture's %s did not observe the subject head, so this asserts nothing", ev.ID)
 		}

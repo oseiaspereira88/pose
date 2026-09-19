@@ -150,8 +150,8 @@ func TestToolsList(t *testing.T) {
 	ts := newTestServer(t, "")
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}`)
 	tools, _ := out.Result["tools"].([]any)
-	if len(tools) != 51 {
-		t.Fatalf("tools = %d, want 51", len(tools))
+	if len(tools) != 52 {
+		t.Fatalf("tools = %d, want 52", len(tools))
 	}
 	names := map[string]bool{}
 	for _, raw := range tools {
@@ -163,7 +163,7 @@ func TestToolsList(t *testing.T) {
 	}
 	for _, want := range []string{"pose_get_spec", "pose_list_specs", "pose_spec_readiness",
 		"pose_list_roadmaps", "pose_get_roadmap", "pose_get_changelog", "pose_release_status", "pose_closeout_state", "pose_review_plan", "pose_review_bundle", "pose_delivery_integrity",
-		"pose_suggest", "pose_get_workflow", "pose_get_rules", "pose_insights", "pose_governance_stats", "pose_usage", "pose_get_followups", "pose_check",
+		"pose_suggest", "pose_get_workflow", "pose_get_rules", "pose_insights", "pose_governance_stats", "pose_design_delta", "pose_usage", "pose_get_followups", "pose_check",
 		"pose_lint_spec", "pose_list_knowledge", "pose_get_knowledge", "pose_list_reports",
 		"pose_get_report"} {
 		if !names[want] {
@@ -291,6 +291,14 @@ func TestToolsCall_GovernanceStats(t *testing.T) {
 	}
 	if _, ok := structured["coverage"]; !ok {
 		t.Fatalf("governance report missing coverage: %v", structured)
+	}
+}
+
+func TestToolsCall_DesignDeltaRejectsMissingSlug(t *testing.T) {
+	ts := newTestServer(t, "")
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":34,"method":"tools/call","params":{"name":"pose_design_delta","arguments":{}}}`)
+	if out.Error != nil || out.Result["isError"] != true {
+		t.Fatalf("design delta accepted missing slug: error=%+v result=%v", out.Error, out.Result)
 	}
 }
 

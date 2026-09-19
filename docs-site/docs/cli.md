@@ -116,6 +116,7 @@ as current, but named so a reviewer can tell carried-forward evidence apart.
 | `pose suggest [<type>] [--domain d] [--path p] [--json]` | Canonical trail: workflow + skill + rules |
 | `pose stats [workflows\|tasks\|contexts] [--since-days N]` | Outcome aggregation from history |
 | `pose stats governance [--since-days N] [--maturity-days N] [--min-sample N]` | Separate governance preparation, judgment, intervention, freshness and coverage dimensions; no quality score |
+| `pose assess design --spec S [--json] [--max-files N] [--max-bytes N]` | Bounded structural delta projection from the canonical review subject; no complexity score and no writes |
 | `pose usage [--since-days N] [--tool NAME] [--surface cli\|mcp] [--json]` | Automatic local tool calls, outcomes, finding lifecycle and latency by CLI/MCP surface |
 | `pose index` | Regenerate all indexes (repo-map, spec-graph, roadmaps…) |
 | `pose report --task "..." [--outcome pass\|fail\|partial\|skipped\|unknown] [--spec S] [--since ref] [--change-from A --change-to B] [--validate-output P] [--git-stage] [...]` | Versionable report + history JSONL; `pose report --help` lists all sixteen flags |

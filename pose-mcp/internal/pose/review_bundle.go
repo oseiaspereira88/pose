@@ -117,6 +117,11 @@ type ReviewBundleEvidence struct {
 	Check         string `json:"check"`
 	EvidenceClass string `json:"evidence_class"`
 	Outcome       string `json:"outcome"`
+	// SubjectDigest is the semantic implementation identity observed by a
+	// derived producer that is not itself a commit-based validation. It keeps
+	// the observation current across provider-ref/derived-only movement while
+	// still binding the evidence to the sealed subject content.
+	SubjectDigest string `json:"subject_digest,omitempty"`
 	// SubjectObservation is `observed`, `carried-forward` or `unknown`, and is
 	// sealed rather than inferred later. A result that names no commit is
 	// unknown, never current: an absent fingerprint is a gap in what we know,
@@ -138,6 +143,22 @@ func ReviewEvidenceObservation(subjectHead string, evidence ReviewBundleEvidence
 		return "observed"
 	}
 	return "carried-forward"
+}
+
+// ReviewEvidenceObservationForSubject prefers the semantic subject identity
+// for derived evidence and retains the commit-based compatibility path for
+// ordinary validation results.
+func ReviewEvidenceObservationForSubject(subject ReviewBundleSubject, evidence ReviewBundleEvidence) string {
+	if evidence.SubjectDigest != "" {
+		if subject.ImplementationDigest == "" {
+			return "unknown"
+		}
+		if evidence.SubjectDigest == subject.ImplementationDigest {
+			return "observed"
+		}
+		return "carried-forward"
+	}
+	return ReviewEvidenceObservation(subject.Head, evidence)
 }
 
 type ReviewBundleChild struct {
@@ -415,9 +436,9 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 			return ReviewBundle{}, err
 		}
 		bundle.ExcludedInputs = append(bundle.ExcludedInputs, subjectExcluded...)
-		bundle.Payload.Evidence = s.reviewBundleEvidence(scope, graph)
+		bundle.Payload.Evidence = s.reviewBundleEvidence(scope, graph, bundle.Payload.Subject)
 		for i := range bundle.Payload.Evidence {
-			bundle.Payload.Evidence[i].SubjectObservation = ReviewEvidenceObservation(bundle.Payload.Subject.Head, bundle.Payload.Evidence[i])
+			bundle.Payload.Evidence[i].SubjectObservation = ReviewEvidenceObservationForSubject(bundle.Payload.Subject, bundle.Payload.Evidence[i])
 		}
 		if len(bundle.Payload.Evidence) == 0 && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
 			bundle.Blockers = append(bundle.Blockers, "no passed structured validation evidence is attributed to the review scope")
@@ -1010,7 +1031,7 @@ func staleEvidenceWarnings(subject ReviewBundleSubject, evidence []ReviewBundleE
 	carried := []string{}
 	unknown := []string{}
 	for _, ev := range evidence {
-		switch ReviewEvidenceObservation(subject.Head, ev) {
+		switch ReviewEvidenceObservationForSubject(subject, ev) {
 		case "carried-forward":
 			carried = append(carried, ev.EvidenceClass+":"+ev.ID)
 		case "unknown":
@@ -1057,7 +1078,7 @@ func shortCommit(commit string) string {
 	return commit
 }
 
-func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph) []ReviewBundleEvidence {
+func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph, subject ReviewBundleSubject) []ReviewBundleEvidence {
 	modules := map[string]bool{}
 	for _, target := range graph.Deliveries {
 		if scope.Kind == "spec" && target.Spec == scope.Slug {
@@ -1097,6 +1118,16 @@ func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph
 			continue
 		}
 		result = append(result, ReviewBundleEvidence{ID: evidence.ID, Module: evidence.Module, Check: evidence.Check, EvidenceClass: evidence.EvidenceClass, Outcome: evidence.Outcome, GitHead: evidence.GitHead, ProvenanceDigest: evidence.ProvenanceDigest, Report: evidence.Report})
+	}
+	if scope.Kind == "spec" && subject.ImplementationDigest != "" {
+		if design, err := AssessDesignDelta(s.Root, subject, scope.String(), DesignDeltaOptions{}); err == nil && len(design.InputDigest) > len("sha256:")+16 {
+			id := "design-" + strings.TrimPrefix(design.InputDigest, "sha256:")[:16]
+			result = append(result, ReviewBundleEvidence{
+				ID: id, Check: "assess-design", EvidenceClass: "structure", Outcome: "pass",
+				SubjectDigest: subject.ImplementationDigest, ProvenanceDigest: design.InputDigest,
+				Report: "derived:design-delta/" + strings.TrimPrefix(design.InputDigest, "sha256:"),
+			})
+		}
 	}
 	sort.Slice(result, func(i, j int) bool { return result[i].ID < result[j].ID })
 	return result
