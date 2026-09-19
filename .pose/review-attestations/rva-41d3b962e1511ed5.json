@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-41d3b962e1511ed5",
+  "bundle_id": "rvb-227eb48d893b7097",
+  "bundle_digest": "sha256:227eb48d893b7097199470c12f4b3dc07bdde375875c16ea25a151f4f2ae406b",
+  "reviewer": "agent:claude-opus-5-abm-authority-20260919",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "bundles sem o gate permanecem declared, o default conservador e o valor mais fraco; nenhuma attestation histórica muda de veredito e nenhuma das duas instâncias adotou verified, então o caminho novo existe sem estar exercido em produção"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "manual, tradução pt-BR, referência de CLI e os dois schemas descrevem os eixos e a claim; o scaffold embutido foi regenerado das mesmas fontes e o requirement trace, antes prosa não parseável, declara um item por R-ID"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "cada recusa nomeia o vínculo que falhou. A revisão encontrou mandatory-human verificando menos separação que different-actor, contra a ordenação do próprio plano, corrigido e coberto por teste antes deste selo; quatro achados menores ficaram como follow-up com dono e prazo, em vez de embutidos no passed"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "dois eixos separados, claim assinada e validação de policy, com o alvo governance:verified-review-authority declarado porque a policy exige alvo tipado de quem altera a raiz pose-mcp/internal/pose. Compor o alvo no Harne8 permanece follow-up, não entrega"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "a claim prova que um issuer pinado, com o grant do papel afirmado, assinou um vínculo a este bundle, endereçado a este projeto e ainda vigente — e nada além disso. A verdade factual do issuer permanece responsabilidade dele, e o motor não promete independência cognitiva"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "rodou com --strict, saída 0"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "rodou limpo"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "passed",
+      "evidence": "check:closeout-check",
+      "rationale": "rodou como parte deste closeout"
+    },
+    {
+      "id": "review-check",
+      "disposition": "passed",
+      "evidence": "check:review-check",
+      "rationale": "rodou antes desta atestação; o único item pendente era a própria atestação"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "matriz completa verde contra a proveniência atual"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "evidence": "check:validate",
+      "rationale": "a matriz declara que docs-site não roda check algum, então nenhum produtor emite as classes que esta tool aceita"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "9 de 9 checks no módulo que carrega a mudança"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-d6cec9d0fe65889b",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-19T17:21:09Z",
+  "path": ".pose/review-attestations/rva-41d3b962e1511ed5.json"
+}
