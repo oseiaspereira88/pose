@@ -253,11 +253,13 @@ focused tests, full Go suite, vet, build and strict module validation passed.
 `pose assess integrate` observed 55 contracts (1 active, 54 unobserved
 consumers) and `pose assess tech-debt` found zero uncovered markers. The final
 governance delivery target was then indexed and strict validation persisted a
-current six-check result with scope provenance for this spec. The sealed review
-bundle `rvb-e6dd3404f95ccf63` received attestation
-`rva-bc7e30e6586ff1b0`; `pose review verify` reported `fresh=true` and
-`approved=true`. Closeout remains intentionally in progress because the
-dedicated profile and Harne8 composition pilot remain follow-up work.
+current six-check result with scope provenance for this spec. The earlier sealed
+review pair `rvb-e6dd3404f95ccf63` / `rva-bc7e30e6586ff1b0` was fresh and
+approved for the pre-profile snapshot; the dedicated-profile amendment
+intentionally requires a new sealed review. Closeout remains intentionally in
+progress because the Harne8 composition pilot remains follow-up work.
+2026-09-19: added the dedicated `structural-delta` governance profile to the
+validation matrix and scaffold; strict surface-check reported zero findings.
 
 ### Requirement trace
 - R1: satisfied by `pose-mcp/internal/pose/design_delta.go`, CLI/MCP surfaces,
@@ -281,8 +283,8 @@ dedicated profile and Harne8 composition pilot remain follow-up work.
 
 ### Delivered scope
 In progress. Delivered and validated the local governance target
-`governance:structural-delta`; no composed Harne8 capability or policy
-promotion is claimed.
+`governance:structural-delta` with its dedicated `structural-delta` profile;
+no composed Harne8 capability or policy promotion is claimed.
 
 ### Residual risks
 The scanner will not decide whether a structural delta is proportionate; that
@@ -290,6 +292,5 @@ remains an explicit review judgment. Unsupported manifest ecosystems remain
 visible as coverage gaps.
 
 ### Follow-ups
-- [open] Add a dedicated structural-delta delivery profile and run Harne8
-  composition dogfooding before claiming a composed capability
-  (owner:@pose-maintainers crit:medium review:2026-10-19)
+- [open] Run Harne8 composition dogfooding before claiming a composed
+  capability (owner:@pose-maintainers crit:medium review:2026-10-19)
