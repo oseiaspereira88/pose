@@ -1,6 +1,6 @@
 ---
 slug: pose-abm-governance-outcomes
-status: in-progress        # draft | in-progress | done | blocked | superseded | abandoned
+status: in-progress
 created_at: 2026-09-19
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-abm-review-soundness
 priority: 1
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: governance:governance-outcomes-projection
 ---
 
 # Spec: Resultados de governança sem score agregado
@@ -130,9 +130,12 @@ paralela de eventos.
 - modified: .pose/state/components/pose-mcp.json
 
 ### Delivery targets
-Nenhum target tipado é declarado nesta fatia: o contrato ainda é observacional
-e não está publicado como capability. A composição Harne8 e a adoção de policy
-permanecem no piloto.
+- governance:governance-outcomes-projection module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
+
+A declaração é obrigatória: a policy trata `pose-mcp/internal/pose` como raiz de
+entrega, e um escopo que a altera sem alvo tipado é recusado no closeout. O alvo
+é local e de governança; a composição Harne8 e a adoção de policy permanecem no
+piloto, como follow-up.
 
 ### API/contract changes
 O schema `GovernanceOutcomesReport` é aditivo e versionado. Valores de decisão
@@ -166,12 +169,13 @@ não inventam um arquivo de lineage.
 - [x] Implementar agregador bounded e schema sem score.
 - [x] Adicionar CLI e MCP read-only com catálogo sincronizado.
 - [x] Cobrir history corrompido, attestations inválidas, stale e ausência.
-- [ ] Implementar lineage explícita em spec separada após contrato de origem.
+- [x] Abrir a spec sucessora que recebe R4 e R5: `pose-abm-remediation-lineage`.
 
 ### Validation
 - [x] Executar focused tests, `go test ./...`, `go vet ./...` e `go build ./...`.
-- [ ] Atualizar execution log, requirement trace e review bundle.
-- [ ] Manter esta spec `in-progress` até R4/R5 ou abrir spec sucessora.
+- [x] Atualizar execution log, requirement trace e review bundle.
+- [x] Fechada pela segunda alternativa que a própria task previa: a sucessora
+  foi aberta e R4/R5 apontam para ela como integração diferida.
 
 ## 5. Decisions
 
@@ -259,8 +263,8 @@ aprovação/zero. O módulo de criticality high exige `go test`, vet e build.
 - R1 [satisfied] `TestGovernanceOutcomesSeparateDimensionsAndCoverage`, `TestGovernanceOutcomesCountsJudgmentAndInvalidArtifacts` e `TestGovernanceStatsCLIJSONIsReadOnlyAndSeparated`.
 - R2 [satisfied] `TestGovernanceOutcomesSeparateDimensionsAndCoverage` — outcomes unknown, JSONL inválido e cobertura explícita sem uso de usage como denominador.
 - R3 [satisfied] `TestGovernanceOutcomesCountsJudgmentAndInvalidArtifacts` — aprovação, tentativa, intervenção por tentativa, findings, N/A, accepted-risk e stale permanecem separados.
-- R4 [deferred: pose-abm-remediation-lineage] explicit origin contract not adopted.
-- R5 [deferred: pose-abm-remediation-lineage] mature denominator not observable yet.
+- R4 [deferred-integration: spec:pose-abm-remediation-lineage] contrato de origem explícito não adotado nesta fatia
+- R5 [deferred-integration: spec:pose-abm-remediation-lineage] denominador maduro ainda não observável
 - R6 [satisfied] `TestGovernanceOutcomesSeparateDimensionsAndCoverage` — duração ativa, espera, custo e unknown são campos distintos.
 - R7 [satisfied] `TestGovernanceStatsCLIJSONIsReadOnlyAndSeparated` — saída não expõe root, unidade, identidade ou artefato de escrita.
 - R8 [satisfied] `pose validate --strict --module pose-mcp --report`, `pose assess integrate --json` e `pose assess tech-debt --json` — projeção reutiliza report/bundle/attestation e mantém DORA/usage fora do denominador.
