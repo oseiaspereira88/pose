@@ -297,6 +297,10 @@ func NeutralIndexTemplates() map[string][]byte {
     "backend-go": {
       "kind": "governance",
       "requiredEvidenceClasses": ["integration"]
+    },
+    "structural-delta": {
+      "kind": "governance",
+      "requiredEvidenceClasses": ["integration"]
     }
   },
   "stacks": {

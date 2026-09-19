@@ -119,6 +119,10 @@ de uma solução overengineered passar apenas porque seus testes estão verdes.
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: pose-mcp/internal/pose/subject_evidence_test.go
+- modified: .pose/indexes/validation-matrix.json
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
+- modified: pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json
+- created: .pose/adr/2026-09-19-structural-delta-delivery-profile.md
 - modified: pose-mcp/internal/mcpserver/catalog.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/server_test.go
@@ -145,10 +149,11 @@ de uma solução overengineered passar apenas porque seus testes estão verdes.
 - modified: .pose/assessments/pose-mcp.md
 
 ### Delivery targets
-- governance:structural-delta module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
-O target governa a entrega do producer local usando o profile backend-go já
-adotado; ele não afirma uma capability composta do Harne8. Um profile dedicado
-e o piloto de composição Harne8 permanecem follow-up explícito.
+- governance:structural-delta module:pose-mcp profile:structural-delta entrypoint:pose-mcp/cmd/pose/main.go
+O target governa a entrega do producer local usando o profile dedicado
+`structural-delta`; ele não afirma uma capability composta do Harne8. O profile
+isola a semântica do producer sem tornar `structure` uma validação sintética;
+o piloto de composição Harne8 permanece follow-up explícito.
 
 ### API/contract changes
 Adicionar `DesignDeltaReport` versionado, CLI opt-in, MCP read-only e o
