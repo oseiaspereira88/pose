@@ -1078,8 +1078,14 @@ func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, disposi
 				}
 			}
 		case "not-used":
-			if tool.Requiredness == "required" {
+			if tool.Requiredness == "required" && tool.ProducerCoverage != "none" {
 				blockers = append(blockers, "required review tool "+label+" was not used")
+			} else if tool.Requiredness == "required" && disposition.Rationale == "" {
+				// The one required tool that may be not-used is the one the
+				// matrix says nothing can feed. It still owes a reason, because
+				// the reviewer is recording a fact about the repository and not
+				// simply skipping a step.
+				blockers = append(blockers, "required review tool "+label+" has no registered producer and still needs a not-used rationale")
 			} else if disposition.Rationale == "" {
 				warnings = append(warnings, "recommended review tool "+label+" lacks not-used rationale")
 			}
@@ -1095,7 +1101,8 @@ func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, disposi
 		default:
 			blockers = append(blockers, "review tool "+label+" has invalid disposition")
 		}
-		if tool.Requiredness == "required" && !completion && disposition.Disposition != "passed" {
+		if tool.Requiredness == "required" && !completion && disposition.Disposition != "passed" &&
+			!(tool.ProducerCoverage == "none" && disposition.Disposition == "not-used" && disposition.Rationale != "") {
 			blockers = append(blockers, "required review tool "+label+" did not pass")
 		}
 	}

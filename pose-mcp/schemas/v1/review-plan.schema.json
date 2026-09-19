@@ -47,7 +47,7 @@
     "tool": {
       "type": "object", "additionalProperties": true,
       "required": ["id", "requiredness", "args", "rationale"],
-      "properties": {"id": {"type": "string"}, "requiredness": {"enum": ["recommended", "required"]}, "args": {"type": "array", "items": {"type": "string"}}, "rationale": {"type": "string"}, "evidence_classes": {"type": "array", "items": {"type": "string"}}, "criteria": {"type": "array", "items": {"type": "string"}}, "component": {"type": "string"}, "preconditions": {"type": "array", "items": {"type": "string"}}}
+      "properties": {"id": {"type": "string"}, "requiredness": {"enum": ["recommended", "required"]}, "producer_coverage": {"type": "string", "enum": ["none"]}, "args": {"type": "array", "items": {"type": "string"}}, "rationale": {"type": "string"}, "evidence_classes": {"type": "array", "items": {"type": "string"}}, "criteria": {"type": "array", "items": {"type": "string"}}, "component": {"type": "string"}, "preconditions": {"type": "array", "items": {"type": "string"}}}
     }
   }
 }

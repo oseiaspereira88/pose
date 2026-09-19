@@ -260,3 +260,48 @@ func containsSubstring(values []string, want string) bool {
 	}
 	return false
 }
+
+// A component the validation matrix declares runs no check produces a required
+// tool that nothing can feed. Before this, the reviewer's only options were to
+// cite another component's result, which is false, or to stay blocked. It is
+// the same failure the profile loader already refuses one level up, per
+// component instead of per class (spec pose-abm-review-soundness).
+func TestABMReviewSoundnessToolWithoutProducerIsDispensable(t *testing.T) {
+	root, store := abmMixedProfileFixture(t)
+	writeReviewFixture(t, root, ".pose/indexes/validation-matrix.json", `{
+  "defaults":{"mode":"strict"},
+  "moduleOverrides":{"docs-only":{"stack":"python","replaceDefaultChecks":true,"checks":[]}}
+}`)
+	tool := ReviewPlanTool{ID: "validate", Requiredness: "required", Component: "docs-only", EvidenceClasses: []string{"unit"}}
+	if !store.componentDeclaresNoChecks("docs-only") {
+		t.Fatal("an explicit empty replaceDefaultChecks must be read as no producer")
+	}
+	if store.componentDeclaresNoChecks("pose-mcp") {
+		t.Fatal("a component the matrix does not mention must keep its tool required")
+	}
+
+	warnings := store.annotateReviewToolProducerCoverage([]ReviewPlanTool{tool}, nil)
+	if len(warnings) != 1 || !strings.Contains(warnings[0], "runs no check") {
+		t.Fatalf("the gap must reach the reviewer: %v", warnings)
+	}
+
+	// Still refused while the plan does not record the gap.
+	_, blockers := evaluateReviewToolCoverage(root, []ReviewPlanTool{tool},
+		[]ReviewToolDisposition{{ID: "validate", Component: "docs-only", Disposition: "not-used", Rationale: "skipped"}}, nil, true)
+	if !containsSubstring(blockers, "was not used") {
+		t.Fatalf("a required tool with a producer must still refuse not-used: %v", blockers)
+	}
+
+	// Dispensable once it does, and still owing a reason.
+	tool.ProducerCoverage = "none"
+	_, blockers = evaluateReviewToolCoverage(root, []ReviewPlanTool{tool},
+		[]ReviewToolDisposition{{ID: "validate", Component: "docs-only", Disposition: "not-used", Rationale: "the matrix declares this component runs no check"}}, nil, true)
+	if len(blockers) != 0 {
+		t.Fatalf("a tool nothing can feed must be dispensable: %v", blockers)
+	}
+	_, blockers = evaluateReviewToolCoverage(root, []ReviewPlanTool{tool},
+		[]ReviewToolDisposition{{ID: "validate", Component: "docs-only", Disposition: "not-used"}}, nil, true)
+	if !containsSubstring(blockers, "still needs a not-used rationale") {
+		t.Fatalf("the dispensation must state the fact: %v", blockers)
+	}
+}

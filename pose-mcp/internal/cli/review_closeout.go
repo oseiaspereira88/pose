@@ -968,10 +968,13 @@ func validateCLIReviewToolDisposition(tool posemodel.ReviewPlanTool, disposition
 			return fmt.Errorf("review tool %s requires evidence class %s", label, strings.Join(tool.EvidenceClasses, ","))
 		}
 	case "not-used":
-		if tool.Requiredness == "required" {
+		if tool.Requiredness == "required" && tool.ProducerCoverage != "none" {
 			return fmt.Errorf("required review tool %s cannot be not-used", label)
 		}
 		if disposition.Rationale == "" {
+			if tool.Requiredness == "required" {
+				return fmt.Errorf("review tool %s has no registered producer and still needs a not-used rationale: ID|component|not-used||<why>", label)
+			}
 			return fmt.Errorf("recommended review tool %s needs a not-used rationale", label)
 		}
 	case "deferred":

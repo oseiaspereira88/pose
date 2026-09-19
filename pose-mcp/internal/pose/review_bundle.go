@@ -1707,6 +1707,13 @@ func (s Store) prepareReviewAttestation(bundleID, reviewer string, now time.Time
 		if containsFold(tool.Preconditions, "review-complete") {
 			disposition.Disposition = "deferred"
 			disposition.Rationale = "post-review gate"
+		} else if tool.ProducerCoverage == "none" {
+			// A fact the engine computed from the matrix, not a judgment: this
+			// component declares that it runs no check, so nothing can produce
+			// what the tool asks for. Preparing it here is what keeps the
+			// reviewer from having to cite another component's result.
+			disposition.Disposition = "not-used"
+			disposition.Rationale = "the validation matrix declares this component runs no check, so no producer can emit evidence of class " + strings.Join(tool.EvidenceClasses, "|")
 		} else if tool.Requiredness == "recommended" {
 			disposition.Disposition = "not-used"
 			disposition.Rationale = "not used during automated attestation"

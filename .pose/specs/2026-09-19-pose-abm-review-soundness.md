@@ -56,6 +56,10 @@ still reproduces, and that is the correct scope boundary, not an oversight.
   and stay readable.
 - R7: A profile may raise a collected criterion to a judged one and may never declare a
   criterion mechanical with no evidence class, which nothing could answer.
+- R8: A component-scoped tool whose component the validation matrix declares runs no check
+  is planned as such and may be dispensed with, naming the reason. Everywhere else a
+  required tool must still pass, and the engine claims the gap only where the repository
+  declared it.
 
 ### Non-functional
 Deterministic and offline. No new persisted artifact, index, schema version or command.
@@ -88,6 +92,8 @@ CLI reference, the review-plan schema and the embedded scaffold.
 - created: pose-mcp/internal/pose/abm_review_soundness_test.go
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/review_plan.go
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
@@ -222,7 +228,9 @@ has a positive case, so the suite proves discrimination rather than blanket refu
 - Expected: refusal at every entry point; the print ratchet holds
 
 ### Execution log
-- Date: 2026-09-19
+- Date: 2026-09-19 (R8 added during implementation, after the first hand-answered review
+  reached a required tool nothing could feed; the spec had no baseline to amend against,
+  since `pose start` does not exist yet)
 - Environment: local worktree, Go toolchain, no network
 - Notes: the characterization file from the originating review was copied into the tree,
   run against the change and removed. Three of its four tests now fail, which is the
@@ -243,27 +251,29 @@ has a positive case, so the suite proves discrimination rather than blanket refu
 - R5 [satisfied] test:TestABMReviewSoundnessJudgmentNeedsAConclusion
 - R6 [satisfied] test:TestABMReviewSoundnessUnstampedBundleKeepsItsVerdict
 - R7 [satisfied] test:TestABMReviewSoundnessMechanicalCriterionNeedsAProducer
+- R8 [satisfied] test:TestABMReviewSoundnessToolWithoutProducerIsDispensable
 
 ### Known gaps
 Reviewer authority remains declarative: `different-actor` and `mandatory-human` are still
 satisfied by a prefix. That is the next contract, not a gap in this one.
 
-This spec's own closeout is blocked, and the block is a real finding rather than a defect
-of the change. The diff touches `docs-site/docs/cli.md`, so `docs-site` enters the review
-plan as a component and `validate docs-site` becomes a required tool. `docs-site` is an
-mkdocs site with no module in the validation matrix, so it emits no evidence of any class
-the tool accepts, and a required tool may be dispositioned only `passed` or `failed` with
-such a reference. The reviewer's options are therefore to cite another component's result,
-which is false, or to stay blocked. The first review in this repository that had to be
-answered by hand is also the first one to surface this.
+The first review in this repository that had to be answered by hand was also the first to
+surface R8. The diff touches `docs-site/docs/cli.md`, so `docs-site` entered the plan as a
+component and `validate docs-site` became a required tool — while the matrix declares, in
+`moduleOverrides.docs-site`, `replaceDefaultChecks` with an empty check list. The plan was
+asking for evidence the repository had explicitly said it does not produce, and the
+reviewer's only options were to cite another component's result, which is false, or to
+stay blocked. R8 closes it by reading that declaration, which is the same refusal the
+profile loader already performs one level up, per component instead of per class.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-The judgment contract, the finding-reference and applicability invariants, the preparation
-split, and the reconciliation of skills, manual, schema and scaffold. Authority, structural
+The judgment contract, the finding-reference and applicability invariants, the tool-side
+applicability of R8, the preparation split, and the reconciliation of skills, manual,
+schema and scaffold. Authority, structural
 observation and governance outcomes are not in this increment.
 
 ### Files and modules changed
@@ -285,7 +295,6 @@ observation and governance outcomes are not in this increment.
 - [open] Reviewer authority is still satisfied by a declared prefix, so `different-actor`
   and `mandatory-human` assert identity they do not verify (owner:@pose-maintainers
   crit:high review:2026-10-03)
-- [open] A component discovery recognises but the validation matrix does not cover produces
-  a required tool that cannot be honestly dispositioned; decide whether such a component
-  registers a check, or whether the plan stops requiring a tool nothing can feed
-  (owner:@pose-maintainers crit:high review:2026-10-03)
+- [resolved] A component the validation matrix declares runs no check produced a required
+  tool that could not be honestly dispositioned; the plan now reads that declaration and
+  the tool is dispensable with a reason (R8)
