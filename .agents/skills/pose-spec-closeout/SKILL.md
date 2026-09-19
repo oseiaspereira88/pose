@@ -75,7 +75,7 @@ never becomes overdue. `pose lint-spec` warns when it sees that.
    Order matters. Generate, index, seal, attest, and commit **last**: the commit
    that stores a result moves the head and invalidates that result's provenance
    for a scope still open.
-4. Run a separate review pass: prepare and seal via `pose review bundle spec:<slug> --seal`, attest via `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` (or `pose review attest`), and verify with `pose review verify spec:<slug>` (or use `pose review record spec:<slug> ... --apply` for legacy policies without review bundles).
+4. Run a separate review pass: prepare and seal via `pose review bundle spec:<slug> --seal`, prepare the collected half via `pose review auto-attest <bundle-id> --reviewer agent:<id>` (no `--apply`), answer each `review_attestation.pending` criterion with `pose review attest --criterion ID|passed|<evidence>|<conclusion>`, and verify with `pose review verify spec:<slug>` (or use `pose review record spec:<slug> ... --apply` for legacy policies without review bundles).
 5. Require `pose review verify spec:<slug>` and `pose review-check spec:<slug>`; remediate, revalidate and supersede stale or rejected attempts.
 6. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
 7. Propose each consequential disposition and obtain confirmation before writing it.

@@ -18,6 +18,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -55,13 +56,43 @@ type ReviewBundleSubjectEntry struct {
 	Reason  string `json:"reason"`
 }
 
+// ReviewBundleRangeObservation records what a change set's commit range spans,
+// as distinct from what it attributes.
+//
+// A change set resolved from trailers takes its paths from the commits that
+// carry the trailer, which is exact. Its Base and Head, however, describe a
+// range, and that range spans whatever else was committed in between. Reading
+// Base..Head as "the changes of this spec" is therefore wrong whenever work on
+// two specs interleaved, and nothing said so.
+type ReviewBundleRangeObservation struct {
+	ChangeSet string `json:"change_set"`
+	// State is `clean`, `contaminated` or `unknown`. Unknown is not clean: it
+	// means the range could not be counted here, and saying so is the point.
+	State               string `json:"state"`
+	AttributedCommits   int    `json:"attributed_commits"`
+	RangeCommits        int    `json:"range_commits,omitempty"`
+	UnattributedCommits int    `json:"unattributed_commits,omitempty"`
+	Reason              string `json:"reason,omitempty"`
+}
+
 type ReviewBundleSubject struct {
-	ChangeSets  []string                   `json:"change_sets"`
-	Base        string                     `json:"base,omitempty"`
-	Head        string                     `json:"head,omitempty"`
-	PatchDigest string                     `json:"patch_digest"`
-	TreeDigest  string                     `json:"tree_digest"`
-	Entries     []ReviewBundleSubjectEntry `json:"entries"`
+	ChangeSets []string `json:"change_sets"`
+	Base       string   `json:"base,omitempty"`
+	Head       string   `json:"head,omitempty"`
+	// ImplementationDigest identifies the implementation content alone: the
+	// attributed change sets, the range they resolve to and the ordered
+	// manifest of entries. It is computed from the subject and nothing else.
+	//
+	// The bundle digest covers this, the plan and the evidence. Anything that
+	// observes the implementation — a structural assessment, a receipt, a cache
+	// key — anchors here instead, so the graph stays a DAG:
+	// implementation -> assessment -> plan -> bundle -> attestation. An
+	// assessment that keyed on the bundle containing it would be defining
+	// itself in terms of its own output.
+	ImplementationDigest string                     `json:"implementation_digest,omitempty"`
+	PatchDigest          string                     `json:"patch_digest"`
+	TreeDigest           string                     `json:"tree_digest"`
+	Entries              []ReviewBundleSubjectEntry `json:"entries"`
 }
 
 type ReviewBundlePlan struct {
@@ -81,14 +112,32 @@ type ReviewBundlePlan struct {
 }
 
 type ReviewBundleEvidence struct {
-	ID               string `json:"id"`
-	Module           string `json:"module,omitempty"`
-	Check            string `json:"check"`
-	EvidenceClass    string `json:"evidence_class"`
-	Outcome          string `json:"outcome"`
-	GitHead          string `json:"git_head,omitempty"`
-	ProvenanceDigest string `json:"provenance_digest,omitempty"`
-	Report           string `json:"report,omitempty"`
+	ID            string `json:"id"`
+	Module        string `json:"module,omitempty"`
+	Check         string `json:"check"`
+	EvidenceClass string `json:"evidence_class"`
+	Outcome       string `json:"outcome"`
+	// SubjectObservation is `observed`, `carried-forward` or `unknown`, and is
+	// sealed rather than inferred later. A result that names no commit is
+	// unknown, never current: an absent fingerprint is a gap in what we know,
+	// and reading it as agreement is how a check that never saw this change
+	// comes to stand for it.
+	SubjectObservation string `json:"subject_observation,omitempty"`
+	GitHead            string `json:"git_head,omitempty"`
+	ProvenanceDigest   string `json:"provenance_digest,omitempty"`
+	Report             string `json:"report,omitempty"`
+}
+
+// ReviewEvidenceObservation classifies one sealed result against the subject
+// head it is sealed beside.
+func ReviewEvidenceObservation(subjectHead string, evidence ReviewBundleEvidence) string {
+	if evidence.GitHead == "" || subjectHead == "" {
+		return "unknown"
+	}
+	if evidence.GitHead == subjectHead {
+		return "observed"
+	}
+	return "carried-forward"
 }
 
 type ReviewBundleChild struct {
@@ -137,17 +186,31 @@ type ReviewBundleGates struct {
 	// property of the review, not of the policy as it stands today
 	// (spec pose-reuse-is-sealed-signing-stays-live).
 	AllowCriterionReuse bool `json:"allow_criterion_reuse,omitempty"`
+	// IdentityAssurance is sealed for the same reason as the rest: whether this
+	// review had to prove the reviewer's identity, or could declare it, is a
+	// property of the review and not of the policy as it stands today.
+	IdentityAssurance string `json:"identity_assurance,omitempty"`
 }
 
 // SealedGates returns the gates sealed into the bundle, or the conservative
 // defaults when it predates the field: reservations refused, no risk severity
 // accepted, no criterion reuse. That is exactly what this path enforced before
 // the gates existed, so no bundle already sealed changes verdict.
+//
+// Identity assurance is the one gate whose conservative default is the weaker
+// value. A bundle sealed before the field existed was reviewed under an engine
+// where a prefix was the only identity there was; reading its absence as
+// `verified` would retroactively claim a proof that was never asked for, and
+// fail every review already recorded.
 func (p ReviewBundlePayload) SealedGates() ReviewBundleGates {
 	if p.Gates == nil {
-		return ReviewBundleGates{}
+		return ReviewBundleGates{IdentityAssurance: ReviewIdentityAssuranceDeclared}
 	}
-	return *p.Gates
+	gates := *p.Gates
+	if gates.IdentityAssurance == "" {
+		gates.IdentityAssurance = ReviewIdentityAssuranceDeclared
+	}
+	return gates
 }
 
 // BundleGovernedBy reports whether the contract governed this bundle, and
@@ -187,9 +250,18 @@ type ReviewBundle struct {
 	SealedAt       string              `json:"sealed_at,omitempty"`
 	Payload        ReviewBundlePayload `json:"payload"`
 	ExcludedInputs []ReviewBundleInput `json:"excluded_inputs,omitempty"`
-	Warnings       []string            `json:"warnings,omitempty"`
-	Blockers       []string            `json:"blockers,omitempty"`
-	Path           string              `json:"path,omitempty"`
+	// RangeObservations sit outside the payload, so outside the digest.
+	//
+	// They describe the repository around the change — how many commits the
+	// attributed range spans — and that moves whenever anything else is
+	// committed or reindexed. Sealing it would make an unrelated commit stale a
+	// review of content that did not move, which is the invalidation rule this
+	// contract exists to keep narrow. They are diagnostics, recomputed on every
+	// preparation, like the warnings beside them.
+	RangeObservations []ReviewBundleRangeObservation `json:"range_observations,omitempty"`
+	Warnings          []string                       `json:"warnings,omitempty"`
+	Blockers          []string                       `json:"blockers,omitempty"`
+	Path              string                         `json:"path,omitempty"`
 }
 
 type ReviewAttestationReuse struct {
@@ -206,6 +278,36 @@ type ReviewAttestationSignature struct {
 	Signature string `json:"signature"`
 }
 
+// ReviewAuthorityClaim is what an authorized issuer asserts about who reviewed,
+// bound to the exact bundle they reviewed.
+//
+// The engine does not learn who anyone is from this. It verifies that an issuer
+// it trusts, holding the grant for the role being claimed, signed a statement
+// binding these principals and executions to this bundle — and that the
+// statement is current and addressed to this project. Whether the issuer told
+// the truth is the issuer's authority, not POSE's inference, and that boundary
+// is the honest one: the alternative is a local engine claiming to know
+// something no local evidence can show.
+type ReviewAuthorityClaim struct {
+	SchemaVersion int    `json:"schema_version"`
+	Project       string `json:"project"`
+	BundleDigest  string `json:"bundle_digest"`
+	// Principal and Role describe the reviewer. Role is `agent` or `human`.
+	Principal string `json:"principal"`
+	Role      string `json:"role"`
+	// ReviewExecution and ImplementationExecution are the two runs the
+	// separation is about; ImplementationPrincipal is who produced the change.
+	ReviewExecution         string `json:"review_execution"`
+	ImplementationPrincipal string `json:"implementation_principal"`
+	ImplementationExecution string `json:"implementation_execution"`
+	Issuer                  string `json:"issuer"`
+	IssuedAt                string `json:"issued_at"`
+	ExpiresAt               string `json:"expires_at,omitempty"`
+	// Audience is the project this claim was issued for. A claim replayed from
+	// another project names that project here and stops being satisfied.
+	Audience string `json:"audience"`
+}
+
 type ReviewAttestation struct {
 	SchemaVersion int                         `json:"schema_version"`
 	AttestationID string                      `json:"attestation_id"`
@@ -217,6 +319,7 @@ type ReviewAttestation struct {
 	Tools         []ReviewToolDisposition     `json:"tools,omitempty"`
 	EvidenceRefs  []string                    `json:"evidence_refs,omitempty"`
 	Findings      []ReviewFinding             `json:"findings"`
+	Authority     *ReviewAuthorityClaim       `json:"authority,omitempty"`
 	ReusedFrom    []ReviewAttestationReuse    `json:"reused_from,omitempty"`
 	Supersedes    string                      `json:"supersedes,omitempty"`
 	Envelope      *ReviewAttestationSignature `json:"envelope,omitempty"`
@@ -232,6 +335,24 @@ type ReviewAttestationEnvelope struct {
 	PublicKey     string            `json:"public_key"`
 	Signature     string            `json:"signature"`
 	Attestation   ReviewAttestation `json:"attestation"`
+}
+
+// ReviewAttestationPendency is one answer the attestation still owes. It is
+// not a disposition: nothing is written for a pending criterion, because the
+// whole point is that no value stands in for the answer.
+type ReviewAttestationPendency struct {
+	Criterion string `json:"criterion"`
+	Kind      string `json:"kind"`
+	Reason    string `json:"reason"`
+}
+
+// ReviewAttestationPreparation is what automation can honestly produce on its
+// own: every mechanical criterion answered from sealed evidence, and an
+// explicit list of what a reviewer still has to answer.
+type ReviewAttestationPreparation struct {
+	Attestation ReviewAttestation           `json:"attestation"`
+	Pending     []ReviewAttestationPendency `json:"pending,omitempty"`
+	Complete    bool                        `json:"complete"`
 }
 
 type ReviewBundleDelta struct {
@@ -295,10 +416,15 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 		}
 		bundle.ExcludedInputs = append(bundle.ExcludedInputs, subjectExcluded...)
 		bundle.Payload.Evidence = s.reviewBundleEvidence(scope, graph)
+		for i := range bundle.Payload.Evidence {
+			bundle.Payload.Evidence[i].SubjectObservation = ReviewEvidenceObservation(bundle.Payload.Subject.Head, bundle.Payload.Evidence[i])
+		}
 		if len(bundle.Payload.Evidence) == 0 && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
 			bundle.Blockers = append(bundle.Blockers, "no passed structured validation evidence is attributed to the review scope")
 		}
 		bundle.Warnings = append(bundle.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
+		bundle.RangeObservations = s.reviewBundleRangeObservations(bundle.Payload.Subject.ChangeSets, graph)
+		bundle.Warnings = append(bundle.Warnings, rangeObservationWarnings(bundle.RangeObservations)...)
 	}
 
 	if scope.Kind != "spec" {
@@ -317,6 +443,7 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 			AllowApprovedWithReservations: policy.AllowApprovedWithReservations,
 			AcceptedRiskSeverities:        append([]string{}, policy.AcceptedRiskSeverities...),
 			AllowCriterionReuse:           policy.AllowCriterionReuse,
+			IdentityAssurance:             policy.ReviewIdentityAssurance(scope.Kind),
 		}
 	}
 	bundle.Blockers = uniqueSorted(bundle.Blockers)
@@ -557,7 +684,88 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 	}
 	treeRaw, _ := json.Marshal(treeEntries)
 	subject.TreeDigest = digestBytes(treeRaw)
+	subject.ImplementationDigest = reviewImplementationDigest(subject)
 	return subject, sortedBundleInputs(excluded), blockers, nil
+}
+
+// reviewImplementationDigest identifies the implementation content of a subject
+// and nothing else.
+func reviewImplementationDigest(subject ReviewBundleSubject) string {
+	// Content only. Not the change-set ids, not base and head: a squash merge
+	// or a rebase gives the same content a different SHA, and an implementation
+	// identity that moved with the SHA would call that a different subject. It
+	// is the same rule the bundle digest already follows, named once so an
+	// observer outside the bundle can anchor on it.
+	raw, err := json.Marshal(struct {
+		Entries     []ReviewBundleSubjectEntry `json:"entries"`
+		PatchDigest string                     `json:"patch_digest"`
+		TreeDigest  string                     `json:"tree_digest"`
+	}{Entries: subject.Entries, PatchDigest: subject.PatchDigest, TreeDigest: subject.TreeDigest})
+	if err != nil {
+		return ""
+	}
+	return digestBytes(raw)
+}
+
+// reviewBundleRangeObservations counts, for each attributed change set, how
+// many commits its range spans against how many it attributes.
+//
+// The count needs Git, and Git is not always there — an exported tree, a unit
+// fixture. When it cannot be taken the observation is `unknown`, never `clean`,
+// because the whole purpose is to stop a range being read as an attribution.
+func (s Store) reviewBundleRangeObservations(ids []string, graph DeliveryIntegrityGraph) []ReviewBundleRangeObservation {
+	// Resolved from the ids the subject sealed, so the observation always
+	// describes the same change sets the review is about.
+	byID := map[string]ChangeSet{}
+	for _, set := range graph.ChangeSets {
+		byID[set.ID] = set
+	}
+	observations := []ReviewBundleRangeObservation{}
+	for _, id := range ids {
+		set, ok := byID[id]
+		if !ok {
+			observations = append(observations, ReviewBundleRangeObservation{ChangeSet: id, State: "unknown", Reason: "the change set is not present in the current integrity graph"})
+			continue
+		}
+		observation := ReviewBundleRangeObservation{
+			ChangeSet:         set.ID,
+			AttributedCommits: len(set.Commits),
+		}
+		switch {
+		case set.ResolvedBase == "" || set.ResolvedHead == "":
+			observation.State = "unknown"
+			observation.Reason = "the change set resolves no immutable range to count against"
+		default:
+			count, err := gitRevListCount(s.Root, set.ResolvedBase, set.ResolvedHead)
+			switch {
+			case err != nil:
+				observation.State = "unknown"
+				observation.Reason = "the range could not be counted in this working tree"
+			case len(set.Commits) == 0:
+				observation.State = "unknown"
+				observation.Reason = "the change set attributes no commit to compare the range with"
+			case count > len(set.Commits):
+				observation.State = "contaminated"
+				observation.RangeCommits = count
+				observation.UnattributedCommits = count - len(set.Commits)
+				observation.Reason = "the range spans commits this change set does not attribute; its paths are attributed, its base..head is not"
+			default:
+				observation.State = "clean"
+				observation.RangeCommits = count
+			}
+		}
+		observations = append(observations, observation)
+	}
+	sort.Slice(observations, func(i, j int) bool { return observations[i].ChangeSet < observations[j].ChangeSet })
+	return observations
+}
+
+func gitRevListCount(root, base, head string) (int, error) {
+	out, err := exec.Command("git", "-C", root, "rev-list", "--count", base+".."+head, "--").Output()
+	if err != nil {
+		return 0, err
+	}
+	return strconv.Atoi(strings.TrimSpace(string(out)))
 }
 
 func reduceReviewBundleChangeSets(sets []ChangeSet) []ChangeSet {
@@ -799,22 +1007,47 @@ func (s Store) reviewBundleFileDigest(rel string) (string, error) {
 // where the reviewer sees it rather than inferred from two commit hashes nobody
 // compares.
 func staleEvidenceWarnings(subject ReviewBundleSubject, evidence []ReviewBundleEvidence) []string {
-	if subject.Head == "" {
-		return nil
-	}
-	stale := []string{}
+	carried := []string{}
+	unknown := []string{}
 	for _, ev := range evidence {
-		if ev.GitHead == "" || ev.GitHead == subject.Head {
-			continue
+		switch ReviewEvidenceObservation(subject.Head, ev) {
+		case "carried-forward":
+			carried = append(carried, ev.EvidenceClass+":"+ev.ID)
+		case "unknown":
+			unknown = append(unknown, ev.EvidenceClass+":"+ev.ID)
 		}
-		stale = append(stale, ev.EvidenceClass+":"+ev.ID)
 	}
-	if len(stale) == 0 {
-		return nil
+	warnings := []string{}
+	if len(carried) > 0 {
+		sort.Strings(carried)
+		warnings = append(warnings, "sealed evidence ran against a commit other than the subject head "+shortCommit(subject.Head)+
+			"; it is current by provenance, not by having observed this change: "+strings.Join(carried, ", "))
 	}
-	sort.Strings(stale)
-	return []string{"sealed evidence ran against a commit other than the subject head " + shortCommit(subject.Head) +
-		"; it is current by provenance, not by having observed this change: " + strings.Join(stale, ", ")}
+	// The third state, which used to be silently folded into the first two. A
+	// result carrying no commit says nothing about which content it observed,
+	// and a reviewer reading a clean bundle had no way to tell that apart from
+	// a result that did observe this change.
+	if len(unknown) > 0 {
+		sort.Strings(unknown)
+		warnings = append(warnings, "sealed evidence names no commit, so which content it observed is unknown rather than current: "+strings.Join(unknown, ", "))
+	}
+	return warnings
+}
+
+// rangeObservationWarnings reports a change set whose range spans commits it
+// does not attribute, so nobody reads base..head as this scope's work.
+func rangeObservationWarnings(observations []ReviewBundleRangeObservation) []string {
+	warnings := []string{}
+	for _, observation := range observations {
+		switch observation.State {
+		case "contaminated":
+			warnings = append(warnings, fmt.Sprintf("change set %s attributes %d commit(s) but its range spans %d; %d commit(s) in base..head belong to other work, so the range is provenance and the attributed paths are the subject",
+				observation.ChangeSet, observation.AttributedCommits, observation.RangeCommits, observation.UnattributedCommits))
+		case "unknown":
+			warnings = append(warnings, fmt.Sprintf("change set %s could not have its range counted: %s", observation.ChangeSet, observation.Reason))
+		}
+	}
+	return warnings
 }
 
 func shortCommit(commit string) string {
@@ -1005,6 +1238,20 @@ func reviewBundlePayloadDigest(payload ReviewBundlePayload) (string, error) {
 	canonical.Subject.ChangeSets = nil
 	canonical.Subject.Base = ""
 	canonical.Subject.Head = ""
+	// The observation is derived from the head just cleared above, so sealing
+	// it would smuggle that ref back into the identity: a provider ref moving,
+	// or a derived-only follow-up commit, would flip a result from observed to
+	// carried-forward and stale a review of content that did not move. It stays
+	// in the written bundle for the reader, as advisory provenance, exactly
+	// like the refs it is computed from.
+	//
+	// Copied first: `canonical := payload` shares the slice backing array, so
+	// clearing in place would erase the state on the bundle the caller is
+	// holding, not on the copy being hashed.
+	canonical.Evidence = append([]ReviewBundleEvidence{}, canonical.Evidence...)
+	for i := range canonical.Evidence {
+		canonical.Evidence[i].SubjectObservation = ""
+	}
 	return digestJSON(canonical)
 }
 
@@ -1334,12 +1581,60 @@ func (s Store) CurrentReviewBundle(scope string) (*ReviewBundle, error) {
 	return nil, nil
 }
 
-// AutoAttestReviewBundle constructs an attestation automatically from the
-// bundle's validated evidence and plan dispositions.
+// AutoAttestReviewBundle prepares an attestation from the bundle's validated
+// evidence and plan dispositions, and records it only when nothing is left for
+// a reviewer to answer.
+//
+// It used to record an `approved` decision for every required criterion,
+// including the ones no check reports on. In POSE's own history that produced
+// 458 of 470 attestations in which every criterion cites the same single
+// evidence reference and no criterion carries a conclusion — `roadmap-outcome`
+// has six criteria and not one evidence class, so a roadmap closeout was
+// approved in full by whichever result happened to be first in the bundle. The
+// collection half of that was always useful and is kept; the approval half is
+// what this stops doing (spec pose-abm-review-soundness).
 func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now time.Time) (ReviewAttestation, error) {
-	bundle, err := s.LoadReviewBundle(bundleID)
+	prepared, err := s.PrepareReviewAttestation(bundleID, reviewer, now)
 	if err != nil {
 		return ReviewAttestation{}, err
+	}
+	if !prepared.Complete {
+		if !apply {
+			return prepared.Attestation, nil
+		}
+		return ReviewAttestation{}, fmt.Errorf("pose: %s", ReviewPendencySummary(bundleID, prepared.Pending))
+	}
+	if !apply {
+		return prepared.Attestation, nil
+	}
+	return s.RecordReviewAttestation(prepared.Attestation, now)
+}
+
+// ReviewPendencySummary renders the pendencies as one actionable line: what is
+// unanswered, why, and the command that answers it.
+func ReviewPendencySummary(bundleID string, pending []ReviewAttestationPendency) string {
+	ids := make([]string, 0, len(pending))
+	for _, item := range pending {
+		ids = append(ids, item.Criterion)
+	}
+	sort.Strings(ids)
+	return fmt.Sprintf("bundle %s has %d criteria awaiting a reviewer's judgment (%s); record them with `pose review attest --criterion ID|passed|<evidence>|<conclusion>` (or `not-applicable`, or `finding`), because no collected evidence answers them", bundleID, len(pending), strings.Join(ids, ", "))
+}
+
+// PrepareReviewAttestation answers every criterion automation may answer and
+// reports the rest as pendencies. It never writes.
+func (s Store) PrepareReviewAttestation(bundleID, reviewer string, now time.Time) (ReviewAttestationPreparation, error) {
+	att, pending, err := s.prepareReviewAttestation(bundleID, reviewer, now)
+	if err != nil {
+		return ReviewAttestationPreparation{}, err
+	}
+	return ReviewAttestationPreparation{Attestation: att, Pending: pending, Complete: len(pending) == 0}, nil
+}
+
+func (s Store) prepareReviewAttestation(bundleID, reviewer string, now time.Time) (ReviewAttestation, []ReviewAttestationPendency, error) {
+	bundle, err := s.LoadReviewBundle(bundleID)
+	if err != nil {
+		return ReviewAttestation{}, nil, err
 	}
 	if reviewer == "" {
 		reviewer = "agent:auto-attest"
@@ -1348,7 +1643,7 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 	graph, _ := s.GetDeliveryIntegrity("")
 	requiresEvidence := s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph)
 	if len(bundle.Payload.Evidence) == 0 && requiresEvidence {
-		return ReviewAttestation{}, fmt.Errorf("pose: bundle %s has no passed structured validation evidence", bundleID)
+		return ReviewAttestation{}, nil, fmt.Errorf("pose: bundle %s has no passed structured validation evidence", bundleID)
 	}
 	evidenceRefs := make([]string, 0, len(bundle.Payload.Evidence))
 	byClass := map[string][]string{}
@@ -1381,9 +1676,23 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 	}
 	sort.Strings(evidenceRefs)
 
+	judgmentGoverned, _ := BundleGovernedBy(bundle, "explicit-judgment")
+	pending := []ReviewAttestationPendency{}
 	criteria := make([]ReviewCriterion, 0, len(bundle.Payload.Plan.Criteria))
 	for _, criterion := range bundle.Payload.Plan.Criteria {
 		if !criterion.Required {
+			continue
+		}
+		if judgmentGoverned && ReviewCriterionKind(criterion) == ReviewCriterionKindJudgment {
+			// The criterion no check reports on. Collecting evidence for it is
+			// still useful and still happens — it is sealed in the bundle and
+			// the reviewer cites it. What stops here is answering on the
+			// reviewer's behalf.
+			reason := "no registered check reports on this criterion"
+			if len(criterion.EvidenceClasses) > 0 {
+				reason = "the profile asks a reviewer to conclude, even though evidence of class " + strings.Join(criterion.EvidenceClasses, "|") + " exists"
+			}
+			pending = append(pending, ReviewAttestationPendency{Criterion: criterion.ID, Kind: ReviewCriterionKindJudgment, Reason: reason})
 			continue
 		}
 		critEvidence := pickScoped(criterion.EvidenceClasses, reviewCriterionComponents(bundle.Payload.Plan, criterion))
@@ -1411,9 +1720,9 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 			// a pass.
 			if requiresEvidence {
 				if len(criterion.EvidenceClasses) > 0 {
-					return ReviewAttestation{}, fmt.Errorf("pose: criterion %s requires evidence class %s and bundle %s seals none; run the check, or record the criterion as not-applicable with a rationale using `pose review attest`", criterion.ID, strings.Join(criterion.EvidenceClasses, "|"), bundleID)
+					return ReviewAttestation{}, nil, fmt.Errorf("pose: criterion %s requires evidence class %s and bundle %s seals none; run the check, or record the criterion as not-applicable with a rationale using `pose review attest`", criterion.ID, strings.Join(criterion.EvidenceClasses, "|"), bundleID)
 				}
-				return ReviewAttestation{}, fmt.Errorf("pose: criterion %s has no evidence in bundle %s; run a check, or record the criterion as not-applicable with a rationale using `pose review attest`", criterion.ID, bundleID)
+				return ReviewAttestation{}, nil, fmt.Errorf("pose: criterion %s has no evidence in bundle %s; run a check, or record the criterion as not-applicable with a rationale using `pose review attest`", criterion.ID, bundleID)
 			}
 			rationale := "the scope carries no delivery target, so no validation evidence is collected for it"
 			if len(criterion.EvidenceClasses) > 0 {
@@ -1444,6 +1753,13 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 		if containsFold(tool.Preconditions, "review-complete") {
 			disposition.Disposition = "deferred"
 			disposition.Rationale = "post-review gate"
+		} else if tool.ProducerCoverage == "none" {
+			// A fact the engine computed from the matrix, not a judgment: this
+			// component declares that it runs no check, so nothing can produce
+			// what the tool asks for. Preparing it here is what keeps the
+			// reviewer from having to cite another component's result.
+			disposition.Disposition = "not-used"
+			disposition.Rationale = "the validation matrix declares this component runs no check, so no producer can emit evidence of class " + strings.Join(tool.EvidenceClasses, "|")
 		} else if tool.Requiredness == "recommended" {
 			disposition.Disposition = "not-used"
 			disposition.Rationale = "not used during automated attestation"
@@ -1472,9 +1788,9 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 				// does not survive one half of it being fabricated.
 				if requiresEvidence {
 					if len(tool.EvidenceClasses) > 0 {
-						return ReviewAttestation{}, fmt.Errorf("pose: review tool %s requires evidence class %s and bundle %s seals none; run the tool, or record its disposition with `pose review attest --tool`", tool.ID, strings.Join(tool.EvidenceClasses, "|"), bundleID)
+						return ReviewAttestation{}, nil, fmt.Errorf("pose: review tool %s requires evidence class %s and bundle %s seals none; run the tool, or record its disposition with `pose review attest --tool`", tool.ID, strings.Join(tool.EvidenceClasses, "|"), bundleID)
 					}
-					return ReviewAttestation{}, fmt.Errorf("pose: review tool %s has no evidence in bundle %s; run the tool, or record its disposition with `pose review attest --tool`", tool.ID, bundleID)
+					return ReviewAttestation{}, nil, fmt.Errorf("pose: review tool %s has no evidence in bundle %s; run the tool, or record its disposition with `pose review attest --tool`", tool.ID, bundleID)
 				}
 				// `deferred`, not `not-used`: a required tool recorded not-used
 				// is a blocker whatever the reason, while a deferral is the
@@ -1491,21 +1807,26 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 		tools = append(tools, disposition)
 	}
 
+	decision := "approved"
+	if len(pending) > 0 {
+		// A preparation that still owes answers is not an approval waiting to
+		// be written. Naming the decision `changes-requested` keeps the object
+		// honest if anything persists it anyway: the verifier refuses it, which
+		// is the correct outcome for a review nobody finished.
+		decision = "changes-requested"
+	}
 	att := ReviewAttestation{
 		BundleID:     bundle.BundleID,
 		BundleDigest: bundle.BundleDigest,
 		Reviewer:     reviewer,
-		Decision:     "approved",
+		Decision:     decision,
 		Criteria:     criteria,
 		Tools:        tools,
 		EvidenceRefs: evidenceRefs,
 		Findings:     []ReviewFinding{},
 	}
-
-	if !apply {
-		return att, nil
-	}
-	return s.RecordReviewAttestation(att, now)
+	sort.Slice(pending, func(i, j int) bool { return pending[i].Criterion < pending[j].Criterion })
+	return att, pending, nil
 }
 
 // RecordReviewAttestation appends an immutable decision for one sealed bundle.
@@ -1884,14 +2205,28 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	if !strings.HasPrefix(att.Reviewer, "agent:") && !strings.HasPrefix(att.Reviewer, "human:") {
 		blockers = append(blockers, "reviewer execution identity is malformed")
 	}
-	switch bundle.Payload.Plan.Independence {
-	case "different-actor":
-		if !strings.HasPrefix(att.Reviewer, "agent:independent-") && !strings.HasPrefix(att.Reviewer, "human:") {
-			blockers = append(blockers, "review policy requires an independent reviewer identity")
-		}
-	case "mandatory-human":
-		if !strings.HasPrefix(att.Reviewer, "human:") {
-			blockers = append(blockers, "review policy requires human approval")
+	// Two axes, kept apart. Independence says what separation the review
+	// requires; assurance says whether the reviewer's identity is read from the
+	// string they wrote or from an authority an authorized issuer signed.
+	//
+	// Under `declared` this is the prefix check it always was, and the warning
+	// beside it stops the enum being read as proof: `agent:independent-anything`
+	// satisfies `different-actor`, and `human:` satisfies `mandatory-human`,
+	// because nothing here compares a principal, a session or a grant
+	// (spec pose-abm-review-authority).
+	switch bundle.Payload.SealedGates().IdentityAssurance {
+	case ReviewIdentityAssuranceVerified:
+		blockers = append(blockers, s.verifiedAuthorityBlockers(bundle, att)...)
+	default:
+		switch bundle.Payload.Plan.Independence {
+		case "different-actor":
+			if !strings.HasPrefix(att.Reviewer, "agent:independent-") && !strings.HasPrefix(att.Reviewer, "human:") {
+				blockers = append(blockers, "review policy requires an independent reviewer identity")
+			}
+		case "mandatory-human":
+			if !strings.HasPrefix(att.Reviewer, "human:") {
+				blockers = append(blockers, "review policy requires human approval")
+			}
 		}
 	}
 	required := map[string]ReviewPlanCriterion{}
@@ -1900,29 +2235,104 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 			required[criterion.ID] = criterion
 		}
 	}
+	// The findings this attestation records, so a criterion disposed as
+	// `finding` can be checked against them. The CLI parser already refused a
+	// criterion naming a finding it does not record; the Store did not, so any
+	// other caller — a Store client, a signed import, a reuse — could approve a
+	// criterion that explicitly did not pass while filing nothing. A signature
+	// authenticates bytes; it does not repair a reference to something that
+	// does not exist (spec pose-abm-review-soundness).
+	recordedFindings := map[string]bool{}
+	for _, finding := range att.Findings {
+		recordedFindings[finding.ID] = true
+	}
+	sealedClasses := map[string]bool{}
+	for _, ev := range bundle.Payload.Evidence {
+		sealedClasses[ev.EvidenceClass] = true
+	}
+	judgmentGoverned, _ := BundleGovernedBy(bundle, "explicit-judgment")
+	toolScope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
+	toolGraph, _ := s.GetDeliveryIntegrity("")
+	hasDeliveryTarget := s.reviewScopeRequiresValidationEvidence(toolScope, bundle.Payload.Plan, toolGraph)
 	seen := map[string]bool{}
+	notApplicable := 0
 	for _, criterion := range att.Criteria {
 		if seen[criterion.ID] {
 			blockers = append(blockers, "duplicate criterion "+criterion.ID)
 		}
 		seen[criterion.ID] = true
-		if _, ok := required[criterion.ID]; !ok {
+		planned, known := required[criterion.ID]
+		if !known {
 			blockers = append(blockers, "unknown criterion "+criterion.ID)
 		}
 		if criterion.Disposition != "passed" && criterion.Disposition != "not-applicable" && criterion.Disposition != "finding" {
 			blockers = append(blockers, "criterion "+criterion.ID+" has invalid disposition")
 		}
-		if criterion.Disposition == "not-applicable" && criterion.Rationale == "" {
-			blockers = append(blockers, "criterion "+criterion.ID+" lacks not-applicable rationale")
+		if criterion.Disposition == "not-applicable" {
+			notApplicable++
+			if criterion.Rationale == "" {
+				blockers = append(blockers, "criterion "+criterion.ID+" lacks not-applicable rationale")
+			}
+			// Inapplicability and absence are different states, and only one of
+			// them is an answer. A criterion that asks for a class the bundle
+			// actually seals is applicable by construction: dispensing with it
+			// would be reading missing judgment as missing relevance.
+			//
+			// Gated, unlike the finding-reference rule beside it. That one is
+			// referential integrity — a criterion naming a finding nobody filed
+			// is incomplete under any policy, and no stored record does it. This
+			// one is a stricter judgment default, and 12 of the 499 attestations
+			// in the two repositories would fail it. Holding a review to a rule
+			// that did not exist when it was given is what the sealed-contract
+			// mechanism exists to prevent.
+			if known && judgmentGoverned {
+				for _, class := range planned.EvidenceClasses {
+					if sealedClasses[class] {
+						blockers = append(blockers, "criterion "+criterion.ID+" is not-applicable while the bundle seals evidence of class "+class+"; missing judgment is a pendency, not inapplicability")
+						break
+					}
+				}
+			}
 		}
-		if criterion.Disposition == "passed" && !skipEvidenceSupport {
-			blockers = append(blockers, reviewCriterionEvidenceBlockers(bundle, required[criterion.ID], criterion)...)
+		if criterion.Disposition == "finding" {
+			if criterion.Evidence == "" {
+				blockers = append(blockers, "criterion "+criterion.ID+" is disposed as a finding and names none")
+			} else if !recordedFindings[criterion.Evidence] {
+				blockers = append(blockers, "criterion "+criterion.ID+" names finding "+criterion.Evidence+", which this attestation does not record")
+			}
+		}
+		if criterion.Disposition == "passed" {
+			if !skipEvidenceSupport {
+				blockers = append(blockers, reviewCriterionEvidenceBlockers(bundle, planned, criterion)...)
+			}
+			// A judged criterion passes on a conclusion, not on a reference.
+			// Gated on the contract the bundle sealed, so the 470 attestations
+			// recorded before it keep their verdict and stay readable: this
+			// raises the bar for reviews taken under the contract, and never
+			// re-judges one taken before it existed.
+			if judgmentGoverned && known && ReviewCriterionKind(planned) == ReviewCriterionKindJudgment && strings.TrimSpace(criterion.Rationale) == "" {
+				blockers = append(blockers, "criterion "+criterion.ID+" is a judgment criterion passed with no conclusion; record what was examined and what it concluded")
+			}
 		}
 	}
 	for id := range required {
 		if !seen[id] {
 			blockers = append(blockers, "missing criterion "+id)
 		}
+	}
+	// Every criterion dispensed with is not a review of anything. The engine
+	// cannot judge whether one dispensation is honest, but it can refuse the
+	// degenerate case, where the attestation states that nothing the plan asked
+	// about applies to the change it approves.
+	//
+	// Bounded to a scope that carries a delivery target, because the other case
+	// is already modelled and already honest: a documentation-only spec collects
+	// no validation evidence by design, and recording every criterion
+	// not-applicable — naming what is missing — is the answer the engine itself
+	// prepares for it. Refusing that would break the distinction this contract
+	// depends on rather than reinforce it.
+	if judgmentGoverned && hasDeliveryTarget && len(required) > 0 && notApplicable == len(required) && len(att.Criteria) == len(required) {
+		blockers = append(blockers, "every required criterion is not-applicable; a scope where the whole plan is inapplicable is not reviewed by it")
 	}
 	reused := map[string]bool{}
 	for _, reuse := range att.ReusedFrom {
@@ -1980,9 +2390,6 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	if skipEvidenceSupport {
 		sealedEvidence = nil
 	}
-	toolScope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
-	toolGraph, _ := s.GetDeliveryIntegrity("")
-	hasDeliveryTarget := s.reviewScopeRequiresValidationEvidence(toolScope, bundle.Payload.Plan, toolGraph)
 	toolWarnings, toolBlockers := evaluateReviewToolCoverage(s.Root, bundle.Payload.Plan.Tools, att.Tools, sealedEvidence, hasDeliveryTarget)
 	_ = toolWarnings
 	blockers = append(blockers, toolBlockers...)
@@ -2342,4 +2749,131 @@ func reviewBundleEntryPath(entry ReviewBundleSubjectEntry) string {
 		return entry.NewPath
 	}
 	return entry.Path
+}
+
+// verifiedAuthorityBlockers holds an attestation to a signed authority claim
+// instead of to the string the reviewer wrote.
+//
+// What it proves is bounded and worth stating exactly: that an issuer this
+// repository pinned, holding the grant for the role being claimed, signed a
+// statement binding these principals and executions to this bundle, addressed
+// to this project, still current. It does not prove the issuer told the truth,
+// and it does not prove two principals think differently. Independence of
+// execution and identity is what the contract can carry; cognitive
+// independence is not, and the engine must not be read as claiming it.
+func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestation) []string {
+	blockers := []string{}
+	claim := att.Authority
+	if claim == nil {
+		return append(blockers, "review policy requires verified identity assurance and the attestation carries no authority claim; a reviewer prefix is a declaration, not a proof")
+	}
+	if att.Envelope == nil {
+		return append(blockers, "an authority claim is only as good as its signature and this attestation carries none")
+	}
+	policy, _, policyErr := s.loadReviewPolicy()
+	if policyErr != nil {
+		return append(blockers, policyErr.Error())
+	}
+	if claim.SchemaVersion != ReviewSchemaVersion {
+		blockers = append(blockers, fmt.Sprintf("the authority claim has unsupported schema version %d", claim.SchemaVersion))
+	}
+	if claim.BundleDigest != bundle.BundleDigest {
+		blockers = append(blockers, "the authority claim binds a different bundle than the one attested")
+	}
+	if claim.Issuer != att.Envelope.Issuer {
+		blockers = append(blockers, "the authority claim names an issuer other than the one that signed the attestation")
+	}
+	if claim.Principal == "" || claim.Principal != att.Reviewer {
+		blockers = append(blockers, "the authority claim principal does not match the attestation reviewer")
+	}
+	// Replay from another project names that project here. An instance that
+	// requires verified authority and does not say who it is cannot check that,
+	// so the configuration is the blocker rather than the claim.
+	switch {
+	case policy.AuthorityAudience == "":
+		blockers = append(blockers, "review policy requires verified identity assurance but declares no authority_audience, so a claim issued for any project would satisfy it")
+	default:
+		if claim.Audience == "" {
+			blockers = append(blockers, "the authority claim names no audience, so it is satisfied by any project that replays it")
+		} else if claim.Audience != policy.AuthorityAudience {
+			blockers = append(blockers, "the authority claim is addressed to "+claim.Audience+" and this project answers to "+policy.AuthorityAudience)
+		}
+		if claim.Project == "" {
+			blockers = append(blockers, "the authority claim names no project")
+		} else if claim.Project != policy.AuthorityAudience {
+			blockers = append(blockers, "the authority claim names project "+claim.Project+" and this project answers to "+policy.AuthorityAudience)
+		}
+	}
+	if _, err := time.Parse(time.RFC3339, claim.IssuedAt); err != nil {
+		blockers = append(blockers, "the authority claim has no valid issued_at")
+	}
+	if claim.ExpiresAt != "" {
+		expiry, err := time.Parse(time.RFC3339, claim.ExpiresAt)
+		switch {
+		case err != nil:
+			blockers = append(blockers, "the authority claim has an unparseable expires_at")
+		case expiry.Before(time.Now().UTC()):
+			blockers = append(blockers, "the authority claim expired at "+claim.ExpiresAt)
+		}
+	}
+	if claim.ReviewExecution == "" {
+		blockers = append(blockers, "the authority claim must name the reviewing execution")
+	}
+	switch claim.Role {
+	case "agent":
+		if !strings.HasPrefix(claim.Principal, "agent:") {
+			blockers = append(blockers, "an agent authority claim must name an agent principal")
+		}
+	case "human":
+		if !strings.HasPrefix(claim.Principal, "human:") {
+			blockers = append(blockers, "a human authority claim must name a human principal")
+		}
+		// Signing an attestation and vouching for a person being a person are
+		// different authorities, so asserting a human role needs its own grant.
+		if !reviewIssuerHoldsGrant(policy.HumanAuthorityIssuers, att.Envelope.Issuer, att.Envelope.PublicKey) {
+			blockers = append(blockers, "issuer "+att.Envelope.Issuer+" is trusted to sign attestations but is not authorised to assert a human principal")
+		}
+	default:
+		blockers = append(blockers, "the authority claim names an unknown role "+claim.Role)
+	}
+	switch bundle.Payload.Plan.Independence {
+	case "same-actor-separate-execution":
+		if claim.ImplementationPrincipal == "" || claim.ImplementationExecution == "" {
+			blockers = append(blockers, "review policy requires the implementation principal and execution in the authority claim")
+		} else if claim.Principal != claim.ImplementationPrincipal {
+			blockers = append(blockers, "review policy requires the same actor and the authority claim names different principals")
+		} else if claim.ReviewExecution == claim.ImplementationExecution {
+			blockers = append(blockers, "review policy requires a separate execution and the claim names the implementation's own run")
+		}
+	case "different-actor":
+		if claim.ImplementationPrincipal == "" || claim.ImplementationExecution == "" {
+			blockers = append(blockers, "review policy requires a different actor and the claim does not say who implemented")
+		} else if claim.Principal == claim.ImplementationPrincipal {
+			blockers = append(blockers, "review policy requires a different actor and the same principal implemented and reviewed")
+		} else if claim.ReviewExecution == claim.ImplementationExecution {
+			blockers = append(blockers, "review policy requires a separate review execution and the claim names the implementation's own run")
+		}
+	case "mandatory-human":
+		if claim.Role != "human" {
+			blockers = append(blockers, "review policy requires human approval and the claim asserts role "+claim.Role)
+		}
+	}
+	return blockers
+}
+
+// reviewIssuerHoldsGrant compares against the same `<issuer>#sha256:<digest>`
+// pin form the attestation trust list uses, so a grant follows the key rather
+// than the name: rotating a key revokes the grant until the new pin is added.
+func reviewIssuerHoldsGrant(grants []string, issuer, publicKey string) bool {
+	raw, err := base64.StdEncoding.DecodeString(publicKey)
+	if err != nil {
+		return false
+	}
+	pin := issuer + "#" + digestBytes(raw)
+	for _, grant := range grants {
+		if grant == pin {
+			return true
+		}
+	}
+	return false
 }

@@ -58,11 +58,43 @@ func ParseScopeRef(value string) (ScopeRef, error) {
 }
 
 type ReviewCriterionProfile struct {
-	ID              string   `json:"id"`
-	Description     string   `json:"description"`
+	ID          string `json:"id"`
+	Description string `json:"description"`
+	// Kind is `mechanical` or `judgment`, and says who may answer this
+	// criterion. A mechanical one is answered by a registered producer: it
+	// names evidence classes, a check emits them, and citing a sealed result
+	// of that class is a complete answer. A judgment one is not — it asks
+	// whether the change is safe, compatible, operable or in scope, and no
+	// check emits that. Absent, it is derived rather than defaulted; see
+	// ReviewCriterionKind.
+	Kind            string   `json:"kind,omitempty"`
 	Rules           []string `json:"rules,omitempty"`
 	EvidenceClasses []string `json:"evidence_classes,omitempty"`
 	Required        *bool    `json:"required,omitempty"`
+}
+
+// ReviewCriterionKindMechanical and ReviewCriterionKindJudgment are the closed
+// set. There is deliberately no third value: a criterion nobody can answer is
+// not a weaker criterion, it is an unstated one.
+const (
+	ReviewCriterionKindMechanical = "mechanical"
+	ReviewCriterionKindJudgment   = "judgment"
+)
+
+// DeriveReviewCriterionKind answers what a criterion is when it does not say.
+//
+// The rule is the one the engine can defend: a criterion that names evidence
+// classes has a registered producer and can be answered by citing what that
+// producer emitted; a criterion that names none has no producer at all, so
+// nothing mechanical can satisfy it. Deriving rather than defaulting matters
+// because the distributed profiles predate the field — `spec-closeout` has five
+// criteria with no class, `roadmap-outcome` has six, and every one of them was
+// being answered by whatever sealed result happened to be first in the bundle.
+func DeriveReviewCriterionKind(evidenceClasses []string) string {
+	if len(evidenceClasses) > 0 {
+		return ReviewCriterionKindMechanical
+	}
+	return ReviewCriterionKindJudgment
 }
 
 type ReviewProfileSelectors struct {
@@ -116,7 +148,44 @@ type ReviewPolicy struct {
 	AllowCriterionReuse              bool              `json:"allow_criterion_reuse,omitempty"`
 	RequireSignedAttestations        bool              `json:"require_signed_attestations,omitempty"`
 	TrustedAttestationIssuers        []string          `json:"trusted_attestation_issuers,omitempty"`
+	// IdentityAssurance is per scope kind and holds `declared` or `verified`.
+	//
+	// It is a second axis, not a stronger value of the first. Independence says
+	// what separation the review requires; assurance says whether the reviewer's
+	// identity is taken from the string they wrote or from an authority an
+	// authorized issuer signed. `different-actor` under `declared` is satisfied
+	// by the prefix `agent:independent-`, which anyone can type — a real
+	// property of the current engine, and one the enum alone reads as proof.
+	//
+	// Absent means `declared`, which is what every instance does today.
+	IdentityAssurance map[string]string `json:"identity_assurance,omitempty"`
+	// HumanAuthorityIssuers are the pins, in the same `<issuer>#sha256:<digest>`
+	// form as TrustedAttestationIssuers, permitted to assert that a principal is
+	// a person. Signing is not the same authority as vouching for who someone
+	// is, so asserting a human role needs its own grant.
+	HumanAuthorityIssuers []string `json:"human_authority_issuers,omitempty"`
+	// AuthorityAudience is the identifier this repository answers to. A claim
+	// issued for another project names that project and stops satisfying this
+	// one, which is what makes replay across repositories fail. It lives in the
+	// policy rather than being derived from a path, so it comes from the
+	// protected baseline an administrator controls and not from whatever
+	// directory the engine happens to be run in.
+	AuthorityAudience string `json:"authority_audience,omitempty"`
 }
+
+// ReviewIdentityAssurance resolves the assurance a scope kind requires,
+// defaulting to `declared`.
+func (p ReviewPolicy) ReviewIdentityAssurance(kind string) string {
+	if value := p.IdentityAssurance[kind]; value == ReviewIdentityAssuranceVerified {
+		return ReviewIdentityAssuranceVerified
+	}
+	return ReviewIdentityAssuranceDeclared
+}
+
+const (
+	ReviewIdentityAssuranceDeclared = "declared"
+	ReviewIdentityAssuranceVerified = "verified"
+)
 
 // ReviewPolicyKnownKeys lists the top-level keys the engine models, derived from
 // the struct rather than restated, so the list cannot drift from what is read.
@@ -300,6 +369,32 @@ func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
 				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid trusted attestation issuer")
 			}
 		}
+		verified := false
+		for scope, assurance := range p.IdentityAssurance {
+			if scope == "" || strings.ContainsAny(scope, "\r\n") {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid identity assurance scope")
+			}
+			switch assurance {
+			case ReviewIdentityAssuranceDeclared:
+			case ReviewIdentityAssuranceVerified:
+				verified = true
+			default:
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid identity assurance %q for %s", assurance, scope)
+			}
+		}
+		if verified {
+			if strings.TrimSpace(p.AuthorityAudience) == "" || strings.ContainsAny(p.AuthorityAudience, "\r\n") {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: verified identity assurance requires a non-empty authority_audience")
+			}
+			if len(p.TrustedAttestationIssuers) == 0 {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: verified identity assurance requires at least one trusted attestation issuer")
+			}
+		}
+		for _, issuer := range p.HumanAuthorityIssuers {
+			if strings.TrimSpace(issuer) == "" || strings.ContainsAny(issuer, "\r\n") {
+				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid human authority issuer")
+			}
+		}
 	}
 	for scope, independence := range p.ReviewerIndependence {
 		if !validReviewIndependence(independence) {
@@ -352,6 +447,21 @@ func (s Store) loadReviewProfile(ref string) (ReviewProfile, []byte, error) {
 			if err := s.validateReviewContractRefs(ref, c.Rules, c.EvidenceClasses); err != nil {
 				return ReviewProfile{}, nil, err
 			}
+		}
+		switch c.Kind {
+		case "", ReviewCriterionKindJudgment:
+		case ReviewCriterionKindMechanical:
+			// A profile may declare a criterion judgment even though a producer
+			// exists — asking a reviewer to look at something a check also
+			// covers is always allowed. The reverse is not: declaring
+			// `mechanical` with no evidence class would re-open the hole the
+			// derivation closes, because nothing could ever answer it and the
+			// engine would accept any sealed result as if something had.
+			if len(c.EvidenceClasses) == 0 {
+				return ReviewProfile{}, nil, fmt.Errorf("pose: criterion %q in %s is mechanical but names no evidence class, so no registered check can answer it; declare the classes a check emits, or leave it to judgment", c.ID, ref)
+			}
+		default:
+			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid criterion kind %q in %s: expected %s or %s", c.Kind, ref, ReviewCriterionKindMechanical, ReviewCriterionKindJudgment)
 		}
 		seen[c.ID] = true
 	}
@@ -828,6 +938,20 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	if vocabularyExempt {
 		eval.Warnings = append(eval.Warnings, "completed scope retains its approved review recorded before the evidence vocabulary was reconciled")
 	}
+	// The same shape again, one contract later. Resolving a criterion's kind put
+	// a field into the sealed plan, so every plan digest moved — including those
+	// of scopes closed years of commits ago, whose reviews became `superseded`
+	// without anything about them having become less reviewed.
+	//
+	// The spec that introduced the field predicted this and claimed the existing
+	// exemption covered completed scopes. It did not: the two above are keyed to
+	// their own contracts, and `pose check --strict` failed on the first
+	// unrelated done spec it reached. Naming the third one is the fix the
+	// pattern already prescribes.
+	judgmentExempt := s.explicitJudgmentLegacyExempt(scope, policy, current)
+	if judgmentExempt {
+		eval.Warnings = append(eval.Warnings, "completed scope retains its approved review recorded before criterion kinds entered the plan")
+	}
 	if legacyPlanExempt {
 		requiredCriteria = append([]ReviewCriterionProfile{}, baseRequiredCriteria...)
 		effectiveTools = nil
@@ -842,7 +966,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 	} else {
 		eval.Fresh = true
 	}
-	if eval.PlanDigest != "" && current.PlanDigest != eval.PlanDigest && !legacyPlanExempt && !vocabularyExempt {
+	if eval.PlanDigest != "" && current.PlanDigest != eval.PlanDigest && !legacyPlanExempt && !vocabularyExempt && !judgmentExempt {
 		eval.Fresh = false
 		if current.PlanDigest == "" {
 			eval.Blockers = append(eval.Blockers, "review is stale: effective plan digest is missing")
@@ -1031,8 +1155,14 @@ func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, disposi
 				}
 			}
 		case "not-used":
-			if tool.Requiredness == "required" {
+			if tool.Requiredness == "required" && tool.ProducerCoverage != "none" {
 				blockers = append(blockers, "required review tool "+label+" was not used")
+			} else if tool.Requiredness == "required" && disposition.Rationale == "" {
+				// The one required tool that may be not-used is the one the
+				// matrix says nothing can feed. It still owes a reason, because
+				// the reviewer is recording a fact about the repository and not
+				// simply skipping a step.
+				blockers = append(blockers, "required review tool "+label+" has no registered producer and still needs a not-used rationale")
 			} else if disposition.Rationale == "" {
 				warnings = append(warnings, "recommended review tool "+label+" lacks not-used rationale")
 			}
@@ -1048,7 +1178,8 @@ func evaluateReviewToolCoverage(root string, planTools []ReviewPlanTool, disposi
 		default:
 			blockers = append(blockers, "review tool "+label+" has invalid disposition")
 		}
-		if tool.Requiredness == "required" && !completion && disposition.Disposition != "passed" {
+		if tool.Requiredness == "required" && !completion && disposition.Disposition != "passed" &&
+			!(tool.ProducerCoverage == "none" && disposition.Disposition == "not-used" && disposition.Rationale != "") {
 			blockers = append(blockers, "required review tool "+label+" did not pass")
 		}
 	}
@@ -1195,6 +1326,12 @@ var reviewContracts = []ReviewContract{
 		Summary:      "a passed criterion must cite evidence the sealed bundle contains, of a class the criterion asks for",
 		IntroducedIn: "2.0.0",
 	},
+	{
+		ID:           "explicit-judgment",
+		LegacyField:  "explicit_judgment_adopted_at",
+		Summary:      "a judgment criterion is answered by a reviewer with a conclusion, never filled from collected evidence",
+		IntroducedIn: "6.0.0",
+	},
 }
 
 // ContractsIntroducedIn returns the contracts a release first shipped, in
@@ -1296,6 +1433,14 @@ func (s Store) reviewCompletedBeforeContract(scope ScopeRef, policy ReviewPolicy
 // to scopes already done: an open scope is re-reviewed anyway.
 func (s Store) evidenceVocabularyLegacyExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
 	return s.reviewCompletedBeforeContract(scope, policy, "evidence-vocabulary", attempt.ReviewedAt)
+}
+
+// explicitJudgmentLegacyExempt waives the plan-digest comparison for a scope
+// already done whose review predates criterion kinds. It waives nothing else:
+// the criteria, the tools and the independence requirement all still stand, and
+// an open scope is re-prepared and re-reviewed as it should be.
+func (s Store) explicitJudgmentLegacyExempt(scope ScopeRef, policy ReviewPolicy, attempt ReviewAttempt) bool {
+	return s.reviewCompletedBeforeContract(scope, policy, "explicit-judgment", attempt.ReviewedAt)
 }
 
 // bundleContractExempt answers the same question as reviewCompletedBeforeContract

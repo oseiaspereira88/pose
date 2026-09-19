@@ -1,6 +1,10 @@
 {
   "edges": [
     {
+      "from": "pose-abm-review-authority",
+      "to": "pose-abm-review-soundness"
+    },
+    {
       "from": "pose-action-runtime-currency-gate",
       "to": "pose-actions-node24-bump"
     },
@@ -807,6 +811,26 @@
   ],
   "schemaVersion": 1,
   "specs": {
+    "pose-abm-review-authority": {
+      "depends_on": [
+        "pose-abm-review-soundness"
+      ],
+      "path": ".pose/specs/2026-09-19-pose-abm-review-authority.md",
+      "priority": 0,
+      "status": "in-progress"
+    },
+    "pose-abm-review-soundness": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-19-pose-abm-review-soundness.md",
+      "priority": 0,
+      "status": "done"
+    },
+    "pose-abm-subject-evidence": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-19-pose-abm-subject-evidence.md",
+      "priority": 0,
+      "status": "done"
+    },
     "pose-action-runtime-currency-gate": {
       "depends_on": [
         "pose-actions-node24-bump"

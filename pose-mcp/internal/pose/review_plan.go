@@ -37,23 +37,54 @@ type ReviewPlanProfile struct {
 }
 
 type ReviewPlanCriterion struct {
-	ID              string   `json:"id"`
-	Description     string   `json:"description"`
-	Required        bool     `json:"required"`
+	ID          string `json:"id"`
+	Description string `json:"description"`
+	Required    bool   `json:"required"`
+	// Kind is resolved at plan time, so the bundle seals what each criterion
+	// was when it was reviewed. A profile edited afterwards cannot retroactively
+	// turn a judged criterion into a collected one, or the reverse.
+	Kind            string   `json:"kind,omitempty"`
 	Rules           []string `json:"rules,omitempty"`
 	EvidenceClasses []string `json:"evidence_classes,omitempty"`
 	Profiles        []string `json:"profiles"`
 }
 
+// ReviewCriterionKind resolves a planned criterion's kind, falling back to the
+// derivation for a plan sealed before the field existed. Reading it through one
+// accessor is what keeps auto-attest, the CLI and the verifier from disagreeing
+// about which criteria a reviewer still owes an answer for.
+func ReviewCriterionKind(criterion ReviewPlanCriterion) string {
+	if criterion.Kind == ReviewCriterionKindMechanical || criterion.Kind == ReviewCriterionKindJudgment {
+		return criterion.Kind
+	}
+	return DeriveReviewCriterionKind(criterion.EvidenceClasses)
+}
+
 type ReviewPlanTool struct {
-	ID              string   `json:"id"`
-	Requiredness    string   `json:"requiredness"`
-	Args            []string `json:"args"`
-	Rationale       string   `json:"rationale"`
-	EvidenceClasses []string `json:"evidence_classes,omitempty"`
-	Criteria        []string `json:"criteria,omitempty"`
-	Component       string   `json:"component,omitempty"`
-	Preconditions   []string `json:"preconditions,omitempty"`
+	ID           string `json:"id"`
+	Requiredness string `json:"requiredness"`
+	// ProducerCoverage is `none` when the component this tool is scoped to
+	// declares, in the validation matrix, that it runs no check at all. The
+	// plan then asks for evidence nothing in the repository can emit, and a
+	// required tool may only be disposed `passed` or `failed` citing a result
+	// of a class it accepts — so the reviewer's options are to cite another
+	// component's result, which is false, or to stay blocked forever.
+	//
+	// This is the same failure the profile loader already refuses one level up:
+	// a profile demanding a class no registered check may emit plans a gate
+	// only a fabricated disposition can pass. Per component, the matrix is what
+	// says so, and the plan had not been reading it.
+	//
+	// Empty means the ordinary case: producers exist, or the matrix does not
+	// say otherwise and the tool stays required. The engine claims the gap only
+	// where the repository declared it.
+	ProducerCoverage string   `json:"producer_coverage,omitempty"`
+	Args             []string `json:"args"`
+	Rationale        string   `json:"rationale"`
+	EvidenceClasses  []string `json:"evidence_classes,omitempty"`
+	Criteria         []string `json:"criteria,omitempty"`
+	Component        string   `json:"component,omitempty"`
+	Preconditions    []string `json:"preconditions,omitempty"`
 }
 
 type ReviewPlan struct {
@@ -243,11 +274,12 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	if len(plan.Components) > 1 {
 		plan.Criteria, plan.Blockers = addReviewCriterion(plan.Criteria, ReviewPlanCriterion{
 			ID: "cross-component-integration", Description: "Observed component boundaries and contracts are integrated and covered by current evidence.",
-			Required: true, EvidenceClasses: []string{"integration"}, Profiles: []string{"synthetic:cross-component"},
+			Required: true, Kind: ReviewCriterionKindMechanical, EvidenceClasses: []string{"integration"}, Profiles: []string{"synthetic:cross-component"},
 		}, plan.Blockers)
 		plan.Explain = append(plan.Explain, "cross-component-integration added because multiple mapped component roots are affected")
 	}
 	plan.Tools, plan.Blockers, plan.Warnings = buildReviewTools(scope, context, profiles, plan.SelectedProfiles, plan.Criteria, plan.Blockers, plan.Warnings)
+	plan.Warnings = s.annotateReviewToolProducerCoverage(plan.Tools, plan.Warnings)
 	for _, c := range plan.Criteria {
 		for _, rule := range c.Rules {
 			path := filepath.Join(s.Root, ".pose", "rules", rule+".md")
@@ -674,7 +706,11 @@ func composeReviewCriteria(profiles []ReviewProfile, blockers []string) ([]Revie
 			// tools used to receive, were both guarding against input the
 			// contract no longer admits.
 			classes := uniqueSorted(item.EvidenceClasses)
-			criterion := ReviewPlanCriterion{ID: item.ID, Description: item.Description, Required: required, Rules: uniqueSorted(item.Rules), EvidenceClasses: classes, Profiles: []string{profile.Ref()}}
+			kind := item.Kind
+			if kind == "" {
+				kind = DeriveReviewCriterionKind(classes)
+			}
+			criterion := ReviewPlanCriterion{ID: item.ID, Description: item.Description, Required: required, Kind: kind, Rules: uniqueSorted(item.Rules), EvidenceClasses: classes, Profiles: []string{profile.Ref()}}
 			criteria, blockers = addReviewCriterion(criteria, criterion, blockers)
 		}
 	}
@@ -690,11 +726,74 @@ func addReviewCriterion(criteria []ReviewPlanCriterion, candidate ReviewPlanCrit
 		if criteria[i].Description != candidate.Description || criteria[i].Required != candidate.Required || strings.Join(criteria[i].Rules, "\x00") != strings.Join(candidate.Rules, "\x00") || strings.Join(criteria[i].EvidenceClasses, "\x00") != strings.Join(candidate.EvidenceClasses, "\x00") {
 			return criteria, append(blockers, "conflicting review criterion "+candidate.ID+" from "+strings.Join(append(criteria[i].Profiles, candidate.Profiles...), ","))
 		}
+		// Kind composes monotonically, the way independence already does: an
+		// overlay may raise a collected criterion to a judged one, and may never
+		// lower a judged one back. Two profiles disagreeing is therefore not a
+		// conflict — the stricter reading wins, and neither profile can weaken
+		// the obligation the other stated.
+		if ReviewCriterionKind(criteria[i]) == ReviewCriterionKindJudgment || ReviewCriterionKind(candidate) == ReviewCriterionKindJudgment {
+			criteria[i].Kind = ReviewCriterionKindJudgment
+		} else {
+			criteria[i].Kind = ReviewCriterionKindMechanical
+		}
 		criteria[i].Profiles = uniqueSorted(append(criteria[i].Profiles, candidate.Profiles...))
 		return criteria, blockers
 	}
 	criteria = append(criteria, candidate)
 	return criteria, blockers
+}
+
+// annotateReviewToolProducerCoverage marks the component-scoped tools whose
+// component the validation matrix declares runs no check.
+//
+// It reads one declaration and infers nothing else. A component with checks, a
+// component the matrix does not mention, an unreadable matrix: all of them keep
+// the tool exactly as required as it was. The gap is claimed only where the
+// repository itself wrote `replaceDefaultChecks` with an empty list, which is
+// an explicit statement that this component emits no evidence.
+func (s Store) annotateReviewToolProducerCoverage(tools []ReviewPlanTool, warnings []string) []string {
+	silent := map[string]bool{}
+	for _, tool := range tools {
+		if tool.Component == "" || len(tool.EvidenceClasses) == 0 {
+			continue
+		}
+		if _, known := silent[tool.Component]; !known {
+			silent[tool.Component] = s.componentDeclaresNoChecks(tool.Component)
+		}
+		if !silent[tool.Component] {
+			continue
+		}
+		for i := range tools {
+			if tools[i].ID == tool.ID && tools[i].Component == tool.Component {
+				tools[i].ProducerCoverage = "none"
+			}
+		}
+		warnings = append(warnings, "review tool "+reviewToolLabel(tool.ID, tool.Component)+" asks for evidence of class "+
+			strings.Join(tool.EvidenceClasses, "|")+" from a component the validation matrix declares runs no check; record it not-used with the reason, or register a check for that component")
+	}
+	return warnings
+}
+
+// componentDeclaresNoChecks answers only for the explicit declaration. Anything
+// it cannot read is false, because the conservative answer is to keep asking.
+func (s Store) componentDeclaresNoChecks(component string) bool {
+	raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "validation-matrix.json"))
+	if err != nil {
+		return false
+	}
+	var matrix struct {
+		ModuleOverrides map[string]struct {
+			ReplaceDefaultChecks bool `json:"replaceDefaultChecks"`
+			Checks               []struct {
+				Name string `json:"name"`
+			} `json:"checks"`
+		} `json:"moduleOverrides"`
+	}
+	if err := json.Unmarshal(raw, &matrix); err != nil {
+		return false
+	}
+	override, ok := matrix.ModuleOverrides[component]
+	return ok && override.ReplaceDefaultChecks && len(override.Checks) == 0
 }
 
 func buildReviewTools(scope ScopeRef, context reviewPlanContext, profiles []ReviewProfile, selected []ReviewPlanProfile, criteria []ReviewPlanCriterion, blockers, warnings []string) ([]ReviewPlanTool, []string, []string) {

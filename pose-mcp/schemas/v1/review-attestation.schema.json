@@ -16,6 +16,24 @@
     "tools": {"type": "array", "items": {"type": "object"}},
     "evidence_refs": {"type": "array", "items": {"type": "string"}},
     "findings": {"type": "array", "items": {"type": "object"}},
+    "authority": {
+      "type": "object",
+      "required": ["schema_version", "project", "bundle_digest", "principal", "role", "review_execution", "issuer", "issued_at", "audience"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "project": {"type": "string", "minLength": 1},
+        "bundle_digest": {"$ref": "review-bundle.schema.json#/$defs/digest"},
+        "principal": {"type": "string", "pattern": "^(agent|human):[^\\r\\n]+$"},
+        "role": {"enum": ["agent", "human"]},
+        "review_execution": {"type": "string", "minLength": 1},
+        "implementation_principal": {"type": "string"},
+        "implementation_execution": {"type": "string"},
+        "issuer": {"type": "string", "minLength": 1},
+        "issued_at": {"type": "string", "format": "date-time"},
+        "expires_at": {"type": "string", "format": "date-time"},
+        "audience": {"type": "string", "minLength": 1}
+      }
+    },
     "reused_from": {"type": "array", "items": {"type": "object"}},
     "supersedes": {"type": "string"},
     "envelope": {

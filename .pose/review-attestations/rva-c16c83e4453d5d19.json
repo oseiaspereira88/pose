@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-c16c83e4453d5d19",
+  "bundle_id": "rvb-7b347f8282053b63",
+  "bundle_digest": "sha256:7b347f8282053b63515761df934971ad37100477e23cb0a482fc78450752e022",
+  "reviewer": "agent:claude-opus-5-abm-review-20260919",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "all three fields are optional and a bundle sealed before them keeps its digest: the two derived from excluded refs are excluded too, which the existing invalidation tests verify rather than take on trust"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "the manual and its pt-BR translation state the DAG, the three observation states and the range semantics; the bundle schema admits the three fields and the scaffold was regenerated from the same sources"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "the three evidence states and the range observation reach the reviewer as warnings naming the specific results and change sets; an uncountable range says so instead of passing silently, which will be common in exported trees and is deliberately louder than silence"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "three additive fields, their derivation and the digest boundary that keeps two of them out of the sealed identity; claims reconcile with observed paths, and the structural assessment that will consume the identity is left to its own spec"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "the one Git call added is bounded to two already resolved commits of an attributed change set, runs no repository-supplied program, and degrades to unknown rather than to clean where it cannot run"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "ran with --strict: claims reconcile with observed paths"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "passed",
+      "evidence": "check:closeout-check",
+      "rationale": "ran as part of this closeout"
+    },
+    {
+      "id": "review-check",
+      "disposition": "passed",
+      "evidence": "check:review-check",
+      "rationale": "ran before this attestation; its only outstanding item was the attestation being recorded here"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "the full matrix ran green for the module under change"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "9 of 9 checks pass on the module carrying every code change"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-19T02:27:57Z",
+  "path": ".pose/review-attestations/rva-c16c83e4453d5d19.json"
+}

@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-2a4550e18b1f39b3",
+  "bundle_id": "rvb-632194f30058f961",
+  "bundle_digest": "sha256:632194f30058f96142ada2e32a044d810f3065a56245b08e355f3243d64c12bb",
+  "reviewer": "agent:claude-opus-5-abm-review-20260919",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "the three judgment defaults are gated on the contract stamped at seal, so no sealed bundle changes verdict; only the finding-reference rule is ungated, and no stored record trips it. The plan digest moved for every scope, which the third legacy exemption covers for completed ones and open ones are re-reviewed"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "five skill passages that recommended auto-attest --apply first now describe preparation then explicit attestation; the manual, its pt-BR translation, the CLI reference and both schemas state the criterion kinds and producer coverage, and the scaffold was regenerated"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "the refusal names each unanswered criterion, why no check answers it and the command that answers it. Following that output produced R8; the instance gate then caught an ungated rule that the original measurement had missed, and both corrections are recorded in the spec rather than in this attestation alone"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "artifact-check reconciles claims with observed paths; the diff touches the attestation contract, its callers, its tests and the documents describing it, and adds no command, index or persisted artifact"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "a profile cannot weaken its own obligation: kind composes monotonically across overlays, a mechanical declaration without an evidence class is refused at load, and the R8 dispensation is claimed only where the repository declared the component runs no check"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "ran with --strict: claims reconcile with observed paths"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "ran clean; no inter-module contract changed in this increment"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "passed",
+      "evidence": "check:closeout-check",
+      "rationale": "ran as part of this closeout"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "check:history-check",
+      "rationale": "ran clean"
+    },
+    {
+      "id": "review-check",
+      "disposition": "passed",
+      "evidence": "check:review-check",
+      "rationale": "ran before this attestation; it is what caught the ungated applicability rule on an unrelated completed spec"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "check:skills-check",
+      "rationale": "ran clean after the three skills were reconciled with the runtime"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "the full matrix ran green for the module under change"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "evidence": "check:validate",
+      "rationale": "the validation matrix declares docs-site runs no check, so no producer can emit the classes this tool accepts"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "9 of 9 checks pass on the module carrying every code change"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-19T02:51:36Z",
+  "path": ".pose/review-attestations/rva-2a4550e18b1f39b3.json"
+}
