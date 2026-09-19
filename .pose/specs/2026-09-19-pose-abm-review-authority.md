@@ -126,8 +126,9 @@ novos bundles, sem reescrever attestations históricas.
 - [x] Adicionar corpus negativo e positivo de assinatura, replay e downgrade.
 - [x] Atualizar schemas e documentação do contrato.
 - [x] Selar o subject e registrar atestação julgada para o bundle atual.
-- [ ] Registrar delivery profile/producer quando a capacidade for publicada.
-- [ ] Executar review independente e closeout governado da spec.
+- [x] Executar review independente e closeout governado da spec.
+- [~] Registrar delivery profile/producer: adiado para a publicação da
+  capacidade, que esta spec não faz. Ver follow-up.
 
 ## 5. Decisions
 
@@ -234,7 +235,24 @@ Harne8 issuer integration is intentionally a later scope.
 
 ### Follow-ups
 
-Harne8 should later provide the issuer adapter and protected policy projection;
-the POSE distribution should also register the
-`governance:verified-review-authority` profile/producer before this spec is
-closed. Those are separate from this offline engine increment.
+- [open] Registrar o profile/producer de `governance:verified-review-authority`
+  quando a capacidade for publicada. O texto anterior desta seção dizia que isso
+  deveria acontecer antes do fechamento; a condição foi relaxada deliberadamente,
+  porque `delivers:` está vazio e esta spec entrega um incremento de motor
+  offline, não uma capacidade composta — registrar um producer agora declararia
+  um alvo que ninguém consome (owner:@pose-maintainers crit:medium
+  review:2026-10-19)
+- [open] Fornecer, no Harne8, o adapter de issuer e a projeção de policy
+  protegida que permitem emitir claims de autoridade; sem eles o modo `verified`
+  existe no motor e não tem quem o alimente (owner:@harne8-platform crit:medium
+  review:2026-10-19)
+- [open] `Project` e `Audience` da claim são comparados ao mesmo
+  `authority_audience` e nunca podem divergir; decidir se um dos dois sai do
+  contrato (owner:@pose-maintainers crit:low review:2026-10-19)
+- [open] `claim.SchemaVersion` é comparado com `ReviewSchemaVersion`, a
+  constante do profile/attempt, enquanto o envelope usa
+  `ReviewBundleSchemaVersion`; hoje ambas valem 1 e a checagem funciona por
+  coincidência (owner:@pose-maintainers crit:low review:2026-10-19)
+- [open] `HumanAuthorityIssuers` valida apenas não-vazio e ausência de newline,
+  sem conferir a forma `<issuer>#sha256:<digest>`; um pin malformado falha
+  fechado, sem diagnóstico (owner:@pose-maintainers crit:low review:2026-10-19)
