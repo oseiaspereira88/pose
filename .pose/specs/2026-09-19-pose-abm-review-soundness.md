@@ -235,6 +235,15 @@ has a positive case, so the suite proves discrimination rather than blanket refu
 Reviewer authority remains declarative: `different-actor` and `mandatory-human` are still
 satisfied by a prefix. That is the next contract, not a gap in this one.
 
+This spec's own closeout is blocked, and the block is a real finding rather than a defect
+of the change. The diff touches `docs-site/docs/cli.md`, so `docs-site` enters the review
+plan as a component and `validate docs-site` becomes a required tool. `docs-site` is an
+mkdocs site with no module in the validation matrix, so it emits no evidence of any class
+the tool accepts, and a required tool may be dispositioned only `passed` or `failed` with
+such a reference. The reviewer's options are therefore to cite another component's result,
+which is false, or to stay blocked. The first review in this repository that had to be
+answered by hand is also the first one to surface this.
+
 ---
 
 ## 7. Final Report
@@ -263,3 +272,7 @@ observation and governance outcomes are not in this increment.
 - [open] Reviewer authority is still satisfied by a declared prefix, so `different-actor`
   and `mandatory-human` assert identity they do not verify (owner:@pose-maintainers
   crit:high review:2026-10-03)
+- [open] A component discovery recognises but the validation matrix does not cover produces
+  a required tool that cannot be honestly dispositioned; decide whether such a component
+  registers a check, or whether the plan stops requiring a tool nothing can feed
+  (owner:@pose-maintainers crit:high review:2026-10-03)
