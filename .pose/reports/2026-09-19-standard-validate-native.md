@@ -26,22 +26,22 @@
 
 ## Results
 - - [pass] pose-mcp/go/build (0.8s)
-- - [pass] pose-mcp/go/test (14.9s)
-- - [pass] pose-mcp/go/vet (0.3s)
+- - [pass] pose-mcp/go/test (15.2s)
+- - [pass] pose-mcp/go/vet (0.1s)
 - - [pass] pose-mcp/go/delivery-integration (1.0s)
-- - [pass] pose-mcp/go/delivery-reachability (0.8s)
+- - [pass] pose-mcp/go/delivery-reachability (0.7s)
 - - [pass] pose-mcp/go/review-bundle-convergence (1.0s)
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-19T15:37:06Z
+- Generated at (UTC): 2026-09-19T15:54:49Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 140
+- Sequence for task/spec: 141
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-19T15:13:19Z
+- Previous execution: 2026-09-19T15:37:06Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
