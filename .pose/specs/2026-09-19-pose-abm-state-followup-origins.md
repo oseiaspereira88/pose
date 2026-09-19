@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-state-followup-origins
-status: in-progress
+status: done
 created_at: 2026-09-19
-completed_at:
+completed_at: 2026-09-19
 components: pose-mcp
 task_type: bugfix
 delivers: surface:state-followup-origins
@@ -48,7 +48,7 @@ unrelated index refresh invalidating reviews. Revert the isolated fix to roll ba
 - [x] Reproduce failure in Harne8 and identify the producer.
 - [x] Cover document origin rendering and missing-document rejection.
 - [x] Run module checks and regenerate consumer state.
-- [ ] Review and close through POSE after evidence is available.
+- [x] Review and close through POSE after evidence is available.
 
 ## 5. Decisions
 
@@ -67,7 +67,7 @@ diagnostics. No release or rollout claim follows from this local verification.
 ### Requirement trace
 - R1 [satisfied] <document origin rendering and resolution regression> evidence:unit
 - R2 [satisfied] <state tests preserve spec references; direct review confirms capability labels are not promoted to pointers> evidence:unit
-- R3 [satisfied] <missing-document rejection regression and Harne8 native state refresh verified> evidence:unit
+- R3 [satisfied] <missing-document regression, module delivery integration and Harne8 native state refresh verified> surface:state-followup-origins evidence:unit evidence:integration
 
 ## 7. Final Report
 
@@ -78,8 +78,9 @@ otherwise prevents HTTP test listeners. Harne8 `state refresh`, `state` and
 exposed that the fixture declared but did not create its document; creating it
 before checking existence and removing it afterward made the regression explicit.
 
-Implementation verified locally; governed review/closeout still pending. No
-release installation or full instance-health claim.
+Governed review verified fresh and approved: bundle `rvb-430eb0b3ec8ffa5e`,
+attestation `rva-dda14c898075ee3d`. Native close applied on 2026-09-19.
+No release installation or full instance-health claim.
 
 ### Follow-ups
 None within this bounded producer fix. Harne8 adoption and broader diagnostics

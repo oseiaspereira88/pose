@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-19T17:29:51Z
-baseline_commit: 6788273702615475aab988b1727702ac4bd26743
+generated_at: 2026-09-19T19:47:54Z
+baseline_commit: c43a3884ae61966fbfb7f0afa01a9ea985cde804
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:fd80f6ceb200 -->
+<!-- state:derived hash:d4d9c26d753b -->
 
-- specs: total=218 draft=5 in-progress=65 blocked=0 done=148 superseded=0 abandoned=0
+- specs: total=219 draft=5 in-progress=65 blocked=0 done=149 superseded=0 abandoned=0
 - roadmaps: total=11 active=1 done=10
 - últimos closeouts:
+  - spec:pose-abm-authority-fixture-clock (2026-09-19)
   - spec:pose-abm-design-basis (2026-09-19)
   - spec:pose-abm-governance-outcomes (2026-09-19)
   - spec:pose-abm-review-authority (2026-09-19)
   - spec:pose-abm-review-soundness (2026-09-19)
-  - spec:pose-abm-review-tool-deferred-without-delivery (2026-09-19)
-  - ... e mais 143 (ver `pose_list_specs status:done`)
+  - ... e mais 144 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:a2bc96830f41 -->
@@ -77,10 +77,10 @@ capacidade.
   - report:2026-09-10-standard-validate-native.md
 
 ## Arquitetura
-<!-- state:derived hash:5593783da5bf status:active -->
+<!-- state:derived hash:cea97c6489fc status:active -->
 
-- componentes: total=1 verificados=1 completude=100.0%
-- linhas_de_codigo: producao=43285 testes=32532 total=75817
+- componentes: total=3 verificados=3 completude=100.0%
+- linhas_de_codigo: producao=44176 testes=33689 total=77865
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=55 ativos=1 gaps=54
