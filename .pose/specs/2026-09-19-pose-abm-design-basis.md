@@ -1,6 +1,6 @@
 ---
 slug: pose-abm-design-basis
-status: in-progress        # draft | in-progress | done | blocked | superseded | abandoned
+status: in-progress
 created_at: 2026-09-19
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
@@ -8,7 +8,7 @@ depends_on: pose-abm-review-authority
 priority: 1
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: governance:design-basis-projection
 ---
 
 # Spec: Base de decisão material em modo advisory
@@ -131,9 +131,12 @@ inferência plausível seja tratada como fato, mantendo specs legadas válidas.
 - modified: .pose/state/technical-debt.json
 
 ### Delivery targets
-No typed delivery target is declared: this advisory projection is not yet a
-published capability, and profile/producer registration remains a follow-up
-rather than fabricated delivery.
+- governance:design-basis-projection module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
+
+A declaração é obrigatória: a policy de delivery trata `pose-mcp/internal/pose`
+como raiz de entrega, e um escopo que a altera sem alvo tipado é recusado no
+closeout com `undeclared-delivery`. O alvo é local e de governança; a projeção
+continua advisory e nenhuma capacidade composta do Harne8 é declarada aqui.
 
 ### API/contract changes
 - Additive `DesignBasisReport` projection and optional CLI/MCP request flag.
@@ -163,10 +166,10 @@ rather than fabricated delivery.
 - [x] Add positive, legacy and hostile Markdown fixtures.
 
 ### Validation
-- [ ] Run focused ABM design-basis tests.
-- [ ] Run `pose validate --strict --module pose-mcp` and full Go checks.
-- [ ] Reconcile artifacts, review bundle and closeout; delivery target remains
-  intentionally pending.
+- [x] Run focused ABM design-basis tests.
+- [x] Run `pose validate --strict --module pose-mcp` and full Go checks.
+- [x] Reconcile artifacts, review bundle and closeout; the delivery target is
+  declared because the policy requires one of any scope touching this root.
 
 ---
 
@@ -279,7 +282,7 @@ evidence inacessível; a matriz de Go permanece obrigatória.
 - R4 [satisfied] test:TestABMDesignBasisValidAndDigestStable
 - R5 [satisfied] test:TestABMDesignBasisValidAndDigestStable
 - R6 [satisfied] test:TestABMDesignCheckCLIProjectsWithoutChangingLifecycle
-- R7 [satisfied] test:TestABMDesignBasisDigestStable
+- R7 [satisfied] test:TestABMDesignBasisValidAndDigestStable
 - R8 [satisfied] test:TestABMDesignBasisLocalEvidenceResolutionAndTraversal
 
 - No registry-backed producer yet makes this a published delivery target.
@@ -341,5 +344,10 @@ When the spec is marked `status: done`, every follow-up MUST have a
 disposition — `pose followups --open` aggregates the open ones.
 -->
 
-- [open] Register a delivery profile/producer for `contract:abm-design-basis`
-  before claiming composed capability (owner:@pose-maintainers crit:medium review:2026-10-19)
+- [open] Compor `governance:design-basis-projection` no Harne8 e provar
+  alcançabilidade antes de afirmar capacidade composta; o alvo declarado aqui é
+  local e de governança (owner:@pose-maintainers crit:medium review:2026-10-19)
+- [open] O requirement trace de R7 citava `TestABMDesignBasisDigestStable`, que
+  não existe: `lint-spec --strict` conta as entradas mas não resolve os refs
+  `test:`, então uma referência inventada passa no gate. Decidir se o lint passa
+  a resolvê-los (owner:@pose-maintainers crit:medium review:2026-10-19)
