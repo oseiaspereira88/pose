@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-review-soundness
-status: in-progress
+status: done
 created_at: 2026-09-19
-completed_at:
+completed_at: 2026-09-19
 supersedes:
 depends_on:
 priority: 0
@@ -116,6 +116,13 @@ CLI reference, the review-plan schema and the embedded scaffold.
 - modified: .pose/reports/history/standard-validate-native.jsonl
 - created: .pose/review-bundles/rvb-8322a4c339433094.json
 - created: .pose/review-bundles/rvb-998ab137871a47b5.json
+- created: .pose/review-bundles/rvb-222dbcbca1a3a2ea.json
+- created: .pose/review-attestations/rva-4ecfdae4e01bc31a.json
+- modified: .pose/assessments/integrations.md
+- modified: .pose/state/integrations.json
+- modified: .pose/state/project-state.md
+- modified: .pose/state/history.jsonl
+- modified: .pose/state/refresh-log.jsonl
 
 Files below the scaffold entry are produced by the governed flow itself — indexes, the
 validation result set, the validate report and the sealed bundles this review went
@@ -295,6 +302,3 @@ observation and governance outcomes are not in this increment.
 - [open] Reviewer authority is still satisfied by a declared prefix, so `different-actor`
   and `mandatory-human` assert identity they do not verify (owner:@pose-maintainers
   crit:high review:2026-10-03)
-- [resolved] A component the validation matrix declares runs no check produced a required
-  tool that could not be honestly dispositioned; the plan now reads that declaration and
-  the tool is dispensable with a reason (R8)
