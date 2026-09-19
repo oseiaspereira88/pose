@@ -22,6 +22,7 @@
           "required": ["change_sets", "patch_digest", "tree_digest", "entries"],
           "properties": {
             "change_sets": {"type": "array", "items": {"type": "string"}},
+            "implementation_digest": {"$ref": "#/$defs/digest"},
             "patch_digest": {"$ref": "#/$defs/digest"},
             "tree_digest": {"$ref": "#/$defs/digest"},
             "entries": {"type": "array", "items": {"type": "object"}}
@@ -32,12 +33,12 @@
           "required": ["plan_digest", "independence", "components", "criteria", "tools"],
           "properties": {"plan_digest": {"$ref": "#/$defs/digest"}}
         },
-        "evidence": {"type": "array", "items": {"type": "object"}},
+        "evidence": {"type": "array", "items": {"type": "object", "properties": {"subject_observation": {"type": "string", "enum": ["observed", "carried-forward", "unknown"]}}}},
         "children": {"type": "array", "items": {"type": "object"}},
         "consumed_inputs": {"type": "array", "items": {"type": "object"}}
       }
     },
-    "excluded_inputs": {"type": "array", "items": {"type": "object"}},
+    "excluded_inputs": {"type": "array", "items": {"type": "object"}}, "range_observations": {"type": "array", "items": {"type": "object", "required": ["change_set", "state"], "properties": {"change_set": {"type": "string"}, "state": {"type": "string", "enum": ["clean", "contaminated", "unknown"]}}}},
     "warnings": {"type": "array", "items": {"type": "string"}},
     "blockers": {"type": "array", "items": {"type": "string"}},
     "path": {"type": "string"}

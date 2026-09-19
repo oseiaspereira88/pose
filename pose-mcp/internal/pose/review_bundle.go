@@ -18,6 +18,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -55,13 +56,43 @@ type ReviewBundleSubjectEntry struct {
 	Reason  string `json:"reason"`
 }
 
+// ReviewBundleRangeObservation records what a change set's commit range spans,
+// as distinct from what it attributes.
+//
+// A change set resolved from trailers takes its paths from the commits that
+// carry the trailer, which is exact. Its Base and Head, however, describe a
+// range, and that range spans whatever else was committed in between. Reading
+// Base..Head as "the changes of this spec" is therefore wrong whenever work on
+// two specs interleaved, and nothing said so.
+type ReviewBundleRangeObservation struct {
+	ChangeSet string `json:"change_set"`
+	// State is `clean`, `contaminated` or `unknown`. Unknown is not clean: it
+	// means the range could not be counted here, and saying so is the point.
+	State               string `json:"state"`
+	AttributedCommits   int    `json:"attributed_commits"`
+	RangeCommits        int    `json:"range_commits,omitempty"`
+	UnattributedCommits int    `json:"unattributed_commits,omitempty"`
+	Reason              string `json:"reason,omitempty"`
+}
+
 type ReviewBundleSubject struct {
-	ChangeSets  []string                   `json:"change_sets"`
-	Base        string                     `json:"base,omitempty"`
-	Head        string                     `json:"head,omitempty"`
-	PatchDigest string                     `json:"patch_digest"`
-	TreeDigest  string                     `json:"tree_digest"`
-	Entries     []ReviewBundleSubjectEntry `json:"entries"`
+	ChangeSets []string `json:"change_sets"`
+	Base       string   `json:"base,omitempty"`
+	Head       string   `json:"head,omitempty"`
+	// ImplementationDigest identifies the implementation content alone: the
+	// attributed change sets, the range they resolve to and the ordered
+	// manifest of entries. It is computed from the subject and nothing else.
+	//
+	// The bundle digest covers this, the plan and the evidence. Anything that
+	// observes the implementation — a structural assessment, a receipt, a cache
+	// key — anchors here instead, so the graph stays a DAG:
+	// implementation -> assessment -> plan -> bundle -> attestation. An
+	// assessment that keyed on the bundle containing it would be defining
+	// itself in terms of its own output.
+	ImplementationDigest string                     `json:"implementation_digest,omitempty"`
+	PatchDigest          string                     `json:"patch_digest"`
+	TreeDigest           string                     `json:"tree_digest"`
+	Entries              []ReviewBundleSubjectEntry `json:"entries"`
 }
 
 type ReviewBundlePlan struct {
@@ -81,14 +112,32 @@ type ReviewBundlePlan struct {
 }
 
 type ReviewBundleEvidence struct {
-	ID               string `json:"id"`
-	Module           string `json:"module,omitempty"`
-	Check            string `json:"check"`
-	EvidenceClass    string `json:"evidence_class"`
-	Outcome          string `json:"outcome"`
-	GitHead          string `json:"git_head,omitempty"`
-	ProvenanceDigest string `json:"provenance_digest,omitempty"`
-	Report           string `json:"report,omitempty"`
+	ID            string `json:"id"`
+	Module        string `json:"module,omitempty"`
+	Check         string `json:"check"`
+	EvidenceClass string `json:"evidence_class"`
+	Outcome       string `json:"outcome"`
+	// SubjectObservation is `observed`, `carried-forward` or `unknown`, and is
+	// sealed rather than inferred later. A result that names no commit is
+	// unknown, never current: an absent fingerprint is a gap in what we know,
+	// and reading it as agreement is how a check that never saw this change
+	// comes to stand for it.
+	SubjectObservation string `json:"subject_observation,omitempty"`
+	GitHead            string `json:"git_head,omitempty"`
+	ProvenanceDigest   string `json:"provenance_digest,omitempty"`
+	Report             string `json:"report,omitempty"`
+}
+
+// ReviewEvidenceObservation classifies one sealed result against the subject
+// head it is sealed beside.
+func ReviewEvidenceObservation(subjectHead string, evidence ReviewBundleEvidence) string {
+	if evidence.GitHead == "" || subjectHead == "" {
+		return "unknown"
+	}
+	if evidence.GitHead == subjectHead {
+		return "observed"
+	}
+	return "carried-forward"
 }
 
 type ReviewBundleChild struct {
@@ -187,9 +236,18 @@ type ReviewBundle struct {
 	SealedAt       string              `json:"sealed_at,omitempty"`
 	Payload        ReviewBundlePayload `json:"payload"`
 	ExcludedInputs []ReviewBundleInput `json:"excluded_inputs,omitempty"`
-	Warnings       []string            `json:"warnings,omitempty"`
-	Blockers       []string            `json:"blockers,omitempty"`
-	Path           string              `json:"path,omitempty"`
+	// RangeObservations sit outside the payload, so outside the digest.
+	//
+	// They describe the repository around the change — how many commits the
+	// attributed range spans — and that moves whenever anything else is
+	// committed or reindexed. Sealing it would make an unrelated commit stale a
+	// review of content that did not move, which is the invalidation rule this
+	// contract exists to keep narrow. They are diagnostics, recomputed on every
+	// preparation, like the warnings beside them.
+	RangeObservations []ReviewBundleRangeObservation `json:"range_observations,omitempty"`
+	Warnings          []string                       `json:"warnings,omitempty"`
+	Blockers          []string                       `json:"blockers,omitempty"`
+	Path              string                         `json:"path,omitempty"`
 }
 
 type ReviewAttestationReuse struct {
@@ -313,10 +371,15 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 		}
 		bundle.ExcludedInputs = append(bundle.ExcludedInputs, subjectExcluded...)
 		bundle.Payload.Evidence = s.reviewBundleEvidence(scope, graph)
+		for i := range bundle.Payload.Evidence {
+			bundle.Payload.Evidence[i].SubjectObservation = ReviewEvidenceObservation(bundle.Payload.Subject.Head, bundle.Payload.Evidence[i])
+		}
 		if len(bundle.Payload.Evidence) == 0 && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
 			bundle.Blockers = append(bundle.Blockers, "no passed structured validation evidence is attributed to the review scope")
 		}
 		bundle.Warnings = append(bundle.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
+		bundle.RangeObservations = s.reviewBundleRangeObservations(bundle.Payload.Subject.ChangeSets, graph)
+		bundle.Warnings = append(bundle.Warnings, rangeObservationWarnings(bundle.RangeObservations)...)
 	}
 
 	if scope.Kind != "spec" {
@@ -575,7 +638,88 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 	}
 	treeRaw, _ := json.Marshal(treeEntries)
 	subject.TreeDigest = digestBytes(treeRaw)
+	subject.ImplementationDigest = reviewImplementationDigest(subject)
 	return subject, sortedBundleInputs(excluded), blockers, nil
+}
+
+// reviewImplementationDigest identifies the implementation content of a subject
+// and nothing else.
+func reviewImplementationDigest(subject ReviewBundleSubject) string {
+	// Content only. Not the change-set ids, not base and head: a squash merge
+	// or a rebase gives the same content a different SHA, and an implementation
+	// identity that moved with the SHA would call that a different subject. It
+	// is the same rule the bundle digest already follows, named once so an
+	// observer outside the bundle can anchor on it.
+	raw, err := json.Marshal(struct {
+		Entries     []ReviewBundleSubjectEntry `json:"entries"`
+		PatchDigest string                     `json:"patch_digest"`
+		TreeDigest  string                     `json:"tree_digest"`
+	}{Entries: subject.Entries, PatchDigest: subject.PatchDigest, TreeDigest: subject.TreeDigest})
+	if err != nil {
+		return ""
+	}
+	return digestBytes(raw)
+}
+
+// reviewBundleRangeObservations counts, for each attributed change set, how
+// many commits its range spans against how many it attributes.
+//
+// The count needs Git, and Git is not always there — an exported tree, a unit
+// fixture. When it cannot be taken the observation is `unknown`, never `clean`,
+// because the whole purpose is to stop a range being read as an attribution.
+func (s Store) reviewBundleRangeObservations(ids []string, graph DeliveryIntegrityGraph) []ReviewBundleRangeObservation {
+	// Resolved from the ids the subject sealed, so the observation always
+	// describes the same change sets the review is about.
+	byID := map[string]ChangeSet{}
+	for _, set := range graph.ChangeSets {
+		byID[set.ID] = set
+	}
+	observations := []ReviewBundleRangeObservation{}
+	for _, id := range ids {
+		set, ok := byID[id]
+		if !ok {
+			observations = append(observations, ReviewBundleRangeObservation{ChangeSet: id, State: "unknown", Reason: "the change set is not present in the current integrity graph"})
+			continue
+		}
+		observation := ReviewBundleRangeObservation{
+			ChangeSet:         set.ID,
+			AttributedCommits: len(set.Commits),
+		}
+		switch {
+		case set.ResolvedBase == "" || set.ResolvedHead == "":
+			observation.State = "unknown"
+			observation.Reason = "the change set resolves no immutable range to count against"
+		default:
+			count, err := gitRevListCount(s.Root, set.ResolvedBase, set.ResolvedHead)
+			switch {
+			case err != nil:
+				observation.State = "unknown"
+				observation.Reason = "the range could not be counted in this working tree"
+			case len(set.Commits) == 0:
+				observation.State = "unknown"
+				observation.Reason = "the change set attributes no commit to compare the range with"
+			case count > len(set.Commits):
+				observation.State = "contaminated"
+				observation.RangeCommits = count
+				observation.UnattributedCommits = count - len(set.Commits)
+				observation.Reason = "the range spans commits this change set does not attribute; its paths are attributed, its base..head is not"
+			default:
+				observation.State = "clean"
+				observation.RangeCommits = count
+			}
+		}
+		observations = append(observations, observation)
+	}
+	sort.Slice(observations, func(i, j int) bool { return observations[i].ChangeSet < observations[j].ChangeSet })
+	return observations
+}
+
+func gitRevListCount(root, base, head string) (int, error) {
+	out, err := exec.Command("git", "-C", root, "rev-list", "--count", base+".."+head, "--").Output()
+	if err != nil {
+		return 0, err
+	}
+	return strconv.Atoi(strings.TrimSpace(string(out)))
 }
 
 func reduceReviewBundleChangeSets(sets []ChangeSet) []ChangeSet {
@@ -817,22 +961,47 @@ func (s Store) reviewBundleFileDigest(rel string) (string, error) {
 // where the reviewer sees it rather than inferred from two commit hashes nobody
 // compares.
 func staleEvidenceWarnings(subject ReviewBundleSubject, evidence []ReviewBundleEvidence) []string {
-	if subject.Head == "" {
-		return nil
-	}
-	stale := []string{}
+	carried := []string{}
+	unknown := []string{}
 	for _, ev := range evidence {
-		if ev.GitHead == "" || ev.GitHead == subject.Head {
-			continue
+		switch ReviewEvidenceObservation(subject.Head, ev) {
+		case "carried-forward":
+			carried = append(carried, ev.EvidenceClass+":"+ev.ID)
+		case "unknown":
+			unknown = append(unknown, ev.EvidenceClass+":"+ev.ID)
 		}
-		stale = append(stale, ev.EvidenceClass+":"+ev.ID)
 	}
-	if len(stale) == 0 {
-		return nil
+	warnings := []string{}
+	if len(carried) > 0 {
+		sort.Strings(carried)
+		warnings = append(warnings, "sealed evidence ran against a commit other than the subject head "+shortCommit(subject.Head)+
+			"; it is current by provenance, not by having observed this change: "+strings.Join(carried, ", "))
 	}
-	sort.Strings(stale)
-	return []string{"sealed evidence ran against a commit other than the subject head " + shortCommit(subject.Head) +
-		"; it is current by provenance, not by having observed this change: " + strings.Join(stale, ", ")}
+	// The third state, which used to be silently folded into the first two. A
+	// result carrying no commit says nothing about which content it observed,
+	// and a reviewer reading a clean bundle had no way to tell that apart from
+	// a result that did observe this change.
+	if len(unknown) > 0 {
+		sort.Strings(unknown)
+		warnings = append(warnings, "sealed evidence names no commit, so which content it observed is unknown rather than current: "+strings.Join(unknown, ", "))
+	}
+	return warnings
+}
+
+// rangeObservationWarnings reports a change set whose range spans commits it
+// does not attribute, so nobody reads base..head as this scope's work.
+func rangeObservationWarnings(observations []ReviewBundleRangeObservation) []string {
+	warnings := []string{}
+	for _, observation := range observations {
+		switch observation.State {
+		case "contaminated":
+			warnings = append(warnings, fmt.Sprintf("change set %s attributes %d commit(s) but its range spans %d; %d commit(s) in base..head belong to other work, so the range is provenance and the attributed paths are the subject",
+				observation.ChangeSet, observation.AttributedCommits, observation.RangeCommits, observation.UnattributedCommits))
+		case "unknown":
+			warnings = append(warnings, fmt.Sprintf("change set %s could not have its range counted: %s", observation.ChangeSet, observation.Reason))
+		}
+	}
+	return warnings
 }
 
 func shortCommit(commit string) string {
@@ -1023,6 +1192,20 @@ func reviewBundlePayloadDigest(payload ReviewBundlePayload) (string, error) {
 	canonical.Subject.ChangeSets = nil
 	canonical.Subject.Base = ""
 	canonical.Subject.Head = ""
+	// The observation is derived from the head just cleared above, so sealing
+	// it would smuggle that ref back into the identity: a provider ref moving,
+	// or a derived-only follow-up commit, would flip a result from observed to
+	// carried-forward and stale a review of content that did not move. It stays
+	// in the written bundle for the reader, as advisory provenance, exactly
+	// like the refs it is computed from.
+	//
+	// Copied first: `canonical := payload` shares the slice backing array, so
+	// clearing in place would erase the state on the bundle the caller is
+	// holding, not on the copy being hashed.
+	canonical.Evidence = append([]ReviewBundleEvidence{}, canonical.Evidence...)
+	for i := range canonical.Evidence {
+		canonical.Evidence[i].SubjectObservation = ""
+	}
 	return digestJSON(canonical)
 }
 

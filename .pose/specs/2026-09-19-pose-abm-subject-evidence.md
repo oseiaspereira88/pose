@@ -1,0 +1,232 @@
+---
+slug: pose-abm-subject-evidence
+status: in-progress
+created_at: 2026-09-19
+completed_at:
+supersedes:
+depends_on:
+priority: 0
+components: pose-mcp
+task_type: feature
+delivers: governance:subject-evidence-identity
+---
+
+# Spec: Subject identity, observed evidence and an acyclic digest graph
+
+## 1. Intent
+
+### Goal
+Give the implementation content one identity that is not the bundle's, and make a sealed
+result say which content it actually observed instead of leaving it to be inferred.
+
+### Business value
+A result that never saw a change should not be able to stand for it, and an observer of
+the implementation should not have to reference the object that will contain its output.
+
+### Constraints
+- Every mechanism asserts only what it observes. An absent fingerprint is unknown, not current.
+- Invalidation stays narrow: what a review did not consume must not stale it.
+- Content identity, not refs. The same content under a different SHA is the same subject.
+- No new command, index, schema version or persisted artifact.
+
+### Non-goals
+The structural assessment that will consume this identity belongs to a later spec. Nothing
+here observes design, complexity or causality; this only makes a stable anchor exist.
+
+## 2. Requirements
+
+### Functional
+- R1: The subject carries an implementation identity over its attributed change sets'
+  classified content and ordered manifest, computed from the subject alone.
+- R2: A change set's range is reported as provenance, not attribution: the observation
+  states how many commits `base..head` spans against how many the set attributes, and an
+  uncountable range is `unknown` rather than clean.
+- R3: Sealed evidence records whether it observed this subject. Matching provenance
+  elsewhere does not make a result about different content pass as current.
+- R4: Content equivalence survives a different SHA, while working-tree-only content,
+  untracked relevant paths and a managed-directory symlink escape still refuse.
+- R5: The evaluation graph is acyclic and documented: implementation to assessment to
+  plan to bundle to attestation. Nothing anchors on the object that contains it.
+- R6: Only consumed slices invalidate. Unrelated reindexing, a derived-only change-set
+  update, and Tasks or Final Report edits do not require a new review.
+- R7: Absent fingerprints are explicit. Observation state is recorded on the evidence and
+  surfaced to the reviewer, and it never enters the sealed identity.
+
+### Non-functional
+Deterministic and offline. The one Git call added degrades to `unknown` where Git is
+absent, the way the working-tree check beside it already does.
+
+### Security
+Repository content stays untrusted. The range count is bounded to two resolved commits of
+an already attributed change set and executes no repository-supplied program.
+
+### Compatibility
+Three additive fields, all optional. A bundle sealed before them carries none, is read
+unchanged, and keeps its digest: the new state is excluded from the sealed identity for
+the same reason the refs it derives from already are.
+
+## 3. Technical Plan
+
+### Affected areas
+`pose-mcp/internal/pose` (subject construction, evidence projection, digest), the
+review-bundle schema, the manual and its pt-BR translation, the embedded scaffold.
+
+### Artifacts
+- created: .pose/specs/2026-09-19-pose-abm-subject-evidence.md
+- created: pose-mcp/internal/pose/subject_evidence_test.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/schemas/v1/review-bundle.schema.json
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/delivery-integrity.json
+
+### Delivery targets
+- governance:subject-evidence-identity module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
+
+### API/contract changes
+`ReviewBundleSubject.ImplementationDigest`, `ReviewBundleEvidence.SubjectObservation` and
+`ReviewBundle.RangeObservations`, plus the exported `ReviewEvidenceObservation`. The first
+is sealed; the other two are advisory provenance, written for the reader and excluded from
+the digest.
+
+### Data/storage changes
+None. The observations are derived on every preparation, like the warnings beside them.
+
+### Technical risks
+The range count shells out to Git. Where Git is unavailable the observation is `unknown`,
+which is louder than silence and deliberately so; a repository with many attributed change
+sets pays one `rev-list --count` per set at preparation.
+
+## 4. Tasks
+
+### Planning
+- [x] Establish which of the seven requirements existing behavior already satisfies.
+
+### Implementation
+- [x] Add the implementation identity and prove it is content, not refs.
+- [x] Report the range as provenance, with `unknown` where it cannot be counted.
+- [x] Record the three evidence observation states and surface the third.
+- [x] Keep all of it out of the sealed identity where it derives from excluded refs.
+
+### Validation
+- [x] Cover each requirement, reusing the tests that already prove R4 and R6.
+
+## 5. Decisions
+
+### Decision 1: the implementation identity is content, never refs
+- Context: an observer of the implementation needs a stable anchor.
+- Options considered: digest the change-set ids and range; digest the classified content.
+- Decision: content — the ordered entries with their digests, and the patch and tree digests.
+- Rationale: the bundle digest already excludes ids and refs, for the reason this needs
+  too: a squash or a rebase gives the same content a different SHA, and an identity moving
+  with the SHA would call that a different subject. Naming the rule once, rather than
+  restating it per consumer, is the whole value of the field.
+- Consequences: two subjects with identical classified content share an identity, which is
+  correct and is what makes merge and squash verifiable.
+
+### Decision 2: observations stay out of the sealed identity
+- Context: the range observation and the evidence observation both derive from refs the
+  digest deliberately excludes.
+- Options considered: seal them for immutability; keep them advisory.
+- Decision: keep them advisory, written into the bundle for the reader.
+- Rationale: sealing them would smuggle the excluded refs back into the identity. A
+  provider ref moving, or a derived-only follow-up commit, would flip a result from
+  observed to carried-forward and stale a review of content that did not move — exactly
+  the invalidation this contract exists to keep narrow. The repository's own tests for
+  that rule caught the first attempt, which is why the second one is bounded.
+- Consequences: the states are recomputed on every preparation and are diagnostics rather
+  than evidence, which is the correct category for them.
+
+## 6. Validation
+
+### Strategy
+Each requirement gets a case, and the two that existing behavior already satisfies are
+traced to the tests that prove it rather than duplicated. The identity is tested in both
+directions: stable when only refs move, different when content moves.
+
+### Deterministic checks
+
+#### Test
+- Command: `cd pose-mcp && go test ./... -count=1`
+- Scope: pose-mcp
+- Expected: SUCCESS
+
+#### Lint
+- Command: `cd pose-mcp && go vet ./...`
+- Scope: pose-mcp
+- Expected: no findings
+
+#### Typecheck
+- Command: `cd pose-mcp && go build ./...`
+- Scope: pose-mcp
+- Expected: SUCCESS
+
+#### Build
+- Command: `pose validate --strict --module pose-mcp`
+- Scope: pose-mcp
+- Expected: SUCCESS on every registered check
+
+#### Security / Contract
+- Command: `cd pose-mcp && go test ./internal/pose -run 'Subject|ReviewBundle' -count=1`
+- Scope: subject identity, invalidation and evidence projection
+- Expected: identity stable across refs, invalidation unchanged, observation surfaced
+
+### Execution log
+- Date: 2026-09-19
+- Environment: local worktree, Go toolchain, no network
+- Notes: the first implementation sealed both observations, and
+  `TestReviewBundleDerivedOnlyChangeSetDoesNotStale` refused it — the repository's own
+  invalidation rule caught the regression before any new test did. A second defect, an
+  aliased slice that cleared the observation on the caller's bundle rather than on the
+  copy being hashed, was caught by the new test that asserts the state reaches the reader.
+
+### Results summary
+- Successes: full `go test ./...` for pose-mcp; seven new tests; manual locale parity.
+- Failures: none outstanding.
+- Warnings: preparation now costs one `git rev-list --count` per attributed change set.
+
+### Requirement trace
+- R1 [satisfied] test:TestSubjectImplementationDigestIsContentNotRefs
+- R2 [satisfied] test:TestSubjectRangeObservationSeparatesAttributionFromProvenance
+- R3 [satisfied] test:TestSubjectEvidenceObservationIsRecordedAndSurfaced
+- R4 [satisfied] test:TestReviewBundleVerifiesSyntheticMergeByPatchAndTree test:TestReviewBundleRejectsWorkingTreeOnlySubjectContent test:TestReviewBundleRejectsManagedDirectorySymlinkEscape
+- R5 [satisfied] test:TestSubjectImplementationDigestDoesNotDependOnTheBundle
+- R6 [satisfied] test:TestReviewBundleDerivedOnlyChangeSetDoesNotStale test:TestReviewBundleSemanticProjectionAndDerivedChangesDoNotStale test:TestSubjectRangeObservationIsNotSealed test:TestSubjectEvidenceObservationDoesNotEnterTheDigest
+- R7 [satisfied] test:TestSubjectEvidenceObservationHasThreeStates
+
+### Known gaps
+The range count compares totals, not membership: it reports that a range spans commits the
+set does not attribute, without naming which specs they belong to. Naming them needs the
+trailer scan that lives in the CLI layer, and moving it is a refactor this increment does
+not need. Counting is enough to stop a range being read as an attribution, which is the
+failure this addresses.
+
+---
+
+## 7. Final Report
+
+### Delivered scope
+The implementation identity, the range observation, the three evidence observation states,
+and the digest boundary that keeps the last two from narrowing invalidation. The structural
+assessment that will consume the identity is a later spec.
+
+### Files and modules changed
+- pose-mcp: subject construction, evidence projection, payload digest, schema
+- manual and its pt-BR translation, plus the embedded scaffold
+
+### Validation executed
+- Command: `cd pose-mcp && go test ./... -count=1`
+- Result: SUCCESS
+
+### Residual risks
+- One Git invocation per attributed change set at preparation time.
+- A range observation of `unknown` is common in exported trees and fixtures; it is
+  deliberately louder than a silent pass, and reviewers will see it often at first.
+
+### Follow-ups
+
+- [open] The range observation counts commits without naming which specs the unattributed
+  ones belong to; moving the trailer scan out of the CLI layer would let it say
+  (owner:@pose-maintainers crit:medium review:2026-10-17)
