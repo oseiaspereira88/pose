@@ -42,7 +42,7 @@
     "criterion": {
       "type": "object", "additionalProperties": true,
       "required": ["id", "description", "required", "profiles"],
-      "properties": {"id": {"type": "string"}, "description": {"type": "string"}, "required": {"type": "boolean"}, "rules": {"type": "array", "items": {"type": "string"}}, "evidence_classes": {"type": "array", "items": {"type": "string"}}, "profiles": {"type": "array", "items": {"type": "string"}}}
+      "properties": {"id": {"type": "string"}, "description": {"type": "string"}, "required": {"type": "boolean"}, "kind": {"type": "string", "enum": ["mechanical", "judgment"]}, "rules": {"type": "array", "items": {"type": "string"}}, "evidence_classes": {"type": "array", "items": {"type": "string"}}, "profiles": {"type": "array", "items": {"type": "string"}}}
     },
     "tool": {
       "type": "object", "additionalProperties": true,

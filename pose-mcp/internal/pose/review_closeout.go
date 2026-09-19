@@ -58,11 +58,43 @@ func ParseScopeRef(value string) (ScopeRef, error) {
 }
 
 type ReviewCriterionProfile struct {
-	ID              string   `json:"id"`
-	Description     string   `json:"description"`
+	ID          string `json:"id"`
+	Description string `json:"description"`
+	// Kind is `mechanical` or `judgment`, and says who may answer this
+	// criterion. A mechanical one is answered by a registered producer: it
+	// names evidence classes, a check emits them, and citing a sealed result
+	// of that class is a complete answer. A judgment one is not — it asks
+	// whether the change is safe, compatible, operable or in scope, and no
+	// check emits that. Absent, it is derived rather than defaulted; see
+	// ReviewCriterionKind.
+	Kind            string   `json:"kind,omitempty"`
 	Rules           []string `json:"rules,omitempty"`
 	EvidenceClasses []string `json:"evidence_classes,omitempty"`
 	Required        *bool    `json:"required,omitempty"`
+}
+
+// ReviewCriterionKindMechanical and ReviewCriterionKindJudgment are the closed
+// set. There is deliberately no third value: a criterion nobody can answer is
+// not a weaker criterion, it is an unstated one.
+const (
+	ReviewCriterionKindMechanical = "mechanical"
+	ReviewCriterionKindJudgment   = "judgment"
+)
+
+// DeriveReviewCriterionKind answers what a criterion is when it does not say.
+//
+// The rule is the one the engine can defend: a criterion that names evidence
+// classes has a registered producer and can be answered by citing what that
+// producer emitted; a criterion that names none has no producer at all, so
+// nothing mechanical can satisfy it. Deriving rather than defaulting matters
+// because the distributed profiles predate the field — `spec-closeout` has five
+// criteria with no class, `roadmap-outcome` has six, and every one of them was
+// being answered by whatever sealed result happened to be first in the bundle.
+func DeriveReviewCriterionKind(evidenceClasses []string) string {
+	if len(evidenceClasses) > 0 {
+		return ReviewCriterionKindMechanical
+	}
+	return ReviewCriterionKindJudgment
 }
 
 type ReviewProfileSelectors struct {
@@ -352,6 +384,21 @@ func (s Store) loadReviewProfile(ref string) (ReviewProfile, []byte, error) {
 			if err := s.validateReviewContractRefs(ref, c.Rules, c.EvidenceClasses); err != nil {
 				return ReviewProfile{}, nil, err
 			}
+		}
+		switch c.Kind {
+		case "", ReviewCriterionKindJudgment:
+		case ReviewCriterionKindMechanical:
+			// A profile may declare a criterion judgment even though a producer
+			// exists — asking a reviewer to look at something a check also
+			// covers is always allowed. The reverse is not: declaring
+			// `mechanical` with no evidence class would re-open the hole the
+			// derivation closes, because nothing could ever answer it and the
+			// engine would accept any sealed result as if something had.
+			if len(c.EvidenceClasses) == 0 {
+				return ReviewProfile{}, nil, fmt.Errorf("pose: criterion %q in %s is mechanical but names no evidence class, so no registered check can answer it; declare the classes a check emits, or leave it to judgment", c.ID, ref)
+			}
+		default:
+			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid criterion kind %q in %s: expected %s or %s", c.Kind, ref, ReviewCriterionKindMechanical, ReviewCriterionKindJudgment)
 		}
 		seen[c.ID] = true
 	}
@@ -1194,6 +1241,12 @@ var reviewContracts = []ReviewContract{
 		LegacyField:  "evidence_vocabulary_reconciled_at",
 		Summary:      "a passed criterion must cite evidence the sealed bundle contains, of a class the criterion asks for",
 		IntroducedIn: "2.0.0",
+	},
+	{
+		ID:           "explicit-judgment",
+		LegacyField:  "explicit_judgment_adopted_at",
+		Summary:      "a judgment criterion is answered by a reviewer with a conclusion, never filled from collected evidence",
+		IntroducedIn: "6.0.0",
 	},
 }
 

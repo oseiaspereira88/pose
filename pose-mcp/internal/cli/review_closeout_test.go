@@ -361,15 +361,74 @@ func TestReviewAutoAttestCLI(t *testing.T) {
 	if code := cmdReviewBundle(root, []string{"spec:alpha", "--seal"}, &out, &errOut); code != 0 {
 		t.Fatalf("bundle seal failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
+	// `correctness` declares no evidence class, so no registered check reports
+	// on it and auto-attest may not answer it. Before the explicit-judgment
+	// contract this recorded an approved attestation citing whichever result
+	// was first in the bundle (spec pose-abm-review-soundness).
 	out.Reset()
-	if code := cmdReviewAutoAttest(root, []string{"spec:alpha", "--apply"}, &out, &errOut); code != 0 {
-		t.Fatalf("auto-attest failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	errOut.Reset()
+	if code := cmdReviewAutoAttest(root, []string{"spec:alpha", "--apply"}, &out, &errOut); code != 1 {
+		t.Fatalf("auto-attest must refuse to answer a judgment criterion: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	if !strings.Contains(errOut.String(), "correctness") || !strings.Contains(errOut.String(), "awaiting a reviewer's judgment") {
+		t.Fatalf("refusal must name the unanswered criterion and why: %s", errOut.String())
+	}
+	if atts, err := (posemodel.Store{Root: root}).ListReviewAttestations(""); err != nil || len(atts) != 0 {
+		t.Fatalf("a refused preparation must record nothing: attestations=%d err=%v", len(atts), err)
+	}
+
+	// The preview reports the same pendency without failing, so automation can
+	// see what is owed before anyone tries to apply it.
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewAutoAttest(root, []string{"spec:alpha"}, &out, &errOut); code != 0 {
+		t.Fatalf("auto-attest preview failed: code=%d err=%s", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), "review_attestation.complete=false") || !strings.Contains(out.String(), "review_attestation.pending=correctness|judgment|") {
+		t.Fatalf("preview must report the pendency: %s", out.String())
+	}
+
+	// The reviewer answers it, and only then does the scope verify.
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewAttest(root, []string{"spec:alpha", "--reviewer", "agent:reviewer", "--decision", "approved",
+		"--evidence", "integration:val-alpha",
+		"--criterion", "correctness|passed|integration:val-alpha|negative paths were exercised against the sealed subject", "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("explicit attestation failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
 	out.Reset()
+	errOut.Reset()
 	if code := cmdReviewVerify(root, []string{"spec:alpha"}, &out, &errOut); code != 0 {
 		t.Fatalf("review verify failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
 }
+
+// TestReviewCriterionDispositionsRefuseJudgmentByOmission covers the other half
+// of the same hole: this builder defaulted every criterion the reviewer did not
+// mention to `passed`, so omitting a judgment criterion approved it
+// (spec pose-abm-review-soundness).
+func TestReviewCriterionDispositionsRefuseJudgmentByOmission(t *testing.T) {
+	plan := posemodel.ReviewPlan{Criteria: []posemodel.ReviewPlanCriterion{
+		{ID: "correctness", Required: true, EvidenceClasses: []string{"integration"}},
+		{ID: "operability", Required: true},
+	}}
+	if _, err := reviewCriterionDispositions(plan, []string{"integration:val-alpha"}, nil, nil); err == nil {
+		t.Fatal("omitting a judgment criterion must not default it to passed")
+	} else if !strings.Contains(err.Error(), "operability") || !strings.Contains(err.Error(), "explicit judgment") {
+		t.Fatalf("refusal must name the criterion and what it needs: %v", err)
+	}
+	// The mechanical one still defaults, which is the shortcut worth keeping: a
+	// check answers it, and the reference it cites is a real sealed result.
+	criteria, err := reviewCriterionDispositions(plan, []string{"integration:val-alpha"},
+		[]string{"operability|passed|integration:val-alpha|error paths return actionable diagnostics"}, nil)
+	if err != nil {
+		t.Fatalf("explicit judgment must be accepted: %v", err)
+	}
+	if len(criteria) != 2 {
+		t.Fatalf("expected both criteria, got %d", len(criteria))
+	}
+}
+
 
 func TestPoseCloseWithLiveGitTrailerNoReport(t *testing.T) {
 	root := t.TempDir()

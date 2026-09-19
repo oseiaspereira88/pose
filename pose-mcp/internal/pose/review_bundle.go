@@ -234,6 +234,24 @@ type ReviewAttestationEnvelope struct {
 	Attestation   ReviewAttestation `json:"attestation"`
 }
 
+// ReviewAttestationPendency is one answer the attestation still owes. It is
+// not a disposition: nothing is written for a pending criterion, because the
+// whole point is that no value stands in for the answer.
+type ReviewAttestationPendency struct {
+	Criterion string `json:"criterion"`
+	Kind      string `json:"kind"`
+	Reason    string `json:"reason"`
+}
+
+// ReviewAttestationPreparation is what automation can honestly produce on its
+// own: every mechanical criterion answered from sealed evidence, and an
+// explicit list of what a reviewer still has to answer.
+type ReviewAttestationPreparation struct {
+	Attestation ReviewAttestation           `json:"attestation"`
+	Pending     []ReviewAttestationPendency `json:"pending,omitempty"`
+	Complete    bool                        `json:"complete"`
+}
+
 type ReviewBundleDelta struct {
 	FromBundle             string   `json:"from_bundle,omitempty"`
 	ToBundle               string   `json:"to_bundle"`
@@ -1334,12 +1352,60 @@ func (s Store) CurrentReviewBundle(scope string) (*ReviewBundle, error) {
 	return nil, nil
 }
 
-// AutoAttestReviewBundle constructs an attestation automatically from the
-// bundle's validated evidence and plan dispositions.
+// AutoAttestReviewBundle prepares an attestation from the bundle's validated
+// evidence and plan dispositions, and records it only when nothing is left for
+// a reviewer to answer.
+//
+// It used to record an `approved` decision for every required criterion,
+// including the ones no check reports on. In POSE's own history that produced
+// 458 of 470 attestations in which every criterion cites the same single
+// evidence reference and no criterion carries a conclusion — `roadmap-outcome`
+// has six criteria and not one evidence class, so a roadmap closeout was
+// approved in full by whichever result happened to be first in the bundle. The
+// collection half of that was always useful and is kept; the approval half is
+// what this stops doing (spec pose-abm-review-soundness).
 func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now time.Time) (ReviewAttestation, error) {
-	bundle, err := s.LoadReviewBundle(bundleID)
+	prepared, err := s.PrepareReviewAttestation(bundleID, reviewer, now)
 	if err != nil {
 		return ReviewAttestation{}, err
+	}
+	if !prepared.Complete {
+		if !apply {
+			return prepared.Attestation, nil
+		}
+		return ReviewAttestation{}, fmt.Errorf("pose: %s", ReviewPendencySummary(bundleID, prepared.Pending))
+	}
+	if !apply {
+		return prepared.Attestation, nil
+	}
+	return s.RecordReviewAttestation(prepared.Attestation, now)
+}
+
+// ReviewPendencySummary renders the pendencies as one actionable line: what is
+// unanswered, why, and the command that answers it.
+func ReviewPendencySummary(bundleID string, pending []ReviewAttestationPendency) string {
+	ids := make([]string, 0, len(pending))
+	for _, item := range pending {
+		ids = append(ids, item.Criterion)
+	}
+	sort.Strings(ids)
+	return fmt.Sprintf("bundle %s has %d criteria awaiting a reviewer's judgment (%s); record them with `pose review attest --criterion ID|passed|<evidence>|<conclusion>` (or `not-applicable`, or `finding`), because no collected evidence answers them", bundleID, len(pending), strings.Join(ids, ", "))
+}
+
+// PrepareReviewAttestation answers every criterion automation may answer and
+// reports the rest as pendencies. It never writes.
+func (s Store) PrepareReviewAttestation(bundleID, reviewer string, now time.Time) (ReviewAttestationPreparation, error) {
+	att, pending, err := s.prepareReviewAttestation(bundleID, reviewer, now)
+	if err != nil {
+		return ReviewAttestationPreparation{}, err
+	}
+	return ReviewAttestationPreparation{Attestation: att, Pending: pending, Complete: len(pending) == 0}, nil
+}
+
+func (s Store) prepareReviewAttestation(bundleID, reviewer string, now time.Time) (ReviewAttestation, []ReviewAttestationPendency, error) {
+	bundle, err := s.LoadReviewBundle(bundleID)
+	if err != nil {
+		return ReviewAttestation{}, nil, err
 	}
 	if reviewer == "" {
 		reviewer = "agent:auto-attest"
@@ -1348,7 +1414,7 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 	graph, _ := s.GetDeliveryIntegrity("")
 	requiresEvidence := s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph)
 	if len(bundle.Payload.Evidence) == 0 && requiresEvidence {
-		return ReviewAttestation{}, fmt.Errorf("pose: bundle %s has no passed structured validation evidence", bundleID)
+		return ReviewAttestation{}, nil, fmt.Errorf("pose: bundle %s has no passed structured validation evidence", bundleID)
 	}
 	evidenceRefs := make([]string, 0, len(bundle.Payload.Evidence))
 	byClass := map[string][]string{}
@@ -1381,9 +1447,23 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 	}
 	sort.Strings(evidenceRefs)
 
+	judgmentGoverned, _ := BundleGovernedBy(bundle, "explicit-judgment")
+	pending := []ReviewAttestationPendency{}
 	criteria := make([]ReviewCriterion, 0, len(bundle.Payload.Plan.Criteria))
 	for _, criterion := range bundle.Payload.Plan.Criteria {
 		if !criterion.Required {
+			continue
+		}
+		if judgmentGoverned && ReviewCriterionKind(criterion) == ReviewCriterionKindJudgment {
+			// The criterion no check reports on. Collecting evidence for it is
+			// still useful and still happens — it is sealed in the bundle and
+			// the reviewer cites it. What stops here is answering on the
+			// reviewer's behalf.
+			reason := "no registered check reports on this criterion"
+			if len(criterion.EvidenceClasses) > 0 {
+				reason = "the profile asks a reviewer to conclude, even though evidence of class " + strings.Join(criterion.EvidenceClasses, "|") + " exists"
+			}
+			pending = append(pending, ReviewAttestationPendency{Criterion: criterion.ID, Kind: ReviewCriterionKindJudgment, Reason: reason})
 			continue
 		}
 		critEvidence := pickScoped(criterion.EvidenceClasses, reviewCriterionComponents(bundle.Payload.Plan, criterion))
@@ -1411,9 +1491,9 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 			// a pass.
 			if requiresEvidence {
 				if len(criterion.EvidenceClasses) > 0 {
-					return ReviewAttestation{}, fmt.Errorf("pose: criterion %s requires evidence class %s and bundle %s seals none; run the check, or record the criterion as not-applicable with a rationale using `pose review attest`", criterion.ID, strings.Join(criterion.EvidenceClasses, "|"), bundleID)
+					return ReviewAttestation{}, nil, fmt.Errorf("pose: criterion %s requires evidence class %s and bundle %s seals none; run the check, or record the criterion as not-applicable with a rationale using `pose review attest`", criterion.ID, strings.Join(criterion.EvidenceClasses, "|"), bundleID)
 				}
-				return ReviewAttestation{}, fmt.Errorf("pose: criterion %s has no evidence in bundle %s; run a check, or record the criterion as not-applicable with a rationale using `pose review attest`", criterion.ID, bundleID)
+				return ReviewAttestation{}, nil, fmt.Errorf("pose: criterion %s has no evidence in bundle %s; run a check, or record the criterion as not-applicable with a rationale using `pose review attest`", criterion.ID, bundleID)
 			}
 			rationale := "the scope carries no delivery target, so no validation evidence is collected for it"
 			if len(criterion.EvidenceClasses) > 0 {
@@ -1472,9 +1552,9 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 				// does not survive one half of it being fabricated.
 				if requiresEvidence {
 					if len(tool.EvidenceClasses) > 0 {
-						return ReviewAttestation{}, fmt.Errorf("pose: review tool %s requires evidence class %s and bundle %s seals none; run the tool, or record its disposition with `pose review attest --tool`", tool.ID, strings.Join(tool.EvidenceClasses, "|"), bundleID)
+						return ReviewAttestation{}, nil, fmt.Errorf("pose: review tool %s requires evidence class %s and bundle %s seals none; run the tool, or record its disposition with `pose review attest --tool`", tool.ID, strings.Join(tool.EvidenceClasses, "|"), bundleID)
 					}
-					return ReviewAttestation{}, fmt.Errorf("pose: review tool %s has no evidence in bundle %s; run the tool, or record its disposition with `pose review attest --tool`", tool.ID, bundleID)
+					return ReviewAttestation{}, nil, fmt.Errorf("pose: review tool %s has no evidence in bundle %s; run the tool, or record its disposition with `pose review attest --tool`", tool.ID, bundleID)
 				}
 				// `deferred`, not `not-used`: a required tool recorded not-used
 				// is a blocker whatever the reason, while a deferral is the
@@ -1491,21 +1571,26 @@ func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now
 		tools = append(tools, disposition)
 	}
 
+	decision := "approved"
+	if len(pending) > 0 {
+		// A preparation that still owes answers is not an approval waiting to
+		// be written. Naming the decision `changes-requested` keeps the object
+		// honest if anything persists it anyway: the verifier refuses it, which
+		// is the correct outcome for a review nobody finished.
+		decision = "changes-requested"
+	}
 	att := ReviewAttestation{
 		BundleID:     bundle.BundleID,
 		BundleDigest: bundle.BundleDigest,
 		Reviewer:     reviewer,
-		Decision:     "approved",
+		Decision:     decision,
 		Criteria:     criteria,
 		Tools:        tools,
 		EvidenceRefs: evidenceRefs,
 		Findings:     []ReviewFinding{},
 	}
-
-	if !apply {
-		return att, nil
-	}
-	return s.RecordReviewAttestation(att, now)
+	sort.Slice(pending, func(i, j int) bool { return pending[i].Criterion < pending[j].Criterion })
+	return att, pending, nil
 }
 
 // RecordReviewAttestation appends an immutable decision for one sealed bundle.
@@ -1900,29 +1985,96 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 			required[criterion.ID] = criterion
 		}
 	}
+	// The findings this attestation records, so a criterion disposed as
+	// `finding` can be checked against them. The CLI parser already refused a
+	// criterion naming a finding it does not record; the Store did not, so any
+	// other caller — a Store client, a signed import, a reuse — could approve a
+	// criterion that explicitly did not pass while filing nothing. A signature
+	// authenticates bytes; it does not repair a reference to something that
+	// does not exist (spec pose-abm-review-soundness).
+	recordedFindings := map[string]bool{}
+	for _, finding := range att.Findings {
+		recordedFindings[finding.ID] = true
+	}
+	sealedClasses := map[string]bool{}
+	for _, ev := range bundle.Payload.Evidence {
+		sealedClasses[ev.EvidenceClass] = true
+	}
+	judgmentGoverned, _ := BundleGovernedBy(bundle, "explicit-judgment")
+	toolScope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
+	toolGraph, _ := s.GetDeliveryIntegrity("")
+	hasDeliveryTarget := s.reviewScopeRequiresValidationEvidence(toolScope, bundle.Payload.Plan, toolGraph)
 	seen := map[string]bool{}
+	notApplicable := 0
 	for _, criterion := range att.Criteria {
 		if seen[criterion.ID] {
 			blockers = append(blockers, "duplicate criterion "+criterion.ID)
 		}
 		seen[criterion.ID] = true
-		if _, ok := required[criterion.ID]; !ok {
+		planned, known := required[criterion.ID]
+		if !known {
 			blockers = append(blockers, "unknown criterion "+criterion.ID)
 		}
 		if criterion.Disposition != "passed" && criterion.Disposition != "not-applicable" && criterion.Disposition != "finding" {
 			blockers = append(blockers, "criterion "+criterion.ID+" has invalid disposition")
 		}
-		if criterion.Disposition == "not-applicable" && criterion.Rationale == "" {
-			blockers = append(blockers, "criterion "+criterion.ID+" lacks not-applicable rationale")
+		if criterion.Disposition == "not-applicable" {
+			notApplicable++
+			if criterion.Rationale == "" {
+				blockers = append(blockers, "criterion "+criterion.ID+" lacks not-applicable rationale")
+			}
+			// Inapplicability and absence are different states, and only one of
+			// them is an answer. A criterion that asks for a class the bundle
+			// actually seals is applicable by construction: dispensing with it
+			// would be reading missing judgment as missing relevance.
+			if known {
+				for _, class := range planned.EvidenceClasses {
+					if sealedClasses[class] {
+						blockers = append(blockers, "criterion "+criterion.ID+" is not-applicable while the bundle seals evidence of class "+class+"; missing judgment is a pendency, not inapplicability")
+						break
+					}
+				}
+			}
 		}
-		if criterion.Disposition == "passed" && !skipEvidenceSupport {
-			blockers = append(blockers, reviewCriterionEvidenceBlockers(bundle, required[criterion.ID], criterion)...)
+		if criterion.Disposition == "finding" {
+			if criterion.Evidence == "" {
+				blockers = append(blockers, "criterion "+criterion.ID+" is disposed as a finding and names none")
+			} else if !recordedFindings[criterion.Evidence] {
+				blockers = append(blockers, "criterion "+criterion.ID+" names finding "+criterion.Evidence+", which this attestation does not record")
+			}
+		}
+		if criterion.Disposition == "passed" {
+			if !skipEvidenceSupport {
+				blockers = append(blockers, reviewCriterionEvidenceBlockers(bundle, planned, criterion)...)
+			}
+			// A judged criterion passes on a conclusion, not on a reference.
+			// Gated on the contract the bundle sealed, so the 470 attestations
+			// recorded before it keep their verdict and stay readable: this
+			// raises the bar for reviews taken under the contract, and never
+			// re-judges one taken before it existed.
+			if judgmentGoverned && known && ReviewCriterionKind(planned) == ReviewCriterionKindJudgment && strings.TrimSpace(criterion.Rationale) == "" {
+				blockers = append(blockers, "criterion "+criterion.ID+" is a judgment criterion passed with no conclusion; record what was examined and what it concluded")
+			}
 		}
 	}
 	for id := range required {
 		if !seen[id] {
 			blockers = append(blockers, "missing criterion "+id)
 		}
+	}
+	// Every criterion dispensed with is not a review of anything. The engine
+	// cannot judge whether one dispensation is honest, but it can refuse the
+	// degenerate case, where the attestation states that nothing the plan asked
+	// about applies to the change it approves.
+	//
+	// Bounded to a scope that carries a delivery target, because the other case
+	// is already modelled and already honest: a documentation-only spec collects
+	// no validation evidence by design, and recording every criterion
+	// not-applicable — naming what is missing — is the answer the engine itself
+	// prepares for it. Refusing that would break the distinction this contract
+	// depends on rather than reinforce it.
+	if hasDeliveryTarget && len(required) > 0 && notApplicable == len(required) && len(att.Criteria) == len(required) {
+		blockers = append(blockers, "every required criterion is not-applicable; a scope where the whole plan is inapplicable is not reviewed by it")
 	}
 	reused := map[string]bool{}
 	for _, reuse := range att.ReusedFrom {
@@ -1980,9 +2132,6 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	if skipEvidenceSupport {
 		sealedEvidence = nil
 	}
-	toolScope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
-	toolGraph, _ := s.GetDeliveryIntegrity("")
-	hasDeliveryTarget := s.reviewScopeRequiresValidationEvidence(toolScope, bundle.Payload.Plan, toolGraph)
 	toolWarnings, toolBlockers := evaluateReviewToolCoverage(s.Root, bundle.Payload.Plan.Tools, att.Tools, sealedEvidence, hasDeliveryTarget)
 	_ = toolWarnings
 	blockers = append(blockers, toolBlockers...)

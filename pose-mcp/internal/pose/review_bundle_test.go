@@ -117,7 +117,15 @@ func approvedBundleAttestation(bundle ReviewBundle, reviewer string) ReviewAttes
 			continue
 		}
 		if evidence := pick(criterion.EvidenceClasses); evidence != "" {
-			criteria = append(criteria, ReviewCriterion{ID: criterion.ID, Disposition: "passed", Evidence: evidence})
+			disposition := ReviewCriterion{ID: criterion.ID, Disposition: "passed", Evidence: evidence}
+			// A judged criterion passes on a conclusion. The fixture states one
+			// so that every test using this helper exercises a complete
+			// attestation under the explicit-judgment contract, rather than the
+			// shape the contract exists to refuse.
+			if ReviewCriterionKind(criterion) == ReviewCriterionKindJudgment {
+				disposition.Rationale = "the fixture reviewer examined the sealed subject and found nothing to raise"
+			}
+			criteria = append(criteria, disposition)
 			continue
 		}
 		criteria = append(criteria, ReviewCriterion{ID: criterion.ID, Disposition: "not-applicable", Rationale: "the fixture seals no evidence of a class this criterion asks for"})

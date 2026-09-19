@@ -565,14 +565,33 @@ func cmdReviewAutoAttest(root string, args []string, stdout, stderr io.Writer) i
 		fmt.Fprintf(stderr, "pose review auto-attest: bundle %s is superseded by %s\n", target, bundle.BundleID)
 		return 1
 	}
-	att, err := store.AutoAttestReviewBundle(bundle.BundleID, reviewer, apply, time.Now())
+	prepared, err := store.PrepareReviewAttestation(bundle.BundleID, reviewer, time.Now())
+	att := prepared.Attestation
+	if err == nil && !apply {
+		pendingLines := ""
+		for _, item := range prepared.Pending {
+			pendingLines += fmt.Sprintf("review_attestation.pending=%s|%s|%s\n", item.Criterion, item.Kind, item.Reason)
+		}
+		fmt.Fprintf(stdout, "review_attestation.plan=auto-attest\nreview_attestation.bundle_id=%s\nreview_attestation.bundle_digest=%s\nreview_attestation.reviewer=%s\nreview_attestation.criteria_count=%d\nreview_attestation.tools_count=%d\nreview_attestation.pending_count=%d\nreview_attestation.complete=%t\nreview_attestation.apply=false\n%s", bundle.BundleID, bundle.BundleDigest, reviewer, len(att.Criteria), len(att.Tools), len(prepared.Pending), prepared.Complete, pendingLines)
+		return 0
+	}
+	if err != nil {
+		// Fall through to the single reporting site below.
+	} else if prepared.Complete {
+		att, err = store.RecordReviewAttestation(att, time.Now())
+	} else {
+		// Verdict first, then the cause, then the action — and exit 1, because
+		// nothing is recorded. Reporting success here is what let a scope look
+		// attested while every judged criterion was still unanswered.
+		detail := ""
+		for _, item := range prepared.Pending {
+			detail += fmt.Sprintf("\n  %s: %s", item.Criterion, item.Reason)
+		}
+		err = fmt.Errorf("%s%s", posemodel.ReviewPendencySummary(bundle.BundleID, prepared.Pending), detail)
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review auto-attest: %v\n", err)
 		return 1
-	}
-	if !apply {
-		fmt.Fprintf(stdout, "review_attestation.plan=auto-attest\nreview_attestation.bundle_id=%s\nreview_attestation.bundle_digest=%s\nreview_attestation.reviewer=%s\nreview_attestation.criteria_count=%d\nreview_attestation.tools_count=%d\nreview_attestation.apply=false\n", bundle.BundleID, bundle.BundleDigest, reviewer, len(att.Criteria), len(att.Tools))
-		return 0
 	}
 	fmt.Fprintf(stdout, "Review attestation auto-recorded: %s\n", filepath.Join(root, filepath.FromSlash(att.Path)))
 	return 0
@@ -847,6 +866,7 @@ func reviewCriterionDispositions(plan posemodel.ReviewPlan, evidence, raw []stri
 		overrides[parts[0]] = disposition
 	}
 	criteria := make([]posemodel.ReviewCriterion, 0, len(plan.Criteria))
+	unanswered := []string{}
 	for _, criterion := range plan.Criteria {
 		if !criterion.Required {
 			continue
@@ -855,7 +875,21 @@ func reviewCriterionDispositions(plan posemodel.ReviewPlan, evidence, raw []stri
 			criteria = append(criteria, override)
 			continue
 		}
+		// Defaulting to `passed` was this command's other half of the same
+		// problem auto-attest had: a criterion the reviewer never mentioned
+		// came out approved, citing whichever supplied reference matched. For a
+		// criterion a check answers that is a defensible shortcut. For one only
+		// a reviewer can answer it states a conclusion nobody reached, so the
+		// command asks instead of assuming (spec pose-abm-review-soundness).
+		if posemodel.ReviewCriterionKind(criterion) == posemodel.ReviewCriterionKindJudgment {
+			unanswered = append(unanswered, criterion.ID)
+			continue
+		}
 		criteria = append(criteria, posemodel.ReviewCriterion{ID: criterion.ID, Disposition: "passed", Evidence: reviewCriterionEvidence(criterion, evidence)})
+	}
+	if len(unanswered) > 0 {
+		sort.Strings(unanswered)
+		return nil, fmt.Errorf("these criteria need an explicit judgment and have none: %s; record each with --criterion ID|passed|<evidence>|<conclusion>, or not-applicable with a reason, or finding naming a recorded finding", strings.Join(unanswered, ", "))
 	}
 	return criteria, nil
 }

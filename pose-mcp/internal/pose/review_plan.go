@@ -37,12 +37,27 @@ type ReviewPlanProfile struct {
 }
 
 type ReviewPlanCriterion struct {
-	ID              string   `json:"id"`
-	Description     string   `json:"description"`
-	Required        bool     `json:"required"`
+	ID          string `json:"id"`
+	Description string `json:"description"`
+	Required    bool   `json:"required"`
+	// Kind is resolved at plan time, so the bundle seals what each criterion
+	// was when it was reviewed. A profile edited afterwards cannot retroactively
+	// turn a judged criterion into a collected one, or the reverse.
+	Kind            string   `json:"kind,omitempty"`
 	Rules           []string `json:"rules,omitempty"`
 	EvidenceClasses []string `json:"evidence_classes,omitempty"`
 	Profiles        []string `json:"profiles"`
+}
+
+// ReviewCriterionKind resolves a planned criterion's kind, falling back to the
+// derivation for a plan sealed before the field existed. Reading it through one
+// accessor is what keeps auto-attest, the CLI and the verifier from disagreeing
+// about which criteria a reviewer still owes an answer for.
+func ReviewCriterionKind(criterion ReviewPlanCriterion) string {
+	if criterion.Kind == ReviewCriterionKindMechanical || criterion.Kind == ReviewCriterionKindJudgment {
+		return criterion.Kind
+	}
+	return DeriveReviewCriterionKind(criterion.EvidenceClasses)
 }
 
 type ReviewPlanTool struct {
@@ -674,7 +689,11 @@ func composeReviewCriteria(profiles []ReviewProfile, blockers []string) ([]Revie
 			// tools used to receive, were both guarding against input the
 			// contract no longer admits.
 			classes := uniqueSorted(item.EvidenceClasses)
-			criterion := ReviewPlanCriterion{ID: item.ID, Description: item.Description, Required: required, Rules: uniqueSorted(item.Rules), EvidenceClasses: classes, Profiles: []string{profile.Ref()}}
+			kind := item.Kind
+			if kind == "" {
+				kind = DeriveReviewCriterionKind(classes)
+			}
+			criterion := ReviewPlanCriterion{ID: item.ID, Description: item.Description, Required: required, Kind: kind, Rules: uniqueSorted(item.Rules), EvidenceClasses: classes, Profiles: []string{profile.Ref()}}
 			criteria, blockers = addReviewCriterion(criteria, criterion, blockers)
 		}
 	}
@@ -689,6 +708,16 @@ func addReviewCriterion(criteria []ReviewPlanCriterion, candidate ReviewPlanCrit
 		}
 		if criteria[i].Description != candidate.Description || criteria[i].Required != candidate.Required || strings.Join(criteria[i].Rules, "\x00") != strings.Join(candidate.Rules, "\x00") || strings.Join(criteria[i].EvidenceClasses, "\x00") != strings.Join(candidate.EvidenceClasses, "\x00") {
 			return criteria, append(blockers, "conflicting review criterion "+candidate.ID+" from "+strings.Join(append(criteria[i].Profiles, candidate.Profiles...), ","))
+		}
+		// Kind composes monotonically, the way independence already does: an
+		// overlay may raise a collected criterion to a judged one, and may never
+		// lower a judged one back. Two profiles disagreeing is therefore not a
+		// conflict — the stricter reading wins, and neither profile can weaken
+		// the obligation the other stated.
+		if ReviewCriterionKind(criteria[i]) == ReviewCriterionKindJudgment || ReviewCriterionKind(candidate) == ReviewCriterionKindJudgment {
+			criteria[i].Kind = ReviewCriterionKindJudgment
+		} else {
+			criteria[i].Kind = ReviewCriterionKindMechanical
 		}
 		criteria[i].Profiles = uniqueSorted(append(criteria[i].Profiles, candidate.Profiles...))
 		return criteria, blockers
