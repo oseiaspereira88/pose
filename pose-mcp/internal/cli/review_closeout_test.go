@@ -160,6 +160,21 @@ func TestReviewRecordRequiresRequiredToolDispositions(t *testing.T) {
 	}
 }
 
+func TestRequiredDeliveryToolMayBeDeferredWithoutDeliveryTarget(t *testing.T) {
+	tool := posemodel.ReviewPlanTool{
+		ID:              "validate",
+		Requiredness:    "required",
+		EvidenceClasses: []string{"build", "unit"},
+		Preconditions:   []string{"delivery-target-declared"},
+	}
+	disposition := posemodel.ReviewToolDisposition{
+		ID: "validate", Disposition: "deferred", Rationale: "scope has no delivery target",
+	}
+	if err := validateCLIReviewToolDisposition(tool, disposition); err != nil {
+		t.Fatalf("delivery-gated tool should be deferrable before scope evaluation: %v", err)
+	}
+}
+
 func reviewBundleCLIFixture(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
@@ -428,7 +443,6 @@ func TestReviewCriterionDispositionsRefuseJudgmentByOmission(t *testing.T) {
 		t.Fatalf("expected both criteria, got %d", len(criteria))
 	}
 }
-
 
 func TestPoseCloseWithLiveGitTrailerNoReport(t *testing.T) {
 	root := t.TempDir()

@@ -978,7 +978,13 @@ func validateCLIReviewToolDisposition(tool posemodel.ReviewPlanTool, disposition
 			return fmt.Errorf("recommended review tool %s needs a not-used rationale", label)
 		}
 	case "deferred":
-		if !completion || disposition.Rationale == "" {
+		// Delivery-gated tools are legitimately deferred when the reviewed
+		// scope has no delivery target. The final coverage evaluator receives
+		// that scope fact and rejects the same disposition for a target-bearing
+		// scope; the CLI must therefore allow the recorded disposition to reach
+		// that evaluator instead of requiring fabricated validation evidence.
+		deliveryScoped := cliReviewToolHasPrecondition(tool, "delivery-target-declared")
+		if !(completion || deliveryScoped) || disposition.Rationale == "" {
 			return fmt.Errorf("review tool %s cannot be deferred without a post-review rationale", label)
 		}
 	default:
