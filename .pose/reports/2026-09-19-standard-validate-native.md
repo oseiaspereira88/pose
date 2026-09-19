@@ -14,7 +14,7 @@
 - _Not provided_
 
 ## Files Changed
-- pose/indexes/delivery-integrity.json
+- _No files detected_
 
 ## Validation Commands
 - go build ./...
@@ -30,18 +30,18 @@
 - - [pass] pose-mcp/go/vet (0.1s)
 - - [pass] pose-mcp/go/delivery-integration (0.9s)
 - - [pass] pose-mcp/go/delivery-reachability (0.8s)
-- - [pass] pose-mcp/go/review-bundle-convergence (0.8s)
+- - [pass] pose-mcp/go/review-bundle-convergence (1.0s)
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-19T05:50:19Z
+- Generated at (UTC): 2026-09-19T05:54:26Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 130
+- Sequence for task/spec: 131
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-19T04:07:28Z
+- Previous execution: 2026-09-19T05:50:19Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

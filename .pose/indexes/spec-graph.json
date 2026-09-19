@@ -1,6 +1,10 @@
 {
   "edges": [
     {
+      "from": "pose-abm-design-basis",
+      "to": "pose-abm-review-authority"
+    },
+    {
       "from": "pose-abm-review-authority",
       "to": "pose-abm-review-soundness"
     },
@@ -811,6 +815,14 @@
   ],
   "schemaVersion": 1,
   "specs": {
+    "pose-abm-design-basis": {
+      "depends_on": [
+        "pose-abm-review-authority"
+      ],
+      "path": ".pose/specs/2026-09-19-pose-abm-design-basis.md",
+      "priority": 1,
+      "status": "in-progress"
+    },
     "pose-abm-review-authority": {
       "depends_on": [
         "pose-abm-review-soundness"
