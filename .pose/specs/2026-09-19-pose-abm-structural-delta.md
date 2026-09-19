@@ -8,7 +8,7 @@ depends_on: pose-abm-subject-evidence
 priority: 1
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: governance:structural-delta
 ---
 
 # Spec: Assessment estrutural limitado e reproduzível
@@ -136,14 +136,16 @@ de uma solução overengineered passar apenas porque seus testes estão verdes.
 - modified: .pose/reports/2026-09-19-standard-validate-native.md
 - modified: .pose/reports/history/standard-validate-native.jsonl
 - modified: .pose/state/components/pose-mcp.json
+- modified: .pose/indexes/delivery-integrity.json
 - modified: .pose/assessments/README.md
 - modified: .pose/assessments/consolidated.md
 - modified: .pose/assessments/pose-mcp.md
 
 ### Delivery targets
-Nenhum target tipado nesta fatia: o assessment é opt-in e a capacidade
-composta permanece pendente de profile/producer e do piloto Harne8. Não
-fabricar `capability:abm-structural-delta` antes do gate de composição.
+- governance:structural-delta module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
+O target governa a entrega do producer local usando o profile backend-go já
+adotado; ele não afirma uma capability composta do Harne8. Um profile dedicado
+e o piloto de composição Harne8 permanecem follow-up explícito.
 
 ### API/contract changes
 Adicionar `DesignDeltaReport` versionado, CLI opt-in, MCP read-only e o
@@ -266,7 +268,9 @@ the typed delivery-profile follow-up are completed.
 ## 7. Final Report
 
 ### Delivered scope
-In progress. No composed delivery target or policy adoption is claimed.
+In progress. Delivered and validated the local governance target
+`governance:structural-delta`; no composed Harne8 capability or policy
+promotion is claimed.
 
 ### Residual risks
 The scanner will not decide whether a structural delta is proportionate; that
@@ -274,5 +278,6 @@ remains an explicit review judgment. Unsupported manifest ecosystems remain
 visible as coverage gaps.
 
 ### Follow-ups
-- [open] Register a typed delivery profile/producer and run Harne8 dogfooding
-  before claiming a composed capability (owner:@pose-maintainers crit:medium review:2026-10-19)
+- [open] Add a dedicated structural-delta delivery profile and run Harne8
+  composition dogfooding before claiming a composed capability
+  (owner:@pose-maintainers crit:medium review:2026-10-19)
