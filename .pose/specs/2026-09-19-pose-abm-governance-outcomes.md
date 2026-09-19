@@ -124,6 +124,7 @@ paralela de eventos.
 - modified: .pose/state/technical-debt.json
 - modified: .pose/reports/2026-09-19-standard-validate-native.md
 - modified: .pose/reports/history/standard-validate-native.jsonl
+- modified: .pose/indexes/delivery-integrity.json
 - modified: .pose/state/components/pose-mcp.json
 
 ### Delivery targets
