@@ -121,6 +121,9 @@ inferência plausível seja tratada como fato, mantendo specs legadas válidas.
 - modified: .pose/assessments/integrations.md
 - modified: .pose/assessments/pose-mcp.md
 - modified: .pose/assessments/technical-debt.md
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/reports/2026-09-19-standard-validate-native.md
+- modified: .pose/reports/history/standard-validate-native.jsonl
 - modified: .pose/state/components/pose-mcp.json
 - modified: .pose/state/integrations.json
 - modified: .pose/state/project-state.md
@@ -251,6 +254,9 @@ evidence inacessível; a matriz de Go permanece obrigatória.
 - 2026-09-19: `/tmp/pose-abm-design-basis lint-spec pose-abm-design-basis
   --design-check --strict` passed with one expected dependency-readiness
   warning and a stable design digest.
+- 2026-09-19: `pose validate --strict --module pose-mcp --report` passed all
+  six matrix steps and persisted the standard validation report/history and
+  delivery-integrity projection for review evidence.
 
 ### Results summary
 - Successes: parser, hostile-Markdown, digest, CLI/MCP compatibility, locale
