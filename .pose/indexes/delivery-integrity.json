@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:87ad19ae39aaae80f6dacbebe1889ab4566f84dbf108a78be0949d81e94dbfe7",
-  "provenance_digest": "sha256:a7c877c3791882a2ee16be15d2d3b0fdbbed4be7c3edafec23aa89075e463d3d",
+  "input_digest": "sha256:b911590fe451df8a6b5f9e0c19976ebe5dac42b0c0861e18a28ddfef7703753a",
+  "provenance_digest": "sha256:9d8664eaf4b8caa3cfd5df555c422073a69302c0fd950a36fed2f905a9c842c0",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -5377,6 +5377,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/2026-09-15-pose-discovery-gitignore-inside-submodules.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/2026-09-19-pose-abm-authority-fixture-clock.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-09-19-pose-abm-authority-fixture-clock.md"
       }
     },
     {
@@ -13724,6 +13731,14 @@
       }
     },
     {
+      "id": "change-set:cs-e67c17e4935d",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:937ad94cad9477ead5c0007a0fdd32ae57cdfa6c07da5861694adc746edd238b",
+        "selector": "trailers:pose-abm-authority-fixture-clock"
+      }
+    },
+    {
       "id": "change-set:cs-e70eba3abaa3",
       "type": "change-set",
       "attributes": {
@@ -15148,7 +15163,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -15162,7 +15177,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -15176,14 +15191,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -15211,7 +15226,14 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
+      }
+    },
+    {
+      "id": "spec:pose-abm-authority-fixture-clock",
+      "type": "spec",
+      "attributes": {
+        "status": "in-progress"
       }
     },
     {
@@ -47601,6 +47623,16 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-e67c17e4935d",
+      "to": "artifact:.pose/specs/2026-09-19-pose-abm-authority-fixture-clock.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-e67c17e4935d",
+      "to": "artifact:pose-mcp/internal/pose/review_authority_test.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-e70eba3abaa3",
       "to": "artifact:.agents/skills/pose-bugfix/SKILL.md",
       "type": "changes"
@@ -53669,6 +53701,21 @@
       "from": "roadmap-criterion:delivery-integrity/C9",
       "to": "validation-check:delivery-integration",
       "type": "gates"
+    },
+    {
+      "from": "spec:pose-abm-authority-fixture-clock",
+      "to": "artifact:.pose/specs/2026-09-19-pose-abm-authority-fixture-clock.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-abm-authority-fixture-clock",
+      "to": "artifact:pose-mcp/internal/pose/review_authority_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-abm-authority-fixture-clock",
+      "to": "change-set:cs-e67c17e4935d",
+      "type": "observed-by"
     },
     {
       "from": "spec:pose-abm-design-basis",
@@ -63892,6 +63939,16 @@
     }
   ],
   "claims": [
+    {
+      "spec": "pose-abm-authority-fixture-clock",
+      "action": "created",
+      "path": ".pose/specs/2026-09-19-pose-abm-authority-fixture-clock.md"
+    },
+    {
+      "spec": "pose-abm-authority-fixture-clock",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/review_authority_test.go"
+    },
     {
       "spec": "pose-abm-design-basis",
       "action": "created",
@@ -92376,6 +92433,29 @@
       "diff_digest": "sha256:7da82b97c722a0754822f870b95d51115438c110f86508ca50404da9737636d0"
     },
     {
+      "id": "cs-e67c17e4935d",
+      "spec": "pose-abm-authority-fixture-clock",
+      "selector": "trailers:pose-abm-authority-fixture-clock",
+      "base": "25c0ab46051567f538b9498ed4e71ae505cb278b^",
+      "head": "25c0ab46051567f538b9498ed4e71ae505cb278b",
+      "resolved_base": "264c5239b1d6b583594077c2b8bc71bd01bb69ea",
+      "resolved_head": "25c0ab46051567f538b9498ed4e71ae505cb278b",
+      "commits": [
+        "25c0ab46051567f538b9498ed4e71ae505cb278b"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-19-pose-abm-authority-fixture-clock.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_authority_test.go"
+        }
+      ],
+      "diff_digest": "sha256:937ad94cad9477ead5c0007a0fdd32ae57cdfa6c07da5861694adc746edd238b"
+    },
+    {
       "id": "cs-e70eba3abaa3",
       "spec": "pose-spec-trailer-workflow-documentation",
       "selector": "trailers:pose-spec-trailer-workflow-documentation",
@@ -95543,6 +95623,9 @@
     ".pose/specs/2026-09-15-pose-discovery-gitignore-inside-submodules.md": [
       "pose-discovery-gitignore-inside-submodules"
     ],
+    ".pose/specs/2026-09-19-pose-abm-authority-fixture-clock.md": [
+      "pose-abm-authority-fixture-clock"
+    ],
     ".pose/specs/2026-09-19-pose-abm-design-basis.md": [
       "pose-abm-design-basis"
     ],
@@ -97083,6 +97166,7 @@
       "pose-reuse-is-sealed-signing-stays-live"
     ],
     "pose-mcp/internal/pose/review_authority_test.go": [
+      "pose-abm-authority-fixture-clock",
       "pose-abm-review-authority"
     ],
     "pose-mcp/internal/pose/review_bundle.go": [
@@ -103231,6 +103315,16 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
+      "id": "dif-ecc38589ca1c",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-abm-authority-fixture-clock",
+      "path": "pose-mcp/internal/pose/review_authority_test.go",
+      "change_set": "cs-e67c17e4935d",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-ed43bd23061e",
       "code": "legacy-narrative",
       "severity": "info",
@@ -106121,7 +106215,10 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -106142,7 +106239,12 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test",
+        "check is missing, failing or stale: delivery-integration",
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -106162,7 +106264,10 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -106173,7 +106278,10 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -106211,7 +106319,10 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     }
   ],
   "paths": {
