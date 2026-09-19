@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-19T02:51:50Z
-baseline_commit: 6bfb1e026e69b349f2891d5826f61658c6626f02
+generated_at: 2026-09-19T16:30:52Z
+baseline_commit: 842320bdf72b54878cecef714a062144c87618cd
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:15b86a470831 -->
+<!-- state:derived hash:da55c001bfeb -->
 
-- specs: total=211 draft=4 in-progress=65 blocked=0 done=142 superseded=0 abandoned=0
+- specs: total=217 draft=4 in-progress=69 blocked=0 done=144 superseded=0 abandoned=0
 - roadmaps: total=11 active=1 done=10
 - últimos closeouts:
   - spec:pose-abm-review-soundness (2026-09-19)
+  - spec:pose-abm-review-tool-deferred-without-delivery (2026-09-19)
   - spec:pose-abm-subject-evidence (2026-09-19)
+  - spec:pose-abm-authority-fixture-clock (2026-09-19)
   - spec:pose-discovery-gitignore-inside-submodules (2026-09-15)
-  - spec:pose-review-bundle-scope-isolated-listing (2026-08-23)
-  - spec:pose-delivery-target-root-module-evidence-matching (2026-08-23)
-  - ... e mais 137 (ver `pose_list_specs status:done`)
+  - ... e mais 139 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:4b1d2ec9297c -->
+<!-- state:derived hash:79d61cde7e78 -->
 
-- abertos: 99
-- por criticidade: high=1 medium=17 low=57 sem-classificação=24
+- abertos: 102
+- por criticidade: high=1 medium=20 low=57 sem-classificação=24
 - vencidos (review < hoje): 1
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
 
@@ -65,10 +65,10 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:d4881ab567b9 -->
+<!-- state:derived hash:e2a47ca24261 -->
 
-- último registro: task=validate-native outcome=pass (2026-09-19T01:45:01Z)
-- últimos 30 dias: total=46 outcome_ok=45 outcome_outro=1
+- último registro: task=validate-native outcome=pass (2026-09-19T16:20:31Z)
+- últimos 30 dias: total=68 outcome_ok=62 outcome_outro=6
 - reports revisados (.md): total=140
   - report:2026-09-19-standard-validate-native.md
   - report:2026-09-15-standard-validate-native.md

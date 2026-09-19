@@ -97,9 +97,9 @@ convergence validation passed; target-bearing tool coverage remained strict.
 attestation `rva-64d05201a93ae700` verified fresh.
 
 ### Requirement trace
-- R1 [satisfied] <TestRequiredDeliveryToolMayBeDeferredWithoutDeliveryTarget accepts a rationale-bearing delivery-gated disposition> evidence:unit:pose-mcp/go/test
-- R2 [satisfied] <review evaluator keeps target-bearing required tools strict> evidence:integration:pose-mcp/go/review-bundle-convergence
-- R3 [satisfied] <the implementation changes only CLI disposition parsing and preserves validation behavior> evidence:build:pose-mcp/go/build evidence:unit:pose-mcp/go/test
+- R1 [satisfied] <TestRequiredDeliveryToolMayBeDeferredWithoutDeliveryTarget accepts a rationale-bearing delivery-gated disposition> evidence:unit
+- R2 [satisfied] <review evaluator keeps target-bearing required tools strict> evidence:integration
+- R3 [satisfied] <the implementation changes only CLI disposition parsing and preserves validation behavior> evidence:unit
 
 ## 7. Final Report
 

@@ -102,9 +102,9 @@ attestation `rva-5f4d839c303b73c0` verified fresh; delivery-gated validation
 evidence was collected from the affected `pose-mcp` component.
 
 ### Requirement trace
-- R1 [satisfied] <TestABMReviewAuthorityValid uses an execution-relative fixture window> evidence:unit:pose-mcp/go/test
-- R2 [satisfied] <TestABMReviewAuthorityRejectsReplayAndExpiry retains the explicit expiry rejection> evidence:unit:pose-mcp/go/test
-- R3 [satisfied] <full module tests, build and vet pass without production authority changes> evidence:build:pose-mcp/go/build evidence:unit:pose-mcp/go/test
+- R1 [satisfied] <TestABMReviewAuthorityValid uses an execution-relative fixture window> evidence:unit
+- R2 [satisfied] <TestABMReviewAuthorityRejectsReplayAndExpiry retains the explicit expiry rejection> evidence:unit
+- R3 [satisfied] <full module tests, build and vet pass without production authority changes> evidence:unit
 
 ## 7. Final Report
 
