@@ -124,6 +124,7 @@ inferência plausível seja tratada como fato, mantendo specs legadas válidas.
 - modified: .pose/indexes/delivery-integrity.json
 - modified: .pose/reports/2026-09-19-standard-validate-native.md
 - modified: .pose/reports/history/standard-validate-native.jsonl
+- modified: .pose/results/delivery-validation.json
 - modified: .pose/state/components/pose-mcp.json
 - modified: .pose/state/integrations.json
 - modified: .pose/state/project-state.md
