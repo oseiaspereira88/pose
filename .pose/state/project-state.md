@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-19T02:26:44Z
-baseline_commit: 0bcc21308c00a72b2cc8c859b772946442dba266
+generated_at: 2026-09-19T02:28:08Z
+baseline_commit: b6d375a88ba903fdffb031e50c486cc8628f4fa3
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:b6fdd7aaea84 -->
+<!-- state:derived hash:15b86a470831 -->
 
-- specs: total=211 draft=4 in-progress=66 blocked=0 done=141 superseded=0 abandoned=0
+- specs: total=211 draft=4 in-progress=65 blocked=0 done=142 superseded=0 abandoned=0
 - roadmaps: total=11 active=1 done=10
 - últimos closeouts:
   - spec:pose-abm-review-soundness (2026-09-19)
+  - spec:pose-abm-subject-evidence (2026-09-19)
   - spec:pose-discovery-gitignore-inside-submodules (2026-09-15)
-  - spec:pose-covered-followup-anchor-verification (2026-08-23)
   - spec:pose-review-bundle-scope-isolated-listing (2026-08-23)
   - spec:pose-delivery-target-root-module-evidence-matching (2026-08-23)
-  - ... e mais 136 (ver `pose_list_specs status:done`)
+  - ... e mais 137 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:4b1d2ec9297c -->
