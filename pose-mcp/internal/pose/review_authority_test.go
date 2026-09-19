@@ -51,7 +51,7 @@ func verifiedAuthorityFixture(t *testing.T, independence string) authorityFixtur
 	if err := os.WriteFile(policyPath, append(encoded, '\n'), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	now := time.Date(2026, 9, 19, 12, 0, 0, 0, time.UTC)
+	now := time.Now().UTC().Truncate(time.Second)
 	bundle, err := store.SealReviewBundle("spec:backend", now)
 	if err != nil {
 		t.Fatal(err)
@@ -172,7 +172,7 @@ func TestABMReviewAuthorityRejectsReplayAndExpiry(t *testing.T) {
 
 	f = verifiedAuthorityFixture(t, "different-actor")
 	att = f.attestation(t, "agent:reviewer", "agent:implementer", "review-run-2", "implementation-run-1")
-	att.Authority.ExpiresAt = time.Now().UTC().Add(-time.Minute).Format(time.RFC3339)
+	att.Authority.ExpiresAt = f.now.Add(-time.Minute).Format(time.RFC3339)
 	att = resignAuthorityAttestation(t, f, att)
 	verification = verifyAuthorityAttestation(t, f, att)
 	if verification.Approved || !containsSubstring(verification.Blockers, "authority claim expired") {
