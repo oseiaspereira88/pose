@@ -258,7 +258,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	if len(plan.Components) > 1 {
 		plan.Criteria, plan.Blockers = addReviewCriterion(plan.Criteria, ReviewPlanCriterion{
 			ID: "cross-component-integration", Description: "Observed component boundaries and contracts are integrated and covered by current evidence.",
-			Required: true, EvidenceClasses: []string{"integration"}, Profiles: []string{"synthetic:cross-component"},
+			Required: true, Kind: ReviewCriterionKindMechanical, EvidenceClasses: []string{"integration"}, Profiles: []string{"synthetic:cross-component"},
 		}, plan.Blockers)
 		plan.Explain = append(plan.Explain, "cross-component-integration added because multiple mapped component roots are affected")
 	}

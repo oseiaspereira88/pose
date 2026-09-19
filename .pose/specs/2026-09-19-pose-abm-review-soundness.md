@@ -104,7 +104,7 @@ CLI reference, the review-plan schema and the embedded scaffold.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 
 ### Delivery targets
-- governance:explicit-judgment module:pose-mcp profile:governance-contract entrypoint:pose-mcp/internal/pose/review_closeout.go
+- governance:explicit-judgment module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 `ReviewCriterionProfile` and `ReviewPlanCriterion` gain `kind`, a closed set of

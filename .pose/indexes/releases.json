@@ -1,15 +1,42 @@
 {
-  "pending": [
-    {
-      "spec": "pose-discovery-gitignore-inside-submodules",
-      "category": "fixed",
-      "breaking": false,
-      "body": "Discovery honours a submodule's own `.gitignore`. The ignored-path lookup ran\n`git ls-files --ignored` only at the repository root, and git does not descend\ninto submodules there, while the walkers do. A cache a submodule ignores reached\n`pose index` and `pose validate` as tracked content: on an adopting repository a\npytest cache inside the POSE submodule entered `repo-map.json` on one machine\nand not in a clean clone, and a manifest in such a directory would have become a\ngoverned module. Each initialised submodule is now asked for its own ignored\npaths; an uninitialised one is skipped. Ignored paths are read NUL-separated,\nso a non-ASCII name git quotes, or one with a leading space, is no longer\nmissed.",
-      "path": "pose-discovery-gitignore-inside-submodules.md",
-      "digest": "sha256:a822f8c07c6cc76eca05b90a7daa6e1216ac4c83454df36708ad1a58d61dc2e0"
-    }
-  ],
+  "pending": [],
   "releases": [
+    {
+      "version": "v5.0.8",
+      "state": "tagged",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v5.0.8",
+        "previous_version": "v5.0.7",
+        "prepared_at": "2026-09-15T18:43:14Z",
+        "specs": [
+          "pose-discovery-gitignore-inside-submodules"
+        ],
+        "categories": {
+          "fixed": 1
+        },
+        "fragments": [
+          {
+            "spec": "pose-discovery-gitignore-inside-submodules",
+            "category": "fixed",
+            "breaking": false,
+            "body": "Discovery honours a submodule's own `.gitignore`. The ignored-path lookup ran\n`git ls-files --ignored` only at the repository root, and git does not descend\ninto submodules there, while the walkers do. A cache a submodule ignores reached\n`pose index` and `pose validate` as tracked content: on an adopting repository a\npytest cache inside the POSE submodule entered `repo-map.json` on one machine\nand not in a clean clone, and a manifest in such a directory would have become a\ngoverned module. Each initialised submodule is now asked for its own ignored\npaths; an uninitialised one is skipped. Ignored paths are read NUL-separated,\nso a non-ASCII name git quotes, or one with a leading space, is no longer\nmissed.",
+            "path": "pose-discovery-gitignore-inside-submodules.md",
+            "digest": "sha256:a822f8c07c6cc76eca05b90a7daa6e1216ac4c83454df36708ad1a58d61dc2e0"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:ec49c2539dc94b69ccada74ccacbf07299881a05db671b66afdd4cec971ec0ba",
+        "release_input_digest": "sha256:c593472f5eab844fb748def411eef211f0b08b3c09b9223ccd1c31c69a27f74b",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v5.0.8"
+        }
+      },
+      "events": [],
+      "gaps": []
+    },
     {
       "version": "v5.0.7",
       "state": "verified",
