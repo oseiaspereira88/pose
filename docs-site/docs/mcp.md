@@ -132,6 +132,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_integration_check` / `pose_get_integration_matrix` | Cross-component integration assessment (Protobuf, Kafka, REST, MCP) and provider vs consumer matrix |
 | `pose_tech_debt_check` / `pose_get_tech_debt_report` | Codebase technical debt audit (TODO, FIXME, stub, panic) with file links and recommended POSE backlog actions |
 | `pose_insights` | Deterministic outcome aggregates by workflow, task or context |
+| `pose_governance_stats` | Separate preparation, judgment, intervention, freshness and coverage dimensions without a quality score |
 | `pose_usage` | Privacy-bounded local CLI/MCP usage, semantic outcomes, finding lifecycle and latency; supports `since_days`, `tool` and `surface` filters |
 | `pose_extension_list` | List installed extensions (id, version, kind, digest, signature status) |
 | `pose_validate_request` | Resolve an immutable, digest-pinned validation plan (no execution) |

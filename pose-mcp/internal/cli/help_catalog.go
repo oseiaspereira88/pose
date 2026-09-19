@@ -585,16 +585,19 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "stats",
 		SummaryEN:       "Display historical POSE engineering statistics and task metrics",
 		SummaryPtBR:     "Exibe estatísticas históricas de engenharia e métricas de tarefas do POSE",
-		Usage:           "pose stats [workflows|tasks|contexts] [--since-days N] [--json]",
-		DescriptionEN:   "Aggregates execution metrics from .pose/reports/history/, calculating task completion rates, pass/fail ratios, and execution frequency.",
-		DescriptionPtBR: "Agrega métricas de execução a partir de .pose/reports/history/, calculando taxas de conclusão de tarefas, taxa de sucesso e frequência.",
+		Usage:           "pose stats [workflows|tasks|contexts] [--since-days N] [--json] | pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--json]",
+		DescriptionEN:   "Aggregates historical outcomes, or (with governance) reports separate preparation, judgment, intervention, freshness and coverage dimensions without a quality score.",
+		DescriptionPtBR: "Agrega resultados históricos ou, com governance, separa preparação, julgamento, intervenção, atualidade e cobertura sem score de qualidade.",
 		Flags: []FlagHelp{
 			{"--since-days <N>", "Analyze historical data within the last N days (default: 30)", "Analisa dados históricos dos últimos N dias (padrão: 30)"},
+			{"--maturity-days <N>", "Governance query maturity window (default: 30)", "Janela de maturidade da consulta governance (padrão: 30)"},
+			{"--min-sample <N>", "Governance query minimum sample (default: 3)", "Amostra mínima da consulta governance (padrão: 3)"},
 			{"--json", "Output statistics in JSON format", "Emite as estatísticas em formato JSON"},
 		},
 		Examples: []string{
 			"pose stats",
 			"pose stats tasks --since-days 14",
+			"pose stats governance --json",
 		},
 	},
 	"usage": {

@@ -275,8 +275,13 @@ and a stable-field hash. `history-check` prevents untracked history from being
 silently discarded.
 
 `pose stats` aggregates outcomes by workflow, task or context. MCP exposes the
-same domain through `pose_insights`. Reports can be archived by retention
-policy, but historical JSONL is preserved as the recurrence source.
+same domain through `pose_insights`. `pose stats governance` is a separate
+read-only projection over report history, sealed review bundles and
+attestations: preparation, judgment, intervention, freshness, telemetry and
+coverage remain independent dimensions, with no aggregate quality score. MCP
+exposes that contract through `pose_governance_stats`; missing or invalid
+records remain visible rather than becoming zero. Reports can be archived by
+retention policy, but historical JSONL is preserved as the recurrence source.
 `pose usage` and MCP `pose_usage` read a separate best-effort journal outside
 the worktree. Recognized CLI commands and authorized project-backed MCP calls
 are observed automatically at their execution boundaries; the allowlisted

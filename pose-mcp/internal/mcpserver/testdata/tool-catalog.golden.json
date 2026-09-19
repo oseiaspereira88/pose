@@ -79,6 +79,9 @@
     "pose_get_workflow": {
       "risk": "read"
     },
+    "pose_governance_stats": {
+      "risk": "read"
+    },
     "pose_insights": {
       "risk": "read"
     },
@@ -635,6 +638,37 @@
         "type": "object"
       },
       "name": "pose_insights"
+    },
+    {
+      "description": "Project local governance outcomes from report history, sealed review bundles and attestations. Returns separate preparation, judgment, intervention, freshness and coverage dimensions without a quality score, identity or network access.",
+      "inputSchema": {
+        "properties": {
+          "maturity_days": {
+            "default": 30,
+            "description": "Reserved maturity window for future remediation projections",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "min_sample": {
+            "default": 3,
+            "description": "Reserved minimum sample for future effectiveness projections",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "since_days": {
+            "default": 0,
+            "description": "Optional rolling window in days; zero includes all history",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_governance_stats"
     },
     {
       "description": "Aggregate privacy-bounded local POSE tool usage and outcome events. Shows which CLI/MCP tools are used, gate value signals, finding lifecycle and latency; never returns command arguments, paths, output, source content or identities.",

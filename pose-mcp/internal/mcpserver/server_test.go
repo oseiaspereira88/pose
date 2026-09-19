@@ -150,8 +150,8 @@ func TestToolsList(t *testing.T) {
 	ts := newTestServer(t, "")
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}`)
 	tools, _ := out.Result["tools"].([]any)
-	if len(tools) != 50 {
-		t.Fatalf("tools = %d, want 50", len(tools))
+	if len(tools) != 51 {
+		t.Fatalf("tools = %d, want 51", len(tools))
 	}
 	names := map[string]bool{}
 	for _, raw := range tools {
@@ -163,7 +163,7 @@ func TestToolsList(t *testing.T) {
 	}
 	for _, want := range []string{"pose_get_spec", "pose_list_specs", "pose_spec_readiness",
 		"pose_list_roadmaps", "pose_get_roadmap", "pose_get_changelog", "pose_release_status", "pose_closeout_state", "pose_review_plan", "pose_review_bundle", "pose_delivery_integrity",
-		"pose_suggest", "pose_get_workflow", "pose_get_rules", "pose_insights", "pose_usage", "pose_get_followups", "pose_check",
+		"pose_suggest", "pose_get_workflow", "pose_get_rules", "pose_insights", "pose_governance_stats", "pose_usage", "pose_get_followups", "pose_check",
 		"pose_lint_spec", "pose_list_knowledge", "pose_get_knowledge", "pose_list_reports",
 		"pose_get_report"} {
 		if !names[want] {
@@ -276,6 +276,21 @@ func TestToolsCall_InsightsRejectsInvalidInputs(t *testing.T) {
 		if out.Error != nil || out.Result["isError"] != true {
 			t.Fatalf("invalid arguments %s did not fail closed: error=%+v result=%v", arguments, out.Error, out.Result)
 		}
+	}
+}
+
+func TestToolsCall_GovernanceStats(t *testing.T) {
+	ts := newTestServer(t, "")
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":33,"method":"tools/call","params":{"name":"pose_governance_stats","arguments":{"since_days":0}}}`)
+	if out.Error != nil || out.Result["isError"] != false {
+		t.Fatalf("governance stats failed: error=%+v result=%v", out.Error, out.Result)
+	}
+	structured, _ := out.Result["structuredContent"].(map[string]any)
+	if structured["schema_version"] != float64(pose.GovernanceOutcomesSchemaVersion) {
+		t.Fatalf("unexpected governance schema: %v", structured)
+	}
+	if _, ok := structured["coverage"]; !ok {
+		t.Fatalf("governance report missing coverage: %v", structured)
 	}
 }
 

@@ -1124,6 +1124,22 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_insights: invalid arguments")
 		}
 		return store.Insights(a.GroupBy, a.SinceDays)
+	case "pose_governance_stats":
+		var a struct {
+			SinceDays    int `json:"since_days"`
+			MaturityDays int `json:"maturity_days"`
+			MinSample    int `json:"min_sample"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_governance_stats: invalid arguments")
+		}
+		report, err := store.GovernanceOutcomes(pose.GovernanceOutcomesQuery{
+			SinceDays: a.SinceDays, MaturityDays: a.MaturityDays, MinSample: a.MinSample,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("pose_governance_stats: %w", err)
+		}
+		return report, nil
 	case "pose_usage":
 		var a struct {
 			SinceDays *int   `json:"since_days"`
@@ -2159,6 +2175,38 @@ func toolDefinitions() []map[string]any {
 						"minimum":     0,
 						"default":     0,
 						"description": "Optional rolling window in days; zero includes all history",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+			},
+		},
+		{
+			"name": "pose_governance_stats",
+			"description": "Project local governance outcomes from report history, sealed review bundles and attestations. " +
+				"Returns separate preparation, judgment, intervention, freshness and coverage dimensions without a quality score, identity or network access.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"since_days": map[string]any{
+						"type":        "integer",
+						"minimum":     0,
+						"default":     0,
+						"description": "Optional rolling window in days; zero includes all history",
+					},
+					"maturity_days": map[string]any{
+						"type":        "integer",
+						"minimum":     0,
+						"default":     30,
+						"description": "Reserved maturity window for future remediation projections",
+					},
+					"min_sample": map[string]any{
+						"type":        "integer",
+						"minimum":     0,
+						"default":     3,
+						"description": "Reserved minimum sample for future effectiveness projections",
 					},
 					"project_id": map[string]any{
 						"type":        "string",

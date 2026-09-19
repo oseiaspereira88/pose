@@ -176,6 +176,9 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 type statRow = posepkg.InsightRow
 
 func cmdStats(root string, args []string, stdout, stderr io.Writer) int {
+	if len(args) > 0 && args[0] == "governance" {
+		return cmdGovernanceStats(root, args[1:], stdout, stderr)
+	}
 	by, since, jsonOut, htmlOut, out := "workflow", 0, false, false, ""
 	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
 		switch args[0] {

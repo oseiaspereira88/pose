@@ -1,14 +1,14 @@
 # Integration Assessment: pose-dist
 
 > **Gerado por**: POSE Integration Engine (`pose assess integrate`)
-> **Data de Avaliação**: 2026-09-19T05:49:00Z
-> **Baseline Commit**: e777dc7d8057
+> **Data de Avaliação**: 2026-09-19T06:39:46Z
+> **Baseline Commit**: 045b6a8244a2
 
 ## 1. Resumo Executivo
 
-- **Total de Contratos Observados**: 53
+- **Total de Contratos Observados**: 54
 - **Contratos com Provedor e Consumidor**: 1
-- **Gaps de Integração**: 52
+- **Gaps de Integração**: 53
 
 ## 2. Matriz de Contratos
 
@@ -38,6 +38,7 @@
 | MCP tool pose_get_spec | `mcp` | `pose-mcp` | `mcp-enforce` | `active` |
 | MCP tool pose_get_tech_debt_report | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_get_workflow | `mcp` | `pose-mcp` | `unobserved` | `gap` |
+| MCP tool pose_governance_stats | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_insights | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_integration_check | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_lint_spec | `mcp` | `pose-mcp` | `unobserved` | `gap` |
@@ -203,6 +204,12 @@
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
 ### [GAP-6e11b88a] No consumer observed for MCP tool pose_get_workflow
+- **Severidade**: medium
+- **Provedor**: `pose-mcp`
+- **Consumidor**: `unobserved`
+- **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
+
+### [GAP-f9a968d0] No consumer observed for MCP tool pose_governance_stats
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`

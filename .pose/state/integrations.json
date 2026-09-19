@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "evaluated_at": "2026-09-19T05:49:00Z",
-  "baseline_commit": "e777dc7d8057",
+  "evaluated_at": "2026-09-19T06:39:46Z",
+  "baseline_commit": "045b6a8244a2",
   "summary": {
-    "total_integrations": 53,
+    "total_integrations": 54,
     "active_contracts": 1,
-    "identified_gaps": 52
+    "identified_gaps": 53
   },
   "contracts": [
     {
@@ -171,6 +171,13 @@
     },
     {
       "name": "MCP tool pose_get_workflow",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_governance_stats",
       "protocol": "mcp",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -560,6 +567,14 @@
     {
       "gap_id": "GAP-6e11b88a",
       "title": "No consumer observed for MCP tool pose_get_workflow",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-f9a968d0",
+      "title": "No consumer observed for MCP tool pose_governance_stats",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",
