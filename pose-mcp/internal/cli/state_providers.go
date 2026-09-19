@@ -116,7 +116,14 @@ func provideFollowups(root string) string {
 		limit = limit[:10]
 	}
 	for _, f := range limit {
-		lines = append(lines, fmt.Sprintf("  - spec:%s (owner:%s review:%s)", f.Spec, f.Owner, f.Review))
+		origin := "spec:" + f.Spec
+		if path, ok := strings.CutPrefix(f.Spec, "docs:"); ok {
+			origin = "doc:" + path
+		} else if strings.HasPrefix(f.Spec, "capability:") {
+			// Capability origins are labels, not spec or component pointers.
+			origin = f.Spec
+		}
+		lines = append(lines, fmt.Sprintf("  - %s (owner:%s review:%s)", origin, f.Owner, f.Review))
 	}
 	if len(overdue) > 10 {
 		lines = append(lines, fmt.Sprintf("  - ... e mais %d vencidos (ver `pose followups --open`)", len(overdue)-10))

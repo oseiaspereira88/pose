@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -148,6 +149,21 @@ func TestCollectDocsReviewFollowups_UsesEntryOwnerAndAppearsInAggregate(t *testi
 	}
 	if entries[0].Spec != "docs:docs/a.md" {
 		t.Fatalf("unexpected origin: %q", entries[0].Spec)
+	}
+	body := provideFollowups(root)
+	if !strings.Contains(body, "doc:docs/a.md") || strings.Contains(body, "spec:docs:") {
+		t.Fatalf("state must preserve the document origin: %s", body)
+	}
+	store := pose.Store{Root: root}
+	writeStateTestFile(t, root, "docs/a.md", "# Document\n")
+	if ok, reason := store.ResolvePointer("doc:docs/a.md"); !ok {
+		t.Fatalf("rendered document pointer must resolve: %s", reason)
+	}
+	if err := os.Remove(filepath.Join(root, "docs", "a.md")); err != nil {
+		t.Fatal(err)
+	}
+	if ok, _ := store.ResolvePointer("doc:docs/a.md"); ok {
+		t.Fatal("missing document must remain a broken pointer")
 	}
 }
 
