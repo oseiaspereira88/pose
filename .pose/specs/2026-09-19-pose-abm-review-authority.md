@@ -93,6 +93,13 @@ reclassifica histórico.
 - modified: .pose/assessments/consolidated.md
 - modified: .pose/assessments/pose-mcp.md
 - modified: .pose/state/components/pose-mcp.json
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/spec-graph.json
+- modified: .pose/results/delivery-validation.json
+- created: .pose/reports/2026-09-19-standard-validate-native.md
+- modified: .pose/reports/history/standard-validate-native.jsonl
+- modified: .pose/assessments/integrations.md
+- modified: .pose/state/integrations.json
 
 ### Delivery targets
 Capability planejada: `governance:verified-review-authority`. O profile/producer
@@ -125,6 +132,7 @@ novos bundles, sem reescrever attestations históricas.
 - [x] Validar principal/papel/executions e grants humanos.
 - [x] Adicionar corpus negativo e positivo de assinatura, replay e downgrade.
 - [x] Atualizar schemas e documentação do contrato.
+- [x] Selar o subject e registrar atestação julgada para o bundle atual.
 - [ ] Registrar delivery profile/producer quando a capacidade for publicada.
 - [ ] Executar review independente e closeout governado da spec.
 
@@ -180,11 +188,16 @@ HTTP test servers enabled; `go vet ./...`, `go build ./...`, and the focused
 authority corpus passed. `go generate ./internal/scaffold` synchronized the
 embedded manuals before the scaffold tests.
 
+2026-09-19: `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json --report` passed with 6/6 checks; `pose assess integrate` recorded 53 contracts and 52 pre-existing unobserved-consumer gaps in the repository MCP surface; `pose index` regenerated the indexes. Bundle `rvb-f9bcd6e8d3627d8d` was sealed and attestation `rva-87419d392417ace2` passed `pose review verify` under `same-actor-separate-execution`.
+
+2026-09-19: `pose close` was attempted and correctly refused because the three implementation paths change a delivery root without a registered delivery profile/producer. No target was fabricated; integrated publication and final closeout remain explicit follow-ups.
+
 ### Requirement trace
 
 Implementation evidence is recorded in the authority test corpus and the full
-module matrix. Review bundle and delivery-target evidence remain pending until
-the commit and governed closeout are recorded.
+module matrix. Review evidence is sealed in `rvb-f9bcd6e8d3627d8d` and attested
+by `rva-87419d392417ace2`; delivery-target evidence remains pending because the
+corresponding profile/producer has not been registered.
 
 ## 7. Final Report
 
@@ -193,8 +206,9 @@ the commit and governed closeout are recorded.
 The Store now distinguishes declared from verified assurance, validates signed
 claims against the sealed bundle and project policy, and rejects forged,
 replayed, expired, mismatched or insufficiently authorised claims. Schemas,
-manuals and embedded scaffold are synchronized. No policy adoption is claimed
-by this spec.
+manuals and embedded scaffold are synchronized. The implementation subject has
+a fresh sealed bundle and an approved same-actor-separate-execution attestation.
+No policy adoption or composed delivery target is claimed by this spec.
 
 ### Residual risks
 
@@ -205,4 +219,6 @@ Harne8 issuer integration is intentionally a later scope.
 ### Follow-ups
 
 Harne8 should later provide the issuer adapter and protected policy projection;
-that work is separate from this offline engine increment.
+the POSE distribution should also register the
+`governance:verified-review-authority` profile/producer before this spec is
+closed. Those are separate from this offline engine increment.
