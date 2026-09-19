@@ -190,7 +190,7 @@ reconstruível pelo subject selado.
 ### Validation
 - [x] Rodar focused tests, suíte Go, vet, build e `pose validate --strict`.
 - [x] Reconciliar assessments/evidência e executar `artifact-check`.
-- [ ] Selar bundle, registrar julgamento explícito e verificar review.
+- [x] Selar bundle, registrar julgamento explícito e verificar review.
 
 ## 5. Decisions
 
@@ -248,9 +248,11 @@ focused tests, full Go suite, vet, build and strict module validation passed.
 `pose assess integrate` observed 55 contracts (1 active, 54 unobserved
 consumers) and `pose assess tech-debt` found zero uncovered markers. The final
 governance delivery target was then indexed and strict validation persisted a
-current six-check result with scope provenance for this spec. The final review
-bundle/attestation remains pending until explicit review judgment; a dedicated
-profile and Harne8 composition pilot remain follow-up work.
+current six-check result with scope provenance for this spec. The sealed review
+bundle `rvb-e6dd3404f95ccf63` received attestation
+`rva-bc7e30e6586ff1b0`; `pose review verify` reported `fresh=true` and
+`approved=true`. Closeout remains intentionally in progress because the
+dedicated profile and Harne8 composition pilot remain follow-up work.
 
 ### Requirement trace
 - R1: satisfied by `pose-mcp/internal/pose/design_delta.go`, CLI/MCP surfaces,
