@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-governance-outcomes
-status: in-progress
+status: done
 created_at: 2026-09-19
-completed_at:
+completed_at: 2026-09-19
 supersedes:
 depends_on: pose-abm-review-soundness
 priority: 1
