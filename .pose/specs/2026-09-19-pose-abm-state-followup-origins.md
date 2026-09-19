@@ -5,6 +5,7 @@ created_at: 2026-09-19
 completed_at:
 components: pose-mcp
 task_type: bugfix
+delivers: surface:state-followup-origins
 ---
 
 # Spec: Preserve follow-up origins in project state
@@ -39,6 +40,9 @@ policy changes or metadata discovery writes. Consulted
 knowledge:module-metadata-discovery-invalidates-review-provenance to avoid
 unrelated index refresh invalidating reviews. Revert the isolated fix to roll back.
 
+### Delivery targets
+- surface:state-followup-origins module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
 ## 4. Tasks
 
 - [x] Reproduce failure in Harne8 and identify the producer.
@@ -60,6 +64,11 @@ after removing a referenced document. Run `go test ./...`, `go vet ./...`, and
 `go build ./...`; regenerate Harne8 state using the built binary and compare
 diagnostics. No release or rollout claim follows from this local verification.
 
+### Requirement trace
+- R1 [satisfied] <document origin rendering and resolution regression> evidence:unit
+- R2 [satisfied] <state tests preserve spec references; direct review confirms capability labels are not promoted to pointers> evidence:unit
+- R3 [satisfied] <missing-document rejection regression and Harne8 native state refresh verified> evidence:unit
+
 ## 7. Final Report
 
 2026-09-19: `go test ./... -count=1`, vet and build passed. Native
@@ -71,3 +80,7 @@ before checking existence and removing it afterward made the regression explicit
 
 Implementation verified locally; governed review/closeout still pending. No
 release installation or full instance-health claim.
+
+### Follow-ups
+None within this bounded producer fix. Harne8 adoption and broader diagnostics
+remain requirements of its existing instance-health spec, not claims of this delivery.
