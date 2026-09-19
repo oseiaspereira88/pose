@@ -1,12 +1,14 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-19T02:50:50Z",
+  "generated_at": "2026-09-19T04:07:01Z",
   "mode": "strict",
-  "git_head": "6bfb1e026e69b349f2891d5826f61658c6626f02",
+  "module_filter": "pose-mcp",
+  "git_head": "f7ccfcd2bb75c1da5386ef865af3bef12f1358c9",
   "matrix_sha256": "sha256:930a7528a12601c2d69e7c88c563abb660e2424b9b869b7594361c83a68742e3",
-  "provenance_digest": "sha256:f1f5edeb022012803698dd7a5736f8bf039d03eff57666434b938d0927917512",
+  "provenance_digest": "sha256:da08262b0b8bbc4a8de8118508f1beae19936ff6fbe705303eac047ba239ce92",
   "scope_provenance": {
-    "pose-abm-review-soundness": "sha256:61f5fc94f6ce32a88ac111a8e992bcc9c8513a4a55cb829e493c20decb64ad1c",
+    "pose-abm-review-authority": "sha256:307582b46f663460e381021b42adce4fa1813a8bc6bc43dcba8f298736b1bb2a",
+    "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
     "pose-abm-subject-evidence": "sha256:1feb87e54e187b288c7c15a87fe2e90969bff2498aa7a4ef79018fbf7ede7c9b",
     "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
     "pose-actions-node24-bump": "sha256:46e460165318312ffdb8e879cae577d1eb521e7fb08bb5658820aca8432468df",
@@ -33,7 +35,7 @@
     "pose-compat-gate-candidate-integrity": "sha256:a6c0467e7931f657a2f8045dd2462d8a5b80dd26dc04fde6b82354f35f2ca775",
     "pose-compat-gate-manual-refresh-assertion": "sha256:7e910980af6d474672943c5e6fd6fda8cc2951025a04e119a03e53f3f34d4da2",
     "pose-compat-gate-pose-md-preservation": "sha256:045f1c609cc96c1b45b92caa7e0907e69523800800608e778ab525d6d650fe13",
-    "pose-component-aware-review-plans": "sha256:bfec8f3dbd347fe1d5bc4d2fb87bdbd3804719402492445275bad1fb0b10f169",
+    "pose-component-aware-review-plans": "sha256:2d11b606d7bc3f48f868e6c1f0c9966c3e04403af0dbb6af9844382d0b238c48",
     "pose-component-evidence-is-not-inherited-upward": "sha256:b050f9e4e6596d59b607346ab28301e4d56713b0a9961e8cfc335eb5d26414cd",
     "pose-composition-contract": "sha256:e44ff291ef4a365202e41ac06140a3f317fb378d201c01d55e3e2a54a2b891ff",
     "pose-container-build-gate": "sha256:8d89bb22e0dc6435611cc20cb3dd7a5b9cbec1f0dfd74bd88445128d2de31761",
@@ -176,60 +178,14 @@
   },
   "outcome": "pass",
   "counts": {
-    "executed": 9,
-    "passed": 9,
+    "executed": 6,
+    "passed": 6,
     "failed": 0,
     "optional_failed": 0,
     "errored": 0,
     "skipped": 0
   },
   "checks": [
-    {
-      "id": "mcp-enforce/go/build",
-      "module": "mcp-enforce",
-      "stack": "go",
-      "name": "build",
-      "program": "go",
-      "args": [
-        "build",
-        "./..."
-      ],
-      "severity": "required",
-      "evidence_class": "build",
-      "outcome": "pass",
-      "duration_seconds": 0.379833989
-    },
-    {
-      "id": "mcp-enforce/go/test",
-      "module": "mcp-enforce",
-      "stack": "go",
-      "name": "test",
-      "program": "go",
-      "args": [
-        "test",
-        "./..."
-      ],
-      "severity": "required",
-      "evidence_class": "unit",
-      "outcome": "pass",
-      "duration_seconds": 0.072315816,
-      "output": "ok  \tgithub.com/harne8/mcp-enforce\t(cached)\n?   \tgithub.com/harne8/mcp-enforce/cmd/sidecar\t[no test files]\nok  \tgithub.com/harne8/mcp-enforce/sidecar\t(cached)\n"
-    },
-    {
-      "id": "mcp-enforce/go/vet",
-      "module": "mcp-enforce",
-      "stack": "go",
-      "name": "vet",
-      "program": "go",
-      "args": [
-        "vet",
-        "./..."
-      ],
-      "severity": "optional",
-      "evidence_class": "lint",
-      "outcome": "pass",
-      "duration_seconds": 0.063996341
-    },
     {
       "id": "pose-mcp/go/build",
       "module": "pose-mcp",
@@ -243,7 +199,7 @@
       "severity": "required",
       "evidence_class": "build",
       "outcome": "pass",
-      "duration_seconds": 0.956984088
+      "duration_seconds": 0.838485163
     },
     {
       "id": "pose-mcp/go/test",
@@ -258,8 +214,8 @@
       "severity": "required",
       "evidence_class": "unit",
       "outcome": "pass",
-      "duration_seconds": 14.609124392,
-      "output": "?   \tgithub.com/harne8/pose-mcp/cmd/pose\t[no test files]\n?   \tgithub.com/harne8/pose-mcp/internal/bootstrap\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t12.471s\nok  \tgithub.com/harne8/pose-mcp/internal/cli/cliout\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.306s\nok  \tgithub.com/harne8/pose-mcp/internal/observability\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.607s\nok  \tgithub.com/harne8/pose-mcp/internal/scaffold\t0.180s\nok  \tgithub.com/harne8/pose-mcp/internal/scaffold/distpolicy\t(cached)\n?   \tgithub.com/harne8/pose-mcp/internal/scaffold/gen\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/usage\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/version\t0.020s\n"
+      "duration_seconds": 17.03177192,
+      "output": "?   \tgithub.com/harne8/pose-mcp/cmd/pose\t[no test files]\n?   \tgithub.com/harne8/pose-mcp/internal/bootstrap\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t11.179s\nok  \tgithub.com/harne8/pose-mcp/internal/cli/cliout\t0.004s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.286s\nok  \tgithub.com/harne8/pose-mcp/internal/observability\t0.011s\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.600s\nok  \tgithub.com/harne8/pose-mcp/internal/scaffold\t0.170s\nok  \tgithub.com/harne8/pose-mcp/internal/scaffold/distpolicy\t0.007s\n?   \tgithub.com/harne8/pose-mcp/internal/scaffold/gen\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/usage\t0.015s\nok  \tgithub.com/harne8/pose-mcp/internal/version\t0.026s\n"
     },
     {
       "id": "pose-mcp/go/vet",
@@ -274,7 +230,7 @@
       "severity": "optional",
       "evidence_class": "lint",
       "outcome": "pass",
-      "duration_seconds": 0.719664251
+      "duration_seconds": 2.302367651
     },
     {
       "id": "pose-mcp/go/delivery-integration",
@@ -294,8 +250,8 @@
       "severity": "required",
       "evidence_class": "integration",
       "outcome": "pass",
-      "duration_seconds": 1.07522837,
-      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.012s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.199s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.007s\n"
+      "duration_seconds": 0.930461266,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.010s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.219s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.008s\n"
     },
     {
       "id": "pose-mcp/go/delivery-reachability",
@@ -314,8 +270,8 @@
       "severity": "required",
       "evidence_class": "reachability",
       "outcome": "pass",
-      "duration_seconds": 0.901152027,
-      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.079s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.010s\n"
+      "duration_seconds": 0.696721782,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.070s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.007s\n"
     },
     {
       "id": "pose-mcp/go/review-bundle-convergence",
@@ -335,8 +291,8 @@
       "severity": "required",
       "evidence_class": "integration",
       "outcome": "pass",
-      "duration_seconds": 1.149448523,
-      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.216s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.227s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.016s\n"
+      "duration_seconds": 0.964736784,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.210s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.232s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.016s\n"
     }
   ]
 }

@@ -181,16 +181,17 @@ HTTP test servers enabled; `go vet ./...`, `go build ./...`, and the focused
 authority corpus passed. `go generate ./internal/scaffold` synchronized the
 embedded manuals before the scaffold tests.
 
-2026-09-19: `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json --report` passed with 6/6 checks; `pose assess integrate` recorded 53 contracts and 52 pre-existing unobserved-consumer gaps in the repository MCP surface; `pose index` regenerated the indexes. A first bundle/attestation pair was superseded when this spec's artifact claims were narrowed to implementation-owned paths; the final pair is recorded after that amendment.
+2026-09-19: `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json --report` passed with 6/6 checks; `pose assess integrate` recorded 53 contracts and 52 pre-existing unobserved-consumer gaps in the repository MCP surface; `pose index` regenerated the indexes. A first bundle/attestation pair was superseded when this spec's artifact claims were narrowed to implementation-owned paths; the final pair `rvb-280d9c08d0c2d55a` / `rva-005898d514df9d9f` was sealed and verified after that amendment.
 
 2026-09-19: `pose close` was attempted and correctly refused because the three implementation paths change a delivery root without a registered delivery profile/producer. No target was fabricated; integrated publication and final closeout remain explicit follow-ups.
 
 ### Requirement trace
 
 Implementation evidence is recorded in the authority test corpus and the full
-module matrix. Review evidence is sealed and attested over the final spec
-content; delivery-target evidence remains pending because the corresponding
-profile/producer has not been registered.
+module matrix. Review evidence is sealed in `rvb-280d9c08d0c2d55a` and attested
+by `rva-005898d514df9d9f` over the final spec content; delivery-target evidence
+remains pending because the corresponding profile/producer has not been
+registered.
 
 ## 7. Final Report
 

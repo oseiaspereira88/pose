@@ -14,10 +14,13 @@
 - _Not provided_
 
 ## Files Changed
-- pose/indexes/delivery-integrity.json
-- .pose/indexes/releases.json
+- pose/assessments/integrations.md
+- .pose/indexes/delivery-integrity.json
 - .pose/indexes/spec-graph.json
-- .pose/specs/2026-09-19-pose-abm-review-soundness.md
+- .pose/reports/2026-09-19-standard-validate-native.md
+- .pose/reports/history/standard-validate-native.jsonl
+- .pose/results/delivery-validation.json
+- .pose/state/integrations.json
 
 ## Validation Commands
 - go build ./...
@@ -28,23 +31,23 @@
 - go test ./internal/pose ./internal/cli ./internal/mcpserver -run ReviewBundle|ReviewAttestation|ReviewPlanGroupsRepeatedWarnings|ReviewPlanActionableToolPhases|ToolCatalog -count=1
 
 ## Results
-- - [pass] pose-mcp/go/build (0.7s)
-- - [pass] pose-mcp/go/test (1.0s)
-- - [pass] pose-mcp/go/vet (0.1s)
-- - [pass] pose-mcp/go/delivery-integration (0.8s)
-- - [pass] pose-mcp/go/delivery-reachability (0.6s)
-- - [pass] pose-mcp/go/review-bundle-convergence (0.8s)
+- - [pass] pose-mcp/go/build (0.8s)
+- - [pass] pose-mcp/go/test (17.0s)
+- - [pass] pose-mcp/go/vet (2.3s)
+- - [pass] pose-mcp/go/delivery-integration (0.9s)
+- - [pass] pose-mcp/go/delivery-reachability (0.7s)
+- - [pass] pose-mcp/go/review-bundle-convergence (1.0s)
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-19T01:45:01Z
+- Generated at (UTC): 2026-09-19T04:07:28Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 125
+- Sequence for task/spec: 129
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-15T18:44:36Z
+- Previous execution: 2026-09-19T04:02:58Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
