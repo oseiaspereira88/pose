@@ -181,3 +181,32 @@ func TestABMDesignDeltaBoundsAndUnsafeInputs(t *testing.T) {
 		t.Fatalf("unsafe revision should remain unknown: %+v", unknown)
 	}
 }
+
+// R7 of the structural-delta contract: a class only ships with something that
+// can emit it. `structure` is in the vocabulary, so a registered review tool
+// has to produce it — otherwise a profile could demand a gate only a fabricated
+// disposition can pass, which is what the vocabulary exists to prevent.
+func TestABMStructureEvidenceClassHasARegisteredProducer(t *testing.T) {
+	if !ValidEvidenceClasses["structure"] {
+		t.Fatal("the structure evidence class is expected in the vocabulary")
+	}
+	_, store := reviewBundleFixture(t)
+	plan, err := store.ReviewPlan("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := ""
+	for _, tool := range plan.Tools {
+		for _, class := range tool.EvidenceClasses {
+			if class == "structure" {
+				found = tool.ID
+			}
+		}
+	}
+	if found == "" {
+		t.Fatal("no planned review tool emits the structure class; a profile demanding it would plan an unsatisfiable gate")
+	}
+	if _, known := reviewToolCatalog[found]; !known {
+		t.Fatalf("the producer of the structure class is not in the tool catalog: %s", found)
+	}
+}

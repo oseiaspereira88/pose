@@ -262,22 +262,27 @@ progress because the Harne8 composition pilot remains follow-up work.
 validation matrix and scaffold; strict surface-check reported zero findings.
 
 ### Requirement trace
-- R1: satisfied by `pose-mcp/internal/pose/design_delta.go`, CLI/MCP surfaces,
-  `pose-mcp/internal/pose/design_delta_test.go` and strict validation evidence.
-- R2: satisfied by Go/npm dependency, component, delivery metadata,
-  governance/public contract and lock detectors with runtime classifications.
-- R3: satisfied by detector coverage states and negative unsupported/bounded
-  fixtures.
-- R4: satisfied by stable full/display IDs, content digests and deterministic
-  serialization tests.
-- R5: satisfied by subject-side comparison tests for add/remove/rename and
-  submodule/metadata actions.
-- R6: satisfied by revision/path/symlink/size-bound tests and the read-only
-  implementation contract.
-- R7: satisfied by `structure` vocabulary, `assess-design` catalog/tool,
-  review-bundle producer, golden catalog and subject-evidence verification.
-- R8: satisfied by `input_digest`/`cache_key` derivation and explicit unknown/
-  unsupported output; no persistent cache is written.
+- R1 [satisfied] test:TestABMStructuralDeltaObservesBothSidesAndStableIDs test:TestAssessDesignRequiresSpec evidence:unit
+- R2 [satisfied] test:TestABMStructuralDeltaObservesBothSidesAndStableIDs evidence:unit
+- R3 [satisfied] test:TestABMStructuralDeltaSubjectActionsAndUnsupportedCoverage evidence:unit
+- R4 [satisfied] test:TestABMStructuralDeltaObservesBothSidesAndStableIDs evidence:unit
+- R5 [satisfied] test:TestABMStructuralDeltaSubjectActionsAndUnsupportedCoverage evidence:unit
+- R6 [satisfied] test:TestABMDesignDeltaBoundsAndUnsafeInputs test:TestAssessDesignRejectsUnsafeLimit test:TestAssessDesignRejectsUnknownOption evidence:unit
+- R7 [satisfied] test:TestABMStructureEvidenceClassHasARegisteredProducer evidence:unit
+- R8 [satisfied] test:TestABMStructuralDeltaObservesBothSidesAndStableIDs evidence:unit
+
+A seção usava `- R1: satisfied by …` em vez de um item por R-ID com disposição
+entre colchetes: `lint-spec --strict` contava `entries=0 missing=8 failures=8`,
+ou seja, o parser lia aquelas linhas como entradas malformadas, e a spec não
+fecharia.
+
+### Known gaps
+O ramo de colisão de display ID de R4 não tem teste, e não é testável por
+construção: exigiria dois deltas cujos SHA-256 colidissem nos quatro primeiros
+bytes. O que os testes cobrem de R4 é a identidade completa, o digest de
+conteúdo e a serialização determinística; a detecção de colisão permanece
+revisada por leitura, com o ID completo garantindo unicidade mesmo se o ramo
+falhasse.
 
 ## 7. Final Report
 
