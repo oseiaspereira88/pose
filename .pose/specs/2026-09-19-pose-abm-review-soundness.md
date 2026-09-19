@@ -102,6 +102,19 @@ CLI reference, the review-plan schema and the embedded scaffold.
 - modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/spec-graph.json
+- modified: .pose/results/delivery-validation.json
+- created: .pose/reports/2026-09-19-standard-validate-native.md
+- modified: .pose/reports/history/standard-validate-native.jsonl
+- created: .pose/review-bundles/rvb-8322a4c339433094.json
+- created: .pose/review-bundles/rvb-998ab137871a47b5.json
+
+Files below the scaffold entry are produced by the governed flow itself — indexes, the
+validation result set, the validate report and the sealed bundles this review went
+through. They are declared so `artifact-check` reconciles claims with observed paths
+instead of reporting the engine's own output as undeclared.
 
 ### Delivery targets
 - governance:explicit-judgment module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
