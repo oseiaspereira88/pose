@@ -31,6 +31,8 @@ and capability origins; the renderer incorrectly prefixes every origin with
 - modified: pose-mcp/internal/cli/state_providers.go
 - modified: pose-mcp/internal/cli/docs_review_test.go
 
+### Implementation approach
+
 Use the existing origin discriminator only at the rendering boundary.
 Preserve aggregate follow-up JSON and resolver contracts. No dependencies,
 policy changes or metadata discovery writes. Consulted
