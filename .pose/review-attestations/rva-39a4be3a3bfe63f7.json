@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-39a4be3a3bfe63f7",
+  "bundle_id": "rvb-4e7d522bffbfb395",
+  "bundle_digest": "sha256:4e7d522bffbfb39557e438125ca49db4ffb7cef61f21d28348c14e46a3479c72",
+  "reviewer": "agent:codex",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "CLI/MCP/file contracts remain additive and documented; no existing pose stats or pose_insights contract changed."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "POSE.md, pt-BR manual, docs-site references and embedded scaffold were updated and parity tests passed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "CLI/MCP errors are bounded, machine-readable JSON remains clean, and remediation explains unavailable lineage."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Diff is limited to the governance projection, its tests/docs/scaffold and generated evidence declared by the spec; no delivery target was claimed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Projection is read-only, bounded, offline, skips symlinks, preserves unknown/invalid coverage and does not expose identity/path/source content."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Artifact provenance and declared claims were reconciled."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Integration assessment recorded provider/consumer coverage; unobserved consumers remain explicit."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "check:history-check",
+      "rationale": "History is tracked and append-only."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Strict module validation passed."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The docs-site component has no registered validation producer in the matrix; scaffold/locale tests run under pose-mcp."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Strict pose-mcp matrix validation passed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delivery-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-19T08:19:44Z",
+  "path": ".pose/review-attestations/rva-39a4be3a3bfe63f7.json"
+}
