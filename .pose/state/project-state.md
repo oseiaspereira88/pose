@@ -77,9 +77,15 @@ capacidade.
   - report:2026-09-10-standard-validate-native.md
 
 ## Arquitetura
-<!-- state:derived hash:26bc9a5cafff status:unavailable -->
+<!-- state:derived hash:f2b94b020cfd status:active -->
 
-GraphForge export local ainda não é publicado por nenhum produtor neste repositório; seção indisponível nesta versão (spec pose-project-state-artifact, Não-objetivos e Compatibilidade).
+- componentes: total=1 verificados=1 completude=100.0%
+- linhas_de_codigo: producao=41747 testes=32114 total=73861
+- linguagens: go
+- saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
+- integracoes: contratos=53 ativos=1 gaps=52
+- divida_tecnica: total=0 coberta=0 descoberta=0
+- ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 
 ## Docs
 <!-- state:derived hash:d5892e1cac69 -->

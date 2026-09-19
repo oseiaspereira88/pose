@@ -117,11 +117,13 @@ inferência plausível seja tratada como fato, mantendo specs legadas válidas.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/README.md
 - modified: .pose/assessments/integrations.md
 - modified: .pose/assessments/pose-mcp.md
 - modified: .pose/assessments/technical-debt.md
 - modified: .pose/state/components/pose-mcp.json
 - modified: .pose/state/integrations.json
+- modified: .pose/state/project-state.md
 - modified: .pose/state/technical-debt.json
 
 ### Delivery targets
@@ -241,6 +243,11 @@ evidence inacessível; a matriz de Go permanece obrigatória.
 - 2026-09-19: `pose assess integrate --json` reported 53 integrations, 1
   active contract and 52 pre-existing gaps; `pose assess tech-debt --json`
   reported zero TODO/FIXME/panic/stub markers and zero uncovered markers.
+- 2026-09-19: post-implementation discovery with `--update-state` refreshed
+  the consolidated/component/project-state projections at commit `e777dc7`:
+  41,747 production LOC, 32,114 test LOC, 294 files and zero debt markers.
+  The integration recheck remained 53/1/52 and the technical-debt recheck
+  remained zero markers.
 - 2026-09-19: `/tmp/pose-abm-design-basis lint-spec pose-abm-design-basis
   --design-check --strict` passed with one expected dependency-readiness
   warning and a stable design digest.
