@@ -8,7 +8,7 @@ depends_on: pose-abm-review-soundness
 priority: 0
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: governance:verified-review-authority
 ---
 
 # Spec: Autoridade verificável de execução e review
@@ -95,9 +95,13 @@ reclassifica histórico.
 - modified: .pose/state/components/pose-mcp.json
 
 ### Delivery targets
-Capability planejada: `governance:verified-review-authority`. O profile/producer
-correspondente será registrado antes do closeout; esta spec não declara delivery
-composto existente.
+- governance:verified-review-authority module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
+
+A declaração é obrigatória, não opcional: a policy de delivery mapeia
+`pose-mcp/internal/pose` como raiz de entrega, e um escopo que altera essa raiz
+sem declarar um alvo tipado é recusado no closeout com `undeclared-delivery`.
+O alvo é local e de governança; nenhuma capacidade composta do Harne8 é
+declarada aqui.
 
 ### API/contract changes
 `ReviewBundleGates` sela o nível de assurance. `ReviewAuthorityClaim` fica dentro
@@ -127,8 +131,7 @@ novos bundles, sem reescrever attestations históricas.
 - [x] Atualizar schemas e documentação do contrato.
 - [x] Selar o subject e registrar atestação julgada para o bundle atual.
 - [x] Executar review independente e closeout governado da spec.
-- [~] Registrar delivery profile/producer: adiado para a publicação da
-  capacidade, que esta spec não faz. Ver follow-up.
+- [x] Registrar o delivery target de governança e seu producer.
 
 ## 5. Decisions
 
@@ -235,13 +238,10 @@ Harne8 issuer integration is intentionally a later scope.
 
 ### Follow-ups
 
-- [open] Registrar o profile/producer de `governance:verified-review-authority`
-  quando a capacidade for publicada. O texto anterior desta seção dizia que isso
-  deveria acontecer antes do fechamento; a condição foi relaxada deliberadamente,
-  porque `delivers:` está vazio e esta spec entrega um incremento de motor
-  offline, não uma capacidade composta — registrar um producer agora declararia
-  um alvo que ninguém consome (owner:@pose-maintainers crit:medium
-  review:2026-10-19)
+- [open] Compor `governance:verified-review-authority` no Harne8 e provar
+  alcançabilidade ponta a ponta; o alvo declarado aqui é local e de governança,
+  e nenhuma instância adotou `verified` ainda (owner:@pose-maintainers
+  crit:medium review:2026-10-19)
 - [open] Fornecer, no Harne8, o adapter de issuer e a projeção de policy
   protegida que permitem emitir claims de autoridade; sem eles o modo `verified`
   existe no motor e não tem quem o alimente (owner:@harne8-platform crit:medium
