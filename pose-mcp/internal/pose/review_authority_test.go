@@ -272,3 +272,79 @@ func resignAuthorityAttestation(t *testing.T, f authorityFixture, att ReviewAtte
 	}
 	return att
 }
+
+// grantHumanAuthority adds the issuer to the human grant list, so a claim can
+// assert a person without that assertion being the thing under test.
+func grantHumanAuthority(t *testing.T, f authorityFixture) {
+	t.Helper()
+	policyPath := filepath.Join(f.root, ".pose/policy/review.json")
+	raw, err := os.ReadFile(policyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var policy map[string]any
+	if err := json.Unmarshal(raw, &policy); err != nil {
+		t.Fatal(err)
+	}
+	policy["human_authority_issuers"] = []string{f.issuer + "#" + digestBytes(f.public)}
+	encoded, err := json.MarshalIndent(policy, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(policyPath, append(encoded, '\n'), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// resealAfterPolicyChange re-seals the subject, because changing the policy
+// changes the effective plan and the previously sealed bundle stops
+// representing the current inputs — which is the staleness rule working, not a
+// fixture problem.
+func resealAfterPolicyChange(t *testing.T, f *authorityFixture) {
+	t.Helper()
+	bundle, err := f.store.SealReviewBundle("spec:backend", f.now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.bundle = bundle
+}
+
+// The enum is ordered — same-actor-separate-execution, different-actor,
+// mandatory-human — and the checks have to be ordered with it. This asserted
+// only the role, so the strongest value verified less separation than the one
+// below it: one human, implementing and reviewing in a single run, satisfied
+// `mandatory-human` while `different-actor` refused exactly that
+// (spec pose-abm-review-authority R5).
+func TestABMReviewAuthorityMandatoryHumanKeepsDifferentActorSeparation(t *testing.T) {
+	f := verifiedAuthorityFixture(t, "mandatory-human")
+	grantHumanAuthority(t, f)
+	resealAfterPolicyChange(t, &f)
+
+	same := f.attestation(t, "human:reviewer", "human:reviewer", "one-run", "one-run")
+	same.Authority.Role = "human"
+	same = resignAuthorityAttestation(t, f, same)
+	verification := verifyAuthorityAttestation(t, f, same)
+	if verification.Approved {
+		t.Fatal("one human implementing and reviewing in one run must not satisfy mandatory-human")
+	}
+	if !containsSubstring(verification.Blockers, "same principal implemented and reviewed") {
+		t.Fatalf("the refusal must name the separation that failed: %v", verification.Blockers)
+	}
+
+	// A separate execution alone is still the same actor, which is what the
+	// value below this one already refuses.
+	separateRun := f.attestation(t, "human:reviewer", "human:reviewer", "review-run-2", "implementation-run-1")
+	separateRun.Authority.Role = "human"
+	separateRun = resignAuthorityAttestation(t, f, separateRun)
+	if blockers := f.store.validateBundleAttestation(f.bundle, separateRun); !containsSubstring(blockers, "same principal implemented and reviewed") {
+		t.Fatalf("a separate run by the same human must still be refused: %v", blockers)
+	}
+
+	// And a human reviewing another principal's work, in another run, passes.
+	valid := f.attestation(t, "human:reviewer", "agent:implementer", "review-run-2", "implementation-run-1")
+	valid.Authority.Role = "human"
+	valid = resignAuthorityAttestation(t, f, valid)
+	if blockers := f.store.validateBundleAttestation(f.bundle, valid); len(blockers) != 0 {
+		t.Fatalf("a granted human reviewing another actor's run must pass: %v", blockers)
+	}
+}

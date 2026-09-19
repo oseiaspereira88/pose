@@ -181,17 +181,38 @@ HTTP test servers enabled; `go vet ./...`, `go build ./...`, and the focused
 authority corpus passed. `go generate ./internal/scaffold` synchronized the
 embedded manuals before the scaffold tests.
 
+2026-09-19, revisão: `mandatory-human` verificava menos separação que
+`different-actor`. Sob `verified` ele só checava `claim.Role`, então um mesmo
+principal humano implementando e revisando na mesma execução o satisfazia,
+enquanto o valor abaixo dele na ordenação recusava exatamente isso — o `rank`
+de `review_plan.go` declara 1 < 2 < 3 e a verificação não seguia essa ordem.
+Sob `declared` a inconsistência era inócua, porque nada ali era verificado.
+`mandatory-human` passou a compor as checagens de `different-actor` e acrescentar
+o papel; `TestABMReviewAuthorityMandatoryHumanKeepsDifferentActorSeparation`
+cobre o caso de um humano só, o de execuções separadas com o mesmo principal, e
+o positivo. O requirement trace também foi reescrito: era prosa, contava
+`entries=0 missing=7` e a spec não fecharia.
+
 2026-09-19: `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json --report` passed with 6/6 checks; `pose assess integrate` recorded 53 contracts and 52 pre-existing unobserved-consumer gaps in the repository MCP surface; `pose index` regenerated the indexes. A first bundle/attestation pair was superseded when this spec's artifact claims were narrowed to implementation-owned paths; the final pair `rvb-280d9c08d0c2d55a` / `rva-005898d514df9d9f` was sealed and verified after that amendment.
 
 2026-09-19: `pose close` was attempted and correctly refused because the three implementation paths change a delivery root without a registered delivery profile/producer. No target was fabricated; integrated publication and final closeout remain explicit follow-ups.
 
 ### Requirement trace
+- R1 [satisfied] test:TestABMReviewAuthorityValid test:TestABMReviewAuthorityMissingClaim evidence:unit
+- R2 [satisfied] test:TestABMReviewAuthorityValid test:TestABMReviewAuthorityPrincipalMustMatchReviewer evidence:unit
+- R3 [satisfied] test:TestABMReviewAuthorityValid test:TestABMReviewAuthorityRejectsKeyRotationWithoutNewPin evidence:unit
+- R4 [satisfied] test:TestABMReviewAuthorityRejectsReplayAndExpiry test:TestABMReviewAuthorityRejectsKeyRotationWithoutNewPin test:TestABMReviewAuthorityHumanRoleNeedsGrant evidence:unit
+- R5 [satisfied] test:TestABMReviewAuthorityRejectsSameActor test:TestABMReviewAuthorityRejectsSameExecution test:TestABMReviewAuthorityMandatoryHumanKeepsDifferentActorSeparation evidence:unit
+- R6 [satisfied] test:TestABMReviewAuthorityPrincipalMustMatchReviewer evidence:unit
+- R7 [satisfied] test:TestABMReviewAuthorityPolicyRejectsUnknownAndIncompleteVerifiedConfig evidence:unit
 
-Implementation evidence is recorded in the authority test corpus and the full
-module matrix. Review evidence is sealed in `rvb-280d9c08d0c2d55a` and attested
-by `rva-005898d514df9d9f` over the final spec content; delivery-target evidence
-remains pending because the corresponding profile/producer has not been
-registered.
+A seção era prosa e não declarava um item por R-ID: `lint-spec --strict` contava
+`entries=0 missing=7`, e a spec não fecharia. A prosa anterior continua abaixo
+porque descreve o que os refs acima não dizem.
+
+Evidência de review selada em `rvb-280d9c08d0c2d55a`, atestada por
+`rva-005898d514df9d9f`. Evidência de delivery target permanece pendente porque o
+profile/producer correspondente não foi registrado.
 
 ## 7. Final Report
 

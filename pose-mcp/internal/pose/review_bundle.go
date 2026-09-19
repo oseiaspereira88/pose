@@ -2867,6 +2867,15 @@ func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestat
 	default:
 		blockers = append(blockers, "the authority claim names an unknown role "+claim.Role)
 	}
+	// The three values are ordered, and the checks have to be ordered with them.
+	//
+	// `mandatory-human` used to assert only the role, so the strongest value in
+	// the enum verified *less* separation than the one below it: the same human
+	// principal could implement and review in one run and satisfy it, while
+	// `different-actor` refused exactly that. Under `declared` the inconsistency
+	// was moot, since nothing was verified either way. Under `verified` it was a
+	// hole, because there the engine does claim to have checked separation
+	// (spec pose-abm-review-authority).
 	switch bundle.Payload.Plan.Independence {
 	case "same-actor-separate-execution":
 		if claim.ImplementationPrincipal == "" || claim.ImplementationExecution == "" {
@@ -2876,7 +2885,7 @@ func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestat
 		} else if claim.ReviewExecution == claim.ImplementationExecution {
 			blockers = append(blockers, "review policy requires a separate execution and the claim names the implementation's own run")
 		}
-	case "different-actor":
+	case "different-actor", "mandatory-human":
 		if claim.ImplementationPrincipal == "" || claim.ImplementationExecution == "" {
 			blockers = append(blockers, "review policy requires a different actor and the claim does not say who implemented")
 		} else if claim.Principal == claim.ImplementationPrincipal {
@@ -2884,8 +2893,7 @@ func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestat
 		} else if claim.ReviewExecution == claim.ImplementationExecution {
 			blockers = append(blockers, "review policy requires a separate review execution and the claim names the implementation's own run")
 		}
-	case "mandatory-human":
-		if claim.Role != "human" {
+		if bundle.Payload.Plan.Independence == "mandatory-human" && claim.Role != "human" {
 			blockers = append(blockers, "review policy requires human approval and the claim asserts role "+claim.Role)
 		}
 	}
