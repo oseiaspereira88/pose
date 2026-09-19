@@ -16,33 +16,19 @@
 ## Files Changed
 - pose/assessments/README.md
 - .pose/assessments/consolidated.md
+- .pose/assessments/integrations.md
 - .pose/assessments/pose-mcp.md
+- .pose/assessments/technical-debt.md
+- .pose/indexes/delivery-integrity.json
+- .pose/indexes/spec-graph.json
 - .pose/reports/2026-09-19-standard-validate-native.md
 - .pose/reports/history/standard-validate-native.jsonl
+- .pose/results/delivery-validation.json
 - .pose/state/components/pose-mcp.json
-- POSE.md
-- docs-site/docs/cli.md
-- docs-site/docs/mcp.md
-- locales/pt-BR/POSE.md
-- pose-mcp/internal/cli/assess.go
-- pose-mcp/internal/cli/help_catalog.go
-- pose-mcp/internal/mcpserver/catalog.go
-- pose-mcp/internal/mcpserver/server.go
-- pose-mcp/internal/mcpserver/server_test.go
-- pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
-- pose-mcp/internal/pose/delivery_surface.go
-- pose-mcp/internal/pose/review_bundle.go
-- pose-mcp/internal/pose/review_bundle_test.go
-- pose-mcp/internal/pose/review_plan.go
-- pose-mcp/internal/pose/subject_evidence_test.go
-- pose-mcp/internal/scaffold/dist/POSE.md
-- pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
-- .pose/adr/2026-09-19-structural-delta-is-a-bounded-observation.md
-- .pose/specs/2026-09-19-pose-abm-structural-delta.md
-- pose-mcp/internal/cli/design_delta.go
-- pose-mcp/internal/cli/design_delta_test.go
-- pose-mcp/internal/pose/design_delta.go
-- pose-mcp/internal/pose/design_delta_test.go
+- .pose/state/integrations.json
+- .pose/state/project-state.md
+- .pose/state/technical-debt.json
+- .pose/review-bundles/rvb-76391dd65e849204.json
 
 ## Validation Commands
 - go build ./...
@@ -54,22 +40,22 @@
 
 ## Results
 - - [pass] pose-mcp/go/build (1.3s)
-- - [pass] pose-mcp/go/test (16.6s)
-- - [pass] pose-mcp/go/vet (0.1s)
-- - [pass] pose-mcp/go/delivery-integration (1.0s)
-- - [pass] pose-mcp/go/delivery-reachability (0.8s)
-- - [pass] pose-mcp/go/review-bundle-convergence (1.1s)
+- - [pass] pose-mcp/go/test (1.4s)
+- - [pass] pose-mcp/go/vet (0.2s)
+- - [pass] pose-mcp/go/delivery-integration (1.2s)
+- - [pass] pose-mcp/go/delivery-reachability (0.9s)
+- - [pass] pose-mcp/go/review-bundle-convergence (1.0s)
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-19T12:51:09Z
+- Generated at (UTC): 2026-09-19T14:54:46Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 136
+- Sequence for task/spec: 138
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-19T09:14:37Z
+- Previous execution: 2026-09-19T13:57:40Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

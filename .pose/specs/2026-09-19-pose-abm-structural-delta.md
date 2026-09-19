@@ -135,8 +135,11 @@ de uma solução overengineered passar apenas porque seus testes estão verdes.
 - modified: .pose/state/technical-debt.json
 - modified: .pose/reports/2026-09-19-standard-validate-native.md
 - modified: .pose/reports/history/standard-validate-native.jsonl
+- modified: .pose/results/delivery-validation.json
 - modified: .pose/state/components/pose-mcp.json
+- modified: .pose/state/project-state.md
 - modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/spec-graph.json
 - modified: .pose/assessments/README.md
 - modified: .pose/assessments/consolidated.md
 - modified: .pose/assessments/pose-mcp.md
@@ -244,8 +247,10 @@ CLI/MCP read-only surfaces, `structure` producer and semantic subject binding;
 focused tests, full Go suite, vet, build and strict module validation passed.
 `pose assess integrate` observed 55 contracts (1 active, 54 unobserved
 consumers) and `pose assess tech-debt` found zero uncovered markers. The final
-review bundle/attestation remains pending until explicit review judgment and
-the typed delivery-profile follow-up are completed.
+governance delivery target was then indexed and strict validation persisted a
+current six-check result with scope provenance for this spec. The final review
+bundle/attestation remains pending until explicit review judgment; a dedicated
+profile and Harne8 composition pilot remain follow-up work.
 
 ### Requirement trace
 - R1: satisfied by `pose-mcp/internal/pose/design_delta.go`, CLI/MCP surfaces,

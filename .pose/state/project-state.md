@@ -77,13 +77,13 @@ capacidade.
   - report:2026-09-10-standard-validate-native.md
 
 ## Arquitetura
-<!-- state:derived hash:f2b94b020cfd status:active -->
+<!-- state:derived hash:e3e057e6ebe0 status:active -->
 
 - componentes: total=1 verificados=1 completude=100.0%
-- linhas_de_codigo: producao=41747 testes=32114 total=73861
+- linhas_de_codigo: producao=43281 testes=32532 total=75813
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
-- integracoes: contratos=53 ativos=1 gaps=52
+- integracoes: contratos=55 ativos=1 gaps=54
 - divida_tecnica: total=0 coberta=0 descoberta=0
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 

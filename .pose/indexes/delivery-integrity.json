@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:45f6f2f6327b709cff40296b07037667efc76c043a5998e27647e31e608f6dbc",
-  "provenance_digest": "sha256:7ee7f698c43fffb369b4c5dfec2847d425b53da436d12a888415f63fa968fb7b",
+  "input_digest": "sha256:87d32a2c5bfae5d920600cf11be13375370c6211281695b2bf46cc5d51eb29c3",
+  "provenance_digest": "sha256:fe85d398bad50b1919e144152658e2703f7ecf69f2b2d576ba9dc6ddcce14b5e",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -12405,14 +12405,6 @@
       }
     },
     {
-      "id": "change-set:cs-220dc72d81ce",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:6928c71950ecffa244bce56123acd8ecf5fb2eaa34533188adf030ceb241b421",
-        "selector": "trailers:pose-abm-structural-delta"
-      }
-    },
-    {
       "id": "change-set:cs-233670d92d24",
       "type": "change-set",
       "attributes": {
@@ -13242,6 +13234,14 @@
       "attributes": {
         "diff_digest": "sha256:7e20f44ca9690f0ad19816177a53e0bec48530c3fc08facdc06e65d80dcd6452",
         "selector": "range:13689f7..369130a"
+      }
+    },
+    {
+      "id": "change-set:cs-9918ca2ccc3c",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:e0c7a6da4246bab643408aa434aa27e99c7c73496df9e5d01cac3232b67b66ae",
+        "selector": "trailers:pose-abm-structural-delta"
       }
     },
     {
@@ -14797,6 +14797,14 @@
       }
     },
     {
+      "id": "delivery:governance:structural-delta",
+      "type": "governance",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "backend-go"
+      }
+    },
+    {
       "id": "delivery:governance:subject-evidence-identity",
       "type": "governance",
       "attributes": {
@@ -15133,7 +15141,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -15147,7 +15155,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -15161,14 +15169,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -15196,7 +15204,7 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -17356,6 +17364,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/adr/2026-09-19-structural-delta-is-a-bounded-observation.md",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/assessments/README.md",
       "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
@@ -17383,6 +17396,11 @@
     {
       "from": "artifact:.pose/assessments/README.md",
       "to": "delivery:governance:convergent-review-closeout",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/README.md",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -17423,6 +17441,11 @@
     {
       "from": "artifact:.pose/assessments/consolidated.md",
       "to": "delivery:governance:convergent-review-closeout",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/consolidated.md",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -17472,6 +17495,11 @@
     },
     {
       "from": "artifact:.pose/assessments/integrations.md",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/integrations.md",
       "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
@@ -17512,6 +17540,11 @@
     },
     {
       "from": "artifact:.pose/assessments/pose-mcp.md",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/pose-mcp.md",
       "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
@@ -17548,6 +17581,11 @@
     {
       "from": "artifact:.pose/assessments/technical-debt.md",
       "to": "delivery:governance:convergent-review-closeout",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/technical-debt.md",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -17913,6 +17951,11 @@
     {
       "from": "artifact:.pose/indexes/delivery-integrity.json",
       "to": "delivery:governance:explicit-judgment",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/delivery-integrity.json",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -18296,6 +18339,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/reports/2026-09-19-standard-validate-native.md",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/reports/history/standard-pose-dora-five-metrics-v2.jsonl",
       "to": "delivery:surface:dora-five-metrics-v2",
       "type": "implemented-by"
@@ -18368,6 +18416,11 @@
     {
       "from": "artifact:.pose/reports/history/standard-validate-native.jsonl",
       "to": "delivery:governance:explicit-judgment",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/reports/history/standard-validate-native.jsonl",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -18503,6 +18556,11 @@
     {
       "from": "artifact:.pose/specs/2026-09-19-pose-abm-review-soundness.md",
       "to": "delivery:governance:explicit-judgment",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/2026-09-19-pose-abm-structural-delta.md",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -18832,6 +18890,11 @@
     },
     {
       "from": "artifact:.pose/state/components/pose-mcp.json",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/components/pose-mcp.json",
       "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
@@ -18887,6 +18950,11 @@
     },
     {
       "from": "artifact:.pose/state/integrations.json",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/integrations.json",
       "to": "delivery:surface:pose-usage-cli",
       "type": "implemented-by"
     },
@@ -18963,6 +19031,11 @@
     {
       "from": "artifact:.pose/state/technical-debt.json",
       "to": "delivery:governance:convergent-review-closeout",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/technical-debt.json",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -19417,6 +19490,11 @@
     },
     {
       "from": "artifact:POSE.md",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:POSE.md",
       "to": "delivery:governance:subject-evidence-identity",
       "type": "implemented-by"
     },
@@ -19702,6 +19780,11 @@
     },
     {
       "from": "artifact:docs-site/docs/cli.md",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/cli.md",
       "to": "delivery:surface:delivery-integrity-cli",
       "type": "implemented-by"
     },
@@ -19808,6 +19891,11 @@
     {
       "from": "artifact:docs-site/docs/mcp.md",
       "to": "delivery:governance:release-integrity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:docs-site/docs/mcp.md",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -21337,6 +21425,11 @@
     },
     {
       "from": "artifact:locales/pt-BR/POSE.md",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:locales/pt-BR/POSE.md",
       "to": "delivery:governance:subject-evidence-identity",
       "type": "implemented-by"
     },
@@ -21513,6 +21606,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/assess.go",
       "to": "delivery:governance:assessment-engine-precision",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/assess.go",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -21961,6 +22059,16 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/cli/design_delta.go",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/design_delta_test.go",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/cli/discovery_submodule_test.go",
       "to": "delivery:capability:discovery-honours-submodule-gitignore",
       "type": "implemented-by"
@@ -22233,6 +22341,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/help_catalog.go",
       "to": "delivery:governance:cli-output-contract",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/help_catalog.go",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -23527,6 +23640,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/catalog.go",
       "to": "delivery:surface:delivery-integrity-cli",
       "type": "implemented-by"
     },
@@ -23662,6 +23780,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/mcpserver/server.go",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/server.go",
       "to": "delivery:surface:delivery-integrity-cli",
       "type": "implemented-by"
     },
@@ -23747,6 +23870,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/server_test.go",
       "to": "delivery:surface:delivery-integrity-cli",
       "type": "implemented-by"
     },
@@ -23843,6 +23971,11 @@
     {
       "from": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
       "to": "delivery:governance:release-integrity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -23982,6 +24115,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/delivery_surface.go",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/delivery_surface.go",
       "to": "delivery:surface:delivery-integrity-cli",
       "type": "implemented-by"
     },
@@ -24023,6 +24161,16 @@
     {
       "from": "artifact:pose-mcp/internal/pose/delivery_surface_test.go",
       "to": "delivery:surface:review-bundle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/design_delta.go",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/design_delta_test.go",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -24242,6 +24390,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/review_bundle.go",
       "to": "delivery:governance:subject-evidence-identity",
       "type": "implemented-by"
     },
@@ -24313,6 +24466,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/review_bundle_test.go",
       "to": "delivery:governance:explicit-judgment",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/review_bundle_test.go",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -24392,6 +24550,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/review_plan.go",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/review_plan.go",
       "to": "delivery:surface:review-bundle-classification",
       "type": "implemented-by"
     },
@@ -24458,6 +24621,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/spec_test.go",
       "to": "delivery:capability:specs-discovery-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/subject_evidence_test.go",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -25022,6 +25190,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "to": "delivery:governance:structural-delta",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
       "to": "delivery:governance:subject-evidence-identity",
       "type": "implemented-by"
     },
@@ -25393,6 +25566,11 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "to": "delivery:governance:spec-commit-trailer-contract",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "to": "delivery:governance:structural-delta",
       "type": "implemented-by"
     },
     {
@@ -31468,171 +31646,6 @@
     {
       "from": "change-set:cs-21ca73cda14b",
       "to": "artifact:pose-mcp/internal/scaffold/skill_locale_parity_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/adr/2026-09-19-structural-delta-is-a-bounded-observation.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/assessments/README.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/assessments/consolidated.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/assessments/integrations.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/assessments/pose-mcp.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/assessments/technical-debt.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/reports/2026-09-19-standard-validate-native.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/reports/history/standard-validate-native.jsonl",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/specs/2026-09-19-pose-abm-structural-delta.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/state/components/pose-mcp.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/state/integrations.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:.pose/state/technical-debt.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:POSE.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:docs-site/docs/cli.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:docs-site/docs/mcp.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:locales/pt-BR/POSE.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/cli/assess.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/cli/design_delta.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/cli/design_delta_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/cli/help_catalog.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/mcpserver/catalog.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/mcpserver/server.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/mcpserver/server_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/pose/delivery_surface.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/pose/design_delta.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/pose/design_delta_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/pose/review_bundle_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/pose/review_plan.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/pose/subject_evidence_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-220dc72d81ce",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "type": "changes"
     },
     {
@@ -40973,6 +40986,176 @@
     {
       "from": "change-set:cs-98c54f07fd6c",
       "to": "artifact:scripts/release.sh",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/adr/2026-09-19-structural-delta-is-a-bounded-observation.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/assessments/README.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/assessments/consolidated.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/assessments/integrations.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/assessments/pose-mcp.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/assessments/technical-debt.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/reports/2026-09-19-standard-validate-native.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/reports/history/standard-validate-native.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/specs/2026-09-19-pose-abm-structural-delta.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/state/components/pose-mcp.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/state/integrations.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:.pose/state/technical-debt.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:docs-site/docs/cli.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:docs-site/docs/mcp.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:locales/pt-BR/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/cli/assess.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/cli/design_delta.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/cli/design_delta_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/cli/help_catalog.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/mcpserver/server.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/pose/delivery_surface.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/pose/design_delta.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/pose/design_delta_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/pose/review_bundle_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/pose/review_plan.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/pose/subject_evidence_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-9918ca2ccc3c",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "type": "changes"
     },
     {
@@ -51451,6 +51634,21 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:governance:structural-delta",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:governance:structural-delta",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:governance:structural-delta",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:governance:subject-evidence-identity",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -52307,7 +52505,7 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
-      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -52373,6 +52571,16 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
     {
@@ -53977,6 +54185,11 @@
     },
     {
       "from": "spec:pose-abm-structural-delta",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-abm-structural-delta",
       "to": "artifact:.pose/reports/2026-09-19-standard-validate-native.md",
       "type": "declares"
     },
@@ -54112,7 +54325,12 @@
     },
     {
       "from": "spec:pose-abm-structural-delta",
-      "to": "change-set:cs-220dc72d81ce",
+      "to": "delivery:governance:structural-delta",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-abm-structural-delta",
+      "to": "change-set:cs-9918ca2ccc3c",
       "type": "observed-by"
     },
     {
@@ -64151,6 +64369,11 @@
       "spec": "pose-abm-structural-delta",
       "action": "modified",
       "path": ".pose/assessments/technical-debt.md"
+    },
+    {
+      "spec": "pose-abm-structural-delta",
+      "action": "modified",
+      "path": ".pose/indexes/delivery-integrity.json"
     },
     {
       "spec": "pose-abm-structural-delta",
@@ -76647,153 +76870,6 @@
       "diff_digest": "sha256:3014f631f57c9368a621ea01e70a62557316a429d0ad0933697ea616398f1269"
     },
     {
-      "id": "cs-220dc72d81ce",
-      "spec": "pose-abm-structural-delta",
-      "selector": "trailers:pose-abm-structural-delta",
-      "base": "8cf80af53e4d3ceeb05d225f2fc9a3fa4acb7c94^",
-      "head": "8cf80af53e4d3ceeb05d225f2fc9a3fa4acb7c94",
-      "resolved_base": "3f011be80755d005b5a8c40f40e3df368e4d6799",
-      "resolved_head": "8cf80af53e4d3ceeb05d225f2fc9a3fa4acb7c94",
-      "commits": [
-        "8cf80af53e4d3ceeb05d225f2fc9a3fa4acb7c94"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-09-19-structural-delta-is-a-bounded-observation.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-09-19-pose-abm-structural-delta.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/design_delta.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/design_delta_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/design_delta.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/design_delta_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/README.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/consolidated.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/integrations.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/pose-mcp.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/technical-debt.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/reports/2026-09-19-standard-validate-native.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/reports/history/standard-validate-native.jsonl"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/components/pose-mcp.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/integrations.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/technical-debt.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "docs-site/docs/cli.md"
-        },
-        {
-          "action": "modified",
-          "path": "docs-site/docs/mcp.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/assess.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/help_catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/mcpserver/catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/mcpserver/server.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/mcpserver/server_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delivery_surface.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_plan.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/subject_evidence_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:6928c71950ecffa244bce56123acd8ecf5fb2eaa34533188adf030ceb241b421"
-    },
-    {
       "id": "cs-233670d92d24",
       "spec": "pose-discovery-gitignore-and-root-alias-fix",
       "selector": "trailers:pose-discovery-gitignore-and-root-alias-fix",
@@ -85931,6 +86007,158 @@
       "diff_digest": "sha256:7e20f44ca9690f0ad19816177a53e0bec48530c3fc08facdc06e65d80dcd6452"
     },
     {
+      "id": "cs-9918ca2ccc3c",
+      "spec": "pose-abm-structural-delta",
+      "selector": "trailers:pose-abm-structural-delta",
+      "base": "8cf80af53e4d3ceeb05d225f2fc9a3fa4acb7c94^",
+      "head": "eafa89632f2946f45a8b96931dd7e600319039e3",
+      "resolved_base": "3f011be80755d005b5a8c40f40e3df368e4d6799",
+      "resolved_head": "eafa89632f2946f45a8b96931dd7e600319039e3",
+      "commits": [
+        "8cf80af53e4d3ceeb05d225f2fc9a3fa4acb7c94",
+        "eafa89632f2946f45a8b96931dd7e600319039e3"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-09-19-structural-delta-is-a-bounded-observation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-19-pose-abm-structural-delta.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/design_delta.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/design_delta_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/design_delta.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/design_delta_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/README.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/consolidated.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/integrations.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/pose-mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/technical-debt.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/reports/2026-09-19-standard-validate-native.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/reports/history/standard-validate-native.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/pose-mcp.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/integrations.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/technical-debt.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/cli.md"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/assess.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/help_catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/server.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/server_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_surface.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_plan.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/subject_evidence_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:e0c7a6da4246bab643408aa434aa27e99c7c73496df9e5d01cac3232b67b66ae"
+    },
+    {
       "id": "cs-9afbf2510daf",
       "spec": "pose-doctor-selected-profiles-only",
       "selector": "trailers:pose-doctor-selected-profiles-only",
@@ -94717,6 +94945,7 @@
       "pose-abm-design-basis",
       "pose-abm-governance-outcomes",
       "pose-abm-review-soundness",
+      "pose-abm-structural-delta",
       "pose-abm-subject-evidence",
       "pose-artifact-provenance-ledger",
       "pose-component-aware-review-plans",
@@ -97360,16 +97589,6 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
-      "id": "dif-04cdff07be71",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/pose/design_delta_test.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-05050d42bcb1",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -97547,16 +97766,6 @@
       "path": "pose-mcp/internal/pose/changelog_policy.go",
       "change_set": "cs-a11ddaa230b3",
       "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-0c861d7ed060",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/cli/assess.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
@@ -98122,16 +98331,6 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
-      "id": "dif-2355fd159d69",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/mcpserver/catalog.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/mcpserver has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-236d8ac552a6",
       "code": "orphan",
       "severity": "warning",
@@ -98147,16 +98346,6 @@
       "path": "pose-mcp/internal/pose/review_closeout.go",
       "change_set": "cs-345244c4ccad",
       "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-24469cdb1b4b",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/mcpserver/server_test.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/mcpserver has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
@@ -98218,16 +98407,6 @@
       "change_set": "cs-337e6bf5ac09",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
-      "id": "dif-2627229878f9",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/cli/design_delta.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-26311e29fbd8",
@@ -98386,16 +98565,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-2bc2b8c9ced7",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/pose/subject_evidence_test.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-2c0e2b6cd92e",
       "code": "action-mismatch",
       "severity": "error",
@@ -98442,16 +98611,6 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
-      "id": "dif-2e12e0401ae0",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/mcpserver/server.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/mcpserver has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-2edc59ae7b65",
       "code": "existence",
       "severity": "error",
@@ -98495,16 +98654,6 @@
       "spec": "pose-artifact-provenance-ledger",
       "path": "pose-mcp/internal/pose/delivery_integrity.go",
       "change_set": "cs-5ba3b2d3828c",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-32819ed5a3b1",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/pose/review_bundle.go",
-      "change_set": "cs-220dc72d81ce",
       "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
@@ -98644,16 +98793,6 @@
       "path": "pose-mcp/internal/cli/publicclaims.go",
       "change_set": "cs-fe006e2143e3",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-3879b9fb481b",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/pose/review_plan.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
@@ -99745,16 +99884,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-68f7b2c630ab",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/mcpserver has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-6a02cb19e7c8",
       "code": "orphan",
       "severity": "warning",
@@ -100642,16 +100771,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-8d59651ab48f",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/cli/design_delta_test.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-8e45c2d93021",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -100792,16 +100911,6 @@
       "path": "pose-mcp/internal/mcpserver/state_tool_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-937aa6e262c4",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/pose/delivery_surface.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-93ea75b0ddf4",
@@ -101318,16 +101427,6 @@
       "spec": "pose-standalone-dogfood",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-ab86cf586ee7",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/pose/design_delta.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-abf090fe2184",
@@ -102219,16 +102318,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-cf3190f0b9c9",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/pose/review_bundle_test.go",
-      "change_set": "cs-220dc72d81ce",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-cf382ea3c045",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -102406,16 +102495,6 @@
       "spec": "pose-contract-adoption-stamp",
       "path": "pose-mcp/internal/cli/stack_seed.go",
       "change_set": "cs-493232c1fe2c",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-d8d95d31c410",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-abm-structural-delta",
-      "path": "pose-mcp/internal/cli/help_catalog.go",
-      "change_set": "cs-220dc72d81ce",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
@@ -103689,7 +103768,16 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-update-instance-directory-completeness",
+      "spec": "pose-scaffold-self-referential-policy-fix",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-derived-index-self-referential-leak",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -103707,34 +103795,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-upgrade-path-audit-fixes",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-review-bundle-root-file-classification",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-scaffold-self-referential-policy-fix",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-review-scope-trailer-check",
+      "spec": "pose-update-instance-directory-completeness",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -103752,15 +103813,6 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-instance-engine-version-tracking",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
       "spec": "pose-discovery-gitignore-and-root-alias-fix",
       "ref": "capability:pose-mcp",
       "kind": "capability",
@@ -103770,7 +103822,34 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-derived-index-self-referential-leak",
+      "spec": "pose-instance-engine-version-tracking",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-upgrade-path-audit-fixes",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-review-scope-trailer-check",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-review-bundle-root-file-classification",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -104382,7 +104461,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -104391,7 +104470,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -104418,7 +104497,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -104427,7 +104506,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -104559,6 +104638,15 @@
       "id": "spec-commit-trailer-contract",
       "module": "pose-mcp",
       "profile": "release-governance",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-abm-structural-delta",
+      "ref": "governance:structural-delta",
+      "kind": "governance",
+      "id": "structural-delta",
+      "module": "pose-mcp",
+      "profile": "backend-go",
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
@@ -104732,15 +104820,16 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e72f5ed6bf3b18ee39d9260d2501b5dd97174dce",
-      "generated_at": "2026-09-19T08:15:50Z",
-      "provenance_digest": "sha256:01233eb0080897f432a871fa9dd19805cb39f0b9eab2630042e9d91634ac8eaf",
+      "git_head": "eafa89632f2946f45a8b96931dd7e600319039e3",
+      "generated_at": "2026-09-19T14:54:35Z",
+      "provenance_digest": "sha256:fe85d398bad50b1919e144152658e2703f7ecf69f2b2d576ba9dc6ddcce14b5e",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-abm-design-basis": "sha256:f64ab581b6333c4d41d7e5d9923e8cad77cd7b59be8f7c3d282b9f70867db9c0",
         "pose-abm-governance-outcomes": "sha256:a7222641ccba4ab27e2030b5bf111a74ac9ab9b12bf2431878032b1ecee8e037",
         "pose-abm-review-authority": "sha256:307582b46f663460e381021b42adce4fa1813a8bc6bc43dcba8f298736b1bb2a",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
+        "pose-abm-structural-delta": "sha256:541d80d9736f94583566e7e15aee8305febbc66c31e00572939d4a03bdce6ee5",
         "pose-abm-subject-evidence": "sha256:1feb87e54e187b288c7c15a87fe2e90969bff2498aa7a4ef79018fbf7ede7c9b",
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
         "pose-actions-node24-bump": "sha256:46e460165318312ffdb8e879cae577d1eb521e7fb08bb5658820aca8432468df",
@@ -104855,7 +104944,7 @@
         "pose-report-help-names-every-flag": "sha256:659c9cd103555bfb244a84fc4c829e0a6f2e84631986dbf79ea3376d70e63460",
         "pose-reuse-is-sealed-signing-stays-live": "sha256:2ba7c9d6960cf65951172aa31adcb3dd9ee26c0eed495046758f719d7dd7a177",
         "pose-review-bundle-component-discovery-and-governance-paths": "sha256:19cf6a0a4298453c855e99865bccf2e9b01f7f363fb906757c587fdc854922ad",
-        "pose-review-bundle-convergence": "sha256:98f75508a540b477ce29bd5802244828192dd908b2887df3984d38e729bb4adc",
+        "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-doc-only-specs": "sha256:7866a01ccec8ec8a36d55b8f98c48743b00c0e44538c1d09222d88908c3e7456",
         "pose-review-bundle-roadmap-path-portability": "sha256:d8366579bc97a2cc63aa761c0ba20138d64facc5c30101a2beedf8e1637c2588",
         "pose-review-bundle-root-file-classification": "sha256:8883f27985fa65c175215697e4f1fea71cada3e0f714fb42166159453154dac2",
@@ -104916,15 +105005,16 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e72f5ed6bf3b18ee39d9260d2501b5dd97174dce",
-      "generated_at": "2026-09-19T08:15:50Z",
-      "provenance_digest": "sha256:01233eb0080897f432a871fa9dd19805cb39f0b9eab2630042e9d91634ac8eaf",
+      "git_head": "eafa89632f2946f45a8b96931dd7e600319039e3",
+      "generated_at": "2026-09-19T14:54:35Z",
+      "provenance_digest": "sha256:fe85d398bad50b1919e144152658e2703f7ecf69f2b2d576ba9dc6ddcce14b5e",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-abm-design-basis": "sha256:f64ab581b6333c4d41d7e5d9923e8cad77cd7b59be8f7c3d282b9f70867db9c0",
         "pose-abm-governance-outcomes": "sha256:a7222641ccba4ab27e2030b5bf111a74ac9ab9b12bf2431878032b1ecee8e037",
         "pose-abm-review-authority": "sha256:307582b46f663460e381021b42adce4fa1813a8bc6bc43dcba8f298736b1bb2a",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
+        "pose-abm-structural-delta": "sha256:541d80d9736f94583566e7e15aee8305febbc66c31e00572939d4a03bdce6ee5",
         "pose-abm-subject-evidence": "sha256:1feb87e54e187b288c7c15a87fe2e90969bff2498aa7a4ef79018fbf7ede7c9b",
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
         "pose-actions-node24-bump": "sha256:46e460165318312ffdb8e879cae577d1eb521e7fb08bb5658820aca8432468df",
@@ -105039,7 +105129,7 @@
         "pose-report-help-names-every-flag": "sha256:659c9cd103555bfb244a84fc4c829e0a6f2e84631986dbf79ea3376d70e63460",
         "pose-reuse-is-sealed-signing-stays-live": "sha256:2ba7c9d6960cf65951172aa31adcb3dd9ee26c0eed495046758f719d7dd7a177",
         "pose-review-bundle-component-discovery-and-governance-paths": "sha256:19cf6a0a4298453c855e99865bccf2e9b01f7f363fb906757c587fdc854922ad",
-        "pose-review-bundle-convergence": "sha256:98f75508a540b477ce29bd5802244828192dd908b2887df3984d38e729bb4adc",
+        "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-doc-only-specs": "sha256:7866a01ccec8ec8a36d55b8f98c48743b00c0e44538c1d09222d88908c3e7456",
         "pose-review-bundle-roadmap-path-portability": "sha256:d8366579bc97a2cc63aa761c0ba20138d64facc5c30101a2beedf8e1637c2588",
         "pose-review-bundle-root-file-classification": "sha256:8883f27985fa65c175215697e4f1fea71cada3e0f714fb42166159453154dac2",
@@ -105100,15 +105190,16 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e72f5ed6bf3b18ee39d9260d2501b5dd97174dce",
-      "generated_at": "2026-09-19T08:15:50Z",
-      "provenance_digest": "sha256:01233eb0080897f432a871fa9dd19805cb39f0b9eab2630042e9d91634ac8eaf",
+      "git_head": "eafa89632f2946f45a8b96931dd7e600319039e3",
+      "generated_at": "2026-09-19T14:54:35Z",
+      "provenance_digest": "sha256:fe85d398bad50b1919e144152658e2703f7ecf69f2b2d576ba9dc6ddcce14b5e",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-abm-design-basis": "sha256:f64ab581b6333c4d41d7e5d9923e8cad77cd7b59be8f7c3d282b9f70867db9c0",
         "pose-abm-governance-outcomes": "sha256:a7222641ccba4ab27e2030b5bf111a74ac9ab9b12bf2431878032b1ecee8e037",
         "pose-abm-review-authority": "sha256:307582b46f663460e381021b42adce4fa1813a8bc6bc43dcba8f298736b1bb2a",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
+        "pose-abm-structural-delta": "sha256:541d80d9736f94583566e7e15aee8305febbc66c31e00572939d4a03bdce6ee5",
         "pose-abm-subject-evidence": "sha256:1feb87e54e187b288c7c15a87fe2e90969bff2498aa7a4ef79018fbf7ede7c9b",
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
         "pose-actions-node24-bump": "sha256:46e460165318312ffdb8e879cae577d1eb521e7fb08bb5658820aca8432468df",
@@ -105223,7 +105314,7 @@
         "pose-report-help-names-every-flag": "sha256:659c9cd103555bfb244a84fc4c829e0a6f2e84631986dbf79ea3376d70e63460",
         "pose-reuse-is-sealed-signing-stays-live": "sha256:2ba7c9d6960cf65951172aa31adcb3dd9ee26c0eed495046758f719d7dd7a177",
         "pose-review-bundle-component-discovery-and-governance-paths": "sha256:19cf6a0a4298453c855e99865bccf2e9b01f7f363fb906757c587fdc854922ad",
-        "pose-review-bundle-convergence": "sha256:98f75508a540b477ce29bd5802244828192dd908b2887df3984d38e729bb4adc",
+        "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-doc-only-specs": "sha256:7866a01ccec8ec8a36d55b8f98c48743b00c0e44538c1d09222d88908c3e7456",
         "pose-review-bundle-roadmap-path-portability": "sha256:d8366579bc97a2cc63aa761c0ba20138d64facc5c30101a2beedf8e1637c2588",
         "pose-review-bundle-root-file-classification": "sha256:8883f27985fa65c175215697e4f1fea71cada3e0f714fb42166159453154dac2",
@@ -105284,15 +105375,16 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e72f5ed6bf3b18ee39d9260d2501b5dd97174dce",
-      "generated_at": "2026-09-19T08:15:50Z",
-      "provenance_digest": "sha256:01233eb0080897f432a871fa9dd19805cb39f0b9eab2630042e9d91634ac8eaf",
+      "git_head": "eafa89632f2946f45a8b96931dd7e600319039e3",
+      "generated_at": "2026-09-19T14:54:35Z",
+      "provenance_digest": "sha256:fe85d398bad50b1919e144152658e2703f7ecf69f2b2d576ba9dc6ddcce14b5e",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-abm-design-basis": "sha256:f64ab581b6333c4d41d7e5d9923e8cad77cd7b59be8f7c3d282b9f70867db9c0",
         "pose-abm-governance-outcomes": "sha256:a7222641ccba4ab27e2030b5bf111a74ac9ab9b12bf2431878032b1ecee8e037",
         "pose-abm-review-authority": "sha256:307582b46f663460e381021b42adce4fa1813a8bc6bc43dcba8f298736b1bb2a",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
+        "pose-abm-structural-delta": "sha256:541d80d9736f94583566e7e15aee8305febbc66c31e00572939d4a03bdce6ee5",
         "pose-abm-subject-evidence": "sha256:1feb87e54e187b288c7c15a87fe2e90969bff2498aa7a4ef79018fbf7ede7c9b",
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
         "pose-actions-node24-bump": "sha256:46e460165318312ffdb8e879cae577d1eb521e7fb08bb5658820aca8432468df",
@@ -105407,7 +105499,7 @@
         "pose-report-help-names-every-flag": "sha256:659c9cd103555bfb244a84fc4c829e0a6f2e84631986dbf79ea3376d70e63460",
         "pose-reuse-is-sealed-signing-stays-live": "sha256:2ba7c9d6960cf65951172aa31adcb3dd9ee26c0eed495046758f719d7dd7a177",
         "pose-review-bundle-component-discovery-and-governance-paths": "sha256:19cf6a0a4298453c855e99865bccf2e9b01f7f363fb906757c587fdc854922ad",
-        "pose-review-bundle-convergence": "sha256:98f75508a540b477ce29bd5802244828192dd908b2887df3984d38e729bb4adc",
+        "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-doc-only-specs": "sha256:7866a01ccec8ec8a36d55b8f98c48743b00c0e44538c1d09222d88908c3e7456",
         "pose-review-bundle-roadmap-path-portability": "sha256:d8366579bc97a2cc63aa761c0ba20138d64facc5c30101a2beedf8e1637c2588",
         "pose-review-bundle-root-file-classification": "sha256:8883f27985fa65c175215697e4f1fea71cada3e0f714fb42166159453154dac2",
@@ -105468,15 +105560,16 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "e72f5ed6bf3b18ee39d9260d2501b5dd97174dce",
-      "generated_at": "2026-09-19T08:15:50Z",
-      "provenance_digest": "sha256:01233eb0080897f432a871fa9dd19805cb39f0b9eab2630042e9d91634ac8eaf",
+      "git_head": "eafa89632f2946f45a8b96931dd7e600319039e3",
+      "generated_at": "2026-09-19T14:54:35Z",
+      "provenance_digest": "sha256:fe85d398bad50b1919e144152658e2703f7ecf69f2b2d576ba9dc6ddcce14b5e",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-abm-design-basis": "sha256:f64ab581b6333c4d41d7e5d9923e8cad77cd7b59be8f7c3d282b9f70867db9c0",
         "pose-abm-governance-outcomes": "sha256:a7222641ccba4ab27e2030b5bf111a74ac9ab9b12bf2431878032b1ecee8e037",
         "pose-abm-review-authority": "sha256:307582b46f663460e381021b42adce4fa1813a8bc6bc43dcba8f298736b1bb2a",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
+        "pose-abm-structural-delta": "sha256:541d80d9736f94583566e7e15aee8305febbc66c31e00572939d4a03bdce6ee5",
         "pose-abm-subject-evidence": "sha256:1feb87e54e187b288c7c15a87fe2e90969bff2498aa7a4ef79018fbf7ede7c9b",
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
         "pose-actions-node24-bump": "sha256:46e460165318312ffdb8e879cae577d1eb521e7fb08bb5658820aca8432468df",
@@ -105591,7 +105684,7 @@
         "pose-report-help-names-every-flag": "sha256:659c9cd103555bfb244a84fc4c829e0a6f2e84631986dbf79ea3376d70e63460",
         "pose-reuse-is-sealed-signing-stays-live": "sha256:2ba7c9d6960cf65951172aa31adcb3dd9ee26c0eed495046758f719d7dd7a177",
         "pose-review-bundle-component-discovery-and-governance-paths": "sha256:19cf6a0a4298453c855e99865bccf2e9b01f7f363fb906757c587fdc854922ad",
-        "pose-review-bundle-convergence": "sha256:98f75508a540b477ce29bd5802244828192dd908b2887df3984d38e729bb4adc",
+        "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-doc-only-specs": "sha256:7866a01ccec8ec8a36d55b8f98c48743b00c0e44538c1d09222d88908c3e7456",
         "pose-review-bundle-roadmap-path-portability": "sha256:d8366579bc97a2cc63aa761c0ba20138d64facc5c30101a2beedf8e1637c2588",
         "pose-review-bundle-root-file-classification": "sha256:8883f27985fa65c175215697e4f1fea71cada3e0f714fb42166159453154dac2",
@@ -105652,15 +105745,16 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "e72f5ed6bf3b18ee39d9260d2501b5dd97174dce",
-      "generated_at": "2026-09-19T08:15:50Z",
-      "provenance_digest": "sha256:01233eb0080897f432a871fa9dd19805cb39f0b9eab2630042e9d91634ac8eaf",
+      "git_head": "eafa89632f2946f45a8b96931dd7e600319039e3",
+      "generated_at": "2026-09-19T14:54:35Z",
+      "provenance_digest": "sha256:fe85d398bad50b1919e144152658e2703f7ecf69f2b2d576ba9dc6ddcce14b5e",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "pose-abm-design-basis": "sha256:f64ab581b6333c4d41d7e5d9923e8cad77cd7b59be8f7c3d282b9f70867db9c0",
         "pose-abm-governance-outcomes": "sha256:a7222641ccba4ab27e2030b5bf111a74ac9ab9b12bf2431878032b1ecee8e037",
         "pose-abm-review-authority": "sha256:307582b46f663460e381021b42adce4fa1813a8bc6bc43dcba8f298736b1bb2a",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
+        "pose-abm-structural-delta": "sha256:541d80d9736f94583566e7e15aee8305febbc66c31e00572939d4a03bdce6ee5",
         "pose-abm-subject-evidence": "sha256:1feb87e54e187b288c7c15a87fe2e90969bff2498aa7a4ef79018fbf7ede7c9b",
         "pose-action-runtime-currency-gate": "sha256:9a50c2ba00ce3ab8e9eaf8b6c2d0e112dedba584dd64c7299ff32ed915371a45",
         "pose-actions-node24-bump": "sha256:46e460165318312ffdb8e879cae577d1eb521e7fb08bb5658820aca8432468df",
@@ -105775,7 +105869,7 @@
         "pose-report-help-names-every-flag": "sha256:659c9cd103555bfb244a84fc4c829e0a6f2e84631986dbf79ea3376d70e63460",
         "pose-reuse-is-sealed-signing-stays-live": "sha256:2ba7c9d6960cf65951172aa31adcb3dd9ee26c0eed495046758f719d7dd7a177",
         "pose-review-bundle-component-discovery-and-governance-paths": "sha256:19cf6a0a4298453c855e99865bccf2e9b01f7f363fb906757c587fdc854922ad",
-        "pose-review-bundle-convergence": "sha256:98f75508a540b477ce29bd5802244828192dd908b2887df3984d38e729bb4adc",
+        "pose-review-bundle-convergence": "sha256:eeb3dd4398a04178772504d6a6e2b467cab6a3384d118314787d2d917bc4b208",
         "pose-review-bundle-doc-only-specs": "sha256:7866a01ccec8ec8a36d55b8f98c48743b00c0e44538c1d09222d88908c3e7456",
         "pose-review-bundle-roadmap-path-portability": "sha256:d8366579bc97a2cc63aa761c0ba20138d64facc5c30101a2beedf8e1637c2588",
         "pose-review-bundle-root-file-classification": "sha256:8883f27985fa65c175215697e4f1fea71cada3e0f714fb42166159453154dac2",
@@ -105839,10 +105933,7 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: test"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -105863,12 +105954,7 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: test",
-        "check is missing, failing or stale: delivery-integration",
-        "check is missing, failing or stale: delivery-reachability"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -105888,10 +105974,7 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-reachability"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -105902,10 +105985,7 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-integration"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -105943,10 +106023,7 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-integration"
-      ]
+      "passed": true
     }
   ],
   "paths": {
@@ -106505,18 +106582,9 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "capability:pose-mcp": [
-      "spec:pose-derived-index-self-referential-leak",
-      "artifact:pose-mcp/internal/cli/stack_seed.go",
-      "artifact:pose-mcp/internal/cli/stack_seed_test.go",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/delivery-integrity.json",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/extensions.lock.json",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/packages.json",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/releases.json",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/repo-map.json",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/roadmaps.json",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/indexes/spec-graph.json",
-      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
-      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
+      "spec:pose-review-bundle-root-file-classification",
+      "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "artifact:pose-mcp/internal/pose/review_bundle_test.go",
       "delivery:capability:pose-mcp",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -107863,7 +107931,7 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "governance:project-assessment": [
-      "spec:pose-debt-marker-lexical-precision",
+      "spec:pose-project-agnostic-assessment-engines",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -107895,43 +107963,13 @@
       "validation-result:pose-mcp/go/review-bundle-convergence"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-lifecycle-closure",
-      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
-      "artifact:.pose/indexes/releases.json",
-      "artifact:.pose/policy/changelog.json",
-      "artifact:.pose/release-policy.json",
-      "artifact:.pose/rules/release-integrity.md",
-      "artifact:.pose/workflows/release.md",
-      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
-      "artifact:locales/pt-BR/.pose/workflows/release.md",
-      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
-      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
-      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
-      "artifact:.agents/skills/README.md",
+      "spec:pose-release-evidence-trigger-fix",
+      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.pose/indexes/task-map.json",
-      "artifact:.pose/indexes/validation-matrix.json",
-      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
-      "artifact:POSE.md",
-      "artifact:docs-site/docs/cli.md",
-      "artifact:docs-site/docs/mcp.md",
-      "artifact:pose-mcp/internal/cli/check.go",
-      "artifact:pose-mcp/internal/cli/cli.go",
-      "artifact:pose-mcp/internal/cli/index.go",
-      "artifact:pose-mcp/internal/cli/maintenance.go",
-      "artifact:pose-mcp/internal/cli/native_only_test.go",
-      "artifact:pose-mcp/internal/cli/skills_check_test.go",
-      "artifact:pose-mcp/internal/mcpserver/catalog.go",
-      "artifact:pose-mcp/internal/mcpserver/server.go",
-      "artifact:pose-mcp/internal/mcpserver/server_test.go",
-      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "artifact:pose-mcp/internal/pose/changelogs.go",
-      "artifact:pose-mcp/internal/scaffold/scaffold.go",
-      "artifact:scripts/release.sh",
+      "artifact:.github/workflows/verify-release.yml",
+      "artifact:docs-site/docs/ci.md",
+      "artifact:pose-mcp/internal/version/contract_test.go",
+      "artifact:pose-mcp/internal/version/version.go",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
@@ -108109,6 +108147,47 @@
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/AGENTS.md",
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "delivery:governance:spec-commit-trailer-contract",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-integration",
+      "validation-result:pose-mcp/go/review-bundle-convergence"
+    ],
+    "governance:structural-delta": [
+      "spec:pose-abm-structural-delta",
+      "artifact:.pose/adr/2026-09-19-structural-delta-is-a-bounded-observation.md",
+      "artifact:.pose/specs/2026-09-19-pose-abm-structural-delta.md",
+      "artifact:pose-mcp/internal/cli/design_delta.go",
+      "artifact:pose-mcp/internal/cli/design_delta_test.go",
+      "artifact:pose-mcp/internal/pose/design_delta.go",
+      "artifact:pose-mcp/internal/pose/design_delta_test.go",
+      "artifact:.pose/assessments/README.md",
+      "artifact:.pose/assessments/consolidated.md",
+      "artifact:.pose/assessments/integrations.md",
+      "artifact:.pose/assessments/pose-mcp.md",
+      "artifact:.pose/assessments/technical-debt.md",
+      "artifact:.pose/indexes/delivery-integrity.json",
+      "artifact:.pose/reports/2026-09-19-standard-validate-native.md",
+      "artifact:.pose/reports/history/standard-validate-native.jsonl",
+      "artifact:.pose/state/components/pose-mcp.json",
+      "artifact:.pose/state/integrations.json",
+      "artifact:.pose/state/technical-debt.json",
+      "artifact:POSE.md",
+      "artifact:docs-site/docs/cli.md",
+      "artifact:docs-site/docs/mcp.md",
+      "artifact:locales/pt-BR/POSE.md",
+      "artifact:pose-mcp/internal/cli/assess.go",
+      "artifact:pose-mcp/internal/cli/help_catalog.go",
+      "artifact:pose-mcp/internal/mcpserver/catalog.go",
+      "artifact:pose-mcp/internal/mcpserver/server.go",
+      "artifact:pose-mcp/internal/mcpserver/server_test.go",
+      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
+      "artifact:pose-mcp/internal/pose/delivery_surface.go",
+      "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "artifact:pose-mcp/internal/pose/review_bundle_test.go",
+      "artifact:pose-mcp/internal/pose/review_plan.go",
+      "artifact:pose-mcp/internal/pose/subject_evidence_test.go",
+      "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "delivery:governance:structural-delta",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-integration",
       "validation-result:pose-mcp/go/review-bundle-convergence"
