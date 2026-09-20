@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-20T15:40:12Z
-baseline_commit: 1fc197034091c44f3a733b438a15ad225694015e
+generated_at: 2026-09-20T15:55:05Z
+baseline_commit: f314eb4784831d31ae00cfda190ad5a8b5d26d4b
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,9 +27,9 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:83ba38ec2c83 -->
+<!-- state:derived hash:c04c865c36e0 -->
 
-- specs: total=224 draft=7 in-progress=65 blocked=0 done=152 superseded=0 abandoned=0
+- specs: total=225 draft=8 in-progress=65 blocked=0 done=152 superseded=0 abandoned=0
 - roadmaps: total=11 active=1 done=10
 - últimos closeouts:
   - spec:pose-dist-records-its-own-contract-adoption (2026-09-20)

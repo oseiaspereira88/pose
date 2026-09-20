@@ -73,6 +73,7 @@ self-referential reason, which the run reports as
 - modified: .pose/indexes/delivery-integrity.json
 - modified: .pose/indexes/releases.json
 - modified: .pose/indexes/spec-graph.json
+- modified: pose-mcp/internal/scaffold/dist/.pose/policy/review.json
 
 ### Rollout and reversal
 
@@ -173,6 +174,20 @@ invariant is satisfied symmetrically instead of half by practice and half by
 declaration.
 
 ### Residual risks
+
+The stamp extends a pre-existing leak by two fields, and this is the honest cost of
+recording the adoption here. `.pose/policy/review.json` is not in
+`SelfReferentialPolicyFiles`, so this repository's live review policy is the template
+the distribution ships: the embedded copy already carried `adopted_at: 2026-08-02`,
+`component_aware_adopted_at: 2026-08-13`, `review_bundles_adopted_at: 2026-08-14` and
+`evidence_vocabulary_reconciled_at: 2026-09-08` to every `pose install`, and now
+carries the two dates recorded here as well. The parity test refused the drift, which
+is how the leak was found, and the embedded copy was regenerated rather than the stamp
+reverted: reverting would not have fixed a channel that was already leaking four
+dates, and it would have removed the one honest record of adoption in the repository
+that practises it. Tracked at priority 0 by
+`review-policy-adoption-is-the-instances`, which also explains why the neutral
+template's contents are a contract decision and not a mechanical extraction.
 
 The stamp adds no enforcement: whether a bundle is governed is decided by the engine
 that sealed it. A pinned 5.0.8 still cannot read bundles carrying
