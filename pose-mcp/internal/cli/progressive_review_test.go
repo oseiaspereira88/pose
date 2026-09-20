@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
@@ -81,5 +82,70 @@ func TestABMProgressiveReviewInstallAndCLIPlan(t *testing.T) {
 	}
 	if count != 1 {
 		t.Fatalf("expected one proportionality judgment, got %d", count)
+	}
+}
+
+// R8: one plan, one reading. The CLI must show the band and the declared
+// forecast without --explain, so a reviewer who never asks for the long form
+// still sees that an obligation came from scope nobody declared.
+func TestABMProgressiveReviewCLIShowsBandAndDeclaredForecast(t *testing.T) {
+	root := newGitRepo(t)
+	var out, errOut bytes.Buffer
+	if code := Main([]string{"install", root, "--skip-mcp"}, &out, &errOut); code != 0 {
+		t.Fatalf("install code=%d err=%s", code, errOut.String())
+	}
+	raw, err := os.ReadFile(filepath.Join(root, ".pose/policy/review.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var policy map[string]any
+	if err := json.Unmarshal(raw, &policy); err != nil {
+		t.Fatal(err)
+	}
+	policy["overlay_profiles"] = []string{"engineering-judgment@1", "high-criticality-review@1"}
+	policy["component_aware"] = true
+	policy["schema_version"] = 2
+	policy["component_aware_adopted_at"] = "2026-09-19"
+	raw, err = json.Marshal(policy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", string(raw))
+	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json",
+		`{"packages":[{"name":"api","path":"api","language":"go","criticality":"medium","metadataStatus":{"source":"declared"}},`+
+			`{"name":"web","path":"web","language":"go","criticality":"critical","metadataStatus":{"source":"declared"}}]}`)
+	writeCloseoutCLIFile(t, root, ".pose/specs/progressive.md", "---\nslug: progressive\nstatus: in-progress\ncreated_at: 2026-09-19\ncomponents: api\ndelivers: contract:api\n---\n# Spec\n\n### Delivery targets\n- contract:api module:api profile:backend-go entrypoint:api/server.go\n")
+	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", `{"reverse":{"web/handler.go":["progressive"]}}`)
+
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewPlan(root, []string{"spec:progressive"}, &out, &errOut); code != 0 {
+		t.Fatalf("review-plan code=%d err=%s", code, errOut.String())
+	}
+	text := out.String()
+	for _, want := range []string{
+		"review_plan.band=critical",
+		"projection.basis=declared-forecast band=elevated independence=same-actor-separate-execution scope_expanded=true",
+		"observed_components:web",
+		"raised_band:elevated -> critical",
+	} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("plain output hid %q:\n%s", want, text)
+		}
+	}
+	out.Reset()
+	if code := cmdReviewPlan(root, []string{"spec:progressive", "--explain"}, &out, &errOut); code != 0 {
+		t.Fatalf("review-plan --explain code=%d err=%s", code, errOut.String())
+	}
+	explain := out.String()
+	for _, want := range []string{
+		"band.baseline=trigger:scope_kind=spec",
+		"band.critical=trigger:delivery_kind=contract criticality=critical",
+		"component.web=origin:observed",
+		"component.api=origin:declared",
+	} {
+		if !strings.Contains(explain, want) {
+			t.Fatalf("explain output hid %q:\n%s", want, explain)
+		}
 	}
 }

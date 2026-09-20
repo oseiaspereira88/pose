@@ -62,6 +62,30 @@ missing structural observation proves triviality. Observed structural selectors,
 band explanations, protected baseline comparison and obligation deltas remain
 acceptance work in this same spec. No new public schema is needed for the profiles.
 
+### Increment 2
+
+Explain the resolved plan instead of resolving it a second time. `band` and
+`bands` name, per reason, the selector facts that matched, whether the fact was
+declared, observed, read from policy or left undecided, where it is readable, the
+ref that made it consequential and the obligations it produced. Criticality
+`high`/`critical` or a raised independence yields `critical`; another matched
+overlay yields `elevated`. An adopted overlay that cannot decide a component —
+metadata missing, or a selected field declared empty — yields an `unknown` entry
+with no obligations, which neither raises nor lowers the band.
+
+`projection` re-resolves the plan over declared scope alone through the same
+selection, composition and tool builders, so a delta is always attributable to a
+fact rather than to a second set of rules. It reports the forecast and, when
+delivery provenance attributed more scope than the spec declared, the components,
+profiles, criteria, tools, floor and band that only the observation produced.
+Each component carries an `origin` for the same reason.
+
+Neither derivation enters `digestReviewPlan`. Given identical digested inputs the
+summary is a pure function of them, so it adds no obligation and supersedes no
+sealed review; a summary that moved the digest would be indistinguishable, to a
+verifier, from a real change in obligations. Observed structural selectors, the
+protected policy baseline and the R7 advisory mapping remain pending.
+
 ### Artifacts
 
 - created: .pose/specs/2026-09-19-pose-abm-progressive-review.md
@@ -79,6 +103,15 @@ acceptance work in this same spec. No new public schema is needed for the profil
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - created: .pose/results/abm-progressive-review-validation.json
 - created: .pose/changelogs/unreleased/pose-abm-progressive-review.md
+- created: pose-mcp/internal/pose/review_bands.go
+- modified: pose-mcp/internal/pose/review_plan.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/pose-mcp.md
+- modified: .pose/state/components/pose-mcp.json
 
 ### Delivery targets
 
@@ -97,8 +130,10 @@ this increment's extra criteria; retain immutable prior reviews.
 
 - [x] Confirm existing selectors/composition and register this implementation plan.
 - [x] Distribute opt-in profiles and cover installation, selection and no-downgrade.
-- [ ] Derive bands, structural triggers and obligation deltas from the common plan.
-- [ ] Enforce the protected policy baseline and prove unknown handling.
+- [x] Derive band explanations and declared/observed obligation deltas from the
+  common plan; expose undecided selectors without escalating them.
+- [ ] Add observed structural selectors and the R7 advisory mapping.
+- [ ] Enforce the protected policy baseline.
 - [ ] Validate the full requirement corpus, review and close through POSE.
 
 ## 5. Decisions
@@ -121,6 +156,8 @@ Required plan recorded before implementation:
 | Opt-in, duplicate criteria, trivial scopes, authority Markdown | `go test ./internal/pose -run ABMProgressiveReview -count=1` | Judgment only after matching adoption; trivial plan unchanged |
 | High, critical, medium, unknown, existing independence floor | `go test ./internal/pose -run 'ABMCriticality\|ABMPolicyDowngrade' -count=1` | Exact selectors, explicit unknown and no weaker floor |
 | Install and actual CLI JSON | `go test ./internal/cli -run ABMProgressiveReview -count=1` | Installed profiles resolve in real command; policy remains opt-in |
+| Bands, undecided selectors, plan identity, observed expansion | `go test ./internal/pose -run 'ABMProgressiveReviewBands\|ABMProgressiveReviewUnknown\|ABMProgressiveReviewObserved\|ABMProgressiveReviewCriticalityEscalates' -count=1` | Explained trigger/basis/source/policy/obligation; unknown priced at zero; digest unchanged; expansion attributed |
+| Shared plan across consumers | `go test ./internal/cli -run ABMProgressiveReview -count=1` | CLI JSON equals the store plan; band and forecast visible without `--explain` |
 | Distribution parity | `go test ./internal/scaffold -run TestEmbeddedDistMatchesPoseDist -count=1` | Embedded and canonical assets agree |
 | Full module | `pose validate --strict --module pose-mcp` (from repository root) | Build, tests, vet and registered integration checks pass |
 

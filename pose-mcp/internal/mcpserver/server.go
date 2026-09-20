@@ -1976,6 +1976,11 @@ func toolDefinitions() []map[string]any {
 				"spec, milestone or roadmap scope. Returns mapped components and provenance, " +
 				"selected profiles, criteria, safe native POSE tool recommendations, effective " +
 				"reviewer independence, warnings, blockers and the plan digest used for freshness. " +
+				"Also returns the derived band summary, which names the trigger, basis, source, " +
+				"policy and obligations behind the effective plan, and the declared-scope " +
+				"projection, which separates a preflight forecast from the obligations that only " +
+				"observed provenance added. Neither derivation selects a profile or adds a " +
+				"criterion, and neither enters the plan digest. " +
 				"This read-only tool never executes a recommendation or mutates the project.",
 			"inputSchema": map[string]any{
 				"type": "object",

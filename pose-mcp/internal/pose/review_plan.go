@@ -22,7 +22,12 @@ type ReviewPlanComponent struct {
 	ValidationProfile string   `json:"validation_profile,omitempty"`
 	MetadataStatus    string   `json:"metadata_status,omitempty"`
 	MetadataMissing   []string `json:"metadata_missing,omitempty"`
-	Sources           []string `json:"sources"`
+	// Origin says whether the component was declared by the scope, observed
+	// from delivery provenance, or both. It is derived from Sources, so it does
+	// not enter the plan digest, and it is what keeps a forecast distinguishable
+	// from a final observation for every consumer of the plan.
+	Origin  string   `json:"origin,omitempty"`
+	Sources []string `json:"sources"`
 
 	metadataIncompleteFlag bool `json:"-"`
 }
@@ -99,9 +104,16 @@ type ReviewPlan struct {
 	Criteria            []ReviewPlanCriterion `json:"criteria"`
 	Tools               []ReviewPlanTool      `json:"tools"`
 	Independence        string                `json:"independence"`
-	Warnings            []string              `json:"warnings,omitempty"`
-	Blockers            []string              `json:"blockers,omitempty"`
-	Explain             []string              `json:"explain"`
+	// Band and Bands explain the resolved plan; Projection reports the same
+	// plan over declared scope alone. All three are derived from the fields
+	// above, add no obligation, and stay out of the plan digest. See
+	// review_bands.go for why that separation is the point.
+	Band       string               `json:"band,omitempty"`
+	Bands      []ReviewPlanBand     `json:"bands,omitempty"`
+	Projection ReviewPlanProjection `json:"projection"`
+	Warnings   []string             `json:"warnings,omitempty"`
+	Blockers   []string             `json:"blockers,omitempty"`
+	Explain    []string             `json:"explain"`
 }
 
 type reviewRepoEntry struct {
@@ -205,6 +217,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	plan.Explain = append(plan.Explain, "base profile "+base.Ref()+" selected by "+scope.Kind+" scope policy")
 
 	context := reviewPlanContext{}
+	overlays, selected := []ReviewProfile{}, []reviewOverlaySelection{}
 	if policy.SchemaVersion >= ReviewPolicySchemaVersion && policy.ComponentAware {
 		context, err = s.resolveReviewPlanContext(scope)
 		if err != nil {
@@ -219,12 +232,6 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 			}
 		}
 
-		selected := []struct {
-			profile   ReviewProfile
-			selection ReviewPlanProfile
-			order     int
-			component string
-		}{}
 		for _, overlayRef := range uniqueSorted(policy.OverlayProfiles) {
 			overlay, _, loadErr := s.loadReviewProfile(overlayRef)
 			if loadErr != nil {
@@ -238,31 +245,9 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 			if overlay.Scope != scope.Kind {
 				continue
 			}
-			matched, category, order := matchReviewOverlay(overlay.Selectors, context)
-			if matched == nil {
-				continue
-			}
-			selection := ReviewPlanProfile{Ref: overlay.Ref(), Category: category, Order: order, Source: ".pose/review-profiles/" + overlay.ID + ".json", Components: matched, Rationale: "matched typed " + category + " selector"}
-			component := ""
-			if len(matched) > 0 {
-				component = matched[0]
-			}
-			selected = append(selected, struct {
-				profile   ReviewProfile
-				selection ReviewPlanProfile
-				order     int
-				component string
-			}{overlay, selection, order, component})
+			overlays = append(overlays, overlay)
 		}
-		sort.Slice(selected, func(i, j int) bool {
-			if selected[i].order != selected[j].order {
-				return selected[i].order < selected[j].order
-			}
-			if selected[i].order == 3 && selected[i].component != selected[j].component {
-				return selected[i].component < selected[j].component
-			}
-			return selected[i].profile.Ref() < selected[j].profile.Ref()
-		})
+		selected = selectReviewOverlays(overlays, context)
 		for _, item := range selected {
 			profiles = append(profiles, item.profile)
 			plan.SelectedProfiles = append(plan.SelectedProfiles, item.selection)
@@ -272,11 +257,9 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	}
 
 	plan.Criteria, plan.Blockers = composeReviewCriteria(profiles, plan.Blockers)
-	if len(plan.Components) > 1 {
-		plan.Criteria, plan.Blockers = addReviewCriterion(plan.Criteria, ReviewPlanCriterion{
-			ID: "cross-component-integration", Description: "Observed component boundaries and contracts are integrated and covered by current evidence.",
-			Required: true, Kind: ReviewCriterionKindMechanical, EvidenceClasses: []string{"integration"}, Profiles: []string{"synthetic:cross-component"},
-		}, plan.Blockers)
+	var added bool
+	plan.Criteria, plan.Blockers, added = addCrossComponentReviewCriterion(plan.Criteria, plan.Blockers, len(plan.Components))
+	if added {
 		plan.Explain = append(plan.Explain, "cross-component-integration added because multiple mapped component roots are affected")
 	}
 	plan.Tools, plan.Blockers, plan.Warnings = buildReviewTools(scope, context, profiles, plan.SelectedProfiles, plan.Criteria, plan.Blockers, plan.Warnings)
@@ -292,6 +275,9 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	plan.Warnings = uniqueSorted(plan.Warnings)
 	plan.Blockers = uniqueSorted(plan.Blockers)
 	plan.Explain = uniqueStable(plan.Explain)
+	floor := normalizeReviewIndependence(policy.ReviewerIndependence[scope.Kind])
+	plan.Bands, plan.Band = deriveReviewBands(plan, scope.Kind, floor, selected, undecidableReviewOverlays(overlays, selected), context)
+	plan.Projection = projectDeclaredReviewObligations(plan, scope, base, floor, overlays, context)
 	plan.PlanDigest, err = digestReviewPlan(plan)
 	if err != nil {
 		return ReviewPlan{}, err
@@ -370,6 +356,7 @@ func (s Store) resolveReviewPlanContext(scope ScopeRef) (reviewPlanContext, erro
 	}
 	for _, component := range byPath {
 		component.Sources = uniqueSorted(component.Sources)
+		component.Origin = reviewComponentOrigin(component.Sources)
 		if metadataIncomplete(component) {
 			reason := "missing:" + strings.Join(component.MetadataMissing, ",")
 			if len(component.MetadataMissing) == 0 {
@@ -694,6 +681,177 @@ func matchReviewOverlay(selectors ReviewProfileSelectors, context reviewPlanCont
 		return []string{}, category, order
 	}
 	return uniqueSorted(matched), category, order
+}
+
+// reviewOverlaySelection is one overlay that matched, with the selection record
+// the plan publishes for it. Selection is kept in a function of its own so the
+// declared-scope projection resolves through exactly this code and not a second
+// reading of the same selectors.
+type reviewOverlaySelection struct {
+	profile   ReviewProfile
+	selection ReviewPlanProfile
+	order     int
+	component string
+}
+
+func selectReviewOverlays(overlays []ReviewProfile, context reviewPlanContext) []reviewOverlaySelection {
+	selected := []reviewOverlaySelection{}
+	for _, overlay := range overlays {
+		matched, category, order := matchReviewOverlay(overlay.Selectors, context)
+		if matched == nil {
+			continue
+		}
+		selection := ReviewPlanProfile{Ref: overlay.Ref(), Category: category, Order: order, Source: ".pose/review-profiles/" + overlay.ID + ".json", Components: matched, Rationale: "matched typed " + category + " selector"}
+		component := ""
+		if len(matched) > 0 {
+			component = matched[0]
+		}
+		selected = append(selected, reviewOverlaySelection{overlay, selection, order, component})
+	}
+	sort.Slice(selected, func(i, j int) bool {
+		if selected[i].order != selected[j].order {
+			return selected[i].order < selected[j].order
+		}
+		if selected[i].order == 3 && selected[i].component != selected[j].component {
+			return selected[i].component < selected[j].component
+		}
+		return selected[i].profile.Ref() < selected[j].profile.Ref()
+	})
+	return selected
+}
+
+// undecidableReviewOverlays returns the adopted, scope-compatible overlays that
+// did not match, so the band summary can state which ones stayed undecided.
+func undecidableReviewOverlays(overlays []ReviewProfile, selected []reviewOverlaySelection) []ReviewProfile {
+	matched := map[string]bool{}
+	for _, item := range selected {
+		matched[item.profile.Ref()] = true
+	}
+	rest := []ReviewProfile{}
+	for _, overlay := range overlays {
+		if !matched[overlay.Ref()] {
+			rest = append(rest, overlay)
+		}
+	}
+	return rest
+}
+
+func addCrossComponentReviewCriterion(criteria []ReviewPlanCriterion, blockers []string, components int) ([]ReviewPlanCriterion, []string, bool) {
+	if components <= 1 {
+		return criteria, blockers, false
+	}
+	criteria, blockers = addReviewCriterion(criteria, ReviewPlanCriterion{
+		ID: "cross-component-integration", Description: "Observed component boundaries and contracts are integrated and covered by current evidence.",
+		Required: true, Kind: ReviewCriterionKindMechanical, EvidenceClasses: []string{"integration"}, Profiles: []string{"synthetic:cross-component"},
+	}, blockers)
+	return criteria, blockers, true
+}
+
+// declaredReviewContext drops the components the plan learned about only from
+// the delivery integrity graph. What remains is the scope the author declared,
+// which is the honest input for a pre-implementation forecast.
+func declaredReviewContext(context reviewPlanContext) reviewPlanContext {
+	projected := context
+	projected.Components = []ReviewPlanComponent{}
+	for _, component := range context.Components {
+		if reviewComponentOrigin(component.Sources) == reviewBasisObserved {
+			continue
+		}
+		projected.Components = append(projected.Components, component)
+	}
+	return projected
+}
+
+// projectDeclaredReviewObligations resolves the plan again over declared scope
+// alone, then reports what the observed scope added. It reuses the selection,
+// composition and tool builders above verbatim: the difference is the input, not
+// the engine, so a delta here is always attributable to a fact and never to a
+// second set of rules.
+func projectDeclaredReviewObligations(plan ReviewPlan, scope ScopeRef, base ReviewProfile, floor string, overlays []ReviewProfile, context reviewPlanContext) ReviewPlanProjection {
+	declared := declaredReviewContext(context)
+	profiles := []ReviewProfile{base}
+	selections := []ReviewPlanProfile{{Ref: base.Ref(), Category: "base", Order: 0, Source: ".pose/review-profiles/" + base.ID + ".json", Rationale: "selected by terminal scope policy"}}
+	independence := floor
+	selected := selectReviewOverlays(overlays, declared)
+	for _, item := range selected {
+		profiles = append(profiles, item.profile)
+		selections = append(selections, item.selection)
+		independence = stricterReviewIndependence(independence, item.profile.Independence)
+	}
+	criteria, _ := composeReviewCriteria(profiles, nil)
+	criteria, _, _ = addCrossComponentReviewCriterion(criteria, nil, len(declared.Components))
+	tools, _, _ := buildReviewTools(scope, declared, profiles, selections, criteria, nil, nil)
+
+	forecast := ReviewPlan{
+		BaseProfile: plan.BaseProfile, Components: declared.Components, SelectedProfiles: selections,
+		Criteria: criteria, Independence: independence,
+	}
+	_, band := deriveReviewBands(forecast, scope.Kind, floor, selected, nil, declared)
+
+	projection := ReviewPlanProjection{
+		Basis: ReviewProjectionBasis, Band: band, Independence: independence,
+		Profiles: reviewProfileRefs(selections), Criteria: reviewCriterionIDs(criteria), Tools: reviewToolKeys(tools),
+	}
+	for _, component := range plan.Components {
+		if reviewComponentOrigin(component.Sources) == reviewBasisObserved {
+			projection.ObservedComponents = append(projection.ObservedComponents, component.Path)
+		}
+	}
+	projection.ScopeExpanded = len(projection.ObservedComponents) > 0
+	projection.AddedProfiles = missingFrom(reviewProfileRefs(plan.SelectedProfiles), projection.Profiles)
+	projection.AddedCriteria = missingFrom(reviewCriterionIDs(plan.Criteria), projection.Criteria)
+	projection.AddedTools = missingFrom(reviewToolKeys(plan.Tools), projection.Tools)
+	if plan.Independence != independence {
+		projection.RaisedIndependence = independence + " -> " + plan.Independence
+	}
+	if plan.Band != band {
+		projection.RaisedBand = band + " -> " + plan.Band
+	}
+	return projection
+}
+
+func reviewProfileRefs(profiles []ReviewPlanProfile) []string {
+	refs := []string{}
+	for _, profile := range profiles {
+		refs = append(refs, profile.Ref)
+	}
+	return uniqueSorted(refs)
+}
+
+func reviewCriterionIDs(criteria []ReviewPlanCriterion) []string {
+	ids := []string{}
+	for _, criterion := range criteria {
+		ids = append(ids, criterion.ID)
+	}
+	return uniqueSorted(ids)
+}
+
+// reviewToolKeys names a tool by id and component, because the same tool scoped
+// to a component the observed scope introduced is an additional obligation.
+func reviewToolKeys(tools []ReviewPlanTool) []string {
+	keys := []string{}
+	for _, tool := range tools {
+		key := tool.ID
+		if tool.Component != "" {
+			key += "@" + tool.Component
+		}
+		keys = append(keys, key)
+	}
+	return uniqueSorted(keys)
+}
+
+func missingFrom(values, known []string) []string {
+	present := map[string]bool{}
+	for _, value := range known {
+		present[value] = true
+	}
+	missing := []string{}
+	for _, value := range values {
+		if !present[value] {
+			missing = append(missing, value)
+		}
+	}
+	return uniqueSorted(missing)
 }
 
 func composeReviewCriteria(profiles []ReviewProfile, blockers []string) ([]ReviewPlanCriterion, []string) {

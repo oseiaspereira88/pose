@@ -488,12 +488,36 @@ obrigatórios: `assumption-integrity`, `design-causality`, `solution-proportiona
 O último inclui negative space e extensibilidade especulativa. Quando ambos
 se aplicam, cada julgamento aparece uma vez e nenhuma tool é acrescentada.
 
-Este incremento inicial usa targets declarados. Ainda não deriva bandas ou
-gatilhos de observações estruturais, compara obrigações prévias/finais nem protege
-contra mudança da própria baseline governante. Um escopo editorial sem target
-não recebe obrigação extra, inclusive num componente high; um target governance
-com entrypoint Markdown continua selecionado. Metadata ausente mantém diagnóstico,
-sem provar baixo risco. Consulte abaixo o contrato de identidade verificada.
+Um escopo editorial sem target não recebe obrigação extra, inclusive num
+componente high; um target governance com entrypoint Markdown continua
+selecionado. Metadata ausente mantém diagnóstico, sem provar baixo risco.
+Consulte abaixo o contrato de identidade verificada.
+
+### Bandas e previsão declarada
+
+`review-plan` informa uma `band` (`baseline`, `elevated`, `critical`) e uma
+entrada em `bands` por motivo, cada uma nomeando o `trigger` (os fatos de selector
+que casaram), o `basis` (`declared`, `observed`, `policy` ou `unknown`), o `source`
+onde o fato é legível, o ref de `policy` que o tornou consequente e as
+`obligations` que ele produziu. Criticidade `high`/`critical`, ou elevação da
+independência do revisor, torna a entrada `critical`; outro overlay que casou a
+torna `elevated`. Um overlay adotado que não conseguiu decidir um componente —
+metadata ausente, ou campo selecionado declarado vazio — gera entrada
+`band: unknown` sem obrigações: a incerteza é mostrada, nunca cobrada e nunca
+lida como baixo risco.
+
+`projection` resolve o mesmo plano só sobre o escopo declarado, rotulado
+`declared-forecast`. Quando a proveniência de entrega atribui mais escopo do que
+a spec declarou, `scope_expanded` é verdadeiro e `observed_components`,
+`added_profiles`, `added_criteria`, `added_tools`, `raised_independence` e
+`raised_band` dizem quais obrigações só a observação produziu. Cada componente
+também carrega `origin` (`declared`, `observed` ou `declared+observed`).
+
+Ambos derivam dos campos que o plano já resolveu, pelos mesmos selectors e
+composer — não há segundo motor de policy — e nenhum entra no digest do plano.
+Publicá-los, portanto, não acrescenta obrigação nem supersede review selado.
+Selectors de observação estrutural e a baseline de policy protegida seguem
+pendentes nesta spec.
 
 ## Autoridade verificável de review (ABM)
 

@@ -489,12 +489,35 @@ judgments: `assumption-integrity`, `design-causality`, `solution-proportionality
 The last includes negative space and speculative extensibility. Matching both
 profiles yields one instance of each judgment and adds no tools.
 
-This initial increment uses declared targets. It does not yet derive bands or
-structural-observation triggers, compare preflight/final obligations, or protect
-against changing the governing baseline itself. A target-free editorial scope
-receives no extra obligation, including in a high component; a governance target
-with a Markdown entrypoint still matches. Missing metadata remains diagnostic,
-not proof of low risk. See the authority contract below for verified identities.
+A target-free editorial scope receives no extra obligation, including in a high
+component; a governance target with a Markdown entrypoint still matches. Missing
+metadata remains diagnostic, not proof of low risk. See the authority contract
+below for verified identities.
+
+### Bands and the declared forecast
+
+`review-plan` reports a `band` (`baseline`, `elevated`, `critical`) and one
+`bands` entry per reason, each naming the `trigger` (the selector facts that
+matched), the `basis` (`declared`, `observed`, `policy` or `unknown`), the
+`source` where the fact is readable, the `policy` ref that made it consequential
+and the `obligations` it produced. A criticality of `high`/`critical`, or a raise
+of reviewer independence, makes an entry `critical`; another matched overlay makes
+it `elevated`. An adopted overlay that could not decide a component — metadata
+missing, or a selected field declared empty — yields a `band: unknown` entry with
+no obligations: uncertainty is shown, never charged, and never read as low risk.
+
+`projection` resolves the same plan over declared scope alone, labelled
+`declared-forecast`. When delivery provenance attributes more scope than the spec
+declared, `scope_expanded` is true and `observed_components`, `added_profiles`,
+`added_criteria`, `added_tools`, `raised_independence` and `raised_band` say which
+obligations only the observation produced. Each component also carries `origin`
+(`declared`, `observed` or `declared+observed`).
+
+Both are derived from the fields the plan already resolved, through the same
+selectors and composer — there is no second policy engine — and neither enters
+the plan digest. Publishing them therefore adds no obligation and supersedes no
+sealed review. Structural-observation selectors and the protected policy baseline
+remain pending work in this spec.
 
 ## Verified review authority (ABM)
 

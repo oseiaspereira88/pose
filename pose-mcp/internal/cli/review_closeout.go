@@ -83,7 +83,24 @@ func cmdReviewPlan(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		return 0
 	}
-	fmt.Fprintf(stdout, "review_plan.scope=%s\nreview_plan.scope_digest=%s\nreview_plan.plan_digest=%s\nreview_plan.base_profile=%s\nreview_plan.independence=%s\nreview_plan.components=%d\nreview_plan.criteria=%d\nreview_plan.tools=%d\n", plan.Scope, plan.ScopeDigest, plan.PlanDigest, plan.BaseProfile, plan.Independence, len(plan.Components), len(plan.Criteria), len(plan.Tools))
+	fmt.Fprintf(stdout, "review_plan.scope=%s\nreview_plan.scope_digest=%s\nreview_plan.plan_digest=%s\nreview_plan.base_profile=%s\nreview_plan.independence=%s\nreview_plan.band=%s\nreview_plan.components=%d\nreview_plan.criteria=%d\nreview_plan.tools=%d\n", plan.Scope, plan.ScopeDigest, plan.PlanDigest, plan.BaseProfile, plan.Independence, plan.Band, len(plan.Components), len(plan.Criteria), len(plan.Tools))
+	// The forecast and the observed expansion print without --explain: a
+	// reviewer who never asks for the long form still has to see that the
+	// obligations in front of them came from scope nobody declared. These lines
+	// go through the renderer, which is also what the output ratchet requires.
+	out := render(stdout, stderr)
+	out.Field("projection.basis", fmt.Sprintf("%s band=%s independence=%s scope_expanded=%t", plan.Projection.Basis, plan.Projection.Band, plan.Projection.Independence, plan.Projection.ScopeExpanded))
+	if plan.Projection.ScopeExpanded || plan.Projection.RaisedIndependence != "" || plan.Projection.RaisedBand != "" {
+		out.Field("projection.expansion", fmt.Sprintf("observed_components:%s added_profiles:%s added_criteria:%s added_tools:%s raised_independence:%s raised_band:%s",
+			strings.Join(plan.Projection.ObservedComponents, ","), strings.Join(plan.Projection.AddedProfiles, ","),
+			strings.Join(plan.Projection.AddedCriteria, ","), strings.Join(plan.Projection.AddedTools, ","),
+			plan.Projection.RaisedIndependence, plan.Projection.RaisedBand))
+	}
+	for _, band := range plan.Bands {
+		if band.Band == posemodel.ReviewBandUnknown {
+			out.Field("projection.undecided", fmt.Sprintf("trigger:%s source:%s policy:%s", band.Trigger, band.Source, band.Policy))
+		}
+	}
 	for _, warning := range groupedReviewPlanWarnings(plan.Warnings) {
 		fmt.Fprintf(stdout, "[WARN] %s\n", warning)
 	}
@@ -93,6 +110,12 @@ func cmdReviewPlan(root string, args []string, stdout, stderr io.Writer) int {
 	if explain {
 		for _, event := range plan.Explain {
 			fmt.Fprintf(stdout, "explain=%s\n", event)
+		}
+		for _, band := range plan.Bands {
+			out.Field("band."+band.Band, fmt.Sprintf("trigger:%s basis:%s source:%s policy:%s obligations:%s", band.Trigger, band.Basis, band.Source, band.Policy, strings.Join(band.Obligations, ",")))
+		}
+		for _, component := range plan.Components {
+			out.Field("component."+component.Path, fmt.Sprintf("origin:%s criticality:%s metadata:%s sources:%s", component.Origin, component.Criticality, component.MetadataStatus, strings.Join(component.Sources, ",")))
 		}
 		for _, profile := range plan.SelectedProfiles {
 			fmt.Fprintf(stdout, "profile.%s=order:%d category:%s source:%s components:%s rationale:%s\n", profile.Ref, profile.Order, profile.Category, profile.Source, strings.Join(profile.Components, ","), profile.Rationale)
