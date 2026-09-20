@@ -1,8 +1,8 @@
 ---
 slug: pose-dist-records-its-own-contract-adoption
-status: in-progress
+status: done
 created_at: 2026-09-20
-completed_at:
+completed_at: 2026-09-20
 supersedes:
 depends_on: pose-abm-progressive-review
 priority: 1
@@ -126,6 +126,30 @@ Measured rather than assumed:
 - The installed 5.0.8 binary resolves a review plan against the reordered policy,
   exit 0. It still refuses bundles carrying `implementation_digest`, which is the
   bundle schema and predates this change: 34 such bundles existed here before it.
+
+### Closeout
+
+2026-09-20 UTC. Bundle `rvb-da308a10dfc0933c`, seven criteria and six tools,
+governed by `explicit-judgment` and `structural-causality` among the five sealed
+contracts. Attestation `rva-0165b2c316dc7764`, `agent:claude-opus-5`, approved;
+`review-check` fresh and approved; `closeout-check` terminal.
+
+`pose close` refused the first attempt, correctly: this spec declares three
+regenerated indexes, and they were still uncommitted, so the attributed change set
+carried no action for them — `action-mismatch [...] declared artifact action is
+absent from the attributed Git change sets`. A declared artifact Git has not observed
+is a claim about nothing. Committing the files with their declaration resolved it.
+
+Worth recording, because it is the ordering that differs from the Harne8 readoption
+closed an hour earlier: there the same three indexes were declared *after* `close`
+had already run, so the gate never saw the mismatch and `pose check` reports it as a
+warning on that spec instead. Same declaration, same files, opposite verdict,
+decided purely by whether the declaration existed when the gate ran.
+
+Re-sealing after that commit produced the same bundle id, `rvb-da308a10dfc0933c`:
+the indexes are derived paths, so a derived-only follow-up commit does not move the
+subject identity, and the existing attestation stayed valid rather than needing to be
+replaced.
 
 ### Requirement trace
 

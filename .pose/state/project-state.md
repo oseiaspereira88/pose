@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-20T01:32:15Z
-baseline_commit: ef8ca9046d8e10f08895b2bb473c6642f19cc7cc
+generated_at: 2026-09-20T15:40:12Z
+baseline_commit: 1fc197034091c44f3a733b438a15ad225694015e
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:e1df0ee44819 -->
+<!-- state:derived hash:83ba38ec2c83 -->
 
-- specs: total=220 draft=5 in-progress=65 blocked=0 done=150 superseded=0 abandoned=0
+- specs: total=224 draft=7 in-progress=65 blocked=0 done=152 superseded=0 abandoned=0
 - roadmaps: total=11 active=1 done=10
 - últimos closeouts:
+  - spec:pose-dist-records-its-own-contract-adoption (2026-09-20)
+  - spec:pose-abm-progressive-review (2026-09-20)
   - spec:pose-abm-doctor-state-health (2026-09-20)
-  - spec:pose-abm-review-tool-deferred-without-delivery (2026-09-19)
-  - spec:pose-abm-design-basis (2026-09-19)
+  - spec:pose-abm-structural-delta (2026-09-19)
   - spec:pose-abm-governance-outcomes (2026-09-19)
-  - spec:pose-abm-review-authority (2026-09-19)
-  - ... e mais 145 (ver `pose_list_specs status:done`)
+  - ... e mais 147 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:a2bc96830f41 -->
@@ -65,10 +65,10 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:e2a47ca24261 -->
+<!-- state:derived hash:976600637a80 -->
 
 - último registro: task=validate-native outcome=pass (2026-09-19T16:20:31Z)
-- últimos 30 dias: total=68 outcome_ok=62 outcome_outro=6
+- últimos 30 dias: total=67 outcome_ok=61 outcome_outro=6
 - reports revisados (.md): total=140
   - report:2026-09-19-standard-validate-native.md
   - report:2026-09-15-standard-validate-native.md
