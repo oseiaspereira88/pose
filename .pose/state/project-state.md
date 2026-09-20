@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-20T19:53:57Z
-baseline_commit: 7b938d55ada40a8a76817f40f4317ec1da3cb966
+generated_at: 2026-09-20T19:59:06Z
+baseline_commit: c8d4b0bdcbb24bb08d63ff8e2ded91e6a2c0c61f
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:b2ce822c2acb -->
+<!-- state:derived hash:5ae6a6d48497 -->
 
-- specs: total=225 draft=5 in-progress=65 blocked=0 done=155 superseded=0 abandoned=0
+- specs: total=225 draft=4 in-progress=65 blocked=0 done=156 superseded=0 abandoned=0
 - roadmaps: total=11 active=1 done=10
 - últimos closeouts:
   - spec:pose-abm-remediation-lineage (2026-09-20)
+  - spec:check-strict-verdict-names-its-mode (2026-09-20)
   - spec:pose-dist-records-its-own-contract-adoption (2026-09-20)
-  - spec:review-policy-adoption-is-the-instances (2026-09-20)
-  - spec:pose-abm-doctor-state-health (2026-09-20)
   - spec:artifact-claims-stop-at-the-section-end (2026-09-20)
-  - ... e mais 150 (ver `pose_list_specs status:done`)
+  - spec:pose-abm-doctor-state-health (2026-09-20)
+  - ... e mais 151 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:6acc7b32b219 -->

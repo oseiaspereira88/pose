@@ -1,8 +1,8 @@
 ---
 slug: check-strict-verdict-names-its-mode
-status: in-progress
+status: done
 created_at: 2026-09-20
-completed_at:
+completed_at: 2026-09-20
 supersedes:
 depends_on:
 priority: 2
@@ -122,6 +122,14 @@ each were wrong:
 
 That last point corrects the original finding's own first reading: `--strict` is
 honored. Only the verdict text was wrong.
+
+### Closeout
+
+2026-09-20 UTC. Bundle `rvb-298789dca8a96ade`, eleven evidence items, under the five
+sealed contracts. Attestation `rva-53ba1cff8683bbb5`, `agent:claude-opus-5`,
+approved; `review-check` fresh and approved; `closeout-check` terminal.
+`surface-check --strict` exits 0 with one inferred-coverage warning kept, for the
+module-granularity reason recorded on the specs closed before it.
 
 ### Requirement trace
 

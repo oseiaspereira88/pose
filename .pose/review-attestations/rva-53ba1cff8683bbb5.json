@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-53ba1cff8683bbb5",
+  "bundle_id": "rvb-298789dca8a96ade",
+  "bundle_digest": "sha256:298789dca8a96adeb2a6ab28389accbaa35032e26db930eccff4214b40c8dbca",
+  "reviewer": "agent:claude-opus-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-verdict-mode-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-verdict-mode-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-verdict-mode-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-verdict-mode-integration",
+      "rationale": "One verdict string in two locales. Exit codes are unchanged in every mode, asserted rather than argued, and the escalation path above the changed line is untouched. Anything parsing the verdict for the literal words tolerant mode would now read strict mode on a strict run, which is the correction rather than a break: the previous text was wrong about the run that produced it."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The changed line carries its reason and names the spec. The spec records that both fixture generators were measured and that the first guess at each was wrong, and it states plainly that the original finding's first reading was also wrong: --strict is honored, only the label was not. The residual risk section says why the test pins the parenthesised mode rather than the whole sentence."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "This is what an operator reads to decide whether a gate passed, so the fix is operability itself: a strict run no longer reports itself as tolerant in a CI log or in a spec's execution log. Nothing else changes — same exit codes, same findings, same counts. Reverting is reverting one string and its test."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-verdict-mode-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-2128faf11a1d3f78",
+      "rationale": "One line in check.go, one test file, the registered producer and the regenerated evidence. The escalation was deliberately not touched even though the original finding first suspected it, because measuring showed it was already correct. No other verdict or locale pair was edited."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-verdict-mode-integration",
+      "rationale": "No trust boundary moves: the change formats an integer and an internal mode string that the parser already restricted to strict or tolerant, with no repository content reaching the message. The escalation test also pins that a malformed index still fails under --strict, so a defect cannot be downgraded to a warning by this change."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/check-verdict-mode-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-2128faf11a1d3f78",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-20T19:58:32Z",
+  "path": ".pose/review-attestations/rva-53ba1cff8683bbb5.json"
+}
