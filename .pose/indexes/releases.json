@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "artifact-claims-stop-at-the-section-end",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The `### Artifacts` section now ends at a heading of any level. It ended only at\nanother `### `, so a spec whose artifact list was followed by `## 4. Tasks` — the\nshape `pose new-spec` scaffolds — had its task checklist parsed as artifact claims,\nand `artifact-check` and `roadmap-check` refused the whole run with\n`malformed artifact claim \"- [ ] ...\"`. Claim sets for the 188 specs in this\nrepository that declare artifacts are unchanged.",
+      "path": "artifact-claims-stop-at-the-section-end.md",
+      "digest": "sha256:e27955a9a4548bfb4f21893c346d7206de2cc7cdf2a637eb0c04c5578782ccfb"
+    },
+    {
       "spec": "pose-abm-progressive-review",
       "category": "added",
       "breaking": false,
