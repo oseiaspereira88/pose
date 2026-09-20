@@ -1983,7 +1983,10 @@ func toolDefinitions() []map[string]any {
 				"criterion, and neither enters the plan digest. When the scope changes review " +
 				"policy or a review profile, the plan is resolved under the protected " +
 				"contract at the change set's base revision and reports what the diff weakened " +
-				"and what was restored for this review. " +
+				"and what was restored for this review. When a profile selects on observed " +
+				"structure, the plan also returns the material structural facts read from both " +
+				"sides of the sealed subject, which a criterion declaring " +
+				"requires_structural_mapping must answer for one by one. " +
 				"This read-only tool never executes a recommendation or mutates the project.",
 			"inputSchema": map[string]any{
 				"type": "object",

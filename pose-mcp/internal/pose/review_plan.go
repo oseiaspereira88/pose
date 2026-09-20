@@ -51,7 +51,11 @@ type ReviewPlanCriterion struct {
 	Kind            string   `json:"kind,omitempty"`
 	Rules           []string `json:"rules,omitempty"`
 	EvidenceClasses []string `json:"evidence_classes,omitempty"`
-	Profiles        []string `json:"profiles"`
+	// RequiresStructuralMapping is resolved from the profiles at plan time and
+	// composes monotonically, the way Kind and independence do: one profile can
+	// raise a criterion to answer for observed structure, and none can lower it.
+	RequiresStructuralMapping bool     `json:"requires_structural_mapping,omitempty"`
+	Profiles                  []string `json:"profiles"`
 }
 
 // ReviewCriterionKind resolves a planned criterion's kind, falling back to the
@@ -116,9 +120,13 @@ type ReviewPlan struct {
 	// consequences reach the digest through Independence, Criteria and Explain;
 	// the struct itself is the readable projection of those explain lines.
 	PolicyBaseline ReviewPlanPolicyBaseline `json:"policy_baseline"`
-	Warnings       []string                 `json:"warnings,omitempty"`
-	Blockers       []string                 `json:"blockers,omitempty"`
-	Explain        []string                 `json:"explain"`
+	// Structure is the observed structural context, resolved only when an
+	// adopted profile selects on it. Unlike the summaries above it is an
+	// obligation input, so it enters the plan digest: see review_structure.go.
+	Structure *ReviewPlanStructure `json:"structure,omitempty"`
+	Warnings  []string             `json:"warnings,omitempty"`
+	Blockers  []string             `json:"blockers,omitempty"`
+	Explain   []string             `json:"explain"`
 }
 
 type reviewRepoEntry struct {
@@ -148,8 +156,12 @@ type reviewPlanContext struct {
 	DeliveryKinds []string
 	ArtifactPaths []string
 	SpecSlugs     []string
-	Warnings      []string
-	Blockers      []string
+	// StructuralKinds is what the subject was observed to do. It is empty unless
+	// an adopted profile selects on it, and it is deliberately absent from the
+	// declared-scope projection: an observation is not a forecast.
+	StructuralKinds []string
+	Warnings        []string
+	Blockers        []string
 }
 
 type reviewToolDefinition struct {
@@ -280,6 +292,23 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 				continue
 			}
 			overlays = append(overlays, overlay)
+		}
+		// Resolved only when something selects on it. A repository that adopted
+		// no structural profile pays nothing here, not even the Git reads, which
+		// is what keeps an opt-in contract opt-in in cost as well as in effect.
+		for _, overlay := range overlays {
+			if len(overlay.Selectors.StructuralKinds) == 0 {
+				continue
+			}
+			plan.Structure = s.resolveReviewStructure(scope, context.Components)
+			context.StructuralKinds = plan.Structure.Kinds
+			if !plan.Structure.Observed {
+				plan.Warnings = append(plan.Warnings, "structural selectors are adopted but the subject was not observed: "+firstNonempty(plan.Structure.Reason, "no reason reported"))
+			}
+			for _, unknown := range plan.Structure.Unknown {
+				plan.Warnings = append(plan.Warnings, "unresolved structural coverage "+unknown)
+			}
+			break
 		}
 		selected = selectReviewOverlays(overlays, context)
 		for _, item := range selected {
@@ -704,7 +733,13 @@ func matchReviewOverlay(selectors ReviewProfileSelectors, context reviewPlanCont
 	if len(selectors.DeliveryKinds)+len(selectors.Criticalities) > 0 {
 		category, order = "delivery", 4
 	}
+	if len(selectors.StructuralKinds) > 0 {
+		category, order = "structure", 5
+	}
 	if len(selectors.DeliveryKinds) > 0 && !intersectsFold(selectors.DeliveryKinds, context.DeliveryKinds) {
+		return nil, category, order
+	}
+	if len(selectors.StructuralKinds) > 0 && !intersectsFold(selectors.StructuralKinds, context.StructuralKinds) {
 		return nil, category, order
 	}
 	matched := []string{}
@@ -729,7 +764,7 @@ func matchReviewOverlay(selectors ReviewProfileSelectors, context reviewPlanCont
 	if len(matched) == 0 && len(selectors.Languages)+len(selectors.Domains)+len(selectors.ComponentIDs)+len(selectors.Criticalities) > 0 {
 		return nil, category, order
 	}
-	if len(selectors.DeliveryKinds) > 0 && len(matched) == 0 && len(selectors.Languages)+len(selectors.Domains)+len(selectors.ComponentIDs)+len(selectors.Criticalities) == 0 {
+	if len(selectors.DeliveryKinds)+len(selectors.StructuralKinds) > 0 && len(matched) == 0 && len(selectors.Languages)+len(selectors.Domains)+len(selectors.ComponentIDs)+len(selectors.Criticalities) == 0 {
 		return []string{}, category, order
 	}
 	return uniqueSorted(matched), category, order
@@ -814,6 +849,10 @@ func addCrossComponentReviewCriterion(criteria []ReviewPlanCriterion, blockers [
 // which is the honest input for a pre-implementation forecast.
 func declaredReviewContext(context reviewPlanContext) reviewPlanContext {
 	projected := context
+	// An observation is not a forecast. Dropping the observed structural kinds
+	// is what makes a structural trigger show up as an expansion rather than as
+	// something the author could have declared up front.
+	projected.StructuralKinds = nil
 	projected.Components = []ReviewPlanComponent{}
 	for _, component := range context.Components {
 		if reviewComponentOrigin(component.Sources) == reviewBasisObserved {
@@ -859,7 +898,8 @@ func projectDeclaredReviewObligations(plan ReviewPlan, scope ScopeRef, base Revi
 			projection.ObservedComponents = append(projection.ObservedComponents, component.Path)
 		}
 	}
-	projection.ScopeExpanded = len(projection.ObservedComponents) > 0
+	projection.ObservedStructure = append([]string{}, context.StructuralKinds...)
+	projection.ScopeExpanded = len(projection.ObservedComponents)+len(projection.ObservedStructure) > 0
 	projection.AddedProfiles = missingFrom(reviewProfileRefs(plan.SelectedProfiles), projection.Profiles)
 	projection.AddedCriteria = missingFrom(reviewCriterionIDs(plan.Criteria), projection.Criteria)
 	projection.AddedTools = missingFrom(reviewToolKeys(plan.Tools), projection.Tools)
@@ -931,7 +971,7 @@ func composeReviewCriteria(profiles []ReviewProfile, blockers []string) ([]Revie
 			if kind == "" {
 				kind = DeriveReviewCriterionKind(classes)
 			}
-			criterion := ReviewPlanCriterion{ID: item.ID, Description: item.Description, Required: required, Kind: kind, Rules: uniqueSorted(item.Rules), EvidenceClasses: classes, Profiles: []string{profile.Ref()}}
+			criterion := ReviewPlanCriterion{ID: item.ID, Description: item.Description, Required: required, Kind: kind, Rules: uniqueSorted(item.Rules), EvidenceClasses: classes, RequiresStructuralMapping: item.RequiresStructuralMapping, Profiles: []string{profile.Ref()}}
 			criteria, blockers = addReviewCriterion(criteria, criterion, blockers)
 		}
 	}
@@ -957,6 +997,7 @@ func addReviewCriterion(criteria []ReviewPlanCriterion, candidate ReviewPlanCrit
 		} else {
 			criteria[i].Kind = ReviewCriterionKindMechanical
 		}
+		criteria[i].RequiresStructuralMapping = criteria[i].RequiresStructuralMapping || candidate.RequiresStructuralMapping
 		criteria[i].Profiles = uniqueSorted(append(criteria[i].Profiles, candidate.Profiles...))
 		return criteria, blockers
 	}
@@ -1218,6 +1259,16 @@ func digestReviewPlan(plan ReviewPlan) (string, error) {
 	for _, component := range plan.Components {
 		components = append(components, digestComponent{component.ID, component.Path, component.Kind, component.Language, component.Domain, component.Criticality, component.ValidationProfile, component.MetadataStatus, component.Sources})
 	}
+	// The material structural set is hashed, the coverage report is not. A
+	// criterion answering for observed structure owes one answer per material
+	// fact, so gaining a fact must stale a sealed review; a detector that learns
+	// to report one more unknown must not. Omitted entirely when nothing selected
+	// on structure, so a plan from before this contract keeps its digest.
+	var structure *[]ReviewStructuralFact
+	if plan.Structure != nil && len(plan.Structure.Material) > 0 {
+		material := append([]ReviewStructuralFact{}, plan.Structure.Material...)
+		structure = &material
+	}
 	return digestJSON(struct {
 		SchemaVersion                                 int
 		Scope, ScopeDigest, BaseProfile, Independence string
@@ -1228,7 +1279,8 @@ func digestReviewPlan(plan ReviewPlan) (string, error) {
 		Tools                                         []ReviewPlanTool
 		Warnings, Blockers                            []string
 		Explain                                       []string
-	}{plan.SchemaVersion, plan.Scope, plan.ScopeDigest, plan.BaseProfile, plan.Independence, plan.PolicySchemaVersion, components, plan.SelectedProfiles, plan.Criteria, plan.Tools, plan.Warnings, plan.Blockers, plan.Explain})
+		Structure                                     *[]ReviewStructuralFact `json:",omitempty"`
+	}{plan.SchemaVersion, plan.Scope, plan.ScopeDigest, plan.BaseProfile, plan.Independence, plan.PolicySchemaVersion, components, plan.SelectedProfiles, plan.Criteria, plan.Tools, plan.Warnings, plan.Blockers, plan.Explain, structure})
 }
 
 func validateReviewPath(root, value string) error {

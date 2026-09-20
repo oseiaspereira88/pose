@@ -5,6 +5,32 @@
   "type": "object",
   "additionalProperties": true,
   "required": ["schema_version", "attestation_id", "bundle_id", "bundle_digest", "reviewer", "decision", "criteria", "findings", "attested_at"],
+  "$defs": {
+    "criterionDisposition": {
+      "type": "object", "additionalProperties": true,
+      "required": ["id", "disposition"],
+      "properties": {
+        "id": {"type": "string"},
+        "disposition": {"enum": ["passed", "not-applicable", "finding"]},
+        "evidence": {"type": "string"},
+        "rationale": {"type": "string"},
+        "mappings": {
+          "comment": "One answer per material structural fact, required when the planned criterion declares requires_structural_mapping. Either a basis that reaches a requirement or constraint, or one of the three explicit non-mappings with a rationale.",
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": true,
+            "required": ["delta"],
+            "properties": {
+              "delta": {"type": "string", "pattern": "^SD-[0-9a-f]{8,12}$"},
+              "basis": {"type": "string", "pattern": "^[RACD][0-9]+$"},
+              "disposition": {"enum": ["mapped", "missing-evidence", "not-applicable", "accepted-risk"]},
+              "rationale": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  },
   "properties": {
     "schema_version": {"const": 1},
     "attestation_id": {"type": "string", "pattern": "^rva-[a-f0-9]{16}$"},
@@ -12,7 +38,7 @@
     "bundle_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
     "reviewer": {"type": "string", "pattern": "^(agent|human):[^\\r\\n]+$"},
     "decision": {"enum": ["approved", "approved-with-reservations", "changes-requested", "rejected"]},
-    "criteria": {"type": "array", "items": {"type": "object"}},
+    "criteria": {"type": "array", "items": {"$ref": "#/$defs/criterionDisposition"}},
     "tools": {"type": "array", "items": {"type": "object"}},
     "evidence_refs": {"type": "array", "items": {"type": "string"}},
     "findings": {"type": "array", "items": {"type": "object"}},

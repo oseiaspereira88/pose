@@ -24,3 +24,18 @@ softened from required to optional or from judged to collected. `policy_baseline
 reports what was weakened and restored. A diff that disables review, or that
 removes the profile the policy points at, no longer makes itself unreviewable; an
 unresolvable base is reported unprotected rather than implied protected.
+
+Review profiles can select on observed structure. `structural-materiality@1` ships
+opt-in and matches what the sealed subject was observed to do — direct
+dependencies, component boundaries, delivery metadata, governance contracts,
+public contracts and submodules — so an undeclared scope can still be material
+while a transitive bump, a lock file or an unreadable manifest is reported without
+becoming an obligation. Under the new `structural-causality` contract, a criterion
+declaring `requires_structural_mapping` must answer for each material fact with a
+decision basis that reaches a requirement, or with an explicit missing-evidence,
+not-applicable or accepted-risk and a rationale; record them with
+`pose review attest --mapping`.
+
+Fixed: the structural detector treated a directory prefix as proof, so every file
+under a top-level `api/` — including a README — was observed as a public-contract
+change. The prefix rules now require a contract-bearing file shape.

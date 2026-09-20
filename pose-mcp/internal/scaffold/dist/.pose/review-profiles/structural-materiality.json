@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "structural-materiality",
+  "version": 1,
+  "scope": "spec",
+  "selectors": {"structural_kinds": ["dependency", "component", "delivery-metadata", "governance-contract", "public-contract", "submodule"]},
+  "criteria": [
+    {"id": "assumption-integrity", "kind": "judgment", "description": "Identify material assumptions and their applicable evidence; distinguish verified facts, unresolved assumptions and accepted risks."},
+    {"id": "design-causality", "kind": "judgment", "requires_structural_mapping": true, "description": "Explain how the selected design addresses the stated requirement and material cause, citing the relevant decision basis and structural observations where available."},
+    {"id": "solution-proportionality", "kind": "judgment", "description": "Compare the solution with the smallest sufficient alternative, including negative space, speculative extensibility and the condition that would invalidate the choice."}
+  ]
+}

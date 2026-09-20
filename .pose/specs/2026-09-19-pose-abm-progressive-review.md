@@ -115,6 +115,42 @@ plan's `additionalProperties` already implied.
 A contract change whose base cannot be resolved is reported unprotected with a
 warning and an `unknown` band; POSE does not imply protection it did not have.
 
+### Increment 4
+
+Declared metadata is the author's account of a change, and a poor last trigger.
+`structural_kinds` adds the other half: selectors over what the subject was
+observed to do, read from both sides of the sealed subject. It composes
+conjunctively like `delivery_kinds`, its vocabulary is closed to the kinds a
+detector can observe as material, and nothing is resolved unless an adopted
+profile selects on it — a repository that did not opt in pays nothing, not even
+the Git reads. The subject is built by the same builder the bundle uses, which
+knows nothing about plans, so there is no cycle.
+
+Materiality is bounded so nobody owes a decision per file: a transitive
+dependency, a lock file, a rename and an unreadable manifest are observed and
+reported, and none is material; a `component` whose action is `changed` only
+restates the manifest edit beside it. Unknown readings go to `structure.unknown`,
+shown and never charged. Unlike the band summary, the material set enters the plan
+digest: a criterion answering for observed structure owes one answer per fact, so
+gaining a fact must stale a sealed review rather than silently owe more.
+
+R7 attaches to whichever criterion declares `requires_structural_mapping` — the
+profile says which, so the engine never knows a criterion id by name. Under the
+new `structural-causality` contract, passing it needs one mapping per material
+fact: a `basis` reaching a requirement or constraint, or an explicit
+`missing-evidence`, `not-applicable` or `accepted-risk` with a rationale. The
+engine checks namespace, existence and reach — a decision reaching nothing states
+a choice without the requirement that pays for it — and never checks whether the
+causal claim is true. Disposing the criterion `not-applicable` while material
+facts exist is refused. Bundles sealed before the contract never list it.
+
+The corpus exposed a defect in the delivered structural detector: a directory
+prefix was treated as proof, so every file under a top-level `api/` — a README
+included — was observed as a `public-contract` change. That overstated the subject
+for every consumer of `assess design`, and under this increment it would have made
+a documentation edit owe a causal mapping. The prefix rules now require a
+contract-bearing file shape; the explicit suffix and path rules are unchanged.
+
 ### Artifacts
 
 - created: .pose/specs/2026-09-19-pose-abm-progressive-review.md
@@ -143,6 +179,15 @@ warning and an `unknown` band; POSE does not imply protection it did not have.
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: pose-mcp/schemas/v1/review-plan.schema.json
+- modified: pose-mcp/schemas/v1/review-attestation.schema.json
+- created: pose-mcp/internal/pose/review_structure.go
+- created: pose-mcp/internal/pose/review_structure_test.go
+- created: .pose/review-profiles/structural-materiality.json
+- created: pose-mcp/internal/scaffold/dist/.pose/review-profiles/structural-materiality.json
+- modified: pose-mcp/internal/pose/review_bands.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/design_delta.go
+- modified: pose-mcp/internal/cli/help_catalog.go
 - modified: .pose/assessments/README.md
 - modified: .pose/assessments/consolidated.md
 - modified: .pose/assessments/pose-mcp.md
@@ -167,7 +212,8 @@ this increment's extra criteria; retain immutable prior reviews.
 - [x] Distribute opt-in profiles and cover installation, selection and no-downgrade.
 - [x] Derive band explanations and declared/observed obligation deltas from the
   common plan; expose undecided selectors without escalating them.
-- [ ] Add observed structural selectors and the R7 advisory mapping.
+- [x] Add observed structural selectors and the R7 advisory mapping, bounded by a
+  closed material vocabulary and a sealed governing contract.
 - [x] Enforce the protected policy baseline, including a disabled policy and a
   removed profile in the reviewed diff.
 - [ ] Validate the full requirement corpus, review and close through POSE.
@@ -195,6 +241,8 @@ Required plan recorded before implementation:
 | Bands, undecided selectors, plan identity, observed expansion | `go test ./internal/pose -run 'ABMProgressiveReviewBands\|ABMProgressiveReviewUnknown\|ABMProgressiveReviewObserved\|ABMProgressiveReviewCriticalityEscalates' -count=1` | Explained trigger/basis/source/policy/obligation; unknown priced at zero; digest unchanged; expansion attributed |
 | Shared plan across consumers | `go test ./internal/cli -run ABMProgressiveReview -count=1` | CLI JSON equals the store plan; band and forecast visible without `--explain` |
 | Protected baseline: restoration, disabled policy, removed profile, unresolvable base, ordinary scope | `go test ./internal/pose -run ABMProtectedBaseline -count=1` | Floor and criteria restored upward with provenance; contract change reviewable in every case; unprotected states stated, not assumed |
+| Observed structure: undeclared materiality, transitive/lock/unsupported exclusion | `go test ./internal/pose -run ABMStructuralSelectors\|ABMStructuralMateriality -count=1` | Material fact triggers an opt-in profile and enters the digest; non-material observation adds nothing and reports uncertainty |
+| R7 mapping: coverage, namespace, reach, three non-mappings, opt-in, sealed contract | `go test ./internal/pose -run ABMStructuralCausality -count=1` | Every material fact answered; basis must reach a requirement; the three refusals kept apart; ungoverned bundles keep their verdict |
 | Distribution parity | `go test ./internal/scaffold -run TestEmbeddedDistMatchesPoseDist -count=1` | Embedded and canonical assets agree |
 | Full module | `pose validate --strict --module pose-mcp` (from repository root) | Build, tests, vet and registered integration checks pass |
 
@@ -283,6 +331,13 @@ criterion, not restoring a softened one, refusing a plan for a disabled policy, 
 claiming protection without applying it each failed exactly the case that asserts
 it. The full module suite and `go vet` stayed green.
 
+Increment 4 defect injection, seven cases: accepting an uncovered material fact,
+accepting a basis that reaches no requirement, accepting an unreasoned
+non-mapping, counting a transitive dependency as material, restating a manifest
+edit as a boundary change, resolving the forecast from the observation, and
+restoring the over-broad `api/` prefix each failed exactly the case that asserts
+it. Full module suite and `go vet` green.
+
 ### Requirement trace
 
 No requirement is terminally satisfied yet. Increment 1 exercises R1, R3, the
@@ -291,13 +346,19 @@ Increment 2 adds R2 in full — band explanations carrying trigger, basis, sourc
 policy and obligation, derived without a second engine — R5 in full, and the
 uncertainty half of R8. Increment 3 completes R4: the independence floor holds
 against overlays and author metadata, and a governance change is now reviewed under
-a protected contract baseline. R7 and the observed structural triggers still needed
-by R6 require subsequent implementation.
+a protected contract baseline. Increment 4 completes R6 and R7: an undeclared scope
+becomes material through observed structure, a non-material observation adds
+nothing, and a criterion answering for structure maps each material fact or
+disposes of it as missing evidence, not applicable or accepted risk. R8's shared
+plan is covered for CLI and MCP; portal composition remains Harne8's
+review-experience by this spec's own scope.
 
 ## 7. Final Report
 
-Increments 1 to 3 are implemented and verified through installation, CLI, MCP
-catalog parity and the scoped delivery gate. The spec remains in-progress for
-observed structural triggers and the R7 advisory mapping. No release, deployment, global adoption or full roadmap closeout is
+All four increments are implemented and verified through installation, CLI, MCP
+catalog parity and the scoped delivery gate. Every requirement now has
+implementation and a negative corpus; what remains is the spec's last task — the
+full-corpus validation, explicit review and closeout through POSE, which is a
+governance step and not further implementation. No release, deployment, global adoption or full roadmap closeout is
 claimed.
 All remaining acceptance work stays in this spec's requirements/tasks.

@@ -516,7 +516,45 @@ também carrega `origin` (`declared`, `observed` ou `declared+observed`).
 Ambos derivam dos campos que o plano já resolveu, pelos mesmos selectors e
 composer — não há segundo motor de policy — e nenhum entra no digest do plano.
 Publicá-los, portanto, não acrescenta obrigação nem supersede review selado.
-Selectors de observação estrutural seguem pendentes nesta spec.
+
+### Estrutura observada e mapeamento causal
+
+Metadata declarada é o relato do autor sobre a mudança: bom como primeiro gatilho
+e ruim como último. Adotando `structural-materiality@1`, um profile também
+seleciona pelo que o subject foi observado fazer, lido dos dois lados do subject
+selado. `structural_kinds` compõe conjuntivamente com os outros selectors e tem
+vocabulário fechado nos kinds que um detector pode observar como material:
+`dependency`, `component`, `delivery-metadata`, `governance-contract`,
+`public-contract`, `submodule`.
+
+A materialidade é limitada de propósito. Dependência transitiva, lock file,
+renomeação e manifesto ilegível são todos observados e reportados, e nenhum é
+material: os dois primeiros são consequência e não decisão, um `component` com
+ação `changed` apenas repete a edição de manifesto ao lado dele, e leitura unknown
+é incerteza — `structure.unknown` mostra e nunca cobra. Nada é resolvido se nenhum
+profile adotado selecionar por estrutura: quem não optou não paga nada, nem as
+leituras de Git.
+
+Diferente do resumo de bandas, o conjunto material entra no digest do plano: um
+critério que responde por estrutura observada deve uma resposta por fato, então
+ganhar um fato torna o review selado stale em vez de dever mais em silêncio.
+
+O critério que declara `requires_structural_mapping` carrega a obrigação, e é o
+profile — não o engine — que diz qual. Sob o contrato `structural-causality`,
+aprová-lo exige uma entrada em `mappings` por fato material: um `basis` apontando
+requisito ou constraint, ou assumption/decision que alcance um, ou
+`missing-evidence`, `not-applicable` ou `accepted-risk` explícito com rationale.
+Os três ficam distintos porque "ainda não temos evidência", "não se aplica" e
+"aceitamos o risco" são três afirmações que um único campo vazio escondia.
+Registre com
+`pose review attest --mapping <criterion>|<delta>|<basis-or-disposition>|<why>`.
+
+O engine verifica namespace, existência e alcance até um requisito — apontar
+decisão que não alcança nada afirma escolha sem o requisito que a paga — e nunca
+verifica se a afirmação causal é verdadeira: isso é julgamento do revisor. Dispor
+o critério como `not-applicable` enquanto o subject carrega fatos materiais é
+recusado: mudança estrutural observada não é inaplicável, é não mapeada. Bundles
+selados antes do contrato não o listam e mantêm o veredito.
 
 ### Baseline de policy protegida
 

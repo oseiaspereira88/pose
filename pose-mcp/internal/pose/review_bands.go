@@ -71,6 +71,9 @@ type ReviewPlanProjection struct {
 
 	ScopeExpanded      bool     `json:"scope_expanded"`
 	ObservedComponents []string `json:"observed_components,omitempty"`
+	// ObservedStructure names the material structural kinds the subject was
+	// observed to carry. They are obligations no declaration produced.
+	ObservedStructure  []string `json:"observed_structure,omitempty"`
 	AddedProfiles      []string `json:"added_profiles,omitempty"`
 	AddedCriteria      []string `json:"added_criteria,omitempty"`
 	AddedTools         []string `json:"added_tools,omitempty"`
@@ -174,7 +177,7 @@ func reviewCriteriaForProfile(criteria []ReviewPlanCriterion, ref string) []stri
 
 // reviewOverlayFacts resolves the selector facts that actually matched, so a
 // trigger names the observation and not the whole selector block.
-func reviewOverlayFacts(selectors ReviewProfileSelectors, matched []string, components map[string]ReviewPlanComponent, deliveryKinds []string) (string, string, bool) {
+func reviewOverlayFacts(selectors ReviewProfileSelectors, matched []string, components map[string]ReviewPlanComponent, deliveryKinds, structuralKinds []string) (string, string, bool) {
 	facts, criticalities := []string{}, []string{}
 	values := func(pick func(ReviewPlanComponent) string, accepted []string) []string {
 		found := []string{}
@@ -198,6 +201,15 @@ func reviewOverlayFacts(selectors ReviewProfileSelectors, matched []string, comp
 		}
 		facts = append(facts, "delivery_kind="+strings.Join(uniqueSorted(kinds), ","))
 	}
+	if len(selectors.StructuralKinds) > 0 {
+		kinds := []string{}
+		for _, kind := range structuralKinds {
+			if containsFold(selectors.StructuralKinds, kind) {
+				kinds = append(kinds, kind)
+			}
+		}
+		facts = append(facts, "structural_kind="+strings.Join(uniqueSorted(kinds), ","))
+	}
 	if len(selectors.Languages) > 0 {
 		facts = append(facts, "language="+strings.Join(values(func(c ReviewPlanComponent) string { return c.Language }, selectors.Languages), ","))
 	}
@@ -212,21 +224,38 @@ func reviewOverlayFacts(selectors ReviewProfileSelectors, matched []string, comp
 		facts = append(facts, "criticality="+strings.Join(criticalities, ","))
 	}
 	escalating := containsFold(criticalities, "high") || containsFold(criticalities, "critical")
-	basis := reviewBasisDeclared
-	if len(matched) > 0 {
-		origins := []string{}
+
+	// The basis belongs to the facts that actually triggered, not to whichever
+	// components happen to be in scope. A delivery-kind selector triggers on a
+	// declaration; a structural selector triggers on an observation; a
+	// component-level selector triggers on component metadata, and only then
+	// does the component's own origin decide. Reading the component origin for a
+	// selector that never looked at a component reported an observation as a
+	// declaration and the reverse.
+	declared := len(selectors.DeliveryKinds) > 0
+	observed := len(selectors.StructuralKinds) > 0
+	if len(selectors.Languages)+len(selectors.Domains)+len(selectors.ComponentIDs)+len(selectors.Criticalities) > 0 {
 		for _, path := range matched {
-			if component, ok := components[path]; ok {
-				origins = append(origins, reviewComponentOrigin(component.Sources))
+			component, ok := components[path]
+			if !ok {
+				continue
+			}
+			switch reviewComponentOrigin(component.Sources) {
+			case reviewBasisObserved:
+				observed = true
+			case reviewBasisBoth:
+				declared, observed = true, true
+			default:
+				declared = true
 			}
 		}
-		origins = uniqueSorted(origins)
-		switch {
-		case len(origins) == 1:
-			basis = origins[0]
-		case len(origins) > 1:
-			basis = reviewBasisBoth
-		}
+	}
+	basis := reviewBasisDeclared
+	switch {
+	case declared && observed:
+		basis = reviewBasisBoth
+	case observed:
+		basis = reviewBasisObserved
 	}
 	return strings.Join(facts, " "), basis, escalating
 }
@@ -252,7 +281,7 @@ func deriveReviewBands(plan ReviewPlan, scopeKind, floor string, selected []revi
 	for _, item := range selected {
 		ref := item.profile.Ref()
 		raised := stricterReviewIndependence(effective, item.profile.Independence) != effective
-		trigger, basis, escalating := reviewOverlayFacts(item.profile.Selectors, item.selection.Components, components, context.DeliveryKinds)
+		trigger, basis, escalating := reviewOverlayFacts(item.profile.Selectors, item.selection.Components, components, context.DeliveryKinds, context.StructuralKinds)
 		band := ReviewBandElevated
 		if escalating || raised {
 			band = ReviewBandCritical
@@ -260,6 +289,9 @@ func deriveReviewBands(plan ReviewPlan, scopeKind, floor string, selected []revi
 		sources := []string{}
 		if len(item.profile.Selectors.DeliveryKinds) > 0 {
 			sources = append(sources, "delivery-target:"+strings.Join(context.SpecSlugs, ","))
+		}
+		if len(item.profile.Selectors.StructuralKinds) > 0 {
+			sources = append(sources, "subject-observation")
 		}
 		if len(item.selection.Components) > 0 {
 			sources = append(sources, "component:"+strings.Join(item.selection.Components, ","))
@@ -276,6 +308,9 @@ func deriveReviewBands(plan ReviewPlan, scopeKind, floor string, selected []revi
 	}
 	for _, overlay := range undecidable {
 		if len(overlay.Selectors.DeliveryKinds) > 0 && !intersectsFold(overlay.Selectors.DeliveryKinds, context.DeliveryKinds) {
+			continue
+		}
+		if len(overlay.Selectors.StructuralKinds) > 0 && !intersectsFold(overlay.Selectors.StructuralKinds, context.StructuralKinds) {
 			continue
 		}
 		for _, component := range plan.Components {

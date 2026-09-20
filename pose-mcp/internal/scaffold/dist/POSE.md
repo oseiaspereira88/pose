@@ -503,7 +503,47 @@ obligations only the observation produced. Each component also carries `origin`
 Both are derived from the fields the plan already resolved, through the same
 selectors and composer — there is no second policy engine — and neither enters
 the plan digest. Publishing them therefore adds no obligation and supersedes no
-sealed review. Structural-observation selectors remain pending work in this spec.
+sealed review.
+
+### Observed structure and causal mapping
+
+Declared metadata is the author's account of a change; it is a good first trigger
+and a poor last one. Adopt `structural-materiality@1` and a profile also selects
+on what the subject was observed to do, read from both sides of the sealed
+subject. `structural_kinds` composes conjunctively with the other selectors, and
+its vocabulary is closed to the kinds a detector can observe as material:
+`dependency`, `component`, `delivery-metadata`, `governance-contract`,
+`public-contract`, `submodule`.
+
+Materiality is bounded on purpose. A transitive dependency, a lock file, a rename
+and an unreadable manifest are all observed and all reported, and none is
+material: the first two are consequences rather than decisions, a `component`
+whose action is `changed` only restates the manifest edit beside it, and an
+unknown reading is uncertainty, which `structure.unknown` shows and never charges.
+Nothing is resolved at all unless an adopted profile selects on structure, so a
+repository that did not opt in pays nothing, not even the Git reads.
+
+Unlike the band summary, the material set enters the plan digest: a criterion that
+answers for observed structure owes one answer per fact, so gaining a fact makes a
+sealed review stale instead of silently owing more.
+
+A criterion declaring `requires_structural_mapping` carries that obligation, and
+the profile — not the engine — says which one. Under the `structural-causality`
+contract, passing it requires one `mappings` entry per material fact: either a
+`basis` naming a requirement or constraint, or an assumption or decision that
+reaches one, or an explicit `missing-evidence`, `not-applicable` or
+`accepted-risk` with a rationale. Those three are kept apart because "we have no
+evidence yet", "this does not apply" and "we accept this risk" are three
+statements a single blank used to hide. Record them with
+`pose review attest --mapping <criterion>|<delta>|<basis-or-disposition>|<why>`.
+
+The engine checks the namespace, the existence and the reach to a requirement —
+pointing at a decision that reaches nothing states a choice without the
+requirement that pays for it — and never checks whether the causal claim is true.
+That is the reviewer's judgment. Disposing the criterion `not-applicable` while
+the subject carries material facts is refused: an observed structural change is
+not inapplicable, it is unmapped. Bundles sealed before the contract existed never
+list it and keep their verdict.
 
 ### Protected policy baseline
 

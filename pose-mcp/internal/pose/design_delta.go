@@ -755,10 +755,30 @@ func designMetadataKind(path string) string {
 	return ""
 }
 
+// designContractBearingExtensions are the file shapes that carry a contract.
+// The directory rules below need them because a directory name is a hint, not a
+// fact: everything under a top-level `api/` is not a public contract, and a
+// README that lives there is a document. Observing it as a contract change
+// overstated the subject for every consumer of the report, and it would make a
+// documentation edit owe a causal mapping once a profile answers for structure.
+var designContractBearingExtensions = []string{".json", ".yaml", ".yml", ".proto", ".graphql", ".graphqls", ".avsc", ".thrift", ".sql", ".wsdl", ".xsd"}
+
+func designContractBearingFile(lower string) bool {
+	for _, extension := range designContractBearingExtensions {
+		if strings.HasSuffix(lower, extension) {
+			return true
+		}
+	}
+	return false
+}
+
 func designPublicContractKind(path string) string {
 	path = normalizeDesignPath(path)
 	lower := strings.ToLower(path)
-	if strings.HasPrefix(lower, "schemas/") || strings.HasPrefix(lower, "api/") || strings.HasSuffix(lower, ".proto") || strings.HasSuffix(lower, ".graphql") || strings.HasSuffix(lower, "openapi.yaml") || strings.HasSuffix(lower, "openapi.json") || lower == "pose-mcp/server.json" {
+	if strings.HasSuffix(lower, ".proto") || strings.HasSuffix(lower, ".graphql") || strings.HasSuffix(lower, "openapi.yaml") || strings.HasSuffix(lower, "openapi.json") || lower == "pose-mcp/server.json" {
+		return "public-contract"
+	}
+	if (strings.HasPrefix(lower, "schemas/") || strings.HasPrefix(lower, "api/")) && designContractBearingFile(lower) {
 		return "public-contract"
 	}
 	return ""

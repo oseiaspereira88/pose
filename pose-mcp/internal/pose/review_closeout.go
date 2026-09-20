@@ -73,6 +73,12 @@ type ReviewCriterionProfile struct {
 	Rules           []string `json:"rules,omitempty"`
 	EvidenceClasses []string `json:"evidence_classes,omitempty"`
 	Required        *bool    `json:"required,omitempty"`
+	// RequiresStructuralMapping says this criterion answers for the material
+	// structural facts observed on the sealed subject: passing it then has to
+	// map each of them to a decision basis, or dispose of it explicitly. The
+	// profile declares which criterion carries that obligation, so the engine
+	// never has to know a criterion id by name.
+	RequiresStructuralMapping bool `json:"requires_structural_mapping,omitempty"`
 }
 
 // ReviewCriterionKindMechanical and ReviewCriterionKindJudgment are the closed
@@ -105,6 +111,18 @@ type ReviewProfileSelectors struct {
 	ComponentIDs  []string `json:"component_ids,omitempty"`
 	DeliveryKinds []string `json:"delivery_kinds,omitempty"`
 	Criticalities []string `json:"criticalities,omitempty"`
+	// StructuralKinds selects on what the subject was observed to do, not on
+	// what the scope declared. It composes conjunctively with the selectors
+	// above, exactly like DeliveryKinds: a profile naming both matches only a
+	// scope that satisfies both. It is what lets an undeclared scope still be
+	// material — a dependency the author did not mention is a fact — without
+	// making a Markdown extension proof of low risk.
+	//
+	// The vocabulary is closed to the kinds a detector can emit as material.
+	// A profile selecting a kind nothing can observe would plan a gate only a
+	// fabricated disposition could pass, which is the failure the evidence-class
+	// vocabulary already refuses one level up.
+	StructuralKinds []string `json:"structural_kinds,omitempty"`
 }
 
 type ReviewProfileTool struct {
@@ -247,7 +265,36 @@ type ReviewCriterion struct {
 	Disposition string `json:"disposition"`
 	Evidence    string `json:"evidence,omitempty"`
 	Rationale   string `json:"rationale,omitempty"`
+	// Mappings answer the material structural facts a criterion carrying
+	// RequiresStructuralMapping is responsible for. Absent on every attempt
+	// recorded before the contract existed, which is why it is omitempty: an
+	// older attempt marshals byte-identically and keeps its digest.
+	Mappings []ReviewCriterionMapping `json:"mappings,omitempty"`
 }
+
+// ReviewCriterionMapping is one reviewer answer about one observed structural
+// fact. Either it points at the decision basis that justifies the fact, or it
+// says explicitly why it does not — and the three ways of not pointing are kept
+// apart, because "we have no evidence yet", "this does not apply" and "we accept
+// this risk" are three different statements that a single blank used to hide.
+type ReviewCriterionMapping struct {
+	// Delta is the structural fact's stable display id, as the plan published it.
+	Delta string `json:"delta"`
+	// Basis is a decision-basis ref: a requirement or constraint directly, or an
+	// assumption/decision that reaches one. Required when Disposition is mapped.
+	Basis string `json:"basis,omitempty"`
+	// Disposition is mapped, missing-evidence, not-applicable or accepted-risk.
+	Disposition string `json:"disposition,omitempty"`
+	Rationale   string `json:"rationale,omitempty"`
+}
+
+// The closed set of mapping dispositions.
+const (
+	ReviewMappingMapped          = "mapped"
+	ReviewMappingMissingEvidence = "missing-evidence"
+	ReviewMappingNotApplicable   = "not-applicable"
+	ReviewMappingAcceptedRisk    = "accepted-risk"
+)
 
 type ReviewFinding struct {
 	ID          string `json:"id"`
@@ -496,6 +543,11 @@ func (s Store) parseReviewProfile(ref string, raw []byte) (ReviewProfile, error)
 	if p.Independence != "" && !validReviewIndependence(p.Independence) {
 		return ReviewProfile{}, fmt.Errorf("pose: invalid reviewer independence %q in %s", p.Independence, ref)
 	}
+	for _, kind := range p.Selectors.StructuralKinds {
+		if !MaterialStructuralKinds[kind] {
+			return ReviewProfile{}, fmt.Errorf("pose: structural kind %q in %s is not one a detector may observe as material (%s)", kind, ref, strings.Join(sortedMaterialStructuralKinds(), ", "))
+		}
+	}
 	for _, selector := range append(append(append(append([]string{}, p.Selectors.Languages...), p.Selectors.Domains...), p.Selectors.DeliveryKinds...), p.Selectors.Criticalities...) {
 		if !slugPattern.MatchString(selector) {
 			return ReviewProfile{}, fmt.Errorf("pose: invalid review selector %q in %s", selector, ref)
@@ -549,7 +601,7 @@ func (s Store) validateReviewContractRefs(ref string, rules, evidenceClasses []s
 }
 
 func hasReviewSelectors(selectors ReviewProfileSelectors) bool {
-	return len(selectors.Languages)+len(selectors.Domains)+len(selectors.ComponentIDs)+len(selectors.DeliveryKinds)+len(selectors.Criticalities) > 0
+	return len(selectors.Languages)+len(selectors.Domains)+len(selectors.ComponentIDs)+len(selectors.DeliveryKinds)+len(selectors.Criticalities)+len(selectors.StructuralKinds) > 0
 }
 
 func validReviewIndependence(value string) bool {
@@ -1360,6 +1412,12 @@ var reviewContracts = []ReviewContract{
 		ID:           "explicit-judgment",
 		LegacyField:  "explicit_judgment_adopted_at",
 		Summary:      "a judgment criterion is answered by a reviewer with a conclusion, never filled from collected evidence",
+		IntroducedIn: "6.0.0",
+	},
+	{
+		ID:           "structural-causality",
+		LegacyField:  "structural_causality_adopted_at",
+		Summary:      "a criterion answering for observed structure maps each material fact to a decision basis, or disposes of it as missing evidence, not applicable or accepted risk",
 		IntroducedIn: "6.0.0",
 	},
 }

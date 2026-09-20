@@ -101,6 +101,20 @@ func cmdReviewPlan(root string, args []string, stdout, stderr io.Writer) int {
 			out.Field("projection.undecided", fmt.Sprintf("trigger:%s source:%s policy:%s", band.Trigger, band.Source, band.Policy))
 		}
 	}
+	// The material facts are what a criterion answering for observed structure
+	// owes an answer for, so their ids are printed, not just counted: they are
+	// the values the reviewer passes back to `review attest --mapping`.
+	if plan.Structure != nil {
+		out.Field("structure", fmt.Sprintf("observed:%t status:%s kinds:%s material:%d unknown:%d reason:%s",
+			plan.Structure.Observed, plan.Structure.Status, strings.Join(plan.Structure.Kinds, ","),
+			len(plan.Structure.Material), len(plan.Structure.Unknown), plan.Structure.Reason))
+		for _, fact := range plan.Structure.Material {
+			out.Field("structure."+fact.ID, fmt.Sprintf("kind:%s action:%s subject:%s path:%s runtime:%s", fact.Kind, fact.Action, fact.Subject, fact.Path, fact.Runtime))
+		}
+		for _, unknown := range plan.Structure.Unknown {
+			out.Field("structure.unknown", unknown)
+		}
+	}
 	// A contract change governed by its own weakened contract is the one thing a
 	// reviewer must not have to ask for.
 	if len(plan.PolicyBaseline.Paths) > 0 {
@@ -129,7 +143,7 @@ func cmdReviewPlan(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stdout, "profile.%s=order:%d category:%s source:%s components:%s rationale:%s\n", profile.Ref, profile.Order, profile.Category, profile.Source, strings.Join(profile.Components, ","), profile.Rationale)
 		}
 		for _, criterion := range plan.Criteria {
-			fmt.Fprintf(stdout, "criterion.%s=required:%t profiles:%s rules:%s evidence:%s\n", criterion.ID, criterion.Required, strings.Join(criterion.Profiles, ","), strings.Join(criterion.Rules, ","), strings.Join(criterion.EvidenceClasses, ","))
+			fmt.Fprintf(stdout, "criterion.%s=required:%t structural_mapping:%t profiles:%s rules:%s evidence:%s\n", criterion.ID, criterion.Required, criterion.RequiresStructuralMapping, strings.Join(criterion.Profiles, ","), strings.Join(criterion.Rules, ","), strings.Join(criterion.EvidenceClasses, ","))
 		}
 		for _, item := range actionableReviewPlanTools(plan.Tools) {
 			tool := item.Tool
@@ -456,11 +470,11 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	var target, reviewer, decision, expectedPlanDigest string
-	var evidence, findings, rawTools, rawCriteria []string
+	var evidence, findings, rawTools, rawCriteria, rawMappings []string
 	apply := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
-		case "--reviewer", "--decision", "--evidence", "--finding", "--tool", "--criterion", "--plan-digest":
+		case "--reviewer", "--decision", "--evidence", "--finding", "--tool", "--criterion", "--mapping", "--plan-digest":
 			if i+1 >= len(args) {
 				fmt.Fprintln(stderr, "pose review attest: missing option value")
 				return 2
@@ -477,6 +491,8 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 				findings = append(findings, args[i])
 			case "--criterion":
 				rawCriteria = append(rawCriteria, args[i])
+			case "--mapping":
+				rawMappings = append(rawMappings, args[i])
 			case "--tool":
 				rawTools = append(rawTools, args[i])
 			case "--plan-digest":
@@ -518,7 +534,7 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "pose review attest: expected plan digest %s, current is %s\n", expectedPlanDigest, bundle.Payload.Plan.PlanDigest)
 		return 1
 	}
-	plan := posemodel.ReviewPlan{Criteria: bundle.Payload.Plan.Criteria, Tools: bundle.Payload.Plan.Tools}
+	plan := posemodel.ReviewPlan{Criteria: bundle.Payload.Plan.Criteria, Tools: bundle.Payload.Plan.Tools, Structure: bundle.Payload.Plan.Structure}
 	tools, err := reviewToolDispositions(plan, rawTools, true)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
@@ -535,6 +551,11 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 		return 2
 	}
+	criteria, err = applyReviewCriterionMappings(plan, criteria, rawMappings)
+	if err != nil {
+		render(stdout, stderr).Failure(fmt.Sprintf("pose review attest: %v", err))
+		return 2
+	}
 	att := posemodel.ReviewAttestation{BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest, Reviewer: reviewer, Decision: decision, Criteria: criteria, Tools: tools, EvidenceRefs: evidence, Findings: parsedFindings}
 	if !apply {
 		fmt.Fprintf(stdout, "review_attestation.plan=record\nreview_attestation.bundle_id=%s\nreview_attestation.bundle_digest=%s\nreview_attestation.plan_digest=%s\nreview_attestation.apply=false\n", bundle.BundleID, bundle.BundleDigest, bundle.Payload.Plan.PlanDigest)
@@ -547,6 +568,70 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "Review attestation recorded: %s\n", filepath.Join(root, filepath.FromSlash(att.Path)))
 	return 0
+}
+
+// applyReviewCriterionMappings attaches the reviewer's answers about observed
+// structure to the criterion that carries the obligation.
+//
+// It is a separate flag rather than more pipe-delimited fields on --criterion
+// because a mapping is per structural fact, not per criterion: a scope with six
+// material facts needs six answers for one criterion, and packing them into one
+// value would make the shape of the obligation invisible at the call site.
+//
+// The failures it refuses here are the ones a reviewer can fix by editing the
+// command. Sealing refuses them again, over the artifact the reviewer cannot see.
+func applyReviewCriterionMappings(plan posemodel.ReviewPlan, criteria []posemodel.ReviewCriterion, raw []string) ([]posemodel.ReviewCriterion, error) {
+	if len(raw) == 0 {
+		return criteria, nil
+	}
+	owners := map[string]bool{}
+	for _, criterion := range plan.Criteria {
+		if criterion.RequiresStructuralMapping {
+			owners[criterion.ID] = true
+		}
+	}
+	facts := map[string]bool{}
+	if plan.Structure != nil {
+		for _, fact := range plan.Structure.Material {
+			facts[fact.ID] = true
+		}
+	}
+	byCriterion := map[string][]posemodel.ReviewCriterionMapping{}
+	for _, value := range raw {
+		parts := strings.Split(value, "|")
+		if len(parts) < 3 || len(parts) > 4 {
+			return nil, fmt.Errorf("mapping must be CRITERION|DELTA|basis-or-disposition|rationale")
+		}
+		id, delta, answer := parts[0], parts[1], parts[2]
+		if !owners[id] {
+			return nil, fmt.Errorf("mapping names %s, which the sealed plan does not make answerable for observed structure", id)
+		}
+		if !facts[delta] {
+			return nil, fmt.Errorf("mapping names structural fact %q, which the sealed plan does not observe as material", delta)
+		}
+		mapping := posemodel.ReviewCriterionMapping{Delta: delta}
+		if len(parts) == 4 {
+			mapping.Rationale = parts[3]
+		}
+		switch answer {
+		case posemodel.ReviewMappingMissingEvidence, posemodel.ReviewMappingNotApplicable, posemodel.ReviewMappingAcceptedRisk:
+			mapping.Disposition = answer
+			if mapping.Rationale == "" {
+				return nil, fmt.Errorf("mapping %s for %s is %s and needs a rationale: CRITERION|DELTA|%s|<why>", delta, id, answer, answer)
+			}
+		case posemodel.ReviewMappingMapped:
+			return nil, fmt.Errorf("mapping %s for %s must name the basis ref instead of %q", delta, id, answer)
+		default:
+			mapping.Disposition, mapping.Basis = posemodel.ReviewMappingMapped, answer
+		}
+		byCriterion[id] = append(byCriterion[id], mapping)
+	}
+	for i := range criteria {
+		if mappings, ok := byCriterion[criteria[i].ID]; ok {
+			criteria[i].Mappings = mappings
+		}
+	}
+	return criteria, nil
 }
 
 func cmdReviewAutoAttest(root string, args []string, stdout, stderr io.Writer) int {

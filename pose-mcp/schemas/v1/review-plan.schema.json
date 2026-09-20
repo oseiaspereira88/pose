@@ -21,6 +21,7 @@
     "bands": {"type": "array", "items": {"$ref": "#/$defs/band"}},
     "projection": {"$ref": "#/$defs/projection"},
     "policy_baseline": {"$ref": "#/$defs/policyBaseline"},
+    "structure": {"$ref": "#/$defs/structure"},
     "warnings": {"type": "array", "items": {"type": "string"}},
     "blockers": {"type": "array", "items": {"type": "string"}},
     "explain": {"type": "array", "items": {"type": "string"}}
@@ -47,7 +48,7 @@
     "criterion": {
       "type": "object", "additionalProperties": true,
       "required": ["id", "description", "required", "profiles"],
-      "properties": {"id": {"type": "string"}, "description": {"type": "string"}, "required": {"type": "boolean"}, "kind": {"type": "string", "enum": ["mechanical", "judgment"]}, "rules": {"type": "array", "items": {"type": "string"}}, "evidence_classes": {"type": "array", "items": {"type": "string"}}, "profiles": {"type": "array", "items": {"type": "string"}}}
+      "properties": {"id": {"type": "string"}, "description": {"type": "string"}, "required": {"type": "boolean"}, "kind": {"type": "string", "enum": ["mechanical", "judgment"]}, "rules": {"type": "array", "items": {"type": "string"}}, "evidence_classes": {"type": "array", "items": {"type": "string"}}, "requires_structural_mapping": {"type": "boolean"}, "profiles": {"type": "array", "items": {"type": "string"}}}
     },
     "band": {
       "comment": "One explained reason the effective plan is where it is. Derived from the fields above; `unknown` states an undecided selector and carries no obligation.",
@@ -76,6 +77,7 @@
         "added_profiles": {"type": "array", "items": {"type": "string"}},
         "added_criteria": {"type": "array", "items": {"type": "string"}},
         "added_tools": {"type": "array", "items": {"type": "string"}},
+        "observed_structure": {"type": "array", "items": {"type": "string"}},
         "raised_independence": {"type": "string"},
         "raised_band": {"type": "string"}
       }
@@ -89,6 +91,29 @@
         "paths": {"type": "array", "items": {"type": "string"}},
         "weakened": {"type": "array", "items": {"type": "string"}},
         "restored": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "structure": {
+      "comment": "Material structural facts observed on both sides of the sealed subject. Present only when an adopted profile selects on structure. Unlike the band summary this is an obligation input and enters the plan digest.",
+      "type": "object", "additionalProperties": true,
+      "required": ["observed"],
+      "properties": {
+        "observed": {"type": "boolean"}, "status": {"type": "string"},
+        "input_digest": {"type": "string"}, "subject_digest": {"type": "string"},
+        "kinds": {"type": "array", "items": {"enum": ["dependency", "component", "delivery-metadata", "governance-contract", "public-contract", "submodule"]}},
+        "material": {"type": "array", "items": {"$ref": "#/$defs/structuralFact"}},
+        "unknown": {"type": "array", "items": {"type": "string"}},
+        "reason": {"type": "string"}
+      }
+    },
+    "structuralFact": {
+      "type": "object", "additionalProperties": true,
+      "required": ["id", "kind", "action", "subject"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^SD-[0-9a-f]{8,12}$"},
+        "kind": {"enum": ["dependency", "component", "delivery-metadata", "governance-contract", "public-contract", "submodule"]},
+        "action": {"enum": ["added", "removed", "renamed", "changed"]},
+        "subject": {"type": "string"}, "path": {"type": "string"}, "runtime": {"type": "string"}
       }
     },
     "tool": {

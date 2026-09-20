@@ -109,6 +109,14 @@ type ReviewBundlePlan struct {
 	// would judge an immutable bundle by today's selection, which is the whole
 	// thing sealing exists to prevent.
 	SelectedProfiles []ReviewPlanProfile `json:"selected_profiles,omitempty"`
+	// Structure seals the material structural facts the plan observed, so the
+	// mapping obligation is fixed at seal time. Recomputing it at verification
+	// would let a later detector improvement retroactively block an approved
+	// review; sealing it means a changed observation changes the plan digest and
+	// the review goes stale, which is the mechanism this engine already has for
+	// "the thing you approved is not the thing in front of me". Everything in it
+	// is content-derived, so it carries no provider ref into bundle identity.
+	Structure *ReviewPlanStructure `json:"structure,omitempty"`
 }
 
 type ReviewBundleEvidence struct {
@@ -417,7 +425,7 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 	if err != nil {
 		return ReviewBundle{}, err
 	}
-	bundle.Payload.Plan = ReviewBundlePlan{PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...)}
+	bundle.Payload.Plan = ReviewBundlePlan{PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...), Structure: plan.Structure}
 
 	scopeProjection, excluded, err := s.reviewBundleScopeProjection(scope)
 	if err != nil {
@@ -2282,6 +2290,9 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 		sealedClasses[ev.EvidenceClass] = true
 	}
 	judgmentGoverned, _ := BundleGovernedBy(bundle, "explicit-judgment")
+	if structuralGoverned, _ := BundleGovernedBy(bundle, "structural-causality"); structuralGoverned {
+		blockers = append(blockers, s.reviewStructuralCausalityBlockers(bundle.Payload.Scope.Ref, bundle.Payload.Plan.Structure, required, att.Criteria)...)
+	}
 	toolScope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
 	toolGraph, _ := s.GetDeliveryIntegrity("")
 	hasDeliveryTarget := s.reviewScopeRequiresValidationEvidence(toolScope, bundle.Payload.Plan, toolGraph)
