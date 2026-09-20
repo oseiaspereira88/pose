@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-remediation-lineage
-status: in-progress
+status: done
 created_at: 2026-09-19
-completed_at:
+completed_at: 2026-09-20
 supersedes:
 depends_on: pose-abm-governance-outcomes
 priority: 2
@@ -129,7 +129,7 @@ de exigir o campo, sem reescrever dado histórico.
 - [x] Definir o contrato de `remediates` e seus casos negativos antes de codar.
 - [x] Implementar registro, validação e projeção.
 - [x] Cobrir refs órfãs, ciclos, categorias inválidas e janela imatura.
-- [ ] Declarar alvo de entrega e fechar pelo gate POSE.
+- [x] Declarar alvo de entrega e fechar pelo gate POSE.
 
 ## 5. Decisions
 
@@ -254,6 +254,14 @@ módulo.
   é indisponibilidade
 O alvo de superfície é traçado por R1, cujo contrato é o que o lint recusa, e o de
 capacidade por R2 e R3, que são a projeção.
+
+### Closeout
+
+2026-09-20 UTC. Bundle `rvb-29f0448907df9e0d`, doze critérios, nove evidências, sob
+os cinco contratos selados incluindo `explicit-judgment` e `structural-causality`.
+Atestação `rva-0ae8a7981ab2de7e`, `agent:claude-opus-5`, approved; `review-check`
+fresh e approved; `closeout-check` terminal. Os cinco critérios de julgamento foram
+respondidos com conclusão própria, não preenchidos por evidência coletada.
 
 ### Gaps conhecidos
 A população observável de remediação ainda não existe: o corpus histórico das

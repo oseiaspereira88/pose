@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0ae8a7981ab2de7e",
+  "bundle_id": "rvb-29f0448907df9e0d",
+  "bundle_digest": "sha256:29f0448907df9e0df614acf0f1f83639c4640d5ad88af7c05b682207d8d41ade",
+  "reviewer": "agent:claude-opus-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-remediation-lineage-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-remediation-lineage-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-remediation-lineage-integration",
+      "rationale": "Additive and opt-in. A spec with no remediates field keeps its bytes, its digest and its behaviour, and stays outside the population: the field enters the semantic subject and the legacy digest only when non-empty. The projection replaced a placeholder that reported unavailable, so no consumer loses a value it had; what it gains is a populated dimension where links exist and the same unavailability with a reason where they do not."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The spec records the three properties implemented as refusals and why each was a way to publish a flattering number, plus the two artifact declarations the gate caught and how they were measured. An ADR records the frontmatter decision. The counted category set lives in one place in the code with the reason beside it, and the projection publishes counted_categories so a reader never infers which links became defects."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "Deterministic and offline: two passes over the spec registry, no new index, service or persistence, and the projection stays reconstructible from existing artifacts. Reads are confined and the graph is bounded at 256 specs and 1024 links. In this repository it reports available=false with a reason rather than a rate, which is the operable answer when the contract is unused. surface-check reports coverage for both targets as inferred from the containing module; both warnings are kept."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-remediation-lineage-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-2cd24610f087a554",
+      "rationale": "Twenty-four claims against the attributed change set, after correcting two declarations the gate refused and measuring both in the Git log. The projection extends the dimension governance-outcomes left as a placeholder rather than adding a parallel engine, which is what that spec's own deferral asked for. No link was invented in this repository to produce a number, and nothing was inferred from depends_on or temporal proximity."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-remediation-lineage-integration",
+      "rationale": "Repository content is untrusted input and is treated as such: the finding reference is resolved through the immutable attestation rather than a local id, refs are confined to the project, symlinks and oversized files fail closed, and ambiguous or repeated ids are refused. The projection aggregates counts only — it returns no principal, no business unit and no identity — and censoring plus unlinked-unknown are reported so the aggregate cannot be read as a claim about individuals or about deliveries nobody examined."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/abm-remediation-lineage-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-2cd24610f087a554",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-20T19:45:21Z",
+  "path": ".pose/review-attestations/rva-0ae8a7981ab2de7e.json"
+}
