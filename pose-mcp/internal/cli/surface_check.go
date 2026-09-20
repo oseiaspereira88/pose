@@ -303,8 +303,17 @@ func cmdRoadmapCheck(root string, args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
+// focusSurfaceGraph narrows a graph to one spec without consuming it.
+//
+// It used to filter into `graph.Deliveries[:0]` and `graph.Findings[:0]`. The graph
+// arrives by value, which reads as a copy and is not one for a slice: those writes
+// went through the caller's backing array, so focusing truncated the graph the
+// caller still held and a second focus saw the residue of the first. That is why
+// the graph could only ever be built for one spec at a time, and rebuilding it per
+// spec is what made `check --strict` spend 600 of its 635 seconds in
+// checkDeliveryContracts on this repository.
 func focusSurfaceGraph(graph posemodel.DeliveryIntegrityGraph, spec string) posemodel.DeliveryIntegrityGraph {
-	deliveries := graph.Deliveries[:0]
+	deliveries := []posemodel.DeliveryTarget{}
 	refs := map[string]bool{}
 	for _, target := range graph.Deliveries {
 		if target.Spec == spec {
@@ -313,7 +322,7 @@ func focusSurfaceGraph(graph posemodel.DeliveryIntegrityGraph, spec string) pose
 		}
 	}
 	graph.Deliveries = deliveries
-	findings := graph.Findings[:0]
+	findings := []posemodel.DeliveryIntegrityFinding{}
 	for _, finding := range graph.Findings {
 		if finding.Spec == spec || refs[finding.Path] {
 			findings = append(findings, finding)
@@ -344,6 +353,13 @@ func deliverySpecBlockers(root, slug string) []string {
 	if err != nil {
 		return []string{err.Error()}
 	}
+	return deliverySpecBlockersFromGraph(graph, slug)
+}
+
+// deliverySpecBlockersFromGraph is the same check over a graph the caller already
+// built. A caller looping over specs builds once and focuses many times; the graph
+// depends on the repository, never on the slug.
+func deliverySpecBlockersFromGraph(graph posemodel.DeliveryIntegrityGraph, slug string) []string {
 	graph = focusSurfaceGraph(graph, slug)
 	blockers := []string{}
 	for _, finding := range graph.Findings {

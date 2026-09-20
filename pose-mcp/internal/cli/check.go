@@ -181,6 +181,13 @@ func (checker *nativeChecker) checkDeliveryContracts() {
 		return
 	}
 	store := pose.Store{Root: checker.root}
+	// Built once for the whole loop. It used to be rebuilt inside
+	// deliverySpecBlockers for every done spec, and the graph depends on the
+	// repository and not on the slug: on this repository that was 117 rebuilds at
+	// about five seconds each, 600 of the 635 seconds `check --strict` took. The
+	// reuse is only safe because focusSurfaceGraph no longer filters through the
+	// caller's backing array.
+	graph, graphErr := buildCurrentDeliveryGraph(checker.root)
 	paths := findSpecFiles(checker.root)
 	for _, path := range paths {
 		fm := simpleFrontmatter(path)
@@ -201,7 +208,14 @@ func (checker *nativeChecker) checkDeliveryContracts() {
 			checker.failOrWarn(fmt.Sprintf("delivery contract: spec:%s: %v", slug, err))
 			continue
 		}
-		for _, blocker := range deliverySpecBlockers(checker.root, slug) {
+		// A graph that could not be built is reported once per spec, exactly as
+		// before: the error belonged to every spec the loop would have checked,
+		// and swallowing it here would turn an unreadable graph into a clean run.
+		if graphErr != nil {
+			checker.failOrWarn("delivery contract: spec:" + slug + ": " + graphErr.Error())
+			continue
+		}
+		for _, blocker := range deliverySpecBlockersFromGraph(graph, slug) {
 			checker.failOrWarn("delivery contract: spec:" + slug + ": " + blocker)
 		}
 	}
