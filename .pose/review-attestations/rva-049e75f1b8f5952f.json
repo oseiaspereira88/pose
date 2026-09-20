@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-049e75f1b8f5952f",
+  "bundle_id": "rvb-19888acf0df92f33",
+  "bundle_digest": "sha256:19888acf0df92f330658deace4157275e4f16d86c6bc3e685c38cd4d68caa356",
+  "reviewer": "agent:claude-opus-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/parallel-gate-integration",
+      "rationale": "The one criterion this change is really about. Per-item work touches no shared mutable state, verified by auditing the read path rather than assumed: Store carries only a root, internal/pose's package state in that path is two mutex-guarded memos and otherwise read-only tables, and focusSurfaceGraph no longer writes through the graph it receives. The race detector is clean on both affected packages and is wired into the registered producer, so it runs on every validate rather than once by hand."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/parse-memo-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/parse-memo-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/parallel-gate-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/parallel-gate-integration",
+      "rationale": "Proven by comparison three ways rather than argued: the unsorted output of the concurrent binary is identical to the sequential one, so the order is preserved and not merely the set; three consecutive runs hash to one value; and against the pre-optimisation baseline the only differing line is a commits-behind counter that moved because commits were made between runs. Findings, counts, order and exit code all hold."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Each mechanism carries its reason and its number at the code: why the key is content and not time, why the copies exist, and why the replay is ordered. The spec records the phase tables before and after, the measurement that chose the cache key, the duplicate ratio counted before the memo was written, and that concurrency returned 2.6x on sixteen cores — which is stated as a floor rather than presented as a win."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "The gate a hook, a CI job and every closeout runs goes from 634.9 seconds to 16.6. It had exceeded a ten-minute budget twice and been recorded as no verdict. Both memos are process-local so nothing persists to go stale between runs, and the worker count is NumCPU with no flag, which is named in residual risks as the thing a wrong machine cannot yet say."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/parse-memo-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-5108f7c25700a164",
+      "rationale": "Two memos, one worker pool, three test files, two producers and the regenerated evidence. ListReviewBundles at 7.77 seconds was deliberately not touched and the reason is recorded: its cost is file reads, so the only speedup needs a time-based key, and that is a weaker safety argument than the two taken here. Restructuring what freshness verifies was also left out as a design decision rather than an optimisation."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/parse-memo-integration",
+      "rationale": "No input is newly trusted and no boundary moves: the same files are read by the same parsers, fewer times. The memos are keyed on content, so a rewritten index cannot serve a stale graph — the failure a modification-time key would have allowed. Bounds on the design delta reads are unchanged. Concurrency adds no new input path, and the race detector is part of the registered evidence rather than a one-off."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/parallel-gate-integration",
+    "integration:pose-mcp/go/parse-memo-integration",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-5108f7c25700a164",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-20T21:53:18Z",
+  "path": ".pose/review-attestations/rva-049e75f1b8f5952f.json"
+}

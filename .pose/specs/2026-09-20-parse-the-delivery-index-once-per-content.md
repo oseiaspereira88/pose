@@ -1,8 +1,8 @@
 ---
 slug: parse-the-delivery-index-once-per-content
-status: in-progress
+status: done
 created_at: 2026-09-20
-completed_at:
+completed_at: 2026-09-20
 supersedes:
 depends_on: check-builds-the-delivery-graph-once
 priority: 1
@@ -218,6 +218,14 @@ consecutive concurrent runs hash to one value; and the race detector is clean on
 Defect injection for the ordering: replaying the buffered findings in reverse item
 order fails `TestFailOrWarnPerItemKeepsItemOrder`, which skews each item's work so a
 later item finishes first whenever the pool has room.
+
+### Closeout
+
+2026-09-20 UTC. Bundle `rvb-19888acf0df92f33`, fourteen evidence items, under the five
+sealed contracts. Attestation `rva-049e75f1b8f5952f`, `agent:claude-opus-5`,
+approved; `review-check` fresh and approved; `closeout-check` terminal.
+`surface-check --strict` exits 0 with two inferred-coverage warnings kept, one per
+target.
 
 ### Requirement trace
 
