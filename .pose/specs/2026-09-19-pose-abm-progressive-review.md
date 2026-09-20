@@ -169,6 +169,7 @@ contract-bearing file shape; the explicit suffix and path rules are unchanged.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - created: .pose/results/abm-progressive-review-validation.json
+- modified: .pose/results/delivery-validation.json
 - created: .pose/changelogs/unreleased/pose-abm-progressive-review.md
 - created: pose-mcp/internal/pose/review_bands.go
 - modified: pose-mcp/internal/pose/review_plan.go
