@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0165b2c316dc7764",
+  "bundle_id": "rvb-da308a10dfc0933c",
+  "bundle_digest": "sha256:da308a10dfc0933cd7b91c95384de7bc517c3b9f88b7da62fffcb0b8fdc8fedd",
+  "reviewer": "agent:claude-opus-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-1db3b26dcb168d84",
+      "rationale": "Additive and proven so: parsing the policy before and after shows two keys added, none removed and none changed, so the thirty-line diff is MarshalIndent reordering the document alphabetically. The installed 5.0.8 binary resolves a review plan against the reordered policy, exit 0. The stamp changes no bundle: whether one is governed is decided by the engine that sealed it, so no existing review gained or lost an obligation."
+    },
+    {
+      "id": "correctness",
+      "disposition": "not-applicable",
+      "rationale": "No code in this change set: two dated policy keys, a machinery manifest of hashes and three regenerated indexes. The checks that answer this criterion report on the pose-mcp module, which this change does not touch, so citing them would be a passing test run presented as proof of something else. What verified the change is the before-and-after key-set comparison of the policy itself, recorded in the trace."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-1db3b26dcb168d84",
+      "rationale": "The spec states what the stamp does and, as plainly, what it does not: it adds no enforcement. The reordering is documented as accepted rather than hidden, with the reason the engine rewrites the whole document. The self-referential behaviour the run reported - POSE.md skipped as an unresolved scaffold placeholder - is recorded too, because in this repository that skip is the protection and not a failure."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-1db3b26dcb168d84",
+      "rationale": "The run was idempotent and its scope was confirmed against a clean tree: only the policy and the machinery manifest changed, and the machinery merges were no-ops. Reverting is reverting one commit. Removing the dates would not remove the contracts from any sealed bundle, which is what makes this safe to reverse."
+    },
+    {
+      "id": "requirements",
+      "disposition": "not-applicable",
+      "rationale": "Same reason and same evidence classes as correctness: no code path under test. R1 to R4 are each traced to a measurement taken against this repository before and after the stamp."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-1db3b26dcb168d84",
+      "rationale": "Four claims reconciled against four Git-observed paths, then the three regenerated indexes declared once measured. The spec declares no component, which is what a policy-and-manifest change is, and that is why two mechanical criteria are not-applicable rather than answered with an unrelated module run. Activating the ABM overlay profiles was deliberately left out as a separate decision."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-1db3b26dcb168d84",
+      "rationale": "The stamp grants nothing and loosens nothing: overlay_profiles was verified unchanged, so no independence floor, identity assurance or attestation requirement moved, and the key-set comparison proves no other policy value changed. The grandfathering it enables is dated and bounded to scopes already completed, so it cannot excuse a review recorded after it. Three completed specs were confirmed still approved and terminal."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-1db3b26dcb168d84"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "No code in the change set to carry a TODO, FIXME, panic or stub."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "validate",
+      "disposition": "deferred",
+      "rationale": "No delivery target is declared, so the delivery-gated check has nothing to compose. Recorded as deferred rather than passed on an unrelated module run."
+    }
+  ],
+  "evidence_refs": [
+    "structure:design-1db3b26dcb168d84"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-20T15:38:42Z",
+  "path": ".pose/review-attestations/rva-0165b2c316dc7764.json"
+}

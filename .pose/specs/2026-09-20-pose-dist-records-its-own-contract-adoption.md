@@ -70,6 +70,9 @@ self-referential reason, which the run reports as
 - created: .pose/changelogs/unreleased/pose-dist-records-its-own-contract-adoption.md
 - modified: .pose/policy/review.json
 - modified: .pose/state/machinery-manifest.json
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/spec-graph.json
 
 ### Rollout and reversal
 
