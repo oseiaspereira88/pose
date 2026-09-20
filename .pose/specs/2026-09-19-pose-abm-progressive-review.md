@@ -152,6 +152,13 @@ Use `surface-check --results .pose/results/abm-progressive-review-validation.jso
 for this increment: the default results path still contains the previous task's
 evidence. Reconcile the newly declared generated index before refreshing provenance.
 
+After `a657d0d`, artifact-check passed with 15 claims and 15 observed artifacts.
+Candidate validation passed 7/7 with current scoped provenance. Candidate
+`surface-check --spec pose-abm-progressive-review --strict --results
+.pose/results/abm-progressive-review-validation.json` passed: one target, seven
+results, zero findings. This proves composition of increment 1, not satisfaction
+of the requirements still listed as pending above.
+
 ### Requirement trace
 
 No requirement is terminally satisfied yet. Increment 1 exercises R1, R3, the
@@ -160,5 +167,8 @@ R2/R5/R7 and the remaining R4/R6/R8 contracts require subsequent implementation.
 
 ## 7. Final Report
 
-In progress. No release, deployment, global adoption or full roadmap closeout
-is claimed. All remaining acceptance work stays in this spec's requirements/tasks.
+Increment 1 is implemented and verified through installation, CLI and the scoped
+delivery gate. The spec remains in-progress for band explanations, structural
+triggers, obligation deltas, protected baseline enforcement and the full judgment
+corpus. No release, deployment, global adoption or full roadmap closeout is claimed.
+All remaining acceptance work stays in this spec's requirements/tasks.
