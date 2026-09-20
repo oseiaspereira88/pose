@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-doctor-state-health
-status: in-progress
+status: done
 created_at: 2026-09-19
-completed_at:
+completed_at: 2026-09-20
 changelog: none
 components: pose-mcp
 task_type: bugfix
