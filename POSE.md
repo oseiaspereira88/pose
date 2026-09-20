@@ -516,8 +516,35 @@ obligations only the observation produced. Each component also carries `origin`
 Both are derived from the fields the plan already resolved, through the same
 selectors and composer — there is no second policy engine — and neither enters
 the plan digest. Publishing them therefore adds no obligation and supersedes no
-sealed review. Structural-observation selectors and the protected policy baseline
-remain pending work in this spec.
+sealed review. Structural-observation selectors remain pending work in this spec.
+
+### Protected policy baseline
+
+A diff that changes the review contract cannot be the authority that approves
+itself. When the reviewed scope touches `.pose/policy/` or `.pose/review-profiles/`,
+the obligations are resolved a second time from the contract
+as it stood at the change set's resolved base, and whatever the diff weakened is
+restored for that review: the stricter reviewer independence, a criterion the diff
+dropped (re-added with a `protected-baseline:` provenance), and a criterion the
+diff softened from required to optional or from judged to collected. Restoration
+is one-directional, so a baseline weaker than the diff changes nothing. Those
+two directories are the contract — policy and profiles carry their own schema
+versions — while rule bodies stay outside the gate, because it is the criterion
+contract that is compared.
+
+`policy_baseline` reports `protected`, the `revision`, the contract `paths`, the
+`weakened` contract changes observed — including `allow_approved_with_reservations`,
+`require_signed_attestations`, `identity_assurance` and `component_aware` — and the
+`restored` obligations. A contract change whose base revision cannot be resolved is
+reported unprotected, with a warning and an `unknown` band: POSE states that the
+review is unprotected rather than implying it was protected.
+
+Two cases used to make a contract change unreviewable, and no longer do: a diff
+that sets `enabled: false`, and a diff that removes or breaks the profile the
+policy points at. Both now resolve the plan from the protected contract and record
+the weakening. Adopting a weaker contract stays possible; approving it under the
+weaker contract does not. Restorations reach the plan digest through the criteria,
+the independence and the explain trail, so a protected plan has its own identity.
 
 ## Verified review authority (ABM)
 

@@ -6,7 +6,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/fs"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -325,9 +327,21 @@ func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
 	if err != nil {
 		return ReviewPolicy{}, nil, fmt.Errorf("pose: reading review policy: %w", err)
 	}
+	policy, err := s.parseReviewPolicy(raw)
+	if err != nil {
+		return ReviewPolicy{}, nil, err
+	}
+	return policy, raw, nil
+}
+
+// parseReviewPolicy validates policy bytes whatever their source. The
+// protected-baseline comparison reads the governing policy from a revision
+// instead of the working tree, and it has to pass through exactly these gates:
+// a baseline admitted on weaker terms than the tree would be a second contract.
+func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	var p ReviewPolicy
 	if err := json.Unmarshal(raw, &p); err != nil {
-		return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid review policy: %w", err)
+		return ReviewPolicy{}, fmt.Errorf("pose: invalid review policy: %w", err)
 	}
 	if p.SchemaVersion == ReviewPolicySchemaVersion {
 		decoder := json.NewDecoder(bytes.NewReader(raw))
@@ -337,18 +351,18 @@ func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
 		// That already happened once, with contract_adoptions.
 		// decoder.DisallowUnknownFields() intentionally omitted.
 		if err := decoder.Decode(&p); err != nil {
-			return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid schema-v2 review policy: %w", err)
+			return ReviewPolicy{}, fmt.Errorf("pose: invalid schema-v2 review policy: %w", err)
 		}
 	}
 	if p.SchemaVersion != ReviewSchemaVersion && p.SchemaVersion != ReviewPolicySchemaVersion {
-		return ReviewPolicy{}, nil, fmt.Errorf("pose: unsupported review policy schema %d", p.SchemaVersion)
+		return ReviewPolicy{}, fmt.Errorf("pose: unsupported review policy schema %d", p.SchemaVersion)
 	}
 	if p.SchemaVersion == ReviewPolicySchemaVersion {
 		if p.UnmappedComponentBehavior == "" {
 			p.UnmappedComponentBehavior = "warning"
 		}
 		if p.UnmappedComponentBehavior != "warning" && p.UnmappedComponentBehavior != "blocker" {
-			return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid unmapped component behavior %q", p.UnmappedComponentBehavior)
+			return ReviewPolicy{}, fmt.Errorf("pose: invalid unmapped component behavior %q", p.UnmappedComponentBehavior)
 		}
 		// Read through the registry, not the legacy field: a policy that
 		// records these dates in `contract_adoptions` is valid, and requiring
@@ -356,52 +370,52 @@ func (s Store) loadReviewPolicy() (ReviewPolicy, []byte, error) {
 		// contract and false for the other two.
 		if p.ComponentAware {
 			if _, err := time.Parse(time.DateOnly, p.ContractAdoptedAt("component-aware")); err != nil {
-				return ReviewPolicy{}, nil, fmt.Errorf("pose: component-aware adoption date must be YYYY-MM-DD when component-aware review is enabled")
+				return ReviewPolicy{}, fmt.Errorf("pose: component-aware adoption date must be YYYY-MM-DD when component-aware review is enabled")
 			}
 		}
 		if p.ReviewBundles {
 			if _, err := time.Parse(time.DateOnly, p.ContractAdoptedAt("review-bundles")); err != nil {
-				return ReviewPolicy{}, nil, fmt.Errorf("pose: review-bundles adoption date must be YYYY-MM-DD when review bundles are enabled")
+				return ReviewPolicy{}, fmt.Errorf("pose: review-bundles adoption date must be YYYY-MM-DD when review bundles are enabled")
 			}
 		}
 		for _, issuer := range p.TrustedAttestationIssuers {
 			if strings.TrimSpace(issuer) == "" || strings.ContainsAny(issuer, "\r\n") {
-				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid trusted attestation issuer")
+				return ReviewPolicy{}, fmt.Errorf("pose: invalid trusted attestation issuer")
 			}
 		}
 		verified := false
 		for scope, assurance := range p.IdentityAssurance {
 			if scope == "" || strings.ContainsAny(scope, "\r\n") {
-				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid identity assurance scope")
+				return ReviewPolicy{}, fmt.Errorf("pose: invalid identity assurance scope")
 			}
 			switch assurance {
 			case ReviewIdentityAssuranceDeclared:
 			case ReviewIdentityAssuranceVerified:
 				verified = true
 			default:
-				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid identity assurance %q for %s", assurance, scope)
+				return ReviewPolicy{}, fmt.Errorf("pose: invalid identity assurance %q for %s", assurance, scope)
 			}
 		}
 		if verified {
 			if strings.TrimSpace(p.AuthorityAudience) == "" || strings.ContainsAny(p.AuthorityAudience, "\r\n") {
-				return ReviewPolicy{}, nil, fmt.Errorf("pose: verified identity assurance requires a non-empty authority_audience")
+				return ReviewPolicy{}, fmt.Errorf("pose: verified identity assurance requires a non-empty authority_audience")
 			}
 			if len(p.TrustedAttestationIssuers) == 0 {
-				return ReviewPolicy{}, nil, fmt.Errorf("pose: verified identity assurance requires at least one trusted attestation issuer")
+				return ReviewPolicy{}, fmt.Errorf("pose: verified identity assurance requires at least one trusted attestation issuer")
 			}
 		}
 		for _, issuer := range p.HumanAuthorityIssuers {
 			if strings.TrimSpace(issuer) == "" || strings.ContainsAny(issuer, "\r\n") {
-				return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid human authority issuer")
+				return ReviewPolicy{}, fmt.Errorf("pose: invalid human authority issuer")
 			}
 		}
 	}
 	for scope, independence := range p.ReviewerIndependence {
 		if !validReviewIndependence(independence) {
-			return ReviewPolicy{}, nil, fmt.Errorf("pose: invalid reviewer independence %q for %s", independence, scope)
+			return ReviewPolicy{}, fmt.Errorf("pose: invalid reviewer independence %q for %s", independence, scope)
 		}
 	}
-	return p, raw, nil
+	return p, nil
 }
 
 // GetReviewPolicy exposes the validated provider-neutral policy to command
@@ -421,31 +435,42 @@ func (s Store) loadReviewProfile(ref string) (ReviewProfile, []byte, error) {
 	if err != nil {
 		return ReviewProfile{}, nil, fmt.Errorf("pose: reading review profile %q: %w", ref, err)
 	}
+	profile, err := s.parseReviewProfile(ref, raw)
+	if err != nil {
+		return ReviewProfile{}, nil, err
+	}
+	return profile, raw, nil
+}
+
+// parseReviewProfile validates profile bytes whatever their source. Rule and
+// evidence-class refs are still checked against the current tree, because a
+// baseline criterion whose rule no longer exists is a gap now, not then.
+func (s Store) parseReviewProfile(ref string, raw []byte) (ReviewProfile, error) {
 	var p ReviewProfile
 	if err := json.Unmarshal(raw, &p); err != nil {
-		return ReviewProfile{}, nil, fmt.Errorf("pose: invalid review profile %q: %w", ref, err)
+		return ReviewProfile{}, fmt.Errorf("pose: invalid review profile %q: %w", ref, err)
 	}
 	if p.SchemaVersion == ReviewPolicySchemaVersion {
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		decoder.DisallowUnknownFields()
 		if err := decoder.Decode(&p); err != nil {
-			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid schema-v2 review profile %q: %w", ref, err)
+			return ReviewProfile{}, fmt.Errorf("pose: invalid schema-v2 review profile %q: %w", ref, err)
 		}
 	}
 	if (p.SchemaVersion != ReviewSchemaVersion && p.SchemaVersion != ReviewPolicySchemaVersion) || p.Ref() != ref || p.Scope == "" || len(p.Criteria) == 0 {
-		return ReviewProfile{}, nil, fmt.Errorf("pose: malformed review profile %q", ref)
+		return ReviewProfile{}, fmt.Errorf("pose: malformed review profile %q", ref)
 	}
 	seen := map[string]bool{}
 	for _, c := range p.Criteria {
 		if !slugPattern.MatchString(c.ID) || seen[c.ID] {
-			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid or duplicate criterion %q in %s", c.ID, ref)
+			return ReviewProfile{}, fmt.Errorf("pose: invalid or duplicate criterion %q in %s", c.ID, ref)
 		}
 		// Closed rule/evidence catalogs are a schema-v2 contract. Schema-v1
 		// profiles keep their historical namespaces so repositories that never
 		// opted into component-aware planning remain readable (spec R29).
 		if p.SchemaVersion == ReviewPolicySchemaVersion {
 			if err := s.validateReviewContractRefs(ref, c.Rules, c.EvidenceClasses); err != nil {
-				return ReviewProfile{}, nil, err
+				return ReviewProfile{}, err
 			}
 		}
 		switch c.Kind {
@@ -458,45 +483,45 @@ func (s Store) loadReviewProfile(ref string) (ReviewProfile, []byte, error) {
 			// derivation closes, because nothing could ever answer it and the
 			// engine would accept any sealed result as if something had.
 			if len(c.EvidenceClasses) == 0 {
-				return ReviewProfile{}, nil, fmt.Errorf("pose: criterion %q in %s is mechanical but names no evidence class, so no registered check can answer it; declare the classes a check emits, or leave it to judgment", c.ID, ref)
+				return ReviewProfile{}, fmt.Errorf("pose: criterion %q in %s is mechanical but names no evidence class, so no registered check can answer it; declare the classes a check emits, or leave it to judgment", c.ID, ref)
 			}
 		default:
-			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid criterion kind %q in %s: expected %s or %s", c.Kind, ref, ReviewCriterionKindMechanical, ReviewCriterionKindJudgment)
+			return ReviewProfile{}, fmt.Errorf("pose: invalid criterion kind %q in %s: expected %s or %s", c.Kind, ref, ReviewCriterionKindMechanical, ReviewCriterionKindJudgment)
 		}
 		seen[c.ID] = true
 	}
 	if p.SchemaVersion == ReviewSchemaVersion && (hasReviewSelectors(p.Selectors) || len(p.Tools) > 0 || p.Independence != "") {
-		return ReviewProfile{}, nil, fmt.Errorf("pose: schema-v1 review profile %q cannot declare selectors, tools or independence", ref)
+		return ReviewProfile{}, fmt.Errorf("pose: schema-v1 review profile %q cannot declare selectors, tools or independence", ref)
 	}
 	if p.Independence != "" && !validReviewIndependence(p.Independence) {
-		return ReviewProfile{}, nil, fmt.Errorf("pose: invalid reviewer independence %q in %s", p.Independence, ref)
+		return ReviewProfile{}, fmt.Errorf("pose: invalid reviewer independence %q in %s", p.Independence, ref)
 	}
 	for _, selector := range append(append(append(append([]string{}, p.Selectors.Languages...), p.Selectors.Domains...), p.Selectors.DeliveryKinds...), p.Selectors.Criticalities...) {
 		if !slugPattern.MatchString(selector) {
-			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid review selector %q in %s", selector, ref)
+			return ReviewProfile{}, fmt.Errorf("pose: invalid review selector %q in %s", selector, ref)
 		}
 	}
 	for _, component := range p.Selectors.ComponentIDs {
 		if !slugPattern.MatchString(component) {
 			if _, err := validateArtifactPathSyntax(component); err != nil {
-				return ReviewProfile{}, nil, fmt.Errorf("pose: invalid component selector %q in %s", component, ref)
+				return ReviewProfile{}, fmt.Errorf("pose: invalid component selector %q in %s", component, ref)
 			}
 		}
 	}
 	for _, tool := range p.Tools {
 		if !slugPattern.MatchString(tool.ID) || (tool.Requiredness != "" && tool.Requiredness != "recommended" && tool.Requiredness != "required") {
-			return ReviewProfile{}, nil, fmt.Errorf("pose: invalid review tool %q in %s", tool.ID, ref)
+			return ReviewProfile{}, fmt.Errorf("pose: invalid review tool %q in %s", tool.ID, ref)
 		}
 		if err := s.validateReviewContractRefs(ref, nil, tool.EvidenceClasses); err != nil {
-			return ReviewProfile{}, nil, err
+			return ReviewProfile{}, err
 		}
 		for _, precondition := range tool.Preconditions {
 			if !reviewPreconditionCatalog[precondition] {
-				return ReviewProfile{}, nil, fmt.Errorf("pose: unknown review tool precondition %q in %s", precondition, ref)
+				return ReviewProfile{}, fmt.Errorf("pose: unknown review tool precondition %q in %s", precondition, ref)
 			}
 		}
 	}
-	return p, raw, nil
+	return p, nil
 }
 
 func (s Store) validateReviewContractRefs(ref string, rules, evidenceClasses []string) error {
@@ -700,7 +725,12 @@ func (s Store) ScopeDigest(ref string) (string, error) {
 	var profileRaw []byte
 	if profileRef != "" {
 		_, profileRaw, err = s.loadReviewProfile(profileRef)
-		if err != nil {
+		// An absent profile contributes empty bytes, which is itself a distinct
+		// digest input. Refusing to compute the digest would make a diff that
+		// removes the profile impossible to review — the profile governing the
+		// review would be the one the review is about. A profile that exists but
+		// is malformed is still a hard error.
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
 			return "", err
 		}
 	}

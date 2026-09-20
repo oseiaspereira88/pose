@@ -16,3 +16,11 @@ separates the scope the spec declared from the obligations only delivery
 provenance added. Both are derived through the existing selectors and composer,
 add no obligation, and stay out of the plan digest, so no sealed review is
 superseded.
+
+A scope that changes review policy, profiles or their schemas is now resolved under
+the contract at the change set's resolved base, and obligations the diff weakened
+are restored for that review: reviewer independence, dropped criteria and criteria
+softened from required to optional or from judged to collected. `policy_baseline`
+reports what was weakened and restored. A diff that disables review, or that
+removes the profile the policy points at, no longer makes itself unreviewable; an
+unresolvable base is reported unprotected rather than implied protected.

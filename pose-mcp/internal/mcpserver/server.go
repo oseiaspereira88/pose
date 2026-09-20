@@ -1980,7 +1980,10 @@ func toolDefinitions() []map[string]any {
 				"policy and obligations behind the effective plan, and the declared-scope " +
 				"projection, which separates a preflight forecast from the obligations that only " +
 				"observed provenance added. Neither derivation selects a profile or adds a " +
-				"criterion, and neither enters the plan digest. " +
+				"criterion, and neither enters the plan digest. When the scope changes review " +
+				"policy or a review profile, the plan is resolved under the protected " +
+				"contract at the change set's base revision and reports what the diff weakened " +
+				"and what was restored for this review. " +
 				"This read-only tool never executes a recommendation or mutates the project.",
 			"inputSchema": map[string]any{
 				"type": "object",

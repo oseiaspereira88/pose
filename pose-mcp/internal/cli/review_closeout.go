@@ -101,6 +101,14 @@ func cmdReviewPlan(root string, args []string, stdout, stderr io.Writer) int {
 			out.Field("projection.undecided", fmt.Sprintf("trigger:%s source:%s policy:%s", band.Trigger, band.Source, band.Policy))
 		}
 	}
+	// A contract change governed by its own weakened contract is the one thing a
+	// reviewer must not have to ask for.
+	if len(plan.PolicyBaseline.Paths) > 0 {
+		out.Field("policy_baseline", fmt.Sprintf("protected:%t revision:%s paths:%s reason:%s", plan.PolicyBaseline.Protected, plan.PolicyBaseline.Revision, strings.Join(plan.PolicyBaseline.Paths, ","), plan.PolicyBaseline.Reason))
+		if len(plan.PolicyBaseline.Weakened) > 0 || len(plan.PolicyBaseline.Restored) > 0 {
+			out.Field("policy_baseline.contract", fmt.Sprintf("weakened:%s restored:%s", strings.Join(plan.PolicyBaseline.Weakened, ","), strings.Join(plan.PolicyBaseline.Restored, ",")))
+		}
+	}
 	for _, warning := range groupedReviewPlanWarnings(plan.Warnings) {
 		fmt.Fprintf(stdout, "[WARN] %s\n", warning)
 	}

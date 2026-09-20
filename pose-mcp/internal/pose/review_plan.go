@@ -111,9 +111,14 @@ type ReviewPlan struct {
 	Band       string               `json:"band,omitempty"`
 	Bands      []ReviewPlanBand     `json:"bands,omitempty"`
 	Projection ReviewPlanProjection `json:"projection"`
-	Warnings   []string             `json:"warnings,omitempty"`
-	Blockers   []string             `json:"blockers,omitempty"`
-	Explain    []string             `json:"explain"`
+	// PolicyBaseline reports the protected contract this plan was resolved
+	// under when the scope changes policy, profiles or their schemas. Its
+	// consequences reach the digest through Independence, Criteria and Explain;
+	// the struct itself is the readable projection of those explain lines.
+	PolicyBaseline ReviewPlanPolicyBaseline `json:"policy_baseline"`
+	Warnings       []string                 `json:"warnings,omitempty"`
+	Blockers       []string                 `json:"blockers,omitempty"`
+	Explain        []string                 `json:"explain"`
 }
 
 type reviewRepoEntry struct {
@@ -190,16 +195,45 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	if err != nil {
 		return ReviewPlan{}, err
 	}
+	// Resolved before the policy below is trusted. A diff that disables review
+	// while changing the contract would otherwise be unreviewable: the plan
+	// would refuse to exist, and the change would land unreviewed.
+	guard := s.resolveReviewGovernanceGuard(scope)
+	baseline := reviewPolicyBaseline{}
+	if len(guard.Paths) > 0 && guard.Revision != "" {
+		baseline, err = s.resolveReviewPolicyBaseline(guard.Revision, scope.Kind)
+		if err != nil {
+			guard.Reason, baseline = err.Error(), reviewPolicyBaseline{}
+		}
+	}
+	// A profile source: the working tree normally, the protected revision when
+	// the tree no longer governs this scope at all.
+	profileRevision := ""
 	if !policy.Enabled {
-		return ReviewPlan{}, fmt.Errorf("pose: review policy is absent or disabled")
+		if !baseline.Resolved || !baseline.Policy.Enabled {
+			return ReviewPlan{}, fmt.Errorf("pose: review policy is absent or disabled")
+		}
+		policy, profileRevision = baseline.Policy, baseline.Revision
 	}
 	baseRef := policy.Profiles[scope.Kind]
 	if baseRef == "" {
 		return ReviewPlan{}, fmt.Errorf("pose: no review profile configured for %s", scope.Kind)
 	}
-	base, _, err := s.loadReviewProfile(baseRef)
+	base, err := s.loadReviewProfileFrom(profileRevision, baseRef)
 	if err != nil {
-		return ReviewPlan{}, err
+		// The reviewed diff removed or broke the profile that governs its own
+		// review. The protected contract governs instead; without this the plan
+		// would refuse to exist and the change would land unreviewed.
+		if !baseline.Resolved || !baseline.Policy.Enabled {
+			return ReviewPlan{}, err
+		}
+		unreadable := err.Error()
+		policy, profileRevision = baseline.Policy, baseline.Revision
+		baseRef = policy.Profiles[scope.Kind]
+		if base, err = s.loadReviewProfileFrom(profileRevision, baseRef); err != nil {
+			return ReviewPlan{}, err
+		}
+		guard.Unreadable = unreadable
 	}
 	if base.Scope != scope.Kind {
 		return ReviewPlan{}, fmt.Errorf("pose: profile %s cannot review %s scopes", base.Ref(), scope.Kind)
@@ -233,7 +267,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 		}
 
 		for _, overlayRef := range uniqueSorted(policy.OverlayProfiles) {
-			overlay, _, loadErr := s.loadReviewProfile(overlayRef)
+			overlay, loadErr := s.loadReviewProfileFrom(profileRevision, overlayRef)
 			if loadErr != nil {
 				plan.Blockers = append(plan.Blockers, loadErr.Error())
 				continue
@@ -262,6 +296,18 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	if added {
 		plan.Explain = append(plan.Explain, "cross-component-integration added because multiple mapped component roots are affected")
 	}
+	plan.PolicyBaseline.Paths = guard.Paths
+	plan.PolicyBaseline.Reason = guard.Reason
+	if guard.Unreadable != "" {
+		plan.PolicyBaseline.Weakened = append(plan.PolicyBaseline.Weakened, "unreadable_tree_contract:"+guard.Unreadable)
+	}
+	if len(guard.Paths) > 0 && baseline.Resolved {
+		applyProtectedPolicyBaseline(&plan, baseline, policy, scope, context)
+	}
+	plan.Explain = append(plan.Explain, reviewPolicyBaselineExplain(plan.PolicyBaseline)...)
+	if !plan.PolicyBaseline.Protected && len(guard.Paths) > 0 {
+		plan.Warnings = append(plan.Warnings, "unprotected review contract change "+strings.Join(guard.Paths, ",")+": "+firstNonempty(guard.Reason, "the base contract could not be resolved"))
+	}
 	plan.Tools, plan.Blockers, plan.Warnings = buildReviewTools(scope, context, profiles, plan.SelectedProfiles, plan.Criteria, plan.Blockers, plan.Warnings)
 	plan.Warnings = s.annotateReviewToolProducerCoverage(plan.Tools, plan.Warnings)
 	for _, c := range plan.Criteria {
@@ -277,6 +323,12 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	plan.Explain = uniqueStable(plan.Explain)
 	floor := normalizeReviewIndependence(policy.ReviewerIndependence[scope.Kind])
 	plan.Bands, plan.Band = deriveReviewBands(plan, scope.Kind, floor, selected, undecidableReviewOverlays(overlays, selected), context)
+	if band, ok := reviewPolicyBaselineBand(plan.PolicyBaseline); ok {
+		plan.Bands = append(plan.Bands, band)
+		if reviewBandRank[band.Band] > reviewBandRank[plan.Band] {
+			plan.Band = band.Band
+		}
+	}
 	plan.Projection = projectDeclaredReviewObligations(plan, scope, base, floor, overlays, context)
 	plan.PlanDigest, err = digestReviewPlan(plan)
 	if err != nil {
@@ -681,6 +733,16 @@ func matchReviewOverlay(selectors ReviewProfileSelectors, context reviewPlanCont
 		return []string{}, category, order
 	}
 	return uniqueSorted(matched), category, order
+}
+
+// loadReviewProfileFrom reads a profile from the working tree, or from a
+// protected revision when the tree's policy no longer governs this scope.
+func (s Store) loadReviewProfileFrom(revision, ref string) (ReviewProfile, error) {
+	if revision == "" {
+		profile, _, err := s.loadReviewProfile(ref)
+		return profile, err
+	}
+	return s.parseReviewProfileAt(revision, ref)
 }
 
 // reviewOverlaySelection is one overlay that matched, with the selection record

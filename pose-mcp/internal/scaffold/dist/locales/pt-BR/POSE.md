@@ -516,8 +516,36 @@ também carrega `origin` (`declared`, `observed` ou `declared+observed`).
 Ambos derivam dos campos que o plano já resolveu, pelos mesmos selectors e
 composer — não há segundo motor de policy — e nenhum entra no digest do plano.
 Publicá-los, portanto, não acrescenta obrigação nem supersede review selado.
-Selectors de observação estrutural e a baseline de policy protegida seguem
-pendentes nesta spec.
+Selectors de observação estrutural seguem pendentes nesta spec.
+
+### Baseline de policy protegida
+
+Um diff que altera o contrato de review não pode ser a autoridade que o aprova.
+Quando o escopo revisado toca `.pose/policy/` ou `.pose/review-profiles/`,
+as obrigações são resolvidas outra vez a partir do contrato como
+ele estava na base resolvida do change set, e o que o diff enfraqueceu é restaurado
+para aquele review: a independência mais restritiva, um critério que o diff removeu
+(readicionado com proveniência `protected-baseline:`) e um critério que o diff
+amoleceu de obrigatório para opcional ou de julgado para coletado. A restauração é
+unidirecional, então uma baseline mais fraca que o diff não muda nada. Esses dois
+diretórios são o contrato — policy e profiles carregam a própria versão de schema
+— enquanto corpos de rule ficam fora do gate, porque o que se compara aqui é o
+contrato de critérios.
+
+`policy_baseline` informa `protected`, a `revision`, os `paths` de contrato, as
+mudanças `weakened` observadas — inclusive `allow_approved_with_reservations`,
+`require_signed_attestations`, `identity_assurance` e `component_aware` — e as
+obrigações `restored`. Uma mudança de contrato cuja revisão base não pode ser
+resolvida é reportada como não protegida, com warning e banda `unknown`: o POSE
+declara que o review está desprotegido em vez de sugerir que houve proteção.
+
+Dois casos tornavam a mudança de contrato irrevisável e não tornam mais: um diff
+que define `enabled: false` e um diff que remove ou quebra o profile apontado pela
+policy. Ambos agora resolvem o plano pelo contrato protegido e registram o
+enfraquecimento. Adotar contrato mais fraco continua possível; aprová-lo sob o
+contrato mais fraco, não. As restaurações chegam ao digest do plano pelos critérios,
+pela independência e pela trilha de explain, então um plano protegido tem
+identidade própria.
 
 ## Autoridade verificável de review (ABM)
 

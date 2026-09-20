@@ -86,6 +86,31 @@ sealed review; a summary that moved the digest would be indistinguishable, to a
 verifier, from a real change in obligations. Observed structural selectors, the
 protected policy baseline and the R7 advisory mapping remain pending.
 
+### Increment 3
+
+A diff that changes the review contract cannot be the authority that approves it.
+When the scope touches `.pose/policy/` or `.pose/review-profiles/` — the two
+directories that are the contract, since both carry their own schema version, and
+rule bodies stay out because it is the criterion contract that is compared — the
+plan resolves the contract a second time at the change set's
+resolved base — same parsers, same selectors, same composer, different revision —
+and restores upward only: the stricter independence, a dropped criterion (with
+`protected-baseline:` provenance) and a criterion softened from required to
+optional or from judged to collected. A baseline weaker than the diff changes
+nothing, which is what keeps this a direction rather than a second engine.
+
+Two cases previously made a contract change unreviewable, because the plan refused
+to exist and the change landed with no plan at all: `enabled: false`, and removing
+or breaking the profile the policy points at. Both now resolve under the protected
+contract and record the weakening. `ScopeDigest` had the same coupling — it read
+the profile from the tree — so an absent profile now contributes empty bytes, a
+distinct digest input, while a malformed one is still a hard error.
+
+Restorations reach the digest through criteria, independence and the explain trail.
+The structured `policy_baseline` report, like the band summary, stays a projection.
+A contract change whose base cannot be resolved is reported unprotected with a
+warning and an `unknown` band; POSE does not imply protection it did not have.
+
 ### Artifacts
 
 - created: .pose/specs/2026-09-19-pose-abm-progressive-review.md
@@ -107,6 +132,9 @@ protected policy baseline and the R7 advisory mapping remain pending.
 - created: .pose/changelogs/unreleased/pose-abm-progressive-review.md
 - created: pose-mcp/internal/pose/review_bands.go
 - modified: pose-mcp/internal/pose/review_plan.go
+- created: pose-mcp/internal/pose/review_policy_baseline.go
+- created: pose-mcp/internal/pose/review_policy_baseline_test.go
+- modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
@@ -135,7 +163,8 @@ this increment's extra criteria; retain immutable prior reviews.
 - [x] Derive band explanations and declared/observed obligation deltas from the
   common plan; expose undecided selectors without escalating them.
 - [ ] Add observed structural selectors and the R7 advisory mapping.
-- [ ] Enforce the protected policy baseline.
+- [x] Enforce the protected policy baseline, including a disabled policy and a
+  removed profile in the reviewed diff.
 - [ ] Validate the full requirement corpus, review and close through POSE.
 
 ## 5. Decisions
@@ -160,6 +189,7 @@ Required plan recorded before implementation:
 | Install and actual CLI JSON | `go test ./internal/cli -run ABMProgressiveReview -count=1` | Installed profiles resolve in real command; policy remains opt-in |
 | Bands, undecided selectors, plan identity, observed expansion | `go test ./internal/pose -run 'ABMProgressiveReviewBands\|ABMProgressiveReviewUnknown\|ABMProgressiveReviewObserved\|ABMProgressiveReviewCriticalityEscalates' -count=1` | Explained trigger/basis/source/policy/obligation; unknown priced at zero; digest unchanged; expansion attributed |
 | Shared plan across consumers | `go test ./internal/cli -run ABMProgressiveReview -count=1` | CLI JSON equals the store plan; band and forecast visible without `--explain` |
+| Protected baseline: restoration, disabled policy, removed profile, unresolvable base, ordinary scope | `go test ./internal/pose -run ABMProtectedBaseline -count=1` | Floor and criteria restored upward with provenance; contract change reviewable in every case; unprotected states stated, not assumed |
 | Distribution parity | `go test ./internal/scaffold -run TestEmbeddedDistMatchesPoseDist -count=1` | Embedded and canonical assets agree |
 | Full module | `pose validate --strict --module pose-mcp` (from repository root) | Build, tests, vet and registered integration checks pass |
 
@@ -219,20 +249,26 @@ Candidate validation passed 7/7 with current scoped provenance. Candidate
 results, zero findings. This proves composition of increment 1, not satisfaction
 of the requirements still listed as pending above.
 
+Increment 3 defect injection: not restoring the floor, not re-adding a dropped
+criterion, not restoring a softened one, refusing a plan for a disabled policy, and
+claiming protection without applying it each failed exactly the case that asserts
+it. The full module suite and `go vet` stayed green.
+
 ### Requirement trace
 
 No requirement is terminally satisfied yet. Increment 1 exercises R1, R3, the
 overlay floor of R4, a declared-trigger corpus for R6 and deduplication in R8.
 Increment 2 adds R2 in full — band explanations carrying trigger, basis, source,
 policy and obligation, derived without a second engine — R5 in full, and the
-uncertainty half of R8. R7, the protected policy baseline of R4 and the observed
-structural triggers still needed by R6 require subsequent implementation.
+uncertainty half of R8. Increment 3 completes R4: the independence floor holds
+against overlays and author metadata, and a governance change is now reviewed under
+a protected contract baseline. R7 and the observed structural triggers still needed
+by R6 require subsequent implementation.
 
 ## 7. Final Report
 
-Increments 1 and 2 are implemented and verified through installation, CLI, MCP
+Increments 1 to 3 are implemented and verified through installation, CLI, MCP
 catalog parity and the scoped delivery gate. The spec remains in-progress for
-observed structural triggers, the R7 advisory mapping and protected baseline
-enforcement. No release, deployment, global adoption or full roadmap closeout is
+observed structural triggers and the R7 advisory mapping. No release, deployment, global adoption or full roadmap closeout is
 claimed.
 All remaining acceptance work stays in this spec's requirements/tasks.
