@@ -186,5 +186,6 @@ faster.
 
 ### Follow-ups
 
-- [open] Profile the single graph build and the 34s closeout phase if the gate grows
-  again (owner:@pose-maintainers crit:low review:2026-11-20)
+- [covered] Profile the single graph build and the 34s closeout phase — profiled and
+  reduced by parse-the-delivery-index-once-per-content, which removed two repetitions
+  of identical work (owner:@pose-maintainers crit:low review:2026-11-20)

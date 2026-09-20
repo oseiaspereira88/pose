@@ -365,6 +365,33 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "parse-memo-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "DeliveryGraphCache|DeliveryGraphCopy|DesignDeltaMemo|DesignDeltaCopy",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "parallel-gate-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/cli",
+            "-run",
+            "FailOrWarnPerItem",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "review-policy-adoption-integration",
           "program": "go",
           "args": [

@@ -441,8 +441,8 @@ func (s Store) GetDeliveryIntegrity(path string) (DeliveryIntegrityGraph, error)
 	if err != nil {
 		return DeliveryIntegrityGraph{}, fmt.Errorf("pose: delivery-integrity index not found; run `pose index`")
 	}
-	var graph DeliveryIntegrityGraph
-	if err := json.Unmarshal(raw, &graph); err != nil || graph.SchemaVersion != DeliveryIntegritySchemaVersion {
+	graph, ok := parseDeliveryIntegrityGraph(raw)
+	if !ok {
 		return DeliveryIntegrityGraph{}, fmt.Errorf("pose: invalid delivery-integrity index")
 	}
 	if path != "" {
@@ -451,7 +451,10 @@ func (s Store) GetDeliveryIntegrity(path string) (DeliveryIntegrityGraph, error)
 		}
 		wanted := filepath.ToSlash(filepath.Clean(path))
 		graph.Reverse = map[string][]string{wanted: graph.Reverse[wanted]}
-		filtered := graph.Findings[:0]
+		// Allocates rather than filtering through the backing array: the graph
+		// may come from the parse cache, and writing through it would narrow
+		// every later caller's findings to this one path.
+		filtered := []DeliveryIntegrityFinding{}
 		for _, finding := range graph.Findings {
 			if finding.Path == wanted {
 				filtered = append(filtered, finding)

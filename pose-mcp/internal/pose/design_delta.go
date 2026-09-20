@@ -19,6 +19,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 )
 
 const (
@@ -181,6 +182,18 @@ func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, o
 	if err != nil {
 		return DesignDeltaReport{}, err
 	}
+	// The report is a pure function of this digest: it covers the parser version,
+	// the scope, the canonical subject with its per-entry digests, and the read
+	// bounds. Identical inputs read the same Git blobs and produce the same
+	// report, which is why the existing CacheKey field was already this value —
+	// it named a cache nothing had implemented.
+	//
+	// One `pose check --strict` on this repository made 152 of these calls for 116
+	// distinct digests: 36 repeats at about 62 ms each. Measured before caching,
+	// because a cache for a ratio nobody counted is a guess.
+	if cached, ok := cachedDesignDelta(input); ok {
+		return cached, nil
+	}
 	report := DesignDeltaReport{
 		SchemaVersion: DesignDeltaSchemaVersion,
 		ParserVersion: DesignDeltaParserVersion,
@@ -241,7 +254,45 @@ func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, o
 	if len(report.Deltas) == 0 && collector.coverage.FilesObserved == 0 && len(report.Warnings) == 0 {
 		report.Warnings = []string{"subject contains no structurally assessable entries"}
 	}
+	storeDesignDelta(input, report)
 	return report, nil
+}
+
+// designDeltaCache memoizes by input digest. Every hit and every store goes
+// through a copy: the report carries three slices, and handing the cached value
+// out would let one caller's edit reach the next — the aliasing class this
+// repository has now found three times, in focusSurfaceGraph, in the delivery
+// index filter and here.
+var designDeltaCache = struct {
+	sync.Mutex
+	reports map[string]DesignDeltaReport
+}{reports: map[string]DesignDeltaReport{}}
+
+func cachedDesignDelta(key string) (DesignDeltaReport, bool) {
+	designDeltaCache.Lock()
+	defer designDeltaCache.Unlock()
+	report, ok := designDeltaCache.reports[key]
+	if !ok {
+		return DesignDeltaReport{}, false
+	}
+	return copyDesignDeltaReport(report), true
+}
+
+func storeDesignDelta(key string, report DesignDeltaReport) {
+	designDeltaCache.Lock()
+	defer designDeltaCache.Unlock()
+	designDeltaCache.reports[key] = copyDesignDeltaReport(report)
+}
+
+// copyDesignDeltaReport copies every slice the report owns.
+// TestDesignDeltaCopyCoversEveryField fails when a field is added without being
+// handled here.
+func copyDesignDeltaReport(in DesignDeltaReport) DesignDeltaReport {
+	out := in
+	out.Deltas = append([]StructuralDelta{}, in.Deltas...)
+	out.Warnings = append([]string{}, in.Warnings...)
+	out.Coverage.Detectors = append([]DesignDeltaDetector{}, in.Coverage.Detectors...)
+	return out
 }
 
 func canonicalDesignDeltaSubject(subject ReviewBundleSubject) ReviewBundleSubject {

@@ -188,8 +188,8 @@ func (checker *nativeChecker) checkDeliveryContracts() {
 	// reuse is only safe because focusSurfaceGraph no longer filters through the
 	// caller's backing array.
 	graph, graphErr := buildCurrentDeliveryGraph(checker.root)
-	paths := findSpecFiles(checker.root)
-	for _, path := range paths {
+	slugs := []string{}
+	for _, path := range findSpecFiles(checker.root) {
 		fm := simpleFrontmatter(path)
 		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
 			continue
@@ -198,27 +198,30 @@ func (checker *nativeChecker) checkDeliveryContracts() {
 		if slug == "" {
 			slug = filepath.Base(filepath.Dir(path))
 		}
+		slugs = append(slugs, slug)
+	}
+	checker.failOrWarnPerItem(len(slugs), func(i int) []string {
+		slug := slugs[i]
 		full, err := store.GetSpec(slug)
 		if err != nil {
-			checker.failOrWarn("delivery contract: spec:" + slug + ": " + err.Error())
-			continue
+			return []string{"delivery contract: spec:" + slug + ": " + err.Error()}
 		}
 		targets, found, err := pose.ParseDeliveryTargets(*full)
 		if err != nil || len(full.Delivers) > 0 && (!found || len(targets) == 0) {
-			checker.failOrWarn(fmt.Sprintf("delivery contract: spec:%s: %v", slug, err))
-			continue
+			return []string{fmt.Sprintf("delivery contract: spec:%s: %v", slug, err)}
 		}
 		// A graph that could not be built is reported once per spec, exactly as
 		// before: the error belonged to every spec the loop would have checked,
 		// and swallowing it here would turn an unreadable graph into a clean run.
 		if graphErr != nil {
-			checker.failOrWarn("delivery contract: spec:" + slug + ": " + graphErr.Error())
-			continue
+			return []string{"delivery contract: spec:" + slug + ": " + graphErr.Error()}
 		}
+		messages := []string{}
 		for _, blocker := range deliverySpecBlockersFromGraph(graph, slug) {
-			checker.failOrWarn("delivery contract: spec:" + slug + ": " + blocker)
+			messages = append(messages, "delivery contract: spec:"+slug+": "+blocker)
 		}
-	}
+		return messages
+	})
 }
 
 func (checker *nativeChecker) checkArtifactContracts() {
@@ -275,8 +278,11 @@ func (checker *nativeChecker) checkReviewCloseout() {
 		return
 	}
 	store := pose.Store{Root: checker.root}
-	specPaths := findSpecFiles(checker.root)
-	for _, path := range specPaths {
+	// The candidate list is resolved first and cheaply — one frontmatter read per
+	// spec — so the expensive part, one closeout state per candidate, is what runs
+	// in parallel, in the order this list already has.
+	slugs := []string{}
+	for _, path := range findSpecFiles(checker.root) {
 		fm := simpleFrontmatter(path)
 		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
 			continue
@@ -285,15 +291,19 @@ func (checker *nativeChecker) checkReviewCloseout() {
 		if slug == "" {
 			slug = filepath.Base(filepath.Dir(path))
 		}
+		slugs = append(slugs, slug)
+	}
+	checker.failOrWarnPerItem(len(slugs), func(i int) []string {
+		slug := slugs[i]
 		state, err := store.GetCloseoutState("spec:" + slug)
 		if err != nil {
-			checker.failOrWarn("review closeout: spec:" + slug + ": " + err.Error())
-			continue
+			return []string{"review closeout: spec:" + slug + ": " + err.Error()}
 		}
 		if !state.Terminal {
-			checker.failOrWarn("review closeout: spec:" + slug + ": " + state.NextAction)
+			return []string{"review closeout: spec:" + slug + ": " + state.NextAction}
 		}
-	}
+		return nil
+	})
 	roadmapPaths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
 	for _, path := range roadmapPaths {
 		fm := simpleFrontmatter(path)
