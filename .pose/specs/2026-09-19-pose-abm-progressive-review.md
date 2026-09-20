@@ -249,6 +249,20 @@ Candidate validation passed 7/7 with current scoped provenance. Candidate
 results, zero findings. This proves composition of increment 1, not satisfaction
 of the requirements still listed as pending above.
 
+Increment 3 committed as `1c45793`. Against that commit the candidate
+`artifact-check --strict` exited 0 with 29 claims and 29 observed artifacts; the
+360 orphan findings remain the same historical governed paths. Candidate
+`validate --strict --module pose-mcp` passed 7/7 and candidate
+`surface-check --strict --results` that path passed with one target, seven results
+and zero findings. Pre-commit increment evidence again, not terminal delivery
+evidence: R7 and the observed structural triggers are still open.
+
+The installed post-install gate caught a real defect in the first draft of this
+increment: the documented contract prefix `.pose/schemas/` does not exist in the
+distribution, and the broken reference failed `TestBrownfieldDirectAdoptionKit`.
+The guarded set is now the two directories that exist, which both carry their own
+schema version.
+
 Increment 3 defect injection: not restoring the floor, not re-adding a dropped
 criterion, not restoring a softened one, refusing a plan for a disabled policy, and
 claiming protection without applying it each failed exactly the case that asserts
