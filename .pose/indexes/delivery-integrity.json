@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:d781974e019966cf7be5a14bb1fa598541876ce191e330f2e93a41b12826755c",
-  "provenance_digest": "sha256:9bf22560f593358dccdf2892520a3c1915d01bbc56358bba3489caf99c0adebc",
+  "input_digest": "sha256:db5d703bbb36231645e990e8014406abd79d93d5c98d9301c6ae7060b03a326f",
+  "provenance_digest": "sha256:0ba58fb8545f39aa19856f16559a2612c68e8c44b10a75be4317857e002cfd84",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -5748,6 +5748,20 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/2026-09-19-pose-abm-subject-evidence.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/2026-09-20-artifact-claims-stop-at-the-section-end.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-09-20-artifact-claims-stop-at-the-section-end.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/2026-09-20-check-strict-verdict-names-its-mode.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-09-20-check-strict-verdict-names-its-mode.md"
       }
     },
     {
@@ -13519,6 +13533,14 @@
       }
     },
     {
+      "id": "change-set:cs-837617ac36a5",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:9c4d60159ac8af4f86f6643f542c1741f992ca8d7f9cbff25e23f17ca7228ecc",
+        "selector": "trailers:check-strict-verdict-names-its-mode"
+      }
+    },
+    {
       "id": "change-set:cs-8494ab2081e9",
       "type": "change-set",
       "attributes": {
@@ -15750,6 +15772,20 @@
       "type": "roadmap-criterion",
       "attributes": {
         "passed": "false"
+      }
+    },
+    {
+      "id": "spec:artifact-claims-stop-at-the-section-end",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
+      }
+    },
+    {
+      "id": "spec:check-strict-verdict-names-its-mode",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
       }
     },
     {
@@ -40840,6 +40876,16 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-837617ac36a5",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-837617ac36a5",
+      "to": "artifact:.pose/specs/2026-09-20-check-strict-verdict-names-its-mode.md",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-8494ab2081e9",
       "to": "artifact:.pose/adr/2026-08-10-local-usage-events-and-outcome-aware-aggregation.md",
       "type": "changes"
@@ -57130,6 +57176,21 @@
       "type": "gates"
     },
     {
+      "from": "spec:artifact-claims-stop-at-the-section-end",
+      "to": "artifact:.pose/specs/2026-09-20-artifact-claims-stop-at-the-section-end.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:check-strict-verdict-names-its-mode",
+      "to": "artifact:.pose/specs/2026-09-20-check-strict-verdict-names-its-mode.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:check-strict-verdict-names-its-mode",
+      "to": "change-set:cs-837617ac36a5",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-abm-authority-fixture-clock",
       "to": "artifact:.pose/specs/2026-09-19-pose-abm-authority-fixture-clock.md",
       "type": "declares"
@@ -67731,6 +67792,16 @@
     }
   ],
   "claims": [
+    {
+      "spec": "artifact-claims-stop-at-the-section-end",
+      "action": "created",
+      "path": ".pose/specs/2026-09-20-artifact-claims-stop-at-the-section-end.md"
+    },
+    {
+      "spec": "check-strict-verdict-names-its-mode",
+      "action": "created",
+      "path": ".pose/specs/2026-09-20-check-strict-verdict-names-its-mode.md"
+    },
     {
       "spec": "pose-abm-authority-fixture-clock",
       "action": "created",
@@ -88846,6 +88917,29 @@
       "diff_digest": "sha256:224738c1c30e1c59f0c4503f52608d5e07a8876b23862fc224fdf36e26d501e7"
     },
     {
+      "id": "cs-837617ac36a5",
+      "spec": "check-strict-verdict-names-its-mode",
+      "selector": "trailers:check-strict-verdict-names-its-mode",
+      "base": "f90f432f18ffca6ca14ccc9d285f47613c38ce69^",
+      "head": "f90f432f18ffca6ca14ccc9d285f47613c38ce69",
+      "resolved_base": "ac7177bc3f4a27ff15388b04dc4c46e9c798acc0",
+      "resolved_head": "f90f432f18ffca6ca14ccc9d285f47613c38ce69",
+      "commits": [
+        "f90f432f18ffca6ca14ccc9d285f47613c38ce69"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-20-check-strict-verdict-names-its-mode.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        }
+      ],
+      "diff_digest": "sha256:9c4d60159ac8af4f86f6643f542c1741f992ca8d7f9cbff25e23f17ca7228ecc"
+    },
+    {
       "id": "cs-8494ab2081e9",
       "spec": "pose-usage-metrics",
       "selector": "range:330aca8^..330aca8",
@@ -100395,6 +100489,12 @@
     ".pose/specs/2026-09-19-pose-abm-subject-evidence.md": [
       "pose-abm-subject-evidence"
     ],
+    ".pose/specs/2026-09-20-artifact-claims-stop-at-the-section-end.md": [
+      "artifact-claims-stop-at-the-section-end"
+    ],
+    ".pose/specs/2026-09-20-check-strict-verdict-names-its-mode.md": [
+      "check-strict-verdict-names-its-mode"
+    ],
     ".pose/specs/pose-action-runtime-currency-gate/spec.md": [
       "pose-action-runtime-currency-gate"
     ],
@@ -106010,6 +106110,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-97f14ae51ab0",
+      "code": "existence",
+      "severity": "error",
+      "spec": "artifact-claims-stop-at-the-section-end",
+      "path": ".pose/specs/2026-09-20-artifact-claims-stop-at-the-section-end.md",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-98384f70db44",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -106177,6 +106286,15 @@
       "change_set": "cs-2398efe06611",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-a0a02bc8e622",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "artifact-claims-stop-at-the-section-end",
+      "path": ".pose/specs/2026-09-20-artifact-claims-stop-at-the-section-end.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "no Git change sets are attributed to spec artifact-claims-stop-at-the-section-end (ensure commits carry 'POSE-Spec: artifact-claims-stop-at-the-section-end' trailer or generate report with pose report)"
     },
     {
       "id": "dif-a170fbe8f87c",

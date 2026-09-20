@@ -62,6 +62,10 @@ the exit code of a warning-only run.
 
 Remaining artifacts are declared when the fix is implemented.
 
+### Rollout and reversal
+
+A message change in one command. Reverting is reverting the string and its test.
+
 ## 4. Tasks
 
 - [ ] Reproduce the mislabelled verdict in a test before changing the message.
