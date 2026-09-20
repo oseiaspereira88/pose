@@ -1,0 +1,149 @@
+---
+slug: pose-abm-progressive-review
+status: in-progress
+created_at: 2026-09-19
+completed_at:
+depends_on: pose-abm-review-soundness, pose-abm-review-authority, pose-abm-design-basis, pose-abm-structural-delta
+priority: 1
+components: pose-mcp
+task_type: feature
+delivers: governance:abm-progressive-review
+---
+
+# Spec: Progressive review from explicit obligations
+
+## 1. Intent
+
+Implement the POSE portion of the Harne8 ABM foundation roadmap in this executor
+repository. Keep the stable coordinator slug. Owner: @pose-maintainers.
+Ship opt-in review profiles first, then connect observations and explanations
+without introducing a second policy engine. The coordinator remains a program
+record; this document records implementation and its remaining acceptance gates.
+
+### Constraints
+
+Preserve offline operation, explicit adoption and historical evidence. Judgment
+requires an explicit reviewer conclusion. Do not activate profiles by installing
+or updating the distribution. Do not claim the whole roadmap from one increment.
+
+## 2. Requirements
+
+- R1: Distribute engineering-judgment and high-criticality-review as opt-in
+  profiles; match high and critical explicitly.
+- R2: Derive baseline/elevated/critical explanations from the effective plan,
+  including trigger, source, policy and obligation, without another policy engine.
+- R3: Require assumption-integrity, design-causality and solution-proportionality
+  when applicable; include negative space and speculative extensibility in the last.
+- R4: Preserve the independence floor against overlays and author-controlled
+  metadata; review governance changes under a protected policy baseline.
+- R5: Distinguish declared preflight forecasts from final observations and show
+  additional obligations when observed scope expands.
+- R6: Add no ABM action/document/approval to trivial changes without a material
+  trigger; do not infer triviality from a Markdown extension.
+- R7: Require specific judgment rationale and advisory mapping for material
+  structural deltas; distinguish missing evidence, N/A and accepted risk.
+- R8: Share the plan across CLI/MCP consumers, deduplicate obligations and expose
+  uncertainty explicitly. Portal composition belongs to Harne8 review-experience.
+
+## 3. Technical Plan
+
+### Increment 1
+
+Reuse schema-v2 selectors and monotone composition. Both profiles select declared
+surface, capability, contract, infrastructure or governance targets. The criticality
+profile additionally matches high/critical and raises independence to different-actor.
+These conjunctive selectors keep target-free editorial scopes light, including in
+a high component. A governance target remains material even with a Markdown entrypoint.
+Both profiles contribute the same three explicit judgment criteria, deduplicated by
+the existing composer, and no new tools. Missing metadata keeps existing diagnostics.
+
+This first increment deliberately does not infer that an undeclared target or a
+missing structural observation proves triviality. Observed structural selectors,
+band explanations, protected baseline comparison and obligation deltas remain
+acceptance work in this same spec. No new public schema is needed for the profiles.
+
+### Artifacts
+
+- created: .pose/specs/2026-09-19-pose-abm-progressive-review.md
+- created: .pose/review-profiles/engineering-judgment.json
+- created: .pose/review-profiles/high-criticality-review.json
+- created: pose-mcp/internal/scaffold/dist/.pose/review-profiles/engineering-judgment.json
+- created: pose-mcp/internal/scaffold/dist/.pose/review-profiles/high-criticality-review.json
+- created: pose-mcp/internal/pose/progressive_review_test.go
+- created: pose-mcp/internal/cli/progressive_review_test.go
+- modified: .pose/indexes/validation-matrix.json
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/results/abm-progressive-review-validation.json
+- created: .pose/changelogs/unreleased/pose-abm-progressive-review.md
+
+### Delivery targets
+
+- governance:abm-progressive-review module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
+
+The existing backend-go delivery profile requires integration evidence. Register a
+dedicated integration producer for installation and real CLI plan resolution.
+
+### Rollout and reversal
+
+Install the files without changing overlay_profiles. Preview explicit adoption in
+a temporary instance using review-plan. Removing the adopted overlay refs reverts
+this increment's extra criteria; retain immutable prior reviews.
+
+## 4. Tasks
+
+- [x] Confirm existing selectors/composition and register this implementation plan.
+- [x] Distribute opt-in profiles and cover installation, selection and no-downgrade.
+- [ ] Derive bands, structural triggers and obligation deltas from the common plan.
+- [ ] Enforce the protected policy baseline and prove unknown handling.
+- [ ] Validate the full requirement corpus, review and close through POSE.
+
+## 5. Decisions
+
+Reuse the existing profile contract for increment 1. Declared delivery kinds are
+the initial material trigger; component criticality alone is insufficient to
+classify an editorial change. This is a bounded first producer, not the final
+structural trigger contract. The high profile raises independence, while verified
+identity assurance continues to depend on the authority policy already implemented.
+
+Consulted knowledge:module-metadata-discovery-invalidates-review-provenance;
+avoid unrelated metadata changes while collecting review evidence.
+
+## 6. Validation
+
+Required plan recorded before implementation:
+
+| Scenario | Command (from pose-mcp) | Expected evidence |
+| --- | --- | --- |
+| Opt-in, duplicate criteria, trivial scopes, authority Markdown | `go test ./internal/pose -run ABMProgressiveReview -count=1` | Judgment only after matching adoption; trivial plan unchanged |
+| High, critical, medium, unknown, existing independence floor | `go test ./internal/pose -run 'ABMCriticality\|ABMPolicyDowngrade' -count=1` | Exact selectors, explicit unknown and no weaker floor |
+| Install and actual CLI JSON | `go test ./internal/cli -run ABMProgressiveReview -count=1` | Installed profiles resolve in real command; policy remains opt-in |
+| Distribution parity | `go test ./internal/scaffold -run TestEmbeddedDistMatchesPoseDist -count=1` | Embedded and canonical assets agree |
+| Full module | `pose validate --strict --module pose-mcp` (from repository root) | Build, tests, vet and registered integration checks pass |
+
+### Execution log
+
+2026-09-19: discovery completed before implementation (43,346 production LOC,
+32,746 test LOC, no TODO/FIXME markers); coordinator ready-check passed.
+
+2026-09-20 UTC: targeted corpus and embedded distribution parity passed. Full
+`pose validate --strict --module pose-mcp` passed all seven checks (build, test,
+vet, ABM integration, delivery integration, reachability and bundle convergence);
+result: `.pose/results/abm-progressive-review-validation.json`. This is pre-commit
+increment evidence, not terminal delivery evidence for the full spec.
+The installed binary's global `pose check --strict` reports historical bundles
+with unknown `implementation_digest`; the source models that field. Check the
+candidate binary before interpreting this as an implementation regression.
+
+### Requirement trace
+
+No requirement is terminally satisfied yet. Increment 1 exercises R1, R3, the
+overlay floor of R4, a declared-trigger corpus for R6 and deduplication in R8.
+R2/R5/R7 and the remaining R4/R6/R8 contracts require subsequent implementation.
+
+## 7. Final Report
+
+In progress. No release, deployment, global adoption or full roadmap closeout
+is claimed. All remaining acceptance work stays in this spec's requirements/tasks.

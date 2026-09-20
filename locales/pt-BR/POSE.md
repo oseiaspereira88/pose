@@ -473,6 +473,28 @@ POSE é a camada operacional para tornar uso de agentes mais confiável no repos
 - profundidade operacional em [`.pose/`](.pose/)
 - execução assistida por [`pose`](pose) (CLI)
 - maturidade progressiva com skills em [`.agents/skills/`](.agents/skills/)
+## Profiles opt-in de revisão progressiva (ABM)
+
+Adicione `engineering-judgment@1` e/ou `high-criticality-review@1` explicitamente
+a `overlay_profiles` na policy de review schema v2 com review por componente
+habilitado. A instalação distribui os profiles sem ativá-los. Pré-visualize a
+adoção com `pose review-plan spec:<slug> --json --explain` numa cópia isolada.
+
+Ambos selecionam targets declarados de surface, capability, contract,
+infrastructure ou governance. O profile de criticidade também seleciona `high`
+e `critical` explicitamente e eleva independence para `different-actor`;
+um piso existente `mandatory-human` continua valendo. Compartilham três julgamentos
+obrigatórios: `assumption-integrity`, `design-causality`, `solution-proportionality`.
+O último inclui negative space e extensibilidade especulativa. Quando ambos
+se aplicam, cada julgamento aparece uma vez e nenhuma tool é acrescentada.
+
+Este incremento inicial usa targets declarados. Ainda não deriva bandas ou
+gatilhos de observações estruturais, compara obrigações prévias/finais nem protege
+contra mudança da própria baseline governante. Um escopo editorial sem target
+não recebe obrigação extra, inclusive num componente high; um target governance
+com entrypoint Markdown continua selecionado. Metadata ausente mantém diagnóstico,
+sem provar baixo risco. Consulte abaixo o contrato de identidade verificada.
+
 ## Autoridade verificável de review (ABM)
 
 Quando uma policy define `identity_assurance` como `verified` para um tipo de

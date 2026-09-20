@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "high-criticality-review",
+  "version": 1,
+  "scope": "spec",
+  "selectors": {"delivery_kinds": ["surface", "capability", "contract", "infrastructure", "governance"], "criticalities": ["high", "critical"]},
+  "independence": "different-actor",
+  "criteria": [
+    {"id": "assumption-integrity", "kind": "judgment", "description": "Identify material assumptions and their applicable evidence; distinguish verified facts, unresolved assumptions and accepted risks."},
+    {"id": "design-causality", "kind": "judgment", "description": "Explain how the selected design addresses the stated requirement and material cause, citing the relevant decision basis and structural observations where available."},
+    {"id": "solution-proportionality", "kind": "judgment", "description": "Compare the solution with the smallest sufficient alternative, including negative space, speculative extensibility and the condition that would invalidate the choice."}
+  ]
+}

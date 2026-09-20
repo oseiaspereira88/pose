@@ -461,6 +461,28 @@ POSE is the operational layer that makes agent work reliable in the repository:
 - assisted execution via [`pose`](pose) (CLI)
 - progressive maturity with skills in [`.agents/skills/`](.agents/skills/)
 
+## Opt-in progressive review profiles (ABM)
+
+Add `engineering-judgment@1` and/or `high-criticality-review@1` explicitly to
+`overlay_profiles` in review policy schema v2 with component-aware review enabled.
+Installation ships these profiles without activating them. Preview adoption with
+`pose review-plan spec:<slug> --json --explain` in an isolated copy first.
+
+Both profiles match declared surface, capability, contract, infrastructure or
+governance delivery targets. The high-criticality profile additionally selects
+`high` and `critical` explicitly and raises independence to `different-actor`;
+an existing `mandatory-human` floor stays in force. They share three required
+judgments: `assumption-integrity`, `design-causality`, `solution-proportionality`.
+The last includes negative space and speculative extensibility. Matching both
+profiles yields one instance of each judgment and adds no tools.
+
+This initial increment uses declared targets. It does not yet derive bands or
+structural-observation triggers, compare preflight/final obligations, or protect
+against changing the governing baseline itself. A target-free editorial scope
+receives no extra obligation, including in a high component; a governance target
+with a Markdown entrypoint still matches. Missing metadata remains diagnostic,
+not proof of low risk. See the authority contract below for verified identities.
+
 ## Verified review authority (ABM)
 
 When a review policy sets `identity_assurance` to `verified` for a scope kind,
