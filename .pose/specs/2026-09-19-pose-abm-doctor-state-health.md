@@ -106,7 +106,7 @@ Required before closeout:
 - R1 [satisfied] `TestDoctorStateHealth`, `TestDoctorStateAbsentAndMalformed`
 - R2 [satisfied] `TestDoctorStateHealth`, `TestDoctorStateIntegrityAndFreshness`
 - R3 [satisfied] `TestDoctorStateHealth`, with unchanged-state-bytes assertions
-- R4 [satisfied] `TestDoctorStateHealth`, `TestDoctorStateAbsentAndMalformed`
+- R4 [satisfied] surface:doctor-state-health evidence:integration check:delivery-integration test:TestDoctorStateHealth test:TestDoctorStateAbsentAndMalformed — the real CLI command exposes the state-health findings through the delivered doctor surface
 
 ## 7. Final Report
 
