@@ -17,6 +17,10 @@
     "criteria": {"type": "array", "items": {"$ref": "#/$defs/criterion"}},
     "tools": {"type": "array", "items": {"$ref": "#/$defs/tool"}},
     "independence": {"enum": ["same-actor-separate-execution", "different-actor", "mandatory-human"]},
+    "band": {"enum": ["baseline", "elevated", "critical"]},
+    "bands": {"type": "array", "items": {"$ref": "#/$defs/band"}},
+    "projection": {"$ref": "#/$defs/projection"},
+    "policy_baseline": {"$ref": "#/$defs/policyBaseline"},
     "warnings": {"type": "array", "items": {"type": "string"}},
     "blockers": {"type": "array", "items": {"type": "string"}},
     "explain": {"type": "array", "items": {"type": "string"}}
@@ -31,6 +35,7 @@
         "language": {"type": "string"}, "domain": {"type": "string"}, "owner": {"type": "string"},
         "criticality": {"type": "string"}, "validation_profile": {"type": "string"},
         "metadata_status": {"type": "string"}, "metadata_missing": {"type": "array", "items": {"type": "string"}},
+        "origin": {"enum": ["declared", "observed", "declared+observed"]},
         "sources": {"type": "array", "items": {"type": "string"}}
       }
     },
@@ -43,6 +48,48 @@
       "type": "object", "additionalProperties": true,
       "required": ["id", "description", "required", "profiles"],
       "properties": {"id": {"type": "string"}, "description": {"type": "string"}, "required": {"type": "boolean"}, "kind": {"type": "string", "enum": ["mechanical", "judgment"]}, "rules": {"type": "array", "items": {"type": "string"}}, "evidence_classes": {"type": "array", "items": {"type": "string"}}, "profiles": {"type": "array", "items": {"type": "string"}}}
+    },
+    "band": {
+      "comment": "One explained reason the effective plan is where it is. Derived from the fields above; `unknown` states an undecided selector and carries no obligation.",
+      "type": "object", "additionalProperties": true,
+      "required": ["band", "trigger", "basis", "source", "policy", "obligations"],
+      "properties": {
+        "band": {"enum": ["baseline", "elevated", "critical", "unknown"]},
+        "trigger": {"type": "string"}, "basis": {"enum": ["declared", "observed", "declared+observed", "policy", "unknown"]},
+        "source": {"type": "string"}, "policy": {"type": "string"},
+        "obligations": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "projection": {
+      "comment": "The same plan resolved over declared scope alone, so a preflight forecast is never read back as a final observation.",
+      "type": "object", "additionalProperties": true,
+      "required": ["basis", "band", "independence", "profiles", "criteria", "tools", "scope_expanded"],
+      "properties": {
+        "basis": {"const": "declared-forecast"},
+        "band": {"enum": ["baseline", "elevated", "critical"]},
+        "independence": {"enum": ["same-actor-separate-execution", "different-actor", "mandatory-human"]},
+        "profiles": {"type": "array", "items": {"type": "string"}},
+        "criteria": {"type": "array", "items": {"type": "string"}},
+        "tools": {"type": "array", "items": {"type": "string"}},
+        "scope_expanded": {"type": "boolean"},
+        "observed_components": {"type": "array", "items": {"type": "string"}},
+        "added_profiles": {"type": "array", "items": {"type": "string"}},
+        "added_criteria": {"type": "array", "items": {"type": "string"}},
+        "added_tools": {"type": "array", "items": {"type": "string"}},
+        "raised_independence": {"type": "string"},
+        "raised_band": {"type": "string"}
+      }
+    },
+    "policyBaseline": {
+      "comment": "The protected contract a governance change was reviewed under. `protected` false with a `reason` means the review is unprotected and says so.",
+      "type": "object", "additionalProperties": true,
+      "required": ["protected"],
+      "properties": {
+        "protected": {"type": "boolean"}, "reason": {"type": "string"}, "revision": {"type": "string"},
+        "paths": {"type": "array", "items": {"type": "string"}},
+        "weakened": {"type": "array", "items": {"type": "string"}},
+        "restored": {"type": "array", "items": {"type": "string"}}
+      }
     },
     "tool": {
       "type": "object", "additionalProperties": true,

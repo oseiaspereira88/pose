@@ -108,6 +108,10 @@ distinct digest input, while a malformed one is still a hard error.
 
 Restorations reach the digest through criteria, independence and the explain trail.
 The structured `policy_baseline` report, like the band summary, stays a projection.
+The published `review-plan` schema now documents `band`, `bands`, `projection`,
+`policy_baseline` and a component's `origin`. None becomes required: a plan emitted
+by an older binary stays valid against it, which is the compatibility rule the
+plan's `additionalProperties` already implied.
 A contract change whose base cannot be resolved is reported unprotected with a
 warning and an `unknown` band; POSE does not imply protection it did not have.
 
@@ -138,6 +142,7 @@ warning and an `unknown` band; POSE does not imply protection it did not have.
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- modified: pose-mcp/schemas/v1/review-plan.schema.json
 - modified: .pose/assessments/README.md
 - modified: .pose/assessments/consolidated.md
 - modified: .pose/assessments/pose-mcp.md
