@@ -184,7 +184,6 @@ contract-bearing file shape; the explicit suffix and path rules are unchanged.
 - created: pose-mcp/internal/pose/review_structure_test.go
 - created: .pose/review-profiles/structural-materiality.json
 - created: pose-mcp/internal/scaffold/dist/.pose/review-profiles/structural-materiality.json
-- modified: pose-mcp/internal/pose/review_bands.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/design_delta.go
 - modified: pose-mcp/internal/cli/help_catalog.go
@@ -330,6 +329,20 @@ Increment 3 defect injection: not restoring the floor, not re-adding a dropped
 criterion, not restoring a softened one, refusing a plan for a disabled policy, and
 claiming protection without applying it each failed exactly the case that asserts
 it. The full module suite and `go vet` stayed green.
+
+Increment 4 committed as `3196070`. Against that commit the candidate
+`artifact-check --strict` exited 0 with 38 claims and 38 observed artifacts; the
+357 orphan findings remain the same historical governed paths. Candidate
+`validate --strict --module pose-mcp` passed 7/7 and candidate `surface-check
+--strict --results` that path passed with one target, seven results and zero
+findings.
+
+The dedicated integration producer named only the increment-1 and increment-2 test
+families, so the new corpus ran under the module's plain `test` step and not under
+the check that is this delivery's declared integration evidence. Its pattern now
+names `ABMProtectedBaseline` and `ABMStructural` as well. Measured, not assumed:
+the producer's own `-run` expression is what was checked, not the fact that the
+tests pass somewhere in the module.
 
 Increment 4 defect injection, seven cases: accepting an uncovered material fact,
 accepting a basis that reaches no requirement, accepting an unreasoned
