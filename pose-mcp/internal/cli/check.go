@@ -153,8 +153,16 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 	}
 	if checker.warnings > 0 {
 		noteCommandUsage(stdout, countedUsageResult("partial", 0, checker.warnings, false))
+		// The mode is interpolated here for the same reason it already was in the
+		// zero-warning verdict below. A `--strict` run whose only findings were
+		// non-escalating warnings printed `(tolerant mode)`, which invites two
+		// opposite errors: recording a strict pass nobody claimed, or re-running
+		// the gate believing the flag was dropped. The escalation is unchanged —
+		// `--strict` still turns a failOrWarn finding into an error above — so
+		// this is the label catching up with the run (spec
+		// check-strict-verdict-names-its-mode).
 		out.Verdict(cliout.Verdict{State: cliout.StatePass,
-			Text: fmt.Sprintf(cliText(locale, "(tolerant mode) with %d warning(s).", "(modo tolerant) com %d aviso(s)."), checker.warnings)})
+			Text: fmt.Sprintf(cliText(locale, "(%s mode) with %d warning(s).", "(modo %s) com %d aviso(s)."), mode, checker.warnings)})
 		return 0
 	}
 	noteCommandUsage(stdout, countedUsageResult("pass", 0, 0, false))

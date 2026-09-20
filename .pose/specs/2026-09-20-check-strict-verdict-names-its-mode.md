@@ -1,6 +1,6 @@
 ---
 slug: check-strict-verdict-names-its-mode
-status: draft
+status: in-progress
 created_at: 2026-09-20
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on:
 priority: 2
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:check-verdict-mode
 ---
 
 # Spec: `check` states the mode it actually ran in
@@ -59,8 +59,17 @@ the exit code of a warning-only run.
 ### Artifacts
 
 - created: .pose/specs/2026-09-20-check-strict-verdict-names-its-mode.md
+- created: .pose/changelogs/unreleased/check-strict-verdict-names-its-mode.md
+- created: pose-mcp/internal/cli/check_verdict_mode_test.go
+- modified: pose-mcp/internal/cli/check.go
+- modified: .pose/indexes/validation-matrix.json
+- modified: .pose/results/delivery-validation.json
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/spec-graph.json
 
-Remaining artifacts are declared when the fix is implemented.
+### Delivery targets
+
+- surface:check-verdict-mode module:pose-mcp/internal/cli profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Rollout and reversal
 
@@ -68,9 +77,9 @@ A message change in one command. Reverting is reverting the string and its test.
 
 ## 4. Tasks
 
-- [ ] Reproduce the mislabelled verdict in a test before changing the message.
-- [ ] Interpolate the mode in the warning-only verdict, in both locales.
-- [ ] Confirm escalation and exit codes are untouched.
+- [x] Reproduce the mislabelled verdict in a test before changing the message.
+- [x] Interpolate the mode in the warning-only verdict, in both locales.
+- [x] Confirm escalation and exit codes are untouched.
 
 ## 5. Decisions
 
@@ -94,6 +103,54 @@ with the candidate binary: `check --strict` exited 0 and printed
 reading confirmed `--strict` is parsed and passed to the checker, so the escalation
 is intact and only the label is wrong. Not fixed in that spec's change set.
 
+2026-09-20, implemented. The warning-only verdict interpolates `mode`, the way the
+zero-warning verdict already did, in both locales. The escalation path above it is
+untouched.
+
+Both fixture generators were measured rather than assumed, and the first guesses at
+each were wrong:
+
+- A done spec with no changelog fragment produces the warning only when its
+  `completed_at` is on or after the changelog adoption date that `pose install`
+  stamps. A fixture dated in the past was exempt and produced no warning at all, so
+  the first version of this test skipped itself and proved nothing.
+- The escalation case needs a `failOrWarn` finding, not merely a malformed file. An
+  invalid spec status and an unterminated frontmatter are both plain warnings; a
+  malformed `validation-matrix.json` is a warning under `--tolerant` and an error
+  under `--strict`, which is the contract this fix must not touch. An earlier
+  measurement of its exit code was also wrong, because `$?` was reading a pipe.
+
+That last point corrects the original finding's own first reading: `--strict` is
+honored. Only the verdict text was wrong.
+
+### Requirement trace
+
+- R1 [satisfied] surface:check-verdict-mode evidence:integration
+  check:check-verdict-mode-integration test:TestCheckVerdictModeNamesTheRunItWas —
+  strict, tolerant and default runs each name their own mode, and none reports itself
+  as another
+- R2 [satisfied] surface:check-verdict-mode evidence:integration
+  check:check-verdict-mode-integration test:TestCheckVerdictModeKeepsEscalation — a
+  warning-only run exits 0 in every mode; a failOrWarn finding is an error under
+  `--strict` with exit 1 and a warning under `--tolerant` with exit 0
+- R3 [satisfied] surface:check-verdict-mode evidence:integration
+  check:check-verdict-mode-integration test:TestCheckVerdictModeNamesTheRunItWas —
+  the verdict text is pinned per mode, so the label cannot drift back
+
 ## 7. Final Report
 
-Not implemented yet.
+### Scope delivered
+
+A warning-only verdict names the run it was. The escalation contract is unchanged and
+pinned, so the label fix cannot become a gate change.
+
+### Residual risks
+
+The test asserts the parenthesised mode rather than the whole sentence, so a rewording
+of the verdict would not fail it. That is deliberate: pinning the full string would
+make every translation edit a test failure, and the mode name is the part that was
+wrong.
+
+### Follow-ups
+
+None.
