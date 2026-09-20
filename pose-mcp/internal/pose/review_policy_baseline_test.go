@@ -241,3 +241,42 @@ func TestABMProtectedBaselineIgnoresOrdinaryScopes(t *testing.T) {
 		}
 	}
 }
+
+// The revision reaches a Git argument, and it comes from an index file in the
+// repository. A symbolic or option-shaped value must be refused before the call,
+// not after Git decides what to do with it.
+func TestABMProtectedBaselineRefusesANonImmutableRevision(t *testing.T) {
+	for _, revision := range []string{"HEAD", "--help", "main", "", "refs/heads/main", "-n"} {
+		root, store := protectedBaselineFixture(t)
+		raw, err := os.ReadFile(filepath.Join(root, ".pose/indexes/delivery-integrity.json"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var graph DeliveryIntegrityGraph
+		if err := json.Unmarshal(raw, &graph); err != nil {
+			t.Fatal(err)
+		}
+		graph.ChangeSets[0].ResolvedBase = revision
+		patched, err := json.Marshal(graph)
+		if err != nil {
+			t.Fatal(err)
+		}
+		writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(patched))
+		weakenProtectedBaseline(t, root, func(policy map[string]any) {
+			policy["reviewer_independence"] = map[string]any{"spec": "same-actor-separate-execution"}
+		})
+		plan, err := store.ReviewPlan("spec:governance")
+		if err != nil {
+			t.Fatalf("revision %q made the scope unplannable: %v", revision, err)
+		}
+		if plan.PolicyBaseline.Protected {
+			t.Fatalf("revision %q was accepted as a protected baseline: %+v", revision, plan.PolicyBaseline)
+		}
+		if plan.Independence != "same-actor-separate-execution" {
+			t.Fatalf("revision %q restored an obligation from an unread baseline", revision)
+		}
+		if !strings.Contains(strings.Join(plan.Warnings, " "), "unprotected review contract change") {
+			t.Fatalf("revision %q was refused silently: %+v", revision, plan.Warnings)
+		}
+	}
+}

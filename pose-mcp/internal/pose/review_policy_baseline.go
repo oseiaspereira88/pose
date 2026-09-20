@@ -132,7 +132,23 @@ type reviewPolicyBaseline struct {
 	Resolved bool
 }
 
+// reviewBaselineRevision refuses anything that is not an immutable object name
+// before it reaches a Git argument. The revision arrives from an index file in
+// the repository, so it is input: a value beginning with `-` would be read by
+// Git as an option rather than a revision, and a symbolic name would make the
+// protected contract depend on where a ref points today. The structural detector
+// already holds its subject to this shape; the baseline had not.
+func reviewBaselineRevision(revision string) error {
+	if !designDeltaRevisionRE.MatchString(revision) {
+		return fmt.Errorf("pose: %q is not an immutable Git revision", revision)
+	}
+	return nil
+}
+
 func (s Store) parseReviewPolicyAt(revision string) (ReviewPolicy, error) {
+	if err := reviewBaselineRevision(revision); err != nil {
+		return ReviewPolicy{}, err
+	}
 	raw, err := gitShowBounded(s.Root, revision, ".pose/policy/review.json", reviewBaselineMaxBytes)
 	if err != nil {
 		return ReviewPolicy{}, fmt.Errorf("pose: reading review policy at %s: %w", revision, err)
@@ -141,6 +157,9 @@ func (s Store) parseReviewPolicyAt(revision string) (ReviewPolicy, error) {
 }
 
 func (s Store) parseReviewProfileAt(revision, ref string) (ReviewProfile, error) {
+	if err := reviewBaselineRevision(revision); err != nil {
+		return ReviewProfile{}, err
+	}
 	parts := strings.Split(ref, "@")
 	if len(parts) != 2 || ValidateSlug(parts[0]) != nil {
 		return ReviewProfile{}, fmt.Errorf("pose: invalid review profile ref %q", ref)

@@ -352,9 +352,93 @@ edit as a boundary change, resolving the forecast from the observation, and
 restoring the over-broad `api/` prefix each failed exactly the case that asserts
 it. Full module suite and `go vet` green.
 
+### Explicit review
+
+Reviewed as a whole change set, not increment by increment. The five judgment
+criteria the base profile plans — compatibility, documentation, operability, scope
+and security — were answered by reading the change, and the bundle that carries
+them is sealed by an engine that lists `explicit-judgment`, so none of them could
+be filled from collected evidence.
+
+- compatibility: additive. Every new field on an existing artifact is `omitempty`,
+  so an attestation or bundle written before this change marshals byte-identically
+  and keeps its digest; the band summary and the projection are deliberately absent
+  from `digestReviewPlan`, proven by a dedicated identity test. The one deliberate
+  observable change is narrower `public-contract` classification in `assess design`,
+  which is a defect fix and is stated as such. `structural-causality` binds only
+  bundles sealed after it existed.
+- documentation: POSE.md, the pt-BR manual and both scaffold copies document bands,
+  the declared forecast, the protected baseline, observed structure and the mapping
+  contract; `review-plan` and `review-attestation` schemas publish the new fields as
+  optional; CLI help names `--mapping`; the MCP tool description names all of it.
+  Manual locale parity and embedded-distribution parity gates pass.
+- operability: offline preserved, no network, no writes during planning. The two new
+  Git reads are bounded and conditional: the protected baseline reads at most 1 MiB
+  per contract file and only when the scope touches one, and the structural
+  observation runs only when an adopted profile selects on it, so a repository that
+  did not opt in pays nothing. Every failure path degrades to a reported state —
+  unreadable base, missing index, undecidable selector — rather than to a claim.
+- scope: the change set matches the declared artifacts, 39 claims reconciled against
+  39 Git-observed paths. Two adjacent defects were corrected inside the blast radius
+  and recorded rather than bundled silently: the over-broad `api/` prefix and the
+  integration producer that did not name the new corpus. `ScopeDigest` tolerance for
+  an absent profile is a coupling the protected baseline forced, and is recorded.
+  Nothing unrelated was refactored.
+- security: one finding, raised and fixed in this review. The protected baseline
+  passed a revision read from `.pose/indexes/delivery-integrity.json` straight into a
+  Git argument. It is repository input: an option-shaped value would have been read
+  by Git as a flag, and a symbolic name would have made the protected contract depend
+  on where a ref points today. The structural detector already held its subject to an
+  immutable object name; the baseline now does too, and refuses `HEAD`, `main`,
+  `refs/heads/main`, `--help`, `-n` and empty by reporting the change unprotected
+  instead of restoring an obligation from an unread baseline. Covered by
+  `TestABMProtectedBaselineRefusesANonImmutableRevision`, proven to fail without the
+  check. Also reviewed and found sound: reviewer-supplied mapping values are quoted
+  before they reach a message, a basis ref must match a closed pattern before use,
+  profile refs are slug-validated before a path is built, and structural facts carry
+  digests rather than manifest content.
+
 ### Requirement trace
 
-No requirement is terminally satisfied yet. Increment 1 exercises R1, R3, the
+- R1 [satisfied] `TestABMProgressiveReviewOptInAndDeduplicatedJudgment`,
+  `TestABMCriticalityExplicitHighAndCritical`,
+  `TestABMProgressiveReviewInstallAndCLIPlan`
+- R2 [satisfied] `TestABMProgressiveReviewBandsExplainTheEffectivePlan`,
+  `TestABMProgressiveReviewCriticalityEscalatesBandWithoutRaisingTheFloor`,
+  `TestABMProgressiveReviewBandsDoNotChangePlanIdentity`
+- R3 [satisfied] `TestABMProgressiveReviewOptInAndDeduplicatedJudgment` —
+  the three judgments compose once, with negative space and speculative
+  extensibility carried by solution-proportionality
+- R4 [satisfied] `TestABMPolicyDowngradeOverlayCannotLowerHumanFloor`,
+  `TestABMProtectedBaselineRestoresWhatTheDiffWeakened`,
+  `TestABMProtectedBaselineGovernsADisabledPolicy`,
+  `TestABMProtectedBaselineSurvivesADeletedProfile`,
+  `TestABMProtectedBaselineUnavailableIsStatedNotAssumed`,
+  `TestABMProtectedBaselineRefusesANonImmutableRevision`
+- R5 [satisfied] `TestABMProgressiveReviewObservedScopeExpansionIsLabelled`,
+  `TestABMProgressiveReviewCLIShowsBandAndDeclaredForecast`
+- R6 [satisfied] `TestABMProgressiveReviewTrivialCorpusHasNoAdditionalObligations`,
+  `TestABMProgressiveReviewAuthorityMarkdownRemainsMaterial`,
+  `TestABMStructuralSelectorsObserveWhatWasNotDeclared`,
+  `TestABMStructuralMaterialityExcludesTransitiveAndUncertain`
+- R7 [satisfied] `TestABMStructuralCausalityRequiresCoverageOfEveryMaterialFact`,
+  `TestABMStructuralCausalityBasisMustReachARequirement`,
+  `TestABMStructuralCausalityDistinguishesTheThreeNonMappings`,
+  `TestABMStructuralCausalityRefusesInapplicabilityAndPhantomFacts`,
+  `TestABMStructuralCausalityIsOptInBothWays`,
+  `TestABMStructuralCausalityGovernsOnlySealedContracts`
+- R8 [satisfied] governance:abm-progressive-review evidence:integration
+  check:abm-progressive-review-integration
+  test:TestABMProgressiveReviewCLIShowsBandAndDeclaredForecast
+  test:TestABMProgressiveReviewInstallAndCLIPlan — the installed CLI and the MCP
+  catalog resolve the same plan, obligations deduplicate and uncertainty is
+  published. Portal composition is harne8-abm-review-experience by this spec's scope.
+
+### Increment history behind the trace
+
+The trace above is terminal. This paragraph records how it was reached, because an
+increment that only partly exercised a requirement is not the same claim as the
+requirement being satisfied. Increment 1 exercised R1, R3, the
 overlay floor of R4, a declared-trigger corpus for R6 and deduplication in R8.
 Increment 2 adds R2 in full — band explanations carrying trigger, basis, source,
 policy and obligation, derived without a second engine — R5 in full, and the
@@ -365,7 +449,9 @@ becomes material through observed structure, a non-material observation adds
 nothing, and a criterion answering for structure maps each material fact or
 disposes of it as missing evidence, not applicable or accepted risk. R8's shared
 plan is covered for CLI and MCP; portal composition remains Harne8's
-review-experience by this spec's own scope.
+review-experience by this spec's own scope. Every requirement then received the
+explicit review recorded above, and the security finding it raised was fixed before
+any attestation was recorded.
 
 ## 7. Final Report
 
