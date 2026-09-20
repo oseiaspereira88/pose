@@ -9,6 +9,14 @@
       "digest": "sha256:e27955a9a4548bfb4f21893c346d7206de2cc7cdf2a637eb0c04c5578782ccfb"
     },
     {
+      "spec": "check-strict-verdict-names-its-mode",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose check` now names the mode it ran in when the run found only warnings. A\n`--strict` run whose findings were all non-escalating printed\n`SUCCESS — (tolerant mode) with N warning(s)`, which invited recording a strict pass\nnobody claimed or re-running the gate believing the flag had been dropped. The\nescalation is unchanged: `--strict` still turns a structural warning into an error.",
+      "path": "check-strict-verdict-names-its-mode.md",
+      "digest": "sha256:f13a1e60fd3bf1965cfcf49cbb585341efb2e342c4c23e68b8fbb89937e295d8"
+    },
+    {
       "spec": "pose-abm-progressive-review",
       "category": "added",
       "breaking": false,
