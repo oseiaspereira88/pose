@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-10ea6bb5587c4bd5",
+  "bundle_id": "rvb-4a53224f4891e90c",
+  "bundle_digest": "sha256:4a53224f4891e90c107c736305becb83a11a908061590f3fc7512783d9fb7e45",
+  "reviewer": "agent:claude-opus-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Additive: every new field on an existing artifact is omitempty, so a bundle or attestation written before this change marshals byte-identically and keeps its digest. The band summary and the declared forecast stay out of digestReviewPlan, proven by TestABMProgressiveReviewBandsDoNotChangePlanIdentity, so no sealed review is superseded. structural-causality binds only bundles sealed after it existed. One deliberate observable change: narrower public-contract classification in assess design, which is a defect fix and is recorded as one."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "POSE.md, the pt-BR manual and both scaffold copies document bands, the declared forecast, the protected baseline, observed structure and the mapping contract. The review-plan and review-attestation schemas publish the new fields as optional, CLI help names --mapping and the MCP tool description names all of it. Manual locale parity and embedded distribution parity gates pass."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "Offline preserved, no network, no writes during planning. Both new Git reads are bounded and conditional: the protected baseline reads at most 1 MiB per contract file and only when the scope touches one, and the structural observation runs only when an adopted profile selects on it, so a repository that did not opt in pays nothing. Every failure path degrades to a reported state - unreadable base, missing index, undecidable selector - rather than to a claim."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-86d4ecea66156db4",
+      "rationale": "The change set matches the declared artifacts, 39 claims reconciled against 39 Git-observed paths. Two adjacent defects were corrected inside the blast radius and recorded rather than bundled silently: the over-broad api/ prefix in the structural detector and the integration producer that did not name the new corpus. ScopeDigest tolerance for an absent profile is a coupling the protected baseline forced, and is recorded. Nothing unrelated was refactored."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration",
+      "rationale": "One finding, raised and fixed inside this review: the protected baseline passed a revision read from the delivery-integrity index straight into a Git argument, where an option-shaped value would have been read as a flag and a symbolic name would have made the protected contract depend on where a ref points today. It now requires an immutable object name and reports the change unprotected otherwise, covered by TestABMProtectedBaselineRefusesANonImmutableRevision and proven to fail without the check. Also reviewed and sound: reviewer-supplied mapping values are quoted before reaching a message, a basis ref must match a closed pattern before use, profile refs are slug-validated before a path is built, and structural facts carry digests rather than manifest content."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/abm-progressive-review-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-86d4ecea66156db4",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-20T14:06:28Z",
+  "path": ".pose/review-attestations/rva-10ea6bb5587c4bd5.json"
+}

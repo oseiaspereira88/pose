@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-progressive-review
-status: in-progress
+status: done
 created_at: 2026-09-19
-completed_at:
+completed_at: 2026-09-20
 depends_on: pose-abm-review-soundness, pose-abm-review-authority, pose-abm-design-basis, pose-abm-structural-delta
 priority: 1
 components: pose-mcp
@@ -192,6 +192,7 @@ contract-bearing file shape; the explicit suffix and path rules are unchanged.
 - modified: .pose/assessments/consolidated.md
 - modified: .pose/assessments/pose-mcp.md
 - modified: .pose/state/components/pose-mcp.json
+- modified: .pose/state/project-state.md
 
 ### Delivery targets
 
@@ -216,7 +217,7 @@ this increment's extra criteria; retain immutable prior reviews.
   closed material vocabulary and a sealed governing contract.
 - [x] Enforce the protected policy baseline, including a disabled policy and a
   removed profile in the reviewed diff.
-- [ ] Validate the full requirement corpus, review and close through POSE.
+- [x] Validate the full requirement corpus, review and close through POSE.
 
 ## 5. Decisions
 
@@ -352,6 +353,46 @@ edit as a boundary change, resolving the forecast from the observation, and
 restoring the over-broad `api/` prefix each failed exactly the case that asserts
 it. Full module suite and `go vet` green.
 
+### Closeout
+
+2026-09-20 UTC. The canonical delivery evidence was regenerated against the current
+provenance and attributed to Git before sealing; `surface-check --spec
+pose-abm-progressive-review --strict` passed against the policy's own results path
+with one target, seven results and zero findings. Bundle `rvb-4a53224f4891e90c`
+sealed twelve criteria, ten tools and seven evidence items.
+
+Two refusals on the way, both recorded rather than worked around:
+
+- `review auto-attest` reported five pendencies — compatibility, documentation,
+  operability, scope and security, each `judgment`, each "no registered check
+  reports on this criterion" — and declined to fill them. The 504 attestations
+  before this one in this repository were recorded by `agent:auto-attest` with
+  those same five criteria passed on collected evidence, because their bundles were
+  sealed by an engine that does not list `explicit-judgment`. This bundle lists it,
+  which is what makes the difference visible rather than assumed.
+- The first explicit attestation, `rva-3cb1275ad3ea01c7`, was refused: a judged
+  criterion passed with a conclusion and no evidence ref. A judgment needs both —
+  the conclusion is the reviewer's answer, the ref says what was in front of them.
+  It remains in the append-only record as the refusal it was; the accepted
+  attestation is `rva-10ea6bb5587c4bd5`, `agent:claude-opus-5`, decision approved.
+
+`review verify` reports fresh, approved, zero blockers. `review-check` and
+`closeout-check` are terminal, and `close spec:pose-abm-progressive-review` applied
+the guarded transition to `done` with `completed_at: 2026-09-20`.
+
+No follow-ups are open against this spec: every requirement is satisfied in this
+change set and the two adjacent defects were fixed here rather than deferred. The
+remaining ABM work belongs to specs that already own it.
+
+Bootstrap invariant, stated rather than assumed: this spec's certification is
+produced by an engine that lists `explicit-judgment` and `structural-causality`, so
+the release that corrects F01 is not certified by F01. The roadmap also asks both
+repositories to re-adopt the corrected contract, and only this one has: the Harne8
+instance still runs the installed 5.0.8 machinery, whose seals carry neither
+contract. The coordinator spec and any milestone or roadmap closeout in that
+instance therefore remain blocked on that readoption, which is an explicit adoption
+decision and not part of this spec.
+
 ### Explicit review
 
 Reviewed as a whole change set, not increment by increment. The five judgment
@@ -455,10 +496,19 @@ any attestation was recorded.
 
 ## 7. Final Report
 
-All four increments are implemented and verified through installation, CLI, MCP
-catalog parity and the scoped delivery gate. Every requirement now has
-implementation and a negative corpus; what remains is the spec's last task — the
-full-corpus validation, explicit review and closeout through POSE, which is a
-governance step and not further implementation. No release, deployment, global adoption or full roadmap closeout is
+All four increments are implemented, reviewed explicitly and closed through the
+POSE gate. R1 to R8 are satisfied within this spec's scope, each traced to named
+tests, and each new gate was proven to fail against a tree carrying the defect
+before it was accepted. Three defects were found and fixed by the work itself
+rather than deferred: an over-broad `public-contract` prefix in the structural
+detector, an integration producer that did not name this spec's corpus, and a
+protected baseline that passed a repository-supplied revision into a Git argument.
+
+Not claimed: no release, no deployment, no instance-wide adoption. No ABM overlay
+profile is activated in this repository's policy — `engineering-judgment`,
+`high-criticality-review` and `structural-materiality` ship installed and inert, as
+the constraints require. The `proportional-review` milestone gate, the roadmap and
+the Harne8 coordinator spec stay open; the milestone additionally depends on the
+Harne8 readoption recorded in the closeout above. No release, deployment, global adoption or full roadmap closeout is
 claimed.
 All remaining acceptance work stays in this spec's requirements/tasks.
