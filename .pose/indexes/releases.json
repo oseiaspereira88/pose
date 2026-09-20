@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "pose-abm-progressive-review",
+      "category": "added",
+      "breaking": false,
+      "body": "Ship opt-in engineering-judgment and high-criticality-review profiles for declared\ndelivery targets. High and critical scopes can require a different reviewer;\noverlapping profiles deduplicate the three explicit judgments without adding tools.\nInstallation does not activate the profiles.\n\n`review-plan` now explains the effective plan: a `band` with one entry per reason\n(trigger, basis, source, policy, obligations), an `unknown` entry for an overlay\nthat could not decide a component, and a `declared-forecast` projection that\nseparates the scope the spec declared from the obligations only delivery\nprovenance added. Both are derived through the existing selectors and composer,\nadd no obligation, and stay out of the plan digest, so no sealed review is\nsuperseded.",
+      "path": "pose-abm-progressive-review.md",
+      "digest": "sha256:4665f6a0900c1b7a24c3d1da9d4816db017b51f949b2caa17d6a6804c5f7f9ea"
+    },
+    {
       "spec": "pose-abm-state-followup-origins",
       "category": "fixed",
       "breaking": false,

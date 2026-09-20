@@ -13,6 +13,22 @@
       "to": "pose-abm-review-soundness"
     },
     {
+      "from": "pose-abm-progressive-review",
+      "to": "pose-abm-review-soundness"
+    },
+    {
+      "from": "pose-abm-progressive-review",
+      "to": "pose-abm-review-authority"
+    },
+    {
+      "from": "pose-abm-progressive-review",
+      "to": "pose-abm-design-basis"
+    },
+    {
+      "from": "pose-abm-progressive-review",
+      "to": "pose-abm-structural-delta"
+    },
+    {
       "from": "pose-abm-remediation-lineage",
       "to": "pose-abm-governance-outcomes"
     },
@@ -864,6 +880,17 @@
       "path": ".pose/specs/2026-09-19-pose-abm-governance-outcomes.md",
       "priority": 1,
       "status": "done"
+    },
+    "pose-abm-progressive-review": {
+      "depends_on": [
+        "pose-abm-review-soundness",
+        "pose-abm-review-authority",
+        "pose-abm-design-basis",
+        "pose-abm-structural-delta"
+      ],
+      "path": ".pose/specs/2026-09-19-pose-abm-progressive-review.md",
+      "priority": 1,
+      "status": "in-progress"
     },
     "pose-abm-remediation-lineage": {
       "depends_on": [

@@ -97,6 +97,8 @@ protected policy baseline and the R7 advisory mapping remain pending.
 - created: pose-mcp/internal/cli/progressive_review_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/spec-graph.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
@@ -189,6 +191,27 @@ Use `surface-check --results .pose/results/abm-progressive-review-validation.jso
 for this increment: the default results path still contains the previous task's
 evidence. Reconcile the newly declared generated index before refreshing provenance.
 
+Increment 2 committed as `22fa8bf` with this spec's trailer. Against that commit
+the candidate `artifact-check --spec pose-abm-progressive-review --strict` exited 0
+with 24 claims and 24 observed artifacts; the 361 orphan findings are the same
+historical governed paths reported before this increment and lie outside it.
+Candidate `validate --strict --module pose-mcp` passed 7/7 (build, test, vet, the
+ABM integration producer, delivery integration, reachability and bundle
+convergence) into `.pose/results/abm-progressive-review-validation.json`, and
+candidate `surface-check --spec pose-abm-progressive-review --strict --results`
+that path passed with one target, seven results and zero findings.
+
+`pose index` then declared two generated indexes this spec had not claimed —
+`releases.json` and `spec-graph.json`, which had never carried this spec's
+changelog entry or dependency edges. They are now claimed. As in increment 1,
+this is pre-commit increment evidence for increment 2, not terminal delivery
+evidence for the spec: three requirements remain open.
+
+Increment 2 defect injection, so the corpus is known to fail before it passes:
+suppressing criticality escalation, suppressing undecided-selector entries,
+resolving the forecast from observed scope, and admitting the summary into
+`digestReviewPlan` each failed exactly the case that asserts it.
+
 After `a657d0d`, artifact-check passed with 15 claims and 15 observed artifacts.
 Candidate validation passed 7/7 with current scoped provenance. Candidate
 `surface-check --spec pose-abm-progressive-review --strict --results
@@ -200,12 +223,16 @@ of the requirements still listed as pending above.
 
 No requirement is terminally satisfied yet. Increment 1 exercises R1, R3, the
 overlay floor of R4, a declared-trigger corpus for R6 and deduplication in R8.
-R2/R5/R7 and the remaining R4/R6/R8 contracts require subsequent implementation.
+Increment 2 adds R2 in full — band explanations carrying trigger, basis, source,
+policy and obligation, derived without a second engine — R5 in full, and the
+uncertainty half of R8. R7, the protected policy baseline of R4 and the observed
+structural triggers still needed by R6 require subsequent implementation.
 
 ## 7. Final Report
 
-Increment 1 is implemented and verified through installation, CLI and the scoped
-delivery gate. The spec remains in-progress for band explanations, structural
-triggers, obligation deltas, protected baseline enforcement and the full judgment
-corpus. No release, deployment, global adoption or full roadmap closeout is claimed.
+Increments 1 and 2 are implemented and verified through installation, CLI, MCP
+catalog parity and the scoped delivery gate. The spec remains in-progress for
+observed structural triggers, the R7 advisory mapping and protected baseline
+enforcement. No release, deployment, global adoption or full roadmap closeout is
+claimed.
 All remaining acceptance work stays in this spec's requirements/tasks.
