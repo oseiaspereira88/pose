@@ -300,7 +300,27 @@
         {
           "name": "abm-progressive-review-integration",
           "program": "go",
-          "args": ["test", "./internal/pose", "./internal/cli", "-run", "ABMProgressiveReview|ABMCriticality|ABMPolicyDowngrade|ABMProtectedBaseline|ABMStructural", "-count=1"],
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "ABMProgressiveReview|ABMCriticality|ABMPolicyDowngrade|ABMProtectedBaseline|ABMStructural",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "review-policy-adoption-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "InstallStampsItsOwnReviewAdoption|ShippedReviewPolicyCarriesNoAdoptionDate|UpdateKeepsRecordedAdoption",
+            "-count=1"
+          ],
           "severity": "required",
           "evidenceClass": "integration"
         },

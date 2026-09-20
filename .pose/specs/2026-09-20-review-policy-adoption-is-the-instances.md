@@ -91,6 +91,13 @@ and `review_bundles` start enabled, and no dates at all — and pin them.
 - modified: .pose/indexes/releases.json
 - modified: .pose/indexes/spec-graph.json
 - modified: .pose/results/delivery-validation.json
+- modified: .pose/indexes/validation-matrix.json
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/pose-mcp.md
+- modified: .pose/assessments/technical-debt.md
+- modified: .pose/state/components/pose-mcp.json
+- modified: .pose/state/technical-debt.json
 
 ### Delivery targets
 
@@ -176,6 +183,13 @@ caught all six dates. Removing the `adopted_at` stamp failed five tests includin
 the three brownfield kits. The first injection was measuring the wrong half of the
 mechanism, which is exactly the failure this repository keeps re-learning.
 
+A dedicated integration producer, `review-policy-adoption-integration`, was
+registered for this target rather than letting the module's `unit` run stand in for
+composition: the delivery-surface rule refuses build or unit success presented as
+proof of composition, and `pose lint-spec` said so — `surface requires a satisfied
+requirement with evidence:integration or evidence:e2e`. The producer drives the real
+`install` and `update` commands, which is what the surface actually is.
+
 `surface-check --spec review-policy-adoption-is-the-instances --strict` exits 0 with
 one warning kept rather than silenced: `reachability` evidence for
 `surface:review-policy-adoption` comes from a run of the containing module, so
@@ -198,13 +212,37 @@ install` and `pose update` are what seed and stamp, so the composed path is the
 installed command and not the template on its own. Earlier, on `action-mismatch`, for
 declaring regenerated indexes that were not yet committed. Neither was worked around.
 
+### Resumed review of the integration producer
+
+The matrix correction superseded the earlier bundle; its attestation remains
+historical evidence, not approval of the new validation contract. A separate
+Codex review pass inspected the neutral template, absent-only stamping, and the
+real install/update/force-install tests. It also ran component discovery with
+state refresh and technical-debt assessment (no reported debt markers).
+
+Rules applied: `backend-go` for error handling and regression coverage, `security`
+for preserving explicit policy choices and avoiding inherited exemptions, and
+`documentation-style` for requirement trace and canonical follow-up ownership.
+No frontend, infrastructure, dependency, or concurrency changes are introduced.
+The recurring validation failure was unit coverage being mistaken for composed
+delivery; the dedicated required integration producer prevents that mismatch.
+The separately recorded schema-v1 migration fallback remains outside this fix.
+
+The first full validation attempt could not open local HTTP test servers inside
+the sandbox. Its test failures are environmental, not passing evidence; repeat
+the registered matrix with local socket access before sealing the new bundle.
+
 ### Requirement trace
 
 - R1 [satisfied] `TestSelfReferentialPolicyFilesExcluded`,
   `TestEmbeddedDistMatchesPoseDist` — `review.json` is excluded from the wholesale
   sync and compared against its neutral template
-- R2 [satisfied] `TestInstallStampsItsOwnReviewAdoption` — a fresh install carries
-  no date it did not earn, and every registry contract carries the install day
+- R2 [satisfied] surface:review-policy-adoption evidence:integration
+  check:review-policy-adoption-integration test:TestInstallStampsItsOwnReviewAdoption
+  test:TestShippedReviewPolicyCarriesNoAdoptionDate — the registered producer drives
+  the real `install` command against a fresh target: it carries no date it did not
+  earn, every registry contract carries the install day, and the resulting policy
+  resolves a review plan
 - R3 [satisfied] `TestUpdateKeepsRecordedAdoption` — a recorded adoption survives
   `update --no-self` and `install --force`, and so do the instance's own overlays
 - R4 [satisfied] `TestNeutralPolicyTemplatesAreSchemaValidAndInert` — the template
@@ -234,4 +272,4 @@ leak class, in the migration path rather than the distribution, and untouched he
 
 ### Follow-ups
 
-- The v1 migration fallback dates above (owner: @pose-maintainers crit: medium review: 2026-10-20)
+- [open] The v1 migration fallback dates above (owner:@pose-maintainers crit:medium review:2026-10-20)
