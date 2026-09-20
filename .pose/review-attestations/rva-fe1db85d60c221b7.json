@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-fe1db85d60c221b7",
+  "bundle_id": "rvb-a5019a214fa3ddd1",
+  "bundle_digest": "sha256:a5019a214fa3ddd1b6d19141856fd87cb6db76023a750e956498a6cd314b42f7",
+  "reviewer": "agent:claude-opus-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-graph-reuse-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-graph-reuse-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-graph-reuse-integration",
+      "rationale": "Proven by comparison rather than asserted: the full check --strict output before and after was sorted and diffed to zero differing lines, with eleven warnings and exit 0 both times. The new entry point is additive and the old deliverySpecBlockers signature is kept for its other callers. The one behaviour that changes beyond speed is that focusSurfaceGraph no longer truncates the graph its caller still holds, which no caller could have been relying on deliberately."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Both functions carry the reason at the code: why the filter allocates, and why the build is hoisted, each naming the measured cost. The spec records the phase table, the two hypotheses that were wrong before the right one, and that /usr/bin/time does not exist here so the first timing attempt produced nothing. The residual risks name what was deliberately left alone and why."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "This is operability itself: the gate a hook, a CI job and every closeout runs went from 635 seconds to 39, after exceeding a ten-minute budget twice in one session and being recorded as no verdict rather than as a pass. The cost was quadratic in the number of closed specs, so it would have kept growing. checkReviewCloseout is now the largest phase at 34 seconds, linear in done specs, and is named as the next thing to watch rather than silently left."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-graph-reuse-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-0269b1c7e278d7fc",
+      "rationale": "One allocation, one new entry point, one hoisted call, one test file, the producer and the regenerated evidence. checkReviewCloseout was measured at 33.77 seconds and deliberately not touched, because mixing a measured fix with an unmeasured one is how a performance change stops being reviewable. The single graph build was not profiled either; the fix removed 116 of 117 calls to it rather than making it faster."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-graph-reuse-integration",
+      "rationale": "No trust boundary moves and no input is newly trusted: the same graph is built from the same files by the same builder, once instead of many times. The one safety-relevant change is in the honest direction — the filter no longer mutates a caller's data through a value parameter — and R4 keeps an unbuildable graph reported for every spec in the loop, so a graph that cannot be read still cannot present as a clean run."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/delivery-graph-reuse-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-0269b1c7e278d7fc",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-20T20:38:35Z",
+  "path": ".pose/review-attestations/rva-fe1db85d60c221b7.json"
+}

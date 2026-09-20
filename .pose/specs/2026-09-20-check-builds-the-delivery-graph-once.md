@@ -1,8 +1,8 @@
 ---
 slug: check-builds-the-delivery-graph-once
-status: in-progress
+status: done
 created_at: 2026-09-20
-completed_at:
+completed_at: 2026-09-20
 supersedes:
 depends_on:
 priority: 0
@@ -145,6 +145,13 @@ result rather than a faster different one.
 Defect injection: restoring `graph.Deliveries[:0]` and `graph.Findings[:0]` fails both
 reuse tests, one reporting that the first focus was rewritten by the second and the
 other that the shared graph yielded no blockers at all.
+
+### Closeout
+
+2026-09-20 UTC. Bundle `rvb-a5019a214fa3ddd1`, twelve evidence items, under the five
+sealed contracts. Attestation `rva-fe1db85d60c221b7`, `agent:claude-opus-5`,
+approved; `review-check` fresh and approved; `closeout-check` terminal.
+`surface-check --strict` exits 0 with one inferred-coverage warning kept.
 
 ### Requirement trace
 
