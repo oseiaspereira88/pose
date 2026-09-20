@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-a4854312e38447b6",
+  "bundle_id": "rvb-38204159424cf296",
+  "bundle_digest": "sha256:38204159424cf2964d9f85840304a125c2e6aa15879ab3e1960ecc589c1a4077",
+  "reviewer": "agent:claude-opus-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "An existing instance is untouched: policy is seeded absent-only, proven for update --no-self and for install --force, which does reset managed manuals wholesale and was therefore the case worth asserting rather than reading off the code. Recorded dates and adopted overlays both survive. The change reaches fresh installs only. The template is dateless and cannot load on its own, asserted with the reason, because seeding and stamping are one step and nothing else copies it."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The template carries its own _comment explaining why dates are absent and overlay_profiles empty, in the form the three placeholders beside it use. The spec records the two decisions that were not extractions - keeping the contract shape, and stamping the policy-level adopted_at - and the exclusion list carries the reason inline where the next reader of SelfReferentialPolicyFiles will find it."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "A fresh install produces a policy the engine resolves a review plan from, asserted end to end rather than inferred from the template. The seed-then-stamp coupling is the only order that works and the only order the code takes. Reverting is reverting the template entry and the exclusion, and the drift guard refuses any inconsistency between them. surface-check reports reachability coverage as inferred from the containing module; that warning is kept rather than silenced."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-c1ae314cb1344a7f",
+      "rationale": "Four source files, the regenerated template and the declared CLI surface the delivery policy governs. The overlay leak was found while implementing and fixed here because it is the same statement about the same file. Two things were deliberately left out and recorded: the migration fallback dates in migrateInstanceReviewPolicy, the same class in the migration path, and any change to what this repository's own policy says."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration",
+      "rationale": "This closes a silent exemption leak rather than opening one: an instance received a boundary it never set, and a project migrating in with history between its own start and a leaked date had work exempted from a contract nobody reviewed it under. It also stops the distribution adopting an overlay on a project's behalf. Nothing gains permission; the stamp writes only a date, only when the key is absent, so an explicitly empty value stays the instance's decision."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/abm-progressive-review-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-c1ae314cb1344a7f",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-20T16:10:42Z",
+  "path": ".pose/review-attestations/rva-a4854312e38447b6.json"
+}

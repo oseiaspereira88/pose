@@ -1,8 +1,8 @@
 ---
 slug: review-policy-adoption-is-the-instances
-status: in-progress
+status: done
 created_at: 2026-09-20
-completed_at:
+completed_at: 2026-09-20
 supersedes:
 depends_on:
 priority: 0
@@ -183,6 +183,20 @@ covering `pose-mcp/internal/cli` is inferred and not reported. The composition i
 is exercised — the tests drive the real `install` and `update` commands — but the
 class that gates the surface is module-wide, and the matrix's granularity is the
 module. Recorded as the gate stated it.
+
+### Closeout
+
+2026-09-20 UTC. Bundle `rvb-38204159424cf296`, twelve criteria, ten tools, seven
+evidence items, governed by `explicit-judgment` and `structural-causality` among the
+five sealed contracts. Attestation `rva-a4854312e38447b6`, `agent:claude-opus-5`,
+approved; `review-check` fresh and approved; `closeout-check` terminal.
+
+`pose close` refused twice, and both refusals were the gate being right. First on
+`undeclared-delivery`: the change touches `pose-mcp/internal/cli`, which the delivery
+policy governs as a surface root, and the spec declared no typed target — `pose
+install` and `pose update` are what seed and stamp, so the composed path is the
+installed command and not the template on its own. Earlier, on `action-mismatch`, for
+declaring regenerated indexes that were not yet committed. Neither was worked around.
 
 ### Requirement trace
 
