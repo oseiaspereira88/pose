@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-20T16:09:57Z",
+  "generated_at": "2026-09-20T16:29:35Z",
   "mode": "strict",
   "module_filter": "pose-mcp",
-  "git_head": "3fc7856710e1c51bc3c5bba5a95eafe5003293d3",
-  "matrix_sha256": "sha256:ba1df4be61e5801e471f9705d7f1d0c5310e8231959cdba81eacd2355fbafc9f",
-  "provenance_digest": "sha256:b9ddb340ea68f1d7b9d7ccfe32062b3c0315a83164625aaf1d2fc6e7d8931e88",
+  "git_head": "d87ac16b912d2a0b0853891c02812e6a2b085275",
+  "matrix_sha256": "sha256:cf2b6cb588cf3d9578ac45af35bf976f0340c5619f88f094ac610be62c8adfa2",
+  "provenance_digest": "sha256:a552718a7a1b35223670fa497efe309740d703271fc4459d6cb1061dfd0d973e",
   "scope_provenance": {
     "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
     "check-strict-verdict-names-its-mode": "sha256:d01bff8cb155aefa5719f028bf4c64f7aff2aef06fc781bf1c8152484c64246b",
@@ -186,12 +186,12 @@
     "pose-verifier-assets-variable-fix": "sha256:a5819dab9e290edc34316ca276ad4650784dade366c11ccebd5b96868c832424",
     "pose-verifier-extension-install-cwd": "sha256:0c365cdf1d2d32b3768840a3fb161e9fbebcd3c6bdddfa6812a1ee93315636cc",
     "pose-workflow-event-ref-contract": "sha256:1133728a540866c3efefddb01fc36932bd4a0028dd0f778fc2bf6665f45cde49",
-    "review-policy-adoption-is-the-instances": "sha256:fd201fb5c1af195bf77a69372b52d22880de54b9615f96ac31e88e49decda2e2"
+    "review-policy-adoption-is-the-instances": "sha256:0f2de29de1675500f1e51e01211219d57612bf87a2aa6ab871d38954780ca200"
   },
   "outcome": "pass",
   "counts": {
-    "executed": 7,
-    "passed": 7,
+    "executed": 8,
+    "passed": 8,
     "failed": 0,
     "optional_failed": 0,
     "errored": 0,
@@ -211,7 +211,7 @@
       "severity": "required",
       "evidence_class": "build",
       "outcome": "pass",
-      "duration_seconds": 0.808210512
+      "duration_seconds": 0.902347225
     },
     {
       "id": "pose-mcp/go/test",
@@ -226,7 +226,7 @@
       "severity": "required",
       "evidence_class": "unit",
       "outcome": "pass",
-      "duration_seconds": 1.153017478,
+      "duration_seconds": 1.429411468,
       "output": "?   \tgithub.com/harne8/pose-mcp/cmd/pose\t[no test files]\n?   \tgithub.com/harne8/pose-mcp/internal/bootstrap\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/cli/cliout\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/observability\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/pose\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/scaffold\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/scaffold/distpolicy\t(cached)\n?   \tgithub.com/harne8/pose-mcp/internal/scaffold/gen\t[no test files]\nok  \tgithub.com/harne8/pose-mcp/internal/usage\t(cached)\nok  \tgithub.com/harne8/pose-mcp/internal/version\t(cached)\n"
     },
     {
@@ -242,7 +242,7 @@
       "severity": "optional",
       "evidence_class": "lint",
       "outcome": "pass",
-      "duration_seconds": 0.127752532
+      "duration_seconds": 0.136545329
     },
     {
       "id": "pose-mcp/go/abm-progressive-review-integration",
@@ -261,8 +261,27 @@
       "severity": "required",
       "evidence_class": "integration",
       "outcome": "pass",
-      "duration_seconds": 0.668010903,
-      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.316s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.050s\n"
+      "duration_seconds": 0.790834996,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.343s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.054s\n"
+    },
+    {
+      "id": "pose-mcp/go/review-policy-adoption-integration",
+      "module": "pose-mcp",
+      "stack": "go",
+      "name": "review-policy-adoption-integration",
+      "program": "go",
+      "args": [
+        "test",
+        "./internal/cli",
+        "-run",
+        "InstallStampsItsOwnReviewAdoption|ShippedReviewPolicyCarriesNoAdoptionDate|UpdateKeepsRecordedAdoption",
+        "-count=1"
+      ],
+      "severity": "required",
+      "evidence_class": "integration",
+      "outcome": "pass",
+      "duration_seconds": 0.74632818,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.077s\n"
     },
     {
       "id": "pose-mcp/go/delivery-integration",
@@ -282,8 +301,8 @@
       "severity": "required",
       "evidence_class": "integration",
       "outcome": "pass",
-      "duration_seconds": 0.869906553,
-      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.009s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.242s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.008s\n"
+      "duration_seconds": 1.039652607,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.011s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.278s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.009s\n"
     },
     {
       "id": "pose-mcp/go/delivery-reachability",
@@ -302,8 +321,8 @@
       "severity": "required",
       "evidence_class": "reachability",
       "outcome": "pass",
-      "duration_seconds": 0.682597758,
-      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.070s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.008s\n"
+      "duration_seconds": 0.868802103,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.075s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.009s\n"
     },
     {
       "id": "pose-mcp/go/review-bundle-convergence",
@@ -323,8 +342,8 @@
       "severity": "required",
       "evidence_class": "integration",
       "outcome": "pass",
-      "duration_seconds": 0.952004405,
-      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.201s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.290s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.011s\n"
+      "duration_seconds": 1.040193809,
+      "output": "ok  \tgithub.com/harne8/pose-mcp/internal/pose\t0.209s\nok  \tgithub.com/harne8/pose-mcp/internal/cli\t0.315s\nok  \tgithub.com/harne8/pose-mcp/internal/mcpserver\t0.010s\n"
     }
   ]
 }

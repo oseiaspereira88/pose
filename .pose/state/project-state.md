@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-20T15:55:05Z
-baseline_commit: f314eb4784831d31ae00cfda190ad5a8b5d26d4b
+generated_at: 2026-09-20T16:29:40Z
+baseline_commit: d87ac16b912d2a0b0853891c02812e6a2b085275
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:c04c865c36e0 -->
+<!-- state:derived hash:7f5d5320a8ba -->
 
-- specs: total=225 draft=8 in-progress=65 blocked=0 done=152 superseded=0 abandoned=0
+- specs: total=225 draft=7 in-progress=65 blocked=0 done=153 superseded=0 abandoned=0
 - roadmaps: total=11 active=1 done=10
 - últimos closeouts:
-  - spec:pose-dist-records-its-own-contract-adoption (2026-09-20)
   - spec:pose-abm-progressive-review (2026-09-20)
+  - spec:pose-dist-records-its-own-contract-adoption (2026-09-20)
   - spec:pose-abm-doctor-state-health (2026-09-20)
-  - spec:pose-abm-structural-delta (2026-09-19)
-  - spec:pose-abm-governance-outcomes (2026-09-19)
-  - ... e mais 147 (ver `pose_list_specs status:done`)
+  - spec:review-policy-adoption-is-the-instances (2026-09-20)
+  - spec:pose-abm-state-followup-origins (2026-09-19)
+  - ... e mais 148 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:a2bc96830f41 -->
+<!-- state:derived hash:6acc7b32b219 -->
 
-- abertos: 108
-- por criticidade: high=1 medium=23 low=60 sem-classificação=24
+- abertos: 109
+- por criticidade: high=1 medium=24 low=60 sem-classificação=24
 - vencidos (review < hoje): 1
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
 
@@ -77,10 +77,10 @@ capacidade.
   - report:2026-09-10-standard-validate-native.md
 
 ## Arquitetura
-<!-- state:derived hash:559c2b79d989 status:active -->
+<!-- state:derived hash:2bfa4efd9e8b status:active -->
 
 - componentes: total=1 verificados=1 completude=100.0%
-- linhas_de_codigo: producao=44834 testes=33867 total=78701
+- linhas_de_codigo: producao=44880 testes=34093 total=78973
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=55 ativos=1 gaps=54

@@ -229,8 +229,19 @@ delivery; the dedicated required integration producer prevents that mismatch.
 The separately recorded schema-v1 migration fallback remains outside this fix.
 
 The first full validation attempt could not open local HTTP test servers inside
-the sandbox. Its test failures are environmental, not passing evidence; repeat
-the registered matrix with local socket access before sealing the new bundle.
+the sandbox. Its test failures are environmental, not passing evidence. Repeating
+the registered matrix with local socket access passed all eight checks, including
+the dedicated integration producer, against commit `d87ac16`.
+
+Bundle `rvb-ec5790f904d48ef2` seals the corrected validation contract with twelve
+criteria, eleven tools and eight evidence items. Explicit review by
+`agent:codex-review-policy-adoption`, attestation `rva-9d329c0d355c8422`, is fresh
+and approved; `review verify` reports `closed`. The first attestation in this pass,
+`rva-0c798c8ae7bc6b8a`, used `report:` for assessment paths outside `.pose/reports/`
+and was correctly refused by verification. It remains historical; the replacement
+references the actually executed assessment checks, with unchanged judgments.
+Strict lint, artifact and surface checks pass. Repository-wide orphan/metadata
+warnings and the containing-module reachability warning are not claimed resolved.
 
 ### Requirement trace
 

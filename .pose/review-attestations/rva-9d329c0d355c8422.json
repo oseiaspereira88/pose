@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-9d329c0d355c8422",
+  "bundle_id": "rvb-ec5790f904d48ef2",
+  "bundle_digest": "sha256:ec5790f904d48ef2195c1e8d1128f51047a1ddbbd3868ef262d9eb56763c75ab",
+  "reviewer": "agent:codex-review-policy-adoption",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Seeding remains synchronous; this change adds no shared state, goroutines or lifecycle ownership."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration",
+      "rationale": "The neutral schema-v2 template resolves a review plan after install; update and force-install preserve recorded adoption and instance overlays."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The reviewed stamp returns on unreadable or malformed policy, preserves unknown fields through the raw document and distinguishes absent keys from deliberate empty values."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration",
+      "rationale": "The registered producer invokes actual install, update and force-install entrypoints in Git fixtures rather than testing only the template."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Successful atomic writes retain the existing bounded contract-adoption log; the added policy-level record contains only contract ID and date."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration",
+      "rationale": "Fresh installs stop inheriting repository dates and overlays; absent-only seeding leaves existing instance decisions unchanged even under force. Legacy schema-v1 fallback is explicitly out of scope and remains tracked."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Full Go tests and vet passed; template parity and install tests cover both the distributed bytes and the resulting instance to avoid same-day coincidence masking inheritance."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration",
+      "rationale": "The spec now cites the registered integration producer for R2, declares its matrix artifact, preserves historical attestations and gives the open migration follow-up canonical ownership."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "The installed policy resolves a plan and update preserves choices. Surface-check passed with the explicitly retained containing-module reachability warning; no finer path coverage is claimed."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration",
+      "rationale": "R1 and R5 are pinned by exclusion and embedded parity tests; R2 and R3 by real CLI scenarios; R4 by schema-valid neutral policy and fresh plan resolution. Strict requirement trace passes."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The resumed increment registers the missing integration producer and reconciles its trace, assessment and evidence. Runtime changes reviewed remain limited to neutral distribution and additive stamping; instance adoption and v1 migration are not changed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration",
+      "rationale": "Removing foreign dates and automatic overlays prevents imported exemption boundaries. Raw-key presence protects explicit empty decisions and force-install cannot replace recorded choices. No credentials, dependencies or remote operations are added."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Strict attribution passed; repository-wide orphan warnings remain visible."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "No structural runtime edits in the resumed matrix and trace correction; inspected the committed template and stamp directly."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Refreshed component assessment and state before final validation."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "No REST, event, Protobuf or MCP contract changed; real CLI composition is exercised by the dedicated integration producer."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Assessment reported no debt markers; migration follow-up remains explicitly tracked in the spec."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Read the review workflow and the backend-go, security and documentation-style rules selected by the resolved plan directly."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "Strict surface gate passed with containing-module inferred-coverage warning."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "All eight registered checks passed for the affected Go module."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration",
+      "rationale": "Eight checks passed after rerunning with local HTTP socket access."
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/review-policy-adoption-integration",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-20T16:31:34Z",
+  "path": ".pose/review-attestations/rva-9d329c0d355c8422.json"
+}
