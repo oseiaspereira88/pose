@@ -268,6 +268,16 @@ distribution, and the broken reference failed `TestBrownfieldDirectAdoptionKit`.
 The guarded set is now the two directories that exist, which both carry their own
 schema version.
 
+Trailer placement, measured rather than assumed: this series' first four commits
+(`22fa8bf`, `16e9850`, `1c45793`, `901a7ac`) attach `POSE-Spec:` directly to the
+body with no blank line before it, so `git log --format=%(trailers:...)` returns
+empty for them while POSE's line-wise attribution reads them correctly — the
+artifact-check figures above are 24/24, 29/29 and 30/30 claims/observed. They are
+left as they are because their hashes are cited as evidence in this log and in the
+coordinator, and rewriting them would make that evidence point at nothing. Later
+commits in this series separate the trailer block with a blank line so both readers
+agree. Do not conclude from a git-native reading that attribution broke.
+
 Increment 3 defect injection: not restoring the floor, not re-adding a dropped
 criterion, not restoring a softened one, refusing a plan for a disabled policy, and
 claiming protection without applying it each failed exactly the case that asserts
