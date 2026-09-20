@@ -7,6 +7,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -257,6 +258,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		return root, findings
 	}
 	add("instance.pose-dir", "ok", text(".pose/ present", ".pose/ presente"), "")
+	diagnoseProjectState(root, add, text)
 
 	// 3. Native engine contract.
 	add("engine.native", "ok", text("native Go engine active; no script runtime required", "motor Go nativo ativo; runtime de scripts não é necessário"), "")
@@ -1071,6 +1073,45 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	}
 
 	return root, findings
+}
+
+// diagnoseProjectState shares the state command's parser and resolver. Findings
+// are detectable only: diagnosis never refreshes or repairs governed artifacts.
+func diagnoseProjectState(root string, add func(string, string, string, string), text func(string, string) string) {
+	store := posemodel.Store{Root: root}
+	if _, err := os.Stat(store.StatePath()); os.IsNotExist(err) {
+		add("state.artifact", "ok", text("optional project state is not initialized", "estado opcional do projeto não inicializado"), text("run `pose state init` when needed", "rode `pose state init` quando necessário"))
+		return
+	} else if err != nil {
+		add("state.artifact", "error", fmt.Sprintf(text("cannot inspect project state: %v", "não foi possível inspecionar o estado: %v"), err), text("check state path permissions; run `pose state`", "confira permissões do estado; rode `pose state`"))
+		return
+	}
+	state, err := store.ProjectState(context.Background(), "")
+	if err != nil {
+		add("state.artifact", "error", fmt.Sprintf(text("cannot read project state: %v", "não foi possível ler o estado: %v"), err), text("run `pose state`; repair the source before refreshing", "rode `pose state`; corrija a origem antes de atualizar"))
+		return
+	}
+	add("state.artifact", "ok", text("project state is readable", "estado do projeto legível"), "")
+	broken := store.ValidatePointers(state)
+	if len(broken) > 0 {
+		details := broken
+		if len(details) > 10 {
+			details = details[:10]
+		}
+		add("state.pointers", "error", fmt.Sprintf(text("%d broken project-state pointer(s): %s", "%d ponteiro(s) inválido(s) no estado: %s"), len(broken), strings.Join(details, "; ")), text("run `pose state`; correct source references, then `pose state refresh`", "rode `pose state`; corrija as referências de origem e rode `pose state refresh`"))
+	} else {
+		add("state.pointers", "ok", text("project-state pointers resolve", "ponteiros do estado resolvem"), "")
+	}
+	if state.Tampered {
+		add("state.integrity", "error", text("derived project-state sections were modified", "seções derivadas do estado foram modificadas"), text("run `pose state`; inspect edits before `pose state refresh`", "rode `pose state`; inspecione as edições antes de `pose state refresh`"))
+	} else {
+		add("state.integrity", "ok", text("derived project-state sections match their recorded hashes", "seções derivadas do estado correspondem aos hashes registrados"), "")
+	}
+	if state.Staleness.Stale || state.RefreshPending != "" {
+		add("state.freshness", "warn", text("project state is stale or has a pending refresh", "estado desatualizado ou com atualização pendente"), text("run `pose state` for details, then `pose state refresh`", "rode `pose state` para detalhes, depois `pose state refresh`"))
+	} else {
+		add("state.freshness", "ok", text("project state is current under its staleness policy", "estado atual conforme sua política de atualização"), "")
+	}
 }
 
 func engineSchemaVersion(root string) int {
