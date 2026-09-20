@@ -72,6 +72,7 @@ acceptance work in this same spec. No new public schema is needed for the profil
 - created: pose-mcp/internal/pose/progressive_review_test.go
 - created: pose-mcp/internal/cli/progressive_review_test.go
 - modified: .pose/indexes/validation-matrix.json
+- modified: .pose/indexes/delivery-integrity.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
@@ -136,6 +137,20 @@ increment evidence, not terminal delivery evidence for the full spec.
 The installed binary's global `pose check --strict` reports historical bundles
 with unknown `implementation_digest`; the source models that field. Check the
 candidate binary before interpreting this as an implementation regression.
+
+Increment committed as `eff370a` with this spec's trailer. Candidate
+`artifact-check --spec pose-abm-progressive-review --strict` exited 0; historical
+orphan warnings remain outside this increment. Its regenerated delivery index
+is included in the artifact inventory.
+Candidate verification can read the old design-basis bundle, but reports it
+`superseded` after shared manual/validation inputs changed. Historical attestations
+are preserved; this increment does not manufacture replacement approvals.
+The candidate's repository-wide check was interrupted without a final verdict;
+do not record it as passed. Its targeted readiness check passed. The candidate
+module matrix passed 7/7 after allowing loopback listeners for integration tests.
+Use `surface-check --results .pose/results/abm-progressive-review-validation.json`
+for this increment: the default results path still contains the previous task's
+evidence. Reconcile the newly declared generated index before refreshing provenance.
 
 ### Requirement trace
 
