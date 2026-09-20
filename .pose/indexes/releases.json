@@ -23,6 +23,14 @@
       "body": "This repository's review policy now records the dated adoption of\n`explicit-judgment` and `structural-causality`, which its reviews had been sealed\nunder since the ABM integrity work without the policy declaring either. Completed\ncloseouts keep their approval, no overlay profile is activated, and the policy stays\nreadable by the previously released engine.",
       "path": "pose-dist-records-its-own-contract-adoption.md",
       "digest": "sha256:2d1b57431d4160b1c8f2e6b46f6a0c42868f37272b34c1484d5075bd54b7feec"
+    },
+    {
+      "spec": "review-policy-adoption-is-the-instances",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`.pose/policy/review.json` is no longer shipped as a byte copy of this repository's\nlive policy. A fresh `pose install` received this repository's `adopted_at`, a dated\nfield per governed contract and the overlay profiles this repository had adopted;\nbecause the stamp skips a contract whose key is already present, the instance never\nearned its own dates and silently inherited an exemption boundary belonging to\nsomeone else. The distribution now ships the contract shape with no dates and no\nadopted overlays, and install stamps the day the instance received the policy and\neach contract. An existing instance keeps what it recorded, including under `--force`.",
+      "path": "review-policy-adoption-is-the-instances.md",
+      "digest": "sha256:399eb11abc8f0e9cf5f6a7efd63d2298dd53b47a7a50e3da40385fbbc9a8a1b3"
     }
   ],
   "releases": [

@@ -87,6 +87,9 @@ and `review_bundles` start enabled, and no dates at all — and pin them.
 - modified: pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go
 - modified: pose-mcp/internal/cli/stack_seed.go
 - modified: pose-mcp/internal/scaffold/dist/.pose/policy/review.json
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/spec-graph.json
 
 ### Rollout and reversal
 
