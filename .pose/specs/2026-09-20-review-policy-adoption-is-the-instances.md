@@ -90,6 +90,7 @@ and `review_bundles` start enabled, and no dates at all — and pin them.
 - modified: .pose/indexes/delivery-integrity.json
 - modified: .pose/indexes/releases.json
 - modified: .pose/indexes/spec-graph.json
+- modified: .pose/results/delivery-validation.json
 
 ### Rollout and reversal
 
