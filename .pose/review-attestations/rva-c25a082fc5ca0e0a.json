@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-c25a082fc5ca0e0a",
+  "bundle_id": "rvb-667edd04f8c671fe",
+  "bundle_digest": "sha256:667edd04f8c671fef39f6f8c96cedb5974c03d1a9fb751802d45d129ee1ef934",
+  "reviewer": "agent:claude-opus-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "An existing instance is untouched: policy is seeded absent-only, proven for update --no-self and for install --force, which does reset managed manuals wholesale and was therefore the case worth asserting rather than reading off the code. Recorded dates and adopted overlays both survive. The change reaches fresh installs only. The template is dateless and so cannot load on its own, which is asserted with the reason, because seeding and stamping are one step and nothing else copies it."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The template carries its own _comment explaining why dates are absent and why overlay_profiles is empty, in the same form the three placeholders beside it use. The spec records the two decisions that were not extractions - keeping the contract shape, and stamping the policy-level adopted_at - and the exclusion list carries the reason inline where the next reader of SelfReferentialPolicyFiles will find it."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "A fresh install produces a policy the engine resolves a review plan from, asserted end to end rather than inferred from the template. The seed-then-stamp coupling is the only order that works and it is the only order the code takes. Reverting is reverting the template entry and the exclusion, and the drift guard refuses any inconsistency between them."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-c1ae314cb1344a7f",
+      "rationale": "Four source files and the regenerated template. The overlay leak was found while implementing and is fixed here because it is the same statement about the same file, not deferred as a second spec. Two things were deliberately left out and recorded: the migration fallback dates in migrateInstanceReviewPolicy, which are the same class in the migration path, and any change to what this repository's own policy says."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-progressive-review-integration",
+      "rationale": "This closes a silent privilege-like leak rather than opening one: an instance was receiving an exemption boundary it never set, and for a project migrating in with history between its own start and a leaked date, work nobody reviewed under a contract was exempt from it. It also stops the distribution adopting an overlay on a project's behalf. Nothing gains permission; the stamp writes only a date, and only when the key is absent, so an explicitly empty value stays the instance's decision."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/abm-progressive-review-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-c1ae314cb1344a7f",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-20T16:08:14Z",
+  "path": ".pose/review-attestations/rva-c25a082fc5ca0e0a.json"
+}

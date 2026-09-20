@@ -8,7 +8,7 @@ depends_on:
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:review-policy-adoption
 ---
 
 # Spec: review adoption dates belong to the instance that earned them
@@ -92,6 +92,14 @@ and `review_bundles` start enabled, and no dates at all — and pin them.
 - modified: .pose/indexes/spec-graph.json
 - modified: .pose/results/delivery-validation.json
 
+### Delivery targets
+
+- surface:review-policy-adoption module:pose-mcp/internal/cli profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+The changed root is the CLI surface the delivery policy governs: `pose install` and
+`pose update` are what seed and stamp, so the composed path is the installed command
+rather than the template on its own.
+
 ### Rollout and reversal
 
 The change affects fresh installs only, because seeding never replaces an existing
@@ -167,6 +175,14 @@ shipped bytes. Removing the template entry did reproduce it, and the install tes
 caught all six dates. Removing the `adopted_at` stamp failed five tests including
 the three brownfield kits. The first injection was measuring the wrong half of the
 mechanism, which is exactly the failure this repository keeps re-learning.
+
+`surface-check --spec review-policy-adoption-is-the-instances --strict` exits 0 with
+one warning kept rather than silenced: `reachability` evidence for
+`surface:review-policy-adoption` comes from a run of the containing module, so
+covering `pose-mcp/internal/cli` is inferred and not reported. The composition itself
+is exercised — the tests drive the real `install` and `update` commands — but the
+class that gates the surface is module-wide, and the matrix's granularity is the
+module. Recorded as the gate stated it.
 
 ### Requirement trace
 

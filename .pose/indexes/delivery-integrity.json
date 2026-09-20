@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:8289f21c05c29b20e140f1b686e815075453fd55616ba70439f711751f393938",
-  "provenance_digest": "sha256:b2badd47e98718e536db4f2492f08e424c001353371f38a891ec2d9895640f07",
+  "input_digest": "sha256:f1f86d4e7ee670421ce86116a5a59fdeb06142b608cd21551e17ec79120598c6",
+  "provenance_digest": "sha256:5448c9e2d552dc83611c7362b8da8e7b60ad1558f23000bbd647cc50835b02d8",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -13134,6 +13134,14 @@
       }
     },
     {
+      "id": "change-set:cs-4344cfa56ed4",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:df3b6ab39484323adaea4319ff7a5373cd1699ea2c430ee66acc0baeaf802082",
+        "selector": "trailers:review-policy-adoption-is-the-instances"
+      }
+    },
+    {
       "id": "change-set:cs-4381ae6cb5f1",
       "type": "change-set",
       "attributes": {
@@ -14067,14 +14075,6 @@
       "attributes": {
         "diff_digest": "sha256:939721858563b68e402fb9cbfd6947568e4deec98a5d0ecdb2c50ca0e6b53027",
         "selector": "trailers:pose-instance-engine-version-tracking"
-      }
-    },
-    {
-      "id": "change-set:cs-ca36b0a87921",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:42e1c32fa2941b2889409b8f067c9582947030ff3bbb2c986f2a749eec7c00ac",
-        "selector": "trailers:review-policy-adoption-is-the-instances"
       }
     },
     {
@@ -15558,6 +15558,14 @@
       }
     },
     {
+      "id": "delivery:surface:review-policy-adoption",
+      "type": "surface",
+      "attributes": {
+        "module": "pose-mcp/internal/cli",
+        "profile": "cli-surface"
+      }
+    },
+    {
       "id": "delivery:surface:review-policy-v2-migration",
       "type": "surface",
       "attributes": {
@@ -15781,7 +15789,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -15795,7 +15803,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -15809,14 +15817,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -15844,7 +15852,7 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -18708,6 +18716,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/changelogs/unreleased/review-policy-adoption-is-the-instances.md",
+      "to": "delivery:surface:review-policy-adoption",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/changelogs/v1.1.0/pose-component-aware-review-plans.md",
       "to": "delivery:governance:component-aware-review-plans",
       "type": "implemented-by"
@@ -18818,6 +18831,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/indexes/delivery-integrity.json",
+      "to": "delivery:surface:review-policy-adoption",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/indexes/extensions.lock.json",
       "to": "delivery:capability:domain-rule-extension-migration",
       "type": "implemented-by"
@@ -18888,6 +18906,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/indexes/releases.json",
+      "to": "delivery:surface:review-policy-adoption",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/indexes/repo-map.json",
       "to": "delivery:governance:component-aware-review-plans",
       "type": "implemented-by"
@@ -18955,6 +18978,11 @@
     {
       "from": "artifact:.pose/indexes/spec-graph.json",
       "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/spec-graph.json",
+      "to": "delivery:surface:review-policy-adoption",
       "type": "implemented-by"
     },
     {
@@ -19393,6 +19421,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/results/delivery-validation.json",
+      "to": "delivery:surface:review-policy-adoption",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/results/review-bundle-convergence.json",
       "to": "delivery:contract:review-bundle-mcp",
       "type": "implemented-by"
@@ -19565,6 +19598,11 @@
     {
       "from": "artifact:.pose/specs/2026-09-19-pose-abm-subject-evidence.md",
       "to": "delivery:governance:subject-evidence-identity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/2026-09-20-review-policy-adoption-is-the-instances.md",
+      "to": "delivery:surface:review-policy-adoption",
       "type": "implemented-by"
     },
     {
@@ -24143,6 +24181,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/cli/review_policy_adoption_test.go",
+      "to": "delivery:surface:review-policy-adoption",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/cli/rule_extension_resolver.go",
       "to": "delivery:capability:adaptive-rule-delivery",
       "type": "implemented-by"
@@ -24445,6 +24488,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/stack_seed.go",
       "to": "delivery:capability:stack-detection-consolidation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/stack_seed.go",
+      "to": "delivery:surface:review-policy-adoption",
       "type": "implemented-by"
     },
     {
@@ -26303,6 +26351,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/review.json",
+      "to": "delivery:surface:review-policy-adoption",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/review-profiles/backend-review.json",
       "to": "delivery:governance:component-aware-review-plans",
       "type": "implemented-by"
@@ -27068,6 +27121,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+      "to": "delivery:surface:review-policy-adoption",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
       "to": "delivery:capability:domain-rule-extension-migration",
       "type": "implemented-by"
@@ -27085,6 +27143,11 @@
     {
       "from": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
       "to": "delivery:capability:scaffold-index-template-neutralization",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
+      "to": "delivery:surface:review-policy-adoption",
       "type": "implemented-by"
     },
     {
@@ -36480,6 +36543,81 @@
     {
       "from": "change-set:cs-40d116ade2c0",
       "to": "artifact:pose-mcp/internal/pose/review_closeout.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:.pose/changelogs/unreleased/review-policy-adoption-is-the-instances.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:.pose/results/delivery-validation.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:.pose/specs/2026-09-20-pose-dist-records-its-own-contract-adoption.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:.pose/specs/2026-09-20-review-policy-adoption-is-the-instances.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:.pose/state/history.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:.pose/state/project-state.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:.pose/state/refresh-log.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:pose-mcp/internal/cli/review_policy_adoption_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:pose-mcp/internal/cli/stack_seed.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/review.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-4344cfa56ed4",
+      "to": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
       "type": "changes"
     },
     {
@@ -46733,76 +46871,6 @@
       "type": "changes"
     },
     {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:.pose/changelogs/unreleased/review-policy-adoption-is-the-instances.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:.pose/indexes/delivery-integrity.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:.pose/indexes/releases.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:.pose/indexes/spec-graph.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:.pose/specs/2026-09-20-pose-dist-records-its-own-contract-adoption.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:.pose/specs/2026-09-20-review-policy-adoption-is-the-instances.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:.pose/state/history.jsonl",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:.pose/state/project-state.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:.pose/state/refresh-log.jsonl",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:pose-mcp/internal/cli/review_policy_adoption_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:pose-mcp/internal/cli/stack_seed.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/review.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-ca36b0a87921",
-      "to": "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
-      "type": "changes"
-    },
-    {
       "from": "change-set:cs-ca542376ac7a",
       "to": "artifact:.pose/changelogs/unreleased/pose-dist-records-its-own-contract-adoption.md",
       "type": "changes"
@@ -54908,6 +54976,16 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:surface:review-policy-adoption",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "reaches"
+    },
+    {
+      "from": "delivery:surface:review-policy-adoption",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:surface:review-policy-v2-migration",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "reaches"
@@ -56270,6 +56348,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
       "type": "validated-by"
     },
     {
@@ -68154,7 +68237,12 @@
     },
     {
       "from": "spec:review-policy-adoption-is-the-instances",
-      "to": "change-set:cs-ca36b0a87921",
+      "to": "delivery:surface:review-policy-adoption",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:review-policy-adoption-is-the-instances",
+      "to": "change-set:cs-4344cfa56ed4",
       "type": "observed-by"
     }
   ],
@@ -84901,6 +84989,84 @@
       "diff_digest": "sha256:1141beadb6dc8e13e6971d367bcf6fe756dd78afff9d9d05e0c0cb88bae98142"
     },
     {
+      "id": "cs-4344cfa56ed4",
+      "spec": "review-policy-adoption-is-the-instances",
+      "selector": "trailers:review-policy-adoption-is-the-instances",
+      "base": "14a33cd09a6168082a1eee6d1afb4731299607ff^",
+      "head": "cfdfc3120e3fa8a231e046e4275b1210e6c542d1",
+      "resolved_base": "f314eb4784831d31ae00cfda190ad5a8b5d26d4b",
+      "resolved_head": "cfdfc3120e3fa8a231e046e4275b1210e6c542d1",
+      "commits": [
+        "14a33cd09a6168082a1eee6d1afb4731299607ff",
+        "ef943c89c1adeac978d3bfe829a16cd16c9f26c2",
+        "8baa0be87f0bd30070057d8fe2b8d252a212291d",
+        "cfdfc3120e3fa8a231e046e4275b1210e6c542d1"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/review-policy-adoption-is-the-instances.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-20-review-policy-adoption-is-the-instances.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/review_policy_adoption_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-09-20-pose-dist-records-its-own-contract-adoption.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/stack_seed.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/policy/review.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go"
+        }
+      ],
+      "diff_digest": "sha256:df3b6ab39484323adaea4319ff7a5373cd1699ea2c430ee66acc0baeaf802082"
+    },
+    {
       "id": "cs-4381ae6cb5f1",
       "spec": "pose-manual-distribution-merge",
       "selector": "range:57b70c2206c9386848c88c3a3d57b8a85fd79e9e..2ab10590babb7b8063014cd3567ad5ca2e1c0d2b",
@@ -94966,79 +95132,6 @@
       "diff_digest": "sha256:939721858563b68e402fb9cbfd6947568e4deec98a5d0ecdb2c50ca0e6b53027"
     },
     {
-      "id": "cs-ca36b0a87921",
-      "spec": "review-policy-adoption-is-the-instances",
-      "selector": "trailers:review-policy-adoption-is-the-instances",
-      "base": "14a33cd09a6168082a1eee6d1afb4731299607ff^",
-      "head": "8baa0be87f0bd30070057d8fe2b8d252a212291d",
-      "resolved_base": "f314eb4784831d31ae00cfda190ad5a8b5d26d4b",
-      "resolved_head": "8baa0be87f0bd30070057d8fe2b8d252a212291d",
-      "commits": [
-        "14a33cd09a6168082a1eee6d1afb4731299607ff",
-        "ef943c89c1adeac978d3bfe829a16cd16c9f26c2",
-        "8baa0be87f0bd30070057d8fe2b8d252a212291d"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/review-policy-adoption-is-the-instances.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-09-20-review-policy-adoption-is-the-instances.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/review_policy_adoption_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-09-20-pose-dist-records-its-own-contract-adoption.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/history.jsonl"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/project-state.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/refresh-log.jsonl"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/stack_seed.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/policy/review.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go"
-        }
-      ],
-      "diff_digest": "sha256:42e1c32fa2941b2889409b8f067c9582947030ff3bbb2c986f2a749eec7c00ac"
-    },
-    {
       "id": "cs-ca542376ac7a",
       "spec": "pose-dist-records-its-own-contract-adoption",
       "selector": "trailers:pose-dist-records-its-own-contract-adoption",
@@ -104521,15 +104614,6 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
-      "id": "dif-3400e1c130bf",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "review-policy-adoption-is-the-instances",
-      "path": ".pose/results/delivery-validation.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-345e33243d52",
       "code": "undeclared",
       "severity": "error",
@@ -105764,16 +105848,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-6e3ee0263b1d",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "review-policy-adoption-is-the-instances",
-      "path": "pose-mcp/internal/cli/review_policy_adoption_test.go",
-      "change_set": "cs-ca36b0a87921",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-6e4180567846",
       "code": "orphan",
       "severity": "warning",
@@ -106679,16 +106753,6 @@
       "spec": "pose-capability-mechanism",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-91b0eb3f7e40",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "review-policy-adoption-is-the-instances",
-      "path": "pose-mcp/internal/cli/stack_seed.go",
-      "change_set": "cs-ca36b0a87921",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-928865ff00dd",
@@ -108853,6 +108917,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-f22cddc41854",
+      "code": "inferred-coverage",
+      "severity": "warning",
+      "spec": "review-policy-adoption-is-the-instances",
+      "path": "surface:review-policy-adoption",
+      "message": "evidence for reachability comes only from a module containing pose-mcp/internal/cli, so covering it is inferred rather than reported",
+      "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
+    },
+    {
       "id": "dif-f2d0d6ea39e2",
       "code": "orphan",
       "severity": "warning",
@@ -110532,6 +110605,15 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "review-policy-adoption-is-the-instances",
+      "ref": "surface:review-policy-adoption",
+      "kind": "surface",
+      "id": "review-policy-adoption",
+      "module": "pose-mcp/internal/cli",
+      "profile": "cli-surface",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-review-policy-v2-migration-and-verify-compat",
       "ref": "surface:review-policy-v2-migration",
       "kind": "surface",
@@ -110567,9 +110649,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8baa0be87f0bd30070057d8fe2b8d252a212291d",
-      "generated_at": "2026-09-20T16:06:46Z",
-      "provenance_digest": "sha256:67ee06f218989c4584eaf9ae6b1525d9a277e59631ea9ea0de4d563e870ef153",
+      "git_head": "cfdfc3120e3fa8a231e046e4275b1210e6c542d1",
+      "generated_at": "2026-09-20T16:08:57Z",
+      "provenance_digest": "sha256:5448c9e2d552dc83611c7362b8da8e7b60ad1558f23000bbd647cc50835b02d8",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -110751,7 +110833,7 @@
         "pose-verifier-assets-variable-fix": "sha256:a5819dab9e290edc34316ca276ad4650784dade366c11ccebd5b96868c832424",
         "pose-verifier-extension-install-cwd": "sha256:0c365cdf1d2d32b3768840a3fb161e9fbebcd3c6bdddfa6812a1ee93315636cc",
         "pose-workflow-event-ref-contract": "sha256:1133728a540866c3efefddb01fc36932bd4a0028dd0f778fc2bf6665f45cde49",
-        "review-policy-adoption-is-the-instances": "sha256:78391167511cd648e75db700233e4c3010d8a22f60c101ed0e99359a9b39a26e"
+        "review-policy-adoption-is-the-instances": "sha256:84cbaa9c03e71f61df71e839a0a2f65c22979682638d25046dec5082dfb057ab"
       }
     },
     {
@@ -110761,9 +110843,9 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8baa0be87f0bd30070057d8fe2b8d252a212291d",
-      "generated_at": "2026-09-20T16:06:46Z",
-      "provenance_digest": "sha256:67ee06f218989c4584eaf9ae6b1525d9a277e59631ea9ea0de4d563e870ef153",
+      "git_head": "cfdfc3120e3fa8a231e046e4275b1210e6c542d1",
+      "generated_at": "2026-09-20T16:08:57Z",
+      "provenance_digest": "sha256:5448c9e2d552dc83611c7362b8da8e7b60ad1558f23000bbd647cc50835b02d8",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -110945,7 +111027,7 @@
         "pose-verifier-assets-variable-fix": "sha256:a5819dab9e290edc34316ca276ad4650784dade366c11ccebd5b96868c832424",
         "pose-verifier-extension-install-cwd": "sha256:0c365cdf1d2d32b3768840a3fb161e9fbebcd3c6bdddfa6812a1ee93315636cc",
         "pose-workflow-event-ref-contract": "sha256:1133728a540866c3efefddb01fc36932bd4a0028dd0f778fc2bf6665f45cde49",
-        "review-policy-adoption-is-the-instances": "sha256:78391167511cd648e75db700233e4c3010d8a22f60c101ed0e99359a9b39a26e"
+        "review-policy-adoption-is-the-instances": "sha256:84cbaa9c03e71f61df71e839a0a2f65c22979682638d25046dec5082dfb057ab"
       }
     },
     {
@@ -110955,9 +111037,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8baa0be87f0bd30070057d8fe2b8d252a212291d",
-      "generated_at": "2026-09-20T16:06:46Z",
-      "provenance_digest": "sha256:67ee06f218989c4584eaf9ae6b1525d9a277e59631ea9ea0de4d563e870ef153",
+      "git_head": "cfdfc3120e3fa8a231e046e4275b1210e6c542d1",
+      "generated_at": "2026-09-20T16:08:57Z",
+      "provenance_digest": "sha256:5448c9e2d552dc83611c7362b8da8e7b60ad1558f23000bbd647cc50835b02d8",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -111139,7 +111221,7 @@
         "pose-verifier-assets-variable-fix": "sha256:a5819dab9e290edc34316ca276ad4650784dade366c11ccebd5b96868c832424",
         "pose-verifier-extension-install-cwd": "sha256:0c365cdf1d2d32b3768840a3fb161e9fbebcd3c6bdddfa6812a1ee93315636cc",
         "pose-workflow-event-ref-contract": "sha256:1133728a540866c3efefddb01fc36932bd4a0028dd0f778fc2bf6665f45cde49",
-        "review-policy-adoption-is-the-instances": "sha256:78391167511cd648e75db700233e4c3010d8a22f60c101ed0e99359a9b39a26e"
+        "review-policy-adoption-is-the-instances": "sha256:84cbaa9c03e71f61df71e839a0a2f65c22979682638d25046dec5082dfb057ab"
       }
     },
     {
@@ -111149,9 +111231,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8baa0be87f0bd30070057d8fe2b8d252a212291d",
-      "generated_at": "2026-09-20T16:06:46Z",
-      "provenance_digest": "sha256:67ee06f218989c4584eaf9ae6b1525d9a277e59631ea9ea0de4d563e870ef153",
+      "git_head": "cfdfc3120e3fa8a231e046e4275b1210e6c542d1",
+      "generated_at": "2026-09-20T16:08:57Z",
+      "provenance_digest": "sha256:5448c9e2d552dc83611c7362b8da8e7b60ad1558f23000bbd647cc50835b02d8",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -111333,7 +111415,7 @@
         "pose-verifier-assets-variable-fix": "sha256:a5819dab9e290edc34316ca276ad4650784dade366c11ccebd5b96868c832424",
         "pose-verifier-extension-install-cwd": "sha256:0c365cdf1d2d32b3768840a3fb161e9fbebcd3c6bdddfa6812a1ee93315636cc",
         "pose-workflow-event-ref-contract": "sha256:1133728a540866c3efefddb01fc36932bd4a0028dd0f778fc2bf6665f45cde49",
-        "review-policy-adoption-is-the-instances": "sha256:78391167511cd648e75db700233e4c3010d8a22f60c101ed0e99359a9b39a26e"
+        "review-policy-adoption-is-the-instances": "sha256:84cbaa9c03e71f61df71e839a0a2f65c22979682638d25046dec5082dfb057ab"
       }
     },
     {
@@ -111343,9 +111425,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8baa0be87f0bd30070057d8fe2b8d252a212291d",
-      "generated_at": "2026-09-20T16:06:46Z",
-      "provenance_digest": "sha256:67ee06f218989c4584eaf9ae6b1525d9a277e59631ea9ea0de4d563e870ef153",
+      "git_head": "cfdfc3120e3fa8a231e046e4275b1210e6c542d1",
+      "generated_at": "2026-09-20T16:08:57Z",
+      "provenance_digest": "sha256:5448c9e2d552dc83611c7362b8da8e7b60ad1558f23000bbd647cc50835b02d8",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -111527,7 +111609,7 @@
         "pose-verifier-assets-variable-fix": "sha256:a5819dab9e290edc34316ca276ad4650784dade366c11ccebd5b96868c832424",
         "pose-verifier-extension-install-cwd": "sha256:0c365cdf1d2d32b3768840a3fb161e9fbebcd3c6bdddfa6812a1ee93315636cc",
         "pose-workflow-event-ref-contract": "sha256:1133728a540866c3efefddb01fc36932bd4a0028dd0f778fc2bf6665f45cde49",
-        "review-policy-adoption-is-the-instances": "sha256:78391167511cd648e75db700233e4c3010d8a22f60c101ed0e99359a9b39a26e"
+        "review-policy-adoption-is-the-instances": "sha256:84cbaa9c03e71f61df71e839a0a2f65c22979682638d25046dec5082dfb057ab"
       }
     },
     {
@@ -111537,9 +111619,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "8baa0be87f0bd30070057d8fe2b8d252a212291d",
-      "generated_at": "2026-09-20T16:06:46Z",
-      "provenance_digest": "sha256:67ee06f218989c4584eaf9ae6b1525d9a277e59631ea9ea0de4d563e870ef153",
+      "git_head": "cfdfc3120e3fa8a231e046e4275b1210e6c542d1",
+      "generated_at": "2026-09-20T16:08:57Z",
+      "provenance_digest": "sha256:5448c9e2d552dc83611c7362b8da8e7b60ad1558f23000bbd647cc50835b02d8",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -111721,7 +111803,7 @@
         "pose-verifier-assets-variable-fix": "sha256:a5819dab9e290edc34316ca276ad4650784dade366c11ccebd5b96868c832424",
         "pose-verifier-extension-install-cwd": "sha256:0c365cdf1d2d32b3768840a3fb161e9fbebcd3c6bdddfa6812a1ee93315636cc",
         "pose-workflow-event-ref-contract": "sha256:1133728a540866c3efefddb01fc36932bd4a0028dd0f778fc2bf6665f45cde49",
-        "review-policy-adoption-is-the-instances": "sha256:78391167511cd648e75db700233e4c3010d8a22f60c101ed0e99359a9b39a26e"
+        "review-policy-adoption-is-the-instances": "sha256:84cbaa9c03e71f61df71e839a0a2f65c22979682638d25046dec5082dfb057ab"
       }
     },
     {
@@ -111731,9 +111813,9 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "8baa0be87f0bd30070057d8fe2b8d252a212291d",
-      "generated_at": "2026-09-20T16:06:46Z",
-      "provenance_digest": "sha256:67ee06f218989c4584eaf9ae6b1525d9a277e59631ea9ea0de4d563e870ef153",
+      "git_head": "cfdfc3120e3fa8a231e046e4275b1210e6c542d1",
+      "generated_at": "2026-09-20T16:08:57Z",
+      "provenance_digest": "sha256:5448c9e2d552dc83611c7362b8da8e7b60ad1558f23000bbd647cc50835b02d8",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -111915,7 +111997,7 @@
         "pose-verifier-assets-variable-fix": "sha256:a5819dab9e290edc34316ca276ad4650784dade366c11ccebd5b96868c832424",
         "pose-verifier-extension-install-cwd": "sha256:0c365cdf1d2d32b3768840a3fb161e9fbebcd3c6bdddfa6812a1ee93315636cc",
         "pose-workflow-event-ref-contract": "sha256:1133728a540866c3efefddb01fc36932bd4a0028dd0f778fc2bf6665f45cde49",
-        "review-policy-adoption-is-the-instances": "sha256:78391167511cd648e75db700233e4c3010d8a22f60c101ed0e99359a9b39a26e"
+        "review-policy-adoption-is-the-instances": "sha256:84cbaa9c03e71f61df71e839a0a2f65c22979682638d25046dec5082dfb057ab"
       }
     }
   ],
@@ -111928,10 +112010,7 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: test"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -111952,12 +112031,7 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: test",
-        "check is missing, failing or stale: delivery-integration",
-        "check is missing, failing or stale: delivery-reachability"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -111977,10 +112051,7 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-reachability"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -111991,10 +112062,7 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-integration"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -112032,10 +112100,7 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-integration"
-      ]
+      "passed": true
     }
   ],
   "paths": {
@@ -114975,6 +115040,23 @@
       "artifact:pose-mcp/schemas/README.md",
       "artifact:.pose/changelogs/v1.1.0/pose-review-bundle-convergence.md",
       "delivery:surface:review-bundle-cli",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-reachability"
+    ],
+    "surface:review-policy-adoption": [
+      "spec:review-policy-adoption-is-the-instances",
+      "artifact:.pose/changelogs/unreleased/review-policy-adoption-is-the-instances.md",
+      "artifact:.pose/specs/2026-09-20-review-policy-adoption-is-the-instances.md",
+      "artifact:pose-mcp/internal/cli/review_policy_adoption_test.go",
+      "artifact:.pose/indexes/delivery-integrity.json",
+      "artifact:.pose/indexes/releases.json",
+      "artifact:.pose/indexes/spec-graph.json",
+      "artifact:.pose/results/delivery-validation.json",
+      "artifact:pose-mcp/internal/cli/stack_seed.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/review.json",
+      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
+      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
+      "delivery:surface:review-policy-adoption",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/delivery-reachability"
     ],
