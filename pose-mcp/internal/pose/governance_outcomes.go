@@ -102,6 +102,20 @@ type GovernanceRemediationDimensions struct {
 	ObservedRemediated int    `json:"observed_remediated"`
 	Censored           int    `json:"censored"`
 	InsufficientSample bool   `json:"insufficient_sample"`
+	// LinksDeclared is the whole graph; the fields below are the mature
+	// population only. A delivery nobody linked to is UnlinkedUnknown and not a
+	// clean one: nothing in the repository asserts it had no defect, so it is
+	// reported beside the rate instead of being folded into it.
+	LinksDeclared   int `json:"links_declared"`
+	LinkedObserved  int `json:"linked_observed"`
+	UnlinkedUnknown int `json:"unlinked_unknown"`
+	// InvalidLinks is coverage loss, never a zero.
+	InvalidLinks int `json:"invalid_links"`
+	// ByCategory reports every category observed on the mature population, and
+	// CountedCategories says which of them enter ObservedRemediated, so a reader
+	// never has to infer which links were treated as defects.
+	ByCategory        map[string]int `json:"by_category,omitempty"`
+	CountedCategories []string       `json:"counted_categories,omitempty"`
 }
 
 // GovernanceOutcomesReport is intentionally a set of independent dimensions.
@@ -162,8 +176,13 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 		SchemaVersion: GovernanceOutcomesSchemaVersion,
 		GeneratedAt:   now.Format(time.RFC3339), SinceDays: query.SinceDays,
 		MaturityDays: query.MaturityDays, MinSample: query.MinSample,
-		Coverage:    GovernanceCoverage{PreparationPhaseCoverage: "partial", RemediationCoverage: "unavailable"},
-		Remediation: GovernanceRemediationDimensions{Available: false, Reason: "no explicit remediation event contract is adopted"},
+		Coverage: GovernanceCoverage{PreparationPhaseCoverage: "partial", RemediationCoverage: "unavailable"},
+	}
+	report.Remediation = s.remediationProjection(now, query.SinceDays, query.MaturityDays, query.MinSample)
+	if report.Remediation.Available {
+		// Partial, never complete: an absent link is unknown, so coverage of the
+		// mature population can only ever be the part that carries one.
+		report.Coverage.RemediationCoverage = "partial"
 	}
 
 	history, err := readGovernanceHistory(s.Root)

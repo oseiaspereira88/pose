@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -71,5 +72,30 @@ func cmdGovernanceStats(root string, args []string, stdout, stderr io.Writer) in
 		remediation += " reason=" + strings.ReplaceAll(report.Remediation.Reason, "\n", " ")
 	}
 	out.Field("remediation", remediation)
+	if report.Remediation.Available {
+		// The denominator and what was excluded from it are printed beside the
+		// rate, never under a flag: a remediation count without its censored and
+		// unlinked populations reads as a quality number, and it is not one.
+		out.Field("remediation.population", fmt.Sprintf("mature=%d censored=%d linked=%d unlinked_unknown=%d links_declared=%d invalid_links=%d insufficient_sample=%v",
+			report.Remediation.MaturePopulation, report.Remediation.Censored, report.Remediation.LinkedObserved,
+			report.Remediation.UnlinkedUnknown, report.Remediation.LinksDeclared, report.Remediation.InvalidLinks,
+			report.Remediation.InsufficientSample))
+		out.Field("remediation.observed", fmt.Sprintf("remediated=%d counted_categories=%s",
+			report.Remediation.ObservedRemediated, strings.Join(report.Remediation.CountedCategories, ",")))
+		for _, category := range sortedStringKeys(report.Remediation.ByCategory) {
+			out.Field("remediation.category."+category, strconv.Itoa(report.Remediation.ByCategory[category]))
+		}
+	}
 	return 0
+}
+
+// sortedStringKeys keeps the category lines deterministic, because this output
+// is quoted into specs and diffed.
+func sortedStringKeys(values map[string]int) []string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }

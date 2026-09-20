@@ -385,6 +385,19 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	}
 	lint := specFindings{r: render(stdout, stderr), slug: slug}
 	checkDesign := len(designCheck) > 0 && designCheck[0]
+	lineageFailures := 0
+	if links := posepkg.RemediationValues(frontmatter["remediates"]); len(links) > 0 {
+		root, lineageErr := projectRootAt(filepath.Dir(specPath))
+		if lineageErr == nil {
+			lineageErr = (posepkg.Store{Root: root}).ValidateRemediationLineage(posepkg.Spec{Slug: slug, Remediates: links})
+		}
+		if lineageErr != nil {
+			lint.finding(cliout.StateError, "remediation-lineage", lineageErr.Error())
+			lineageFailures++
+		}
+		lint.r.Field("spec.remediation.links", strconv.Itoa(len(links)))
+		lint.r.Field("spec.remediation.failures", strconv.Itoa(lineageFailures))
+	}
 	designFailures := 0
 	emitDesignBasis := func() {
 		if !checkDesign {
@@ -456,7 +469,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			failures++
 		}
 		emitDesignBasis()
-		failures += designFailures
+		failures += designFailures + lineageFailures
 		ready := "true"
 		if failures > 0 {
 			ready = "false"
@@ -787,7 +800,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	fmt.Fprintf(stdout, "spec.amendments.failures=%d\n", amendFailures)
 	emitDesignBasis()
 
-	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 || traceFailures > 0 || amendFailures > 0 || designFailures > 0 {
+	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 || traceFailures > 0 || amendFailures > 0 || designFailures > 0 || lineageFailures > 0 {
 		return 1
 	}
 	return 0

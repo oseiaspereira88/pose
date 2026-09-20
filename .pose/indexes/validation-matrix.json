@@ -298,6 +298,13 @@
       "stack": "go",
       "checks": [
         {
+          "name": "abm-remediation-lineage-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "./internal/cli", "-run", "RemediationLineage|RemediationProjection", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "abm-progressive-review-integration",
           "program": "go",
           "args": [

@@ -23,6 +23,7 @@ type Spec struct {
 	CompletedAt string   `json:"completed_at,omitempty"`
 	Supersedes  string   `json:"supersedes,omitempty"`
 	DependsOn   []string `json:"depends_on,omitempty"`
+	Remediates  []string `json:"remediates,omitempty"`
 	Priority    *int     `json:"priority,omitempty"`
 	Components  []string `json:"components,omitempty"`
 	Delivers    []string `json:"delivers,omitempty"`
@@ -339,6 +340,8 @@ func parseSpecFile(path, slug string, includeBody bool) (*Spec, error) {
 			sp.Supersedes = value
 		case "depends_on":
 			sp.DependsOn = parseInlineList(value)
+		case "remediates":
+			sp.Remediates = RemediationValues(value)
 		case "priority":
 			if n, err := strconv.Atoi(value); err == nil && n >= 0 {
 				sp.Priority = &n

@@ -40,6 +40,7 @@ type ReviewBundleScope struct {
 	Roadmap    string              `json:"roadmap,omitempty"`
 	Milestone  string              `json:"milestone,omitempty"`
 	DependsOn  []string            `json:"depends_on,omitempty"`
+	Remediates []string            `json:"remediates,omitempty"`
 	Supersedes string              `json:"supersedes,omitempty"`
 	Components []string            `json:"components,omitempty"`
 	Deliveries []string            `json:"deliveries,omitempty"`
@@ -498,6 +499,11 @@ func (s Store) reviewBundleScopeProjection(scope ScopeRef) (ReviewBundleScope, [
 			return projection, nil, err
 		}
 		projection.DependsOn = append([]string{}, sp.DependsOn...)
+		if err := s.ValidateRemediationLineage(*sp); err != nil {
+			return projection, nil, err
+		}
+		projection.Remediates = append([]string{}, sp.Remediates...)
+		sort.Strings(projection.Remediates)
 		projection.Supersedes = sp.Supersedes
 		projection.Components = append([]string{}, sp.Components...)
 		projection.Deliveries = append([]string{}, sp.Delivers...)

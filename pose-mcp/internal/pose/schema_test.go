@@ -17,7 +17,7 @@ func TestSchemaDrift(t *testing.T) {
 		sample any
 	}{
 		{"spec.schema.json", Spec{Slug: "s", Status: "done", CreatedAt: "2026-01-01",
-			CompletedAt: "2026-01-02", Supersedes: "old", Title: "T", Path: "p", Body: "b"}},
+			CompletedAt: "2026-01-02", Supersedes: "old", Remediates: []string{"spec:old@defect-fix"}, Title: "T", Path: "p", Body: "b"}},
 		{"artifact.schema.json", Markdown{Name: "n", Title: "T", Path: "p", Body: "b"}},
 		{"gate-result.schema.json", GateResult{Command: "c", ExitCode: 1, Passed: false, Output: "o"}},
 		{"insights.schema.json", InsightsResult{GroupBy: "workflow", SinceDays: 30,

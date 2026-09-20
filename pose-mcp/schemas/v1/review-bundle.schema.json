@@ -16,7 +16,7 @@
       "additionalProperties": true,
       "required": ["scope", "subject", "plan", "evidence", "consumed_inputs"],
       "properties": {
-        "scope": {"type": "object"},
+        "scope": {"type": "object", "properties": {"remediates": {"type": "array", "items": {"type": "string"}}}},
         "subject": {
           "type": "object",
           "required": ["change_sets", "patch_digest", "tree_digest", "entries"],

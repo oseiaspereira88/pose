@@ -5,6 +5,7 @@ created_at: <YYYY-MM-DD>
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on:          # prerequisites, inline list: other-spec, milestone:<roadmap>/<id>, roadmap:<slug>
+remediates:          # optional explicit links: spec:slug@defect-fix, finding:rva-<16hex>/F1@revert (never inferred from depends_on)
 priority:            # integer >= 0 (lower = higher priority); ordering preference, not a blocker
 components:          # optional, inline comma-separated list: modules/components touched (e.g. mcp-server, cli) — used by pose_list_specs' `components` filter
 task_type:           # optional: feature | bugfix | refactor — a key of taskTypes in .pose/policy/dor.json; selects the sections the Definition of Ready requires (default: defaultTaskType)

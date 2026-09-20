@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-20T16:29:40Z
-baseline_commit: d87ac16b912d2a0b0853891c02812e6a2b085275
+generated_at: 2026-09-20T19:33:15Z
+baseline_commit: 07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,9 +27,9 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:7f5d5320a8ba -->
+<!-- state:derived hash:fcb4fb18c332 -->
 
-- specs: total=225 draft=7 in-progress=65 blocked=0 done=153 superseded=0 abandoned=0
+- specs: total=225 draft=6 in-progress=66 blocked=0 done=153 superseded=0 abandoned=0
 - roadmaps: total=11 active=1 done=10
 - últimos closeouts:
   - spec:pose-abm-progressive-review (2026-09-20)

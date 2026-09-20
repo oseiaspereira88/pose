@@ -795,6 +795,14 @@ func (s Store) ScopeDigest(ref string) (string, error) {
 		}
 		base["content"] = strings.ReplaceAll(strings.TrimSpace(sp.Body), "\r\n", "\n")
 		base["depends_on"] = sp.DependsOn
+		if len(sp.Remediates) > 0 {
+			if err := s.ValidateRemediationLineage(*sp); err != nil {
+				return "", err
+			}
+			links := append([]string{}, sp.Remediates...)
+			sort.Strings(links)
+			base["remediates"] = links
+		}
 		base["components"] = sp.Components
 	case "milestone":
 		rm, err := s.GetRoadmap(scope.Roadmap)
