@@ -165,6 +165,23 @@ func validateArtifactPathSyntax(value string) (string, error) {
 	return clean, nil
 }
 
+// isArtifactSectionBoundary ends the `### Artifacts` section at a heading of any
+// level.
+//
+// It used to end only at another `### `, so a spec whose artifact list was
+// followed by `## 4. Tasks` — the shape `pose new-spec` scaffolds — had its task
+// checklist parsed as artifact claims. The failure was not local: one spec's
+// layout took `roadmap-check` and `artifact-check` down for the whole repository
+// with `malformed artifact claim "- [ ] <task text>"`, because a claim list that
+// does not know where it ends reads the next list it finds.
+func isArtifactSectionBoundary(line string) bool {
+	rest := strings.TrimLeft(line, "#")
+	if rest == line {
+		return false
+	}
+	return rest == "" || strings.HasPrefix(rest, " ")
+}
+
 func ParseArtifactClaims(spec Spec, policy ArtifactPolicy) ([]ArtifactClaim, bool, error) {
 	lines := strings.Split(strings.ReplaceAll(spec.Body, "\r\n", "\n"), "\n")
 	inSection, found := false, false
@@ -181,7 +198,7 @@ func ParseArtifactClaims(spec Spec, policy ArtifactPolicy) ([]ArtifactClaim, boo
 			inSection, found = true, true
 			continue
 		}
-		if inSection && strings.HasPrefix(line, "### ") {
+		if inSection && isArtifactSectionBoundary(line) {
 			break
 		}
 		if !inSection || !strings.HasPrefix(line, "- ") {

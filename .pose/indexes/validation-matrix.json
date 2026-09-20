@@ -300,7 +300,14 @@
         {
           "name": "abm-remediation-lineage-integration",
           "program": "go",
-          "args": ["test", "./internal/pose", "./internal/cli", "-run", "RemediationLineage|RemediationProjection", "-count=1"],
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "RemediationLineage|RemediationProjection",
+            "-count=1"
+          ],
           "severity": "required",
           "evidenceClass": "integration"
         },
@@ -313,6 +320,19 @@
             "./internal/cli",
             "-run",
             "ABMProgressiveReview|ABMCriticality|ABMPolicyDowngrade|ABMProtectedBaseline|ABMStructural",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "artifact-claim-boundary-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "ArtifactClaims",
             "-count=1"
           ],
           "severity": "required",
