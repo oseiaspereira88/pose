@@ -25,6 +25,14 @@
       "digest": "sha256:f13a1e60fd3bf1965cfcf49cbb585341efb2e342c4c23e68b8fbb89937e295d8"
     },
     {
+      "spec": "parse-the-delivery-index-once-per-content",
+      "category": "changed",
+      "breaking": false,
+      "body": "The delivery-integrity index is parsed once per distinct content instead of once per\ncaller, and the structural design delta is computed once per input digest — the value\nit already published as `CacheKey`. In this repository one `pose check --strict` was\nreading and unmarshalling a 4.5 MB index 528 times and recomputing 36 identical design\ndeltas. The independent per-spec gate loops also run concurrently now, with each\nitem's findings replayed in item order so the output stays diffable. The gate goes from\n39.3 seconds to 16.6, and from 634.9 across both performance fixes — 38x — with the\nfindings and their order unchanged. Both memos are keyed on content rather than\non modification time, and both return copies, because callers filter what they receive\nin place.",
+      "path": "parse-the-delivery-index-once-per-content.md",
+      "digest": "sha256:af88b5ef110bb9349f7ffcb10786ae6d268c7f126b2dc7711511548058a73e9e"
+    },
+    {
       "spec": "pose-abm-progressive-review",
       "category": "added",
       "breaking": false,

@@ -1,6 +1,10 @@
 {
   "edges": [
     {
+      "from": "parse-the-delivery-index-once-per-content",
+      "to": "check-builds-the-delivery-graph-once"
+    },
+    {
       "from": "pose-abm-authority-fixture-clock",
       "to": "pose-abm-review-authority"
     },
@@ -872,6 +876,14 @@
       "path": ".pose/specs/2026-09-20-check-strict-verdict-names-its-mode.md",
       "priority": 2,
       "status": "done"
+    },
+    "parse-the-delivery-index-once-per-content": {
+      "depends_on": [
+        "check-builds-the-delivery-graph-once"
+      ],
+      "path": ".pose/specs/2026-09-20-parse-the-delivery-index-once-per-content.md",
+      "priority": 1,
+      "status": "in-progress"
     },
     "pose-abm-authority-fixture-clock": {
       "depends_on": [
