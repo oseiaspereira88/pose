@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/harne8/pose-mcp/internal/pose"
@@ -14,13 +15,18 @@ import (
 // wholesale `.pose/policy` sync, and the placeholder shipped instead must be
 // schema-valid and inert (empty roots, disabled).
 func TestSelfReferentialPolicyFilesExcluded(t *testing.T) {
-	for _, rel := range []string{".pose/policy/delivery.json", ".pose/policy/artifacts.json"} {
+	for _, rel := range []string{".pose/policy/delivery.json", ".pose/policy/artifacts.json", ".pose/policy/review.json"} {
 		if IsIncluded(rel) {
 			t.Errorf("IsIncluded(%q) = true, want false — self-referential policy must not be synced verbatim", rel)
 		}
 	}
+	// review.json moved from the sanity list to the excluded list deliberately
+	// (spec review-policy-adoption-is-the-instances): it carries `adopted_at`,
+	// a dated field per governed contract and the overlays this repository
+	// adopted, all of which are statements about this repository rather than
+	// defaults for a target.
 	// Sanity: other policy files stay on the wholesale allowlist.
-	for _, rel := range []string{".pose/policy/review.json", ".pose/policy/state.json"} {
+	for _, rel := range []string{".pose/policy/state.json", ".pose/policy/dor.json"} {
 		if !IsIncluded(rel) {
 			t.Errorf("IsIncluded(%q) = false, want true — unrelated policy files must still sync", rel)
 		}
@@ -29,7 +35,7 @@ func TestSelfReferentialPolicyFilesExcluded(t *testing.T) {
 
 func TestNeutralPolicyTemplatesAreSchemaValidAndInert(t *testing.T) {
 	templates := NeutralPolicyTemplates()
-	for _, rel := range []string{".pose/policy/delivery.json", ".pose/policy/artifacts.json"} {
+	for _, rel := range []string{".pose/policy/delivery.json", ".pose/policy/artifacts.json", ".pose/policy/review.json"} {
 		if _, ok := templates[rel]; !ok {
 			t.Fatalf("NeutralPolicyTemplates() missing %s", rel)
 		}
@@ -66,6 +72,58 @@ func TestNeutralPolicyTemplatesAreSchemaValidAndInert(t *testing.T) {
 	}
 	if len(artifacts.GovernedRoots) != 0 {
 		t.Errorf("neutral artifacts.json placeholder must ship governed_roots=[], got %v", artifacts.GovernedRoots)
+	}
+
+	// The review template carries no date, which is the point: a dated template
+	// states another repository's history, and the stamp cannot correct it
+	// afterwards because it skips a key that is already present.
+	var reviewDoc map[string]any
+	if err := json.Unmarshal(templates[".pose/policy/review.json"], &reviewDoc); err != nil {
+		t.Fatal(err)
+	}
+	for key, value := range reviewDoc {
+		dated := key == "adopted_at" || key == "evidence_vocabulary_reconciled_at" ||
+			(len(key) > 11 && key[len(key)-11:] == "_adopted_at")
+		if !dated {
+			continue
+		}
+		t.Errorf("neutral review.json declares %s=%v; the key must be absent so the stamp can write this instance's own day", key, value)
+	}
+
+	// Being dateless makes the template unloadable on its own, because enabling
+	// component-aware review requires the date that says when this instance
+	// received it. That coupling is asserted rather than hidden: the template is
+	// an input to `pose install`, which seeds and stamps in one step, and the
+	// pairing is what keeps it from ever reaching an instance undated.
+	if _, err := (pose.Store{Root: root}).GetReviewPolicy(); err == nil {
+		t.Error("the dateless template loaded on its own; the stamp is then no longer required to complete it")
+	} else if !strings.Contains(err.Error(), "component-aware adoption date") {
+		t.Errorf("the dateless template failed for the wrong reason: %v", err)
+	}
+
+	// Stamped the way seeding stamps it, it is the policy the instance operates.
+	for key, value := range map[string]string{
+		"adopted_at": "2026-09-20", "component_aware_adopted_at": "2026-09-20",
+		"review_bundles_adopted_at": "2026-09-20",
+	} {
+		reviewDoc[key] = value
+	}
+	stamped, err := json.MarshalIndent(reviewDoc, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".pose/policy/review.json"), stamped, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	review, err := (pose.Store{Root: root}).GetReviewPolicy()
+	if err != nil {
+		t.Fatalf("GetReviewPolicy(stamped template): %v", err)
+	}
+	if !review.Enabled || !review.ComponentAware || !review.ReviewBundles {
+		t.Errorf("neutral review.json must ship the current contract shape, got %+v", review)
+	}
+	if len(review.OverlayProfiles) != 0 {
+		t.Errorf("neutral review.json must adopt no overlay for the target, got %v", review.OverlayProfiles)
 	}
 
 	// No pose-mcp-source-tree path should ever reappear in a shipped template.

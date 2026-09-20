@@ -1,6 +1,6 @@
 ---
 slug: review-policy-adoption-is-the-instances
-status: draft
+status: in-progress
 created_at: 2026-09-20
 completed_at:
 supersedes:
@@ -81,8 +81,12 @@ and `review_bundles` start enabled, and no dates at all — and pin them.
 ### Artifacts
 
 - created: .pose/specs/2026-09-20-review-policy-adoption-is-the-instances.md
-
-Remaining artifacts are declared when the fix is implemented.
+- created: .pose/changelogs/unreleased/review-policy-adoption-is-the-instances.md
+- created: pose-mcp/internal/cli/review_policy_adoption_test.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go
+- modified: pose-mcp/internal/cli/stack_seed.go
+- modified: pose-mcp/internal/scaffold/dist/.pose/policy/review.json
 
 ### Rollout and reversal
 
@@ -92,11 +96,11 @@ contract rather than a convention.
 
 ## 4. Tasks
 
-- [ ] Pin the current leak in a test: install into a fresh target and assert it
+- [x] Pin the current leak in a test: install into a fresh target and assert it
       receives no date it did not earn.
-- [ ] Decide and write the neutral template's contents.
-- [ ] Ship it through the self-referential exclusion and prove an existing instance
-      is untouched.
+- [x] Decide and write the neutral template's contents.
+- [x] Ship it through the self-referential exclusion and prove an existing instance
+      is untouched, including under `--force`.
 
 ## 5. Decisions
 
@@ -124,8 +128,76 @@ more fields on a channel that already leaks, stated in that spec's residual risk
 2026-09-20: found while recording this repository's own contract adoption. The parity
 test failed with `differs: [.pose/policy/review.json]`, which is what revealed that
 the file is shipped as a byte copy. The embedded template's leaked dates were read
-directly and are listed above. Not fixed here.
+directly and are listed above.
+
+2026-09-20, implemented. The leak was pinned first: a fresh `pose install` was
+asserted to receive no date it did not earn, and the test reproduced the defect
+exactly — `adopted_at=2026-08-02`, `component_aware_adopted_at=2026-08-13`,
+`review_bundles_adopted_at=2026-08-14`, `evidence_vocabulary_reconciled_at=2026-09-08`,
+plus the two recorded that day, plus this repository's adopted
+`overlay_profiles`. The overlays were the part the original finding had not
+measured: every fresh install was adopting the overlays *this* repository chose,
+which is the decision explicit adoption exists to keep with the project.
+
+Two things the implementation had to decide rather than extract:
+
+- The template ships the current contract shape — review enabled, component-aware
+  and review-bundles on, the three shipped scope profiles — with no dates and no
+  overlays. Keeping the shape preserves what a fresh install gets today; dropping
+  the dates and overlays removes what belongs to this repository.
+- `adopted_at` is the policy's own, not a registry contract, so nothing stamped it.
+  Shipping it empty would have gated an instance's entire history, and shipping this
+  repository's value would have exempted a slice of someone else's. It is now
+  stamped like the contracts, with the same rule: absent means stamp, explicitly
+  empty stays a decision.
+
+Being dateless makes the template unloadable on its own — enabling component-aware
+review requires the date that says when the instance received it. That coupling is
+asserted rather than hidden, because the template is an input to seeding, which
+seeds and stamps in one step.
+
+Defect injection, and one correction to my own method: removing `review.json` from
+the exclusion list did **not** reproduce the leak, because the generator writes the
+neutral template after the sync — the template entry, not the exclusion, decides the
+shipped bytes. Removing the template entry did reproduce it, and the install test
+caught all six dates. Removing the `adopted_at` stamp failed five tests including
+the three brownfield kits. The first injection was measuring the wrong half of the
+mechanism, which is exactly the failure this repository keeps re-learning.
+
+### Requirement trace
+
+- R1 [satisfied] `TestSelfReferentialPolicyFilesExcluded`,
+  `TestEmbeddedDistMatchesPoseDist` — `review.json` is excluded from the wholesale
+  sync and compared against its neutral template
+- R2 [satisfied] `TestInstallStampsItsOwnReviewAdoption` — a fresh install carries
+  no date it did not earn, and every registry contract carries the install day
+- R3 [satisfied] `TestUpdateKeepsRecordedAdoption` — a recorded adoption survives
+  `update --no-self` and `install --force`, and so do the instance's own overlays
+- R4 [satisfied] `TestNeutralPolicyTemplatesAreSchemaValidAndInert` — the template
+  is dateless, refuses to load undated for the stated reason, and loads with the
+  contract shape once stamped; `TestInstallStampsItsOwnReviewAdoption` resolves a
+  review plan from the installed result
+- R5 [satisfied] `TestSelfReferentialPolicyFilesExcluded`,
+  `TestNeutralPolicyTemplatesAreSchemaValidAndInert`
 
 ## 7. Final Report
 
-Not implemented yet.
+### Scope delivered
+
+A distribution no longer hands a project another repository's review history. The
+shipped template carries the contract shape and nothing dated; `pose install` stamps
+the day the instance received the policy and each governed contract; an existing
+instance keeps what it recorded, including under `--force`.
+
+### Residual risks
+
+The template's contents are now a contract: changing which profiles or flags a fresh
+instance receives changes what review means in every new repository, and the tests
+pin the current answer rather than justify it forever. `migrateInstanceReviewPolicy`
+still carries hardcoded `2026-08-13`/`2026-08-14` fallbacks from this repository's own
+history for schema-v1 instances that have no `adopted_at` to derive from — the same
+leak class, in the migration path rather than the distribution, and untouched here.
+
+### Follow-ups
+
+- The v1 migration fallback dates above (owner: @pose-maintainers crit: medium review: 2026-10-20)

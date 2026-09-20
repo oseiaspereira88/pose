@@ -85,6 +85,17 @@ var SelfReferentialPolicyFiles = []string{
 	// `pose install`/`pose update` stamp the day this instance received the
 	// policy (spec pose-changelog-adoption-is-the-instances).
 	"changelog.json",
+	// review.json is the same leak one file over, and a larger one: it carries
+	// `adopted_at` plus a dated field per governed contract, and
+	// `stampContractAdoption` skips a contract whose key is already present, so
+	// an instance that received this repository's dates never earned its own.
+	// It also carried `overlay_profiles`, which made every fresh install adopt
+	// the overlays *this* repository chose — and an overlay is an adoption
+	// decision, which the engine is not allowed to make for a project by
+	// shipping a file. The neutral template ships the contract shape with no
+	// dates and no adopted overlays; the stamp writes the day this instance
+	// received each contract (spec review-policy-adoption-is-the-instances).
+	"review.json",
 }
 
 // SelfReferentialIndexFiles are `.pose/indexes/` files whose live content in
@@ -238,6 +249,32 @@ func NeutralPolicyTemplates() map[string][]byte {
     "orphan": "warning",
     "legacy-narrative": "info"
   }
+}
+`),
+		".pose/policy/review.json": []byte(`{
+  "_comment": "Review policy (spec pose-unified-review-convergence). Dates are deliberately absent: pose install/update stamp the day THIS instance received the policy and each governed contract, so work completed before that day keeps its approval and nothing is exempted by a date belonging to another repository. overlay_profiles is empty because an overlay is an adoption decision this project makes; the profiles themselves are installed and inert under .pose/review-profiles/.",
+  "schema_version": 2,
+  "enabled": true,
+  "profiles": {
+    "spec": "spec-closeout@1",
+    "milestone": "milestone-integration@1",
+    "roadmap": "roadmap-outcome@1"
+  },
+  "reviewer_independence": {
+    "spec": "same-actor-separate-execution",
+    "milestone": "same-actor-separate-execution",
+    "roadmap": "same-actor-separate-execution"
+  },
+  "component_aware": true,
+  "review_bundles": true,
+  "unmapped_component_behavior": "warning",
+  "continuous_closeout": true,
+  "allow_approved_with_reservations": false,
+  "accepted_risk_severities": ["low"],
+  "allow_criterion_reuse": true,
+  "allow_in_scope_remediation_spec": true,
+  "require_review_for_legacy_done_scopes": false,
+  "overlay_profiles": []
 }
 `),
 		".pose/policy/release.json": []byte(`{

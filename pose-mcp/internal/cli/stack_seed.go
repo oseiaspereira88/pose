@@ -299,6 +299,15 @@ func stampContractAdoption(target string, now time.Time, log func(english, portu
 		}
 		stamped = append(stamped, contract.ID)
 	}
+	// The policy's own `adopted_at` is the same statement one level up: review is
+	// required for a spec created on or after it, so an absent value gates the
+	// instance's whole history and a value from another repository exempts a
+	// slice of it. The contracts above cover the registry; this covers the file.
+	// Absent means stamp, explicitly empty stays a decision — the same rule.
+	if _, present := doc["adopted_at"]; !present {
+		doc["adopted_at"] = now.Format(time.DateOnly)
+		stamped = append(stamped, "review-policy")
+	}
 	if len(stamped) == 0 {
 		return
 	}

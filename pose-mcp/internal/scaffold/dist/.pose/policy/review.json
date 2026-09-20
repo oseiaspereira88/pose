@@ -1,35 +1,25 @@
 {
-  "accepted_risk_severities": [
-    "low"
-  ],
-  "adopted_at": "2026-08-02",
+  "_comment": "Review policy (spec pose-unified-review-convergence). Dates are deliberately absent: pose install/update stamp the day THIS instance received the policy and each governed contract, so work completed before that day keeps its approval and nothing is exempted by a date belonging to another repository. overlay_profiles is empty because an overlay is an adoption decision this project makes; the profiles themselves are installed and inert under .pose/review-profiles/.",
+  "schema_version": 2,
+  "enabled": true,
+  "profiles": {
+    "spec": "spec-closeout@1",
+    "milestone": "milestone-integration@1",
+    "roadmap": "roadmap-outcome@1"
+  },
+  "reviewer_independence": {
+    "spec": "same-actor-separate-execution",
+    "milestone": "same-actor-separate-execution",
+    "roadmap": "same-actor-separate-execution"
+  },
+  "component_aware": true,
+  "review_bundles": true,
+  "unmapped_component_behavior": "warning",
+  "continuous_closeout": true,
   "allow_approved_with_reservations": false,
+  "accepted_risk_severities": ["low"],
   "allow_criterion_reuse": true,
   "allow_in_scope_remediation_spec": true,
-  "component_aware": true,
-  "component_aware_adopted_at": "2026-08-13",
-  "continuous_closeout": true,
-  "enabled": true,
-  "evidence_vocabulary_reconciled_at": "2026-09-08",
-  "explicit_judgment_adopted_at": "2026-09-20",
-  "overlay_profiles": [
-    "backend-review@1",
-    "frontend-review@1"
-  ],
-  "profiles": {
-    "milestone": "milestone-integration@1",
-    "roadmap": "roadmap-outcome@1",
-    "spec": "spec-closeout@1"
-  },
   "require_review_for_legacy_done_scopes": false,
-  "review_bundles": true,
-  "review_bundles_adopted_at": "2026-08-14",
-  "reviewer_independence": {
-    "milestone": "same-actor-separate-execution",
-    "roadmap": "same-actor-separate-execution",
-    "spec": "same-actor-separate-execution"
-  },
-  "schema_version": 2,
-  "structural_causality_adopted_at": "2026-09-20",
-  "unmapped_component_behavior": "warning"
+  "overlay_profiles": []
 }
