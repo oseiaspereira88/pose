@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:5e46e9650d9b5546016066610db3e607ed13905ab20f9b81973f56f2d232d1bb",
-  "provenance_digest": "sha256:cd5094e768beb89c8d3c1910a530b6b056b75fd185bf3a7b61722b6144f5815a",
+  "input_digest": "sha256:6318ea715dffad909d369bb9978808c65ebdb8e4786b35b2ef0a88afd4f77577",
+  "provenance_digest": "sha256:3cf75b98eb691c0746295e55f9a3af9e0c7270dff7bcb0c6e11509ea1d454a1b",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -12985,6 +12985,14 @@
       }
     },
     {
+      "id": "change-set:cs-1d8c284959ff",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:5552c5052b14d248735415c4fe8555b3e6ccfb04bbe17f31b69254330e711ca4",
+        "selector": "trailers:pose-abm-remediation-lineage"
+      }
+    },
+    {
       "id": "change-set:cs-1d9c2d95cece",
       "type": "change-set",
       "attributes": {
@@ -15903,7 +15911,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -15917,7 +15925,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -15931,14 +15939,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -15966,7 +15974,7 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "false"
+        "passed": "true"
       }
     },
     {
@@ -18248,6 +18256,16 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/adr/2026-09-20-explicit-remediation-links-in-spec-frontmatter.md",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/adr/2026-09-20-explicit-remediation-links-in-spec-frontmatter.md",
+      "to": "delivery:surface:remediation-lineage-lint",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/assessments/README.md",
       "to": "delivery:capability:pose-usage-analytics",
       "type": "implemented-by"
@@ -18324,6 +18342,11 @@
     },
     {
       "from": "artifact:.pose/assessments/consolidated.md",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/consolidated.md",
       "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
     },
@@ -18375,6 +18398,11 @@
     {
       "from": "artifact:.pose/assessments/consolidated.md",
       "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/consolidated.md",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -18390,6 +18418,11 @@
     {
       "from": "artifact:.pose/assessments/integrations.md",
       "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/integrations.md",
+      "to": "delivery:capability:remediation-lineage",
       "type": "implemented-by"
     },
     {
@@ -18444,12 +18477,22 @@
     },
     {
       "from": "artifact:.pose/assessments/integrations.md",
+      "to": "delivery:surface:remediation-lineage-lint",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/integrations.md",
       "to": "delivery:surface:review-bundle-cli",
       "type": "implemented-by"
     },
     {
       "from": "artifact:.pose/assessments/pose-mcp.md",
       "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/pose-mcp.md",
+      "to": "delivery:capability:remediation-lineage",
       "type": "implemented-by"
     },
     {
@@ -18505,6 +18548,11 @@
     {
       "from": "artifact:.pose/assessments/pose-mcp.md",
       "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/assessments/pose-mcp.md",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -18924,6 +18972,11 @@
     },
     {
       "from": "artifact:.pose/indexes/delivery-integrity.json",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/delivery-integrity.json",
       "to": "delivery:contract:delivery-integrity-mcp",
       "type": "implemented-by"
     },
@@ -18980,6 +19033,11 @@
     {
       "from": "artifact:.pose/indexes/delivery-integrity.json",
       "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/delivery-integrity.json",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -19174,6 +19232,11 @@
     },
     {
       "from": "artifact:.pose/indexes/validation-matrix.json",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/validation-matrix.json",
       "to": "delivery:capability:validation-scanner-consolidation",
       "type": "implemented-by"
     },
@@ -19220,6 +19283,11 @@
     {
       "from": "artifact:.pose/indexes/validation-matrix.json",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/validation-matrix.json",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -19524,6 +19592,11 @@
     },
     {
       "from": "artifact:.pose/results/delivery-validation.json",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/results/delivery-validation.json",
       "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
     },
@@ -19575,6 +19648,11 @@
     {
       "from": "artifact:.pose/results/delivery-validation.json",
       "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/results/delivery-validation.json",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -19725,6 +19803,16 @@
     {
       "from": "artifact:.pose/specs/2026-09-19-pose-abm-progressive-review.md",
       "to": "delivery:governance:abm-progressive-review",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/2026-09-19-pose-abm-remediation-lineage.md",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/2026-09-19-pose-abm-remediation-lineage.md",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -20059,6 +20147,11 @@
     },
     {
       "from": "artifact:.pose/state/components/pose-mcp.json",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/components/pose-mcp.json",
       "to": "delivery:contract:mcp-active-context",
       "type": "implemented-by"
     },
@@ -20119,6 +20212,11 @@
     },
     {
       "from": "artifact:.pose/state/components/pose-mcp.json",
+      "to": "delivery:surface:remediation-lineage-lint",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/components/pose-mcp.json",
       "to": "delivery:surface:review-bundle-cli",
       "type": "implemented-by"
     },
@@ -20140,6 +20238,11 @@
     {
       "from": "artifact:.pose/state/integrations.json",
       "to": "delivery:capability:pose-usage-analytics",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/integrations.json",
+      "to": "delivery:capability:remediation-lineage",
       "type": "implemented-by"
     },
     {
@@ -20190,6 +20293,11 @@
     {
       "from": "artifact:.pose/state/integrations.json",
       "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/state/integrations.json",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -20324,6 +20432,11 @@
     },
     {
       "from": "artifact:.pose/templates/spec.md",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/templates/spec.md",
       "to": "delivery:contract:delivery-integrity-mcp",
       "type": "implemented-by"
     },
@@ -20335,6 +20448,11 @@
     {
       "from": "artifact:.pose/templates/spec.md",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/templates/spec.md",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -23639,7 +23757,17 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/governance_stats.go",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/governance_stats.go",
       "to": "delivery:governance:governance-outcomes-projection",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/governance_stats.go",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -23889,6 +24017,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/lintspec.go",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/lintspec.go",
       "to": "delivery:contract:covered-followup-anchor-verification",
       "type": "implemented-by"
     },
@@ -23935,6 +24068,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/lintspec.go",
       "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/lintspec.go",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -24170,6 +24308,16 @@
     {
       "from": "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/remediation_lineage_test.go",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/remediation_lineage_test.go",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -25759,7 +25907,17 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/governance_outcomes.go",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/governance_outcomes.go",
       "to": "delivery:governance:governance-outcomes-projection",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/governance_outcomes.go",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -25813,6 +25971,26 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/pose/remediation_lineage.go",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/remediation_lineage.go",
+      "to": "delivery:surface:remediation-lineage-lint",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/remediation_lineage_test.go",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/remediation_lineage_test.go",
+      "to": "delivery:surface:remediation-lineage-lint",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/pose/review_authority_test.go",
       "to": "delivery:governance:authority-fixture-clock",
       "type": "implemented-by"
@@ -25855,6 +26033,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/review_bundle.go",
       "to": "delivery:capability:pose-mcp",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "to": "delivery:capability:remediation-lineage",
       "type": "implemented-by"
     },
     {
@@ -25930,6 +26113,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/review_bundle.go",
       "to": "delivery:governance:verified-review-authority",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -26019,6 +26207,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/review_closeout.go",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/review_closeout.go",
       "to": "delivery:capability:unified-review-convergence",
       "type": "implemented-by"
     },
@@ -26065,6 +26258,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/review_closeout.go",
       "to": "delivery:governance:verified-review-authority",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/review_closeout.go",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -26148,6 +26346,16 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/pose/schema_test.go",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/schema_test.go",
+      "to": "delivery:surface:remediation-lineage-lint",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/pose/spec.go",
       "to": "delivery:capability:delivery-integrity-graph",
       "type": "implemented-by"
@@ -26164,6 +26372,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/spec.go",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/spec.go",
       "to": "delivery:capability:specs-discovery-cli",
       "type": "implemented-by"
     },
@@ -26175,6 +26388,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/spec.go",
       "to": "delivery:surface:delivery-integrity-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/spec.go",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -26559,7 +26777,17 @@
     },
     {
       "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
       "to": "delivery:governance:design-basis-projection",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -27609,6 +27837,11 @@
     },
     {
       "from": "artifact:pose-mcp/schemas/v1/review-bundle.schema.json",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/schemas/v1/review-bundle.schema.json",
       "to": "delivery:contract:review-bundle-mcp",
       "type": "implemented-by"
     },
@@ -27629,6 +27862,11 @@
     },
     {
       "from": "artifact:pose-mcp/schemas/v1/review-bundle.schema.json",
+      "to": "delivery:surface:remediation-lineage-lint",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/schemas/v1/review-bundle.schema.json",
       "to": "delivery:surface:review-bundle-cli",
       "type": "implemented-by"
     },
@@ -27645,6 +27883,16 @@
     {
       "from": "artifact:pose-mcp/schemas/v1/review-plan.schema.json",
       "to": "delivery:governance:explicit-judgment",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/schemas/v1/spec.schema.json",
+      "to": "delivery:capability:remediation-lineage",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/schemas/v1/spec.schema.json",
+      "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
     {
@@ -33525,6 +33773,146 @@
     {
       "from": "change-set:cs-1d8befda8092",
       "to": "artifact:tests/release/independent-verify.sh",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/adr/2026-09-20-explicit-remediation-links-in-spec-frontmatter.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/assessments/consolidated.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/assessments/integrations.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/assessments/pose-mcp.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/results/delivery-validation.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/specs/2026-09-19-pose-abm-remediation-lineage.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/state/components/pose-mcp.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/state/history.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/state/integrations.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/state/project-state.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/state/refresh-log.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:.pose/templates/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/cli/governance_stats.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/cli/lintspec.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/cli/remediation_lineage_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/pose/governance_outcomes.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/pose/remediation_lineage.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/pose/remediation_lineage_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/pose/review_closeout.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/pose/schema_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/pose/spec.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/schemas/v1/review-bundle.schema.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-1d8c284959ff",
+      "to": "artifact:pose-mcp/schemas/v1/spec.schema.json",
       "type": "changes"
     },
     {
@@ -53568,6 +53956,31 @@
       "type": "composes"
     },
     {
+      "from": "delivery:capability:remediation-lineage",
+      "to": "validation-result:pose-mcp/go/abm-progressive-review-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:remediation-lineage",
+      "to": "validation-result:pose-mcp/go/abm-remediation-lineage-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:remediation-lineage",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:remediation-lineage",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:remediation-lineage",
+      "to": "validation-result:pose-mcp/go/review-policy-adoption-integration",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:capability:review-bundle-roadmap-path-portability",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -56563,6 +56976,11 @@
       "type": "reaches"
     },
     {
+      "from": "delivery:surface:remediation-lineage-lint",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:surface:review-bundle-classification",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "reaches"
@@ -58724,6 +59142,11 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-reachability",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
@@ -60104,6 +60527,31 @@
     },
     {
       "from": "entrypoint:pose-mcp/internal/pose/review_authority_test.go",
+      "to": "validation-result:pose-mcp/go/review-policy-adoption-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/internal/pose/review_bundle.go",
+      "to": "validation-result:pose-mcp/go/abm-progressive-review-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/internal/pose/review_bundle.go",
+      "to": "validation-result:pose-mcp/go/abm-remediation-lineage-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/internal/pose/review_bundle.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/internal/pose/review_bundle.go",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/internal/pose/review_bundle.go",
       "to": "validation-result:pose-mcp/go/review-policy-adoption-integration",
       "type": "validated-by"
     },
@@ -61139,11 +61587,6 @@
     },
     {
       "from": "spec:pose-abm-remediation-lineage",
-      "to": "artifact:.pose/assessments/README.md",
-      "type": "declares"
-    },
-    {
-      "from": "spec:pose-abm-remediation-lineage",
       "to": "artifact:.pose/assessments/consolidated.md",
       "type": "declares"
     },
@@ -61266,6 +61709,11 @@
       "from": "spec:pose-abm-remediation-lineage",
       "to": "delivery:surface:remediation-lineage-lint",
       "type": "delivers"
+    },
+    {
+      "from": "spec:pose-abm-remediation-lineage",
+      "to": "change-set:cs-1d8c284959ff",
+      "type": "observed-by"
     },
     {
       "from": "spec:pose-abm-review-authority",
@@ -71977,11 +72425,6 @@
     {
       "spec": "pose-abm-remediation-lineage",
       "action": "created",
-      "path": ".pose/specs/2026-09-19-pose-abm-remediation-lineage.md"
-    },
-    {
-      "spec": "pose-abm-remediation-lineage",
-      "action": "created",
       "path": "pose-mcp/internal/cli/remediation_lineage_test.go"
     },
     {
@@ -71993,11 +72436,6 @@
       "spec": "pose-abm-remediation-lineage",
       "action": "created",
       "path": "pose-mcp/internal/pose/remediation_lineage_test.go"
-    },
-    {
-      "spec": "pose-abm-remediation-lineage",
-      "action": "modified",
-      "path": ".pose/assessments/README.md"
     },
     {
       "spec": "pose-abm-remediation-lineage",
@@ -72028,6 +72466,11 @@
       "spec": "pose-abm-remediation-lineage",
       "action": "modified",
       "path": ".pose/results/delivery-validation.json"
+    },
+    {
+      "spec": "pose-abm-remediation-lineage",
+      "action": "modified",
+      "path": ".pose/specs/2026-09-19-pose-abm-remediation-lineage.md"
     },
     {
       "spec": "pose-abm-remediation-lineage",
@@ -85245,6 +85688,133 @@
         }
       ],
       "diff_digest": "sha256:3a2fcf040340a9d8c2d03c1a8edc493254303df31d95ca0e0fd615e2929677a0"
+    },
+    {
+      "id": "cs-1d8c284959ff",
+      "spec": "pose-abm-remediation-lineage",
+      "selector": "trailers:pose-abm-remediation-lineage",
+      "base": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb^",
+      "head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "resolved_base": "07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a",
+      "resolved_head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "commits": [
+        "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-09-20-explicit-remediation-links-in-spec-frontmatter.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/remediation_lineage_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/remediation_lineage.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/remediation_lineage_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/consolidated.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/integrations.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/pose-mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-09-19-pose-abm-remediation-lineage.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/pose-mcp.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/history.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/integrations.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/refresh-log.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/templates/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/governance_stats.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/lintspec.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_outcomes.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/schema_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/templates/spec.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/schemas/v1/review-bundle.schema.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/schemas/v1/spec.schema.json"
+        }
+      ],
+      "diff_digest": "sha256:5552c5052b14d248735415c4fe8555b3e6ccfb04bbe17f31b69254330e711ca4"
     },
     {
       "id": "cs-1d9c2d95cece",
@@ -103687,7 +104257,6 @@
       "pose-abm-design-basis",
       "pose-abm-doctor-state-health",
       "pose-abm-progressive-review",
-      "pose-abm-remediation-lineage",
       "pose-abm-review-authority",
       "pose-abm-structural-delta",
       "pose-component-aware-review-plans",
@@ -106975,15 +107544,6 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
-      "id": "dif-067a6f159bb7",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/schemas/v1/spec.schema.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-07672c04fab3",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -107014,15 +107574,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-08b848e9fd34",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/indexes/delivery-integrity.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-0943b2449d2a",
       "code": "orphan",
       "severity": "warning",
@@ -107049,15 +107600,6 @@
       "change_set": "cs-2db38f1c8aa9",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-0980bdd14a7d",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/cli/remediation_lineage_test.go",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-09ac23d2015a",
@@ -107122,15 +107664,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-0bdf7d24387e",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/pose/governance_outcomes.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-0bf9c2c1c4fe",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -107159,15 +107692,6 @@
       "change_set": "cs-729df8835b26",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-0cdcd0283477",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/cli/lintspec.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-0d9dab3fd353",
@@ -107210,6 +107734,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-0f89b4d17573",
+      "code": "inferred-coverage",
+      "severity": "warning",
+      "spec": "pose-abm-remediation-lineage",
+      "path": "capability:remediation-lineage",
+      "message": "evidence for integration comes only from a module containing pose-mcp/internal/pose, so covering it is inferred rather than reported",
+      "remediation": "register a check for pose-mcp/internal/pose, or accept that a run of the containing module is what this target is gated on"
+    },
+    {
       "id": "dif-0f8db18f4672",
       "code": "action-mismatch",
       "severity": "error",
@@ -107247,15 +107780,6 @@
       "change_set": "cs-2398efe06611",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
-      "id": "dif-0fee877137de",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/pose/review_closeout.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-104ce61c1ed3",
@@ -107305,15 +107829,6 @@
       "change_set": "cs-d06d1181ef09",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
-      "id": "dif-136e77972a3a",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/pose/review_bundle.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-148a773f6031",
@@ -108039,15 +108554,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-32a13bdefa67",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/results/delivery-validation.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-32a16a924e7e",
       "code": "undeclared",
       "severity": "error",
@@ -108224,6 +108730,15 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-3c3f88e53d14",
+      "code": "inferred-coverage",
+      "severity": "warning",
+      "spec": "pose-abm-remediation-lineage",
+      "path": "surface:remediation-lineage-lint",
+      "message": "evidence for reachability comes only from a module containing pose-mcp/internal/cli, so covering it is inferred rather than reported",
+      "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
+    },
+    {
       "id": "dif-3c42da5732be",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -108241,15 +108756,6 @@
       "path": ".pose/specs/2026-09-12-pose-cli-output-machine-channel.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-cli-output-machine-channel (ensure commits carry 'POSE-Spec: pose-cli-output-machine-channel' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-3c92e0a68d87",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/indexes/validation-matrix.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-3cb7278b7bdf",
@@ -108493,15 +108999,6 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
-      "id": "dif-47f13f73356e",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/cli/governance_stats.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-48081db4d73b",
       "code": "undeclared",
       "severity": "error",
@@ -108574,15 +109071,6 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
-      "id": "dif-49bc4272501a",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/assessments/README.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-49d9c29a87a8",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -108619,15 +109107,6 @@
       "change_set": "cs-26bfef3192dd",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
-      "id": "dif-4ab527d37896",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/pose/remediation_lineage.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-4bcce159c871",
@@ -108693,15 +109172,6 @@
       "spec": "pose-safe-validate-orchestration",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-4ed2950441f0",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/pose/schema_test.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-4f2c58567188",
@@ -109787,15 +110257,6 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
-      "id": "dif-7df5b8ecd459",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/pose/remediation_lineage.go",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
       "id": "dif-7e5948dd826c",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -109897,15 +110358,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-8335ea28af88",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/templates/spec.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-8350dbc3ff82",
       "code": "undeclared",
       "severity": "error",
@@ -109974,15 +110426,6 @@
       "change_set": "cs-729df8835b26",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-8548e44cf47a",
-      "code": "surface-without-reachability",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "surface:remediation-lineage-lint",
-      "message": "required current evidence is missing: reachability, one-of:integration|e2e",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-858514a0cb32",
@@ -110223,15 +110666,6 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
-      "id": "dif-8fa0f1057c60",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/cli/remediation_lineage_test.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-8fc456d4df46",
       "code": "orphan",
       "severity": "warning",
@@ -110330,15 +110764,6 @@
       "path": "pose-mcp/internal/pose/artifacts.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-940075332d08",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/schemas/v1/review-bundle.schema.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-945ceaab2316",
@@ -110680,15 +111105,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-a2e26fa26835",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-a4774677d92e",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -110705,15 +111121,6 @@
       "path": "pose-mcp/internal/cli/telemetry.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-a4d7d944cbae",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/adr/2026-09-20-explicit-remediation-links-in-spec-frontmatter.md",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-a5d2a7315e77",
@@ -111094,15 +111501,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-b5913f1460cd",
-      "code": "surface-without-provenance",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "surface:remediation-lineage-lint",
-      "message": "delivery target has no structured artifact provenance",
-      "remediation": "declare and reconcile exact artifacts before asserting delivery"
-    },
-    {
       "id": "dif-b5a98739a772",
       "code": "orphan",
       "severity": "warning",
@@ -111214,16 +111612,6 @@
       "change_set": "cs-2398efe06611",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-ba18c1131e77",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "capability:remediation-lineage",
-      "change_set": "pose-mcp/go/abm-progressive-review-integration",
-      "message": "passed integration evidence is bound to a different scoped provenance digest",
-      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-ba387386acc2",
@@ -111366,15 +111754,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-bfae5a62ddf2",
-      "code": "unconnected-artifact",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "capability:remediation-lineage",
-      "message": "delivery target has no structured artifact provenance",
-      "remediation": "declare and reconcile exact artifacts before asserting delivery"
-    },
-    {
       "id": "dif-c087aa04fcd7",
       "code": "orphan",
       "severity": "warning",
@@ -111436,15 +111815,6 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp/internal/mcpserver has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-c38e671f123b",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/pose/remediation_lineage_test.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-c3abf51e63b7",
@@ -111523,16 +111893,6 @@
       "change_set": "cs-337e6bf5ac09",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-c83d9878060d",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "surface:remediation-lineage-lint",
-      "change_set": "pose-mcp/go/delivery-reachability",
-      "message": "passed reachability evidence is bound to a different scoped provenance digest",
-      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-c8631fc47396",
@@ -111705,15 +112065,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-cf7d28411104",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/pose/remediation_lineage_test.go",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
       "id": "dif-cf80c1263cae",
       "code": "undeclared",
       "severity": "error",
@@ -111740,15 +112091,6 @@
       "path": "pose-mcp/internal/pose/capabilities_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-d0b1a0e7c698",
-      "code": "unconsumed-capability",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "capability:remediation-lineage",
-      "message": "required current evidence is missing: integration",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-d155419c8b01",
@@ -111818,15 +112160,6 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
-      "id": "dif-d48f520324bf",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/assessments/pose-mcp.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-d52cb8716c95",
       "code": "undeclared",
       "severity": "error",
@@ -111845,15 +112178,6 @@
       "change_set": "cs-0deb92c04bfc",
       "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-d59cbc6fab95",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/assessments/integrations.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-d5b1c90f0fdb",
@@ -111892,15 +112216,6 @@
       "change_set": "cs-493232c1fe2c",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-d8e341e4c6d1",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": "pose-mcp/internal/pose/spec.go",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-d9a1cad76ad6",
@@ -112100,15 +112415,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-e1313ddffc9b",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/specs/2026-09-19-pose-abm-remediation-lineage.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-e14ffddd6580",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -112157,15 +112463,6 @@
       "change_set": "cs-2398efe06611",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-e3d6a4a4a087",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/assessments/consolidated.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-e46d3719a534",
@@ -112336,15 +112633,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-e925d3eb7651",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/state/integrations.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
-    },
-    {
       "id": "dif-e992b58489be",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -112462,15 +112750,6 @@
       "change_set": "cs-85b511dc44b9",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
-      "id": "dif-ecce2c6b4e22",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/adr/2026-09-20-explicit-remediation-links-in-spec-frontmatter.md",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-ed43bd23061e",
@@ -112605,15 +112884,6 @@
       "path": "surface:review-policy-adoption",
       "message": "evidence for reachability comes only from a module containing pose-mcp/internal/cli, so covering it is inferred rather than reported",
       "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
-    },
-    {
-      "id": "dif-f24db0b3bd30",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-abm-remediation-lineage",
-      "path": ".pose/state/components/pose-mcp.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-abm-remediation-lineage (ensure commits carry 'POSE-Spec: pose-abm-remediation-lineage' trailer or generate report with pose report)"
     },
     {
       "id": "dif-f2d0d6ea39e2",
@@ -114357,9 +114627,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a",
-      "generated_at": "2026-09-20T19:39:56Z",
-      "provenance_digest": "sha256:c77db73b2371d9ca84f81b42f7086ca3193329525b284ba1a98776b388e6b2e4",
+      "git_head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "generated_at": "2026-09-20T19:43:35Z",
+      "provenance_digest": "sha256:3cf75b98eb691c0746295e55f9a3af9e0c7270dff7bcb0c6e11509ea1d454a1b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -114369,6 +114639,7 @@
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
         "pose-abm-governance-outcomes": "sha256:58edf3bedfbf53f0bd92fef56c4836db5e0a3588c6c845daaacd9486f7b50949",
         "pose-abm-progressive-review": "sha256:e34038bdda5a90b32ac946116f16ce8e41fd579890b0c4d7e6fe49eda58f546d",
+        "pose-abm-remediation-lineage": "sha256:d751aced4297f6ef396ab4eeaff073f5e0700938a81214bfcd5b5ec25e98f41c",
         "pose-abm-review-authority": "sha256:14eabad2f1a5870e5ce23baf7eec5a58cf81dd5f29318bfcb15847b774fa17ab",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
         "pose-abm-review-tool-deferred-without-delivery": "sha256:b50f17e4543b2d6b608648924526f617f0a472003734d7d15e4ae711ac59455e",
@@ -114551,9 +114822,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a",
-      "generated_at": "2026-09-20T19:39:56Z",
-      "provenance_digest": "sha256:c77db73b2371d9ca84f81b42f7086ca3193329525b284ba1a98776b388e6b2e4",
+      "git_head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "generated_at": "2026-09-20T19:43:35Z",
+      "provenance_digest": "sha256:3cf75b98eb691c0746295e55f9a3af9e0c7270dff7bcb0c6e11509ea1d454a1b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -114563,6 +114834,7 @@
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
         "pose-abm-governance-outcomes": "sha256:58edf3bedfbf53f0bd92fef56c4836db5e0a3588c6c845daaacd9486f7b50949",
         "pose-abm-progressive-review": "sha256:e34038bdda5a90b32ac946116f16ce8e41fd579890b0c4d7e6fe49eda58f546d",
+        "pose-abm-remediation-lineage": "sha256:d751aced4297f6ef396ab4eeaff073f5e0700938a81214bfcd5b5ec25e98f41c",
         "pose-abm-review-authority": "sha256:14eabad2f1a5870e5ce23baf7eec5a58cf81dd5f29318bfcb15847b774fa17ab",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
         "pose-abm-review-tool-deferred-without-delivery": "sha256:b50f17e4543b2d6b608648924526f617f0a472003734d7d15e4ae711ac59455e",
@@ -114745,9 +115017,9 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a",
-      "generated_at": "2026-09-20T19:39:56Z",
-      "provenance_digest": "sha256:c77db73b2371d9ca84f81b42f7086ca3193329525b284ba1a98776b388e6b2e4",
+      "git_head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "generated_at": "2026-09-20T19:43:35Z",
+      "provenance_digest": "sha256:3cf75b98eb691c0746295e55f9a3af9e0c7270dff7bcb0c6e11509ea1d454a1b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -114757,6 +115029,7 @@
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
         "pose-abm-governance-outcomes": "sha256:58edf3bedfbf53f0bd92fef56c4836db5e0a3588c6c845daaacd9486f7b50949",
         "pose-abm-progressive-review": "sha256:e34038bdda5a90b32ac946116f16ce8e41fd579890b0c4d7e6fe49eda58f546d",
+        "pose-abm-remediation-lineage": "sha256:d751aced4297f6ef396ab4eeaff073f5e0700938a81214bfcd5b5ec25e98f41c",
         "pose-abm-review-authority": "sha256:14eabad2f1a5870e5ce23baf7eec5a58cf81dd5f29318bfcb15847b774fa17ab",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
         "pose-abm-review-tool-deferred-without-delivery": "sha256:b50f17e4543b2d6b608648924526f617f0a472003734d7d15e4ae711ac59455e",
@@ -114939,9 +115212,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a",
-      "generated_at": "2026-09-20T19:39:56Z",
-      "provenance_digest": "sha256:c77db73b2371d9ca84f81b42f7086ca3193329525b284ba1a98776b388e6b2e4",
+      "git_head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "generated_at": "2026-09-20T19:43:35Z",
+      "provenance_digest": "sha256:3cf75b98eb691c0746295e55f9a3af9e0c7270dff7bcb0c6e11509ea1d454a1b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -114951,6 +115224,7 @@
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
         "pose-abm-governance-outcomes": "sha256:58edf3bedfbf53f0bd92fef56c4836db5e0a3588c6c845daaacd9486f7b50949",
         "pose-abm-progressive-review": "sha256:e34038bdda5a90b32ac946116f16ce8e41fd579890b0c4d7e6fe49eda58f546d",
+        "pose-abm-remediation-lineage": "sha256:d751aced4297f6ef396ab4eeaff073f5e0700938a81214bfcd5b5ec25e98f41c",
         "pose-abm-review-authority": "sha256:14eabad2f1a5870e5ce23baf7eec5a58cf81dd5f29318bfcb15847b774fa17ab",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
         "pose-abm-review-tool-deferred-without-delivery": "sha256:b50f17e4543b2d6b608648924526f617f0a472003734d7d15e4ae711ac59455e",
@@ -115133,9 +115407,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a",
-      "generated_at": "2026-09-20T19:39:56Z",
-      "provenance_digest": "sha256:c77db73b2371d9ca84f81b42f7086ca3193329525b284ba1a98776b388e6b2e4",
+      "git_head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "generated_at": "2026-09-20T19:43:35Z",
+      "provenance_digest": "sha256:3cf75b98eb691c0746295e55f9a3af9e0c7270dff7bcb0c6e11509ea1d454a1b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -115145,6 +115419,7 @@
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
         "pose-abm-governance-outcomes": "sha256:58edf3bedfbf53f0bd92fef56c4836db5e0a3588c6c845daaacd9486f7b50949",
         "pose-abm-progressive-review": "sha256:e34038bdda5a90b32ac946116f16ce8e41fd579890b0c4d7e6fe49eda58f546d",
+        "pose-abm-remediation-lineage": "sha256:d751aced4297f6ef396ab4eeaff073f5e0700938a81214bfcd5b5ec25e98f41c",
         "pose-abm-review-authority": "sha256:14eabad2f1a5870e5ce23baf7eec5a58cf81dd5f29318bfcb15847b774fa17ab",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
         "pose-abm-review-tool-deferred-without-delivery": "sha256:b50f17e4543b2d6b608648924526f617f0a472003734d7d15e4ae711ac59455e",
@@ -115327,9 +115602,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a",
-      "generated_at": "2026-09-20T19:39:56Z",
-      "provenance_digest": "sha256:c77db73b2371d9ca84f81b42f7086ca3193329525b284ba1a98776b388e6b2e4",
+      "git_head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "generated_at": "2026-09-20T19:43:35Z",
+      "provenance_digest": "sha256:3cf75b98eb691c0746295e55f9a3af9e0c7270dff7bcb0c6e11509ea1d454a1b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -115339,6 +115614,7 @@
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
         "pose-abm-governance-outcomes": "sha256:58edf3bedfbf53f0bd92fef56c4836db5e0a3588c6c845daaacd9486f7b50949",
         "pose-abm-progressive-review": "sha256:e34038bdda5a90b32ac946116f16ce8e41fd579890b0c4d7e6fe49eda58f546d",
+        "pose-abm-remediation-lineage": "sha256:d751aced4297f6ef396ab4eeaff073f5e0700938a81214bfcd5b5ec25e98f41c",
         "pose-abm-review-authority": "sha256:14eabad2f1a5870e5ce23baf7eec5a58cf81dd5f29318bfcb15847b774fa17ab",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
         "pose-abm-review-tool-deferred-without-delivery": "sha256:b50f17e4543b2d6b608648924526f617f0a472003734d7d15e4ae711ac59455e",
@@ -115521,9 +115797,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a",
-      "generated_at": "2026-09-20T19:39:56Z",
-      "provenance_digest": "sha256:c77db73b2371d9ca84f81b42f7086ca3193329525b284ba1a98776b388e6b2e4",
+      "git_head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "generated_at": "2026-09-20T19:43:35Z",
+      "provenance_digest": "sha256:3cf75b98eb691c0746295e55f9a3af9e0c7270dff7bcb0c6e11509ea1d454a1b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -115533,6 +115809,7 @@
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
         "pose-abm-governance-outcomes": "sha256:58edf3bedfbf53f0bd92fef56c4836db5e0a3588c6c845daaacd9486f7b50949",
         "pose-abm-progressive-review": "sha256:e34038bdda5a90b32ac946116f16ce8e41fd579890b0c4d7e6fe49eda58f546d",
+        "pose-abm-remediation-lineage": "sha256:d751aced4297f6ef396ab4eeaff073f5e0700938a81214bfcd5b5ec25e98f41c",
         "pose-abm-review-authority": "sha256:14eabad2f1a5870e5ce23baf7eec5a58cf81dd5f29318bfcb15847b774fa17ab",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
         "pose-abm-review-tool-deferred-without-delivery": "sha256:b50f17e4543b2d6b608648924526f617f0a472003734d7d15e4ae711ac59455e",
@@ -115715,9 +115992,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a",
-      "generated_at": "2026-09-20T19:39:56Z",
-      "provenance_digest": "sha256:c77db73b2371d9ca84f81b42f7086ca3193329525b284ba1a98776b388e6b2e4",
+      "git_head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "generated_at": "2026-09-20T19:43:35Z",
+      "provenance_digest": "sha256:3cf75b98eb691c0746295e55f9a3af9e0c7270dff7bcb0c6e11509ea1d454a1b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -115727,6 +116004,7 @@
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
         "pose-abm-governance-outcomes": "sha256:58edf3bedfbf53f0bd92fef56c4836db5e0a3588c6c845daaacd9486f7b50949",
         "pose-abm-progressive-review": "sha256:e34038bdda5a90b32ac946116f16ce8e41fd579890b0c4d7e6fe49eda58f546d",
+        "pose-abm-remediation-lineage": "sha256:d751aced4297f6ef396ab4eeaff073f5e0700938a81214bfcd5b5ec25e98f41c",
         "pose-abm-review-authority": "sha256:14eabad2f1a5870e5ce23baf7eec5a58cf81dd5f29318bfcb15847b774fa17ab",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
         "pose-abm-review-tool-deferred-without-delivery": "sha256:b50f17e4543b2d6b608648924526f617f0a472003734d7d15e4ae711ac59455e",
@@ -115909,9 +116187,9 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "07ea6ce00a213be47ec34bd0ef5b7fc0123ab08a",
-      "generated_at": "2026-09-20T19:39:56Z",
-      "provenance_digest": "sha256:c77db73b2371d9ca84f81b42f7086ca3193329525b284ba1a98776b388e6b2e4",
+      "git_head": "eb1a104a28b278bb02d34d1fcfcee91c80e6c0fb",
+      "generated_at": "2026-09-20T19:43:35Z",
+      "provenance_digest": "sha256:3cf75b98eb691c0746295e55f9a3af9e0c7270dff7bcb0c6e11509ea1d454a1b",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:56497523585a4226cfed03c502d43fc6362ddcd3de66066be25b735a1adcda27",
@@ -115921,6 +116199,7 @@
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
         "pose-abm-governance-outcomes": "sha256:58edf3bedfbf53f0bd92fef56c4836db5e0a3588c6c845daaacd9486f7b50949",
         "pose-abm-progressive-review": "sha256:e34038bdda5a90b32ac946116f16ce8e41fd579890b0c4d7e6fe49eda58f546d",
+        "pose-abm-remediation-lineage": "sha256:d751aced4297f6ef396ab4eeaff073f5e0700938a81214bfcd5b5ec25e98f41c",
         "pose-abm-review-authority": "sha256:14eabad2f1a5870e5ce23baf7eec5a58cf81dd5f29318bfcb15847b774fa17ab",
         "pose-abm-review-soundness": "sha256:8ebe4b27f675544a56219abef33930f9c4eba669619004934d78a7dc80578748",
         "pose-abm-review-tool-deferred-without-delivery": "sha256:b50f17e4543b2d6b608648924526f617f0a472003734d7d15e4ae711ac59455e",
@@ -116106,10 +116385,7 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: test"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -116130,12 +116406,7 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: test",
-        "check is missing, failing or stale: delivery-integration",
-        "check is missing, failing or stale: delivery-reachability"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -116155,10 +116426,7 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-reachability"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -116169,10 +116437,7 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-integration"
-      ]
+      "passed": true
     },
     {
       "roadmap": "delivery-integrity",
@@ -116210,10 +116475,7 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": false,
-      "reasons": [
-        "check is missing, failing or stale: delivery-integration"
-      ]
+      "passed": true
     }
   ],
   "paths": {
@@ -116956,8 +117218,37 @@
     ],
     "capability:remediation-lineage": [
       "spec:pose-abm-remediation-lineage",
+      "artifact:.pose/adr/2026-09-20-explicit-remediation-links-in-spec-frontmatter.md",
+      "artifact:pose-mcp/internal/cli/remediation_lineage_test.go",
+      "artifact:pose-mcp/internal/pose/remediation_lineage.go",
+      "artifact:pose-mcp/internal/pose/remediation_lineage_test.go",
+      "artifact:.pose/assessments/consolidated.md",
+      "artifact:.pose/assessments/integrations.md",
+      "artifact:.pose/assessments/pose-mcp.md",
+      "artifact:.pose/indexes/delivery-integrity.json",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/results/delivery-validation.json",
+      "artifact:.pose/specs/2026-09-19-pose-abm-remediation-lineage.md",
+      "artifact:.pose/state/components/pose-mcp.json",
+      "artifact:.pose/state/integrations.json",
+      "artifact:.pose/templates/spec.md",
+      "artifact:pose-mcp/internal/cli/governance_stats.go",
+      "artifact:pose-mcp/internal/cli/lintspec.go",
+      "artifact:pose-mcp/internal/pose/governance_outcomes.go",
+      "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "artifact:pose-mcp/internal/pose/review_closeout.go",
+      "artifact:pose-mcp/internal/pose/schema_test.go",
+      "artifact:pose-mcp/internal/pose/spec.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
+      "artifact:pose-mcp/schemas/v1/review-bundle.schema.json",
+      "artifact:pose-mcp/schemas/v1/spec.schema.json",
       "delivery:capability:remediation-lineage",
-      "entrypoint:pose-mcp/internal/pose/review_bundle.go"
+      "entrypoint:pose-mcp/internal/pose/review_bundle.go",
+      "validation-result:pose-mcp/go/abm-progressive-review-integration",
+      "validation-result:pose-mcp/go/abm-remediation-lineage-integration",
+      "validation-result:pose-mcp/go/delivery-integration",
+      "validation-result:pose-mcp/go/review-bundle-convergence",
+      "validation-result:pose-mcp/go/review-policy-adoption-integration"
     ],
     "capability:review-bundle-roadmap-path-portability": [
       "spec:pose-review-bundle-roadmap-path-portability",
@@ -119317,8 +119608,33 @@
     ],
     "surface:remediation-lineage-lint": [
       "spec:pose-abm-remediation-lineage",
+      "artifact:.pose/adr/2026-09-20-explicit-remediation-links-in-spec-frontmatter.md",
+      "artifact:pose-mcp/internal/cli/remediation_lineage_test.go",
+      "artifact:pose-mcp/internal/pose/remediation_lineage.go",
+      "artifact:pose-mcp/internal/pose/remediation_lineage_test.go",
+      "artifact:.pose/assessments/consolidated.md",
+      "artifact:.pose/assessments/integrations.md",
+      "artifact:.pose/assessments/pose-mcp.md",
+      "artifact:.pose/indexes/delivery-integrity.json",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/results/delivery-validation.json",
+      "artifact:.pose/specs/2026-09-19-pose-abm-remediation-lineage.md",
+      "artifact:.pose/state/components/pose-mcp.json",
+      "artifact:.pose/state/integrations.json",
+      "artifact:.pose/templates/spec.md",
+      "artifact:pose-mcp/internal/cli/governance_stats.go",
+      "artifact:pose-mcp/internal/cli/lintspec.go",
+      "artifact:pose-mcp/internal/pose/governance_outcomes.go",
+      "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "artifact:pose-mcp/internal/pose/review_closeout.go",
+      "artifact:pose-mcp/internal/pose/schema_test.go",
+      "artifact:pose-mcp/internal/pose/spec.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
+      "artifact:pose-mcp/schemas/v1/review-bundle.schema.json",
+      "artifact:pose-mcp/schemas/v1/spec.schema.json",
       "delivery:surface:remediation-lineage-lint",
-      "entrypoint:pose-mcp/cmd/pose/main.go"
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/delivery-reachability"
     ],
     "surface:review-bundle-classification": [
       "spec:pose-review-bundle-component-discovery-and-governance-paths",

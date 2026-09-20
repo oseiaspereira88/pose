@@ -66,7 +66,7 @@ Aditivo e opt-in. Specs sem `remediates` continuam válidas e fora da populaçã
 governance-outcomes.
 
 ### Artifacts
-- created: .pose/specs/2026-09-19-pose-abm-remediation-lineage.md
+- modified: .pose/specs/2026-09-19-pose-abm-remediation-lineage.md
 - created: .pose/adr/2026-09-20-explicit-remediation-links-in-spec-frontmatter.md
 - created: pose-mcp/internal/pose/remediation_lineage.go
 - created: pose-mcp/internal/pose/remediation_lineage_test.go
@@ -81,7 +81,6 @@ governance-outcomes.
 - modified: .pose/indexes/validation-matrix.json
 - modified: .pose/templates/spec.md
 - modified: pose-mcp/internal/scaffold/dist/.pose/templates/spec.md
-- modified: .pose/assessments/README.md
 - modified: .pose/assessments/consolidated.md
 - modified: .pose/assessments/pose-mcp.md
 - modified: .pose/assessments/integrations.md
@@ -219,6 +218,18 @@ Neste repositório a projeção reporta `available=false` com motivo, porque nen
 entrega declara vínculo. Isso é o estado honesto e não um defeito: inferir o
 vínculo a partir de `depends_on` ou de proximidade temporal é exatamente o risco
 técnico que esta spec nomeou, e nenhum vínculo foi inventado para produzir número.
+
+Duas declarações de artifact estavam erradas e o gate as pegou: o arquivo desta
+spec foi declarado `created` quando foi criado em `e8fcf03`, fora deste change set, e
+`.pose/assessments/README.md` foi declarado modificado quando mudou em `d87ac16`, que
+pertence ao change set de outra spec. Ambas medidas no log do Git antes de corrigir.
+
+`surface-check --spec pose-abm-remediation-lineage --strict` sai 0 com dois avisos
+mantidos, não silenciados: a cobertura de `capability:remediation-lineage` e de
+`surface:remediation-lineage-lint` vem de uma execução do módulo que contém os
+caminhos, então cobri-los é inferido e não reportado. A composição é exercitada — o
+teste de CLI dirige o `lint-spec` entregue —, mas a granularidade da matriz é o
+módulo.
 
 ### Requirement trace
 
