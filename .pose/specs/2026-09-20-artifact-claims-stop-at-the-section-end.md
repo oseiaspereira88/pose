@@ -1,8 +1,8 @@
 ---
 slug: artifact-claims-stop-at-the-section-end
-status: in-progress
+status: done
 created_at: 2026-09-20
-completed_at:
+completed_at: 2026-09-20
 supersedes:
 depends_on:
 priority: 1
@@ -133,6 +133,15 @@ which it does.
 
 `delivery_integrity.go` was already outside `gofmt` before this change, verified by
 stashing; it is left as it was rather than reformatted in a bugfix.
+
+### Closeout
+
+2026-09-20 UTC. Bundle `rvb-d0670abf492ecc16`, twelve criteria, ten evidence items,
+under the five sealed contracts. Attestation `rva-dba88638a104f4c8`,
+`agent:claude-opus-5`, approved; `review-check` fresh and approved;
+`closeout-check` terminal. `surface-check --strict` exits 0 with one
+inferred-coverage warning kept, for the same module-granularity reason recorded on the
+two specs closed before it.
 
 ### Requirement trace
 

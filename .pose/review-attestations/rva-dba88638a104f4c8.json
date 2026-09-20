@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-dba88638a104f4c8",
+  "bundle_id": "rvb-d0670abf492ecc16",
+  "bundle_digest": "sha256:d0670abf492ecc16dd6b84fe8b0f0e2a775a0cb7800fc278baa6b1e94ac57b7a",
+  "reviewer": "agent:claude-opus-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "Measured over the real corpus rather than argued: 188 specs in this repository declare artifacts, and for each one every bullet the previous rule read that is a valid claim action is still a claim. Nothing stored changes, because claims are parsed and not persisted. The only behaviour that moves is a list that was being read past the end of its own section."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The rule carries its reason at the function that implements it, naming the scaffold layout and the repository-wide failure it caused. The spec records both of my own mistakes — a baseline that compared empty bodies, and an injection that had to restore the exact previous condition — and the residual risk that a fourth-level subsection inside Artifacts now ends the section."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "This restores a gate rather than adding one: artifact-check and roadmap-check were refusing whole runs for one spec's layout. Deterministic, no new input, no persistence. Reverting is reverting one condition, and the corpus would catch the revert. delivery_integrity.go was already outside gofmt before this change, verified by stashing, and is left as it was rather than reformatted inside a bugfix."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-2ab738b61a19de6e",
+      "rationale": "Eight claims against the attributed change set: one parser condition, one test file, the registered producer and the regenerated evidence. The workaround I had added to another draft spec is left in place because it is meaningful content, not because it is still needed. No other parser or section rule was touched."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "Spec bodies are untrusted repository content and the change narrows what is read from them, never widens it: the section now stops earlier, so fewer lines reach claim parsing. Path validation, the closed action grammar and the contradiction checks downstream are unchanged, and the baseline proves no path that used to be validated is now skipped."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/artifact-claim-boundary-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-2ab738b61a19de6e",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-20T19:53:30Z",
+  "path": ".pose/review-attestations/rva-dba88638a104f4c8.json"
+}
