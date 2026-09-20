@@ -9,6 +9,14 @@
       "digest": "sha256:e27955a9a4548bfb4f21893c346d7206de2cc7cdf2a637eb0c04c5578782ccfb"
     },
     {
+      "spec": "check-builds-the-delivery-graph-once",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose check` builds the delivery graph once instead of once per completed spec. It\nrebuilt the whole graph for every done spec, which on this repository was 117 builds\nat about five seconds each: 600 of the 635 seconds the gate took, growing with every\nspec closed. `check --strict` now completes in 39 seconds with byte-identical\nfindings. The reuse is possible because `focusSurfaceGraph` no longer filters through\nthe caller's backing array, which had been truncating the graph it was handed.",
+      "path": "check-builds-the-delivery-graph-once.md",
+      "digest": "sha256:eebda9598555eb1291b1767adf001e77430f21566b1138661e152859562f5bbe"
+    },
+    {
       "spec": "check-strict-verdict-names-its-mode",
       "category": "fixed",
       "breaking": false,
