@@ -1,8 +1,8 @@
 ---
 slug: pose-qualified-artifact-resolution
-status: in-progress
+status: done
 created_at: 2026-09-21
-completed_at:
+completed_at: 2026-09-21
 supersedes:
 depends_on: 
 priority: 0
@@ -113,8 +113,8 @@ An alias based on a checkout name can silently change identity. Preserve explici
 - [x] Reconcile artifacts and register target, evidence producer and negative fixture.
 - [x] Implement the requirements incrementally with regression/contract tests.
 - [x] Update public contracts and MCP documentation; scaffold regeneration produced no drift.
-- [ ] Run the scenarios below plus required module checks and record evidence per R-ID.
-- [ ] Obtain explicit review and governed closeout; disposition follow-ups and refresh assessments.
+- [x] Run the scenarios below plus required module checks and record evidence per R-ID.
+- [x] Obtain explicit review and guarded closeout; no additional follow-ups; refresh assessments as the closeout operation.
 
 ## 5. Decisions
 
@@ -148,6 +148,15 @@ Use independent Git fixtures, including nested submodule and sibling layouts.
 - Run `pose assess discover --update-state` at implementation closeout, not to mark this plan delivered.
 
 ### Execution log / Log de execução
+2026-09-21 final source `59fefa6`: the strict module matrix passed 16/16 checks;
+`surface-check --strict` reported one target, 16 results, zero findings.
+Artifact attribution matched 27 claims to 27 observed paths. Bundle
+`rvb-0dbb32e1e7ed78af` and explicit attestation `rva-f0d8788e444ca5dc` verify as
+fresh, approved and ready-to-close. A secret-pattern scan of the source diff
+found zero matches. Binary-mode govulncheck found no vulnerabilities; source-mode
+scanner could not load the local Go toolchain and was not counted as a pass.
+
+
 2026-09-21: `go -C pose-mcp test ./... -count=1` passed after the renderer guard
 caught two direct error prints; both now use cliout. `check --strict` passed with
 11 pre-existing warnings. `assess integrate` ran (55 declarations, 54 unobserved
@@ -174,8 +183,10 @@ fixtures are being executed; real/human acceptance is deferred by user instructi
 ### Delivered scope / Escopo entregue
 Resolver, canonical readers, CLI/index/projection and MCP readiness implemented with
 automated regression coverage. Consumer adoption, federated acceptance, transfer
-and agent routing remain in their separately owned specs. Governed closeout of
-this spec remains pending until the current validation bundle is verified.
+and agent routing remain in their separately owned specs. The current
+validation bundle is verified; use the guarded lifecycle transition. Evidence:
+[structured matrix](../results/delivery-validation.json) and
+[technical review](../reports/2026-09-21-qualified-artifact-resolution-review.md).
 
 ### Residual risks / Riscos residuais
 An alias based on a checkout name can silently change identity. Preserve explicit bindings and revision context; do not pretend historical xref usage already proved consistent strict checks.
