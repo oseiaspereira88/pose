@@ -164,6 +164,11 @@ func TestQualifiedArtifactTypedRoadmapsAndContractNegotiation(t *testing.T) {
 			t.Fatalf("%s: %+v", ref, got)
 		}
 	}
+	qualifiedFile(t, root, "specs/work.md", "---\nslug: work\nstatus: done\ndepends_on: roadmap:program\n---\n")
+	if reason := r.ValidateGraph("owner", "roadmap:program"); reason != "dependency-cycle" {
+		t.Fatalf("mixed spec/milestone/roadmap cycle: %s", reason)
+	}
+	qualifiedFile(t, root, "specs/work.md", "---\nslug: work\nstatus: done\n---\n")
 	store := Store{Root: root}
 	for _, policy := range []string{`{"schema_version":2,"qualified_artifact_refs_version":1}`, `{"schema_version":3,"qualified_artifact_refs_version":2}`, `{"schema_version":3}`} {
 		if _, err := store.parseReviewPolicy([]byte(policy)); err == nil {

@@ -163,6 +163,10 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 		}
 	case "roadmap", "milestone":
 		path := filepath.Join(s.roadmapsDir(), ref.Slug+".md")
+		if _, err := os.Lstat(path); os.IsNotExist(err) {
+			out.State = "unknown-roadmap"
+			return out
+		}
 		if !artifactPathWithin(s.Root, path) {
 			out.State = "unavailable-artifact"
 			return out
@@ -185,6 +189,11 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 			}
 			deps = append(deps, dep)
 		}
+		if ref.Kind == "roadmap" {
+			for _, ms := range rm.Milestones {
+				deps = append(deps, "milestone:"+rm.Slug+"/"+ms.ID)
+			}
+		}
 		if ref.Kind == "milestone" {
 			found := false
 			for _, ms := range rm.Milestones {
@@ -197,6 +206,12 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 				}
 				found = true
 				deps = append([]string{}, ms.Specs...)
+				for _, after := range ms.After {
+					if !strings.Contains(after, ":") {
+						after = "milestone:" + rm.Slug + "/" + after
+					}
+					deps = append(deps, after)
+				}
 				out.Status = "done"
 				for _, slug := range ms.Specs {
 					sp, err := s.GetSpec(slug)
