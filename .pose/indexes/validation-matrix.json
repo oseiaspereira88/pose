@@ -392,6 +392,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "check-workers-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/version",
+            "-run",
+            "CheckWorkerCount|CompositionContract",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "review-policy-adoption-integration",
           "program": "go",
           "args": [
