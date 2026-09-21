@@ -35,8 +35,13 @@ Three findings set the ordering.
    Migration interoperability, not concurrent lifecycle ownership, is the
    actual model, and no public surface says so.
 
-Feature work is deliberately frozen for the duration. A spec that adds
-capability does not belong on this roadmap.
+Execution amendment — 2026-09-21: the user authorized internal ABM and
+multi-repository implementation through the 6.x milestone, with real smokes and
+human acceptance deferred until code implementation and that milestone are
+complete. This supersedes the feature freeze. Keep this roadmap focused on launch
+readiness; feature ownership stays in its implementation roadmaps. Pending human
+evidence remains pending; this amendment neither publishes a release nor claims
+that launch gates passed.
 
 ## Milestone: distribution-repair
 - after:
