@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-f73625629175bccc",
+  "bundle_id": "rvb-bcfccdb645cc3a1c",
+  "bundle_digest": "sha256:bcfccdb645cc3a1ca0dfa2e6a172758fea4678faf066ed11ace81c2dac3fe4cf",
+  "reviewer": "agent:claude-opus-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-workers-integration",
+      "rationale": "The change only sizes the pool the previous spec introduced; the pool itself, its ordered replay and its race coverage are unchanged and still pinned. The clamps are what this criterion turns on, and both directions are asserted: never more workers than items, never fewer than one, with and without the override."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-workers-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-workers-integration",
+      "rationale": "An environment variable is untrusted input and every unusable shape was enumerated rather than assumed safe: zero, negative, non-numeric, blank, fractional, scientific notation and padded. All fall back to the default, because a structural gate that fails over a stale shell export is a worse failure than running with the core count."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-workers-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-workers-integration",
+      "rationale": "Absent variable, unchanged behaviour — and the default is unchanged on purpose. Five runs per point put eight workers and sixteen 0.49s apart in median with overlapping ranges, so the two-run reading that suggested eight was faster did not survive; changing the default would have been a performance claim the measurement does not support. The new variable is declared in the composition contract, so a consumer composing the service sees it rather than discovering it."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The function carries the measurement table and the reason the default did not move. The spec records the correction explicitly, and that no manual documents environment variables — checked rather than assumed, because a documented path that does not exist fails this repository's post-install gate. The residual risk states the measurement is one machine and one repository, which is the argument for the knob rather than for a new default."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "This is the operability gap the previous spec recorded: a container pinned to fewer cores than the host reports, or an operator wanting the gate to leave room, now has a way to say so. Above the core count the gate degrades rather than plateaus, which is measured and documented so nobody raises it expecting a win. Reverting removes one function and one contract line."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-workers-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-15ce8a31eb88aa98",
+      "rationale": "One function, one test file, the contract line, and one classifier entry the seal itself demanded — composition-contract.json was not on the published-root-manifest list, so the file this change must touch made the spec unsealable. That is in scope because it is my own blast radius, and it is recorded rather than folded in silently. The Git spawn batching that would actually move the remaining time is left as a follow-up with its risk stated."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-workers-integration",
+      "rationale": "The variable cannot widen anything: it sizes a worker pool and is clamped on both ends, so the worst a hostile value achieves is one worker or the item count. Nothing about what the gate checks changes. The classifier entry narrows nothing either — an undeclared root file still classifies as nothing and still refuses to seal, which the test pins alongside the new entry."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "integration:pose-mcp/go/check-workers-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "structure:design-15ce8a31eb88aa98",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-21T04:56:21Z",
+  "path": ".pose/review-attestations/rva-f73625629175bccc.json"
+}

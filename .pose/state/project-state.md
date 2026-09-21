@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-20T21:53:46Z
-baseline_commit: 052b4666e64c245180a4fdf31279aafb62ffa695
+generated_at: 2026-09-21T04:56:49Z
+baseline_commit: 68c63ed598189361850bfe5705f4cf8a0eca8228
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:721b6de8fce9 -->
+<!-- state:derived hash:3953e65133f6 -->
 
-- specs: total=227 draft=4 in-progress=65 blocked=0 done=158 superseded=0 abandoned=0
-- roadmaps: total=11 active=1 done=10
+- specs: total=232 draft=8 in-progress=65 blocked=0 done=159 superseded=0 abandoned=0
+- roadmaps: total=12 active=1 done=10
 - últimos closeouts:
+  - spec:check-worker-count-is-the-machines (2026-09-21)
   - spec:pose-abm-remediation-lineage (2026-09-20)
   - spec:check-builds-the-delivery-graph-once (2026-09-20)
   - spec:check-strict-verdict-names-its-mode (2026-09-20)
   - spec:parse-the-delivery-index-once-per-content (2026-09-20)
-  - spec:artifact-claims-stop-at-the-section-end (2026-09-20)
-  - ... e mais 153 (ver `pose_list_specs status:done`)
+  - ... e mais 154 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:6acc7b32b219 -->
+<!-- state:derived hash:c71a4814d371 -->
 
-- abertos: 109
-- por criticidade: high=1 medium=24 low=60 sem-classificação=24
+- abertos: 110
+- por criticidade: high=1 medium=25 low=60 sem-classificação=24
 - vencidos (review < hoje): 1
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
 

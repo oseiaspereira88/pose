@@ -1,8 +1,8 @@
 ---
 slug: check-worker-count-is-the-machines
-status: in-progress
+status: done
 created_at: 2026-09-21
-completed_at:
+completed_at: 2026-09-21
 supersedes:
 depends_on: parse-the-delivery-index-once-per-content
 priority: 2
@@ -155,6 +155,13 @@ Defect injection: accepting a non-positive override fails the unusable-value cas
 `POSE_CHECK_WORKERS="0" = 1, want the default 16`; removing the item clamp fails the
 default case with `with 3 items = 16, want 3`; and removing `composition-contract.json`
 from the manifest list fails the classifier case.
+
+### Closeout
+
+2026-09-21 UTC. Bundle `rvb-bcfccdb645cc3a1c`, fifteen evidence items, under the five
+sealed contracts. Attestation `rva-f73625629175bccc`, `agent:claude-opus-5`, approved;
+`review-check` fresh and approved; `closeout-check` terminal. `surface-check --strict`
+exits 0 with one inferred-coverage warning kept.
 
 ### Requirement trace
 
