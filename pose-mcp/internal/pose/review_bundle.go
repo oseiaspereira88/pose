@@ -965,7 +965,13 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 			return "governance", true
 		}
 	}
-	for _, exact := range []string{".pose/docs.json", ".pose/docs-review.jsonl", ".pose/release-policy.json", ".pose/project.json", "compatibility.json", "pose-mcp/server.json"} {
+	// composition-contract.json joins the list for the same reason compatibility.json
+	// is on it: both are published root manifests describing what this repository
+	// exposes, and a change to either is a governance change. Without it, a spec that
+	// adds an environment variable — which the composition contract enumerates —
+	// could not seal a review bundle at all, because the classifier refuses an
+	// unclassified subject path rather than guessing at one.
+	for _, exact := range []string{".pose/docs.json", ".pose/docs-review.jsonl", ".pose/release-policy.json", ".pose/project.json", "compatibility.json", "composition-contract.json", "pose-mcp/server.json"} {
 		if path == exact {
 			return "governance", true
 		}

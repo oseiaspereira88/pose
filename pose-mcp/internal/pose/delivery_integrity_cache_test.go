@@ -198,3 +198,29 @@ func TestDesignDeltaMemoIsKeyedAndCopied(t *testing.T) {
 		t.Fatal("an unknown digest was served from the memo")
 	}
 }
+
+// A published root manifest must classify as governance, or a spec that changes it
+// cannot seal a review bundle: the classifier refuses an unclassified subject path
+// rather than guessing, which is correct and is why the list has to be complete.
+func TestPublishedRootManifestsClassifyAsGovernance(t *testing.T) {
+	scope, err := ParseScopeRef("spec:any")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{
+		"compatibility.json",
+		"composition-contract.json",
+		"pose-mcp/server.json",
+		".pose/project.json",
+		".pose/release-policy.json",
+	} {
+		class, include := reviewBundlePathClass(path, scope, nil)
+		if class != "governance" || !include {
+			t.Errorf("%s classified as %q include=%v, want governance and included", path, class, include)
+		}
+	}
+	// A root file nobody declared stays unclassified, so the refusal still exists.
+	if class, _ := reviewBundlePathClass("some-new-root-thing.json", scope, nil); class != "" {
+		t.Errorf("an undeclared root file classified as %q; the refusal is the guard", class)
+	}
+}

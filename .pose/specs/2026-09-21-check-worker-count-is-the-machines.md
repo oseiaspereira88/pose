@@ -67,6 +67,8 @@ environment when the value parses as a positive integer, then clamped by the ite
 - created: .pose/specs/2026-09-21-check-worker-count-is-the-machines.md
 - created: .pose/changelogs/unreleased/check-worker-count-is-the-machines.md
 - created: pose-mcp/internal/cli/check_workers_test.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/delivery_integrity_cache_test.go
 - modified: pose-mcp/internal/cli/check_parallel.go
 - modified: composition-contract.json
 - modified: .pose/indexes/validation-matrix.json
@@ -140,9 +142,19 @@ reported diff was inspected before regenerating and is exactly one line,
 updating — checked rather than assumed, because a documented path that does not exist
 fails the post-install gate in this repository.
 
+Sealing the review then refused, and the refusal was correct: `unclassified review
+subject path composition-contract.json`. The subject classifier holds an exact list of
+published root manifests and `composition-contract.json` was not on it, so the very
+file an environment variable requires touching made the spec unsealable. It joins the
+list beside `compatibility.json`, for the same reason: both are published manifests
+describing what this repository exposes, and a change to either is a governance change.
+The refusal itself is kept — an undeclared root file still classifies as nothing, which
+is the guard.
+
 Defect injection: accepting a non-positive override fails the unusable-value case with
-`POSE_CHECK_WORKERS="0" = 1, want the default 16`, and removing the item clamp fails the
-default case with `with 3 items = 16, want 3`.
+`POSE_CHECK_WORKERS="0" = 1, want the default 16`; removing the item clamp fails the
+default case with `with 3 items = 16, want 3`; and removing `composition-contract.json`
+from the manifest list fails the classifier case.
 
 ### Requirement trace
 
@@ -157,8 +169,10 @@ default case with `with 3 items = 16, want 3`.
   check:check-workers-integration test:TestCheckWorkerCountDefaultsToCoresAndClamps
   test:TestCheckWorkerCountOverride — clamped by item count in both paths
 - R4 [satisfied] surface:check-worker-count evidence:integration
-  check:check-workers-integration test:TestCompositionContract — the contract on disk
-  matches the repository, with the one added line inspected before regenerating
+  check:check-workers-integration test:TestCompositionContract
+  test:TestPublishedRootManifestsClassifyAsGovernance — the contract on disk matches the
+  repository, with the one added line inspected before regenerating, and the manifest it
+  lives in now classifies as governance so a spec that changes it can be reviewed
 
 ## 7. Final Report
 
