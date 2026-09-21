@@ -22,6 +22,9 @@ import (
 const ReviewSchemaVersion = 1
 const ReviewPolicySchemaVersion = 2
 
+// Qualified references are an opt-in incompatible adoption, never stamped by update.
+const QualifiedArtifactPolicySchemaVersion = 3
+
 // ScopeRef is the canonical address of a reviewable POSE scope.
 type ScopeRef struct {
 	Kind      string `json:"kind"`
@@ -147,6 +150,7 @@ type ReviewProfile struct {
 func (p ReviewProfile) Ref() string { return fmt.Sprintf("%s@%d", p.ID, p.Version) }
 
 type ReviewPolicy struct {
+	QualifiedArtifactRefsVersion     int               `json:"qualified_artifact_refs_version,omitempty"`
 	SchemaVersion                    int               `json:"schema_version"`
 	Enabled                          bool              `json:"enabled"`
 	AdoptedAt                        string            `json:"adopted_at,omitempty"`
@@ -390,7 +394,10 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return ReviewPolicy{}, fmt.Errorf("pose: invalid review policy: %w", err)
 	}
-	if p.SchemaVersion == ReviewPolicySchemaVersion {
+	if (p.SchemaVersion == QualifiedArtifactPolicySchemaVersion && p.QualifiedArtifactRefsVersion != 1) || (p.SchemaVersion != QualifiedArtifactPolicySchemaVersion && p.QualifiedArtifactRefsVersion != 0) {
+		return ReviewPolicy{}, fmt.Errorf("pose: qualified artifact references require review policy schema 3 and qualified_artifact_refs_version 1")
+	}
+	if p.SchemaVersion >= ReviewPolicySchemaVersion {
 		decoder := json.NewDecoder(bytes.NewReader(raw))
 		// Deliberately permissive: a field this engine does not know is a field a
 		// newer one added, and refusing the whole policy over it makes every
@@ -401,10 +408,10 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 			return ReviewPolicy{}, fmt.Errorf("pose: invalid schema-v2 review policy: %w", err)
 		}
 	}
-	if p.SchemaVersion != ReviewSchemaVersion && p.SchemaVersion != ReviewPolicySchemaVersion {
+	if p.SchemaVersion != ReviewSchemaVersion && p.SchemaVersion != ReviewPolicySchemaVersion && p.SchemaVersion != QualifiedArtifactPolicySchemaVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported review policy schema %d", p.SchemaVersion)
 	}
-	if p.SchemaVersion == ReviewPolicySchemaVersion {
+	if p.SchemaVersion >= ReviewPolicySchemaVersion {
 		if p.UnmappedComponentBehavior == "" {
 			p.UnmappedComponentBehavior = "warning"
 		}

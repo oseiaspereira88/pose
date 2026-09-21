@@ -74,12 +74,27 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	repo := map[string]any{"root": ".", "apps": apps, "services": services, "packages": packages, "manifests": manifests, "dockerfiles": dockers, "helmCharts": charts, "readmes": readmes, "moduleMetadata": map[string]any{"schemaVersion": 1, "source": ".pose/indexes/module-metadata.json"}}
 	store := posepkg.Store{Root: root}
 	specs, _ := store.ListSpecs("", "")
+	resolver, project, resolveErr := posepkg.EnvironmentArtifactResolver(root, "")
+	if resolveErr != nil {
+		render(stdout, stderr).Failure("pose index: invalid-project-configuration")
+		return 1
+	}
 	specMap := map[string]any{}
 	edges := []map[string]string{}
 	for _, s := range specs {
-		specMap[s.Slug] = map[string]any{"status": s.Status, "depends_on": s.DependsOn, "priority": s.Priority, "path": relativePath(root, s.Path)}
+		if _, exists := specMap[s.Slug]; exists {
+			render(stdout, stderr).Failure("pose index: conflicting-artifact-identity")
+			return 1
+		}
+		identity, _ := posepkg.ParseArtifactRef("spec:" + s.Slug)
+		identity.Project = project
+		resolvedDeps := []posepkg.ArtifactResolution{}
+		for _, raw := range s.DependsOn {
+			resolvedDeps = append(resolvedDeps, resolver.Resolve(project, raw))
+		}
+		specMap[s.Slug] = map[string]any{"identity": identity, "dependency_resolutions": resolvedDeps, "status": s.Status, "depends_on": s.DependsOn, "priority": s.Priority, "path": relativePath(root, s.Path)}
 		for _, d := range s.DependsOn {
-			if !strings.HasPrefix(d, "milestone:") && !strings.HasPrefix(d, "roadmap:") {
+			if ref, err := posepkg.ParseArtifactRef(d); err == nil && ref.Kind == "spec" {
 				edges = append(edges, map[string]string{"from": s.Slug, "to": d})
 			}
 		}

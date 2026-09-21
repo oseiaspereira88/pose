@@ -3,9 +3,11 @@ package pose
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 )
@@ -57,6 +59,7 @@ type Roots struct {
 	cfg          RootsConfig
 	mu           sync.RWMutex
 	byProject    map[string]string
+	conflicts    map[string]bool
 	lastScan     time.Time
 	rescanWindow time.Duration
 }
@@ -81,21 +84,27 @@ func NewRoots(cfg RootsConfig) *Roots {
 
 func (r *Roots) rebuild() {
 	m := map[string]string{}
+	conflicts := map[string]bool{}
 	if r.cfg.DefaultProjectID != "" && r.cfg.DefaultRoot != "" {
 		m[r.cfg.DefaultProjectID] = r.cfg.DefaultRoot
 	}
 	if scan, err := ScanProjectsDir(r.cfg.ProjectsDir, r.cfg.ProjectIDPrefix); err == nil {
 		for k, v := range scan {
+			if previous, ok := m[k]; ok && !sameProjectRoot(previous, v) {
+				conflicts[k] = true
+			}
 			m[k] = v
 		}
 	}
 	for k, v := range r.cfg.Explicit {
 		if k != "" && v != "" {
 			m[k] = v
+			delete(conflicts, k)
 		}
 	}
 	r.mu.Lock()
 	r.byProject = m
+	r.conflicts = conflicts
 	r.lastScan = time.Now()
 	r.mu.Unlock()
 }
@@ -129,12 +138,20 @@ func (r *Roots) StoreFor(projectID string) (Store, error) {
 	}
 	r.mu.RLock()
 	root, ok := r.byProject[projectID]
+	conflict := r.conflicts[projectID]
 	r.mu.RUnlock()
+	if conflict {
+		return Store{}, ProjectBindingConflictError{ProjectID: projectID}
+	}
 	if !ok {
 		r.maybeRescan()
 		r.mu.RLock()
 		root, ok = r.byProject[projectID]
+		conflict = r.conflicts[projectID]
 		r.mu.RUnlock()
+		if conflict {
+			return Store{}, ProjectBindingConflictError{ProjectID: projectID}
+		}
 	}
 	if !ok {
 		return Store{}, ProjectUnknownError{ProjectID: projectID}
@@ -215,8 +232,41 @@ func ParseRootsJSON(s string) (map[string]string, error) {
 	if s == "" {
 		return out, nil
 	}
-	if err := json.Unmarshal([]byte(s), &out); err != nil {
-		return nil, fmt.Errorf("parse project roots json: %w", err)
+	decoder := json.NewDecoder(strings.NewReader(s))
+	token, err := decoder.Token()
+	if err != nil || token != json.Delim('{') {
+		return nil, fmt.Errorf("invalid-project-roots")
+	}
+	for decoder.More() {
+		token, err := decoder.Token()
+		if err != nil {
+			return nil, fmt.Errorf("invalid-project-roots")
+		}
+		id, ok := token.(string)
+		if !ok || ValidateSlug(id) != nil {
+			return nil, fmt.Errorf("invalid-project-id")
+		}
+		if _, exists := out[id]; exists {
+			return nil, ProjectBindingConflictError{ProjectID: id}
+		}
+		var root string
+		if decoder.Decode(&root) != nil || root == "" || !filepath.IsAbs(root) {
+			return nil, fmt.Errorf("invalid-project-root")
+		}
+		out[id] = root
+	}
+	if _, err := decoder.Token(); err != nil {
+		return nil, fmt.Errorf("invalid-project-roots")
+	}
+	if decoder.Decode(new(any)) != io.EOF {
+		return nil, fmt.Errorf("invalid-project-roots")
 	}
 	return out, nil
+}
+
+// ProjectBindingConflictError reports identity ambiguity without exposing roots.
+type ProjectBindingConflictError struct{ ProjectID string }
+
+func (e ProjectBindingConflictError) Error() string {
+	return fmt.Sprintf("conflicting project binding: %s", e.ProjectID)
 }

@@ -110,7 +110,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_docs_state` | Docs-governance check: manifest presence/profile/roots plus the live `pose docs-check` result (declared/undeclared/stale by doc_type, per-doc issues, open review-pending marks) |
 | `pose_capability_history` | Append-only assessment snapshots (score vectors), supersede-aware and paginated |
 | `pose_spec_amendments` | Append-only amendment history of one spec plus unacknowledged requirement changes |
-| `pose_spec_readiness` | Is a spec eligible? Resolves `depends_on` refs (specs, milestones, roadmaps) |
+| `pose_spec_readiness` | Is a spec eligible? Resolves local and authorized qualified `depends_on` refs (specs, milestones, roadmaps) |
 | `pose_mcp_context` | Active server identity, transport, selection mode, policy-filtered logical project IDs and an optional project-resolution probe; never host paths |
 | `pose_project_state` | Current project state in one call: curated + derived sections (specs/roadmaps, follow-ups, capabilities, decisions/knowledge, validation evidence, architecture), staleness and tamper detection |
 | `pose_closeout_state` | Hierarchical review state, child blockers, next governed action and terminal closeout for a typed scope |
@@ -320,3 +320,56 @@ pose_validate_submit  → submitted (idempotent; requires a Harness executor)
   evaluated.
 - Multi-replica deployments need the Redis cursor store (enterprise hardening
   track); single-node dev needs nothing beyond the binary.
+
+## Qualified artifact references (6.x development contract)
+
+Use one identity per artifact: project ID, kind and local slug. Bind stable IDs
+with `POSE_PROJECT_ROOTS`; use `POSE_DEFAULT_PROJECT_ID` to select the current
+project. The directory-derived default is legacy convenience and is not a stable
+identity after a checkout rename. Explicit bindings select a checkout over the
+scanned/default mapping. Duplicate JSON keys, conflicting implicit bindings and
+multiple IDs for the current root without explicit selection fail diagnostically.
+Registered roots may be nested or sibling checkouts; filesystem ancestry itself
+never grants registration or authorization.
+
+The common grammar accepts:
+
+- `work` or `spec:work` for a local spec;
+- `roadmap:program` and `milestone:program/first` for local typed artifacts;
+- `xref:proj.engine/work` for the legacy external spec spelling;
+- `xref:proj.engine/spec:work`, `xref:proj.engine/roadmap:program` and
+  `xref:proj.engine/milestone:program/first` for qualified typed references.
+
+`lint-spec --ready-check` checks structural readiness, including reference
+syntax. `pose check` validates dependency existence and cycles;
+`pose_spec_readiness` additionally requires satisfied dependency lifecycle states.
+A missing, unauthorized, unavailable or ambiguous external source cannot fall
+back to a local artifact with the same slug. MCP reevaluates the caller's policy
+for each target project before looking it up, including transitive dependencies.
+Resolution is bounded to 64 dependency levels and 256 identities; references
+longer than 1024 bytes and traversal syntax are rejected.
+
+`portfolio-projection` uses the same Store reader as lookup, including flat,
+dated, folder and split specs. Its additive schema 2 includes canonical identity,
+resolution state, source Git revision when available, and a SHA-256 content digest.
+Tombstones remain supported. `freshness_basis: mtime-advisory-not-evidence`
+clarifies that the existing `stale` flag is a filesystem heuristic: timestamps,
+source digests and `done` status do not prove review or federated acceptance.
+Independent Git repositories report their own revision; an ancestor HEAD is
+never substituted for an unversioned source. Source digests describe the observed
+working tree, which may differ from that revision.
+
+Adopt required qualified-reference metadata explicitly, after validating the
+consumer binary: set review policy `schema_version: 3` together with
+`qualified_artifact_refs_version: 1`. Schema 1/2 policies keep their prior
+behavior. Existing schema 1/2 engines refuse schema 3 at their review/governance gates
+instead of silently approving the new contract. Legacy read-only commands may
+still expose their older projection and are not an adoption gate. An unknown reference-contract version is rejected. `pose update` does
+not automatically perform this adoption; it belongs to the consumer adoption
+spec. Retain sealed historical policies and bundles unchanged. Roll back the
+consumer and adopted metadata together only after removing dependent new usage;
+never weaken a required dependency to make an older binary pass.
+
+Resolution and readiness are read-only lifecycle observations. Federated review,
+pinned evidence acceptance, spec transfer and automatic agent routing are separate
+implementation scopes; this resolver does not declare those capabilities ready.

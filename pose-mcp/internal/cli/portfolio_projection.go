@@ -25,21 +25,29 @@ import (
 )
 
 type xrefResolution struct {
-	Ref          string `json:"ref"`
-	Resolved     bool   `json:"resolved"`
-	TargetStatus string `json:"target_status,omitempty"`
-	Blocking     bool   `json:"blocking"`
-	Reason       string `json:"reason,omitempty"` // unauthorized-project | unknown-spec | stale-source
+	Ref             string              `json:"ref"`
+	Identity        posepkg.ArtifactRef `json:"identity"`
+	ResolutionState string              `json:"resolution_state"`
+	SourceRevision  string              `json:"source_revision,omitempty"`
+	SourceDigest    string              `json:"source_digest,omitempty"`
+	Resolved        bool                `json:"resolved"`
+	TargetStatus    string              `json:"target_status,omitempty"`
+	Blocking        bool                `json:"blocking"`
+	Reason          string              `json:"reason,omitempty"` // unauthorized-project | unknown-spec | stale-source
 }
 
 type projectedSpec struct {
-	Project     string           `json:"project"`
-	Slug        string           `json:"slug"`
-	Status      string           `json:"status"`
-	Owner       string           `json:"owner,omitempty"`
-	Criticality string           `json:"criticality,omitempty"`
-	Stale       bool             `json:"stale"`
-	XrefsOut    []xrefResolution `json:"xrefs_out,omitempty"`
+	Project         string              `json:"project"`
+	Identity        posepkg.ArtifactRef `json:"identity"`
+	SourceRevision  string              `json:"source_revision,omitempty"`
+	SourceDigest    string              `json:"source_digest,omitempty"`
+	ResolutionState string              `json:"resolution_state"`
+	Slug            string              `json:"slug"`
+	Status          string              `json:"status"`
+	Owner           string              `json:"owner,omitempty"`
+	Criticality     string              `json:"criticality,omitempty"`
+	Stale           bool                `json:"stale"`
+	XrefsOut        []xrefResolution    `json:"xrefs_out,omitempty"`
 }
 
 type portfolioTombstone struct {
@@ -49,10 +57,12 @@ type portfolioTombstone struct {
 }
 
 type portfolioProjection struct {
-	GeneratedAt string               `json:"generated_at"`
-	Projects    []string             `json:"projects"`
-	Specs       []projectedSpec      `json:"specs"`
-	Tombstones  []portfolioTombstone `json:"tombstones,omitempty"`
+	SchemaVersion  int                  `json:"schema_version"`
+	FreshnessBasis string               `json:"freshness_basis"`
+	GeneratedAt    string               `json:"generated_at"`
+	Projects       []string             `json:"projects"`
+	Specs          []projectedSpec      `json:"specs"`
+	Tombstones     []portfolioTombstone `json:"tombstones,omitempty"`
 }
 
 // discoverAuthorizedProjects mirrors the MCP server's own project
@@ -60,29 +70,17 @@ type portfolioProjection struct {
 // projects dir, and any explicit POSE_PROJECT_ROOTS override — never an
 // unrestricted filesystem walk.
 func discoverAuthorizedProjects(root, projectsDir string) (map[string]string, error) {
-	selfID := os.Getenv("POSE_DEFAULT_PROJECT_ID")
-	if selfID == "" {
-		selfID = "proj." + filepath.Base(root)
-	}
-	known := map[string]string{selfID: root}
-
-	if projectsDir == "" {
-		projectsDir = os.Getenv("HARNE8_PROJECTS_DIR")
-	}
-	scanned, err := posepkg.ScanProjectsDir(projectsDir, "")
+	resolver, _, err := posepkg.EnvironmentArtifactResolver(root, projectsDir)
 	if err != nil {
 		return nil, err
 	}
-	for id, r := range scanned {
-		known[id] = r
-	}
-
-	explicit, err := posepkg.ParseRootsJSON(os.Getenv("POSE_PROJECT_ROOTS"))
-	if err != nil {
-		return nil, err
-	}
-	for id, r := range explicit {
-		known[id] = r
+	known := map[string]string{}
+	for _, id := range resolver.Roots.Projects() {
+		store, err := resolver.Roots.StoreFor(id)
+		if err != nil {
+			return nil, err
+		}
+		known[id] = store.Root
 	}
 	return known, nil
 }
@@ -95,37 +93,29 @@ type localSpecSummary struct {
 }
 
 func loadLocalSpecSummaries(root string) []localSpecSummary {
-	paths, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*", "spec.md"))
-	sort.Strings(paths)
+	specs, _ := (posepkg.Store{Root: root}).ListSpecs("", "")
 	var out []localSpecSummary
-	for _, path := range paths {
-		fm, err := readFlatFrontmatter(path)
+	for _, spec := range specs {
+		info, err := os.Stat(spec.Path)
 		if err != nil {
 			continue
 		}
-		info, err := os.Stat(path)
-		if err != nil {
-			continue
-		}
-		out = append(out, localSpecSummary{
-			Slug: fm["slug"], Status: fm["status"],
-			DependsOn:  lintParseDependsOn(fm["depends_on"]),
-			ModifiedAt: info.ModTime(),
-		})
+		out = append(out, localSpecSummary{Slug: spec.Slug, Status: spec.Status, DependsOn: spec.DependsOn, ModifiedAt: info.ModTime()})
 	}
 	return out
 }
 
 func specStatusIn(root, slug string) (string, bool) {
-	fm, err := readFlatFrontmatter(filepath.Join(root, ".pose", "specs", slug, "spec.md"))
+	sp, err := (posepkg.Store{Root: root}).GetSpec(slug)
 	if err != nil {
 		return "", false
 	}
-	return fm["status"], true
+	return sp.Status, true
 }
 
 func buildPortfolioProjection(now time.Time, knownProjects map[string]string, maxStalenessDays int) portfolioProjection {
-	projection := portfolioProjection{GeneratedAt: now.UTC().Format(time.RFC3339)}
+	resolver := posepkg.ArtifactResolver{Roots: posepkg.NewRoots(posepkg.RootsConfig{Explicit: knownProjects}), Authorize: func(id string) bool { _, ok := knownProjects[id]; return ok }}
+	projection := portfolioProjection{SchemaVersion: 2, FreshnessBasis: "mtime-advisory-not-evidence", GeneratedAt: now.UTC().Format(time.RFC3339)}
 	for id := range knownProjects {
 		projection.Projects = append(projection.Projects, id)
 	}
@@ -151,30 +141,23 @@ func buildPortfolioProjection(now time.Time, knownProjects map[string]string, ma
 				Owner: defaults["owner"], Criticality: defaults["criticality"],
 				Stale: staleness[project],
 			}
+			source := resolver.Resolve(project, "spec:"+s.Slug)
+			ps.Identity, ps.SourceRevision, ps.SourceDigest, ps.ResolutionState = source.Identity, source.Revision, source.Digest, source.State
 			for _, dep := range s.DependsOn {
-				if !depXrefRE.MatchString(dep) {
+				if !strings.HasPrefix(dep, "xref:") {
 					continue
 				}
-				ref := strings.TrimPrefix(dep, "xref:")
-				targetProject, targetSlug, ok := strings.Cut(ref, "/")
-				res := xrefResolution{Ref: dep}
-				targetRoot, authorized := knownProjects[targetProject]
-				switch {
-				case !ok:
-					res.Reason = "unknown-spec"
-				case !authorized:
-					res.Reason = "unauthorized-project"
-				default:
-					status, found := specStatusIn(targetRoot, targetSlug)
-					if !found {
-						res.Reason = "unknown-spec"
-					} else {
-						res.Resolved = true
-						res.TargetStatus = status
-						res.Blocking = status != "done"
-						if staleness[targetProject] {
-							res.Reason = "stale-source"
-						}
+				resolved := resolver.Resolve(project, dep)
+				res := xrefResolution{Ref: dep, Identity: resolved.Identity, ResolutionState: resolved.State, Resolved: resolved.Resolved, TargetStatus: resolved.Status, SourceRevision: resolved.Revision, SourceDigest: resolved.Digest, Blocking: true}
+				if !resolved.Resolved {
+					res.Reason = resolved.State
+				} else {
+					res.Blocking = resolved.Status != "done"
+					if reason := resolver.ValidateGraph(project, dep); reason != "" {
+						res.Blocking, res.Reason = true, reason
+					}
+					if res.Reason == "" && staleness[resolved.Identity.Project] {
+						res.Reason = "stale-source"
 					}
 				}
 				ps.XrefsOut = append(ps.XrefsOut, res)

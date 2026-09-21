@@ -58,66 +58,27 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 	if err := ValidateSlug(slug); err != nil {
 		return nil, err
 	}
-	// 1. Direct path matches
-	canonical := filepath.Join(s.specsDir(), slug, "spec.md")
-	if _, err := os.Stat(canonical); err == nil {
-		return parseSpecFile(canonical, slug, true)
+	specs, err := s.ListSpecs("", "")
+	if err != nil {
+		return nil, err
 	}
-	legacy := filepath.Join(s.specsDir(), slug+".md")
-	if _, err := os.Stat(legacy); err == nil {
-		return parseSpecFile(legacy, slug, true)
-	}
-	splitDir := filepath.Join(s.specsDir(), slug)
-	if files := splitSpecFiles(splitDir); len(files) > 0 {
-		return parseSplitSpec(splitDir, slug, files, true)
-	}
-
-	// 2. Scan for date-prefixed or suffix-matching directories and files
-	entries, err := os.ReadDir(s.specsDir())
-	if err == nil {
-		for _, e := range entries {
-			name := e.Name()
-			if e.IsDir() {
-				if strings.HasSuffix(name, "-"+slug) || strings.HasSuffix(name, "_"+slug) {
-					dir := filepath.Join(s.specsDir(), name)
-					path := filepath.Join(dir, "spec.md")
-					if _, statErr := os.Stat(path); statErr == nil {
-						return parseSpecFile(path, slug, true)
-					}
-					if files := splitSpecFiles(dir); len(files) > 0 {
-						return parseSplitSpec(dir, slug, files, true)
-					}
-				}
-			} else if strings.HasSuffix(name, ".md") && !strings.EqualFold(name, "README.md") {
-				base := strings.TrimSuffix(name, ".md")
-				if strings.HasSuffix(base, "-"+slug) || strings.HasSuffix(base, "_"+slug) {
-					path := filepath.Join(s.specsDir(), name)
-					return parseSpecFile(path, slug, true)
-				}
-			}
+	var match *Spec
+	for i := range specs {
+		if specs[i].Slug != slug {
+			continue
 		}
-
-		// 3. Fallback scan matching frontmatter slug
-		for _, e := range entries {
-			name := e.Name()
-			var path string
-			if e.IsDir() {
-				cand := filepath.Join(s.specsDir(), name, "spec.md")
-				if _, statErr := os.Stat(cand); statErr == nil {
-					path = cand
-				}
-			} else if strings.HasSuffix(name, ".md") && !strings.EqualFold(name, "README.md") {
-				path = filepath.Join(s.specsDir(), name)
-			}
-			if path != "" {
-				if sp, err := parseSpecFile(path, name, true); err == nil && sp.Slug == slug {
-					return sp, nil
-				}
-			}
+		if match != nil {
+			return nil, SpecIdentityConflictError{Slug: slug}
 		}
+		match = &specs[i]
 	}
-
-	return nil, fmt.Errorf("pose: spec %q not found", slug)
+	if match == nil {
+		return nil, fmt.Errorf("pose: spec %q not found", slug)
+	}
+	if info, err := os.Stat(match.Path); err == nil && info.IsDir() {
+		return parseSplitSpec(match.Path, slug, splitSpecFiles(match.Path), true)
+	}
+	return parseSpecFile(match.Path, slug, true)
 }
 
 // ListSpecs returns the frontmatter of every spec (no body), sorted by slug.
@@ -140,23 +101,42 @@ func (s Store) ListSpecs(status, components string) ([]Spec, error) {
 		return nil, fmt.Errorf("pose: reading specs dir: %w", err)
 	}
 	specs := []Spec{}
+	if !artifactPathWithin(s.Root, s.specsDir()) {
+		return nil, fmt.Errorf("pose: specs directory escapes project")
+	}
 	for _, e := range entries {
+		entryPath := filepath.Join(s.specsDir(), e.Name())
+		if e.Type()&os.ModeSymlink != 0 && !artifactPathWithin(s.Root, entryPath) {
+			continue
+		}
 		var sp *Spec
 		var err error
 		switch {
 		case e.IsDir():
-			slug := e.Name()
-			dir := filepath.Join(s.specsDir(), slug)
+			slug := specFilenameSlug(e.Name())
+			dir := filepath.Join(s.specsDir(), e.Name())
 			path := filepath.Join(dir, "spec.md")
 			if _, statErr := os.Stat(path); statErr == nil {
+				if info, err := os.Lstat(path); err != nil || (info.Mode()&os.ModeSymlink != 0 && !artifactPathWithin(s.Root, path)) {
+					continue
+				}
 				sp, err = parseSpecFile(path, slug, false)
 			} else if files := splitSpecFiles(dir); len(files) > 0 {
+				safe := true
+				for _, file := range files {
+					if info, err := os.Lstat(file); err != nil || (info.Mode()&os.ModeSymlink != 0 && !artifactPathWithin(s.Root, file)) {
+						safe = false
+					}
+				}
+				if !safe {
+					continue
+				}
 				sp, err = parseSplitSpec(dir, slug, files, false)
 			} else {
 				continue // directory without a recognizable spec artifact
 			}
 		case strings.HasSuffix(e.Name(), ".md") && !strings.EqualFold(e.Name(), "README.md"):
-			slug := strings.TrimSuffix(e.Name(), ".md")
+			slug := specFilenameSlug(strings.TrimSuffix(e.Name(), ".md"))
 			path := filepath.Join(s.specsDir(), e.Name())
 			sp, err = parseSpecFile(path, slug, false)
 		default:
@@ -365,19 +345,19 @@ func parseSpecFile(path, slug string, includeBody bool) (*Spec, error) {
 // value, which are stripped.
 func SplitFrontmatter(content string) (map[string]string, string) {
 	fm := map[string]string{}
-	lines := strings.Split(content, "\n")
-	if len(lines) == 0 || strings.TrimSpace(lines[0]) != "---" {
+	first, rest, _ := strings.Cut(content, "\n")
+	if strings.TrimSpace(first) != "---" {
 		return fm, content
 	}
-	for i := 1; i < len(lines); i++ {
-		if strings.TrimSpace(lines[i]) == "---" {
-			return fm, strings.Join(lines[i+1:], "\n")
+	for rest != "" {
+		line, tail, _ := strings.Cut(rest, "\n")
+		if strings.TrimSpace(line) == "---" {
+			return fm, tail
 		}
-		key, value, ok := strings.Cut(lines[i], ":")
-		if !ok {
-			continue
+		if key, value, ok := strings.Cut(line, ":"); ok {
+			fm[strings.TrimSpace(key)] = cleanValue(value)
 		}
-		fm[strings.TrimSpace(key)] = cleanValue(value)
+		rest = tail
 	}
 	return fm, "" // unterminated frontmatter: no body
 }
@@ -412,10 +392,23 @@ func parseInlineList(value string) []string {
 }
 
 func firstHeading(body string) string {
-	for _, line := range strings.Split(body, "\n") {
+	for body != "" {
+		line, rest, _ := strings.Cut(body, "\n")
 		if strings.HasPrefix(line, "# ") {
 			return strings.TrimSpace(strings.TrimPrefix(line, "# "))
 		}
+		body = rest
 	}
 	return ""
 }
+
+// SpecIdentityConflictError prevents arbitrary first-file wins inside one owner.
+type SpecIdentityConflictError struct{ Slug string }
+
+func (e SpecIdentityConflictError) Error() string {
+	return fmt.Sprintf("conflicting artifact identity: spec:%s", e.Slug)
+}
+
+var datedSpecName = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}[-_]`)
+
+func specFilenameSlug(name string) string { return datedSpecName.ReplaceAllString(name, "") }

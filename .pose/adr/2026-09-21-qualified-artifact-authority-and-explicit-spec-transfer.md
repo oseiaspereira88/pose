@@ -1,7 +1,8 @@
 # ADR: Qualified artifact authority and explicit spec transfer
 
 ## Status
-Proposed — 2026-09-21. Planning authorization does not adopt a runtime contract.
+Accepted — 2026-09-21. The user authorized implementation of this sequence.
+Runtime adoption in consumer projects remains a separate, evidence-gated action.
 Implemented by [resolution](../specs/2026-09-21-pose-qualified-artifact-resolution.md),
 [transfer](../specs/2026-09-21-pose-spec-authority-transfer.md) and
 [agent context](../specs/2026-09-21-pose-agent-project-context.md).
@@ -51,3 +52,15 @@ Unsupported adopted metadata must fail explicitly. Preserve single-project
 behavior and offline operation with authorized local revisions/evidence. Different
 projects may legitimately reuse a slug; warn on declared competing authority,
 not similarity alone. A missing project never authorizes fallback or scanning.
+
+## Implementation amendment — 2026-09-21
+
+Reuse the existing explicit project-root map as the selected checkout. Reject
+conflicting implicit bindings and duplicate JSON keys instead of silently choosing
+one. Directory-derived IDs remain legacy-only; adoption binds stable IDs explicitly.
+
+Negotiate required reference metadata with review policy schema 3 and
+`qualified_artifact_refs_version: 1`, explicitly adopted by the consumer. Inspection
+showed that the current schema-2 decoder ignores unknown fields, so an additive
+field alone cannot make an older binary refuse the contract. Preserve schema 1/2
+and historical bundles; do not automatically stamp schema 3 during `pose update`.

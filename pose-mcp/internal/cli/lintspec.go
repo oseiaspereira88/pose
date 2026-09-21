@@ -39,12 +39,6 @@ var (
 	inlineCommRE   = regexp.MustCompile(`\s+#.*$`)
 	acceptanceIDRE = regexp.MustCompile(`^\s*-\s*R(\d+)\s*(?:\[(\w+)\])?\s*[:—-]`)
 	depSlugRE      = regexp.MustCompile(`^[a-z0-9][a-z0-9._-]*$`)
-	depMilestoneRE = regexp.MustCompile(`^milestone:[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$`)
-	depRoadmapRE   = regexp.MustCompile(`^roadmap:[a-z0-9][a-z0-9._-]*$`)
-	// depXrefRE is the cross-repository reference grammar (spec
-	// pose-cross-repo-portfolio, R1): xref:<project_id>/<spec-slug> —
-	// additive to the local-only forms above, never a substitute for them.
-	depXrefRE = regexp.MustCompile(`^xref:[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$`)
 )
 
 func lintParseFrontmatter(text string) map[string]string {
@@ -462,7 +456,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			failures++
 		}
 		for _, ref := range lintParseDependsOn(frontmatter["depends_on"]) {
-			if depSlugRE.MatchString(ref) || depMilestoneRE.MatchString(ref) || depRoadmapRE.MatchString(ref) || depXrefRE.MatchString(ref) {
+			if _, err := posepkg.ParseArtifactRef(ref); err == nil {
 				continue
 			}
 			lint.finding(cliout.StateError, "dor", fmt.Sprintf(cliText(locale, "DoR: invalid depends_on reference: '%s'", "DoR: ref inválida em depends_on: '%s'"), ref))

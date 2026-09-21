@@ -103,6 +103,15 @@ var terminalStatuses = map[string]bool{
 // refs report an explicit reason and keep the spec not-ready (fail-closed —
 // the execution gate may downgrade per policy, never silently here).
 func (s Store) SpecReadiness(slug string) (*Readiness, error) {
+	resolver, project, err := EnvironmentArtifactResolver(s.Root, "")
+	if err != nil {
+		return nil, err
+	}
+	return s.SpecReadinessWithResolver(slug, project, resolver)
+}
+
+// SpecReadinessWithResolver lets transports enforce their caller's project policy.
+func (s Store) SpecReadinessWithResolver(slug, project string, resolver ArtifactResolver) (*Readiness, error) {
 	sp, err := s.GetSpec(slug)
 	if err != nil {
 		return nil, err
@@ -129,34 +138,26 @@ func (s Store) SpecReadiness(slug string) (*Readiness, error) {
 		})
 	}
 
-	for _, ref := range sp.DependsOn {
-		switch {
-		case strings.HasPrefix(ref, "milestone:"):
-			// milestone:<roadmap>/<id> — satisfeito quando todas as suas specs
-			// estão done (pose-roadmap-artifact R4). Fail-closed com razão
-			// quando o roadmap/milestone não resolve.
-			if reason := s.milestoneWaitingReason(strings.TrimPrefix(ref, "milestone:")); reason != "" {
-				r.WaitingOn = append(r.WaitingOn, WaitingRef{Ref: ref, Reason: reason})
+	for _, raw := range sp.DependsOn {
+		ref, parseErr := ParseArtifactRef(raw)
+		reason := ""
+		if parseErr != nil {
+			reason = "invalid-artifact-reference"
+		} else {
+			resolved := resolver.Resolve(project, raw)
+			if !resolved.Resolved {
+				reason = resolved.State
+			} else if graphReason := resolver.ValidateGraph(project, raw); graphReason != "" {
+				reason = graphReason
+			} else if resolved.Status != "done" {
+				reason = fmt.Sprintf("%s status is %q (needs done)", ref.Kind, resolved.Status)
+				if ref.Kind == "milestone" && ref.Project == "" {
+					reason = s.milestoneWaitingReason(ref.Slug + "/" + ref.Milestone)
+				}
 			}
-		case strings.HasPrefix(ref, "roadmap:"):
-			// roadmap:<slug> — satisfeito quando o roadmap está done.
-			if reason := s.roadmapWaitingReason(strings.TrimPrefix(ref, "roadmap:")); reason != "" {
-				r.WaitingOn = append(r.WaitingOn, WaitingRef{Ref: ref, Reason: reason})
-			}
-		case strings.Contains(ref, ":"):
-			r.WaitingOn = append(r.WaitingOn, WaitingRef{Ref: ref, Reason: "unknown ref type"})
-		default:
-			dep, depErr := s.GetSpec(ref)
-			if depErr != nil {
-				r.WaitingOn = append(r.WaitingOn, WaitingRef{Ref: ref, Reason: "spec not found"})
-				continue
-			}
-			if dep.Status != "done" {
-				r.WaitingOn = append(r.WaitingOn, WaitingRef{
-					Ref:    ref,
-					Reason: fmt.Sprintf("spec status is %q (needs done)", dep.Status),
-				})
-			}
+		}
+		if reason != "" {
+			r.WaitingOn = append(r.WaitingOn, WaitingRef{Ref: raw, Reason: reason})
 		}
 	}
 

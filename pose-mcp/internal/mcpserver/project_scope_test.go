@@ -6,12 +6,77 @@ package mcpserver
 // neither ever leaks the resolved filesystem root.
 
 import (
+	"encoding/json"
+	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"github.com/harne8/pose-mcp/internal/pose"
 )
+
+func TestQualifiedArtifactMCPReadinessAuthorizesEveryTarget(t *testing.T) {
+	parent, child := t.TempDir(), t.TempDir()
+	write := func(root, slug, body string) {
+		t.Helper()
+		dir := filepath.Join(root, ".pose", "specs")
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "2026-09-21-"+slug+".md"), []byte(body), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write(parent, "consumer", "---\nslug: consumer\nstatus: draft\ndepends_on: xref:child/spec:producer\n---\n")
+	write(parent, "producer", "---\nslug: producer\nstatus: done\n---\n")
+	write(child, "producer", "---\nslug: producer\nstatus: done\n---\n")
+	var allowChild atomic.Bool
+	allowChild.Store(true)
+	opa := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		var input struct {
+			Input struct {
+				Project string `json:"project_id"`
+			} `json:"input"`
+		}
+		if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
+			http.Error(w, "invalid", 400)
+			return
+		}
+		allow := input.Input.Project == "parent" || allowChild.Load()
+		_ = json.NewEncoder(w).Encode(map[string]any{"result": map[string]any{"allow": allow}})
+	}))
+	t.Cleanup(opa.Close)
+	roots := pose.NewRoots(pose.RootsConfig{DefaultRoot: parent, DefaultProjectID: "parent", Explicit: map[string]string{"child": child}})
+	gate := NewPolicyGate(PolicyConfig{OPAURL: opa.URL, HTTPClient: opa.Client()})
+	ts := httptest.NewServer(NewWithRootsAndPolicy(roots, gate).Handler("", ""))
+	t.Cleanup(ts.Close)
+	call := func() map[string]any {
+		_, result := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_spec_readiness","arguments":{"project_id":"parent","slug":"consumer"}}}`)
+		if result.Result["isError"] != false {
+			t.Fatalf("MCP: %+v", result)
+		}
+		data, ok := result.Result["structuredContent"].(map[string]any)
+		if !ok {
+			t.Fatalf("no structured readiness: %+v", result)
+		}
+		return data
+	}
+	if got := call(); got["ready"] != true {
+		t.Fatalf("authorized readiness: %+v", got)
+	}
+	allowChild.Store(false)
+	got := call()
+	raw, _ := json.Marshal(got)
+	if got["ready"] != false || !strings.Contains(string(raw), "unauthorized-project") {
+		t.Fatalf("authorization bypass: %s", raw)
+	}
+	if strings.Contains(string(raw), child) || strings.Contains(string(raw), parent) {
+		t.Fatalf("root disclosure: %s", raw)
+	}
+}
 
 const sharedProjectIDDescription = "Optional project to scope the .pose root (multi-project); omit for the default root"
 

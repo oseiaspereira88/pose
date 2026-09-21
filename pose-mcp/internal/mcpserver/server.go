@@ -976,7 +976,23 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
 			return nil, fmt.Errorf("pose_spec_readiness: required argument %q missing", "slug")
 		}
-		return store.SpecReadiness(a.Slug)
+		resolver := pose.ArtifactResolver{Roots: s.roots, Authorize: func(projectID string) bool {
+			candidate := policyInputFromContext(ctx)
+			candidate.ProjectID, candidate.ProjectIDs = projectID, nil
+			decision, err := s.policy.Evaluate(ctx, candidate)
+			if err != nil {
+				return false
+			}
+			if s.auditor != nil {
+				s.auditor.Record(ctx, decision)
+			}
+			return decision.Allow
+		}}
+		project := sel.ProjectID
+		if project == "" {
+			project = s.roots.Context().DefaultProjectID
+		}
+		return store.SpecReadinessWithResolver(a.Slug, project, resolver)
 	case "pose_project_state":
 		var a struct {
 			Section string `json:"section"`

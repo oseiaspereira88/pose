@@ -593,39 +593,29 @@ type checkSpec struct {
 }
 
 func (checker *nativeChecker) checkSpecs() {
-	paths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*", "spec.md"))
-	legacy, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "specs", "*.md"))
-	for _, path := range legacy {
-		if !strings.EqualFold(filepath.Base(path), "README.md") {
-			paths = append(paths, path)
-		}
-	}
-	sort.Strings(paths)
+	canonical, _ := (pose.Store{Root: checker.root}).ListSpecs("", "")
 	specs := map[string]checkSpec{}
 	validStatus := map[string]bool{"draft": true, "in-progress": true, "done": true, "blocked": true, "superseded": true, "abandoned": true}
-	for _, path := range paths {
-		fields := simpleFrontmatter(path)
-		slug := fields["slug"]
-		if slug == "" {
-			slug = filepath.Base(filepath.Dir(path))
-			if filepath.Dir(path) == filepath.Join(checker.root, ".pose", "specs") {
-				slug = strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
-			}
-		}
-		status := fields["status"]
-		if status != "" && !validStatus[status] {
-			checker.failOrWarn(fmt.Sprintf(checker.message("spec status: %s: invalid status: %q", "spec status: %s: status inválido: %q"), slug, status))
+	for _, sp := range canonical {
+		if sp.Status != "" && !validStatus[sp.Status] {
+			checker.failOrWarn(fmt.Sprintf("spec status: %s: invalid status: %q", sp.Slug, sp.Status))
 		}
 		priority := 0
-		if fields["priority"] != "" {
-			parsed, err := strconv.Atoi(fields["priority"])
-			if err != nil || parsed < 0 {
-				checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: %s: invalid priority", "spec deps: %s: priority inválida"), slug))
-			} else {
-				priority = parsed
+		if sp.Priority != nil {
+			priority = *sp.Priority
+		}
+		if fi, err := os.Stat(sp.Path); err == nil && !fi.IsDir() {
+			fields := simpleFrontmatter(sp.Path)
+			if value := fields["priority"]; value != "" {
+				if parsed, err := strconv.Atoi(value); err != nil || parsed < 0 {
+					checker.failOrWarn("spec deps: " + sp.Slug + ": invalid priority")
+				}
 			}
 		}
-		specs[slug] = checkSpec{slug, status, fields["depends_on"], path, priority}
+		if _, exists := specs[sp.Slug]; exists {
+			checker.failOrWarn("spec deps: conflicting artifact identity: spec:" + sp.Slug)
+		}
+		specs[sp.Slug] = checkSpec{slug: sp.Slug, status: sp.Status, dependsOn: strings.Join(sp.DependsOn, ","), path: sp.Path, priority: priority}
 	}
 	edges := map[string][]string{}
 	for slug, spec := range specs {
@@ -636,7 +626,31 @@ func (checker *nativeChecker) checkSpecs() {
 				continue
 			}
 			seen[ref] = true
+			if _, err := pose.ParseArtifactRef(ref); err != nil {
+				checker.failOrWarn("spec deps: " + slug + ": invalid reference: " + ref)
+				continue
+			}
 			switch {
+			case strings.HasPrefix(ref, "xref:"):
+				resolver, project, err := pose.EnvironmentArtifactResolver(checker.root, "")
+				if err != nil {
+					checker.failOrWarn("spec deps: " + slug + ": invalid-project-configuration")
+					continue
+				}
+				if reason := resolver.ValidateGraph(project, ref); reason != "" {
+					checker.failOrWarn("spec deps: " + slug + ": " + ref + ": " + reason)
+				}
+			case strings.HasPrefix(ref, "spec:"):
+				parsed, err := pose.ParseArtifactRef(ref)
+				if err != nil {
+					checker.failOrWarn("spec deps: invalid reference: " + ref)
+					continue
+				}
+				if _, ok := specs[parsed.Slug]; !ok {
+					checker.failOrWarn("spec deps: missing spec: " + ref)
+				} else {
+					edges[slug] = append(edges[slug], parsed.Slug)
+				}
 			case checkSlug.MatchString(ref):
 				if ref == slug {
 					checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: %s: depends on itself", "spec deps: %s: depende da própria spec"), slug))
