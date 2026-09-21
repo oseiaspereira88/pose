@@ -25,6 +25,14 @@
       "digest": "sha256:f13a1e60fd3bf1965cfcf49cbb585341efb2e342c4c23e68b8fbb89937e295d8"
     },
     {
+      "spec": "check-worker-count-is-the-machines",
+      "category": "added",
+      "breaking": false,
+      "body": "`POSE_CHECK_WORKERS` sets the worker pool `pose check` uses for its per-spec gate work.\nThe default stays the core count: eight workers looked faster than sixteen over two\nruns and did not over five, so nothing was changed on a difference that noise explains.\nAn unusable value is ignored rather than failing the gate, and the pool is still clamped\nby the number of items.",
+      "path": "check-worker-count-is-the-machines.md",
+      "digest": "sha256:37756dd536c99f92d1ebf11933b8702e2a0b232f132dfa3a4b434aa777de6a4e"
+    },
+    {
       "spec": "parse-the-delivery-index-once-per-content",
       "category": "changed",
       "breaking": false,

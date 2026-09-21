@@ -340,6 +340,48 @@
       "path": ".pose/roadmaps/insights-enterprise-scale.md",
       "status": "done"
     },
+    "pose-multirepo-foundation": {
+      "created_at": "2026-09-21",
+      "depends_on": null,
+      "milestones": [
+        {
+          "id": "resolution",
+          "specs": [
+            "pose-qualified-artifact-resolution"
+          ]
+        },
+        {
+          "id": "composition",
+          "after": [
+            "resolution"
+          ],
+          "specs": [
+            "pose-federated-roadmap-acceptance"
+          ]
+        },
+        {
+          "id": "transfer",
+          "after": [
+            "resolution"
+          ],
+          "specs": [
+            "pose-spec-authority-transfer"
+          ]
+        },
+        {
+          "id": "agent-flow",
+          "after": [
+            "composition",
+            "transfer"
+          ],
+          "specs": [
+            "pose-agent-project-context"
+          ]
+        }
+      ],
+      "path": ".pose/roadmaps/pose-multirepo-foundation.md",
+      "status": "draft"
+    },
     "product-integrity": {
       "created_at": "2026-07-18",
       "depends_on": null,

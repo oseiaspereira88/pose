@@ -1,6 +1,10 @@
 {
   "edges": [
     {
+      "from": "check-worker-count-is-the-machines",
+      "to": "parse-the-delivery-index-once-per-content"
+    },
+    {
       "from": "parse-the-delivery-index-once-per-content",
       "to": "check-builds-the-delivery-graph-once"
     },
@@ -67,6 +71,18 @@
     {
       "from": "pose-adoption-stamp-stays-readable",
       "to": "pose-contract-adoption-registry"
+    },
+    {
+      "from": "pose-agent-project-context",
+      "to": "pose-qualified-artifact-resolution"
+    },
+    {
+      "from": "pose-agent-project-context",
+      "to": "pose-federated-roadmap-acceptance"
+    },
+    {
+      "from": "pose-agent-project-context",
+      "to": "pose-spec-authority-transfer"
     },
     {
       "from": "pose-agent-skills-conformance",
@@ -339,6 +355,10 @@
     {
       "from": "pose-extension-signing-clean-tree",
       "to": "pose-extension-reference-publication"
+    },
+    {
+      "from": "pose-federated-roadmap-acceptance",
+      "to": "pose-qualified-artifact-resolution"
     },
     {
       "from": "pose-first-governed-loop-quickstart",
@@ -777,6 +797,10 @@
       "to": "pose-requirement-evidence-traceability"
     },
     {
+      "from": "pose-spec-authority-transfer",
+      "to": "pose-qualified-artifact-resolution"
+    },
+    {
       "from": "pose-spec-format-migration-command",
       "to": "pose-specs-ergonomics-and-discovery"
     },
@@ -876,6 +900,14 @@
       "path": ".pose/specs/2026-09-20-check-strict-verdict-names-its-mode.md",
       "priority": 2,
       "status": "done"
+    },
+    "check-worker-count-is-the-machines": {
+      "depends_on": [
+        "parse-the-delivery-index-once-per-content"
+      ],
+      "path": ".pose/specs/2026-09-21-check-worker-count-is-the-machines.md",
+      "priority": 2,
+      "status": "in-progress"
     },
     "parse-the-delivery-index-once-per-content": {
       "depends_on": [
@@ -1008,6 +1040,16 @@
       "path": ".pose/specs/2026-09-08-pose-adoption-stamp-stays-readable.md",
       "priority": 0,
       "status": "in-progress"
+    },
+    "pose-agent-project-context": {
+      "depends_on": [
+        "pose-qualified-artifact-resolution",
+        "pose-federated-roadmap-acceptance",
+        "pose-spec-authority-transfer"
+      ],
+      "path": ".pose/specs/2026-09-21-pose-agent-project-context.md",
+      "priority": 0,
+      "status": "draft"
     },
     "pose-agent-skills-conformance": {
       "depends_on": [
@@ -1549,6 +1591,14 @@
       "priority": 1,
       "status": "done"
     },
+    "pose-federated-roadmap-acceptance": {
+      "depends_on": [
+        "pose-qualified-artifact-resolution"
+      ],
+      "path": ".pose/specs/2026-09-21-pose-federated-roadmap-acceptance.md",
+      "priority": 0,
+      "status": "draft"
+    },
     "pose-first-governed-loop-quickstart": {
       "depends_on": [
         "pose-release-recovery-verification"
@@ -1946,6 +1996,12 @@
       "path": ".pose/specs/2026-07-18-pose-public-install-contract.md",
       "priority": 3,
       "status": "done"
+    },
+    "pose-qualified-artifact-resolution": {
+      "depends_on": null,
+      "path": ".pose/specs/2026-09-21-pose-qualified-artifact-resolution.md",
+      "priority": 0,
+      "status": "draft"
     },
     "pose-readme-evaluation-path": {
       "depends_on": [
@@ -2405,6 +2461,14 @@
       "path": ".pose/specs/2026-07-18-pose-spec-amendment-history.md",
       "priority": 11,
       "status": "done"
+    },
+    "pose-spec-authority-transfer": {
+      "depends_on": [
+        "pose-qualified-artifact-resolution"
+      ],
+      "path": ".pose/specs/2026-09-21-pose-spec-authority-transfer.md",
+      "priority": 0,
+      "status": "draft"
     },
     "pose-spec-format-migration-command": {
       "depends_on": [
