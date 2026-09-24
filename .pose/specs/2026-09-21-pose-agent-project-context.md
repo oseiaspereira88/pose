@@ -174,15 +174,16 @@ implementation tests, delivery evidence and per-requirement acceptance remain pe
 integration, negative-gate and installed-journey producers before implementation.
 Read-only discovery will expose a context digest that mutations must match;
 cross-project writes require an explicit POSE_PROJECT_ROOTS binding.
-2026-09-24: targeted CLI/MCP families, scaffold parity, full `go test ./...`,
-and `go vet ./...` passed. `pose lint-spec pose-agent-project-context
---strict` passed with two in-progress dependency warnings. `pose assess
-integrate` ran and reported 56 generic unobserved-provider gaps. The broader
+2026-09-24: all named CLI/MCP families, scaffold parity, full `go test ./...`,
+and `go vet ./...` passed. The strict module matrix passed 25/25 checks.
+`pose lint-spec pose-agent-project-context --strict` passed with two
+in-progress dependency warnings. `pose artifact-check --strict` observed the
+same 35 declared and changed paths, with 386 repository-wide orphan warnings.
+`pose assess integrate` ran and reported 56 generic unobserved-provider gaps.
 `pose check --strict` is blocked by existing review bundles with an unsupported
-`implementation_digest` field; `docs-check` has no configured docs manifest.
+`implementation_digest` field. `docs-check` has no configured docs manifest.
 `govulncheck` could not load Go 1.27 source packages because the available
-scanner was built with Go 1.26. The strict delivery matrix and surface/artifact
-checks remain to run after this change is committed.
+scanner was built with Go 1.26.
 
 ### Requirement trace
 - R1 [satisfied] test:TestMultiRepoAgentSurfaceExposesPathFreeCLIContext test:TestMultiRepoAgentSurfaceReportsPathFreeQualifiedTaskContext
