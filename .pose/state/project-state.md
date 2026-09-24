@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-21T04:56:49Z
-baseline_commit: 68c63ed598189361850bfe5705f4cf8a0eca8228
+generated_at: 2026-09-24T22:46:39Z
+baseline_commit: a32ac72e437e6af454efffe96ddf11f8ca45e63c
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:3953e65133f6 -->
+<!-- state:derived hash:28c0aeb1fa71 -->
 
-- specs: total=232 draft=8 in-progress=65 blocked=0 done=159 superseded=0 abandoned=0
-- roadmaps: total=12 active=1 done=10
+- specs: total=232 draft=4 in-progress=66 blocked=0 done=162 superseded=0 abandoned=0
+- roadmaps: total=12 active=2 done=10
 - últimos closeouts:
+  - spec:pose-spec-authority-transfer (2026-09-24)
+  - spec:pose-federated-roadmap-acceptance (2026-09-24)
+  - spec:pose-qualified-artifact-resolution (2026-09-21)
   - spec:check-worker-count-is-the-machines (2026-09-21)
-  - spec:pose-abm-remediation-lineage (2026-09-20)
-  - spec:check-builds-the-delivery-graph-once (2026-09-20)
-  - spec:check-strict-verdict-names-its-mode (2026-09-20)
   - spec:parse-the-delivery-index-once-per-content (2026-09-20)
-  - ... e mais 154 (ver `pose_list_specs status:done`)
+  - ... e mais 157 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:c71a4814d371 -->
@@ -65,25 +65,25 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:976600637a80 -->
+<!-- state:derived hash:7a64856fa9db -->
 
-- último registro: task=validate-native outcome=pass (2026-09-19T16:20:31Z)
-- últimos 30 dias: total=67 outcome_ok=61 outcome_outro=6
-- reports revisados (.md): total=140
+- último registro: task=validate-native outcome=pass (2026-09-24T22:41:38Z)
+- últimos 30 dias: total=81 outcome_ok=73 outcome_outro=8
+- reports revisados (.md): total=143
+  - report:2026-09-24-standard-validate-native.md
+  - report:2026-09-21-standard-validate-native.md
+  - report:2026-09-21-qualified-artifact-resolution-review.md
   - report:2026-09-19-standard-validate-native.md
   - report:2026-09-15-standard-validate-native.md
-  - report:2026-09-12-standard-validate-native.md
-  - report:2026-09-11-standard-validate-native.md
-  - report:2026-09-10-standard-validate-native.md
 
 ## Arquitetura
-<!-- state:derived hash:c33303586cd0 status:active -->
+<!-- state:derived hash:ddb5c2332a9f status:active -->
 
 - componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=46900 testes=36530 total=83430
+- linhas_de_codigo: producao=50684 testes=38685 total=89369
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
-- integracoes: contratos=55 ativos=1 gaps=54
+- integracoes: contratos=57 ativos=1 gaps=56
 - divida_tecnica: total=0 coberta=0 descoberta=0
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 
