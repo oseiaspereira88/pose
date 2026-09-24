@@ -1,8 +1,8 @@
 ---
 slug: pose-spec-authority-transfer
-status: in-progress
+status: done
 created_at: 2026-09-21
-completed_at:
+completed_at: 2026-09-24
 supersedes:
 depends_on: pose-qualified-artifact-resolution
 priority: 0
@@ -112,7 +112,7 @@ A partial cross-repository write is unavoidable without a distributed transactio
 - [x] Implement the requirements incrementally with regression/contract tests.
 - [x] Update public contracts, consumers, docs/locales and generated scaffold where affected.
 - [x] Run the scenarios below plus required module checks and record evidence per R-ID.
-- [ ] Obtain explicit review and governed closeout; disposition follow-ups and refresh assessments.
+- [x] Obtain explicit review and governed closeout; disposition follow-ups and refresh assessments.
 
 ## 5. Decisions
 
@@ -150,6 +150,11 @@ Use independent Git fixtures, including nested submodule and sibling layouts.
 ### Execution log / Log de execução
 2026-09-24: accepted ADR and predecessor confirmed; risk-based test plan and exact artifact inventory recorded. Implemented the transfer engine, CLI, resolver redirect and MCP status. Preview/apply/recovery, negative-gate, redirect-cycle, historical-subject and authorized-status test families pass on Git fixtures. Follow-up hardening preserves unknown source frontmatter and blocks resume when new source references appear after an interruption. `go test ./...`, `go vet ./...`, all four named scenario commands, and the strict module matrix pass (21/21 checks). `pose check --strict` and `pose lint-spec --strict` pass; check reports 11 existing non-blocking warnings. `pose artifact-check --strict` passes with existing repository-wide orphan warnings; `pose surface-check --strict` passes (1 target, 21 results, 0 findings). `pose docs-check` reports no docs manifest, so the opt-in docs contract is absent; `pose assess integrate` reports 56 unobserved provider contracts, including the new status tool. Human review and governed closeout remain pending.
 
+2026-09-24 autonomous review: sealed bundle `rvb-165fc70dcb37c601`
+and attestation `rva-c5dc094230af32dc` verified as approved and fresh.
+`pose close` completed the spec; the earlier pending-review note records the
+state before this review.
+
 ### Requirement trace
 - R1 [satisfied] check:spec-authority-transfer-integration test:TestSpecTransferPreviewIsDeterministicAndReadOnly — repeated previews have the same digest and leave both Git roots unchanged; sibling and nested-submodule roots are covered.
 - R2 [satisfied] check:spec-authority-transfer-integration test:TestSpecTransferRequirementMapRequiresExplicitCoverage — every requirement needs an explicit disposition and valid destination mapping.
@@ -163,7 +168,7 @@ Use independent Git fixtures, including nested submodule and sibling layouts.
 ## 7. Final Report
 
 ### Delivered scope / Escopo entregue
-Runtime implementation is in progress. No consumer project has adopted schema 4 and no real project transfer has been executed. Human review and governed closeout remain pending.
+The transfer engine, CLI and MCP status contract passed review and governed spec closeout. No consumer project has adopted schema 4 and no real project transfer has been executed.
 
 ### Residual risks / Riscos residuais
 A partial cross-repository write is unavoidable without a distributed transaction. The journal must make incomplete authority transfer visibly blocked; compensation may never reopen both sides.
