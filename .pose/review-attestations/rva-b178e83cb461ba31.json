@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-b178e83cb461ba31",
+  "bundle_id": "rvb-b1cf811f6f3acf6d",
+  "bundle_digest": "sha256:b1cf811f6f3acf6d17c9f859774ae26aab9e1797d6f07a45347ae03d64bef57b",
+  "reviewer": "agent:codex",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "old-engine-local-shadow",
+      "rationale": "R8 remains deferred and the pinned old binary creates a local draft for a qualified task."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Skills, workflow, manual and locale describe authority-first routing."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-negative-gates",
+      "rationale": "Stale context, denied root and relocation return explicit states."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Diff and artifact claims cover context, CLI/MCP routing and documentation."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-negative-gates",
+      "rationale": "Unauthorized roots and stale revisions reject cross-project writes."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "artifact-check --spec showed 35 claims and 35 observed paths"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "skills-check passed 22 skills with zero errors"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "surface-check --spec passed one target with zero findings"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "strict module matrix passed 25 of 25"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-negative-gates",
+      "rationale": "strict module matrix passed 25 of 25"
+    }
+  ],
+  "evidence_refs": [
+    "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+    "integration:pose-mcp/go/artifact-claim-boundary-integration",
+    "integration:pose-mcp/go/multi-repo-agent-context-integration",
+    "integration:pose-mcp/go/multi-repo-agent-negative-gates"
+  ],
+  "findings": [
+    {
+      "id": "old-engine-local-shadow",
+      "severity": "high",
+      "evidence": "harne8/tests/e2e/pose-multirepo/journey.sh:legacy_unsafe_write",
+      "action": "Prevent an older installed engine from accepting a qualified task and creating a local shadow before consumer adoption",
+      "disposition": "changes-requested"
+    }
+  ],
+  "attested_at": "2026-09-24T22:48:01Z",
+  "path": ".pose/review-attestations/rva-b178e83cb461ba31.json"
+}

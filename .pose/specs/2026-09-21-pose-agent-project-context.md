@@ -182,10 +182,13 @@ same 35 declared and changed paths, with 385 repository-wide orphan warnings.
 `pose surface-check --spec pose-agent-project-context --strict` passed with
 zero findings.
 `pose assess integrate` ran and reported 56 generic unobserved-provider gaps.
-`pose check --strict` is blocked by existing review bundles with an unsupported
-`implementation_digest` field. `docs-check` has no configured docs manifest.
+`pose check --strict` now passes with 11 pre-existing warnings when run with the
+compatible candidate engine. `docs-check` has no configured docs manifest.
 `govulncheck` could not load Go 1.27 source packages because the available
 scanner was built with Go 1.26.
+The Harne8 adoption fixture built the old gitlink binary and found that it
+ignores `new-spec --task xref:...`, creating a local draft. Autonomous review
+`rva-b178e83cb461ba31` requested changes; the consumer remains inactive.
 
 ### Requirement trace
 - R1 [satisfied] test:TestMultiRepoAgentSurfaceExposesPathFreeCLIContext test:TestMultiRepoAgentSurfaceReportsPathFreeQualifiedTaskContext
@@ -195,7 +198,7 @@ scanner was built with Go 1.26.
 - R5 [satisfied] test:TestEmbeddedDistMatchesPoseDist test:TestSkillLocaleParity
 - R6 [satisfied] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeBindingChangeRequiresFreshMCPConnection
 - R7 [satisfied] test:TestMultiRepoAgentRoutingClosesOnlyQualifiedAuthorityWithFreshContext
-- R8 [deferred-integration: an older-engine binary fixture is not present; installed current CLI and MCP do reject unsupported contract metadata] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract
+- R8 [deferred-integration: the Harne8 older-engine fixture exists but exposes a local-shadow write for a qualified task; consumer activation remains blocked] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract
 
 ## 7. Final Report
 
@@ -203,9 +206,9 @@ scanner was built with Go 1.26.
 Path-free project/task context is shared by CLI and MCP; qualified create, review
 and closeout routes to the explicit canonical authority with stale-context gates.
 The instruction sources, pt-BR locale and embedded scaffold now describe that
-flow. Requirements R1–R7 have named passing coverage; R8 remains deferred until
-an older-engine binary fixture proves that older releases cannot apply the
-transfer and federation contracts.
+flow. Requirements R1–R7 have named passing coverage; R8 remains deferred after
+the old-engine fixture found a qualified-task local-shadow write. The consumer
+must stay inactive until compatibility protection and review are verified.
 
 ### Residual risks / Riscos residuais
 Hidden default project selection is the recurrence trigger. Explicit qualified intent must survive cwd changes; a same-slug lookup alone must not imply user intent or write authorization.
