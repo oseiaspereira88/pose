@@ -85,6 +85,8 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
 
 ## Steps
 
+Antes de revisar ou fechar tarefa entre projetos, rode `pose context --task <xref> --json` e use o `context_revision` atual. Resolva redirects até a autoridade canônica; pare diante de ambiguidade, metadado não suportado, vínculo obsoleto ou `transfer-in-progress`. Escritas de review e close em outro projeto exigem vínculo explícito em `POSE_PROJECT_ROOTS` e `--expect-context <context_revision>`.
+
 1. Confirmar que a validação determinística já passou (não feche spec com check pendente):
    ```bash
    pose validate --strict --module <path-afetado>
@@ -107,7 +109,10 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    commit que guarda um resultado move o head e invalida a proveniência dele
    para um escopo ainda aberto.
 4. Rodar uma passagem de review separada e registrá-la — a review é uma
-   tentativa imutável, não uma edição do frontmatter (quando review bundles estiverem habilitados, preparar e selar com `pose review bundle spec:<slug> --seal` e atestar com `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` ou `pose review attest`; caso contrário, usar `pose review record`):
+   tentativa imutável, não uma edição do frontmatter (quando review bundles estiverem habilitados, preparar e selar com `pose review bundle <referência-da-spec> --seal [--expect-context <digest>]`, coletar a metade mecânica com `pose review auto-attest <bundle-id> --reviewer agent:<id>` sem `--apply` e responder cada pendência com `pose review attest <referência-da-spec> ... --apply [--expect-context <digest>]`; caso contrário, usar `pose review record <referência-da-spec> ... --apply [--expect-context <digest>]`):
+   Para uma escrita externa, passe o `xref:` qualificado como escopo de
+   `pose review attest` ou `pose review record`, junto com o digest atual;
+   um ID de bundle sozinho não seleciona a autoridade.
    ```bash
    pose review record spec:<slug> --reviewer <execução> --decision approved \
      --evidence report:<relatório>.md --evidence requirement-trace:spec --apply
@@ -117,7 +122,7 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    que numa execução distinta da implementação.
 5. Exigir o gate de review antes de qualquer transição:
    ```bash
-   pose review-check spec:<slug>   # review.fresh + review.approved precisam ser true (ou pose review verify spec:<slug>)
+   pose review-check <referência-da-spec>   # review.fresh + review.approved precisam ser true (ou pose review verify <referência-da-spec>)
    ```
    Tentativas obsoletas (a spec mudou depois da review) ou rejeitadas precisam
    ser remediadas e supersedidas por uma nova tentativa — nunca editadas.
@@ -130,7 +135,7 @@ marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
    **confirme com o usuário antes de gravar** `spawned`/`covered`/`duplicate`.
 7. Aplicar a transição de ciclo de vida pelo gate, não à mão:
    ```bash
-   pose close spec:<slug>   # exige review aprovada e fresca; preenche a transição
+   pose close <referência-da-spec> [--expect-context <digest>]   # xref externo exige token fresco e binding explícito
    ```
    Edição manual do frontmatter (`status: done`, `completed_at: <YYYY-MM-DD>`)
    só quando o fluxo Git exigir — e preservando o mesmo gate, nunca contornando-o.

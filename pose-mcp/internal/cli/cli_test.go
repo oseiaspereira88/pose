@@ -160,8 +160,8 @@ func TestNewSpecNativeCreatesTemplateAndRejectsInvalidInput(t *testing.T) {
 		if err != nil || !strings.Contains(string(content), "slug: user-auth") || strings.Contains(string(content), "<YYYY-MM-DD>") {
 			t.Fatalf("template not materialized: %q err=%v", content, err)
 		}
-		if code := Main([]string{"new-spec", "user-auth"}, &out, &errB); code != 1 {
-			t.Fatalf("duplicate exit=%d, want 1", code)
+		if code := Main([]string{"new-spec", "user-auth"}, &out, &errB); code != 0 || !strings.Contains(out.String(), "Canonical spec") {
+			t.Fatalf("existing canonical task should be reused: exit=%d stdout=%s stderr=%s", code, out.String(), errB.String())
 		}
 		if code := Main([]string{"new-spec", "../escape"}, &out, &errB); code != 2 {
 			t.Fatalf("invalid slug exit=%d, want 2", code)

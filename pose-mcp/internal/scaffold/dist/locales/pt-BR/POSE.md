@@ -189,7 +189,10 @@ pose spec-transfer apply --plan <file> --digest <sha256> --authorize-project <id
 pose spec-transfer resume --operation <id> --project <id> --authorize-project <id>...
 pose spec-transfer status --operation <id> [--project <id>]
                                    # transferência explícita de autoridade entre projetos
-pose new-spec <slug> [--folder|--legacy]  # cria .pose/specs/YYYY-MM-DD-<slug>.md
+pose context [--project-id <id>] [--task <artifact-ref>] [--json]
+                                   # contexto sem caminhos, com autoridade e revisão
+pose new-spec <slug> [--folder|--legacy] [--task <xref>] [--expect-context <digest>]
+                                   # reutiliza autoridade canônica ou cria no projeto explícito
 pose new-roadmap <slug>            # cria roadmap governado em .pose/roadmaps/
 pose new-adr "<título>"            # cria ADR datada
 pose new-knowledge <type> <slug>   # cria handoff/note/decision-log em .pose/knowledge/
@@ -218,17 +221,17 @@ pose docs-check [--json] [--explain <rule>]
 
 # Closeout governado e review
 pose followups [--open|--all] [--json] [--owner <alias>] [--overdue] [--similarity N] [--fail-overdue]
-pose review-plan <escopo> [--json] [--explain]
-pose review bundle <escopo> [--json] [--explain] [--seal]
+pose review-plan <escopo|xref> [--json] [--explain]
+pose review bundle <escopo|xref> [--json] [--explain] [--seal] [--expect-context <digest>]
 pose review attest <bundle-id> --reviewer <execução> --decision <decisão> --evidence <ref>
                    [--criterion <c>] [--tool <t>] [--finding <f>] [--plan-digest <sha>] [--apply]
 pose review attest --envelope <project-relative-path> [--apply]
 pose review auto-attest <bundle-id|scope-ref> [--reviewer <id>] [--apply]
-pose review verify <escopo|bundle-id|bundle-path> [--json]
-pose review-check <escopo> [--json]
-pose closeout-check <escopo> [--json]
-pose review record <escopo> --reviewer <execução> --decision <decisão> --evidence <ref> [--apply]
-pose close <escopo>
+pose review verify <escopo|xref|bundle-id|bundle-path> [--json]
+pose review-check <escopo|xref> [--json]
+pose closeout-check <escopo|xref> [--json]
+pose review record <escopo|xref> --reviewer <execução> --decision <decisão> --evidence <ref> [--apply] [--expect-context <digest>]
+pose close <escopo|xref> [--expect-context <digest>]
 pose continuous-closeout <start|status|complete> [...]
 pose artifact-backfill --from-git [--apply --confirm-spec-edits]
 
@@ -357,12 +360,20 @@ pose release-notes --version vX.Y.Z # alias de compatibilidade para as notes imu
 
 ### Contrato de conexão MCP
 
+O comando `pose context --task <xref> --json` e a tool `pose_mcp_context`
+expõem a autoridade e a revisão atual sem revelar caminhos. Escritas CLI entre
+projetos exigem destino em `POSE_PROJECT_ROOTS` e o `context_revision` atual
+via `--expect-context`; descobrir um projeto por `HARNE8_PROJECTS_DIR` permite
+leitura, mas não concede autorização de escrita.
+
 - Trate `.mcp.json`, o processo de servidor conectado e o projeto selecionado
   como estados distintos.
 - Rode `pose doctor --json` apenas para a configuração estática local; o finding
   `mcp.config` informa `connection_checked: false`.
-- Chame `pose_mcp_context` com `project_id` explícito antes da primeira leitura
-  governada e após mudar workspace, configuração ou versão do binário.
+- Chame `pose_mcp_context` com `project_id` explícito e `task_ref` qualificado
+  opcional antes da primeira leitura governada e após mudar workspace,
+  configuração ou versão do binário. Compare versão do servidor, instância da
+  conexão e `project_context.context_revision`.
 - Reinicie ou reconecte o cliente MCP após alterar `.mcp.json`; um processo
   stdio em execução não recarrega automaticamente a configuração do cliente.
 - Ative `POSE_MCP_STRICT_PROJECT_SELECTION` em conexões multi-projeto e pare em

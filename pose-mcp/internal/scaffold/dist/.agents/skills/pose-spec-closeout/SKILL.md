@@ -57,6 +57,8 @@ never becomes overdue. `pose lint-spec` warns when it sees that.
 
 ## Steps
 
+Before reviewing or closing a cross-project task, run `pose context --task <xref> --json` and use its current `context_revision`. Resolve redirects to the canonical authority; stop on ambiguity, unsupported metadata, stale binding or `transfer-in-progress`. Cross-project review writes and close require an explicit `POSE_PROJECT_ROOTS` binding plus `--expect-context <context_revision>`.
+
 1. Confirm strict deterministic validation passed for affected modules (`pose validate --strict --module <affected-path>`).
 2. Verify that all implementation commits modifying the spec's declared `### Artifacts` carry a `POSE-Spec: <slug>` trailer in their commit message. Commits lacking this trailer cannot be attributed during `pose close` or `pose artifact-check`.
 3. Regenerate the evidence the bundle will seal, **before** sealing it, into
@@ -75,11 +77,11 @@ never becomes overdue. `pose lint-spec` warns when it sees that.
    Order matters. Generate, index, seal, attest, and commit **last**: the commit
    that stores a result moves the head and invalidates that result's provenance
    for a scope still open.
-4. Run a separate review pass: prepare and seal via `pose review bundle spec:<slug> --seal`, prepare the collected half via `pose review auto-attest <bundle-id> --reviewer agent:<id>` (no `--apply`), answer each `review_attestation.pending` criterion with `pose review attest --criterion ID|passed|<evidence>|<conclusion>`, and verify with `pose review verify spec:<slug>` (or use `pose review record spec:<slug> ... --apply` for legacy policies without review bundles).
-5. Require `pose review verify spec:<slug>` and `pose review-check spec:<slug>`; remediate, revalidate and supersede stale or rejected attempts.
+4. Run a separate review pass in the canonical project: prepare and seal via `pose review bundle <spec-ref> --seal [--expect-context <digest>]`, prepare the collected half via `pose review auto-attest <bundle-id> --reviewer agent:<id>` (no `--apply`), answer each `review_attestation.pending` criterion with `pose review attest <spec-ref> --reviewer <id> --decision approved --evidence <ref> --criterion ID|passed|<evidence>|<conclusion> --apply [--expect-context <digest>]`, and verify with `pose review verify <spec-ref>` (or use `pose review record <spec-ref> ... --apply [--expect-context <digest>]` for legacy policies without review bundles). For cross-project writes, pass the qualified `xref:` as the attest/record scope, the latest context digest and an explicit project binding; a bundle ID alone does not select the authority project.
+5. Require `pose review verify <spec-ref>` and `pose review-check <spec-ref>`; remediate, revalidate and supersede stale or rejected attempts.
 6. Inspect `pose followups --all` and, if useful, lower `--similarity` to broaden candidates.
 7. Propose each consequential disposition and obtain confirmation before writing it.
-8. Apply `pose close spec:<slug>`; use a manual lifecycle edit only when the Git workflow requires it and preserve the same gate.
+8. Apply `pose close <spec-ref> [--expect-context <digest>]`; use a manual lifecycle edit only when the Git workflow requires it and preserve the same gate. For an external authority, pass its qualified `xref:<project>/spec:<slug>` and the latest context digest.
 9. Produce a **changelog fragment** for the delivered spec:
    ```bash
    cp .pose/templates/changelog-fragment.md .pose/changelogs/unreleased/<slug>.md

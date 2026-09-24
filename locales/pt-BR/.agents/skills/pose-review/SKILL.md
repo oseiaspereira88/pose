@@ -17,6 +17,8 @@ Fluxo POSE para revisão técnica de PR ou diff local.
 2. [`.pose/workflows/review.md`](../../../.pose/workflows/review.md) — checklist + seleção obrigatória de rules + modo revisor.
 3. Rules de domínio aplicáveis. `security` prevalece em conflito.
 
+Resolva a tarefa selecionada com `pose context --task <referência-tipificada-ou-qualificada> --json` antes do review. Siga a autoridade canônica e pare diante de ambiguidade, vínculo obsoleto, metadado não suportado ou `transfer-in-progress`. Use o escopo `xref:` qualificado em operações entre projetos; toda escrita externa exige vínculo explícito em `POSE_PROJECT_ROOTS` e o `context_revision` atual via `--expect-context`. Mantenha evidências de review e trailer `POSE-Spec:` no repositório de autoridade.
+
 ## Steps
 
 1. Identificar o tipo da mudança: feature | bugfix | refactor | doc | misto.
@@ -46,6 +48,7 @@ Fluxo POSE para revisão técnica de PR ou diff local.
 11. Avaliar todos os critérios obrigatórios, inclusive fronteiras entre componentes.
 12. Selar com `pose review bundle <escopo> --seal`.
 13. Atestar o bundle automaticamente com `pose review auto-attest <bundle-id> --reviewer agent:reviewer-subagent --apply` (ou `pose review attest` com findings explícitos quando houver ressalvas). Uma attestation explícita registra `--criterion ID|passed|evidence` (ou `not-applicable` com rationale, ou `finding` nomeando um finding registrado) e `--finding ID|severity|disposition|action|evidence[|owner|rationale|review-by]`; todo finding precisa de severidade e ação, e um finding `accepted-risk` também precisa de dono, rationale e data de revisão. Um critério `passed` só pode citar evidência que o bundle selado contém, de uma classe que o critério aceita.
+    Para atestar um escopo de outro projeto, use o `xref:` qualificado como alvo de `pose review attest`, passe `--expect-context <digest>` junto com `--apply` e mantenha o vínculo explícito; o ID do bundle sozinho não seleciona a autoridade.
 14. Rodar `pose review verify <escopo>` e `pose review-check <escopo>`; fechar somente quando ambos confirmarem uma atestação válida e aprovada.
 15. Emitir decisão final: **aprovado | aprovado com ressalvas | mudanças solicitadas | reprovado**.
 16. Se o Modo Contribuidor estiver ativo e o review apontar falsos-positivos de linters, atritos de diagnóstico ou lacunas nas regras do POSE, registre uma proposta de melhoria com `pose contribute stage --type enhancement --title "<resumo>"`.

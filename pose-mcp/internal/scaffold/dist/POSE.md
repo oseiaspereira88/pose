@@ -186,7 +186,10 @@ pose spec-transfer apply --plan <file> --digest <sha256> --authorize-project <id
 pose spec-transfer resume --operation <id> --project <id> --authorize-project <id>...
 pose spec-transfer status --operation <id> [--project <id>]
                                    # explicit, digest-bound authority transfer across projects
-pose new-spec <slug> [--folder|--legacy]  # create .pose/specs/YYYY-MM-DD-<slug>.md
+pose context [--project-id <id>] [--task <artifact-ref>] [--json]
+                                   # path-free selected project, authority and revision
+pose new-spec <slug> [--folder|--legacy] [--task <xref>] [--expect-context <digest>]
+                                   # reuse canonical authority or create in its explicit project
 pose new-roadmap <slug>            # create a governed roadmap in .pose/roadmaps/
 pose new-adr "<title>"             # create a dated ADR
 pose new-knowledge <type> <slug>   # create handoff/note/decision-log
@@ -215,17 +218,17 @@ pose docs-check [--json] [--explain <rule>]
 
 # Governed closeout and review
 pose followups [--open|--all] [--json] [--owner <alias>] [--overdue] [--similarity N] [--fail-overdue]
-pose review-plan <scope> [--json] [--explain]
-pose review bundle <scope> [--json] [--explain] [--seal]
+pose review-plan <scope|xref> [--json] [--explain]
+pose review bundle <scope|xref> [--json] [--explain] [--seal] [--expect-context <digest>]
 pose review attest <bundle-id> --reviewer <execution-id> --decision <decision> --evidence <ref>
                    [--criterion <c>] [--tool <t>] [--finding <f>] [--plan-digest <sha>] [--apply]
 pose review attest --envelope <project-relative-path> [--apply]
 pose review auto-attest <bundle-id|scope-ref> [--reviewer <id>] [--apply]
-pose review verify <scope|bundle-id|bundle-path> [--json]
-pose review-check <scope> [--json]
-pose closeout-check <scope> [--json]
-pose review record <scope> --reviewer <execution-id> --decision <decision> --evidence <ref> [--apply]
-pose close <scope>
+pose review verify <scope|xref|bundle-id|bundle-path> [--json]
+pose review-check <scope|xref> [--json]
+pose closeout-check <scope|xref> [--json]
+pose review record <scope|xref> --reviewer <execution-id> --decision <decision> --evidence <ref> [--apply] [--expect-context <digest>]
+pose close <scope|xref> [--expect-context <digest>]
 pose continuous-closeout <start|status|complete> [...]
 pose artifact-backfill --from-git [--apply --confirm-spec-edits]
 
@@ -345,6 +348,8 @@ pose release-notes --version vX.Y.Z  # compatibility alias for the immutable not
 - `knowledge-suggest <query>` / `semantic-suggest <query>` / `suggest-feedback` / `portfolio-projection` / `reconcile-evidence` — deterministic lexical ranking and advisory projections for knowledge, feedback clustering, multi-roadmap portfolio milestones, and delivery validation evidence reconciliation. Suggestions never gate or auto-apply without confirmation.
 - `hooks` — links the native binary into `.git/hooks/`; invocation name selects `check --tolerant` for `pre-commit` and `index` for `post-merge`. `install --force` keeps a backup of pre-existing hooks.
 - `version` — displays compiled Go binary version, commit SHA, and compares the repository schema version with engine requirements.
+- `context` — resolves a selected logical project and optional local or `xref:`-qualified task through the shared artifact resolver. The JSON result includes canonical authority, project/artifact revisions, resolution state, supported contracts and a `context_revision`; it never includes filesystem roots. Use this token to detect a changed checkout or revision before a cross-project write.
+- Cross-project CLI writes require the target in `POSE_PROJECT_ROOTS` and the `context_revision` from a fresh `pose context` call. A project found only by `HARNE8_PROJECTS_DIR` scan can be read but does not grant write access. Existing canonical specs are reused; redirects and incomplete transfers block shadow creation.
 - `install <dir> [--locale tag] [--skip-mcp] [--force] [--no-backup] [--allow-non-git]` — installs the embedded POSE runtime, rules, workflows, templates, and documentation into a target project directory without cloning, stamps `adopted_at` in the changelog policy with the day the instance received it, and runs the strict gate.
 - `import <spec-kit|openspec> <path> [--dry-run]` — imports foreign specification trees into canonical POSE specifications with standard frontmatter and section structure.
 - `serve-mcp` — starts the POSE Model Context Protocol server over stdio (`--stdio`) or HTTP for native AI agent integration. The stdio server exits on SIGTERM; it resolves the `pose` CLI it runs once, at start, so a server started before `pose update` keeps working with the updated binary.
@@ -359,8 +364,10 @@ pose release-notes --version vX.Y.Z  # compatibility alias for the immutable not
   separate states.
 - Run `pose doctor --json` only for local static configuration; its
   `mcp.config` finding reports `connection_checked: false`.
-- Call `pose_mcp_context` with an explicit `project_id` before the first
-  governed read and after changing workspaces, configuration or binary version.
+- Call `pose_mcp_context` with an explicit `project_id` and optional qualified
+  `task_ref` before the first governed read and after changing workspaces,
+  configuration or binary version. Compare the returned server version,
+  connection instance and path-free `project_context.context_revision`.
 - Restart or reconnect the MCP client after changing `.mcp.json`; a running
   stdio process does not reload client configuration automatically.
 - Enable `POSE_MCP_STRICT_PROJECT_SELECTION` for multi-project connections and

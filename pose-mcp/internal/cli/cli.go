@@ -65,6 +65,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdInit(root, stdout, stderr)
+	case "context":
+		root, err := projectRoot()
+		if err != nil {
+			render(io.Discard, stderr).Failure("pose context: " + err.Error())
+			return 1
+		}
+		return cmdProjectContext(root, args, stdout, stderr)
 	case "new-spec":
 		root, err := projectRoot()
 		if err != nil {

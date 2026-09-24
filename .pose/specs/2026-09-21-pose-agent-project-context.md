@@ -1,6 +1,6 @@
 ---
 slug: pose-agent-project-context
-status: draft
+status: in-progress
 created_at: 2026-09-21
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-qualified-artifact-resolution, pose-federated-roadmap-acceptanc
 priority: 0
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: surface:multirepo-agent-context
 ---
 
 # Spec: Consistent project context for agents across repository entrypoints
@@ -52,23 +52,52 @@ Bound graph traversal and input size; report stable errors without secrets/roots
 ## 3. Technical Plan
 
 ### Affected areas / Áreas afetadas
-Extend CLI project selection/context and MCP project-scope contract. Wire the resolver into new-spec and closeout entrypoints. Update the distributed instruction source then regenerate embedded scaffold with its existing generator.
+Add a read-only `pose context` projection over the existing project resolver and
+extend `pose_mcp_context` with the same qualified-task result. Bind each context
+to the selected logical project, canonical artifact, observed Git revision,
+artifact digest, configured checkout identity and bounded adopted-policy
+digests, including uncommitted review-policy edits. Reuse `ArtifactResolver` for local refs, xrefs and redirects;
+fail closed on unknown, competing, incomplete-transfer, stale or unauthorized
+targets. Require an explicit `POSE_PROJECT_ROOTS` binding plus the matching
+context digest for CLI cross-project writes. Keep closeout evaluation and writes
+inside the authority project. Update the distributed instruction sources and
+regenerate their embedded scaffold with the existing generator.
 
 ### Artifacts
 - created: .pose/specs/2026-09-21-pose-agent-project-context.md
 - modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/cli_test.go
+- modified: pose-mcp/internal/cli/help_test.go
+- created: pose-mcp/internal/cli/project_context.go
 - modified: pose-mcp/internal/cli/scaffold.go
-- modified: pose-mcp/internal/cli/onboarding_context.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- created: pose-mcp/internal/pose/agent_project_context.go
+- modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/mcp_context_test.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - created: pose-mcp/internal/cli/multirepo_agent_flow_test.go
+- modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
 - modified: .agents/skills/pose-feature/SKILL.md
 - modified: .agents/skills/pose-review/SKILL.md
 - modified: .agents/skills/pose-spec-closeout/SKILL.md
+- modified: locales/pt-BR/.agents/skills/pose-feature/SKILL.md
+- modified: locales/pt-BR/.agents/skills/pose-review/SKILL.md
+- modified: locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
 - modified: .pose/workflows/feature.md
+- modified: locales/pt-BR/.pose/workflows/feature.md
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/workflows/feature.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/feature.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
 - modified: .pose/indexes/validation-matrix.json
 
 Initial exact-path inventory. Reconcile against the implementation revision before
@@ -77,10 +106,15 @@ attributed to its actual producing change; do not reuse this slug for the entire
 program. Commit in the owning repository with `POSE-Spec: pose-agent-project-context`.
 
 ### Delivery targets
-Proposed target: `surface:multirepo-agent-context`, module `pose-mcp`, existing profile `cli-surface`, entrypoint `pose-mcp/cmd/pose/main.go`. Register reachability and integration/e2e producers for the installed CLI/MCP journey.
-Keep `delivers` empty while this is a draft. Before in-progress, register the
-producer, declare the typed target/entrypoint and prove a negative gate case.
-Do not count documentation or a test suite matching zero tests as delivery.
+- surface:multirepo-agent-context module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Register `multi-repo-agent-context-reachability` (`reachability`),
+`multi-repo-agent-context-integration` (`integration`),
+`multi-repo-agent-negative-gates` (`integration`) and
+`multi-repo-agent-installed-journey` (`e2e`) in the `pose-mcp` validation
+matrix. Each producer must name a test family that exists and executes. The
+negative producer must cover ambiguity, stale context, denied project access,
+redirect/transfer blocks and old-contract refusal.
 
 ### Data and rollout / Dados e rollout
 Version new metadata through existing schema/capability mechanisms. Preview
@@ -93,10 +127,10 @@ Hidden default project selection is the recurrence trigger. Explicit qualified i
 
 ## 4. Tasks
 
-- [ ] Confirm source revisions, ADR adoption and all local/external prerequisites.
-- [ ] Reconcile artifacts and register target, evidence producer and negative fixture.
-- [ ] Implement the requirements incrementally with regression/contract tests.
-- [ ] Update public contracts, consumers, docs/locales and generated scaffold where affected.
+- [x] Confirm source revisions, accepted ADRs and local prerequisites; dependent implementation exists, while separate review/closeout remains pending.
+- [x] Reconcile artifacts and register target, four evidence producers and named negative-gate family.
+- [x] Implement the requirements incrementally with regression/contract tests.
+- [x] Update public contracts, consumers, docs/locales and generated scaffold where affected.
 - [ ] Run the scenarios below plus required module checks and record evidence per R-ID.
 - [ ] Obtain explicit review and governed closeout; disposition follow-ups and refresh assessments.
 
@@ -118,10 +152,12 @@ Use independent Git fixtures, including nested submodule and sibling layouts.
 
 | Scenario / requisitos | Command (from this repository root) | Expected evidence |
 | --- | --- | --- |
-| Context, ambiguity, duplicate prevention; R1–R4 | `go -C pose-mcp test ./internal/cli ./internal/mcpserver -run TestMultiRepoAgent -count=1` | Same qualified task resolves at every entrypoint; ambiguity and partial transfers block creation. |
-| Installed journey, contract mismatch; R6–R8 | `go -C pose-mcp test ./internal/cli -run TestMultiRepoAgentInstalled -count=1` | Real installed CLI/MCP route one authority and leave unmet composition blocked. |
+| Context, ambiguity, duplicate prevention; R1–R4 | `go -C pose-mcp test ./internal/cli ./internal/mcpserver -run TestMultiRepoAgent -count=1` | Parent, child and sibling roots resolve the same qualified task; no local shadow is created; stale or unauthorized writes fail before mutation. |
+| Negative gates; R2–R4, R8 | `go -C pose-mcp test ./internal/cli ./internal/mcpserver -run TestMultiRepoAgentNegative -count=1` | Ambiguous task, stale revision, denied project, redirect/transfer conflict and unsupported adopted contract fail closed. |
+| Installed journey, contract mismatch; R6–R8 | `go -C pose-mcp test ./internal/cli -run TestMultiRepoAgentInstalled -count=1` | Built CLI recomputes context after target checkout changes, blocks stale writes, and creates in the explicit authority after a fresh context. |
+| Reachability; R1/R8 | `go -C pose-mcp test ./internal/cli ./internal/mcpserver -run TestMultiRepoAgentSurface -count=1` | `pose context` and `pose_mcp_context` expose the same path-free qualified task contract. |
 | Instruction/scaffold parity; R5/R8 | `go -C pose-mcp test ./internal/scaffold -run TestEmbeddedDistMatchesPoseDist -count=1` | Regenerated locales/skills match canonical sources; new flow documented. |
-| Required module matrix; all requirements | `pose validate --strict --module pose-mcp --report` | Registered build/unit/integration checks pass; evidence names this corpus. |
+| Required module matrix; all requirements | `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json --report` | Registered build/unit/integration checks pass; structured evidence includes this corpus. |
 
 ### Governance checks
 - `pose lint-spec pose-agent-project-context --ready-check` before activation.
@@ -134,21 +170,39 @@ Use independent Git fixtures, including nested submodule and sibling layouts.
 ### Execution log / Log de execução
 2026-09-21: planning only. Editorial validation is recorded in the package audit;
 implementation tests, delivery evidence and per-requirement acceptance remain pending.
+2026-09-24: reconciled the target, exact files and dedicated reachability,
+integration, negative-gate and installed-journey producers before implementation.
+Read-only discovery will expose a context digest that mutations must match;
+cross-project writes require an explicit POSE_PROJECT_ROOTS binding.
+2026-09-24: targeted CLI/MCP families, scaffold parity, full `go test ./...`,
+and `go vet ./...` passed. `pose lint-spec pose-agent-project-context
+--strict` passed with two in-progress dependency warnings. `pose assess
+integrate` ran and reported 56 generic unobserved-provider gaps. The broader
+`pose check --strict` is blocked by existing review bundles with an unsupported
+`implementation_digest` field; `docs-check` has no configured docs manifest.
+`govulncheck` could not load Go 1.27 source packages because the available
+scanner was built with Go 1.26. The strict delivery matrix and surface/artifact
+checks remain to run after this change is committed.
 
 ### Requirement trace
-- R1: Pending implementation and the mapped mandatory scenario above.
-- R2: Pending implementation and the mapped mandatory scenario above.
-- R3: Pending implementation and the mapped mandatory scenario above.
-- R4: Pending implementation and the mapped mandatory scenario above.
-- R5: Pending implementation and the mapped mandatory scenario above.
-- R6: Pending implementation and the mapped mandatory scenario above.
-- R7: Pending implementation and the mapped mandatory scenario above.
-- R8: Pending implementation and the mapped mandatory scenario above.
+- R1 [satisfied] test:TestMultiRepoAgentSurfaceExposesPathFreeCLIContext test:TestMultiRepoAgentSurfaceReportsPathFreeQualifiedTaskContext
+- R2 [satisfied] test:TestMultiRepoAgentContextResolvesOneQualifiedTaskFromEveryCheckout test:TestMultiRepoAgentRoutingClosesOnlyQualifiedAuthorityWithFreshContext
+- R3 [satisfied] test:TestMultiRepoAgentRoutingCreatesAtQualifiedAuthorityAndReusesIt test:TestMultiRepoAgentNegativeTransferBlocksUntilCanonicalAuthorityIsActive
+- R4 [satisfied] test:TestMultiRepoAgentNegativeBindingChangeInvalidatesContext test:TestMultiRepoAgentNegativePolicyChangeInvalidatesContext test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract
+- R5 [satisfied] test:TestEmbeddedDistMatchesPoseDist test:TestSkillLocaleParity
+- R6 [satisfied] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeBindingChangeRequiresFreshMCPConnection
+- R7 [satisfied] test:TestMultiRepoAgentRoutingClosesOnlyQualifiedAuthorityWithFreshContext
+- R8 [deferred-integration: an older-engine binary fixture is not present; installed current CLI and MCP do reject unsupported contract metadata] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract
 
 ## 7. Final Report
 
 ### Delivered scope / Escopo entregue
-Planning artifact only. Runtime, adoption and acceptance remain pending.
+Path-free project/task context is shared by CLI and MCP; qualified create, review
+and closeout routes to the explicit canonical authority with stale-context gates.
+The instruction sources, pt-BR locale and embedded scaffold now describe that
+flow. Requirements R1–R7 have named passing coverage; R8 remains deferred until
+an older-engine binary fixture proves that older releases cannot apply the
+transfer and federation contracts.
 
 ### Residual risks / Riscos residuais
 Hidden default project selection is the recurrence trigger. Explicit qualified intent must survive cwd changes; a same-slug lookup alone must not imply user intent or write authorization.

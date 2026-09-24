@@ -355,11 +355,15 @@
       "name": "pose_spec_readiness"
     },
     {
-      "description": "Inspect the active MCP server process and its authorized logical project context without exposing filesystem roots. Returns server/version/instance/transport metadata, registry refresh time, strict-selection mode, authorized project IDs and optional requested-project resolution with reconnect remediation. Use before the first governed read and after switching workspaces or changing .mcp.json.",
+      "description": "Inspect the active MCP server process and its authorized logical project context without exposing filesystem roots. Returns server/version/instance/transport metadata, registry refresh time, strict-selection mode, authorized project IDs, and a path-free qualified task context with authority, revision, redirect state and context revision. Use before the first governed read and after switching workspaces or changing .mcp.json.",
       "inputSchema": {
         "properties": {
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "task_ref": {
+            "description": "Optional local or xref-qualified artifact reference to resolve as the current task",
             "type": "string"
           }
         },

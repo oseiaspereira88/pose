@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -221,5 +224,151 @@ func TestMCPContextStdioTransport(t *testing.T) {
 	structured, _ := resultMap["structuredContent"].(map[string]any)
 	if structured["transport"] != "stdio" {
 		t.Fatalf("transport = %v, want stdio", structured["transport"])
+	}
+}
+
+func writeMultiRepoMCPProject(t *testing.T, root, slug, status string, schema int) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Join(root, ".pose", "specs"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	policy := fmt.Sprintf(`{"schema_version":%d,"qualified_artifact_refs_version":1,"spec_authority_transfer_version":1}`, schema) + "\n"
+	if err := os.MkdirAll(filepath.Join(root, ".pose", "policy"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".pose", "policy", "review.json"), []byte(policy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if slug != "" {
+		body := "---\nslug: " + slug + "\nstatus: " + status + "\ncreated_at: 2026-09-24\n---\n# " + slug + "\n"
+		if err := os.WriteFile(filepath.Join(root, ".pose", "specs", "2026-09-24-"+slug+".md"), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, args := range [][]string{{"init", "-q"}, {"config", "user.email", "pose-mcp-test@example.invalid"}, {"config", "user.name", "POSE MCP fixture"}, {"add", "-A"}, {"commit", "-qm", "fixture"}} {
+		cmd := exec.Command("git", append([]string{"-C", root}, args...)...)
+		if output, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v: %s", args, err, output)
+		}
+	}
+}
+
+func TestMultiRepoAgentSurfaceReportsPathFreeQualifiedTaskContext(t *testing.T) {
+	parent, executor := t.TempDir(), t.TempDir()
+	writeMultiRepoMCPProject(t, parent, "", "", 4)
+	writeMultiRepoMCPProject(t, executor, "checkout", "in-progress", 4)
+	roots := pose.NewRoots(pose.RootsConfig{
+		DefaultRoot:      parent,
+		DefaultProjectID: "proj.parent",
+		Explicit:         map[string]string{"proj.executor": executor},
+	})
+	ts := httptest.NewServer(NewWithRoots(roots).Handler("", ""))
+	t.Cleanup(ts.Close)
+	request := `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_mcp_context","arguments":{"project_id":"proj.parent","task_ref":"xref:proj.executor/spec:checkout"}}}`
+	_, result := post(t, ts, request)
+	structured := contextStructured(t, result)
+	projectContext, _ := structured["project_context"].(map[string]any)
+	if projectContext["selected_project_id"] != "proj.parent" || projectContext["task_ref"] != "xref:proj.executor/spec:checkout" || projectContext["context_revision"] == "" {
+		t.Fatalf("MCP project context omitted selection or freshness token: %+v", projectContext)
+	}
+	authority, _ := projectContext["authority"].(map[string]any)
+	resolution, _ := projectContext["task_resolution"].(map[string]any)
+	if authority["project_id"] != "proj.executor" || authority["slug"] != "checkout" || resolution["resolution_state"] != "resolved" || resolution["source_revision"] == "" {
+		t.Fatalf("MCP did not resolve canonical authority and revision: %+v", projectContext)
+	}
+	if projectContext["coordinator_relation"] != "selected-project-to-qualified-authority" {
+		t.Fatalf("coordinator relationship is missing: %+v", projectContext)
+	}
+	raw, _ := json.Marshal(structured)
+	for _, root := range []string{parent, executor} {
+		if strings.Contains(string(raw), root) {
+			t.Fatalf("MCP project context leaked root %q: %s", root, raw)
+		}
+	}
+}
+
+func TestMultiRepoAgentNegativeBindingChangeRequiresFreshMCPConnection(t *testing.T) {
+	parent, executor := t.TempDir(), t.TempDir()
+	writeMultiRepoMCPProject(t, parent, "", "", 4)
+	writeMultiRepoMCPProject(t, executor, "checkout", "in-progress", 4)
+	clone := filepath.Join(t.TempDir(), "proj.executor")
+	if output, err := exec.Command("git", "clone", "-q", executor, clone).CombinedOutput(); err != nil {
+		t.Fatalf("clone executor binding: %v: %s", err, output)
+	}
+	firstRoots := pose.NewRoots(pose.RootsConfig{DefaultRoot: parent, DefaultProjectID: "proj.parent", Explicit: map[string]string{"proj.executor": executor}})
+	firstServer := httptest.NewServer(NewWithRoots(firstRoots).Handler("", ""))
+	t.Cleanup(firstServer.Close)
+	request := `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_mcp_context","arguments":{"project_id":"proj.parent","task_ref":"xref:proj.executor/spec:checkout"}}}`
+	_, firstResponse := post(t, firstServer, request)
+	first := contextStructured(t, firstResponse)
+	firstContext, _ := first["project_context"].(map[string]any)
+	firstResolution, _ := firstContext["task_resolution"].(map[string]any)
+	secondRoots := pose.NewRoots(pose.RootsConfig{DefaultRoot: parent, DefaultProjectID: "proj.parent", Explicit: map[string]string{"proj.executor": clone}})
+	secondServer := httptest.NewServer(NewWithRoots(secondRoots).Handler("", ""))
+	t.Cleanup(secondServer.Close)
+	_, secondResponse := post(t, secondServer, request)
+	second := contextStructured(t, secondResponse)
+	secondContext, _ := second["project_context"].(map[string]any)
+	secondResolution, _ := secondContext["task_resolution"].(map[string]any)
+	if firstContext["context_revision"] == secondContext["context_revision"] || firstResolution["source_revision"] != secondResolution["source_revision"] {
+		t.Fatalf("MCP context did not detect binding change independently from task revision: first=%+v second=%+v", firstContext, secondContext)
+	}
+	if first["server_version"] == "" || second["server_version"] == "" || first["server_instance_id"] == second["server_instance_id"] {
+		t.Fatalf("connection version/instance was not exposed independently: first=%+v second=%+v", first, second)
+	}
+	raw, _ := json.Marshal(second)
+	for _, root := range []string{parent, executor, clone} {
+		if strings.Contains(string(raw), root) {
+			t.Fatalf("MCP binding context leaked root %q: %s", root, raw)
+		}
+	}
+}
+
+func TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract(t *testing.T) {
+	parent, executor := t.TempDir(), t.TempDir()
+	writeMultiRepoMCPProject(t, parent, "", "", 4)
+	writeMultiRepoMCPProject(t, executor, "checkout", "in-progress", 4)
+	opa := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var input struct {
+			Input struct {
+				ProjectID string `json:"project_id"`
+			} `json:"input"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+			http.Error(w, "invalid input", http.StatusBadRequest)
+			return
+		}
+		allow := input.Input.ProjectID == "" || input.Input.ProjectID == "proj.parent"
+		_ = json.NewEncoder(w).Encode(map[string]any{"result": map[string]any{"allow": allow}})
+	}))
+	t.Cleanup(opa.Close)
+	roots := pose.NewRoots(pose.RootsConfig{DefaultRoot: parent, DefaultProjectID: "proj.parent", Explicit: map[string]string{"proj.executor": executor}})
+	ts := httptest.NewServer(NewWithRootsAndPolicy(roots, NewPolicyGate(PolicyConfig{OPAURL: opa.URL, HTTPClient: opa.Client()})).Handler("", ""))
+	t.Cleanup(ts.Close)
+	request := `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_mcp_context","arguments":{"project_id":"proj.parent","task_ref":"xref:proj.executor/spec:checkout"}}}`
+	_, denied := post(t, ts, request)
+	if denied.Error == nil && denied.Result["isError"] != true {
+		t.Fatalf("unauthorized authority was resolved: %+v", denied)
+	}
+	deniedRaw, _ := json.Marshal(denied)
+	for _, root := range []string{parent, executor} {
+		if strings.Contains(string(deniedRaw), root) {
+			t.Fatalf("denied task context leaked root %q: %s", root, deniedRaw)
+		}
+	}
+
+	// A known project with an adopted schema newer than this engine's contract
+	// fails explicitly instead of returning a misleading local fallback.
+	unsupported := t.TempDir()
+	writeMultiRepoMCPProject(t, unsupported, "checkout", "in-progress", 99)
+	unknownRoots := pose.NewRoots(pose.RootsConfig{DefaultRoot: parent, DefaultProjectID: "proj.parent", Explicit: map[string]string{"proj.executor": unsupported}})
+	unknownServer := httptest.NewServer(NewWithRoots(unknownRoots).Handler("", ""))
+	t.Cleanup(unknownServer.Close)
+	_, result := post(t, unknownServer, request)
+	contextResult := contextStructured(t, result)
+	projectContext, _ := contextResult["project_context"].(map[string]any)
+	resolution, _ := projectContext["task_resolution"].(map[string]any)
+	if resolution["resolution_state"] != "unsupported-artifact-contract" {
+		t.Fatalf("unsupported contract did not fail closed: %+v", projectContext)
 	}
 }

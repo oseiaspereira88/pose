@@ -28,39 +28,44 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
 
 ## Steps
 
-1. Identificar slug curto e verificar/criar spec:
+1. Resolver a tarefa antes de criar spec ou iniciar implementação:
    ```bash
-   pose new-spec <slug>  # cria .pose/specs/YYYY-MM-DD-<slug>.md (ou use --folder se houver amends)
+   pose context --task <referência-tipificada-ou-qualificada> --json
    ```
-2. Obter métricas de LOC, estrutura do módulo e dívidas técnicas antes de modificar o código:
+   Reutilize a spec canônica quando houver resolução; pare diante de ambiguidade, metadado não suportado ou `transfer-in-progress`. Não infira tarefa externa por slug simples ou caminho semelhante. Para criar nova autoridade em outro projeto, informe o `xref:<projeto>/spec:<slug>` exato e o `context_revision` atual; o destino precisa de vínculo explícito em `POSE_PROJECT_ROOTS`. Mantenha os requisitos na spec de autoridade e use referências qualificadas para compor o coordenador.
+2. Identificar slug curto e verificar/criar spec:
+   ```bash
+   pose new-spec <slug> [--task <xref> --expect-context <digest>]  # cria localmente ou roteia à autoridade qualificada
+   ```
+3. Obter métricas de LOC, estrutura do módulo e dívidas técnicas antes de modificar o código:
    ```bash
    pose assess discover --component <dir>  # ou use a tool pose_component_discover
    ```
-3. Consultar knowledge relacionada (handoffs anteriores, decision-logs do módulo), citando cada um usado como `knowledge:<slug>` na spec — a forma que `pose knowledge-usage` conta:
+4. Consultar knowledge relacionada (handoffs anteriores, decision-logs do módulo), citando cada um usado como `knowledge:<slug>` na spec — a forma que `pose knowledge-usage` conta:
    ```bash
    find .pose/knowledge -name "*<modulo>*.md" -type f -not -path '*/archive/*'
    ```
-4. Preencher seções `Intent → Requirements → Technical Plan → Tasks` da spec antes de codar.
-5. Implementar incrementalmente, comitar as alterações no Git com o trailer `POSE-Spec: <slug>` na mensagem do commit (ex: `POSE-Spec: <slug>`) e validar cada passo:
+5. Preencher seções `Intent → Requirements → Technical Plan → Tasks` da spec de autoridade antes de codar.
+6. Implementar incrementalmente, comitar no repositório que possui a spec de autoridade com o trailer `POSE-Spec: <slug>` na mensagem do commit (ex: `POSE-Spec: <slug>`) e validar cada passo:
    ```bash
    pose validate --strict --module <path-afetado> --report
    ```
-6. Atualizar seção `Validation` da spec com os comandos executados e resultado.
-7. Se houver contexto reaproveitável para próxima execução (estado parcial, follow-up, transição de owner), criar handoff:
+7. Atualizar seção `Validation` da spec com os comandos executados e resultado.
+8. Se houver contexto reaproveitável para próxima execução (estado parcial, follow-up, transição de owner), criar handoff:
    ```bash
    pose new-knowledge handoff <slug>-handoff --owner @<squad>
    ```
-8. Preencher seção `Final Report` da spec com escopo entregue, riscos residuais e follow-ups.
-9. **Fechar a spec** (skill [pose-spec-closeout](../pose-spec-closeout/SKILL.md)): quando review bundles estiverem habilitados, selar o sujeito com `pose review bundle spec:<slug> --seal`, anexar a atestação com `pose review auto-attest <bundle-id> --reviewer agent:<id> --apply` (ou `pose review attest`) e exigir `pose review verify spec:<slug>`. Depois, definir `status: done` + `completed_at` no frontmatter, dar disposição a cada follow-up e rodar o gate de saída:
+9. Preencher seção `Final Report` da spec com escopo entregue, riscos residuais e follow-ups.
+10. **Fechar a spec** (skill [pose-spec-closeout](../pose-spec-closeout/SKILL.md)): quando review bundles estiverem habilitados, selar o sujeito com `pose review bundle <referência-da-spec> --seal [--expect-context <digest>]`, coletar a metade mecânica com `pose review auto-attest <bundle-id> --reviewer agent:<id>` sem `--apply`, responder as pendências com `pose review attest <referência-da-spec> ... --apply [--expect-context <digest>]` e exigir `pose review verify <referência-da-spec>`. Para autoridade externa, use o `xref` e o contexto atual em cada escrita. Depois, definir `status: done` + `completed_at` no frontmatter, dar disposição a cada follow-up e rodar o gate de saída:
    ```bash
    pose followups --all          # backlog cruzado + colisões antes de triar
    pose lint-spec <slug> --strict
    ```
-10. Atualizar métricas dinâmicas da plataforma após a entrega:
+11. Atualizar métricas dinâmicas da plataforma após a entrega:
     ```bash
     pose assess discover --update-state
     ```
-11. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
+12. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
 
 ## Output requirements
 

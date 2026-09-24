@@ -45,7 +45,7 @@ func TestHierarchicalHelpCommand(t *testing.T) {
 		{[]string{"help"}, "Usage:"},
 		{[]string{"help", "validate"}, "validation-matrix.json"},
 		{[]string{"help", "review"}, "bundle"},
-		{[]string{"help", "review", "bundle"}, "pose review bundle <scope>"},
+		{[]string{"help", "review", "bundle"}, "pose review bundle <scope|xref>"},
 		{[]string{"help", "extension", "install"}, "pose extension install"},
 		{[]string{"help", "contribute", "stage"}, "pose contribute stage"},
 		{[]string{"help", "release", "plan"}, "pose release plan"},

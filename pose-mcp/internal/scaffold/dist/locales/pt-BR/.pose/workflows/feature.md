@@ -13,22 +13,24 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 
 ## Checklist de execução
 
-1. Confirmar objetivo, restrições e contratos públicos afetados.
+1. Resolver projeto e tarefa com `pose context --task <referência-tipificada-ou-qualificada> --json`; reutilizar a autoridade canônica e parar diante de ambiguidade, metadado não suportado, vínculo obsoleto ou `transfer-in-progress`. Não inferir tarefa externa por slug simples nem ancestralidade do checkout.
 2. Mapear módulos impactados e rodar `pose assess discover [--component <dir>]` para inspecionar métricas, LOCs e dívidas do módulo antes da edição.
 3. **Consultar `.pose/knowledge/`** por handoffs/notas/decision-logs relevantes ao escopo (busque pelo slug do módulo afetado e por temas correlatos). Cite cada artefato consultado na spec como `knowledge:<slug>`. É exatamente essa forma que `pose knowledge-usage` conta — prosa citando o arquivo é invisível para ele, então um artefato que todos leem pode parecer não usado e expirar no TTL.
-4. Revisar spec existente (ou criar/atualizar) com intenção e tarefas.
+4. Revisar ou criar a spec no projeto de autoridade. Manter requisitos na spec de origem e usar referências qualificadas para compor o coordenador.
 5. Declarar ações exatas em `### Artifacts` e reconciliar com `pose artifact-check`.
 6. Planejar entregas em passos pequenos e reversíveis.
 7. Implementar incrementalmente, validando cada etapa.
-8. Commitar as alterações no Git com o trailer `POSE-Spec: <slug>` na mensagem do commit (ex: `POSE-Spec: <slug>`) para atribuir as modificações aos `### Artifacts` declarados na spec.
+8. Commitar no repositório dono da spec de autoridade, com o trailer `POSE-Spec: <slug>` na mensagem do commit (ex: `POSE-Spec: <slug>`) para atribuir as modificações aos `### Artifacts` declarados na spec.
 9. Reconciliar e verificar as alterações com `pose artifact-check --spec <slug> --strict`.
 10. Quando houver `delivers`, gerar resultado estruturado e exigir `pose surface-check --spec <slug> --strict`.
 11. Rodar checks determinísticos aplicáveis (`test`, `lint`, `typecheck`, `build`).
 12. Verificar impacto em segurança, observabilidade e documentação operacional. Se afetar contratos inter-componentes (Protobuf, Kafka, REST, MCP), rodar `pose assess integrate`.
 13. **Produzir handoff** em `.pose/knowledge/` se houver contexto reaproveitável entre execuções (estado parcial, decisão pendente, follow-up para próximo owner). Use `pose new-knowledge handoff <slug>` e referencie a spec em `source_refs`.
 14. Consolidar resultado final com riscos residuais e próximos passos.
-15. **Fechar a spec** (skill `pose-spec-closeout`): quando bundles estiverem habilitados, selar com `pose review bundle spec:<slug> --seal`, registrar a atestação independente com `pose review attest <bundle-id> ... --apply` e exigir `pose review verify spec:<slug>`; em policy legada, usar `pose review record`. Exigir `pose closeout-check spec:<slug>` e aplicar a transição com `pose close spec:<slug>` — definir `status: done` e `completed_at` no frontmatter; rodar `pose assess discover --update-state` para recalcular a completude da plataforma; dar disposição a cada follow-up (`pose followups --all` mostra o backlog cruzado e colisões); passar o gate `pose lint-spec <slug> --strict`.
-16. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição via `pose contribute stage --type enhancement`.
+15. Rodar uma revisão separada contra a autoridade canônica. Para escopos externos, usar `xref:`; toda escrita entre projetos exige vínculo explícito em `POSE_PROJECT_ROOTS` e o `context_revision` atual via `--expect-context`.
+16. Exigir `pose review verify <referência-da-spec>` (modo bundle) e `pose closeout-check <referência-da-spec>` antes de aplicar `pose close <referência-da-spec> [--expect-context <digest>]`; remediação que muda entradas semânticas ou fontes exige novo bundle.
+17. **Fechar a spec** (skill `pose-spec-closeout`): definir `status: done` e `completed_at` no frontmatter; rodar `pose assess discover --update-state` para recalcular a completude da plataforma; dar disposição a cada follow-up (`pose followups --all` mostra o backlog cruzado e colisões); passar o gate `pose lint-spec <slug> --strict`.
+18. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição via `pose contribute stage --type enhancement`.
 
 ## Saídas obrigatórias
 

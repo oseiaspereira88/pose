@@ -546,6 +546,61 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "multi-repo-agent-context-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "TestMultiRepoAgentSurface",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
+        },
+        {
+          "name": "multi-repo-agent-context-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "TestMultiRepoAgent",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "multi-repo-agent-negative-gates",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "TestMultiRepoAgentNegative",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "multi-repo-agent-installed-journey",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestMultiRepoAgentInstalled",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "e2e"
         }
       ]
     },

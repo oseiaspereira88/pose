@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -33,6 +34,12 @@ func cmdReviewCheck(root string, args []string, stdout, stderr io.Writer) int {
 	ref, jsonOutput, ok := parseScopeCheckArgs("review-check", args, stderr)
 	if !ok {
 		return 2
+	}
+	if targetRoot, localRef, routed, err := cliMaybeRouteScope(root, ref); err != nil {
+		render(io.Discard, stderr).Failure("pose review-check: " + err.Error())
+		return 1
+	} else if routed {
+		root, ref = targetRoot, localRef
 	}
 	eval, err := cliGovernedStore(root).ReviewCheck(ref)
 	if err != nil {
@@ -80,6 +87,12 @@ func cmdReviewPlan(root string, args []string, stdout, stderr io.Writer) int {
 	if ref == "" {
 		fmt.Fprintln(stderr, "Usage: pose review-plan <spec:slug|milestone:roadmap/id|roadmap:slug> [--json] [--explain]")
 		return 2
+	}
+	if targetRoot, localRef, routed, err := cliMaybeRouteScope(root, ref); err != nil {
+		render(io.Discard, stderr).Failure("pose review-plan: " + err.Error())
+		return 1
+	} else if routed {
+		root, ref = targetRoot, localRef
 	}
 	plan, err := (posemodel.Store{Root: root}).ReviewPlan(ref)
 	if err != nil {
@@ -228,6 +241,12 @@ func cmdCloseoutCheck(root string, args []string, stdout, stderr io.Writer) int 
 	if !ok {
 		return 2
 	}
+	if targetRoot, localRef, routed, err := cliMaybeRouteScope(root, ref); err != nil {
+		render(io.Discard, stderr).Failure("pose closeout-check: " + err.Error())
+		return 1
+	} else if routed {
+		root, ref = targetRoot, localRef
+	}
 	state, err := cliCloseoutState(root, ref)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose closeout-check: %v\n", err)
@@ -304,6 +323,9 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|auto-attest|verify|record> ...")
 		return 2
 	}
+	if code, handled := routeQualifiedReviewScope(root, args, stdout, stderr); handled {
+		return code
+	}
 	switch args[0] {
 	case "bundle":
 		return cmdReviewBundle(root, args[1:], stdout, stderr)
@@ -318,6 +340,87 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	default:
 		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|auto-attest|verify|record> ...")
 		return 2
+	}
+}
+
+func routeQualifiedReviewScope(root string, args []string, stdout, stderr io.Writer) (int, bool) {
+	if len(args) < 2 || args[0] == "auto-attest" {
+		return 0, false
+	}
+	ref := args[1]
+	if strings.HasPrefix(ref, "-") {
+		return 0, false
+	}
+	parsed, err := posemodel.ParseArtifactRef(ref)
+	if err != nil || !strings.Contains(ref, ":") {
+		return 0, false
+	}
+	route, err := cliResolveArtifactRoute(root, ref)
+	if err != nil {
+		if strings.HasPrefix(ref, "xref:") {
+			render(io.Discard, stderr).Failure("pose review: " + err.Error())
+			return 1, true
+		}
+		return 0, false
+	}
+	if parsed.Project == "" && !route.Context.TaskResolution.Redirected {
+		return 0, false
+	}
+	expectedContext := ""
+	filtered := make([]string, 0, len(args)-1)
+	filtered = append(filtered, args[0])
+	for i := 1; i < len(args); i++ {
+		if args[i] == "--expect-context" {
+			if expectedContext != "" || i+1 >= len(args) || args[i+1] == "" || strings.HasPrefix(args[i+1], "--") {
+				render(io.Discard, stderr).Failure("pose review: --expect-context requires one digest")
+				return 2, true
+			}
+			i++
+			expectedContext = args[i]
+			continue
+		}
+		if args[i] == ref {
+			filtered = append(filtered, route.LocalRef)
+		} else {
+			filtered = append(filtered, args[i])
+		}
+	}
+	mutating := args[0] == "bundle"
+	if args[0] == "record" || args[0] == "attest" {
+		mutating = slices.Contains(args, "--apply")
+	}
+	if mutating {
+		if _, cross, err := cliAuthorizedWriteStore(root, route.Context.Authority.Project, route.Resolver, route.CurrentProject); err != nil {
+			render(io.Discard, stderr).Failure("pose review: " + err.Error())
+			return 1, true
+		} else if cross && expectedContext == "" {
+			render(io.Discard, stderr).Failure("pose review: cross-project write requires --expect-context from pose context")
+			return 1, true
+		}
+	}
+	if expectedContext != "" {
+		if route.Context.ContextRevision != expectedContext {
+			render(io.Discard, stderr).Failure("pose review: stale-context; rerun pose context and retry")
+			return 1, true
+		}
+		latest, err := posemodel.ResolveAgentProjectContext(route.Resolver, route.CurrentProject, ref)
+		if err != nil || latest.ContextRevision != expectedContext || latest.Authority == nil || latest.Authority.String() != route.Context.Authority.String() {
+			render(io.Discard, stderr).Failure("pose review: stale-context; rerun pose context and retry")
+			return 1, true
+		}
+	}
+	targetRoot := route.Store.Root
+	switch args[0] {
+	case "bundle":
+		return cmdReviewBundle(targetRoot, filtered[1:], stdout, stderr), true
+	case "verify":
+		return cmdReviewVerify(targetRoot, filtered[1:], stdout, stderr), true
+	case "record":
+		return cmdReviewRecord(targetRoot, filtered[1:], stdout, stderr), true
+	case "attest":
+		return cmdReviewAttest(targetRoot, filtered[1:], stdout, stderr), true
+	default:
+		return 0, false
 	}
 }
 
@@ -1186,10 +1289,94 @@ func writeFileExclusive(path string, content []byte) error {
 }
 
 func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
-	ref, _, ok := parseScopeCheckArgs("close", args, stderr)
+	expectedContext := ""
+	remaining := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		if args[i] != "--expect-context" {
+			remaining = append(remaining, args[i])
+			continue
+		}
+		if expectedContext != "" || i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
+			render(io.Discard, stderr).Failure("pose close: --expect-context requires one digest")
+			return 2
+		}
+		i++
+		expectedContext = args[i]
+	}
+	ref, _, ok := parseScopeCheckArgs("close", remaining, stderr)
 	if !ok {
 		return 2
 	}
+	taskRef := ref
+	var requested posemodel.ArtifactRef
+	if strings.HasPrefix(ref, "xref:") {
+		parsed, err := posemodel.ParseArtifactRef(ref)
+		if err != nil {
+			render(io.Discard, stderr).Failure("pose close: invalid qualified task reference")
+			return 2
+		}
+		requested = parsed
+		taskRef = parsed.String()
+	} else {
+		parsed, err := posemodel.ParseArtifactRef(ref)
+		if err != nil {
+			render(io.Discard, stderr).Failure("pose close: invalid task reference")
+			return 2
+		}
+		requested = parsed
+	}
+	context, resolver, currentProject, err := cliAgentContext(root, taskRef)
+	if err != nil {
+		render(io.Discard, stderr).Failure("pose close: project context unavailable: " + err.Error())
+		return 1
+	}
+	if context.TaskResolution == nil || !context.TaskResolution.Resolved {
+		state := "unknown-artifact"
+		if context.TaskResolution != nil {
+			state = context.TaskResolution.State
+		}
+		render(io.Discard, stderr).Failure("pose close: task authority cannot close: " + state)
+		return 1
+	}
+	if context.Authority == nil || context.Authority.Kind != requested.Kind {
+		render(io.Discard, stderr).Failure("pose close: canonical authority changed")
+		return 1
+	}
+	store, crossProject, err := cliAuthorizedWriteStore(root, context.Authority.Project, resolver, currentProject)
+	if err != nil {
+		render(io.Discard, stderr).Failure("pose close: " + err.Error())
+		return 1
+	}
+	if crossProject && expectedContext == "" {
+		render(io.Discard, stderr).Failure("pose close: cross-project write requires --expect-context from pose context")
+		return 1
+	}
+	if expectedContext != "" && context.ContextRevision != expectedContext {
+		render(io.Discard, stderr).Failure("pose close: stale-context; rerun pose context and retry")
+		return 1
+	}
+	localRef := scopeRefForArtifact(*context.Authority)
+	var guard func() error
+	if expectedContext != "" {
+		guard = func() error {
+			latest, err := posemodel.ResolveAgentProjectContext(resolver, currentProject, taskRef)
+			if err != nil || latest.ContextRevision != expectedContext || latest.Authority == nil || latest.Authority.String() != context.Authority.String() {
+				return fmt.Errorf("stale-context")
+			}
+			return nil
+		}
+	}
+	return cmdCloseLocal(store.Root, localRef, guard, stdout, stderr)
+}
+
+func scopeRefForArtifact(ref posemodel.ArtifactRef) string {
+	if ref.Kind == "milestone" {
+		return "milestone:" + ref.Slug + "/" + ref.Milestone
+	}
+	return ref.Kind + ":" + ref.Slug
+}
+
+func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Writer) int {
 	store := cliGovernedStore(root)
 	state, err := cliCloseoutState(root, ref)
 	if err != nil {
@@ -1246,6 +1433,12 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		path = filepath.Join(root, ".pose", "roadmaps", scope.Slug+".md")
+	}
+	if guard != nil {
+		if err := guard(); err != nil {
+			render(io.Discard, stderr).Failure("pose close: " + err.Error())
+			return 1
+		}
 	}
 	if err := applyLifecycleDone(path, scope.Kind == "spec"); err != nil {
 		fmt.Fprintf(stderr, "pose close: %v\n", err)

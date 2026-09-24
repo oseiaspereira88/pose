@@ -1552,6 +1552,7 @@ func rootsSelectionMode(snapshot pose.RootsContext) string {
 func (s *Server) dispatchMCPContext(ctx context.Context, args json.RawMessage) (any, error) {
 	var request struct {
 		ProjectID string `json:"project_id"`
+		TaskRef   string `json:"task_ref"`
 	}
 	if err := json.Unmarshal(args, &request); err != nil {
 		return nil, fmt.Errorf("pose_mcp_context: invalid arguments")
@@ -1570,20 +1571,41 @@ func (s *Server) dispatchMCPContext(ctx context.Context, args json.RawMessage) (
 	// otherwise drop guidance silently.
 	remediation := make([]map[string]string, 0, 3)
 	var requestedProject map[string]string
+	selectedProjectID := snapshot.DefaultProjectID
 	if request.ProjectID != "" {
-		status := "resolved"
-		if _, err := s.roots.StoreFor(request.ProjectID); err != nil {
-			var unknown pose.ProjectUnknownError
-			if !errors.As(err, &unknown) {
-				return nil, err
+		selectedProjectID = request.ProjectID
+	}
+	if request.ProjectID != "" {
+		status := "unauthorized"
+		if slices.Contains(authorized, request.ProjectID) {
+			status = "resolved"
+			if _, err := s.roots.StoreFor(request.ProjectID); err != nil {
+				var unknown pose.ProjectUnknownError
+				if !errors.As(err, &unknown) {
+					return nil, err
+				}
+				status = "unknown"
 			}
+		} else if !slices.Contains(snapshot.ProjectIDs, request.ProjectID) {
 			status = "unknown"
+		}
+		if status == "unknown" {
 			remediation = append(remediation,
 				map[string]string{"code": "verify-project-id", "action": "select an ID from available_project_ids"},
 				map[string]string{"code": "reload-connection", "action": "restart or reconnect the MCP client after changing .mcp.json"},
 			)
 		}
 		requestedProject = map[string]string{"project_id": request.ProjectID, "status": status}
+	}
+	var projectContext *pose.AgentProjectContext
+	if selectedProjectID != "" && slices.Contains(authorized, selectedProjectID) {
+		resolvedContext, err := pose.ResolveAgentProjectContext(s.federatedArtifactResolver(ctx), selectedProjectID, request.TaskRef)
+		if err != nil {
+			return nil, fmt.Errorf("pose_mcp_context: %s", err.Error())
+		}
+		projectContext = &resolvedContext
+	} else if request.TaskRef != "" {
+		return nil, fmt.Errorf("pose_mcp_context: explicit authorized project_id is required for task context")
 	}
 	switch selectionMode {
 	case "legacy-default-multi-project":
@@ -1612,6 +1634,9 @@ func (s *Server) dispatchMCPContext(ctx context.Context, args json.RawMessage) (
 		"selection_mode":           selectionMode,
 		"available_project_ids":    authorized,
 		"remediation":              remediation,
+	}
+	if projectContext != nil {
+		response["project_context"] = projectContext
 	}
 	if snapshot.DefaultProjectID != "" && slices.Contains(authorized, snapshot.DefaultProjectID) {
 		response["default_project_id"] = snapshot.DefaultProjectID
@@ -2019,15 +2044,19 @@ func toolDefinitions() []map[string]any {
 			"name": "pose_mcp_context",
 			"description": "Inspect the active MCP server process and its authorized logical project context " +
 				"without exposing filesystem roots. Returns server/version/instance/transport metadata, " +
-				"registry refresh time, strict-selection mode, authorized project IDs and optional " +
-				"requested-project resolution with reconnect remediation. Use before the first governed " +
-				"read and after switching workspaces or changing .mcp.json.",
+				"registry refresh time, strict-selection mode, authorized project IDs, and a path-free " +
+				"qualified task context with authority, revision, redirect state and context revision. " +
+				"Use before the first governed read and after switching workspaces or changing .mcp.json.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
 					"project_id": map[string]any{
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+					"task_ref": map[string]any{
+						"type":        "string",
+						"description": "Optional local or xref-qualified artifact reference to resolve as the current task",
 					},
 				},
 			},
