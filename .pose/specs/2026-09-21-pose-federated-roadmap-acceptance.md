@@ -1,8 +1,8 @@
 ---
 slug: pose-federated-roadmap-acceptance
-status: in-progress
+status: done
 created_at: 2026-09-21
-completed_at:
+completed_at: 2026-09-24
 supersedes:
 depends_on: pose-qualified-artifact-resolution
 priority: 0
@@ -117,7 +117,7 @@ Cycles or TOCTOU can turn a partial graph into false approval. Treat incomplete 
 - [x] Implement the requirements incrementally with regression/contract tests.
 - [x] Update public contracts, consumers, and docs where affected; locales and scaffold contracts are unchanged.
 - [x] Run the scenarios below plus required module checks and record evidence per R-ID.
-- [ ] Obtain explicit review and governed closeout; disposition follow-ups and refresh assessments.
+- [x] Obtain explicit review and governed closeout; disposition follow-ups and refresh assessments.
 
 ## 5. Decisions
 
@@ -175,7 +175,8 @@ federation policy was enabled. Validation evidence is recorded in
 `pose validate --strict --module pose-mcp --report` passed; the matrix reported
 18/18 gates. `pose lint-spec ... --ready-check` passed. `pose check --strict`
 passed with 11 existing warnings for changelog fragments and stale assessments.
-Explicit review and governed closeout remain pending.
+Autonomous review approved sealed bundle `rvb-b5d482a5bf68ff8d` on 2026-09-24;
+`pose close` completed the spec lifecycle.
 
 ### Requirement trace
 - R1 [satisfied] `TestFederatedRoadmapQualifiedMembershipAndOutcomeConsumption`; `TestFederatedAcceptanceComposesReviewedSiblingRoadmapAndStalesOnSourceRevision` — local and qualified members, prerequisites and consumed outcomes resolve into one transitive plan.
@@ -191,13 +192,12 @@ Explicit review and governed closeout remain pending.
 
 ### Delivered scope / Escopo entregue
 The federated composition engine, typed evidence producers and read-only surfaces
-are implemented. Consumer policy activation remains a separate rollout; explicit
-review, governed closeout and pilot acceptance are still pending.
+are implemented. Review and governed spec closeout passed. Consumer policy
+activation and pilot acceptance remain a separate rollout.
 
 ### Residual risks / Riscos residuais
 Cycles or TOCTOU can turn a partial graph into false approval. Incomplete required
-closure blocks; traversal is bounded and verification inputs are pinned. This
-implementation still requires an independent review before governed closeout.
+closure blocks; traversal is bounded and verification inputs are pinned.
 
 ### Follow-ups
 No additional unowned follow-ups; remaining work is in this spec.
