@@ -250,6 +250,16 @@ func cmdRoadmapCheck(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "pose roadmap-check: %v\n", err)
 		return 1
 	}
+	resolver, project, err := posemodel.EnvironmentArtifactResolver(root, "")
+	if err != nil {
+		render(stdout, stderr).Failure("pose roadmap-check: invalid project configuration")
+		return 1
+	}
+	federated, err := store.FederatedRoadmapAcceptance(project, slug, resolver)
+	if err != nil {
+		render(stdout, stderr).Failure(fmt.Sprintf("pose roadmap-check: federated acceptance: %v", err))
+		return 1
+	}
 	criteria := []posemodel.RoadmapCriterion{}
 	for _, item := range graph.RoadmapCriteria {
 		if item.Roadmap == slug {
@@ -257,6 +267,7 @@ func cmdRoadmapCheck(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	blockers := []string{}
+	blockers = append(blockers, federated.Blockers...)
 	for _, criterion := range criteria {
 		if !criterion.Passed {
 			blockers = append(blockers, criterion.ID+": "+strings.Join(criterion.Reasons, "; "))
@@ -288,7 +299,7 @@ func cmdRoadmapCheck(root string, args []string, stdout, stderr io.Writer) int {
 			}
 		}
 	}
-	result := map[string]any{"schema_version": 1, "roadmap": slug, "status": roadmap.Status, "criteria": criteria, "terminal": len(blockers) == 0, "blockers": uniqueCLIStrings(blockers), "graph_digest": graph.InputDigest}
+	result := map[string]any{"schema_version": 1, "roadmap": slug, "status": roadmap.Status, "criteria": criteria, "federated_acceptance": federated, "terminal": len(blockers) == 0, "blockers": uniqueCLIStrings(blockers), "graph_digest": graph.InputDigest}
 	if jsonOutput {
 		_ = writeJSON(stdout, result)
 	} else {

@@ -199,6 +199,28 @@ func TestQualifiedArtifactTypedRoadmapsAndContractNegotiation(t *testing.T) {
 	}
 }
 
+func TestFederatedRoadmapQualifiedMembershipAndOutcomeConsumption(t *testing.T) {
+	coordinator, source := t.TempDir(), t.TempDir()
+	qualifiedFile(t, coordinator, "roadmaps/program.md", "---\nslug: program\nstatus: active\nconsumes: xref:source/roadmap:component\n---\n## Milestone: build\n- specs: xref:source/spec:engine\n")
+	qualifiedFile(t, source, "specs/engine.md", "---\nslug: engine\nstatus: done\n---\n# Engine\n")
+	qualifiedFile(t, source, "roadmaps/component.md", "---\nslug: component\nstatus: done\n---\n## Milestone: released\n- specs: xref:source/spec:engine\n")
+	r := ArtifactResolver{Roots: NewRoots(RootsConfig{Explicit: map[string]string{"coordinator": coordinator, "source": source}})}
+	roadmap := r.Resolve("coordinator", "roadmap:program")
+	if !roadmap.Resolved || roadmap.Status != "active" {
+		t.Fatalf("coordinator roadmap: %+v", roadmap)
+	}
+	if len(roadmap.Dependencies) != 2 || roadmap.Dependencies[0].Project != "source" || roadmap.Dependencies[1].Kind != "milestone" {
+		t.Fatalf("qualified member and consumed roadmap were not preserved: %+v", roadmap.Dependencies)
+	}
+	milestone := r.Resolve("coordinator", "milestone:program/build")
+	if !milestone.Resolved || milestone.Status != "done" {
+		t.Fatalf("qualified milestone membership did not resolve its source status: %+v", milestone)
+	}
+	if reason := r.ValidateGraph("coordinator", "roadmap:program"); reason != "" {
+		t.Fatalf("acyclic qualified graph failed validation: %s", reason)
+	}
+}
+
 func TestQualifiedArtifactNestedSubmoduleDoesNotAcquireAuthority(t *testing.T) {
 	parent, source := t.TempDir(), t.TempDir()
 	git := func(root string, args ...string) {

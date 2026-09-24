@@ -1,7 +1,8 @@
 # ADR: Federated roadmap acceptance with local evidence authority
 
 ## Status
-Proposed — 2026-09-21. Implemented by
+Accepted — 2026-09-24. The user authorized the documented implementation
+sequence. Implemented by
 [federated acceptance](../specs/2026-09-21-pose-federated-roadmap-acceptance.md),
 using the [identity contract](2026-09-21-qualified-artifact-authority-and-explicit-spec-transfer.md).
 

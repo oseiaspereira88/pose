@@ -102,7 +102,12 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	roadmaps, _ := store.ListRoadmaps()
 	roadmapMap := map[string]any{}
 	for _, r := range roadmaps {
-		roadmapMap[r.Slug] = map[string]any{"status": r.Status, "created_at": r.CreatedAt, "depends_on": r.DependsOn, "milestones": r.Milestones, "path": relativePath(root, r.Path)}
+		federated, err := store.FederatedRoadmapAcceptance(project, r.Slug, resolver)
+		if err != nil {
+			render(stdout, stderr).Failure(fmt.Sprintf("pose index: federated roadmap %s: %v", r.Slug, err))
+			return 1
+		}
+		roadmapMap[r.Slug] = map[string]any{"status": r.Status, "created_at": r.CreatedAt, "depends_on": r.DependsOn, "consumes": r.Consumes, "milestones": r.Milestones, "federated_acceptance": federated, "path": relativePath(root, r.Path)}
 	}
 	deliveryGraph, err := buildCurrentDeliveryGraph(root)
 	if err != nil {

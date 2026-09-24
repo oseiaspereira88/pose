@@ -189,7 +189,8 @@ type ReviewBundlePayload struct {
 	// A bundle sealed before this field existed carries none, and is read by the
 	// dated rule it was always read by. That is the only thing the dates are
 	// for now.
-	GoverningContracts []string `json:"governing_contracts,omitempty"`
+	GoverningContracts []string                  `json:"governing_contracts,omitempty"`
+	FederatedManifest  *FederatedRoadmapManifest `json:"federated_manifest,omitempty"`
 	// Gates are the two closeout settings that depend on policy, frozen at seal
 	// time for the same reason the contracts are: read live, a flag flipped
 	// today would approve a closeout recorded years ago
@@ -468,6 +469,17 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 
 	bundle.Payload.ConsumedInputs = s.reviewBundleConsumedInputs(plan)
 	bundle.Payload.GoverningContracts = governingContractsAtSeal()
+	if s.FederatedResolver != nil && (scope.Kind == "roadmap" || scope.Kind == "milestone") {
+		roadmap := scope.Slug
+		if scope.Kind == "milestone" {
+			roadmap = scope.Roadmap
+		}
+		report, err := s.FederatedRoadmapAcceptance(s.FederatedProjectID, roadmap, *s.FederatedResolver)
+		if err != nil {
+			return ReviewBundle{}, err
+		}
+		bundle.Payload.FederatedManifest = &report.Manifest
+	}
 	if policy, _, policyErr := s.loadReviewPolicy(); policyErr == nil {
 		bundle.Payload.Gates = &ReviewBundleGates{
 			AllowApprovedWithReservations: policy.AllowApprovedWithReservations,

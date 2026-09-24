@@ -78,7 +78,72 @@ func TestQualifiedArtifactMCPReadinessAuthorizesEveryTarget(t *testing.T) {
 	}
 }
 
-const sharedProjectIDDescription = "Optional project to scope the .pose root (multi-project); omit for the default root"
+func TestFederatedRoadmapToolAuthorizesEveryDependency(t *testing.T) {
+	parent, child := t.TempDir(), t.TempDir()
+	for _, root := range []string{parent, child} {
+		if err := os.MkdirAll(filepath.Join(root, ".pose", "roadmaps"), 0755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.MkdirAll(filepath.Join(parent, ".pose", "policy"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(parent, ".pose", "roadmaps", "program.md"), []byte("---\nslug: program\nstatus: active\nconsumes: xref:child/roadmap:source\n---\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(parent, ".pose", "policy", "federation.json"), []byte("{\"schema_version\":1,\"enabled\":true,\"adopted_at\":\"2026-09-24\",\"trusted_projects\":{}}"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(child, ".pose", "roadmaps", "source.md"), []byte("---\nslug: source\nstatus: done\n---\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	opa := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		var input struct {
+			Input struct {
+				Project string `json:"project_id"`
+			} `json:"input"`
+		}
+		if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
+			http.Error(w, "invalid", 400)
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"result": map[string]any{"allow": input.Input.Project == "parent"}})
+	}))
+	t.Cleanup(opa.Close)
+	roots := pose.NewRoots(pose.RootsConfig{DefaultRoot: parent, DefaultProjectID: "parent", Explicit: map[string]string{"child": child}})
+	ts := httptest.NewServer(NewWithRootsAndPolicy(roots, NewPolicyGate(PolicyConfig{OPAURL: opa.URL, HTTPClient: opa.Client()})).Handler("", ""))
+	t.Cleanup(ts.Close)
+	_, result := post(t, ts, `{"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"pose_federated_roadmap_acceptance","arguments":{"project_id":"parent","slug":"program"}}}`)
+	if result.Result["isError"] != false {
+		t.Fatalf("MCP federated acceptance failed: %+v", result)
+	}
+	data, ok := result.Result["structuredContent"].(map[string]any)
+	if !ok {
+		t.Fatalf("missing structured acceptance result: %+v", result)
+	}
+	raw, _ := json.Marshal(data)
+	if !strings.Contains(string(raw), "unauthorized-project") || !strings.Contains(string(raw), "ready\":false") {
+		t.Fatalf("unauthorized dependency did not block acceptance: %s", raw)
+	}
+	if strings.Contains(string(raw), child) || strings.Contains(string(raw), parent) {
+		t.Fatalf("federated result disclosed a filesystem root: %s", raw)
+	}
+	_, closeoutResult := post(t, ts, `{"jsonrpc":"2.0","id":8,"method":"tools/call","params":{"name":"pose_closeout_state","arguments":{"project_id":"parent","scope":"roadmap:program"}}}`)
+	if closeoutResult.Result["isError"] != false {
+		t.Fatalf("MCP federated closeout failed: %+v", closeoutResult)
+	}
+	closeout, ok := closeoutResult.Result["structuredContent"].(map[string]any)
+	if !ok {
+		t.Fatalf("missing structured closeout state: %+v", closeoutResult)
+	}
+	closeoutRaw, _ := json.Marshal(closeout)
+	if closeout["terminal"] != false || !strings.Contains(string(closeoutRaw), "unauthorized-project") {
+		t.Fatalf("closeout state did not preserve federated blockers: %s", closeoutRaw)
+	}
+	if strings.Contains(string(closeoutRaw), child) || strings.Contains(string(closeoutRaw), parent) {
+		t.Fatalf("federated closeout disclosed a filesystem root: %s", closeoutRaw)
+	}
+}
 
 // requestScopedTools act on an already-resolved request_id (spec
 // pose-safe-validate-orchestration) and never call StoreFor — they are not

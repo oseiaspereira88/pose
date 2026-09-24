@@ -189,6 +189,12 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 			}
 			deps = append(deps, dep)
 		}
+		for _, consumed := range rm.Consumes {
+			if !strings.Contains(consumed, ":") {
+				consumed = "roadmap:" + consumed
+			}
+			deps = append(deps, consumed)
+		}
 		if ref.Kind == "roadmap" {
 			for _, ms := range rm.Milestones {
 				deps = append(deps, "milestone:"+rm.Slug+"/"+ms.ID)
@@ -206,6 +212,12 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 				}
 				found = true
 				deps = append([]string{}, ms.Specs...)
+				for _, consumed := range ms.Consumes {
+					if !strings.Contains(consumed, ":") {
+						consumed = "roadmap:" + consumed
+					}
+					deps = append(deps, consumed)
+				}
 				for _, after := range ms.After {
 					if !strings.Contains(after, ":") {
 						after = "milestone:" + rm.Slug + "/" + after
@@ -213,9 +225,12 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 					deps = append(deps, after)
 				}
 				out.Status = "done"
-				for _, slug := range ms.Specs {
-					sp, err := s.GetSpec(slug)
-					if err != nil || sp.Status != "done" {
+				for _, rawSpec := range ms.Specs {
+					if !strings.Contains(rawSpec, ":") {
+						rawSpec = "spec:" + rawSpec
+					}
+					sp := r.Resolve(ref.Project, rawSpec)
+					if !sp.Resolved || sp.Status != "done" {
 						out.Status = "pending"
 					}
 				}

@@ -17,12 +17,24 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
+func cliGovernedStore(root string) posemodel.Store {
+	store := posemodel.Store{Root: root}
+	resolver, project, err := posemodel.EnvironmentArtifactResolver(root, "")
+	if err != nil {
+		store.FederatedResolver = &posemodel.ArtifactResolver{}
+		return store
+	}
+	store.FederatedProjectID = project
+	store.FederatedResolver = &resolver
+	return store
+}
+
 func cmdReviewCheck(root string, args []string, stdout, stderr io.Writer) int {
 	ref, jsonOutput, ok := parseScopeCheckArgs("review-check", args, stderr)
 	if !ok {
 		return 2
 	}
-	eval, err := (posemodel.Store{Root: root}).ReviewCheck(ref)
+	eval, err := cliGovernedStore(root).ReviewCheck(ref)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review-check: %v\n", err)
 		return 1
@@ -216,7 +228,7 @@ func cmdCloseoutCheck(root string, args []string, stdout, stderr io.Writer) int 
 	if !ok {
 		return 2
 	}
-	state, err := (posemodel.Store{Root: root}).GetCloseoutState(ref)
+	state, err := cliCloseoutState(root, ref)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose closeout-check: %v\n", err)
 		return 1
@@ -238,6 +250,22 @@ func cmdCloseoutCheck(root string, args []string, stdout, stderr io.Writer) int 
 		return 1
 	}
 	return 0
+}
+
+func cliCloseoutState(root, ref string) (posemodel.CloseoutState, error) {
+	store := cliGovernedStore(root)
+	scope, err := posemodel.ParseScopeRef(ref)
+	if err != nil {
+		return posemodel.CloseoutState{}, err
+	}
+	if scope.Kind != "roadmap" && scope.Kind != "milestone" {
+		return store.GetCloseoutState(ref)
+	}
+	resolver, project, err := posemodel.EnvironmentArtifactResolver(root, "")
+	if err != nil {
+		return posemodel.CloseoutState{}, fmt.Errorf("invalid project configuration")
+	}
+	return store.GetCloseoutStateWithFederatedAcceptance(ref, project, resolver)
 }
 
 func parseScopeCheckArgs(command string, args []string, stderr io.Writer) (string, bool, bool) {
@@ -324,7 +352,7 @@ func cmdReviewBundle(root string, args []string, stdout, stderr io.Writer) int {
 			}
 		}
 	}
-	store := posemodel.Store{Root: root}
+	store := cliGovernedStore(root)
 	var bundle posemodel.ReviewBundle
 	var err error
 	if seal {
@@ -397,7 +425,7 @@ func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "Usage: pose review verify <scope|bundle-id|bundle-path> [--json]")
 		return 2
 	}
-	store := posemodel.Store{Root: root}
+	store := cliGovernedStore(root)
 	ref, err := resolveReviewBundleScope(store, target)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review verify: %v\n", err)
@@ -461,7 +489,7 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, "Usage: pose review attest --envelope <project-relative-path> [--apply]")
 			return 2
 		}
-		attestation, err := (posemodel.Store{Root: root}).ImportReviewAttestationEnvelope(args[1], apply)
+		attestation, err := cliGovernedStore(root).ImportReviewAttestationEnvelope(args[1], apply)
 		if err != nil {
 			fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 			return 1
@@ -512,7 +540,7 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "pose review attest: bundle, reviewer, decision and at least one evidence ref are required")
 		return 2
 	}
-	store := posemodel.Store{Root: root}
+	store := cliGovernedStore(root)
 	ref, err := resolveReviewBundleScope(store, target)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
@@ -663,7 +691,7 @@ func cmdReviewAutoAttest(root string, args []string, stdout, stderr io.Writer) i
 	if reviewer == "" {
 		reviewer = "agent:auto-attest"
 	}
-	store := posemodel.Store{Root: root}
+	store := cliGovernedStore(root)
 	ref, err := resolveReviewBundleScope(store, target)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review auto-attest: %v\n", err)
@@ -780,7 +808,7 @@ func cmdReviewRecord(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "pose review record: invalid decision or reviewer")
 		return 2
 	}
-	store := posemodel.Store{Root: root}
+	store := cliGovernedStore(root)
 	policy, err := store.GetReviewPolicy()
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review record: %v\n", err)
@@ -1162,8 +1190,8 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 	if !ok {
 		return 2
 	}
-	store := posemodel.Store{Root: root}
-	state, err := store.GetCloseoutState(ref)
+	store := cliGovernedStore(root)
+	state, err := cliCloseoutState(root, ref)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose close: %v\n", err)
 		return 1
@@ -1174,6 +1202,11 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	scope, _ := posemodel.ParseScopeRef(ref)
 	if scope.Kind == "milestone" {
+		var gateOut, gateErr bytes.Buffer
+		if code := cmdRoadmapCheck(root, []string{scope.Roadmap, "--strict"}, &gateOut, &gateErr); code != 0 {
+			fmt.Fprintf(stderr, "pose close: roadmap gate failed: %s%s", gateErr.String(), gateOut.String())
+			return 1
+		}
 		fmt.Fprintf(stdout, "Milestone closeout verified: %s\n", ref)
 		return 0
 	}
@@ -1207,15 +1240,10 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		path = sp.Path
 	} else {
-		if policy, err := posemodel.LoadDeliveryPolicy(root); err != nil {
-			fmt.Fprintf(stderr, "pose close: %v\n", err)
+		var gateOut, gateErr bytes.Buffer
+		if code := cmdRoadmapCheck(root, []string{scope.Slug, "--strict"}, &gateOut, &gateErr); code != 0 {
+			fmt.Fprintf(stderr, "pose close: roadmap gate failed: %s%s", gateErr.String(), gateOut.String())
 			return 1
-		} else if policy.Enabled {
-			var gateOut, gateErr bytes.Buffer
-			if code := cmdRoadmapCheck(root, []string{scope.Slug, "--strict"}, &gateOut, &gateErr); code != 0 {
-				fmt.Fprintf(stderr, "pose close: roadmap delivery gate failed: %s%s", gateErr.String(), gateOut.String())
-				return 1
-			}
 		}
 		path = filepath.Join(root, ".pose", "roadmaps", scope.Slug+".md")
 	}
@@ -1246,13 +1274,13 @@ func cmdContinuousCloseout(root string, args []string, stdout, stderr io.Writer)
 			return 2
 		}
 		ref := args[1]
-		store := posemodel.Store{Root: root}
+		store := cliGovernedStore(root)
 		policy, err := store.GetReviewPolicy()
 		if err != nil || !policy.Enabled || !policy.ContinuousCloseout {
 			fmt.Fprintln(stderr, "pose continuous-closeout: continuous mode is not enabled by review policy")
 			return 1
 		}
-		if _, err := store.GetCloseoutState(ref); err != nil {
+		if _, err := cliCloseoutState(root, ref); err != nil {
 			fmt.Fprintf(stderr, "pose continuous-closeout: %v\n", err)
 			return 1
 		}
@@ -1292,7 +1320,7 @@ func cmdContinuousCloseout(root string, args []string, stdout, stderr io.Writer)
 			fmt.Fprintln(stderr, "pose continuous-closeout: invalid persisted selection")
 			return 1
 		}
-		state, err := (posemodel.Store{Root: root}).GetCloseoutState(selection.Scope)
+		state, err := cliCloseoutState(root, selection.Scope)
 		if err != nil {
 			fmt.Fprintf(stderr, "pose continuous-closeout: %v\n", err)
 			return 1
@@ -1317,7 +1345,7 @@ func cmdContinuousCloseout(root string, args []string, stdout, stderr io.Writer)
 			fmt.Fprintln(stderr, "pose continuous-closeout: invalid persisted selection")
 			return 1
 		}
-		state, err := (posemodel.Store{Root: root}).GetCloseoutState(selection.Scope)
+		state, err := cliCloseoutState(root, selection.Scope)
 		if err != nil || !state.Terminal {
 			fmt.Fprintf(stderr, "pose continuous-closeout: terminal success is not satisfied; next action: %s\n", state.NextAction)
 			return 1

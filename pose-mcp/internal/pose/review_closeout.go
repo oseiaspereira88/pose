@@ -356,15 +356,16 @@ type ReviewEvaluation struct {
 }
 
 type CloseoutState struct {
-	SchemaVersion int              `json:"schema_version"`
-	Scope         string           `json:"scope"`
-	ScopeDigest   string           `json:"scope_digest"`
-	Review        ReviewEvaluation `json:"review"`
-	Children      []CloseoutState  `json:"children,omitempty"`
-	LifecycleDone bool             `json:"lifecycle_done"`
-	Terminal      bool             `json:"terminal"`
-	NextAction    string           `json:"next_action"`
-	Blockers      []string         `json:"blockers"`
+	SchemaVersion       int                               `json:"schema_version"`
+	Scope               string                            `json:"scope"`
+	ScopeDigest         string                            `json:"scope_digest"`
+	Review              ReviewEvaluation                  `json:"review"`
+	FederatedAcceptance *FederatedRoadmapAcceptanceReport `json:"federated_acceptance,omitempty"`
+	Children            []CloseoutState                   `json:"children,omitempty"`
+	LifecycleDone       bool                              `json:"lifecycle_done"`
+	Terminal            bool                              `json:"terminal"`
+	NextAction          string                            `json:"next_action"`
+	Blockers            []string                          `json:"blockers"`
 }
 
 var reviewLineRE = regexp.MustCompile(`^-\s+([A-Za-z0-9._-]+)\s+\[([^]]+)\](?:\s+(.*))?$`)
@@ -1748,6 +1749,10 @@ func validateReviewEvidenceRef(root, ref string) error {
 }
 
 func (s Store) GetCloseoutState(ref string) (CloseoutState, error) {
+	return s.getCloseoutState(ref, true)
+}
+
+func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutState, error) {
 	scope, err := ParseScopeRef(ref)
 	if err != nil {
 		return CloseoutState{}, err
@@ -1757,6 +1762,9 @@ func (s Store) GetCloseoutState(ref string) (CloseoutState, error) {
 		return CloseoutState{}, err
 	}
 	state := CloseoutState{SchemaVersion: ReviewSchemaVersion, Scope: ref, ScopeDigest: review.ScopeDigest, Review: review, LifecycleDone: true, Blockers: append([]string{}, review.Blockers...)}
+	childStore := s
+	childStore.FederatedProjectID = ""
+	childStore.FederatedResolver = nil
 	switch scope.Kind {
 	case "spec":
 		sp, err := s.GetSpec(scope.Slug)
@@ -1776,7 +1784,7 @@ func (s Store) GetCloseoutState(ref string) (CloseoutState, error) {
 			}
 			found = true
 			for _, slug := range milestone.Specs {
-				child, err := s.GetCloseoutState("spec:" + slug)
+				child, err := childStore.getCloseoutState("spec:"+slug, false)
 				if err != nil {
 					return state, err
 				}
@@ -1797,7 +1805,7 @@ func (s Store) GetCloseoutState(ref string) (CloseoutState, error) {
 		}
 		state.LifecycleDone = rm.Status == "done"
 		for _, milestone := range rm.Milestones {
-			child, err := s.GetCloseoutState("milestone:" + rm.Slug + "/" + milestone.ID)
+			child, err := childStore.getCloseoutState("milestone:"+rm.Slug+"/"+milestone.ID, false)
 			if err != nil {
 				return state, err
 			}
@@ -1807,13 +1815,27 @@ func (s Store) GetCloseoutState(ref string) (CloseoutState, error) {
 			}
 		}
 	}
+	if includeFederated && s.FederatedResolver != nil && (scope.Kind == "roadmap" || scope.Kind == "milestone") {
+		roadmap := scope.Slug
+		if scope.Kind == "milestone" {
+			roadmap = scope.Roadmap
+		}
+		acceptance, err := s.FederatedRoadmapAcceptance(s.FederatedProjectID, roadmap, *s.FederatedResolver)
+		if err != nil {
+			return state, err
+		}
+		state.FederatedAcceptance = &acceptance
+		if !acceptance.Ready {
+			state.Blockers = append(state.Blockers, acceptance.Blockers...)
+		}
+	}
 	if !review.Required {
 		state.Blockers = removeReviewOnlyBlockers(state.Blockers)
 	}
 	if !state.LifecycleDone && scope.Kind != "milestone" {
 		state.Blockers = append(state.Blockers, "lifecycle status is not done")
 	}
-	sort.Strings(state.Blockers)
+	state.Blockers = uniqueSorted(state.Blockers)
 	state.Terminal = len(state.Blockers) == 0 && (review.Approved || !review.Required) && state.LifecycleDone
 	if state.Terminal {
 		state.NextAction = "none"
@@ -1822,6 +1844,12 @@ func (s Store) GetCloseoutState(ref string) (CloseoutState, error) {
 			if !child.Terminal {
 				state.NextAction = "continue " + child.Scope + ": " + child.NextAction
 				break
+			}
+		}
+		if state.NextAction == "" && state.FederatedAcceptance != nil && !state.FederatedAcceptance.Ready {
+			state.NextAction = "resolve federated roadmap blockers for roadmap:" + scope.Slug
+			if scope.Kind == "milestone" {
+				state.NextAction = "resolve federated roadmap blockers for roadmap:" + scope.Roadmap
 			}
 		}
 	} else if !review.Approved && review.Required {
@@ -1833,6 +1861,15 @@ func (s Store) GetCloseoutState(ref string) (CloseoutState, error) {
 		state.NextAction = "resolve closeout blockers for " + ref
 	}
 	return state, nil
+}
+
+// GetCloseoutStateWithFederatedAcceptance adds the current cross-project
+// roadmap snapshot to roadmap and milestone closeout. The caller supplies the
+// already-authorized resolver so the Store never widens its own project scope.
+func (s Store) GetCloseoutStateWithFederatedAcceptance(ref, projectID string, resolver ArtifactResolver) (CloseoutState, error) {
+	s.FederatedProjectID = projectID
+	s.FederatedResolver = &resolver
+	return s.GetCloseoutState(ref)
 }
 
 func removeReviewOnlyBlockers(blockers []string) []string {

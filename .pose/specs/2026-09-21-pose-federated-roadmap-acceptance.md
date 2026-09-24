@@ -1,6 +1,6 @@
 ---
 slug: pose-federated-roadmap-acceptance
-status: draft
+status: in-progress
 created_at: 2026-09-21
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-qualified-artifact-resolution
 priority: 0
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: governance:federated-roadmap-acceptance
 ---
 
 # Spec: Federated roadmap composition and verifiable acceptance
@@ -55,17 +55,33 @@ Bound graph traversal and input size; report stable errors without secrets/roots
 Extend Roadmap/Milestone models, readiness, roadmap checks and review manifests. Keep one source verifier and local outcome review; use bounded recursion and existing evidence classes. Do not fetch networks or mutate child repositories during read/check.
 
 ### Artifacts
-- created: .pose/specs/2026-09-21-pose-federated-roadmap-acceptance.md
+- modified: .pose/specs/2026-09-21-pose-federated-roadmap-acceptance.md
+- modified: pose-mcp/internal/pose/artifact_ref.go
+- modified: pose-mcp/internal/pose/artifact_ref_test.go
 - modified: pose-mcp/internal/pose/roadmaps.go
-- modified: pose-mcp/internal/pose/readiness.go
+- created: pose-mcp/internal/pose/federated_acceptance.go
+- created: pose-mcp/internal/pose/federated_acceptance_test.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_closeout.go
-- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/pose/spec.go
+- modified: pose-mcp/internal/cli/artifact_ref_test.go
+- created: pose-mcp/internal/cli/federated_acceptance_test.go
 - modified: pose-mcp/internal/cli/index.go
 - modified: pose-mcp/internal/cli/portfolio_projection.go
-- created: pose-mcp/internal/pose/federated_acceptance_test.go
-- modified: pose-mcp/internal/cli/roadmap_check_gate_test.go
+- modified: pose-mcp/internal/cli/portfolio_projection_test.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/surface_check.go
+- modified: pose-mcp/internal/mcpserver/catalog.go
+- modified: pose-mcp/internal/mcpserver/project_scope_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/server_test.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- modified: docs-site/docs/mcp.md
+- modified: .pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md
+- modified: .pose/roadmaps/pose-multirepo-foundation.md
 - modified: .pose/indexes/validation-matrix.json
+- created: .pose/reports/2026-09-24-standard-validate-native.md
+- modified: .pose/reports/history/standard-validate-native.jsonl
 
 Initial exact-path inventory. Reconcile against the implementation revision before
 coding and record material changes through amendments. Generated output must be
@@ -73,10 +89,16 @@ attributed to its actual producing change; do not reuse this slug for the entire
 program. Commit in the owning repository with `POSE-Spec: pose-federated-roadmap-acceptance`.
 
 ### Delivery targets
-Proposed target: `governance:federated-roadmap-acceptance`, module `pose-mcp`, existing profile `backend-go`, entrypoint `pose-mcp/cmd/pose/main.go`. Add integration producer invoking real check/review/close against two Git fixture projects.
-Keep `delivers` empty while this is a draft. Before in-progress, register the
-producer, declare the typed target/entrypoint and prove a negative gate case.
+Use the proposed target `governance:federated-roadmap-acceptance`, module
+`pose-mcp`, existing profile `release-governance`, entrypoint
+`pose-mcp/cmd/pose/main.go`. Register the dedicated producers
+`federated-roadmap-acceptance-integration` and
+`federated-roadmap-negative-gates` in the `pose-mcp` module matrix. The roadmap
+declares C1/C2 against this target and those producers. Before promoting this
+spec to `in-progress`, execute a negative fixture for each typed cut criterion
+and confirm that absent or status-only evidence blocks it.
 Do not count documentation or a test suite matching zero tests as delivery.
+- governance:federated-roadmap-acceptance module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Data and rollout / Dados e rollout
 Version new metadata through existing schema/capability mechanisms. Preview
@@ -89,16 +111,17 @@ Cycles or TOCTOU can turn a partial graph into false approval. Treat incomplete 
 
 ## 4. Tasks
 
-- [ ] Confirm source revisions, ADR adoption and all local/external prerequisites.
-- [ ] Reconcile artifacts and register target, evidence producer and negative fixture.
-- [ ] Implement the requirements incrementally with regression/contract tests.
-- [ ] Update public contracts, consumers, docs/locales and generated scaffold where affected.
-- [ ] Run the scenarios below plus required module checks and record evidence per R-ID.
+- [x] Confirm source revisions, accept the ADR and confirm the qualified-resolution prerequisite is complete.
+- [x] Reconcile initial artifacts, declare the typed target and register evidence producers and roadmap cut criteria.
+- [x] Exercise one negative fixture for each cut criterion, then activate implementation.
+- [x] Implement the requirements incrementally with regression/contract tests.
+- [x] Update public contracts, consumers, and docs where affected; locales and scaffold contracts are unchanged.
+- [x] Run the scenarios below plus required module checks and record evidence per R-ID.
 - [ ] Obtain explicit review and governed closeout; disposition follow-ups and refresh assessments.
 
 ## 5. Decisions
 
-- Date: 2026-09-21. Status: Proposed.
+- Date: 2026-09-24. Status: Accepted for implementation; consumer adoption remains separate.
 - Adopt [federated acceptance](../adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md) for this scope.
 - Prefer the existing Store/roots/review contracts over a second authority or resolver.
 - Preserve the distinction between source implementation, consumer adoption and program acceptance.
@@ -129,25 +152,52 @@ Use independent Git fixtures, including nested submodule and sibling layouts.
 
 ### Execution log / Log de execução
 2026-09-21: planning only. Editorial validation is recorded in the package audit;
-implementation tests, delivery evidence and per-requirement acceptance remain pending.
+implementation tests, delivery evidence and per-requirement acceptance remained pending.
+
+2026-09-24: accepted the federated-acceptance ADR and activated the composition
+milestone after registering target `governance:federated-roadmap-acceptance`,
+both dedicated integration producers, and typed roadmap criteria C1/C2. The
+pre-activation negative fixtures passed:
+`TestFederatedAcceptanceNegativeTargetWithoutCurrentEvidence` blocks a target
+without current integration evidence, and
+`TestFederatedAcceptanceNegativeFailingCheckDoesNotSatisfyCut` blocks a failing
+producer. These tests prove the current local gate behavior only; they do not
+claim federation runtime delivery. Implementation and acceptance remain open.
+
+2026-09-24: implementation completed for the engine composition layer. The
+read-only roadmap acceptance report is now shared by closeout, review bundles,
+CLI roadmap-check, generated indexes, portfolio projection and MCP. Source
+review verification uses the same authorized resolver as the coordinator;
+invalid/cyclic graphs stop before recursive source review. No consumer
+federation policy was enabled. Validation evidence is recorded in
+`2026-09-24-standard-validate-native.md`. `go test ./internal/pose
+./internal/cli ./internal/mcpserver`, the federated `-race` tests, and
+`pose validate --strict --module pose-mcp --report` passed; the matrix reported
+18/18 gates. `pose lint-spec ... --ready-check` passed. `pose check --strict`
+passed with 11 existing warnings for changelog fragments and stale assessments.
+Explicit review and governed closeout remain pending.
 
 ### Requirement trace
-- R1: Pending implementation and the mapped mandatory scenario above.
-- R2: Pending implementation and the mapped mandatory scenario above.
-- R3: Pending implementation and the mapped mandatory scenario above.
-- R4: Pending implementation and the mapped mandatory scenario above.
-- R5: Pending implementation and the mapped mandatory scenario above.
-- R6: Pending implementation and the mapped mandatory scenario above.
-- R7: Pending implementation and the mapped mandatory scenario above.
-- R8: Pending implementation and the mapped mandatory scenario above.
+- R1 [satisfied] `TestFederatedRoadmapQualifiedMembershipAndOutcomeConsumption`; `TestFederatedAcceptanceComposesReviewedSiblingRoadmapAndStalesOnSourceRevision` — local and qualified members, prerequisites and consumed outcomes resolve into one transitive plan.
+- R2 [satisfied] `TestFederatedRoadmapRejectsMixedProjectCycles`; `TestFederatedRoadmapRejectsSelfReferenceThroughProjectAlias`; `TestFederatedRoadmapRejectsDuplicateActiveOwnership` — cycles and competing active owners block; consumption remains separate from executable ownership.
+- R3 [satisfied] `TestFederatedAcceptanceComposesReviewedSiblingRoadmapAndStalesOnSourceRevision`; `TestFederatedManifestIsSealedAndInvalidatesCoordinatorReview` — the manifest records selected source revisions and digests, source trust, review bundle and evidence; changed inputs alter the sealed digest.
+- R4 [satisfied] `TestFederatedAcceptanceNegativeStatusOnlySpecCannotClose`; `TestFederatedAcceptanceComposesReviewedSiblingRoadmapAndStalesOnSourceRevision` — status alone is insufficient; reviewed source evidence and consumer trust are required.
+- R5 [satisfied] `TestFederatedManifestIsSealedAndInvalidatesCoordinatorReview` — changed source revision and revoked project authorization invalidate the coordinator review; closeout recomputes the current snapshot.
+- R6 [satisfied] `TestLoadFederatedPolicyRejectsTrailingContent`; `TestLoadFederatedPolicyBoundsInputSize`; `TestFederatedProjectTrustRejectsUncommittedContractInputs`; `TestFederatedRoadmapToolAuthorizesEveryDependency` — malformed, oversized and uncommitted inputs fail closed, and unauthorized dependencies do not disclose roots.
+- R7 [satisfied] `TestFederatedGitlinkPinChecksNestedRevisionAndAllowsSiblingProjects`; `TestFederatedAcceptanceComposesReviewedSiblingRoadmapAndStalesOnSourceRevision` — nested gitlinks require the selected revision; sibling repositories require an explicit trust pin.
+- R8 [satisfied] `TestFederatedRoadmapCheckBlocksSelfReference`; `TestFederatedRoadmapCompositionIsWrittenToIndex`; `TestQualifiedArtifactCLIProjectionDatedAndTyped`; `TestFederatedRoadmapToolAuthorizesEveryDependency`; `TestLegacyReviewBundlePayloadOmitsFederatedManifest` — CLI, index, projection and MCP expose readiness while legacy payloads omit the optional manifest.
 
 ## 7. Final Report
 
 ### Delivered scope / Escopo entregue
-Planning artifact only. Runtime, adoption and acceptance remain pending.
+The federated composition engine, typed evidence producers and read-only surfaces
+are implemented. Consumer policy activation remains a separate rollout; explicit
+review, governed closeout and pilot acceptance are still pending.
 
 ### Residual risks / Riscos residuais
-Cycles or TOCTOU can turn a partial graph into false approval. Treat incomplete required closure as blocked, retain traversal limits and pin every verification input.
+Cycles or TOCTOU can turn a partial graph into false approval. Incomplete required
+closure blocks; traversal is bounded and verification inputs are pinned. This
+implementation still requires an independent review before governed closeout.
 
 ### Follow-ups
 No additional unowned follow-ups; remaining work is in this spec.

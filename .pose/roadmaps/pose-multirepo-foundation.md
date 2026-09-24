@@ -1,6 +1,6 @@
 ---
 slug: pose-multirepo-foundation
-status: draft
+status: active
 created_at: 2026-09-21
 depends_on:
 ---
@@ -56,8 +56,13 @@ Preview, concurrent retry and interruption preserve history with no two executab
 ### Gate de saída / Exit gate
 Parent and executor entrypoints resolve the same qualified task, create no shadow spec and close only the authorized scope. Installed CLI/MCP and scaffold agree.
 
+## Cut criteria
+
+- C1: governance:federated-roadmap-acceptance check:federated-roadmap-acceptance-integration
+- C2: check:federated-roadmap-negative-gates
+
 ## Activation and closeout
-This package is planning only. Before starting each spec, accept its ADRs,
+Composition implementation is active. Before starting each remaining spec, accept its ADRs,
 reconcile Artifacts, declare its proposed target, register dedicated evidence
 producers and run readiness. Existing profiles are not evidence for this corpus.
 Materialize native typed Cut criteria before activating composition and exercise

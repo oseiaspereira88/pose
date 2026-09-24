@@ -46,6 +46,9 @@
     "pose_extension_list": {
       "risk": "read"
     },
+    "pose_federated_roadmap_acceptance": {
+      "risk": "read"
+    },
     "pose_get_assessment": {
       "risk": "read"
     },
@@ -437,6 +440,26 @@
         "type": "object"
       },
       "name": "pose_review_bundle"
+    },
+    {
+      "description": "Evaluate a governed roadmap against its authorized cross-project dependency snapshot, source closeout and review evidence, trust pins, active ownership, selected revisions and stable blockers. This read-only result is recomputed from current inputs.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Roadmap slug to evaluate",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_federated_roadmap_acceptance"
     },
     {
       "description": "Read the project-scoped delivery-integrity graph: separate spec artifact claims, Git-observed change sets, typed edges, reverse path provenance and stable findings. Optionally narrow results to one exact path.",

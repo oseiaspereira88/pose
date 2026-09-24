@@ -46,6 +46,8 @@ type Reporter interface {
 	PostEvent(ctx context.Context, runID string, evtType string, payload map[string]any, costUSD float64) error
 }
 
+const sharedProjectIDDescription = "Optional project to scope the .pose root (multi-project); omit for the default root"
+
 // ConductorClient implements Reporter via the Conductor run reporter HTTP API.
 type ConductorClient struct {
 	base      string
@@ -162,6 +164,24 @@ func withPolicyInput(ctx context.Context, input PolicyInput) context.Context {
 func policyInputFromContext(ctx context.Context) PolicyInput {
 	input, _ := ctx.Value(policyInputContextKey{}).(PolicyInput)
 	return input
+}
+
+func (s *Server) federatedArtifactResolver(ctx context.Context) pose.ArtifactResolver {
+	return pose.ArtifactResolver{Roots: s.roots, Authorize: func(projectID string) bool {
+		if s.policy == nil {
+			return false
+		}
+		candidate := policyInputFromContext(ctx)
+		candidate.ProjectID, candidate.ProjectIDs = projectID, nil
+		decision, err := s.policy.Evaluate(ctx, candidate)
+		if err != nil {
+			decision = mcpenforce.DenyDecision(candidate, "policy_error")
+		}
+		if s.auditor != nil {
+			s.auditor.Record(ctx, decision)
+		}
+		return decision.Allow
+	}}
 }
 
 func (s *Server) runtimeMetadata() (time.Time, string) {
@@ -765,6 +785,12 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 	if err != nil {
 		return nil, err
 	}
+	store.FederatedProjectID = sel.ProjectID
+	if store.FederatedProjectID == "" {
+		store.FederatedProjectID = s.roots.Context().DefaultProjectID
+	}
+	storeResolver := s.federatedArtifactResolver(ctx)
+	store.FederatedResolver = &storeResolver
 	usageStarted := time.Now()
 	_, knownUsageTool := catalogGovernance[name]
 	if name != "pose_usage" && knownUsageTool {
@@ -1011,7 +1037,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil || a.Scope == "" {
 			return nil, fmt.Errorf("pose_closeout_state: required argument %q missing", "scope")
 		}
-		return store.GetCloseoutState(a.Scope)
+		project := sel.ProjectID
+		if project == "" {
+			project = s.roots.Context().DefaultProjectID
+		}
+		return store.GetCloseoutStateWithFederatedAcceptance(a.Scope, project, s.federatedArtifactResolver(ctx))
 	case "pose_review_plan":
 		var a struct {
 			Scope string `json:"scope"`
@@ -1028,6 +1058,18 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return nil, fmt.Errorf("pose_review_bundle: required argument %q missing", "scope")
 		}
 		return store.VerifyReviewBundle(a.Scope)
+	case "pose_federated_roadmap_acceptance":
+		var a struct {
+			Slug string `json:"slug"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
+			return nil, fmt.Errorf("pose_federated_roadmap_acceptance: required argument %q missing", "slug")
+		}
+		project := sel.ProjectID
+		if project == "" {
+			project = s.roots.Context().DefaultProjectID
+		}
+		return store.FederatedRoadmapAcceptance(project, a.Slug, s.federatedArtifactResolver(ctx))
 	case "pose_delivery_integrity":
 		var a struct {
 			Path string `json:"path"`
@@ -2038,6 +2080,18 @@ func toolDefinitions() []map[string]any {
 					},
 				},
 				"required": []string{"scope"},
+			},
+		},
+		{
+			"name":        "pose_federated_roadmap_acceptance",
+			"description": "Evaluate a governed roadmap against its authorized cross-project dependency snapshot, source closeout and review evidence, trust pins, active ownership, selected revisions and stable blockers. This read-only result is recomputed from current inputs.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"slug":       map[string]any{"type": "string", "description": "Roadmap slug to evaluate"},
+					"project_id": map[string]any{"type": "string", "description": sharedProjectIDDescription},
+				},
+				"required": []string{"slug"},
 			},
 		},
 		{

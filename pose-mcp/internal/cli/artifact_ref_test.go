@@ -24,7 +24,7 @@ func TestQualifiedArtifactCLIProjectionDatedAndTyped(t *testing.T) {
 		t.Fatal(err)
 	}
 	projection := buildPortfolioProjection(time.Now(), known, 7)
-	if len(projection.Specs) != 2 || projection.SchemaVersion != 2 {
+	if len(projection.Specs) != 2 || projection.SchemaVersion != 3 {
 		t.Fatalf("projection: %+v", projection)
 	}
 	consumer := findProjectedSpec(t, projection, "self-project", "consumer")

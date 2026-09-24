@@ -45,7 +45,9 @@ func ValidateSlug(slug string) error {
 
 // Store reads POSE artifacts from one project root (ADR-013: project-scoped).
 type Store struct {
-	Root string // project root containing .pose/
+	Root               string // project root containing .pose/
+	FederatedProjectID string
+	FederatedResolver  *ArtifactResolver
 }
 
 func (s Store) specsDir() string { return filepath.Join(s.Root, ".pose", "specs") }

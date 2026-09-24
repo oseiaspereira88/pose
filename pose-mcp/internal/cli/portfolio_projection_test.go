@@ -78,6 +78,13 @@ func TestPortfolioProjectionResolvesAuthorizedXref(t *testing.T) {
 	selfRoot, otherRoot, _ := setupTwoProjectPortfolio(t)
 	writePortfolioSpec(t, selfRoot, "needs-other", "draft", "xref:other-project/upstream-done")
 	writePortfolioSpec(t, otherRoot, "upstream-done", "done", "")
+	roadmapsDir := filepath.Join(selfRoot, ".pose", "roadmaps")
+	if err := os.MkdirAll(roadmapsDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(roadmapsDir, "program.md"), []byte("---\nslug: program\nstatus: active\n---\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
 
 	var out, errB bytes.Buffer
 	if code := cmdPortfolioProjection(selfRoot, []string{"--json"}, &out, &errB); code != 0 {
@@ -94,6 +101,9 @@ func TestPortfolioProjectionResolvesAuthorizedXref(t *testing.T) {
 	x := spec.XrefsOut[0]
 	if !x.Resolved || x.TargetStatus != "done" || x.Blocking {
 		t.Errorf("expected resolved, non-blocking xref to a done spec: %+v", x)
+	}
+	if len(projection.Roadmaps) != 1 || projection.Roadmaps[0].Project != "self-project" || !projection.Roadmaps[0].FederatedAcceptance.Ready {
+		t.Fatalf("portfolio projection omitted current roadmap composition: %+v", projection.Roadmaps)
 	}
 }
 

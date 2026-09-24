@@ -18,6 +18,7 @@ type Roadmap struct {
 	Status     string      `json:"status"`
 	CreatedAt  string      `json:"created_at,omitempty"`
 	DependsOn  []string    `json:"depends_on,omitempty"`
+	Consumes   []string    `json:"consumes,omitempty"`
 	Milestones []Milestone `json:"milestones"`
 	Path       string      `json:"path"`
 	Body       string      `json:"body,omitempty"`
@@ -26,6 +27,7 @@ type Roadmap struct {
 type Milestone struct {
 	ID          string   `json:"id"`
 	After       []string `json:"after,omitempty"`
+	Consumes    []string `json:"consumes,omitempty"`
 	TargetStart string   `json:"target_start,omitempty"`
 	TargetDue   string   `json:"target_due,omitempty"`
 	Specs       []string `json:"specs"`
@@ -92,6 +94,8 @@ func parseRoadmapFile(path, slug string, includeBody bool) (*Roadmap, error) {
 			rm.CreatedAt = value
 		case "depends_on":
 			rm.DependsOn = parseInlineList(value)
+		case "consumes":
+			rm.Consumes = parseInlineList(value)
 		}
 	}
 	var current *Milestone
@@ -117,6 +121,8 @@ func parseRoadmapFile(path, slug string, includeBody bool) (*Roadmap, error) {
 		switch strings.TrimSpace(key) {
 		case "after":
 			current.After = parseInlineList(value)
+		case "consumes":
+			current.Consumes = parseInlineList(value)
 		case "target_start":
 			current.TargetStart = value
 		case "target_due":

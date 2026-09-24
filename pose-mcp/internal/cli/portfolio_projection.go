@@ -50,6 +50,14 @@ type projectedSpec struct {
 	XrefsOut        []xrefResolution    `json:"xrefs_out,omitempty"`
 }
 
+type projectedRoadmap struct {
+	Project             string                                   `json:"project"`
+	Slug                string                                   `json:"slug"`
+	Status              string                                   `json:"status"`
+	Consumes            []string                                 `json:"consumes,omitempty"`
+	FederatedAcceptance posepkg.FederatedRoadmapAcceptanceReport `json:"federated_acceptance"`
+}
+
 type portfolioTombstone struct {
 	Project   string `json:"project"`
 	Slug      string `json:"slug"`
@@ -62,6 +70,7 @@ type portfolioProjection struct {
 	GeneratedAt    string               `json:"generated_at"`
 	Projects       []string             `json:"projects"`
 	Specs          []projectedSpec      `json:"specs"`
+	Roadmaps       []projectedRoadmap   `json:"roadmaps"`
 	Tombstones     []portfolioTombstone `json:"tombstones,omitempty"`
 }
 
@@ -115,7 +124,7 @@ func specStatusIn(root, slug string) (string, bool) {
 
 func buildPortfolioProjection(now time.Time, knownProjects map[string]string, maxStalenessDays int) portfolioProjection {
 	resolver := posepkg.ArtifactResolver{Roots: posepkg.NewRoots(posepkg.RootsConfig{Explicit: knownProjects}), Authorize: func(id string) bool { _, ok := knownProjects[id]; return ok }}
-	projection := portfolioProjection{SchemaVersion: 2, FreshnessBasis: "mtime-advisory-not-evidence", GeneratedAt: now.UTC().Format(time.RFC3339)}
+	projection := portfolioProjection{SchemaVersion: 3, FreshnessBasis: "mtime-advisory-not-evidence", GeneratedAt: now.UTC().Format(time.RFC3339), Roadmaps: []projectedRoadmap{}}
 	for id := range knownProjects {
 		projection.Projects = append(projection.Projects, id)
 	}
@@ -134,6 +143,18 @@ func buildPortfolioProjection(now time.Time, knownProjects map[string]string, ma
 
 	for _, project := range projection.Projects {
 		root := knownProjects[project]
+		store := posepkg.Store{Root: root}
+		roadmaps, _ := store.ListRoadmaps()
+		for _, roadmap := range roadmaps {
+			acceptance, err := store.FederatedRoadmapAcceptance(project, roadmap.Slug, resolver)
+			if err != nil {
+				acceptance = posepkg.FederatedRoadmapAcceptanceReport{Ready: false, Blockers: []string{"federated-acceptance-unavailable"}}
+			}
+			projection.Roadmaps = append(projection.Roadmaps, projectedRoadmap{
+				Project: project, Slug: roadmap.Slug, Status: roadmap.Status,
+				Consumes: append([]string{}, roadmap.Consumes...), FederatedAcceptance: acceptance,
+			})
+		}
 		defaults, _ := loadModuleMetadata(root)
 		for _, s := range loadLocalSpecSummaries(root) {
 			ps := projectedSpec{
@@ -165,6 +186,12 @@ func buildPortfolioProjection(now time.Time, knownProjects map[string]string, ma
 			projection.Specs = append(projection.Specs, ps)
 		}
 	}
+	sort.Slice(projection.Roadmaps, func(i, j int) bool {
+		if projection.Roadmaps[i].Project != projection.Roadmaps[j].Project {
+			return projection.Roadmaps[i].Project < projection.Roadmaps[j].Project
+		}
+		return projection.Roadmaps[i].Slug < projection.Roadmaps[j].Slug
+	})
 	sort.Slice(projection.Specs, func(i, j int) bool {
 		if projection.Specs[i].Project != projection.Specs[j].Project {
 			return projection.Specs[i].Project < projection.Specs[j].Project
