@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-3265b3753d044c2f",
+  "bundle_id": "rvb-3b84788df18e48f7",
+  "bundle_digest": "sha256:3b84788df18e48f70097f59e247a3809b11efb3ee4d6dbdf52b4275d38b6a9e6",
+  "reviewer": "agent:codex",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Opt-in contract negotiation rejects unsupported metadata and retains local refs."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Spec trace grammar is committed and CLI/MCP contract documented."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Typed resolution states and digests support diagnosis without path exposure."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "Attributed source paths and declared contract remain bounded to resolver changes."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-negative-gates",
+      "rationale": "Unauthorized and unavailable external roots do not fall back to local authority."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "artifact-check --spec --strict completed with no blocking findings"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "assessment completed; unobserved providers are inventory"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "strict module matrix passed 25 of 25"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "no registered check producer in validation matrix"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "strict module matrix passed 25 of 25"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/artifact-claim-boundary-integration",
+    "integration:pose-mcp/go/multi-repo-agent-negative-gates",
+    "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-24T23:30:42Z",
+  "path": ".pose/review-attestations/rva-3265b3753d044c2f.json"
+}

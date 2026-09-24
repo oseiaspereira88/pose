@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-99b68371d28abfe5",
+  "bundle_id": "rvb-d15645c31f806991",
+  "bundle_digest": "sha256:d15645c31f806991e11c2b9227e07bf64acdd56e5f6de0b9303ef42f57cb364a",
+  "reviewer": "agent:codex",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "Both roots must adopt schema 4; unsupported policy and redirects reject writes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Spec, ADR and CLI/MCP contracts describe preview, apply, resume and status."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Journal and receipt recovery exercised with injected interruptions and stale inventory."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Diff and artifact inventory cover explicit authority transfer, resolver redirect and read-only MCP status."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "Authorization, path confinement, digest and revision checks fail closed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "artifact-check --strict passed with repository-wide legacy orphan warnings"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "assessment completed; unobserved providers are static inventory"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "strict module matrix passed 25 of 25"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "no registered check producer in validation matrix"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "strict module matrix passed 25 of 25"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/artifact-claim-boundary-integration",
+    "integration:pose-mcp/go/spec-authority-transfer-integration",
+    "integration:pose-mcp/go/spec-authority-transfer-mcp-status",
+    "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-24T23:32:30Z",
+  "path": ".pose/review-attestations/rva-99b68371d28abfe5.json"
+}
