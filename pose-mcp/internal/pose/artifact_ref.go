@@ -71,14 +71,17 @@ func ParseArtifactRef(raw string) (ArtifactRef, error) {
 // ArtifactResolution intentionally contains no paths or artifact bodies. Digest
 // describes observed source content; it does not certify a review or closeout.
 type ArtifactResolution struct {
-	SchemaVersion int           `json:"schema_version"`
-	Identity      ArtifactRef   `json:"identity"`
-	Resolved      bool          `json:"resolved"`
-	State         string        `json:"resolution_state"`
-	Status        string        `json:"status,omitempty"`
-	Revision      string        `json:"source_revision,omitempty"`
-	Digest        string        `json:"source_digest,omitempty"`
-	Dependencies  []ArtifactRef `json:"dependencies,omitempty"`
+	SchemaVersion     int           `json:"schema_version"`
+	Identity          ArtifactRef   `json:"identity"`
+	CanonicalIdentity *ArtifactRef  `json:"canonical_identity,omitempty"`
+	Redirected        bool          `json:"redirected,omitempty"`
+	Resolved          bool          `json:"resolved"`
+	State             string        `json:"resolution_state"`
+	OperationID       string        `json:"operation_id,omitempty"`
+	Status            string        `json:"status,omitempty"`
+	Revision          string        `json:"source_revision,omitempty"`
+	Digest            string        `json:"source_digest,omitempty"`
+	Dependencies      []ArtifactRef `json:"dependencies,omitempty"`
 }
 
 type ArtifactResolver struct {
@@ -89,6 +92,10 @@ type ArtifactResolver struct {
 }
 
 func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
+	return r.resolve(localProject, raw, map[string]bool{}, 0)
+}
+
+func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[string]bool, redirectDepth int) ArtifactResolution {
 	out := ArtifactResolution{SchemaVersion: 1}
 	ref, err := ParseArtifactRef(raw)
 	if err != nil {
@@ -121,6 +128,11 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 		out.State = "unavailable-project"
 		return out
 	}
+	if operationID, pending := incompleteTransferFor(s.Root, ref); pending {
+		out.State = "transfer-in-progress"
+		out.OperationID = operationID
+		return out
+	}
 	policyPath := filepath.Join(s.Root, ".pose", "policy", "review.json")
 	if _, err := os.Lstat(policyPath); err == nil && !artifactPathWithin(s.Root, policyPath) {
 		out.State = "unsupported-artifact-contract"
@@ -128,10 +140,18 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 	}
 	if raw, err := os.ReadFile(policyPath); err == nil {
 		var policy struct {
-			SchemaVersion int `json:"schema_version"`
-			RefsVersion   int `json:"qualified_artifact_refs_version"`
+			SchemaVersion   int `json:"schema_version"`
+			RefsVersion     int `json:"qualified_artifact_refs_version"`
+			TransferVersion int `json:"spec_authority_transfer_version"`
 		}
-		if json.Unmarshal(raw, &policy) != nil || (policy.RefsVersion != 0 && (policy.RefsVersion != 1 || policy.SchemaVersion != QualifiedArtifactPolicySchemaVersion)) || policy.SchemaVersion > QualifiedArtifactPolicySchemaVersion || (policy.SchemaVersion == QualifiedArtifactPolicySchemaVersion && policy.RefsVersion != 1) {
+		if json.Unmarshal(raw, &policy) != nil {
+			out.State = "unsupported-artifact-contract"
+			return out
+		}
+		refsRequired := policy.SchemaVersion == QualifiedArtifactPolicySchemaVersion || policy.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion
+		transferValid := policy.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion && policy.TransferVersion == 1 || policy.SchemaVersion != SpecAuthorityTransferPolicySchemaVersion && policy.TransferVersion == 0
+		refsCompatible := policy.RefsVersion == 0 || policy.RefsVersion == 1 && refsRequired
+		if !refsCompatible || refsRequired && policy.RefsVersion != 1 || policy.SchemaVersion > SpecAuthorityTransferPolicySchemaVersion || !transferValid {
 			out.State = "unsupported-artifact-contract"
 			return out
 		}
@@ -143,6 +163,34 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 	var deps []string
 	switch ref.Kind {
 	case "spec":
+		redirect, found, err := readSpecTransferRedirect(s, ref)
+		if err != nil {
+			out.State = "invalid-spec-redirect"
+			return out
+		}
+		if found {
+			key := ref.String()
+			if redirectDepth >= 16 || redirectPath[key] {
+				out.State = "redirect-cycle"
+				return out
+			}
+			redirectPath[key] = true
+			target := r.resolve(redirect.Destination.Project, redirect.Destination.String(), redirectPath, redirectDepth+1)
+			delete(redirectPath, key)
+			if !target.Resolved {
+				out.State = "redirect-target-" + target.State
+				return out
+			}
+			canonical := target.Identity
+			if target.CanonicalIdentity != nil {
+				canonical = *target.CanonicalIdentity
+			}
+			out.Resolved, out.State, out.Redirected = true, "redirected", true
+			out.CanonicalIdentity = &canonical
+			out.Status, out.Revision, out.Digest = target.Status, target.Revision, target.Digest
+			out.Dependencies = append([]ArtifactRef{}, target.Dependencies...)
+			return out
+		}
 		sp, err := s.GetSpec(ref.Slug)
 		if err != nil {
 			out.State = "unknown-spec"
@@ -229,7 +277,7 @@ func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 					if !strings.Contains(rawSpec, ":") {
 						rawSpec = "spec:" + rawSpec
 					}
-					sp := r.Resolve(ref.Project, rawSpec)
+					sp := r.resolve(ref.Project, rawSpec, redirectPath, redirectDepth)
 					if !sp.Resolved || sp.Status != "done" {
 						out.Status = "pending"
 					}

@@ -819,7 +819,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
 			return nil, fmt.Errorf("pose_get_spec: required argument %q missing", "slug")
 		}
-		return store.GetSpec(a.Slug)
+		return s.getSpecThroughTransferRedirect(ctx, store, a.Slug)
 	case "pose_requirement_trace":
 		var a struct {
 			Slug string `json:"slug"`
@@ -827,12 +827,27 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
 			return nil, fmt.Errorf("pose_requirement_trace: required argument %q missing", "slug")
 		}
-		spec, err := store.GetSpec(a.Slug)
+		spec, err := s.getSpecThroughTransferRedirect(ctx, store, a.Slug)
 		if err != nil {
 			return nil, err
 		}
 		trace := pose.ParseRequirementTrace(spec.Body)
 		return map[string]any{"slug": spec.Slug, "status": spec.Status, "trace": trace}, nil
+	case "pose_spec_transfer_status":
+		var a struct {
+			OperationID string `json:"operation_id"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.OperationID == "" {
+			return nil, fmt.Errorf("pose_spec_transfer_status: required argument %q missing", "operation_id")
+		}
+		projectID := store.FederatedProjectID
+		if projectID == "" {
+			projectID = policyInputFromContext(ctx).ProjectID
+		}
+		if projectID == "" {
+			return nil, fmt.Errorf("pose_spec_transfer_status: explicit project_id is required")
+		}
+		return pose.ReadSpecTransferStatus(store, a.OperationID, projectID)
 	case "pose_capability_state":
 		assessment, err := store.LoadCapabilityAssessment()
 		if err != nil {
@@ -1679,6 +1694,43 @@ func (s *Server) dispatchValidateOrchestration(ctx context.Context, name string,
 	}
 }
 
+func (s *Server) getSpecThroughTransferRedirect(ctx context.Context, store pose.Store, slug string) (*pose.Spec, error) {
+	projectID := store.FederatedProjectID
+	if projectID == "" {
+		projectID = policyInputFromContext(ctx).ProjectID
+	}
+	if projectID == "" || s.roots == nil {
+		return store.GetSpec(slug)
+	}
+	ref := pose.ArtifactRef{Project: projectID, Kind: "spec", Slug: slug}
+	resolver := s.federatedArtifactResolver(ctx)
+	resolved := resolver.Resolve(projectID, ref.String())
+	if !resolved.Resolved {
+		if resolved.State == "unknown-spec" {
+			return store.GetSpec(slug)
+		}
+		return nil, fmt.Errorf("spec artifact resolution failed: %s", resolved.State)
+	}
+	if !resolved.Redirected || resolved.CanonicalIdentity == nil {
+		return store.GetSpec(slug)
+	}
+	canonical := *resolved.CanonicalIdentity
+	final := resolver.Resolve(canonical.Project, canonical.String())
+	if !final.Resolved {
+		return nil, fmt.Errorf("redirect target resolution failed: %s", final.State)
+	}
+	if final.CanonicalIdentity != nil {
+		canonical = *final.CanonicalIdentity
+	} else {
+		canonical = final.Identity
+	}
+	target, err := s.roots.StoreFor(canonical.Project)
+	if err != nil {
+		return nil, err
+	}
+	return target.GetSpec(canonical.Slug)
+}
+
 // dispatchReporter handles the conductor_run_* tools (external-run-reporters).
 func (s *Server) dispatchReporter(ctx context.Context, name string, args json.RawMessage) (any, error) {
 	if s.reporter == nil {
@@ -2092,6 +2144,18 @@ func toolDefinitions() []map[string]any {
 					"project_id": map[string]any{"type": "string", "description": sharedProjectIDDescription},
 				},
 				"required": []string{"slug"},
+			},
+		},
+		{
+			"name":        "pose_spec_transfer_status",
+			"description": "Read-only phase and endpoint identities for a spec authority transfer operation copied into the selected project. Requires an authorized project_id and never exposes filesystem paths or spec contents.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"operation_id": map[string]any{"type": "string", "description": "Transfer operation ID (stf-<24 lowercase hex>)"},
+					"project_id":   map[string]any{"type": "string", "description": sharedProjectIDDescription},
+				},
+				"required": []string{"operation_id"},
 			},
 		},
 		{

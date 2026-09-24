@@ -107,6 +107,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdSpecFormat(root, args, stdout, stderr)
+	case "spec-transfer":
+		root, err := projectRoot()
+		if err != nil {
+			render(io.Discard, stderr).Failure("pose spec-transfer: " + err.Error())
+			return 1
+		}
+		return cmdSpecTransfer(root, args, stdout, stderr)
 	case "followups":
 		root, err := projectRoot()
 		if err != nil {
@@ -401,6 +408,7 @@ Scaffolds:
   new-roadmap <slug>                  Create a governed roadmap
   new-adr "<title>"                   Create an ADR
   new-knowledge <type> <slug>         Create a handoff, note, or decision log
+  spec-transfer <preview|apply|resume|status> Transfer specification authority across projects
 
 Deterministic gates:
   check | validate | knowledge-check | recurrence-check | lint-spec |
@@ -464,6 +472,7 @@ Scaffold:
   new-roadmap <slug>                  Cria roadmap governado em .pose/roadmaps/
   new-adr "<título>"                  Cria ADR com template padrão
   new-knowledge <type> <slug>         Cria handoff/note/decision-log
+  spec-transfer <preview|apply|resume|status> Transfere autoridade de spec entre projetos
 
 Gates determinísticos:
   check | validate | knowledge-check | recurrence-check | lint-spec |

@@ -117,6 +117,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_review_plan` | Deterministic component-aware review plan: mapping provenance, selected profiles, criteria, safe native-tool argv, evidence expectations, independence and blockers |
 | `pose_review_bundle` | Read-only sealed review subject and attestation state: semantic/patch/tree identity, freshness, supersession delta and next governed action |
 | `pose_federated_roadmap_acceptance` | Recompute an authorized cross-project roadmap snapshot with selected revisions, source closeout/review evidence, trust pins, ownership checks and blockers |
+| `pose_spec_transfer_status` | Read only one authorized project's path-free journal phase and source/destination identities for a spec authority transfer |
 | `pose_delivery_integrity` | Artifact claims, Git-observed change sets, reverse path provenance and stable findings from one project-scoped graph |
 | `pose_surface_assurance` | Typed delivery targets, production entrypoints, current evidence, explainable composition paths and roadmap criteria from the same graph |
 | `pose_list_roadmaps` / `pose_get_roadmap` | Governed roadmaps and their milestone DAGs |

@@ -139,6 +139,9 @@
     "pose_spec_readiness": {
       "risk": "read"
     },
+    "pose_spec_transfer_status": {
+      "risk": "read"
+    },
     "pose_suggest": {
       "risk": "read"
     },
@@ -460,6 +463,26 @@
         "type": "object"
       },
       "name": "pose_federated_roadmap_acceptance"
+    },
+    {
+      "description": "Read-only phase and endpoint identities for a spec authority transfer operation copied into the selected project. Requires an authorized project_id and never exposes filesystem paths or spec contents.",
+      "inputSchema": {
+        "properties": {
+          "operation_id": {
+            "description": "Transfer operation ID (stf-\u003c24 lowercase hex\u003e)",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id"
+        ],
+        "type": "object"
+      },
+      "name": "pose_spec_transfer_status"
     },
     {
       "description": "Read the project-scoped delivery-integrity graph: separate spec artifact claims, Git-observed change sets, typed edges, reverse path provenance and stable findings. Optionally narrow results to one exact path.",

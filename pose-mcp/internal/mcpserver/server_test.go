@@ -150,8 +150,8 @@ func TestToolsList(t *testing.T) {
 	ts := newTestServer(t, "")
 	_, out := post(t, ts, `{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}`)
 	tools, _ := out.Result["tools"].([]any)
-	if len(tools) != 53 {
-		t.Fatalf("tools = %d, want 53", len(tools))
+	if len(tools) != 54 {
+		t.Fatalf("tools = %d, want 54", len(tools))
 	}
 	names := map[string]bool{}
 	for _, raw := range tools {
@@ -162,7 +162,7 @@ func TestToolsList(t *testing.T) {
 		}
 	}
 	for _, want := range []string{"pose_get_spec", "pose_list_specs", "pose_spec_readiness",
-		"pose_list_roadmaps", "pose_get_roadmap", "pose_get_changelog", "pose_release_status", "pose_closeout_state", "pose_review_plan", "pose_review_bundle", "pose_federated_roadmap_acceptance", "pose_delivery_integrity",
+		"pose_list_roadmaps", "pose_get_roadmap", "pose_get_changelog", "pose_release_status", "pose_closeout_state", "pose_review_plan", "pose_review_bundle", "pose_federated_roadmap_acceptance", "pose_spec_transfer_status", "pose_delivery_integrity",
 		"pose_suggest", "pose_get_workflow", "pose_get_rules", "pose_insights", "pose_governance_stats", "pose_design_delta", "pose_usage", "pose_get_followups", "pose_check",
 		"pose_lint_spec", "pose_list_knowledge", "pose_get_knowledge", "pose_list_reports",
 		"pose_get_report"} {

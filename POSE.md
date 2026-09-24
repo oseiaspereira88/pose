@@ -181,6 +181,11 @@ pose specs [--recent N] [--status S] [--since D] [--components tags] [--json]
                                    # list and discover specs chronologically
 pose spec-format <migrate <slug>|--all [--format folder|flat] [--dry-run]|status> [--json]
                                    # inspect and migrate specs to chronological layout
+pose spec-transfer preview --source <xref> --destination <xref> --map R1=equivalent:R1 [--json]
+pose spec-transfer apply --plan <file> --digest <sha256> --authorize-project <id>...
+pose spec-transfer resume --operation <id> --project <id> --authorize-project <id>...
+pose spec-transfer status --operation <id> [--project <id>]
+                                   # explicit, digest-bound authority transfer across projects
 pose new-spec <slug> [--folder|--legacy]  # create .pose/specs/YYYY-MM-DD-<slug>.md
 pose new-roadmap <slug>            # create a governed roadmap in .pose/roadmaps/
 pose new-adr "<title>"             # create a dated ADR
@@ -292,6 +297,7 @@ pose release-notes --version vX.Y.Z  # compatibility alias for the immutable not
 - `check` — validates POSE structural integrity (required paths and references in `AGENTS.md`/`POSE.md`) **plus** the [`validation-matrix.json`](.pose/indexes/validation-matrix.json) schema, [`task-map.json`](.pose/indexes/task-map.json) sync, the native spec dependency graph and the schema-version gate. It fails in `--strict` and warns where permitted in `--tolerant`.
 - `specs` — lists and discovers repository specifications sorted chronologically (newest first). Supports `--recent <N>`, `--status <status>`, `--since <duration|date>`, `--components <tags>`, and `--json`.
 - `spec-format` — inspects and migrates specifications to the modern chronological date-prefixed format (`migrate <slug>|--all [--format folder|flat] [--dry-run]`, `status`). Enforces mandatory directory envelope preservation whenever companion artifacts (`amendments.jsonl`) exist.
+- `spec-transfer` — explicit cross-project authority transfer. `preview` emits a deterministic digest-bound JSON plan without writing. Requirement mappings are explicit (`R1=equivalent:R1`, `R2=withdrawn`, `-=pending:R3`); apply requires the same digest plus one `--authorize-project` for every affected repository, and resume verifies the saved plan copies and receipts. Transfer is refused until both endpoints and every affected project adopt review-policy schema 4 (`qualified_artifact_refs_version: 1`, `spec_authority_transfer_version: 1`). Current dependency/membership links follow the verified redirect; the MCP tool `pose_spec_transfer_status` reads the journal only within its authorized project. No automatic commits, pushes or policy adoption occur. Split-section specs without a single `spec.md` are reported as unsupported rather than rewritten.
 - `new-spec` — creates a new spec with standard lifecycle frontmatter and 7 engineering sections. By default writes the dated flat file `.pose/specs/YYYY-MM-DD-<slug>.md`; `--folder` writes `YYYY-MM-DD-<slug>/spec.md` and `--legacy` writes `<slug>/spec.md`, all under [`.pose/specs/`](.pose/specs/).
 - `new-adr` — creates an ADR with the standard template and a deterministic slug.
 - `new-roadmap` — creates a governed roadmap from [`.pose/templates/roadmap.md`](.pose/templates/roadmap.md): flat frontmatter (`status: draft|active|done|abandoned`, `depends_on:` between roadmaps) + milestones as `## Milestone: <id>` sections with flat bullets (`- after:`, `- target_start:`, `- target_due:`, `- specs:`). `check` validates single membership in active roadmaps, milestone/roadmap DAGs, dates and typed-ref resolution; `pose_spec_readiness` resolves those refs for real (milestone satisfied = its specs done; roadmap satisfied = status done). Dates are planning input; actuals derive from events.

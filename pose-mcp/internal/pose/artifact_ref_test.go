@@ -199,6 +199,30 @@ func TestQualifiedArtifactTypedRoadmapsAndContractNegotiation(t *testing.T) {
 	}
 }
 
+func TestSpecAuthorityTransferPolicySchemaIsExplicitAndBackwardCompatible(t *testing.T) {
+	store := Store{Root: t.TempDir()}
+	for _, raw := range []string{
+		`{"schema_version":1}`,
+		`{"schema_version":2}`,
+		`{"schema_version":3,"qualified_artifact_refs_version":1}`,
+		`{"schema_version":4,"qualified_artifact_refs_version":1,"spec_authority_transfer_version":1}`,
+	} {
+		if _, err := store.parseReviewPolicy([]byte(raw)); err != nil {
+			t.Errorf("compatible policy rejected %s: %v", raw, err)
+		}
+	}
+	for _, raw := range []string{
+		`{"schema_version":3,"qualified_artifact_refs_version":1,"spec_authority_transfer_version":1}`,
+		`{"schema_version":4,"qualified_artifact_refs_version":1}`,
+		`{"schema_version":4,"qualified_artifact_refs_version":2,"spec_authority_transfer_version":1}`,
+		`{"schema_version":4,"qualified_artifact_refs_version":1,"spec_authority_transfer_version":2}`,
+	} {
+		if _, err := store.parseReviewPolicy([]byte(raw)); err == nil {
+			t.Errorf("unsupported transfer metadata accepted: %s", raw)
+		}
+	}
+}
+
 func TestFederatedRoadmapQualifiedMembershipAndOutcomeConsumption(t *testing.T) {
 	coordinator, source := t.TempDir(), t.TempDir()
 	qualifiedFile(t, coordinator, "roadmaps/program.md", "---\nslug: program\nstatus: active\nconsumes: xref:source/roadmap:component\n---\n## Milestone: build\n- specs: xref:source/spec:engine\n")

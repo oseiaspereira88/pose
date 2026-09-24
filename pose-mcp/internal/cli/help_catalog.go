@@ -208,6 +208,24 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose spec-format migrate --all",
 		},
 	},
+	"spec-transfer": {
+		Name:            "spec-transfer",
+		SummaryEN:       "Preview and perform an authorized cross-project specification transfer",
+		SummaryPtBR:     "Visualiza e executa uma transferência autorizada de spec entre projetos",
+		Usage:           "pose spec-transfer <preview|apply|resume|status> [options]",
+		DescriptionEN:   "Preview is read-only and emits a digest-bound plan. Apply and resume require a digest plus explicit --authorize-project values for every affected project. Status reads the journal for one selected project.",
+		DescriptionPtBR: "Preview é somente leitura e emite um plano vinculado a digest. Apply e resume exigem digest e --authorize-project explícito para cada projeto afetado. Status lê o journal de um projeto selecionado.",
+		Subcommands: []SubcommandHelp{
+			{"preview", "pose spec-transfer preview --source <xref> --destination <xref> --map <source=disposition[:destination]> [--date YYYY-MM-DD]", "Create a deterministic read-only plan", "Cria um plano determinístico somente leitura"},
+			{"apply", "pose spec-transfer apply --plan <file> --digest <sha256> --authorize-project <id>...", "Apply a reviewed plan with per-project authorization", "Aplica um plano revisado com autorização por projeto"},
+			{"resume", "pose spec-transfer resume --operation <id> --project <id> --authorize-project <id>...", "Resume an interrupted operation from its verified journal", "Retoma uma operação interrompida a partir do journal verificado"},
+			{"status", "pose spec-transfer status --operation <id> [--project <id>]", "Read transfer phase for one project", "Lê a fase da transferência para um projeto"},
+		},
+		Examples: []string{
+			"pose spec-transfer preview --source xref:proj.alpha/spec:work --destination xref:proj.beta/spec:work --map R1=equivalent:R1",
+			"pose spec-transfer apply --plan transfer.json --digest <digest> --authorize-project proj.alpha --authorize-project proj.beta",
+		},
+	},
 	"new-spec": {
 		Name:            "new-spec",
 		SummaryEN:       "Scaffold a new feature specification",

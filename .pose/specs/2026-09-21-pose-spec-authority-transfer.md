@@ -1,6 +1,6 @@
 ---
 slug: pose-spec-authority-transfer
-status: draft
+status: in-progress
 created_at: 2026-09-21
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-qualified-artifact-resolution
 priority: 0
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: governance:spec-authority-transfer
 ---
 
 # Spec: Explicit and recoverable spec authority transfer
@@ -52,18 +52,35 @@ Bound graph traversal and input size; report stable errors without secrets/roots
 ## 3. Technical Plan
 
 ### Affected areas / Áreas afetadas
-Build a confined migration service over the shared resolver and existing atomic writes. Add versioned journal/redirect schemas and command routing. Freeze the exact command spelling in API docs before implementing; tests invoke the registered CLI, not a standalone migration script.
+Build a confined migration service over the existing authorized project roots and shared artifact resolver. Freeze the CLI contract as `pose spec-transfer preview|apply|resume|status`; preview emits a deterministic plan, apply requires its digest and explicit authorization for both project IDs, and resume accepts only a verified operation receipt. MCP exposes read-only status for one already-authorized project. No command commits or pushes.
+
+Use review-policy schema 4 with `spec_authority_transfer_version: 1` as the opt-in capability boundary. Do not stamp it during `pose update` or enable it in consumer projects. A transfer must fail closed unless both roots explicitly adopted the capability.
 
 ### Artifacts
-- created: .pose/specs/2026-09-21-pose-spec-authority-transfer.md
+- modified: .pose/specs/2026-09-21-pose-spec-authority-transfer.md
 - created: pose-mcp/internal/pose/spec_transfer.go
 - created: pose-mcp/internal/pose/spec_transfer_test.go
+- created: pose-mcp/internal/pose/spec_transfer_locks.go
+- created: pose-mcp/internal/pose/spec_transfer_lock_unix.go
+- created: pose-mcp/internal/pose/spec_transfer_lock_windows.go
+- created: pose-mcp/internal/pose/spec_transfer_lock_other.go
+- modified: pose-mcp/internal/pose/artifact_ref.go
+- modified: pose-mcp/internal/pose/artifact_ref_test.go
+- modified: pose-mcp/internal/pose/review_closeout.go
 - created: pose-mcp/internal/cli/spec_transfer.go
 - created: pose-mcp/internal/cli/spec_transfer_test.go
-- modified: pose-mcp/internal/pose/spec.go
 - modified: pose-mcp/internal/cli/cli.go
-- modified: pose-mcp/internal/cli/scaffold.go
-- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/server_test.go
+- created: pose-mcp/internal/mcpserver/spec_transfer_test.go
+- modified: pose-mcp/internal/mcpserver/catalog.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- modified: docs-site/docs/mcp.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/indexes/validation-matrix.json
 
 Initial exact-path inventory. Reconcile against the implementation revision before
@@ -72,9 +89,11 @@ attributed to its actual producing change; do not reuse this slug for the entire
 program. Commit in the owning repository with `POSE-Spec: pose-spec-authority-transfer`.
 
 ### Delivery targets
-Proposed target: `governance:spec-authority-transfer`, module `pose-mcp`, existing profile `backend-go`, entrypoint `pose-mcp/cmd/pose/main.go`. Register an integration producer executing preview/apply/recovery against two real Git fixtures.
-Keep `delivers` empty while this is a draft. Before in-progress, register the
-producer, declare the typed target/entrypoint and prove a negative gate case.
+- governance:spec-authority-transfer module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
+
+The target is now declared because the CLI/MCP producers and the negative gate
+have executed against independent Git fixtures. Keep this scope in progress
+until the complete module matrix, attribution, review and closeout gates pass.
 Do not count documentation or a test suite matching zero tests as delivery.
 
 ### Data and rollout / Dados e rollout
@@ -88,19 +107,20 @@ A partial cross-repository write is unavoidable without a distributed transactio
 
 ## 4. Tasks
 
-- [ ] Confirm source revisions, ADR adoption and all local/external prerequisites.
-- [ ] Reconcile artifacts and register target, evidence producer and negative fixture.
-- [ ] Implement the requirements incrementally with regression/contract tests.
-- [ ] Update public contracts, consumers, docs/locales and generated scaffold where affected.
-- [ ] Run the scenarios below plus required module checks and record evidence per R-ID.
+- [x] Confirm source revisions, accepted ADR and local prerequisites; resolution is the completed predecessor.
+- [x] Reconcile the proposed artifact inventory, typed target and test plan before implementation.
+- [x] Implement the requirements incrementally with regression/contract tests.
+- [x] Update public contracts, consumers, docs/locales and generated scaffold where affected.
+- [x] Run the scenarios below plus required module checks and record evidence per R-ID.
 - [ ] Obtain explicit review and governed closeout; disposition follow-ups and refresh assessments.
 
 ## 5. Decisions
 
-- Date: 2026-09-21. Status: Proposed.
-- Adopt [qualified authority and transfer](../adr/2026-09-21-qualified-artifact-authority-and-explicit-spec-transfer.md) for this scope.
+- Date: 2026-09-24. Status: Adopted for implementation.
+- Adopt [qualified authority and transfer](../adr/2026-09-21-qualified-artifact-authority-and-explicit-spec-transfer.md) for this scope; its status is Accepted.
 - Prefer the existing Store/roots/review contracts over a second authority or resolver.
 - Preserve the distinction between source implementation, consumer adoption and program acceptance.
+- Reuse `knowledge:contract-baseline-handoff` for the existing multi-project authorization boundary; no new project registry is introduced.
 
 ## 6. Validation
 
@@ -113,10 +133,11 @@ Use independent Git fixtures, including nested submodule and sibling layouts.
 
 | Scenario / requisitos | Command (from this repository root) | Expected evidence |
 | --- | --- | --- |
-| Preview, existing executor, history; R1/R2/R5/R7 | `go -C pose-mcp test ./internal/pose ./internal/cli -run TestSpecTransfer -count=1` | Preview is byte-preserving; changed requirements require mapping; historic evidence remains addressable. |
-| Crash/replay/concurrent apply; R3/R4/R6 | `go -C pose-mcp test -race ./internal/pose ./internal/cli -run TestSpecTransfer -count=1` | Inject failure at every journal phase; repeated operation creates no duplicate authority. |
-| Authorization and capability refusal; R6/R8 | `go -C pose-mcp test ./internal/cli -run TestSpecTransferBoundary -count=1` | Unauthorized writes, stale revisions, redirect loops and symlink escape rejected. |
-| Required module matrix; all requirements | `pose validate --strict --module pose-mcp --report` | Registered build/unit/integration checks pass; evidence names this corpus. |
+| Preview, requirement mapping, history, frontmatter, folder companion files and CLI; R1/R2/R5/R7 | `go -C pose-mcp test ./internal/pose ./internal/cli -run 'TestSpecTransfer(Preview|RequirementMap|ApplyPreservesHistory|ApplyPreservesSourceFrontmatter|PreservesFolder|CLIEndToEnd)' -count=1` | Preview is read-only and stable; every requirement is accounted for; transferred metadata and old evidence stay intact. |
+| Crash/replay/concurrent apply; R3/R4/R6 | `go -C pose-mcp test -race ./internal/pose ./internal/cli -run 'TestSpecTransfer(Apply|Resume|Concurrent|Interrupted|CLIEndToEnd)' -count=1` | Injected interruption at each phase resumes from verified receipts; duplicate or concurrent authority is rejected. |
+| Authorization, stale revisions, changed reference inventory, redirect cycles/missing targets, capability and confinement; R5/R6/R8 | `go -C pose-mcp test ./internal/pose ./internal/cli -run 'TestSpecTransfer(Negative|PreviewBlocks|ResumeBlocks|ResolverRejects|ApplyPreservesHistory|PreservesFolder|RewritesRoadmap)|TestSpecAuthorityTransferPolicySchema' -count=1` | Unauthorized roots, CAS conflicts, changed source-reference inventory, invalid redirect chains, unsupported policy and symlink/traversal escapes fail closed. |
+| Authorized read visibility and project scoping in MCP; R8 | `go -C pose-mcp test ./internal/mcpserver -run TestSpecTransferStatus -count=1` | Only the selected authorized project's path-free operation status is returned. |
+| Required module matrix; all requirements | `/tmp/pose-harne8-compatible validate --strict --module pose-mcp --report` | Registered build/unit/integration checks pass; evidence names this corpus. |
 
 ### Governance checks
 - `pose lint-spec pose-spec-authority-transfer --ready-check` before activation.
@@ -127,23 +148,22 @@ Use independent Git fixtures, including nested submodule and sibling layouts.
 - Run `pose assess discover --update-state` at implementation closeout, not to mark this plan delivered.
 
 ### Execution log / Log de execução
-2026-09-21: planning only. Editorial validation is recorded in the package audit;
-implementation tests, delivery evidence and per-requirement acceptance remain pending.
+2026-09-24: accepted ADR and predecessor confirmed; risk-based test plan and exact artifact inventory recorded. Implemented the transfer engine, CLI, resolver redirect and MCP status. Preview/apply/recovery, negative-gate, redirect-cycle, historical-subject and authorized-status test families pass on Git fixtures. Follow-up hardening preserves unknown source frontmatter and blocks resume when new source references appear after an interruption. `go test ./...`, `go vet ./...`, all four named scenario commands, and the strict module matrix pass (21/21 checks). `pose check --strict` passes with 11 pre-existing warnings. `pose docs-check` reports no docs manifest, so the opt-in docs contract is absent; `pose assess integrate` reports 56 unobserved provider contracts, including the new status tool. Human review, Git attribution verification and governed closeout remain pending.
 
 ### Requirement trace
-- R1: Pending implementation and the mapped mandatory scenario above.
-- R2: Pending implementation and the mapped mandatory scenario above.
-- R3: Pending implementation and the mapped mandatory scenario above.
-- R4: Pending implementation and the mapped mandatory scenario above.
-- R5: Pending implementation and the mapped mandatory scenario above.
-- R6: Pending implementation and the mapped mandatory scenario above.
-- R7: Pending implementation and the mapped mandatory scenario above.
-- R8: Pending implementation and the mapped mandatory scenario above.
+- R1 [satisfied] check:spec-authority-transfer-integration test:TestSpecTransferPreviewIsDeterministicAndReadOnly — repeated previews have the same digest and leave both Git roots unchanged; sibling and nested-submodule roots are covered.
+- R2 [satisfied] check:spec-authority-transfer-integration test:TestSpecTransferRequirementMapRequiresExplicitCoverage — every requirement needs an explicit disposition and valid destination mapping.
+- R3 [satisfied] check:spec-authority-transfer-integration test:TestSpecTransferInterruptedOperationsResumeWithoutDuplicateAuthority — the staged journal resumes through activation without two executable authorities.
+- R4 [satisfied] check:spec-authority-transfer-integration test:TestSpecTransferInterruptedOperationsResumeWithoutDuplicateAuthority test:TestSpecTransferConcurrentApplySerializesWriters — interrupted retries and competing writers preserve one serialized operation.
+- R5 [satisfied] check:spec-authority-transfer-integration test:TestSpecTransferApplyPreservesHistoryAndRewritesApprovedReferences test:TestSpecTransferResolverRejectsRedirectCycles — historical artifacts stay at source and invalid redirect chains fail closed.
+- R6 [satisfied] check:spec-authority-transfer-integration test:TestSpecTransferRewritesRoadmapMembershipAndKeepsOtherObligations test:TestSpecTransferPreviewBlocksUnscannedProjects test:TestSpecTransferResumeBlocksChangedReferenceInventory — only inventoried ownership references change; unresolved roots and newly introduced source references block the operation.
+- R7 [satisfied] check:spec-authority-transfer-integration test:TestSpecTransferApplyPreservesHistoryAndRewritesApprovedReferences — the source history and existing review subjects remain bound to their original revisions.
+- R8 [satisfied] check:spec-authority-transfer-integration check:spec-authority-transfer-negative-gates check:spec-authority-transfer-mcp-status test:TestSpecTransferCLIEndToEndAndAuthorization test:TestSpecTransferStatusAuthorization — CLI authorization and MCP project-scoped status are covered by the passing module matrix.
 
 ## 7. Final Report
 
 ### Delivered scope / Escopo entregue
-Planning artifact only. Runtime, adoption and acceptance remain pending.
+Runtime implementation is in progress. No consumer project has adopted schema 4 and no real project transfer has been executed. Human review and governed closeout remain pending.
 
 ### Residual risks / Riscos residuais
 A partial cross-repository write is unavoidable without a distributed transaction. The journal must make incomplete authority transfer visibly blocked; compensation may never reopen both sides.
