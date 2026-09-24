@@ -178,7 +178,9 @@ cross-project writes require an explicit POSE_PROJECT_ROOTS binding.
 and `go vet ./...` passed. The strict module matrix passed 25/25 checks.
 `pose lint-spec pose-agent-project-context --strict` passed with two
 in-progress dependency warnings. `pose artifact-check --strict` observed the
-same 35 declared and changed paths, with 386 repository-wide orphan warnings.
+same 35 declared and changed paths, with 385 repository-wide orphan warnings.
+`pose surface-check --spec pose-agent-project-context --strict` passed with
+zero findings.
 `pose assess integrate` ran and reported 56 generic unobserved-provider gaps.
 `pose check --strict` is blocked by existing review bundles with an unsupported
 `implementation_digest` field. `docs-check` has no configured docs manifest.
