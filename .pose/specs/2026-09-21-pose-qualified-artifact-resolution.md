@@ -169,14 +169,14 @@ zero markers. The module matrix and immutable attribution follow the source comm
 fixtures are being executed; real/human acceptance is deferred by user instruction.
 
 ### Requirement trace
-- R1: [satisfied] Grammar and traversal cases: TestQualifiedArtifactGrammar; local, legacy and typed refs share ParseArtifactRef.
-- R2: [satisfied] TestQualifiedArtifactLayoutsIdentityAndDigest covers six layouts; projection, index and Store share canonical enumeration; conflicting identities refuse lookup.
-- R3: [satisfied] Relocation, explicit selection, duplicate bindings and real Git submodule fixtures: TestQualifiedArtifactProjectBindingConflicts and TestQualifiedArtifactNestedSubmoduleDoesNotAcquireAuthority.
-- R4: [satisfied] TestQualifiedArtifactCLIProjectionDatedAndTyped exercises check/index/projection/readiness; TestQualifiedArtifactMCPReadinessAuthorizesEveryTarget exercises the MCP request path. Lint remains structural readiness, distinct from executable readiness.
-- R5: [satisfied] TestQualifiedArtifactAuthorizationNoFallbackAndConfinement plus the MCP policy fixture reject unauthorized, unknown and unavailable sources without local fallback.
-- R6: [satisfied] Projection schema 2 emits canonical identity, own-repository HEAD and content digest; prior tombstone/staleness regressions remain green. mtime explicitly remains advisory.
-- R7: [satisfied] TestQualifiedArtifactGraphAndReadiness rejects cycles and excessive depth; dependency count and reference bytes are bounded; authorization and output confinement have negative tests.
-- R8: [satisfied] TestQualifiedArtifactTypedRoadmapsAndContractNegotiation proves opt-in schema 3/version 1 and rejects unsupported metadata. Installed pose 5.0.8 was exercised on an isolated schema-3 fixture and refused it with unsupported review policy schema 3; historical policies/bundles are untouched.
+- R1 [satisfied] Grammar and traversal cases: TestQualifiedArtifactGrammar; local, legacy and typed refs share ParseArtifactRef.
+- R2 [satisfied] TestQualifiedArtifactLayoutsIdentityAndDigest covers six layouts; projection, index and Store share canonical enumeration; conflicting identities refuse lookup.
+- R3 [satisfied] Relocation, explicit selection, duplicate bindings and real Git submodule fixtures: TestQualifiedArtifactProjectBindingConflicts and TestQualifiedArtifactNestedSubmoduleDoesNotAcquireAuthority.
+- R4 [satisfied] TestQualifiedArtifactCLIProjectionDatedAndTyped exercises check/index/projection/readiness; TestQualifiedArtifactMCPReadinessAuthorizesEveryTarget exercises the MCP request path. Lint remains structural readiness, distinct from executable readiness.
+- R5 [satisfied] TestQualifiedArtifactAuthorizationNoFallbackAndConfinement plus the MCP policy fixture reject unauthorized, unknown and unavailable sources without local fallback.
+- R6 [satisfied] Projection schema 2 emits canonical identity, own-repository HEAD and content digest; prior tombstone/staleness regressions remain green. mtime explicitly remains advisory.
+- R7 [satisfied] TestQualifiedArtifactGraphAndReadiness rejects cycles and excessive depth; dependency count and reference bytes are bounded; authorization and output confinement have negative tests.
+- R8 [satisfied] TestQualifiedArtifactTypedRoadmapsAndContractNegotiation proves opt-in schema 3/version 1 and rejects unsupported metadata. Installed pose 5.0.8 was exercised on an isolated schema-3 fixture and refused it with unsupported review policy schema 3; historical policies/bundles are untouched.
 
 ## 7. Final Report
 
