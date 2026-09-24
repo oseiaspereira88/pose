@@ -64,7 +64,7 @@ inside the authority project. Update the distributed instruction sources and
 regenerate their embedded scaffold with the existing generator.
 
 ### Artifacts
-- created: .pose/specs/2026-09-21-pose-agent-project-context.md
+- modified: .pose/specs/2026-09-21-pose-agent-project-context.md
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/cli_test.go
 - modified: pose-mcp/internal/cli/help_test.go
