@@ -287,6 +287,14 @@ func TestABMReviewSoundnessToolWithoutProducerIsDispensable(t *testing.T) {
 	if len(warnings) != 1 || !strings.Contains(warnings[0], "runs no check") {
 		t.Fatalf("the gap must reach the reviewer: %v", warnings)
 	}
+	// Milestone and roadmap profiles can require validate without naming an
+	// evidence class. The same empty component still needs the exemption.
+	withoutClass := ReviewPlanTool{ID: "validate", Requiredness: "required", Component: "docs-only"}
+	classlessTools := []ReviewPlanTool{withoutClass}
+	warnings = store.annotateReviewToolProducerCoverage(classlessTools, nil)
+	if classlessTools[0].ProducerCoverage != "none" || len(warnings) != 1 {
+		t.Fatalf("classless validate must recognize the missing producer: tool=%+v warnings=%v", classlessTools[0], warnings)
+	}
 
 	// Still refused while the plan does not record the gap.
 	_, blockers := evaluateReviewToolCoverage(root, []ReviewPlanTool{tool},

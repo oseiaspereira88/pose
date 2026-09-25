@@ -1016,7 +1016,7 @@ func addReviewCriterion(criteria []ReviewPlanCriterion, candidate ReviewPlanCrit
 func (s Store) annotateReviewToolProducerCoverage(tools []ReviewPlanTool, warnings []string) []string {
 	silent := map[string]bool{}
 	for _, tool := range tools {
-		if tool.Component == "" || len(tool.EvidenceClasses) == 0 {
+		if tool.Component == "" || (len(tool.EvidenceClasses) == 0 && tool.ID != "validate") {
 			continue
 		}
 		if _, known := silent[tool.Component]; !known {
@@ -1030,8 +1030,12 @@ func (s Store) annotateReviewToolProducerCoverage(tools []ReviewPlanTool, warnin
 				tools[i].ProducerCoverage = "none"
 			}
 		}
-		warnings = append(warnings, "review tool "+reviewToolLabel(tool.ID, tool.Component)+" asks for evidence of class "+
-			strings.Join(tool.EvidenceClasses, "|")+" from a component the validation matrix declares runs no check; record it not-used with the reason, or register a check for that component")
+		requested := "validation evidence"
+		if len(tool.EvidenceClasses) > 0 {
+			requested = "evidence of class " + strings.Join(tool.EvidenceClasses, "|")
+		}
+		warnings = append(warnings, "review tool "+reviewToolLabel(tool.ID, tool.Component)+" asks for "+
+			requested+" from a component the validation matrix declares runs no check; record it not-used with the reason, or register a check for that component")
 	}
 	return warnings
 }
