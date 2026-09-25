@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-1a50a0c67dec5bd6",
+  "bundle_id": "rvb-52f2eb69a94c7af7",
+  "bundle_digest": "sha256:52f2eb69a94c7af76b1911bc31ffdf6a92f3667b24db8f02d9c2da5155740907",
+  "reviewer": "agent:codex",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration"
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Preview and resume preserve one authority."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Member spec has fresh review."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Strict matrix passed 25 of 25."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "No consumer transfer occurred."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Contract inventory reviewed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Matrix declares zero checks for docs-site."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Strict matrix passed 25 of 25."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/spec-authority-transfer-integration",
+    "integration:pose-mcp/go/spec-authority-transfer-negative-gates"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-25T07:35:24Z",
+  "path": ".pose/review-attestations/rva-1a50a0c67dec5bd6.json"
+}
