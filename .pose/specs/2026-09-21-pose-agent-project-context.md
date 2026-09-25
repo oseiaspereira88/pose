@@ -205,7 +205,13 @@ outside the sandbox, where MCP tests could open loopback sockets.
 The compatibility review found that a context-first convention alone did not
 make the old `new-spec` invocation safe. The distinct `new-spec-qualified`
 command and its old-engine rejection fixture are the follow-up implementation;
-the previous R8 disposition must be revalidated on the new source revision.
+the previous R8 disposition was revalidated on the new source revision. The
+Harne8 adoption fixture passed with the pinned old engine rejecting the new
+verb without a shadow. The strict `pose-mcp` matrix passed 25/25 on 2026-09-24
+(America/Recife), including full Go tests, vet, installed CLI journey, MCP
+context, negative gates and scaffold parity. Direct legacy `new-spec --task`
+remains an explicit consumer activation blocker, not a supported qualified
+operation.
 
 ### Requirement trace
 - R1 [satisfied] test:TestMultiRepoAgentSurfaceExposesPathFreeCLIContext test:TestMultiRepoAgentSurfaceReportsPathFreeQualifiedTaskContext
@@ -215,7 +221,7 @@ the previous R8 disposition must be revalidated on the new source revision.
 - R5 [satisfied] test:TestEmbeddedDistMatchesPoseDist test:TestSkillLocaleParity
 - R6 [satisfied] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeBindingChangeRequiresFreshMCPConnection
 - R7 [satisfied] test:TestMultiRepoAgentRoutingClosesOnlyQualifiedAuthorityWithFreshContext
-- R8 [deferred-integration: the distinct qualified-create verb is implemented but its installed old-engine rejection and full matrix must pass on the new revision] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract e2e:harne8/multirepo-adoption-preflight
+- R8 [satisfied: the distinct qualified-create verb passes installed CLI tests and the pinned old engine rejects it before writing in the Harne8 fixture] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract e2e:harne8/multirepo-adoption-preflight
 
 ## 7. Final Report
 
@@ -223,8 +229,10 @@ the previous R8 disposition must be revalidated on the new source revision.
 Path-free project/task context is shared by CLI and MCP; qualified create, review
 and closeout routes to the explicit canonical authority with stale-context gates.
 The instruction sources, pt-BR locale and embedded scaffold now describe that
-flow. Requirements R1–R7 have named passing coverage; R8 requires the new
-installed compatibility run and renewed review.
+flow. Requirements R1–R8 have named passing coverage for the source contract.
+The installed compatibility check uses the distinct qualified-create verb;
+the consumer remains inactive until its own revision, binary and binding gates
+pass.
 The old-engine fixture still shows that direct invocation can create a local
 draft; Harne8 must keep its consumer binding inactive and replace the pinned
 engine before allowing qualified operations.
