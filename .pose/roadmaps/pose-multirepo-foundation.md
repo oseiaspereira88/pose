@@ -1,6 +1,6 @@
 ---
 slug: pose-multirepo-foundation
-status: active
+status: done
 created_at: 2026-09-21
 depends_on:
 ---
