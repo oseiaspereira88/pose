@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-3874630b73cf7ac2",
+  "bundle_id": "rvb-40bc9049da4e7e3e",
+  "bundle_digest": "sha256:40bc9049da4e7e3e8b4769eeb4f9a1938b191839696b453f4397db49374ea4ce",
+  "reviewer": "agent:codex",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Installed CLI and MCP route qualified context without shadow."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-negative-gates"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Member spec is done with fresh review."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Strict matrix passed 25 of 25."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Legacy consumer binding remains inactive."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-negative-gates",
+      "rationale": "Skills-check passed 22 of 22."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Strict matrix passed 25 of 25."
+    }
+  ],
+  "evidence_refs": [
+    "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+    "integration:pose-mcp/go/multi-repo-agent-negative-gates"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-25T07:25:58Z",
+  "path": ".pose/review-attestations/rva-3874630b73cf7ac2.json"
+}
