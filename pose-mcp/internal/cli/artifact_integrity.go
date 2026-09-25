@@ -145,7 +145,10 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 }
 
 func allCommitsWithSpecTrailers(root string) (map[string][]string, error) {
-	out, err := gitOutputBounded(root, 8*1024*1024, "log", "--all", "--reverse", "--max-count=500", "--format=%H%x00%B%x00")
+	// A rolling commit limit changes historical attribution whenever an unrelated
+	// commit pushes a tagged commit out of the window. Filter in Git and scan the
+	// full matching history; the output bound still fails closed for huge inputs.
+	out, err := gitOutputBounded(root, 32*1024*1024, "log", "--all", "--reverse", "--grep=POSE-Spec:", "--format=%H%x00%B%x00")
 	if err != nil {
 		return nil, err
 	}

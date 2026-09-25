@@ -53,6 +53,20 @@ func artifactGitFixture(t *testing.T) (root, base, head string) {
 	return root, base, head
 }
 
+func TestSpecTrailerAttributionSurvivesUnrelatedCommits(t *testing.T) {
+	root, _, tagged := artifactGitFixture(t)
+	for i := 0; i < 500; i++ {
+		artifactGit(t, root, "commit", "-q", "--allow-empty", "-m", "unrelated evidence")
+	}
+	commits, err := commitsWithSpecTrailer(root, "alpha")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(commits) != 1 || commits[0] != tagged {
+		t.Fatalf("unrelated commits changed tagged attribution: %v, want %s", commits, tagged)
+	}
+}
+
 func TestArtifactCheckMatchesExplicitGitChangeSetAndRejectsUnsafeRevision(t *testing.T) {
 	root, base, head := artifactGitFixture(t)
 	var out, errOut bytes.Buffer
