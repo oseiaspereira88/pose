@@ -1,8 +1,8 @@
 ---
 slug: pose-agent-project-context
-status: in-progress
+status: done
 created_at: 2026-09-21
-completed_at:
+completed_at: 2026-09-25
 supersedes:
 depends_on: pose-qualified-artifact-resolution, pose-federated-roadmap-acceptance, pose-spec-authority-transfer
 priority: 0
@@ -221,7 +221,7 @@ operation.
 - R5 [satisfied] test:TestEmbeddedDistMatchesPoseDist test:TestSkillLocaleParity
 - R6 [satisfied] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeBindingChangeRequiresFreshMCPConnection
 - R7 [satisfied] test:TestMultiRepoAgentRoutingClosesOnlyQualifiedAuthorityWithFreshContext
-- R8 [satisfied: the distinct qualified-create verb passes installed CLI tests and the pinned old engine rejects it before writing in the Harne8 fixture] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract e2e:harne8/multirepo-adoption-preflight
+- R8 [satisfied: the distinct qualified-create verb passes installed CLI tests and the pinned old engine rejects it before writing in the Harne8 fixture] surface:multirepo-agent-context evidence:integration test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract e2e:harne8/multirepo-adoption-preflight
 
 ## 7. Final Report
 
