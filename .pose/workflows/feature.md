@@ -13,7 +13,7 @@ Deliver a production feature with clear scope, incremental implementation, and d
 
 ## Execution checklist
 
-1. Resolve the selected project and task with `pose context --task <typed-or-qualified-artifact-ref> --json`; reuse its canonical authority and stop on ambiguity, unsupported metadata, stale binding or `transfer-in-progress`. Never infer an external task from a bare slug or checkout ancestry.
+1. Resolve the selected project and task with `pose context --task <typed-or-qualified-artifact-ref> --json`; reuse its canonical authority and stop on ambiguity, unsupported metadata, stale binding or `transfer-in-progress`. Never infer an external task from a bare slug or checkout ancestry. For a new qualified authority, use `pose new-spec-qualified <slug> --task <xref> --expect-context <digest>`; older engines must reject this distinct verb before any write.
 2. Map affected modules and read relevant local instructions.
 3. Map impacted modules and run `pose assess discover [--component <dir>]` to inspect metrics, LOCs, and debts of the module before editing.
 4. Search `.pose/knowledge/` for relevant handoffs, notes, and decision logs; cite each consulted artifact in the spec as `knowledge:<slug>`. That exact form is what `pose knowledge-usage` counts — prose naming a file is invisible to it, so an artifact everyone reads can still look unused and expire on TTL.

@@ -79,6 +79,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdNewSpec(root, args, stdout, stderr)
+	case "new-spec-qualified":
+		root, err := projectRoot()
+		if err != nil {
+			render(io.Discard, stderr).Failure("pose new-spec-qualified: " + err.Error())
+			return 1
+		}
+		return cmdNewSpecQualified(root, args, stdout, stderr)
 	case "new-roadmap":
 		root, err := projectRoot()
 		if err != nil {
@@ -412,6 +419,7 @@ Native binary:
 
 Scaffolds:
   new-spec <slug>                     Create a feature spec scaffold
+  new-spec-qualified <slug>           Create via a qualified authority and fresh context
   new-roadmap <slug>                  Create a governed roadmap
   new-adr "<title>"                   Create an ADR
   new-knowledge <type> <slug>         Create a handoff, note, or decision log
@@ -476,6 +484,7 @@ Nativos (binário):
 
 Scaffold:
   new-spec <slug>                     Cria scaffold de spec por feature
+  new-spec-qualified <slug>           Cria pela autoridade qualificada com contexto atual
   new-roadmap <slug>                  Cria roadmap governado em .pose/roadmaps/
   new-adr "<título>"                  Cria ADR com template padrão
   new-knowledge <type> <slug>         Cria handoff/note/decision-log

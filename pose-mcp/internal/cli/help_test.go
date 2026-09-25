@@ -9,7 +9,7 @@ import (
 func TestUniversalHelpFlagsAllCommands(t *testing.T) {
 	commands := []string{
 		"init", "version", "doctor", "validate", "check", "lint-spec",
-		"new-spec", "new-roadmap", "new-adr", "new-knowledge",
+		"new-spec", "new-spec-qualified", "new-roadmap", "new-adr", "new-knowledge",
 		"review", "close", "extension", "contribute", "release",
 		"state", "followups", "index", "update", "hooks",
 		"suggest", "assess", "serve-mcp", "telemetry", "import",

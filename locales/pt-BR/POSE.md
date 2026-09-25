@@ -193,6 +193,8 @@ pose context [--project-id <id>] [--task <artifact-ref>] [--json]
                                    # contexto sem caminhos, com autoridade e revisão
 pose new-spec <slug> [--folder|--legacy] [--task <xref>] [--expect-context <digest>]
                                    # reutiliza autoridade canônica ou cria no projeto explícito
+pose new-spec-qualified <slug> --task <xref> --expect-context <digest>
+                                   # criação qualificada; motores antigos recusam o verbo distinto
 pose new-roadmap <slug>            # cria roadmap governado em .pose/roadmaps/
 pose new-adr "<título>"            # cria ADR datada
 pose new-knowledge <type> <slug>   # cria handoff/note/decision-log em .pose/knowledge/
@@ -365,6 +367,8 @@ expõem a autoridade e a revisão atual sem revelar caminhos. Escritas CLI entre
 projetos exigem destino em `POSE_PROJECT_ROOTS` e o `context_revision` atual
 via `--expect-context`; descobrir um projeto por `HARNE8_PROJECTS_DIR` permite
 leitura, mas não concede autorização de escrita.
+Para criação qualificada, use `new-spec-qualified`: motores antigos recusam o
+comando antes de interpretar opções novas como argumentos ignorados.
 
 - Trate `.mcp.json`, o processo de servidor conectado e o projeto selecionado
   como estados distintos.

@@ -40,7 +40,7 @@ change unrelated product behavior or rewrite historical attestations.
 - R5: Update feature/review/closeout skills, workflow, manual, locales and scaffold to resolve authority first, keep requirements at source, link composition and use the correct repository-scoped commit trailer.
 - R6: Ensure installed binary, MCP tool context and configured project binding are validated independently. Version mismatch, changed workspace or reconnect cannot silently retain an obsolete authority.
 - R7: Prove the complete two-project journey from parent root, child checkout and sibling checkout: create/reuse, execute, review, close implementation and observe coordinator still pending unmet integration.
-- R8: Keep single-repository UX compatible. Publish capabilities and stable errors; add installed-distribution tests proving old engines cannot apply new transfer/federation semantics.
+- R8: Keep single-repository UX compatible. Publish capabilities and stable errors; expose a distinct qualified-create verb that old engines reject before writing, and add installed-distribution tests proving old engines cannot apply new transfer/federation semantics.
 
 ### Security and compatibility / Segurança e compatibilidade
 Treat repository content and references as untrusted. Enforce the existing
@@ -62,9 +62,13 @@ targets. Require an explicit `POSE_PROJECT_ROOTS` binding plus the matching
 context digest for CLI cross-project writes. Keep closeout evaluation and writes
 inside the authority project. Update the distributed instruction sources and
 regenerate their embedded scaffold with the existing generator.
+Use `new-spec-qualified` for cross-project creation. It requires the qualified
+task and context digest and delegates to the existing resolver; the older engine
+rejects the unfamiliar verb before its permissive `new-spec` parser can write.
 
 ### Artifacts
 - modified: .pose/specs/2026-09-21-pose-agent-project-context.md
+- modified: .pose/adr/2026-09-21-qualified-artifact-authority-and-explicit-spec-transfer.md
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/cli_test.go
 - modified: pose-mcp/internal/cli/help_test.go
@@ -198,6 +202,10 @@ semantics. The consumer's inactive binding and pin/version gate remain required
 until it installs this contract; the source result does not authorize adoption.
 On 2026-09-24 (America/Recife), the candidate `pose-mcp` matrix passed 25/25
 outside the sandbox, where MCP tests could open loopback sockets.
+The compatibility review found that a context-first convention alone did not
+make the old `new-spec` invocation safe. The distinct `new-spec-qualified`
+command and its old-engine rejection fixture are the follow-up implementation;
+the previous R8 disposition must be revalidated on the new source revision.
 
 ### Requirement trace
 - R1 [satisfied] test:TestMultiRepoAgentSurfaceExposesPathFreeCLIContext test:TestMultiRepoAgentSurfaceReportsPathFreeQualifiedTaskContext
@@ -207,7 +215,7 @@ outside the sandbox, where MCP tests could open loopback sockets.
 - R5 [satisfied] test:TestEmbeddedDistMatchesPoseDist test:TestSkillLocaleParity
 - R6 [satisfied] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeBindingChangeRequiresFreshMCPConnection
 - R7 [satisfied] test:TestMultiRepoAgentRoutingClosesOnlyQualifiedAuthorityWithFreshContext
-- R8 [satisfied: the installed candidate enforces qualified context and unsupported-contract errors; the Harne8 context-first adoption fixture stops the older engine before mutation, while direct legacy invocation remains a consumer activation blocker] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract e2e:harne8/multirepo-adoption-preflight
+- R8 [deferred-integration: the distinct qualified-create verb is implemented but its installed old-engine rejection and full matrix must pass on the new revision] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract e2e:harne8/multirepo-adoption-preflight
 
 ## 7. Final Report
 
@@ -215,7 +223,8 @@ outside the sandbox, where MCP tests could open loopback sockets.
 Path-free project/task context is shared by CLI and MCP; qualified create, review
 and closeout routes to the explicit canonical authority with stale-context gates.
 The instruction sources, pt-BR locale and embedded scaffold now describe that
-flow. Requirements R1–R8 have named passing coverage for the source contract.
+flow. Requirements R1–R7 have named passing coverage; R8 requires the new
+installed compatibility run and renewed review.
 The old-engine fixture still shows that direct invocation can create a local
 draft; Harne8 must keep its consumer binding inactive and replace the pinned
 engine before allowing qualified operations.

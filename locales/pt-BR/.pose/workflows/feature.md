@@ -13,7 +13,7 @@ Entregar uma feature em produção com escopo claro, implementação incremental
 
 ## Checklist de execução
 
-1. Resolver projeto e tarefa com `pose context --task <referência-tipificada-ou-qualificada> --json`; reutilizar a autoridade canônica e parar diante de ambiguidade, metadado não suportado, vínculo obsoleto ou `transfer-in-progress`. Não inferir tarefa externa por slug simples nem ancestralidade do checkout.
+1. Resolver projeto e tarefa com `pose context --task <referência-tipificada-ou-qualificada> --json`; reutilizar a autoridade canônica e parar diante de ambiguidade, metadado não suportado, vínculo obsoleto ou `transfer-in-progress`. Não inferir tarefa externa por slug simples nem ancestralidade do checkout. Para criar autoridade qualificada, usar `pose new-spec-qualified <slug> --task <xref> --expect-context <digest>`; motores antigos precisam recusar esse verbo antes de qualquer escrita.
 2. Mapear módulos impactados e rodar `pose assess discover [--component <dir>]` para inspecionar métricas, LOCs e dívidas do módulo antes da edição.
 3. **Consultar `.pose/knowledge/`** por handoffs/notas/decision-logs relevantes ao escopo (busque pelo slug do módulo afetado e por temas correlatos). Cite cada artefato consultado na spec como `knowledge:<slug>`. É exatamente essa forma que `pose knowledge-usage` conta — prosa citando o arquivo é invisível para ele, então um artefato que todos leem pode parecer não usado e expirar no TTL.
 4. Revisar ou criar a spec no projeto de autoridade. Manter requisitos na spec de origem e usar referências qualificadas para compor o coordenador.

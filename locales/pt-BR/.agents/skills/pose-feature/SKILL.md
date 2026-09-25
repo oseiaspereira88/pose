@@ -35,7 +35,8 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
    Reutilize a spec canônica quando houver resolução; pare diante de ambiguidade, metadado não suportado ou `transfer-in-progress`. Não infira tarefa externa por slug simples ou caminho semelhante. Para criar nova autoridade em outro projeto, informe o `xref:<projeto>/spec:<slug>` exato e o `context_revision` atual; o destino precisa de vínculo explícito em `POSE_PROJECT_ROOTS`. Mantenha os requisitos na spec de autoridade e use referências qualificadas para compor o coordenador.
 2. Identificar slug curto e verificar/criar spec:
    ```bash
-   pose new-spec <slug> [--task <xref> --expect-context <digest>]  # cria localmente ou roteia à autoridade qualificada
+   pose new-spec <slug>  # cria localmente
+   pose new-spec-qualified <slug> --task <xref> --expect-context <digest>  # cria pela autoridade qualificada
    ```
 3. Obter métricas de LOC, estrutura do módulo e dívidas técnicas antes de modificar o código:
    ```bash

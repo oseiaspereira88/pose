@@ -26,6 +26,28 @@ func scaffoldSlugify(value string) string {
 }
 
 // cmdNewSpec is the native parity implementation of pose-new-spec.sh.
+// cmdNewSpecQualified is a distinct verb so a pre-contract binary rejects the
+// operation before its permissive new-spec parser can ignore --task.
+func cmdNewSpecQualified(root string, args []string, stdout, stderr io.Writer) int {
+	var taskRef, expectedContext string
+	for i := 0; i < len(args); i++ {
+		if (args[i] == "--task" || args[i] == "--expect-context") && i+1 < len(args) {
+			if args[i] == "--task" {
+				taskRef = args[i+1]
+			} else {
+				expectedContext = args[i+1]
+			}
+			i++
+		}
+	}
+	ref, err := pose.ParseArtifactRef(taskRef)
+	if err != nil || ref.Project == "" || ref.Kind != "spec" || expectedContext == "" {
+		render(io.Discard, stderr).Failure("new-spec-qualified requires --task xref:<project>/spec:<slug> and --expect-context <digest>")
+		return 2
+	}
+	return cmdNewSpec(root, args, stdout, stderr)
+}
+
 func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	if len(args) == 0 {

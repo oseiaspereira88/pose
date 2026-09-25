@@ -64,3 +64,13 @@ Negotiate required reference metadata with review policy schema 3 and
 showed that the current schema-2 decoder ignores unknown fields, so an additive
 field alone cannot make an older binary refuse the contract. Preserve schema 1/2
 and historical bundles; do not automatically stamp schema 3 during `pose update`.
+
+## Compatibility amendment — 2026-09-24
+
+Cross-project spec creation uses a distinct `new-spec-qualified` CLI verb with
+mandatory `--task xref:<project>/spec:<slug>` and `--expect-context <digest>`.
+The pre-contract `new-spec` parser ignores unknown flags and can create a local
+shadow when given `--task`; it cannot be changed after distribution. The new
+verb makes that binary reject the operation before writing, while the current
+engine reuses its existing authority resolver and freshness checks. Consumers
+must keep old bindings inactive until they install the compatible engine.

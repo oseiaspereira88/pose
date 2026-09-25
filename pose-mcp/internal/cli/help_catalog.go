@@ -255,6 +255,17 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose new-spec billing-export-pipeline --folder",
 		},
 	},
+	"new-spec-qualified": {
+		Name:            "new-spec-qualified",
+		SummaryEN:       "Create or reuse a spec through an explicit qualified authority",
+		SummaryPtBR:     "Cria ou reutiliza uma spec pela autoridade qualificada explícita",
+		Usage:           "pose new-spec-qualified <slug> --task xref:<project>/spec:<slug> --expect-context <digest>",
+		DescriptionEN:   "Requires a qualified task and fresh context. The separate verb makes older engines reject the operation before they can ignore new flags on new-spec.",
+		DescriptionPtBR: "Exige tarefa qualificada e contexto atual. O verbo separado faz motores antigos recusarem a operação antes de ignorarem opções novas de new-spec.",
+		Examples: []string{
+			"pose new-spec-qualified checkout --task xref:proj.executor/spec:checkout --expect-context <digest>",
+		},
+	},
 	"new-roadmap": {
 		Name:            "new-roadmap",
 		SummaryEN:       "Scaffold a new governed roadmap in .pose/roadmaps/",

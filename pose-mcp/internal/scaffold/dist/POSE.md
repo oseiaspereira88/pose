@@ -190,6 +190,8 @@ pose context [--project-id <id>] [--task <artifact-ref>] [--json]
                                    # path-free selected project, authority and revision
 pose new-spec <slug> [--folder|--legacy] [--task <xref>] [--expect-context <digest>]
                                    # reuse canonical authority or create in its explicit project
+pose new-spec-qualified <slug> --task <xref> --expect-context <digest>
+                                   # qualified creation; old engines reject the distinct verb
 pose new-roadmap <slug>            # create a governed roadmap in .pose/roadmaps/
 pose new-adr "<title>"             # create a dated ADR
 pose new-knowledge <type> <slug>   # create handoff/note/decision-log
@@ -349,7 +351,7 @@ pose release-notes --version vX.Y.Z  # compatibility alias for the immutable not
 - `hooks` — links the native binary into `.git/hooks/`; invocation name selects `check --tolerant` for `pre-commit` and `index` for `post-merge`. `install --force` keeps a backup of pre-existing hooks.
 - `version` — displays compiled Go binary version, commit SHA, and compares the repository schema version with engine requirements.
 - `context` — resolves a selected logical project and optional local or `xref:`-qualified task through the shared artifact resolver. The JSON result includes canonical authority, project/artifact revisions, resolution state, supported contracts and a `context_revision`; it never includes filesystem roots. Use this token to detect a changed checkout or revision before a cross-project write.
-- Cross-project CLI writes require the target in `POSE_PROJECT_ROOTS` and the `context_revision` from a fresh `pose context` call. A project found only by `HARNE8_PROJECTS_DIR` scan can be read but does not grant write access. Existing canonical specs are reused; redirects and incomplete transfers block shadow creation.
+- Cross-project CLI writes require the target in `POSE_PROJECT_ROOTS` and the `context_revision` from a fresh `pose context` call. Use `new-spec-qualified` for qualified creation so older engines reject the command itself. A project found only by `HARNE8_PROJECTS_DIR` scan can be read but does not grant write access. Existing canonical specs are reused; redirects and incomplete transfers block shadow creation.
 - `install <dir> [--locale tag] [--skip-mcp] [--force] [--no-backup] [--allow-non-git]` — installs the embedded POSE runtime, rules, workflows, templates, and documentation into a target project directory without cloning, stamps `adopted_at` in the changelog policy with the day the instance received it, and runs the strict gate.
 - `import <spec-kit|openspec> <path> [--dry-run]` — imports foreign specification trees into canonical POSE specifications with standard frontmatter and section structure.
 - `serve-mcp` — starts the POSE Model Context Protocol server over stdio (`--stdio`) or HTTP for native AI agent integration. The stdio server exits on SIGTERM; it resolves the `pose` CLI it runs once, at start, so a server started before `pose update` keeps working with the updated binary.

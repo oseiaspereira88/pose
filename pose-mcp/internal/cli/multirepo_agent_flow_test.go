@@ -446,6 +446,15 @@ func TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding(t 
 		cmd.Dir, cmd.Env = root, baseEnv
 		return cmd.CombinedOutput()
 	}
+	for _, args := range [][]string{
+		{"new-spec-qualified", "installed-task", "--task", taskRef},
+		{"new-spec-qualified", "installed-task", "--task", "spec:installed-task", "--expect-context", "digest"},
+	} {
+		output, err := run(parent, args...)
+		if err == nil || !strings.Contains(string(output), "new-spec-qualified requires") {
+			t.Fatalf("qualified verb accepted missing context or local task: args=%v err=%v output=%s", args, err, output)
+		}
+	}
 	contextRaw, err := run(parent, "context", "--task", taskRef, "--json")
 	if err != nil {
 		t.Fatalf("installed context: %v: %s", err, contextRaw)
@@ -458,7 +467,7 @@ func TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding(t 
 		t.Fatal(err)
 	}
 	commitAgentFixture(t, executor, "advance executor binding")
-	staleOutput, err := run(parent, "new-spec", "installed-task", "--task", taskRef, "--expect-context", context.ContextRevision)
+	staleOutput, err := run(parent, "new-spec-qualified", "installed-task", "--task", taskRef, "--expect-context", context.ContextRevision)
 	if err == nil || !strings.Contains(string(staleOutput), "stale-context") {
 		t.Fatalf("installed CLI applied stale context: err=%v output=%s", err, staleOutput)
 	}
@@ -469,7 +478,7 @@ func TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding(t 
 	if err := json.Unmarshal(freshRaw, &context); err != nil {
 		t.Fatal(err)
 	}
-	created, err := run(parent, "new-spec", "installed-task", "--task", taskRef, "--expect-context", context.ContextRevision)
+	created, err := run(parent, "new-spec-qualified", "installed-task", "--task", taskRef, "--expect-context", context.ContextRevision)
 	if err != nil {
 		t.Fatalf("installed cross-project create: %v: %s", err, created)
 	}
