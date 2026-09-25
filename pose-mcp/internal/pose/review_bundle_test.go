@@ -688,6 +688,7 @@ func TestReviewBundleClassifiesRootReleaseFiles(t *testing.T) {
 func TestReviewBundleClassifiesRootManifestsAndProjectFiles(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	writeReviewFixture(t, root, "go.mod", "module example.com/test\n\ngo 1.22\n")
+	writeReviewFixture(t, root, ".mcp.json", `{"mcpServers":{}}`)
 	writeReviewFixture(t, root, "PROJECT.md", "# Project Overview\n")
 	writeReviewFixture(t, root, "package.json", `{"name": "test"}`)
 	writeReviewFixture(t, root, "Cargo.toml", `[package]
@@ -703,6 +704,7 @@ version = "0.1.0"
 	}
 	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths,
 		ObservedPath{Action: "modified", Path: "go.mod"},
+		ObservedPath{Action: "created", Path: ".mcp.json"},
 		ObservedPath{Action: "created", Path: "PROJECT.md"},
 		ObservedPath{Action: "created", Path: "package.json"},
 		ObservedPath{Action: "created", Path: "Cargo.toml"},
@@ -725,6 +727,9 @@ version = "0.1.0"
 	if classes["go.mod"] != "governance" {
 		t.Fatalf("go.mod classified as %q, want governance", classes["go.mod"])
 	}
+	if classes[".mcp.json"] != "governance" {
+		t.Fatalf(".mcp.json classified as %q, want governance", classes[".mcp.json"])
+	}
 	if classes["PROJECT.md"] != "documentation" {
 		t.Fatalf("PROJECT.md classified as %q, want documentation", classes["PROJECT.md"])
 	}
@@ -739,6 +744,42 @@ version = "0.1.0"
 	}
 	if classes["cmd/main.go"] != "implementation" {
 		t.Fatalf("cmd/main.go classified as %q, want implementation", classes["cmd/main.go"])
+	}
+}
+
+func TestReviewValidationPreconditionForComponentWithoutTarget(t *testing.T) {
+	_, store := componentReviewFixture(t)
+	scope, err := ParseScopeRef("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan, err := store.ReviewPlan("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !store.reviewScopeRequiresValidationEvidence(scope, ReviewBundlePlan{Components: plan.Components}, DeliveryIntegrityGraph{}) {
+		t.Fatal("implementation component must still require validation evidence")
+	}
+	bundle := ReviewBundle{
+		BundleID: "rvb-test", BundleDigest: "sha256:test",
+		Payload: ReviewBundlePayload{
+			Scope: ReviewBundleScope{Ref: "spec:backend", Kind: "spec", Slug: "backend", Components: []string{"api"}},
+			Plan:  ReviewBundlePlan{Components: plan.Components, Tools: []ReviewPlanTool{{ID: "validate", Requiredness: "required", Preconditions: []string{"delivery-target-declared"}}}},
+		},
+	}
+	att := ReviewAttestation{
+		BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest,
+		Reviewer: "agent:test", Decision: "approved", AttestedAt: "2026-09-25T12:00:00Z",
+		Tools: []ReviewToolDisposition{{ID: "validate", Disposition: "deferred", Rationale: "no declared delivery target"}},
+	}
+	blockers := store.validateBundleAttestationWith(bundle, att, true)
+	if strings.Contains(strings.Join(blockers, " "), "review tool validate") {
+		t.Fatalf("component without target was treated as delivery: %+v", blockers)
+	}
+	bundle.Payload.Scope.Deliveries = []string{"contract:backend"}
+	blockers = store.validateBundleAttestationWith(bundle, att, true)
+	if !strings.Contains(strings.Join(blockers, " "), "review tool validate has invalid deferred disposition") {
+		t.Fatalf("declared target allowed deferred validation: %+v", blockers)
 	}
 }
 

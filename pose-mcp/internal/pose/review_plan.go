@@ -424,7 +424,14 @@ func (s Store) resolveReviewPlanContext(scope ScopeRef) (reviewPlanContext, erro
 		} else if found {
 			for _, target := range targets {
 				context.DeliveryKinds = append(context.DeliveryKinds, target.Kind)
-				for _, path := range []string{target.Module, target.Entrypoint} {
+				// A root delivery module is valid, but "." is not a component
+				// path. The entrypoint still supplies the concrete mapped path.
+				paths := []string{}
+				if target.Module != "." {
+					paths = append(paths, target.Module)
+				}
+				paths = append(paths, target.Entrypoint)
+				for _, path := range paths {
 					context.ArtifactPaths = append(context.ArtifactPaths, path)
 					s.mapReviewPath(entries, path, "delivery:"+target.Ref+":"+path, addEntry, unmapped, &context)
 				}

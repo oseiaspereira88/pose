@@ -997,7 +997,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 		"pom.xml": true, "build.gradle": true, "build.gradle.kts": true, "settings.gradle": true, "settings.gradle.kts": true,
 		"CMakeLists.txt": true, "Makefile": true, "Dockerfile": true, "docker-compose.yml": true, "docker-compose.yaml": true, "compose.yaml": true, "compose.yml": true,
 		"tsconfig.json": true, "jsconfig.json": true, "turbo.json": true, "biome.json": true,
-		".gitignore": true, ".gitattributes": true, ".editorconfig": true,
+		".gitignore": true, ".gitattributes": true, ".editorconfig": true, ".mcp.json": true,
 		".golangci.yml": true, ".golangci.yaml": true, "buf.yaml": true, "buf.gen.yaml": true,
 		".pre-commit-config.yaml": true, ".goreleaser.yaml": true, ".goreleaser.yml": true,
 	}
@@ -2317,9 +2317,15 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	if structuralGoverned, _ := BundleGovernedBy(bundle, "structural-causality"); structuralGoverned {
 		blockers = append(blockers, s.reviewStructuralCausalityBlockers(bundle.Payload.Scope.Ref, bundle.Payload.Plan.Structure, required, att.Criteria)...)
 	}
-	toolScope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
-	toolGraph, _ := s.GetDeliveryIntegrity("")
-	hasDeliveryTarget := s.reviewScopeRequiresValidationEvidence(toolScope, bundle.Payload.Plan, toolGraph)
+	// Validation evidence can be required by implementation components even
+	// when no delivery target is declared. A target-gated tool must use the
+	// sealed declaration, not the broader evidence requirement.
+	hasDeliveryTarget := len(bundle.Payload.Scope.Deliveries) > 0
+	if bundle.Payload.Scope.Kind != "spec" {
+		toolScope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
+		toolGraph, _ := s.GetDeliveryIntegrity("")
+		hasDeliveryTarget = s.reviewScopeRequiresValidationEvidence(toolScope, bundle.Payload.Plan, toolGraph)
+	}
 	seen := map[string]bool{}
 	notApplicable := 0
 	for _, criterion := range att.Criteria {

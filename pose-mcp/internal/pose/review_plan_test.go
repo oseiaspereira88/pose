@@ -98,6 +98,34 @@ components: web, api
 	return root, Store{Root: root}
 }
 
+func TestReviewPlanRootDeliveryTarget(t *testing.T) {
+	root, store := componentReviewFixture(t)
+	writeReviewFixture(t, root, ".mcp.json", `{"mcpServers":{}}`)
+	writeReviewFixture(t, root, ".pose/specs/root-binding/spec.md", `---
+slug: root-binding
+status: in-progress
+created_at: 2026-09-25
+components: api
+delivers: contract:root-binding
+---
+
+# Spec: root-binding
+
+### Artifacts
+- modified: .mcp.json
+
+### Delivery targets
+- contract:root-binding module:. profile:api-contract entrypoint:.mcp.json
+`)
+	plan, err := store.ReviewPlan("spec:root-binding")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(plan.Blockers) != 0 {
+		t.Fatalf("valid root module blocked: %+v", plan.Blockers)
+	}
+}
+
 func TestReviewPlanSelectsDistinctFrontendBackendAndBoundaryCoverage(t *testing.T) {
 	_, store := componentReviewFixture(t)
 	frontend, err := store.ReviewPlan("spec:frontend")
