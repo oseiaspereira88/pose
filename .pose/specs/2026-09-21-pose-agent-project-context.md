@@ -155,6 +155,7 @@ Use independent Git fixtures, including nested submodule and sibling layouts.
 | Context, ambiguity, duplicate prevention; R1–R4 | `go -C pose-mcp test ./internal/cli ./internal/mcpserver -run TestMultiRepoAgent -count=1` | Parent, child and sibling roots resolve the same qualified task; no local shadow is created; stale or unauthorized writes fail before mutation. |
 | Negative gates; R2–R4, R8 | `go -C pose-mcp test ./internal/cli ./internal/mcpserver -run TestMultiRepoAgentNegative -count=1` | Ambiguous task, stale revision, denied project, redirect/transfer conflict and unsupported adopted contract fail closed. |
 | Installed journey, contract mismatch; R6–R8 | `go -C pose-mcp test ./internal/cli -run TestMultiRepoAgentInstalled -count=1` | Built CLI recomputes context after target checkout changes, blocks stale writes, and creates in the explicit authority after a fresh context. |
+| Old installed engine guard; R8 (required) | `bash ../tests/e2e/pose-multirepo/run.sh adoption` | The consumer's required context-first path stops before `new-spec` when the pinned engine lacks `context`; the direct legacy probe remains an adoption blocker until the pin is replaced. |
 | Reachability; R1/R8 | `go -C pose-mcp test ./internal/cli ./internal/mcpserver -run TestMultiRepoAgentSurface -count=1` | `pose context` and `pose_mcp_context` expose the same path-free qualified task contract. |
 | Instruction/scaffold parity; R5/R8 | `go -C pose-mcp test ./internal/scaffold -run TestEmbeddedDistMatchesPoseDist -count=1` | Regenerated locales/skills match canonical sources; new flow documented. |
 | Required module matrix; all requirements | `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json --report` | Registered build/unit/integration checks pass; structured evidence includes this corpus. |
@@ -189,6 +190,10 @@ scanner was built with Go 1.26.
 The Harne8 adoption fixture built the old gitlink binary and found that it
 ignores `new-spec --task xref:...`, creating a local draft. Autonomous review
 `rva-b178e83cb461ba31` requested changes; the consumer remains inactive.
+The consumer's context-first fixture was rerun on 2026-09-24 and stopped the
+old engine before a qualified write. A direct call to that immutable binary
+still creates a local draft, so this evidence does not clear the R8 review
+finding or authorize consumer activation.
 
 ### Requirement trace
 - R1 [satisfied] test:TestMultiRepoAgentSurfaceExposesPathFreeCLIContext test:TestMultiRepoAgentSurfaceReportsPathFreeQualifiedTaskContext
