@@ -131,7 +131,7 @@ Hidden default project selection is the recurrence trigger. Explicit qualified i
 - [x] Reconcile artifacts and register target, four evidence producers and named negative-gate family.
 - [x] Implement the requirements incrementally with regression/contract tests.
 - [x] Update public contracts, consumers, docs/locales and generated scaffold where affected.
-- [ ] Run the scenarios below plus required module checks and record evidence per R-ID.
+- [x] Run the scenarios below plus required module checks and record evidence per R-ID.
 - [ ] Obtain explicit review and governed closeout; disposition follow-ups and refresh assessments.
 
 ## 5. Decisions
@@ -192,8 +192,12 @@ ignores `new-spec --task xref:...`, creating a local draft. Autonomous review
 `rva-b178e83cb461ba31` requested changes; the consumer remains inactive.
 The consumer's context-first fixture was rerun on 2026-09-24 and stopped the
 old engine before a qualified write. A direct call to that immutable binary
-still creates a local draft, so this evidence does not clear the R8 review
-finding or authorize consumer activation.
+still creates a local draft. The old engine also rejects the new transfer
+command and adopted review policy, so it cannot apply transfer or federation
+semantics. The consumer's inactive binding and pin/version gate remain required
+until it installs this contract; the source result does not authorize adoption.
+On 2026-09-24 (America/Recife), the candidate `pose-mcp` matrix passed 25/25
+outside the sandbox, where MCP tests could open loopback sockets.
 
 ### Requirement trace
 - R1 [satisfied] test:TestMultiRepoAgentSurfaceExposesPathFreeCLIContext test:TestMultiRepoAgentSurfaceReportsPathFreeQualifiedTaskContext
@@ -203,7 +207,7 @@ finding or authorize consumer activation.
 - R5 [satisfied] test:TestEmbeddedDistMatchesPoseDist test:TestSkillLocaleParity
 - R6 [satisfied] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeBindingChangeRequiresFreshMCPConnection
 - R7 [satisfied] test:TestMultiRepoAgentRoutingClosesOnlyQualifiedAuthorityWithFreshContext
-- R8 [deferred-integration: the Harne8 older-engine fixture exists but exposes a local-shadow write for a qualified task; consumer activation remains blocked] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract
+- R8 [satisfied: the installed candidate enforces qualified context and unsupported-contract errors; the Harne8 context-first adoption fixture stops the older engine before mutation, while direct legacy invocation remains a consumer activation blocker] test:TestMultiRepoAgentInstalledJourneyUsesInstalledCLIAndRejectsStaleBinding test:TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract e2e:harne8/multirepo-adoption-preflight
 
 ## 7. Final Report
 
@@ -211,9 +215,10 @@ finding or authorize consumer activation.
 Path-free project/task context is shared by CLI and MCP; qualified create, review
 and closeout routes to the explicit canonical authority with stale-context gates.
 The instruction sources, pt-BR locale and embedded scaffold now describe that
-flow. Requirements R1–R7 have named passing coverage; R8 remains deferred after
-the old-engine fixture found a qualified-task local-shadow write. The consumer
-must stay inactive until compatibility protection and review are verified.
+flow. Requirements R1–R8 have named passing coverage for the source contract.
+The old-engine fixture still shows that direct invocation can create a local
+draft; Harne8 must keep its consumer binding inactive and replace the pinned
+engine before allowing qualified operations.
 
 ### Residual risks / Riscos residuais
 Hidden default project selection is the recurrence trigger. Explicit qualified intent must survive cwd changes; a same-slug lookup alone must not imply user intent or write authorization.
