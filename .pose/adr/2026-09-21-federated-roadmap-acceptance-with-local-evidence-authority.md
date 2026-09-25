@@ -24,6 +24,11 @@ implementation review; accepting remote done alone bypasses composition.
 - Seal an external dependency manifest with identities, pinned source revisions,
   artifact/subject/plan digests, governing contracts, policy digests and verifier
   results/evidence. Build one bounded snapshot, not repeated live-HEAD reads.
+- For same-project coordinator and dependencies, record the last commit that
+  changed the artifact file as its source revision. Verify the current file
+  against committed content and retain a repository-HEAD snapshot to detect
+  concurrent changes during resolution. Keep the full repository revision as
+  the pin for external projects, including gitlinks and adopted trust.
 - Verify children under source authority plus explicitly adopted consumer trust
   requirements. Recheck relevant pinned inputs immediately before application;
   changes stale the coordinator review. Scope caches by digests and authorization.
@@ -40,7 +45,9 @@ implementation review; accepting remote done alone bypasses composition.
 
 Rejected: copying/relabeling bundles, auto-closing parents from child statuses,
 requiring a transaction across all repos, mandatory sub-roadmap per repository,
-and a hosted authority replacing local governance.
+and a hosted authority replacing local governance. Also rejected: using local
+repository HEAD as the manifest identity for an unchanged artifact; evidence
+commits would stale its review without changing the governed contract.
 
 ## Consequences
 Extend existing roadmap/index/review contracts; do not build another gate engine.

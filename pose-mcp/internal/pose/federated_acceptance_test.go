@@ -191,6 +191,34 @@ status: active
 	}
 }
 
+func TestFederatedLocalArtifactRevisionsSurviveEvidenceCommit(t *testing.T) {
+	root := t.TempDir()
+	federatedTestWrite(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: done\n---\n\n## Milestone: core\n- specs: engine\n")
+	federatedTestWrite(t, root, ".pose/specs/engine.md", "---\nslug: engine\nstatus: done\n---\n")
+	federatedTestProject(t, root, "coordinator")
+	resolver := ArtifactResolver{Roots: NewRoots(RootsConfig{DefaultRoot: root, DefaultProjectID: "coordinator"})}
+	store := Store{Root: root}
+	before, err := store.FederatedRoadmapAcceptance("coordinator", "program", resolver)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(before.Manifest.Dependencies) == 0 {
+		t.Fatal("fixture needs a local dependency")
+	}
+	federatedTestWrite(t, root, ".pose/results/evidence.json", "{}\n")
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "record unrelated evidence")
+	after, err := store.FederatedRoadmapAcceptance("coordinator", "program", resolver)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if before.Manifest.CoordinatorRevision != after.Manifest.CoordinatorRevision ||
+		before.Manifest.Dependencies[0].SourceRevision != after.Manifest.Dependencies[0].SourceRevision ||
+		before.Manifest.Digest != after.Manifest.Digest {
+		t.Fatalf("unrelated evidence commit changed local federation identity: before=%+v after=%+v", before.Manifest, after.Manifest)
+	}
+}
+
 func TestFederatedAcceptanceComposesReviewedSiblingRoadmapAndStalesOnSourceRevision(t *testing.T) {
 	parent := t.TempDir()
 	source, trust := federatedTestComposedRoadmapSource(t, "source")

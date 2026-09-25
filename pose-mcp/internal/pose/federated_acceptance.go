@@ -265,8 +265,12 @@ func (s Store) FederatedRoadmapAcceptance(projectID, slug string, resolver Artif
 	}
 	coordinator := ArtifactRef{Project: projectID, Kind: "roadmap", Slug: slug}
 	revision := gitHeadAtRoot(s.Root)
+	coordinatorRevision := revision
+	if stable := federatedArtifactLastChange(s, coordinator); stable != "" {
+		coordinatorRevision = stable
+	}
 	report := FederatedRoadmapAcceptanceReport{Manifest: FederatedRoadmapManifest{
-		SchemaVersion: 1, Coordinator: coordinator, CoordinatorRevision: revision,
+		SchemaVersion: 1, Coordinator: coordinator, CoordinatorRevision: coordinatorRevision,
 		TrustPolicyDigest: policyDigest, Dependencies: []FederatedDependency{},
 	}, Blockers: []string{}}
 	queue := []federatedQueuedRef{}
@@ -346,6 +350,15 @@ func (s Store) FederatedRoadmapAcceptance(projectID, slug string, resolver Artif
 			artifactValid = false
 			entry.ResolutionState = err.Error()
 			report.Blockers = append(report.Blockers, key+":"+err.Error())
+		}
+		// Same-project dependencies need the revision of their own artifact.
+		// Using repository HEAD makes every unrelated evidence commit stale a
+		// sealed milestone or roadmap. External dependencies retain the explicit
+		// whole-repository pin checked below.
+		if identity.Project == projectID {
+			if stable := federatedArtifactLastChange(source, identity); stable != "" {
+				entry.SourceRevision = stable
+			}
 		}
 		if identity.Project != projectID {
 			// Do not recurse into source closeout when graph traversal has already
@@ -430,6 +443,36 @@ func (s Store) FederatedRoadmapAcceptance(projectID, slug string, resolver Artif
 	report.Manifest.Digest = canonicalFederatedDigest(report.Manifest)
 	report.Ready = report.Manifest.Ready
 	return report, nil
+}
+
+func federatedArtifactLastChange(source Store, identity ArtifactRef) string {
+	var path string
+	if identity.Kind == "spec" {
+		sp, err := source.GetSpec(identity.Slug)
+		if err != nil {
+			return ""
+		}
+		path = sp.Path
+	} else {
+		rm, err := source.GetRoadmap(identity.Slug)
+		if err != nil {
+			return ""
+		}
+		path = rm.Path
+	}
+	rel, err := filepath.Rel(source.Root, path)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return ""
+	}
+	rel = filepath.ToSlash(rel)
+	if err := ValidateArtifactPath(source.Root, rel, false); err != nil {
+		return ""
+	}
+	out, err := exec.Command("git", "-C", source.Root, "log", "-1", "--format=%H", "--", rel).Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
 }
 
 func collectFederatedRoadmapEdges(project string, rm *Roadmap) []federatedRoadmapEdge {
