@@ -1,8 +1,8 @@
 # Project Assessment: pose-dist
 
 > **Gerado por**: POSE Discovery Engine (`pose assess discover`)
-> **Data de Avaliação**: 2026-09-26T00:53:40Z
-> **Baseline Commit**: f1258058deec
+> **Data de Avaliação**: 2026-09-26T07:51:09Z
+> **Baseline Commit**: c19ff2ded71e
 
 ---
 
