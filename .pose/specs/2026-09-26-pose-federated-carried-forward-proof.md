@@ -1,8 +1,8 @@
 ---
 slug: pose-federated-carried-forward-proof
-status: in-progress
+status: done
 created_at: 2026-09-26
-completed_at:
+completed_at: 2026-09-26
 supersedes:
 depends_on: pose-federated-roadmap-acceptance
 priority: 0
@@ -61,6 +61,7 @@ Use only committed Git ancestry and the sealed source bundle. Keep the existing
 - modified: pose-mcp/internal/pose/federated_acceptance.go
 - modified: pose-mcp/internal/pose/federated_acceptance_test.go
 - created: .pose/reports/2026-09-26-federated-carried-forward-proof.md
+- created: .pose/changelogs/unreleased/pose-federated-carried-forward-proof.md
 
 ### Delivery targets
 - contract:federated-carried-forward-proof module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go

@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-083ee48d0654878a",
+  "bundle_id": "rvb-c550b0029c591740",
+  "bundle_digest": "sha256:c550b0029c591740d40e5e676d20b16130f6996dcace1563cbeb9a7e9113a04b",
+  "reviewer": "agent:codex-review-pass-2",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Observed evidence semantics remain unchanged; carried evidence requires approved current source review and pinned ancestry."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "The governing ADR and report describe the post-subject boundary."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Existing source-delivery-evidence-missing blockers remain actionable for rejected results."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Only the federated proof helper, focused tests, ADR and spec report changed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Validated Git revisions reach git directly without shell, and ancestry constrains carried results to the pin."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-federated-carried-forward-proof",
+      "rationale": "Five claimed artifacts match five observed paths."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "The source module passed 25 checks."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "The source module passed 25 checks."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-26T08:17:08Z",
+  "path": ".pose/review-attestations/rva-083ee48d0654878a.json"
+}
