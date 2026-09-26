@@ -95,11 +95,12 @@ An adopting repository can review its root MCP configuration without misclassify
 - 2026-09-25: `go test ./...`, `go vet ./...`, and `go build ./cmd/pose` passed. `pose validate --strict --module pose-mcp` passed 25/25 checks with a writable Go cache and local sockets enabled. The first sandboxed attempts failed on a read-only cache and forbidden local sockets, independently reproduced by the observability test.
 - 2026-09-25: `pose lint-spec pose-review-root-binding-parity --ready-check` passed. `pose assess integrate` reported 57 contracts and 56 existing unobserved-consumer inventory gaps; none is attributed to this review change. `pose docs-check` is unavailable because this source repository has no docs manifest.
 - 2026-09-25: the corrected local binary prepared the adopter review bundle without the prior root-path and `.mcp.json` blockers; the remaining blocker was its uncommitted `pose-dist` gitlink. It verified the existing harness attestation as fresh and approved.
+- 2026-09-25: a separate review corrected the requirement trace disposition to `satisfied`; strict lint and all four focused tests passed. The full `pose-mcp` matrix passed 25/25 outside the sandbox after socket-bound MCP tests failed under sandbox restrictions. `go vet ./...` passed. `assess tech-debt` found no markers; `assess integrate` retained 56 previously inventoried consumer gaps among 57 contracts.
 
 ### Requirement trace
-- R1 [covered] test:TestReviewPlanRootDeliveryTarget
-- R2 [covered] test:TestReviewBundleClassifiesRootManifestsAndProjectFiles
-- R3 [covered] test:TestReviewValidationPreconditionForComponentWithoutTarget
+- R1 [satisfied] test:TestReviewPlanRootDeliveryTarget
+- R2 [satisfied] test:TestReviewBundleClassifiesRootManifestsAndProjectFiles
+- R3 [satisfied] test:TestReviewValidationPreconditionForComponentWithoutTarget
 
 ### Known gaps
 - Governed review and adopter re-pin are pending.
