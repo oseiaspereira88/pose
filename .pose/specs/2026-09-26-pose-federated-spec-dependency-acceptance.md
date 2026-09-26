@@ -135,20 +135,29 @@ blockers, nine `consumer-trust-not-adopted` with trust revoked, and ready again
 once restored. The same run against a dirty source checkout showed seven
 `source-review-not-approved`: uncommitted engine edits stale the source reviews
 that cover those files, so consumer negatives must run on a clean source.
+At commit `36d60f4` the `pose-mcp` matrix passed 25/25 with a candidate binary
+built from that commit. `pose check --strict` reports one error, the missing
+knowledge artifact claimed by `pose-scaffold-self-referential-policy-fix`,
+unrelated to this change. `pose assess tech-debt` found no new markers.
 
 ### Requirement trace
-- R1 [pending]
-- R2 [pending]
-- R3 [pending]
-- R4 [pending]
+- R1 [satisfied] test:TestFederatedSpecAcceptanceBlocksRevokedTrustAndStalesReview
+- R2 [satisfied] test:TestFederatedSpecAcceptanceBlocksRevokedTrustAndStalesReview test:TestFederatedSpecAcceptanceWithoutRootsBlocksInsteadOfFailing
+- R3 [satisfied] test:TestFederatedSpecAcceptanceIgnoresSpecsWithoutExternalEdges test:TestLegacyReviewBundlePayloadOmitsFederatedManifest
+- R4 [satisfied] test:TestFederatedSpecAcceptanceSurvivesUnrelatedCoordinatorCommit
 
 ## 7. Final Report
 
 ### Delivered scope
-Pending implementation.
+Review bundles and closeout for a spec with an external `xref:` dependency
+now carry the same federated acceptance as roadmaps, restricted to those
+edges. Revoked or stale trust, unauthorized or unknown projects and missing
+roots block closeout and stale an approved review; other specs are unchanged.
 
 ### Residual risks
-Pending implementation.
+A consumer negative run against a source checkout with uncommitted engine
+edits reports source reviews as unapproved. Run consumer gates on a clean,
+pinned source.
 
 ### Follow-ups
 - [open] Rerun the Harne8 adoption negative after this engine revision is
