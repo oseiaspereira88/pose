@@ -1838,6 +1838,18 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 			state.Blockers = append(state.Blockers, acceptance.Blockers...)
 		}
 	}
+	if includeFederated && s.FederatedResolver != nil && scope.Kind == "spec" {
+		acceptance, applies, err := s.FederatedSpecAcceptance(s.FederatedProjectID, scope.Slug, *s.FederatedResolver)
+		if err != nil {
+			return state, err
+		}
+		if applies {
+			state.FederatedAcceptance = &acceptance
+			if !acceptance.Ready {
+				state.Blockers = append(state.Blockers, acceptance.Blockers...)
+			}
+		}
+	}
 	if !review.Required {
 		state.Blockers = removeReviewOnlyBlockers(state.Blockers)
 	}
@@ -1865,6 +1877,9 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 		state.NextAction = "record or remediate a fresh review for " + ref
 	} else if !state.LifecycleDone {
 		state.NextAction = "apply the guarded lifecycle transition for " + ref
+	}
+	if state.NextAction == "" && scope.Kind == "spec" && state.FederatedAcceptance != nil && !state.FederatedAcceptance.Ready {
+		state.NextAction = "resolve federated dependency blockers for " + ref
 	}
 	if state.NextAction == "" {
 		state.NextAction = "resolve closeout blockers for " + ref

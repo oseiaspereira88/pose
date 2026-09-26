@@ -480,6 +480,15 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 		}
 		bundle.Payload.FederatedManifest = &report.Manifest
 	}
+	if s.FederatedResolver != nil && scope.Kind == "spec" {
+		report, applies, err := s.FederatedSpecAcceptance(s.FederatedProjectID, scope.Slug, *s.FederatedResolver)
+		if err != nil {
+			return ReviewBundle{}, err
+		}
+		if applies {
+			bundle.Payload.FederatedManifest = &report.Manifest
+		}
+	}
 	if policy, _, policyErr := s.loadReviewPolicy(); policyErr == nil {
 		bundle.Payload.Gates = &ReviewBundleGates{
 			AllowApprovedWithReservations: policy.AllowApprovedWithReservations,

@@ -37,6 +37,12 @@ implementation review; accepting remote done alone bypasses composition.
   subject and no later than the pinned source revision. Require a fresh,
   approved source bundle and its current provenance in either case. A check
   before the subject, with no commit, or outside the pin cannot prove delivery.
+- A spec whose `depends_on` names another project's artifact is a coordinator
+  for those edges only: its bundle seals their manifest and its closeout
+  reports their blockers. Local dependencies keep lifecycle rules, and a spec
+  without an external edge keeps its previous payload. Missing roots block
+  closeout rather than failing the read (2026-09-26,
+  [spec-scope acceptance](../specs/2026-09-26-pose-federated-spec-dependency-acceptance.md)).
 - Separate implementation closure, consumer adoption and program acceptance.
   Keep composition criteria and explicit outcome review at the coordinator.
   Required remote done is insufficient without valid evidence and composition.

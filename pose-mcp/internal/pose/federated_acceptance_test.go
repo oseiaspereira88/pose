@@ -609,3 +609,156 @@ func TestFederatedProjectTrustPathsStayWithinRepository(t *testing.T) {
 		t.Fatal("external governance input was accepted")
 	}
 }
+
+// federatedTestSpecConsumer makes the fixture's `backend` spec depend on a
+// reviewed spec owned by another project, trusted at its current pin.
+func federatedTestSpecConsumer(t *testing.T) (string, string, Store, FederatedProjectTrust) {
+	t.Helper()
+	source, trust := federatedTestComposedRoadmapSource(t, "source")
+	root, store := reviewBundleFixture(t)
+	specPath := filepath.Join(root, ".pose", "specs", "backend", "spec.md")
+	specBytes, err := os.ReadFile(specPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	withDependency := strings.Replace(string(specBytes), "status: in-progress\n", "status: in-progress\ndepends_on: xref:source/spec:backend\n", 1)
+	if err := os.WriteFile(specPath, []byte(withDependency), 0644); err != nil {
+		t.Fatal(err)
+	}
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{"source": trust})
+	return root, source, store, trust
+}
+
+func federatedTestTrust(t *testing.T, root string, trusted map[string]FederatedProjectTrust) {
+	t.Helper()
+	policy := FederatedRoadmapPolicy{SchemaVersion: FederatedRoadmapPolicySchemaVersion, Enabled: true, AdoptedAt: "2026-09-26", TrustedProjects: trusted}
+	raw, err := json.Marshal(policy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	federatedTestWrite(t, root, ".pose/policy/federation.json", string(raw))
+}
+
+func TestFederatedSpecAcceptanceBlocksRevokedTrustAndStalesReview(t *testing.T) {
+	root, source, store, trust := federatedTestSpecConsumer(t)
+	resolver := federatedTestResolver("coordinator", "source", root, source)
+	sourceAuthorized := true
+	resolver.Authorize = func(projectID string) bool {
+		return projectID == "coordinator" || projectID == "source" && sourceAuthorized
+	}
+	store.FederatedProjectID, store.FederatedResolver = "coordinator", &resolver
+
+	report, applies, err := store.FederatedSpecAcceptance("coordinator", "backend", resolver)
+	if err != nil || !applies || !report.Ready {
+		t.Fatalf("trusted external dependency did not compose: applies=%v report=%+v err=%v", applies, report, err)
+	}
+	if report.Manifest.Coordinator.Kind != "spec" || len(report.Manifest.Dependencies) != 1 || report.Manifest.Dependencies[0].Ref != "xref:source/spec:backend" || report.Manifest.Dependencies[0].ReviewBundleID == "" {
+		t.Fatalf("spec manifest does not name exactly the reviewed external dependency: %+v", report.Manifest)
+	}
+
+	now := time.Date(2026, 9, 26, 12, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatalf("seal consumer spec: %v; blockers=%v", err, bundle.Blockers)
+	}
+	if bundle.Payload.FederatedManifest == nil {
+		t.Fatal("consumer spec bundle did not seal its federated dependency")
+	}
+	attestation := approvedBundleAttestation(bundle, "agent:consumer-review")
+	attestation.AttestedAt = now.Add(time.Minute).Format(time.RFC3339)
+	if _, err := store.RecordReviewAttestation(attestation, now.Add(time.Minute)); err != nil {
+		t.Fatalf("attest consumer spec: %v", err)
+	}
+	if verification, err := store.VerifyReviewBundle("spec:backend"); err != nil || !verification.Fresh || !verification.Approved {
+		t.Fatalf("approved consumer review is not fresh: %+v err=%v", verification, err)
+	}
+	closeout, err := store.GetCloseoutStateWithFederatedAcceptance("spec:backend", "coordinator", resolver)
+	if err != nil || closeout.FederatedAcceptance == nil || !closeout.FederatedAcceptance.Ready {
+		t.Fatalf("trusted closeout did not expose ready federation: %+v err=%v", closeout, err)
+	}
+
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{})
+	closeout, err = store.GetCloseoutStateWithFederatedAcceptance("spec:backend", "coordinator", resolver)
+	if err != nil || closeout.Terminal || !strings.Contains(strings.Join(closeout.Blockers, " "), "xref:source/spec:backend:consumer-trust-not-adopted") {
+		t.Fatalf("revoked trust did not block spec closeout: %+v err=%v", closeout, err)
+	}
+	if verification, err := store.VerifyReviewBundle("spec:backend"); err != nil || verification.Fresh || verification.Approved {
+		t.Fatalf("revoked trust did not stale the approved spec review: %+v err=%v", verification, err)
+	}
+
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{"source": trust})
+	if verification, err := store.VerifyReviewBundle("spec:backend"); err != nil || !verification.Fresh || !verification.Approved {
+		t.Fatalf("restored trust did not restore the sealed review: %+v err=%v", verification, err)
+	}
+
+	sourceAuthorized = false
+	closeout, err = store.GetCloseoutStateWithFederatedAcceptance("spec:backend", "coordinator", resolver)
+	if err != nil || !strings.Contains(strings.Join(closeout.Blockers, " "), "unauthorized-project") {
+		t.Fatalf("unauthorized source did not block spec closeout: %+v err=%v", closeout, err)
+	}
+}
+
+func TestFederatedSpecAcceptanceWithoutRootsBlocksInsteadOfFailing(t *testing.T) {
+	root, _, store, _ := federatedTestSpecConsumer(t)
+	_ = root
+	empty := ArtifactResolver{}
+	store.FederatedProjectID, store.FederatedResolver = "coordinator", &empty
+	closeout, err := store.GetCloseoutState("spec:backend")
+	if err != nil {
+		t.Fatalf("missing roots failed the command instead of blocking: %v", err)
+	}
+	if closeout.Terminal || !strings.Contains(strings.Join(closeout.Blockers, " "), "project-roots-unavailable") {
+		t.Fatalf("missing roots did not block spec closeout: %+v", closeout)
+	}
+	if _, err := store.PrepareReviewBundle("spec:backend"); err != nil {
+		t.Fatalf("missing roots failed bundle preparation: %v", err)
+	}
+}
+
+func TestFederatedSpecAcceptanceIgnoresSpecsWithoutExternalEdges(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	resolver := ArtifactResolver{Roots: NewRoots(RootsConfig{DefaultRoot: root, DefaultProjectID: "coordinator"})}
+	plain, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	store.FederatedProjectID, store.FederatedResolver = "coordinator", &resolver
+	if _, applies, err := store.FederatedSpecAcceptance("coordinator", "backend", resolver); err != nil || applies {
+		t.Fatalf("spec without external edges was federated: applies=%v err=%v", applies, err)
+	}
+	withResolver, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if withResolver.Payload.FederatedManifest != nil || withResolver.BundleDigest != plain.BundleDigest {
+		t.Fatalf("resolver changed a spec bundle without external edges: before=%s after=%s", plain.BundleDigest, withResolver.BundleDigest)
+	}
+	closeout, err := store.GetCloseoutState("spec:backend")
+	if err != nil || closeout.FederatedAcceptance != nil {
+		t.Fatalf("closeout federated a spec without external edges: %+v err=%v", closeout, err)
+	}
+}
+
+func TestFederatedSpecAcceptanceSurvivesUnrelatedCoordinatorCommit(t *testing.T) {
+	source, trust := federatedTestComposedRoadmapSource(t, "source")
+	root := t.TempDir()
+	federatedTestWrite(t, root, ".pose/specs/consumer.md", "---\nslug: consumer\nstatus: in-progress\ndepends_on: xref:source/spec:backend\n---\n")
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{"source": trust})
+	federatedTestProject(t, root, "coordinator")
+	resolver := federatedTestResolver("coordinator", "source", root, source)
+	store := Store{Root: root}
+	before, applies, err := store.FederatedSpecAcceptance("coordinator", "consumer", resolver)
+	if err != nil || !applies || !before.Ready || before.Manifest.CoordinatorRevision == "" {
+		t.Fatalf("committed consumer spec did not compose: applies=%v %+v err=%v", applies, before, err)
+	}
+	federatedTestWrite(t, root, ".pose/results/evidence.json", "{}\n")
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "record unrelated evidence")
+	after, _, err := store.FederatedSpecAcceptance("coordinator", "consumer", resolver)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if before.Manifest.CoordinatorRevision != after.Manifest.CoordinatorRevision || before.Manifest.Digest != after.Manifest.Digest {
+		t.Fatalf("unrelated commit changed the spec manifest: before=%+v after=%+v", before.Manifest, after.Manifest)
+	}
+}

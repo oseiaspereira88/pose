@@ -259,11 +259,50 @@ func (s Store) FederatedRoadmapAcceptance(projectID, slug string, resolver Artif
 	if resolver.Roots == nil {
 		return FederatedRoadmapAcceptanceReport{}, fmt.Errorf("pose: project roots are unavailable")
 	}
+	return s.federatedAcceptance(projectID, ArtifactRef{Project: projectID, Kind: "roadmap", Slug: slug}, collectFederatedRoadmapEdges(projectID, rm), resolver)
+}
+
+// FederatedSpecAcceptance applies roadmap acceptance to the external
+// dependencies of one spec. It reports applies=false for a spec whose
+// depends_on names no other project, so its review and closeout keep their
+// previous contract. Local dependencies stay governed by lifecycle checks.
+func (s Store) FederatedSpecAcceptance(projectID, slug string, resolver ArtifactResolver) (FederatedRoadmapAcceptanceReport, bool, error) {
+	sp, err := s.GetSpec(slug)
+	if err != nil {
+		return FederatedRoadmapAcceptanceReport{}, false, err
+	}
+	edges := []federatedRoadmapEdge{}
+	for _, raw := range sp.DependsOn {
+		ref, err := ParseArtifactRef(raw)
+		if err != nil || ref.Project == "" || ref.Project == projectID {
+			continue
+		}
+		edges = append(edges, federatedRoadmapEdge{project: projectID, raw: raw, relationship: "prerequisite"})
+	}
+	if len(edges) == 0 {
+		return FederatedRoadmapAcceptanceReport{}, false, nil
+	}
+	coordinator := ArtifactRef{Project: projectID, Kind: "spec", Slug: slug}
+	if resolver.Roots == nil {
+		// Fail closed without failing the command: a checkout with no roots
+		// can still read the spec but can never close it.
+		return federatedBlockedReport(s, coordinator, "project-roots-unavailable"), true, nil
+	}
+	report, err := s.federatedAcceptance(projectID, coordinator, edges, resolver)
+	return report, true, err
+}
+
+func federatedBlockedReport(s Store, coordinator ArtifactRef, blocker string) FederatedRoadmapAcceptanceReport {
+	manifest := FederatedRoadmapManifest{SchemaVersion: 1, Coordinator: coordinator, CoordinatorRevision: federatedArtifactLastChange(s, coordinator), Dependencies: []FederatedDependency{}, Blockers: []string{blocker}}
+	manifest.Digest = canonicalFederatedDigest(manifest)
+	return FederatedRoadmapAcceptanceReport{Manifest: manifest, Blockers: []string{blocker}}
+}
+
+func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, edges []federatedRoadmapEdge, resolver ArtifactResolver) (FederatedRoadmapAcceptanceReport, error) {
 	policy, policyDigest, err := LoadFederatedRoadmapPolicy(s.Root)
 	if err != nil {
 		return FederatedRoadmapAcceptanceReport{}, err
 	}
-	coordinator := ArtifactRef{Project: projectID, Kind: "roadmap", Slug: slug}
 	revision := gitHeadAtRoot(s.Root)
 	coordinatorRevision := revision
 	if stable := federatedArtifactLastChange(s, coordinator); stable != "" {
@@ -274,7 +313,7 @@ func (s Store) FederatedRoadmapAcceptance(projectID, slug string, resolver Artif
 		TrustPolicyDigest: policyDigest, Dependencies: []FederatedDependency{},
 	}, Blockers: []string{}}
 	queue := []federatedQueuedRef{}
-	for _, edge := range collectFederatedRoadmapEdges(projectID, rm) {
+	for _, edge := range edges {
 		queue = append(queue, federatedQueuedRef{project: edge.project, parent: edge.project, raw: edge.raw, relationship: edge.relationship})
 	}
 	visited := map[string]bool{}
