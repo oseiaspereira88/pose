@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-9c56193fc8772e6d",
+  "bundle_id": "rvb-8e9016c1e813ad72",
+  "bundle_digest": "sha256:8e9016c1e813ad7228e0f766c76d97f57024171b19c8a6b12adb9a002b222848",
+  "reviewer": "agent:codex-foundation-renewal",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Parent and executor context agrees across CLI/MCP and installed journey checks."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Parent and executor context agrees across CLI/MCP and installed journey checks."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Parent and executor context agrees across CLI/MCP and installed journey checks."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Parent and executor context agrees across CLI/MCP and installed journey checks."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "skills:checked",
+      "rationale": "Skills check passed 22 definitions."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Child spec and current validation checked."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/multi-repo-agent-context-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-26T08:21:27Z",
+  "path": ".pose/review-attestations/rva-9c56193fc8772e6d.json"
+}

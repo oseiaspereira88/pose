@@ -14,23 +14,24 @@
 - _Not provided_
 
 ## Files Changed
-- pose/assessments/consolidated.md
-- .pose/assessments/integrations.md
+- pose/assessments/README.md
+- .pose/assessments/consolidated.md
+- .pose/assessments/docs-site.md
+- .pose/assessments/mcp-enforce.md
 - .pose/assessments/pose-mcp.md
-- .pose/assessments/technical-debt.md
 - .pose/indexes/delivery-integrity.json
 - .pose/indexes/spec-graph.json
 - .pose/reports/2026-09-26-standard-validate-native.md
 - .pose/reports/history/standard-validate-native.jsonl
 - .pose/results/delivery-validation.json
+- .pose/state/components/docs-site.json
+- .pose/state/components/mcp-enforce.json
 - .pose/state/components/pose-mcp.json
-- .pose/state/integrations.json
-- .pose/state/technical-debt.json
+- .pose/state/history.jsonl
+- .pose/state/project-state.md
+- .pose/state/refresh-log.jsonl
 
 ## Validation Commands
-- go build ./...
-- go test ./...
-- go vet ./...
 - go build ./...
 - go test ./...
 - go vet ./...
@@ -58,45 +59,42 @@
 - go test ./internal/cli -run TestMultiRepoAgentInstalled -count=1
 
 ## Results
-- - [pass] mcp-enforce/go/build (0.2s)
-- - [pass] mcp-enforce/go/test (0.0s)
-- - [pass] mcp-enforce/go/vet (0.1s)
-- - [pass] pose-mcp/go/build (0.8s)
-- - [pass] pose-mcp/go/test (4.1s)
+- - [pass] pose-mcp/go/build (0.7s)
+- - [pass] pose-mcp/go/test (4.0s)
 - - [pass] pose-mcp/go/vet (0.1s)
 - - [pass] pose-mcp/go/abm-remediation-lineage-integration (0.9s)
-- - [pass] pose-mcp/go/abm-progressive-review-integration (0.7s)
+- - [pass] pose-mcp/go/abm-progressive-review-integration (0.6s)
 - - [pass] pose-mcp/go/artifact-claim-boundary-integration (0.8s)
-- - [pass] pose-mcp/go/check-verdict-mode-integration (0.7s)
+- - [pass] pose-mcp/go/check-verdict-mode-integration (0.6s)
 - - [pass] pose-mcp/go/delivery-graph-reuse-integration (0.6s)
 - - [pass] pose-mcp/go/parse-memo-integration (0.1s)
-- - [pass] pose-mcp/go/parallel-gate-integration (1.6s)
+- - [pass] pose-mcp/go/parallel-gate-integration (1.7s)
 - - [pass] pose-mcp/go/check-workers-integration (0.6s)
 - - [pass] pose-mcp/go/review-policy-adoption-integration (0.6s)
-- - [pass] pose-mcp/go/delivery-integration (0.8s)
-- - [pass] pose-mcp/go/delivery-reachability (0.7s)
-- - [pass] pose-mcp/go/review-bundle-convergence (0.9s)
-- - [pass] pose-mcp/go/qualified-artifact-resolution-integration (0.7s)
+- - [pass] pose-mcp/go/delivery-integration (0.9s)
+- - [pass] pose-mcp/go/delivery-reachability (0.6s)
+- - [pass] pose-mcp/go/review-bundle-convergence (0.8s)
+- - [pass] pose-mcp/go/qualified-artifact-resolution-integration (0.6s)
 - - [pass] pose-mcp/go/federated-roadmap-acceptance-integration (2.1s)
 - - [pass] pose-mcp/go/federated-roadmap-negative-gates (0.6s)
 - - [pass] pose-mcp/go/spec-authority-transfer-integration (0.9s)
 - - [pass] pose-mcp/go/spec-authority-transfer-negative-gates (0.6s)
-- - [pass] pose-mcp/go/spec-authority-transfer-mcp-status (0.6s)
-- - [pass] pose-mcp/go/multi-repo-agent-context-reachability (0.6s)
-- - [pass] pose-mcp/go/multi-repo-agent-context-integration (1.5s)
+- - [pass] pose-mcp/go/spec-authority-transfer-mcp-status (0.5s)
+- - [pass] pose-mcp/go/multi-repo-agent-context-reachability (0.7s)
+- - [pass] pose-mcp/go/multi-repo-agent-context-integration (1.6s)
 - - [pass] pose-mcp/go/multi-repo-agent-negative-gates (0.7s)
 - - [pass] pose-mcp/go/multi-repo-agent-installed-journey (1.3s)
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-26T08:11:43Z
+- Generated at (UTC): 2026-09-26T08:18:46Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 178
+- Sequence for task/spec: 180
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-26T08:10:04Z
+- Previous execution: 2026-09-26T08:15:20Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
