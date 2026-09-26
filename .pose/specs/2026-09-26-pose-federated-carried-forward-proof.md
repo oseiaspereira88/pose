@@ -113,7 +113,9 @@ fix, then passed for the post-subject case; earlier, unknown and outside-pin
 heads stayed blocked. Focused CLI/pose tests, the race run and vet passed. The
 first `pose-mcp` matrix run passed 25/25 during implementation; repeat it
 after commit for canonical evidence. The second module run passed 25/25 after
-the negative assertions. `pose assess tech-debt` found zero markers;
+the negative assertions. At commit `adaa497`, the full matrix passed 28/28
+outside the sandbox; its sandboxed run failed nine MCP checks because local
+`httptest` sockets were forbidden. `pose assess tech-debt` found zero markers;
 `pose assess integrate` retained 56 existing inventory gaps among 57
 contracts. Root `pose check --strict` found one unrelated missing knowledge
 artifact claimed by `pose-scaffold-self-referential-policy-fix`; this spec

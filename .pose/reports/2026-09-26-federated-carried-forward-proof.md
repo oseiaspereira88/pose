@@ -39,7 +39,8 @@ revision so no consumer accepts a contract it cannot verify.
 | `go test ./internal/pose ./internal/cli -run 'TestFederatedRoadmap|TestFederatedAcceptance' -count=1` | Passed. |
 | `go test -race ./internal/pose -run TestFederatedAcceptance -count=1` | Passed. |
 | `go vet ./internal/pose` | Passed. |
-| `pose validate --strict --module pose-mcp --report` | 25/25 checks passed during implementation; repeat against the committed subject for canonical evidence. |
+| `pose validate --strict --module pose-mcp --report` | 25/25 checks passed after the final negative assertion. |
+| `/tmp/pose-fed-candidate validate --strict --json .pose/results/delivery-validation.json --report` at `adaa497` | 28/28 passed outside the sandbox. The sandboxed attempt failed nine socket-bound MCP checks; the other 19 passed. |
 | `pose assess tech-debt` / `pose assess integrate` | Zero debt markers; 57 contracts and 56 pre-existing unobserved-consumer gaps. |
 | `pose check --strict` | One unrelated blocker: missing tracked knowledge artifact declared by `pose-scaffold-self-referential-policy-fix`; source-tree structural warnings were otherwise historical. |
 
