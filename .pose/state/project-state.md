@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-26T15:17:31Z
-baseline_commit: dbf8f5f4fe2b4fea45046e0e66da5e2353f43f2e
+generated_at: 2026-09-26T15:52:51Z
+baseline_commit: e72f2d6cab6d6c9685aa9078829ccf28933a5758
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:b879c4d366f6 -->
+<!-- state:derived hash:b95e5a5354d7 -->
 
-- specs: total=235 draft=4 in-progress=65 blocked=0 done=166 superseded=0 abandoned=0
+- specs: total=236 draft=4 in-progress=65 blocked=0 done=167 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
   - spec:pose-review-root-binding-parity (2026-09-26)
-  - spec:pose-federated-carried-forward-proof (2026-09-26)
+  - spec:pose-dist-adopts-spec-authority-transfer (2026-09-26)
   - spec:pose-federated-spec-dependency-acceptance (2026-09-26)
+  - spec:pose-federated-carried-forward-proof (2026-09-26)
   - spec:pose-agent-project-context (2026-09-25)
-  - spec:pose-spec-authority-transfer (2026-09-24)
-  - ... e mais 161 (ver `pose_list_specs status:done`)
+  - ... e mais 162 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:8ca8e168d71f -->
@@ -65,10 +65,10 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:5fb94c569dcb -->
+<!-- state:derived hash:dfe0f5a5c764 -->
 
-- último registro: task=validate-native outcome=pass (2026-09-26T15:15:47Z)
-- últimos 30 dias: total=101 outcome_ok=89 outcome_outro=12
+- último registro: task=validate-native outcome=pass (2026-09-26T15:50:03Z)
+- últimos 30 dias: total=103 outcome_ok=91 outcome_outro=12
 - reports revisados (.md): total=147
   - report:2026-09-26-standard-validate-native.md
   - report:2026-09-26-federated-carried-forward-proof.md

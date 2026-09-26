@@ -1,8 +1,8 @@
 ---
 slug: pose-dist-adopts-spec-authority-transfer
-status: in-progress
+status: done
 created_at: 2026-09-26
-completed_at:
+completed_at: 2026-09-26
 supersedes:
 depends_on: pose-spec-authority-transfer, pose-federated-spec-dependency-acceptance
 priority: 0
@@ -72,9 +72,9 @@ exists.
 ## 4. Tasks
 
 - [x] Rehearse the adoption in disposable copies of both repositories.
-- [ ] Adopt schema 4 in this instance.
-- [ ] Renew the superseded foundation reviews with fresh evidence.
-- [ ] Review and close.
+- [x] Adopt schema 4 in this instance.
+- [x] Renew the superseded foundation reviews with fresh evidence.
+- [x] Review and close.
 
 ## 5. Decisions
 
@@ -106,18 +106,26 @@ the foundation scopes superseded, so Harne8 saw nine
 added no error: pose-dist kept its pre-existing one, and Harne8's three were
 links into the worktree's empty submodule. `new-spec --task xref:` was refused
 with no file written, and `pose context` resolved `proj.pose-dist` authority.
+At `e72f2d6` the full matrix passed 29/29, the regenerated index differed from
+the committed one only by this spec's change set, and `pose check --strict`
+kept only the pre-existing missing knowledge artifact. The four foundation
+specs, four milestones, roadmap and the two federation specs were resealed and
+reattested fresh and approved; `roadmap-check pose-multirepo-foundation
+--strict` is terminal.
 
 ### Requirement trace
-- R1 [deferred-integration: policy change pending]
-- R2 [deferred-integration: real-instance checks pending]
-- R3 [deferred-integration: review renewal pending]
+- R1 [satisfied] report:.pose/specs/2026-09-26-pose-dist-adopts-spec-authority-transfer.md
+- R2 [satisfied] test:TestSpecTransferNegative
+- R3 [satisfied] integration:pose-mcp/go/federated-roadmap-acceptance-integration
 
 ## 7. Final Report
 
 ### Delivered scope
-Pending.
+This instance declares review policy schema 4 with qualified references and
+spec authority transfer, and its foundation reviews are current under it.
 
 ### Residual risks
-Pending.
+No transfer has been applied. Once one is, rollback no longer means reverting
+the policy: retired specs must not be restored.
 
 ### Follow-ups
