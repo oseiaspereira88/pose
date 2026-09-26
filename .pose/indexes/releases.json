@@ -89,6 +89,14 @@
       "digest": "sha256:a0950b12bf10f3b1a72f86af87974f905124735afed6f7821302d1bc6b828e35"
     },
     {
+      "spec": "pose-federated-spec-dependency-acceptance",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A spec that depends on another project's artifact through `xref:` now seals the federated manifest of those dependencies into its review bundle, and `closeout-check` reports their blockers. Before, only roadmap and milestone scopes consulted federation, so revoking consumer trust left such a spec closable. Revocation now blocks the spec and stales its approved review; restoring the same trust restores it. Missing project roots block closeout with `project-roots-unavailable` instead of failing the command. Specs with no external dependency keep a byte-identical bundle.",
+      "path": "pose-federated-spec-dependency-acceptance.md",
+      "digest": "sha256:9dc899a0e4a3834508e4de58998b801be43d9d2f51147faf4f823ee4674602f1"
+    },
+    {
       "spec": "pose-qualified-artifact-resolution",
       "category": "added",
       "breaking": false,

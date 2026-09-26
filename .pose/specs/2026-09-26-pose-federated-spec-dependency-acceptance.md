@@ -73,6 +73,7 @@ contract; no evidence is rewritten.
 - modified: pose-mcp/internal/pose/federated_acceptance_test.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_closeout.go
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-federated-spec-dependency-acceptance.md
 
 ### Delivery targets
@@ -109,7 +110,7 @@ Git repositories; the consumer rerun proves the real pinned pair.
 
 | Scenario | Command | Expected evidence |
 | --- | --- | --- |
-| Trusted external dependency composes, R1/R4 | `go test ./internal/pose -run TestFederatedSpecAcceptance -count=1` | Manifest present, ready, stable across an unrelated commit. |
+| Trusted external dependency composes, R1/R4 | matrix check `federated-spec-acceptance-integration` | Manifest present, ready, stable across an unrelated commit. |
 | Revocation and restoration, R2 | `go test ./internal/pose -run TestFederatedSpecAcceptance -count=1` | Closeout blocked with `consumer-trust-not-adopted`; approved review stale, then fresh again. |
 | No external edge or resolver, R3 | `go test ./internal/pose -run 'TestLegacyReviewBundlePayloadOmitsFederatedManifest|TestFederatedSpecAcceptance' -count=1` | No manifest; payload unchanged. |
 | Existing federation contract | `go test -race ./internal/pose ./internal/cli -run Federated -count=1` | All pass without race. |
@@ -139,6 +140,9 @@ At commit `36d60f4` the `pose-mcp` matrix passed 25/25 with a candidate binary
 built from that commit. `pose check --strict` reports one error, the missing
 knowledge artifact claimed by `pose-scaffold-self-referential-policy-fix`,
 unrelated to this change. `pose assess tech-debt` found no new markers.
+The named federated checks did not select the new tests, which only the
+module-wide `go test ./...` ran; the matrix gained
+`federated-spec-acceptance-integration` so the family has named evidence.
 
 ### Requirement trace
 - R1 [satisfied] test:TestFederatedSpecAcceptanceBlocksRevokedTrustAndStalesReview

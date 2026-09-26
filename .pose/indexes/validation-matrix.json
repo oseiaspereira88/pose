@@ -493,6 +493,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "federated-spec-acceptance-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "TestFederatedSpecAcceptance|TestLegacyReviewBundlePayloadOmitsFederatedManifest",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "federated-roadmap-negative-gates",
           "program": "go",
           "args": [
