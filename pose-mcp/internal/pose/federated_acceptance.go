@@ -404,7 +404,7 @@ func (s Store) FederatedRoadmapAcceptance(projectID, slug string, resolver Artif
 			accepted, trusted := policy.TrustedProjects[identity.Project]
 			proofInputsReady := graphValid && statusDone && artifactValid && pinErr == nil && policy.Enabled && trusted && accepted == pin && gitlinkValid
 			if proofInputsReady {
-				bundleID, bundleDigest, subjectDigest, planDigest, contracts, evidence, proofBlockers := federatedSourceProof(source, identity)
+				bundleID, bundleDigest, subjectDigest, planDigest, contracts, evidence, proofBlockers := federatedSourceProof(source, identity, resolved.Revision)
 				entry.ReviewBundleID, entry.ReviewBundleDigest = bundleID, bundleDigest
 				entry.ImplementationDigest, entry.PlanDigest = subjectDigest, planDigest
 				entry.GoverningContracts, entry.Evidence = contracts, evidence
@@ -576,7 +576,7 @@ func federatedGitlinkMatches(parent, child Store, revision string) bool {
 	return fields[2] == revision
 }
 
-func federatedSourceProof(source Store, identity ArtifactRef) (string, string, string, string, []string, []FederatedDependencyEvidence, []string) {
+func federatedSourceProof(source Store, identity ArtifactRef, pinnedRevision string) (string, string, string, string, []string, []FederatedDependencyEvidence, []string) {
 	scope := localFederatedScope(identity)
 	state, err := source.GetCloseoutState(scope)
 	if err != nil || !state.Terminal {
@@ -587,6 +587,7 @@ func federatedSourceProof(source Store, identity ArtifactRef) (string, string, s
 		return "", "", "", "", nil, nil, []string{scope + ":source-review-not-approved"}
 	}
 	bundle := verification.Bundle
+	eligible := federatedSourceEvidenceEligibility(source.Root, pinnedRevision, bundle.Payload.Subject.Head)
 	if identity.Kind == "spec" {
 		spec, err := source.GetSpec(identity.Slug)
 		if err != nil {
@@ -609,7 +610,7 @@ func federatedSourceProof(source Store, identity ArtifactRef) (string, string, s
 			}
 			seen := map[string]bool{}
 			for _, evidence := range bundle.Payload.Evidence {
-				if evidence.Outcome == "pass" && evidence.SubjectObservation == "observed" && moduleMatchesTarget(evidence.Module, target.Module) {
+				if eligible(evidence) && moduleMatchesTarget(evidence.Module, target.Module) {
 					seen[evidence.EvidenceClass] = true
 				}
 			}
@@ -628,10 +629,37 @@ func federatedSourceProof(source Store, identity ArtifactRef) (string, string, s
 				}
 			}
 		}
-		proof := federatedBundleEvidence(bundle)
+		proof := federatedBundleEvidence(bundle, eligible)
 		return bundle.BundleID, bundle.BundleDigest, bundle.Payload.Subject.ImplementationDigest, bundle.Payload.Plan.PlanDigest, bundle.Payload.GoverningContracts, proof, uniqueSorted(blockers)
 	}
-	return bundle.BundleID, bundle.BundleDigest, bundle.Payload.Subject.ImplementationDigest, bundle.Payload.Plan.PlanDigest, bundle.Payload.GoverningContracts, federatedBundleEvidence(bundle), nil
+	return bundle.BundleID, bundle.BundleDigest, bundle.Payload.Subject.ImplementationDigest, bundle.Payload.Plan.PlanDigest, bundle.Payload.GoverningContracts, federatedBundleEvidence(bundle, eligible), nil
+}
+
+// A fresh approved source bundle already checked provenance. A carried result
+// can additionally prove delivery only if it ran after the reviewed subject
+// and belongs to the pinned source history. An earlier or unknown result never
+// observed the implementation being federated.
+func federatedSourceEvidenceEligibility(root, pinnedHead, subjectHead string) func(ReviewBundleEvidence) bool {
+	ancestry := map[string]bool{}
+	return func(evidence ReviewBundleEvidence) bool {
+		if evidence.Outcome != "pass" {
+			return false
+		}
+		if evidence.SubjectObservation == "observed" {
+			return true
+		}
+		if evidence.SubjectObservation != "carried-forward" || evidence.SubjectDigest != "" || evidence.ProvenanceDigest == "" ||
+			!isGitRevision(subjectHead) || !isGitRevision(evidence.GitHead) || !isGitRevision(pinnedHead) {
+			return false
+		}
+		if allowed, ok := ancestry[evidence.GitHead]; ok {
+			return allowed
+		}
+		allowed := exec.Command("git", "-C", root, "merge-base", "--is-ancestor", subjectHead, evidence.GitHead).Run() == nil &&
+			exec.Command("git", "-C", root, "merge-base", "--is-ancestor", evidence.GitHead, pinnedHead).Run() == nil
+		ancestry[evidence.GitHead] = allowed
+		return allowed
+	}
 }
 
 func localFederatedScope(identity ArtifactRef) string {
@@ -641,10 +669,10 @@ func localFederatedScope(identity ArtifactRef) string {
 	return identity.Kind + ":" + identity.Slug
 }
 
-func federatedBundleEvidence(bundle *ReviewBundle) []FederatedDependencyEvidence {
+func federatedBundleEvidence(bundle *ReviewBundle, eligible func(ReviewBundleEvidence) bool) []FederatedDependencyEvidence {
 	evidence := []FederatedDependencyEvidence{}
 	for _, item := range bundle.Payload.Evidence {
-		if item.Outcome == "pass" && item.SubjectObservation == "observed" {
+		if eligible(item) {
 			evidence = append(evidence, FederatedDependencyEvidence{ID: item.ID, Check: item.Check, EvidenceClass: item.EvidenceClass, SubjectObservation: item.SubjectObservation})
 		}
 	}

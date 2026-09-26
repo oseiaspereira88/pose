@@ -52,6 +52,10 @@ func federatedTestResolver(parentID, sourceID, parent, source string) ArtifactRe
 }
 
 func federatedTestComposedRoadmapSource(t *testing.T, projectID string) (string, FederatedProjectTrust) {
+	return federatedTestComposedRoadmapSourceWithEvidence(t, projectID, "observed")
+}
+
+func federatedTestComposedRoadmapSourceWithEvidence(t *testing.T, projectID, observation string) (string, FederatedProjectTrust) {
 	t.Helper()
 	root, store := reviewBundleFixture(t)
 	federatedTestWrite(t, root, ".pose/schema-version", "1\n")
@@ -104,6 +108,23 @@ func federatedTestComposedRoadmapSource(t *testing.T, projectID string) (string,
 		t.Fatal(err)
 	}
 	head := strings.TrimSpace(string(headRaw))
+	evidenceHead := head
+	if observation == "later" {
+		federatedTestWrite(t, root, ".pose/results/post-subject-observation.json", "{}\n")
+		federatedTestGit(t, root, "add", "--all")
+		federatedTestGit(t, root, "commit", "-q", "-m", "record post-subject validation")
+		laterRaw, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
+		if err != nil {
+			t.Fatal(err)
+		}
+		evidenceHead = strings.TrimSpace(string(laterRaw))
+	} else if observation == "earlier" {
+		evidenceHead = base
+	} else if observation == "unknown" {
+		evidenceHead = ""
+	} else if observation == "outside" {
+		evidenceHead = strings.Repeat("f", 40)
+	}
 	graph, err := store.GetDeliveryIntegrity("")
 	if err != nil {
 		t.Fatal(err)
@@ -115,7 +136,7 @@ func federatedTestComposedRoadmapSource(t *testing.T, projectID string) (string,
 	graph.ChangeSets[0].Head, graph.ChangeSets[0].ResolvedHead = head, head
 	graph.ChangeSets[0].Commits = []string{head}
 	for i := range graph.ValidationResults {
-		graph.ValidationResults[i].GitHead = head
+		graph.ValidationResults[i].GitHead = evidenceHead
 		graph.ValidationResults[i].ProvenanceDigest = graph.ProvenanceDigest
 	}
 	graphBytes, err := json.Marshal(graph)
@@ -216,6 +237,79 @@ func TestFederatedLocalArtifactRevisionsSurviveEvidenceCommit(t *testing.T) {
 		before.Manifest.Dependencies[0].SourceRevision != after.Manifest.Dependencies[0].SourceRevision ||
 		before.Manifest.Digest != after.Manifest.Digest {
 		t.Fatalf("unrelated evidence commit changed local federation identity: before=%+v after=%+v", before.Manifest, after.Manifest)
+	}
+}
+
+func TestFederatedAcceptanceCarriedForwardProof(t *testing.T) {
+	for _, tc := range []struct {
+		name        string
+		observation string
+		wantReady   bool
+	}{
+		{name: "post-subject", observation: "later", wantReady: true},
+		{name: "pre-subject", observation: "earlier"},
+		{name: "missing-commit", observation: "unknown"},
+		{name: "outside-pin", observation: "outside"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			parent := t.TempDir()
+			source, trust := federatedTestComposedRoadmapSourceWithEvidence(t, "source", tc.observation)
+			federatedTestWrite(t, parent, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\nconsumes: xref:source/roadmap:component\n---\n")
+			policy := FederatedRoadmapPolicy{SchemaVersion: FederatedRoadmapPolicySchemaVersion, Enabled: true, AdoptedAt: "2026-09-26", TrustedProjects: map[string]FederatedProjectTrust{"source": trust}}
+			raw, err := json.Marshal(policy)
+			if err != nil {
+				t.Fatal(err)
+			}
+			federatedTestWrite(t, parent, ".pose/policy/federation.json", string(raw))
+			resolver := federatedTestResolver("coordinator", "source", parent, source)
+			report, err := (Store{Root: parent}).FederatedRoadmapAcceptance("coordinator", "program", resolver)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if report.Ready != tc.wantReady {
+				t.Fatalf("ready=%v want %v; blockers=%v", report.Ready, tc.wantReady, report.Blockers)
+			}
+			if tc.wantReady {
+				found := false
+				for _, dependency := range report.Manifest.Dependencies {
+					if dependency.Identity.Kind == "spec" && dependency.Identity.Slug == "backend" {
+						for _, evidence := range dependency.Evidence {
+							found = found || evidence.EvidenceClass == "integration" && evidence.SubjectObservation == "carried-forward"
+						}
+					}
+				}
+				if !found {
+					t.Fatalf("manifest omitted post-subject carried evidence: %+v", report.Manifest)
+				}
+				verification, err := (Store{Root: source}).VerifyReviewBundle("spec:backend")
+				if err != nil || verification.Bundle == nil {
+					t.Fatalf("source bundle unavailable: %v", err)
+				}
+				eligible := federatedSourceEvidenceEligibility(source, trust.Revision, verification.Bundle.Payload.Subject.Head)
+				for _, item := range verification.Bundle.Payload.Evidence {
+					if item.SubjectObservation != "carried-forward" || item.EvidenceClass != "integration" {
+						continue
+					}
+					item.SubjectDigest = "sha256:" + strings.Repeat("0", 64)
+					if eligible(item) {
+						t.Fatal("carried evidence for another semantic subject was accepted")
+					}
+					item.SubjectDigest = ""
+					item.ProvenanceDigest = ""
+					if eligible(item) {
+						t.Fatal("carried evidence without provenance was accepted")
+					}
+					item.ProvenanceDigest = "sha256:" + strings.Repeat("1", 64)
+					item.Outcome = "fail"
+					if eligible(item) {
+						t.Fatal("failed carried evidence was accepted")
+					}
+					break
+				}
+			} else if !strings.Contains(strings.Join(report.Blockers, " "), "source-delivery-evidence-missing") {
+				t.Fatalf("invalid evidence did not block source delivery: %v", report.Blockers)
+			}
+		})
 	}
 }
 

@@ -32,6 +32,11 @@ implementation review; accepting remote done alone bypasses composition.
 - Verify children under source authority plus explicitly adopted consumer trust
   requirements. Recheck relevant pinned inputs immediately before application;
   changes stale the coordinator review. Scope caches by digests and authorization.
+- Treat a passing source check as delivery proof when its sealed observation is
+  `observed`, or `carried-forward` with a recorded Git head after the reviewed
+  subject and no later than the pinned source revision. Require a fresh,
+  approved source bundle and its current provenance in either case. A check
+  before the subject, with no commit, or outside the pin cannot prove delivery.
 - Separate implementation closure, consumer adoption and program acceptance.
   Keep composition criteria and explicit outcome review at the coordinator.
   Required remote done is insufficient without valid evidence and composition.
@@ -48,6 +53,9 @@ requiring a transaction across all repos, mandatory sub-roadmap per repository,
 and a hosted authority replacing local governance. Also rejected: using local
 repository HEAD as the manifest identity for an unchanged artifact; evidence
 commits would stale its review without changing the governed contract.
+Rejected: requiring exact subject and validation commits to be equal. It
+would reject validation recorded after a reviewed implementation without
+adding a stronger content guarantee.
 
 ## Consequences
 Extend existing roadmap/index/review contracts; do not build another gate engine.
