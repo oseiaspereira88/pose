@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-d931bc1cbc46ffef",
+  "bundle_id": "rvb-5740d87953d3c2b3",
+  "bundle_digest": "sha256:5740d87953d3c2b33e3d3b38cdaffa59f23c200ceed795d3ee129067bffbd199",
+  "reviewer": "agent:codex-federation-review-20260925",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "cut-criteria",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Both typed criteria pass on current provenance."
+    },
+    {
+      "id": "end-to-end",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Installed source journey exercises qualified context and guarded create."
+    },
+    {
+      "id": "milestones",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "All four milestones have fresh approved attestations."
+    },
+    {
+      "id": "outcome",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Source engine governs qualified artifacts across projects."
+    },
+    {
+      "id": "release-readiness",
+      "disposition": "not-applicable",
+      "rationale": "This roadmap does not cut a release; existing workflow owns publication."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Harne8 binding is configured, while consumer acceptance remains in progress and revision drift fails closed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Contract inventory reviewed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Strict history-check passed."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "roadmap-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Strict roadmap-check reports terminal true."
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Skills-check passed 22 of 22."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Matrix declares zero checks for docs-site."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "The current complete matrix passed 28 of 28 checks."
+    }
+  ],
+  "evidence_refs": [
+    "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+    "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+    "integration:pose-mcp/go/federated-roadmap-negative-gates"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-26T01:11:13Z",
+  "path": ".pose/review-attestations/rva-d931bc1cbc46ffef.json"
+}

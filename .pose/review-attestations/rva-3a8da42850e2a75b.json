@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-3a8da42850e2a75b",
+  "bundle_id": "rvb-df552393d4afc7b8",
+  "bundle_digest": "sha256:df552393d4afc7b8e65f9d981a641cd4ed51f5049a99a24d6e724f96d57855a2",
+  "reviewer": "agent:codex-federation-review-20260925",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Pinned reviews compose with the reviewed root binding change; local artifact revisions remain stable across evidence commits."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Member spec is done with fresh review."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "The current complete POSE matrix passed 28 of 28 checks."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Consumer activation remains separate."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Contract inventory reviewed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Strict history-check passed."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Matrix declares zero checks for docs-site."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Strict matrix passed 25 of 25."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+    "integration:pose-mcp/go/federated-roadmap-negative-gates"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-26T01:10:13Z",
+  "path": ".pose/review-attestations/rva-3a8da42850e2a75b.json"
+}

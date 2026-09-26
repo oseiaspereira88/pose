@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-03a168a5e335ebef",
+  "bundle_id": "rvb-4630a860f3fd65b6",
+  "bundle_digest": "sha256:4630a860f3fd65b6b38d931ed6f71950db696dee54f0dae066b6eea356aa8231",
+  "reviewer": "agent:codex-federation-review-20260925",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Installed CLI and MCP route qualified context without shadow."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-negative-gates"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Member spec has fresh review."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "The current complete POSE matrix passed 28 of 28 checks."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Harne8 consumer adoption remains separately governed and in progress."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-negative-gates",
+      "rationale": "Skills-check passed 22 of 22."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Strict matrix passed 25 of 25."
+    }
+  ],
+  "evidence_refs": [
+    "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+    "integration:pose-mcp/go/multi-repo-agent-negative-gates"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-26T01:10:18Z",
+  "path": ".pose/review-attestations/rva-03a168a5e335ebef.json"
+}

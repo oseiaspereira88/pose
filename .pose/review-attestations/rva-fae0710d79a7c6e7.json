@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-fae0710d79a7c6e7",
+  "bundle_id": "rvb-670203561a9d4199",
+  "bundle_digest": "sha256:670203561a9d419908c3d6dd2e562d85ed7fbcc9e5a4fe713821cb6a71d20c0c",
+  "reviewer": "agent:codex-federation-review-20260925",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-negative-gates"
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Layouts and failed lookup preserve identity."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-negative-gates"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Member spec has fresh review."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "The current complete POSE matrix passed 28 of 28 checks."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Consumer adoption remains separate."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Contract inventory reviewed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Matrix declares zero checks for docs-site."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Strict matrix passed 25 of 25."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/federated-roadmap-negative-gates",
+    "integration:pose-mcp/go/qualified-artifact-resolution-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-26T01:10:11Z",
+  "path": ".pose/review-attestations/rva-fae0710d79a7c6e7.json"
+}
