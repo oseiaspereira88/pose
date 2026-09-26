@@ -414,6 +414,14 @@ type ReviewBundleVerification struct {
 
 // PrepareReviewBundle resolves a deterministic bundle without writing it.
 func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
+	return s.prepareReviewBundle(ref, false)
+}
+
+// prepareReviewBundle with legacyMilestoneManifest reproduces bundles sealed
+// before milestone scopes had their own federated manifest, when a milestone
+// sealed the acceptance of its whole roadmap. It exists only so those sealed
+// bundles keep their semantics; new bundles never use it.
+func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (ReviewBundle, error) {
 	scope, err := ParseScopeRef(ref)
 	if err != nil {
 		return ReviewBundle{}, err
@@ -470,11 +478,15 @@ func (s Store) PrepareReviewBundle(ref string) (ReviewBundle, error) {
 	bundle.Payload.ConsumedInputs = s.reviewBundleConsumedInputs(plan)
 	bundle.Payload.GoverningContracts = governingContractsAtSeal()
 	if s.FederatedResolver != nil && (scope.Kind == "roadmap" || scope.Kind == "milestone") {
-		roadmap := scope.Slug
-		if scope.Kind == "milestone" {
-			roadmap = scope.Roadmap
+		var report FederatedRoadmapAcceptanceReport
+		var err error
+		if scope.Kind == "milestone" && !legacyMilestoneManifest {
+			report, err = s.FederatedMilestoneAcceptance(s.FederatedProjectID, scope.Roadmap, scope.Milestone, *s.FederatedResolver)
+		} else if scope.Kind == "milestone" {
+			report, err = s.FederatedRoadmapAcceptance(s.FederatedProjectID, scope.Roadmap, *s.FederatedResolver)
+		} else {
+			report, err = s.FederatedRoadmapAcceptance(s.FederatedProjectID, scope.Slug, *s.FederatedResolver)
 		}
-		report, err := s.FederatedRoadmapAcceptance(s.FederatedProjectID, roadmap, *s.FederatedResolver)
 		if err != nil {
 			return ReviewBundle{}, err
 		}
@@ -1644,8 +1656,39 @@ func (s Store) CurrentReviewBundle(scope string) (*ReviewBundle, error) {
 	if err != nil {
 		return nil, err
 	}
+	return s.matchSealedReviewBundle(scope, prepared, bundles)
+}
+
+// matchSealedReviewBundle returns the newest sealed bundle whose digest equals
+// the prepared one. A milestone bundle sealed with its roadmap as federated
+// coordinator is matched against the legacy preparation instead, so it stays
+// fresh exactly while that sealed roadmap-wide snapshot is unchanged. That
+// snapshot contains every edge of the milestone's own manifest, so revocation
+// or a source change still stales it.
+func (s Store) matchSealedReviewBundle(scope string, prepared ReviewBundle, bundles []ReviewBundle) (*ReviewBundle, error) {
 	for i := len(bundles) - 1; i >= 0; i-- {
 		if bundles[i].BundleDigest == prepared.BundleDigest {
+			bundle := bundles[i]
+			return &bundle, nil
+		}
+	}
+	if prepared.Payload.Scope.Kind != "milestone" || s.FederatedResolver == nil {
+		return nil, nil
+	}
+	var legacy *ReviewBundle
+	for i := len(bundles) - 1; i >= 0; i-- {
+		manifest := bundles[i].Payload.FederatedManifest
+		if manifest == nil || manifest.Coordinator.Kind != "roadmap" {
+			continue
+		}
+		if legacy == nil {
+			candidate, err := s.prepareReviewBundle(scope, true)
+			if err != nil {
+				return nil, err
+			}
+			legacy = &candidate
+		}
+		if bundles[i].BundleDigest == legacy.BundleDigest {
 			bundle := bundles[i]
 			return &bundle, nil
 		}
@@ -2175,13 +2218,9 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 	if len(prepared.Blockers) == 0 {
 		verification.State = "ready-to-seal"
 	}
-	var current *ReviewBundle
-	for i := len(bundles) - 1; i >= 0; i-- {
-		if bundles[i].BundleDigest == prepared.BundleDigest {
-			bundle := bundles[i]
-			current = &bundle
-			break
-		}
+	current, err := s.matchSealedReviewBundle(scope, prepared, bundles)
+	if err != nil {
+		return ReviewBundleVerification{}, err
 	}
 	if current == nil {
 		if len(bundles) > 0 {

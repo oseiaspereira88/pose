@@ -43,6 +43,12 @@ implementation review; accepting remote done alone bypasses composition.
   without an external edge keeps its previous payload. Missing roots block
   closeout rather than failing the read (2026-09-26,
   [spec-scope acceptance](../specs/2026-09-26-pose-federated-spec-dependency-acceptance.md)).
+- A milestone is a coordinator for the roadmap's own prerequisites and
+  consumed outcomes plus its own predecessors, members and consumed outcomes;
+  members of other milestones do not gate it. Milestone bundles sealed with
+  the roadmap-wide manifest keep that sealed meaning and stay fresh while it
+  is unchanged (2026-09-26,
+  [milestone-scoped acceptance](../specs/2026-09-26-pose-federated-milestone-scoped-acceptance.md)).
 - Separate implementation closure, consumer adoption and program acceptance.
   Keep composition criteria and explicit outcome review at the coordinator.
   Required remote done is insufficient without valid evidence and composition.

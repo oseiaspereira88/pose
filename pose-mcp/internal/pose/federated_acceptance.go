@@ -262,6 +262,32 @@ func (s Store) FederatedRoadmapAcceptance(projectID, slug string, resolver Artif
 	return s.federatedAcceptance(projectID, ArtifactRef{Project: projectID, Kind: "roadmap", Slug: slug}, collectFederatedRoadmapEdges(projectID, rm), resolver)
 }
 
+// FederatedMilestoneAcceptance restricts roadmap acceptance to one milestone:
+// the roadmap's own prerequisites and consumed outcomes, plus that milestone's
+// predecessors, member specs and consumed outcomes. Members of a later
+// milestone do not gate an earlier one, matching local milestone closeout.
+func (s Store) FederatedMilestoneAcceptance(projectID, slug, milestone string, resolver ArtifactResolver) (FederatedRoadmapAcceptanceReport, error) {
+	rm, err := s.GetRoadmap(slug)
+	if err != nil {
+		return FederatedRoadmapAcceptanceReport{}, err
+	}
+	if resolver.Roots == nil {
+		return FederatedRoadmapAcceptanceReport{}, fmt.Errorf("pose: project roots are unavailable")
+	}
+	selected := *rm
+	selected.Milestones = nil
+	for _, candidate := range rm.Milestones {
+		if candidate.ID == milestone {
+			selected.Milestones = append(selected.Milestones, candidate)
+		}
+	}
+	if len(selected.Milestones) == 0 {
+		return FederatedRoadmapAcceptanceReport{}, fmt.Errorf("pose: milestone %s not found in roadmap %s", milestone, slug)
+	}
+	coordinator := ArtifactRef{Project: projectID, Kind: "milestone", Slug: slug, Milestone: milestone}
+	return s.federatedAcceptance(projectID, coordinator, collectFederatedRoadmapEdges(projectID, &selected), resolver)
+}
+
 // FederatedSpecAcceptance applies roadmap acceptance to the external
 // dependencies of one spec. It reports applies=false for a spec whose
 // depends_on names no other project, so its review and closeout keep their

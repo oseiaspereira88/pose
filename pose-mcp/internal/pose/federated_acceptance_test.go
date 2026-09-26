@@ -762,3 +762,177 @@ func TestFederatedSpecAcceptanceSurvivesUnrelatedCoordinatorCommit(t *testing.T)
 		t.Fatalf("unrelated commit changed the spec manifest: before=%+v after=%+v", before.Manifest, after.Manifest)
 	}
 }
+
+// federatedTestMilestoneConsumer builds a coordinator roadmap whose first
+// milestone owns the done `backend` spec and whose second milestone owns a spec
+// that is still open, with the roadmap consuming a trusted external outcome.
+func federatedTestMilestoneConsumer(t *testing.T) (string, Store, FederatedProjectTrust, *bool) {
+	t.Helper()
+	source, trust := federatedTestComposedRoadmapSource(t, "source")
+	root, store := reviewBundleFixture(t)
+	policyPath := filepath.Join(root, ".pose", "policy", "review.json")
+	policyBytes, err := os.ReadFile(policyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var reviewPolicy map[string]any
+	if err := json.Unmarshal(policyBytes, &reviewPolicy); err != nil {
+		t.Fatal(err)
+	}
+	profiles := reviewPolicy["profiles"].(map[string]any)
+	profiles["milestone"], profiles["roadmap"] = "milestone-integration@1", "roadmap-outcome@1"
+	reviewPolicy["review_bundles"], reviewPolicy["review_bundles_adopted_at"] = true, "2026-09-24"
+	policyBytes, _ = json.Marshal(reviewPolicy)
+	federatedTestWrite(t, root, ".pose/policy/review.json", string(policyBytes))
+	federatedTestWrite(t, root, ".pose/review-profiles/milestone-integration.json", `{"schema_version":1,"id":"milestone-integration","version":1,"scope":"milestone","criteria":[{"id":"integration","description":"The milestone is integrated.","kind":"judgment","evidence_classes":["integration"]}]}`)
+	federatedTestWrite(t, root, ".pose/review-profiles/roadmap-outcome.json", `{"schema_version":1,"id":"roadmap-outcome","version":1,"scope":"roadmap","criteria":[{"id":"outcome","description":"The roadmap outcome is verified.","kind":"judgment","evidence_classes":["integration"]}]}`)
+	specPath := filepath.Join(root, ".pose", "specs", "backend", "spec.md")
+	specBytes, err := os.ReadFile(specPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(specPath, []byte(strings.Replace(string(specBytes), "status: in-progress", "status: done", 1)), 0644); err != nil {
+		t.Fatal(err)
+	}
+	federatedTestWrite(t, root, ".pose/specs/pending.md", "---\nslug: pending\nstatus: draft\ncreated_at: 2026-09-26\n---\n\n# Spec: pending\n")
+	federatedTestWrite(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\nconsumes: xref:source/roadmap:component\n---\n\n## Milestone: core\n- specs: backend\n\n## Milestone: later\n- after: core\n- specs: pending\n")
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{"source": trust})
+	if _, err := os.Stat(filepath.Join(root, ".git")); err != nil {
+		federatedTestGit(t, root, "init", "-q")
+		federatedTestGit(t, root, "config", "user.name", "POSE fixture")
+		federatedTestGit(t, root, "config", "user.email", "pose@example.invalid")
+	}
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "coordinator milestones")
+	resolver := federatedTestResolver("coordinator", "source", root, source)
+	sourceAuthorized := true
+	resolver.Authorize = func(projectID string) bool {
+		return projectID == "coordinator" || projectID == "source" && sourceAuthorized
+	}
+	store.FederatedProjectID, store.FederatedResolver = "coordinator", &resolver
+	return root, store, trust, &sourceAuthorized
+}
+
+func federatedTestHasBlocker(blockers []string, fragment string) bool {
+	return strings.Contains(strings.Join(blockers, " "), fragment)
+}
+
+func TestFederatedRoadmapMilestoneAcceptanceIgnoresLaterMilestones(t *testing.T) {
+	root, store, trust, _ := federatedTestMilestoneConsumer(t)
+	resolver := *store.FederatedResolver
+
+	whole, err := store.FederatedRoadmapAcceptance("coordinator", "program", resolver)
+	if err != nil || whole.Ready || !federatedTestHasBlocker(whole.Blockers, "xref:coordinator/spec:pending:not-done") {
+		t.Fatalf("roadmap acceptance did not report the open later member: %+v err=%v", whole, err)
+	}
+	core, err := store.FederatedMilestoneAcceptance("coordinator", "program", "core", resolver)
+	if err != nil || !core.Ready {
+		t.Fatalf("earlier milestone was gated by a later member: %+v err=%v", core, err)
+	}
+	if core.Manifest.Coordinator.String() != "xref:coordinator/milestone:program/core" {
+		t.Fatalf("milestone manifest coordinator = %s", core.Manifest.Coordinator.String())
+	}
+	refs := []string{}
+	for _, dep := range core.Manifest.Dependencies {
+		refs = append(refs, dep.Ref)
+	}
+	joined := strings.Join(refs, " ")
+	if strings.Contains(joined, "spec:pending") || !strings.Contains(joined, "xref:source/roadmap:component") || !strings.Contains(joined, "xref:coordinator/spec:backend") {
+		t.Fatalf("milestone manifest must hold its own members and the roadmap's consumed outcome only: %v", refs)
+	}
+	if _, err := store.FederatedMilestoneAcceptance("coordinator", "program", "missing", resolver); err == nil {
+		t.Fatal("unknown milestone composed instead of failing")
+	}
+
+	closeout, err := store.GetCloseoutStateWithFederatedAcceptance("milestone:program/core", "coordinator", resolver)
+	if err != nil || closeout.FederatedAcceptance == nil || !closeout.FederatedAcceptance.Ready || federatedTestHasBlocker(closeout.Blockers, "spec:pending") {
+		t.Fatalf("earlier milestone closeout carries a later member blocker: %+v err=%v", closeout, err)
+	}
+	later, err := store.GetCloseoutStateWithFederatedAcceptance("milestone:program/later", "coordinator", resolver)
+	if err != nil || later.Terminal || !federatedTestHasBlocker(later.Blockers, "xref:coordinator/spec:pending:not-done") {
+		t.Fatalf("later milestone closeout lost its own open member: %+v err=%v", later, err)
+	}
+	roadmap, err := store.GetCloseoutStateWithFederatedAcceptance("roadmap:program", "coordinator", resolver)
+	if err != nil || roadmap.Terminal || !federatedTestHasBlocker(roadmap.Blockers, "xref:coordinator/spec:pending:not-done") {
+		t.Fatalf("roadmap closeout stopped requiring every member: %+v err=%v", roadmap, err)
+	}
+
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{})
+	revoked, err := store.GetCloseoutStateWithFederatedAcceptance("milestone:program/core", "coordinator", resolver)
+	if err != nil || revoked.Terminal || !federatedTestHasBlocker(revoked.Blockers, "xref:source/roadmap:component:consumer-trust-not-adopted") {
+		t.Fatalf("revoked trust in the roadmap's consumed outcome did not block the milestone: %+v err=%v", revoked, err)
+	}
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{"source": trust})
+}
+
+func TestFederatedRoadmapMilestoneBundleSealsOwnManifestAndKeepsLegacySeals(t *testing.T) {
+	root, store, trust, sourceAuthorized := federatedTestMilestoneConsumer(t)
+	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
+	attest := func(bundle ReviewBundle) {
+		t.Helper()
+		attestation := approvedBundleAttestation(bundle, "agent:milestone-review")
+		attestation.AttestedAt = now.Add(time.Minute).Format(time.RFC3339)
+		if _, err := store.RecordReviewAttestation(attestation, now.Add(time.Minute)); err != nil {
+			t.Fatalf("attest %s: %v", bundle.Payload.Scope.Ref, err)
+		}
+	}
+	specBundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatalf("seal spec: %v; blockers=%v", err, specBundle.Blockers)
+	}
+	attest(specBundle)
+
+	// A bundle sealed by the previous engine carried the roadmap-wide manifest.
+	legacy, err := store.prepareReviewBundle("milestone:program/core", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if legacy.Payload.FederatedManifest == nil || legacy.Payload.FederatedManifest.Coordinator.Kind != "roadmap" {
+		t.Fatalf("legacy preparation did not reproduce the roadmap-wide manifest: %+v", legacy.Payload.FederatedManifest)
+	}
+	legacy.State, legacy.SealedAt = "sealed", now.Format(time.RFC3339)
+	legacy.Path = filepath.ToSlash(filepath.Join(".pose", "review-bundles", legacy.BundleID+".json"))
+	raw, err := json.MarshalIndent(legacy, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir, err := ensureReviewArtifactDir(root, ".pose/review-bundles", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := writeImmutableJSON(filepath.Join(dir, legacy.BundleID+".json"), append(raw, '\n')); err != nil {
+		t.Fatal(err)
+	}
+	attest(legacy)
+
+	fresh, err := store.VerifyReviewBundle("milestone:program/core")
+	if err != nil || !fresh.Fresh || !fresh.Approved || fresh.Bundle == nil || fresh.Bundle.BundleID != legacy.BundleID {
+		t.Fatalf("legacy milestone seal lost freshness under the new engine: %+v err=%v", fresh, err)
+	}
+	if current, err := store.CurrentReviewBundle("milestone:program/core"); err != nil || current == nil || current.BundleID != legacy.BundleID {
+		t.Fatalf("current bundle did not resolve the legacy seal: %+v err=%v", current, err)
+	}
+	*sourceAuthorized = false
+	if revoked, err := store.VerifyReviewBundle("milestone:program/core"); err != nil || revoked.Fresh || revoked.Approved {
+		t.Fatalf("revocation did not stale the legacy milestone seal: %+v err=%v", revoked, err)
+	}
+	*sourceAuthorized = true
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{"source": trust})
+
+	sealed, err := store.SealReviewBundle("milestone:program/core", now)
+	if err != nil {
+		t.Fatalf("seal milestone: %v; blockers=%v", err, sealed.Blockers)
+	}
+	if sealed.Payload.FederatedManifest == nil || sealed.Payload.FederatedManifest.Coordinator.Kind != "milestone" || sealed.BundleID == legacy.BundleID {
+		t.Fatalf("new milestone seal did not carry its own manifest: %+v", sealed.Payload.FederatedManifest)
+	}
+	attest(sealed)
+	renewed, err := store.VerifyReviewBundle("milestone:program/core")
+	if err != nil || !renewed.Fresh || !renewed.Approved || renewed.Bundle.BundleID != sealed.BundleID {
+		t.Fatalf("new milestone seal is not the fresh approved bundle: %+v err=%v", renewed, err)
+	}
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{})
+	if revoked, err := store.VerifyReviewBundle("milestone:program/core"); err != nil || revoked.Fresh || revoked.Approved {
+		t.Fatalf("revoked trust did not stale the new milestone seal: %+v err=%v", revoked, err)
+	}
+}

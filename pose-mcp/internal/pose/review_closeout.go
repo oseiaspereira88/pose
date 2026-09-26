@@ -1825,11 +1825,13 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 		}
 	}
 	if includeFederated && s.FederatedResolver != nil && (scope.Kind == "roadmap" || scope.Kind == "milestone") {
-		roadmap := scope.Slug
+		var acceptance FederatedRoadmapAcceptanceReport
+		var err error
 		if scope.Kind == "milestone" {
-			roadmap = scope.Roadmap
+			acceptance, err = s.FederatedMilestoneAcceptance(s.FederatedProjectID, scope.Roadmap, scope.Milestone, *s.FederatedResolver)
+		} else {
+			acceptance, err = s.FederatedRoadmapAcceptance(s.FederatedProjectID, scope.Slug, *s.FederatedResolver)
 		}
-		acceptance, err := s.FederatedRoadmapAcceptance(s.FederatedProjectID, roadmap, *s.FederatedResolver)
 		if err != nil {
 			return state, err
 		}
