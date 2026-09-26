@@ -45,5 +45,5 @@ revision so no consumer accepts a contract it cannot verify.
 | `pose check --strict` | One unrelated blocker: missing tracked knowledge artifact declared by `pose-scaffold-self-referential-policy-fix`; source-tree structural warnings were otherwise historical. |
 
 Harne8's source pin remains `c19ff2d` until this source change receives its
-own review. The consumer's policy and roadmap still block composition; no
-Harne8 acceptance is inferred from these module tests.
+own review and the consumer updates its explicit trust policy. Harne8
+acceptance is governed by its separate adoption spec and roadmap check.

@@ -110,10 +110,8 @@ Their sealed bundles carry passing current results marked `carried-forward`
 because validation at `a8a116e` followed each subject commit. The source
 `review verify` is fresh and approved. The new regression failed before the
 fix, then passed for the post-subject case; earlier, unknown and outside-pin
-heads stayed blocked. Focused CLI/pose tests, the race run and vet passed. The
-first `pose-mcp` matrix run passed 25/25 during implementation; repeat it
-after commit for canonical evidence. The second module run passed 25/25 after
-the negative assertions. At commit `adaa497`, the full matrix passed 28/28
+heads stayed blocked. Focused CLI/pose tests, the race run and vet passed.
+The post-commit `pose-mcp` matrix passed 25/25. At commit `adaa497`, the full matrix passed 28/28
 outside the sandbox; its sandboxed run failed nine MCP checks because local
 `httptest` sockets were forbidden. `pose assess tech-debt` found zero markers;
 `pose assess integrate` retained 56 existing inventory gaps among 57
@@ -122,14 +120,16 @@ artifact claimed by `pose-scaffold-self-referential-policy-fix`; this spec
 does not change that artifact.
 
 ### Requirement trace
-- R1 [deferred-integration: regression and consumer proof pending] report:.pose/reports/2026-09-26-federated-carried-forward-proof.md
-- R2 [deferred-integration: negative regression pending] report:.pose/reports/2026-09-26-federated-carried-forward-proof.md
-- R3 [deferred-integration: manifest and trust gates pending] report:.pose/reports/2026-09-26-federated-carried-forward-proof.md
+- R1 [satisfied] report:.pose/reports/2026-09-26-federated-carried-forward-proof.md
+- R2 [satisfied] report:.pose/reports/2026-09-26-federated-carried-forward-proof.md
+- R3 [satisfied] report:.pose/reports/2026-09-26-federated-carried-forward-proof.md
 
 ## 7. Final Report
 
 ### Delivered scope
-Implementation pending.
+The federated source proof accepts passing post-subject `carried-forward`
+validation from an approved review within the pinned Git ancestry. Manifest
+projection and negative trust gates use the same eligibility rule.
 
 ### Residual risks
 Do not activate consumer trust if the source review, pin or validation
