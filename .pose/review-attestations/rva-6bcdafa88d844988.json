@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-6bcdafa88d844988",
+  "bundle_id": "rvb-629eff14818752fc",
+  "bundle_digest": "sha256:629eff14818752fc69ca5dc396601bb0c8a4c8ffdce86f726c80ec1e87495621",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "A spec without an external xref edge seals a byte-identical payload and no closeout federation; roadmap and milestone paths are unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "The governing ADR names the spec scope and the changelog entry states the new blocking behaviour."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "Blockers reuse the stable federation states and closeout names a dedicated next action for federated dependency blockers."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "Only the federation helper, the spec-scope calls in bundle and closeout, focused tests, one matrix check, the ADR and the changelog changed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "Authorization runs before resolution with the existing 256-node bound; missing roots fail closed as a blocker without disclosing paths."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-federated-spec-dependency-acceptance",
+      "rationale": "artifact-check --strict exited 0 for the attributed change set."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "ran before sealing with no new markers; not rerun during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "The full matrix passed 29 checks, including the named spec-scope family."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "The pose-mcp module passed its checks, including the named spec-scope family."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/federated-spec-acceptance-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-26T15:17:01Z",
+  "path": ".pose/review-attestations/rva-6bcdafa88d844988.json"
+}

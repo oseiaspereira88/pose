@@ -14,10 +14,7 @@
 - _Not provided_
 
 ## Files Changed
-- pose/indexes/delivery-integrity.json
-- .pose/indexes/releases.json
-- .pose/indexes/spec-graph.json
-- .pose/results/delivery-validation.json
+- pose/results/delivery-validation.json
 
 ## Validation Commands
 - go build ./...
@@ -40,6 +37,7 @@
 - go test ./internal/pose ./internal/cli ./internal/mcpserver -run ReviewBundle|ReviewAttestation|ReviewPlanGroupsRepeatedWarnings|ReviewPlanActionableToolPhases|ToolCatalog -count=1
 - go test ./internal/pose ./internal/cli ./internal/mcpserver -run TestQualifiedArtifact -count=1
 - go test ./internal/pose ./internal/cli -run TestFederatedRoadmap|TestFederatedAcceptance -count=1
+- go test ./internal/pose -run TestFederatedSpecAcceptance|TestLegacyReviewBundlePayloadOmitsFederatedManifest -count=1
 - go test ./internal/pose ./internal/cli -run TestFederatedAcceptanceNegative -count=1
 - go test ./internal/pose ./internal/cli -run TestSpecTransfer -count=1
 - go test ./internal/pose ./internal/cli -run TestSpecTransferNegative|TestSpecTransferBoundary|TestSpecTransferPreviewBlocks|TestSpecTransferResumeBlocks|TestSpecTransferResolverRejects|TestSpecAuthorityTransferPolicySchema -count=1
@@ -50,26 +48,27 @@
 - go test ./internal/cli -run TestMultiRepoAgentInstalled -count=1
 
 ## Results
-- - [pass] mcp-enforce/go/build (0.3s)
+- - [pass] mcp-enforce/go/build (0.2s)
 - - [pass] mcp-enforce/go/test (0.0s)
 - - [pass] mcp-enforce/go/vet (0.0s)
-- - [pass] pose-mcp/go/build (0.7s)
-- - [pass] pose-mcp/go/test (3.8s)
+- - [pass] pose-mcp/go/build (0.8s)
+- - [pass] pose-mcp/go/test (3.7s)
 - - [pass] pose-mcp/go/vet (0.1s)
 - - [pass] pose-mcp/go/abm-remediation-lineage-integration (0.9s)
-- - [pass] pose-mcp/go/abm-progressive-review-integration (0.7s)
+- - [pass] pose-mcp/go/abm-progressive-review-integration (0.6s)
 - - [pass] pose-mcp/go/artifact-claim-boundary-integration (0.8s)
 - - [pass] pose-mcp/go/check-verdict-mode-integration (0.7s)
 - - [pass] pose-mcp/go/delivery-graph-reuse-integration (0.6s)
-- - [pass] pose-mcp/go/parse-memo-integration (0.2s)
-- - [pass] pose-mcp/go/parallel-gate-integration (1.7s)
+- - [pass] pose-mcp/go/parse-memo-integration (0.1s)
+- - [pass] pose-mcp/go/parallel-gate-integration (1.6s)
 - - [pass] pose-mcp/go/check-workers-integration (0.6s)
 - - [pass] pose-mcp/go/review-policy-adoption-integration (0.6s)
 - - [pass] pose-mcp/go/delivery-integration (0.8s)
-- - [pass] pose-mcp/go/delivery-reachability (0.7s)
-- - [pass] pose-mcp/go/review-bundle-convergence (0.9s)
-- - [pass] pose-mcp/go/qualified-artifact-resolution-integration (0.7s)
-- - [pass] pose-mcp/go/federated-roadmap-acceptance-integration (2.0s)
+- - [pass] pose-mcp/go/delivery-reachability (0.6s)
+- - [pass] pose-mcp/go/review-bundle-convergence (0.8s)
+- - [pass] pose-mcp/go/qualified-artifact-resolution-integration (0.6s)
+- - [pass] pose-mcp/go/federated-roadmap-acceptance-integration (1.9s)
+- - [pass] pose-mcp/go/federated-spec-acceptance-integration (0.7s)
 - - [pass] pose-mcp/go/federated-roadmap-negative-gates (0.6s)
 - - [pass] pose-mcp/go/spec-authority-transfer-integration (0.9s)
 - - [pass] pose-mcp/go/spec-authority-transfer-negative-gates (0.6s)
@@ -77,18 +76,18 @@
 - - [pass] pose-mcp/go/multi-repo-agent-context-reachability (0.6s)
 - - [pass] pose-mcp/go/multi-repo-agent-context-integration (1.6s)
 - - [pass] pose-mcp/go/multi-repo-agent-negative-gates (0.7s)
-- - [pass] pose-mcp/go/multi-repo-agent-installed-journey (1.3s)
+- - [pass] pose-mcp/go/multi-repo-agent-installed-journey (1.2s)
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-26T15:11:44Z
+- Generated at (UTC): 2026-09-26T15:15:47Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 182
+- Sequence for task/spec: 183
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-26T15:08:42Z
+- Previous execution: 2026-09-26T15:11:44Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

@@ -1,8 +1,8 @@
 ---
 slug: pose-federated-spec-dependency-acceptance
-status: in-progress
+status: done
 created_at: 2026-09-26
-completed_at:
+completed_at: 2026-09-26
 supersedes:
 depends_on: pose-federated-roadmap-acceptance
 priority: 0
@@ -92,8 +92,8 @@ already exists in the payload schema.
 - [x] Reproduce the missing spec-scope blocker on the Harne8 consumer.
 - [x] Write the negative and compatibility regressions before code.
 - [x] Extract the traversal and add spec-scope acceptance.
-- [ ] Run focused, race, vet and POSE module checks; rerun the consumer negative.
-- [ ] Review and close with immutable evidence.
+- [x] Run focused, race, vet and POSE module checks; rerun the consumer negative.
+- [x] Review and close with immutable evidence.
 
 ## 5. Decisions
 
@@ -143,6 +143,13 @@ unrelated to this change. `pose assess tech-debt` found no new markers.
 The named federated checks did not select the new tests, which only the
 module-wide `go test ./...` ran; the matrix gained
 `federated-spec-acceptance-integration` so the family has named evidence.
+At `dbf8f5f` the full matrix passed 29/29 and `surface-check` found one target,
+29 results and zero findings. Bundle `rvb-629eff14818752fc` was sealed and
+approved by attestation `rva-6bcdafa88d844988` (same actor, separate
+execution, as the policy requires); `review verify` reported it fresh and
+approved before `pose close`. The index was built in the main worktree: a
+single-branch clone re-identified 155 committed change sets, while the
+worktree index differed from the committed one only in this spec's entry.
 
 ### Requirement trace
 - R1 [satisfied] test:TestFederatedSpecAcceptanceBlocksRevokedTrustAndStalesReview

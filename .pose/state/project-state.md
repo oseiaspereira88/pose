@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-26T08:17:29Z
-baseline_commit: be4f01d53ed86ae8b6d0c2fd441bbfa1cace62c8
+generated_at: 2026-09-26T15:17:31Z
+baseline_commit: dbf8f5f4fe2b4fea45046e0e66da5e2353f43f2e
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:f62ed2700ec1 -->
+<!-- state:derived hash:b879c4d366f6 -->
 
-- specs: total=234 draft=4 in-progress=65 blocked=0 done=165 superseded=0 abandoned=0
+- specs: total=235 draft=4 in-progress=65 blocked=0 done=166 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
   - spec:pose-review-root-binding-parity (2026-09-26)
   - spec:pose-federated-carried-forward-proof (2026-09-26)
+  - spec:pose-federated-spec-dependency-acceptance (2026-09-26)
   - spec:pose-agent-project-context (2026-09-25)
   - spec:pose-spec-authority-transfer (2026-09-24)
-  - spec:pose-federated-roadmap-acceptance (2026-09-24)
-  - ... e mais 160 (ver `pose_list_specs status:done`)
+  - ... e mais 161 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:0dc01315976a -->
+<!-- state:derived hash:8ca8e168d71f -->
 
-- abertos: 112
-- por criticidade: high=3 medium=25 low=60 sem-classificação=24
+- abertos: 113
+- por criticidade: high=4 medium=25 low=60 sem-classificação=24
 - vencidos (review < hoje): 1
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
 
@@ -65,10 +65,10 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:152caf41123d -->
+<!-- state:derived hash:5fb94c569dcb -->
 
-- último registro: task=validate-native outcome=pass (2026-09-26T08:15:20Z)
-- últimos 30 dias: total=97 outcome_ok=85 outcome_outro=12
+- último registro: task=validate-native outcome=pass (2026-09-26T15:15:47Z)
+- últimos 30 dias: total=101 outcome_ok=89 outcome_outro=12
 - reports revisados (.md): total=147
   - report:2026-09-26-standard-validate-native.md
   - report:2026-09-26-federated-carried-forward-proof.md
