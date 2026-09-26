@@ -1,8 +1,8 @@
 ---
 slug: pose-review-root-binding-parity
-status: in-progress
+status: done
 created_at: 2026-09-25
-completed_at:
+completed_at: 2026-09-26
 supersedes:
 depends_on:
 priority: 0
