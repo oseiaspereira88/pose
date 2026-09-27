@@ -239,31 +239,73 @@ func cmdRoadmapCheck(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "pose roadmap-check: invalid roadmap slug")
 		return 2
 	}
+	gate, err := roadmapGate(root, slug, "")
+	if err != nil {
+		render(stdout, stderr).Failure("pose roadmap-check: " + err.Error())
+		return 1
+	}
+	roadmap, criteria, federated, blockers, graph := gate.roadmap, gate.criteria, gate.federated, gate.blockers, gate.graph
+	result := map[string]any{"schema_version": 1, "roadmap": slug, "status": roadmap.Status, "criteria": criteria, "federated_acceptance": federated, "terminal": len(blockers) == 0, "blockers": uniqueCLIStrings(blockers), "graph_digest": graph.InputDigest}
+	if jsonOutput {
+		_ = writeJSON(stdout, result)
+	} else {
+		fmt.Fprintf(stdout, "roadmap.slug=%s\nroadmap.criteria=%d\nroadmap.terminal=%t\n", slug, len(criteria), len(blockers) == 0)
+		for _, blocker := range uniqueCLIStrings(blockers) {
+			fmt.Fprintln(stdout, "[BLOCKER] "+blocker)
+		}
+	}
+	if strict && len(blockers) > 0 {
+		return 1
+	}
+	return 0
+}
+
+// roadmapGateResult is what a roadmap or milestone gate evaluated.
+type roadmapGateResult struct {
+	roadmap   *posemodel.Roadmap
+	criteria  []posemodel.RoadmapCriterion
+	federated posemodel.FederatedRoadmapAcceptanceReport
+	blockers  []string
+	graph     posemodel.DeliveryIntegrityGraph
+}
+
+// roadmapGate evaluates the closeout gate of a roadmap, or of one of its
+// milestones when milestone is set. A milestone gate uses the milestone's own
+// federated acceptance and members and leaves the roadmap's cut criteria to
+// the roadmap, so an open member of a later milestone does not block an
+// earlier one. Members owned by another project are judged by federated
+// acceptance, which carries their source proof; local closeout cannot read
+// them.
+func roadmapGate(root, slug, milestone string) (roadmapGateResult, error) {
+	result := roadmapGateResult{}
 	graph, err := buildCurrentDeliveryGraph(root)
 	if err != nil {
-		fmt.Fprintf(stderr, "pose roadmap-check: %v\n", err)
-		return 1
+		return result, err
 	}
 	store := posemodel.Store{Root: root}
 	roadmap, err := store.GetRoadmap(slug)
 	if err != nil {
-		fmt.Fprintf(stderr, "pose roadmap-check: %v\n", err)
-		return 1
+		return result, err
 	}
 	resolver, project, err := posemodel.EnvironmentArtifactResolver(root, "")
 	if err != nil {
-		render(stdout, stderr).Failure("pose roadmap-check: invalid project configuration")
-		return 1
+		return result, fmt.Errorf("invalid project configuration")
 	}
-	federated, err := store.FederatedRoadmapAcceptance(project, slug, resolver)
+	var federated posemodel.FederatedRoadmapAcceptanceReport
+	if milestone == "" {
+		federated, err = store.FederatedRoadmapAcceptance(project, slug, resolver)
+	} else {
+		federated, err = store.FederatedMilestoneAcceptance(project, slug, milestone, resolver)
+	}
 	if err != nil {
-		render(stdout, stderr).Failure(fmt.Sprintf("pose roadmap-check: federated acceptance: %v", err))
-		return 1
+		return result, fmt.Errorf("federated acceptance: %v", err)
 	}
 	criteria := []posemodel.RoadmapCriterion{}
-	for _, item := range graph.RoadmapCriteria {
-		if item.Roadmap == slug {
-			criteria = append(criteria, item)
+	if milestone == "" {
+		for _, item := range graph.RoadmapCriteria {
+			if item.Roadmap == slug {
+				criteria = append(criteria, item)
+			}
 		}
 	}
 	blockers := []string{}
@@ -291,27 +333,31 @@ func cmdRoadmapCheck(root string, args []string, stdout, stderr io.Writer) int {
 			blockers = append(blockers, finding.Code+": "+finding.Message)
 		}
 	}
-	for _, milestone := range roadmap.Milestones {
-		for _, member := range milestone.Specs {
-			state, err := store.GetCloseoutState("spec:" + member)
+	found := milestone == ""
+	for _, candidate := range roadmap.Milestones {
+		if milestone != "" && candidate.ID != milestone {
+			continue
+		}
+		found = true
+		for _, member := range candidate.Specs {
+			local := member
+			if ref, err := posemodel.ParseArtifactRef(member); err == nil && ref.Project != "" {
+				if ref.Project != project {
+					continue
+				}
+				local = ref.Slug
+			}
+			state, err := store.GetCloseoutState("spec:" + local)
 			if err != nil || !state.Terminal {
 				blockers = append(blockers, "member spec is not terminal: "+member)
 			}
 		}
 	}
-	result := map[string]any{"schema_version": 1, "roadmap": slug, "status": roadmap.Status, "criteria": criteria, "federated_acceptance": federated, "terminal": len(blockers) == 0, "blockers": uniqueCLIStrings(blockers), "graph_digest": graph.InputDigest}
-	if jsonOutput {
-		_ = writeJSON(stdout, result)
-	} else {
-		fmt.Fprintf(stdout, "roadmap.slug=%s\nroadmap.criteria=%d\nroadmap.terminal=%t\n", slug, len(criteria), len(blockers) == 0)
-		for _, blocker := range uniqueCLIStrings(blockers) {
-			fmt.Fprintln(stdout, "[BLOCKER] "+blocker)
-		}
+	if !found {
+		return result, fmt.Errorf("milestone %s not found in roadmap %s", milestone, slug)
 	}
-	if strict && len(blockers) > 0 {
-		return 1
-	}
-	return 0
+	result.roadmap, result.criteria, result.federated, result.blockers, result.graph = roadmap, criteria, federated, blockers, graph
+	return result, nil
 }
 
 // focusSurfaceGraph narrows a graph to one spec without consuming it.

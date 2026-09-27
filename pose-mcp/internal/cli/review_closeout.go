@@ -1389,9 +1389,13 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 	}
 	scope, _ := posemodel.ParseScopeRef(ref)
 	if scope.Kind == "milestone" {
-		var gateOut, gateErr bytes.Buffer
-		if code := cmdRoadmapCheck(root, []string{scope.Roadmap, "--strict"}, &gateOut, &gateErr); code != 0 {
-			fmt.Fprintf(stderr, "pose close: roadmap gate failed: %s%s", gateErr.String(), gateOut.String())
+		gate, err := roadmapGate(root, scope.Roadmap, scope.Milestone)
+		if err != nil {
+			render(stdout, stderr).Failure("pose close: milestone gate failed: " + err.Error())
+			return 1
+		}
+		if blockers := uniqueCLIStrings(gate.blockers); len(blockers) > 0 {
+			render(stdout, stderr).Failure("pose close: milestone gate failed: " + strings.Join(blockers, "; "))
 			return 1
 		}
 		fmt.Fprintf(stdout, "Milestone closeout verified: %s\n", ref)

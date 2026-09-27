@@ -49,6 +49,11 @@ implementation review; accepting remote done alone bypasses composition.
   the roadmap-wide manifest keep that sealed meaning and stay fresh while it
   is unchanged (2026-09-26,
   [milestone-scoped acceptance](../specs/2026-09-26-pose-federated-milestone-scoped-acceptance.md)).
+- The roadmap gate judges a member owned by another project through federated
+  acceptance, not local closeout, and `pose close` of a milestone gates on
+  that milestone's acceptance and members without the roadmap cut criteria
+  (2026-09-26,
+  [roadmap gate scopes](../specs/2026-09-26-pose-roadmap-gate-scopes-milestones-and-external-members.md)).
 - Separate implementation closure, consumer adoption and program acceptance.
   Keep composition criteria and explicit outcome review at the coordinator.
   Required remote done is insufficient without valid evidence and composition.
