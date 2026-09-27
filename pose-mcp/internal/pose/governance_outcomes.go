@@ -270,6 +270,11 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 	superseded := map[string]bool{}
 	freshness := map[string]string{}
 	freshnessChecks := 0
+	// Freshness is verified through a local store on the same root: the
+	// projection is local by definition, and a federated store resolves every
+	// qualified dependency again per bundle, which made the MCP answer both
+	// far slower than the CLI's and able to differ from it.
+	verifier := Store{Root: s.Root}
 	for _, att := range atts {
 		at, ok := parseGovernanceTime(att.AttestedAt)
 		if !ok || at.After(now) || (!cutoff.IsZero() && at.Before(cutoff)) {
@@ -296,7 +301,7 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 			if _, done := freshness[bundle.BundleID]; !done {
 				if freshnessChecks < governanceMaxFreshnessChecks {
 					freshnessChecks++
-					verification, verifyErr := s.VerifyReviewBundle(bundle.Payload.Scope.Ref)
+					verification, verifyErr := verifier.VerifyReviewBundle(bundle.Payload.Scope.Ref)
 					if verifyErr != nil {
 						freshness[bundle.BundleID] = "unknown"
 					} else if verification.Fresh {

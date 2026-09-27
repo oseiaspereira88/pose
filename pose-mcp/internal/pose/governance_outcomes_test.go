@@ -112,3 +112,55 @@ func TestGovernanceOutcomesRejectsInvalidQuery(t *testing.T) {
 		}
 	}
 }
+
+// The projection is local by definition. It used to verify each bundle's
+// freshness through whatever store it was called on; from pose-mcp that is
+// the federated store, which resolves every qualified dependency again per
+// bundle and turned a 30-second CLI answer into more than ten minutes, with a
+// result that could differ from the CLI's. It now verifies through a local
+// store on the same root, so every caller gets the same answer at the same
+// cost.
+func TestGovernanceOutcomesVerifiesFreshnessLocally(t *testing.T) {
+	root, source, store, _ := federatedTestSpecConsumer(t)
+	now := time.Now().UTC()
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	att := approvedBundleAttestation(bundle, "agent:reviewer")
+	att.SchemaVersion, att.Decision = ReviewBundleSchemaVersion, "approved"
+	att.AttestedAt = now.Format(time.RFC3339)
+	att.AttestationID = reviewAttestationID(att)
+	attRaw, _ := json.Marshal(att)
+	writeGovernanceFile(t, root, ".pose/review-attestations/"+att.AttestationID+".json", string(attRaw)+"\n")
+	local, err := (Store{Root: root}).GovernanceOutcomes(GovernanceOutcomesQuery{Now: now})
+	if err != nil {
+		t.Fatal(err)
+	}
+	resolver := federatedTestResolver("coordinator", "source", root, source)
+	calls := 0
+	authorize := resolver.Authorize
+	resolver.Authorize = func(projectID string) bool {
+		calls++
+		if authorize == nil {
+			return true
+		}
+		return authorize(projectID)
+	}
+	store.FederatedProjectID, store.FederatedResolver = "coordinator", &resolver
+	federated, err := store.GovernanceOutcomes(GovernanceOutcomesQuery{Now: now})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if calls != 0 {
+		t.Fatalf("the projection resolved qualified dependencies %d time(s)", calls)
+	}
+	if local.Coverage.FreshnessChecks == 0 {
+		t.Fatal("the fixture verified no bundle freshness")
+	}
+	a, _ := json.Marshal(local)
+	b, _ := json.Marshal(federated)
+	if string(a) != string(b) {
+		t.Fatalf("CLI and MCP stores disagree:\n%s\n%s", a, b)
+	}
+}
