@@ -462,7 +462,7 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 			return ReviewBundle{}, err
 		}
 		bundle.ExcludedInputs = append(bundle.ExcludedInputs, subjectExcluded...)
-		bundle.Payload.Evidence = s.reviewBundleEvidence(scope, graph, bundle.Payload.Subject)
+		bundle.Payload.Evidence = s.reviewBundleEvidence(scope, graph, bundle.Payload.Subject, bundle.Payload.Plan)
 		for i := range bundle.Payload.Evidence {
 			bundle.Payload.Evidence[i].SubjectObservation = ReviewEvidenceObservationForSubject(bundle.Payload.Subject, bundle.Payload.Evidence[i])
 		}
@@ -1161,11 +1161,22 @@ func shortCommit(commit string) string {
 	return commit
 }
 
-func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph, subject ReviewBundleSubject) []ReviewBundleEvidence {
+func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph, subject ReviewBundleSubject, plan ReviewBundlePlan) []ReviewBundleEvidence {
 	modules := map[string]bool{}
 	for _, target := range graph.Deliveries {
 		if scope.Kind == "spec" && target.Spec == scope.Slug {
 			modules[target.Module] = true
+		}
+	}
+	// A per-component validate tool answers for its module. When the targets
+	// live elsewhere, sealing only their modules would leave the plan demanding
+	// a disposition that no sealed evidence can support, so the modules those
+	// tools name are sealed too. With no target at all every module already is.
+	if len(modules) > 0 {
+		for _, tool := range plan.Tools {
+			if tool.ID == "validate" && tool.Component != "" {
+				modules[tool.Component] = true
+			}
 		}
 	}
 	status := ""

@@ -1950,3 +1950,42 @@ func TestSealIsSilentWhenEvidenceObservedTheSubject(t *testing.T) {
 		t.Errorf("evidence that observed the subject was reported as carried forward: %v", bundle.Warnings)
 	}
 }
+
+// A per-component validate tool answers for its module. When the spec's
+// delivery targets live in another module, the bundle still has to seal that
+// module's current evidence, or the plan demands a disposition no sealed
+// evidence can support.
+func TestReviewBundleSealsEvidenceForPlannedComponentModules(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	digest := graph.ProvenanceDigest
+	graph.ValidationResults = append(graph.ValidationResults,
+		DeliveryValidationResult{ID: "unit-web", Module: "web", Check: "npm-test", EvidenceClass: "unit", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: digest},
+		DeliveryValidationResult{ID: "unit-docs", Module: "docs", Check: "docs-build", EvidenceClass: "build", Severity: "required", Outcome: "pass", GitHead: "head-resolved", ProvenanceDigest: digest},
+	)
+	scope, _ := ParseScopeRef("spec:backend")
+	sealed := func(plan ReviewBundlePlan) map[string]bool {
+		out := map[string]bool{}
+		for _, ev := range store.reviewBundleEvidence(scope, graph, ReviewBundleSubject{}, plan) {
+			out[ev.ID] = true
+		}
+		return out
+	}
+	without := sealed(ReviewBundlePlan{})
+	if !without["unit-backend"] || without["unit-web"] || without["unit-docs"] {
+		t.Fatalf("baseline sealing = %v, want only the target module", without)
+	}
+	with := sealed(ReviewBundlePlan{Tools: []ReviewPlanTool{
+		{ID: "validate", Component: "web", Requiredness: "required"},
+		{ID: "suggest-review", Component: "docs"},
+	}})
+	if !with["unit-backend"] || !with["unit-web"] {
+		t.Fatalf("sealing = %v, want the target module and the planned validate component", with)
+	}
+	if with["unit-docs"] {
+		t.Fatal("a module no validate tool answers for was sealed")
+	}
+}
