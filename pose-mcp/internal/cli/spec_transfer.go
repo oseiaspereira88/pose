@@ -29,7 +29,7 @@ func cmdSpecTransfer(root string, args []string, stdout, stderr io.Writer) int {
 			return transferUsage(stderr, "invalid option or missing value: "+flag)
 		}
 		switch flag {
-		case "--source", "--destination", "--map", "--date", "--plan", "--digest", "--authorize-project", "--operation", "--project":
+		case "--source", "--destination", "--map", "--map-file", "--mode", "--date", "--plan", "--digest", "--authorize-project", "--operation", "--project":
 			values[flag] = append(values[flag], flags[i+1])
 			i++
 		default:
@@ -54,11 +54,26 @@ func cmdSpecTransfer(root string, args []string, stdout, stderr io.Writer) int {
 		if err != nil {
 			return transferUsage(stderr, err.Error())
 		}
+		mapFile, err := oneTransferValue(values, "--map-file", false)
+		if err != nil {
+			return transferUsage(stderr, err.Error())
+		}
+		if mapFile != "" {
+			fromFile, err := readTransferMapFile(mapFile)
+			if err != nil {
+				return transferUsage(stderr, err.Error())
+			}
+			mappings = append(mappings, fromFile...)
+		}
+		mode, err := oneTransferValue(values, "--mode", false)
+		if err != nil {
+			return transferUsage(stderr, err.Error())
+		}
 		date, err := oneTransferValue(values, "--date", false)
 		if err != nil {
 			return transferUsage(stderr, err.Error())
 		}
-		plan, err := posemodel.PreviewSpecTransfer(resolver, posemodel.SpecTransferRequest{Source: source, Destination: destination, Mappings: mappings}, date)
+		plan, err := posemodel.PreviewSpecTransfer(resolver, posemodel.SpecTransferRequest{Source: source, Destination: destination, Mappings: mappings, Mode: mode}, date)
 		if err != nil {
 			return transferFailure(stderr, "pose spec-transfer preview: "+err.Error())
 		}
@@ -157,6 +172,29 @@ func parseTransferMappings(values []string) ([]posemodel.SpecTransferRequirement
 		out = append(out, posemodel.SpecTransferRequirementMapping{SourceRequirement: left, DestinationRequirement: destination, Disposition: disposition})
 	}
 	return out, nil
+}
+
+// readTransferMapFile reads a JSON array of requirement mappings, the form a
+// reconcile-terminal map needs once rationales and qualified targets appear.
+func readTransferMapFile(path string) ([]posemodel.SpecTransferRequirementMapping, error) {
+	info, err := os.Lstat(path)
+	if err != nil || !info.Mode().IsRegular() || info.Size() > 1<<20 {
+		return nil, fmt.Errorf("--map-file unavailable or exceeds 1 MiB")
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("--map-file unavailable")
+	}
+	var mappings []posemodel.SpecTransferRequirementMapping
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&mappings); err != nil {
+		return nil, fmt.Errorf("--map-file must be a JSON array of requirement mappings")
+	}
+	if err := decoder.Decode(new(any)); err != io.EOF {
+		return nil, fmt.Errorf("--map-file must be a JSON array of requirement mappings")
+	}
+	return mappings, nil
 }
 
 func oneTransferValue(values map[string][]string, key string, required bool) (string, error) {

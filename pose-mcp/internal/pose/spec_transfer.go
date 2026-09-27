@@ -20,6 +20,16 @@ import (
 
 const SpecTransferSchemaVersion = 1
 
+// SpecReconcileSchemaVersion marks plans and redirects of a terminal
+// reconciliation. Engines that only know SpecTransferSchemaVersion refuse
+// them instead of reading them as an ordinary transfer.
+const SpecReconcileSchemaVersion = 2
+
+// SpecTransferModeReconcileTerminal retires a coordinator spec onto an
+// executor that is already done and closed in its own project. The executor
+// file is never written, and every original requirement keeps a disposition.
+const SpecTransferModeReconcileTerminal = "reconcile-terminal"
+
 const (
 	maxSpecTransferProjects       = 256
 	maxSpecTransferImpacts        = 10000
@@ -35,12 +45,18 @@ type SpecTransferRequirementMapping struct {
 	SourceRequirement      string `json:"source_requirement,omitempty"`
 	DestinationRequirement string `json:"destination_requirement,omitempty"`
 	Disposition            string `json:"disposition"`
+	// DestinationRef and Rationale exist only in reconcile-terminal plans:
+	// a requirement answered by another spec, and why a requirement is
+	// withdrawn or still owed.
+	DestinationRef string `json:"destination_ref,omitempty"`
+	Rationale      string `json:"rationale,omitempty"`
 }
 
 type SpecTransferRequest struct {
 	Source      ArtifactRef                      `json:"source"`
 	Destination ArtifactRef                      `json:"destination"`
 	Mappings    []SpecTransferRequirementMapping `json:"requirement_map"`
+	Mode        string                           `json:"mode,omitempty"`
 }
 
 type SpecTransferProjectRevision struct {
@@ -119,6 +135,10 @@ type specTransferRedirect struct {
 	OperationID   string      `json:"operation_id"`
 	Source        ArtifactRef `json:"source"`
 	Destination   ArtifactRef `json:"destination"`
+	// Mode and OpenObligations are written only by a terminal
+	// reconciliation, so the retired record still names what is owed.
+	Mode            string                           `json:"mode,omitempty"`
+	OpenObligations []SpecTransferRequirementMapping `json:"open_obligations,omitempty"`
 }
 
 func specTransferError(code string) error { return fmt.Errorf("spec-transfer: %s", code) }
@@ -132,6 +152,19 @@ func validateTransferIdentity(ref ArtifactRef) error {
 
 func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest, effectiveDate string) (SpecTransferPlan, error) {
 	plan := SpecTransferPlan{SchemaVersion: SpecTransferSchemaVersion, Request: request}
+	terminal := request.Mode == SpecTransferModeReconcileTerminal
+	if request.Mode != "" && !terminal {
+		return plan, specTransferError("unsupported-transfer-mode")
+	}
+	if terminal {
+		plan.SchemaVersion = SpecReconcileSchemaVersion
+	} else {
+		for _, mapping := range request.Mappings {
+			if mapping.DestinationRef != "" || mapping.Rationale != "" {
+				return plan, specTransferError("requirement-map-fields-need-reconcile-terminal")
+			}
+		}
+	}
 	if resolver.Roots == nil {
 		return plan, specTransferError("project-registry-unavailable")
 	}
@@ -231,8 +264,17 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 		}
 	}
 	var destinationPath, destinationRaw string
+	if terminal {
+		if !destinationExists || destinationSpec.Status != "done" {
+			return plan, specTransferError("destination-spec-not-terminal")
+		}
+		closeout, err := destinationStore.GetCloseoutState("spec:" + request.Destination.Slug)
+		if err != nil || !closeout.Terminal {
+			return plan, specTransferError("destination-closeout-not-terminal")
+		}
+	}
 	if destinationExists {
-		if !validTransferLifecycle(destinationSpec.Status) {
+		if !terminal && !validTransferLifecycle(destinationSpec.Status) {
 			return plan, specTransferError("destination-spec-not-reconcilable")
 		}
 		destinationPath, destinationRaw, err = transferSpecFile(destinationStore, destinationSpec)
@@ -266,7 +308,11 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 	} else {
 		destinationReqs = append([]string{}, sourceReqs...)
 	}
-	if err := validateRequirementMap(sourceReqs, destinationReqs, plan.Mappings); err != nil {
+	if terminal {
+		if err := validateTerminalRequirementMap(resolver, sourceReqs, destinationReqs, plan.Mappings); err != nil {
+			return plan, err
+		}
+	} else if err := validateRequirementMap(sourceReqs, destinationReqs, plan.Mappings); err != nil {
 		return plan, err
 	}
 
@@ -275,7 +321,7 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 		finalStatus = destinationSpec.Status
 	}
 	for _, mapping := range plan.Mappings {
-		if mapping.Disposition == "reformulated" || mapping.Disposition == "pending" {
+		if !terminal && (mapping.Disposition == "reformulated" || mapping.Disposition == "pending") {
 			plan.RequiresFreshEvidence = true
 		}
 	}
@@ -304,6 +350,11 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 	plan.FinalDestinationStatus = finalStatus
 	plan.DestinationStageDigest = digestHex([]byte(setSpecLifecycle(destinationRaw, request.Destination.Slug, "blocked")))
 	plan.DestinationFinalDigest = digestHex([]byte(setSpecLifecycle(destinationRaw, request.Destination.Slug, finalStatus)))
+	if terminal {
+		// The executor is never written: staging and activation only prove
+		// it is still the reviewed, closed file the plan was made against.
+		plan.DestinationStageDigest, plan.DestinationFinalDigest = plan.DestinationDigest, plan.DestinationDigest
+	}
 	plan.SourceStubDigest = digestHex([]byte(renderTransferRedirectStub(request.Source, request.Destination)))
 	plan.SourceRedirectDigest = digestHex(redirectBytes(request.Source, request.Destination, ""))
 
@@ -353,7 +404,7 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 	})
 	sort.Strings(plan.Blockers)
 	plan.OperationID = transferOperationID(plan)
-	plan.SourceRedirectDigest = digestHex(redirectBytes(request.Source, request.Destination, plan.OperationID))
+	plan.SourceRedirectDigest = digestHex(planRedirectBytes(plan, plan.OperationID))
 	plan.Digest = specTransferPlanDigest(plan)
 	return plan, nil
 }
@@ -367,7 +418,10 @@ func canonicalRequirementMappings(in []SpecTransferRequirementMapping) []SpecTra
 		if out[i].Disposition != out[j].Disposition {
 			return out[i].Disposition < out[j].Disposition
 		}
-		return out[i].DestinationRequirement < out[j].DestinationRequirement
+		if out[i].DestinationRequirement != out[j].DestinationRequirement {
+			return out[i].DestinationRequirement < out[j].DestinationRequirement
+		}
+		return out[i].DestinationRef < out[j].DestinationRef
 	})
 	return out
 }
@@ -891,6 +945,125 @@ func redirectBytes(source, destination ArtifactRef, operationID string) []byte {
 	return CanonicalJSON(specTransferRedirect{SchemaVersion: 1, OperationID: operationID, Source: source, Destination: destination})
 }
 
+func planRedirectBytes(plan SpecTransferPlan, operationID string) []byte {
+	if plan.Request.Mode != SpecTransferModeReconcileTerminal {
+		return redirectBytes(plan.Source, plan.Destination, operationID)
+	}
+	return CanonicalJSON(specTransferRedirect{SchemaVersion: SpecReconcileSchemaVersion, OperationID: operationID, Source: plan.Source, Destination: plan.Destination, Mode: plan.Request.Mode, OpenObligations: pendingTransferMappings(plan.Mappings)})
+}
+
+// expectedTransferPlanSchema is the only schema a plan of this mode may carry.
+func expectedTransferPlanSchema(plan SpecTransferPlan) int {
+	switch plan.Request.Mode {
+	case "":
+		return SpecTransferSchemaVersion
+	case SpecTransferModeReconcileTerminal:
+		return SpecReconcileSchemaVersion
+	}
+	return -1
+}
+
+func pendingTransferMappings(mappings []SpecTransferRequirementMapping) []SpecTransferRequirementMapping {
+	var out []SpecTransferRequirementMapping
+	for _, mapping := range mappings {
+		if mapping.Disposition == "pending" {
+			out = append(out, mapping)
+		}
+	}
+	return out
+}
+
+// validateTerminalRequirementMap checks a reconcile-terminal map. Unlike a
+// transfer it is N:M: a source requirement may carry several dispositions,
+// and the executor may hold requirements the coordinator never asked for.
+// Every source requirement must be disposed, every target must resolve, and
+// an owed requirement must name an open spec that carries it.
+func validateTerminalRequirementMap(resolver ArtifactResolver, source, destination []string, mappings []SpecTransferRequirementMapping) error {
+	sourceSet, destinationSet := map[string]bool{}, map[string]bool{}
+	for _, id := range source {
+		sourceSet[id] = true
+	}
+	for _, id := range destination {
+		destinationSet[id] = true
+	}
+	covered, seen := map[string]bool{}, map[string]bool{}
+	for _, mapping := range mappings {
+		key := mapping.SourceRequirement + "\x00" + mapping.Disposition + "\x00" + mapping.DestinationRequirement + "\x00" + mapping.DestinationRef
+		if seen[key] {
+			return specTransferError("requirement-map-duplicate")
+		}
+		seen[key] = true
+		if !sourceSet[mapping.SourceRequirement] {
+			return specTransferError("requirement-map-source-mismatch")
+		}
+		covered[mapping.SourceRequirement] = true
+		if mapping.DestinationRequirement != "" && mapping.DestinationRef != "" {
+			return specTransferError("requirement-map-ambiguous-target")
+		}
+		if mapping.DestinationRequirement != "" && !destinationSet[mapping.DestinationRequirement] {
+			return specTransferError("requirement-map-destination-mismatch")
+		}
+		if mapping.DestinationRef != "" {
+			if err := validateTerminalTargetRef(resolver, mapping.DestinationRef, mapping.Disposition == "pending"); err != nil {
+				return err
+			}
+		}
+		switch mapping.Disposition {
+		case "equivalent", "reformulated":
+			if mapping.DestinationRequirement == "" && mapping.DestinationRef == "" {
+				return specTransferError("requirement-map-incomplete")
+			}
+		case "withdrawn":
+			if mapping.DestinationRequirement != "" || mapping.DestinationRef != "" || strings.TrimSpace(mapping.Rationale) == "" {
+				return specTransferError("requirement-map-incomplete")
+			}
+		case "pending":
+			if mapping.DestinationRef == "" || strings.TrimSpace(mapping.Rationale) == "" {
+				return specTransferError("requirement-map-incomplete")
+			}
+		default:
+			return specTransferError("invalid-requirement-disposition")
+		}
+	}
+	for _, id := range source {
+		if !covered[id] {
+			return specTransferError("requirement-map-incomplete")
+		}
+	}
+	return nil
+}
+
+// validateTerminalTargetRef resolves a qualified spec target. An owed
+// requirement must land in a spec that is still open, or it would vanish.
+func validateTerminalTargetRef(resolver ArtifactResolver, raw string, mustBeOpen bool) error {
+	target, requirement, _ := strings.Cut(raw, "#")
+	ref, err := ParseArtifactRef(target)
+	if err != nil || ref.Project == "" || ref.Kind != "spec" || ref.Milestone != "" {
+		return specTransferError("requirement-map-invalid-target")
+	}
+	if requirement != "" && !regexp.MustCompile(`^R[0-9]+$`).MatchString(requirement) {
+		return specTransferError("requirement-map-invalid-target")
+	}
+	if resolver.Authorize != nil && !resolver.Authorize(ref.Project) {
+		return specTransferError("requirement-map-target-unauthorized")
+	}
+	store, err := resolver.Roots.StoreFor(ref.Project)
+	if err != nil {
+		return specTransferError("requirement-map-target-unavailable")
+	}
+	spec, err := store.GetSpec(ref.Slug)
+	if err != nil || spec == nil {
+		return specTransferError("requirement-map-target-unavailable")
+	}
+	if requirement != "" && !transferContains(requirementIDs(spec.Body), requirement) {
+		return specTransferError("requirement-map-target-unavailable")
+	}
+	if mustBeOpen && !validTransferLifecycle(spec.Status) {
+		return specTransferError("requirement-map-obligation-target-closed")
+	}
+	return nil
+}
+
 func digestHex(raw []byte) string { sum := sha256.Sum256(raw); return hex.EncodeToString(sum[:]) }
 
 func transferOperationID(plan SpecTransferPlan) string {
@@ -997,7 +1170,13 @@ func readSpecTransferRedirect(store Store, identity ArtifactRef) (specTransferRe
 	if err := decoder.Decode(new(any)); err != io.EOF {
 		return redirect, false, specTransferError("invalid-spec-redirect")
 	}
-	if redirect.SchemaVersion != SpecTransferSchemaVersion || !specTransferIDRE.MatchString(redirect.OperationID) || redirect.Source != identity || validateTransferIdentity(redirect.Destination) != nil || redirect.Destination.Project == identity.Project {
+	expectedRedirect := SpecTransferSchemaVersion
+	if redirect.Mode == SpecTransferModeReconcileTerminal {
+		expectedRedirect = SpecReconcileSchemaVersion
+	} else if redirect.Mode != "" || len(redirect.OpenObligations) != 0 {
+		return redirect, false, specTransferError("invalid-spec-redirect")
+	}
+	if redirect.SchemaVersion != expectedRedirect || !specTransferIDRE.MatchString(redirect.OperationID) || redirect.Source != identity || validateTransferIdentity(redirect.Destination) != nil || redirect.Destination.Project == identity.Project {
 		return redirect, false, specTransferError("invalid-spec-redirect")
 	}
 	if err := requireSpecTransferCapability(store); err != nil {
@@ -1008,7 +1187,7 @@ func readSpecTransferRedirect(store Store, identity ArtifactRef) (specTransferRe
 		return redirect, false, specTransferError("invalid-spec-redirect")
 	}
 	plan, err := readSpecTransferPlan(transferPlanFile(store.Root, redirect.OperationID))
-	if err != nil || validateTransferPlan(plan) != nil || plan.Source != redirect.Source || plan.Destination != redirect.Destination {
+	if err != nil || validateTransferPlan(plan) != nil || plan.Source != redirect.Source || plan.Destination != redirect.Destination || plan.Request.Mode != redirect.Mode || !bytes.Equal(planRedirectBytes(plan, redirect.OperationID), CanonicalJSON(redirect)) {
 		return redirect, false, specTransferError("invalid-spec-redirect")
 	}
 	status, err := ReadSpecTransferStatus(store, redirect.OperationID, identity.Project)
@@ -1039,7 +1218,7 @@ func readSpecTransferPlan(path string) (SpecTransferPlan, error) {
 	if err := decoder.Decode(new(any)); err != io.EOF {
 		return plan, specTransferError("invalid-plan")
 	}
-	if plan.SchemaVersion != SpecTransferSchemaVersion || !specTransferIDRE.MatchString(plan.OperationID) || plan.OperationID != transferOperationID(plan) || plan.Digest == "" || plan.Digest != specTransferPlanDigest(plan) {
+	if plan.SchemaVersion != expectedTransferPlanSchema(plan) || !specTransferIDRE.MatchString(plan.OperationID) || plan.OperationID != transferOperationID(plan) || plan.Digest == "" || plan.Digest != specTransferPlanDigest(plan) {
 		return plan, specTransferError("plan-digest-mismatch")
 	}
 	return plan, nil
@@ -1277,7 +1456,7 @@ func ResumeSpecTransfer(resolver ArtifactResolver, projectID, operationID string
 }
 
 func validateTransferPlan(plan SpecTransferPlan) error {
-	if plan.SchemaVersion != SpecTransferSchemaVersion || !specTransferIDRE.MatchString(plan.OperationID) || plan.OperationID != transferOperationID(plan) || plan.Digest == "" || plan.Digest != specTransferPlanDigest(plan) {
+	if plan.SchemaVersion != expectedTransferPlanSchema(plan) || !specTransferIDRE.MatchString(plan.OperationID) || plan.OperationID != transferOperationID(plan) || plan.Digest == "" || plan.Digest != specTransferPlanDigest(plan) {
 		return specTransferError("plan-digest-mismatch")
 	}
 	if err := validateTransferIdentity(plan.Source); err != nil {
@@ -1289,8 +1468,25 @@ func validateTransferPlan(plan SpecTransferPlan) error {
 	if plan.Source != plan.Request.Source || plan.Destination != plan.Request.Destination || plan.Source.Project == plan.Destination.Project || !transferContains(plan.AffectedProjects, plan.Source.Project) || !transferContains(plan.AffectedProjects, plan.Destination.Project) {
 		return specTransferError("invalid-plan")
 	}
-	if !validTransferLifecycle(plan.SourceStatus) || plan.DestinationExists && !validTransferLifecycle(plan.DestinationStatus) || !plan.DestinationExists && plan.DestinationStatus != "" || !validTransferLifecycle(plan.FinalDestinationStatus) {
-		return specTransferError("invalid-plan")
+	terminal := plan.Request.Mode == SpecTransferModeReconcileTerminal
+	if terminal {
+		if !validTransferLifecycle(plan.SourceStatus) || !plan.DestinationExists || plan.DestinationStatus != "done" || plan.FinalDestinationStatus != "done" || plan.RequiresFreshEvidence || plan.DestinationStageDigest != plan.DestinationDigest || plan.DestinationFinalDigest != plan.DestinationDigest {
+			return specTransferError("invalid-plan")
+		}
+		for _, mapping := range plan.Mappings {
+			if mapping.Disposition == "pending" && mapping.DestinationRef == "" || mapping.Disposition == "withdrawn" && strings.TrimSpace(mapping.Rationale) == "" {
+				return specTransferError("invalid-plan")
+			}
+		}
+	} else {
+		if !validTransferLifecycle(plan.SourceStatus) || plan.DestinationExists && !validTransferLifecycle(plan.DestinationStatus) || !plan.DestinationExists && plan.DestinationStatus != "" || !validTransferLifecycle(plan.FinalDestinationStatus) {
+			return specTransferError("invalid-plan")
+		}
+		for _, mapping := range plan.Mappings {
+			if mapping.DestinationRef != "" || mapping.Rationale != "" {
+				return specTransferError("invalid-plan")
+			}
+		}
 	}
 	if !reflect.DeepEqual(plan.Mappings, plan.Request.Mappings) || !reflect.DeepEqual(plan.Mappings, canonicalRequirementMappings(plan.Mappings)) {
 		return specTransferError("invalid-plan")
@@ -1362,7 +1558,7 @@ func validateTransferPlan(plan SpecTransferPlan) error {
 	}
 	requiresFreshEvidence := false
 	for _, mapping := range plan.Mappings {
-		if mapping.Disposition == "reformulated" || mapping.Disposition == "pending" {
+		if !terminal && (mapping.Disposition == "reformulated" || mapping.Disposition == "pending") {
 			requiresFreshEvidence = true
 		}
 	}
@@ -1695,7 +1891,10 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 	} else if err != nil {
 		return status, specTransferError("destination-spec-unavailable")
 	}
-	filesByProject[plan.Destination.Project] = append(filesByProject[plan.Destination.Project], plan.DestinationPath)
+	terminal := plan.Request.Mode == SpecTransferModeReconcileTerminal
+	if !terminal {
+		filesByProject[plan.Destination.Project] = append(filesByProject[plan.Destination.Project], plan.DestinationPath)
+	}
 	for _, id := range plan.AffectedProjects {
 		files := uniqueStrings(filesByProject[id])
 		if err := recordTransferReceipt(stores[id].Root, plan, id, "prepared", files); err != nil {
@@ -1742,7 +1941,7 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 	if err := transferPathClean(sourceStore.Root, filepath.ToSlash(redirectRel)); err != nil {
 		return status, err
 	}
-	redirect := redirectBytes(plan.Source, plan.Destination, plan.OperationID)
+	redirect := planRedirectBytes(plan, plan.OperationID)
 	if digestHex(redirect) != plan.SourceRedirectDigest {
 		return status, specTransferError("plan-digest-mismatch")
 	}
@@ -1763,7 +1962,11 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 		return status, specTransferError("destination-spec-unavailable")
 	}
 	stagedDigest := digestHex(staged)
-	if stagedDigest == plan.DestinationStageDigest {
+	if terminal {
+		if stagedDigest != plan.DestinationDigest {
+			return status, specTransferError("compare-and-swap-conflict")
+		}
+	} else if stagedDigest == plan.DestinationStageDigest {
 		final := []byte(setSpecLifecycle(string(staged), plan.Destination.Slug, plan.FinalDestinationStatus))
 		if digestHex(final) != plan.DestinationFinalDigest {
 			return status, specTransferError("plan-digest-mismatch")

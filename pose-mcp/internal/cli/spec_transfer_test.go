@@ -93,3 +93,36 @@ func TestSpecTransferNegativeCLIRejectsMalformedInvocation(t *testing.T) {
 		t.Fatalf("unqualified source: code=%d stderr=%q", code, stderr)
 	}
 }
+
+func TestSpecTransferCLIReconcileTerminalReadsModeAndMapFile(t *testing.T) {
+	sourceRoot, destinationRoot := t.TempDir(), t.TempDir()
+	initCLITransferProject(t, sourceRoot, "proj.source", "source-work")
+	initCLITransferProject(t, destinationRoot, "proj.destination", "destination-work")
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.source")
+	rootsJSON, _ := json.Marshal(map[string]string{"proj.destination": destinationRoot})
+	t.Setenv("POSE_PROJECT_ROOTS", string(rootsJSON))
+	t.Setenv("HARNE8_PROJECTS_DIR", "")
+	mapFile := filepath.Join(t.TempDir(), "map.json")
+	if err := os.WriteFile(mapFile, []byte(`[{"source_requirement":"R1","destination_requirement":"R1","disposition":"equivalent"}]`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	base := []string{"spec-transfer", "preview", "--source", "xref:proj.source/spec:source-work", "--destination", "xref:proj.destination/spec:destination-work", "--map-file", mapFile, "--date", "2026-09-26"}
+	_, stderr, code := runCLI(t, sourceRoot, append(base, "--mode", "reconcile-terminal")...)
+	if code == 0 || !strings.Contains(stderr, "destination-spec-not-terminal") {
+		t.Fatalf("reconcile-terminal accepted an open executor: code=%d stderr=%s", code, stderr)
+	}
+	out, stderr, code := runCLI(t, sourceRoot, base...)
+	if code != 0 {
+		t.Fatalf("map file was not read for an ordinary transfer: code=%d stderr=%s", code, stderr)
+	}
+	var plan posemodel.SpecTransferPlan
+	if err := json.Unmarshal([]byte(out), &plan); err != nil || len(plan.Mappings) != 1 || plan.SchemaVersion != posemodel.SpecTransferSchemaVersion {
+		t.Fatalf("plan from map file = %+v err=%v", plan, err)
+	}
+	if err := os.WriteFile(mapFile, []byte(`[{"source_requirement":"R1","disposition":"equivalent","unknown":true}]`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, stderr, code := runCLI(t, sourceRoot, base...); code == 0 || !strings.Contains(stderr, "--map-file") {
+		t.Fatalf("unknown map field accepted: code=%d stderr=%s", code, stderr)
+	}
+}

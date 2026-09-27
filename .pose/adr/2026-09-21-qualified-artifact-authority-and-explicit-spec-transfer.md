@@ -74,3 +74,20 @@ shadow when given `--task`; it cannot be changed after distribution. The new
 verb makes that binary reject the operation before writing, while the current
 engine reuses its existing authority resolver and freshness checks. Consumers
 must keep old bindings inactive until they install the compatible engine.
+
+## Implementation amendment — 2026-09-26: terminal reconciliation
+
+Binding an existing executor that is already `done` is a distinct mode,
+`reconcile-terminal`, not a relaxation of transfer. The ordinary transfer
+stages and reactivates the destination, and `reformulated` or `pending`
+mappings force it to `blocked`; applied to a closed executor that reopens a
+reviewed scope, which this ADR forbids. The terminal mode requires the
+executor to be `done` with a terminal closeout in its own project, never
+writes it (staging and activation only verify its digest), and retires the
+source with the existing archive, stub, redirect and receipts. Its map is N:M
+over every source requirement, may name another spec as target, and records
+why a requirement is withdrawn or still owed; an owed requirement must land in
+an open spec, so no obligation disappears with the coordinator. Plans and
+redirects carry schema version 2, which engines without the mode refuse;
+the explicit `--mode` is the opt-in, so no new policy field is added.
+Implemented by [terminal reconciliation](../specs/2026-09-26-pose-spec-transfer-reconcile-terminal.md).
