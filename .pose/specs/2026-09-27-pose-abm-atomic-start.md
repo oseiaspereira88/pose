@@ -1,6 +1,6 @@
 ---
 slug: pose-abm-atomic-start
-status: draft
+status: in-progress
 created_at: 2026-09-18
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-abm-contract-nodes
 priority: 2
 components: pose-dist/pose-mcp
 task_type: feature
-delivers:
+delivers: governance:abm-atomic-start
 ---
 
 # Spec: Início governado e baseline transacional
@@ -53,17 +53,54 @@ Aplicar os negativos da seção Validation. Conteúdo do repositório é input n
 pose-dist/pose-mcp. Reaproveitar os contratos e produtores existentes; registrar alteração material da base antes de ampliar o diff.
 
 ### Artifacts
-- created: .pose/specs/2026-09-18-pose-abm-atomic-start.md
-- created: pose-dist/pose-mcp/internal/pose/start.go
-- created: pose-dist/pose-mcp/internal/pose/start_test.go
-- created: pose-dist/pose-mcp/internal/cli/start.go
-- modified: pose-dist/pose-mcp/internal/pose/readiness.go
-- modified: pose-dist/pose-mcp/internal/pose/amendments.go
+- created: .pose/specs/2026-09-27-pose-abm-atomic-start.md
+- created: pose-mcp/internal/pose/start.go
+- created: pose-mcp/internal/pose/start_test.go
+- created: pose-mcp/internal/cli/start.go
+- created: pose-mcp/internal/cli/start_test.go
+- modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/catalog.go
+- modified: pose-mcp/internal/mcpserver/server_test.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- created: pose-mcp/internal/mcpserver/start_test.go
+- modified: docs-site/docs/mcp.md
+- modified: .pose/indexes/validation-matrix.json
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/changelogs/unreleased/pose-abm-atomic-start.md
 
-Inventário inicial de implementação. Antes de codar, reconciliar paths e acrescentar por amendment os schemas, fixtures, documentação e arquivos gerados realmente afetados. Paths de artefatos criados por dependências só são modificados após essas entregas.
+Reconciliado em 2026-09-27: paths sem o prefixo `pose-dist/`; `readiness.go`
+e `amendments.go` não mudam, porque `SpecReadiness` e a projeção de contract
+nodes já entregam readiness e baseline.
 
 ### Delivery targets
-Alvo planejado: `governance:abm-atomic-start`. Registrar o delivery profile e o produtor de evidência correspondente na matriz e declarar `delivers`/target/entrypoint antes de promover esta spec para `in-progress`; não inventar perfil já instalado. Exigir integration para contrato/capability/governance e reachability + integration/e2e para surface. Este planejamento não ativa policy nem declara entrega composta.
+- governance:abm-atomic-start module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
+
+Produtor integration: check `abm-atomic-start-integration` (`go test
+./internal/pose ./internal/cli ./internal/mcpserver -run 'ABMAtomicStart'
+-count=1`). Nenhuma instância adota a capability nesta entrega.
+
+### Desenho
+- `pose start spec:<slug>` é preview por padrão, somente leitura e sempre
+  disponível: readiness e dependências (`SpecReadiness`), obrigações
+  pré-implementação a partir do plano de review declarado (sem structural
+  delta), baseline R/A/D (projeção de contract nodes), revisão Git e digest do
+  arquivo, num plano vinculado a digest.
+- `--apply --digest` exige `atomic_start_version: 1` na policy de review.
+  Lock exclusivo por spec, compare-and-swap no plano recalculado, registro em
+  `.pose/starts/<slug>.json` com fase `baseline-recorded` e, depois, a
+  transição `draft → in-progress` e a fase `started`. Repetir com o mesmo
+  plano é idempotente e retoma uma execução interrompida; outro plano para
+  spec já iniciada é recusado. `--cancel` desfaz um registro sem transição.
+- `--status` classifica cada nó como `recorded-before-managed-execution`,
+  `introduced-during-execution` ou `legacy-unbaselined`, recalcula as
+  obrigações e, com a capability, pede reconciliação para status alterado à
+  mão ou registro editado. Nunca afirma precedência cognitiva nem data retroativa.
 
 ### Mudanças de API/contrato
 Ponto de entrada simétrico a close; journal pequeno por transação, recuperação definida para cada crash point. Snapshot do worktree/revision é fato observado, não prova de quando o agente decidiu.
@@ -79,14 +116,17 @@ Disponibilizar preview antes de adoption; active legacy permanece unbaselined at
 
 ## 4. Tasks
 
-- [ ] Confirmar dependências e revisar o desenho contra a release que será implementada.
-- [ ] Registrar delivery profile/target/entrypoint e inventário exato antes de iniciar código.
-- [ ] Implementar os requisitos em incrementos coesos e incluir os casos negativos de Validation.
-- [ ] Atualizar interfaces, docs e scaffolds que consomem o contrato, sem drift de vendor.
+- [x] Confirmar dependências e revisar o desenho contra a release que será implementada.
+- [x] Registrar delivery profile/target/entrypoint e inventário exato antes de iniciar código.
+- [x] Implementar os requisitos em incrementos coesos e incluir os casos negativos de Validation.
+- [x] Atualizar interfaces, docs e scaffolds que consomem o contrato, sem drift de vendor.
 - [ ] Executar matriz aplicável, obter review explícito e anexar evidência por R-ID.
 - [ ] Fechar somente pelo gate POSE, com riscos/follow-ups dispostos e resultado de composição atual.
 
 ## 5. Decisions
+
+- Date: 2026-09-27. Implementado sem rollout, como o contract-nodes: preview
+  disponível a todos, apply atrás de `atomic_start_version`, sem adoção.
 
 - Data: 2026-09-18.
 - Contexto: a análise inicial propõe novos controles; o review confirmou limites que exigem implementação proporcional.
@@ -117,8 +157,26 @@ Plano anterior à implementação. Os nomes de testes ABM e comandos novos abaix
 ### Log de execução
 2026-09-18: planejamento criado. Validação editorial deste documento não satisfaz os requisitos de runtime.
 
+2026-09-27: implementado sem rollout. Testes novos cobrem preview somente
+leitura e vinculado a digest, capability obrigatória no apply, baseline e
+transição única, idempotência, retomada após interrupção, cancelamento sem
+meia transição, plano obsoleto, digest errado, spec não pronta, oito applies
+concorrentes gravando uma baseline, classificação de origem dos nós e
+reconciliação sem histórico fabricado, além de CLI e da tool MCP
+`pose_start_status`. Com o apply ignorando capability e digest, 3 testes
+reprovaram. A primeira suíte completa pegou 58 falhas de instalação: o
+manual citava `.pose/starts/`, caminho inexistente numa instalação nova; o
+texto passou a descrever o registro sem o caminho. `go test ./...`, `go vet`
+e o `-race` da seleção passam. A linha de `pose_spec_amendments` em
+`docs-site/docs/mcp.md` também foi atualizada para os campos do contract-nodes.
 ### Requirement trace
-Pendente de implementação: cada R-ID acima exige evidência nominal dos cenários e do delivery target no closeout. Não usar preenchimento documental como satisfied.
+- R1 [satisfied] test:TestABMAtomicStartPreviewIsReadOnlyAndDigestBound test:TestABMAtomicStartCLIPreviewApplyStatus
+- R2 [satisfied] test:TestABMAtomicStartApplyRecordsBaselineAndTransitionsOnce test:TestABMAtomicStartResumesAfterInterruptionAndCancels
+- R3 [satisfied] test:TestABMAtomicStartApplyRecordsBaselineAndTransitionsOnce test:TestABMAtomicStartConcurrentAppliesRecordOneBaseline
+- R4 [satisfied] test:TestABMAtomicStartApplyRecordsBaselineAndTransitionsOnce test:TestABMAtomicStartReconciliationNeverFabricatesHistory
+- R5 [satisfied] test:TestABMAtomicStartReconciliationNeverFabricatesHistory
+- R6 [satisfied] test:TestABMAtomicStartPreviewIsReadOnlyAndDigestBound
+- R7 [satisfied] test:TestABMAtomicStartCLIApplyNeedsCapability test:TestABMAtomicStartMCPStatusIsReadOnly test:TestABMAtomicStartResumesAfterInterruptionAndCancels
 
 ### Gaps conhecidos
 Infraestrutura, amostra/usuários ou credenciais necessárias ao aceite deverão ser disponíveis na execução; ausência será reportada sem simulação de sucesso.

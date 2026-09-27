@@ -158,7 +158,10 @@ type ReviewPolicy struct {
 	SpecAuthorityTransferVersion int `json:"spec_authority_transfer_version,omitempty"`
 	// ContractNodesVersion adopts the R/A/D amendment gate (spec
 	// pose-abm-contract-nodes); 0 keeps the requirement-only gate.
-	ContractNodesVersion             int               `json:"contract_nodes_version,omitempty"`
+	ContractNodesVersion int `json:"contract_nodes_version,omitempty"`
+	// AtomicStartVersion adopts `pose start --apply` (spec
+	// pose-abm-atomic-start); preview needs no adoption.
+	AtomicStartVersion               int               `json:"atomic_start_version,omitempty"`
 	SchemaVersion                    int               `json:"schema_version"`
 	Enabled                          bool              `json:"enabled"`
 	AdoptedAt                        string            `json:"adopted_at,omitempty"`
@@ -406,6 +409,9 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	qualifiedRefsRequired := p.SchemaVersion == QualifiedArtifactPolicySchemaVersion || p.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion
 	if (qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 1) || (!qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 0) {
 		return ReviewPolicy{}, fmt.Errorf("pose: qualified artifact references require review policy schema 3 and qualified_artifact_refs_version 1")
+	}
+	if p.AtomicStartVersion != 0 && p.AtomicStartVersion != AtomicStartPolicyVersion {
+		return ReviewPolicy{}, fmt.Errorf("pose: unsupported atomic_start_version %d (engine supports %d)", p.AtomicStartVersion, AtomicStartPolicyVersion)
 	}
 	if p.ContractNodesVersion != 0 && p.ContractNodesVersion != ContractNodesPolicyVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported contract_nodes_version %d (engine supports %d)", p.ContractNodesVersion, ContractNodesPolicyVersion)

@@ -1050,6 +1050,22 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			return map[string]any{"initialized": false, "message": "project state not initialized (run `pose state init`)"}, nil
 		}
 		return store.ProjectState(ctx, a.Section)
+	case "pose_start_status":
+		var a struct {
+			Slug string `json:"slug"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
+			return nil, fmt.Errorf("pose_start_status: required argument %q missing", "slug")
+		}
+		plan, err := store.PreviewStart(a.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("pose_start_status: %v", err)
+		}
+		status, err := store.GetStartStatus(a.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("pose_start_status: %v", err)
+		}
+		return map[string]any{"preview": plan, "status": status}, nil
 	case "pose_closeout_state":
 		var a struct {
 			Scope string `json:"scope"`
@@ -2094,6 +2110,27 @@ func toolDefinitions() []map[string]any {
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
 					},
 				},
+			},
+		},
+		{
+			"name": "pose_start_status",
+			"description": "Read-only atomic start view of one spec: the digest-bound start preview " +
+				"(readiness, dependencies, declared review obligations, R/A/D baseline) and the " +
+				"start status (phase, node origins, reconciliation needs). Applying a start stays " +
+				"a CLI action gated by the atomic_start_version capability.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"slug": map[string]any{
+						"type":        "string",
+						"description": "Spec slug",
+					},
+					"project_id": map[string]any{
+						"type":        "string",
+						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+				},
+				"required": []string{"slug"},
 			},
 		},
 		{

@@ -326,6 +326,25 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose review verify spec:my-feature",
 		},
 	},
+	"start": {
+		Name:            "start",
+		SummaryEN:       "Preview or apply the atomic start of a draft spec",
+		SummaryPtBR:     "Visualiza ou aplica o início atômico de uma spec draft",
+		Usage:           "pose start spec:<slug> [--json] | --apply --digest <sha256> | --status [--json] | --cancel",
+		DescriptionEN:   "Preview is read-only: readiness, dependencies, declared review obligations and the R/A/D baseline in a digest-bound plan. --apply records that baseline and moves the spec from draft to in-progress under a per-spec lock; it needs atomic_start_version in the review policy and is idempotent and resumable. --status classifies nodes as recorded before managed execution, introduced during it, or legacy-unbaselined. A start records observable precedence, never when anything was decided.",
+		DescriptionPtBR: "Preview é somente leitura: readiness, dependências, obrigações de review declaradas e a baseline R/A/D num plano vinculado a digest. --apply grava essa baseline e move a spec de draft para in-progress com lock por spec; exige atomic_start_version na policy de review e é idempotente e retomável. --status classifica os nós como registrados antes da execução gerenciada, introduzidos durante ela ou legacy-unbaselined. Um start registra precedência observável, nunca quando algo foi decidido.",
+		Flags: []FlagHelp{
+			{"--json", "Emit the plan, record or status as JSON", "Emite o plano, o registro ou o status em JSON"},
+			{"--apply", "Apply the reviewed preview", "Aplica o preview revisado"},
+			{"--digest <sha256>", "Digest of the reviewed preview", "Digest do preview revisado"},
+			{"--status", "Classify nodes and list reconciliation needs", "Classifica nós e lista reconciliações"},
+			{"--cancel", "Undo a start that recorded its baseline but never moved the spec", "Desfaz um start que gravou a baseline sem mover a spec"},
+		},
+		Examples: []string{
+			"pose start spec:user-authentication",
+			"pose start spec:user-authentication --apply --digest <sha256>",
+		},
+	},
 	"close": {
 		Name:            "close",
 		SummaryEN:       "Apply review-gated lifecycle closeout to a spec or milestone",

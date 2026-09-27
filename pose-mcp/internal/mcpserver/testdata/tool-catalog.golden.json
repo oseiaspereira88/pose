@@ -142,6 +142,9 @@
     "pose_spec_transfer_status": {
       "risk": "read"
     },
+    "pose_start_status": {
+      "risk": "read"
+    },
     "pose_suggest": {
       "risk": "read"
     },
@@ -387,6 +390,26 @@
         "type": "object"
       },
       "name": "pose_project_state"
+    },
+    {
+      "description": "Read-only atomic start view of one spec: the digest-bound start preview (readiness, dependencies, declared review obligations, R/A/D baseline) and the start status (phase, node origins, reconciliation needs). Applying a start stays a CLI action gated by the atomic_start_version capability.",
+      "inputSchema": {
+        "properties": {
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "slug": {
+            "description": "Spec slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "type": "object"
+      },
+      "name": "pose_start_status"
     },
     {
       "description": "Read the evidence-backed hierarchical closeout projection for a typed spec, milestone or roadmap scope. Returns current or stale review state, child blockers, the smallest next governed action and terminal status.",
