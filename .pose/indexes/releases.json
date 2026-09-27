@@ -121,6 +121,14 @@
       "digest": "sha256:e85bed44370001060bd3a2d1b4cbb90298cef38fea6cb66b902fe1b20302e201"
     },
     {
+      "spec": "pose-roadmap-gate-scopes-milestones-and-external-members",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose close milestone:\u003croadmap\u003e/\u003cid\u003e` now gates on that milestone alone: its federated acceptance and its own members, without the roadmap's cut criteria. Before, it ran the whole `roadmap-check --strict`, so an open spec in a later milestone refused the close of an earlier one. `roadmap-check` no longer looks up members owned by another project in local closeout, which reported every `xref:` member as not terminal; those members stay gated by federated acceptance.",
+      "path": "pose-roadmap-gate-scopes-milestones-and-external-members.md",
+      "digest": "sha256:c84492844c6ef1426de765cd49cc3019ced0c748aac9d1b2740400401df22a69"
+    },
+    {
       "spec": "pose-spec-authority-transfer",
       "category": "added",
       "breaking": false,

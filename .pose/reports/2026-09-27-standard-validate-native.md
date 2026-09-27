@@ -49,45 +49,45 @@
 
 ## Results
 - - [pass] mcp-enforce/go/build (0.3s)
-- - [pass] mcp-enforce/go/test (0.0s)
-- - [pass] mcp-enforce/go/vet (0.0s)
-- - [pass] pose-mcp/go/build (0.9s)
-- - [pass] pose-mcp/go/test (19.3s)
-- - [pass] pose-mcp/go/vet (0.1s)
-- - [pass] pose-mcp/go/abm-remediation-lineage-integration (1.0s)
+- - [pass] mcp-enforce/go/test (0.1s)
+- - [pass] mcp-enforce/go/vet (0.1s)
+- - [pass] pose-mcp/go/build (0.8s)
+- - [pass] pose-mcp/go/test (15.6s)
+- - [pass] pose-mcp/go/vet (0.4s)
+- - [pass] pose-mcp/go/abm-remediation-lineage-integration (0.9s)
 - - [pass] pose-mcp/go/abm-progressive-review-integration (0.7s)
 - - [pass] pose-mcp/go/artifact-claim-boundary-integration (0.8s)
-- - [pass] pose-mcp/go/check-verdict-mode-integration (0.7s)
+- - [pass] pose-mcp/go/check-verdict-mode-integration (0.6s)
 - - [pass] pose-mcp/go/delivery-graph-reuse-integration (0.6s)
 - - [pass] pose-mcp/go/parse-memo-integration (0.1s)
-- - [pass] pose-mcp/go/parallel-gate-integration (1.7s)
+- - [pass] pose-mcp/go/parallel-gate-integration (5.6s)
 - - [pass] pose-mcp/go/check-workers-integration (0.6s)
-- - [pass] pose-mcp/go/review-policy-adoption-integration (0.7s)
-- - [pass] pose-mcp/go/delivery-integration (0.9s)
+- - [pass] pose-mcp/go/review-policy-adoption-integration (0.6s)
+- - [pass] pose-mcp/go/delivery-integration (1.0s)
 - - [pass] pose-mcp/go/delivery-reachability (0.8s)
 - - [pass] pose-mcp/go/review-bundle-convergence (1.0s)
-- - [pass] pose-mcp/go/qualified-artifact-resolution-integration (0.6s)
-- - [pass] pose-mcp/go/federated-roadmap-acceptance-integration (6.4s)
+- - [pass] pose-mcp/go/qualified-artifact-resolution-integration (0.7s)
+- - [pass] pose-mcp/go/federated-roadmap-acceptance-integration (6.6s)
 - - [pass] pose-mcp/go/federated-spec-acceptance-integration (0.7s)
 - - [pass] pose-mcp/go/federated-roadmap-negative-gates (0.6s)
 - - [pass] pose-mcp/go/spec-authority-transfer-integration (0.9s)
 - - [pass] pose-mcp/go/spec-authority-transfer-negative-gates (0.6s)
 - - [pass] pose-mcp/go/spec-authority-transfer-mcp-status (0.6s)
 - - [pass] pose-mcp/go/multi-repo-agent-context-reachability (0.6s)
-- - [pass] pose-mcp/go/multi-repo-agent-context-integration (1.6s)
+- - [pass] pose-mcp/go/multi-repo-agent-context-integration (1.7s)
 - - [pass] pose-mcp/go/multi-repo-agent-negative-gates (0.7s)
 - - [pass] pose-mcp/go/multi-repo-agent-installed-journey (1.3s)
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-27T00:03:10Z
+- Generated at (UTC): 2026-09-27T00:51:41Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 186
+- Sequence for task/spec: 187
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-26T15:50:03Z
+- Previous execution: 2026-09-27T00:03:10Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

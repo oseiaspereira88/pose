@@ -1,6 +1,6 @@
 ---
 slug: pose-roadmap-gate-scopes-milestones-and-external-members
-status: in-progress
+status: done
 created_at: 2026-09-26
 supersedes:
 depends_on: pose-federated-milestone-scoped-acceptance
@@ -8,6 +8,7 @@ priority: 0
 components: pose-mcp
 task_type: bugfix
 delivers: contract:roadmap-gate-scopes
+completed_at: 2026-09-27
 ---
 
 # Spec: Roadmap gate scoped to milestones and external members
@@ -88,7 +89,7 @@ Rollback is a revert.
 - [x] Reproduce both refusals on the Harne8 consumer.
 - [x] Write the regressions and prove they fail under the previous behaviour.
 - [x] Extract the shared gate and scope it.
-- [ ] Run module checks, review and close.
+- [x] Run module checks, review and close.
 
 ## 5. Decisions
 
@@ -113,6 +114,13 @@ pass, together with `go vet ./...`, the race run of `internal/cli` for
 RoadmapGate/RoadmapCheck/Federated/Closeout and `go test ./...`. The
 print-site ratchet dropped two direct prints in `surface_check.go` and one in
 `review_closeout.go`, and its baseline was lowered accordingly.
+At `6ac78ab` the full matrix passed 29/29 with a candidate binary from that
+commit; `artifact-check` reported 7 claims and 7 observed paths. Bundle
+`rvb-1c38a09b5be428e4` was approved by attestation `rva-3f31a82e56905a35`,
+recorded by the agent under explicit authorization from the user to
+self-attest. The commit superseded the foundation reviews again, since
+`surface_check.go` and `review_closeout.go` are artifacts of those specs; the
+eight specs, four milestones and roadmap were resealed and reattested.
 
 ### Requirement trace
 - R1 [satisfied] test:TestRoadmapCheckGateMilestoneIgnoresLaterMembersAndCutCriteria
@@ -122,7 +130,12 @@ print-site ratchet dropped two direct prints in `surface_check.go` and one in
 ## 7. Final Report
 
 ### Delivered scope
+Milestone close gates on the milestone alone, and roadmap-check leaves
+members owned by another project to federated acceptance.
 
 ### Residual risks
+`pose close` still requires an approved review before any gate, so the close
+wiring is covered by the consumer measurement rather than a unit test.
 
 ### Follow-ups
+- [open] Pin this engine revision in Harne8 and close `milestone:harne8-multirepo-consistency/adoption` through `pose close`. (owner:@harne8-platform crit:high review:2026-10-03)
