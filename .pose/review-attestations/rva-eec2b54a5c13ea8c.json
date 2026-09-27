@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-eec2b54a5c13ea8c",
+  "bundle_id": "rvb-ea52a49a279e5e91",
+  "bundle_digest": "sha256:ea52a49a279e5e91ce3199aa4a1fddb706981351c0139b5d386c0f80700b79b9",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "A per-spec exclusive lock plus compare-and-swap on the recomputed plan and spec digest; eight concurrent applies record one baseline and one transition."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Preview is read-only and digest-bound; apply needs atomic_start_version and the reviewed digest; the start record is strict JSON with a schema version."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Stale plans, wrong digests, unready specs, untyped scopes and a second plan for a started spec are refused with stable codes."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Harne8 can read the start view through the read-only pose_start_status tool; applying stays a CLI action gated by the capability."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Status reports phase, node origins, removed nodes, recomputed obligations and reconciliation needs."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Without the capability nothing is written; preview adds no obligation and no instance adopts the capability."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Interruption after the baseline resumes to one start; cancel leaves no half transition; 3 tests fail when apply ignores capability and digest."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "CLI, Store and MCP share one engine; the MCP tool catalog and docs were updated with it."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-2a5ae284e4e3b1ba",
+      "rationale": "Help catalog, manual and its locale and scaffold copies, MCP docs and changelog describe the command."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "A lock left by a crashed run is reported with the path to remove after checking, never broken silently."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "R1-R7 traced to tests selected by abm-atomic-start-integration."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-2a5ae284e4e3b1ba",
+      "rationale": "Diff limited to the start engine, its CLI and MCP surfaces, the policy capability, docs and tests."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "No backdating: records carry observed revision and time; origins describe observable precedence, never cognition; reconciliation never fabricates history."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-abm-atomic-start",
+      "rationale": "20 claims, no errors."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-2a5ae284e4e3b1ba",
+      "rationale": "Design evidence sealed in the bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "One new read-only MCP tool; no Protobuf, Kafka or REST contract changed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "The diff adds no debt markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Full matrix 31/31 at f20ceee."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares no check for docs-site; the MCP docs table is guarded by TestCatalogDocsConformance in the pose-mcp suite."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "go test ./... passed in the module."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/abm-atomic-start-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-27T11:24:26Z",
+  "path": ".pose/review-attestations/rva-eec2b54a5c13ea8c.json"
+}

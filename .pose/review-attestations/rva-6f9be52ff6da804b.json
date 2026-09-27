@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-6f9be52ff6da804b",
+  "bundle_id": "rvb-3bfdf7d5ea6a1424",
+  "bundle_digest": "sha256:3bfdf7d5ea6a142499cbed702d98e2ba71a363d39d65026ae2d19f0c18c13c01",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Apply keeps the existing root locks and compare-and-swap; interruption after planned, prepared and source-retired resumes to one authority."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Ordinary transfer plans and redirects are byte-identical; the terminal mode is opt-in and versioned as schema 2."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "Open or unreviewed executors, uncovered requirements, unresolvable or closed targets, missing rationales, unknown modes and misplaced fields are refused with stable codes."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Consumers are rewritten by the existing impact scan and the retired coordinator resolves to the executor through the redirect."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "The redirect records mode and owed requirements; status and receipts keep their shape."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "A terminal plan does not validate under schema 1, and engines without the mode refuse schema-2 plans and redirects."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "The executor file is byte-identical after apply and resume; a changed executor refuses apply and retires nothing."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-8eba54934a83049a",
+      "rationale": "ADR amended, help catalog, manual and its locale and scaffold copies describe the mode; changelog added."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "--mode and --map-file reach the engine; unknown map fields are refused."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "R1-R7 traced to tests selected by the transfer integration and negative-gate checks and the CLI test."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-8eba54934a83049a",
+      "rationale": "Diff limited to the transfer engine, its CLI and help, the manual copies, tests, ADR, spec and changelog."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "Authorization, capability, path confinement and compare-and-swap are the transfer's; an owed requirement cannot vanish with the coordinator."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-spec-transfer-reconcile-terminal",
+      "rationale": "12 claims, 12 observed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-8eba54934a83049a",
+      "rationale": "Design evidence sealed in the bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "No Protobuf, Kafka, REST or MCP tool contract changed; the CLI gained two flags."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "The diff adds no debt markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Full matrix 29/29 at 41b9a31."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "go test ./... passed in the module."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/spec-authority-transfer-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-27T11:26:14Z",
+  "path": ".pose/review-attestations/rva-6f9be52ff6da804b.json"
+}
