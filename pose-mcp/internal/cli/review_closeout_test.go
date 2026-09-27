@@ -1011,3 +1011,21 @@ Nenhum
 		t.Fatalf("pose close spec-b failed: out=%s err=%s", out.String(), errOut.String())
 	}
 }
+
+func TestABMCausalityCloseoutCLIMappingCarriesRiskOwnerAndDate(t *testing.T) {
+	plan := posemodel.ReviewPlan{
+		Criteria:  []posemodel.ReviewPlanCriterion{{ID: "design-causality", Required: true, RequiresStructuralMapping: true}},
+		Structure: &posemodel.ReviewPlanStructure{Material: []posemodel.ReviewStructuralFact{{ID: "SD-aaaa1111", Kind: "dependency"}}},
+	}
+	criteria := []posemodel.ReviewCriterion{{ID: "design-causality", Disposition: "passed"}}
+	out, err := applyReviewCriterionMappings(plan, criteria, []string{"design-causality|SD-aaaa1111|accepted-risk|vendored next sprint|@platform|2026-12-01"})
+	if err != nil || len(out[0].Mappings) != 1 || out[0].Mappings[0].Owner != "@platform" || out[0].Mappings[0].ReviewBy != "2026-12-01" {
+		t.Fatalf("owner and review date were not recorded: %+v err=%v", out, err)
+	}
+	if _, err := applyReviewCriterionMappings(plan, criteria, []string{"design-causality|SD-aaaa1111|R1|why|@platform|2026-12-01"}); err == nil {
+		t.Fatal("an owner and date were accepted on a mapped disposition")
+	}
+	if _, err := applyReviewCriterionMappings(plan, criteria, []string{"design-causality|SD-aaaa1111|accepted-risk|why|@platform"}); err == nil {
+		t.Fatal("a five-field mapping was accepted")
+	}
+}

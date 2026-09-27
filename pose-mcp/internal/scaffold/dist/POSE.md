@@ -562,6 +562,19 @@ the subject carries material facts is refused: an observed structural change is
 not inapplicable, it is unmapped. Bundles sealed before the contract existed never
 list it and keep their verdict.
 
+Adopting `causality_closeout_version: 1` in the review policy stamps a further
+contract, `causality-closeout`, on new bundles and seals the band and the
+contract-node digest of each spec in scope, so a material R/A/D change makes the
+review stale. Under it a mapping to an invalidated or withdrawn assumption, or to
+a withdrawn decision, is refused; a `mapped` answer needs its own rationale, and
+one reason pasted across three or more facts on the same basis is refused as
+disproportionate; `accepted-risk` needs an owner and a review date
+(`--mapping <criterion>|<delta>|accepted-risk|<why>|@owner|YYYY-MM-DD`) and never
+waives a public or governance contract; `not-applicable` is refused while
+structural coverage is unknown; and an elevated or critical band with material
+facts but no criterion answering for them is refused, without requiring a human
+reviewer. Bundles sealed without the stamp keep their verdict.
+
 ### Protected policy baseline
 
 A diff that changes the review contract cannot be the authority that approves

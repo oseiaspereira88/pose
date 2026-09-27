@@ -161,7 +161,10 @@ type ReviewPolicy struct {
 	ContractNodesVersion int `json:"contract_nodes_version,omitempty"`
 	// AtomicStartVersion adopts `pose start --apply` (spec
 	// pose-abm-atomic-start); preview needs no adoption.
-	AtomicStartVersion               int               `json:"atomic_start_version,omitempty"`
+	AtomicStartVersion int `json:"atomic_start_version,omitempty"`
+	// CausalityCloseoutVersion stamps the causality-closeout contract on new
+	// bundles (spec pose-abm-causality-attestation).
+	CausalityCloseoutVersion         int               `json:"causality_closeout_version,omitempty"`
 	SchemaVersion                    int               `json:"schema_version"`
 	Enabled                          bool              `json:"enabled"`
 	AdoptedAt                        string            `json:"adopted_at,omitempty"`
@@ -301,6 +304,10 @@ type ReviewCriterionMapping struct {
 	// Disposition is mapped, missing-evidence, not-applicable or accepted-risk.
 	Disposition string `json:"disposition,omitempty"`
 	Rationale   string `json:"rationale,omitempty"`
+	// Owner and ReviewBy bound an accepted risk under the causality-closeout
+	// contract; absent everywhere else, so older attempts keep their digest.
+	Owner    string `json:"owner,omitempty"`
+	ReviewBy string `json:"review_by,omitempty"`
 }
 
 // The closed set of mapping dispositions.
@@ -409,6 +416,9 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	qualifiedRefsRequired := p.SchemaVersion == QualifiedArtifactPolicySchemaVersion || p.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion
 	if (qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 1) || (!qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 0) {
 		return ReviewPolicy{}, fmt.Errorf("pose: qualified artifact references require review policy schema 3 and qualified_artifact_refs_version 1")
+	}
+	if p.CausalityCloseoutVersion != 0 && p.CausalityCloseoutVersion != CausalityCloseoutPolicyVersion {
+		return ReviewPolicy{}, fmt.Errorf("pose: unsupported causality_closeout_version %d (engine supports %d)", p.CausalityCloseoutVersion, CausalityCloseoutPolicyVersion)
 	}
 	if p.AtomicStartVersion != 0 && p.AtomicStartVersion != AtomicStartPolicyVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported atomic_start_version %d (engine supports %d)", p.AtomicStartVersion, AtomicStartPolicyVersion)

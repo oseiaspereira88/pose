@@ -1,6 +1,6 @@
 ---
 slug: pose-abm-causality-attestation
-status: draft
+status: in-progress
 created_at: 2026-09-18
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-abm-contract-nodes, pose-abm-atomic-start, pose-abm-progressive
 priority: 2
 components: pose-dist/pose-mcp
 task_type: feature
-delivers:
+delivers: governance:abm-causality-closeout
 ---
 
 # Spec: Causalidade estruturada e closeout proporcional
@@ -51,18 +51,50 @@ Aplicar os negativos da seção Validation. Conteúdo do repositório é input n
 pose-dist/pose-mcp. Reaproveitar os contratos e produtores existentes; registrar alteração material da base antes de ampliar o diff.
 
 ### Artifacts
-- created: .pose/specs/2026-09-18-pose-abm-causality-attestation.md
-- modified: pose-dist/pose-mcp/internal/pose/review_plan.go
-- modified: pose-dist/pose-mcp/internal/pose/review_bundle.go
-- modified: pose-dist/pose-mcp/internal/pose/review_closeout.go
-- created: pose-dist/pose-mcp/internal/pose/design_causality_test.go
-- created: pose-dist/pose-mcp/schemas/v2/review-plan.schema.json
-- created: pose-dist/pose-mcp/schemas/v2/review-attestation.schema.json
+- created: .pose/specs/2026-09-27-pose-abm-causality-attestation.md
+- created: pose-mcp/internal/pose/causality_closeout.go
+- created: pose-mcp/internal/pose/causality_closeout_test.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/review_closeout_test.go
+- modified: .pose/indexes/validation-matrix.json
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/changelogs/unreleased/pose-abm-causality-attestation.md
 
-Inventário inicial de implementação. Antes de codar, reconciliar paths e acrescentar por amendment os schemas, fixtures, documentação e arquivos gerados realmente afetados. Paths de artefatos criados por dependências só são modificados após essas entregas.
+Reconciliado em 2026-09-27: a causalidade estrutural básica (mapping de fato
+material para base que alcança R/C, disposições com rationale, unknown não
+cobrado) já foi entregue pelo R7 de `pose-abm-progressive-review` sob o
+contrato `structural-causality`. Esta spec a completa sem tocar o contrato
+existente; `review_plan.go` não muda e os schemas seguem aditivos em v1
+(campos opcionais), sem `v2/`.
 
 ### Delivery targets
-Alvo planejado: `governance:abm-causality-closeout`. Registrar o delivery profile e o produtor de evidência correspondente na matriz e declarar `delivers`/target/entrypoint antes de promover esta spec para `in-progress`; não inventar perfil já instalado. Exigir integration para contrato/capability/governance e reachability + integration/e2e para surface. Este planejamento não ativa policy nem declara entrega composta.
+- governance:abm-causality-closeout module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
+
+Produtor integration: check `abm-causality-closeout-integration` (`go test
+./internal/pose ./internal/cli -run 'ABMCausalityCloseout' -count=1`).
+Nenhuma instância adota a capability nesta entrega.
+
+### Desenho
+- Contrato `causality-closeout`, carimbado no bundle somente quando a policy
+  adota `causality_closeout_version: 1`. Bundles sem o carimbo mantêm o
+  veredito (R7). Com ele, o bundle sela a base (digest da projeção de
+  contract nodes por spec do escopo) e a banda do plano (R1), e mudança
+  material de R/A/D torna a review obsoleta (R4).
+- Regras adicionais, só para bundles com o carimbo, sobre o contrato
+  `structural-causality` existente: basis em premissa invalidada ou retirada,
+  ou decisão retirada, bloqueia (R2/R4); mapping `mapped` exige rationale
+  próprio, e a mesma justificativa repetida para três ou mais fatos na mesma
+  base bloqueia como falta de proporcionalidade (R3); `accepted-risk` exige
+  owner e prazo e não dispensa fato de contrato público ou de governança
+  (R5); `not-applicable` com cobertura desconhecida bloqueia, porque unknown
+  não é ausência (R5); banda elevated ou critical com fato material e nenhum
+  critério que responda por estrutura bloqueia, sem exigir revisor humano, e
+  a fixture trivial não ganha gate (R6).
 
 ### Mudanças de API/contrato
 Mappings pertencem ao julgamento do bundle; observações não são editáveis pelo reviewer. Usar criterion de proporcionalidade para contestar cinco abstrações ligadas ao mesmo R sem razão suficiente. Nenhum pass por presença de ID.
@@ -78,14 +110,19 @@ Shadow comparativo seguido de enforcement por adoption. Manter baseline simples 
 
 ## 4. Tasks
 
-- [ ] Confirmar dependências e revisar o desenho contra a release que será implementada.
-- [ ] Registrar delivery profile/target/entrypoint e inventário exato antes de iniciar código.
-- [ ] Implementar os requisitos em incrementos coesos e incluir os casos negativos de Validation.
-- [ ] Atualizar interfaces, docs e scaffolds que consomem o contrato, sem drift de vendor.
+- [x] Confirmar dependências e revisar o desenho contra a release que será implementada.
+- [x] Registrar delivery profile/target/entrypoint e inventário exato antes de iniciar código.
+- [x] Implementar os requisitos em incrementos coesos e incluir os casos negativos de Validation.
+- [x] Atualizar interfaces, docs e scaffolds que consomem o contrato, sem drift de vendor.
 - [ ] Executar matriz aplicável, obter review explícito e anexar evidência por R-ID.
 - [ ] Fechar somente pelo gate POSE, com riscos/follow-ups dispostos e resultado de composição atual.
 
 ## 5. Decisions
+
+- Date: 2026-09-27. Implementado sem rollout, como contract-nodes e
+  atomic-start: o contrato só é carimbado sob `causality_closeout_version`,
+  que nenhuma instância adota; o shadow comparativo e o enforcement ficam
+  para depois do stop/go do piloto.
 
 - Data: 2026-09-18.
 - Contexto: a análise inicial propõe novos controles; o review confirmou limites que exigem implementação proporcional.
@@ -116,8 +153,25 @@ Plano anterior à implementação. Os nomes de testes ABM e comandos novos abaix
 ### Log de execução
 2026-09-18: planejamento criado. Validação editorial deste documento não satisfaz os requisitos de runtime.
 
+2026-09-27: implementado sem rollout. Testes novos: mapping justificado e
+vivo aceito; basis em premissa invalidada e em decisão retirada recusados;
+mapping sem rationale e motivo colado em três fatos recusados, dois motivos
+iguais aceitos; risco aceito sobre contrato público e sem owner/prazo
+recusados; not-applicable sob cobertura desconhecida recusado; banda
+elevated/critical sem critério recusada, baseline e fixture trivial sem
+gate, nenhuma exigência humana; carimbo só com adoção, base selada e
+bundle obsoleto após mudança material; as regras rodam no caminho de
+atestação só para bundle carimbado; `--mapping` com owner e prazo. Com as
+regras desligadas, 6 testes reprovaram. `go test ./...`, `go vet` e o
+`-race` da seleção passam.
 ### Requirement trace
-Pendente de implementação: cada R-ID acima exige evidência nominal dos cenários e do delivery target no closeout. Não usar preenchimento documental como satisfied.
+- R1 [satisfied] test:TestABMCausalityCloseoutIsStampedOnlyOnAdoptionAndSealsTheBasis
+- R2 [satisfied] test:TestABMCausalityCloseoutRefusesADeadBasis test:TestABMCausalityCloseoutAcceptsAJustifiedLiveMapping
+- R3 [satisfied] test:TestABMCausalityCloseoutSeparatesCompletenessFromAcceptance
+- R4 [satisfied] test:TestABMCausalityCloseoutRefusesADeadBasis test:TestABMCausalityCloseoutIsStampedOnlyOnAdoptionAndSealsTheBasis
+- R5 [satisfied] test:TestABMCausalityCloseoutBoundsAcceptedRisk test:TestABMCausalityCloseoutUnknownIsNotAbsence test:TestABMCausalityCloseoutCLIMappingCarriesRiskOwnerAndDate
+- R6 [satisfied] test:TestABMCausalityCloseoutRaisesElevatedObligationsOnly
+- R7 [satisfied] test:TestABMCausalityCloseoutRunsOnlyForStampedBundles
 
 ### Gaps conhecidos
 Infraestrutura, amostra/usuários ou credenciais necessárias ao aceite deverão ser disponíveis na execução; ausência será reportada sem simulação de sucesso.

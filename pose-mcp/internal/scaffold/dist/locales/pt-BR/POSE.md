@@ -579,6 +579,19 @@ o critério como `not-applicable` enquanto o subject carrega fatos materiais é
 recusado: mudança estrutural observada não é inaplicável, é não mapeada. Bundles
 selados antes do contrato não o listam e mantêm o veredito.
 
+Adotar `causality_closeout_version: 1` na policy de review carimba mais um
+contrato, `causality-closeout`, nos bundles novos e sela a banda e o digest de
+contract nodes de cada spec do escopo, de modo que mudança material de R/A/D
+torna a review obsoleta. Sob ele, mapping para premissa invalidada ou retirada,
+ou para decisão retirada, é recusado; uma resposta `mapped` precisa de rationale
+próprio, e um motivo colado em três ou mais fatos na mesma base é recusado como
+desproporcional; `accepted-risk` exige owner e prazo
+(`--mapping <criterion>|<delta>|accepted-risk|<why>|@owner|YYYY-MM-DD`) e nunca
+dispensa contrato público ou de governança; `not-applicable` é recusado enquanto
+a cobertura estrutural é desconhecida; e banda elevated ou critical com fatos
+materiais sem critério que responda por eles é recusada, sem exigir revisor
+humano. Bundles selados sem o carimbo mantêm o veredito.
+
 ### Baseline de policy protegida
 
 Um diff que altera o contrato de review não pode ser a autoridade que o aprova.

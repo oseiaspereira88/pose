@@ -118,6 +118,10 @@ type ReviewBundlePlan struct {
 	// "the thing you approved is not the thing in front of me". Everything in it
 	// is content-derived, so it carries no provider ref into bundle identity.
 	Structure *ReviewPlanStructure `json:"structure,omitempty"`
+	// Band is sealed only under the causality-closeout contract, which raises
+	// obligations for elevated and critical plans; omitted otherwise so every
+	// other bundle keeps its digest.
+	Band string `json:"band,omitempty"`
 }
 
 type ReviewBundleEvidence struct {
@@ -191,6 +195,10 @@ type ReviewBundlePayload struct {
 	// for now.
 	GoverningContracts []string                  `json:"governing_contracts,omitempty"`
 	FederatedManifest  *FederatedRoadmapManifest `json:"federated_manifest,omitempty"`
+	// Basis seals the contract-node digest of each spec in scope, only under
+	// the causality-closeout contract: a material R/A/D change makes the
+	// review stale (spec pose-abm-causality-attestation).
+	Basis map[string]string `json:"basis,omitempty"`
 	// Gates are the two closeout settings that depend on policy, frozen at seal
 	// time for the same reason the contracts are: read live, a flag flipped
 	// today would approve a closeout recorded years ago
@@ -477,6 +485,12 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 
 	bundle.Payload.ConsumedInputs = s.reviewBundleConsumedInputs(plan)
 	bundle.Payload.GoverningContracts = governingContractsAtSeal()
+	if adopted, err := s.CausalityCloseoutAdopted(); err == nil && adopted {
+		// Stamped only on adoption, so no bundle is held to it retroactively.
+		bundle.Payload.GoverningContracts = uniqueSorted(append(bundle.Payload.GoverningContracts, CausalityCloseoutContract))
+		bundle.Payload.Plan.Band = plan.Band
+		bundle.Payload.Basis = s.reviewScopeBasis(scope)
+	}
 	if s.FederatedResolver != nil && (scope.Kind == "roadmap" || scope.Kind == "milestone") {
 		var report FederatedRoadmapAcceptanceReport
 		var err error
@@ -2408,6 +2422,9 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	judgmentGoverned, _ := BundleGovernedBy(bundle, "explicit-judgment")
 	if structuralGoverned, _ := BundleGovernedBy(bundle, "structural-causality"); structuralGoverned {
 		blockers = append(blockers, s.reviewStructuralCausalityBlockers(bundle.Payload.Scope.Ref, bundle.Payload.Plan.Structure, required, att.Criteria)...)
+	}
+	if closeoutGoverned, _ := BundleGovernedBy(bundle, CausalityCloseoutContract); closeoutGoverned {
+		blockers = append(blockers, s.reviewCausalityCloseoutBlockers(bundle.Payload.Scope.Ref, bundle.Payload.Plan.Structure, bundle.Payload.Plan.Band, required, att.Criteria)...)
 	}
 	// Validation evidence can be required by implementation components even
 	// when no delivery target is declared. A target-gated tool must use the

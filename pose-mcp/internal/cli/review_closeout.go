@@ -730,8 +730,8 @@ func applyReviewCriterionMappings(plan posemodel.ReviewPlan, criteria []posemode
 	byCriterion := map[string][]posemodel.ReviewCriterionMapping{}
 	for _, value := range raw {
 		parts := strings.Split(value, "|")
-		if len(parts) < 3 || len(parts) > 4 {
-			return nil, fmt.Errorf("mapping must be CRITERION|DELTA|basis-or-disposition|rationale")
+		if len(parts) < 3 || len(parts) > 6 || len(parts) == 5 {
+			return nil, fmt.Errorf("mapping must be CRITERION|DELTA|basis-or-disposition|rationale, or CRITERION|DELTA|accepted-risk|rationale|@owner|YYYY-MM-DD")
 		}
 		id, delta, answer := parts[0], parts[1], parts[2]
 		if !owners[id] {
@@ -741,8 +741,14 @@ func applyReviewCriterionMappings(plan posemodel.ReviewPlan, criteria []posemode
 			return nil, fmt.Errorf("mapping names structural fact %q, which the sealed plan does not observe as material", delta)
 		}
 		mapping := posemodel.ReviewCriterionMapping{Delta: delta}
-		if len(parts) == 4 {
+		if len(parts) >= 4 {
 			mapping.Rationale = parts[3]
+		}
+		if len(parts) == 6 {
+			if answer != posemodel.ReviewMappingAcceptedRisk {
+				return nil, fmt.Errorf("mapping %s for %s names an owner and review date, which only an accepted-risk disposition carries", delta, id)
+			}
+			mapping.Owner, mapping.ReviewBy = parts[4], parts[5]
 		}
 		switch answer {
 		case posemodel.ReviewMappingMissingEvidence, posemodel.ReviewMappingNotApplicable, posemodel.ReviewMappingAcceptedRisk:
