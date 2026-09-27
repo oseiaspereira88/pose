@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-contract-nodes
-status: in-progress
+status: done
 created_at: 2026-09-18
-completed_at:
+completed_at: 2026-09-27
 supersedes:
 depends_on:
 priority: 2
@@ -127,8 +127,8 @@ Somente após stop/go do piloto; dual reader e capability explícita. Done legad
 - [x] Registrar delivery profile/target/entrypoint e inventário exato antes de iniciar código.
 - [x] Implementar os requisitos em incrementos coesos e incluir os casos negativos de Validation.
 - [x] Atualizar interfaces, docs e scaffolds que consomem o contrato, sem drift de vendor.
-- [ ] Executar matriz aplicável, obter review explícito e anexar evidência por R-ID.
-- [ ] Fechar somente pelo gate POSE, com riscos/follow-ups dispostos e resultado de composição atual.
+- [x] Executar matriz aplicável, obter review explícito e anexar evidência por R-ID.
+- [x] Fechar somente pelo gate POSE, com riscos/follow-ups dispostos e resultado de composição atual.
 
 ## 5. Decisions
 
@@ -182,6 +182,13 @@ testes reprovaram. `go test ./...`, `go vet ./...` e o `-race` da seleção
 passam. `help_catalog.go` saiu dos artefatos: `amend` não tem entrada no
 catálogo; o uso vem do próprio comando.
 
+Em `be2afdd` a matriz completa passou 30/30, com o novo check
+`abm-contract-nodes-integration`; `artifact-check` com 23 claims e sem erros,
+`surface-check` sem achados. Bundle `rvb-ad55e747ee5361c4` aprovado pela
+atestação `rva-b553ec0721b674c0`, registrada pelo agente com autorização
+explícita do usuário para autoatestar. A mudança da matriz invalidou as
+reviews seladas consumidas pelo Harne8, renovadas em seguida.
+
 ### Requirement trace
 - R1 [satisfied] test:TestABMContractNodesProjectionCoversRADWithStableDigest test:TestABMContractNodesMigratesARealV1Log
 - R2 [satisfied] test:TestABMContractNodesProjectionCoversRADWithStableDigest test:TestABMNodeTransitionsRequireAcknowledgement
@@ -197,10 +204,15 @@ Infraestrutura, amostra/usuários ou credenciais necessárias ao aceite deverão
 ## 7. Final Report
 
 ### Escopo entregue
-Somente especificação de implementação. Runtime, rollout e requisitos permanecem pendentes.
+Projeção versionada de contract nodes R/A/D, eventos de amendment schema 2
+com reader duplo e o gate R/A/D atrás da capability `contract_nodes_version`,
+exposta por CLI, lint e MCP. Nenhuma instância adota a capability: adoção e
+rollout seguem travados pelo stop/go do piloto (D1).
 
 ### Riscos residuais
-Os riscos de implementação da seção Technical Plan não foram aceitos como entrega.
+A capability não foi exercida em nenhuma instância real; a primeira adoção
+precisa de baseline v2 por spec e pode revelar diagnósticos de basis em
+specs existentes. `pose amend` segue só para specs em pasta.
 
 ### Follow-ups
-Nenhum desdobramento adicional nesta fase: o escopo pendente está nos requisitos desta spec. Se a implementação revelar trabalho fora deles, registrar owner, criticidade, prazo de triagem e disposição antes do closeout.
+- [open] Adotar `contract_nodes_version` nas instâncias depois do stop/go do piloto de campo, com baseline v2 das specs em pasta. (owner:@pose-maintainers crit:medium review:2026-11-01)

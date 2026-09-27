@@ -41,6 +41,14 @@
       "digest": "sha256:af88b5ef110bb9349f7ffcb10786ae6d268c7f126b2dc7711511548058a73e9e"
     },
     {
+      "spec": "pose-abm-contract-nodes",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose amend \u003cslug\u003e --nodes [--json]` and the `pose_spec_amendments` MCP tool expose a versioned contract-node projection of a spec: requirements, assumptions and decisions with namespace, content hash, state and relations (schema `v1/contract-nodes.schema.json`). Decisions may declare `Status: active|withdrawn`. Amendment events gain schema 2, which records R/A/D nodes with their state before and after, a `transition` change and `assurance: declared`; schema-1 logs keep their meaning. Adopting `contract_nodes_version: 1` in the review policy extends the amendment gate to assumptions and decisions, refuses an editorial acknowledgement of a changed state or relation set, and rejects an active decision resting on an invalidated or withdrawn assumption. Without the capability nothing changes, and a schema-2 event is refused instead of read as requirement history. No instance adopts the capability in this release.",
+      "path": "pose-abm-contract-nodes.md",
+      "digest": "sha256:1637b474bcbbd551d5895fa3d6cf1399aefa840733817a033a719c0c7978dd89"
+    },
+    {
       "spec": "pose-abm-progressive-review",
       "category": "added",
       "breaking": false,
