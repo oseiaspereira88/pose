@@ -126,3 +126,27 @@ func TestSpecTransferCLIReconcileTerminalReadsModeAndMapFile(t *testing.T) {
 		t.Fatalf("unknown map field accepted: code=%d stderr=%s", code, stderr)
 	}
 }
+
+func TestSpecTransferCheckValidatesQualifiedRoadmapMembers(t *testing.T) {
+	coordinatorRoot, sourceRoot := t.TempDir(), t.TempDir()
+	initCLITransferProject(t, sourceRoot, "proj.source", "source-work")
+	initCLITransferProject(t, coordinatorRoot, "proj.coordinator", "local-work")
+	roadmap := "---\nslug: program\nstatus: active\n---\n\n## Milestone: core\n- specs: xref:proj.source/spec:source-work, local-work\n\n## Milestone: next\n- after: core, xref:proj.source/spec:source-work\n- specs: xref:proj.unknown/spec:ghost\n"
+	if err := os.WriteFile(filepath.Join(coordinatorRoot, ".pose/roadmaps/program.md"), []byte(roadmap), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.coordinator")
+	rootsJSON, _ := json.Marshal(map[string]string{"proj.source": sourceRoot})
+	t.Setenv("POSE_PROJECT_ROOTS", string(rootsJSON))
+	t.Setenv("HARNE8_PROJECTS_DIR", "")
+	out, stderr, _ := runCLI(t, coordinatorRoot, "check")
+	all := out + stderr
+	for _, wrong := range []string{"missing spec: xref:proj.source/spec:source-work", "after references a missing milestone: xref:proj.source/spec:source-work"} {
+		if strings.Contains(all, wrong) {
+			t.Fatalf("a resolvable qualified member was reported missing (%s):\n%s", wrong, all)
+		}
+	}
+	if !strings.Contains(all, "roadmap program/next: xref:proj.unknown/spec:ghost:") {
+		t.Fatalf("an unresolvable qualified member was not reported:\n%s", all)
+	}
+}

@@ -748,6 +748,19 @@ func parseRoadmap(path string) checkRoadmap {
 	return roadmap
 }
 
+// checkFederatedRoadmapRef validates a qualified roadmap member or `after`
+// entry through the authorized project graph, as spec depends_on does.
+func (checker *nativeChecker) checkFederatedRoadmapRef(roadmap, milestone, ref string) {
+	resolver, project, err := pose.EnvironmentArtifactResolver(checker.root, "")
+	if err != nil {
+		checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s/%s: invalid-project-configuration", roadmap, milestone))
+		return
+	}
+	if reason := resolver.ValidateGraph(project, ref); reason != "" {
+		checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s/%s: %s: %s", roadmap, milestone, ref, reason))
+	}
+}
+
 func (checker *nativeChecker) checkRoadmaps(specs map[string]checkSpec) {
 	paths, _ := filepath.Glob(filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
 	roadmaps := map[string]checkRoadmap{}
@@ -796,6 +809,12 @@ func (checker *nativeChecker) checkRoadmaps(specs map[string]checkSpec) {
 				checker.failOrWarn(fmt.Sprintf("spec deps: roadmap %s/%s: target_start > target_due", slug, milestone.id))
 			}
 			for _, spec := range milestone.specs {
+				if strings.HasPrefix(spec, "xref:") {
+					// Another project's member: its existence, status and
+					// ownership are resolved by the authorized federated graph.
+					checker.checkFederatedRoadmapRef(slug, milestone.id, spec)
+					continue
+				}
 				if _, ok := specs[spec]; !ok {
 					checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s/%s: missing spec: %s", "spec deps: roadmap %s/%s: spec inexistente: %s"), slug, milestone.id, spec))
 				} else if rm.status == "active" && owners[spec] != "" && owners[spec] != slug {
@@ -808,7 +827,9 @@ func (checker *nativeChecker) checkRoadmaps(specs map[string]checkSpec) {
 		milestoneEdges := map[string][]string{}
 		for _, milestone := range rm.milestones {
 			for _, dep := range milestone.after {
-				if strings.HasPrefix(dep, "spec:") {
+				if strings.HasPrefix(dep, "xref:") {
+					checker.checkFederatedRoadmapRef(slug, milestone.id, dep)
+				} else if strings.HasPrefix(dep, "spec:") {
 					if _, ok := specs[strings.TrimPrefix(dep, "spec:")]; !ok {
 						checker.failOrWarn(fmt.Sprintf(checker.message("spec deps: roadmap %s/%s: after references a missing spec: %s", "spec deps: roadmap %s/%s: after referencia spec inexistente: %s"), slug, milestone.id, dep))
 					}
