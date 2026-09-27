@@ -1,6 +1,6 @@
 ---
 slug: pose-federated-external-milestone-members
-status: in-progress
+status: done
 created_at: 2026-09-26
 supersedes:
 depends_on: pose-roadmap-gate-scopes-milestones-and-external-members
@@ -8,6 +8,7 @@ priority: 0
 components: pose-mcp
 task_type: bugfix
 delivers: contract:federated-external-milestone-members
+completed_at: 2026-09-27
 ---
 
 # Spec: Milestones whose members belong to another project
@@ -66,7 +67,7 @@ external; every milestone reader uses it. Rollback is a revert.
 - [x] Reproduce the refusals in the reconciliation rehearsal.
 - [x] Write the regression and see it fail on each refusal in turn.
 - [x] Route every milestone reader through the helper.
-- [ ] Run the matrix, review and close.
+- [x] Run the matrix, review and close.
 
 ## 5. Decisions
 
@@ -88,6 +89,11 @@ the change the rehearsal's four implementation milestones report ready
 federated acceptance and prepare bundles without blockers; `go test ./...`
 and `go vet ./...` pass.
 
+At `eb143d6` the full matrix passed 29/29. Bundle `rvb-0ccf5db237897ec3` was approved by
+attestation `rva-91ab02f5ab4cb30e`, recorded by the agent under explicit authorization
+from the user to self-attest; the superseded foundation, transfer and ABM
+executor reviews were resealed and reattested.
+
 ### Requirement trace
 - R1 [satisfied] test:TestFederatedRoadmapMilestoneWithExternalMemberClosesThroughFederation
 - R2 [satisfied] test:TestFederatedRoadmapMilestoneWithExternalMemberClosesThroughFederation
@@ -97,7 +103,9 @@ and `go vet ./...` pass.
 ## 7. Final Report
 
 ### Delivered scope
+Milestones owning another project's specs close, review and report readiness through federated acceptance, failing closed without a resolver.
 
 ### Residual risks
+None beyond the fail-closed behaviour recorded in the requirements.
 
 ### Follow-ups

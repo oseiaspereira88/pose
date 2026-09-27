@@ -1,6 +1,6 @@
 ---
 slug: pose-spec-transfer-completion-and-references
-status: in-progress
+status: done
 created_at: 2026-09-26
 supersedes:
 depends_on: pose-spec-transfer-reconcile-terminal
@@ -8,6 +8,7 @@ priority: 0
 components: pose-mcp
 task_type: bugfix
 delivers: contract:spec-transfer-completion-and-references
+completed_at: 2026-09-27
 ---
 
 # Spec: Transfer completion, `after` references and redirect stubs
@@ -66,7 +67,7 @@ superseded spec as a transfer stub before section checks. Rollback is a revert.
 - [x] Reproduce the three failures in the reconciliation rehearsal.
 - [x] Write regressions and prove the resume and `after` ones fail without the change.
 - [x] Implement the three fixes.
-- [ ] Run the matrix, review and close.
+- [x] Run the matrix, review and close.
 
 ## 5. Decisions
 
@@ -86,6 +87,11 @@ with `compare-and-swap-conflict`; without the `after` scan the roadmap stayed
 unrewritten. The print-site ratchet kept `lintspec.go` at its baseline by
 reporting through the renderer. `go test ./...` and `go vet ./...` pass.
 
+At `eb143d6` the full matrix passed 29/29. Bundle `rvb-26af7996a3806689` was approved by
+attestation `rva-79d4345bfa1a4657`, recorded by the agent under explicit authorization
+from the user to self-attest; the superseded foundation, transfer and ABM
+executor reviews were resealed and reattested.
+
 ### Requirement trace
 - R1 [satisfied] test:TestSpecTransferResumeReportsACompletedOperationAfterLaterRewrites
 - R2 [satisfied] test:TestSpecTransferRewritesExplicitAfterRefsAndVerifiesTheStub
@@ -94,7 +100,9 @@ reporting through the renderer. `go test ./...` and `go vet ./...` pass.
 ## 7. Final Report
 
 ### Delivered scope
+Completed transfers resume as a report, explicit after refs follow a transfer, and verified redirect stubs pass lint.
 
 ### Residual risks
+None beyond the fail-closed behaviour recorded in the requirements.
 
 ### Follow-ups
