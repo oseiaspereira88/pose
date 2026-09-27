@@ -89,6 +89,14 @@
       "digest": "sha256:ebaa909acd86b5c9ac181636835e97e2cb209778766867d104460647f92430e5"
     },
     {
+      "spec": "pose-check-dor-accepts-qualified-refs",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose check` no longer reports \"transition to in-progress without Definition of Ready\" for a spec whose `depends_on` holds a qualified `xref:` reference that `pose lint-spec --ready-check` accepts. Both gates now read dependencies with the same parser, and a malformed reference still fails both.",
+      "path": "pose-check-dor-accepts-qualified-refs.md",
+      "digest": "sha256:1db900b622ef7f3e2bac6f3505f2c216e82d5deb98ff8b54dbf8c76c0c0e269e"
+    },
+    {
       "spec": "pose-dist-records-its-own-contract-adoption",
       "category": "changed",
       "breaking": false,

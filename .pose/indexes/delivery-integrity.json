@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:abd89cee553704bd995089cf09366da8ffc52a39fdd358e5921072e8264edc83",
-  "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+  "input_digest": "sha256:2c7dc464000c509936ce80c9938f7b73f94e7603da19ff3ad8b49407e4d89bb8",
+  "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -561,6 +561,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/changelogs/unreleased/pose-changelog-and-dor-policy-types.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md"
       }
     },
     {
@@ -3889,6 +3896,13 @@
       }
     },
     {
+      "id": "artifact:.pose/review-attestations/rva-aceac3a813e2aaa7.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-attestations/rva-aceac3a813e2aaa7.json"
+      }
+    },
+    {
       "id": "artifact:.pose/review-attestations/rva-ae40ab4f13c9b3e0.json",
       "type": "artifact",
       "attributes": {
@@ -5667,6 +5681,13 @@
       }
     },
     {
+      "id": "artifact:.pose/review-bundles/rvb-e561ea73a2ab6915.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/review-bundles/rvb-e561ea73a2ab6915.json"
+      }
+    },
+    {
       "id": "artifact:.pose/review-bundles/rvb-e5a1e8b1a772fddd.json",
       "type": "artifact",
       "attributes": {
@@ -7106,6 +7127,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/specs/2026-09-27-pose-abm-contract-nodes.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/specs/2026-09-27-pose-check-dor-accepts-qualified-refs.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-09-27-pose-check-dor-accepts-qualified-refs.md"
       }
     },
     {
@@ -14559,14 +14587,6 @@
       }
     },
     {
-      "id": "change-set:cs-0ae89ae328e4",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:dadc981c966f637a60a8b08d84f0e1c270ff7a9c9ef327969c533b4f56bb95a8",
-        "selector": "trailers:pose-abm-causality-attestation"
-      }
-    },
-    {
       "id": "change-set:cs-0cea649dc268",
       "type": "change-set",
       "attributes": {
@@ -15415,6 +15435,14 @@
       }
     },
     {
+      "id": "change-set:cs-72a066a4238a",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:55978f240b21fb217a971e3ad4bda2a1e7e065f30f76ba5beafb119ebd951486",
+        "selector": "trailers:pose-abm-causality-attestation"
+      }
+    },
+    {
       "id": "change-set:cs-73350cc49f8f",
       "type": "change-set",
       "attributes": {
@@ -15996,6 +16024,14 @@
       "attributes": {
         "diff_digest": "sha256:13cf29167792a002468acd841fe6972a31acdb166e480fafd503f7b0b583be47",
         "selector": "range:1d29b3a..dbd41e3"
+      }
+    },
+    {
+      "id": "change-set:cs-b28d76dec1ff",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:55575797f84f03ce1511fbdb8de3ccb37984f59c30a2ad3c3efdd22a60b85d43",
+        "selector": "trailers:pose-check-dor-accepts-qualified-refs"
       }
     },
     {
@@ -17080,6 +17116,14 @@
     },
     {
       "id": "delivery:contract:abm-contract-nodes",
+      "type": "contract",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "api-contract"
+      }
+    },
+    {
+      "id": "delivery:contract:check-dor-accepts-qualified-refs",
       "type": "contract",
       "attributes": {
         "module": "pose-mcp",
@@ -18338,7 +18382,7 @@
       "id": "spec:pose-abm-causality-attestation",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -18560,6 +18604,13 @@
     },
     {
       "id": "spec:pose-changelog-and-dor-policy-types",
+      "type": "spec",
+      "attributes": {
+        "status": "in-progress"
+      }
+    },
+    {
+      "id": "spec:pose-check-dor-accepts-qualified-refs",
       "type": "spec",
       "attributes": {
         "status": "in-progress"
@@ -21465,6 +21516,11 @@
       "type": "archived-by"
     },
     {
+      "from": "artifact:.pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md",
+      "to": "delivery:contract:check-dor-accepts-qualified-refs",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/changelogs/unreleased/pose-class-producers-reads-the-disjunction.md",
       "to": "release:v5.0.1",
       "type": "archived-by"
@@ -22987,6 +23043,11 @@
     {
       "from": "artifact:.pose/specs/2026-09-27-pose-abm-contract-nodes.md",
       "to": "delivery:contract:abm-contract-nodes",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/specs/2026-09-27-pose-check-dor-accepts-qualified-refs.md",
+      "to": "delivery:contract:check-dor-accepts-qualified-refs",
       "type": "implemented-by"
     },
     {
@@ -26426,6 +26487,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/check.go",
+      "to": "delivery:contract:check-dor-accepts-qualified-refs",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/check.go",
       "to": "delivery:contract:check-qualified-roadmap-members",
       "type": "implemented-by"
     },
@@ -27777,6 +27843,11 @@
     {
       "from": "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
       "to": "delivery:surface:release-lifecycle-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/remaining_surfaces_coverage_test.go",
+      "to": "delivery:contract:check-dor-accepts-qualified-refs",
       "type": "implemented-by"
     },
     {
@@ -36262,126 +36333,6 @@
     {
       "from": "change-set:cs-0a6ec53623c1",
       "to": "artifact:pose-mcp/internal/pose/review_closeout.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/changelogs/unreleased/pose-abm-causality-attestation.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/indexes/validation-matrix.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/specs/2026-09-27-pose-abm-atomic-start.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/specs/2026-09-27-pose-abm-causality-attestation.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/specs/2026-09-27-pose-abm-contract-nodes.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/transfers/stf-389e766f92d1826b89f45482/journal/activated.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/transfers/stf-389e766f92d1826b89f45482/journal/prepared.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/transfers/stf-389e766f92d1826b89f45482/plan.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/transfers/stf-b8f0e90a274056b1bda7e0f9/journal/activated.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/transfers/stf-b8f0e90a274056b1bda7e0f9/journal/prepared.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/transfers/stf-b8f0e90a274056b1bda7e0f9/plan.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/transfers/stf-d3b9abbeb20319a7cd462c30/journal/activated.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/transfers/stf-d3b9abbeb20319a7cd462c30/journal/prepared.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:.pose/transfers/stf-d3b9abbeb20319a7cd462c30/plan.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:POSE.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:locales/pt-BR/POSE.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:pose-mcp/internal/cli/review_closeout.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:pose-mcp/internal/cli/review_closeout_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:pose-mcp/internal/pose/causality_closeout.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:pose-mcp/internal/pose/causality_closeout_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:pose-mcp/internal/pose/review_closeout.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-0ae89ae328e4",
-      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "type": "changes"
     },
     {
@@ -47765,6 +47716,166 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/changelogs/unreleased/pose-abm-causality-attestation.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/reports/2026-09-27-standard-validate-native.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/reports/history/standard-validate-native.jsonl",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/results/delivery-validation.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/review-attestations/rva-aceac3a813e2aaa7.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/review-bundles/rvb-e561ea73a2ab6915.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/specs/2026-09-27-pose-abm-atomic-start.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/specs/2026-09-27-pose-abm-causality-attestation.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/specs/2026-09-27-pose-abm-contract-nodes.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/transfers/stf-389e766f92d1826b89f45482/journal/activated.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/transfers/stf-389e766f92d1826b89f45482/journal/prepared.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/transfers/stf-389e766f92d1826b89f45482/plan.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/transfers/stf-b8f0e90a274056b1bda7e0f9/journal/activated.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/transfers/stf-b8f0e90a274056b1bda7e0f9/journal/prepared.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/transfers/stf-b8f0e90a274056b1bda7e0f9/plan.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/transfers/stf-d3b9abbeb20319a7cd462c30/journal/activated.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/transfers/stf-d3b9abbeb20319a7cd462c30/journal/prepared.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:.pose/transfers/stf-d3b9abbeb20319a7cd462c30/plan.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:locales/pt-BR/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:pose-mcp/internal/cli/review_closeout.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:pose-mcp/internal/cli/review_closeout_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:pose-mcp/internal/pose/causality_closeout.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:pose-mcp/internal/pose/causality_closeout_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:pose-mcp/internal/pose/review_closeout.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-72a066a4238a",
+      "to": "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-73350cc49f8f",
       "to": "artifact:.pose/changelogs/unreleased/pose-machinery-backs-up-only-local-edits.md",
       "type": "changes"
@@ -57297,6 +57408,26 @@
     {
       "from": "change-set:cs-aecbfc2f5bf1",
       "to": "artifact:tests/e2e/review-bundle/run.sh",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b28d76dec1ff",
+      "to": "artifact:.pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b28d76dec1ff",
+      "to": "artifact:.pose/specs/2026-09-27-pose-check-dor-accepts-qualified-refs.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b28d76dec1ff",
+      "to": "artifact:pose-mcp/internal/cli/check.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-b28d76dec1ff",
+      "to": "artifact:pose-mcp/internal/cli/remaining_surfaces_coverage_test.go",
       "type": "changes"
     },
     {
@@ -74955,6 +75086,126 @@
       "type": "validated-by"
     },
     {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/abm-atomic-start-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/abm-causality-closeout-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/abm-contract-nodes-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/abm-progressive-review-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/abm-remediation-lineage-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/artifact-claim-boundary-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/check-verdict-mode-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/check-workers-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/delivery-graph-reuse-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/federated-roadmap-negative-gates",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/federated-spec-acceptance-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/multi-repo-agent-context-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/multi-repo-agent-negative-gates",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/parallel-gate-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/parse-memo-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/qualified-artifact-resolution-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/review-policy-adoption-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/spec-authority-transfer-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/spec-authority-transfer-mcp-status",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:contract:check-dor-accepts-qualified-refs",
+      "to": "validation-result:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:contract:check-qualified-roadmap-members",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -87756,6 +88007,16 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/abm-atomic-start-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/abm-causality-closeout-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/abm-causality-closeout-integration",
       "type": "validated-by"
     },
@@ -88472,6 +88733,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/abm-causality-closeout-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/abm-contract-nodes-integration",
       "type": "validated-by"
     },
     {
@@ -89192,6 +89458,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/abm-contract-nodes-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/abm-progressive-review-integration",
       "type": "validated-by"
     },
     {
@@ -89912,6 +90183,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/abm-progressive-review-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/abm-remediation-lineage-integration",
       "type": "validated-by"
     },
     {
@@ -91356,6 +91632,16 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/artifact-claim-boundary-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/check-verdict-mode-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/check-verdict-mode-integration",
       "type": "validated-by"
     },
@@ -92072,6 +92358,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/check-verdict-mode-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/check-workers-integration",
       "type": "validated-by"
     },
     {
@@ -92792,6 +93083,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/check-workers-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-graph-reuse-integration",
       "type": "validated-by"
     },
     {
@@ -93512,6 +93808,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/delivery-graph-reuse-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/delivery-integration",
       "type": "validated-by"
     },
     {
@@ -95071,6 +95372,16 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/federated-roadmap-negative-gates",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/federated-roadmap-negative-gates",
       "type": "validated-by"
     },
@@ -96507,6 +96818,16 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/federated-spec-acceptance-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/federated-spec-acceptance-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/multi-repo-agent-context-integration",
       "type": "validated-by"
     },
     {
@@ -98066,6 +98387,16 @@
     },
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/multi-repo-agent-negative-gates",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/parallel-gate-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/parallel-gate-integration",
       "type": "validated-by"
     },
@@ -98782,6 +99113,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/parallel-gate-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/parse-memo-integration",
       "type": "validated-by"
     },
     {
@@ -99502,6 +99838,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/parse-memo-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/qualified-artifact-resolution-integration",
       "type": "validated-by"
     },
     {
@@ -100222,6 +100563,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/qualified-artifact-resolution-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/review-bundle-convergence",
       "type": "validated-by"
     },
     {
@@ -100942,6 +101288,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/review-bundle-convergence",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/review-policy-adoption-integration",
       "type": "validated-by"
     },
     {
@@ -101662,6 +102013,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/review-policy-adoption-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/spec-authority-transfer-integration",
       "type": "validated-by"
     },
     {
@@ -102382,6 +102738,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/spec-authority-transfer-integration",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/spec-authority-transfer-mcp-status",
       "type": "validated-by"
     },
     {
@@ -103102,6 +103463,11 @@
     {
       "from": "entrypoint:pose-mcp/cmd/pose/main.go",
       "to": "validation-result:pose-mcp/go/spec-authority-transfer-mcp-status",
+      "type": "validated-by"
+    },
+    {
+      "from": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "to": "validation-result:pose-mcp/go/spec-authority-transfer-negative-gates",
       "type": "validated-by"
     },
     {
@@ -105406,7 +105772,7 @@
     },
     {
       "from": "spec:pose-abm-causality-attestation",
-      "to": "change-set:cs-0ae89ae328e4",
+      "to": "change-set:cs-72a066a4238a",
       "type": "observed-by"
     },
     {
@@ -107827,6 +108193,36 @@
     {
       "from": "spec:pose-changelog-and-dor-policy-types",
       "to": "change-set:cs-a11ddaa230b3",
+      "type": "observed-by"
+    },
+    {
+      "from": "spec:pose-check-dor-accepts-qualified-refs",
+      "to": "artifact:.pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-check-dor-accepts-qualified-refs",
+      "to": "artifact:.pose/specs/2026-09-27-pose-check-dor-accepts-qualified-refs.md",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-check-dor-accepts-qualified-refs",
+      "to": "artifact:pose-mcp/internal/cli/check.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-check-dor-accepts-qualified-refs",
+      "to": "artifact:pose-mcp/internal/cli/remaining_surfaces_coverage_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-check-dor-accepts-qualified-refs",
+      "to": "delivery:contract:check-dor-accepts-qualified-refs",
+      "type": "delivers"
+    },
+    {
+      "from": "spec:pose-check-dor-accepts-qualified-refs",
+      "to": "change-set:cs-b28d76dec1ff",
       "type": "observed-by"
     },
     {
@@ -120144,6 +120540,26 @@
       "new_path": ".pose/changelogs/v4.0.0/pose-changelog-and-dor-policy-types.md"
     },
     {
+      "spec": "pose-check-dor-accepts-qualified-refs",
+      "action": "created",
+      "path": ".pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md"
+    },
+    {
+      "spec": "pose-check-dor-accepts-qualified-refs",
+      "action": "created",
+      "path": ".pose/specs/2026-09-27-pose-check-dor-accepts-qualified-refs.md"
+    },
+    {
+      "spec": "pose-check-dor-accepts-qualified-refs",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/check.go"
+    },
+    {
+      "spec": "pose-check-dor-accepts-qualified-refs",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/remaining_surfaces_coverage_test.go"
+    },
+    {
       "spec": "pose-check-qualified-roadmap-members",
       "action": "created",
       "path": ".pose/specs/2026-09-26-pose-check-qualified-roadmap-members.md"
@@ -131281,119 +131697,6 @@
       "diff_digest": "sha256:f26d51d444e9f375a7d3f2856993813c1691cf939f5b7b11c29a76a67f8909c4"
     },
     {
-      "id": "cs-0ae89ae328e4",
-      "spec": "pose-abm-causality-attestation",
-      "selector": "trailers:pose-abm-causality-attestation",
-      "base": "f90823c0f97aa9c858a5982abfa44610668941ab^",
-      "head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "resolved_base": "fcb98a80c2f0291ab988c082f2df1d960a58e3fa",
-      "resolved_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "commits": [
-        "f90823c0f97aa9c858a5982abfa44610668941ab",
-        "3c2c9a0a379863d7d5d3e269ccc1f69bf2c60e4f",
-        "afe2c5a477415c1ea64e06e49eb7bd61d894d969"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-abm-causality-attestation.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-09-27-pose-abm-atomic-start.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-09-27-pose-abm-causality-attestation.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-09-27-pose-abm-contract-nodes.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/transfers/stf-389e766f92d1826b89f45482/journal/activated.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/transfers/stf-389e766f92d1826b89f45482/journal/prepared.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/transfers/stf-389e766f92d1826b89f45482/plan.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/transfers/stf-b8f0e90a274056b1bda7e0f9/journal/activated.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/transfers/stf-b8f0e90a274056b1bda7e0f9/journal/prepared.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/transfers/stf-b8f0e90a274056b1bda7e0f9/plan.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/transfers/stf-d3b9abbeb20319a7cd462c30/journal/activated.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/transfers/stf-d3b9abbeb20319a7cd462c30/journal/prepared.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/transfers/stf-d3b9abbeb20319a7cd462c30/plan.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/causality_closeout.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/causality_closeout_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_closeout_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:dadc981c966f637a60a8b08d84f0e1c270ff7a9c9ef327969c533b4f56bb95a8"
-    },
-    {
       "id": "cs-0cea649dc268",
       "spec": "pose-dora-five-metrics-v2",
       "selector": "range:3131e6c^..3131e6c",
@@ -142239,6 +142542,152 @@
       "diff_digest": "sha256:ce689f9bb7b88ffd94d7473d59ad185f39a87e2d5584fdc8177ad9caca7412b2"
     },
     {
+      "id": "cs-72a066a4238a",
+      "spec": "pose-abm-causality-attestation",
+      "selector": "trailers:pose-abm-causality-attestation",
+      "base": "f90823c0f97aa9c858a5982abfa44610668941ab^",
+      "head": "a6ef90d588b150c26e17ff3e4ff451278445cd2e",
+      "resolved_base": "fcb98a80c2f0291ab988c082f2df1d960a58e3fa",
+      "resolved_head": "a6ef90d588b150c26e17ff3e4ff451278445cd2e",
+      "commits": [
+        "f90823c0f97aa9c858a5982abfa44610668941ab",
+        "3c2c9a0a379863d7d5d3e269ccc1f69bf2c60e4f",
+        "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
+        "a6ef90d588b150c26e17ff3e4ff451278445cd2e"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-abm-causality-attestation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-aceac3a813e2aaa7.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-e561ea73a2ab6915.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-27-pose-abm-atomic-start.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-27-pose-abm-causality-attestation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-27-pose-abm-contract-nodes.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/transfers/stf-389e766f92d1826b89f45482/journal/activated.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/transfers/stf-389e766f92d1826b89f45482/journal/prepared.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/transfers/stf-389e766f92d1826b89f45482/plan.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/transfers/stf-b8f0e90a274056b1bda7e0f9/journal/activated.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/transfers/stf-b8f0e90a274056b1bda7e0f9/journal/prepared.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/transfers/stf-b8f0e90a274056b1bda7e0f9/plan.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/transfers/stf-d3b9abbeb20319a7cd462c30/journal/activated.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/transfers/stf-d3b9abbeb20319a7cd462c30/journal/prepared.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/transfers/stf-d3b9abbeb20319a7cd462c30/plan.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/causality_closeout.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/causality_closeout_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/reports/2026-09-27-standard-validate-native.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/reports/history/standard-validate-native.jsonl"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:55978f240b21fb217a971e3ad4bda2a1e7e065f30f76ba5beafb119ebd951486"
+    },
+    {
       "id": "cs-73350cc49f8f",
       "spec": "pose-machinery-backs-up-only-local-edits",
       "selector": "trailers:pose-machinery-backs-up-only-local-edits",
@@ -151052,6 +151501,38 @@
         }
       ],
       "diff_digest": "sha256:13cf29167792a002468acd841fe6972a31acdb166e480fafd503f7b0b583be47"
+    },
+    {
+      "id": "cs-b28d76dec1ff",
+      "spec": "pose-check-dor-accepts-qualified-refs",
+      "selector": "trailers:pose-check-dor-accepts-qualified-refs",
+      "base": "05fd08699fb8754e7639064edf82f2468a221c5c^",
+      "head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "resolved_base": "680764d725407627445b230d906d2d30de1d6511",
+      "resolved_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "commits": [
+        "05fd08699fb8754e7639064edf82f2468a221c5c",
+        "ddbdb6efc3bc7742d6f835590423cd1693ca0130"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-27-pose-check-dor-accepts-qualified-refs.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/remaining_surfaces_coverage_test.go"
+        }
+      ],
+      "diff_digest": "sha256:55575797f84f03ce1511fbdb8de3ccb37984f59c30a2ad3c3efdd22a60b85d43"
     },
     {
       "id": "cs-b2f01e44a552",
@@ -160942,6 +161423,9 @@
     ".pose/changelogs/unreleased/pose-changelog-and-dor-policy-types.md": [
       "pose-changelog-and-dor-policy-types"
     ],
+    ".pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md": [
+      "pose-check-dor-accepts-qualified-refs"
+    ],
     ".pose/changelogs/unreleased/pose-class-producers-reads-the-disjunction.md": [
       "pose-class-producers-reads-the-disjunction"
     ],
@@ -161914,6 +162398,9 @@
     ".pose/specs/2026-09-27-pose-abm-contract-nodes.md": [
       "pose-abm-contract-nodes"
     ],
+    ".pose/specs/2026-09-27-pose-check-dor-accepts-qualified-refs.md": [
+      "pose-check-dor-accepts-qualified-refs"
+    ],
     ".pose/specs/pose-action-runtime-currency-gate/spec.md": [
       "pose-action-runtime-currency-gate"
     ],
@@ -162712,6 +163199,7 @@
       "pose-artifact-provenance-ledger",
       "pose-changelog-adoption-is-the-instances",
       "pose-changelog-and-dor-policy-types",
+      "pose-check-dor-accepts-qualified-refs",
       "pose-check-qualified-roadmap-members",
       "pose-cli-output-rendering-system",
       "pose-code-cites-the-specs-that-delivered-it",
@@ -163145,6 +163633,7 @@
       "pose-policy-keys-and-release-surface-coverage"
     ],
     "pose-mcp/internal/cli/remaining_surfaces_coverage_test.go": [
+      "pose-check-dor-accepts-qualified-refs",
       "pose-remaining-command-surfaces-coverage"
     ],
     "pose-mcp/internal/cli/remediation_lineage_test.go": [
@@ -170604,7 +171093,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-review-scope-trailer-check",
+      "spec": "pose-install-locale-autodetect",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -170622,25 +171111,25 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-scaffold-self-referential-policy-fix",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-update-instance-directory-completeness",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
       "spec": "pose-discovery-gitignore-and-root-alias-fix",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-instance-engine-version-tracking",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-scaffold-self-referential-policy-fix",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -170667,7 +171156,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-install-locale-autodetect",
+      "spec": "pose-review-scope-trailer-check",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -170676,7 +171165,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-instance-engine-version-tracking",
+      "spec": "pose-update-instance-directory-completeness",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -170887,6 +171376,15 @@
       "ref": "contract:abm-contract-nodes",
       "kind": "contract",
       "id": "abm-contract-nodes",
+      "module": "pose-mcp",
+      "profile": "api-contract",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-check-dor-accepts-qualified-refs",
+      "ref": "contract:check-dor-accepts-qualified-refs",
+      "kind": "contract",
+      "id": "check-dor-accepts-qualified-refs",
       "module": "pose-mcp",
       "profile": "api-contract",
       "entrypoint": "pose-mcp/cmd/pose/main.go"
@@ -171944,9 +172442,9 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -171956,7 +172454,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -171984,6 +172482,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -172162,9 +172661,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -172174,7 +172673,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -172202,6 +172701,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -172380,9 +172880,9 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -172392,7 +172892,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -172420,6 +172920,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -172598,9 +173099,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -172610,7 +173111,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -172638,6 +173139,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -172816,9 +173318,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -172828,7 +173330,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -172856,6 +173358,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -173034,9 +173537,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -173046,7 +173549,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -173074,6 +173577,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -173252,9 +173756,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -173264,7 +173768,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -173292,6 +173796,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -173470,9 +173975,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -173482,7 +173987,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -173510,6 +174015,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -173688,9 +174194,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -173700,7 +174206,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -173728,6 +174234,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -173906,9 +174413,9 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -173918,7 +174425,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -173946,6 +174453,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -174124,9 +174632,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -174136,7 +174644,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -174164,6 +174672,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -174342,9 +174851,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -174354,7 +174863,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -174382,6 +174891,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -174560,9 +175070,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -174572,7 +175082,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -174600,6 +175110,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -174778,9 +175289,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -174790,7 +175301,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -174818,6 +175329,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -174996,9 +175508,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -175008,7 +175520,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -175036,6 +175548,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -175214,9 +175727,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -175226,7 +175739,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -175254,6 +175767,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -175432,9 +175946,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -175444,7 +175958,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -175472,6 +175986,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -175650,9 +176165,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -175662,7 +176177,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -175690,6 +176205,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -175868,9 +176384,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -175880,7 +176396,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -175908,6 +176424,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -176086,9 +176603,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -176098,7 +176615,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -176126,6 +176643,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -176304,9 +176822,9 @@
       "evidence_class": "e2e",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -176316,7 +176834,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -176344,6 +176862,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -176522,9 +177041,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -176534,7 +177053,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -176562,6 +177081,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -176740,9 +177260,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -176752,7 +177272,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -176780,6 +177300,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -176958,9 +177479,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -176970,7 +177491,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -176998,6 +177519,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -177176,9 +177698,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -177188,7 +177710,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -177216,6 +177738,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -177394,9 +177917,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -177406,7 +177929,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -177434,6 +177957,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -177612,9 +178136,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -177624,7 +178148,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -177652,6 +178176,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -177830,9 +178355,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -177842,7 +178367,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -177870,6 +178395,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -178048,9 +178574,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -178060,7 +178586,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -178088,6 +178614,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -178266,9 +178793,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -178278,7 +178805,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -178306,6 +178833,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -178484,9 +179012,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -178496,7 +179024,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -178524,6 +179052,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -178702,9 +179231,9 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "afe2c5a477415c1ea64e06e49eb7bd61d894d969",
-      "generated_at": "2026-09-27T06:23:44Z",
-      "provenance_digest": "sha256:56df5d55ef793d2cccf7883944101ac37205b95a8b259502e50e5eea725772c9",
+      "git_head": "ddbdb6efc3bc7742d6f835590423cd1693ca0130",
+      "generated_at": "2026-09-27T07:41:42Z",
+      "provenance_digest": "sha256:9a8620b3ab759646d6585f9fd0914c65faa1212988c054f0824433e2b426bdd5",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -178714,7 +179243,7 @@
         "parse-the-delivery-index-once-per-content": "sha256:9336ed24882e8c547b2de7c853c5bf18ec7f5d8c1bde6a58df97be92b35f8131",
         "pose-abm-atomic-start": "sha256:996c1b1d0c052970ee951b06fca255a315436f5837b64679d35fa61a2283234d",
         "pose-abm-authority-fixture-clock": "sha256:a6b3e8c504c895a8370dc09f304f8561043844642f880cc4ec6b3102f857dbc9",
-        "pose-abm-causality-attestation": "sha256:e95c7153201a103228078c63d6b7df2647a73c240414abd9c3e70fffdaca70c2",
+        "pose-abm-causality-attestation": "sha256:621f48ea017a6b8351a0113b52e6c3b7df7e6718e2080b8b811873a94b8cf874",
         "pose-abm-contract-nodes": "sha256:73330a55d32ad4953243a6d181bcf1b48d97e10b5d3af8f57254c1cfadaf474a",
         "pose-abm-design-basis": "sha256:300f757e62dc0af3b37f29db49bbb733dc57786c39a0d3e04677b1778f52cc5a",
         "pose-abm-doctor-state-health": "sha256:c991e2b01ddf985d54c30fc74fe44f33daff9dd4b09f6bfdfd0790c25de8dc35",
@@ -178742,6 +179271,7 @@
         "pose-canonical-positioning": "sha256:f7fc37a0873fa1bf8647cf7b4070e6e06bbacb5e2067b424ba8a9a5ece88198b",
         "pose-changelog-adoption-is-the-instances": "sha256:fe3e4430254cb01e6b5446051780c93c88b0731f49a0ea59ac96c71ace852c6c",
         "pose-changelog-and-dor-policy-types": "sha256:e9fabe42336622ec872fa44d730756b0975c793879bcab46a7286d3ea237a69a",
+        "pose-check-dor-accepts-qualified-refs": "sha256:94705f5b9b876b6963af17db4b4631a489791e5895daa65fb5e6bcb6d5a143b5",
         "pose-check-qualified-roadmap-members": "sha256:b4642f779cc6bf78316e6f1c603d5d19738eb3680e967aad02f3b8d18be33d1c",
         "pose-class-producers-reads-the-disjunction": "sha256:7bc2e0f6cfdf94b946772b703c19b94f7d0931e396d33edcdea7e7a3cf883901",
         "pose-cli-ergonomics-and-stack-expansion": "sha256:6ae19ccab03c4441821f22c67ced0e879dee2aa14757cc64c1c383f65f3483d4",
@@ -181165,6 +181695,38 @@
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "artifact:pose-mcp/schemas/README.md",
       "delivery:contract:abm-contract-nodes",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-result:pose-mcp/go/abm-atomic-start-integration",
+      "validation-result:pose-mcp/go/abm-causality-closeout-integration",
+      "validation-result:pose-mcp/go/abm-contract-nodes-integration",
+      "validation-result:pose-mcp/go/abm-progressive-review-integration",
+      "validation-result:pose-mcp/go/abm-remediation-lineage-integration",
+      "validation-result:pose-mcp/go/artifact-claim-boundary-integration",
+      "validation-result:pose-mcp/go/check-verdict-mode-integration",
+      "validation-result:pose-mcp/go/check-workers-integration",
+      "validation-result:pose-mcp/go/delivery-graph-reuse-integration",
+      "validation-result:pose-mcp/go/delivery-integration",
+      "validation-result:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "validation-result:pose-mcp/go/federated-roadmap-negative-gates",
+      "validation-result:pose-mcp/go/federated-spec-acceptance-integration",
+      "validation-result:pose-mcp/go/multi-repo-agent-context-integration",
+      "validation-result:pose-mcp/go/multi-repo-agent-negative-gates",
+      "validation-result:pose-mcp/go/parallel-gate-integration",
+      "validation-result:pose-mcp/go/parse-memo-integration",
+      "validation-result:pose-mcp/go/qualified-artifact-resolution-integration",
+      "validation-result:pose-mcp/go/review-bundle-convergence",
+      "validation-result:pose-mcp/go/review-policy-adoption-integration",
+      "validation-result:pose-mcp/go/spec-authority-transfer-integration",
+      "validation-result:pose-mcp/go/spec-authority-transfer-mcp-status",
+      "validation-result:pose-mcp/go/spec-authority-transfer-negative-gates"
+    ],
+    "contract:check-dor-accepts-qualified-refs": [
+      "spec:pose-check-dor-accepts-qualified-refs",
+      "artifact:.pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md",
+      "artifact:.pose/specs/2026-09-27-pose-check-dor-accepts-qualified-refs.md",
+      "artifact:pose-mcp/internal/cli/check.go",
+      "artifact:pose-mcp/internal/cli/remaining_surfaces_coverage_test.go",
+      "delivery:contract:check-dor-accepts-qualified-refs",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-result:pose-mcp/go/abm-atomic-start-integration",
       "validation-result:pose-mcp/go/abm-causality-closeout-integration",

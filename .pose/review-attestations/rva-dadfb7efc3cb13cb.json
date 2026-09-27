@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-dadfb7efc3cb13cb",
+  "bundle_id": "rvb-bdcaf1ff058b0c35",
+  "bundle_digest": "sha256:bdcaf1ff058b0c35d5eacc50f4113373642928573be2fd5fccd5735506cbdf77",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "specReady is a pure read of one file and the DoR policy; the change adds no shared state."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "The check finding text and the lint-spec ready output are unchanged; only which references count as well-formed changed, now matching lint."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Malformed references (free text, an xref without a scope) still make the spec not ready, covered by the regression."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Harne8 check --strict with harne8-abm-governed-execution in progress passes with the candidate and fails with the DoR error on 680764d."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The DoR finding keeps its message and details pointer to lint-spec --ready-check."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Every reference accepted before (slug, milestone, roadmap) is still accepted; ParseArtifactRef is the parser lint already applied to the same field."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "TestSpecReadyAcceptsTheReferencesLintAccepts failed on the two qualified cases before the change and passes after it."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-3a51bbd1bb77339b",
+      "rationale": "Changelog fragment added; the spec records the disagreement and the reproduction."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No new flag, command or configuration."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 and R2 traced to the regression, run by go test ./... in pose-mcp."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-3a51bbd1bb77339b",
+      "rationale": "Diff limited to specReady, its test, the spec and the changelog fragment."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The DoR only reads the reference shape; resolution and authorization of qualified dependencies stay with the graph checks and federated acceptance."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-check-dor-accepts-qualified-refs",
+      "rationale": "4 claims, 4 observed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-3a51bbd1bb77339b",
+      "rationale": "Design evidence sealed in the bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "No Protobuf, Kafka, REST or MCP tool contract changed; CLI output shape preserved."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The diff adds no debt markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Full matrix 32/32 at ddbdb6e."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "go test ./... passed in the module."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delivery-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-27T07:43:15Z",
+  "path": ".pose/review-attestations/rva-dadfb7efc3cb13cb.json"
+}

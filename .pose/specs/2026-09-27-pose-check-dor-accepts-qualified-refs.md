@@ -1,6 +1,6 @@
 ---
 slug: pose-check-dor-accepts-qualified-refs
-status: in-progress
+status: done
 created_at: 2026-09-27
 supersedes:
 depends_on: pose-check-qualified-roadmap-members
@@ -8,7 +8,7 @@ priority: 0
 components: pose-mcp
 task_type: bugfix
 delivers: contract:check-dor-accepts-qualified-refs
-completed_at:
+completed_at: 2026-09-27
 ---
 
 # Spec: `pose check` reads Definition of Ready dependencies with the lint grammar
@@ -65,7 +65,7 @@ Validate each `depends_on` entry with `pose.ParseArtifactRef`, the parser
 - [x] Reproduce the disagreement on Harne8.
 - [x] Write the regression and prove it fails without the change.
 - [x] Use the lint grammar in `specReady`.
-- [ ] Run the matrix, review and close.
+- [x] Run the matrix, review and close.
 
 ## 5. Decisions
 
@@ -86,6 +86,10 @@ binary failed with the DoR error for `harne8-abm-governed-execution`, and
 `pose lint-spec --ready-check` passed on the same file. The regression
 `TestSpecReadyAcceptsTheReferencesLintAccepts` failed on two qualified cases
 before the change and passes after it.
+
+At `ddbdb6e` the full matrix passed 32/32. Bundle `rvb-bdcaf1ff058b0c35` was
+approved by attestation `rva-dadfb7efc3cb13cb`, recorded by the agent under
+explicit authorization from the user to self-attest.
 
 ### Requirement trace
 - R1 [satisfied] test:TestSpecReadyAcceptsTheReferencesLintAccepts

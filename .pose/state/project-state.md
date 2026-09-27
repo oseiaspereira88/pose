@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-27T00:08:42Z
-baseline_commit: f00100eb26b7625773d8eb93ae67b0a7691ee170
+generated_at: 2026-09-27T07:43:56Z
+baseline_commit: ddbdb6efc3bc7742d6f835590423cd1693ca0130
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:709e06de49bf -->
+<!-- state:derived hash:d1ecd028a881 -->
 
-- specs: total=237 draft=4 in-progress=65 blocked=0 done=168 superseded=0 abandoned=0
+- specs: total=248 draft=5 in-progress=65 blocked=0 done=178 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
   - spec:pose-federated-milestone-scoped-acceptance (2026-09-27)
-  - spec:pose-review-root-binding-parity (2026-09-26)
-  - spec:pose-dist-adopts-spec-authority-transfer (2026-09-26)
-  - spec:pose-federated-carried-forward-proof (2026-09-26)
-  - spec:pose-federated-spec-dependency-acceptance (2026-09-26)
-  - ... e mais 163 (ver `pose_list_specs status:done`)
+  - spec:pose-check-dor-accepts-qualified-refs (2026-09-27)
+  - spec:pose-review-bundle-classifies-transfer-records (2026-09-27)
+  - spec:pose-spec-transfer-completion-and-references (2026-09-27)
+  - spec:pose-spec-transfer-reconcile-terminal (2026-09-27)
+  - ... e mais 173 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:048803e4d493 -->
+<!-- state:derived hash:0c7502cbf22f -->
 
-- abertos: 114
-- por criticidade: high=5 medium=25 low=60 sem-classificação=24
+- abertos: 119
+- por criticidade: high=7 medium=28 low=60 sem-classificação=24
 - vencidos (review < hoje): 1
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
 
@@ -65,10 +65,10 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:3d1b444faed9 -->
+<!-- state:derived hash:7a3ca8af497a -->
 
-- último registro: task=validate-native outcome=pass (2026-09-27T00:03:10Z)
-- últimos 30 dias: total=104 outcome_ok=92 outcome_outro=12
+- último registro: task=validate-native outcome=pass (2026-09-27T07:42:24Z)
+- últimos 30 dias: total=114 outcome_ok=102 outcome_outro=12
 - reports revisados (.md): total=148
   - report:2026-09-27-standard-validate-native.md
   - report:2026-09-26-standard-validate-native.md
