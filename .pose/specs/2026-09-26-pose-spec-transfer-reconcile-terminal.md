@@ -1,6 +1,6 @@
 ---
 slug: pose-spec-transfer-reconcile-terminal
-status: in-progress
+status: done
 created_at: 2026-09-26
 supersedes:
 depends_on: pose-spec-authority-transfer
@@ -8,6 +8,7 @@ priority: 0
 components: pose-mcp
 task_type: feature
 delivers: contract:spec-transfer-reconcile-terminal
+completed_at: 2026-09-27
 ---
 
 # Spec: Terminal reconciliation of a coordinator onto a closed executor
@@ -103,7 +104,7 @@ transfer.
 - [x] Write positive, negative and interruption tests.
 - [x] Implement the mode, map validation, versioned redirect and CLI.
 - [x] Document the mode in help and the manual.
-- [ ] Run the matrix, review and close.
+- [x] Run the matrix, review and close.
 
 ## 5. Decisions
 
@@ -128,6 +129,12 @@ onto its done executor, with all seven requirements `equivalent`, refused with
 eight contract negatives, a changed executor, a schema downgrade and
 interruption after `planned`, `prepared` and `source-retired`; ordinary
 transfer tests pass unchanged. `go test ./...` and `go vet ./...` pass.
+At `41b9a31` the full matrix passed 29/29 and `artifact-check` reported 12
+claims and 12 observed paths. Bundle `rvb-30702a8e74e78051` was approved by
+attestation `rva-6d6918968354d3cc`, recorded by the agent under explicit
+authorization from the user to self-attest. The change touched the manual and
+the transfer engine, so the foundation, transfer and seven ABM executor
+reviews were resealed and reattested.
 
 ### Requirement trace
 - R1 [satisfied] test:TestSpecTransferNegativeReconcileTerminalGates
@@ -141,7 +148,13 @@ transfer tests pass unchanged. `go test ./...` and `go vet ./...` pass.
 ## 7. Final Report
 
 ### Delivered scope
+A coordinator can be retired onto a done, closed executor in another project
+with every requirement disposed and owed work kept in an open spec, without
+writing the executor.
 
 ### Residual risks
+Rollback of an applied reconciliation is manual (restore the archived source,
+remove the redirect), as for a transfer.
 
 ### Follow-ups
+- [open] Apply the reconciliation to Harne8's seven ABM coordinators after a rehearsal on populated copies. (owner:@harne8-platform crit:high review:2026-10-03)

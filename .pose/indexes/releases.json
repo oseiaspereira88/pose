@@ -137,6 +137,14 @@
       "digest": "sha256:3f7a29efbdf5d1cb299bd4d78b3c5afec29073d881a22fcedd8b2e288f1e6269"
     },
     {
+      "spec": "pose-spec-transfer-reconcile-terminal",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose spec-transfer preview --mode reconcile-terminal` retires a coordinator spec onto an executor in another project that is already `done` with a terminal closeout. The executor is never written: apply and resume only verify its digest. The requirement map is N:M over every source requirement, may target another spec through `destination_ref`, and records a `rationale` for `withdrawn` and `pending`; an owed requirement must land in an open spec and is kept in the redirect as `open_obligations`. `--map-file` reads the map as JSON. Plans and redirects of this mode use schema version 2, which older engines refuse. Ordinary transfers are unchanged.",
+      "path": "pose-spec-transfer-reconcile-terminal.md",
+      "digest": "sha256:92b65e1e88af957a2a9952d511ffd66035bbce0067002737ef20da2a25e09f17"
+    },
+    {
       "spec": "review-policy-adoption-is-the-instances",
       "category": "fixed",
       "breaking": false,
