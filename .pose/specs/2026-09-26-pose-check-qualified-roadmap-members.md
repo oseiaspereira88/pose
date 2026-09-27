@@ -1,6 +1,6 @@
 ---
 slug: pose-check-qualified-roadmap-members
-status: in-progress
+status: done
 created_at: 2026-09-26
 supersedes:
 depends_on: pose-federated-external-milestone-members
@@ -8,6 +8,7 @@ priority: 0
 components: pose-mcp
 task_type: bugfix
 delivers: contract:check-qualified-roadmap-members
+completed_at: 2026-09-27
 ---
 
 # Spec: `pose check` validates qualified roadmap members through the graph
@@ -60,7 +61,7 @@ Rollback is a revert.
 - [x] Reproduce the 11 errors on Harne8 after the reconciliation.
 - [x] Write the regression and prove it fails without the change.
 - [x] Validate qualified entries through the graph.
-- [ ] Run the matrix, review and close.
+- [x] Run the matrix, review and close.
 
 ## 5. Decisions
 
@@ -79,6 +80,11 @@ pinned `cf0184b` binary failed with 11 roadmap errors and passed with a
 candidate carrying this change. The regression failed with the qualified
 branches disabled. `go test ./...` and `go vet ./...` pass.
 
+At `ecd0302` the full matrix passed 29/29. Bundle `rvb-f000822add044cfb` was
+approved by attestation `rva-0aafac0512647390`, recorded by the agent under
+explicit authorization from the user to self-attest; superseded reviews were
+resealed and reattested.
+
 ### Requirement trace
 - R1 [satisfied] test:TestSpecTransferCheckValidatesQualifiedRoadmapMembers
 - R2 [satisfied] test:TestSpecTransferCheckValidatesQualifiedRoadmapMembers
@@ -86,7 +92,10 @@ branches disabled. `go test ./...` and `go vet ./...` pass.
 ## 7. Final Report
 
 ### Delivered scope
+`pose check` accepts resolvable qualified roadmap members and `after` entries
+and reports unresolvable ones with the graph's reason.
 
 ### Residual risks
+None identified.
 
 ### Follow-ups
