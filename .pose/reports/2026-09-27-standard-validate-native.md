@@ -14,12 +14,7 @@
 - _Not provided_
 
 ## Files Changed
-- pose/indexes/delivery-integrity.json
-- .pose/indexes/releases.json
-- .pose/indexes/spec-graph.json
-- .pose/reports/2026-09-27-standard-validate-native.md
-- .pose/reports/history/standard-validate-native.jsonl
-- .pose/results/delivery-validation.json
+- pose/results/delivery-validation.json
 
 ## Validation Commands
 - go build ./...
@@ -30,6 +25,7 @@
 - go vet ./...
 - go test ./internal/pose ./internal/cli -run RemediationLineage|RemediationProjection -count=1
 - go test ./internal/pose ./internal/cli ./internal/mcpserver -run ABMContractNodes|ABMNodeTransitions|ABMNodeDigest|Amend -count=1
+- go test ./internal/pose ./internal/cli ./internal/mcpserver -run ABMAtomicStart -count=1
 - go test ./internal/pose ./internal/cli -run ABMProgressiveReview|ABMCriticality|ABMPolicyDowngrade|ABMProtectedBaseline|ABMStructural -count=1
 - go test ./internal/pose -run ArtifactClaims -count=1
 - go test ./internal/cli -run CheckVerdictMode -count=1
@@ -54,47 +50,48 @@
 - go test ./internal/cli -run TestMultiRepoAgentInstalled -count=1
 
 ## Results
-- - [pass] mcp-enforce/go/build (0.2s)
-- - [pass] mcp-enforce/go/test (0.0s)
+- - [pass] mcp-enforce/go/build (0.3s)
+- - [pass] mcp-enforce/go/test (0.1s)
 - - [pass] mcp-enforce/go/vet (0.0s)
 - - [pass] pose-mcp/go/build (0.7s)
-- - [pass] pose-mcp/go/test (5.5s)
-- - [pass] pose-mcp/go/vet (0.1s)
+- - [pass] pose-mcp/go/test (20.0s)
+- - [pass] pose-mcp/go/vet (0.3s)
 - - [pass] pose-mcp/go/abm-remediation-lineage-integration (0.9s)
 - - [pass] pose-mcp/go/abm-contract-nodes-integration (0.7s)
+- - [pass] pose-mcp/go/abm-atomic-start-integration (0.6s)
 - - [pass] pose-mcp/go/abm-progressive-review-integration (0.7s)
-- - [pass] pose-mcp/go/artifact-claim-boundary-integration (0.8s)
-- - [pass] pose-mcp/go/check-verdict-mode-integration (0.6s)
-- - [pass] pose-mcp/go/delivery-graph-reuse-integration (0.6s)
+- - [pass] pose-mcp/go/artifact-claim-boundary-integration (0.9s)
+- - [pass] pose-mcp/go/check-verdict-mode-integration (0.7s)
+- - [pass] pose-mcp/go/delivery-graph-reuse-integration (0.5s)
 - - [pass] pose-mcp/go/parse-memo-integration (0.1s)
-- - [pass] pose-mcp/go/parallel-gate-integration (1.6s)
+- - [pass] pose-mcp/go/parallel-gate-integration (4.9s)
 - - [pass] pose-mcp/go/check-workers-integration (0.6s)
 - - [pass] pose-mcp/go/review-policy-adoption-integration (0.6s)
 - - [pass] pose-mcp/go/delivery-integration (0.9s)
 - - [pass] pose-mcp/go/delivery-reachability (0.8s)
 - - [pass] pose-mcp/go/review-bundle-convergence (0.9s)
-- - [pass] pose-mcp/go/qualified-artifact-resolution-integration (0.7s)
-- - [pass] pose-mcp/go/federated-roadmap-acceptance-integration (6.6s)
+- - [pass] pose-mcp/go/qualified-artifact-resolution-integration (0.6s)
+- - [pass] pose-mcp/go/federated-roadmap-acceptance-integration (6.7s)
 - - [pass] pose-mcp/go/federated-spec-acceptance-integration (0.7s)
 - - [pass] pose-mcp/go/federated-roadmap-negative-gates (0.6s)
 - - [pass] pose-mcp/go/spec-authority-transfer-integration (1.2s)
 - - [pass] pose-mcp/go/spec-authority-transfer-negative-gates (0.6s)
 - - [pass] pose-mcp/go/spec-authority-transfer-mcp-status (0.5s)
 - - [pass] pose-mcp/go/multi-repo-agent-context-reachability (0.6s)
-- - [pass] pose-mcp/go/multi-repo-agent-context-integration (1.5s)
-- - [pass] pose-mcp/go/multi-repo-agent-negative-gates (0.6s)
+- - [pass] pose-mcp/go/multi-repo-agent-context-integration (1.6s)
+- - [pass] pose-mcp/go/multi-repo-agent-negative-gates (0.7s)
 - - [pass] pose-mcp/go/multi-repo-agent-installed-journey (1.3s)
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-09-27T05:35:41Z
+- Generated at (UTC): 2026-09-27T06:10:51Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 193
+- Sequence for task/spec: 194
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-09-27T05:34:12Z
+- Previous execution: 2026-09-27T05:35:41Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_

@@ -41,6 +41,14 @@
       "digest": "sha256:af88b5ef110bb9349f7ffcb10786ae6d268c7f126b2dc7711511548058a73e9e"
     },
     {
+      "spec": "pose-abm-atomic-start",
+      "category": "added",
+      "breaking": false,
+      "body": "`pose start spec:\u003cslug\u003e` previews, read-only and digest-bound, whether a draft spec can start: readiness, dependencies, declared review obligations and its R/A/D baseline. With `atomic_start_version: 1` adopted in the review policy, `--apply --digest` records that baseline in `.pose/starts/\u003cslug\u003e.json` and moves the spec to `in-progress` under a per-spec lock with compare-and-swap; it is idempotent, resumes after an interruption, and `--cancel` leaves no half transition. `--status` and the read-only MCP tool `pose_start_status` classify nodes as recorded before managed execution, introduced during it, or legacy-unbaselined, and flag hand edits under the capability. A start records observable precedence, not when anything was decided. No instance adopts the capability in this release.",
+      "path": "pose-abm-atomic-start.md",
+      "digest": "sha256:391b87b972ef292a023a15a7fe8b2269e3dee16c46af84553983e5ef0b354493"
+    },
+    {
       "spec": "pose-abm-contract-nodes",
       "category": "added",
       "breaking": false,

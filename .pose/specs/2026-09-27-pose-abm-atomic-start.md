@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-atomic-start
-status: in-progress
+status: done
 created_at: 2026-09-18
-completed_at:
+completed_at: 2026-09-27
 supersedes:
 depends_on: pose-abm-contract-nodes
 priority: 2
@@ -120,8 +120,8 @@ Disponibilizar preview antes de adoption; active legacy permanece unbaselined at
 - [x] Registrar delivery profile/target/entrypoint e inventário exato antes de iniciar código.
 - [x] Implementar os requisitos em incrementos coesos e incluir os casos negativos de Validation.
 - [x] Atualizar interfaces, docs e scaffolds que consomem o contrato, sem drift de vendor.
-- [ ] Executar matriz aplicável, obter review explícito e anexar evidência por R-ID.
-- [ ] Fechar somente pelo gate POSE, com riscos/follow-ups dispostos e resultado de composição atual.
+- [x] Executar matriz aplicável, obter review explícito e anexar evidência por R-ID.
+- [x] Fechar somente pelo gate POSE, com riscos/follow-ups dispostos e resultado de composição atual.
 
 ## 5. Decisions
 
@@ -169,6 +169,14 @@ manual citava `.pose/starts/`, caminho inexistente numa instalação nova; o
 texto passou a descrever o registro sem o caminho. `go test ./...`, `go vet`
 e o `-race` da seleção passam. A linha de `pose_spec_amendments` em
 `docs-site/docs/mcp.md` também foi atualizada para os campos do contract-nodes.
+Em `f20ceee` a matriz completa passou 31/31, com o novo check
+`abm-atomic-start-integration`; `artifact-check` com 20 claims e sem erros,
+`surface-check` sem achados. Bundle `rvb-a00394e596550afd` aprovado pela
+atestação `rva-18ed561feeef7eca`, registrada pelo agente com autorização
+explícita do usuário para autoatestar; `validate` de docs-site foi
+dispensado porque a matriz não declara produtor para esse componente. As
+reviews seladas invalidadas pela matriz foram renovadas.
+
 ### Requirement trace
 - R1 [satisfied] test:TestABMAtomicStartPreviewIsReadOnlyAndDigestBound test:TestABMAtomicStartCLIPreviewApplyStatus
 - R2 [satisfied] test:TestABMAtomicStartApplyRecordsBaselineAndTransitionsOnce test:TestABMAtomicStartResumesAfterInterruptionAndCancels
@@ -184,11 +192,16 @@ Infraestrutura, amostra/usuários ou credenciais necessárias ao aceite deverão
 ## 7. Final Report
 
 ### Escopo entregue
-Somente especificação de implementação. Runtime, rollout e requisitos permanecem pendentes.
+`pose start` com preview somente leitura, apply atômico, idempotente e
+retomável atrás de `atomic_start_version`, cancelamento sem meia transição,
+classificação de origem dos nós e reconciliação sem histórico fabricado, em
+CLI e na tool MCP somente leitura `pose_start_status`. Nenhuma instância
+adota a capability.
 
 ### Riscos residuais
-Os riscos de implementação da seção Technical Plan não foram aceitos como entrega.
+A atomicidade usa lock exclusivo e escrita com compare-and-swap no mesmo
+diretório; discos de rede sem `O_EXCL` confiável não foram testados. Um lock
+deixado por queda exige remoção manual após confirmação.
 
 ### Follow-ups
-Nenhum desdobramento adicional nesta fase: o escopo pendente está nos requisitos desta spec. Se a implementação revelar trabalho fora deles, registrar owner, criticidade, prazo de triagem e disposição antes do closeout.
-
+- [open] Adotar `atomic_start_version` depois do stop/go do piloto, junto com `contract_nodes_version`. (owner:@pose-maintainers crit:medium review:2026-11-01)
