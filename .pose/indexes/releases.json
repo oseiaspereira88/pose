@@ -81,6 +81,14 @@
       "digest": "sha256:893ede5131abfa9200c8fede90e6f1eaa3ef834244b6ed7fdde9ca80271b7c4b"
     },
     {
+      "spec": "pose-federated-milestone-scoped-acceptance",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Review and closeout of a milestone now consult federated acceptance over that milestone's own edges: the roadmap's `depends_on` and `consumes`, plus the milestone's `after`, `specs` and `consumes`. Before, a milestone used the acceptance of its whole roadmap, so an open spec in a later milestone blocked the closeout of every earlier one. Later milestones and the roadmap still report their own open members, and revoked trust still blocks. Milestone bundles sealed with the roadmap-wide manifest stay fresh while that sealed snapshot is unchanged; new seals carry the milestone as coordinator.",
+      "path": "pose-federated-milestone-scoped-acceptance.md",
+      "digest": "sha256:81ab924c6fcc8f35ffd85bd3730650f7408a6ddc216a33654d27ec692883c392"
+    },
+    {
       "spec": "pose-federated-roadmap-acceptance",
       "category": "added",
       "breaking": false,

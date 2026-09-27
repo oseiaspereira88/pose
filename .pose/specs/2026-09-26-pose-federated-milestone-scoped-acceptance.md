@@ -1,6 +1,6 @@
 ---
 slug: pose-federated-milestone-scoped-acceptance
-status: in-progress
+status: done
 created_at: 2026-09-26
 supersedes:
 depends_on: pose-federated-roadmap-acceptance
@@ -8,6 +8,7 @@ priority: 0
 components: pose-mcp
 task_type: bugfix
 delivers: contract:federated-milestone-scoped-acceptance
+completed_at: 2026-09-27
 ---
 
 # Spec: Milestone-scoped federated acceptance
@@ -96,8 +97,8 @@ resealed.
 - [x] Reproduce the cross-milestone blocker on the Harne8 consumer.
 - [x] Write the regressions and prove they fail without the new wiring.
 - [x] Add milestone-scoped acceptance and legacy seal matching.
-- [ ] Run focused, race, vet and POSE module checks; rerun the consumer.
-- [ ] Review and close with immutable evidence.
+- [x] Run focused, race, vet and POSE module checks; rerun the consumer.
+- [x] Review and close with immutable evidence.
 
 ## 5. Decisions
 
@@ -140,6 +141,25 @@ With the full change, the focused tests, `go vet`, the race run of
 `./internal/pose ./internal/cli` for Federated/ReviewBundle/Closeout and
 `go test ./...` passed.
 
+2026-09-26: at commit `f00100e` the full matrix passed 29/29 with a candidate
+binary built from that commit. A first run failed ten CLI checks with
+`invalid-project-configuration` and `conflicting-project-binding` because the
+runner exported `POSE_PROJECT_ROOT`, `POSE_PROJECT_ROOTS` and
+`POSE_DEFAULT_PROJECT_ID` into the checks; the recorded run unsets them.
+`artifact-check` reported 7 claims and 7 observed paths, and
+`pose assess tech-debt` found no markers. Bundle `rvb-a01ec520f6cd0856` was
+approved by attestation `rva-c6f8b70276a2684f`; an earlier attempt on the same
+bundle was rejected by the gate for judgment criteria without evidence.
+
+The commit superseded every foundation spec review: the changed engine files
+are artifacts those specs declare, so the delta named them together with new
+`design-*` structure evidence. Versioning the milestone manifest therefore
+did not avoid a renewal; it keeps sealed milestone bundles readable. The seven
+foundation and federation specs, the four `pose-multirepo-foundation`
+milestones and the roadmap were resealed and reattested with their previous
+dispositions against the new evidence. The milestones now seal a milestone
+coordinator, and `roadmap-check pose-multirepo-foundation --strict` is terminal.
+
 ### Requirement trace
 - R1 [satisfied] test:TestFederatedRoadmapMilestoneAcceptanceIgnoresLaterMilestones
 - R2 [satisfied] test:TestFederatedRoadmapMilestoneAcceptanceIgnoresLaterMilestones
@@ -149,7 +169,17 @@ With the full change, the focused tests, `go vet`, the race run of
 ## 7. Final Report
 
 ### Delivered scope
+Milestone review and closeout compose only the milestone's own edges plus the
+roadmap's prerequisites and consumed outcomes. An open member of a later
+milestone no longer blocks an earlier one; the later milestone and the
+roadmap keep reporting it. Milestone bundles sealed with the roadmap-wide
+manifest stay fresh while that snapshot is unchanged.
 
 ### Residual risks
+Any engine change to files that foundation specs declare as artifacts
+supersedes their reviews, independently of manifest versioning; each such
+fix carries the renewal and a new pin in consumers.
 
 ### Follow-ups
+- [open] Pin this engine revision in Harne8, renew its consumer reviews and
+  close `milestone:harne8-multirepo-consistency/adoption`. (owner:@harne8-platform crit:high review:2026-10-03)
