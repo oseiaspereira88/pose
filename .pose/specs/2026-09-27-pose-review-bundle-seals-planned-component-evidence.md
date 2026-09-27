@@ -1,6 +1,6 @@
 ---
 slug: pose-review-bundle-seals-planned-component-evidence
-status: in-progress
+status: done
 created_at: 2026-09-27
 supersedes:
 depends_on: pose-abm-review-soundness
@@ -8,7 +8,7 @@ priority: 0
 components: pose-mcp
 task_type: bugfix
 delivers: contract:review-bundle-seals-planned-component-evidence
-completed_at:
+completed_at: 2026-09-27
 ---
 
 # Spec: The review bundle seals evidence for the components its plan validates
@@ -69,7 +69,7 @@ may add evidence, which supersedes its review until it is reattested.
 - [x] Reproduce the blocked attestation on Harne8.
 - [x] Write the regression and prove it fails without the change.
 - [x] Seal the planned components' evidence.
-- [ ] Run the matrix, review and close.
+- [x] Run the matrix, review and close.
 
 ## 5. Decisions
 
@@ -91,6 +91,10 @@ evidence, because the bundle sealed only `conductor` and root results. The
 regression failed before the change (only the target module sealed) and passes
 after it. A candidate binary's bundle for the same spec carries evidence from
 all four components.
+
+At `837ce6c` the full matrix passed 32/32. Bundle `rvb-946e512e5dd9ff31` was
+approved by attestation `rva-26d811ab5379eb2f`, recorded by the agent under
+explicit authorization from the user to self-attest.
 
 ### Requirement trace
 - R1 [satisfied] test:TestReviewBundleSealsEvidenceForPlannedComponentModules

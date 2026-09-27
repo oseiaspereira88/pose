@@ -145,6 +145,14 @@
       "digest": "sha256:a55bed75db78acc452eeb26f4bdc2bd00a51a846168bf86b58faa7fb5d222b23"
     },
     {
+      "spec": "pose-review-bundle-seals-planned-component-evidence",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A sealed review bundle now carries the current validation evidence of every module its plan asks a per-component `validate` tool for, not only the modules of the spec's delivery targets. A spec that delivers in one module and changes others can cite each component's own evidence, instead of being blocked with \"cites evidence from\" a sibling. Scopes without delivery targets seal as before.",
+      "path": "pose-review-bundle-seals-planned-component-evidence.md",
+      "digest": "sha256:d70f5881a0b507abb67c59193fd98ed800276e61b40639b04f708d18bd2e24d6"
+    },
+    {
       "spec": "pose-review-root-binding-parity",
       "category": "fixed",
       "breaking": false,

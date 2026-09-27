@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-27T07:43:56Z
-baseline_commit: ddbdb6efc3bc7742d6f835590423cd1693ca0130
+generated_at: 2026-09-27T11:23:50Z
+baseline_commit: 837ce6c9f07195fda24b73d108e8b9606ba21bba
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:d1ecd028a881 -->
+<!-- state:derived hash:4a73107b3ded -->
 
-- specs: total=248 draft=5 in-progress=65 blocked=0 done=178 superseded=0 abandoned=0
+- specs: total=249 draft=5 in-progress=65 blocked=0 done=179 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
-  - spec:pose-federated-milestone-scoped-acceptance (2026-09-27)
-  - spec:pose-check-dor-accepts-qualified-refs (2026-09-27)
-  - spec:pose-review-bundle-classifies-transfer-records (2026-09-27)
-  - spec:pose-spec-transfer-completion-and-references (2026-09-27)
+  - spec:pose-review-bundle-seals-planned-component-evidence (2026-09-27)
   - spec:pose-spec-transfer-reconcile-terminal (2026-09-27)
-  - ... e mais 173 (ver `pose_list_specs status:done`)
+  - spec:pose-spec-transfer-completion-and-references (2026-09-27)
+  - spec:pose-roadmap-gate-scopes-milestones-and-external-members (2026-09-27)
+  - spec:pose-federated-milestone-scoped-acceptance (2026-09-27)
+  - ... e mais 174 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:0c7502cbf22f -->
@@ -65,10 +65,10 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:7a3ca8af497a -->
+<!-- state:derived hash:b2be5dbd25cc -->
 
-- último registro: task=validate-native outcome=pass (2026-09-27T07:42:24Z)
-- últimos 30 dias: total=114 outcome_ok=102 outcome_outro=12
+- último registro: task=validate-native outcome=pass (2026-09-27T11:22:33Z)
+- últimos 30 dias: total=115 outcome_ok=103 outcome_outro=12
 - reports revisados (.md): total=148
   - report:2026-09-27-standard-validate-native.md
   - report:2026-09-26-standard-validate-native.md

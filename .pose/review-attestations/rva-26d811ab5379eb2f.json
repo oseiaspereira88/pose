@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-26d811ab5379eb2f",
+  "bundle_id": "rvb-946e512e5dd9ff31",
+  "bundle_digest": "sha256:946e512e5dd9ff3102e1f967fee6457d2379c1b38736c1c528b2eabf39d0c468",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "reviewBundleEvidence stays a pure function of the scope, graph, subject and plan; no shared state is added."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "The bundle JSON shape is unchanged; only which validation results appear in payload.evidence changes, and only for scopes whose plan names extra validate components."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A module no validate tool names is still not sealed, and a scope without targets keeps sealing every module, both asserted by the regression."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "On Harne8 the candidate's bundle for harne8-abm-governed-execution carries evidence from conductor, contracts, harness and scripts, which the pinned binary did not seal."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No new output; the sealed evidence list itself shows the added modules."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Previously sealed bundles keep their evidence; resealing a scope with extra planned components adds evidence and supersedes its review until reattested, as the spec records."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "TestReviewBundleSealsEvidenceForPlannedComponentModules failed with the plan ignored and passes with the change."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-9bd41a2910996a3a",
+      "rationale": "Changelog fragment and spec record the blocked attestation and the reproduction."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No new flag, command or configuration."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 and R2 traced to the regression, run by go test ./... in pose-mcp."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-9bd41a2910996a3a",
+      "rationale": "Diff limited to reviewBundleEvidence, its call, the regression, the spec and the fragment."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Component tools still must cite their own module's evidence, and evidence currency is unchanged; sealing more current passing evidence does not relax any judgment."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-review-bundle-seals-planned-component-evidence",
+      "rationale": "4 claims, 4 observed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-9bd41a2910996a3a",
+      "rationale": "Design evidence sealed in the bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "No Protobuf, Kafka, REST or MCP tool contract changed; bundle JSON shape preserved."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The diff adds no debt markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Full matrix passed at 837ce6c."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "go test ./... passed in the module."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delivery-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-27T11:23:26Z",
+  "path": ".pose/review-attestations/rva-26d811ab5379eb2f.json"
+}
