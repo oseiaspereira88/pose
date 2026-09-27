@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-causality-attestation
-status: in-progress
+status: done
 created_at: 2026-09-18
-completed_at:
+completed_at: 2026-09-27
 supersedes:
 depends_on: pose-abm-contract-nodes, pose-abm-atomic-start, pose-abm-progressive-review
 priority: 2
@@ -114,8 +114,8 @@ Shadow comparativo seguido de enforcement por adoption. Manter baseline simples 
 - [x] Registrar delivery profile/target/entrypoint e inventário exato antes de iniciar código.
 - [x] Implementar os requisitos em incrementos coesos e incluir os casos negativos de Validation.
 - [x] Atualizar interfaces, docs e scaffolds que consomem o contrato, sem drift de vendor.
-- [ ] Executar matriz aplicável, obter review explícito e anexar evidência por R-ID.
-- [ ] Fechar somente pelo gate POSE, com riscos/follow-ups dispostos e resultado de composição atual.
+- [x] Executar matriz aplicável, obter review explícito e anexar evidência por R-ID.
+- [x] Fechar somente pelo gate POSE, com riscos/follow-ups dispostos e resultado de composição atual.
 
 ## 5. Decisions
 
@@ -164,6 +164,13 @@ bundle obsoleto após mudança material; as regras rodam no caminho de
 atestação só para bundle carimbado; `--mapping` com owner e prazo. Com as
 regras desligadas, 6 testes reprovaram. `go test ./...`, `go vet` e o
 `-race` da seleção passam.
+Em `afe2c5a` a matriz completa passou 32/32, com o novo check
+`abm-causality-closeout-integration`; `artifact-check` com 13 claims e sem
+erros, `surface-check` sem achados. Bundle `rvb-e561ea73a2ab6915` aprovado
+pela atestação `rva-aceac3a813e2aaa7`, registrada pelo agente com
+autorização explícita do usuário para autoatestar. As reviews seladas
+invalidadas pela matriz foram renovadas.
+
 ### Requirement trace
 - R1 [satisfied] test:TestABMCausalityCloseoutIsStampedOnlyOnAdoptionAndSealsTheBasis
 - R2 [satisfied] test:TestABMCausalityCloseoutRefusesADeadBasis test:TestABMCausalityCloseoutAcceptsAJustifiedLiveMapping
@@ -179,10 +186,18 @@ Infraestrutura, amostra/usuários ou credenciais necessárias ao aceite deverão
 ## 7. Final Report
 
 ### Escopo entregue
-Somente especificação de implementação. Runtime, rollout e requisitos permanecem pendentes.
+Contrato `causality-closeout`, carimbado só sob `causality_closeout_version`,
+que sela banda e base R/A/D e acrescenta ao `structural-causality` as regras
+de base viva, justificativa própria e proporcional, risco aceito com limites,
+unknown não tratado como ausência e obrigação elevada sem gate trivial.
+Nenhuma instância adota a capability.
 
 ### Riscos residuais
-Os riscos de implementação da seção Technical Plan não foram aceitos como entrega.
+O limite de proporcionalidade (três fatos com o mesmo motivo) é uma
+heurística objetiva, não avaliação semântica; um grafo completo e bem
+redigido ainda pode justificar uma decisão ruim, e isso continua sendo
+julgamento do revisor. O shadow comparativo previsto no rollout não foi
+executado, porque a capability não está adotada.
 
 ### Follow-ups
-Nenhum desdobramento adicional nesta fase: o escopo pendente está nos requisitos desta spec. Se a implementação revelar trabalho fora deles, registrar owner, criticidade, prazo de triagem e disposição antes do closeout.
+- [open] Rodar o shadow comparativo do causality-closeout sobre os corpora e adotar `causality_closeout_version` depois do stop/go do piloto. (owner:@pose-maintainers crit:medium review:2026-11-01)
