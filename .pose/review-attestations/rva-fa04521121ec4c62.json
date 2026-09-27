@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-fa04521121ec4c62",
+  "bundle_id": "rvb-a23d5543f94bdc0b",
+  "bundle_digest": "sha256:a23d5543f94bdc0bcb9afbadfe9a0895fe021141a60f95318e4ba5d8bd5b4fbc",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "Engines older than the transfer contract refuse schema 4; closed scopes stayed terminal in both repositories during the rehearsal."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "The spec records the rehearsal, the rollback limit after an applied transfer and the instance-only scope."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "Superseded foundation reviews were renewed so Harne8 can federate them again; roadmap-check is terminal."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "Only the instance review policy and this spec changed; the shipped scaffold and engine code are untouched."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "Transfers still need both projects' authorization and a preview digest; the shadow-spec write negative was refused."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-dist-adopts-spec-authority-transfer",
+      "rationale": "artifact-check --strict exited 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "The full matrix passed 29 checks at the policy commit."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/spec-authority-transfer-negative-gates"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-27T00:06:43Z",
+  "path": ".pose/review-attestations/rva-fa04521121ec4c62.json"
+}
