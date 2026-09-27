@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-27T11:23:50Z
-baseline_commit: 837ce6c9f07195fda24b73d108e8b9606ba21bba
+generated_at: 2026-09-27T21:07:24Z
+baseline_commit: fdb742db81db6c62d91ecb107fc75bc1a352a52b
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:4a73107b3ded -->
+<!-- state:derived hash:ff794d2558c2 -->
 
-- specs: total=249 draft=5 in-progress=65 blocked=0 done=179 superseded=0 abandoned=0
+- specs: total=250 draft=5 in-progress=65 blocked=0 done=180 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
-  - spec:pose-review-bundle-seals-planned-component-evidence (2026-09-27)
-  - spec:pose-spec-transfer-reconcile-terminal (2026-09-27)
-  - spec:pose-spec-transfer-completion-and-references (2026-09-27)
   - spec:pose-roadmap-gate-scopes-milestones-and-external-members (2026-09-27)
+  - spec:pose-spec-transfer-reconcile-terminal (2026-09-27)
+  - spec:pose-review-bundle-classifies-transfer-records (2026-09-27)
+  - spec:pose-spec-transfer-completion-and-references (2026-09-27)
   - spec:pose-federated-milestone-scoped-acceptance (2026-09-27)
-  - ... e mais 174 (ver `pose_list_specs status:done`)
+  - ... e mais 175 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:0c7502cbf22f -->
@@ -65,10 +65,10 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:b2be5dbd25cc -->
+<!-- state:derived hash:3d31225f71f2 -->
 
-- último registro: task=validate-native outcome=pass (2026-09-27T11:22:33Z)
-- últimos 30 dias: total=115 outcome_ok=103 outcome_outro=12
+- último registro: task=validate-native outcome=pass (2026-09-27T21:05:43Z)
+- últimos 30 dias: total=116 outcome_ok=104 outcome_outro=12
 - reports revisados (.md): total=148
   - report:2026-09-27-standard-validate-native.md
   - report:2026-09-26-standard-validate-native.md

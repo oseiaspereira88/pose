@@ -137,6 +137,14 @@
       "digest": "sha256:9dc899a0e4a3834508e4de58998b801be43d9d2f51147faf4f823ee4674602f1"
     },
     {
+      "spec": "pose-governance-stats-local-freshness",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose_governance_stats` now verifies bundle freshness through a local store, like `pose stats governance`. From pose-mcp it used to resolve qualified dependencies again for every attested bundle, which on a large history took more than ten minutes instead of seconds and could count freshness differently from the CLI.",
+      "path": "pose-governance-stats-local-freshness.md",
+      "digest": "sha256:383aa99b3b23bfe7e8a2c37deca9fcaa78108cc292e42fcca2f91074a4c6d02c"
+    },
+    {
       "spec": "pose-qualified-artifact-resolution",
       "category": "added",
       "breaking": false,

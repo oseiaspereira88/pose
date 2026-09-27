@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-76d8a5f74ac7df8f",
+  "bundle_id": "rvb-348ec0f09e9d11d2",
+  "bundle_digest": "sha256:348ec0f09e9d11d2e9e3c7601f3fb36d779b87b5ddc89a446ecd101fe180022f",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The projection builds a fresh local store per call and shares no state; nothing concurrent changed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "The report shape of pose stats governance and pose_governance_stats is unchanged; only the store used to verify freshness changed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Query validation is unchanged; an unverifiable bundle still counts as freshness unknown."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "On Harne8 the MCP call went from over ten minutes without an answer to 30 s with the CLI's counts, which unblocks the portfolio's governance outcomes."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "freshness_checks, freshness_unknown and freshness_truncated keep reporting how the projection read the history."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "CLI results are unchanged (it already used a local store); MCP results now equal the CLI's, as the regression asserts."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "TestGovernanceOutcomesVerifiesFreshnessLocally counted two qualified resolutions before the change and none after, with equal reports."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-66d32530e4089e4b",
+      "rationale": "Changelog fragment and spec record the slow MCP path and the measurement."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No flag or configuration; the MCP tool becomes usable from services with a normal timeout."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 and R2 traced to the regression, run by go test ./... in pose-mcp."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-66d32530e4089e4b",
+      "rationale": "Diff limited to the verifier in GovernanceOutcomes, its regression, the spec and the fragment."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The projection now reads only the local root, with no cross-project resolution; its output still carries no identity or path."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-governance-stats-local-freshness",
+      "rationale": "4 claims, 4 observed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-66d32530e4089e4b",
+      "rationale": "Design evidence sealed in the bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "No Protobuf, Kafka, REST or MCP tool contract changed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The diff adds no debt markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Full matrix passed at fdb742d (32/32)."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "go test ./... passed in the module."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/delivery-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-27T21:07:12Z",
+  "path": ".pose/review-attestations/rva-76d8a5f74ac7df8f.json"
+}

@@ -1,6 +1,6 @@
 ---
 slug: pose-governance-stats-local-freshness
-status: in-progress
+status: done
 created_at: 2026-09-27
 supersedes:
 depends_on: pose-abm-governance-outcomes
@@ -8,7 +8,7 @@ priority: 0
 components: pose-mcp
 task_type: bugfix
 delivers: contract:governance-stats-local-freshness
-completed_at:
+completed_at: 2026-09-27
 ---
 
 # Spec: Governance stats verify freshness locally from every caller
@@ -63,7 +63,7 @@ Rollback is a revert.
 - [x] Reproduce the slow MCP answer on Harne8.
 - [x] Write the regression and prove it fails without the change.
 - [x] Verify freshness through a local store.
-- [ ] Run the matrix, review and close.
+- [x] Run the matrix, review and close.
 
 ## 5. Decisions
 
@@ -83,6 +83,10 @@ answer within ten minutes, and `pose stats governance` answered in 30 s. The
 regression resolved qualified dependencies twice before the change and none
 after it. A candidate binary answered the MCP call in 30 s with the CLI's
 counts (161 freshness checks, 93 stale).
+
+At `fdb742d` the full matrix passed 32/32. Bundle `rvb-348ec0f09e9d11d2` was
+approved by attestation recorded by the agent under explicit authorization from
+the user to self-attest.
 
 ### Requirement trace
 - R1 [satisfied] test:TestGovernanceOutcomesVerifiesFreshnessLocally
