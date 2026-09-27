@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-b1b39bf693820490",
+  "bundle_id": "rvb-8bf4dc1da432f891",
+  "bundle_digest": "sha256:8bf4dc1da432f891ee4ff9c34e7e1855ffacec1924a61d4e95e42edf1e6e8c44",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No shared state added; the module suite passes, and transfer writers keep their root locks."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Other classifications are unchanged; transfer records join the governance prefixes and the lock stays out."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Malformed or unresolvable inputs keep failing with the existing stable codes; fail-closed paths are covered by the regressions."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Measured on a populated rehearsal of Harne8's seven ABM reconciliations before the change was committed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Blockers and outputs keep their existing shape; new states are named explicitly."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Existing plans, redirects and local-only milestones behave as before; no matrix or policy change."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "The regression reports four misclassified records without the prefix; the Harne8 bundle goes from 43 unclassified paths to none."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-476ffa1127fdb761",
+      "rationale": "The spec records the rehearsal failure, the fix and the evidence."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "No new command or flag."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Every requirement is traced to a regression selected by a named matrix check."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-476ffa1127fdb761",
+      "rationale": "The diff is limited to the files the spec declares."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "The classifier still refuses undeclared paths; the lock is never reviewed as an authority record."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "artifact:pose-review-bundle-classifies-transfer-records",
+      "rationale": "3 claims, 3 observed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-476ffa1127fdb761",
+      "rationale": "Design evidence sealed in the bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "No Protobuf, Kafka, REST or MCP tool contract changed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "The diff adds no debt markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Full matrix 29/29 at f6e6215."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "go test ./... passed in the module."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/spec-authority-transfer-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-27T02:17:37Z",
+  "path": ".pose/review-attestations/rva-b1b39bf693820490.json"
+}
