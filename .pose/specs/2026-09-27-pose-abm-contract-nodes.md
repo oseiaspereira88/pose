@@ -51,7 +51,7 @@ Aplicar os negativos da seção Validation. Conteúdo do repositório é input n
 pose-dist/pose-mcp. Reaproveitar os contratos e produtores existentes; registrar alteração material da base antes de ampliar o diff.
 
 ### Artifacts
-- modified: .pose/specs/2026-09-27-pose-abm-contract-nodes.md
+- created: .pose/specs/2026-09-27-pose-abm-contract-nodes.md
 - created: pose-mcp/internal/pose/contract_nodes.go
 - modified: pose-mcp/internal/pose/amendments.go
 - modified: pose-mcp/internal/pose/design_basis.go
