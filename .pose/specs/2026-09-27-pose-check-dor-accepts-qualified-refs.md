@@ -51,6 +51,7 @@ Do not change section or requirement rules of the Definition of Ready.
 - created: .pose/specs/2026-09-27-pose-check-dor-accepts-qualified-refs.md
 - modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/cli/remaining_surfaces_coverage_test.go
+- created: .pose/changelogs/unreleased/pose-check-dor-accepts-qualified-refs.md
 
 ### Delivery targets
 - contract:check-dor-accepts-qualified-refs module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
