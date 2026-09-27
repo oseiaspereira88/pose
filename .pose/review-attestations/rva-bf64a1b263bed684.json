@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-bf64a1b263bed684",
+  "bundle_id": "rvb-74acc94bb4bd67ca",
+  "bundle_digest": "sha256:74acc94bb4bd67ca841c7414687e4f175f0cc0c9bffce17a43d02d30592c9a8f",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration"
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; resolution integration passes on current evidence."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; resolution integration passes on current evidence."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; resolution integration passes on current evidence."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; resolution integration passes on current evidence."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "Integration assessment ran; inventory gaps predate the scope."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "No docs-site validation producer is registered."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+      "rationale": "The full matrix passed 29 checks at the current revision."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/qualified-artifact-resolution-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-27T01:51:47Z",
+  "path": ".pose/review-attestations/rva-bf64a1b263bed684.json"
+}
