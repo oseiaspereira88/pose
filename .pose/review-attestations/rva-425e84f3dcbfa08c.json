@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-425e84f3dcbfa08c",
+  "bundle_id": "rvb-bea3217801d7606c",
+  "bundle_digest": "sha256:bea3217801d7606c39742a5e281b643f2b824a3c212104648f3ea8b527517972",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; agent context checks pass on current evidence."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; agent context checks pass on current evidence."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; agent context checks pass on current evidence."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; agent context checks pass on current evidence."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "skills:checked",
+      "rationale": "skills-check passed."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/multi-repo-agent-context-integration",
+      "rationale": "The full matrix passed 29 checks at the current revision."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/multi-repo-agent-context-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-27T07:48:07Z",
+  "path": ".pose/review-attestations/rva-425e84f3dcbfa08c.json"
+}
