@@ -1,0 +1,247 @@
+{
+  "schema_version": 2,
+  "operation_id": "stf-f42fbc93fa8ed6050c447557",
+  "digest": "d20b9dd2a2b0037b767869c29048311811df7541eb47d9ea98d689f787fd83d0",
+  "request": {
+    "source": {
+      "project_id": "proj.harne8",
+      "kind": "spec",
+      "slug": "pose-abm-review-soundness"
+    },
+    "destination": {
+      "project_id": "proj.pose-dist",
+      "kind": "spec",
+      "slug": "pose-abm-review-soundness"
+    },
+    "requirement_map": [
+      {
+        "source_requirement": "R1",
+        "destination_requirement": "R1",
+        "disposition": "equivalent",
+        "rationale": "Critério sem produtor vira pendência e auto-attest --apply recusa."
+      },
+      {
+        "source_requirement": "R2",
+        "destination_requirement": "R2",
+        "disposition": "reformulated",
+        "rationale": "Aprovação automática só onde um produtor registrado responde (R2); critério mecânico sem classe de evidência é recusado (R7). O 'recibo verificável' é a evidência selada."
+      },
+      {
+        "source_requirement": "R2",
+        "destination_requirement": "R7",
+        "disposition": "reformulated",
+        "rationale": "Aprovação automática só onde um produtor registrado responde (R2); critério mecânico sem classe de evidência é recusado (R7). O 'recibo verificável' é a evidência selada."
+      },
+      {
+        "source_requirement": "R3",
+        "destination_requirement": "R3",
+        "disposition": "reformulated",
+        "rationale": "Executor traça só a referência de finding; IDs duplicados, severidade, ação e risco aceito incompleto são recusados no Store (validateBundleAttestationWith), por inspeção de código, sem teste nomeado nesta spec."
+      },
+      {
+        "source_requirement": "R4",
+        "disposition": "pending",
+        "destination_ref": "xref:proj.pose-dist/spec:pose-abm-review-soundness-residuals#R1",
+        "rationale": "Evidência ausente nunca vira not-applicable (R4 do executor). A cláusula 'wont-fix não contorna accepted-risk' não é atendida: um finding critical com wont-fix passa sem owner, rationale nem prazo."
+      },
+      {
+        "source_requirement": "R4",
+        "destination_requirement": "R4",
+        "disposition": "reformulated",
+        "rationale": "Evidência ausente nunca vira not-applicable (R4 do executor). A cláusula 'wont-fix não contorna accepted-risk' não é atendida: um finding critical com wont-fix passa sem owner, rationale nem prazo."
+      },
+      {
+        "source_requirement": "R5",
+        "disposition": "pending",
+        "destination_ref": "xref:proj.pose-dist/spec:pose-abm-review-soundness-residuals#R2",
+        "rationale": "O R5 do executor trata conclusão de julgamento, não persistência auditável de tentativas negativas. Tentativas não aprovadas são gravadas (observado nesta sessão), mas nenhuma spec traça o requisito."
+      },
+      {
+        "source_requirement": "R6",
+        "destination_requirement": "R6",
+        "disposition": "equivalent",
+        "rationale": "Bundles anteriores ao contrato mantêm veredito e leitura; o contrato é carimbado no selo."
+      },
+      {
+        "source_requirement": "R7",
+        "disposition": "pending",
+        "destination_ref": "xref:proj.pose-dist/spec:pose-abm-review-soundness-residuals#R3",
+        "rationale": "Atualização conjunta de profiles, skills, manual, schemas e scaffold não é requisito do executor; não verificado que a skill não ordena auto-pass recusado."
+      }
+    ],
+    "mode": "reconcile-terminal"
+  },
+  "source": {
+    "project_id": "proj.harne8",
+    "kind": "spec",
+    "slug": "pose-abm-review-soundness"
+  },
+  "destination": {
+    "project_id": "proj.pose-dist",
+    "kind": "spec",
+    "slug": "pose-abm-review-soundness"
+  },
+  "effective_date": "2026-09-26",
+  "source_revision": "af96e2e27fbe21a3f6a4260da669643ca4e0e406",
+  "destination_revision": "cf0184b1685bc11a8f217a528db2eeaf6b54011f",
+  "source_digest": "73c3a2c45516add183772dadf9690b158fe9987d0612ab32aeb28cff051cb1de",
+  "destination_digest": "55593a1739b865efd0e1cbd931a97e69ca414b95719c0f43457162f5ac391a13",
+  "destination_exists": true,
+  "source_path": ".pose/specs/2026-09-18-pose-abm-review-soundness.md",
+  "destination_path": ".pose/specs/2026-09-19-pose-abm-review-soundness.md",
+  "destination_stage_digest": "55593a1739b865efd0e1cbd931a97e69ca414b95719c0f43457162f5ac391a13",
+  "destination_final_digest": "55593a1739b865efd0e1cbd931a97e69ca414b95719c0f43457162f5ac391a13",
+  "source_redirect_digest": "96e1a4448fd3d8b872343197a0cc4d4732072d1bf9e3e4b645b582cc79c6c38b",
+  "source_stub_digest": "a8bf182bf31a1a0a17dd2e64da2dd2ca635425e469bf3288aeade8c3c52ed75f",
+  "source_status": "draft",
+  "destination_status": "done",
+  "final_destination_status": "done",
+  "requires_fresh_evidence": false,
+  "requirement_map": [
+    {
+      "source_requirement": "R1",
+      "destination_requirement": "R1",
+      "disposition": "equivalent",
+      "rationale": "Critério sem produtor vira pendência e auto-attest --apply recusa."
+    },
+    {
+      "source_requirement": "R2",
+      "destination_requirement": "R2",
+      "disposition": "reformulated",
+      "rationale": "Aprovação automática só onde um produtor registrado responde (R2); critério mecânico sem classe de evidência é recusado (R7). O 'recibo verificável' é a evidência selada."
+    },
+    {
+      "source_requirement": "R2",
+      "destination_requirement": "R7",
+      "disposition": "reformulated",
+      "rationale": "Aprovação automática só onde um produtor registrado responde (R2); critério mecânico sem classe de evidência é recusado (R7). O 'recibo verificável' é a evidência selada."
+    },
+    {
+      "source_requirement": "R3",
+      "destination_requirement": "R3",
+      "disposition": "reformulated",
+      "rationale": "Executor traça só a referência de finding; IDs duplicados, severidade, ação e risco aceito incompleto são recusados no Store (validateBundleAttestationWith), por inspeção de código, sem teste nomeado nesta spec."
+    },
+    {
+      "source_requirement": "R4",
+      "disposition": "pending",
+      "destination_ref": "xref:proj.pose-dist/spec:pose-abm-review-soundness-residuals#R1",
+      "rationale": "Evidência ausente nunca vira not-applicable (R4 do executor). A cláusula 'wont-fix não contorna accepted-risk' não é atendida: um finding critical com wont-fix passa sem owner, rationale nem prazo."
+    },
+    {
+      "source_requirement": "R4",
+      "destination_requirement": "R4",
+      "disposition": "reformulated",
+      "rationale": "Evidência ausente nunca vira not-applicable (R4 do executor). A cláusula 'wont-fix não contorna accepted-risk' não é atendida: um finding critical com wont-fix passa sem owner, rationale nem prazo."
+    },
+    {
+      "source_requirement": "R5",
+      "disposition": "pending",
+      "destination_ref": "xref:proj.pose-dist/spec:pose-abm-review-soundness-residuals#R2",
+      "rationale": "O R5 do executor trata conclusão de julgamento, não persistência auditável de tentativas negativas. Tentativas não aprovadas são gravadas (observado nesta sessão), mas nenhuma spec traça o requisito."
+    },
+    {
+      "source_requirement": "R6",
+      "destination_requirement": "R6",
+      "disposition": "equivalent",
+      "rationale": "Bundles anteriores ao contrato mantêm veredito e leitura; o contrato é carimbado no selo."
+    },
+    {
+      "source_requirement": "R7",
+      "disposition": "pending",
+      "destination_ref": "xref:proj.pose-dist/spec:pose-abm-review-soundness-residuals#R3",
+      "rationale": "Atualização conjunta de profiles, skills, manual, schemas e scaffold não é requisito do executor; não verificado que a skill não ordena auto-pass recusado."
+    }
+  ],
+  "impacted_references": [
+    {
+      "project_id": "proj.harne8",
+      "owner": {
+        "project_id": "proj.harne8",
+        "kind": "roadmap",
+        "slug": "pose-abm-foundation"
+      },
+      "path": ".pose/roadmaps/pose-abm-foundation.md",
+      "before_digest": "bf2d2e4735d3dc3492152101584df1fea0ec74715008e26878d6880f8d3abeab",
+      "after_digest": "6d04a43981b69427c5f61825f15c6c700241d0580e430aa46ebfefa916504abd",
+      "references": [
+        "pose-abm-review-soundness"
+      ],
+      "replacement": "xref:proj.pose-dist/spec:pose-abm-review-soundness"
+    },
+    {
+      "project_id": "proj.harne8",
+      "owner": {
+        "project_id": "proj.harne8",
+        "kind": "spec",
+        "slug": "harne8-abm-governed-execution"
+      },
+      "path": ".pose/specs/2026-09-18-harne8-abm-governed-execution.md",
+      "before_digest": "c4a8ad11709c8006558c490a9dc5502c5393d7f4c74f516b563b24f169aef2f7",
+      "after_digest": "b5a42fbf71c707050c1db1b490d04919599ad79c9a94c5663996a162fe8ef26b",
+      "references": [
+        "pose-abm-review-soundness"
+      ],
+      "replacement": "xref:proj.pose-dist/spec:pose-abm-review-soundness"
+    },
+    {
+      "project_id": "proj.harne8",
+      "owner": {
+        "project_id": "proj.harne8",
+        "kind": "spec",
+        "slug": "pose-abm-governance-outcomes"
+      },
+      "path": ".pose/specs/2026-09-18-pose-abm-governance-outcomes.md",
+      "before_digest": "aaef66284f821820c9780539ba20f1d4b690aaec734bda31f897f814e4b2d95c",
+      "after_digest": "9fc88913a2946293a5ea8c880e326b32407e77435a444ac86725ec48f467ee97",
+      "references": [
+        "pose-abm-review-soundness"
+      ],
+      "replacement": "xref:proj.pose-dist/spec:pose-abm-review-soundness"
+    },
+    {
+      "project_id": "proj.harne8",
+      "owner": {
+        "project_id": "proj.harne8",
+        "kind": "spec",
+        "slug": "pose-abm-progressive-review"
+      },
+      "path": ".pose/specs/2026-09-18-pose-abm-progressive-review.md",
+      "before_digest": "1adfa7eb3252c68b3e44f13fc3d9bcd3a90c67476af45fc30d7f9a80a7c6e7fd",
+      "after_digest": "feba0068282a6254a1b763fbcbe3fedbcd1d9acc12c0b41f66a05dd373d92871",
+      "references": [
+        "pose-abm-review-soundness"
+      ],
+      "replacement": "xref:proj.pose-dist/spec:pose-abm-review-soundness"
+    },
+    {
+      "project_id": "proj.harne8",
+      "owner": {
+        "project_id": "proj.harne8",
+        "kind": "spec",
+        "slug": "pose-abm-review-authority"
+      },
+      "path": ".pose/specs/2026-09-18-pose-abm-review-authority.md",
+      "before_digest": "e941dcd12699b6fa6815380039e5d201cd6b7a487325cd302e677f76ad7641ea",
+      "after_digest": "7e0d698c7e3f3c24ddee8627990f5df3e09766aa28db83b98fb715a1ca3d6417",
+      "references": [
+        "pose-abm-review-soundness"
+      ],
+      "replacement": "xref:proj.pose-dist/spec:pose-abm-review-soundness"
+    }
+  ],
+  "project_revisions": [
+    {
+      "project_id": "proj.harne8",
+      "expected_revision": "af96e2e27fbe21a3f6a4260da669643ca4e0e406"
+    },
+    {
+      "project_id": "proj.pose-dist",
+      "expected_revision": "cf0184b1685bc11a8f217a528db2eeaf6b54011f"
+    }
+  ],
+  "affected_projects": [
+    "proj.harne8",
+    "proj.pose-dist"
+  ]
+}
