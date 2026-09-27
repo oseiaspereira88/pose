@@ -1069,8 +1069,10 @@ func specReady(root, path string) bool {
 			return false
 		}
 	}
+	// The reference grammar is lint-spec --ready-check's, so a qualified xref
+	// dependency is as ready here as it is there.
 	for _, ref := range splitInlineList(fields["depends_on"]) {
-		if !checkSlug.MatchString(ref) && !checkMilestoneRef.MatchString(ref) && !checkRoadmapRef.MatchString(ref) {
+		if _, err := pose.ParseArtifactRef(ref); err != nil {
 			return false
 		}
 	}

@@ -288,3 +288,29 @@ func TestParseRoadmapReadsMilestonesAndFallsBackToTheFilename(t *testing.T) {
 		t.Error("a missing roadmap did not fall back to its filename")
 	}
 }
+
+// pose check's Definition of Ready reads depends_on with the same reference
+// grammar as `pose lint-spec --ready-check`: a qualified xref is a valid
+// dependency, and a malformed reference is not.
+func TestSpecReadyAcceptsTheReferencesLintAccepts(t *testing.T) {
+	root := doctorTrailerFixture(t)
+	path := filepath.Join(root, ".pose", "specs", "alpha.md")
+	body := "\n---\n\n## 1. Intent\n\nA goal.\n\n## 2. Requirements\n\n- R1: something\n\n## 3. Technical Plan\n\nA plan.\n"
+	for _, tc := range []struct {
+		deps  string
+		ready bool
+	}{
+		{"beta", true},
+		{"milestone:road/m1", true},
+		{"roadmap:road", true},
+		{"beta, xref:proj.pose-dist/spec:pose-abm-review-authority", true},
+		{"xref:proj.pose-dist/milestone:road/m1", true},
+		{"Not A Ref!", false},
+		{"xref:proj.pose-dist/", false},
+	} {
+		mustWrite(t, path, "---\nslug: alpha\nstatus: draft\ndepends_on: "+tc.deps+body)
+		if got := specReady(root, path); got != tc.ready {
+			t.Errorf("depends_on %q: ready = %v, want %v", tc.deps, got, tc.ready)
+		}
+	}
+}
