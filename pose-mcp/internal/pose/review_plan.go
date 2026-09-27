@@ -522,7 +522,14 @@ func (s Store) reviewScopeSpecs(scope ScopeRef) ([]Spec, error) {
 		}
 	}
 	specs := []Spec{}
-	for _, slug := range uniqueSorted(slugs) {
+	for _, raw := range uniqueSorted(slugs) {
+		// Another project's member contributes no local components; its
+		// review lives in its own project and reaches this scope through the
+		// federated manifest.
+		slug, external := s.milestoneMember(raw)
+		if external {
+			continue
+		}
 		sp, err := s.GetSpec(slug)
 		if err != nil {
 			return nil, err

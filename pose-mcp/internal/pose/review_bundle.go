@@ -633,6 +633,12 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 		}
 	}
 	sets = reduceReviewBundleChangeSets(sets)
+	if len(sets) == 0 && s.milestoneOnlyExternal(scope) {
+		// Every member is owned by another project: the implementation is
+		// sealed through the federated manifest, with its source proof, and
+		// there is no local subject to attribute.
+		return subject, excluded, blockers, nil
+	}
 	if len(sets) == 0 {
 		blockers = append(blockers, "no immutable attributed change set exists for "+scope.String())
 		return subject, excluded, blockers, nil
@@ -885,8 +891,10 @@ func (s Store) reviewBundleScopeSpecs(scope ScopeRef) (map[string]bool, error) {
 		}
 		for _, milestone := range rm.Milestones {
 			if milestone.ID == scope.Milestone {
-				for _, slug := range milestone.Specs {
-					result[slug] = true
+				for _, raw := range milestone.Specs {
+					if slug, external := s.milestoneMember(raw); !external {
+						result[slug] = true
+					}
 				}
 				return result, nil
 			}
@@ -898,8 +906,10 @@ func (s Store) reviewBundleScopeSpecs(scope ScopeRef) (map[string]bool, error) {
 			return nil, err
 		}
 		for _, milestone := range rm.Milestones {
-			for _, slug := range milestone.Specs {
-				result[slug] = true
+			for _, raw := range milestone.Specs {
+				if slug, external := s.milestoneMember(raw); !external {
+					result[slug] = true
+				}
 			}
 		}
 	}
@@ -1210,6 +1220,30 @@ func (s Store) reviewScopeRequiresValidationEvidence(scope ScopeRef, plan Review
 	}
 }
 
+// milestoneOnlyExternal reports a milestone whose members all belong to other
+// projects, judged by a configured federated resolver.
+func (s Store) milestoneOnlyExternal(scope ScopeRef) bool {
+	if scope.Kind != "milestone" || s.FederatedResolver == nil {
+		return false
+	}
+	rm, err := s.GetRoadmap(scope.Roadmap)
+	if err != nil {
+		return false
+	}
+	for _, milestone := range rm.Milestones {
+		if milestone.ID != scope.Milestone {
+			continue
+		}
+		for _, raw := range milestone.Specs {
+			if _, external := s.milestoneMember(raw); !external {
+				return false
+			}
+		}
+		return len(milestone.Specs) > 0
+	}
+	return false
+}
+
 func (s Store) reviewBundleChildRefs(scope ScopeRef) ([]string, error) {
 	refs := []string{}
 	if scope.Kind == "milestone" {
@@ -1219,8 +1253,12 @@ func (s Store) reviewBundleChildRefs(scope ScopeRef) ([]string, error) {
 		}
 		for _, milestone := range rm.Milestones {
 			if milestone.ID == scope.Milestone {
-				for _, slug := range milestone.Specs {
-					refs = append(refs, "spec:"+slug)
+				for _, raw := range milestone.Specs {
+					// External members are sealed through the federated
+					// manifest, not as local child bundles.
+					if slug, external := s.milestoneMember(raw); !external {
+						refs = append(refs, "spec:"+slug)
+					}
 				}
 			}
 		}

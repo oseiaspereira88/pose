@@ -837,7 +837,14 @@ func (s Store) ScopeDigest(ref string) (string, error) {
 			return "", fmt.Errorf("pose: milestone %s/%s not found", scope.Roadmap, scope.Milestone)
 		}
 		children := map[string]string{}
-		for _, slug := range target.Specs {
+		for _, raw := range target.Specs {
+			slug, external := s.milestoneMember(raw)
+			if external {
+				// Another project's member is sealed by the federated
+				// manifest; its identity is what this scope depends on.
+				children[raw] = "external"
+				continue
+			}
 			d, err := s.ScopeDigest("spec:" + slug)
 			if err != nil {
 				return "", err
@@ -1668,7 +1675,14 @@ func (s Store) scopeLifecycleDone(scope ScopeRef) (bool, error) {
 		}
 		for _, milestone := range rm.Milestones {
 			if milestone.ID == scope.Milestone {
-				for _, slug := range milestone.Specs {
+				for _, raw := range milestone.Specs {
+					slug, external := s.milestoneMember(raw)
+					if external {
+						if !s.externalMemberDone(raw) {
+							return false, nil
+						}
+						continue
+					}
 					sp, specErr := s.GetSpec(slug)
 					if specErr != nil {
 						return false, specErr
@@ -1792,7 +1806,14 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 				continue
 			}
 			found = true
-			for _, slug := range milestone.Specs {
+			for _, raw := range milestone.Specs {
+				slug, external := s.milestoneMember(raw)
+				if external {
+					if s.FederatedResolver == nil {
+						state.Blockers = append(state.Blockers, "external member "+raw+" needs federated acceptance")
+					}
+					continue
+				}
 				child, err := childStore.getCloseoutState("spec:"+slug, false)
 				if err != nil {
 					return state, err
@@ -1896,6 +1917,32 @@ func (s Store) GetCloseoutStateWithFederatedAcceptance(ref, projectID string, re
 	s.FederatedProjectID = projectID
 	s.FederatedResolver = &resolver
 	return s.GetCloseoutState(ref)
+}
+
+// milestoneMember reads a milestone member. An unqualified member, or one
+// qualified with this store's own project, is a local spec slug. A member of
+// another project is external: local closeout cannot read it, and only
+// federated acceptance, with its source proof, may judge it. Callers without
+// a federated resolver must fail closed on an external member.
+func (s Store) milestoneMember(raw string) (string, bool) {
+	ref, err := ParseArtifactRef(raw)
+	if err != nil || ref.Project == "" {
+		return raw, false
+	}
+	if s.FederatedProjectID != "" && ref.Project == s.FederatedProjectID && ref.Kind == "spec" {
+		return ref.Slug, false
+	}
+	return "", true
+}
+
+// externalMemberDone reports an external member done only when an
+// authorized federated resolver resolves it to a done spec.
+func (s Store) externalMemberDone(raw string) bool {
+	if s.FederatedResolver == nil {
+		return false
+	}
+	resolved := s.FederatedResolver.Resolve(s.FederatedProjectID, raw)
+	return resolved.Resolved && resolved.Status == "done"
 }
 
 func removeReviewOnlyBlockers(blockers []string) []string {

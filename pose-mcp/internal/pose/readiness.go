@@ -31,7 +31,14 @@ func (s Store) milestoneWaitingReason(ref string) string {
 			continue
 		}
 		var pending []string
-		for _, specSlug := range ms.Specs {
+		for _, raw := range ms.Specs {
+			specSlug, external := s.milestoneMember(raw)
+			if external {
+				if !s.externalMemberDone(raw) {
+					pending = append(pending, raw+" (external, unresolved or not done)")
+				}
+				continue
+			}
 			dep, depErr := s.GetSpec(specSlug)
 			if depErr != nil {
 				pending = append(pending, specSlug+" (not found)")

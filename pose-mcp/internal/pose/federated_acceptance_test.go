@@ -936,3 +936,45 @@ func TestFederatedRoadmapMilestoneBundleSealsOwnManifestAndKeepsLegacySeals(t *t
 		t.Fatalf("revoked trust did not stale the new milestone seal: %+v err=%v", revoked, err)
 	}
 }
+
+func TestFederatedRoadmapMilestoneWithExternalMemberClosesThroughFederation(t *testing.T) {
+	root, store, _, _ := federatedTestMilestoneConsumer(t)
+	resolver := *store.FederatedResolver
+	store.FederatedProjectID, store.FederatedResolver = "", nil
+	federatedTestWrite(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n\n## Milestone: core\n- specs: xref:source/spec:backend\n")
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "milestone owns an external member")
+
+	plain, err := store.GetCloseoutState("milestone:program/core")
+	if err != nil {
+		t.Fatalf("external member broke closeout without a resolver: %v", err)
+	}
+	if plain.Terminal || !federatedTestHasBlocker(plain.Blockers, "external member xref:source/spec:backend needs federated acceptance") {
+		t.Fatalf("closeout without a resolver did not fail closed: %+v", plain)
+	}
+	if reason := store.milestoneWaitingReason("program/core"); !strings.Contains(reason, "xref:source/spec:backend (external") {
+		t.Fatalf("readiness treated an unresolved external member as done: %q", reason)
+	}
+
+	federated, err := store.GetCloseoutStateWithFederatedAcceptance("milestone:program/core", "coordinator", resolver)
+	if err != nil {
+		t.Fatalf("external member broke federated closeout: %v", err)
+	}
+	if !federated.LifecycleDone || federated.FederatedAcceptance == nil || !federated.FederatedAcceptance.Ready || len(federated.Children) != 0 {
+		t.Fatalf("external member was not judged by federation alone: %+v", federated)
+	}
+	store.FederatedProjectID, store.FederatedResolver = "coordinator", &resolver
+	bundle, err := store.PrepareReviewBundle("milestone:program/core")
+	if err != nil || len(bundle.Blockers) != 0 || len(bundle.Payload.Children) != 0 || bundle.Payload.FederatedManifest == nil {
+		t.Fatalf("milestone bundle with an external member: blockers=%v children=%v manifest=%v err=%v", bundle.Blockers, bundle.Payload.Children, bundle.Payload.FederatedManifest != nil, err)
+	}
+	if reason := store.milestoneWaitingReason("program/core"); reason != "" {
+		t.Fatalf("resolved done external member still pending: %q", reason)
+	}
+
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{})
+	revoked, err := store.GetCloseoutStateWithFederatedAcceptance("milestone:program/core", "coordinator", resolver)
+	if err != nil || revoked.Terminal || !federatedTestHasBlocker(revoked.Blockers, "consumer-trust-not-adopted") {
+		t.Fatalf("revoked trust did not block the milestone of an external member: %+v err=%v", revoked, err)
+	}
+}
