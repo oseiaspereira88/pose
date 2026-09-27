@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-26T15:52:51Z
-baseline_commit: e72f2d6cab6d6c9685aa9078829ccf28933a5758
+generated_at: 2026-09-27T00:08:42Z
+baseline_commit: f00100eb26b7625773d8eb93ae67b0a7691ee170
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:b95e5a5354d7 -->
+<!-- state:derived hash:709e06de49bf -->
 
-- specs: total=236 draft=4 in-progress=65 blocked=0 done=167 superseded=0 abandoned=0
+- specs: total=237 draft=4 in-progress=65 blocked=0 done=168 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
+  - spec:pose-federated-milestone-scoped-acceptance (2026-09-27)
   - spec:pose-review-root-binding-parity (2026-09-26)
   - spec:pose-dist-adopts-spec-authority-transfer (2026-09-26)
-  - spec:pose-federated-spec-dependency-acceptance (2026-09-26)
   - spec:pose-federated-carried-forward-proof (2026-09-26)
-  - spec:pose-agent-project-context (2026-09-25)
-  - ... e mais 162 (ver `pose_list_specs status:done`)
+  - spec:pose-federated-spec-dependency-acceptance (2026-09-26)
+  - ... e mais 163 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:8ca8e168d71f -->
+<!-- state:derived hash:048803e4d493 -->
 
-- abertos: 113
-- por criticidade: high=4 medium=25 low=60 sem-classificação=24
+- abertos: 114
+- por criticidade: high=5 medium=25 low=60 sem-classificação=24
 - vencidos (review < hoje): 1
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
 
@@ -65,16 +65,16 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:dfe0f5a5c764 -->
+<!-- state:derived hash:3d1b444faed9 -->
 
-- último registro: task=validate-native outcome=pass (2026-09-26T15:50:03Z)
-- últimos 30 dias: total=103 outcome_ok=91 outcome_outro=12
-- reports revisados (.md): total=147
+- último registro: task=validate-native outcome=pass (2026-09-27T00:03:10Z)
+- últimos 30 dias: total=104 outcome_ok=92 outcome_outro=12
+- reports revisados (.md): total=148
+  - report:2026-09-27-standard-validate-native.md
   - report:2026-09-26-standard-validate-native.md
   - report:2026-09-26-federated-carried-forward-proof.md
   - report:2026-09-25-standard-validate-native.md
   - report:2026-09-24-multirepo-autonomous-review.md
-  - report:2026-09-24-standard-validate-native.md
 
 ## Arquitetura
 <!-- state:derived hash:0b20632ea1bd status:active -->
