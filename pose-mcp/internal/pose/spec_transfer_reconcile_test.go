@@ -215,3 +215,62 @@ func TestSpecTransferReconcileTerminalResumesAfterInterruption(t *testing.T) {
 		})
 	}
 }
+
+func TestSpecTransferResumeReportsACompletedOperationAfterLaterRewrites(t *testing.T) {
+	resolver, _, _, consumerRoot := setupTerminalReconcileFixture(t, "done")
+	plan, err := PreviewSpecTransfer(resolver, terminalReconcileRequest(), "2026-09-26")
+	if err != nil {
+		t.Fatal(err)
+	}
+	permissions := map[string]bool{"proj.source": true, "proj.destination": true, "proj.consumer": true}
+	if _, err := ApplySpecTransfer(resolver, plan, plan.Digest, permissions, nil); err != nil {
+		t.Fatal(err)
+	}
+	consumerPath := filepath.Join(consumerRoot, ".pose/specs/2026-09-24-consumer-task.md")
+	raw, _ := os.ReadFile(consumerPath)
+	if err := os.WriteFile(consumerPath, append(raw, []byte("\nA later operation rewrote this file.\n")...), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	status, err := ResumeSpecTransfer(resolver, "proj.destination", plan.OperationID, permissions, nil)
+	if err != nil || status.Phase != "activated" {
+		t.Fatalf("completed operation was replayed against later content: %+v err=%v", status, err)
+	}
+	if after, _ := os.ReadFile(consumerPath); !strings.Contains(string(after), "A later operation rewrote this file.") {
+		t.Fatal("resume of a completed operation wrote a file")
+	}
+}
+
+func TestSpecTransferRewritesExplicitAfterRefsAndVerifiesTheStub(t *testing.T) {
+	resolver, sourceRoot, _, _ := setupTerminalReconcileFixture(t, "done")
+	roadmapPath := filepath.Join(sourceRoot, ".pose/roadmaps/program.md")
+	roadmap := "---\nslug: program\nstatus: active\n---\n\n## Milestone: shared-task\n- specs: other-task\n\n## Milestone: next\n- after: shared-task, spec:shared-task\n- specs: other-task\n"
+	if err := os.WriteFile(roadmapPath, []byte(roadmap), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runTransferGit(t, sourceRoot, "add", ".pose")
+	runTransferGit(t, sourceRoot, "commit", "-qm", "roadmap waits on the coordinator")
+	plan, err := PreviewSpecTransfer(resolver, terminalReconcileRequest(), "2026-09-26")
+	if err != nil {
+		t.Fatal(err)
+	}
+	permissions := map[string]bool{"proj.source": true, "proj.destination": true, "proj.consumer": true}
+	if _, err := ApplySpecTransfer(resolver, plan, plan.Digest, permissions, nil); err != nil {
+		t.Fatal(err)
+	}
+	after, _ := os.ReadFile(roadmapPath)
+	if !strings.Contains(string(after), "- after: shared-task, xref:proj.destination/spec:shared-task") {
+		t.Fatalf("explicit after ref not rewritten, or the same-named milestone was: %s", after)
+	}
+	stubPath := filepath.Join(sourceRoot, ".pose/specs/2026-09-24-shared-task.md")
+	stub, _ := os.ReadFile(stubPath)
+	canonical, ok := VerifiedTransferStub(sourceRoot, "shared-task", string(stub))
+	if !ok || canonical != plan.Destination {
+		t.Fatalf("verified stub not recognised: %v %v", canonical, ok)
+	}
+	if _, ok := VerifiedTransferStub(sourceRoot, "shared-task", string(stub)+"\n- R1: smuggled requirement\n"); ok {
+		t.Fatal("an edited stub was accepted as a verified redirect")
+	}
+	if _, ok := VerifiedTransferStub(sourceRoot, "other-task", string(stub)); ok {
+		t.Fatal("a stub was verified for a slug without a redirect")
+	}
+}

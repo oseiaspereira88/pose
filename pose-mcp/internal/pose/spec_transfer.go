@@ -709,6 +709,7 @@ func discoverTransferImpacts(projects map[string]Store, source, destination Arti
 			for _, milestone := range roadmap.Milestones {
 				refs = append(refs, matchingTransferRefs(projectID, milestone.Specs, source)...)
 				refs = append(refs, matchingTransferRefs(projectID, milestone.Consumes, source)...)
+				refs = append(refs, matchingTransferRefs(projectID, explicitAfterRefs(milestone.After), source)...)
 			}
 			if len(refs) == 0 {
 				continue
@@ -742,6 +743,19 @@ func discoverTransferImpacts(projects map[string]Store, source, destination Arti
 	}
 	sort.Strings(blockers)
 	return impacts, uniqueStrings(blockers), nil
+}
+
+// explicitAfterRefs keeps the `after` entries that name an artifact kind. A
+// bare entry there is a milestone of the same roadmap, never a spec, so it
+// must not match a spec that happens to share its name.
+func explicitAfterRefs(values []string) []string {
+	var out []string
+	for _, value := range values {
+		if strings.Contains(value, ":") {
+			out = append(out, value)
+		}
+	}
+	return out
 }
 
 func matchingTransferRefs(projectID string, refs []string, source ArtifactRef) []string {
@@ -806,6 +820,8 @@ func rewriteTransferReferences(content string, refs []string, replacement string
 		key, value, ok := strings.Cut(strings.TrimSpace(strings.TrimPrefix(trimmed, "- ")), ":")
 		if ok && (strings.TrimSpace(key) == "specs" || strings.TrimSpace(key) == "consumes") {
 			body[i] = replaceTransferRefsInValue(line, value, refs, replacement)
+		} else if ok && strings.TrimSpace(key) == "after" {
+			body[i] = replaceTransferRefsInValue(line, value, explicitAfterRefs(refs), replacement)
 		}
 	}
 	return parts[0] + "---" + strings.Join(front, "\n") + "---" + strings.Join(body, "\n")
@@ -1077,6 +1093,31 @@ func specTransferPlanDigest(plan SpecTransferPlan) string {
 	plan.Digest = ""
 	raw, _ := json.Marshal(plan)
 	return digestHex(raw)
+}
+
+// VerifiedTransferStub reports whether raw is the redirect stub a completed
+// transfer or reconciliation left for slug in the project at root, and names
+// the canonical task. The redirect, its plan and its activation receipt must
+// verify, and the file must be byte-identical to the rendered stub.
+func VerifiedTransferStub(root, slug, raw string) (ArtifactRef, bool) {
+	path := sourceRedirectPath(root, slug)
+	info, err := os.Lstat(path)
+	if err != nil || info.Mode()&os.ModeSymlink != 0 || info.Size() > 64<<10 {
+		return ArtifactRef{}, false
+	}
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return ArtifactRef{}, false
+	}
+	var probe specTransferRedirect
+	if json.Unmarshal(content, &probe) != nil || probe.Source.Slug != slug {
+		return ArtifactRef{}, false
+	}
+	redirect, ok, err := readSpecTransferRedirect(Store{Root: root}, probe.Source)
+	if err != nil || !ok || raw != renderTransferRedirectStub(redirect.Source, redirect.Destination) {
+		return ArtifactRef{}, false
+	}
+	return redirect.Destination, true
 }
 
 func sourceRedirectPath(root, slug string) string {
@@ -1452,7 +1493,36 @@ func ResumeSpecTransfer(resolver ArtifactResolver, projectID, operationID string
 			return SpecTransferStatus{}, specTransferError("operation-record-conflict")
 		}
 	}
+	if completed, status := completedSpecTransfer(resolver, plan); completed {
+		// A completed operation is reported, not replayed: later operations
+		// may have rewritten the files it touched, and re-checking them
+		// against this plan would call a finished transfer a conflict.
+		return status, nil
+	}
 	return advanceSpecTransfer(resolver, plan, authorizedProjects, failAfter)
+}
+
+// completedSpecTransfer reports whether every affected project journaled
+// activation for this plan.
+func completedSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan) (bool, SpecTransferStatus) {
+	if validateTransferPlan(plan) != nil {
+		return false, SpecTransferStatus{}
+	}
+	var destination SpecTransferStatus
+	for _, id := range plan.AffectedProjects {
+		store, err := resolver.Roots.StoreFor(id)
+		if err != nil {
+			return false, SpecTransferStatus{}
+		}
+		status, err := ReadSpecTransferStatus(store, plan.OperationID, id)
+		if err != nil || status.Phase != "activated" || status.PlanDigest != plan.Digest {
+			return false, SpecTransferStatus{}
+		}
+		if id == plan.Destination.Project {
+			destination = status
+		}
+	}
+	return true, destination
 }
 
 func validateTransferPlan(plan SpecTransferPlan) error {

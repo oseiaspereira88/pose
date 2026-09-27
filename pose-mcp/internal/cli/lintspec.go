@@ -363,6 +363,21 @@ func sectionState(required bool) cliout.State {
 	return cliout.StateWarning
 }
 
+// lintProjectRoot is the directory that holds the .pose tree of specPath.
+func lintProjectRoot(specPath string) string {
+	dir := filepath.Dir(specPath)
+	for {
+		if filepath.Base(dir) == ".pose" {
+			return filepath.Dir(dir)
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return filepath.Dir(filepath.Dir(specPath))
+		}
+		dir = parent
+	}
+}
+
 func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr io.Writer, designCheck ...bool) int {
 	locale := cliLocaleValue()
 	raw, err := os.ReadFile(specPath)
@@ -378,6 +393,14 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		slug = filepath.Base(filepath.Dir(specPath))
 	}
 	lint := specFindings{r: render(stdout, stderr), slug: slug}
+	if frontmatter["status"] == "superseded" {
+		if canonical, ok := posepkg.VerifiedTransferStub(lintProjectRoot(specPath), slug, string(raw)); ok {
+			// A verified redirect owns no requirements or lifecycle of its
+			// own; the canonical task is linted where it lives.
+			lint.r.Field("spec.redirect", canonical.String())
+			return 0
+		}
+	}
 	checkDesign := len(designCheck) > 0 && designCheck[0]
 	lineageFailures := 0
 	if links := posepkg.RemediationValues(frontmatter["remediates"]); len(links) > 0 {
