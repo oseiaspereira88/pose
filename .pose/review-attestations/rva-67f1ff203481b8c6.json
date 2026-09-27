@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-67f1ff203481b8c6",
+  "bundle_id": "rvb-f514721740421089",
+  "bundle_digest": "sha256:f51472174042108916da9bfd3c1dd5529870b9fc884e1ee2da6cf0d21bfdeb52",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration"
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; transfer integration and negative checks pass on current evidence."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; transfer integration and negative checks pass on current evidence."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; transfer integration and negative checks pass on current evidence."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Child review renewed after the instance adopted policy schema 4; transfer integration and negative checks pass on current evidence."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "Integration assessment ran; inventory gaps predate the scope."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "No docs-site validation producer is registered."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-integration",
+      "rationale": "The full matrix passed 29 checks at the current revision."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/spec-authority-transfer-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-27T21:10:21Z",
+  "path": ".pose/review-attestations/rva-67f1ff203481b8c6.json"
+}
