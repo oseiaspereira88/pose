@@ -4,7 +4,7 @@ status: draft
 created_at: 2026-09-18
 completed_at:
 supersedes:
-depends_on: xref:proj.harne8/spec:pose-abm-field-pilot
+depends_on:
 priority: 2
 components: pose-dist/pose-mcp
 task_type: feature
@@ -86,6 +86,13 @@ Somente após stop/go do piloto; dual reader e capability explícita. Done legad
 - [ ] Fechar somente pelo gate POSE, com riscos/follow-ups dispostos e resultado de composição atual.
 
 ## 5. Decisions
+
+- Date: 2026-09-27. Após a transferência do Harne8, o gate do piloto de campo
+  (decisão D1 do plano 6.0.0) deixa de ser `depends_on` desta spec e passa a
+  `after: spec:pose-abm-field-pilot` do milestone `contract-nodes` no roadmap
+  coordenador `pose-abm-contract-consolidation` (proj.harne8). O motor não
+  depende de um escopo do consumidor: o checkout isolado do pose-dist não o
+  resolveria, e o ADR de reconciliação proíbe essa aresta.
 
 - Data: 2026-09-18.
 - Contexto: a análise inicial propõe novos controles; o review confirmou limites que exigem implementação proporcional.

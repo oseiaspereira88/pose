@@ -4,7 +4,7 @@ status: draft
 created_at: 2026-09-18
 completed_at:
 supersedes:
-depends_on: xref:proj.pose-dist/spec:pose-abm-contract-nodes
+depends_on: pose-abm-contract-nodes
 priority: 2
 components: pose-dist/pose-mcp
 task_type: feature
