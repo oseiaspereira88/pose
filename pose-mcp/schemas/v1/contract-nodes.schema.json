@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "harne8://pose-mcp/schemas/v1/contract-nodes.json",
+  "title": "POSE Contract Nodes",
+  "description": "Versioned projection of a spec's requirements (R), assumptions (A) and decisions (D), rebuilt from the spec body. Returned under contract_nodes by pose_spec_amendments and pose amend --nodes --json. The schema version is independent of the product release.",
+  "type": "object",
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "namespace": { "type": "string", "pattern": "^spec:[a-z0-9][a-z0-9-]*$" },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[RAD][0-9]+$" },
+          "kind": { "type": "string", "enum": ["requirement", "assumption", "decision"] },
+          "namespace": { "type": "string" },
+          "hash": { "type": "string" },
+          "state": { "type": "string" },
+          "relations": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["id", "kind", "namespace", "hash", "state"],
+        "additionalProperties": true
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "severity": { "type": "string", "enum": ["error", "warning"] },
+          "code": { "type": "string" },
+          "id": { "type": "string" },
+          "line": { "type": "integer" },
+          "message": { "type": "string" }
+        },
+        "required": ["severity", "code", "message"],
+        "additionalProperties": true
+      }
+    },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  },
+  "required": ["schema_version", "namespace", "nodes", "digest"],
+  "additionalProperties": true
+}

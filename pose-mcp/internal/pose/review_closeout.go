@@ -154,8 +154,11 @@ type ReviewProfile struct {
 func (p ReviewProfile) Ref() string { return fmt.Sprintf("%s@%d", p.ID, p.Version) }
 
 type ReviewPolicy struct {
-	QualifiedArtifactRefsVersion     int               `json:"qualified_artifact_refs_version,omitempty"`
-	SpecAuthorityTransferVersion     int               `json:"spec_authority_transfer_version,omitempty"`
+	QualifiedArtifactRefsVersion int `json:"qualified_artifact_refs_version,omitempty"`
+	SpecAuthorityTransferVersion int `json:"spec_authority_transfer_version,omitempty"`
+	// ContractNodesVersion adopts the R/A/D amendment gate (spec
+	// pose-abm-contract-nodes); 0 keeps the requirement-only gate.
+	ContractNodesVersion             int               `json:"contract_nodes_version,omitempty"`
 	SchemaVersion                    int               `json:"schema_version"`
 	Enabled                          bool              `json:"enabled"`
 	AdoptedAt                        string            `json:"adopted_at,omitempty"`
@@ -403,6 +406,9 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	qualifiedRefsRequired := p.SchemaVersion == QualifiedArtifactPolicySchemaVersion || p.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion
 	if (qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 1) || (!qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 0) {
 		return ReviewPolicy{}, fmt.Errorf("pose: qualified artifact references require review policy schema 3 and qualified_artifact_refs_version 1")
+	}
+	if p.ContractNodesVersion != 0 && p.ContractNodesVersion != ContractNodesPolicyVersion {
+		return ReviewPolicy{}, fmt.Errorf("pose: unsupported contract_nodes_version %d (engine supports %d)", p.ContractNodesVersion, ContractNodesPolicyVersion)
 	}
 	if (p.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion && p.SpecAuthorityTransferVersion != 1) || (p.SchemaVersion != SpecAuthorityTransferPolicySchemaVersion && p.SpecAuthorityTransferVersion != 0) {
 		return ReviewPolicy{}, fmt.Errorf("pose: spec authority transfer requires review policy schema 4 and spec_authority_transfer_version 1")

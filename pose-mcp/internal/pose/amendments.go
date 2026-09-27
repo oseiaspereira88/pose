@@ -19,13 +19,24 @@ import (
 	"strings"
 )
 
-// AmendmentSchema is the current amendments.jsonl schema version.
+// AmendmentSchema is the requirement-only amendments.jsonl schema version.
 const AmendmentSchema = 1
+
+// AmendmentSchemaV2 records requirement, assumption and decision nodes with
+// their state (spec pose-abm-contract-nodes). Engines that know only schema 1
+// refuse these lines instead of reading them as requirement history.
+const AmendmentSchemaV2 = 2
 
 // ValidAmendmentChanges is the material-change taxonomy. "baseline" snapshots
 // every requirement; "editorial" acknowledges non-semantic rewording.
 var ValidAmendmentChanges = map[string]bool{
 	"baseline": true, "added": true, "withdrawn": true, "semantic": true, "editorial": true,
+}
+
+// transition acknowledges a state change of an assumption or decision; it
+// exists only in schema-2 events.
+var validAmendmentChangesV2 = map[string]bool{
+	"baseline": true, "added": true, "withdrawn": true, "semantic": true, "editorial": true, "transition": true,
 }
 
 // Amendment is one append-only event.
@@ -38,6 +49,11 @@ type Amendment struct {
 	Author    string            `json:"author"`
 	Reviewer  string            `json:"reviewer,omitempty"`
 	Hashes    map[string]string `json:"hashes"` // R-ID → hash after the change ("" = withdrawn)
+	// Schema 2 only: the node state before and after the event, and how the
+	// origin is assured. Aliases are declared, not verified.
+	Before    map[string]NodeState `json:"before,omitempty"`
+	After     map[string]NodeState `json:"after,omitempty"`
+	Assurance string               `json:"assurance,omitempty"`
 }
 
 // RequirementHash fingerprints one requirement's normalized text (whitespace
@@ -88,11 +104,31 @@ func LoadAmendments(path string) ([]Amendment, error) {
 		if err := json.Unmarshal([]byte(raw), &e); err != nil {
 			return nil, fmt.Errorf("line %d: %v", line, err)
 		}
-		if e.Schema != AmendmentSchema {
-			return nil, fmt.Errorf("line %d: unsupported schema %d (engine supports %d)", line, e.Schema, AmendmentSchema)
-		}
-		if !ValidAmendmentChanges[e.Change] {
-			return nil, fmt.Errorf("line %d: invalid change %q", line, e.Change)
+		switch e.Schema {
+		case AmendmentSchema:
+			if !ValidAmendmentChanges[e.Change] {
+				return nil, fmt.Errorf("line %d: invalid change %q", line, e.Change)
+			}
+		case AmendmentSchemaV2:
+			if !validAmendmentChangesV2[e.Change] {
+				return nil, fmt.Errorf("line %d: invalid change %q", line, e.Change)
+			}
+			if len(e.IDs) == 0 || len(e.After) != len(e.IDs) {
+				return nil, fmt.Errorf("line %d: schema-2 event needs an after state for every id", line)
+			}
+			for _, id := range e.IDs {
+				if !ContractNodeIDValid(id) {
+					return nil, fmt.Errorf("line %d: invalid node id %q", line, id)
+				}
+				if _, ok := e.After[id]; !ok {
+					return nil, fmt.Errorf("line %d: node %s has no after state", line, id)
+				}
+			}
+			if e.Assurance != "declared" {
+				return nil, fmt.Errorf("line %d: schema-2 event must declare assurance \"declared\"", line)
+			}
+		default:
+			return nil, fmt.Errorf("line %d: unsupported schema %d (engine supports %d and %d)", line, e.Schema, AmendmentSchema, AmendmentSchemaV2)
 		}
 		if e.Author == "" {
 			return nil, fmt.Errorf("line %d: author is required", line)

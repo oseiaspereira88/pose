@@ -703,7 +703,12 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	} else if events != nil {
 		amendEvents = len(events)
 		if specStatus == "done" {
-			for _, finding := range posepkg.UnacknowledgedChanges(text, events) {
+			adopted, perr := posepkg.Store{Root: lintProjectRoot(specPath)}.ContractNodesAdopted()
+			if perr != nil {
+				lint.finding(cliout.StateError, "amendments", "review policy: "+perr.Error())
+				amendFailures++
+			}
+			for _, finding := range posepkg.UnacknowledgedNodeChanges(slug, text, events, adopted) {
 				lint.finding(cliout.StateError, "amendments", fmt.Sprintf(cliText(locale, "amendment history: %s", "amendment history: %s"), finding))
 				amendFailures++
 			}

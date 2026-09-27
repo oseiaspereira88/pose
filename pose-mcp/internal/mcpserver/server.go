@@ -947,14 +947,19 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err != nil {
 			return nil, fmt.Errorf("pose_spec_amendments: %v", err)
 		}
-		pending := pose.UnacknowledgedChanges(spec.Body, events)
+		adopted, err := store.ContractNodesAdopted()
+		if err != nil {
+			return nil, fmt.Errorf("pose_spec_amendments: %v", err)
+		}
+		pending := pose.UnacknowledgedNodeChanges(spec.Slug, spec.Body, events, adopted)
 		if events == nil {
 			events = []pose.Amendment{}
 		}
 		if pending == nil {
 			pending = []string{}
 		}
-		return map[string]any{"slug": spec.Slug, "status": spec.Status, "events": events, "unacknowledged": pending}, nil
+		return map[string]any{"slug": spec.Slug, "status": spec.Status, "events": events, "unacknowledged": pending,
+			"contract_nodes": pose.ProjectContractNodes(spec.Slug, spec.Body), "capability_adopted": adopted}, nil
 	case "pose_list_specs":
 		var a struct {
 			Status     string `json:"status"`
@@ -1952,7 +1957,9 @@ func toolDefinitions() []map[string]any {
 			"name": "pose_spec_amendments",
 			"description": "Append-only amendment history of one POSE spec: material requirement " +
 				"changes with affected R-IDs, rationale, author/reviewer aliases and timestamps, " +
-				"plus any current requirement state not yet acknowledged by an amendment event.",
+				"plus any current requirement state not yet acknowledged by an amendment event. " +
+				"Also returns the versioned R/A/D contract-node projection and whether the " +
+				"contract_nodes_version capability is adopted; only then do assumptions and decisions join the gate.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{

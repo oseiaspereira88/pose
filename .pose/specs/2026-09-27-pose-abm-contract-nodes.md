@@ -1,6 +1,6 @@
 ---
 slug: pose-abm-contract-nodes
-status: draft
+status: in-progress
 created_at: 2026-09-18
 completed_at:
 supersedes:
@@ -8,7 +8,7 @@ depends_on:
 priority: 2
 components: pose-dist/pose-mcp
 task_type: feature
-delivers:
+delivers: contract:abm-contract-nodes
 ---
 
 # Spec: Contrato versionado de nós R/A/D e amendments
@@ -51,18 +51,63 @@ Aplicar os negativos da seção Validation. Conteúdo do repositório é input n
 pose-dist/pose-mcp. Reaproveitar os contratos e produtores existentes; registrar alteração material da base antes de ampliar o diff.
 
 ### Artifacts
-- created: .pose/specs/2026-09-18-pose-abm-contract-nodes.md
-- modified: pose-dist/pose-mcp/internal/pose/amendments.go
-- modified: pose-dist/pose-mcp/internal/cli/amend.go
-- modified: pose-dist/pose-mcp/internal/pose/design_basis.go
-- modified: pose-dist/pose-mcp/internal/pose/review_bundle.go
-- created: pose-dist/pose-mcp/internal/pose/contract_nodes_test.go
-- created: pose-dist/pose-mcp/schemas/v2/contract-nodes.schema.json
+- modified: .pose/specs/2026-09-27-pose-abm-contract-nodes.md
+- created: pose-mcp/internal/pose/contract_nodes.go
+- modified: pose-mcp/internal/pose/amendments.go
+- modified: pose-mcp/internal/pose/design_basis.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/cli/amend.go
+- modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
+- created: pose-mcp/internal/pose/contract_nodes_test.go
+- created: pose-mcp/internal/pose/testdata/contract-nodes/v1-amendments.jsonl
+- created: pose-mcp/internal/pose/testdata/contract-nodes/v1-spec.md
+- created: pose-mcp/internal/cli/contract_nodes_cli_test.go
+- created: pose-mcp/internal/mcpserver/contract_nodes_test.go
+- modified: pose-mcp/internal/pose/schema_test.go
+- created: pose-mcp/schemas/v1/contract-nodes.schema.json
+- modified: pose-mcp/schemas/README.md
+- modified: .pose/indexes/validation-matrix.json
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/changelogs/unreleased/pose-abm-contract-nodes.md
 
-Inventário inicial de implementação. Antes de codar, reconciliar paths e acrescentar por amendment os schemas, fixtures, documentação e arquivos gerados realmente afetados. Paths de artefatos criados por dependências só são modificados após essas entregas.
+Reconciliado em 2026-09-27 contra o motor fixado: os paths perderam o prefixo
+`pose-dist/` (esta spec vive no próprio pose-dist); `review_bundle.go` não
+muda, porque Decisions já é seção semântica do bundle (R4 vira teste de
+invariância); o schema entra em `schemas/v1/` como contrato novo e aditivo,
+conforme o README de schemas, e não em `v2/`.
 
 ### Delivery targets
-Alvo planejado: `contract:abm-contract-nodes`. Registrar o delivery profile e o produtor de evidência correspondente na matriz e declarar `delivers`/target/entrypoint antes de promover esta spec para `in-progress`; não inventar perfil já instalado. Exigir integration para contrato/capability/governance e reachability + integration/e2e para surface. Este planejamento não ativa policy nem declara entrega composta.
+- contract:abm-contract-nodes module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
+
+Produtor integration: check `abm-contract-nodes-integration` da matriz
+(`go test ./internal/pose ./internal/cli ./internal/mcpserver -run
+'ABMContractNodes|ABMNodeTransitions|ABMNodeDigest|Amend' -count=1`); unit pelo
+`go test ./...` do módulo. Nenhuma instância adota a capability nesta entrega.
+
+### Desenho
+- Projeção `contract-nodes` (schema 1, independente da versão comercial): nós
+  R (texto do requisito), A (claim, scope, affects, evidence; estado
+  unverified|verified|invalidated|withdrawn) e D (basis, opções, rationale,
+  consequências, falsifier; estado active|withdrawn, novo campo opcional
+  `Status` na decisão), com namespace `spec:<slug>`, hash normalizado de
+  conteúdo separado do estado, relações e digest sem números de linha.
+- Eventos de amendment schema 2: IDs R/A/D, `before`/`after` por nó (hash e
+  estado), mudança `transition` para estado, origem (author/reviewer) e
+  `assurance: declared`. O reader continua lendo schema 1 como histórico só de
+  R, sem rationale inventado.
+- Capability `contract_nodes_version: 1` na policy de review. Sem ela, o gate
+  segue só R (comportamento atual) e um log com evento schema 2 é recusado,
+  não interpretado. Com ela, o gate cobre R/A/D, transições e as regras de R5.
+- Editorial não mascara semântica: um reconhecimento `editorial` é recusado
+  quando o nó mudou relações (affects/basis) ou estado.
+- R5: D ativa com basis em A `invalidated` ou `withdrawn` é erro até a
+  decisão mudar de basis ou ser retirada; refs órfãs e ciclos seguem do parser
+  de design basis.
 
 ### Mudanças de API/contrato
 Promover o parser advisory validado no piloto. Event v2 pode referenciar nodes tipados; manter adaptação v1 sem reescrita. Contrato de serialização e normalização deve ter golden bytes antes de novos digests públicos.
@@ -78,14 +123,19 @@ Somente após stop/go do piloto; dual reader e capability explícita. Done legad
 
 ## 4. Tasks
 
-- [ ] Confirmar dependências e revisar o desenho contra a release que será implementada.
-- [ ] Registrar delivery profile/target/entrypoint e inventário exato antes de iniciar código.
-- [ ] Implementar os requisitos em incrementos coesos e incluir os casos negativos de Validation.
-- [ ] Atualizar interfaces, docs e scaffolds que consomem o contrato, sem drift de vendor.
+- [x] Confirmar dependências e revisar o desenho contra a release que será implementada.
+- [x] Registrar delivery profile/target/entrypoint e inventário exato antes de iniciar código.
+- [x] Implementar os requisitos em incrementos coesos e incluir os casos negativos de Validation.
+- [x] Atualizar interfaces, docs e scaffolds que consomem o contrato, sem drift de vendor.
 - [ ] Executar matriz aplicável, obter review explícito e anexar evidência por R-ID.
 - [ ] Fechar somente pelo gate POSE, com riscos/follow-ups dispostos e resultado de composição atual.
 
 ## 5. Decisions
+
+- Date: 2026-09-27. Decisão do usuário: implementar agora, sem rollout. O
+  gate do piloto (D1) passa a travar adoção da capability, rollout e closeout
+  do milestone `contract-nodes`, não a escrita do código; nenhuma instância
+  adota `contract_nodes_version` nesta entrega.
 
 - Date: 2026-09-27. Após a transferência do Harne8, o gate do piloto de campo
   (decisão D1 do plano 6.0.0) deixa de ser `depends_on` desta spec e passa a
@@ -122,9 +172,24 @@ Plano anterior à implementação. Os nomes de testes ABM e comandos novos abaix
 
 ### Log de execução
 2026-09-18: planejamento criado. Validação editorial deste documento não satisfaz os requisitos de runtime.
+2026-09-27: implementado sem rollout. Testes novos: projeção R/A/D e digest,
+leitura de histórico v1 (inclusive um log real do repositório em
+`testdata`), recusa de schema 2 sem capability e de linhas malformadas,
+transições, basis invalidada ou retirada, refs órfãs e ciclos, editorial que
+não mascara semântica, invariância a Tasks/Final Report, CLI com e sem
+capability, gate do lint e a tool MCP. Com o gate ignorando a capability, 5
+testes reprovaram. `go test ./...`, `go vet ./...` e o `-race` da seleção
+passam. `help_catalog.go` saiu dos artefatos: `amend` não tem entrada no
+catálogo; o uso vem do próprio comando.
 
 ### Requirement trace
-Pendente de implementação: cada R-ID acima exige evidência nominal dos cenários e do delivery target no closeout. Não usar preenchimento documental como satisfied.
+- R1 [satisfied] test:TestABMContractNodesProjectionCoversRADWithStableDigest test:TestABMContractNodesMigratesARealV1Log
+- R2 [satisfied] test:TestABMContractNodesProjectionCoversRADWithStableDigest test:TestABMNodeTransitionsRequireAcknowledgement
+- R3 [satisfied] test:TestABMNodeTransitionsEditorialCannotMaskSemantic test:TestABMContractNodesCLIAdoptedRecordsNodesAndRefusesMaskedChanges
+- R4 [satisfied] test:TestABMNodeDigestIgnoresDerivedSections
+- R5 [satisfied] test:TestABMNodeTransitionsInvalidatedAssumptionBlocksActiveDecision
+- R6 [satisfied] test:TestABMContractNodesCLIAdoptedRecordsNodesAndRefusesMaskedChanges test:TestABMContractNodesMigratesARealV1Log
+- R7 [satisfied] test:TestABMContractNodesRefusesSchema2WithoutCapability test:TestABMContractNodesCLILintRefusesSchema2WithoutCapability test:TestABMContractNodesMCPReturnsProjectionAndCapability
 
 ### Gaps conhecidos
 Infraestrutura, amostra/usuários ou credenciais necessárias ao aceite deverão ser disponíveis na execução; ausência será reportada sem simulação de sucesso.

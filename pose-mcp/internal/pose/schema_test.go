@@ -23,6 +23,7 @@ func TestSchemaDrift(t *testing.T) {
 		{"insights.schema.json", InsightsResult{GroupBy: "workflow", SinceDays: 30,
 			RecordsScanned: 2, RecordsSkippedByWindow: 1, RecordsSkippedInvalid: 0,
 			Rows: []InsightRow{{Key: "feature", Pass: 1, Total: 1}}}},
+		{"contract-nodes.schema.json", ProjectContractNodes("nodes", "# Spec\n\n## 2. Requirements\n\n- R1: One.\n\n## 5. Decisions\n\n### Decision D1\n- Basis: R7\n")},
 	}
 	for _, tc := range cases {
 		t.Run(tc.schema, func(t *testing.T) {

@@ -25,6 +25,7 @@ do `pose-mcp`, conforme a política da
 | `v1/review-bundle.schema.json` | `pose_review_bundle`; saída JSON de `pose review bundle` |
 | `v1/review-attestation.schema.json` | `pose review attest` e `pose review verify` |
 | `v1/review-attestation-envelope.schema.json` | envelope externo opcional assinado |
+| `v1/contract-nodes.schema.json` | campo `contract_nodes` de `pose_spec_amendments`; saída de `pose amend --nodes --json` |
 
 ## Pass-through (contrato da CLI)
 

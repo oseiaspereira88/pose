@@ -59,7 +59,10 @@ type DesignDecision struct {
 	Rationale      string   `json:"rationale,omitempty"`
 	Consequences   string   `json:"consequences,omitempty"`
 	Falsifier      string   `json:"falsifier,omitempty"`
-	Line           int      `json:"line"`
+	// Status is optional: a decision is active unless it declares
+	// `Status: withdrawn` (spec pose-abm-contract-nodes).
+	Status string `json:"status,omitempty"`
+	Line   int    `json:"line"`
 }
 
 type DesignBasisDiagnostic struct {
@@ -320,6 +323,7 @@ func decisionFromNode(node designNode) DesignDecision {
 		Rationale:      firstDesignField(node.fields, "rationale", "racional", "justificativa"),
 		Consequences:   firstDesignField(node.fields, "consequences", "consequencias"),
 		Falsifier:      firstDesignField(node.fields, "falsifier", "falsificador", "condicaodefalsificacao"),
+		Status:         strings.ToLower(strings.TrimSpace(firstDesignField(node.fields, "status", "estado"))),
 		Line:           node.line,
 	}
 }
@@ -522,6 +526,11 @@ func validateDecision(report *DesignBasisReport, item DesignDecision, assumption
 	}
 	if len(item.Basis) == 0 {
 		report.addDiagnostic("error", "missing-basis", item.ID, item.Line, "decision requires Basis refs")
+	}
+	switch item.Status {
+	case "", "active", "withdrawn":
+	default:
+		report.addDiagnostic("error", "invalid-status", item.ID, item.Line, fmt.Sprintf("unknown decision status %q (use active|withdrawn)", item.Status))
 	}
 	hasRequirementPath := false
 	for _, id := range item.Basis {
