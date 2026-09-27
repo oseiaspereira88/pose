@@ -1003,7 +1003,13 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	// pose-public-claims-contract): what the project asserts about itself in
 	// public. It is authored policy, not derived output, so a change to it
 	// belongs in the review subject exactly like a rule or a workflow.
-	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/"} {
+	// The transfer lock is runtime state, never an authority record.
+	if path == ".pose/transfers/.authority-transfer.lock" {
+		return "derived-evidence", false
+	}
+	// .pose/transfers/ holds transfer and reconciliation plans, receipts,
+	// archived sources and redirects: the record of who owns a spec.
+	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}

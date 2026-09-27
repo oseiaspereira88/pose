@@ -274,3 +274,23 @@ func TestSpecTransferRewritesExplicitAfterRefsAndVerifiesTheStub(t *testing.T) {
 		t.Fatal("a stub was verified for a slug without a redirect")
 	}
 }
+
+func TestSpecTransferJournalClassifiesAsGovernance(t *testing.T) {
+	scope, err := ParseScopeRef("spec:any")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{
+		".pose/transfers/redirects/shared-task.json",
+		".pose/transfers/stf-0123456789abcdef01234567/plan.json",
+		".pose/transfers/stf-0123456789abcdef01234567/journal/activated.json",
+		".pose/transfers/stf-0123456789abcdef01234567/source-spec.md",
+	} {
+		if class, include := reviewBundlePathClass(path, scope, nil); class != "governance" || !include {
+			t.Errorf("%s classified as %q include=%v, want governance and included", path, class, include)
+		}
+	}
+	if class, include := reviewBundlePathClass(".pose/transfers/.authority-transfer.lock", scope, nil); class == "governance" || include {
+		t.Errorf("the transfer lock was treated as an authority record: %q include=%v", class, include)
+	}
+}
