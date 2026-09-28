@@ -1,10 +1,123 @@
 package pose
 
 import (
+	"crypto/ed25519"
+	"encoding/base64"
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 )
+
+func TestABMReviewSoundnessSignedRiskIsNotApproval(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	now := time.Date(2026, 9, 28, 10, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	privateKey := ed25519.NewKeyFromSeed(make([]byte, ed25519.SeedSize))
+	publicKey := privateKey.Public().(ed25519.PublicKey)
+	policyPath := filepath.Join(root, ".pose/policy/review.json")
+	policy, err := os.ReadFile(policyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, ".pose/policy/review.json", strings.Replace(string(policy), `"component_aware": true,`, `"component_aware":true,"trusted_attestation_issuers":["test:risk#`+digestBytes(publicKey)+`"],`, 1))
+	att := approvedBundleAttestation(bundle, "agent:signed-risk")
+	att.SchemaVersion = ReviewBundleSchemaVersion
+	att.BundleDigest = bundle.BundleDigest
+	att.AttestedAt = now.Add(time.Minute).Format(time.RFC3339)
+	att.Findings = []ReviewFinding{{ID: "f1", Severity: "critical", Disposition: "wont-fix", Action: "leave unresolved"}}
+	att.AttestationID = reviewAttestationID(att)
+	raw, err := json.Marshal(att)
+	if err != nil {
+		t.Fatal(err)
+	}
+	envelope := ReviewAttestationEnvelope{SchemaVersion: 1, Issuer: "test:risk", Subject: bundle.BundleID, Algorithm: "ed25519", PublicKey: base64.StdEncoding.EncodeToString(publicKey), Signature: base64.StdEncoding.EncodeToString(ed25519.Sign(privateKey, raw)), Attestation: att}
+	raw, err = json.Marshal(envelope)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, "risk-envelope.json", string(raw))
+	if _, err := store.ImportReviewAttestationEnvelope("risk-envelope.json", true); err != nil {
+		t.Fatal(err)
+	}
+	verification, err := store.VerifyReviewBundle("spec:backend")
+	if err != nil || verification.Approved || !containsSubstring(verification.Blockers, "unapproved or incomplete accepted risk") {
+		t.Fatalf("signed risk bypassed gate: %+v %v", verification, err)
+	}
+}
+
+func TestABMReviewSoundnessNegativeDecisionIsAudit(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	now := time.Date(2026, 9, 28, 10, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, decision := range []string{"changes-requested", "rejected"} {
+		att := approvedBundleAttestation(bundle, "agent:negative-audit")
+		att.Decision = decision
+		recorded, err := store.RecordReviewAttestation(att, now.Add(time.Duration(i+1)*time.Minute))
+		if err != nil {
+			t.Fatal(err)
+		}
+		loaded, err := store.LoadReviewAttestation(recorded.AttestationID)
+		if err != nil || loaded.Decision != decision {
+			t.Fatalf("decision not retained: %+v %v", loaded, err)
+		}
+		verification, err := store.VerifyReviewBundle("spec:backend")
+		if err != nil || verification.Approved {
+			t.Fatalf("negative decision approved: %+v %v", verification, err)
+		}
+	}
+	before, err := os.ReadDir(filepath.Join(root, ".pose/review-attestations"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	invalid := approvedBundleAttestation(bundle, "agent:negative-audit")
+	invalid.Decision = "pretend-approved"
+	if _, err := store.RecordReviewAttestation(invalid, now.Add(3*time.Minute)); err == nil || !strings.Contains(err.Error(), "invalid review decision") {
+		t.Fatalf("malformed decision accepted: %v", err)
+	}
+	after, err := os.ReadDir(filepath.Join(root, ".pose/review-attestations"))
+	if err != nil || len(before) != len(after) {
+		t.Fatalf("malformed record changed audit history: %v", err)
+	}
+}
+
+func TestABMReviewSoundnessReuseCannotLaunderRejectedRisk(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	policyPath := filepath.Join(root, ".pose/policy/review.json")
+	policy, err := os.ReadFile(policyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, ".pose/policy/review.json", strings.Replace(string(policy), `"component_aware": true,`, `"component_aware": true,"allow_criterion_reuse":true,`, 1))
+	now := time.Date(2026, 9, 28, 10, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	criterion := bundle.Payload.Plan.Criteria[0]
+	for i, decision := range []string{"approved", "rejected"} {
+		prior := approvedBundleAttestation(bundle, "agent:prior-risk")
+		prior.Decision = decision
+		prior.Findings = []ReviewFinding{{ID: "f1", Severity: "critical", Disposition: "wont-fix", Action: "leave unresolved"}}
+		recorded, err := store.RecordReviewAttestation(prior, now.Add(time.Duration(i+1)*time.Minute))
+		if err != nil {
+			t.Fatal(err)
+		}
+		current := approvedBundleAttestation(bundle, "agent:reuse-risk")
+		current.ReusedFrom = []ReviewAttestationReuse{{Criterion: criterion.ID, FromAttestation: recorded.AttestationID, InputDigest: reviewCriterionInputDigest(bundle, criterion)}}
+		if blockers := store.validateBundleAttestation(bundle, current); !containsSubstring(blockers, "non-approving attestation") {
+			t.Fatalf("reuse laundered rejected risk: %v", blockers)
+		}
+	}
+}
 
 // These are the inversions of the four characterization tests recorded against
 // 5.0.8 in the ABM review. Each one asserted the defect and passed; here the

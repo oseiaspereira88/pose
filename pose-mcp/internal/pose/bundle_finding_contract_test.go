@@ -124,3 +124,35 @@ func TestAnUnsealedGateIsTheConservativeReading(t *testing.T) {
 		t.Error("a bundle with no sealed severities accepted a risk")
 	}
 }
+
+func TestBundlePathWontFixUsesSealedAcceptedRiskGate(t *testing.T) {
+	for _, tc := range []struct {
+		name         string
+		severity     string
+		complete     bool
+		wantAccepted bool
+	}{
+		{"critical without metadata", "critical", false, false},
+		{"critical with metadata", "critical", true, false},
+		{"low without metadata", "low", false, false},
+		{"low with metadata", "low", true, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			store, bundle, att := gateFixture(ReviewBundleGates{AcceptedRiskSeverities: []string{"low"}})
+			finding := ReviewFinding{ID: "f1", Severity: tc.severity, Action: "leave unresolved", Disposition: "wont-fix"}
+			if tc.complete {
+				finding.Owner = "@maintainers"
+				finding.Rationale = "bounded residual risk"
+				finding.ReviewBy = "2026-10-28"
+			}
+			att.Findings = []ReviewFinding{finding}
+			blockers := store.validateBundleAttestationWith(bundle, att, true)
+			if (len(blockers) == 0) != tc.wantAccepted {
+				t.Fatalf("accepted=%v, want %v; blockers=%v", len(blockers) == 0, tc.wantAccepted, blockers)
+			}
+			if !tc.wantAccepted && !strings.Contains(strings.Join(blockers, ";"), "unapproved or incomplete accepted risk") {
+				t.Fatalf("missing actionable risk diagnostic: %v", blockers)
+			}
+		})
+	}
+}

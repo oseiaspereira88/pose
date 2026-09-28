@@ -298,6 +298,21 @@
       "stack": "go",
       "checks": [
         {
+          "name": "review-soundness-residuals-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/scaffold",
+            "-run",
+            "BundlePathWontFix|NegativeDecisionIsAudit|ReuseCannotLaunder|SignedRiskIsNotApproval|WontFixCannotApprove|DistributedReviewSoundness|ReviewAttestationEnvelope",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "governance-outcomes-v2-contract",
           "program": "go",
           "args": [

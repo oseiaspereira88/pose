@@ -320,6 +320,30 @@ func TestReviewRecordDelegatesToBundleAttestationWhenAdopted(t *testing.T) {
 	}
 }
 
+func TestReviewAttestationWontFixCannotApproveThroughCLI(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	var out, errOut bytes.Buffer
+	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--seal", "--json"}, &out, &errOut); code != 0 {
+		t.Fatal(errOut.String())
+	}
+	var bundle posemodel.ReviewBundle
+	if err := json.Unmarshal(out.Bytes(), &bundle); err != nil {
+		t.Fatal(err)
+	}
+	ref := bundle.Payload.Evidence[0].EvidenceClass + ":" + bundle.Payload.Evidence[0].ID
+	out.Reset()
+	errOut.Reset()
+	args := []string{"attest", bundle.BundleID, "--reviewer", "agent:risk-cli", "--decision", "approved", "--evidence", ref, "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--finding", "f1|critical|wont-fix|leave unresolved|" + ref, "--apply"}
+	if code := cmdReview(root, args, &out, &errOut); code != 0 {
+		t.Fatal(errOut.String())
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReview(root, []string{"verify", "spec:bundle", "--json"}, &out, &errOut); code != 1 || !strings.Contains(out.String(), "unapproved or incomplete accepted risk") {
+		t.Fatalf("CLI approved risk: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+}
+
 func TestReviewPlanGroupsRepeatedWarningsAndPresentsActionableToolPhases(t *testing.T) {
 	warnings := groupedReviewPlanWarnings([]string{
 		"unmapped review component path:a", "unmapped review component path:b",

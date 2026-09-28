@@ -1,13 +1,13 @@
 ---
 slug: pose-abm-review-soundness-residuals
-status: draft
+status: in-progress
 created_at: 2026-09-26
 supersedes:
 depends_on: pose-abm-review-soundness
 priority: 1
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: governance:review-soundness-residuals
 ---
 
 # Spec: Review soundness obligations the executor did not deliver
@@ -28,7 +28,7 @@ rationale or review date, so it bypasses the accepted-risk gate
 
 ### Constraints
 Owner: @pose-maintainers. Do not reopen `pose-abm-review-soundness`.
-Planning only; no requirement is satisfied by this document.
+Implement the minimum shared gate and exercise the distributed review contract.
 
 ### Non-goals
 Do not change accepted-risk severities or the finding schema beyond what the
@@ -43,18 +43,42 @@ requirements need.
 ## 3. Technical Plan
 
 ### Affected areas
-`pose-mcp/internal/pose/review_bundle.go` attestation validation, the
-distributed skills and manual. To be detailed before activation.
+Treat unresolved `wont-fix` findings as accepted risk, using the severities
+frozen into the bundle and requiring owner, rationale and review date. Reuse
+the shared verifier for Store, CLI, signed import and criterion reuse. Keep
+non-approving decisions as immutable audit records; malformed envelope identity
+and decision values remain write errors. Reconcile English and Portuguese
+review instructions and embedded scaffold. Use
+knowledge:module-metadata-discovery-invalidates-review-provenance.
 
 ### Artifacts
 - created: .pose/specs/2026-09-26-pose-abm-review-soundness-residuals.md
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/bundle_finding_contract_test.go
+- modified: pose-mcp/internal/pose/abm_review_soundness_test.go
+- modified: pose-mcp/internal/cli/review_closeout_test.go
+- created: pose-mcp/internal/scaffold/review_soundness_test.go
+- modified: .agents/skills/pose-review/SKILL.md
+- modified: POSE.md
+- modified: locales/pt-BR/.agents/skills/pose-review/SKILL.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-review/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
+- created: .pose/changelogs/unreleased/pose-abm-review-soundness-residuals.md
 
 ### Delivery targets
-Keep `delivers` empty while this is a draft.
+- governance:review-soundness-residuals module:pose-mcp profile:release-governance entrypoint:pose-mcp/cmd/pose/main.go
 
 ## 4. Tasks
 
-- [ ] Detail the plan and register targets before activation.
+- [x] Detail the plan and register targets before activation.
+- [ ] Reproduce the critical wont-fix acceptance and apply the shared gate.
+- [ ] Prove rejection audit persistence and malformed decision refusal.
+- [ ] Reconcile distributed instructions and add the contract check.
+- [ ] Validate, review and close.
 
 ## 5. Decisions
 
@@ -63,7 +87,13 @@ coordinator is retired with `spec-transfer --mode reconcile-terminal`.
 
 ## 6. Validation
 
-To be defined before activation.
+Before the fix, `TestBundlePathWontFixUsesSealedAcceptedRiskGate` must fail on
+critical and incomplete risks. After the fix it must accept only complete low
+risks under the sealed policy. `TestABMReviewSoundnessNegativeDecisionIsAudit`
+exercises persistence and non-approval; an invalid decision creates no record.
+`TestDistributedReviewSoundnessContract` verifies the installed profiles and
+instructions against runtime criterion preparation. Run the registered
+`review-soundness-residuals-integration` check and the full pose-mcp matrix.
 
 ### Requirement trace
 - R1 [deferred-integration: planning only] spec:pose-abm-review-soundness

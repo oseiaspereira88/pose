@@ -2557,6 +2557,9 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 			blockers = append(blockers, "reused criterion "+reuse.Criterion+" references an unavailable bundle")
 			continue
 		}
+		for _, blocker := range reviewFindingDecisionBlockers(priorBundle, prior) {
+			blockers = append(blockers, "reused criterion "+reuse.Criterion+" references a non-approving attestation: "+blocker)
+		}
 		priorContract := ""
 		for _, criterion := range priorBundle.Payload.Plan.Criteria {
 			if criterion.ID == reuse.Criterion {
@@ -2585,6 +2588,13 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	toolWarnings, toolBlockers := evaluateReviewToolCoverage(s.Root, bundle.Payload.Plan.Tools, att.Tools, sealedEvidence, hasDeliveryTarget)
 	_ = toolWarnings
 	blockers = append(blockers, toolBlockers...)
+	blockers = append(blockers, reviewFindingDecisionBlockers(bundle, att)...)
+	return blockers
+}
+
+// The same finding and decision gate protects fresh and reused approvals.
+func reviewFindingDecisionBlockers(bundle ReviewBundle, att ReviewAttestation) []string {
+	blockers := []string{}
 	// The finding contract, which this path did not have. It accepted a
 	// `critical` risk with no owner, no rationale and no review date; a
 	// disposition the engine does not know; and a finding with neither severity
@@ -2610,8 +2620,10 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 			blockers = append(blockers, "finding "+finding.ID+" lacks severity or action")
 		}
 		switch finding.Disposition {
-		case "resolved", "wont-fix":
-		case "accepted-risk":
+		case "resolved":
+		case "accepted-risk", "wont-fix":
+			// Leaving a finding unresolved accepts its risk regardless of the
+			// disposition's spelling. Use the policy frozen into this bundle.
 			if !allowedRisk[finding.Severity] || finding.Owner == "" || finding.Rationale == "" || finding.ReviewBy == "" {
 				blockers = append(blockers, "finding "+finding.ID+" has unapproved or incomplete accepted risk")
 			}
