@@ -76,7 +76,7 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 	if limit < 1 || limit > 20000 {
 		return GovernanceReplayReport{}, fmt.Errorf("pose: replay limit must be between 1 and 20000")
 	}
-	report := GovernanceReplayReport{SchemaVersion: 1, Mode: "read-only-counterfactual", Complete: true, Limit: limit, RejectionReasons: map[string]int{}, Limitations: []string{"Frozen historical approvals are not rewritten or revoked by this report.", "Counterfactual rejection does not establish reviewer utility or causal benefit.", "No costs, retries, task latency or external adoption are inferred.", "Structural coverage uses the newest available sealed subject of each spec."}}
+	report := GovernanceReplayReport{SchemaVersion: 1, Mode: "read-only-counterfactual", Complete: true, Limit: limit, RejectionReasons: map[string]int{}, Limitations: []string{"Frozen historical approvals are not rewritten or revoked by this report.", "Record-level checks do not apply lifecycle grandfathering or determine current scope approval.", "Counterfactual rejection does not establish reviewer utility or causal benefit.", "No costs, retries, task latency or external adoption are inferred.", "Structural coverage uses the newest available sealed subject of each spec."}}
 	bundles := map[string]ReviewBundle{}
 	latest := map[string]ReviewBundle{}
 	latestAtt := map[string]ReviewAttestation{}
