@@ -111,9 +111,18 @@ without re-discovering the root cause from scratch.
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/validate_orchestration_test.go
 - modified: mcp-enforce/README.md
-- created: .pose/knowledge/2026-08-15-decision-log-self-referential-policy-template-contamination.md
 - created: .pose/reports/2026-08-15-standard-validate-native.md
 - modified: .pose/reports/history/standard-validate-native.jsonl
+
+### Historical artifact disposition
+
+The decision log originally created at
+`.pose/knowledge/2026-08-15-decision-log-self-referential-policy-template-contamination.md`
+was archived by commit `aa1c6b8`. Its preserved record is now
+[the archived decision log](../knowledge/archive/2026-08-15-decision-log-self-referential-policy-template-contamination.md).
+The original creation remains in Git history; the active inventory no longer
+requires its former path to exist. This amendment does not renew its expiry,
+change the note or claim a new knowledge artifact.
 
 ### Delivery targets
 - capability:pose-mcp module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
