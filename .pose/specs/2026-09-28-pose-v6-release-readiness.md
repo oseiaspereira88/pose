@@ -113,8 +113,8 @@ an integration gate and repeat the signing rehearsal for the final runtime.
 - [x] Complete explicit source reviews and reconcile their evidence.
 - [x] Implement and verify missing migration/distribution behavior.
 - [x] Align version, compatibility and public distribution metadata.
-- [ ] Validate, review and close the technical candidate.
-- [ ] Reproduce and fix release archive subject resolution; verify negatives and final rehearsal.
+- [x] Validate and review the technical candidate; apply the canonical closeout gate.
+- [x] Reproduce and fix release archive subject resolution; verify negatives and final rehearsal.
 - [x] Verify and hand off the immutable publication and reconciliation path.
 
 ## 5. Decisions
@@ -154,7 +154,7 @@ findings; remediation lineage has only containing-module coverage warnings.
 - R3 [satisfied] unit:pose-mcp/go/test
 - R4 [satisfied] report:.pose/results/pose-v6-snapshot.json
 - R5 [satisfied] report:.pose/results/pose-v6-snapshot.json
-- R6 [deferred-integration: regression identified before release cut] spec:pose-v6-release-readiness
+- R6 [satisfied] integration:pose-mcp/go/release-review-archive-integration
 
 ## 7. Final Report
 
@@ -164,7 +164,9 @@ compatibility, vulnerability/secrets checks, six platform builds, Sigstore
 signing and artifact/SBOM identity verification. It published no release.
 The runtime remains 6.0.0-dev until the release pipeline stamps 6.0.0.
 
-The full source matrix passed 36/36 after final residual/replay traces; the
+The final runtime rehearsal `36432443099` at `1fd55b1` passed on attempt 2, including real signatures and SBOM identity. Attempt 1 failed only the temporary Git-directory cleanup of the existing 500-commit attribution test; its actual failure is retained alongside the successful receipt. The 37/37 source matrix passed at `1fd55b1`, including archived-subject preservation and negative witnesses.
+
+The earlier full source matrix passed 36/36 after final residual/replay traces; the
 notes selection regression additionally proves tagged runs cannot use mutable
 preview notes. Remaining release operations use the existing lifecycle:
 prepare and strictly check the immutable manifest, require a clean tree, create
@@ -174,4 +176,4 @@ acceptance. No human staging or external adoption is claimed.
 
 ### Follow-ups
 
-No additional follow-up yet; remaining work is tracked by R1–R5.
+- [open] Make the temporary Git fixture cleanup deterministic for the existing 500-commit attribution test; the observed CI cleanup race must not recur (owner:@pose-maintainers crit:low review:2026-10-28)

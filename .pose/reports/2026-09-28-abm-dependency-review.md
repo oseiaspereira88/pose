@@ -89,3 +89,5 @@ a published release. Explicitly approved technical readiness within this scope.
 ## Release archival review
 
 The regression reproduced a missing pending fragment after the cut. The ledger alias keeps the attributed pending path and normalized content digest unchanged. The selected owning spec, one release, exact frozen bytes, committed manifest/archive and project confinement are required. Dirty, staged, untracked, duplicate, foreign-owned and digest-mismatched witnesses remain blockers; missing unrelated knowledge paths gain no alias. Historical approval sidecars are preserved.
+
+Final runtime snapshot `36432443099` at `1fd55b1` passed attempt 2. The retained receipt distinguishes the first existing Git TempDir cleanup failure from the successful second attempt. All runtime archival regressions passed both local full validation and official CI. Source full matrix: 37/37 at `1fd55b1`; assessment refresh still reports 58 contracts, 57 unobserved gaps and zero uncovered debt markers.
