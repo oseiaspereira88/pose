@@ -73,6 +73,22 @@
       "digest": "sha256:85e649a8b72369f95b7e257c60f632602d77a24bc6301968dd76701c82ad99be"
     },
     {
+      "spec": "pose-abm-retrospective-replay",
+      "category": "added",
+      "breaking": false,
+      "body": "Add bounded read-only `pose stats replay` to expose the retrospective cost of ABM adoption, with explicit rejection and structural coverage denominators. Add the 24-case adjudicated golden corpus without presenting fixtures as observed deliveries.",
+      "path": "pose-abm-retrospective-replay.md",
+      "digest": "sha256:503b178cd690f8827d4dd0135cc494d9db9cb8870521e33d6289f659b0ff7a87"
+    },
+    {
+      "spec": "pose-abm-review-soundness-residuals",
+      "category": "security",
+      "breaking": false,
+      "body": "Apply the sealed accepted-risk gate to unresolved `wont-fix` findings, retain\nnegative review decisions for audit, and correct Portuguese review instructions\nto require explicit pending judgments. Guard the embedded distribution contract.",
+      "path": "pose-abm-review-soundness-residuals.md",
+      "digest": "sha256:6a78dd5e6213fa4d72afcd8f3d6c91a290ee835b0627739bd777c5fd8acf28ca"
+    },
+    {
       "spec": "pose-abm-state-followup-origins",
       "category": "fixed",
       "breaking": false,
@@ -199,6 +215,14 @@
       "body": "`pose spec-transfer preview --mode reconcile-terminal` retires a coordinator spec onto an executor in another project that is already `done` with a terminal closeout. The executor is never written: apply and resume only verify its digest. The requirement map is N:M over every source requirement, may target another spec through `destination_ref`, and records a `rationale` for `withdrawn` and `pending`; an owed requirement must land in an open spec and is kept in the redirect as `open_obligations`. `--map-file` reads the map as JSON. Plans and redirects of this mode use schema version 2, which older engines refuse. Ordinary transfers are unchanged.",
       "path": "pose-spec-transfer-reconcile-terminal.md",
       "digest": "sha256:92b65e1e88af957a2a9952d511ffd66035bbce0067002737ef20da2a25e09f17"
+    },
+    {
+      "spec": "pose-v6-release-readiness",
+      "category": "changed",
+      "breaking": true,
+      "body": "Prepare POSE 6.0.0 with aligned public version metadata, authenticated 5.0.8 upgrades and retained migration gates. Governance contracts require a compatible engine after explicit adoption; experimental judgments remain opt-in. Historical approvals keep their frozen contracts.",
+      "path": "pose-v6-release-readiness.md",
+      "digest": "sha256:4e9dfa9bf4f56914c39ba9d390fe8398025030efacce46acf08afb0faa5b76e7"
     },
     {
       "spec": "review-policy-adoption-is-the-instances",

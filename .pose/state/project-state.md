@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-28T01:32:03Z
-baseline_commit: 06c2c6098ae236cd88e512205a56c832c2816783
+generated_at: 2026-09-28T12:47:48Z
+baseline_commit: e0fb750ca02d9f0ab32ad0bc877dcfcd34be95a1
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:eb8e5b1ce99b -->
+<!-- state:derived hash:68775e8ade02 -->
 
-- specs: total=251 draft=5 in-progress=65 blocked=0 done=181 superseded=0 abandoned=0
+- specs: total=253 draft=4 in-progress=66 blocked=0 done=183 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
   - spec:pose-governance-outcomes-v2 (2026-09-28)
-  - spec:pose-federated-milestone-scoped-acceptance (2026-09-27)
-  - spec:pose-review-bundle-classifies-transfer-records (2026-09-27)
+  - spec:pose-abm-review-soundness-residuals (2026-09-28)
+  - spec:pose-abm-retrospective-replay (2026-09-28)
+  - spec:pose-governance-stats-local-freshness (2026-09-27)
   - spec:pose-check-dor-accepts-qualified-refs (2026-09-27)
-  - spec:pose-federated-external-milestone-members (2026-09-27)
-  - ... e mais 176 (ver `pose_list_specs status:done`)
+  - ... e mais 178 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:370b6c6971e1 -->
@@ -66,16 +66,16 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:3d31225f71f2 -->
+<!-- state:derived hash:539b8ae49d3f -->
 
-- último registro: task=validate-native outcome=pass (2026-09-27T21:05:43Z)
-- últimos 30 dias: total=116 outcome_ok=104 outcome_outro=12
-- reports revisados (.md): total=148
+- último registro: task=validate-native outcome=pass (2026-09-28T12:46:58Z)
+- últimos 30 dias: total=122 outcome_ok=107 outcome_outro=15
+- reports revisados (.md): total=150
+  - report:2026-09-28-standard-validate-native.md
+  - report:2026-09-28-abm-dependency-review.md
   - report:2026-09-27-standard-validate-native.md
   - report:2026-09-26-standard-validate-native.md
   - report:2026-09-26-federated-carried-forward-proof.md
-  - report:2026-09-25-standard-validate-native.md
-  - report:2026-09-24-multirepo-autonomous-review.md
 
 ## Arquitetura
 <!-- state:derived hash:42fe36bc8d38 status:active -->
