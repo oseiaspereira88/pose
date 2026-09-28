@@ -2,7 +2,6 @@ package cli
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"strconv"
 
@@ -30,11 +29,11 @@ func cmdGovernanceReplay(root string, args []string, stdout, stderr io.Writer) i
 	}
 	report, err := (posepkg.Store{Root: root}).GovernanceReplay(limit)
 	if err != nil {
-		fmt.Fprintln(stderr, err)
+		render(stdout, stderr).Failure(err.Error())
 		return 1
 	}
 	if err := json.NewEncoder(stdout).Encode(report); err != nil {
-		fmt.Fprintln(stderr, err)
+		render(stdout, stderr).Failure(err.Error())
 		return 1
 	}
 	return 0
