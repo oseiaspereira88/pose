@@ -207,9 +207,9 @@ func (s Store) GovernanceReplay(limit int) (GovernanceReplayReport, error) {
 			report.SpecsWithUnknownStructure++
 			continue
 		}
-		unknown := delta.Coverage.Truncated
+		unknown := delta.Coverage.Truncated || delta.Status == "unknown"
 		for _, detector := range delta.Coverage.Detectors {
-			if detector.Unknown > 0 || detector.Unsupported > 0 {
+			if detector.Unknown > 0 || detector.Unsupported > 0 || detector.State == "unknown" || detector.State == "unsupported" {
 				unknown = true
 			}
 		}
