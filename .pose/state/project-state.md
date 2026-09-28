@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-28T12:47:48Z
-baseline_commit: e0fb750ca02d9f0ab32ad0bc877dcfcd34be95a1
+generated_at: 2026-09-28T14:12:34Z
+baseline_commit: 390dfa6339b2ef32b636bcc7f2de2ce4b8e60a50
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:68775e8ade02 -->
+<!-- state:derived hash:4de2e360468d -->
 
-- specs: total=253 draft=4 in-progress=66 blocked=0 done=183 superseded=0 abandoned=0
+- specs: total=253 draft=4 in-progress=65 blocked=0 done=184 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
-  - spec:pose-governance-outcomes-v2 (2026-09-28)
   - spec:pose-abm-review-soundness-residuals (2026-09-28)
+  - spec:pose-governance-outcomes-v2 (2026-09-28)
+  - spec:pose-v6-release-readiness (2026-09-28)
   - spec:pose-abm-retrospective-replay (2026-09-28)
-  - spec:pose-governance-stats-local-freshness (2026-09-27)
-  - spec:pose-check-dor-accepts-qualified-refs (2026-09-27)
-  - ... e mais 178 (ver `pose_list_specs status:done`)
+  - spec:pose-abm-contract-nodes (2026-09-27)
+  - ... e mais 179 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:370b6c6971e1 -->
+<!-- state:derived hash:448ea70c32fa -->
 
-- abertos: 119
-- por criticidade: high=7 medium=28 low=60 sem-classificação=24
+- abertos: 120
+- por criticidade: high=7 medium=28 low=61 sem-classificação=24
 - vencidos (review < hoje): 2
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
@@ -66,13 +66,13 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:539b8ae49d3f -->
+<!-- state:derived hash:9a1d002fe59e -->
 
-- último registro: task=validate-native outcome=pass (2026-09-28T12:46:58Z)
-- últimos 30 dias: total=122 outcome_ok=107 outcome_outro=15
+- último registro: task=validate-native outcome=pass (2026-09-28T13:33:44Z)
+- últimos 30 dias: total=127 outcome_ok=111 outcome_outro=16
 - reports revisados (.md): total=150
-  - report:2026-09-28-standard-validate-native.md
   - report:2026-09-28-abm-dependency-review.md
+  - report:2026-09-28-standard-validate-native.md
   - report:2026-09-27-standard-validate-native.md
   - report:2026-09-26-standard-validate-native.md
   - report:2026-09-26-federated-carried-forward-proof.md

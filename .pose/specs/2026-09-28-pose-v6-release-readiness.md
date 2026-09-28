@@ -1,8 +1,8 @@
 ---
 slug: pose-v6-release-readiness
-status: in-progress
+status: done
 created_at: 2026-09-28
-completed_at:
+completed_at: 2026-09-28
 depends_on: pose-abm-causality-attestation, pose-governance-outcomes-v2, pose-abm-retrospective-replay
 priority: 1
 components: pose-mcp, mcp-enforce
