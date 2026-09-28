@@ -1,17 +1,17 @@
 # Project Assessment: pose-dist
 
 > **Gerado por**: POSE Discovery Engine (`pose assess discover`)
-> **Data de Avaliação**: 2026-09-27T23:12:44Z
-> **Baseline Commit**: a4486fa4a922
+> **Data de Avaliação**: 2026-09-28T00:34:55Z
+> **Baseline Commit**: 3422234770b1
 
 ---
 
 ## 1. Resumo Executivo do Projeto
 
 - **Total de Componentes Auditados**: 3
-- **Linhas de Código de Produção**: 52660
-- **Linhas de Código de Testes**: 40711
-- **Total Geral de Linhas de Código**: 93371
+- **Linhas de Código de Produção**: 52968
+- **Linhas de Código de Testes**: 40879
+- **Total Geral de Linhas de Código**: 93847
 - **Total de Arquivos Auditados**: 370
 - **Completude Dinâmica da Plataforma**: 0.0%
 - **Dívidas Técnicas em Aberto**: 0 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
@@ -26,7 +26,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 01 | `docs-site` | `docs-site` | `n/a` | 0 | 0 | 0 | 0 | 100% | `verified` |
 | 02 | `mcp-enforce` | `mcp-enforce` | `go` | 870 | 1029 | 17 | 0 | 100% | `verified` |
-| 03 | `pose-mcp` | `pose-mcp` | `go` | 51790 | 39682 | 353 | 0 | 100% | `verified` |
+| 03 | `pose-mcp` | `pose-mcp` | `go` | 52098 | 39850 | 353 | 0 | 100% | `verified` |
 
 ---
 

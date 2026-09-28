@@ -68,10 +68,23 @@ Give portfolio operators the denominators and source references needed to inspec
 ### Artifacts
 - modified: .pose/assessments/README.md
 - modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/docs-site.md
+- modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/mcp-enforce.md
 - modified: .pose/assessments/pose-mcp.md
+- modified: .pose/assessments/technical-debt.md
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/releases.json
+- modified: .pose/indexes/spec-graph.json
+- modified: .pose/results/delivery-validation.json
+- modified: .pose/state/components/docs-site.json
+- modified: .pose/state/components/mcp-enforce.json
 - modified: .pose/state/components/pose-mcp.json
+- modified: .pose/state/integrations.json
+- modified: .pose/state/project-state.md
+- modified: .pose/state/technical-debt.json
 - modified: .pose/adr/2026-09-27-versioned-governance-outcomes-cohorts-and-lineage.md
-- modified: .pose/specs/2026-09-27-pose-governance-outcomes-v2.md
+- created: .pose/specs/2026-09-27-pose-governance-outcomes-v2.md
 - created: .pose/changelogs/unreleased/pose-governance-outcomes-v2.md
 - modified: pose-mcp/internal/pose/governance_outcomes.go
 - modified: pose-mcp/internal/pose/governance_outcomes_test.go
@@ -115,8 +128,9 @@ Give portfolio operators the denominators and source references needed to inspec
 ### Validation
 - [x] Run focused unit tests for replay, negative attempts, cohort filters, invalid links, and truncation.
 - [x] Run MCP and CLI contract tests, full `go test ./...`, and `go vet ./...`.
-- [ ] Run `pose assess integrate` and `pose assess discover --update-state`.
-- [ ] Run strict POSE validation, review, artifact attribution, and closeout.
+- [x] Run `pose assess integrate`, component discovery, and technical-debt assessment.
+- [x] Run the strict `pose-mcp` validation matrix.
+- [ ] Refresh project assessment state, capture final validation evidence, verify artifact attribution, review, and close.
 
 ## 5. Decisions
 
@@ -160,6 +174,8 @@ Required, risk-based validation before implementation: unit tests prove aggregat
 
 2026-09-27: os testes de implementação estão concluídos; assessment de integração, validation matrix estrita, adoção pelo Harne8 e review/closeout permanecem como gates finais.
 
+2026-09-27: a matriz estrita de `pose-mcp` passou 30/30, incluindo `go test ./...`, `go vet ./...` e o contrato v2. O assessment de débito encontrou zero marcadores; o assessment local de integração listou 58 contratos e 57 gaps de consumidores externos não observados, incluindo `pose_governance_stats`, pois o checkout do motor não indexa o consumidor Harne8. A composição desse consumidor é validada na spec Harne8. `pose check --strict` continua com um erro anterior fora deste escopo: a spec fechada `pose-scaffold-self-referential-policy-fix` declara como atual um decision-log que não está rastreado.
+
 ### Requirement trace
 
 - R1 [satisfied] — schema 2, projeto, janela, timestamps, versões de fonte e coverage: `TestGovernanceOutcomesSeparateDimensionsAndCoverage`, `TestToolsCall_GovernanceStats`.
@@ -172,14 +188,15 @@ Required, risk-based validation before implementation: unit tests prove aggregat
 
 
 ### Gaps conhecidos
-- A integração real no consumidor requer que o Harne8 adote a nova revisão do motor; schema 1 permanece incompatível e não pode ser encaminhado como schema 2.
+- Consumidores ainda no schema 1 precisam atualizar antes de ler schema 2; o motor não mascara incompatibilidades nem projeta downgrade.
+- O assessment de integração executado no checkout isolado do motor não enxerga consumidores em outros repositórios. A prova composta e a autorização federada do consumidor pertencem à spec Harne8 que depende desta.
 
 ## 7. Final Report
 
 ### Escopo entregue
-Produtor schema 2, CLI e MCP implementados e cobertos pelos testes de contrato. O fechamento final aguarda a adoção conjunta pelo consumidor Harne8, a prova composta e os gates POSE.
+Produtor schema 2, CLI e MCP implementados e cobertos pela suíte completa, pelos testes de contrato e pela matriz estrita do módulo. A integração no consumidor permanece governada e validada na spec Harne8 dependente.
 
 ### Riscos residuais
-Consumidores schema 1 devem atualizar junto com o motor. A lista de vínculos pode truncar após 100 linhas e sinaliza isso explicitamente.
+Consumidores schema 1 devem atualizar antes da adoção; linhas de legado sem identidade e truncamento acima de 100 vínculos são indicados explicitamente. O `pose check --strict` do repositório segue com o erro de baseline documentado no log, fora dos artefatos desta spec.
 
 ### Follow-ups
