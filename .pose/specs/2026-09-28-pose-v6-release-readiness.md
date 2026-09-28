@@ -61,6 +61,11 @@ experimental policies through a version bump, or overwrite a released tag.
 - modified: pose-mcp/internal/version/version.go
 - modified: pose-mcp/server.json
 - modified: compatibility.json
+- modified: README.md
+- modified: docs-site/docs/ci.md
+- modified: .pose/results/delivery-validation.json
+- modified: .pose/reports/history/standard-validate-native.jsonl
+- created: .pose/reports/2026-09-28-standard-validate-native.md
 - created: .pose/changelogs/unreleased/pose-v6-release-readiness.md
 
 Amend the exact inventory before changing additional source files. Review
