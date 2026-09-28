@@ -123,7 +123,10 @@ else
         grep -q "$marker" "$fixture/$manual.pose-backup" 2>/dev/null ||
         return 1
     done
-    [[ -f "$fixture/.pose/specs/upgrade-lab-fixture/spec.md" ]] || return 1
+    # Prior releases legitimately use both canonical directory and flat
+    # date-prefixed specs. Resolve the slug through the candidate rather than
+    # mistaking one supported storage layout for lost user data.
+    (cd "$fixture" && "$candidate" show-spec upgrade-lab-fixture --json >/dev/null) || return 1
     compgen -G "$fixture/.pose/knowledge/*upgrade-lab-fixture*.md" >/dev/null || return 1
   }
 

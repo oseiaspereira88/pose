@@ -63,6 +63,7 @@ experimental policies through a version bump, or overwrite a released tag.
 - modified: compatibility.json
 - modified: README.md
 - modified: docs-site/docs/ci.md
+- modified: tests/release/compat.sh
 - modified: .pose/results/delivery-validation.json
 - modified: .pose/reports/history/standard-validate-native.jsonl
 - created: .pose/reports/2026-09-28-standard-validate-native.md
