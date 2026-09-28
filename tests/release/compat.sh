@@ -126,7 +126,7 @@ else
     # Prior releases legitimately use both canonical directory and flat
     # date-prefixed specs. Resolve the slug through the candidate rather than
     # mistaking one supported storage layout for lost user data.
-    (cd "$fixture" && "$candidate" show-spec upgrade-lab-fixture --json >/dev/null) || return 1
+    (cd "$fixture" && "$candidate" specs --json | jq -e 'any(.[]; .slug == "upgrade-lab-fixture")' >/dev/null) || return 1
     compgen -G "$fixture/.pose/knowledge/*upgrade-lab-fixture*.md" >/dev/null || return 1
   }
 
