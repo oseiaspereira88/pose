@@ -42,6 +42,8 @@ experimental policies through a version bump, or overwrite a released tag.
   actual publication after the technical candidate is closed; this readiness
   spec cannot claim that a candidate is already published.
 
+- R6: Preserve the sealed subject identity when a release archives a changelog fragment. Resolve only a tracked, digest-attested archive from the existing ledger; unknown, modified or untracked archives cannot preserve approval.
+
 ## 3. Technical Plan
 
 ### Artifacts
@@ -67,6 +69,9 @@ experimental policies through a version bump, or overwrite a released tag.
 - modified: .pose/state/history.jsonl
 - modified: .pose/state/refresh-log.jsonl
 - modified: .pose/indexes/spec-graph.json
+- modified: pose-mcp/internal/pose/review_bundle.go
+- created: pose-mcp/internal/pose/review_release_archive_test.go
+- modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/version/version.go
 - modified: pose-mcp/server.json
 - modified: compatibility.json
@@ -91,6 +96,15 @@ Reuse the release policy and provider workflow. Scope adoption independently
 from engine SemVer; preserve opt-in semantics for experimental ABM contracts.
 The coordinator verifies the current source pin and generated Harness mirror.
 
+### Release archival regression plan
+
+Before the fix, sealing a subject with an archived fragment must fail to read
+the pending path. After the fix, the canonical pending identity resolves to
+its committed, ledger-attested content with the same byte digest. Negative
+cases refuse untracked manifests/files, changed content, forged digests and
+paths outside the ledger. Retain historical review sidecars unchanged. Register
+an integration gate and repeat the signing rehearsal for the final runtime.
+
 ## 4. Tasks
 
 - [x] Inspect repository state, release policy and source dependency scopes.
@@ -98,6 +112,7 @@ The coordinator verifies the current source pin and generated Harness mirror.
 - [x] Implement and verify missing migration/distribution behavior.
 - [x] Align version, compatibility and public distribution metadata.
 - [ ] Validate, review and close the technical candidate.
+- [ ] Reproduce and fix release archive subject resolution; verify negatives and final rehearsal.
 - [x] Verify and hand off the immutable publication and reconciliation path.
 
 ## 5. Decisions
@@ -122,6 +137,8 @@ All listed gates are required before publication.
 
 ### Execution log
 
+2026-09-28: release archive regression failed before the fix with the missing pending path, then passed with the unchanged semantic subject and negative witness checks. The registered integration gate repeats that proof.
+
 2026-09-28: inspected dependency code and sealed evidence. Runtime code, distributed instructions and replay were validated by the full
 36-check matrix at `e344a45`, then again after final requirement traces at
 `e0fb750`. All checks passed. Source assessments found 58
@@ -135,6 +152,7 @@ findings; remediation lineage has only containing-module coverage warnings.
 - R3 [satisfied] unit:pose-mcp/go/test
 - R4 [satisfied] report:.pose/results/pose-v6-snapshot.json
 - R5 [satisfied] report:.pose/results/pose-v6-snapshot.json
+- R6 [deferred-integration: regression identified before release cut] spec:pose-v6-release-readiness
 
 ## 7. Final Report
 

@@ -745,7 +745,7 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 					// pinned to. There is no file to read: the path is a directory
 					// in the working tree and a gitlink in the index.
 					entry.Digest = digestBytes([]byte(gitlinkSHA))
-				} else if digest, err := s.reviewBundleFileDigest(path); err != nil {
+				} else if digest, err := s.reviewBundleFileDigest(path, set.Spec); err != nil {
 					blockers = append(blockers, err.Error())
 				} else {
 					entry.Digest = digest
@@ -1085,16 +1085,50 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	return "", false
 }
 
-func (s Store) reviewBundleFileDigest(rel string) (string, error) {
+func (s Store) reviewBundleFileDigest(rel, spec string) (string, error) {
 	if err := ValidateArtifactPath(s.Root, rel, false); err != nil {
 		return "", fmt.Errorf("review subject path %s is invalid: %w", rel, err)
 	}
 	clean, _ := validateArtifactPathSyntax(rel)
 	raw, err := os.ReadFile(filepath.Join(s.Root, clean))
+	if os.IsNotExist(err) && strings.HasPrefix(filepath.ToSlash(clean), pendingFragmentDir) {
+		// Archival changes the physical location, not the attributed subject
+		// path. The existing ledger supplies the owning spec and frozen bytes;
+		// both witnesses must also belong to the selected committed head.
+		ledger := newArchivalLedger(LoadArchivedFragments(s.Root), func(path string) bool {
+			return s.reviewBundleCommittedArchive(path)
+		})
+		if witness, note, ok := ledger.resolve(spec, filepath.ToSlash(clean), ""); ok {
+			raw, err = os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(witness.Archived)))
+		} else {
+			return "", fmt.Errorf("review subject path %s has no committed release archival: %s", rel, note)
+		}
+	}
 	if err != nil {
 		return "", fmt.Errorf("review subject path %s cannot be read: %w", rel, err)
 	}
 	return digestBytes(bytes.ReplaceAll(raw, []byte("\r\n"), []byte("\n"))), nil
+}
+
+func (s Store) reviewBundleCommittedArchive(rel string) bool {
+	path := filepath.Join(s.Root, filepath.FromSlash(rel))
+	resolved, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return false
+	}
+	inside, err := filepath.Rel(s.Root, resolved)
+	if err != nil || inside == ".." || strings.HasPrefix(inside, ".."+string(os.PathSeparator)) {
+		return false
+	}
+	if dirty, _ := reviewBundleWorkingTreeChange(s.Root, rel); dirty {
+		return false
+	}
+	committed, err := exec.Command("git", "-C", s.Root, "show", "HEAD:"+rel).Output()
+	if err != nil {
+		return false
+	}
+	raw, err := os.ReadFile(path)
+	return err == nil && bytes.Equal(raw, committed)
 }
 
 // staleEvidenceWarnings names evidence that ran against a commit other than the

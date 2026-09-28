@@ -298,6 +298,19 @@
       "stack": "go",
       "checks": [
         {
+          "name": "release-review-archive-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "ReviewReleaseArchive",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "abm-retrospective-replay-integration",
           "program": "go",
           "args": [

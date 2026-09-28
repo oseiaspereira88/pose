@@ -20,3 +20,5 @@ Inspect each capability before opting in. Downgrade is refused rather than
 deleting schema 2 artifacts. The retrospective pilot remains inconclusive for
 utility and review cost; this release claims no external adoption or human
 staging acceptance.
+
+Release archival now preserves the reviewed subject of committed changelog fragments through the existing ledger. Untracked, altered, duplicate or differently owned witnesses are refused.
