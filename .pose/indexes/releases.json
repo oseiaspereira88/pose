@@ -1,239 +1,426 @@
 {
-  "pending": [
-    {
-      "spec": "artifact-claims-stop-at-the-section-end",
-      "category": "fixed",
-      "breaking": false,
-      "body": "The `### Artifacts` section now ends at a heading of any level. It ended only at\nanother `### `, so a spec whose artifact list was followed by `## 4. Tasks` — the\nshape `pose new-spec` scaffolds — had its task checklist parsed as artifact claims,\nand `artifact-check` and `roadmap-check` refused the whole run with\n`malformed artifact claim \"- [ ] ...\"`. Claim sets for the 188 specs in this\nrepository that declare artifacts are unchanged.",
-      "path": "artifact-claims-stop-at-the-section-end.md",
-      "digest": "sha256:e27955a9a4548bfb4f21893c346d7206de2cc7cdf2a637eb0c04c5578782ccfb"
-    },
-    {
-      "spec": "check-builds-the-delivery-graph-once",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose check` builds the delivery graph once instead of once per completed spec. It\nrebuilt the whole graph for every done spec, which on this repository was 117 builds\nat about five seconds each: 600 of the 635 seconds the gate took, growing with every\nspec closed. `check --strict` now completes in 39 seconds with byte-identical\nfindings. The reuse is possible because `focusSurfaceGraph` no longer filters through\nthe caller's backing array, which had been truncating the graph it was handed.",
-      "path": "check-builds-the-delivery-graph-once.md",
-      "digest": "sha256:eebda9598555eb1291b1767adf001e77430f21566b1138661e152859562f5bbe"
-    },
-    {
-      "spec": "check-strict-verdict-names-its-mode",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose check` now names the mode it ran in when the run found only warnings. A\n`--strict` run whose findings were all non-escalating printed\n`SUCCESS — (tolerant mode) with N warning(s)`, which invited recording a strict pass\nnobody claimed or re-running the gate believing the flag had been dropped. The\nescalation is unchanged: `--strict` still turns a structural warning into an error.",
-      "path": "check-strict-verdict-names-its-mode.md",
-      "digest": "sha256:f13a1e60fd3bf1965cfcf49cbb585341efb2e342c4c23e68b8fbb89937e295d8"
-    },
-    {
-      "spec": "check-worker-count-is-the-machines",
-      "category": "added",
-      "breaking": false,
-      "body": "`POSE_CHECK_WORKERS` sets the worker pool `pose check` uses for its per-spec gate work.\nThe default stays the core count: eight workers looked faster than sixteen over two\nruns and did not over five, so nothing was changed on a difference that noise explains.\nAn unusable value is ignored rather than failing the gate, and the pool is still clamped\nby the number of items.",
-      "path": "check-worker-count-is-the-machines.md",
-      "digest": "sha256:37756dd536c99f92d1ebf11933b8702e2a0b232f132dfa3a4b434aa777de6a4e"
-    },
-    {
-      "spec": "parse-the-delivery-index-once-per-content",
-      "category": "changed",
-      "breaking": false,
-      "body": "The delivery-integrity index is parsed once per distinct content instead of once per\ncaller, and the structural design delta is computed once per input digest — the value\nit already published as `CacheKey`. In this repository one `pose check --strict` was\nreading and unmarshalling a 4.5 MB index 528 times and recomputing 36 identical design\ndeltas. The independent per-spec gate loops also run concurrently now, with each\nitem's findings replayed in item order so the output stays diffable. The gate goes from\n39.3 seconds to 16.6, and from 634.9 across both performance fixes — 38x — with the\nfindings and their order unchanged. Both memos are keyed on content rather than\non modification time, and both return copies, because callers filter what they receive\nin place.",
-      "path": "parse-the-delivery-index-once-per-content.md",
-      "digest": "sha256:af88b5ef110bb9349f7ffcb10786ae6d268c7f126b2dc7711511548058a73e9e"
-    },
-    {
-      "spec": "pose-abm-atomic-start",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose start spec:\u003cslug\u003e` previews, read-only and digest-bound, whether a draft spec can start: readiness, dependencies, declared review obligations and its R/A/D baseline. With `atomic_start_version: 1` adopted in the review policy, `--apply --digest` records that baseline in `.pose/starts/\u003cslug\u003e.json` and moves the spec to `in-progress` under a per-spec lock with compare-and-swap; it is idempotent, resumes after an interruption, and `--cancel` leaves no half transition. `--status` and the read-only MCP tool `pose_start_status` classify nodes as recorded before managed execution, introduced during it, or legacy-unbaselined, and flag hand edits under the capability. A start records observable precedence, not when anything was decided. No instance adopts the capability in this release.",
-      "path": "pose-abm-atomic-start.md",
-      "digest": "sha256:391b87b972ef292a023a15a7fe8b2269e3dee16c46af84553983e5ef0b354493"
-    },
-    {
-      "spec": "pose-abm-causality-attestation",
-      "category": "added",
-      "breaking": false,
-      "body": "Adopting `causality_closeout_version: 1` in the review policy stamps a `causality-closeout` contract on new review bundles, sealing the plan band and the contract-node digest of each spec in scope so a material R/A/D change stales the review. Under it, a structural mapping to an invalidated or withdrawn assumption, or a withdrawn decision, is refused; a `mapped` answer needs its own rationale and one reason pasted across three or more facts on the same basis is refused; `accepted-risk` needs an owner and review date (`--mapping …|accepted-risk|\u003cwhy\u003e|@owner|YYYY-MM-DD`) and cannot waive a public or governance contract; `not-applicable` is refused under unknown coverage; and an elevated or critical band with material facts and no answering criterion is refused, with no mandatory human. Bundles sealed without the stamp keep their verdict, and no instance adopts the capability in this release.",
-      "path": "pose-abm-causality-attestation.md",
-      "digest": "sha256:6095e4d69b4d03f620bbf5f67e5989342b039e3ee32fa822ced89e43628128c1"
-    },
-    {
-      "spec": "pose-abm-contract-nodes",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose amend \u003cslug\u003e --nodes [--json]` and the `pose_spec_amendments` MCP tool expose a versioned contract-node projection of a spec: requirements, assumptions and decisions with namespace, content hash, state and relations (schema `v1/contract-nodes.schema.json`). Decisions may declare `Status: active|withdrawn`. Amendment events gain schema 2, which records R/A/D nodes with their state before and after, a `transition` change and `assurance: declared`; schema-1 logs keep their meaning. Adopting `contract_nodes_version: 1` in the review policy extends the amendment gate to assumptions and decisions, refuses an editorial acknowledgement of a changed state or relation set, and rejects an active decision resting on an invalidated or withdrawn assumption. Without the capability nothing changes, and a schema-2 event is refused instead of read as requirement history. No instance adopts the capability in this release.",
-      "path": "pose-abm-contract-nodes.md",
-      "digest": "sha256:1637b474bcbbd551d5895fa3d6cf1399aefa840733817a033a719c0c7978dd89"
-    },
-    {
-      "spec": "pose-abm-progressive-review",
-      "category": "added",
-      "breaking": false,
-      "body": "Ship opt-in engineering-judgment and high-criticality-review profiles for declared\ndelivery targets. High and critical scopes can require a different reviewer;\noverlapping profiles deduplicate the three explicit judgments without adding tools.\nInstallation does not activate the profiles.\n\n`review-plan` now explains the effective plan: a `band` with one entry per reason\n(trigger, basis, source, policy, obligations), an `unknown` entry for an overlay\nthat could not decide a component, and a `declared-forecast` projection that\nseparates the scope the spec declared from the obligations only delivery\nprovenance added. Both are derived through the existing selectors and composer,\nadd no obligation, and stay out of the plan digest, so no sealed review is\nsuperseded.\n\nA scope that changes review policy, profiles or their schemas is now resolved under\nthe contract at the change set's resolved base, and obligations the diff weakened\nare restored for that review: reviewer independence, dropped criteria and criteria\nsoftened from required to optional or from judged to collected. `policy_baseline`\nreports what was weakened and restored. A diff that disables review, or that\nremoves the profile the policy points at, no longer makes itself unreviewable; an\nunresolvable base is reported unprotected rather than implied protected.\n\nReview profiles can select on observed structure. `structural-materiality@1` ships\nopt-in and matches what the sealed subject was observed to do — direct\ndependencies, component boundaries, delivery metadata, governance contracts,\npublic contracts and submodules — so an undeclared scope can still be material\nwhile a transitive bump, a lock file or an unreadable manifest is reported without\nbecoming an obligation. Under the new `structural-causality` contract, a criterion\ndeclaring `requires_structural_mapping` must answer for each material fact with a\ndecision basis that reaches a requirement, or with an explicit missing-evidence,\nnot-applicable or accepted-risk and a rationale; record them with\n`pose review attest --mapping`.\n\nFixed: the structural detector treated a directory prefix as proof, so every file\nunder a top-level `api/` — including a README — was observed as a public-contract\nchange. The prefix rules now require a contract-bearing file shape.",
-      "path": "pose-abm-progressive-review.md",
-      "digest": "sha256:85e649a8b72369f95b7e257c60f632602d77a24bc6301968dd76701c82ad99be"
-    },
-    {
-      "spec": "pose-abm-retrospective-replay",
-      "category": "added",
-      "breaking": false,
-      "body": "Add bounded read-only `pose stats replay` to expose the retrospective cost of ABM adoption, with explicit rejection and structural coverage denominators. Add the 24-case adjudicated golden corpus without presenting fixtures as observed deliveries.",
-      "path": "pose-abm-retrospective-replay.md",
-      "digest": "sha256:503b178cd690f8827d4dd0135cc494d9db9cb8870521e33d6289f659b0ff7a87"
-    },
-    {
-      "spec": "pose-abm-review-soundness-residuals",
-      "category": "security",
-      "breaking": false,
-      "body": "Apply the sealed accepted-risk gate to unresolved `wont-fix` findings, retain\nnegative review decisions for audit, and correct Portuguese review instructions\nto require explicit pending judgments. Guard the embedded distribution contract.",
-      "path": "pose-abm-review-soundness-residuals.md",
-      "digest": "sha256:6a78dd5e6213fa4d72afcd8f3d6c91a290ee835b0627739bd777c5fd8acf28ca"
-    },
-    {
-      "spec": "pose-abm-state-followup-origins",
-      "category": "fixed",
-      "breaking": false,
-      "body": "Preserve document and capability origins in project-state follow-ups instead\nof reporting them as invalid spec references. Missing documents still fail\npointer validation.",
-      "path": "pose-abm-state-followup-origins.md",
-      "digest": "sha256:12450da44f7c4321d0da090f309e7f0d524f6f5b290aabe1c14c03f39fb1bde8"
-    },
-    {
-      "spec": "pose-agent-project-context",
-      "category": "added",
-      "breaking": false,
-      "body": "Agents can resolve a qualified task to one project from different repository entrypoints and create its spec through a context-bound command. Older engines reject the qualified creation command before writing a local copy.",
-      "path": "pose-agent-project-context.md",
-      "digest": "sha256:ebaa909acd86b5c9ac181636835e97e2cb209778766867d104460647f92430e5"
-    },
-    {
-      "spec": "pose-check-dor-accepts-qualified-refs",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose check` no longer reports \"transition to in-progress without Definition of Ready\" for a spec whose `depends_on` holds a qualified `xref:` reference that `pose lint-spec --ready-check` accepts. Both gates now read dependencies with the same parser, and a malformed reference still fails both.",
-      "path": "pose-check-dor-accepts-qualified-refs.md",
-      "digest": "sha256:1db900b622ef7f3e2bac6f3505f2c216e82d5deb98ff8b54dbf8c76c0c0e269e"
-    },
-    {
-      "spec": "pose-dist-records-its-own-contract-adoption",
-      "category": "changed",
-      "breaking": false,
-      "body": "This repository's review policy now records the dated adoption of\n`explicit-judgment` and `structural-causality`, which its reviews had been sealed\nunder since the ABM integrity work without the policy declaring either. Completed\ncloseouts keep their approval, no overlay profile is activated, and the policy stays\nreadable by the previously released engine.",
-      "path": "pose-dist-records-its-own-contract-adoption.md",
-      "digest": "sha256:2d1b57431d4160b1c8f2e6b46f6a0c42868f37272b34c1484d5075bd54b7feec"
-    },
-    {
-      "spec": "pose-federated-carried-forward-proof",
-      "category": "fixed",
-      "breaking": false,
-      "body": "Federated roadmaps now accept current validation that ran after a reviewed source change, when that evidence belongs to the pinned source revision. Earlier, missing, or out-of-pin validation still blocks acceptance.",
-      "path": "pose-federated-carried-forward-proof.md",
-      "digest": "sha256:893ede5131abfa9200c8fede90e6f1eaa3ef834244b6ed7fdde9ca80271b7c4b"
-    },
-    {
-      "spec": "pose-federated-milestone-scoped-acceptance",
-      "category": "fixed",
-      "breaking": false,
-      "body": "Review and closeout of a milestone now consult federated acceptance over that milestone's own edges: the roadmap's `depends_on` and `consumes`, plus the milestone's `after`, `specs` and `consumes`. Before, a milestone used the acceptance of its whole roadmap, so an open spec in a later milestone blocked the closeout of every earlier one. Later milestones and the roadmap still report their own open members, and revoked trust still blocks. Milestone bundles sealed with the roadmap-wide manifest stay fresh while that sealed snapshot is unchanged; new seals carry the milestone as coordinator.",
-      "path": "pose-federated-milestone-scoped-acceptance.md",
-      "digest": "sha256:81ab924c6fcc8f35ffd85bd3730650f7408a6ddc216a33654d27ec692883c392"
-    },
-    {
-      "spec": "pose-federated-roadmap-acceptance",
-      "category": "added",
-      "breaking": false,
-      "body": "Roadmaps can accept reviewed outcomes from authorized projects while keeping their own integration and approval gates. Changes to a source revision, trust policy, or review evidence invalidate the coordinator's acceptance.",
-      "path": "pose-federated-roadmap-acceptance.md",
-      "digest": "sha256:a0950b12bf10f3b1a72f86af87974f905124735afed6f7821302d1bc6b828e35"
-    },
-    {
-      "spec": "pose-federated-spec-dependency-acceptance",
-      "category": "fixed",
-      "breaking": false,
-      "body": "A spec that depends on another project's artifact through `xref:` now seals the federated manifest of those dependencies into its review bundle, and `closeout-check` reports their blockers. Before, only roadmap and milestone scopes consulted federation, so revoking consumer trust left such a spec closable. Revocation now blocks the spec and stales its approved review; restoring the same trust restores it. Missing project roots block closeout with `project-roots-unavailable` instead of failing the command. Specs with no external dependency keep a byte-identical bundle.",
-      "path": "pose-federated-spec-dependency-acceptance.md",
-      "digest": "sha256:9dc899a0e4a3834508e4de58998b801be43d9d2f51147faf4f823ee4674602f1"
-    },
-    {
-      "spec": "pose-governance-outcomes-v2",
-      "category": "changed",
-      "breaking": true,
-      "body": "`pose stats governance` and `pose_governance_stats` now emit schema 2 with replay-safe report identity, bounded band/type cohorts, source provenance, and allowlisted finding-to-remediation references. The projection remains local and read-only; schema 1 consumers must be upgraded before adopting this contract.",
-      "path": "pose-governance-outcomes-v2.md",
-      "digest": "sha256:f6f31ec48d9f3c05215babb863a1bc6d17bbabb689f73e923cf434d0d17a6f3f"
-    },
-    {
-      "spec": "pose-governance-stats-local-freshness",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose_governance_stats` now verifies bundle freshness through a local store, like `pose stats governance`. From pose-mcp it used to resolve qualified dependencies again for every attested bundle, which on a large history took more than ten minutes instead of seconds and could count freshness differently from the CLI.",
-      "path": "pose-governance-stats-local-freshness.md",
-      "digest": "sha256:383aa99b3b23bfe7e8a2c37deca9fcaa78108cc292e42fcca2f91074a4c6d02c"
-    },
-    {
-      "spec": "pose-qualified-artifact-resolution",
-      "category": "added",
-      "breaking": false,
-      "body": "Resolve qualified spec, roadmap and milestone references consistently across\ndependency checks, MCP readiness and portfolio projections. Include dated and\nsplit specs; block missing or unauthorized sources without local fallback.\nRequired consumer adoption is opt-in and uses review policy schema 3/version 1,\nwhich older governance readers reject explicitly.",
-      "path": "pose-qualified-artifact-resolution.md",
-      "digest": "sha256:a55bed75db78acc452eeb26f4bdc2bd00a51a846168bf86b58faa7fb5d222b23"
-    },
-    {
-      "spec": "pose-review-bundle-seals-planned-component-evidence",
-      "category": "fixed",
-      "breaking": false,
-      "body": "A sealed review bundle now carries the current validation evidence of every module its plan asks a per-component `validate` tool for, not only the modules of the spec's delivery targets. A spec that delivers in one module and changes others can cite each component's own evidence, instead of being blocked with \"cites evidence from\" a sibling. Scopes without delivery targets seal as before.",
-      "path": "pose-review-bundle-seals-planned-component-evidence.md",
-      "digest": "sha256:d70f5881a0b507abb67c59193fd98ed800276e61b40639b04f708d18bd2e24d6"
-    },
-    {
-      "spec": "pose-review-root-binding-parity",
-      "category": "fixed",
-      "breaking": false,
-      "body": "Review of a root MCP binding now accepts a valid root delivery target and includes `.mcp.json` in the governed subject. Specs with code but no delivery target still require validation evidence without claiming a target exists.",
-      "path": "pose-review-root-binding-parity.md",
-      "digest": "sha256:e85bed44370001060bd3a2d1b4cbb90298cef38fea6cb66b902fe1b20302e201"
-    },
-    {
-      "spec": "pose-roadmap-gate-scopes-milestones-and-external-members",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`pose close milestone:\u003croadmap\u003e/\u003cid\u003e` now gates on that milestone alone: its federated acceptance and its own members, without the roadmap's cut criteria. Before, it ran the whole `roadmap-check --strict`, so an open spec in a later milestone refused the close of an earlier one. `roadmap-check` no longer looks up members owned by another project in local closeout, which reported every `xref:` member as not terminal; those members stay gated by federated acceptance.",
-      "path": "pose-roadmap-gate-scopes-milestones-and-external-members.md",
-      "digest": "sha256:c84492844c6ef1426de765cd49cc3019ced0c748aac9d1b2740400401df22a69"
-    },
-    {
-      "spec": "pose-spec-authority-transfer",
-      "category": "added",
-      "breaking": false,
-      "body": "Projects can preview and explicitly transfer a spec's authority between authorized repositories. The transfer preserves source history and blocks stale, incomplete, or unauthorized operations.",
-      "path": "pose-spec-authority-transfer.md",
-      "digest": "sha256:3f7a29efbdf5d1cb299bd4d78b3c5afec29073d881a22fcedd8b2e288f1e6269"
-    },
-    {
-      "spec": "pose-spec-transfer-reconcile-terminal",
-      "category": "added",
-      "breaking": false,
-      "body": "`pose spec-transfer preview --mode reconcile-terminal` retires a coordinator spec onto an executor in another project that is already `done` with a terminal closeout. The executor is never written: apply and resume only verify its digest. The requirement map is N:M over every source requirement, may target another spec through `destination_ref`, and records a `rationale` for `withdrawn` and `pending`; an owed requirement must land in an open spec and is kept in the redirect as `open_obligations`. `--map-file` reads the map as JSON. Plans and redirects of this mode use schema version 2, which older engines refuse. Ordinary transfers are unchanged.",
-      "path": "pose-spec-transfer-reconcile-terminal.md",
-      "digest": "sha256:92b65e1e88af957a2a9952d511ffd66035bbce0067002737ef20da2a25e09f17"
-    },
-    {
-      "spec": "pose-v6-release-readiness",
-      "category": "changed",
-      "breaking": true,
-      "body": "Prepare POSE 6.0.0 with aligned public version metadata, authenticated 5.0.8 upgrades and retained migration gates. Governance contracts require a compatible engine after explicit adoption; experimental judgments remain opt-in. Historical approvals keep their frozen contracts.\n\nThe coordinated distribution includes explicit review judgments, immutable\nsubject evidence, optional verified reviewer authority, R/A/D design basis,\nbounded structural observations and explicit remediation lineage. Automated\nchecks supply mechanical evidence; approval still requires the plan's reviewer\nconclusions. Unknown evidence and absent telemetry remain unknown. Critical\nunresolved findings cannot bypass the risk gate through `wont-fix` or reuse.\n\nUpgrade from a supported prior engine with the existing install/update flow;\ncustom policies and historical bundles retain their adopted contracts. A\nversion bump does not adopt atomic start, contract nodes or causal closeout.\nInspect each capability before opting in. Downgrade is refused rather than\ndeleting schema 2 artifacts. The retrospective pilot remains inconclusive for\nutility and review cost; this release claims no external adoption or human\nstaging acceptance.\n\nRelease archival now preserves the reviewed subject of committed changelog fragments through the existing ledger. Untracked, altered, duplicate or differently owned witnesses are refused.",
-      "path": "pose-v6-release-readiness.md",
-      "digest": "sha256:f66a0ddae9a092c8087568be219c0b742a24621ecfbf2a5e5dfb45dedd7c0043"
-    },
-    {
-      "spec": "review-policy-adoption-is-the-instances",
-      "category": "fixed",
-      "breaking": false,
-      "body": "`.pose/policy/review.json` is no longer shipped as a byte copy of this repository's\nlive policy. A fresh `pose install` received this repository's `adopted_at`, a dated\nfield per governed contract and the overlay profiles this repository had adopted;\nbecause the stamp skips a contract whose key is already present, the instance never\nearned its own dates and silently inherited an exemption boundary belonging to\nsomeone else. The distribution now ships the contract shape with no dates and no\nadopted overlays, and install stamps the day the instance received the policy and\neach contract. An existing instance keeps what it recorded, including under `--force`.",
-      "path": "review-policy-adoption-is-the-instances.md",
-      "digest": "sha256:399eb11abc8f0e9cf5f6a7efd63d2298dd53b47a7a50e3da40385fbbc9a8a1b3"
-    }
-  ],
+  "pending": [],
   "releases": [
+    {
+      "version": "v6.0.0",
+      "state": "verified",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v6.0.0",
+        "previous_version": "v5.0.8",
+        "prepared_at": "2026-09-28T14:21:33Z",
+        "specs": [
+          "artifact-claims-stop-at-the-section-end",
+          "check-builds-the-delivery-graph-once",
+          "check-strict-verdict-names-its-mode",
+          "check-worker-count-is-the-machines",
+          "parse-the-delivery-index-once-per-content",
+          "pose-abm-atomic-start",
+          "pose-abm-causality-attestation",
+          "pose-abm-contract-nodes",
+          "pose-abm-progressive-review",
+          "pose-abm-retrospective-replay",
+          "pose-abm-review-soundness-residuals",
+          "pose-abm-state-followup-origins",
+          "pose-agent-project-context",
+          "pose-check-dor-accepts-qualified-refs",
+          "pose-dist-records-its-own-contract-adoption",
+          "pose-federated-carried-forward-proof",
+          "pose-federated-milestone-scoped-acceptance",
+          "pose-federated-roadmap-acceptance",
+          "pose-federated-spec-dependency-acceptance",
+          "pose-governance-outcomes-v2",
+          "pose-governance-stats-local-freshness",
+          "pose-qualified-artifact-resolution",
+          "pose-review-bundle-seals-planned-component-evidence",
+          "pose-review-root-binding-parity",
+          "pose-roadmap-gate-scopes-milestones-and-external-members",
+          "pose-spec-authority-transfer",
+          "pose-spec-transfer-reconcile-terminal",
+          "pose-v6-release-readiness",
+          "review-policy-adoption-is-the-instances"
+        ],
+        "categories": {
+          "added": 11,
+          "changed": 4,
+          "fixed": 13,
+          "security": 1
+        },
+        "fragments": [
+          {
+            "spec": "artifact-claims-stop-at-the-section-end",
+            "category": "fixed",
+            "breaking": false,
+            "body": "The `### Artifacts` section now ends at a heading of any level. It ended only at\nanother `### `, so a spec whose artifact list was followed by `## 4. Tasks` — the\nshape `pose new-spec` scaffolds — had its task checklist parsed as artifact claims,\nand `artifact-check` and `roadmap-check` refused the whole run with\n`malformed artifact claim \"- [ ] ...\"`. Claim sets for the 188 specs in this\nrepository that declare artifacts are unchanged.",
+            "path": "artifact-claims-stop-at-the-section-end.md",
+            "digest": "sha256:e27955a9a4548bfb4f21893c346d7206de2cc7cdf2a637eb0c04c5578782ccfb"
+          },
+          {
+            "spec": "check-builds-the-delivery-graph-once",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose check` builds the delivery graph once instead of once per completed spec. It\nrebuilt the whole graph for every done spec, which on this repository was 117 builds\nat about five seconds each: 600 of the 635 seconds the gate took, growing with every\nspec closed. `check --strict` now completes in 39 seconds with byte-identical\nfindings. The reuse is possible because `focusSurfaceGraph` no longer filters through\nthe caller's backing array, which had been truncating the graph it was handed.",
+            "path": "check-builds-the-delivery-graph-once.md",
+            "digest": "sha256:eebda9598555eb1291b1767adf001e77430f21566b1138661e152859562f5bbe"
+          },
+          {
+            "spec": "check-strict-verdict-names-its-mode",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose check` now names the mode it ran in when the run found only warnings. A\n`--strict` run whose findings were all non-escalating printed\n`SUCCESS — (tolerant mode) with N warning(s)`, which invited recording a strict pass\nnobody claimed or re-running the gate believing the flag had been dropped. The\nescalation is unchanged: `--strict` still turns a structural warning into an error.",
+            "path": "check-strict-verdict-names-its-mode.md",
+            "digest": "sha256:f13a1e60fd3bf1965cfcf49cbb585341efb2e342c4c23e68b8fbb89937e295d8"
+          },
+          {
+            "spec": "check-worker-count-is-the-machines",
+            "category": "added",
+            "breaking": false,
+            "body": "`POSE_CHECK_WORKERS` sets the worker pool `pose check` uses for its per-spec gate work.\nThe default stays the core count: eight workers looked faster than sixteen over two\nruns and did not over five, so nothing was changed on a difference that noise explains.\nAn unusable value is ignored rather than failing the gate, and the pool is still clamped\nby the number of items.",
+            "path": "check-worker-count-is-the-machines.md",
+            "digest": "sha256:37756dd536c99f92d1ebf11933b8702e2a0b232f132dfa3a4b434aa777de6a4e"
+          },
+          {
+            "spec": "parse-the-delivery-index-once-per-content",
+            "category": "changed",
+            "breaking": false,
+            "body": "The delivery-integrity index is parsed once per distinct content instead of once per\ncaller, and the structural design delta is computed once per input digest — the value\nit already published as `CacheKey`. In this repository one `pose check --strict` was\nreading and unmarshalling a 4.5 MB index 528 times and recomputing 36 identical design\ndeltas. The independent per-spec gate loops also run concurrently now, with each\nitem's findings replayed in item order so the output stays diffable. The gate goes from\n39.3 seconds to 16.6, and from 634.9 across both performance fixes — 38x — with the\nfindings and their order unchanged. Both memos are keyed on content rather than\non modification time, and both return copies, because callers filter what they receive\nin place.",
+            "path": "parse-the-delivery-index-once-per-content.md",
+            "digest": "sha256:af88b5ef110bb9349f7ffcb10786ae6d268c7f126b2dc7711511548058a73e9e"
+          },
+          {
+            "spec": "pose-abm-atomic-start",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose start spec:\u003cslug\u003e` previews, read-only and digest-bound, whether a draft spec can start: readiness, dependencies, declared review obligations and its R/A/D baseline. With `atomic_start_version: 1` adopted in the review policy, `--apply --digest` records that baseline in `.pose/starts/\u003cslug\u003e.json` and moves the spec to `in-progress` under a per-spec lock with compare-and-swap; it is idempotent, resumes after an interruption, and `--cancel` leaves no half transition. `--status` and the read-only MCP tool `pose_start_status` classify nodes as recorded before managed execution, introduced during it, or legacy-unbaselined, and flag hand edits under the capability. A start records observable precedence, not when anything was decided. No instance adopts the capability in this release.",
+            "path": "pose-abm-atomic-start.md",
+            "digest": "sha256:391b87b972ef292a023a15a7fe8b2269e3dee16c46af84553983e5ef0b354493"
+          },
+          {
+            "spec": "pose-abm-causality-attestation",
+            "category": "added",
+            "breaking": false,
+            "body": "Adopting `causality_closeout_version: 1` in the review policy stamps a `causality-closeout` contract on new review bundles, sealing the plan band and the contract-node digest of each spec in scope so a material R/A/D change stales the review. Under it, a structural mapping to an invalidated or withdrawn assumption, or a withdrawn decision, is refused; a `mapped` answer needs its own rationale and one reason pasted across three or more facts on the same basis is refused; `accepted-risk` needs an owner and review date (`--mapping …|accepted-risk|\u003cwhy\u003e|@owner|YYYY-MM-DD`) and cannot waive a public or governance contract; `not-applicable` is refused under unknown coverage; and an elevated or critical band with material facts and no answering criterion is refused, with no mandatory human. Bundles sealed without the stamp keep their verdict, and no instance adopts the capability in this release.",
+            "path": "pose-abm-causality-attestation.md",
+            "digest": "sha256:6095e4d69b4d03f620bbf5f67e5989342b039e3ee32fa822ced89e43628128c1"
+          },
+          {
+            "spec": "pose-abm-contract-nodes",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose amend \u003cslug\u003e --nodes [--json]` and the `pose_spec_amendments` MCP tool expose a versioned contract-node projection of a spec: requirements, assumptions and decisions with namespace, content hash, state and relations (schema `v1/contract-nodes.schema.json`). Decisions may declare `Status: active|withdrawn`. Amendment events gain schema 2, which records R/A/D nodes with their state before and after, a `transition` change and `assurance: declared`; schema-1 logs keep their meaning. Adopting `contract_nodes_version: 1` in the review policy extends the amendment gate to assumptions and decisions, refuses an editorial acknowledgement of a changed state or relation set, and rejects an active decision resting on an invalidated or withdrawn assumption. Without the capability nothing changes, and a schema-2 event is refused instead of read as requirement history. No instance adopts the capability in this release.",
+            "path": "pose-abm-contract-nodes.md",
+            "digest": "sha256:1637b474bcbbd551d5895fa3d6cf1399aefa840733817a033a719c0c7978dd89"
+          },
+          {
+            "spec": "pose-abm-progressive-review",
+            "category": "added",
+            "breaking": false,
+            "body": "Ship opt-in engineering-judgment and high-criticality-review profiles for declared\ndelivery targets. High and critical scopes can require a different reviewer;\noverlapping profiles deduplicate the three explicit judgments without adding tools.\nInstallation does not activate the profiles.\n\n`review-plan` now explains the effective plan: a `band` with one entry per reason\n(trigger, basis, source, policy, obligations), an `unknown` entry for an overlay\nthat could not decide a component, and a `declared-forecast` projection that\nseparates the scope the spec declared from the obligations only delivery\nprovenance added. Both are derived through the existing selectors and composer,\nadd no obligation, and stay out of the plan digest, so no sealed review is\nsuperseded.\n\nA scope that changes review policy, profiles or their schemas is now resolved under\nthe contract at the change set's resolved base, and obligations the diff weakened\nare restored for that review: reviewer independence, dropped criteria and criteria\nsoftened from required to optional or from judged to collected. `policy_baseline`\nreports what was weakened and restored. A diff that disables review, or that\nremoves the profile the policy points at, no longer makes itself unreviewable; an\nunresolvable base is reported unprotected rather than implied protected.\n\nReview profiles can select on observed structure. `structural-materiality@1` ships\nopt-in and matches what the sealed subject was observed to do — direct\ndependencies, component boundaries, delivery metadata, governance contracts,\npublic contracts and submodules — so an undeclared scope can still be material\nwhile a transitive bump, a lock file or an unreadable manifest is reported without\nbecoming an obligation. Under the new `structural-causality` contract, a criterion\ndeclaring `requires_structural_mapping` must answer for each material fact with a\ndecision basis that reaches a requirement, or with an explicit missing-evidence,\nnot-applicable or accepted-risk and a rationale; record them with\n`pose review attest --mapping`.\n\nFixed: the structural detector treated a directory prefix as proof, so every file\nunder a top-level `api/` — including a README — was observed as a public-contract\nchange. The prefix rules now require a contract-bearing file shape.",
+            "path": "pose-abm-progressive-review.md",
+            "digest": "sha256:85e649a8b72369f95b7e257c60f632602d77a24bc6301968dd76701c82ad99be"
+          },
+          {
+            "spec": "pose-abm-retrospective-replay",
+            "category": "added",
+            "breaking": false,
+            "body": "Add bounded read-only `pose stats replay` to expose the retrospective cost of ABM adoption, with explicit rejection and structural coverage denominators. Add the 24-case adjudicated golden corpus without presenting fixtures as observed deliveries.",
+            "path": "pose-abm-retrospective-replay.md",
+            "digest": "sha256:503b178cd690f8827d4dd0135cc494d9db9cb8870521e33d6289f659b0ff7a87"
+          },
+          {
+            "spec": "pose-abm-review-soundness-residuals",
+            "category": "security",
+            "breaking": false,
+            "body": "Apply the sealed accepted-risk gate to unresolved `wont-fix` findings, retain\nnegative review decisions for audit, and correct Portuguese review instructions\nto require explicit pending judgments. Guard the embedded distribution contract.",
+            "path": "pose-abm-review-soundness-residuals.md",
+            "digest": "sha256:6a78dd5e6213fa4d72afcd8f3d6c91a290ee835b0627739bd777c5fd8acf28ca"
+          },
+          {
+            "spec": "pose-abm-state-followup-origins",
+            "category": "fixed",
+            "breaking": false,
+            "body": "Preserve document and capability origins in project-state follow-ups instead\nof reporting them as invalid spec references. Missing documents still fail\npointer validation.",
+            "path": "pose-abm-state-followup-origins.md",
+            "digest": "sha256:12450da44f7c4321d0da090f309e7f0d524f6f5b290aabe1c14c03f39fb1bde8"
+          },
+          {
+            "spec": "pose-agent-project-context",
+            "category": "added",
+            "breaking": false,
+            "body": "Agents can resolve a qualified task to one project from different repository entrypoints and create its spec through a context-bound command. Older engines reject the qualified creation command before writing a local copy.",
+            "path": "pose-agent-project-context.md",
+            "digest": "sha256:ebaa909acd86b5c9ac181636835e97e2cb209778766867d104460647f92430e5"
+          },
+          {
+            "spec": "pose-check-dor-accepts-qualified-refs",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose check` no longer reports \"transition to in-progress without Definition of Ready\" for a spec whose `depends_on` holds a qualified `xref:` reference that `pose lint-spec --ready-check` accepts. Both gates now read dependencies with the same parser, and a malformed reference still fails both.",
+            "path": "pose-check-dor-accepts-qualified-refs.md",
+            "digest": "sha256:1db900b622ef7f3e2bac6f3505f2c216e82d5deb98ff8b54dbf8c76c0c0e269e"
+          },
+          {
+            "spec": "pose-dist-records-its-own-contract-adoption",
+            "category": "changed",
+            "breaking": false,
+            "body": "This repository's review policy now records the dated adoption of\n`explicit-judgment` and `structural-causality`, which its reviews had been sealed\nunder since the ABM integrity work without the policy declaring either. Completed\ncloseouts keep their approval, no overlay profile is activated, and the policy stays\nreadable by the previously released engine.",
+            "path": "pose-dist-records-its-own-contract-adoption.md",
+            "digest": "sha256:2d1b57431d4160b1c8f2e6b46f6a0c42868f37272b34c1484d5075bd54b7feec"
+          },
+          {
+            "spec": "pose-federated-carried-forward-proof",
+            "category": "fixed",
+            "breaking": false,
+            "body": "Federated roadmaps now accept current validation that ran after a reviewed source change, when that evidence belongs to the pinned source revision. Earlier, missing, or out-of-pin validation still blocks acceptance.",
+            "path": "pose-federated-carried-forward-proof.md",
+            "digest": "sha256:893ede5131abfa9200c8fede90e6f1eaa3ef834244b6ed7fdde9ca80271b7c4b"
+          },
+          {
+            "spec": "pose-federated-milestone-scoped-acceptance",
+            "category": "fixed",
+            "breaking": false,
+            "body": "Review and closeout of a milestone now consult federated acceptance over that milestone's own edges: the roadmap's `depends_on` and `consumes`, plus the milestone's `after`, `specs` and `consumes`. Before, a milestone used the acceptance of its whole roadmap, so an open spec in a later milestone blocked the closeout of every earlier one. Later milestones and the roadmap still report their own open members, and revoked trust still blocks. Milestone bundles sealed with the roadmap-wide manifest stay fresh while that sealed snapshot is unchanged; new seals carry the milestone as coordinator.",
+            "path": "pose-federated-milestone-scoped-acceptance.md",
+            "digest": "sha256:81ab924c6fcc8f35ffd85bd3730650f7408a6ddc216a33654d27ec692883c392"
+          },
+          {
+            "spec": "pose-federated-roadmap-acceptance",
+            "category": "added",
+            "breaking": false,
+            "body": "Roadmaps can accept reviewed outcomes from authorized projects while keeping their own integration and approval gates. Changes to a source revision, trust policy, or review evidence invalidate the coordinator's acceptance.",
+            "path": "pose-federated-roadmap-acceptance.md",
+            "digest": "sha256:a0950b12bf10f3b1a72f86af87974f905124735afed6f7821302d1bc6b828e35"
+          },
+          {
+            "spec": "pose-federated-spec-dependency-acceptance",
+            "category": "fixed",
+            "breaking": false,
+            "body": "A spec that depends on another project's artifact through `xref:` now seals the federated manifest of those dependencies into its review bundle, and `closeout-check` reports their blockers. Before, only roadmap and milestone scopes consulted federation, so revoking consumer trust left such a spec closable. Revocation now blocks the spec and stales its approved review; restoring the same trust restores it. Missing project roots block closeout with `project-roots-unavailable` instead of failing the command. Specs with no external dependency keep a byte-identical bundle.",
+            "path": "pose-federated-spec-dependency-acceptance.md",
+            "digest": "sha256:9dc899a0e4a3834508e4de58998b801be43d9d2f51147faf4f823ee4674602f1"
+          },
+          {
+            "spec": "pose-governance-outcomes-v2",
+            "category": "changed",
+            "breaking": true,
+            "body": "`pose stats governance` and `pose_governance_stats` now emit schema 2 with replay-safe report identity, bounded band/type cohorts, source provenance, and allowlisted finding-to-remediation references. The projection remains local and read-only; schema 1 consumers must be upgraded before adopting this contract.",
+            "path": "pose-governance-outcomes-v2.md",
+            "digest": "sha256:f6f31ec48d9f3c05215babb863a1bc6d17bbabb689f73e923cf434d0d17a6f3f"
+          },
+          {
+            "spec": "pose-governance-stats-local-freshness",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose_governance_stats` now verifies bundle freshness through a local store, like `pose stats governance`. From pose-mcp it used to resolve qualified dependencies again for every attested bundle, which on a large history took more than ten minutes instead of seconds and could count freshness differently from the CLI.",
+            "path": "pose-governance-stats-local-freshness.md",
+            "digest": "sha256:383aa99b3b23bfe7e8a2c37deca9fcaa78108cc292e42fcca2f91074a4c6d02c"
+          },
+          {
+            "spec": "pose-qualified-artifact-resolution",
+            "category": "added",
+            "breaking": false,
+            "body": "Resolve qualified spec, roadmap and milestone references consistently across\ndependency checks, MCP readiness and portfolio projections. Include dated and\nsplit specs; block missing or unauthorized sources without local fallback.\nRequired consumer adoption is opt-in and uses review policy schema 3/version 1,\nwhich older governance readers reject explicitly.",
+            "path": "pose-qualified-artifact-resolution.md",
+            "digest": "sha256:a55bed75db78acc452eeb26f4bdc2bd00a51a846168bf86b58faa7fb5d222b23"
+          },
+          {
+            "spec": "pose-review-bundle-seals-planned-component-evidence",
+            "category": "fixed",
+            "breaking": false,
+            "body": "A sealed review bundle now carries the current validation evidence of every module its plan asks a per-component `validate` tool for, not only the modules of the spec's delivery targets. A spec that delivers in one module and changes others can cite each component's own evidence, instead of being blocked with \"cites evidence from\" a sibling. Scopes without delivery targets seal as before.",
+            "path": "pose-review-bundle-seals-planned-component-evidence.md",
+            "digest": "sha256:d70f5881a0b507abb67c59193fd98ed800276e61b40639b04f708d18bd2e24d6"
+          },
+          {
+            "spec": "pose-review-root-binding-parity",
+            "category": "fixed",
+            "breaking": false,
+            "body": "Review of a root MCP binding now accepts a valid root delivery target and includes `.mcp.json` in the governed subject. Specs with code but no delivery target still require validation evidence without claiming a target exists.",
+            "path": "pose-review-root-binding-parity.md",
+            "digest": "sha256:e85bed44370001060bd3a2d1b4cbb90298cef38fea6cb66b902fe1b20302e201"
+          },
+          {
+            "spec": "pose-roadmap-gate-scopes-milestones-and-external-members",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`pose close milestone:\u003croadmap\u003e/\u003cid\u003e` now gates on that milestone alone: its federated acceptance and its own members, without the roadmap's cut criteria. Before, it ran the whole `roadmap-check --strict`, so an open spec in a later milestone refused the close of an earlier one. `roadmap-check` no longer looks up members owned by another project in local closeout, which reported every `xref:` member as not terminal; those members stay gated by federated acceptance.",
+            "path": "pose-roadmap-gate-scopes-milestones-and-external-members.md",
+            "digest": "sha256:c84492844c6ef1426de765cd49cc3019ced0c748aac9d1b2740400401df22a69"
+          },
+          {
+            "spec": "pose-spec-authority-transfer",
+            "category": "added",
+            "breaking": false,
+            "body": "Projects can preview and explicitly transfer a spec's authority between authorized repositories. The transfer preserves source history and blocks stale, incomplete, or unauthorized operations.",
+            "path": "pose-spec-authority-transfer.md",
+            "digest": "sha256:3f7a29efbdf5d1cb299bd4d78b3c5afec29073d881a22fcedd8b2e288f1e6269"
+          },
+          {
+            "spec": "pose-spec-transfer-reconcile-terminal",
+            "category": "added",
+            "breaking": false,
+            "body": "`pose spec-transfer preview --mode reconcile-terminal` retires a coordinator spec onto an executor in another project that is already `done` with a terminal closeout. The executor is never written: apply and resume only verify its digest. The requirement map is N:M over every source requirement, may target another spec through `destination_ref`, and records a `rationale` for `withdrawn` and `pending`; an owed requirement must land in an open spec and is kept in the redirect as `open_obligations`. `--map-file` reads the map as JSON. Plans and redirects of this mode use schema version 2, which older engines refuse. Ordinary transfers are unchanged.",
+            "path": "pose-spec-transfer-reconcile-terminal.md",
+            "digest": "sha256:92b65e1e88af957a2a9952d511ffd66035bbce0067002737ef20da2a25e09f17"
+          },
+          {
+            "spec": "pose-v6-release-readiness",
+            "category": "changed",
+            "breaking": true,
+            "body": "Prepare POSE 6.0.0 with aligned public version metadata, authenticated 5.0.8 upgrades and retained migration gates. Governance contracts require a compatible engine after explicit adoption; experimental judgments remain opt-in. Historical approvals keep their frozen contracts.\n\nThe coordinated distribution includes explicit review judgments, immutable\nsubject evidence, optional verified reviewer authority, R/A/D design basis,\nbounded structural observations and explicit remediation lineage. Automated\nchecks supply mechanical evidence; approval still requires the plan's reviewer\nconclusions. Unknown evidence and absent telemetry remain unknown. Critical\nunresolved findings cannot bypass the risk gate through `wont-fix` or reuse.\n\nUpgrade from a supported prior engine with the existing install/update flow;\ncustom policies and historical bundles retain their adopted contracts. A\nversion bump does not adopt atomic start, contract nodes or causal closeout.\nInspect each capability before opting in. Downgrade is refused rather than\ndeleting schema 2 artifacts. The retrospective pilot remains inconclusive for\nutility and review cost; this release claims no external adoption or human\nstaging acceptance.\n\nRelease archival now preserves the reviewed subject of committed changelog fragments through the existing ledger. Untracked, altered, duplicate or differently owned witnesses are refused.",
+            "path": "pose-v6-release-readiness.md",
+            "digest": "sha256:f66a0ddae9a092c8087568be219c0b742a24621ecfbf2a5e5dfb45dedd7c0043"
+          },
+          {
+            "spec": "review-policy-adoption-is-the-instances",
+            "category": "fixed",
+            "breaking": false,
+            "body": "`.pose/policy/review.json` is no longer shipped as a byte copy of this repository's\nlive policy. A fresh `pose install` received this repository's `adopted_at`, a dated\nfield per governed contract and the overlay profiles this repository had adopted;\nbecause the stamp skips a contract whose key is already present, the instance never\nearned its own dates and silently inherited an exemption boundary belonging to\nsomeone else. The distribution now ships the contract shape with no dates and no\nadopted overlays, and install stamps the day the instance received the policy and\neach contract. An existing instance keeps what it recorded, including under `--force`.",
+            "path": "review-policy-adoption-is-the-instances.md",
+            "digest": "sha256:399eb11abc8f0e9cf5f6a7efd63d2298dd53b47a7a50e3da40385fbbc9a8a1b3"
+          }
+        ],
+        "breaking": true,
+        "notes_digest": "sha256:1423959c30217274fc10fa11bf229b267ff6d0260547ee7fabd44f101ebcf2b7",
+        "release_input_digest": "sha256:bb8bef997acedaa51b24474c30826f8640e0c78a56d684333bcae4e04a8b5d60",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v6.0.0"
+        }
+      },
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v6.0.0",
+          "state": "tagged",
+          "recorded_at": "2026-09-28T14:39:36Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "git",
+            "repository": "oseiaspereira88/pose",
+            "version": "v6.0.0",
+            "tag": "v6.0.0",
+            "commit": "3faf1fed5ea9dfa8dcaae385573740bb6099dfd5",
+            "published_at": "2026-09-28T14:39:36Z",
+            "url": "https://github.com/oseiaspereira88/pose/tree/v6.0.0"
+          },
+          "evidence_digest": "sha256:d3a77f878e6e0b5e196866ce7ab052cd880033dbb3fad84296f7f47d8c988968"
+        },
+        {
+          "schema_version": 1,
+          "version": "v6.0.0",
+          "state": "published",
+          "recorded_at": "2026-09-28T14:54:22Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v6.0.0",
+            "tag": "v6.0.0",
+            "commit": "3faf1fed5ea9dfa8dcaae385573740bb6099dfd5",
+            "published_at": "2026-09-28T14:42:40Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v6.0.0",
+            "workflow_run": "36437204793",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:51c02956bd5f217890d267f7227ed032ebf1376ceef183ec11f58d6692ac0c34",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:c936f7de32196aaafc13ea4fdafc5b91d979c3138a6deb756ee087f93ae0db4c",
+              "Harne8.Pose.yaml": "sha256:a0e6d96a2c0f2467591bdd7e68ece69b1b5874d457c8835347712832d1c6aaac",
+              "checksums.txt": "sha256:5674b2dc7ee729613a8defa33d247cf86245ea9342f6dc01126bf57a13c99f2e",
+              "checksums.txt.sigstore.json": "sha256:f1358714aa8c8af6bdb13c3868461ea0577503c3bb6bb92361d4fba6c1b16057",
+              "compatibility-report.md": "sha256:ebc03d9be41712e006b05e96e84c83d2f19e23c5101a964004ae86dafaf6c66c",
+              "compatibility.json": "sha256:efad7026b24152f80a9092f1163f1d319846e52e35cde00a3632fb96e0a9de6d",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:4a422e4ef11727c895fff0cdd709b58d8a0794933e1ab5cfc4605b1aed78aea2",
+              "pose-rule-kubernetes.tar.gz": "sha256:a86645518e096e92a100c32e0b0c4a72a4167e42a24a642cdace827ef0854355",
+              "pose.rb": "sha256:4c2b0a689890d0d1c0eaaeb497a643ec19219ad5debced99002b74df372e5372",
+              "pose_6.0.0_darwin_amd64.tar.gz": "sha256:da0f4a098b83688a3f00ee50c95b4114d8e00a7f67e10fb90a94d9448ca644ec",
+              "pose_6.0.0_darwin_amd64.tar.gz.cdx.json": "sha256:aa4307eb3ac9daf6ace2153230c66e23e329d25c39dccfe4d22eadad59d3e4d0",
+              "pose_6.0.0_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:2ad96ab292cdb00386a0e277c78d6f7d9f5f06cf2ee9a415a7f8ab22103fc9b9",
+              "pose_6.0.0_darwin_amd64.tar.gz.sigstore.json": "sha256:42b8cdc79de027166e31f30e21138cb8ef192b8c8c74225d7708e953513ad231",
+              "pose_6.0.0_darwin_arm64.tar.gz": "sha256:4fa8f5a765deee0defee18895f9527b9df1cc88de444921b024f1b3cfdd8bbeb",
+              "pose_6.0.0_darwin_arm64.tar.gz.cdx.json": "sha256:a404052a7e6755fdddc2745fbf7f09a0bd456374579baee11495816cb9fa67f8",
+              "pose_6.0.0_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:4602b3ceed71f132ff891b0b150ed897222ed198cb8f74af27641a52e1f6f488",
+              "pose_6.0.0_darwin_arm64.tar.gz.sigstore.json": "sha256:5ac16789c976b5095de13df24ffec08cc2f28fbff1a894779af87e5807cd15a1",
+              "pose_6.0.0_linux_amd64.tar.gz": "sha256:fdeb6fed9f19d81ba6ba21fa9bbec2665266bb6382a5c1eb42d694134442d401",
+              "pose_6.0.0_linux_amd64.tar.gz.cdx.json": "sha256:6bbcda0cdc5c1eca6e1300981af44e9eed3b876060181d229c30bd7cdfdfb928",
+              "pose_6.0.0_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:e63abf917f9175152bd9bcb28c973bc460e395b1c3615127e2c0fb1c874b0b80",
+              "pose_6.0.0_linux_amd64.tar.gz.sigstore.json": "sha256:04672d72ebd791dd4fb9d8c77aa80a3db1dde9bdf9ee8f7c4ad49b20e58bda2a",
+              "pose_6.0.0_linux_arm64.tar.gz": "sha256:c5159f16e4accce7792dda6877067fe84bc40acf87ff4e6bff151f94fe38fc6c",
+              "pose_6.0.0_linux_arm64.tar.gz.cdx.json": "sha256:7822ff287477589e50b6bcbebf559405cd4cabc015ffdbefd7cba0926cf9d649",
+              "pose_6.0.0_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:3256fc6292c1d62b50ee7c2938a71fca1dcab74b98700a3209309d89c73420fb",
+              "pose_6.0.0_linux_arm64.tar.gz.sigstore.json": "sha256:229c2cf9dcaac4246730151da0de582eeaa78cfc3929af9f9bcfb73ba9cffa9d",
+              "pose_6.0.0_windows_amd64.zip": "sha256:d3487534e35660c58a91d8262190cc7bd2797526305ac7709e7376b6e037d246",
+              "pose_6.0.0_windows_amd64.zip.cdx.json": "sha256:d872ccda9de60df584213160a661f39b029fc88edd7831e570520b7e5932d0c4",
+              "pose_6.0.0_windows_amd64.zip.cdx.json.sigstore.json": "sha256:69f56ca87d43c8df7c5431a3b159f2555e8ca356d10d71f767898e5f7850fb69",
+              "pose_6.0.0_windows_amd64.zip.sigstore.json": "sha256:90bd2dcced3717f2f83e14c82316e61e47c00b6c7121d396748c07c6a549e992",
+              "pose_6.0.0_windows_arm64.zip": "sha256:950f579e5c2c33a14a4996adda55d6c5dc394574c6ad66c96d858c9576b3394f",
+              "pose_6.0.0_windows_arm64.zip.cdx.json": "sha256:c0abe2b1a35c0c47a9ab71befb81bb23869a6509f0311e2bb8d0ca7327044db8",
+              "pose_6.0.0_windows_arm64.zip.cdx.json.sigstore.json": "sha256:573c957469e37e1c80f79339b6cf215227ab6d469638d575c97aaca5f4fffada",
+              "pose_6.0.0_windows_arm64.zip.sigstore.json": "sha256:9831a37b31840c5d468696bf4cdec816670a106424df4bbcb770fbbedb45c7d4"
+            }
+          },
+          "evidence_digest": "sha256:ca98a4049ec86270f53ae2f1e6d50b3dbb5f7d71b96809477dac3ac3363800ff"
+        },
+        {
+          "schema_version": 1,
+          "version": "v6.0.0",
+          "state": "verified",
+          "recorded_at": "2026-09-28T14:54:22Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v6.0.0",
+            "tag": "v6.0.0",
+            "commit": "3faf1fed5ea9dfa8dcaae385573740bb6099dfd5",
+            "published_at": "2026-09-28T14:42:40Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v6.0.0",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/36438036943",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:51c02956bd5f217890d267f7227ed032ebf1376ceef183ec11f58d6692ac0c34",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:c936f7de32196aaafc13ea4fdafc5b91d979c3138a6deb756ee087f93ae0db4c",
+              "Harne8.Pose.yaml": "sha256:a0e6d96a2c0f2467591bdd7e68ece69b1b5874d457c8835347712832d1c6aaac",
+              "checksums.txt": "sha256:5674b2dc7ee729613a8defa33d247cf86245ea9342f6dc01126bf57a13c99f2e",
+              "checksums.txt.sigstore.json": "sha256:f1358714aa8c8af6bdb13c3868461ea0577503c3bb6bb92361d4fba6c1b16057",
+              "compatibility-report.md": "sha256:ebc03d9be41712e006b05e96e84c83d2f19e23c5101a964004ae86dafaf6c66c",
+              "compatibility.json": "sha256:efad7026b24152f80a9092f1163f1d319846e52e35cde00a3632fb96e0a9de6d",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:4a422e4ef11727c895fff0cdd709b58d8a0794933e1ab5cfc4605b1aed78aea2",
+              "pose-rule-kubernetes.tar.gz": "sha256:a86645518e096e92a100c32e0b0c4a72a4167e42a24a642cdace827ef0854355",
+              "pose.rb": "sha256:4c2b0a689890d0d1c0eaaeb497a643ec19219ad5debced99002b74df372e5372",
+              "pose_6.0.0_darwin_amd64.tar.gz": "sha256:da0f4a098b83688a3f00ee50c95b4114d8e00a7f67e10fb90a94d9448ca644ec",
+              "pose_6.0.0_darwin_amd64.tar.gz.cdx.json": "sha256:aa4307eb3ac9daf6ace2153230c66e23e329d25c39dccfe4d22eadad59d3e4d0",
+              "pose_6.0.0_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:2ad96ab292cdb00386a0e277c78d6f7d9f5f06cf2ee9a415a7f8ab22103fc9b9",
+              "pose_6.0.0_darwin_amd64.tar.gz.sigstore.json": "sha256:42b8cdc79de027166e31f30e21138cb8ef192b8c8c74225d7708e953513ad231",
+              "pose_6.0.0_darwin_arm64.tar.gz": "sha256:4fa8f5a765deee0defee18895f9527b9df1cc88de444921b024f1b3cfdd8bbeb",
+              "pose_6.0.0_darwin_arm64.tar.gz.cdx.json": "sha256:a404052a7e6755fdddc2745fbf7f09a0bd456374579baee11495816cb9fa67f8",
+              "pose_6.0.0_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:4602b3ceed71f132ff891b0b150ed897222ed198cb8f74af27641a52e1f6f488",
+              "pose_6.0.0_darwin_arm64.tar.gz.sigstore.json": "sha256:5ac16789c976b5095de13df24ffec08cc2f28fbff1a894779af87e5807cd15a1",
+              "pose_6.0.0_linux_amd64.tar.gz": "sha256:fdeb6fed9f19d81ba6ba21fa9bbec2665266bb6382a5c1eb42d694134442d401",
+              "pose_6.0.0_linux_amd64.tar.gz.cdx.json": "sha256:6bbcda0cdc5c1eca6e1300981af44e9eed3b876060181d229c30bd7cdfdfb928",
+              "pose_6.0.0_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:e63abf917f9175152bd9bcb28c973bc460e395b1c3615127e2c0fb1c874b0b80",
+              "pose_6.0.0_linux_amd64.tar.gz.sigstore.json": "sha256:04672d72ebd791dd4fb9d8c77aa80a3db1dde9bdf9ee8f7c4ad49b20e58bda2a",
+              "pose_6.0.0_linux_arm64.tar.gz": "sha256:c5159f16e4accce7792dda6877067fe84bc40acf87ff4e6bff151f94fe38fc6c",
+              "pose_6.0.0_linux_arm64.tar.gz.cdx.json": "sha256:7822ff287477589e50b6bcbebf559405cd4cabc015ffdbefd7cba0926cf9d649",
+              "pose_6.0.0_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:3256fc6292c1d62b50ee7c2938a71fca1dcab74b98700a3209309d89c73420fb",
+              "pose_6.0.0_linux_arm64.tar.gz.sigstore.json": "sha256:229c2cf9dcaac4246730151da0de582eeaa78cfc3929af9f9bcfb73ba9cffa9d",
+              "pose_6.0.0_windows_amd64.zip": "sha256:d3487534e35660c58a91d8262190cc7bd2797526305ac7709e7376b6e037d246",
+              "pose_6.0.0_windows_amd64.zip.cdx.json": "sha256:d872ccda9de60df584213160a661f39b029fc88edd7831e570520b7e5932d0c4",
+              "pose_6.0.0_windows_amd64.zip.cdx.json.sigstore.json": "sha256:69f56ca87d43c8df7c5431a3b159f2555e8ca356d10d71f767898e5f7850fb69",
+              "pose_6.0.0_windows_amd64.zip.sigstore.json": "sha256:90bd2dcced3717f2f83e14c82316e61e47c00b6c7121d396748c07c6a549e992",
+              "pose_6.0.0_windows_arm64.zip": "sha256:950f579e5c2c33a14a4996adda55d6c5dc394574c6ad66c96d858c9576b3394f",
+              "pose_6.0.0_windows_arm64.zip.cdx.json": "sha256:c0abe2b1a35c0c47a9ab71befb81bb23869a6509f0311e2bb8d0ca7327044db8",
+              "pose_6.0.0_windows_arm64.zip.cdx.json.sigstore.json": "sha256:573c957469e37e1c80f79339b6cf215227ab6d469638d575c97aaca5f4fffada",
+              "pose_6.0.0_windows_arm64.zip.sigstore.json": "sha256:9831a37b31840c5d468696bf4cdec816670a106424df4bbcb770fbbedb45c7d4"
+            },
+            "publication_digest": "sha256:ca98a4049ec86270f53ae2f1e6d50b3dbb5f7d71b96809477dac3ac3363800ff"
+          },
+          "evidence_digest": "sha256:3c6953b6d39e6d03078b0e45285cdb2f5d1c10710b3dddb8f5652d4f930574be"
+        }
+      ],
+      "gaps": []
+    },
     {
       "version": "v5.0.8",
       "state": "verified",
