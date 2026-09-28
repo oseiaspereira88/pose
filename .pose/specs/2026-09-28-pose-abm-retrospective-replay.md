@@ -63,9 +63,9 @@ claim missing historical start baselines were recorded before execution.
 ## 4. Tasks
 
 - [x] Define the source/consumer boundary and preimplementation test plan.
-- [ ] Implement bounded read-only replay and CLI.
-- [ ] Implement the adjudicated golden corpus and negative contracts.
-- [ ] Validate, review and close.
+- [x] Implement bounded read-only replay and CLI.
+- [x] Implement the adjudicated golden corpus and negative contracts.
+- [x] Validate, review and close.
 
 ## 5. Decisions
 
@@ -83,9 +83,28 @@ limits and symlinks report incompleteness; the real CLI reaches this projector.
 Register `abm-retrospective-replay-integration` and `abm-replay-reachability`,
 then run the full source matrix. Golden cases have explicit expected outcomes.
 
+### Requirement trace
+
+- R1 [satisfied] reachability:pose-mcp/go/abm-replay-reachability
+- R2 [satisfied] integration:pose-mcp/go/abm-retrospective-replay-integration
+- R3 [satisfied] integration:pose-mcp/go/abm-retrospective-replay-integration
+- R4 [satisfied] integration:pose-mcp/go/abm-retrospective-replay-integration
+- R5 [satisfied] integration:pose-mcp/go/abm-retrospective-replay-integration
+
 ## 7. Final Report
 
-Implementation and observed corpus reports remain pending.
+Delivered the bounded read-only CLI projector and 24 adjudicated synthetic
+golden cases. The full source matrix passed 36/36 at `e344a45`. Byte snapshots,
+invalid input, symlinks, limits, sanitized output and actual CLI routing passed.
+The separate source review approved the implementation against sealed evidence.
+
+Before approval renewals, the observed source corpus contained 919 attestations
+(918 approving decisions); four of 440 frozen record passes were additionally
+rejected by the hypothetical contracts. Harne8 contained 166 approving decisions;
+13 of 151 frozen record passes were additionally rejected. These record-level
+observations do not apply lifecycle grandfathering or rescind historical authority.
+Unknown subjects and missing telemetry remain explicit; no causal benefit,
+external adoption or historical pre-start baseline is claimed.
 
 ### Follow-ups
 

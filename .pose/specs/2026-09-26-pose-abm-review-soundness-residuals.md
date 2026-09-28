@@ -76,10 +76,10 @@ knowledge:module-metadata-discovery-invalidates-review-provenance.
 ## 4. Tasks
 
 - [x] Detail the plan and register targets before activation.
-- [ ] Reproduce the critical wont-fix acceptance and apply the shared gate.
-- [ ] Prove rejection audit persistence and malformed decision refusal.
-- [ ] Reconcile distributed instructions and add the contract check.
-- [ ] Validate, review and close.
+- [x] Reproduce the critical wont-fix acceptance and apply the shared gate.
+- [x] Prove rejection audit persistence and malformed decision refusal.
+- [x] Reconcile distributed instructions and add the contract check.
+- [x] Validate, review and close.
 
 ## 5. Decisions
 
@@ -97,16 +97,22 @@ instructions against runtime criterion preparation. Run the registered
 `review-soundness-residuals-integration` check and the full pose-mcp matrix.
 
 ### Requirement trace
-- R1 [deferred-integration: planning only] spec:pose-abm-review-soundness
-- R2 [deferred-integration: planning only] spec:pose-abm-review-soundness
-- R3 [deferred-integration: planning only] spec:pose-abm-review-soundness
+- R1 [satisfied] integration:pose-mcp/go/review-soundness-residuals-integration
+- R2 [satisfied] integration:pose-mcp/go/review-soundness-residuals-integration
+- R3 [satisfied] integration:pose-mcp/go/review-soundness-residuals-integration
 
 ## 7. Final Report
 
 ### Delivered scope
-Planning artifact only.
+The critical and incomplete `wont-fix` bypass was reproduced before the fix.
+The shared frozen finding gate now covers Store, CLI, signed import and reuse.
+Negative decisions remain immutable audit records, while invalid decisions
+create no record. English, Portuguese and embedded review instructions require
+explicit judgments. Full source validation passed 36/36 at `e344a45`; the
+separate dependency review recorded explicit judgments and passed verification.
 
 ### Residual risks
-The `wont-fix` gap stays open until R1 is delivered.
+Accepted risk remains limited by the bundle's sealed severity policy.
+Historical records are preserved; rejected risk cannot be reused as approval.
 
 ### Follow-ups
