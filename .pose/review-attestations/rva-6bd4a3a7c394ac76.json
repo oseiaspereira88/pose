@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-6bd4a3a7c394ac76",
+  "bundle_id": "rvb-b15570cc6f74f212",
+  "bundle_digest": "sha256:b15570cc6f74f21203e1ad28e2190a7fa693e32a8b2ac4a51a99b63afdcc550f",
+  "reviewer": "agent:codex",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "Schema 2 é versionado; o contrato antigo não é aceito silenciosamente e os filtros usam enums fechados."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-f131c9cec00d6fd6",
+      "rationale": "Manuais e scaffolds gerados descrevem schema 2 e a aplicabilidade dos filtros."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "A projeção mantém provenance, coverage, desconhecidos e truncamento com saída determinística e limitada."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A entrega segue o escopo aprovado sem coletor, armazenamento, escrita, ranking ou serviço paralelo."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "Seletores inválidos, escopo por projeto, allowlist, privacidade de paths, links órfãos e limites têm cobertura."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Reconciliação estrita: 34 claims observados."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Não reexecutado durante esta revisão; evidência estrutural está selada."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Não reexecutado durante esta revisão."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Assessment registrado na spec e executado antes desta revisão."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Assessment registrado na spec e executado antes desta revisão."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Gate posterior à atestação."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Gate posterior à atestação."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Workflow e regras já foram selecionados para esta revisão."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "Surface-check estrito passou nos dois alvos com evidência atual."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Matriz estrita global passou 33 de 33."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "Contrato de outcomes v2 passou na matriz estrita."
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "check:artifact-check",
+    "integration:pose-mcp/go/governance-outcomes-v2-contract",
+    "structure:design-f131c9cec00d6fd6",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-28T01:21:51Z",
+  "path": ".pose/review-attestations/rva-6bd4a3a7c394ac76.json"
+}

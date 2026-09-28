@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-27T21:07:24Z
-baseline_commit: fdb742db81db6c62d91ecb107fc75bc1a352a52b
+generated_at: 2026-09-28T01:23:51Z
+baseline_commit: 1a7650306c97fe6ce5dd08637187ddc1ffb84b51
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,25 +27,26 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:ff794d2558c2 -->
+<!-- state:derived hash:eb8e5b1ce99b -->
 
-- specs: total=250 draft=5 in-progress=65 blocked=0 done=180 superseded=0 abandoned=0
+- specs: total=251 draft=5 in-progress=65 blocked=0 done=181 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
-  - spec:pose-roadmap-gate-scopes-milestones-and-external-members (2026-09-27)
-  - spec:pose-spec-transfer-reconcile-terminal (2026-09-27)
-  - spec:pose-review-bundle-classifies-transfer-records (2026-09-27)
-  - spec:pose-spec-transfer-completion-and-references (2026-09-27)
+  - spec:pose-governance-outcomes-v2 (2026-09-28)
   - spec:pose-federated-milestone-scoped-acceptance (2026-09-27)
-  - ... e mais 175 (ver `pose_list_specs status:done`)
+  - spec:pose-review-bundle-classifies-transfer-records (2026-09-27)
+  - spec:pose-check-dor-accepts-qualified-refs (2026-09-27)
+  - spec:pose-federated-external-milestone-members (2026-09-27)
+  - ... e mais 176 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:0c7502cbf22f -->
+<!-- state:derived hash:370b6c6971e1 -->
 
 - abertos: 119
 - por criticidade: high=7 medium=28 low=60 sem-classificação=24
-- vencidos (review < hoje): 1
+- vencidos (review < hoje): 2
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
+  - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
 
 ## Capabilities
 <!-- state:derived hash:7db5fb52757a -->

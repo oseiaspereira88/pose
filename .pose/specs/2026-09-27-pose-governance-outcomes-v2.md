@@ -1,8 +1,8 @@
 ---
 slug: pose-governance-outcomes-v2
-status: in-progress
+status: done
 created_at: 2026-09-27
-completed_at:
+completed_at: 2026-09-28
 supersedes:
 depends_on: pose-abm-governance-outcomes, pose-abm-remediation-lineage
 remediates:
@@ -137,7 +137,7 @@ Give portfolio operators the denominators and source references needed to inspec
 - [x] Refresh project assessment state.
 - [x] Capture final strict validation evidence and refresh generated indexes.
 - [x] Verify strict artifact attribution (34 claims / 34 observed).
-- [ ] Obtain a fresh review and close.
+- [x] Obtain a fresh review and close.
 
 ## 5. Decisions
 
@@ -188,6 +188,8 @@ Required, risk-based validation before implementation: unit tests prove aggregat
 2026-09-27: `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json` passou 30/30. `pose artifact-check --spec pose-governance-outcomes-v2 --strict` passou com 34 claims / 34 observed; os warnings de paths antigos sem atribuição são baseline global do repositório e não atingem os claims deste change set.
 
 2026-09-27: a tentativa inicial de close detectou que os três roots de implementação não tinham alvo de entrega tipado. A spec agora declara a capacidade da projeção e o contrato MCP; a matriz de integração cobre os dois alvos. Evidências, bundle e atestação anteriores ficam supersedidos por esta alteração e serão refeitos.
+
+2026-09-27: no commit `1a76503`, a matriz estrita global passou 33/33. `surface-check --spec pose-governance-outcomes-v2 --strict` passou com dois alvos e zero findings; `artifact-check --strict` reconciliou 34 claims/34 observed. O bundle `rvb-b15570cc6f74f212` recebeu atestação aprovada `rva-6bd4a3a7c394ac76`; `review verify` confirmou frescor e aprovação.
 
 ### Requirement trace
 
