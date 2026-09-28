@@ -83,7 +83,7 @@ Give portfolio operators the denominators and source references needed to inspec
 - modified: .pose/state/integrations.json
 - modified: .pose/state/project-state.md
 - modified: .pose/state/technical-debt.json
-- modified: .pose/adr/2026-09-27-versioned-governance-outcomes-cohorts-and-lineage.md
+- created: .pose/adr/2026-09-27-versioned-governance-outcomes-cohorts-and-lineage.md
 - created: .pose/specs/2026-09-27-pose-governance-outcomes-v2.md
 - created: .pose/changelogs/unreleased/pose-governance-outcomes-v2.md
 - modified: pose-mcp/internal/pose/governance_outcomes.go
@@ -130,7 +130,8 @@ Give portfolio operators the denominators and source references needed to inspec
 - [x] Run MCP and CLI contract tests, full `go test ./...`, and `go vet ./...`.
 - [x] Run `pose assess integrate`, component discovery, and technical-debt assessment.
 - [x] Run the strict `pose-mcp` validation matrix.
-- [ ] Refresh project assessment state, capture final validation evidence, verify artifact attribution, review, and close.
+- [x] Refresh project assessment state.
+- [ ] Capture final validation evidence, verify artifact attribution, review, and close.
 
 ## 5. Decisions
 
@@ -175,6 +176,8 @@ Required, risk-based validation before implementation: unit tests prove aggregat
 2026-09-27: os testes de implementação estão concluídos; assessment de integração, validation matrix estrita, adoção pelo Harne8 e review/closeout permanecem como gates finais.
 
 2026-09-27: a matriz estrita de `pose-mcp` passou 30/30, incluindo `go test ./...`, `go vet ./...` e o contrato v2. O assessment de débito encontrou zero marcadores; o assessment local de integração listou 58 contratos e 57 gaps de consumidores externos não observados, incluindo `pose_governance_stats`, pois o checkout do motor não indexa o consumidor Harne8. A composição desse consumidor é validada na spec Harne8. `pose check --strict` continua com um erro anterior fora deste escopo: a spec fechada `pose-scaffold-self-referential-policy-fix` declara como atual um decision-log que não está rastreado.
+
+2026-09-27: `pose assess discover --update-state` atualizou as três componentes e o estado consolidado. Os arquivos de assessment e estado estão declarados acima para preservar a atribuição do ciclo.
 
 ### Requirement trace
 
