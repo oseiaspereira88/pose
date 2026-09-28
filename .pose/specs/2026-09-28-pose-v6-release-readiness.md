@@ -67,7 +67,6 @@ experimental policies through a version bump, or overwrite a released tag.
 - modified: .pose/state/history.jsonl
 - modified: .pose/state/refresh-log.jsonl
 - modified: .pose/indexes/spec-graph.json
-- modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/version/version.go
 - modified: pose-mcp/server.json
 - modified: compatibility.json
