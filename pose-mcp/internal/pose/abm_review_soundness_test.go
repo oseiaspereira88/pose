@@ -14,10 +14,6 @@ import (
 func TestABMReviewSoundnessSignedRiskIsNotApproval(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	now := time.Date(2026, 9, 28, 10, 0, 0, 0, time.UTC)
-	bundle, err := store.SealReviewBundle("spec:backend", now)
-	if err != nil {
-		t.Fatal(err)
-	}
 	privateKey := ed25519.NewKeyFromSeed(make([]byte, ed25519.SeedSize))
 	publicKey := privateKey.Public().(ed25519.PublicKey)
 	policyPath := filepath.Join(root, ".pose/policy/review.json")
@@ -26,6 +22,10 @@ func TestABMReviewSoundnessSignedRiskIsNotApproval(t *testing.T) {
 		t.Fatal(err)
 	}
 	writeReviewFixture(t, root, ".pose/policy/review.json", strings.Replace(string(policy), `"component_aware": true,`, `"component_aware":true,"trusted_attestation_issuers":["test:risk#`+digestBytes(publicKey)+`"],`, 1))
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
 	att := approvedBundleAttestation(bundle, "agent:signed-risk")
 	att.SchemaVersion = ReviewBundleSchemaVersion
 	att.BundleDigest = bundle.BundleDigest
