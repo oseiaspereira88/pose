@@ -9,7 +9,7 @@ remediates:
 priority: 2
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: capability:governance-outcomes-v2, contract:governance-outcomes-v2-mcp
 ---
 
 # Spec: Versioned governance outcomes cohorts and lineage
@@ -101,6 +101,10 @@ Give portfolio operators the denominators and source references needed to inspec
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
+### Delivery targets
+- capability:governance-outcomes-v2 module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+- contract:governance-outcomes-v2-mcp module:pose-mcp profile:api-contract entrypoint:pose-mcp/internal/mcpserver/server.go
+
 ### API/contract changes
 - `pose stats governance` adds `--band baseline|elevated|critical|unknown` and `--report-type standard|doc-audit|unknown`.
 - MCP `pose_governance_stats` adds the same optional `band` and `report_type` values; project_id remains explicit for multi-project callers.
@@ -183,6 +187,8 @@ Required, risk-based validation before implementation: unit tests prove aggregat
 
 2026-09-27: `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json` passou 30/30. `pose artifact-check --spec pose-governance-outcomes-v2 --strict` passou com 34 claims / 34 observed; os warnings de paths antigos sem atribuição são baseline global do repositório e não atingem os claims deste change set.
 
+2026-09-27: a tentativa inicial de close detectou que os três roots de implementação não tinham alvo de entrega tipado. A spec agora declara a capacidade da projeção e o contrato MCP; a matriz de integração cobre os dois alvos. Evidências, bundle e atestação anteriores ficam supersedidos por esta alteração e serão refeitos.
+
 ### Requirement trace
 
 - R1 [satisfied] — schema 2, projeto, janela, timestamps, versões de fonte e coverage: `TestGovernanceOutcomesSeparateDimensionsAndCoverage`, `TestToolsCall_GovernanceStats`.
@@ -207,3 +213,4 @@ Produtor schema 2, CLI e MCP implementados e cobertos pela suíte completa, pelo
 Consumidores schema 1 devem atualizar antes da adoção; linhas de legado sem identidade e truncamento acima de 100 vínculos são indicados explicitamente. O `pose check --strict` do repositório segue com o erro de baseline documentado no log, fora dos artefatos desta spec.
 
 ### Follow-ups
+Nenhum follow-up novo foi aberto. Consumidores que ainda esperam schema 1 devem atualizar antes de adotar esta projeção v2, conforme o risco residual acima.
