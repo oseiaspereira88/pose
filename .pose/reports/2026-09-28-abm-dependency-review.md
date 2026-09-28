@@ -70,3 +70,18 @@ Current bundle/plan digests, explicit judgment/tool dispositions and post-review
 gates are recorded separately by the canonical source CLI. Source vulnerability scan passed both modules with govulncheck 1.4.0;
 release readiness remains pending remaining security/publication gates; this report declares no
 release published, no human acceptance and no external adoption.
+
+## Technical release readiness review
+
+Reviewed authoritative version and registry metadata, authenticated 5.0.8
+checksum pin, populated update preservation and CLI canonical-slug lookup.
+The official non-publishing snapshot `36425948489` at `01ffe77` passed real
+Sigstore signatures and SBOM identity checks. The notes selector regression
+executes all three branches: unprepared snapshot, prepared snapshot and tag
+without manifest. Tags always require canonical frozen notes.
+
+The candidate has no new implicit adoption: unknown capability/schema remains
+refused or unavailable. The signing workflow retains least privileges and
+separate build/verification facts. Publication and independent verification
+are mandatory subsequent lifecycle operations; no candidate data represents
+a published release. Explicitly approved technical readiness within this scope.
