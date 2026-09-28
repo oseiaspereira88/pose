@@ -85,3 +85,7 @@ refused or unavailable. The signing workflow retains least privileges and
 separate build/verification facts. Publication and independent verification
 are mandatory subsequent lifecycle operations; no candidate data represents
 a published release. Explicitly approved technical readiness within this scope.
+
+## Release archival review
+
+The regression reproduced a missing pending fragment after the cut. The ledger alias keeps the attributed pending path and normalized content digest unchanged. The selected owning spec, one release, exact frozen bytes, committed manifest/archive and project confinement are required. Dirty, staged, untracked, duplicate, foreign-owned and digest-mismatched witnesses remain blockers; missing unrelated knowledge paths gain no alias. Historical approval sidecars are preserved.

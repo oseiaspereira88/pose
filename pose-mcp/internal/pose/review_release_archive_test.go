@@ -71,6 +71,15 @@ func TestReviewReleaseArchiveRejectsUnattestedContent(t *testing.T) {
 			designDeltaGit(t, root, "add", ".")
 			designDeltaGit(t, root, "commit", "-qm", "Wrong owner")
 		},
+		"committed digest mismatch": func(t *testing.T, root string) {
+			writeReviewFixture(t, root, fragmentArchived, "changed after archival")
+			designDeltaGit(t, root, "add", ".")
+			designDeltaGit(t, root, "commit", "-qm", "Changed archive")
+		},
+		"missing ledger": func(t *testing.T, root string) {
+			designDeltaGit(t, root, "rm", fragmentManifest)
+			designDeltaGit(t, root, "commit", "-qm", "Missing ledger")
+		},
 		"duplicate release": func(t *testing.T, root string) { archiveReviewFragment(t, root, "v1.3.0", "backend") },
 		"archive escapes root": func(t *testing.T, root string) {
 			outside := filepath.Join(t.TempDir(), "fragment.md")
