@@ -22,4 +22,4 @@ The component assessment was recalculated at task entry. No release tag or runti
 - pose lint-spec pose-dist-adopt-published-v6 --ready-check: SUCCESS.
 - pose doctor --json: installed binary 6.0.0; instance schema 1. Informational legacy assessment/policy diagnostics remain visible.
 
-Review and lifecycle transition follow these implementation checks. Existing runtime closure defects are outside this machinery adoption and must be fixed under dedicated engine specs.
+Native review rvb-2d0f7fa2a0e295f4 was approved by a separate review execution (attestation rva-0f70ddcb096e380d); pose close applied status done on 2026-09-28. Existing runtime closure defects are outside this machinery adoption and must be fixed under dedicated engine specs.

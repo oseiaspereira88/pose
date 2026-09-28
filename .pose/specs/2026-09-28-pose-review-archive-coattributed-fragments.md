@@ -1,8 +1,8 @@
 ---
 slug: pose-review-archive-coattributed-fragments
-status: in-progress
+status: done
 created_at: 2026-09-28
-completed_at:
+completed_at: 2026-09-28
 depends_on: pose-release-archival-attested-by-the-ledger
 priority: 0
 components: pose-mcp
@@ -48,7 +48,7 @@ Keep direct owner resolution unchanged. Supply alternate owners proven by co-att
 - [x] Reproduce the real failure and isolate the joint-commit owner mismatch.
 - [x] Prove shared-commit regression red before the fix.
 - [x] Implement minimal owner selection and preserve negative cases.
-- [ ] Run native registered archive integration, module matrix, real preparation, review and closeout.
+- [x] Run native registered archive integration, module matrix, real preparation, review and closeout.
 
 ## 5. Decisions
 

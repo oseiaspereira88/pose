@@ -1,8 +1,8 @@
 ---
 slug: pose-dist-adopt-published-v6
-status: in-progress
+status: done
 created_at: 2026-09-28
-completed_at:
+completed_at: 2026-09-28
 depends_on: pose-v6-release-readiness
 priority: 0
 components: docs
@@ -39,7 +39,7 @@ Use native update --no-self. Inspect the actual diff before recording any additi
 - [x] Authenticate the published artifact and binary.
 - [x] Run initial component assessment.
 - [x] Deliver native machinery and verify preservation and idempotence.
-- [ ] Run strict checks, obtain review and close adoption.
+- [x] Run strict checks, obtain review and close adoption.
 
 ## 5. Decisions
 
