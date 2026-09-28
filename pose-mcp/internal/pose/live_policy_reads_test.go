@@ -39,7 +39,21 @@ func validateBundleAttestationWithBody(t *testing.T) string {
 	rest := source[start:]
 	// The next top-level declaration ends it.
 	if end := strings.Index(rest[1:], "\nfunc "); end >= 0 {
-		return rest[:end+1]
+		body := rest[:end+1]
+		// The finding/decision gate also protects criterion reuse. Include
+		// this direct callee in both the live-read and sealed-read guards.
+		if strings.Contains(body, "reviewFindingDecisionBlockers(") {
+			start := strings.Index(source, "func reviewFindingDecisionBlockers(")
+			if start < 0 {
+				t.Fatal("finding/decision gate not found")
+			}
+			helper := source[start:]
+			if end := strings.Index(helper[1:], "\nfunc "); end >= 0 {
+				helper = helper[:end+1]
+			}
+			body += helper
+		}
+		return body
 	}
 	return rest
 }

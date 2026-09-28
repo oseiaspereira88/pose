@@ -57,6 +57,7 @@ knowledge:module-metadata-discovery-invalidates-review-provenance.
 - modified: pose-mcp/internal/pose/bundle_finding_contract_test.go
 - modified: pose-mcp/internal/pose/abm_review_soundness_test.go
 - modified: pose-mcp/internal/cli/review_closeout_test.go
+- modified: pose-mcp/internal/pose/live_policy_reads_test.go
 - created: pose-mcp/internal/scaffold/review_soundness_test.go
 - modified: .agents/skills/pose-review/SKILL.md
 - modified: POSE.md
