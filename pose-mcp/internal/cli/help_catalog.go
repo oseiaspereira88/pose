@@ -654,7 +654,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "stats",
 		SummaryEN:       "Display historical POSE engineering statistics and task metrics",
 		SummaryPtBR:     "Exibe estatísticas históricas de engenharia e métricas de tarefas do POSE",
-		Usage:           "pose stats [workflows|tasks|contexts] [--since-days N] [--json] | pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--json]",
+		Usage:           "pose stats replay [--limit N] [--json] | pose stats [workflows|tasks|contexts] [--since-days N] [--json] | pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--json]",
 		DescriptionEN:   "Aggregates historical outcomes, or (with governance) reports separate preparation, judgment, intervention, freshness and coverage dimensions without a quality score.",
 		DescriptionPtBR: "Agrega resultados históricos ou, com governance, separa preparação, julgamento, intervenção, atualidade e cobertura sem score de qualidade.",
 		Flags: []FlagHelp{
@@ -667,6 +667,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose stats",
 			"pose stats tasks --since-days 14",
 			"pose stats governance --json",
+			"pose stats replay --json",
 		},
 	},
 	"usage": {

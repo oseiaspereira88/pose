@@ -298,6 +298,32 @@
       "stack": "go",
       "checks": [
         {
+          "name": "abm-retrospective-replay-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "GovernanceReplay|ABMGolden",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "abm-replay-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "GovernanceReplayCLIReachability",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
+        },
+        {
           "name": "review-soundness-residuals-integration",
           "program": "go",
           "args": [

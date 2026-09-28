@@ -488,3 +488,7 @@ attestation must carry a trusted, signed authority claim bound to the sealed
 bundle, project audience, reviewer principal and required executions. Human
 claims need a separate authority grant. Legacy bundles remain auditable under
 the assurance mode sealed when they were created.
+
+### Retrospective ABM replay
+
+`pose stats replay --json` scans local historical attestations and the newest sealed subject of each spec without writing project artifacts. It compares frozen contracts with hypothetical explicit judgment and structural causality invariants. Counts retain invalid inputs, unknown structural coverage, unbaselined nodes and denominators. Use `--limit N` (1–20000) to bound work; incomplete reports cannot support an exhaustive adoption claim. A counterfactual does not revoke historical approvals, record a baseline or prove reviewer utility. Experimental judgments remain opt-in.

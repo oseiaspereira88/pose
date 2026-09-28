@@ -1,0 +1,146 @@
+[
+  {
+    "id": "G01",
+    "category": "trivial",
+    "test": "TestABMProgressiveReviewTrivialCorpusHasNoAdditionalObligations",
+    "oracle": "No extra obligations across criticalities for scopes without a trigger."
+  },
+  {
+    "id": "G02",
+    "category": "overengineered-green",
+    "test": "TestABMStructuralCausalityRequiresCoverageOfEveryMaterialFact",
+    "oracle": "A green build does not waive an unmapped material fact."
+  },
+  {
+    "id": "G03",
+    "category": "justified",
+    "test": "TestABMCausalityCloseoutAcceptsAJustifiedLiveMapping",
+    "oracle": "Accept the live decision basis reaching an active requirement."
+  },
+  {
+    "id": "G04",
+    "category": "false-assumption",
+    "test": "TestABMNodeTransitionsInvalidatedAssumptionBlocksActiveDecision",
+    "oracle": "An invalidated assumption blocks a dependent active decision."
+  },
+  {
+    "id": "G05",
+    "category": "policy-downgrade",
+    "test": "TestABMPolicyDowngradeOverlayCannotLowerHumanFloor",
+    "oracle": "An overlay cannot lower the mandatory human floor."
+  },
+  {
+    "id": "G06",
+    "category": "post-hoc",
+    "test": "TestABMAtomicStartReconciliationNeverFabricatesHistory",
+    "oracle": "A late start reconciliation never invents an earlier baseline."
+  },
+  {
+    "id": "G07",
+    "category": "unsupported",
+    "test": "TestABMStructuralDeltaSubjectActionsAndUnsupportedCoverage",
+    "oracle": "Unsupported formats remain partial coverage."
+  },
+  {
+    "id": "G08",
+    "category": "authority",
+    "test": "TestABMReviewAuthorityRejectsReplayAndExpiry",
+    "oracle": "Reject replay to another bundle or expired authority."
+  },
+  {
+    "id": "G09",
+    "category": "integrity",
+    "test": "TestABMReviewSoundnessJudgmentIsNotAutoApproved",
+    "oracle": "Missing reviewer judgment stays pending."
+  },
+  {
+    "id": "G10",
+    "category": "integrity",
+    "test": "TestABMReviewSoundnessJudgmentNeedsAConclusion",
+    "oracle": "A blank judgment conclusion does not approve."
+  },
+  {
+    "id": "G11",
+    "category": "integrity",
+    "test": "TestABMReviewSoundnessOrphanFindingRefusedByStore",
+    "oracle": "An unrecorded finding reference does not approve."
+  },
+  {
+    "id": "G12",
+    "category": "integrity",
+    "test": "TestABMReviewSoundnessBlanketNotApplicableRefused",
+    "oracle": "Blanket inapplicability cannot approve a delivery."
+  },
+  {
+    "id": "G13",
+    "category": "integrity",
+    "test": "TestABMReviewSoundnessNotApplicableContradictedBySealedEvidence",
+    "oracle": "Sealed applicable evidence contradicts inapplicability."
+  },
+  {
+    "id": "G14",
+    "category": "integrity",
+    "test": "TestBundlePathWontFixUsesSealedAcceptedRiskGate",
+    "oracle": "Only complete risks of a sealed allowed severity can be waived."
+  },
+  {
+    "id": "G15",
+    "category": "integrity",
+    "test": "TestABMReviewSoundnessReuseCannotLaunderRejectedRisk",
+    "oracle": "Reuse cannot launder an unresolved critical risk or rejection."
+  },
+  {
+    "id": "G16",
+    "category": "structure",
+    "test": "TestABMStructuralDeltaObservesBothSidesAndStableIDs",
+    "oracle": "Detect both subject sides with stable fact identities."
+  },
+  {
+    "id": "G17",
+    "category": "structure",
+    "test": "TestABMStructuralMaterialityExcludesTransitiveAndUncertain",
+    "oracle": "Transitive and uncertain facts create no material obligation."
+  },
+  {
+    "id": "G18",
+    "category": "structure",
+    "test": "TestABMStructuralCausalityBasisMustReachARequirement",
+    "oracle": "A disconnected basis cannot justify added structure."
+  },
+  {
+    "id": "G19",
+    "category": "structure",
+    "test": "TestABMCausalityCloseoutRefusesADeadBasis",
+    "oracle": "A dead basis cannot justify a material fact."
+  },
+  {
+    "id": "G20",
+    "category": "unknown",
+    "test": "TestABMCausalityCloseoutUnknownIsNotAbsence",
+    "oracle": "Unknown structural coverage cannot count as absence."
+  },
+  {
+    "id": "G21",
+    "category": "integrity",
+    "test": "TestABMAtomicStartRefusesStaleAndUnreadyPlans",
+    "oracle": "A stale or unready digest cannot start execution."
+  },
+  {
+    "id": "G22",
+    "category": "retry",
+    "test": "TestABMAtomicStartResumesAfterInterruptionAndCancels",
+    "oracle": "Resume a journaled interruption without duplicate start."
+  },
+  {
+    "id": "G23",
+    "category": "compatibility",
+    "test": "TestABMContractNodesRefusesSchema2WithoutCapability",
+    "oracle": "Refuse schema 2 without adopted reader capability."
+  },
+  {
+    "id": "G24",
+    "category": "integrity",
+    "test": "TestABMNodeTransitionsEditorialCannotMaskSemantic",
+    "oracle": "An editorial disposition cannot hide semantic node changes."
+  }
+]
