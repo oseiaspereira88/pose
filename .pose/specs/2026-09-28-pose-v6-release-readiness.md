@@ -48,6 +48,7 @@ experimental policies through a version bump, or overwrite a released tag.
 - created: .pose/specs/2026-09-28-pose-v6-release-readiness.md
 - created: .pose/reports/2026-09-28-abm-dependency-review.md
 - created: .pose/results/abm-dependency-review.json
+- created: .pose/results/pose-v6-snapshot.json
 - modified: .pose/assessments/README.md
 - modified: .pose/assessments/docs-site.md
 - modified: .pose/assessments/mcp-enforce.md
@@ -94,11 +95,11 @@ The coordinator verifies the current source pin and generated Harness mirror.
 ## 4. Tasks
 
 - [x] Inspect repository state, release policy and source dependency scopes.
-- [ ] Complete explicit source reviews and reconcile their evidence.
-- [ ] Implement and verify missing migration/distribution behavior.
-- [ ] Align version, compatibility and public distribution metadata.
+- [x] Complete explicit source reviews and reconcile their evidence.
+- [x] Implement and verify missing migration/distribution behavior.
+- [x] Align version, compatibility and public distribution metadata.
 - [ ] Validate, review and close the technical candidate.
-- [ ] Verify and hand off the immutable publication and reconciliation path.
+- [x] Verify and hand off the immutable publication and reconciliation path.
 
 ## 5. Decisions
 
@@ -129,10 +130,28 @@ contracts (1 active, 57 unobserved consumer gaps) and zero uncovered debt
 markers. History and skill checks passed. Outcomes v2 surface check has zero
 findings; remediation lineage has only containing-module coverage warnings.
 
+### Requirement trace
+- R1 [satisfied] report:.pose/reports/2026-09-28-abm-dependency-review.md
+- R2 [satisfied] report:compatibility-report.md
+- R3 [satisfied] unit:pose-mcp/go/test
+- R4 [satisfied] report:.pose/results/pose-v6-snapshot.json
+- R5 [satisfied] report:.pose/results/pose-v6-snapshot.json
+
 ## 7. Final Report
 
-Technical readiness is pending. Publication is tracked by the coordinator
-and the release lifecycle, independently of this technical candidate.
+Technical implementation and the official snapshot rehearsal passed. Run
+`36425948489`, source `01ffe77`, completed source tests, installer, authenticated
+compatibility, vulnerability/secrets checks, six platform builds, Sigstore
+signing and artifact/SBOM identity verification. It published no release.
+The runtime remains 6.0.0-dev until the release pipeline stamps 6.0.0.
+
+The full source matrix passed 36/36 after final residual/replay traces; the
+notes selection regression additionally proves tagged runs cannot use mutable
+preview notes. Remaining release operations use the existing lifecycle:
+prepare and strictly check the immutable manifest, require a clean tree, create
+one new tag, and import actual publication and independent verification evidence.
+These are operational publication facts owned by the coordinator, not candidate
+acceptance. No human staging or external adoption is claimed.
 
 ### Follow-ups
 

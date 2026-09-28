@@ -1,0 +1,124 @@
+{
+  "databaseId": 36425948489,
+  "headSha": "01ffe771cbbc743f1c9c04dd05c9bdb6b47143b4",
+  "conclusion": "success",
+  "url": "https://github.com/oseiaspereira88/pose/actions/runs/36425948489",
+  "createdAt": "2026-09-28T13:03:52Z",
+  "updatedAt": "2026-09-28T13:11:13Z",
+  "schema_version": 1,
+  "mode": "snapshot/no-publication",
+  "steps": [
+    {
+      "name": "Set up job",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "conclusion": "success"
+    },
+    {
+      "name": "Resolve release version",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
+      "conclusion": "success"
+    },
+    {
+      "name": "Tests + installer E2E",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run bash tests/release/assert-clean-tree.sh \"Tests + installer E2E\"",
+      "conclusion": "success"
+    },
+    {
+      "name": "Compatibility gate (spec pose-release-compatibility-matrix)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run bash tests/release/assert-clean-tree.sh \"Compatibility gate\" compatibility-report.md",
+      "conclusion": "success"
+    },
+    {
+      "name": "Retain compatibility report",
+      "conclusion": "success"
+    },
+    {
+      "name": "Release notes from changelog fragments",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run bash tests/release/assert-clean-tree.sh \"Release notes from changelog fragments\"",
+      "conclusion": "success"
+    },
+    {
+      "name": "Security gate (spec pose-ossf-security-baseline)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run bash tests/release/assert-clean-tree.sh \"Security gate\"",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run anchore/sbom-action/download-syft@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26",
+      "conclusion": "success"
+    },
+    {
+      "name": "Sign the reference extension (spec pose-extension-reference-publication)",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Run bash tests/release/assert-clean-tree.sh \"Sign the reference extension\" pose-rule-kubernetes.sigstore.json pose-rule-kubernetes.tar.gz",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94",
+      "conclusion": "success"
+    },
+    {
+      "name": "Attest build provenance (spec pose-slsa-provenance)",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Verify artifact identity (specs pose-release-signing, pose-cyclonedx-sbom)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Package-manager manifests (spec pose-package-manager-distribution)",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Retain package-manager manifests",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Publish package-manager manifests as release assets",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Emit provider-neutral publication evidence",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Retain publication evidence for reconciliation",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Post Run actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "conclusion": "success"
+    }
+  ]
+}
