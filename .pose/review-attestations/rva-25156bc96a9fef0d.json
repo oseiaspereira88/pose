@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-25156bc96a9fef0d",
+  "bundle_id": "rvb-b8881b0d72e5996f",
+  "bundle_digest": "sha256:b8881b0d72e5996f34be56849da5706df501ccaaa1a493b01f5e8c974bf6af02",
+  "reviewer": "agent:codex-v6-dependency-review-20260928",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Inspected CLI, MCP, file schemas and adoption boundaries; unknown obligations are refused, frozen historical inputs remain auditable, and experimental overlays remain opt-in."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Inspected the canonical spec, CLI reference, applicable skills and embedded manual; explicit pending judgments and the implemented contract are consistent. Portuguese auto-approval guidance was corrected in the residual spec."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Inspected bounded errors, freshness and unavailable states; diagnostics identify the next required action without converting unknown evidence into approval. No causal or telemetry benefit is inferred."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Compared attributed implementation and structural observation with the canonical source requirements; changes stay within the declared contract and separately tracked integrity residuals."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Inspected confinement, immutable evidence, identity and authority checks; missing support cannot authorize writes or approve findings. Critical wont-fix and negative-decision reuse bypasses are fixed and covered by Store, CLI and signed-import tests."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-95f2692ae87b9c90",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Documentation-only changes were read directly; registered metadata and no-producer status are already in the sealed plan."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Documentation-only changes were read directly; registered metadata and no-producer status are already in the sealed plan."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The validation matrix explicitly registers no producer for this docs component; inspected documentation manually."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "structure:design-95f2692ae87b9c90"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-28T12:36:38Z",
+  "path": ".pose/review-attestations/rva-25156bc96a9fef0d.json"
+}

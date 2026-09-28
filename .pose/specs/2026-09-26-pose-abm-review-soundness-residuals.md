@@ -1,6 +1,6 @@
 ---
 slug: pose-abm-review-soundness-residuals
-status: in-progress
+status: done
 created_at: 2026-09-26
 supersedes:
 depends_on: pose-abm-review-soundness
@@ -8,6 +8,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: governance:review-soundness-residuals
+completed_at: 2026-09-28
 ---
 
 # Spec: Review soundness obligations the executor did not deliver

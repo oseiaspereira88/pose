@@ -78,10 +78,10 @@ capacidade.
   - report:2026-09-24-multirepo-autonomous-review.md
 
 ## Arquitetura
-<!-- state:derived hash:f5e07bfd7492 status:active -->
+<!-- state:derived hash:42fe36bc8d38 status:active -->
 
 - componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=52968 testes=40879 total=93847
+- linhas_de_codigo: producao=53262 testes=41298 total=94560
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=58 ativos=1 gaps=57

@@ -1,8 +1,8 @@
 ---
 slug: pose-abm-retrospective-replay
-status: in-progress
+status: done
 created_at: 2026-09-28
-completed_at:
+completed_at: 2026-09-28
 depends_on: pose-abm-review-soundness-residuals, pose-abm-structural-delta, pose-abm-causality-attestation
 priority: 1
 components: pose-mcp

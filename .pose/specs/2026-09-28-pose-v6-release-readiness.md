@@ -48,11 +48,17 @@ experimental policies through a version bump, or overwrite a released tag.
 - created: .pose/specs/2026-09-28-pose-v6-release-readiness.md
 - created: .pose/reports/2026-09-28-abm-dependency-review.md
 - created: .pose/results/abm-dependency-review.json
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/docs-site.md
+- modified: .pose/assessments/mcp-enforce.md
 - modified: .pose/assessments/consolidated.md
 - modified: .pose/assessments/integrations.md
 - modified: .pose/assessments/pose-mcp.md
 - modified: .pose/assessments/technical-debt.md
 - modified: .pose/state/components/pose-mcp.json
+- modified: .pose/state/components/docs-site.json
+- modified: .pose/state/components/mcp-enforce.json
+- modified: .pose/state/project-state.md
 - modified: .pose/state/integrations.json
 - modified: .pose/state/technical-debt.json
 - modified: .pose/indexes/delivery-integrity.json
@@ -112,9 +118,9 @@ All listed gates are required before publication.
 
 ### Execution log
 
-2026-09-28: inspected dependency code and sealed evidence. Source code is
-unchanged since the passing 33-check matrix at commit `1a76503`; later commits
-contain derived indexes and review records. Source assessments found 58
+2026-09-28: inspected dependency code and sealed evidence. Runtime code, distributed instructions and replay were validated by the full
+36-check matrix at `e344a45`, then again after final requirement traces at
+`e0fb750`. All checks passed. Source assessments found 58
 contracts (1 active, 57 unobserved consumer gaps) and zero uncovered debt
 markers. History and skill checks passed. Outcomes v2 surface check has zero
 findings; remediation lineage has only containing-module coverage warnings.
