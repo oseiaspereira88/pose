@@ -298,6 +298,21 @@
       "stack": "go",
       "checks": [
         {
+          "name": "governance-outcomes-v2-contract",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "GovernanceOutcomes|GovernanceStats|RemediationProjection",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "abm-remediation-lineage-integration",
           "program": "go",
           "args": [

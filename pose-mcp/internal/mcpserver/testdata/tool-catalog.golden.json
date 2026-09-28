@@ -716,9 +716,19 @@
       "name": "pose_insights"
     },
     {
-      "description": "Project local governance outcomes from report history, sealed review bundles and attestations. Returns separate preparation, judgment, intervention, freshness and coverage dimensions without a quality score, identity or network access.",
+      "description": "Project local governance outcomes from report history, sealed review bundles and attestations. Returns schema 2 with separate preparation, judgment, intervention, freshness, provenance and coverage dimensions. Report type filters attempts; band filters reviews and explicit finding links. No quality score, identity, paths or network access.",
       "inputSchema": {
         "properties": {
+          "band": {
+            "description": "Optional review band filter; applies to reviews and explicit finding links only",
+            "enum": [
+              "baseline",
+              "elevated",
+              "critical",
+              "unknown"
+            ],
+            "type": "string"
+          },
           "maturity_days": {
             "default": 30,
             "description": "Reserved maturity window for future remediation projections",
@@ -733,6 +743,15 @@
           },
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "report_type": {
+            "description": "Optional report type filter; applies to validation attempt history only",
+            "enum": [
+              "standard",
+              "doc-audit",
+              "unknown"
+            ],
             "type": "string"
           },
           "since_days": {

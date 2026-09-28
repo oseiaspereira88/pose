@@ -21,25 +21,33 @@ func cmdGovernanceStats(root string, args []string, stdout, stderr io.Writer) in
 		switch args[i] {
 		case "--json":
 			jsonOut = true
-		case "--since-days", "--maturity-days", "--min-sample":
+		case "--since-days", "--maturity-days", "--min-sample", "--band", "--report-type":
 			if i+1 >= len(args) {
-				return usageError(stderr, "Usage: pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--json]")
+				return usageError(stderr, "Usage: pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--band baseline|elevated|critical|unknown] [--report-type standard|doc-audit|unknown] [--json]")
 			}
-			n, err := strconv.Atoi(args[i+1])
-			if err != nil || n < 0 {
-				return usageError(stderr, "pose stats governance: numeric options must be integers >= 0")
-			}
+			value := args[i+1]
 			switch args[i] {
-			case "--since-days":
-				query.SinceDays = n
-			case "--maturity-days":
-				query.MaturityDays = n
-			case "--min-sample":
-				query.MinSample = n
+			case "--band":
+				query.Band = value
+			case "--report-type":
+				query.ReportType = value
+			default:
+				n, err := strconv.Atoi(value)
+				if err != nil || n < 0 {
+					return usageError(stderr, "pose stats governance: numeric options must be integers >= 0")
+				}
+				switch args[i] {
+				case "--since-days":
+					query.SinceDays = n
+				case "--maturity-days":
+					query.MaturityDays = n
+				case "--min-sample":
+					query.MinSample = n
+				}
 			}
 			i++
 		default:
-			return usageError(stderr, "Usage: pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--json]")
+			return usageError(stderr, "Usage: pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--band baseline|elevated|critical|unknown] [--report-type standard|doc-audit|unknown] [--json]")
 		}
 	}
 	report, err := (posepkg.Store{Root: root}).GovernanceOutcomes(query)
@@ -60,6 +68,12 @@ func cmdGovernanceStats(root string, args []string, stdout, stderr io.Writer) in
 	if report.Coverage.Reason != "" {
 		out.Field("coverage.reason", report.Coverage.Reason)
 	}
+	out.Field("project_id", report.ProjectID)
+	out.Field("schema_version", strconv.Itoa(report.SchemaVersion))
+	out.Field("filters.band", governanceFilterLabel(report.Filters.Band))
+	out.Field("filters.report_type", governanceFilterLabel(report.Filters.ReportType))
+	out.Field("filters.band_applies_to", strings.Join(report.Filters.BandAppliesTo, ","))
+	out.Field("filters.report_type_applies_to", strings.Join(report.Filters.ReportTypeAppliesTo, ","))
 	out.Field("coverage.history", fmt.Sprintf("matched=%d scanned=%d invalid=%d", report.Coverage.HistoryRecordsMatched, report.Coverage.HistoryRecordsScanned, report.Coverage.HistoryInvalidRecords))
 	out.Field("coverage.reviews", fmt.Sprintf("bundles=%d invalid=%d attestations=%d invalid=%d without_bundle=%d", report.Coverage.ReviewBundlesScanned-report.Coverage.ReviewBundlesInvalid, report.Coverage.ReviewBundlesInvalid, report.Coverage.AttestationsScanned-report.Coverage.AttestationsInvalid, report.Coverage.AttestationsInvalid, report.Coverage.AttestationsWithoutBundle))
 	out.Field("attempts", fmt.Sprintf("units=%d observed=%d pass=%d fail=%d partial=%d skipped=%d unknown=%d", report.Attempts.UnitsObserved, report.Attempts.AttemptsObserved, report.Attempts.Pass, report.Attempts.Fail, report.Attempts.Partial, report.Attempts.Skipped, report.Attempts.Unknown))
@@ -86,7 +100,17 @@ func cmdGovernanceStats(root string, args []string, stdout, stderr io.Writer) in
 			out.Field("remediation.category."+category, strconv.Itoa(report.Remediation.ByCategory[category]))
 		}
 	}
+	for _, link := range report.Remediation.Links {
+		out.Field("remediation.link", fmt.Sprintf("finding:%s/%s -> spec:%s category=%s band=%s", link.AttestationID, link.FindingID, link.RemediationSpec, link.Category, link.SourceBand))
+	}
 	return 0
+}
+
+func governanceFilterLabel(value string) string {
+	if value == "" {
+		return "all"
+	}
+	return value
 }
 
 // sortedStringKeys keeps the category lines deterministic, because this output

@@ -281,7 +281,7 @@ func TestToolsCall_InsightsRejectsInvalidInputs(t *testing.T) {
 
 func TestToolsCall_GovernanceStats(t *testing.T) {
 	ts := newTestServer(t, "")
-	_, out := post(t, ts, `{"jsonrpc":"2.0","id":33,"method":"tools/call","params":{"name":"pose_governance_stats","arguments":{"since_days":0}}}`)
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":33,"method":"tools/call","params":{"name":"pose_governance_stats","arguments":{"since_days":0,"band":"critical","report_type":"doc-audit"}}}`)
 	if out.Error != nil || out.Result["isError"] != false {
 		t.Fatalf("governance stats failed: error=%+v result=%v", out.Error, out.Result)
 	}
@@ -291,6 +291,14 @@ func TestToolsCall_GovernanceStats(t *testing.T) {
 	}
 	if _, ok := structured["coverage"]; !ok {
 		t.Fatalf("governance report missing coverage: %v", structured)
+	}
+	filters, _ := structured["filters"].(map[string]any)
+	if filters["band"] != "critical" || filters["report_type"] != "doc-audit" || structured["provenance"] == nil {
+		t.Fatalf("governance report omitted schema 2 cohort/provenance: %v", structured)
+	}
+	_, invalid := post(t, ts, `{"jsonrpc":"2.0","id":34,"method":"tools/call","params":{"name":"pose_governance_stats","arguments":{"band":"all"}}}`)
+	if invalid.Error != nil || invalid.Result["isError"] != true {
+		t.Fatalf("invalid cohort selector did not fail closed: error=%+v result=%v", invalid.Error, invalid.Result)
 	}
 }
 

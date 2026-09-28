@@ -186,16 +186,21 @@ func (s Store) confineRemediationSpecs() error {
 }
 
 func (s Store) remediationFindingSpec(ref string) (string, error) {
+	spec, _, _, _, err := s.remediationFindingDetails(ref)
+	return spec, err
+}
+
+func (s Store) remediationFindingDetails(ref string) (sourceSpec, sourceBand, attestationID, findingID string, err error) {
 	parts := remediationFindingRef.FindStringSubmatch(ref)
 	if len(parts) != 3 {
-		return "", lineageError("reference", "invalid finding reference")
+		return "", "", "", "", lineageError("reference", "invalid finding reference")
 	}
 	if err := s.confineRemediationReviewFile(".pose/review-attestations", parts[1]); err != nil {
-		return "", err
+		return "", "", "", "", err
 	}
 	att, err := s.LoadReviewAttestation(parts[1])
 	if err != nil {
-		return "", lineageError("orphan", "finding attestation is missing or invalid")
+		return "", "", "", "", lineageError("orphan", "finding attestation is missing or invalid")
 	}
 	matches := 0
 	for _, finding := range att.Findings {
@@ -204,23 +209,24 @@ func (s Store) remediationFindingSpec(ref string) (string, error) {
 		}
 	}
 	if matches != 1 {
-		return "", lineageError("orphan", "finding must resolve exactly once in its attestation")
+		return "", "", "", "", lineageError("orphan", "finding must resolve exactly once in its attestation")
 	}
 	if err := s.confineRemediationReviewFile(".pose/review-bundles", att.BundleID); err != nil {
-		return "", err
+		return "", "", "", "", err
 	}
 	bundle, err := s.LoadReviewBundle(att.BundleID)
 	if err != nil || att.BundleDigest != bundle.BundleDigest {
-		return "", lineageError("orphan", "finding bundle is missing or does not match the attestation")
+		return "", "", "", "", lineageError("orphan", "finding bundle is missing or does not match the attestation")
 	}
 	scope, err := ParseScopeRef(bundle.Payload.Scope.Ref)
 	if err != nil {
-		return "", lineageError("reference", "finding has an invalid scope")
+		return "", "", "", "", lineageError("reference", "finding has an invalid scope")
 	}
+	sourceBand = governanceBundleBand(bundle)
 	if scope.Kind == "spec" {
-		return scope.Slug, nil
+		return scope.Slug, sourceBand, parts[1], parts[2], nil
 	}
-	return "", nil
+	return "", sourceBand, parts[1], parts[2], nil
 }
 
 func (s Store) confineRemediationReviewFile(rel, id string) error {
@@ -278,7 +284,7 @@ func sortedRemediationCountedCategories() []string {
 //   - Categories outside the counted set are still reported per category. The
 //     reader can see a requirement-change existed; it just does not become a
 //     defect.
-func (s Store) remediationProjection(now time.Time, sinceDays, maturityDays, minSample int) GovernanceRemediationDimensions {
+func (s Store) remediationProjection(now time.Time, sinceDays, maturityDays, minSample int, band string) GovernanceRemediationDimensions {
 	dimensions := GovernanceRemediationDimensions{ByCategory: map[string]int{}, CountedCategories: sortedRemediationCountedCategories()}
 	specs, err := s.ListSpecs("", "")
 	if err != nil {
@@ -296,7 +302,12 @@ func (s Store) remediationProjection(now time.Time, sinceDays, maturityDays, min
 	// lands after the delivery it repairs, which is the whole reason the window
 	// exists.
 	mature := map[string]bool{}
+	specBySlug := make(map[string]bool, len(specs))
+	for i := range specs {
+		specBySlug[specs[i].Slug] = true
+	}
 	incoming := map[string]map[string]bool{}
+	lineageLinks := []GovernanceRemediationLink{}
 	declared := 0
 	for i := range specs {
 		spec := &specs[i]
@@ -319,8 +330,23 @@ func (s Store) remediationProjection(now time.Time, sinceDays, maturityDays, min
 			target := ""
 			if rest, ok := strings.CutPrefix(link.Ref, "spec:"); ok {
 				target = rest
-			} else if resolved, findErr := s.remediationFindingSpec(link.Ref); findErr == nil {
+				if !specBySlug[target] {
+					dimensions.InvalidLinks++
+					continue
+				}
+			} else if resolved, sourceBand, attestationID, findingID, findErr := s.remediationFindingDetails(link.Ref); findErr == nil {
 				target = resolved
+				if target != "" && !specBySlug[target] {
+					dimensions.InvalidLinks++
+					continue
+				}
+				if target != "" && governanceBandMatches(sourceBand, band) {
+					lineageLinks = append(lineageLinks, GovernanceRemediationLink{
+						AttestationID: attestationID, FindingID: findingID,
+						SourceSpec: target, RemediationSpec: spec.Slug,
+						Category: link.Category, SourceBand: sourceBand,
+					})
+				}
 			} else {
 				dimensions.InvalidLinks++
 				continue
@@ -337,6 +363,28 @@ func (s Store) remediationProjection(now time.Time, sinceDays, maturityDays, min
 	}
 
 	dimensions.LinksDeclared = declared
+	sort.Slice(lineageLinks, func(i, j int) bool {
+		left, right := lineageLinks[i], lineageLinks[j]
+		if left.SourceSpec != right.SourceSpec {
+			return left.SourceSpec < right.SourceSpec
+		}
+		if left.AttestationID != right.AttestationID {
+			return left.AttestationID < right.AttestationID
+		}
+		if left.FindingID != right.FindingID {
+			return left.FindingID < right.FindingID
+		}
+		if left.RemediationSpec != right.RemediationSpec {
+			return left.RemediationSpec < right.RemediationSpec
+		}
+		return left.Category < right.Category
+	})
+	dimensions.LinksTotal = len(lineageLinks)
+	dimensions.LinksTruncated = len(lineageLinks) > governanceMaxRemediationLinks
+	if dimensions.LinksTruncated {
+		lineageLinks = lineageLinks[:governanceMaxRemediationLinks]
+	}
+	dimensions.Links = lineageLinks
 	dimensions.MaturePopulation = len(mature)
 	if declared == 0 {
 		dimensions.Reason = "no delivery declares an explicit remediation link"

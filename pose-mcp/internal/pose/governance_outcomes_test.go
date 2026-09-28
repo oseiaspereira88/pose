@@ -106,10 +106,91 @@ func TestGovernanceOutcomesCountsJudgmentAndInvalidArtifacts(t *testing.T) {
 
 func TestGovernanceOutcomesRejectsInvalidQuery(t *testing.T) {
 	store := Store{Root: t.TempDir()}
-	for _, query := range []GovernanceOutcomesQuery{{SinceDays: -1}, {MaturityDays: -1}, {MinSample: -1}} {
+	for _, query := range []GovernanceOutcomesQuery{
+		{SinceDays: -1}, {MaturityDays: -1}, {MinSample: -1},
+		{Band: "everything"}, {ReportType: "transcript"},
+	} {
 		if _, err := store.GovernanceOutcomes(query); err == nil {
 			t.Fatalf("invalid query accepted: %+v", query)
 		}
+	}
+}
+
+func TestGovernanceOutcomesDeduplicatesReplayAndPreservesNegativeSequences(t *testing.T) {
+	root := t.TempDir()
+	first := `{"generated_at":"2026-09-19T00:00:00Z","sequence":1,"task_slug":"alpha","report_type":"standard","spec":"alpha","stable_hash":"same","outcome":"fail"}`
+	second := `{"generated_at":"2026-09-19T00:01:00Z","sequence":2,"task_slug":"alpha","report_type":"standard","spec":"alpha","stable_hash":"same","outcome":"fail"}`
+	conflictPass := `{"generated_at":"2026-09-19T00:02:00Z","sequence":3,"task_slug":"alpha","report_type":"standard","spec":"alpha","stable_hash":"same","outcome":"pass"}`
+	conflictFail := `{"generated_at":"2026-09-19T00:02:00Z","sequence":3,"task_slug":"alpha","report_type":"standard","spec":"alpha","stable_hash":"same","outcome":"fail"}`
+	legacy := `{"generated_at":"2026-09-19T00:03:00Z","task_slug":"legacy","report_type":"standard","outcome":"fail"}`
+	writeGovernanceFile(t, root, ".pose/reports/history/standard-alpha.jsonl", first+"\n"+first+"\n"+second+"\n"+conflictPass+"\n"+conflictFail+"\n"+legacy+"\n")
+
+	report, err := (Store{Root: root}).GovernanceOutcomes(GovernanceOutcomesQuery{
+		ProjectID: "proj.harne8", Now: time.Date(2026, 9, 19, 1, 0, 0, 0, time.UTC),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.SchemaVersion != 2 || report.ProjectID != "proj.harne8" {
+		t.Fatalf("versioned project scope missing: %+v", report)
+	}
+	if report.Attempts.AttemptsObserved != 4 || report.Attempts.Fail != 4 || report.Attempts.Pass != 0 {
+		t.Fatalf("replay or conflict changed negative attempts: %+v", report.Attempts)
+	}
+	if report.Coverage.HistoryRecordsDuplicate != 1 || report.Coverage.HistoryIdentityConflicts != 1 || report.Coverage.HistoryIdentityUnknown != 1 {
+		t.Fatalf("identity coverage = %+v", report.Coverage)
+	}
+	if len(report.Provenance.Sources) < 3 || report.Provenance.ReportAttemptIdentity != "report_type/task_slug/sequence" {
+		t.Fatalf("provenance missing source/version identity: %+v", report.Provenance)
+	}
+}
+
+func TestGovernanceOutcomesFiltersOnlyApplicableFacets(t *testing.T) {
+	root := t.TempDir()
+	history := `{"generated_at":"2026-09-19T00:00:00Z","sequence":1,"task_slug":"standard","report_type":"standard","outcome":"fail"}` + "\n" +
+		`{"generated_at":"2026-09-19T00:01:00Z","sequence":1,"task_slug":"docs","report_type":"doc-audit","outcome":"pass"}` + "\n"
+	writeGovernanceFile(t, root, ".pose/reports/history/reports.jsonl", history)
+	writeBundle := func(scope, band, at string) ReviewBundle {
+		t.Helper()
+		payload := ReviewBundlePayload{Scope: ReviewBundleScope{Ref: scope}, Plan: ReviewBundlePlan{Band: band}}
+		digest, err := reviewBundlePayloadDigest(payload)
+		if err != nil {
+			t.Fatal(err)
+		}
+		bundle := ReviewBundle{SchemaVersion: ReviewBundleSchemaVersion, BundleID: "rvb-" + digest[len("sha256:"):len("sha256:")+16], BundleDigest: digest, State: "sealed", SealedAt: at, Payload: payload}
+		raw, _ := json.Marshal(bundle)
+		writeGovernanceFile(t, root, ".pose/review-bundles/"+bundle.BundleID+".json", string(raw)+"\n")
+		return bundle
+	}
+	writeAttestation := func(bundle ReviewBundle, reviewer, decision, at string) {
+		t.Helper()
+		att := approvedBundleAttestation(bundle, reviewer)
+		att.SchemaVersion = ReviewBundleSchemaVersion
+		att.Decision = decision
+		att.AttestedAt = at
+		att.AttestationID = reviewAttestationID(att)
+		raw, _ := json.Marshal(att)
+		writeGovernanceFile(t, root, ".pose/review-attestations/"+att.AttestationID+".json", string(raw)+"\n")
+	}
+	critical := writeBundle("spec:critical", ReviewBandCritical, "2026-09-19T00:02:00Z")
+	baseline := writeBundle("spec:baseline", ReviewBandBaseline, "2026-09-19T00:03:00Z")
+	writeAttestation(critical, "agent:critical", "changes-requested", "2026-09-19T00:04:00Z")
+	writeAttestation(baseline, "agent:baseline", "approved", "2026-09-19T00:05:00Z")
+	now := time.Date(2026, 9, 19, 1, 0, 0, 0, time.UTC)
+
+	byType, err := (Store{Root: root}).GovernanceOutcomes(GovernanceOutcomesQuery{Now: now, ReportType: "doc-audit"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if byType.Attempts.AttemptsObserved != 1 || byType.Attempts.Pass != 1 || byType.Attempts.Fail != 0 || byType.Reviews.AttestationsObserved != 2 {
+		t.Fatalf("report type filter escaped its facet: attempts=%+v reviews=%+v", byType.Attempts, byType.Reviews)
+	}
+	byBand, err := (Store{Root: root}).GovernanceOutcomes(GovernanceOutcomesQuery{Now: now, Band: ReviewBandCritical})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if byBand.Reviews.BundlesObserved != 1 || byBand.Reviews.AttestationsObserved != 1 || byBand.Reviews.ChangesRequested != 1 || byBand.Attempts.AttemptsObserved != 2 {
+		t.Fatalf("band filter escaped its facet: attempts=%+v reviews=%+v", byBand.Attempts, byBand.Reviews)
 	}
 }
 

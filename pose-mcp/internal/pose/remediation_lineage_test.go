@@ -114,6 +114,26 @@ func TestRemediationLineageFindingUsesImmutableAttestation(t *testing.T) {
 	if err := store.ValidateRemediationLineage(*sp); err != nil {
 		t.Fatal(err)
 	}
+	projected, err := store.GovernanceOutcomes(GovernanceOutcomesQuery{Now: time.Now().UTC()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(projected.Remediation.Links) != 1 {
+		t.Fatalf("explicit finding link missing: %+v", projected.Remediation)
+	}
+	link := projected.Remediation.Links[0]
+	if link.AttestationID != att.AttestationID || link.FindingID != "F1" || link.SourceSpec != "backend" || link.RemediationSpec != "repair" || link.Category != "defect-fix" || link.SourceBand == "" {
+		t.Fatalf("finding link projection = %+v", link)
+	}
+	encoded, err := json.Marshal(projected.Remediation.Links)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, forbidden := range []string{"agent:fixture", "fix the defect", "rationale", "evidence text", root} {
+		if strings.Contains(string(encoded), forbidden) {
+			t.Fatalf("lineage projection exposed %q: %s", forbidden, encoded)
+		}
+	}
 	sp.Remediates = []string{"finding:" + att.AttestationID + "/F2@defect-fix"}
 	if err := store.ValidateRemediationLineage(*sp); err == nil || !strings.Contains(err.Error(), "/orphan") {
 		t.Fatalf("missing finding: %v", err)
@@ -135,6 +155,35 @@ func TestRemediationLineageFindingUsesImmutableAttestation(t *testing.T) {
 	writeReviewFixture(t, root, att.Path, string(raw))
 	if err := store.ValidateRemediationLineage(*sp); err == nil || !strings.Contains(err.Error(), "/orphan") {
 		t.Fatalf("tamper: %v", err)
+	}
+}
+
+func TestRemediationProjectionBoundsFindingLineageRows(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	bundle, err := store.SealReviewBundle("spec:backend", time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	att := approvedBundleAttestation(bundle, "agent:fixture")
+	att.Decision = "changes-requested"
+	att.Findings = []ReviewFinding{{ID: "F1", Severity: "low", Disposition: "open"}}
+	att, err = store.RecordReviewAttestation(att, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	ref := "finding:" + att.AttestationID + "/F1@defect-fix"
+	for i := 0; i < governanceMaxRemediationLinks+1; i++ {
+		lineageSpec(t, root, fmt.Sprintf("repair-%03d", i), ref)
+	}
+	report, err := store.GovernanceOutcomes(GovernanceOutcomesQuery{Now: time.Now().UTC()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(report.Remediation.Links) != governanceMaxRemediationLinks || !report.Remediation.LinksTruncated || report.Coverage.RemediationLinksScanned != governanceMaxRemediationLinks+1 {
+		t.Fatalf("lineage limit/coverage = rows:%d truncated:%v coverage:%+v", len(report.Remediation.Links), report.Remediation.LinksTruncated, report.Coverage)
+	}
+	if report.Remediation.Links[0].RemediationSpec != "repair-000" || report.Remediation.Links[len(report.Remediation.Links)-1].RemediationSpec != fmt.Sprintf("repair-%03d", governanceMaxRemediationLinks-1) {
+		t.Fatalf("lineage rows are not deterministic: first=%+v last=%+v", report.Remediation.Links[0], report.Remediation.Links[len(report.Remediation.Links)-1])
 	}
 }
 

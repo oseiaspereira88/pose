@@ -11,27 +11,32 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
 )
 
 const (
-	GovernanceOutcomesSchemaVersion = 1
+	GovernanceOutcomesSchemaVersion = 2
 	governanceDefaultMaturityDays   = 30
 	governanceDefaultMinSample      = 3
 	governanceMaxHistoryLineBytes   = 1 << 20
 	governanceMaxEntries            = 100000
 	governanceMaxFreshnessChecks    = 256
+	governanceMaxRemediationLinks   = 100
 )
 
 // GovernanceOutcomesQuery controls a deterministic projection. A zero Now is
 // replaced with the current UTC time at the boundary; callers that need a
 // reproducible report should provide it explicitly.
 type GovernanceOutcomesQuery struct {
+	ProjectID    string
 	SinceDays    int
 	MaturityDays int
 	MinSample    int
+	Band         string
+	ReportType   string
 	Now          time.Time
 }
 
@@ -41,11 +46,18 @@ type GovernanceCoverage struct {
 	HistoryRecordsScanned     int    `json:"history_records_scanned"`
 	HistoryRecordsMatched     int    `json:"history_records_matched"`
 	HistoryInvalidRecords     int    `json:"history_invalid_records"`
+	HistoryRecordsDuplicate   int    `json:"history_records_duplicate"`
+	HistoryIdentityConflicts  int    `json:"history_identity_conflicts"`
+	HistoryIdentityUnknown    int    `json:"history_identity_unknown"`
 	ReviewBundlesScanned      int    `json:"review_bundles_scanned"`
 	ReviewBundlesInvalid      int    `json:"review_bundles_invalid"`
+	ReviewBandsUnknown        int    `json:"review_bands_unknown"`
 	AttestationsScanned       int    `json:"attestations_scanned"`
 	AttestationsInvalid       int    `json:"attestations_invalid"`
 	AttestationsWithoutBundle int    `json:"attestations_without_bundle"`
+	RemediationLinksScanned   int    `json:"remediation_links_scanned"`
+	RemediationLinksInvalid   int    `json:"remediation_links_invalid"`
+	RemediationLinksTruncated bool   `json:"remediation_links_truncated"`
 	FreshnessChecks           int    `json:"freshness_checks"`
 	FreshnessUnknown          int    `json:"freshness_unknown"`
 	FreshnessTruncated        bool   `json:"freshness_truncated"`
@@ -114,18 +126,56 @@ type GovernanceRemediationDimensions struct {
 	// ByCategory reports every category observed on the mature population, and
 	// CountedCategories says which of them enter ObservedRemediated, so a reader
 	// never has to infer which links were treated as defects.
-	ByCategory        map[string]int `json:"by_category,omitempty"`
-	CountedCategories []string       `json:"counted_categories,omitempty"`
+	ByCategory        map[string]int              `json:"by_category,omitempty"`
+	CountedCategories []string                    `json:"counted_categories,omitempty"`
+	LinksTotal        int                         `json:"links_total"`
+	LinksTruncated    bool                        `json:"links_truncated"`
+	Links             []GovernanceRemediationLink `json:"links,omitempty"`
+}
+
+// GovernanceRemediationLink is the allowlisted path from an explicit finding
+// reference to its declared remediation spec. It intentionally omits finding
+// text, reviewer identity, owner, rationale and evidence content.
+type GovernanceRemediationLink struct {
+	AttestationID   string `json:"attestation_id"`
+	FindingID       string `json:"finding_id"`
+	SourceSpec      string `json:"source_spec"`
+	RemediationSpec string `json:"remediation_spec"`
+	Category        string `json:"category"`
+	SourceBand      string `json:"source_band"`
+}
+
+type GovernanceProvenanceSource struct {
+	ID      string `json:"id"`
+	Version string `json:"version"`
+}
+
+type GovernanceProvenance struct {
+	Producer              string                       `json:"producer"`
+	ReportAttemptIdentity string                       `json:"report_attempt_identity"`
+	Sources               []GovernanceProvenanceSource `json:"sources"`
+}
+
+type GovernanceFilters struct {
+	Band                string   `json:"band,omitempty"`
+	ReportType          string   `json:"report_type,omitempty"`
+	BandAppliesTo       []string `json:"band_applies_to"`
+	ReportTypeAppliesTo []string `json:"report_type_applies_to"`
 }
 
 // GovernanceOutcomesReport is intentionally a set of independent dimensions.
 // There is no aggregate score and no field whose value means “good”.
 type GovernanceOutcomesReport struct {
 	SchemaVersion int                             `json:"schema_version"`
+	ProjectID     string                          `json:"project_id,omitempty"`
 	GeneratedAt   string                          `json:"generated_at"`
+	WindowEnd     string                          `json:"window_end"`
+	WindowStart   string                          `json:"window_start,omitempty"`
 	SinceDays     int                             `json:"since_days"`
 	MaturityDays  int                             `json:"maturity_days"`
 	MinSample     int                             `json:"min_sample"`
+	Filters       GovernanceFilters               `json:"filters"`
+	Provenance    GovernanceProvenance            `json:"provenance"`
 	Coverage      GovernanceCoverage              `json:"coverage"`
 	Attempts      GovernanceAttemptDimensions     `json:"attempts"`
 	Reviews       GovernanceReviewDimensions      `json:"reviews"`
@@ -139,6 +189,7 @@ type governanceHistoryRecord struct {
 	TaskSlug        string   `json:"task_slug"`
 	Spec            string   `json:"spec"`
 	ReportType      string   `json:"report_type"`
+	StableHash      string   `json:"stable_hash"`
 	Outcome         string   `json:"outcome"`
 	DurationSeconds *float64 `json:"duration_seconds,omitempty"`
 	CostUSD         *float64 `json:"cost_usd,omitempty"`
@@ -162,6 +213,15 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 	if query.MinSample < 0 {
 		return nil, errors.New("pose governance stats: min_sample must be non-negative")
 	}
+	if !validGovernanceBand(query.Band) {
+		return nil, errors.New("pose governance stats: band must be baseline, elevated, critical or unknown")
+	}
+	if !validGovernanceReportType(query.ReportType) {
+		return nil, errors.New("pose governance stats: report_type must be standard, doc-audit or unknown")
+	}
+	if query.ProjectID != "" && !validGovernanceProjectID(query.ProjectID) {
+		return nil, errors.New("pose governance stats: invalid project_id")
+	}
 	if query.MaturityDays == 0 {
 		query.MaturityDays = governanceDefaultMaturityDays
 	}
@@ -174,11 +234,29 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 	}
 	report := &GovernanceOutcomesReport{
 		SchemaVersion: GovernanceOutcomesSchemaVersion,
-		GeneratedAt:   now.Format(time.RFC3339), SinceDays: query.SinceDays,
+		ProjectID:     query.ProjectID,
+		GeneratedAt:   now.Format(time.RFC3339), WindowEnd: now.Format(time.RFC3339), SinceDays: query.SinceDays,
 		MaturityDays: query.MaturityDays, MinSample: query.MinSample,
+		Filters: GovernanceFilters{
+			Band: query.Band, ReportType: query.ReportType,
+			BandAppliesTo:       []string{"reviews", "remediation.links"},
+			ReportTypeAppliesTo: []string{"attempts"},
+		},
+		Provenance: GovernanceProvenance{
+			Producer: "pose_governance_stats", ReportAttemptIdentity: "report_type/task_slug/sequence",
+			Sources: []GovernanceProvenanceSource{
+				{ID: "report-history", Version: "jsonl-sequence-v1"},
+				{ID: "review-bundles", Version: "review-bundle-v1"},
+				{ID: "review-attestations", Version: "review-attestation-v1"},
+				{ID: "spec-remediates", Version: "remediation-links-v1"},
+			},
+		},
 		Coverage: GovernanceCoverage{PreparationPhaseCoverage: "partial", RemediationCoverage: "unavailable"},
 	}
-	report.Remediation = s.remediationProjection(now, query.SinceDays, query.MaturityDays, query.MinSample)
+	if query.SinceDays > 0 {
+		report.WindowStart = now.AddDate(0, 0, -query.SinceDays).Format(time.RFC3339)
+	}
+	report.Remediation = s.remediationProjection(now, query.SinceDays, query.MaturityDays, query.MinSample, query.Band)
 	if report.Remediation.Available {
 		// Partial, never complete: an absent link is unknown, so coverage of the
 		// mature population can only ever be the part that carries one.
@@ -191,12 +269,16 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 	}
 	report.Coverage.HistoryRecordsScanned = history.scanned
 	report.Coverage.HistoryInvalidRecords = history.invalid
+	history.records, report.Coverage.HistoryRecordsDuplicate, report.Coverage.HistoryIdentityConflicts, report.Coverage.HistoryIdentityUnknown = deduplicateGovernanceHistory(history.records)
 	cutoff := time.Time{}
 	if query.SinceDays > 0 {
 		cutoff = now.AddDate(0, 0, -query.SinceDays)
 	}
 	unitKeys := map[string]bool{}
 	for _, record := range history.records {
+		if !governanceReportTypeMatches(record.ReportType, query.ReportType) {
+			continue
+		}
 		at, ok := parseGovernanceTime(record.GeneratedAt)
 		if !ok || at.After(now) || (!cutoff.IsZero() && at.Before(cutoff)) {
 			continue
@@ -253,6 +335,9 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 		if !ok || at.After(now) || (!cutoff.IsZero() && at.Before(cutoff)) {
 			continue
 		}
+		if !governanceBandMatches(governanceBundleBand(bundle), query.Band) {
+			continue
+		}
 		report.Reviews.BundlesObserved++
 	}
 
@@ -265,6 +350,14 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 	bundleByID := make(map[string]ReviewBundle, len(bundles))
 	for _, bundle := range bundles {
 		bundleByID[bundle.BundleID] = bundle
+	}
+	bandByBundle := make(map[string]string, len(bundles))
+	for _, bundle := range bundles {
+		band := governanceBundleBand(bundle)
+		bandByBundle[bundle.BundleID] = band
+		if band == "unknown" {
+			report.Coverage.ReviewBandsUnknown++
+		}
 	}
 	firstApproval := map[string]bool{}
 	superseded := map[string]bool{}
@@ -280,9 +373,16 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 		if !ok || at.After(now) || (!cutoff.IsZero() && at.Before(cutoff)) {
 			continue
 		}
+		bundle, found := bundleByID[att.BundleID]
+		band := "unknown"
+		if found {
+			band = bandByBundle[bundle.BundleID]
+		}
+		if !governanceBandMatches(band, query.Band) {
+			continue
+		}
 		report.Attempts.JudgmentAttempts++
 		report.Reviews.AttestationsObserved++
-		bundle, found := bundleByID[att.BundleID]
 		if !found {
 			report.Coverage.AttestationsWithoutBundle++
 		} else {
@@ -363,6 +463,9 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 	report.Attempts.SupersededRelations = len(superseded)
 	report.Attempts.FirstApprovedUnits = len(firstApproval)
 	report.Coverage.FreshnessChecks = freshnessChecks
+	report.Coverage.RemediationLinksScanned = report.Remediation.LinksDeclared
+	report.Coverage.RemediationLinksInvalid = report.Remediation.InvalidLinks
+	report.Coverage.RemediationLinksTruncated = report.Remediation.LinksTruncated
 	for _, state := range freshness {
 		switch state {
 		case "stale":
@@ -377,6 +480,140 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 		report.Coverage.Reason = "no observable report, bundle or attestation records matched the query"
 	}
 	return report, nil
+}
+
+func validGovernanceBand(value string) bool {
+	switch value {
+	case "", ReviewBandBaseline, ReviewBandElevated, ReviewBandCritical, "unknown":
+		return true
+	default:
+		return false
+	}
+}
+
+func validGovernanceReportType(value string) bool {
+	switch value {
+	case "", "standard", "doc-audit", "unknown":
+		return true
+	default:
+		return false
+	}
+}
+
+func validGovernanceProjectID(value string) bool {
+	if len(value) == 0 || len(value) > 128 || !isASCIIAlphaNumeric(value[0]) {
+		return false
+	}
+	for i := 1; i < len(value); i++ {
+		c := value[i]
+		if !isASCIIAlphaNumeric(c) && c != '.' && c != '_' && c != '-' {
+			return false
+		}
+	}
+	return true
+}
+
+func isASCIIAlphaNumeric(c byte) bool {
+	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9'
+}
+
+func governanceReportTypeMatches(recordType, filter string) bool {
+	if filter == "" {
+		return true
+	}
+	typeValue := strings.TrimSpace(recordType)
+	if typeValue != "standard" && typeValue != "doc-audit" {
+		typeValue = "unknown"
+	}
+	return filter == typeValue
+}
+
+func governanceBundleBand(bundle ReviewBundle) string {
+	band := strings.TrimSpace(bundle.Payload.Plan.Band)
+	if band != ReviewBandBaseline && band != ReviewBandElevated && band != ReviewBandCritical {
+		return "unknown"
+	}
+	return band
+}
+
+func governanceBandMatches(recordBand, filter string) bool {
+	return filter == "" || recordBand == filter
+}
+
+// deduplicateGovernanceHistory deduplicates only records with an explicit
+// producer identity. Legacy rows lacking it remain in the denominator and
+// are reported separately; `stable_hash` is not an attempt identity.
+func deduplicateGovernanceHistory(records []governanceHistoryRecord) ([]governanceHistoryRecord, int, int, int) {
+	result := make([]governanceHistoryRecord, 0, len(records))
+	indices := map[string]int{}
+	conflicted := map[string]bool{}
+	duplicates, conflicts, unknown := 0, 0, 0
+	for _, record := range records {
+		typeName := strings.TrimSpace(record.ReportType)
+		taskSlug := strings.TrimSpace(record.TaskSlug)
+		if typeName == "" || taskSlug == "" || record.Sequence <= 0 {
+			unknown++
+			result = append(result, record)
+			continue
+		}
+		key := typeName + "\x00" + taskSlug + "\x00" + fmt.Sprint(record.Sequence)
+		index, exists := indices[key]
+		if !exists {
+			indices[key] = len(result)
+			result = append(result, record)
+			continue
+		}
+		if reflect.DeepEqual(result[index], record) {
+			duplicates++
+			continue
+		}
+		if !conflicted[key] {
+			conflicts++
+			conflicted[key] = true
+		}
+		result[index] = mergeConflictingGovernanceHistory(result[index], record)
+	}
+	return result, duplicates, conflicts, unknown
+}
+
+func mergeConflictingGovernanceHistory(current, incoming governanceHistoryRecord) governanceHistoryRecord {
+	if incomingOutcomeSeverity(incoming.Outcome) > incomingOutcomeSeverity(current.Outcome) {
+		current.Outcome = incoming.Outcome
+	} else if incomingOutcomeSeverity(incoming.Outcome) == incomingOutcomeSeverity(current.Outcome) && incoming.Outcome != current.Outcome {
+		current.Outcome = "unknown"
+	}
+	currentAt, currentOK := parseGovernanceTime(current.GeneratedAt)
+	incomingAt, incomingOK := parseGovernanceTime(incoming.GeneratedAt)
+	if incomingOK && (!currentOK || incomingAt.Before(currentAt)) {
+		current.GeneratedAt = incoming.GeneratedAt
+	}
+	if !reflect.DeepEqual(current.DurationSeconds, incoming.DurationSeconds) {
+		current.DurationSeconds = nil
+	}
+	if !reflect.DeepEqual(current.CostUSD, incoming.CostUSD) {
+		current.CostUSD = nil
+	}
+	if current.StableHash != incoming.StableHash {
+		current.StableHash = ""
+	}
+	return current
+}
+
+func incomingOutcomeSeverity(outcome string) int {
+	switch outcome {
+	case "fail":
+		return 5
+	case "partial":
+		return 4
+	case "unknown":
+		return 3
+	case "skipped":
+		return 2
+	case "pass":
+		return 1
+	default:
+		return 3
+	}
 }
 
 func parseGovernanceTime(value string) (time.Time, bool) {

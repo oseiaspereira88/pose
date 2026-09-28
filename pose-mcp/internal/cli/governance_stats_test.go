@@ -50,3 +50,40 @@ func TestGovernanceStatsCLIRejectsUnknownOption(t *testing.T) {
 		}
 	})
 }
+
+func TestGovernanceStatsCLIExposesCohortFilters(t *testing.T) {
+	root := newGitRepo(t)
+	history := filepath.Join(root, ".pose", "reports", "history", "runs.jsonl")
+	if err := os.MkdirAll(filepath.Dir(history), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	content := `{"generated_at":"2026-09-19T00:00:00Z","sequence":1,"task_slug":"standard","report_type":"standard","outcome":"fail"}` + "\n" +
+		`{"generated_at":"2026-09-19T00:01:00Z","sequence":1,"task_slug":"docs","report_type":"doc-audit","outcome":"pass"}` + "\n"
+	if err := os.WriteFile(history, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	inDir(t, root, func() {
+		var out, errOut bytes.Buffer
+		args := []string{"stats", "governance", "--report-type", "doc-audit", "--band", "critical", "--json"}
+		if code := Main(args, &out, &errOut); code != 0 {
+			t.Fatalf("stats governance exit=%d stderr=%s", code, errOut.String())
+		}
+		var report posepkg.GovernanceOutcomesReport
+		if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+			t.Fatalf("decode report: %v\n%s", err, out.String())
+		}
+		if report.SchemaVersion != 2 || report.Filters.ReportType != "doc-audit" || report.Filters.Band != "critical" || report.Attempts.AttemptsObserved != 1 || report.Attempts.Pass != 1 {
+			t.Fatalf("cohort filters were not applied: %+v", report)
+		}
+	})
+}
+
+func TestGovernanceStatsCLIRejectsInvalidCohortFilter(t *testing.T) {
+	root := newGitRepo(t)
+	inDir(t, root, func() {
+		var out, errOut bytes.Buffer
+		if code := Main([]string{"stats", "governance", "--band", "team", "--json"}, &out, &errOut); code != 1 {
+			t.Fatalf("exit=%d stdout=%s stderr=%s", code, out.String(), errOut.String())
+		}
+	})
+}

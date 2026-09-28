@@ -1220,15 +1220,19 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		return store.Insights(a.GroupBy, a.SinceDays)
 	case "pose_governance_stats":
 		var a struct {
-			SinceDays    int `json:"since_days"`
-			MaturityDays int `json:"maturity_days"`
-			MinSample    int `json:"min_sample"`
+			SinceDays    int    `json:"since_days"`
+			MaturityDays int    `json:"maturity_days"`
+			MinSample    int    `json:"min_sample"`
+			Band         string `json:"band"`
+			ReportType   string `json:"report_type"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_governance_stats: invalid arguments")
 		}
 		report, err := store.GovernanceOutcomes(pose.GovernanceOutcomesQuery{
+			ProjectID: store.FederatedProjectID,
 			SinceDays: a.SinceDays, MaturityDays: a.MaturityDays, MinSample: a.MinSample,
+			Band: a.Band, ReportType: a.ReportType,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("pose_governance_stats: %w", err)
@@ -2429,7 +2433,8 @@ func toolDefinitions() []map[string]any {
 		{
 			"name": "pose_governance_stats",
 			"description": "Project local governance outcomes from report history, sealed review bundles and attestations. " +
-				"Returns separate preparation, judgment, intervention, freshness and coverage dimensions without a quality score, identity or network access.",
+				"Returns schema 2 with separate preparation, judgment, intervention, freshness, provenance and coverage dimensions. " +
+				"Report type filters attempts; band filters reviews and explicit finding links. No quality score, identity, paths or network access.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
@@ -2454,6 +2459,16 @@ func toolDefinitions() []map[string]any {
 					"project_id": map[string]any{
 						"type":        "string",
 						"description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+					},
+					"band": map[string]any{
+						"type":        "string",
+						"enum":        []string{"baseline", "elevated", "critical", "unknown"},
+						"description": "Optional review band filter; applies to reviews and explicit finding links only",
+					},
+					"report_type": map[string]any{
+						"type":        "string",
+						"enum":        []string{"standard", "doc-audit", "unknown"},
+						"description": "Optional report type filter; applies to validation attempt history only",
 					},
 				},
 			},
