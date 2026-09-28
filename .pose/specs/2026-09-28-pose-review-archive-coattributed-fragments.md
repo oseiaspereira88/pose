@@ -7,6 +7,7 @@ depends_on: pose-release-archival-attested-by-the-ledger
 priority: 0
 components: pose-mcp
 task_type: bugfix
+delivers: capability:review-archive-coattributed-fragments
 ---
 
 # Spec: Resolve archived review fragments co-attributed in a shared commit
@@ -36,6 +37,9 @@ Reuse knowledge:adr-sealed-review-bundles-review: semantic identity must survive
 - modified: .pose/state/technical-debt.json
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_release_archive_test.go
+
+### Delivery targets
+- capability:review-archive-coattributed-fragments module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Keep direct owner resolution unchanged. Supply alternate owners proven by co-attributed immutable commits and matching observed paths. Resolve each through the existing committed, intact and unique archival witness. No release schema or public CLI change.
 
