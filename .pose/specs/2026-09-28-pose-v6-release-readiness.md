@@ -92,6 +92,8 @@ bundle and attestation sidecars remain immutable evidence of their own scopes.
 ### Delivery targets
 - governance:pose-v6-release-readiness module:pose-mcp profile:release-governance entrypoint:scripts/release.sh
 
+The shell-only `scripts` and `tests` directories emit no independent native validation receipt; the matrix declares that limitation explicitly. Their behavior is exercised by containing Go integration tests and the official release compatibility/install workflow, whose actual receipt is retained.
+
 Reuse the release policy and provider workflow. Scope adoption independently
 from engine SemVer; preserve opt-in semantics for experimental ABM contracts.
 The coordinator verifies the current source pin and generated Harness mirror.
