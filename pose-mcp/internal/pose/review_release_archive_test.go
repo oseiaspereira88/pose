@@ -116,3 +116,48 @@ func TestReviewReleaseArchiveDoesNotResolveOtherMissingPaths(t *testing.T) {
 		t.Fatal("missing unrelated subject was accepted")
 	}
 }
+
+func TestReviewReleaseArchiveCoattributedFragment(t *testing.T) {
+	for _, name := range []string{"shared commit", "disjoint commit", "different path", "no immutable commits"} {
+		t.Run(name, func(t *testing.T) {
+			root, store := reviewBundleFixture(t)
+			writeReviewFixture(t, root, fragmentPending, "reviewed release fragment\r\n")
+			designDeltaGit(t, root, "init", "-q")
+			designDeltaGit(t, root, "config", "user.name", "Fixture")
+			designDeltaGit(t, root, "config", "user.email", "fixture@example.invalid")
+			designDeltaGit(t, root, "add", ".")
+			designDeltaGit(t, root, "commit", "-qm", "Shared delivery")
+			commit := designDeltaGit(t, root, "rev-parse", "HEAD")
+			consumer := ChangeSet{ID: "cs-consumer", Spec: "consumer", Commits: []string{commit}, Paths: []ObservedPath{{Action: "created", Path: fragmentPending}}}
+			owner := ChangeSet{ID: "cs-backend", Spec: "backend", Commits: []string{commit}, Paths: []ObservedPath{{Action: "created", Path: fragmentPending}}}
+			switch name {
+			case "disjoint commit":
+				owner.Commits = []string{"different-commit"}
+			case "different path":
+				owner.Paths[0].Path = ".pose/changelogs/unreleased/other.md"
+			case "no immutable commits":
+				consumer.Commits, owner.Commits = nil, nil
+			}
+			graph := DeliveryIntegrityGraph{ChangeSets: []ChangeSet{consumer, owner}}
+			scope := ScopeRef{Kind: "spec", Slug: "consumer"}
+			before, _, blockers, err := store.reviewBundleSubject(scope, nil, graph, nil)
+			if err != nil || len(blockers) != 0 {
+				t.Fatalf("pending subject: %v %v", err, blockers)
+			}
+			archiveReviewFragment(t, root, "v1.2.0", "backend")
+			after, _, blockers, err := store.reviewBundleSubject(scope, nil, graph, nil)
+			if name != "shared commit" {
+				if err == nil && len(blockers) == 0 {
+					t.Fatal("unproved alternate fragment owner accepted")
+				}
+				return
+			}
+			if err != nil || len(blockers) != 0 {
+				t.Fatalf("shared committed archival must preserve subject: %v %v", err, blockers)
+			}
+			if !reflect.DeepEqual(before, after) {
+				t.Fatalf("co-attributed archival changed subject: before=%+v after=%+v", before, after)
+			}
+		})
+	}
+}

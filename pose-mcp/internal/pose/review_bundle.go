@@ -745,7 +745,7 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 					// pinned to. There is no file to read: the path is a directory
 					// in the working tree and a gitlink in the index.
 					entry.Digest = digestBytes([]byte(gitlinkSHA))
-				} else if digest, err := s.reviewBundleFileDigest(path, set.Spec); err != nil {
+				} else if digest, err := s.reviewBundleFileDigest(path, set, graph); err != nil {
 					blockers = append(blockers, err.Error())
 				} else {
 					entry.Digest = digest
@@ -1085,7 +1085,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	return "", false
 }
 
-func (s Store) reviewBundleFileDigest(rel, spec string) (string, error) {
+func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryIntegrityGraph) (string, error) {
 	if err := ValidateArtifactPath(s.Root, rel, false); err != nil {
 		return "", fmt.Errorf("review subject path %s is invalid: %w", rel, err)
 	}
@@ -1098,16 +1098,61 @@ func (s Store) reviewBundleFileDigest(rel, spec string) (string, error) {
 		ledger := newArchivalLedger(LoadArchivedFragments(s.Root), func(path string) bool {
 			return s.reviewBundleCommittedArchive(path)
 		})
-		if witness, note, ok := ledger.resolve(spec, filepath.ToSlash(clean), ""); ok {
-			raw, err = os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(witness.Archived)))
-		} else {
-			return "", fmt.Errorf("review subject path %s has no committed release archival: %s", rel, note)
+		pending := filepath.ToSlash(clean)
+		var notes []string
+		resolved := false
+		for _, owner := range reviewBundleFragmentOwners(set, graph, pending) {
+			if witness, note, ok := ledger.resolve(owner, pending, ""); ok {
+				raw, err = os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(witness.Archived)))
+				resolved = true
+				break
+			} else {
+				notes = append(notes, note)
+			}
+		}
+		if !resolved {
+			return "", fmt.Errorf("review subject path %s has no committed release archival: %s", rel, strings.Join(uniqueSorted(notes), "; "))
 		}
 	}
 	if err != nil {
 		return "", fmt.Errorf("review subject path %s cannot be read: %w", rel, err)
 	}
 	return digestBytes(bytes.ReplaceAll(raw, []byte("\r\n"), []byte("\n"))), nil
+}
+
+// A squash can attribute the same path to multiple specs. The owning release
+// witness can name one of those specs, but a dependency or matching filename
+// alone is not proof: require a shared attributed commit and observed path.
+func reviewBundleFragmentOwners(set ChangeSet, graph DeliveryIntegrityGraph, pending string) []string {
+	owners := []string{set.Spec}
+	commits := map[string]bool{}
+	for _, commit := range set.Commits {
+		if commit != "" {
+			commits[commit] = true
+		}
+	}
+	for _, other := range graph.ChangeSets {
+		if other.Spec == "" || other.Spec == set.Spec {
+			continue
+		}
+		shared := false
+		for _, commit := range other.Commits {
+			if commits[commit] {
+				shared = true
+				break
+			}
+		}
+		if !shared {
+			continue
+		}
+		for _, observed := range other.Paths {
+			if observed.Path == pending && (observed.Action == "created" || observed.Action == "modified") {
+				owners = append(owners, other.Spec)
+				break
+			}
+		}
+	}
+	return uniqueSorted(owners)
 }
 
 func (s Store) reviewBundleCommittedArchive(rel string) bool {
