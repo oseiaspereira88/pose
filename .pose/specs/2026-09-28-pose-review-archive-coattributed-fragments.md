@@ -23,7 +23,7 @@ Reuse knowledge:adr-sealed-review-bundles-review: semantic identity must survive
 ## 2. Requirements
 
 - R1: Before and after committed archival, a shared-commit review subject shall have identical digests when the ledger names a co-attributed path owner.
-- R2: Accept a different ledger owner only when a graph change set for that owner shares an immutable attributed commit with the selected set and observes the same fragment path.
+- R2: Accept a different ledger owner only when a graph change set for that owner shares an immutable attributed commit with the selected set and observes the same fragment path changed in that shared Git commit.
 - R3: A dependency without shared attribution, a disjoint commit, an unrelated path, wrong owner, duplicate release, dirty/untracked manifest or archive, changed digest and root escape shall remain blocked.
 - R4: The real previously blocked scope shall prepare successfully with the candidate CLI; public 6.0.0 bytes and ledger remain immutable.
 
@@ -61,7 +61,7 @@ Add a shared-commit fixture to the existing release-review suite; require an unc
 
 ### Requirement trace
 - R1 [satisfied] test:TestReviewReleaseArchiveCoattributedFragment shared-commit case fails before the fix and passes with equal subjects after archival.
-- R2 [satisfied] test:TestReviewReleaseArchiveCoattributedFragment disjoint commits, different paths and missing commit attribution remain blocked.
+- R2 [satisfied] test:TestReviewReleaseArchiveCoattributedFragment disjoint commits, different paths, missing attribution and overlap only on unrelated commits remain blocked.
 - R3 [satisfied] test:TestReviewReleaseArchiveRejectsUnattestedContent existing owner, ledger, digest, duplicate and root escape negatives pass.
 - R4 [satisfied] report:.pose/reports/2026-09-28-review-archive-coattribution.md real scope prepares with zero blockers under the candidate CLI.
 

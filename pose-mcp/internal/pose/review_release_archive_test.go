@@ -118,10 +118,12 @@ func TestReviewReleaseArchiveDoesNotResolveOtherMissingPaths(t *testing.T) {
 }
 
 func TestReviewReleaseArchiveCoattributedFragment(t *testing.T) {
-	for _, name := range []string{"shared commit", "disjoint commit", "different path", "no immutable commits"} {
+	for _, name := range []string{"shared commit", "disjoint commit", "different path", "no immutable commits", "unrelated shared commit"} {
 		t.Run(name, func(t *testing.T) {
 			root, store := reviewBundleFixture(t)
-			writeReviewFixture(t, root, fragmentPending, "reviewed release fragment\r\n")
+			if name != "unrelated shared commit" {
+				writeReviewFixture(t, root, fragmentPending, "reviewed release fragment\r\n")
+			}
 			designDeltaGit(t, root, "init", "-q")
 			designDeltaGit(t, root, "config", "user.name", "Fixture")
 			designDeltaGit(t, root, "config", "user.email", "fixture@example.invalid")
@@ -131,6 +133,15 @@ func TestReviewReleaseArchiveCoattributedFragment(t *testing.T) {
 			consumer := ChangeSet{ID: "cs-consumer", Spec: "consumer", Commits: []string{commit}, Paths: []ObservedPath{{Action: "created", Path: fragmentPending}}}
 			owner := ChangeSet{ID: "cs-backend", Spec: "backend", Commits: []string{commit}, Paths: []ObservedPath{{Action: "created", Path: fragmentPending}}}
 			switch name {
+			case "unrelated shared commit":
+				writeReviewFixture(t, root, fragmentPending, "reviewed release fragment\r\n")
+				designDeltaGit(t, root, "add", ".")
+				designDeltaGit(t, root, "commit", "-qm", "Consumer fragment")
+				consumer.Commits = append(consumer.Commits, designDeltaGit(t, root, "rev-parse", "HEAD"))
+				writeReviewFixture(t, root, "note.md", "Other delivery")
+				designDeltaGit(t, root, "add", ".")
+				designDeltaGit(t, root, "commit", "-qm", "Other delivery")
+				owner.Commits = append(owner.Commits, designDeltaGit(t, root, "rev-parse", "HEAD"))
 			case "disjoint commit":
 				owner.Commits = []string{"different-commit"}
 			case "different path":

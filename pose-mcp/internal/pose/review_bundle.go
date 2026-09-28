@@ -1101,7 +1101,7 @@ func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryI
 		pending := filepath.ToSlash(clean)
 		var notes []string
 		resolved := false
-		for _, owner := range reviewBundleFragmentOwners(set, graph, pending) {
+		for _, owner := range s.reviewBundleFragmentOwners(set, graph, pending) {
 			if witness, note, ok := ledger.resolve(owner, pending, ""); ok {
 				raw, err = os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(witness.Archived)))
 				resolved = true
@@ -1123,7 +1123,7 @@ func (s Store) reviewBundleFileDigest(rel string, set ChangeSet, graph DeliveryI
 // A squash can attribute the same path to multiple specs. The owning release
 // witness can name one of those specs, but a dependency or matching filename
 // alone is not proof: require a shared attributed commit and observed path.
-func reviewBundleFragmentOwners(set ChangeSet, graph DeliveryIntegrityGraph, pending string) []string {
+func (s Store) reviewBundleFragmentOwners(set ChangeSet, graph DeliveryIntegrityGraph, pending string) []string {
 	owners := []string{set.Spec}
 	commits := map[string]bool{}
 	for _, commit := range set.Commits {
@@ -1137,7 +1137,7 @@ func reviewBundleFragmentOwners(set ChangeSet, graph DeliveryIntegrityGraph, pen
 		}
 		shared := false
 		for _, commit := range other.Commits {
-			if commits[commit] {
+			if commits[commit] && s.reviewBundleCommitChangedPath(commit, pending) {
 				shared = true
 				break
 			}
@@ -1153,6 +1153,29 @@ func reviewBundleFragmentOwners(set ChangeSet, graph DeliveryIntegrityGraph, pen
 		}
 	}
 	return uniqueSorted(owners)
+}
+
+func (s Store) reviewBundleCommitChangedPath(commit, path string) bool {
+	// Attribution uses full object IDs. Never resolve a mutable ref or an
+	// option supplied through a stale/malformed integrity graph.
+	if len(commit) != 40 && len(commit) != 64 {
+		return false
+	}
+	for _, c := range commit {
+		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+			return false
+		}
+	}
+	raw, err := exec.Command("git", "-C", s.Root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", commit, "--", path).Output()
+	if err != nil {
+		return false
+	}
+	for _, changed := range strings.Split(strings.TrimSpace(string(raw)), "\n") {
+		if changed == path {
+			return true
+		}
+	}
+	return false
 }
 
 func (s Store) reviewBundleCommittedArchive(rel string) bool {

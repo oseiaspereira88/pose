@@ -10,10 +10,10 @@ The new shared-commit regression fails before the fix with the same owner error.
 
 ## Fix and validation
 
-A missing pending fragment can resolve through an alternate owner only when the integrity graph proves a shared immutable attributed commit and matching observed creation/modification of the pending path. The existing ledger still checks exact owner, unique release, frozen digest, committed manifest/archive and root containment. Subject identity keeps the original pending path.
+A missing pending fragment can resolve through an alternate owner only when the integrity graph proves a shared immutable attributed commit, matching observed creation/modification and a Git diff-tree proving the pending path changed in that shared commit. Overlap elsewhere in an aggregated change set grants no ownership. The existing ledger still checks exact owner, unique release, frozen digest, committed manifest/archive and root containment. Subject identity keeps the original pending path.
 
 - go test ./internal/pose -run ReviewReleaseArchive -count=1: PASS, including the red/green shared-commit regression and existing tamper negatives.
 - Candidate build: PASS.
 - Candidate review bundle spec:pose-validate-report-carries-its-run --json: prepared, zero blockers, 22 subject entries. The unmodified reader fails on the same graph.
 
-Native module matrix and governed review/closeout are the remaining completion gates. This development correction does not alter the published v6.0.0 tag, archive or release ledger.
+Native module matrix: 34/34 registered checks pass (49.4 seconds). The initial sandbox run was blocked by local HTTP sockets; rerunning with approved local sockets passed. Governed review/closeout are the remaining completion gates. This development correction does not alter the published v6.0.0 tag, archive or release ledger.
