@@ -70,8 +70,16 @@ jobs:
           retention-days: 400
       - name: Release notes from changelog fragments
         run: |
-          go -C pose-mcp run ./cmd/pose release check --version "${RELEASE_VERSION}" --strict
-          go -C pose-mcp run ./cmd/pose release notes --version "${RELEASE_VERSION}" > /tmp/notes.md
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" == refs/tags/* ]] || [[ -f ".pose/releases/${RELEASE_VERSION}/manifest.json" ]]; then
+            go -C pose-mcp run ./cmd/pose release check --version "${RELEASE_VERSION}" --strict
+            go -C pose-mcp run ./cmd/pose release notes --version "${RELEASE_VERSION}" > /tmp/notes.md
+          else
+            # A pre-cut snapshot proves signing/SBOM before the readiness spec
+            # can close. Preview notes are never used for a tagged publication.
+            go -C pose-mcp run ./cmd/pose release plan --version "${RELEASE_VERSION}" --json
+            go -C pose-mcp run ./cmd/pose release-notes --preview --version "${RELEASE_VERSION}" > /tmp/notes.md
+          fi
           cat /tmp/notes.md
       - run: bash tests/release/assert-clean-tree.sh "Release notes from changelog fragments"
       - name: Security gate (spec pose-ossf-security-baseline)
