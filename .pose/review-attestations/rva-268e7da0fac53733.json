@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-268e7da0fac53733",
+  "bundle_id": "rvb-9835d861ed473035",
+  "bundle_digest": "sha256:9835d861ed4730355de67e997185a89a445ba42758591b24f96e33cd71887bb6",
+  "reviewer": "agent:codex",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "Schema 2 is explicitly versioned as breaking and CLI/MCP selectors are closed."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-f131c9cec00d6fd6",
+      "rationale": "POSE manuals and generated locale scaffolds describe schema 2 and selector applicability; embed parity is covered by the full suite."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "The local read-only projection exposes provenance, coverage, unknowns and truncation, with bounded deterministic output and actionable failures."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The implementation follows the approved plan and adds no collector, event store, write API, scoring, ranking or parallel service."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "Closed selectors fail before reads; project scoping, allowlisted references, path privacy, orphan rejection and row limits are covered."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Strict artifact reconciliation passed at 34 claims and 34 observed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Unfiltered strict matrix passed all 33 checks."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "The focused pose-mcp strict matrix passed all 30 checks, including schema 2 contracts."
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "check:artifact-check",
+    "integration:pose-mcp/go/governance-outcomes-v2-contract",
+    "structure:design-f131c9cec00d6fd6",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-28T01:09:50Z",
+  "path": ".pose/review-attestations/rva-268e7da0fac53733.json"
+}
