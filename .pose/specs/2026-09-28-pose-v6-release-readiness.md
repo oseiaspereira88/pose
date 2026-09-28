@@ -64,6 +64,8 @@ experimental policies through a version bump, or overwrite a released tag.
 - modified: README.md
 - modified: docs-site/docs/ci.md
 - modified: tests/release/compat.sh
+- modified: .github/workflows/release.yml
+- modified: .github/workflows/security.yml
 - modified: .pose/results/delivery-validation.json
 - modified: .pose/reports/history/standard-validate-native.jsonl
 - created: .pose/reports/2026-09-28-standard-validate-native.md

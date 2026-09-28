@@ -67,6 +67,6 @@ New scope surface and attribution checks are recorded in the structured result.
 Technical dependency implementations examined above are approved within their
 spec scope. Mechanical evidence does not supply these reviewer conclusions.
 Current bundle/plan digests, explicit judgment/tool dispositions and post-review
-gates are recorded separately by the canonical source CLI. Source release
-readiness remains pending security/publication gates; this report declares no
+gates are recorded separately by the canonical source CLI. Source vulnerability scan passed both modules with govulncheck 1.4.0;
+release readiness remains pending remaining security/publication gates; this report declares no
 release published, no human acceptance and no external adoption.
