@@ -131,7 +131,9 @@ Give portfolio operators the denominators and source references needed to inspec
 - [x] Run `pose assess integrate`, component discovery, and technical-debt assessment.
 - [x] Run the strict `pose-mcp` validation matrix.
 - [x] Refresh project assessment state.
-- [ ] Capture final validation evidence, verify artifact attribution, review, and close.
+- [x] Capture final strict validation evidence and refresh generated indexes.
+- [x] Verify strict artifact attribution (34 claims / 34 observed).
+- [ ] Obtain a fresh review and close.
 
 ## 5. Decisions
 
@@ -178,6 +180,8 @@ Required, risk-based validation before implementation: unit tests prove aggregat
 2026-09-27: a matriz estrita de `pose-mcp` passou 30/30, incluindo `go test ./...`, `go vet ./...` e o contrato v2. O assessment de débito encontrou zero marcadores; o assessment local de integração listou 58 contratos e 57 gaps de consumidores externos não observados, incluindo `pose_governance_stats`, pois o checkout do motor não indexa o consumidor Harne8. A composição desse consumidor é validada na spec Harne8. `pose check --strict` continua com um erro anterior fora deste escopo: a spec fechada `pose-scaffold-self-referential-policy-fix` declara como atual um decision-log que não está rastreado.
 
 2026-09-27: `pose assess discover --update-state` atualizou as três componentes e o estado consolidado. Os arquivos de assessment e estado estão declarados acima para preservar a atribuição do ciclo.
+
+2026-09-27: `pose validate --strict --module pose-mcp --json .pose/results/delivery-validation.json` passou 30/30. `pose artifact-check --spec pose-governance-outcomes-v2 --strict` passou com 34 claims / 34 observed; os warnings de paths antigos sem atribuição são baseline global do repositório e não atingem os claims deste change set.
 
 ### Requirement trace
 

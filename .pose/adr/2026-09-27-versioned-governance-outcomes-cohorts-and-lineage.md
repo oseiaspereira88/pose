@@ -1,7 +1,7 @@
 # ADR: Versioned governance outcomes cohorts and lineage
 
 ## Status
-Proposed (implementation validation pending)
+Accepted (2026-09-27; producer implementation and strict validation complete)
 
 ## Context
 
