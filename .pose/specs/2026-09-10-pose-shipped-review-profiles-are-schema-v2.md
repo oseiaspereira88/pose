@@ -152,8 +152,8 @@ back to v1.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestEveryShippedReviewProfileIsAtTheCurrentSchema reads every profile from the embedded scaffold and requires ReviewPolicySchemaVersion, failing when one is reverted>
-- R2 [satisfied] <shippedProfileIsCurrentSchema gates the copy-and-log branch; TestTheMigrationOnlyClaimsACopyThatMigrates covers current, stale and unreadable content>
+- R1 [satisfied] <TestEveryShippedReviewProfileIsAtTheCurrentSchema reads every profile from the embedded scaffold and requires ReviewPolicySchemaVersion, failing when one is reverted> surface:shipped-review-profiles-are-schema-v2 evidence:integration
+- R2 [satisfied] <shippedProfileIsCurrentSchema gates the copy-and-log branch; TestTheMigrationOnlyClaimsACopyThatMigrates covers current, stale and unreadable content> surface:shipped-review-profiles-are-schema-v2 evidence:integration
 
 ### Known gaps
 - Instances that already ran an older `pose update` still hold both profiles at
