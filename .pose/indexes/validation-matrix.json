@@ -528,6 +528,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "review-subject-capabilities-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "ReviewSubjectClassifiesTheCapabilityAssessment",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delivery-graph-reuse-integration",
           "program": "go",
           "args": [

@@ -995,6 +995,12 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	if strings.HasPrefix(path, ".pose/specs/") {
 		return "semantic-scope", false
 	}
+	// The capability history appends snapshots taken from the assessment, so
+	// it carries nothing a reviewer must judge apart from it. The assessment
+	// itself is classified with the governance records below.
+	if path == ".pose/capabilities/history.jsonl" {
+		return "derived-evidence", false
+	}
 	for _, prefix := range []string{".pose/state/", ".pose/assessments/", ".pose/reports/", ".pose/results/", ".pose/reviews/", ".pose/review-bundles/", ".pose/review-attestations/", ".pose/contributions/", ".pose/feedback/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "derived-evidence", false
@@ -1023,7 +1029,10 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	}
 	// .pose/transfers/ holds transfer and reconciliation plans, receipts,
 	// archived sources and redirects: the record of who owns a spec.
-	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/"} {
+	// .pose/capabilities/ holds the capability assessment, whose bullets are
+	// the authority on each mechanism's state (spec
+	// review-subject-classifies-capabilities).
+	for _, prefix := range []string{".pose/policy/", ".pose/public/", ".pose/releases/", ".pose/review-profiles/", ".pose/rules/", ".pose/workflows/", ".pose/roadmaps/", ".agents/skills/", "extensions/", ".pose/changelogs/", ".pose/adr/", ".pose/knowledge/", ".pose/templates/", ".pose/transfers/", ".pose/capabilities/"} {
 		if strings.HasPrefix(path, prefix) {
 			return "governance", true
 		}
