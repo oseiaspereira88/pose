@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-214b28d199e7abd9",
+  "bundle_id": "rvb-c90e0cadcdb7590d",
+  "bundle_digest": "sha256:c90e0cadcdb7590dbaced3af7ee6d4b9416339f17716a97e79c623534b014088",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-3c4b2e179cd07649",
+      "rationale": "Additive command and an opt-in file; no existing command or artifact format changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-3c4b2e179cd07649",
+      "rationale": "The contract carries its own rationale comment, and cli.md documents the command and its per-surface report."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-3c4b2e179cd07649",
+      "rationale": "Each contradiction names the surface, the claim and the authoritative value, so the fix is readable from the output."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Tests the change set introduced and that pass in the sealed unit run: TestPublicClaimsAcceptsReleaseLineButNotAnotherPatch, TestPublicClaimsFailsOnMissingSurfaceAndUnknownMode, TestPublicClaimsFailsOnSchemaOrgVersionAndNonCanonicalDocs, TestPublicClaimsFailsOnStaleVersion, TestPublicClaimsFailsWhenEvergreenSurfaceGainsAVersion, TestPublicClaimsFailsWithoutContractOrVersionSource, TestPublicClaimsJSONOutputIsMachineReadable, TestPublicClaimsPassesOnCompliantSurfaces, TestPublicClaimsTolerantModeReportsWithoutFailing."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-3c4b2e179cd07649",
+      "rationale": "Adds the claims contract and the public-claims command; nothing else in the engine changes behaviour."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-3c4b2e179cd07649",
+      "rationale": "The check only reads declared surfaces inside the repository and the release contract; it fetches nothing and executes nothing."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-public-claims-contract reports no error after the claims were reconciled on 2026-09-29."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed native matrix passed 42 of 42 at this revision."
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T19:59:32Z",
+  "path": ".pose/review-attestations/rva-214b28d199e7abd9.json"
+}

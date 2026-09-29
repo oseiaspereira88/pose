@@ -1,8 +1,8 @@
 ---
 slug: pose-public-claims-contract
-status: in-progress
+status: done
 created_at: 2026-09-06
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-release-recovery-verification
 priority: 1
