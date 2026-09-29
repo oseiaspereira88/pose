@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-143de5838e508712",
+  "bundle_id": "rvb-ec57ad49dd335cc0",
+  "bundle_digest": "sha256:ec57ad49dd335cc09a75b7d5dfe0d20a8c4842b8bc17abc7980423b64f9132cd",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-needs-ci-contract"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-needs-ci-contract"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-needs-ci-contract"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-needs-ci-contract",
+      "rationale": "No gate changed; the release now runs CI's gates in addition to its own, so it can only refuse more. Pull requests and pushes keep triggering CI exactly as before, and workflow_call adds a trigger without altering the others. The v6.0.1 run shows the combined workflow publishing normally."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-needs-ci-contract",
+      "rationale": "The comment above the ci job in release.yml names the two gates v6.0.0 shipped past and why a subset let a red CI become normal. The spec records the defect, the observed release run with its job times, and the contract test. The Portuguese README now states the released version, which public-claims verifies."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-needs-ci-contract",
+      "rationale": "Observed on release run 36516495961: ci/test and ci/governance finished at 03:21:02 and 03:21:24, release started 03:21:27 and published v6.0.1, then independent verification passed. A release takes CI's length longer, accepted in the spec. A later edit that drops the wait fails TestReleaseWorkflowWaitsForCI instead of shipping silently."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-needs-ci-contract"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-b8b4334388fec608",
+      "rationale": "Two workflow edits, two README lines, one contract test and its registered producer. The gates themselves were not modified, and the fix calls ci.yml instead of copying the missing step (D1)."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-needs-ci-contract",
+      "rationale": "The called ci workflow runs with contents: read, the least privilege the release job already declares at the top level; the elevated id-token and attestations permissions stay on the release job only. No secret is passed to the called workflow."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-needs-ci-contract"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/release-needs-ci-contract"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T03:39:22Z",
+  "path": ".pose/review-attestations/rva-143de5838e508712.json"
+}

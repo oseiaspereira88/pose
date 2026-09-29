@@ -1,8 +1,8 @@
 ---
 slug: release-runs-the-ci-gates
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on:
 priority: 0
@@ -129,18 +129,31 @@ later edit from dropping `needs: ci` again. `TestReleaseWorkflowWaitsForCI` now
 pins all three links; with `needs: ci` removed from `release.yml` it fails with
 "release.yml's `release` job does not need `ci`".
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 41/41 into the results path; bundle
+`rvb-ec57ad49dd335cc0`, 40 evidence items; attestation `rva-143de5838e508712`,
+`agent:claude-opus-5-5`, approved with five explicit judgments.
+
 ### Requirement trace
 
-- R1 [pending] release run with `ci` gating `release`
-- R2 [pending] .github/workflows/release.yml calls .github/workflows/ci.yml
-- R3 [pending] check:public-claims
-- R4 [pending] test:TestReleaseWorkflowWaitsForCI
+- R1 [satisfied] governance:release-requires-green-ci evidence:integration check:release-needs-ci-contract report:.pose/releases/v6.0.1/events.jsonl — release run
+  36516495961 ran ci/test and ci/governance at the tagged commit 3847ad2, and the
+  release job started at 03:21:27, after the last CI job ended at 03:21:24
+- R2 [satisfied] governance:release-requires-green-ci evidence:integration check:release-needs-ci-contract test:TestReleaseWorkflowWaitsForCI — release.yml calls
+  ./.github/workflows/ci.yml; no CI step is copied into it
+- R3 [satisfied] governance:release-requires-green-ci evidence:integration check:release-needs-ci-contract check:public-claims — README.pt-BR.md pins the released version
+  and `pose public-claims --strict` reports 0 errors at 6.0.1
+- R4 [satisfied] governance:release-requires-green-ci evidence:integration check:release-needs-ci-contract test:TestReleaseNeedsCIFindingsRejectEachMissingLink — each
+  removed link, and a commented `needs`, is exactly one finding
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+A release runs CI at the commit it publishes and starts only when CI passes,
+observed on v6.0.1 and pinned by a contract test. The Portuguese README states the
+released version again.
 
 ### Residual risks
 
