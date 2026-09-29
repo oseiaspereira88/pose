@@ -186,6 +186,6 @@ faster.
 
 ### Follow-ups
 
-- [covered] Profile the single graph build and the 34s closeout phase — profiled and
+- [covered: parse-the-delivery-index-once-per-content] Profile the single graph build and the 34s closeout phase — profiled and
   reduced by parse-the-delivery-index-once-per-content, which removed two repetitions
   of identical work (owner:@pose-maintainers crit:low review:2026-11-20)

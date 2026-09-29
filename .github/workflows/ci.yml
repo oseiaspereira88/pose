@@ -103,6 +103,11 @@ jobs:
         run: '"$RUNNER_TEMP/pose" check --strict'
       - name: Agent Skills conformance (spec pose-agent-skills-conformance)
         run: '"$RUNNER_TEMP/pose" skills-check --strict'
+      # check --strict does not lint each spec against the template, so a
+      # malformed spec merged unseen until someone ran this by hand
+      # (spec pose-lint-spec-all-is-a-gate).
+      - name: Spec structure gate (pose lint-spec --all)
+        run: '"$RUNNER_TEMP/pose" lint-spec --all'
       - name: History gate (pose history-check)
         run: '"$RUNNER_TEMP/pose" history-check'
       # The landing page, the homepage, the structured metadata and thirteen

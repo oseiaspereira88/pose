@@ -1,6 +1,6 @@
 ---
 slug: pose-lint-spec-all-is-a-gate
-status: draft
+status: in-progress
 completed_at:
 created_at: 2026-09-11
 supersedes:
@@ -8,7 +8,7 @@ depends_on: pose-one-follow-up-format
 priority: 0
 components: pose-mcp
 task_type: refactor
-delivers:
+delivers: capability:lint-spec-all-gate
 ---
 
 # Spec: `pose lint-spec --all` passes here, and stays passing
@@ -70,6 +70,19 @@ the lint that would have flagged it was never run over the repository.
 
 ### Artifacts
 - created: .pose/specs/2026-09-11-pose-lint-spec-all-is-a-gate.md
+- created: .pose/changelogs/unreleased/pose-lint-spec-all-is-a-gate.md
+- created: pose-mcp/internal/version/lint_spec_all_gate_test.go
+- modified: pose-mcp/internal/cli/release_lifecycle_test.go
+- modified: .github/workflows/ci.yml
+- modified: .pose/indexes/validation-matrix.json
+- modified: .pose/specs/2026-08-21-pose-manual-and-cli-command-parity.md
+- modified: .pose/specs/2026-09-20-check-builds-the-delivery-graph-once.md
+
+### Delivery targets
+- capability:lint-spec-all-gate module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+The CLI package changes only by a test, so the target is a capability; the
+gate itself is a CI step.
 
 ### Technical risks
 - The spec is `done`; if it carries an amendment log, restructuring must be
@@ -80,11 +93,12 @@ the lint that would have flagged it was never run over the repository.
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1: Restructure the spec from its own content and history (R1, R2)
-- [ ] Increment 2: Enforce `lint-spec --all` where Decision 1 says (R3, R4)
+- [x] Increment 1: Restructure the spec from its own content and history (R1, R2)
+- [x] Increment 2: Enforce `lint-spec --all` where Decision 1 says (R3, R4)
 
 ### Validation
-- [ ] Break a spec's structure on a branch and see the enforcement fail
+- [x] Break a spec's structure and see the enforcement fail
+- [ ] Run the checks, obtain review and close
 
 ---
 
@@ -104,7 +118,8 @@ the lint that would have flagged it was never run over the repository.
     every instance and never blocking, but a warning is what let this go unseen.
 - Recommendation: A now, and B considered separately for a major release — it is
   the engine's contract, and deserves its own decision and ADR.
-- Status: pending — the owner decides before Increment 2.
+- Status: decided 2026-09-29 by the owner: option A. B stays a separate
+  decision for a major release.
 
 ---
 
@@ -128,24 +143,43 @@ enforcement fails on a deliberately broken spec.
   `pose-manual-and-cli-command-parity`; CI has no `lint-spec` step; `pose check
   --strict` does not lint spec structure.
 
+- Date: 2026-09-29
+- Environment: local, engine at main
+- Notes: before this work, 2 specs failed: `pose-manual-and-cli-command-parity`
+  (Tasks and Validation missing, trace outside Validation, surface without
+  integration evidence) and `check-builds-the-delivery-graph-once` (`[covered]`
+  without a slug). A closeout batch the same day added 38 more, all surface
+  targets without a traced integration requirement, and no gate reported it;
+  they were corrected before this spec's increments. Restructuring the parity
+  spec found that its trace cited `TestReleaseInputs`, which never existed, and
+  mixed `check:unit` with `evidence:integration`; R5 now cites a regression test
+  that fails with the pre-`bd0636f` lookup, and the target was corrected to a
+  capability. After both increments `pose lint-spec --all` exits 0. With the
+  `[covered]` slug removed again it exits 1, which is what the new CI step runs;
+  the workflow test fails when the step is absent. Both edited done specs keep
+  their approved reviews (retained completed scope).
+
 ### Results summary
-- Successes: none yet.
+- Successes: R1 to R4.
 - Failures: none.
 
 ### Requirement trace
-- R1 [waived: draft, not implemented] <deferred from 5.0.2>
-- R2 [waived: draft, not implemented] <deferred from 5.0.2>
-- R3 [waived: draft, not implemented] <deferred from 5.0.2>
-- R4 [waived: draft, not implemented] <pending Decision 1>
+- R1 [satisfied] capability:lint-spec-all-gate evidence:integration check:lint-spec-all-gate-contract test:TestReleasePrepareFindsADatePrefixedSpec — the parity spec carries Tasks, Validation and a trace under the template headings, each line naming evidence that exists
+- R2 [satisfied] capability:lint-spec-all-gate evidence:manual — the surface target was corrected to capability:cli-manual-parity, since its evidence is unit-level file parity
+- R3 [satisfied] capability:lint-spec-all-gate evidence:manual — `pose lint-spec --all` exits 0 on 2026-09-29, with 0 failed specs
+- R4 [satisfied] capability:lint-spec-all-gate evidence:integration check:lint-spec-all-gate-contract test:TestCIGovernanceJobRunsLintSpecAll — CI's governance job runs the lint, and the test fails if the step is removed
 
 ### Known gaps
-- Everything; this spec records the defect, its cause and the decision it needs.
+- Instances are not protected: option B (lint in `check --strict`) needs a major
+  release and an ADR.
 
 ---
 
 ## 7. Final Report
 
 ### Summary
-Deferred from 5.0.2 with the defect measured and its enforcement decision stated.
+`pose lint-spec --all` exits 0 on this repository and runs in CI, so a spec
+that breaks the template fails before merge.
 
 ### Follow-ups
+- [open] Decide in the next major, with an ADR, whether `pose check --strict` lints every spec against the template for all instances (Decision 1, option B) (owner:@pose-maintainers crit:medium review:2026-12-29)

@@ -554,6 +554,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "lint-spec-all-gate-contract",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/version",
+            "./internal/cli",
+            "-run",
+            "CIGovernanceJobRunsLintSpecAll|ReleasePrepareFindsADatePrefixedSpec",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delivery-graph-reuse-integration",
           "program": "go",
           "args": [

@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-command-reference-parity
 priority: 25
 components: docs, scaffold, locales, cli, version
-delivers: surface:cli-manual-parity
+delivers: capability:cli-manual-parity
 ---
 
 # Spec: Manual Overview and Command Reference Bidirectional Parity
@@ -77,13 +77,14 @@ Prevents developer and AI agent confusion caused by missing or unlisted CLI comm
 - modified: docs-site/docs/ci.md
 
 ### Delivery targets
-- surface:cli-manual-parity module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:cli-manual-parity module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
----
+Corrected on 2026-09-29 (spec pose-lint-spec-all-is-a-gate, R2): the target was
+declared a `surface`, which requires integration or e2e evidence, while the
+checks that verify it are file-parity tests run by the unit suite. It delivers a
+capability of the documentation and scaffold, not a command surface.
 
-## 4. Artifacts
-
-### Code
+### Code artifacts (as originally listed)
 - `POSE.md` (action: modify)
 - `locales/pt-BR/POSE.md` (action: modify)
 - `pose-mcp/internal/scaffold/dist/POSE.md` (action: modify)
@@ -97,16 +98,25 @@ Prevents developer and AI agent confusion caused by missing or unlisted CLI comm
 
 ---
 
-## 5. Verification Plan
+## 4. Tasks
 
-### Automated
-- `pose check --strict`
-- `pose validate --strict`
-- `go test ./internal/scaffold ./internal/cli ./internal/version`
+Reconstructed on 2026-09-29 from sections 1 to 3 and commit `bd0636f`, which
+delivered the whole scope.
+
+- [x] Reconcile the Section 6 synopsis with the Command Reference (R1, R2)
+- [x] Mirror both in `locales/pt-BR/POSE.md` (R3)
+- [x] Sync the embedded scaffold copies (R4)
+- [x] Resolve date-prefixed specs in the release lifecycle (R5)
+- [x] Align version metadata, compatibility matrix and install docs to v1.6.0 (R6)
 
 ---
 
-## 6. Delivery Evidence
+## 6. Validation
+
+### Checks
+- `pose check --strict`
+- `pose validate --strict`
+- `go test ./internal/scaffold ./internal/cli ./internal/version`
 
 ### Artifact claims
 - path: POSE.md action: modified sha256:fb193f6d05ebd48c81cdb83215c4ac3544dc5d4e0683b497d7f07623771dfa69
@@ -121,12 +131,18 @@ Prevents developer and AI agent confusion caused by missing or unlisted CLI comm
 - path: docs-site/docs/ci.md action: modified sha256:b15388c0c2140a2d2ba6deb22b821f2e208512c257efc10dca6aa2f1253850dd
 
 ### Requirement trace
-- R1 [satisfied] surface:cli-manual-parity check:unit test:TestEmbeddedDistMatchesPoseDist evidence:integration
-- R2 [satisfied] surface:cli-manual-parity check:unit test:TestEmbeddedDistMatchesPoseDist evidence:integration
-- R3 [satisfied] surface:cli-manual-parity check:unit test:TestEmbeddedDistMatchesPoseDist evidence:integration
-- R4 [satisfied] surface:cli-manual-parity check:unit test:TestEmbeddedDistMatchesPoseDist evidence:integration
-- R5 [satisfied] surface:cli-manual-parity check:unit test:TestReleaseInputs evidence:integration
-- R6 [satisfied] surface:cli-manual-parity check:unit test:TestPublicInstallContract evidence:integration
+
+Rewritten on 2026-09-29. The original trace sat under "Delivery Evidence", where
+the lint does not read it, cited `check:unit` and `evidence:integration` on the
+same line, and cited `TestReleaseInputs`, which never existed in this
+repository. Each line below names evidence that exists today.
+
+- R1 [satisfied] capability:cli-manual-parity evidence:manual — on 2026-09-29 each of the 32 commands `pose help` lists appears as `pose <command>` in POSE.md
+- R2 [satisfied] capability:cli-manual-parity evidence:manual — the same check covers the Command Reference, which is where those invocations are documented
+- R3 [satisfied] capability:cli-manual-parity check:test evidence:unit test:TestManualLocaleParity — heading tree and technical tokens of POSE.md and locales/pt-BR/POSE.md agree
+- R4 [satisfied] capability:cli-manual-parity check:test evidence:unit test:TestEmbeddedDistMatchesPoseDist — embedded scaffold copies match the repository files
+- R5 [satisfied] capability:cli-manual-parity check:test evidence:unit test:TestReleasePrepareFindsADatePrefixedSpec — added 2026-09-29; fails with the pre-bd0636f lookup, passes with store.GetSpec
+- R6 [satisfied] capability:cli-manual-parity check:test evidence:unit test:TestPublicInstallContract — public install metadata agrees with the release base
 
 ### Known gaps
 None.

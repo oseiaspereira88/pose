@@ -190,3 +190,23 @@ func TestASpecAnEarlierReleaseRewroteStillPasses(t *testing.T) {
 		t.Fatalf("artifact-check=%d err=%s out=%s", code, errOut.String(), out.String())
 	}
 }
+
+// A spec stored as a date-prefixed file, the layout pose new-spec writes by
+// default, is found when a release cuts its fragment. releaseInputs used to
+// look only for .pose/specs/<slug>/spec.md and refused the cut with
+// "references missing spec" (spec pose-manual-and-cli-command-parity, R5).
+func TestReleasePrepareFindsADatePrefixedSpec(t *testing.T) {
+	root := t.TempDir()
+	target := "v" + version.ReleaseBase()
+	writeReleaseFixture(t, root, ".pose/release-policy.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo"}`)
+	writeReleaseFixture(t, root, ".pose/specs/2026-08-21-alpha.md", "---\nslug: alpha\nstatus: done\n---\n")
+	writeReleaseFixture(t, root, ".pose/changelogs/unreleased/alpha.md", "---\nspec: alpha\ncategory: added\nbreaking: false\n---\n\nAdds alpha.\n")
+
+	var out, errOut bytes.Buffer
+	if code := cmdReleasePrepare(root, []string{"--version", target, "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("a date-prefixed spec must be found: exit=%d %s", code, errOut.String())
+	}
+	if _, err := os.Stat(filepath.Join(root, ".pose/changelogs", target, "alpha.md")); err != nil {
+		t.Errorf("the fragment was not archived: %v", err)
+	}
+}
