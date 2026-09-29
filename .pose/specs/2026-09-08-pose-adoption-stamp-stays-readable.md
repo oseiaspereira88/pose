@@ -84,6 +84,13 @@ Writing the legacy key says the same thing to both engines.
 
 The implementation shipped in the v2.0.2 release commit `36664a7`, which carries no trailer; the change set `range:36664a7^..54158ef` is recorded by report so the code claims resolve. That commit also bumped `ci.md` and `version.go` for the release, declared below for the same reason.
 
+### Delivery targets
+
+- surface:adoption-stamp-stays-readable module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:adoption-stamp-stays-readable module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - R4 gives up a real check: a misspelled policy key is now silently ignored
   rather than reported. That cost is smaller than the one it replaces — a
