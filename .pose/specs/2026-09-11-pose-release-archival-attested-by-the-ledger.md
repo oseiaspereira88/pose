@@ -104,6 +104,13 @@ The ADR is not claimed here: it was created before this spec existed, in a
 commit outside its change set, and `.pose/adr` is not a governed root. Decision 1
 names it.
 
+### Delivery targets
+
+- surface:release-archival-attested-by-the-ledger module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:release-archival-attested-by-the-ledger module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - The graph's input digest must not change for a repository with no releases,
   or every instance's index churns on upgrade for nothing. The archivals enter
