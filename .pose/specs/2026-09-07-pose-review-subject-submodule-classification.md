@@ -7,7 +7,7 @@ supersedes:
 depends_on:
 priority: 1
 components: pose-mcp
-delivers:
+delivers: capability:review-subject-submodule-classification
 ---
 
 # Spec: Review subject classification for submodules
