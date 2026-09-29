@@ -154,7 +154,7 @@ its exit.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestStdioMCPServerExitsOnSIGTERMWhileIdle answers a ping, sends SIGTERM with stdin open, and requires the process to exit within 10 s>
+- R1 [satisfied] <TestStdioMCPServerExitsOnSIGTERMWhileIdle answers a ping, sends SIGTERM with stdin open, and requires the process to exit within 10 s> surface:stdio-server-honours-sigterm evidence:integration
 - R2 [satisfied] <the same test requires server.Wait() to return no error>
 - R3 [satisfied] <assessment.md cites both lifecycle fixes and the triggering spec, keeps the score at 5 with the reason; `pose assess snapshot` cleared the mark and appended a snapshot>
 
