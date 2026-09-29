@@ -72,6 +72,10 @@ tested and the gap was in what it did not.
 - renamed: .pose/changelogs/unreleased/pose-self-update-handoff-path.md -> .pose/changelogs/v2.0.1/pose-self-update-handoff-path.md
 - created: pose-mcp/internal/cli/self_update_handoff_test.go
 - modified: pose-mcp/internal/cli/maintenance.go
+- modified: docs-site/docs/ci.md
+- modified: pose-mcp/internal/version/version.go
+
+Backfilled on 2026-09-29: `5492f57` (fix(update): hand off by the path the new binary was written to) carries this spec's trailer and also changed the 2 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - The returned path doubles as the "did it replace" signal, so an empty string
