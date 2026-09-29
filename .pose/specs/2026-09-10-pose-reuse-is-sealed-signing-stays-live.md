@@ -80,6 +80,12 @@ only to future work, which is the opposite of what adopting it means.
 - modified: pose-mcp/internal/pose/bundle_finding_contract_test.go
 - modified: .pose/indexes/delivery-integrity.json
 
+### Delivery targets
+
+- capability:reuse-is-sealed-signing-stays-live module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - This change also carries the pointer correction to the gates field the
   previous spec introduced, because the two are the same lines of the same
