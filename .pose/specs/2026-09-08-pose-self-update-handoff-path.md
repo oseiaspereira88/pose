@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-contract-adoption-stamp
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:self-update-handoff-path
 ---
 
 # Spec: The self-update handoff runs the binary it just wrote
