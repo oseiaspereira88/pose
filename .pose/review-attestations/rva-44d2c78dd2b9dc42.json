@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-44d2c78dd2b9dc42",
+  "bundle_id": "rvb-0bcfda2f1e13cd4e",
+  "bundle_digest": "sha256:0bcfda2f1e13cd4e4f52cc0c5dba28d8bb65d5d7b69c50df6f30b87293555aa9",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "Restores the pre-6.0.2 outcome for a closed scope whose newest approval no longer validates, measured on Harne8's launch-surfaces scope, and keeps 6.0.2's rule that a newer rejection or request for changes voids older approvals. No schema, bundle or attestation format changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "The comment at the decision point says why a validity failure differs from a verdict. The spec records the two real attestations, the exact refusal text of the newer one and the resulting failures in Harne8, and the fragment states the regression and its boundary."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "Harne8's pose check --strict at pin d6fb824 goes from one error to success, its real-engine governance test no longer refuses the pinned engine, and harne8-abm-governed-execution stays terminal. The newer invalid approval stays visible in the bundle history for an operator to supersede when the work is next touched."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-8f9e1eb319bf4548",
+      "rationale": "A three-line change to the precedence rule and one added test case; the existing retention producer already runs the test, so the matrix is untouched."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "A rejection or request for changes still ends the search, pinned by the rejection test. The fallback only reaches approvals that pass full attestation validation, so an invalid approval is never itself accepted; it just does not erase a valid earlier one."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/completed-review-retention-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T06:01:58Z",
+  "path": ".pose/review-attestations/rva-44d2c78dd2b9dc42.json"
+}

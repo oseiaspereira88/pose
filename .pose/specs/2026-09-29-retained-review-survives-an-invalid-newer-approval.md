@@ -1,8 +1,8 @@
 ---
 slug: retained-review-survives-an-invalid-newer-approval
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: review-verify-retains-completed-scopes
 priority: 0
@@ -106,16 +106,25 @@ validate (component scripts) cites evidence from site`. With the fix, Harne8's
 spec:harne8-abm-governed-execution` stays terminal. The new test case fails with
 the 6.0.2 rule and passes with this one; the full suite passes.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 42/42 into the results path; bundle
+`rvb-0bcfda2f1e13cd4e`, 39 evidence items; attestation `rva-44d2c78dd2b9dc42`,
+`agent:claude-opus-5-5`, approved with five explicit judgments.
+
 ### Requirement trace
 
-- R1 [pending] test:TestCompletedReviewRetention
-- R2 [pending] test:TestCompletedReviewRetention
+- R1 [satisfied] capability:completed-review-retention-precedence evidence:integration check:completed-review-retention-integration test:TestCompletedReviewRetention — a newer approval citing evidence absent from its bundle does
+  not void the older standing approval; the case fails under the 6.0.2 rule
+- R2 [satisfied] capability:completed-review-retention-precedence evidence:integration check:completed-review-retention-integration test:TestCompletedReviewRetention — a newer rejected attestation still leaves the closed scope
+  unapproved
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+Only a newer negative decision voids a closed scope's standing approval; a newer
+approval that fails a later evidence rule no longer does.
 
 ### Residual risks
 
