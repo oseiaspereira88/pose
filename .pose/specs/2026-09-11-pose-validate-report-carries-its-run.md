@@ -149,7 +149,7 @@ the fixed engine in strict mode.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestValidateReportRecordsTheRunItMade requires the check's command and `Result: SUCCESS` in the report, and neither placeholder>
+- R1 [satisfied] <TestValidateReportRecordsTheRunItMade requires the check's command and `Result: SUCCESS` in the report, and neither placeholder> surface:validate-report-carries-its-run evidence:integration
 - R2 [satisfied] <the same test requires `Outcome: pass (source: derived)`>
 - R3 [satisfied] <the same test requires no `.pose/reports/pose-validate.latest.log`>
 
