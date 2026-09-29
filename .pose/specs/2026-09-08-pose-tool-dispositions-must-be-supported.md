@@ -81,6 +81,12 @@ a class the tool demands and an id that appears nowhere, and verify.
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 
+### Delivery targets
+
+- capability:tool-dispositions-must-be-supported module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - R4 widens what a required tool may be. A tool that genuinely should have run
   is now deferrable whenever the scope declares no delivery target, which is a
