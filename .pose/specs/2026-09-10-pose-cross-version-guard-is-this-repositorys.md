@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-release-boundary-rehearsal
 priority: 0
 components: pose-mcp
-delivers: surface:cross-version-guard-is-this-repositorys
+delivers: capability:cross-version-guard-is-this-repositorys
 task_type: bugfix
 ---
 
@@ -74,9 +74,11 @@ Backfilled on 2026-09-29: `ef50d0a` (Two v4.0.0 defects the adoption found (#82)
 
 ### Delivery targets
 
-- surface:cross-version-guard-is-this-repositorys module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:cross-version-guard-is-this-repositorys module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
+Reclassified the same day: this spec changed the CLI package only through tests, comments or internal logic, and no command-level test exercises it, so it delivers a capability, not a surface.
 
 ### Technical risks
 - `GITHUB_REPOSITORY` is provider-specific. On a provider that does not set it
