@@ -74,6 +74,12 @@ demand `a11y` and `e2e`, and no registered check emits either.
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: .pose/specs/2026-09-09-pose-emittable-analysis-evidence-classes.md
 
+### Delivery targets
+
+- surface:report-a-demanded-class-nothing-produces module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - It reuses the selected-profile set the vocabulary check computes, so a change
   to how profiles are selected moves both together. That is the intent: they are
