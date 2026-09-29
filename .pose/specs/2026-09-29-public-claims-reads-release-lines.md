@@ -1,8 +1,8 @@
 ---
 slug: public-claims-reads-release-lines
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-public-claims-contract
 priority: 1
@@ -100,7 +100,7 @@ regression. Reverting restores the blind spot.
 - [x] Confirm the gate passes over the stale banners.
 - [x] Pin release-line claims and the banner-surface rule in tests that fail without the fix.
 - [x] Read `POSE N.x`, declare every bannered page and move the banners to 6.x.
-- [ ] Run the checks, obtain review and close.
+- [x] Run the checks, obtain review and close.
 
 ## 5. Decisions
 
@@ -131,6 +131,13 @@ passes, and `pose public-claims --strict` reports 17 surfaces and 0 errors. The
 first run after declaring the pages caught "POSE 1.0.0 added" on
 `product-roadmaps.md`, a historical sentence, reworded as described above.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 44/44 into the results path, including
+`public-claims-release-line-integration`; bundle `rvb-d08a2b1c9353a813`;
+attestation `rva-ace48ffe7b8d3991`, `agent:claude-opus-5-5`, approved with five
+explicit judgments; surface-check 0 findings.
+
 ### Requirement trace
 
 - R1 [satisfied] surface:public-claims-release-lines evidence:integration check:public-claims-release-line-integration test:TestPublicClaimsReadsAMajorReleaseLine — 1.x passes against 1.7.10
@@ -142,7 +149,8 @@ first run after declaring the pages caught "POSE 1.0.0 added" on
 
 ### Scope delivered
 
-Pending closeout.
+The docs site states the current release line on every page, and the
+public-claims gate fails when a declared page names any other line.
 
 ### Residual risks
 
