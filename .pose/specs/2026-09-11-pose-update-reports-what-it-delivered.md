@@ -8,7 +8,7 @@ depends_on: pose-fragment-error-clarity
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:update-reports-what-it-delivered, contract:update-reports-what-it-delivered, capability:update-reports-what-it-delivered
 ---
 
 # Spec: An update that delivered its files says so
