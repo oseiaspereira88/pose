@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-public-claims-contract
 priority: 1
 components: pose-mcp
-delivers:
+delivers: surface:public-claims-onboarding
 ---
 
 # Spec: A way in to the public claims contract
