@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-tool-dispositions-must-be-supported
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:one-evidence-class-vocabulary
 ---
 
 # Spec: One vocabulary of evidence classes
