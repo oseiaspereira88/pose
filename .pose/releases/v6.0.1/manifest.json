@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "version": "v6.0.1",
+  "previous_version": "v6.0.0",
+  "prepared_at": "2026-09-29T03:11:39Z",
+  "specs": [
+    "calendar-dates-tolerate-utc-stamping",
+    "pose-review-archive-coattributed-fragments",
+    "pose-v6-0-1-release-readiness",
+    "project-id-from-any-directory-name",
+    "release-runs-the-ci-gates",
+    "test-git-repos-run-no-background-maintenance"
+  ],
+  "categories": {
+    "changed": 1,
+    "fixed": 5
+  },
+  "fragments": [
+    {
+      "spec": "calendar-dates-tolerate-utc-stamping",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A spec created and closed on the same local evening west of UTC passes the lifecycle gate again. `pose new-spec` stamps `created_at` with the UTC date, so at 23:30 in UTC-3 it recorded tomorrow, and the local `completed_at` a person writes by hand was refused as earlier. Between two bare dates, one day of difference is now accepted as that skew; two days, or any regression between full timestamps, is still an error. Knowledge review dates follow the same rule.",
+      "path": "calendar-dates-tolerate-utc-stamping.md",
+      "digest": "sha256:9e74c8912fd16f4a61c0f04b8883bb6f84d668cb12f324f3e5e1722deec7d9ca"
+    },
+    {
+      "spec": "pose-review-archive-coattributed-fragments",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Keep archived review subjects readable when a shared immutable commit attributes the fragment to more than one spec, while preserving ownership and committed-ledger checks.",
+      "path": "pose-review-archive-coattributed-fragments.md",
+      "digest": "sha256:371236f9e3ef8eeb278a846aa4a28a8a69243305dd1dc20fd94f1d1c4c40c091"
+    },
+    {
+      "spec": "pose-v6-0-1-release-readiness",
+      "category": "changed",
+      "breaking": false,
+      "body": "Prepare POSE 6.0.1 with aligned public version metadata and an authenticated upgrade path from 6.0.0, pinned by the SHA-256 of its published `checksums.txt`. The release introduces no contract, schema or capability: an instance on 6.0.0 upgrades with the existing flow.",
+      "path": "pose-v6-0-1-release-readiness.md",
+      "digest": "sha256:d2f1c695b50da9f3e2d52c37dc6e708c9403c7280025572e2b4725ef82d60a5a"
+    },
+    {
+      "spec": "project-id-from-any-directory-name",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose install` and `pose index` work again in a repository whose directory name is not a slug, such as `MyApp` or `Acme Portal`. On 6.0.0 the id derived from the directory name was refused and both commands failed with `invalid-project-configuration`. The derived id is now folded into a slug (`proj.myapp`); a name that was already valid keeps its id. A declared id is never rewritten: an invalid one is refused with the value to declare instead, and `pose doctor --fix --yes` replaces one an earlier engine stamped into `.mcp.json`.",
+      "path": "project-id-from-any-directory-name.md",
+      "digest": "sha256:686ad3c389cc1a40a0c823681a6afc3e7c50bde69493c851674e30e712b4a25e"
+    },
+    {
+      "spec": "release-runs-the-ci-gates",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The Portuguese README pins the released version again: in 6.0.0 its checksum-pinned install instructions downloaded 5.0.8. The release workflow now runs the whole CI workflow at the commit it publishes and waits for it to pass. 6.0.0 was cut from a commit whose CI failed on two gates that the release workflow did not run.",
+      "path": "release-runs-the-ci-gates.md",
+      "digest": "sha256:6382a29ca7907b1dcc763cecd6473c8916a689ab8758852606b50e4cfef94840"
+    },
+    {
+      "spec": "test-git-repos-run-no-background-maintenance",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The engine's test suite no longer fails at random with `TempDir RemoveAll cleanup: ... .git: directory not empty`. Git starts a detached `maintenance run --auto` after each commit, which kept writing into test repositories while they were being removed. The test binaries now run git with automatic maintenance disabled; the engine's own git invocations are unchanged.",
+      "path": "test-git-repos-run-no-background-maintenance.md",
+      "digest": "sha256:67834cf16501ec5e93e634f35e7ed13423624770f4f14eb72c0e1206263e1868"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:0d79a6f017bb692a26c90b20671e52d700d568c60a0f7fc04ce92b4f4d1b4501",
+  "release_input_digest": "sha256:ae28bfdc146eaf8d3f66e338f6e1942de4ce187a9e8bcc4ac851e03b251baadb",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v6.0.1"
+  }
+}
