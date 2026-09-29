@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-bundle-findings-take-the-contract-the-legacy-path-had
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:reuse-is-sealed-signing-stays-live
 task_type: refactor
 ---
 
