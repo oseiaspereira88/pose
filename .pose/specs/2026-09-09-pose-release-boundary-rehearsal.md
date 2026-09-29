@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-self-update-handoff-path, pose-adoption-stamp-stays-readable
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:release-boundary-rehearsal
 ---
 
 # Spec: Rehearse the two paths only a release has ever run
