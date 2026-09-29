@@ -8,7 +8,7 @@ depends_on: pose-release-cycle-debt-closure
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:release-archival-attested-by-the-ledger, capability:release-archival-attested-by-the-ledger
 ---
 
 # Spec: Release archival is attested by the ledger, never written into specs
