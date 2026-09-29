@@ -1,7 +1,7 @@
 ---
 slug: pose-stdio-server-honours-sigterm
-status: in-progress
-completed_at:
+status: done
+completed_at: 2026-09-29
 created_at: 2026-09-11
 supersedes:
 depends_on: pose-mcp-server-survives-self-update
