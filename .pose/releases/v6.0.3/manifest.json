@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "version": "v6.0.3",
+  "previous_version": "v6.0.2",
+  "prepared_at": "2026-09-29T10:49:56Z",
+  "specs": [
+    "pose-v6-0-3-release-readiness",
+    "retained-review-survives-an-invalid-newer-approval"
+  ],
+  "categories": {
+    "changed": 1,
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-v6-0-3-release-readiness",
+      "category": "changed",
+      "breaking": false,
+      "body": "Prepare POSE 6.0.3 with aligned public version metadata and an authenticated upgrade path from 6.0.2, pinned by the SHA-256 of its published `checksums.txt`. The release introduces no contract, schema or capability.",
+      "path": "pose-v6-0-3-release-readiness.md",
+      "digest": "sha256:46f9449eb1be2cc79fac0685944f54ba600dd88692a95e2ffae488dab98ca15f"
+    },
+    {
+      "spec": "retained-review-survives-an-invalid-newer-approval",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A closed scope whose newest approval no longer validates, typically against an evidence rule introduced after it, keeps the older approval it was closed with again. 6.0.2 voided it, so a scope approved twice and never rejected read as unreviewed and `pose check --strict` failed. A newer rejection or request for changes still voids any older approval.",
+      "path": "retained-review-survives-an-invalid-newer-approval.md",
+      "digest": "sha256:3752c9ab933a7a16292839e757aa3d60add9b086890474cb10f95b91fe2771bc"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:5bb5e96bf2b1752aea91794b3fd65993a930c8563b8d9da34554dcc916876b4b",
+  "release_input_digest": "sha256:94f6ff4b1fda3ba60ce200035811797265622ef13ff7e70eebfd59b77dcd9891",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v6.0.3"
+  }
+}
