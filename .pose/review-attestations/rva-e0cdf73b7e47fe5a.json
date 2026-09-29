@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-e0cdf73b7e47fe5a",
+  "bundle_id": "rvb-49e47ffbdf43b170",
+  "bundle_digest": "sha256:49e47ffbdf43b1709e5a2d7c80b5659dbaaa211bdeb2bdbbfeeea8523af87368",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-8666b86954dded34",
+      "rationale": "No verdict line or name=value field changed: human stdout was compared byte for byte with the previous binary. Findings of three gates moved from stderr to stdout, and validate --json \u003cpath\u003e keeps working with a deprecation notice; both are stated in the changelog."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-8666b86954dded34",
+      "rationale": "POSE.md in both locales, the CLI reference, the help catalog, the closeout skill and the ui-surface workflow now teach --json-out, and the changelog fragment announces the deprecation."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-8666b86954dded34",
+      "rationale": "An agent reads each gate's decision from one JSON document instead of prose; --quiet prints the verdict alone; a failed --json-out write is reported."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Tests the change set introduced and that pass in the sealed unit run: TestEveryGateOnTheMachineChannelPrintsOneDocument, TestLintSpecJSONIsOneDocumentWithTheFindings, TestJSONOutWritesTheDocumentAndKeepsTheReport, TestValidateJSONPathIsADeprecatedAliasOfJSONOut, TestReportChangedFilesKeepsTheFirstPath."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-8666b86954dded34",
+      "rationale": "Seven gates join the machine channel, --json-out is added to every gate on it, validate --json \u003cpath\u003e is deprecated, and the report path and hint channel are fixed; guidance and manuals follow."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-8666b86954dded34",
+      "rationale": "--json-out accepts only a project-relative path, the same confinement validate applies to its result paths, and a test refuses ../escape.json; nothing is written outside the project."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-cli-output-machine-channel reports no error after the claims were reconciled on 2026-09-29."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration",
+      "rationale": "pose assess integrate ran on 2026-09-29 and reported the same 57 medium gaps as the baseline recorded earlier on 2026-09-29 (HTTP and MCP endpoints with no in-repository consumer); only the timestamp changed, so this scope adds no provider or consumer gap."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "check:skills-check",
+      "rationale": "skills-check --strict: 0 warnings, SUCCESS."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "surface-check --spec pose-cli-output-machine-channel --strict reported 0 findings against these sealed results; the delivery reachability check passed in the same run."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "the validation matrix declares no check for component docs-site"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed native matrix passed 46 of 46 at this revision."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "the validation matrix declares no check for component tests"
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T23:29:31Z",
+  "path": ".pose/review-attestations/rva-e0cdf73b7e47fe5a.json"
+}

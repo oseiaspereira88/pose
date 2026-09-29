@@ -1,8 +1,8 @@
 ---
 slug: pose-cli-output-machine-channel
-status: in-progress
+status: done
 created_at: 2026-09-12
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-cli-output-rendering-system
 priority: 2
@@ -140,7 +140,7 @@ spec's trailer, so this change set only modifies it.
 
 ### Validation
 - [x] A golden document per gate, and the allowlist lower than it started
-- [ ] Run the checks, obtain review and close
+- [x] Run the checks, obtain review and close
 
 ---
 
@@ -192,6 +192,11 @@ subject, and the allowlist lower than before.
   for `--json-out` and `RecordVerdict`. The per-gate test decodes one document
   from each of the five gates run over this repository and checks that the
   outcome agrees with the exit code. `go test ./...` passes.
+
+- Closeout 2026-09-29 UTC: full matrix 46/46 including
+  `machine-channel-integration`; bundle `rvb-49e47ffbdf43b170`; attestation
+  `rva-e0cdf73b7e47fe5a`, `agent:claude-opus-5-5`, approved with five explicit
+  judgments; surface-check 0 findings.
 
 ### Results summary
 - Successes: R1 to R5.
