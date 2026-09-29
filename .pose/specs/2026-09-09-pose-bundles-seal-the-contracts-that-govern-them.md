@@ -90,6 +90,12 @@ gate, from one sealed after adoption by an instance whose date was edited.
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: .pose/specs/2026-09-08-pose-contract-adoption-registry.md
 
+### Delivery targets
+
+- capability:bundles-seal-the-contracts-that-govern-them module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - `BundleGovernedBy` returns two booleans because "this bundle says the contract
   did not govern it" and "this bundle says nothing" are different facts.
