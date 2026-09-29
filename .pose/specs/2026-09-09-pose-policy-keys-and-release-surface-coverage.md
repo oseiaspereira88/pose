@@ -99,6 +99,13 @@ That is the surface this month's two release failures came from.
 - modified: .pose/specs/2026-09-09-pose-doctor-fixtures-exercise-production-path.md
 - modified: .pose/specs/2026-09-07-pose-review-plan-producible-evidence-classes.md
 
+### Delivery targets
+
+- surface:policy-keys-and-release-surface-coverage module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:policy-keys-and-release-surface-coverage module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Seven findings where there was one is seven chances to be noisy. Each was run
   against a fresh install and reports ok; the annotation exemption is what keeps
