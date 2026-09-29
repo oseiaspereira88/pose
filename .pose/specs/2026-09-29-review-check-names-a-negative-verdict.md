@@ -102,8 +102,9 @@ fails with `[no review attempt exists for spec:backend]`. The full suite passes.
 
 ### Closeout
 
-2026-09-29 UTC. Full matrix 42/42 into the results path; `surface-check --strict` with
-0 findings; bundle `rvb-a96a5aafe8131eba`, 39 evidence items; attestation
+2026-09-29 UTC. Full matrix 42/42 into the results path; `surface-check --strict` exits 0
+with one `inferred-coverage` warning, kept, because integration evidence for
+`pose-mcp/internal/pose` comes from a run of the containing module; bundle `rvb-a96a5aafe8131eba`, 39 evidence items; attestation
 `rva-ab0bdeae3026626c`, `agent:claude-opus-5-5`, approved with five explicit judgments.
 
 ### Requirement trace
