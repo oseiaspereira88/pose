@@ -478,6 +478,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "calendar-date-skew-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "CompletionOneDayBeforeUTCCreation",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delivery-graph-reuse-integration",
           "program": "go",
           "args": [

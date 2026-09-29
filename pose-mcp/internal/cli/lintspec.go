@@ -339,6 +339,20 @@ func parseISOInstant(value string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
+// completedBeforeCreated reports whether a completion precedes its creation.
+// Two bare dates carry no zone: POSE stamps them in UTC (`new-spec`, `close`)
+// while a person filling one in writes their local date, and the two differ by
+// at most one day. A spec created at 23:30 in UTC-3 is stamped with tomorrow's
+// UTC date and closed the same evening with today's local one, so one day of
+// apparent regression is that skew, not an error. Instants are compared exactly
+// (spec calendar-dates-tolerate-utc-stamping).
+func completedBeforeCreated(created, completed time.Time, bothDates bool) bool {
+	if bothDates {
+		return completed.Before(created.AddDate(0, 0, -1))
+	}
+	return completed.Before(created)
+}
+
 // lintOneSpec lints a single spec.md, printing the same machine lines and
 // stderr diagnostics as the python engine. Returns 0/1 (2 on IO error).
 // specFindings routes one spec's lint findings through the renderer. They are
@@ -551,6 +565,7 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 
 	// Lifecycle dates.
 	parsed := map[string]time.Time{}
+	dateOnly := map[string]bool{}
 	for _, field := range []string{"created_at", "completed_at"} {
 		value := strings.Trim(strings.TrimSpace(frontmatter[field]), `"'`)
 		if value == "" {
@@ -558,13 +573,14 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		}
 		if t, ok := parseISOInstant(value); ok {
 			parsed[field] = t
+			dateOnly[field] = len(value) == len("2006-01-02")
 		} else {
 			lint.finding(cliout.StateError, "frontmatter", fmt.Sprintf(cliText(locale, "%s must use ISO 8601: '%s'", "%s deve usar ISO 8601: '%s'"), field, value))
 			lifecycle++
 		}
 	}
 	if c, ok1 := parsed["created_at"]; ok1 {
-		if d, ok2 := parsed["completed_at"]; ok2 && d.Before(c) {
+		if d, ok2 := parsed["completed_at"]; ok2 && completedBeforeCreated(c, d, dateOnly["created_at"] && dateOnly["completed_at"]) {
 			lint.finding(cliout.StateError, "frontmatter", cliText(locale, "completed_at is earlier than created_at", "completed_at anterior a created_at"))
 			lifecycle++
 		}

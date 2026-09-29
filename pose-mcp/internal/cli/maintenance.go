@@ -679,7 +679,7 @@ func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int
 				errors++
 				fmt.Fprintf(stderr, "[ERROR] %s: invalid TTL\n", e.Name())
 			}
-			if reviewed.Before(created) {
+			if completedBeforeCreated(created, reviewed, true) {
 				warnings++
 			}
 			if expires.Before(now) {

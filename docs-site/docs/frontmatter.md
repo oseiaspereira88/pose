@@ -34,6 +34,10 @@ Rules enforced by `pose check` / `pose lint-spec`:
   An open follow-up ends with its ownership group,
   `(owner:@alias crit:low|medium|high review:YYYY-MM-DD)` — the only format
   read.
+- `completed_at` may not precede `created_at`. POSE stamps both in UTC, and a
+  date you fill in by hand is usually your local one, so between two bare
+  dates one day of difference is accepted as that skew; two days, or any
+  regression between full timestamps, is an error.
 - Entering `in-progress` requires the Definition of Ready (`--ready-check`)
   once the project sets `adopted_at` in `.pose/policy/dor.json`; `task_type`
   selects which sections it requires.
