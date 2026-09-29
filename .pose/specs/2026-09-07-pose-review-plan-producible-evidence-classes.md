@@ -92,6 +92,12 @@ came from the profile.
 - modified: pose-mcp/internal/pose/review_plan.go
 - modified: pose-mcp/internal/pose/review_plan_test.go
 
+### Delivery targets
+
+- capability:review-plan-producible-evidence-classes module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Dropping a class relaxes a tool that previously could not be satisfied at
   all, so nothing that used to pass starts failing. The reverse — a project
