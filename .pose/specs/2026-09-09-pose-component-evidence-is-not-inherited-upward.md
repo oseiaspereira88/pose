@@ -80,6 +80,12 @@ refusal exists to prevent, one relation over.
 - modified: pose-mcp/internal/pose/delivery_surface.go
 - modified: .pose/specs/2026-09-09-pose-evidence-scoped-to-component.md
 
+### Delivery targets
+
+- capability:component-evidence-is-not-inherited-upward module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - A component whose only evidence sits in a directory inside it now has none, so
   such a scope stops closing until a check is registered for the component or the
