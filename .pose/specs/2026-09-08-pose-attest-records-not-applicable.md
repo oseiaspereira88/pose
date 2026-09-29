@@ -87,6 +87,12 @@ automated path.
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/help_catalog.go
 
+### Delivery targets
+
+- surface:attest-records-not-applicable module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - `not-applicable` is a way past a criterion, and this makes it reachable by
   hand. It is bounded by requiring a rationale that is recorded in the immutable
