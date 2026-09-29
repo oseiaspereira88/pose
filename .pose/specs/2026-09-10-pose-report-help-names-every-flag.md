@@ -1,7 +1,7 @@
 ---
 slug: pose-report-help-names-every-flag
-status: in-progress
-completed_at:
+status: done
+completed_at: 2026-09-29
 created_at: 2026-09-10
 supersedes:
 depends_on: pose-manual-locale-parity

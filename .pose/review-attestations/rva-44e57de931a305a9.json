@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-44e57de931a305a9",
+  "bundle_id": "rvb-beabd17796e41fa0",
+  "bundle_digest": "sha256:beabd17796e41fa0b00aca209c7aeeb13746ab6271c1663d5c5251b6b7d67500",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-77149b05ed3bc165",
+      "rationale": "Help text only."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-77149b05ed3bc165",
+      "rationale": "Verified today: the help lists the change-from/change-to flags and pass/fail/partial/skipped/unknown."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-77149b05ed3bc165",
+      "rationale": "Operators can discover the recording flags from help."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Tests the change set introduced and that pass in the sealed unit run: TestManualParitySeesACommandDocumentedOnlyInProse, TestReportHelpNamesEveryFlag."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-77149b05ed3bc165",
+      "rationale": "report --help names every accepted flag and the real outcome values, in both locales."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-77149b05ed3bc165",
+      "rationale": "No runtime change."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-report-help-names-every-flag reports no error after the claims were reconciled on 2026-09-29."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "surface-check --spec pose-report-help-names-every-flag --strict reported 0 findings against these sealed results; the delivery reachability check passed in the same run."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed native matrix passed 43 of 43 at this revision."
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T21:13:00Z",
+  "path": ".pose/review-attestations/rva-44e57de931a305a9.json"
+}
