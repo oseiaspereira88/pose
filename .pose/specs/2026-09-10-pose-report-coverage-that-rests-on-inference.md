@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-component-evidence-is-not-inherited-upward
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:report-coverage-that-rests-on-inference
 task_type: feature
 ---
 
