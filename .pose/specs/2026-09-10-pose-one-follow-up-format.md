@@ -196,8 +196,8 @@ lint behaviour to fail against the previous lint.
 - R1 [satisfied] <both spec templates show `- [<disposition>] <text> (owner:@alias crit:low|medium|high review:YYYY-MM-DD)` and state that any other placement is ignored>
 - R2 [satisfied] <both closeout skills show the same line; the pt-BR table no longer calls `[open]` ownerless; both list the misplacement as an anti-pattern>
 - R3 [satisfied] <POSE.md in both locales and docs-site concepts/architecture state the rule; architecture.md now shows the group with its parentheses>
-- R4 [satisfied] <TestLintReadsAWrappedOwnershipGroupLikeFollowups lints a done spec whose open item wraps before its group and requires no unowned warning>
-- R5 [satisfied] <TestLintWarnsOwnershipOutsideTheTrailingGroup requires the warning, naming the format, for in-progress and done specs, and none for the canonical group>
+- R4 [satisfied] <TestLintReadsAWrappedOwnershipGroupLikeFollowups lints a done spec whose open item wraps before its group and requires no unowned warning> surface:one-follow-up-format evidence:integration
+- R5 [satisfied] <TestLintWarnsOwnershipOutsideTheTrailingGroup requires the warning, naming the format, for in-progress and done specs, and none for the canonical group> surface:one-follow-up-format evidence:integration
 - R6 [satisfied] <no `— owner:` follow-up remains under .pose/specs; `pose lint-spec --all` reports no misplaced ownership>
 
 ### Known gaps
