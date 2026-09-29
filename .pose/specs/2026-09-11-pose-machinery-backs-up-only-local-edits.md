@@ -151,10 +151,10 @@ up and reported; repeat from a manifest with no digests.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestDeliverMachineryBacksUpOnlyWhatTheInstanceEdited requires a digest for a delivered path after the first delivery>
+- R1 [satisfied] <TestDeliverMachineryBacksUpOnlyWhatTheInstanceEdited requires a digest for a delivered path after the first delivery> surface:machinery-backs-up-only-local-edits evidence:integration
 - R2 [satisfied] <the same test requires the untouched file to take the new release with no backup and no report>
 - R3 [satisfied] <the same test requires the edited file's content in .pose-backup and a "backed up customized" report>
-- R4 [satisfied] <TestDeliverMachineryWithoutADigestSaysWhyItBacksUp requires the backup, the "no record of what POSE delivered" wording, no "customized", and a recorded digest>
+- R4 [satisfied] <TestDeliverMachineryWithoutADigestSaysWhyItBacksUp requires the backup, the "no record of what POSE delivered" wording, no "customized", and a recorded digest> surface:machinery-backs-up-only-local-edits evidence:integration
 
 ### Known gaps
 - Instances see one more round of backups on their first update after adopting
