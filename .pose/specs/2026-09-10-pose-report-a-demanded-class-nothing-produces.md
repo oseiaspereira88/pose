@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-emittable-analysis-evidence-classes
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:report-a-demanded-class-nothing-produces
 task_type: feature
 ---
 
