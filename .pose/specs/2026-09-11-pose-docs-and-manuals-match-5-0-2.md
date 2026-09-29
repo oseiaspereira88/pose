@@ -1,7 +1,7 @@
 ---
 slug: pose-docs-and-manuals-match-5-0-2
-status: in-progress
-completed_at:
+status: done
+completed_at: 2026-09-29
 created_at: 2026-09-11
 supersedes:
 depends_on: pose-one-follow-up-format
