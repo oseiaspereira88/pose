@@ -1,8 +1,8 @@
 ---
 slug: pose-changelog-adoption-is-the-instances
-status: in-progress
+status: done
 created_at: 2026-09-10
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-changelog-and-dor-policy-types
 priority: 0
