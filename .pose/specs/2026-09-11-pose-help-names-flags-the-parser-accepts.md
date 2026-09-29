@@ -1,7 +1,7 @@
 ---
 slug: pose-help-names-flags-the-parser-accepts
-status: in-progress
-completed_at:
+status: done
+completed_at: 2026-09-29
 created_at: 2026-09-11
 supersedes:
 depends_on: pose-report-help-names-every-flag
