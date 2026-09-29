@@ -8,7 +8,7 @@ depends_on: pose-followup-ownership-sla
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:one-follow-up-format
 ---
 
 # Spec: One follow-up format, shown where follow-ups are written
