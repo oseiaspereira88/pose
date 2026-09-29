@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-contract-adoption-registry
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:bundles-seal-the-contracts-that-govern-them
 ---
 
 # Spec: A review bundle names the contracts that govern it
