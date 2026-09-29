@@ -8,7 +8,7 @@ depends_on: pose-machinery-distribution-contract
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:machinery-backs-up-only-local-edits
 ---
 
 # Spec: `pose update` backs up only machinery the instance edited
