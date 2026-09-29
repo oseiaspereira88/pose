@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "version": "v6.0.2",
+  "previous_version": "v6.0.1",
+  "prepared_at": "2026-09-29T04:45:58Z",
+  "specs": [
+    "pose-v6-0-2-release-readiness",
+    "review-verify-retains-completed-scopes"
+  ],
+  "categories": {
+    "changed": 1,
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-v6-0-2-release-readiness",
+      "category": "changed",
+      "breaking": false,
+      "body": "Prepare POSE 6.0.2 with aligned public version metadata and an authenticated upgrade path from 6.0.1, pinned by the SHA-256 of its published `checksums.txt`. The release introduces no contract, schema or capability.",
+      "path": "pose-v6-0-2-release-readiness.md",
+      "digest": "sha256:aacb260a50d7f3bfbd857edb5c243263f4c6af5406047a4c1449d287626b478d"
+    },
+    {
+      "spec": "review-verify-retains-completed-scopes",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose review verify` and federated acceptance keep the approval a closed scope was closed with, as `pose review-check` already did. Before, the next validation run after any closeout, or any check added to the validation matrix, made every closed scope read as superseded, so a consumer pinning a newer engine saw all upstream reviews as unapproved until each was resealed and reattested. A newer rejection or request for changes still wins over an older approval, and `review-check` no longer fell back past one. A changed federated manifest, such as revoked trust or a moved source, still stales a closed scope.",
+      "path": "review-verify-retains-completed-scopes.md",
+      "digest": "sha256:52d349117801d4f427e7dcd39e120689df0497d5dcac6f4527ed2a5f1d55912c"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:bb3c3ecda8d9ad22dd8b1c61b1775c551712fba1dc85706f2f613c9a5c8fe932",
+  "release_input_digest": "sha256:5281f2241448d1faecdca6496f993c6604cff767213694da00edf5f6b75bad0b",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v6.0.2"
+  }
+}
