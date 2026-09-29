@@ -94,6 +94,14 @@ had not.
 
 Backfilled on 2026-09-29: `20c6565` (Before 5.0.2: honest update failures, SIGTERM on stdio, and the overdue backlog (#94)) carries this spec's trailer and also changed the 15 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:update-reports-what-it-delivered module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- contract:update-reports-what-it-delivered module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
+- capability:update-reports-what-it-delivered module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - A run whose index fails for a reason this run caused now reaches the gate
   instead of stopping. The gate's message distinguishes pre-existing failures
