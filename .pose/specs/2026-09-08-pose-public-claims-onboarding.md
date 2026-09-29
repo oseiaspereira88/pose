@@ -1,8 +1,8 @@
 ---
 slug: pose-public-claims-onboarding
-status: in-progress
+status: done
 created_at: 2026-09-08
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-public-claims-contract
 priority: 1
