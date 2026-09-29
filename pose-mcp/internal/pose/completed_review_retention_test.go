@@ -153,3 +153,36 @@ func TestCompletedReviewRetention(t *testing.T) {
 		}
 	})
 }
+
+// A closed scope whose newest review decided against it reports that review,
+// not "no review attempt exists" (spec review-check-names-a-negative-verdict).
+func TestReviewCheckNamesANegativeVerdictOnAClosedScope(t *testing.T) {
+	store, _, now := retentionFixture(t)
+	addMatrixCheck(t, store)
+	second, err := store.SealReviewBundle("spec:backend", now.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+	negative := approvedBundleAttestation(second, "agent:second-review")
+	negative.Decision = "changes-requested"
+	negative.Findings = []ReviewFinding{{ID: "f1", Severity: "medium", Disposition: "changes-requested", Action: "add the missing test"}}
+	if _, err := store.RecordReviewAttestation(negative, now.Add(3*time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	closeBackendSpec(t, store)
+	writeReviewFixture(t, store.Root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"moduleOverrides":{"api":{"checks":[{"name":"third-check","program":"true","severity":"required","evidenceClass":"unit"}]}}}`)
+	eval, err := store.ReviewCheck("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if eval.Approved {
+		t.Fatalf("a closed scope whose latest review requested changes was approved: %+v", eval)
+	}
+	joined := strings.Join(eval.Blockers, "\n")
+	if strings.Contains(joined, "no review attempt exists") || !strings.Contains(joined, "decided changes-requested") || !strings.Contains(joined, "finding f1 (medium) is changes-requested: add the missing test") {
+		t.Fatalf("review-check did not name the negative verdict and its findings: %v", eval.Blockers)
+	}
+	if eval.Current == nil || eval.Current.Decision != "changes-requested" {
+		t.Fatalf("current review not reported: %+v", eval.Current)
+	}
+}

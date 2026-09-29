@@ -979,6 +979,27 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 				eval.Warnings = append(eval.Warnings, retainedCompletedReviewWarning)
 				return eval, nil
 			}
+			// A closed scope whose newest review rejected it or requested changes
+			// has a review; saying none exists sent operators looking for a
+			// missing record instead of the findings (spec
+			// review-check-names-a-negative-verdict).
+			if bundle, att := s.latestNegativeReview(ref); bundle != nil {
+				eval.BundleState = att.Decision
+				eval.ScopeDigest = bundle.BundleDigest
+				eval.BundleID = bundle.BundleID
+				eval.BundleDigest = bundle.BundleDigest
+				eval.PlanDigest = bundle.Payload.Plan.PlanDigest
+				eval.AttestationID = att.AttestationID
+				eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
+				eval.Blockers = append(eval.Blockers, "latest review "+att.AttestationID+" of "+ref+" decided "+att.Decision+"; remediate its findings and seal a superseding bundle")
+				for _, finding := range att.Findings {
+					if finding.Disposition == "open" || finding.Disposition == "changes-requested" {
+						eval.Blockers = append(eval.Blockers, "finding "+finding.ID+" ("+finding.Severity+") is "+finding.Disposition+": "+finding.Action)
+					}
+				}
+				eval.Blockers = uniqueSorted(eval.Blockers)
+				return eval, nil
+			}
 			if !s.reviewBundlesLegacyAttemptExempt(scope, policy) && verifyErr != nil {
 				return eval, verifyErr
 			}
@@ -1710,6 +1731,28 @@ func (s Store) retainedCompletedReview(scope ScopeRef, ref string, policy Review
 		if att.Decision == "rejected" || att.Decision == "changes-requested" {
 			return nil, nil
 		}
+	}
+	return nil, nil
+}
+
+// latestNegativeReview returns the newest attested bundle of a scope when its
+// latest attestation rejected the work or requested changes, or nil.
+func (s Store) latestNegativeReview(ref string) (*ReviewBundle, *ReviewAttestation) {
+	bundles, err := s.ListReviewBundles(ref)
+	if err != nil {
+		return nil, nil
+	}
+	for i := len(bundles) - 1; i >= 0; i-- {
+		attestations, attErr := s.ListReviewAttestations(bundles[i].BundleID)
+		if attErr != nil || len(attestations) == 0 {
+			continue
+		}
+		att := attestations[len(attestations)-1]
+		if att.Decision != "rejected" && att.Decision != "changes-requested" {
+			return nil, nil
+		}
+		bundle := bundles[i]
+		return &bundle, &att
 	}
 	return nil, nil
 }
