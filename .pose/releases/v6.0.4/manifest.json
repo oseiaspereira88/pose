@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "version": "v6.0.4",
+  "previous_version": "v6.0.3",
+  "prepared_at": "2026-09-29T14:54:43Z",
+  "specs": [
+    "pose-v6-0-4-release-readiness",
+    "review-check-names-a-negative-verdict"
+  ],
+  "categories": {
+    "changed": 1,
+    "fixed": 1
+  },
+  "fragments": [
+    {
+      "spec": "pose-v6-0-4-release-readiness",
+      "category": "changed",
+      "breaking": false,
+      "body": "Prepare POSE 6.0.4 with aligned public version metadata and an authenticated upgrade path from 6.0.3, pinned by the SHA-256 of its published `checksums.txt`. The release introduces no contract, schema or capability.",
+      "path": "pose-v6-0-4-release-readiness.md",
+      "digest": "sha256:6b1a5ca3b026fc63b8fe1b318b0ae2db5932fbbcfa546df29f42f6cdce9a0538"
+    },
+    {
+      "spec": "review-check-names-a-negative-verdict",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose review-check` and `pose check --strict` now report the review that blocks a closed scope when its newest review rejected it or requested changes: the attestation, its decision and each open finding. They used to say `no review attempt exists`, while `pose review verify` showed the findings.",
+      "path": "review-check-names-a-negative-verdict.md",
+      "digest": "sha256:a7194f2fda9e6a7afc25a43e8b4cc78d34475234af92cfceebeca5378ade407a"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:2bd3b8ed8954cdba30bd31bb32e2951d8a5085169231489df02f26b50ff0eb2b",
+  "release_input_digest": "sha256:386a1ffe610e9d18b638b7be913b8ed395296d648fcb850b2fe717bae0689a2a",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v6.0.4"
+  }
+}
