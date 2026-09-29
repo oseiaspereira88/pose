@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-doctor-reports-unread-policy-keys, pose-doctor-fixtures-exercise-production-path
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:policy-keys-and-release-surface-coverage, capability:policy-keys-and-release-surface-coverage
 ---
 
 # Spec: Every modelled policy reports its unread keys, and the release surface runs under test
