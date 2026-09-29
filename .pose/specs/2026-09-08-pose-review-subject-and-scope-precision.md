@@ -1,8 +1,8 @@
 ---
 slug: pose-review-subject-and-scope-precision
-status: in-progress
+status: done
 created_at: 2026-09-08
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on:
 priority: 0
