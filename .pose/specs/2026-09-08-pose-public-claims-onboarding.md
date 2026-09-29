@@ -94,6 +94,12 @@ noticed. A gate against that failure which no one can turn on protects nothing.
 - modified: pose-mcp/internal/cli/publicclaims.go
 - modified: pose-mcp/internal/cli/publicclaims_test.go
 
+### Delivery targets
+
+- surface:public-claims-onboarding module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - The instruction creates its own destination rather than relying on
   `instanceDirs`. Adding `.pose/public` there would not be enough: Git does not
