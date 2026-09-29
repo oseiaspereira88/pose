@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-reuse-is-sealed-signing-stays-live
 priority: 0
 components: pose-mcp
-delivers: surface:only-the-signing-gate-is-read-live, capability:only-the-signing-gate-is-read-live
+delivers: capability:only-the-signing-gate-is-read-live
 task_type: feature
 ---
 
@@ -78,10 +78,11 @@ Backfilled on 2026-09-29: `6f58750` (Two more follow-ups: the changelog date and
 
 ### Delivery targets
 
-- surface:only-the-signing-gate-is-read-live module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 - capability:only-the-signing-gate-is-read-live module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
+Reclassified the same day: this spec changed the CLI package only through tests, comments or internal logic, and no command-level test exercises it, so it delivers a capability, not a surface.
 
 ### Technical risks
 - Reading source text is coarser than reading types, and a policy field reached
