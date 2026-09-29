@@ -1,8 +1,8 @@
 ---
 slug: pose-component-evidence-is-not-inherited-upward
-status: in-progress
+status: done
 created_at: 2026-09-09
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-evidence-scoped-to-component
 priority: 0
