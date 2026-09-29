@@ -164,7 +164,7 @@ must survive.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <review_bundle.go — reviewBundleGitlinkSHA resolves mode 160000 and the entry is included; TestReviewBundleClassifiesSubmodulePath asserts class submodule>
+- R1 [satisfied] <review_bundle.go — reviewBundleGitlinks resolves mode 160000 for every candidate path in one call (it replaced the per-path reviewBundleGitlinkSHA in pose-review-subject-and-scope-precision) and the entry is included; TestReviewBundleClassifiesSubmodulePath asserts class submodule>
 - R2 [satisfied] <review_bundle.go — the digest branch hashes the pinned commit instead of calling reviewBundleFileDigest on a directory; the test asserts a non-empty digest>
 - R3 [satisfied] <entry.Reason carries "attributed submodule pinned to <sha>"; asserted by the test>
 - R4 [satisfied] <TestReviewBundleRejectsUnclassifiedSubjectPath still passes: mystery.data is not a gitlink and still blocks the seal>
