@@ -1,8 +1,8 @@
 ---
 slug: pose-release-archival-attested-by-the-ledger
-status: in-progress
+status: done
 created_at: 2026-09-11
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-release-cycle-debt-closure
 priority: 0
