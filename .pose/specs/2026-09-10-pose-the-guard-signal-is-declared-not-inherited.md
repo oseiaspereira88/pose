@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-cross-version-guard-is-this-repositorys
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:the-guard-signal-is-declared-not-inherited
 task_type: refactor
 ---
 
