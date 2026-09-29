@@ -1,8 +1,8 @@
 ---
 slug: calendar-dates-tolerate-utc-stamping
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on:
 priority: 1
@@ -118,18 +118,31 @@ the quickstart, write the local date.
 date one day behind the UTC stamp". With it, the test passes, and at 23:50
 UTC-3 the quickstart and demo both complete locally.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 39/39 into the results path; bundle
+`rvb-f904299eb1b7ef43`, 36 evidence items; attestation `rva-0f74dd5a4f85fe3a`,
+`agent:claude-opus-5-5`, approved with five explicit judgments. A first
+attestation cited the previous bundle's design evidence id, was refused by
+`review-check`, and was replaced before closing.
+
 ### Requirement trace
 
-- R1 [pending] test:TestCompletionOneDayBeforeUTCCreationIsZoneSkew
-- R2 [pending] test:TestCompletionOneDayBeforeUTCCreationIsZoneSkew
-- R3 [pending] pose-mcp/internal/cli/maintenance.go
-- R4 [pending] docs-site/docs/frontmatter.md
+- R1 [satisfied] surface:lifecycle-date-order evidence:integration check:calendar-date-skew-integration test:TestCompletionOneDayBeforeUTCCreationIsZoneSkew — same-day and one-day-behind bare dates pass the gate
+- R2 [satisfied] surface:lifecycle-date-order evidence:integration check:calendar-date-skew-integration test:TestCompletionOneDayBeforeUTCCreationIsZoneSkew — two days earlier, an instant pair and an instant/date pair
+  are still refused
+- R3 [satisfied] surface:lifecycle-date-order evidence:integration check:calendar-date-skew-integration test:TestCompletionOneDayBeforeUTCCreationIsZoneSkew — `pose maintenance` warns on `last_reviewed_at` through the
+  same `completedBeforeCreated` helper
+- R4 [satisfied] surface:lifecycle-date-order evidence:integration check:calendar-date-skew-integration test:TestCompletionOneDayBeforeUTCCreationIsZoneSkew — docs-site/docs/frontmatter.md states the UTC stamping and
+  the one-day tolerance
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+A spec created and closed on the same local evening west of UTC passes the
+lifecycle gate, and the quickstart and demo CI gates no longer depend on the hour
+and zone of the machine running them.
 
 ### Residual risks
 

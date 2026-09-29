@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0f74dd5a4f85fe3a",
+  "bundle_id": "rvb-f904299eb1b7ef43",
+  "bundle_digest": "sha256:f904299eb1b7ef430c2acbabfd907fca774160d50ea4d9ff34b1d1af6f8f74ee",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration",
+      "rationale": "The gate accepts strictly more than before and only in one case: two bare dates one day apart. Every spec that passed still passes. Instants and mixed instant/date pairs keep exact comparison, pinned by two test cases. No stamp the engine writes changes, so repositories and CI keep recording the same dates."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration",
+      "rationale": "The frontmatter reference now states that POSE stamps dates in UTC and what the gate tolerates, next to the rules it already listed. The helper comment gives the concrete 23:30 UTC-3 case, and the changelog fragment names the refusal readers met. The quickstart page needed no edit: its instruction to fill completed_at by hand is now correct in every zone."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration",
+      "rationale": "The failure an evaluator met on the documented first loop, and that made two CI gates depend on the hour and zone of the machine, is gone: quickstart and demo complete at 23:50 UTC-3 where they failed at 23:33. A genuine regression of two or more days is still an error with the same message."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-2a2867db4a111e3a",
+      "rationale": "One comparison helper, its use in the spec gate and the knowledge check, one test, one doc paragraph and the registered producer. Stamping local dates was considered and rejected in D1; no stamp site was touched."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration",
+      "rationale": "The change widens a date-order check by one day between two values parsed by the existing strict ISO parser. No input reaches a path, command or message it did not reach before, and no authorization or trust decision reads these dates."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration",
+      "rationale": "Scanner executed at 9a0cd58: 57 gaps, the same set as the previous assessment; only its timestamp and baseline changed. The change adds no provider or consumer."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The matrix declares no checks for docs-site. The paragraph was reviewed against lintspec.go; no docs build is claimed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/calendar-date-skew-integration"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/calendar-date-skew-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T02:56:09Z",
+  "path": ".pose/review-attestations/rva-0f74dd5a4f85fe3a.json"
+}
