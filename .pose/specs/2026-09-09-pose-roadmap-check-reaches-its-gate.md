@@ -160,10 +160,10 @@ judge the criteria; require the tests to fail when the early return is restored.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestRoadmapCheckEvaluatesCriteriaWithoutDeliveryProfiles runs the gate on a repository with no profile index and requires the criterion to be judged, unpassed, with a blocker and a non-zero exit>
+- R1 [satisfied] <TestRoadmapCheckEvaluatesCriteriaWithoutDeliveryProfiles runs the gate on a repository with no profile index and requires the criterion to be judged, unpassed, with a blocker and a non-zero exit> surface:roadmap-check-reaches-its-gate evidence:integration
 - R2 [satisfied] <the same branch treats an absent specs directory as empty rather than as a reason to return, using errors.Is so the store's wrapped error is recognised>
-- R3 [satisfied] <TestRoadmapCheckEvaluatesAManualReviewCriterion requires a manual-review ref pointing outside the project to block, with no profile index present>
-- R4 [satisfied] <TestRoadmapCheckStillPassesACriterionItCanSatisfy requires a confined manual-review ref whose report exists to pass>
+- R3 [satisfied] <TestRoadmapCheckEvaluatesAManualReviewCriterion requires a manual-review ref pointing outside the project to block, with no profile index present> surface:roadmap-check-reaches-its-gate evidence:integration
+- R4 [satisfied] <TestRoadmapCheckStillPassesACriterionItCanSatisfy requires a confined manual-review ref whose report exists to pass> surface:roadmap-check-reaches-its-gate evidence:integration
 
 ### Known gaps
 - `roadmap-check` still answers 0 for a roadmap that declares no criteria at
