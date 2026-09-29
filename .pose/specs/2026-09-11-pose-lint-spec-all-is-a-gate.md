@@ -78,6 +78,27 @@ the lint that would have flagged it was never run over the repository.
 - modified: .pose/specs/2026-08-21-pose-manual-and-cli-command-parity.md
 - modified: .pose/specs/2026-09-20-check-builds-the-delivery-graph-once.md
 
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/cli/doctor_instance_config_test.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/install.go
+- modified: pose-mcp/internal/cli/install_locale_identity_test.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/managed_docs.go
+- modified: pose-mcp/internal/cli/managed_docs_test.go
+- created: pose-mcp/internal/cli/mcp_sigterm_test.go
+- modified: pose-mcp/internal/cli/release_compatibility_test.go
+- modified: pose-mcp/internal/cli/self_update_release_test.go
+- modified: pose-mcp/internal/cli/stack_seed.go
+- created: pose-mcp/internal/cli/update_reports_delivered_state_test.go
+- modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/cli/validate_root_and_nodemodules_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/pose/discovery.go
+
+Backfilled on 2026-09-29: `20c6565` (Before 5.0.2: honest update failures, SIGTERM on stdio, and the overdue backlog (#94)) carries this spec's trailer, because it created this spec as a draft, and also changed the 18 paths declared last. They are claimed so the Git change set reconciles; they record provenance, not this spec's design.
+
 ### Delivery targets
 - capability:lint-spec-all-gate module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
