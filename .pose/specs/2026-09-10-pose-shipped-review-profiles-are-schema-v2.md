@@ -83,6 +83,12 @@ changed.
 
 Backfilled on 2026-09-29: `ef50d0a` (Two v4.0.0 defects the adoption found (#82)) carries this spec's trailer and also changed the 1 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:shipped-review-profiles-are-schema-v2 module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Bumping a profile to v2 subjects its criteria to the closed catalogs. Both were
   checked first: neither declares a rule, and `integration` is in
