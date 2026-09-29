@@ -1,8 +1,8 @@
 ---
 slug: pose-evidence-scoped-to-component
-status: in-progress
+status: done
 created_at: 2026-09-09
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-tool-dispositions-must-be-supported
 priority: 0
