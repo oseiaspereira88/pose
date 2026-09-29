@@ -69,6 +69,12 @@ had been observed returning it.
 - created: pose-mcp/internal/cli/remaining_surfaces_coverage_test.go
 - modified: .pose/specs/2026-09-09-pose-policy-keys-and-release-surface-coverage.md
 
+### Delivery targets
+
+- surface:remaining-command-surfaces-coverage module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Three of the first fixtures asserted against what the command answered rather
   than what it does: `history-check` needs a history directory, `docs-sync
