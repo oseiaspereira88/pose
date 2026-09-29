@@ -8,7 +8,7 @@ depends_on: pose-machinery-backs-up-only-local-edits
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:manual-merge-backs-up-only-local-edits
 ---
 
 # Spec: The manual merge backs up only what the instance edited
