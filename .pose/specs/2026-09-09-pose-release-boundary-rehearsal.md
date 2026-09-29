@@ -215,9 +215,9 @@ pass against the current code.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestSelfUpdateDownloadsReplacesAndHandsOff serves release metadata and a tar.gz from an httptest server, runs a pose binary built at an older version against it, and asserts the fixture's own output carries `update --no-self`, that the binary on disk equals the downloaded one, and that no `.old` backup survives>
+- R1 [satisfied] <TestSelfUpdateDownloadsReplacesAndHandsOff serves release metadata and a tar.gz from an httptest server, runs a pose binary built at an older version against it, and asserts the fixture's own output carries `update --no-self`, that the binary on disk equals the downloaded one, and that no `.old` backup survives> surface:release-boundary-rehearsal evidence:integration
 - R2 [satisfied] <releaseAPIBase and releaseDownloadBase are package variables set by the test's `go build -ldflags -X`; nothing reads them from the environment>
-- R3 [satisfied] <TestPreviousReleaseReadsThisEnginesReviewPolicy resolves the highest tag below this version, extracts it with `git archive`, builds `./cmd/pose` from it, and runs it against an instance installed in-process by this engine>
+- R3 [satisfied] <TestPreviousReleaseReadsThisEnginesReviewPolicy resolves the highest tag below this version, extracts it with `git archive`, builds `./cmd/pose` from it, and runs it against an instance installed in-process by this engine> surface:release-boundary-rehearsal evidence:integration
 - R4 [satisfied] <the same test first writes a policy whose `enabled` is a string and requires the previous release to reject it through the same command; a probe that never reaches the loader fails this control, as `check --strict` does>
 - R5 [satisfied] <skipUnlessCI calls t.Fatalf when CI is set, verified in both directions locally; ci.yml's test job and security.yml's validation-findings job check out with fetch-depth: 0, which is what makes the tag present there>
 - R6 [satisfied] <TestJobsRunningTheGoSuiteCheckOutFullHistory scans every workflow for jobs whose steps run `go test ./...` or `pose validate` and requires fetch-depth: 0 on their checkout; it named validation-findings before the fix and passes after>
