@@ -75,6 +75,9 @@ default — in a file that fix did not cover.
 - modified: pose-mcp/internal/cli/stack_seed.go
 - modified: pose-mcp/internal/cli/check.go
 - modified: .pose/specs/2026-09-09-pose-changelog-and-dor-policy-types.md
+- created: pose-mcp/internal/pose/live_policy_reads_test.go
+
+Backfilled on 2026-09-29: `6f58750` (Two more follow-ups: the changelog date and the one live read (#85)) carries this spec's trailer and also changed the 1 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - Emptying the date in the scaffold copy alone would have been undone by the
