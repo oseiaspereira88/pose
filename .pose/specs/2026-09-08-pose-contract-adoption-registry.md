@@ -105,6 +105,13 @@ closeouts in this repository, and would have happened again in the adopting one.
 
 Backfilled on 2026-09-29: `a532420` (One registry for when an instance received a contract (#61)) carries this spec's trailer and also changed the 1 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:contract-adoption-registry module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:contract-adoption-registry module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Two places can now record the same contract's date. The map wins, and a
   legacy field is read when the map is silent, so the resolution is total and
