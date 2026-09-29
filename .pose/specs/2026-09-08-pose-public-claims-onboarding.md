@@ -210,11 +210,11 @@ against the previous behaviour.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <publicclaims.go — the os.ErrNotExist branch states that the instance declares none, that it is opt-in, why surfaces are declared, and the copy line; TestPublicClaimsExplainsAnAbsentContract asserts each>
+- R1 [satisfied] <publicclaims.go — the os.ErrNotExist branch states that the instance declares none, that it is opt-in, why surfaces are declared, and the copy line; TestPublicClaimsExplainsAnAbsentContract asserts each> surface:public-claims-onboarding evidence:integration
 - R2 [satisfied] <the branch returns 2, and the pre-existing failure test passes unchanged>
 - R3 [satisfied] <.pose/templates/public-claims.json is under a machinery root and mirrored into the embedded scaffold by go generate; the message names it by path and the test asserts the path appears>
 
-- R4 [satisfied] <the instruction carries mkdir -p; TestPublicClaimsStartCommandWorksOnAFreshInstance parses the printed command out of the output, executes it in a root that has only the template, and asserts the contract lands and the gate stops reporting it absent>
+- R4 [satisfied] <the instruction carries mkdir -p; TestPublicClaimsStartCommandWorksOnAFreshInstance parses the printed command out of the output, executes it in a root that has only the template, and asserts the contract lands and the gate stops reporting it absent> surface:public-claims-onboarding evidence:integration
 
 ### Known gaps
 - Every other test in the public-claims suite calls `writeClaimsFixture`, which
