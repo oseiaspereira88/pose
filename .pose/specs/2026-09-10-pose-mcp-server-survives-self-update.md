@@ -1,7 +1,7 @@
 ---
 slug: pose-mcp-server-survives-self-update
-status: in-progress
-completed_at:
+status: done
+completed_at: 2026-09-29
 created_at: 2026-09-10
 supersedes:
 depends_on: pose-self-update-handoff-path
