@@ -102,7 +102,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	if projectID != "" && posemodel.ValidateSlug(projectID) != nil {
-		fmt.Fprintf(stderr, text("pose install: --project-id %q is not a valid project id; use lowercase letters, digits, '.', '_' or '-' (for example %q)\n", "pose install: --project-id %q não é um id de projeto válido; use letras minúsculas, dígitos, '.', '_' ou '-' (por exemplo %q)\n"), projectID, posemodel.ProjectIDFor(strings.TrimPrefix(projectID, "proj.")))
+		render(stdout, stderr).Failure(fmt.Sprintf(text("pose install: --project-id %q is not a valid project id; use lowercase letters, digits, '.', '_' or '-' (for example %q)", "pose install: --project-id %q não é um id de projeto válido; use letras minúsculas, dígitos, '.', '_' ou '-' (por exemplo %q)"), projectID, posemodel.ProjectIDFor(strings.TrimPrefix(projectID, "proj."))))
 		return 2
 	}
 	if projectName == "" || projectID == "" {
