@@ -79,6 +79,13 @@ default — in a file that fix did not cover.
 
 Backfilled on 2026-09-29: `6f58750` (Two more follow-ups: the changelog date and the one live read (#85)) carries this spec's trailer and also changed the 1 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:changelog-adoption-is-the-instances module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:changelog-adoption-is-the-instances module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Emptying the date in the scaffold copy alone would have been undone by the
   next `go generate`: the file is synced byte-for-byte, which is the defect.
