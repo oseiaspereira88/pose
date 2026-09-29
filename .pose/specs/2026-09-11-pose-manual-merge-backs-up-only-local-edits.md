@@ -181,11 +181,11 @@ no record, and read what the merge backs up and reports.
 
 ### Requirement trace
 - R1 [satisfied] <recordDeliveredManual stores a digest per section and the preamble; the no-record test requires a record after the refresh>
-- R2 [satisfied] <TestRefreshManagedDocsReplacesAnOlderReleaseSectionWithoutABackup requires no backup, no report, and the older text replaced>
-- R3 [satisfied] <TestRefreshManagedDocsWarnsAndBacksUpDroppedContent still requires "backed up customized" and the note in the backup>
-- R4 [satisfied] <TestRefreshManagedDocsWithoutARecordSaysWhyItBacksUp requires the backup, "no record of what POSE delivered", no "customized", and a record>
-- R5 [satisfied] <TestUpgradeApplyIsIdempotentAndPreservesInstanceContent requires only schema-version to change on a no-op update>
-- R6 [satisfied] <TestAnInventedSectionIsNeverRecordedAsDelivered requires neither an invented nor an instance-owned heading in the record, and fails against the first version; TestAReleaseClaimingAnInventedHeadingStillBacksItUp requires the replaced invented section to count as lost>
+- R2 [satisfied] <TestRefreshManagedDocsReplacesAnOlderReleaseSectionWithoutABackup requires no backup, no report, and the older text replaced> surface:manual-merge-backs-up-only-local-edits evidence:integration
+- R3 [satisfied] <TestRefreshManagedDocsWarnsAndBacksUpDroppedContent still requires "backed up customized" and the note in the backup> surface:manual-merge-backs-up-only-local-edits evidence:integration
+- R4 [satisfied] <TestRefreshManagedDocsWithoutARecordSaysWhyItBacksUp requires the backup, "no record of what POSE delivered", no "customized", and a record> surface:manual-merge-backs-up-only-local-edits evidence:integration
+- R5 [satisfied] <TestUpgradeApplyIsIdempotentAndPreservesInstanceContent requires only schema-version to change on a no-op update> surface:manual-merge-backs-up-only-local-edits evidence:integration
+- R6 [satisfied] <TestAnInventedSectionIsNeverRecordedAsDelivered requires neither an invented nor an instance-owned heading in the record, and fails against the first version; TestAReleaseClaimingAnInventedHeadingStillBacksItUp requires the replaced invented section to count as lost> surface:manual-merge-backs-up-only-local-edits evidence:integration
 
 ### Known gaps
 - An instance's first update after adopting this has no manual record, so a
