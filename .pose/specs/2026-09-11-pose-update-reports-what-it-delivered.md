@@ -171,7 +171,7 @@ non-zero exit and an honest message.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestUpdateForceWithACorruptFragmentReportsWhatWasDelivered removes a workflow, corrupts a fragment, runs update --force, and requires the workflow back>
+- R1 [satisfied] <TestUpdateForceWithACorruptFragmentReportsWhatWasDelivered removes a workflow, corrupts a fragment, runs update --force, and requires the workflow back> surface:update-reports-what-it-delivered evidence:integration
 - R2 [satisfied] <the same test requires "already failed the same gate before this run" and "does not roll back" in stderr, and a non-zero exit>
 - R3 [satisfied] <install returns 1 with a delivery-happened message when the gate passes after an index failure; not exercised by a test — no fixture makes the index fail while the strict gate passes>
 - R4 [satisfied] <the same test requires stderr not to say "scaffold refresh failed">
