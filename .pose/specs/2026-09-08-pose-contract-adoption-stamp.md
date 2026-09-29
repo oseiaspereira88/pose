@@ -240,7 +240,7 @@ test of the function would pass even if nothing called it.
 - R2 [satisfied] <two subtests: an existing date is unchanged, and an explicitly empty value is not re-stamped>
 - R3 [satisfied] <a truncated policy is left byte-identical, asserted>
 - R4 [satisfied] <the log line names the key and the date, and was observed in the real run>
-- R5 [satisfied] <doctor's review.contract-adoption warns with recorded reviews and no date, reports ok once it is set, and stays ok on an instance with no history; the test drives it through a legacy `.pose/reviews/*.md` attempt and again through a sealed attestation, so neither storage shape is the only one that counts>
+- R5 [satisfied] <doctor's review.contract-adoption warns with recorded reviews and no date, reports ok once it is set, and stays ok on an instance with no history; the test drives it through a legacy `.pose/reviews/*.md` attempt and again through a sealed attestation, so neither storage shape is the only one that counts> surface:contract-adoption-stamp evidence:integration
 - R6 [satisfied] <performSelfUpdate reports whether it replaced the executable, and cmdUpdate hands off to it with --no-self, returning its exit code>
 - R7 [satisfied] <reviewPredatesAdoption compares against the end of the stamped day; four cases assert the day before, earlier and later the same day, and the next day, and three more assert an absent, unparseable or wrongly-formatted date exempts nothing>
 
