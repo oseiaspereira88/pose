@@ -515,6 +515,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "completed-review-retention-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "CompletedReviewRetention|FederatedRoadmapMilestoneBundleSealsOwnManifest",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delivery-graph-reuse-integration",
           "program": "go",
           "args": [

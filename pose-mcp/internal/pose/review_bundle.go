@@ -2404,6 +2404,20 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 				delta.ChangedFindings = uniqueSorted(delta.ChangedFindings)
 			}
 			verification.Delta = &delta
+			if done, doneErr := s.scopeLifecycleDone(scopeRef); doneErr == nil && done {
+				// Only routine drift is retained. A changed federated manifest —
+				// revoked trust, a moved or unauthorized source — bears on the
+				// review's authority, so it stales a closed scope as it always did.
+				if bundle, att := s.retainedCompletedReview(scopeRef, scope, policy); bundle != nil && sameFederatedManifest(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest) {
+					verification.Bundle, verification.Attestation = bundle, att
+					verification.Fresh, verification.Approved = true, true
+					verification.State = "closed"
+					verification.NextAction = "scope is closed with its retained approved bundle attestation"
+					verification.Blockers = []string{}
+					verification.Warnings = uniqueSorted(append(verification.Warnings, retainedCompletedReviewWarning))
+					return verification, nil
+				}
+			}
 			verification.State = "superseded"
 			verification.Blockers = append(verification.Blockers, "current semantic inputs are not represented by a sealed bundle")
 		}
@@ -3190,4 +3204,15 @@ func reviewIssuerHoldsGrant(grants []string, issuer, publicKey string) bool {
 		}
 	}
 	return false
+}
+
+// sameFederatedManifest reports whether two sealed federated manifests record
+// the same trust, sources and acceptance, including both being absent.
+func sameFederatedManifest(a, b *FederatedRoadmapManifest) bool {
+	if a == nil || b == nil {
+		return a == nil && b == nil
+	}
+	left, errA := json.Marshal(a)
+	right, errB := json.Marshal(b)
+	return errA == nil && errB == nil && bytes.Equal(left, right)
 }

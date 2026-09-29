@@ -966,35 +966,18 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 			return eval, nil
 		}
 		if done {
-			// Check if this done scope has an earlier approved bundle attestation
-			bundles, listErr := s.ListReviewBundles(ref)
-			if listErr == nil && len(bundles) > 0 {
-				for i := len(bundles) - 1; i >= 0; i-- {
-					attestations, attErr := s.ListReviewAttestations(bundles[i].BundleID)
-					if attErr == nil && len(attestations) > 0 {
-						att := attestations[len(attestations)-1]
-						// A completed scope keeps an approval recorded before this
-						// engine began requiring a passed criterion to cite sealed
-						// evidence of a demanded class. The approval was not made
-						// less considered by a rule that did not exist when it was
-						// given; what it needs is a superseding attestation, which
-						// an operator can record when the work is next touched.
-						waiveEvidence := s.bundleContractExempt(scope, policy, bundles[i], "evidence-vocabulary", att.AttestedAt)
-						if len(s.validateBundleAttestationWith(bundles[i], att, waiveEvidence)) == 0 {
-							eval.Fresh = true
-							eval.Approved = true
-							eval.BundleState = "closed"
-							eval.ScopeDigest = bundles[i].BundleDigest
-							eval.BundleID = bundles[i].BundleID
-							eval.BundleDigest = bundles[i].BundleDigest
-							eval.PlanDigest = bundles[i].Payload.Plan.PlanDigest
-							eval.AttestationID = att.AttestationID
-							eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
-							eval.Warnings = append(eval.Warnings, "completed scope retains its approved sealed review bundle attestation")
-							return eval, nil
-						}
-					}
-				}
+			if bundle, att := s.retainedCompletedReview(scope, ref, policy); bundle != nil {
+				eval.Fresh = true
+				eval.Approved = true
+				eval.BundleState = "closed"
+				eval.ScopeDigest = bundle.BundleDigest
+				eval.BundleID = bundle.BundleID
+				eval.BundleDigest = bundle.BundleDigest
+				eval.PlanDigest = bundle.Payload.Plan.PlanDigest
+				eval.AttestationID = att.AttestationID
+				eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
+				eval.Warnings = append(eval.Warnings, retainedCompletedReviewWarning)
+				return eval, nil
 			}
 			if !s.reviewBundlesLegacyAttemptExempt(scope, policy) && verifyErr != nil {
 				return eval, verifyErr
@@ -1680,6 +1663,51 @@ func (s Store) reviewBundlesLegacyAttemptExempt(scope ScopeRef, policy ReviewPol
 		return false
 	}
 	return created.Before(adopted)
+}
+
+const retainedCompletedReviewWarning = "completed scope retains its approved sealed review bundle attestation"
+
+// retainedCompletedReview returns the most recently attested sealed bundle of a
+// completed scope when its latest attestation still stands for it, or nil.
+//
+// A closed scope keeps the approval it was closed with. Its bundle stops
+// matching a freshly prepared one for reasons that say nothing about the
+// reviewed work: the closeout commit extends the scope's change set, so the
+// next validation run seals evidence under a new provenance digest, and every
+// check added to the validation matrix adds evidence the old bundle never saw.
+// Both happen after every ordinary closeout. `review-check` has always applied
+// this rule; `review verify` and federated acceptance, which read the scope
+// through VerifyReviewBundle, did not, so a consumer saw every upstream scope
+// as unreviewed after the next routine validation (spec
+// review-verify-retains-completed-scopes).
+//
+// It also keeps an approval recorded before this engine began requiring a
+// passed criterion to cite sealed evidence of a demanded class. The approval
+// was not made less considered by a rule that did not exist when it was given;
+// what it needs is a superseding attestation, which an operator can record
+// when the work is next touched.
+func (s Store) retainedCompletedReview(scope ScopeRef, ref string, policy ReviewPolicy) (*ReviewBundle, *ReviewAttestation) {
+	bundles, err := s.ListReviewBundles(ref)
+	if err != nil {
+		return nil, nil
+	}
+	for i := len(bundles) - 1; i >= 0; i-- {
+		attestations, attErr := s.ListReviewAttestations(bundles[i].BundleID)
+		if attErr != nil || len(attestations) == 0 {
+			continue
+		}
+		// The newest attested bundle decides. A later review that rejected the
+		// work or requested changes is not overridden by an older approval; only
+		// a bundle nobody has attested yet is passed over.
+		att := attestations[len(attestations)-1]
+		waiveEvidence := s.bundleContractExempt(scope, policy, bundles[i], "evidence-vocabulary", att.AttestedAt)
+		if len(s.validateBundleAttestationWith(bundles[i], att, waiveEvidence)) != 0 {
+			return nil, nil
+		}
+		bundle := bundles[i]
+		return &bundle, &att
+	}
+	return nil, nil
 }
 
 func (s Store) scopeLifecycleDone(scope ScopeRef) (bool, error) {
