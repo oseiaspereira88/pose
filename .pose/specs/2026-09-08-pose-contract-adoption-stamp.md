@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-attestation-evidence-must-be-in-the-bundle
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:contract-adoption-stamp, capability:contract-adoption-stamp
 ---
 
 # Spec: An instance records when it received a governance contract
