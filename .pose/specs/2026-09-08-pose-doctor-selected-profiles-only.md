@@ -157,7 +157,7 @@ cover the original one.
 
 ### Requirement trace
 - R1 [satisfied] <doctor.go reads GetReviewPolicy and iterates the ids in profiles and overlay_profiles, stripping the @version suffix>
-- R2 [satisfied] <TestDoctorIgnoresAProfileThePolicyDoesNotSelect writes an offending unselected profile and asserts an ok finding that does not name it>
+- R2 [satisfied] <TestDoctorIgnoresAProfileThePolicyDoesNotSelect writes an offending unselected profile and asserts an ok finding that does not name it> surface:doctor-selected-profiles-only evidence:integration
 - R3 [satisfied] <the block is guarded on GetReviewPolicy returning no error, so an unreadable policy yields no finding rather than a directory scan>
 
 ### Known gaps
