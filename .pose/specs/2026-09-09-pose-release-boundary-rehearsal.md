@@ -94,6 +94,12 @@ by-hand check precisely because the by-hand check was wrong.
 - modified: .pose/specs/2026-09-08-pose-self-update-handoff-path.md
 - modified: .pose/specs/2026-09-08-pose-adoption-stamp-stays-readable.md
 
+### Delivery targets
+
+- surface:release-boundary-rehearsal module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Building the previous release from source costs a `go build` per run, and
   fails if that tag no longer builds under the current toolchain. That failure
