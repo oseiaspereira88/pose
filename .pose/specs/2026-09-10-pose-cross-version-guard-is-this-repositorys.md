@@ -1,8 +1,8 @@
 ---
 slug: pose-cross-version-guard-is-this-repositorys
-status: in-progress
+status: done
 created_at: 2026-09-10
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-release-boundary-rehearsal
 priority: 0
