@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:5658669a88b55de84acc0b7a0db4b7c35f60eff2167d176fbd58dfb737a907d4",
-  "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+  "input_digest": "sha256:3b1018deb1379a7dbe1316da3347b3fc496c4c681d0afccf25af579126006489",
+  "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -20357,6 +20357,14 @@
       }
     },
     {
+      "id": "change-set:cs-aeaf9966991e",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:79e6e8ae0fe2614790b5d846a86399b426dee27bc6d285363e4a0a2a602056ad",
+        "selector": "trailers:project-id-from-any-directory-name"
+      }
+    },
+    {
       "id": "change-set:cs-aecbfc2f5bf1",
       "type": "change-set",
       "attributes": {
@@ -20554,14 +20562,6 @@
       "attributes": {
         "diff_digest": "sha256:9fc37c954f445c37ae4616347dddeb37274cadc83a2998f31aa46feddc5bec9f",
         "selector": "trailers:pose-seal-names-carried-forward-evidence"
-      }
-    },
-    {
-      "id": "change-set:cs-be9947636a9a",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:559546689e9cf9120538d04388bc99e0f0146600c8ccc1cad486534cb05c9069",
-        "selector": "trailers:project-id-from-any-directory-name"
       }
     },
     {
@@ -26990,6 +26990,11 @@
     },
     {
       "from": "artifact:.pose/indexes/delivery-integrity.json",
+      "to": "delivery:surface:project-id-derivation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/delivery-integrity.json",
       "to": "delivery:surface:remediation-lineage-lint",
       "type": "implemented-by"
     },
@@ -27201,6 +27206,11 @@
     {
       "from": "artifact:.pose/indexes/spec-graph.json",
       "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/spec-graph.json",
+      "to": "delivery:surface:project-id-derivation",
       "type": "implemented-by"
     },
     {
@@ -27851,6 +27861,11 @@
     {
       "from": "artifact:.pose/results/delivery-validation.json",
       "to": "delivery:surface:pose-usage-cli",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/results/delivery-validation.json",
+      "to": "delivery:surface:project-id-derivation",
       "type": "implemented-by"
     },
     {
@@ -64984,6 +64999,81 @@
       "type": "changes"
     },
     {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:.pose/changelogs/unreleased/project-id-from-any-directory-name.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:.pose/indexes/roadmaps.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:.pose/results/delivery-validation.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:.pose/specs/2026-09-29-project-id-from-any-directory-name.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:pose-mcp/internal/bootstrap/bootstrap.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:pose-mcp/internal/cli/doctor.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:pose-mcp/internal/cli/index.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:pose-mcp/internal/cli/install.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:pose-mcp/internal/cli/managed_docs.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:pose-mcp/internal/cli/project_id_directory_name_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-aeaf9966991e",
+      "to": "artifact:pose-mcp/internal/pose/artifact_ref.go",
+      "type": "changes"
+    },
+    {
       "from": "change-set:cs-aecbfc2f5bf1",
       "to": "artifact:.agents/skills/pose-feature/SKILL.md",
       "type": "changes"
@@ -68011,56 +68101,6 @@
     {
       "from": "change-set:cs-be0677ceeb6a",
       "to": "artifact:pose-mcp/internal/pose/review_closeout.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-be9947636a9a",
-      "to": "artifact:.pose/changelogs/unreleased/project-id-from-any-directory-name.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-be9947636a9a",
-      "to": "artifact:.pose/indexes/validation-matrix.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-be9947636a9a",
-      "to": "artifact:.pose/specs/2026-09-29-project-id-from-any-directory-name.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-be9947636a9a",
-      "to": "artifact:pose-mcp/internal/bootstrap/bootstrap.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-be9947636a9a",
-      "to": "artifact:pose-mcp/internal/cli/doctor.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-be9947636a9a",
-      "to": "artifact:pose-mcp/internal/cli/index.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-be9947636a9a",
-      "to": "artifact:pose-mcp/internal/cli/install.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-be9947636a9a",
-      "to": "artifact:pose-mcp/internal/cli/managed_docs.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-be9947636a9a",
-      "to": "artifact:pose-mcp/internal/cli/project_id_directory_name_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-be9947636a9a",
-      "to": "artifact:pose-mcp/internal/pose/artifact_ref.go",
       "type": "changes"
     },
     {
@@ -140425,7 +140465,7 @@
     },
     {
       "from": "spec:project-id-from-any-directory-name",
-      "to": "change-set:cs-be9947636a9a",
+      "to": "change-set:cs-aeaf9966991e",
       "type": "observed-by"
     },
     {
@@ -176517,6 +176557,85 @@
       "diff_digest": "sha256:abf2e87ef81a263e831195a0c42ffbb174281a5539e46d1bf6716231c8774f95"
     },
     {
+      "id": "cs-aeaf9966991e",
+      "spec": "project-id-from-any-directory-name",
+      "selector": "trailers:project-id-from-any-directory-name",
+      "base": "d53aee15fda3fc44efd5bca9ecbcdf12f5b4d401^",
+      "head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "resolved_base": "eca1e259b8196c05c9dc8422d6e0259fa1b605a4",
+      "resolved_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "commits": [
+        "d53aee15fda3fc44efd5bca9ecbcdf12f5b4d401",
+        "0a8a3199f51af4373ea49166fa0c9295e2135894",
+        "94d0d52fbc5160d152f0609ce6e494f3dccf1ccf",
+        "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
+        "28b76f29910db9a52aa4f63d9d6ea30058593f4f"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/project-id-from-any-directory-name.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-29-project-id-from-any-directory-name.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/project_id_directory_name_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/bootstrap/bootstrap.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/index.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/install.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/managed_docs.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/artifact_ref.go"
+        }
+      ],
+      "diff_digest": "sha256:79e6e8ae0fe2614790b5d846a86399b426dee27bc6d285363e4a0a2a602056ad"
+    },
+    {
       "id": "cs-aecbfc2f5bf1",
       "spec": "pose-review-bundle-convergence",
       "selector": "range:1d29b3a..dbd41e3",
@@ -179343,64 +179462,6 @@
         }
       ],
       "diff_digest": "sha256:9fc37c954f445c37ae4616347dddeb37274cadc83a2998f31aa46feddc5bec9f"
-    },
-    {
-      "id": "cs-be9947636a9a",
-      "spec": "project-id-from-any-directory-name",
-      "selector": "trailers:project-id-from-any-directory-name",
-      "base": "d53aee15fda3fc44efd5bca9ecbcdf12f5b4d401^",
-      "head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "resolved_base": "eca1e259b8196c05c9dc8422d6e0259fa1b605a4",
-      "resolved_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "commits": [
-        "d53aee15fda3fc44efd5bca9ecbcdf12f5b4d401",
-        "0a8a3199f51af4373ea49166fa0c9295e2135894",
-        "94d0d52fbc5160d152f0609ce6e494f3dccf1ccf",
-        "55a3502e5bf5b515f7325d3bdded46d3c9938e47"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/project-id-from-any-directory-name.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-09-29-project-id-from-any-directory-name.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/project_id_directory_name_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/bootstrap/bootstrap.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/doctor.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/index.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/install.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/managed_docs.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/artifact_ref.go"
-        }
-      ],
-      "diff_digest": "sha256:559546689e9cf9120538d04388bc99e0f0146600c8ccc1cad486534cb05c9069"
     },
     {
       "id": "cs-c0d61a22f95f",
@@ -195318,15 +195379,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-50d3ad10f1cf",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "project-id-from-any-directory-name",
-      "path": ".pose/indexes/spec-graph.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-50e02549c6b6",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -197588,15 +197640,6 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
-      "id": "dif-b2e74d9f0b63",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "project-id-from-any-directory-name",
-      "path": ".pose/results/delivery-validation.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-b33c7916857f",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -197647,15 +197690,6 @@
       "path": "pose-mcp/internal/mcpserver/trace_tool_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-b5bd0494f13b",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "project-id-from-any-directory-name",
-      "path": ".pose/indexes/delivery-integrity.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-b5cb58e67a37",
@@ -201127,9 +201161,9 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -201343,7 +201377,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -201354,9 +201388,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -201570,7 +201604,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -201581,9 +201615,9 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -201797,7 +201831,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -201808,9 +201842,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -202024,7 +202058,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -202035,9 +202069,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -202251,7 +202285,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -202262,9 +202296,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -202478,7 +202512,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -202489,9 +202523,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -202705,7 +202739,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -202716,9 +202750,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -202932,7 +202966,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -202943,9 +202977,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -203159,7 +203193,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -203170,9 +203204,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -203386,7 +203420,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -203397,9 +203431,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -203613,7 +203647,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -203624,9 +203658,9 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -203840,7 +203874,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -203851,9 +203885,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -204067,7 +204101,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -204078,9 +204112,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -204294,7 +204328,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -204305,9 +204339,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -204521,7 +204555,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -204532,9 +204566,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -204748,7 +204782,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -204759,9 +204793,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -204975,7 +205009,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -204986,9 +205020,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -205202,7 +205236,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -205213,9 +205247,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -205429,7 +205463,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -205440,9 +205474,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -205656,7 +205690,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -205667,9 +205701,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -205883,7 +205917,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -205894,9 +205928,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -206110,7 +206144,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -206121,9 +206155,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -206337,7 +206371,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -206348,9 +206382,9 @@
       "evidence_class": "e2e",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -206564,7 +206598,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -206575,9 +206609,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -206791,7 +206825,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -206802,9 +206836,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -207018,7 +207052,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -207029,9 +207063,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -207245,7 +207279,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -207256,9 +207290,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -207472,7 +207506,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -207483,9 +207517,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -207699,7 +207733,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -207710,9 +207744,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -207926,7 +207960,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -207937,9 +207971,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -208153,7 +208187,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -208164,9 +208198,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -208380,7 +208414,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -208391,9 +208425,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -208607,7 +208641,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -208618,9 +208652,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -208834,7 +208868,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -208845,9 +208879,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -209061,7 +209095,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -209072,9 +209106,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -209288,7 +209322,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -209299,9 +209333,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -209515,7 +209549,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     },
@@ -209526,9 +209560,9 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "55a3502e5bf5b515f7325d3bdded46d3c9938e47",
-      "generated_at": "2026-09-29T02:20:19Z",
-      "provenance_digest": "sha256:19755e8557c17da016a21201e2a601612710bdd19dd5634a64bb4a3ae2f95dc8",
+      "git_head": "28b76f29910db9a52aa4f63d9d6ea30058593f4f",
+      "generated_at": "2026-09-29T02:24:32Z",
+      "provenance_digest": "sha256:5bf7a650e4a0b3a1b07d51b4f08bfc4d28eff4746c343e5c6ab8cd413d37c813",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -209742,7 +209776,7 @@
         "pose-verifier-assets-variable-fix": "sha256:4359fd31442ff01c0a0d399948c15cca39fa505f1aaeff6f473feb50a9e5e1b2",
         "pose-verifier-extension-install-cwd": "sha256:efe61e316d62fc409ae0bccfe78b9b8912abcb66f5cc49f4a72b12c62c6ec184",
         "pose-workflow-event-ref-contract": "sha256:b60a4998f986ba50174874c460c4103f670230fdf1fdf15e55f13ed219e6aa93",
-        "project-id-from-any-directory-name": "sha256:081d96e5efe943f3204691f5e4cfc51cc39e62b1b6c6570daf8a1f90b2d5cce9",
+        "project-id-from-any-directory-name": "sha256:cb6cd1e80b009d026ddd4a79f95cb91fc79873990c75be0316583a19f5573a9b",
         "review-policy-adoption-is-the-instances": "sha256:8a505421f17b92406d5922d2cce178d127ed2e0bc3fcc3886d9dae5c0a87f043"
       }
     }
@@ -217271,7 +217305,10 @@
       "artifact:.pose/changelogs/unreleased/project-id-from-any-directory-name.md",
       "artifact:.pose/specs/2026-09-29-project-id-from-any-directory-name.md",
       "artifact:pose-mcp/internal/cli/project_id_directory_name_test.go",
+      "artifact:.pose/indexes/delivery-integrity.json",
+      "artifact:.pose/indexes/spec-graph.json",
       "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/results/delivery-validation.json",
       "artifact:pose-mcp/internal/bootstrap/bootstrap.go",
       "artifact:pose-mcp/internal/cli/doctor.go",
       "artifact:pose-mcp/internal/cli/index.go",

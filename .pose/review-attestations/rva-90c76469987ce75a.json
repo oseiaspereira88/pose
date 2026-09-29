@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-90c76469987ce75a",
+  "bundle_id": "rvb-81b7d02883a70ebb",
+  "bundle_digest": "sha256:81b7d02883a70ebb86f4d5206d46052ae368df25f5d9c55b8b73c2c2a536b12b",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/project-id-derivation-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/project-id-derivation-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/project-id-derivation-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/project-id-derivation-integration",
+      "rationale": "A derived id that was already a slug is unchanged: my-app still derives proj.my-app, and a valid declared id survives a reinstall (TestReinstallKeepsAValidDeclaredProjectID). The only ids that change are ones every 6.0.0 resolver refused, so no stored reference or bundle can name them. Declared invalid ids are refused, not rewritten, except by the two explicit machinery writes of .mcp.json; the grammar is untouched, so older engines read everything this one writes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/project-id-derivation-integration",
+      "rationale": "quickstart.md and mcp.md say the id is derived from the directory name, which stays true, so neither needed an edit. The changelog fragment states the user-visible change and the repair path. Each derivation site and the .mcp.json repair carry a comment naming why a stamped id may be invalid, and the spec records the review finding that added R5 rather than folding it silently into the first commit."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/project-id-derivation-integration",
+      "rationale": "The failure an operator met, a bare invalid-project-configuration, now names the variable, the refused value and the id to declare. An instance already carrying proj.MyApp is repaired either by pose doctor --fix --yes, reported as a fixable mcp.config warning, or by the next reinstall; both are asserted end to end including a successful pose index afterwards."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/project-id-derivation-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-1fb91f6e6127c79b",
+      "rationale": "One helper replaces five ad-hoc derivations; the other edits are the error text, the doctor check and the repair branch they need. The id grammar, xref parsing and roots resolution were deliberately not changed. The print-guard failure found during validation was fixed by routing the new refusal through cliout, not by raising the baseline."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/project-id-derivation-integration",
+      "rationale": "ProjectIDFor emits only [a-z0-9._-], collapses .. and strips leading punctuation, so a derived id cannot carry a path separator or traversal into HARNE8_PROJECTS_DIR/\u003cid\u003e lookups. The doctor reads .mcp.json through json.Unmarshal and prints the id with %q through the redacting finding path. No trust boundary or authorization decision moved."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/project-id-derivation-integration"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/project-id-derivation-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T02:25:50Z",
+  "path": ".pose/review-attestations/rva-90c76469987ce75a.json"
+}

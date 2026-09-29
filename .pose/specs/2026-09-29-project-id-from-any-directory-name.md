@@ -1,8 +1,8 @@
 ---
 slug: project-id-from-any-directory-name
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on:
 priority: 0
@@ -159,19 +159,38 @@ it through `pose update --force`; only `doctor --fix` repaired it. Both are clos
 with tests; with the recovery check removed, the reinstall test fails with
 `reinstall kept "proj.MyApp"`.
 
+### Closeout
+
+2026-09-29 UTC, measured in a clone holding only this branch, because `origin/main`
+reaches the squash of PR #119, which carries this spec's trailer beside three
+others and inflates its change set. Full matrix 38/38 into the results path; bundle
+`rvb-81b7d02883a70ebb`, 35 evidence items; attestation `rva-90c76469987ce75a`,
+`agent:claude-opus-5-5`, approved with five explicit judgments; `review-check`
+fresh and approved.
+
 ### Requirement trace
 
-- R1 [pending] test:TestInstallAndIndexAcceptAnyDirectoryName
-- R2 [pending] test:TestInstallAndIndexAcceptAnyDirectoryName
-- R3 [pending] test:TestIndexNamesWhyADeclaredProjectIDIsRefused
-- R4 [pending] test:TestDoctorRepairsAnInvalidStampedProjectID
-- R5 [pending] test:TestInstallRefusesAnInvalidExplicitProjectID test:TestReinstallReplacesAnIDThatNeverResolved test:TestReinstallKeepsAValidDeclaredProjectID
+- R1 [satisfied] surface:project-id-derivation evidence:integration check:project-id-derivation-integration test:TestInstallAndIndexAcceptAnyDirectoryName — MyApp,
+  Acme Portal and tmp.9Sz2E9 derive folded ids; my-app keeps proj.my-app
+- R2 [satisfied] surface:project-id-derivation evidence:integration check:project-id-derivation-integration test:TestInstallAndIndexAcceptAnyDirectoryName — install
+  seeds .mcp.json with the folded id and pose index exits 0 for every name
+- R3 [satisfied] surface:project-id-derivation evidence:integration check:project-id-derivation-integration test:TestIndexNamesWhyADeclaredProjectIDIsRefused — a declared
+  proj.MyApp is refused, naming POSE_DEFAULT_PROJECT_ID, the value and proj.myapp
+- R4 [satisfied] surface:project-id-derivation evidence:integration check:project-id-derivation-integration test:TestDoctorRepairsAnInvalidStampedProjectID — doctor
+  reports a fixable mcp.config warning, the repair declares proj.myapp, then ok
+- R5 [satisfied] surface:project-id-derivation evidence:integration check:project-id-derivation-integration test:TestInstallRefusesAnInvalidExplicitProjectID
+  test:TestReinstallReplacesAnIDThatNeverResolved
+  test:TestReinstallKeepsAValidDeclaredProjectID — an invalid --project-id exits 2
+  before writing; a reinstall replaces a stale invalid id and keeps a valid one
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+A repository installs and indexes whatever its directory is called. Derived ids are
+folded into slugs by one helper; declared ids are never rewritten at read time, and
+the one that earlier engines stamped as `proj.MyApp` is repaired by `doctor --fix` or
+the next reinstall.
 
 ### Residual risks
 
