@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-remaining-command-surfaces-coverage
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:roadmap-check-reaches-its-gate
 ---
 
 # Spec: roadmap-check evaluates the criteria it was asked about
