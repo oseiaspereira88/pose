@@ -132,19 +132,36 @@ fresh install gate and a bit-identical rebuild. `pose release record` imported
 tagged, published and verified; `pose release status --version v6.0.1` reports
 `verified` with 0 pending fragments.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 41/41 into the results path; bundle
+`rvb-9a81e5d21e337110`, 38 evidence items; attestation `rva-251af5a85ba82ada`,
+`agent:claude-opus-5-5`, approved with five explicit judgments. A first
+attestation cited unit evidence for `backend-contracts`, which requires
+integration, was refused by `review-check`, and was replaced before closing.
+
 ### Requirement trace
 
-- R1 [pending] check:public-claims
-- R2 [pending] report:compatibility-report.md
-- R3 [pending] release check
-- R4 [pending] release status
-- R5 [pending] release run
+- R1 [satisfied] governance:pose-v6-0-1-release-readiness evidence:unit check:public-claims — CLI, MCP manifest,
+  compatibility.json, both READMEs and the CI docs pin state 6.0.1; public-claims
+  reports 0 errors
+- R2 [satisfied] governance:pose-v6-0-1-release-readiness report:compatibility-report.md — compat.sh authenticated 6.0.0
+  by checksums.txt digest 5674b2dc…99f2e and upgraded from all six supported
+  releases
+- R3 [satisfied] governance:pose-v6-0-1-release-readiness report:.pose/releases/v6.0.1/manifest.json — plan, prepare and
+  `release check --strict` passed; manifest and notes frozen at 3847ad2
+- R4 [satisfied] governance:pose-v6-0-1-release-readiness report:.pose/releases/v6.0.1/verified-evidence.json — tagged,
+  published and verified recorded; `pose release status` reports verified
+- R5 [satisfied] governance:pose-v6-0-1-release-readiness report:.pose/releases/v6.0.1/events.jsonl — release run
+  36516495961 ran ci before release; recorded in spec release-runs-the-ci-gates
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+POSE 6.0.1 is published and independently verified, carrying the install fix for
+non-slug directory names, the Portuguese README pins, the lifecycle date skew fix,
+the release workflow that waits for CI and the test isolation fix.
 
 ### Residual risks
 
