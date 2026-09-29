@@ -171,6 +171,16 @@ func (r *Renderer) Field(name, value string) {
 	fmt.Fprintf(r.out, "%s=%s\n", name, value)
 }
 
+// ContractLine writes a pinned line verbatim to Out, such as a gate's
+// historical verdict line that consumers match exactly. It is never styled,
+// and it is skipped while recording, where the document carries the decision.
+func (r *Renderer) ContractLine(line string) {
+	if r.record != nil {
+		return
+	}
+	fmt.Fprintln(r.out, line)
+}
+
 // Section titles a block of result output.
 func (r *Renderer) Section(title string) {
 	if r.outP.Quiet || r.record != nil {

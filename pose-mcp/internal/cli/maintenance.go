@@ -6,6 +6,7 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"net/http"
 	"os"
@@ -606,6 +607,11 @@ func cmdReportsHousekeeping(root string, args []string, stdout, stderr io.Writer
 func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int {
 	mode := "strict"
 	max := -1
+	const usage = "Usage: pose knowledge-check [--strict|--tolerant] [--max-overdue N] [--json] [--quiet] [--color auto|always|never]"
+	args, flags, flagErr := splitOutputFlags(args)
+	if flagErr != "" {
+		return usageError(stderr, usage)
+	}
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--strict":
@@ -623,7 +629,7 @@ func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int
 			}
 			max = n
 		default:
-			return usageError(stderr, "Usage: pose knowledge-check [--strict|--tolerant] [--max-overdue N]")
+			return usageError(stderr, usage)
 		}
 	}
 	if max < 0 {
@@ -639,6 +645,13 @@ func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int
 		fmt.Fprintln(stderr, err)
 		return 2
 	}
+	gate := newGateOutput("knowledge-check", flags, stdout, stderr)
+	defer gate.Close()
+	// Schema problems used to go to stderr as [ERROR] lines while dangling
+	// citations went to stdout; both are this gate's result.
+	schemaError := func(name, message string) {
+		gate.r.Finding(cliout.Finding{State: cliout.StateError, Code: "knowledge-schema", Path: name, Message: message})
+	}
 	errors, warnings, checked, overdue := 0, 0, 0, 0
 	now := time.Now().UTC()
 	for _, e := range entries {
@@ -648,7 +661,7 @@ func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int
 		checked++
 		fm, readErr := readFlatFrontmatter(filepath.Join(dir, e.Name()))
 		if readErr != nil {
-			fmt.Fprintf(stderr, "[ERROR] %s: %v\n", e.Name(), readErr)
+			schemaError(e.Name(), readErr.Error())
 			errors++
 			continue
 		}
@@ -656,28 +669,28 @@ func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int
 		for _, k := range required {
 			v := fm[k]
 			if v == "" || strings.HasPrefix(v, "<") {
-				fmt.Fprintf(stderr, "[ERROR] %s: missing or placeholder field: %s\n", e.Name(), k)
+				schemaError(e.Name(), "missing or placeholder field: "+k)
 				errors++
 			}
 		}
 		if !oneOf(fm["type"], "handoff", "note", "decision-log") {
 			errors++
-			fmt.Fprintf(stderr, "[ERROR] %s: invalid type\n", e.Name())
+			schemaError(e.Name(), "invalid type")
 		}
 		if !oneOf(fm["sensitivity"], "public-internal", "restricted") {
 			errors++
-			fmt.Fprintf(stderr, "[ERROR] %s: invalid sensitivity\n", e.Name())
+			schemaError(e.Name(), "invalid sensitivity")
 		}
 		created, ce := time.Parse("2006-01-02", fm["created_at"])
 		reviewed, re := time.Parse("2006-01-02", fm["last_reviewed_at"])
 		expires, ee := time.Parse("2006-01-02", fm["expires_at"])
 		if ce != nil || re != nil || ee != nil {
 			errors++
-			fmt.Fprintf(stderr, "[ERROR] %s: invalid ISO date\n", e.Name())
+			schemaError(e.Name(), "invalid ISO date")
 		} else {
 			if expires.Before(created) || expires.Sub(created) > 90*24*time.Hour {
 				errors++
-				fmt.Fprintf(stderr, "[ERROR] %s: invalid TTL\n", e.Name())
+				schemaError(e.Name(), "invalid TTL")
 			}
 			if completedBeforeCreated(created, reviewed, true) {
 				warnings++
@@ -689,19 +702,27 @@ func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int
 	}
 	// Consumption refs (spec pose-knowledge-consumption-traceability R1):
 	// knowledge:<slug> citations in specs must resolve to governed artifacts.
-	refFailures := validateKnowledgeRefs(root, stdout, stderr)
+	refFailures := validateKnowledgeRefsWith(root, gate.r)
 	errors += refFailures
-	fmt.Fprintf(stdout, "knowledge.schema.errors=%d\nknowledge.schema.warnings=%d\nknowledge.schema.checked=%d\nknowledge.overdue_count=%d\nknowledge.max_overdue=%d\nknowledge.ref_failures=%d\n", errors, warnings, checked, overdue, max, refFailures)
+	gate.Field("knowledge.schema.errors", strconv.Itoa(errors))
+	gate.Field("knowledge.schema.warnings", strconv.Itoa(warnings))
+	gate.Field("knowledge.schema.checked", strconv.Itoa(checked))
+	gate.Field("knowledge.overdue_count", strconv.Itoa(overdue))
+	gate.Field("knowledge.max_overdue", strconv.Itoa(max))
+	gate.Field("knowledge.ref_failures", strconv.Itoa(refFailures))
 	if errors > 0 || overdue > max {
-		fmt.Fprintln(stdout, "Result: FAILURE")
+		text := fmt.Sprintf("%d error(s), %d overdue of %d allowed", errors, overdue, max)
 		if mode == "strict" {
+			gate.Verdict(cliout.StateFail, "Result: FAILURE", text)
 			return 1
 		}
-		fmt.Fprintln(stdout, "Result: TOLERATED_FAILURE")
+		if !flags.JSON {
+			fmt.Fprintln(stdout, "Result: FAILURE")
+		}
+		gate.VerdictWord(cliout.StateWarning, "TOLERATED_FAILURE", "Result: TOLERATED_FAILURE", text+", tolerated")
+		return 0
 	}
-	if errors == 0 && overdue <= max {
-		fmt.Fprintln(stdout, "Result: SUCCESS")
-	}
+	gate.Verdict(cliout.StatePass, "Result: SUCCESS", "")
 	return 0
 }
 

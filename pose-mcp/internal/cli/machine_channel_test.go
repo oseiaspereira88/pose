@@ -187,3 +187,48 @@ func TestIndexJSONReportsWhatItIndexed(t *testing.T) {
 		t.Errorf("an unknown flag must be a usage error, got %d", code)
 	}
 }
+
+// Every gate that joined the channel answers --json with one document naming
+// itself, with an outcome the exit code agrees with, and --quiet with at most
+// its verdict line. Run over this repository, read-only.
+func TestEveryGateOnTheMachineChannelPrintsOneDocument(t *testing.T) {
+	root, err := repoRootForTest()
+	if err != nil {
+		t.Skip(err)
+	}
+	t.Setenv("POSE_PROJECT_ROOT", "")
+	t.Setenv("POSE_PROJECT_ROOTS", "")
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "")
+	t.Chdir(root)
+	gates := map[string]func(args []string, stdout, stderr *bytes.Buffer) int{
+		"skills-check":     func(a []string, o, e *bytes.Buffer) int { return cmdSkillsCheck(root, a, o, e) },
+		"knowledge-check":  func(a []string, o, e *bytes.Buffer) int { return cmdKnowledgeCheck(root, a, o, e) },
+		"recurrence-check": func(a []string, o, e *bytes.Buffer) int { return cmdRecurrenceCheck(root, append([]string{"--tolerant"}, a...), o, e) },
+		"history-check":    func(a []string, o, e *bytes.Buffer) int { return cmdHistoryCheck(a, o, e) },
+		"state":            func(a []string, o, e *bytes.Buffer) int { return cmdState(root, a, o, e) },
+	}
+	valid := map[string]bool{}
+	for _, s := range []cliout.State{cliout.StatePass, cliout.StateWarning, cliout.StateFail, cliout.StateError} {
+		valid[s.Key()] = true
+	}
+	for name, run := range gates {
+		var out, errB bytes.Buffer
+		code := run([]string{"--json"}, &out, &errB)
+		record := decodeRecord(t, out.String())
+		if record.Command != name {
+			t.Errorf("%s: document names %q", name, record.Command)
+		}
+		if !valid[record.Outcome] || record.Verdict == "" || record.Findings == nil {
+			t.Errorf("%s: incomplete document: %+v", name, record)
+		}
+		if failed := record.Outcome == cliout.StateFail.Key() || record.Outcome == cliout.StateError.Key(); failed != (code != 0) {
+			t.Errorf("%s: outcome %q disagrees with exit %d", name, record.Outcome, code)
+		}
+		out.Reset()
+		errB.Reset()
+		run([]string{"--quiet"}, &out, &errB)
+		if lines := strings.Split(strings.TrimSpace(out.String()), "\n"); len(lines) > 1 {
+			t.Errorf("%s --quiet printed more than its verdict:\n%s", name, out.String())
+		}
+	}
+}

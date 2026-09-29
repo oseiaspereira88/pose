@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"html"
 	"io"
 	"os"
@@ -77,6 +78,10 @@ func parseHistoryTime(value string) (time.Time, bool) {
 
 func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) int {
 	mode, days, threshold, includePass := "strict", 14, 3, false
+	args, flags, flagErr := splitOutputFlags(args)
+	if flagErr != "" {
+		return usageError(stderr, "pose recurrence-check: "+flagErr)
+	}
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--strict":
@@ -100,9 +105,11 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 			}
 			i++
 		default:
-			return usageError(stderr, "Usage: pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold N] [--include-pass]")
+			return usageError(stderr, "Usage: pose recurrence-check [--strict|--tolerant] [--window-days N] [--threshold N] [--include-pass] [--json] [--quiet] [--color auto|always|never]")
 		}
 	}
+	gate := newGateOutput("recurrence-check", flags, stdout, stderr)
+	defer gate.Close()
 	records, _ := readHistory(root, stderr)
 	cutoff := time.Now().UTC().AddDate(0, 0, -days)
 	buckets := map[string][]historyRecord{}
@@ -160,13 +167,36 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 		for _, n := range names {
 			summary = append(summary, fmt.Sprintf("%s=%d", n, counts[n]))
 		}
-		fmt.Fprintf(stderr, "[RECURRENT] %s (%s): %d runs in %dd; outcomes=%s; latest=%s", parts[0], parts[1], len(rs), days, strings.Join(summary, ", "), latest)
+		message := fmt.Sprintf("%d runs in %dd; outcomes=%s; latest=%s", len(rs), days, strings.Join(summary, ", "), latest)
 		if workflow != "" {
-			fmt.Fprintf(stderr, "; workflow=%s", workflow)
+			message += "; workflow=" + workflow
 		}
-		fmt.Fprintln(stderr)
+		state := cliout.StateWarning
+		if mode == "strict" {
+			state = cliout.StateError
+		}
+		gate.r.Finding(cliout.Finding{State: state, Code: "recurrent", Path: parts[0] + " (" + parts[1] + ")", Message: message})
 	}
-	fmt.Fprintf(stdout, "recurrence.window_days=%d\nrecurrence.threshold=%d\nrecurrence.records_scanned=%d\nrecurrence.flagged_keys=%d\n", days, threshold, len(records), flagged)
+	gate.Field("recurrence.window_days", strconv.Itoa(days))
+	gate.Field("recurrence.threshold", strconv.Itoa(threshold))
+	gate.Field("recurrence.records_scanned", strconv.Itoa(len(records)))
+	gate.Field("recurrence.flagged_keys", strconv.Itoa(flagged))
+	// This gate has no pinned human verdict line; the machine document still
+	// records the decision.
+	if flags.JSON {
+		state, text := cliout.StatePass, "no recurrent failure"
+		if flagged > 0 {
+			state, text = cliout.StateWarning, fmt.Sprintf("%d recurrent key(s)", flagged)
+			if mode == "strict" {
+				state = cliout.StateFail
+			}
+		}
+		word := ""
+		if state == cliout.StateWarning {
+			word = "RECURRENT"
+		}
+		gate.r.Verdict(cliout.Verdict{State: state, Word: word, Text: text})
+	}
 	if flagged > 0 && mode == "strict" {
 		return 1
 	}

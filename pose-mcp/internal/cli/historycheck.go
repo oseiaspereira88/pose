@@ -5,17 +5,24 @@ package cli
 
 import (
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 )
 
 func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	mode := "tolerant"
+	args, flags, flagErr := splitOutputFlags(args)
+	if flagErr != "" {
+		fmt.Fprintf(stderr, cliText(locale, "Error: %s\n", "Erro: %s\n"), flagErr)
+		return 2
+	}
 	for _, a := range args {
 		switch a {
 		case "--strict":
@@ -23,13 +30,15 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 		case "--tolerant":
 			mode = "tolerant"
 		case "-h", "--help":
-			fmt.Fprintln(stdout, cliText(locale, "Usage: pose history-check [--strict|--tolerant]", "Uso: pose history-check [--strict|--tolerant]"))
+			fmt.Fprintln(stdout, cliText(locale, "Usage: pose history-check [--strict|--tolerant] [--json] [--quiet] [--color auto|always|never]", "Uso: pose history-check [--strict|--tolerant] [--json] [--quiet] [--color auto|always|never]"))
 			return 0
 		default:
 			fmt.Fprintf(stderr, cliText(locale, "Error: invalid argument: %s\n", "Erro: argumento inválido: %s\n"), a)
 			return 2
 		}
 	}
+	gate := newGateOutput("history-check", flags, stdout, stderr)
+	defer gate.Close()
 	root, err := projectRoot()
 	if err != nil {
 		fmt.Fprintf(stderr, "pose history-check: %v\n", err)
@@ -67,10 +76,10 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 		case status == "":
 			clean++
 		case strings.HasPrefix(status, "??"):
-			fmt.Fprintf(stderr, cliText(locale, "[WARNING] untracked JSONL: %s\n", "[AVISO] JSONL untracked: %s\n"), rel)
+			gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "untracked", Path: rel, Message: cliText(locale, "history JSONL is not tracked by Git", "JSONL de histórico não versionado no Git")})
 			untracked++
 		case strings.HasPrefix(status, " M "), strings.HasPrefix(status, " D "), strings.HasPrefix(status, " T "):
-			fmt.Fprintf(stderr, cliText(locale, "[WARNING] modified unstaged JSONL: %s\n", "[AVISO] JSONL modificado e não-staged: %s\n"), rel)
+			gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "modified-unstaged", Path: rel, Message: cliText(locale, "history JSONL has unstaged changes", "JSONL de histórico com mudanças não staged")})
 			modified++
 		default:
 			// Index has changes (staged) — OK for the gate.
@@ -78,20 +87,25 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 		}
 	}
 
-	fmt.Fprintf(stdout, "history.untracked=%d\n", untracked)
-	fmt.Fprintf(stdout, "history.modified_unstaged=%d\n", modified)
-	fmt.Fprintf(stdout, "history.staged_or_clean=%d\n", clean)
+	gate.Field("history.untracked", strconv.Itoa(untracked))
+	gate.Field("history.modified_unstaged", strconv.Itoa(modified))
+	gate.Field("history.staged_or_clean", strconv.Itoa(clean))
 
 	if problems := untracked + modified; problems > 0 {
-		fmt.Fprintf(stdout, "Resultado: FALHA (%d JSONL fora do versionamento)\n", problems)
+		text := fmt.Sprintf(cliText(locale, "%d JSONL outside version control", "%d JSONL fora do versionamento"), problems)
+		line := fmt.Sprintf("Resultado: FALHA (%d JSONL fora do versionamento)", problems)
 		if mode == "strict" {
-			fmt.Fprintln(stderr, cliText(locale, "To fix: git add .pose/reports/history/", "Para corrigir: git add .pose/reports/history/"))
+			gate.Verdict(cliout.StateFail, line, text)
+			gate.r.Hint(cliText(locale, "To fix: git add .pose/reports/history/", "Para corrigir: git add .pose/reports/history/"))
 			return 1
 		}
-		fmt.Fprintln(stdout, cliText(locale, "Tolerant mode: record and version before the next merge.", "Modo tolerant: registrar e versionar antes do próximo merge."))
-		fmt.Fprintln(stdout, "Resultado: FALHA_TOLERADA")
+		if !flags.JSON {
+			fmt.Fprintln(stdout, line)
+		}
+		fmt.Fprintln(gate.result, cliText(locale, "Tolerant mode: record and version before the next merge.", "Modo tolerant: registrar e versionar antes do próximo merge."))
+		gate.VerdictWord(cliout.StateWarning, "TOLERATED_FAILURE", "Resultado: FALHA_TOLERADA", text+cliText(locale, ", tolerated", ", tolerado"))
 		return 0
 	}
-	fmt.Fprintln(stdout, "Resultado: SUCESSO")
+	gate.Verdict(cliout.StatePass, "Resultado: SUCESSO", "")
 	return 0
 }

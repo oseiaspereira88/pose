@@ -88,6 +88,12 @@ func collectKnowledgeRefs(root string) map[string][]string {
 // validateKnowledgeRefs reports dangling knowledge:<slug> citations (R1:
 // stable references must resolve to a governed artifact).
 func validateKnowledgeRefs(root string, stdout, stderr io.Writer) int {
+	return validateKnowledgeRefsWith(root, render(stdout, stderr))
+}
+
+// validateKnowledgeRefsWith reports dangling citations through r, so a gate
+// recording a machine document receives them as findings.
+func validateKnowledgeRefsWith(root string, r *cliout.Renderer) int {
 	artifacts, err := loadKnowledgeArtifacts(root)
 	if err != nil {
 		return 0 // no knowledge dir: nothing to validate
@@ -101,7 +107,7 @@ func validateKnowledgeRefs(root string, stdout, stderr io.Writer) int {
 		if !known[slug] {
 			// A finding is the command's result, so it goes to stdout
 			// (spec pose-cli-output-rendering-system R4).
-			render(stdout, stderr).Finding(cliout.Finding{
+			r.Finding(cliout.Finding{
 				State: cliout.StateError, Code: "knowledge-ref", Path: "knowledge:" + slug,
 				Message:     fmt.Sprintf("cited by %s does not resolve to a governed artifact", strings.Join(specs, ", ")),
 				Remediation: "create the artifact with pose new-knowledge, or correct the citation",

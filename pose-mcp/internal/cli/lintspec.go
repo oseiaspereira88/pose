@@ -997,7 +997,11 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 	fmt.Fprintf(result, "lint.specs.failed=%d\n", totalFailed)
 	verdict := func(state cliout.State, line, text string) {
 		if asJSON {
-			out.Verdict(cliout.Verdict{State: state, Text: text})
+			word := ""
+			if state == cliout.StateWarning {
+				word = "TOLERATED_FAILURE"
+			}
+			out.Verdict(cliout.Verdict{State: state, Word: word, Text: text})
 			return
 		}
 		fmt.Fprintln(stdout, line)

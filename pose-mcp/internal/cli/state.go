@@ -12,11 +12,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/harne8/pose-mcp/internal/pose"
@@ -56,8 +58,12 @@ type stateHistoryEntry struct {
 }
 
 func cmdState(root string, args []string, stdout, stderr io.Writer) int {
-	if len(args) == 0 {
-		return cmdStateValidate(root, stdout, stderr)
+	if len(args) == 0 || strings.HasPrefix(args[0], "--") {
+		rest, flags, flagErr := splitOutputFlags(args)
+		if flagErr != "" || len(rest) > 0 {
+			return usageError(stderr, "Usage: pose state [--json] [--quiet] [--color auto|always|never] | pose state [init|refresh [--if-stale]|diff]")
+		}
+		return cmdStateValidateWith(root, flags, stdout, stderr)
 	}
 	switch args[0] {
 	case "init":
@@ -120,49 +126,71 @@ func cmdStateRefresh(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func cmdStateValidate(root string, stdout, stderr io.Writer) int {
+	return cmdStateValidateWith(root, outputFlags{Color: cliout.ColorAuto}, stdout, stderr)
+}
+
+func cmdStateValidateWith(root string, flags outputFlags, stdout, stderr io.Writer) int {
+	gate := newGateOutput("state", flags, stdout, stderr)
+	defer gate.Close()
 	store := pose.Store{Root: root}
 	if !store.HasProjectState() {
-		fmt.Fprintln(stdout, "Project state not initialized (run `pose state init`). Additive: this is a valid state.")
+		fmt.Fprintln(gate.result, "Project state not initialized (run `pose state init`). Additive: this is a valid state.")
+		gate.RecordNote("initialized", "false")
+		if flags.JSON {
+			gate.r.Verdict(cliout.Verdict{State: cliout.StatePass, Text: "project state not initialized; additive, valid"})
+		}
 		return 0
 	}
 	state, err := store.ProjectState(context.Background(), "")
 	if err != nil {
 		fmt.Fprintf(stderr, "Error: %v\n", err)
+		if flags.JSON {
+			gate.r.Finding(cliout.Finding{State: cliout.StateError, Code: "unreadable", Message: err.Error()})
+			gate.r.Verdict(cliout.Verdict{State: cliout.StateFail, Text: err.Error()})
+		}
 		return 1
 	}
 	brokenPointers := store.ValidatePointers(state)
 
-	fmt.Fprintf(stdout, "Project state: %s\n", state.Path)
-	fmt.Fprintf(stdout, "policy at generation: %s (current policy: %s)\n",
+	// The descriptive header is prose; the machine document carries the same
+	// facts as fields.
+	fmt.Fprintf(gate.result, "Project state: %s\n", state.Path)
+	fmt.Fprintf(gate.result, "policy at generation: %s (current policy: %s)\n",
 		pose.FormatStalenessPolicy(state.StalenessPolicyAtGeneration), pose.FormatStalenessPolicy(store.LoadStatePolicy()))
-	fmt.Fprintf(stdout, "generated_at=%s baseline_commit=%s\n", state.GeneratedAt, state.BaselineCommit)
-	fmt.Fprintf(stdout, "staleness: stale=%v age_days=%d/%d commits_since=%d/%d reason=%s\n",
+	fmt.Fprintf(gate.result, "generated_at=%s baseline_commit=%s\n", state.GeneratedAt, state.BaselineCommit)
+	fmt.Fprintf(gate.result, "staleness: stale=%v age_days=%d/%d commits_since=%d/%d reason=%s\n",
 		state.Staleness.Stale, state.Staleness.AgeDays, state.Staleness.MaxAgeDays,
 		state.Staleness.CommitsSince, state.Staleness.MaxCommits, valueOrDash(state.Staleness.Reason))
+	gate.RecordNote("path", state.Path)
+	gate.RecordNote("generated_at", state.GeneratedAt)
+	gate.RecordNote("baseline_commit", state.BaselineCommit)
+	gate.RecordNote("stale", strconv.FormatBool(state.Staleness.Stale))
+	gate.r.RecordCount("age_days", state.Staleness.AgeDays)
+	gate.r.RecordCount("commits_since", state.Staleness.CommitsSince)
 
 	tampered := 0
 	for _, sec := range state.Sections {
 		if sec.Tampered {
 			tampered++
-			fmt.Fprintf(stdout, "[TAMPERED] section %q was hand-edited since the last refresh\n", sec.Name)
+			gate.r.Finding(cliout.Finding{State: cliout.StateError, Code: "tampered", Path: sec.Name, Message: fmt.Sprintf("section %q was hand-edited since the last refresh", sec.Name)})
 		}
 	}
 	for _, issue := range brokenPointers {
-		fmt.Fprintf(stdout, "[BROKEN POINTER] %s\n", issue)
+		gate.r.Finding(cliout.Finding{State: cliout.StateError, Code: "broken-pointer", Message: issue})
 	}
 	if state.RefreshPending != "" {
-		fmt.Fprintf(stdout, "[REFRESH PENDING] a %q-triggered refresh failed and has not been retried yet — run `pose state refresh`\n", state.RefreshPending)
+		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "refresh-pending", Message: fmt.Sprintf("a %q-triggered refresh failed and has not been retried yet", state.RefreshPending), Remediation: "run `pose state refresh`"})
 	}
 
 	if tampered > 0 || len(brokenPointers) > 0 {
-		fmt.Fprintln(stdout, "Result: FAILURE")
+		gate.Verdict(cliout.StateFail, "Result: FAILURE", fmt.Sprintf("%d tampered section(s), %d broken pointer(s)", tampered, len(brokenPointers)))
 		return 1
 	}
 	if state.Staleness.Stale {
-		fmt.Fprintln(stdout, "Result: STALE (not a failure — run `pose state refresh`)")
+		gate.VerdictWord(cliout.StateWarning, "STALE", "Result: STALE (not a failure — run `pose state refresh`)", "stale; run `pose state refresh`")
 		return 0
 	}
-	fmt.Fprintln(stdout, "Result: SUCCESS")
+	gate.Verdict(cliout.StatePass, "Result: SUCCESS", "")
 	return 0
 }
 

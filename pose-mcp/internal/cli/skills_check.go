@@ -8,6 +8,7 @@ package cli
 
 import (
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"os"
 	"path/filepath"
@@ -181,7 +182,12 @@ func checkOneSkillAt(root, slug, dir, linkBase string) []skillIssue {
 }
 
 func cmdSkillsCheck(root string, args []string, stdout, stderr io.Writer) int {
+	const usage = "Usage: pose skills-check [--strict|--tolerant] [--json] [--quiet] [--color auto|always|never]"
 	mode := "strict"
+	args, flags, flagErr := splitOutputFlags(args)
+	if flagErr != "" {
+		return usageError(stderr, usage)
+	}
 	for _, a := range args {
 		switch a {
 		case "--strict":
@@ -189,9 +195,11 @@ func cmdSkillsCheck(root string, args []string, stdout, stderr io.Writer) int {
 		case "--tolerant":
 			mode = "tolerant"
 		default:
-			return usageError(stderr, "Usage: pose skills-check [--strict|--tolerant]")
+			return usageError(stderr, usage)
 		}
 	}
+	out := newGateOutput("skills-check", flags, stdout, stderr)
+	defer out.Close()
 	skillsDir := filepath.Join(root, ".agents", "skills")
 	entries, err := os.ReadDir(skillsDir)
 	if err != nil {
@@ -241,7 +249,11 @@ func cmdSkillsCheck(root string, args []string, stdout, stderr io.Writer) int {
 			warnings++
 		}
 		usageFindings = append(usageFindings, usageFinding{ID: iss.Skill + "\x00" + iss.Message, Severity: iss.Severity})
-		fmt.Fprintf(stdout, "[%s] %s: %s\n", strings.ToUpper(iss.Severity), iss.Skill, iss.Message)
+		state := cliout.StateWarning
+		if iss.Severity == "error" {
+			state = cliout.StateError
+		}
+		out.r.Finding(cliout.Finding{State: state, Code: "skill", Path: iss.Skill, Message: iss.Message})
 	}
 	semantic := "pass"
 	if errors > 0 {
@@ -250,15 +262,20 @@ func cmdSkillsCheck(root string, args []string, stdout, stderr io.Writer) int {
 		semantic = "partial"
 	}
 	noteUsageFindings(stdout, semantic, usageFindings, true)
-	fmt.Fprintf(stdout, "skills.checked=%d\nskills.errors=%d\nskills.warnings=%d\n", len(slugs), errors, warnings)
+	out.Field("skills.checked", strconv.Itoa(len(slugs)))
+	out.Field("skills.errors", strconv.Itoa(errors))
+	out.Field("skills.warnings", strconv.Itoa(warnings))
 	if errors > 0 {
-		fmt.Fprintln(stdout, "Result: FAILURE")
 		if mode == "strict" {
+			out.Verdict(cliout.StateFail, "Result: FAILURE", fmt.Sprintf("%d skill error(s)", errors))
 			return 1
 		}
-		fmt.Fprintln(stdout, "Result: TOLERATED_FAILURE")
+		if !flags.JSON {
+			fmt.Fprintln(stdout, "Result: FAILURE")
+		}
+		out.VerdictWord(cliout.StateWarning, "TOLERATED_FAILURE", "Result: TOLERATED_FAILURE", fmt.Sprintf("%d skill error(s), tolerated", errors))
 		return 0
 	}
-	fmt.Fprintln(stdout, "Result: SUCCESS")
+	out.Verdict(cliout.StatePass, "Result: SUCCESS", "")
 	return 0
 }

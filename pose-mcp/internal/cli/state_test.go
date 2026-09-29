@@ -185,7 +185,7 @@ func TestCmdState_ValidateDetectsTamperedSection(t *testing.T) {
 		t.Fatal(err)
 	}
 	code, out, _ := runState(t, root)
-	if code == 0 || !strings.Contains(out, "TAMPERED") || !strings.Contains(out, "Result: FAILURE") {
+	if code == 0 || !strings.Contains(out, "tampered") || !strings.Contains(out, "Result: FAILURE") {
 		t.Fatalf("hand-edited derived section must fail validation: code=%d out=%q", code, out)
 	}
 }
