@@ -1,6 +1,6 @@
 # POSE
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 6.x (current stable)
 
 **Spec-Driven Development for governed agentic software delivery.**
 

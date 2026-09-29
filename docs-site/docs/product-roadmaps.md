@@ -1,6 +1,6 @@
 # Product roadmaps
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 6.x (current stable)
 
 **Planning baseline:** 2026-07-18 &nbsp;·&nbsp; **Delivery status (2026-08-17):** all 10 roadmaps `done`
 **Canonical execution artifacts:** `.pose/roadmaps/*.md` and the specs under
@@ -33,7 +33,7 @@ memberships that make up the remainder of the 115 total.
 
 !!! note "Historical portfolio, current product"
 
-    The wave dates below are retained as execution history. POSE 1.0.0 added
+    The wave dates below are retained as execution history. The v1.0.0 release added
     automatic usage analytics, the revised five-metric DORA contract and an
     exercised immutable release lifecycle. The v1.1.0 and v1.2.0 releases add
     component-aware review plans, convergent sealed review bundles with

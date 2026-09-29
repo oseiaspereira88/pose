@@ -1,6 +1,6 @@
 # Quickstart
 
-**Doc type:** Tutorial &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
+**Doc type:** Tutorial &nbsp;·&nbsp; **Applies to:** POSE 6.x (current stable)
 
 ## Install
 

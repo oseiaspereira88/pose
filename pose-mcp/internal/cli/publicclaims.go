@@ -30,6 +30,9 @@ import (
 var publicVersionPatterns = []*regexp.Regexp{
 	// Prose: "POSE 1.7.10", "POSE v1.7", "POSE v1.4.3".
 	regexp.MustCompile(`\bPOSE\s+v?(\d+\.\d+(?:\.\d+)?)\b`),
+	// Release lines: "POSE 6.x". The version is the major alone, which
+	// versionMatchesRelease compares at that precision.
+	regexp.MustCompile(`\bPOSE\s+v?(\d+)\.x\b`),
 	// Shell/PowerShell install pins: `V=1.7.10`, `$V = "1.7.10"`.
 	regexp.MustCompile(`\$?V\s*=\s*"?(\d+\.\d+\.\d+)"?`),
 	// Pinned release asset URLs.

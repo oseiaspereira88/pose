@@ -1,6 +1,6 @@
 # Technical architecture
 
-**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 5.x (current stable)
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 6.x (current stable)
 
 **Status:** Reference-grade, offline-first engineering operating standard  
 **Updated:** 2026-09-11 for the `v5.0.2` release — mechanisms 2, 6, 7, 10, 11,
