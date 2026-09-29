@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-bundles-seal-the-contracts-that-govern-them
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:bundle-findings-take-the-contract-the-legacy-path-had
 task_type: bugfix
 ---
 
