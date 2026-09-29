@@ -1696,16 +1696,20 @@ func (s Store) retainedCompletedReview(scope ScopeRef, ref string, policy Review
 		if attErr != nil || len(attestations) == 0 {
 			continue
 		}
-		// The newest attested bundle decides. A later review that rejected the
-		// work or requested changes is not overridden by an older approval; only
-		// a bundle nobody has attested yet is passed over.
 		att := attestations[len(attestations)-1]
 		waiveEvidence := s.bundleContractExempt(scope, policy, bundles[i], "evidence-vocabulary", att.AttestedAt)
-		if len(s.validateBundleAttestationWith(bundles[i], att, waiveEvidence)) != 0 {
+		if len(s.validateBundleAttestationWith(bundles[i], att, waiveEvidence)) == 0 {
+			bundle := bundles[i]
+			return &bundle, &att
+		}
+		// A later review that rejected the work or requested changes is not
+		// overridden by an older approval. A later approval that no longer
+		// validates — typically against an evidence rule introduced after it —
+		// is not a verdict against the work, so an older standing approval
+		// still counts, as it always did.
+		if att.Decision == "rejected" || att.Decision == "changes-requested" {
 			return nil, nil
 		}
-		bundle := bundles[i]
-		return &bundle, &att
 	}
 	return nil, nil
 }

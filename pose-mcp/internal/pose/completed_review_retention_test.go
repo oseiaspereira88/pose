@@ -110,6 +110,37 @@ func TestCompletedReviewRetention(t *testing.T) {
 		}
 	})
 
+	t.Run("a newer approval that no longer validates does not void an older one", func(t *testing.T) {
+		store, first, now := retentionFixture(t)
+		addMatrixCheck(t, store)
+		second, err := store.SealReviewBundle("spec:backend", now.Add(2*time.Minute))
+		if err != nil {
+			t.Fatal(err)
+		}
+		invalid := approvedBundleAttestation(second, "agent:second-review")
+		for i := range invalid.Criteria {
+			if invalid.Criteria[i].Disposition == "passed" {
+				invalid.Criteria[i].Evidence = "unit:absent/go/test"
+				break
+			}
+		}
+		if _, err := store.RecordReviewAttestation(invalid, now.Add(3*time.Minute)); err != nil {
+			t.Fatal(err)
+		}
+		if blockers := store.validateBundleAttestation(second, invalid); len(blockers) == 0 {
+			t.Fatal("fixture: the newer approval still validates")
+		}
+		closeBackendSpec(t, store)
+		writeReviewFixture(t, store.Root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"moduleOverrides":{"api":{"checks":[{"name":"another-check","program":"true","severity":"required","evidenceClass":"unit"}]}}}`)
+		verification, err := store.VerifyReviewBundle("spec:backend")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !verification.Approved || verification.Bundle == nil || verification.Bundle.BundleID != first.BundleID {
+			t.Fatalf("an older standing approval was voided by a newer approval that no longer validates: %+v", verification)
+		}
+	})
+
 	t.Run("an open scope is still superseded", func(t *testing.T) {
 		store, _, _ := retentionFixture(t)
 		addMatrixCheck(t, store)
