@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-adoption-stamp-stays-readable
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:release-notes-name-contract-adoption
 ---
 
 # Spec: A release that introduces a governance contract says so
