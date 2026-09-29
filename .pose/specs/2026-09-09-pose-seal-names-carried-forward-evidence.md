@@ -76,6 +76,13 @@ so nothing tells the operator it happened.
 
 Backfilled on 2026-09-29: `a94a7a2` (Three diagnostics follow-ups: audit coverage, unread policy keys, carried-forward evidence (#69)) carries this spec's trailer and also changed the 3 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:seal-names-carried-forward-evidence module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:seal-names-carried-forward-evidence module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - A result with no recorded git head is not compared, so evidence from a
   producer that does not stamp one is silently treated as observing the subject.
