@@ -8,7 +8,7 @@ depends_on: pose-mcp-server-survives-self-update
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:stdio-server-honours-sigterm, contract:stdio-server-honours-sigterm, capability:stdio-server-honours-sigterm
 ---
 
 # Spec: A stdio MCP server stops when it is asked to
