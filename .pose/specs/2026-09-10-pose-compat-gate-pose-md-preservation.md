@@ -1,7 +1,7 @@
 ---
 slug: pose-compat-gate-pose-md-preservation
-status: in-progress
-completed_at:
+status: done
+completed_at: 2026-09-29
 created_at: 2026-09-10
 supersedes:
 depends_on: pose-compat-gate-manual-refresh-assertion
