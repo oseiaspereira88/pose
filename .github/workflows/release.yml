@@ -14,7 +14,18 @@ on:
 # (spec pose-release-workflow-hardening).
 permissions: { contents: read }
 jobs:
+  # v6.0.0 was cut from a commit whose CI was red on two gates: the public
+  # claims gate (the Portuguese README still pinned 5.0.8) and the migration
+  # guides (install failed in any directory whose name is not a slug). The
+  # release job had its own subset of CI's checks and ran neither, and a CI
+  # that stays red stops being read. The release now runs CI itself, at the
+  # commit it publishes, and cannot start until it passes
+  # (spec release-runs-the-ci-gates).
+  ci:
+    uses: ./.github/workflows/ci.yml
+    permissions: { contents: read }
   release:
+    needs: ci
     # contents: write publishes the release; id-token: write enables keyless
     # Sigstore signing (spec pose-release-signing); attestations: write
     # publishes SLSA build provenance (spec pose-slsa-provenance).
