@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-closeout-regenerates-before-sealing
 priority: 1
 components: pose-mcp
-delivers: surface:seal-names-carried-forward-evidence, capability:seal-names-carried-forward-evidence
+delivers: capability:seal-names-carried-forward-evidence
 ---
 
 # Spec: Sealing says when evidence did not observe the change
@@ -78,10 +78,11 @@ Backfilled on 2026-09-29: `a94a7a2` (Three diagnostics follow-ups: audit coverag
 
 ### Delivery targets
 
-- surface:seal-names-carried-forward-evidence module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 - capability:seal-names-carried-forward-evidence module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
+Reclassified the same day: this spec changed the CLI package only through tests, comments or internal logic, and no command-level test exercises it, so it delivers a capability, not a surface.
 
 ### Technical risks
 - A result with no recorded git head is not compared, so evidence from a
