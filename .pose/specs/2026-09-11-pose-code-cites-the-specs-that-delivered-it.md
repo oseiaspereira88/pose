@@ -83,6 +83,14 @@ and one of them had already been copied into a spec written this week.
 
 Backfilled on 2026-09-29: `20c6565` (Before 5.0.2: honest update failures, SIGTERM on stdio, and the overdue backlog (#94)) carries this spec's trailer and also changed the 3 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:code-cites-the-specs-that-delivered-it module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- contract:code-cites-the-specs-that-delivered-it module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
+- capability:code-cites-the-specs-that-delivered-it module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - None: the suite passes unchanged, so no assertion depended on the text.
 
