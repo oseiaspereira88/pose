@@ -71,6 +71,15 @@ produced the same empty report. The generator had to be fixed first.
 - modified: pose-mcp/internal/cli/validate.go
 - modified: pose-mcp/internal/cli/report.go
 - modified: pose-mcp/internal/cli/cli_test.go
+- modified: .agents/skills/pose-spec-closeout/SKILL.md
+- modified: .pose/templates/spec.md
+- modified: docs-site/docs/architecture.md
+- modified: docs-site/docs/concepts.md
+- modified: pose-mcp/internal/cli/followups.go
+- modified: pose-mcp/internal/cli/followups_owner_test.go
+- modified: pose-mcp/internal/cli/lintspec.go
+
+Backfilled on 2026-09-29: `7859fae` (One follow-up format, shown where follow-ups are written (#93)) carries this spec's trailer and also changed the 7 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - The captured output is what validation prints to stdout, the format the log
