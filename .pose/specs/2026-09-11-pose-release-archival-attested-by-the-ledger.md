@@ -205,9 +205,9 @@ measure this repository's own graph.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestReleasePrepareLeavesEverySpecByteIdentical requires both specs byte-identical after prepare, and the fragment archived>
-- R2 [satisfied] <TestAnArchivedFragmentClaimResolvesThroughTheRelease; TestAReleasedSpecStillPassesArtifactCheckAfterTheCut passes a real cut end to end>
-- R3 [satisfied] <TestARenameAnEarlierReleaseWroteResolvesThroughItsManifest, including a governed changelog root and a manifest of another version; TestASpecAnEarlierReleaseRewroteStillPasses>
+- R1 [satisfied] <TestReleasePrepareLeavesEverySpecByteIdentical requires both specs byte-identical after prepare, and the fragment archived> surface:release-archival-attested-by-the-ledger evidence:integration
+- R2 [satisfied] <TestAnArchivedFragmentClaimResolvesThroughTheRelease; TestAReleasedSpecStillPassesArtifactCheckAfterTheCut passes a real cut end to end> surface:release-archival-attested-by-the-ledger evidence:integration
+- R3 [satisfied] <TestARenameAnEarlierReleaseWroteResolvesThroughItsManifest, including a governed changelog root and a manifest of another version; TestASpecAnEarlierReleaseRewroteStillPasses> surface:release-archival-attested-by-the-ledger evidence:integration
 - R4 [satisfied] <TestOnlyAnArchivalTheReleaseAttestsResolvesAClaim: another spec, no manifest, two releases for one spec, untracked manifest, edited archive, untracked archive each name what the manifests showed; a non-fragment path keeps its exact message>
 - R5 [satisfied] <archived-by and archives edges and the reverse entry asserted; no changes edge to the archive; no orphan for a governed archived fragment in the end-to-end test>
 - R6 [satisfied] <the end-to-end test requires artifact.archived=<pending> -> <archived> (release <version>)>
@@ -227,4 +227,4 @@ A release no longer edits the specs it ships, and a released spec passes
 
 ### Follow-ups
 
-- None.
+None.
