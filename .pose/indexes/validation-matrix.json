@@ -465,6 +465,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "project-id-derivation-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "AnyDirectoryName|DeclaredProjectID|InvalidStampedProjectID|InvalidExplicitProjectID|NeverResolved",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delivery-graph-reuse-integration",
           "program": "go",
           "args": [

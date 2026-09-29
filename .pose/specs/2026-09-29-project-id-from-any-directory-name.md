@@ -83,6 +83,10 @@ why no Go test saw the regression. The new tests name directories the way people
 - modified: pose-mcp/internal/cli/managed_docs.go
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: pose-mcp/internal/bootstrap/bootstrap.go
+- modified: .pose/indexes/validation-matrix.json
+- modified: .pose/results/delivery-validation.json
+- modified: .pose/indexes/delivery-integrity.json
+- modified: .pose/indexes/spec-graph.json
 
 ### Delivery targets
 
@@ -130,6 +134,7 @@ resolved on 6.0.0. Reverting restores the failure.
 | Doctor repair | `go test ./internal/cli -run InvalidStampedProjectID -count=1` | fixable warning, repair, then ok |
 | Install and reinstall ids | `go test ./internal/cli -run 'InvalidExplicitProjectID|NeverResolved|ValidDeclaredProjectID' -count=1` | explicit invalid id refused with exit 2 and nothing written; stale id replaced; valid declared id kept |
 | Migration guides (CI step) | `bash tests/import/migration-guides.sh` | `All documented migration claims hold.` |
+| Registered producer | `pose validate` check `project-id-derivation-integration` | the six tests above, as integration evidence for the surface |
 | Full suite | `go test ./... -count=1` | pass |
 
 ### Execution log
