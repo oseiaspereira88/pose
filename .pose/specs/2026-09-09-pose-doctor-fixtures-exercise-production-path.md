@@ -167,9 +167,9 @@ are the ones now executed.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestDoctorReportsAnUnproducibleClassDemandedByATool writes a profile whose criteria are clean and whose tool demands an unproducible class, and asserts the finding names it; block 735 moves from unreached to executed>
-- R2 [satisfied] <TestDoctorAcceptsArtifactRootsThatResolve asserts ok for a root that exists and warn for one that does not; block 365 moves from unreached to executed>
-- R3 [satisfied] <TestDoctorReportsAnMCPConfigThatIsNotTheNativeBinary asserts warn for an npx-based configuration and ok for the native one; block 315 moves from unreached to executed>
+- R1 [satisfied] <TestDoctorReportsAnUnproducibleClassDemandedByATool writes a profile whose criteria are clean and whose tool demands an unproducible class, and asserts the finding names it; block 735 moves from unreached to executed> surface:doctor-fixtures-exercise-production-path evidence:integration
+- R2 [satisfied] <TestDoctorAcceptsArtifactRootsThatResolve asserts ok for a root that exists and warn for one that does not; block 365 moves from unreached to executed> surface:doctor-fixtures-exercise-production-path evidence:integration
+- R3 [satisfied] <TestDoctorReportsAnMCPConfigThatIsNotTheNativeBinary asserts warn for an npx-based configuration and ok for the native one; block 315 moves from unreached to executed> surface:doctor-fixtures-exercise-production-path evidence:integration
 
 ### Known gaps
 - Twelve defensive blocks remain unreached, by decision.
