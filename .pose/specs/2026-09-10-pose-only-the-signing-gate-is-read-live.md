@@ -76,6 +76,13 @@ Both are the kind of change that passes review by looking consistent.
 
 Backfilled on 2026-09-29: `6f58750` (Two more follow-ups: the changelog date and the one live read (#85)) carries this spec's trailer and also changed the 3 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:only-the-signing-gate-is-read-live module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:only-the-signing-gate-is-read-live module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Reading source text is coarser than reading types, and a policy field reached
   through a local variable would not be seen. It catches the shape the two
