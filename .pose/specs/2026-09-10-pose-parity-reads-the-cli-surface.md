@@ -8,7 +8,7 @@ depends_on: pose-skill-command-parity
 priority: 0
 components: pose-mcp
 task_type: refactor
-delivers: surface:parity-reads-the-cli-surface
+delivers: capability:parity-reads-the-cli-surface
 ---
 
 # Spec: Locale parity reads the commands from the CLI
@@ -89,9 +89,11 @@ Backfilled on 2026-09-29: `da8a6d7` (Backlog before 5.0.1: four stale follow-ups
 
 ### Delivery targets
 
-- surface:parity-reads-the-cli-surface module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:parity-reads-the-cli-surface module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
+Reclassified the same day: this spec changed the CLI package only through tests, comments or internal logic, and no command-level test exercises it, so it delivers a capability, not a surface.
 
 ### Technical risks
 - A handler that picks its subcommand some other way — `switch
