@@ -8,7 +8,7 @@ depends_on: pose-upgrade-path-audit-fixes
 priority: 0
 components: pose-mcp
 task_type: refactor
-delivers: surface:code-cites-the-specs-that-delivered-it, contract:code-cites-the-specs-that-delivered-it, capability:code-cites-the-specs-that-delivered-it
+delivers: capability:code-cites-the-specs-that-delivered-it
 ---
 
 # Spec: Code comments cite specs that exist
@@ -85,11 +85,11 @@ Backfilled on 2026-09-29: `20c6565` (Before 5.0.2: honest update failures, SIGTE
 
 ### Delivery targets
 
-- surface:code-cites-the-specs-that-delivered-it module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
-- contract:code-cites-the-specs-that-delivered-it module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
 - capability:code-cites-the-specs-that-delivered-it module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
+Reclassified the same day: this spec changed the CLI package only through tests, comments or internal logic, and no command-level test exercises it, so it delivers a capability, not a surface.
 
 ### Technical risks
 - None: the suite passes unchanged, so no assertion depended on the text.
