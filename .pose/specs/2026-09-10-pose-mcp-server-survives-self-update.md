@@ -8,7 +8,7 @@ depends_on: pose-self-update-handoff-path
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:mcp-server-survives-self-update, capability:mcp-server-survives-self-update
 ---
 
 # Spec: A running MCP server keeps working after `pose update`
