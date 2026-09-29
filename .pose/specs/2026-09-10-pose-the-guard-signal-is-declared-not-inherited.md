@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-cross-version-guard-is-this-repositorys
 priority: 0
 components: pose-mcp
-delivers: surface:the-guard-signal-is-declared-not-inherited
+delivers: capability:the-guard-signal-is-declared-not-inherited
 task_type: refactor
 ---
 
@@ -81,9 +81,11 @@ Backfilled on 2026-09-29: `6209806` (Two follow-ups the v4.0.1 fixes opened (#84
 
 ### Delivery targets
 
-- surface:the-guard-signal-is-declared-not-inherited module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:the-guard-signal-is-declared-not-inherited module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
+Reclassified the same day: this spec changed the CLI package only through tests, comments or internal logic, and no command-level test exercises it, so it delivers a capability, not a surface.
 
 ### Technical risks
 - A job added later that runs the suite and forgets the variable would skip the
