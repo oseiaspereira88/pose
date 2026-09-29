@@ -1,8 +1,8 @@
 ---
 slug: pose-policy-keys-and-release-surface-coverage
-status: in-progress
+status: done
 created_at: 2026-09-09
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-doctor-reports-unread-policy-keys, pose-doctor-fixtures-exercise-production-path
 priority: 0

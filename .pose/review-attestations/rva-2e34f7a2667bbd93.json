@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-2e34f7a2667bbd93",
+  "bundle_id": "rvb-35b39526c25cf8ad",
+  "bundle_digest": "sha256:35b39526c25cf8ad330fb1fbb713a540dc0ecec1c7829ee1ee0bda706017f3ec",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-review-archive-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-review-archive-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-4bc6fe99223cdb7a",
+      "rationale": "Diagnostics only; files read by several structs are held to the union."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-4bc6fe99223cdb7a",
+      "rationale": "Policies without a type are recorded in writing as such."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-4bc6fe99223cdb7a",
+      "rationale": "Unread keys are named, including in fallback locations."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Tests the change set introduced and that pass in the sealed unit run: TestCapabilityPolicyKeysCoverBothReaders, TestConfinedProjectPathRefusesEveryWayOut, TestDoctorAcceptsCapabilityKeysReadByEitherConsumer, TestDoctorDoesNotReportTheAnnotationKey, TestDoctorReadsTheReleasePolicyWhereTheEngineDoes, TestDoctorReportsUnreadKeysInEveryModelledPolicy, TestDoctorSaysNothingAboutAnAbsentPolicy, TestEveryShippedPolicyIsHeldToItsKeysOrExempted, TestEveryWiredPolicyKeyListMatchesItsStruct, TestPolicyKeyChecksDeriveTheirKeysFromTheStructs, TestReleaseCheckAnswersForAPreparedSnapshotAndRefusesUnderStrict, TestReleaseNotesEmitsTheFrozenSnapshotAndRefusesAStaleOne, TestReleaseOpenNextRefusesWhileTheLastReleaseIsUnverified, TestReleasePlanLeavesThePendingFragmentAlone, TestReleasePlanRecommendsFromTheFragmentsItReads, TestReleaseRecordRefusesEvidenceThatDoesNotMatchTheTag, TestReleaseStatusRefusesAVersionThatIsNotOne, TestReleaseStatusReportsThePendingQueue, TestResolveReleaseTagOnlyAnswersForARealTag, TestVersionLessOrdersNumericallyNotLexicographically."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-4bc6fe99223cdb7a",
+      "rationale": "Every modelled policy file is held to its keys, and the release command surface runs under test."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-4bc6fe99223cdb7a",
+      "rationale": "No new authority; tests exercise release commands locally."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-policy-keys-and-release-surface-coverage reports no error after the claims were reconciled on 2026-09-29."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "surface-check --spec pose-policy-keys-and-release-surface-coverage --strict reported 0 findings against these sealed results; the delivery reachability check passed in the same run."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed native matrix passed 43 of 43 at this revision."
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T21:12:38Z",
+  "path": ".pose/review-attestations/rva-2e34f7a2667bbd93.json"
+}
