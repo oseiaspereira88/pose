@@ -143,10 +143,10 @@ starts producing something else — and require the finding to name it.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestDoctorReportsADemandedClassNoCheckProduces requires the warn, the class name and a hint>
+- R1 [satisfied] <TestDoctorReportsADemandedClassNoCheckProduces requires the warn, the class name and a hint> surface:report-a-demanded-class-nothing-produces evidence:integration
 - R2 [satisfied] <the same test requires the produced class not to be named — naming it would tell an operator to register a check that already exists>
-- R3 [satisfied] <TestAModuleOverrideCountsAsAProducer requires an override's class to count>
-- R4 [satisfied] <TestNoFindingWhenNothingIsDemanded requires no finding at all when the profiles demand no class>
+- R3 [satisfied] <TestAModuleOverrideCountsAsAProducer requires an override's class to count> surface:report-a-demanded-class-nothing-produces evidence:integration
+- R4 [satisfied] <TestNoFindingWhenNothingIsDemanded requires no finding at all when the profiles demand no class> surface:report-a-demanded-class-nothing-produces evidence:integration
 
 ### Known gaps
 - The check cannot tell a class that is imported from elsewhere on purpose from
