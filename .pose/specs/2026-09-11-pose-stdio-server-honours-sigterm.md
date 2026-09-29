@@ -67,6 +67,24 @@ never does.
 - modified: .pose/specs/2026-09-10-pose-mcp-server-survives-self-update.md
 - modified: .pose/capabilities/assessment.md
 - modified: .pose/capabilities/history.jsonl
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/cli/doctor_instance_config_test.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/install.go
+- modified: pose-mcp/internal/cli/install_locale_identity_test.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/managed_docs.go
+- modified: pose-mcp/internal/cli/managed_docs_test.go
+- modified: pose-mcp/internal/cli/release_compatibility_test.go
+- modified: pose-mcp/internal/cli/self_update_release_test.go
+- modified: pose-mcp/internal/cli/stack_seed.go
+- created: pose-mcp/internal/cli/update_reports_delivered_state_test.go
+- modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/cli/validate_root_and_nodemodules_test.go
+- modified: pose-mcp/internal/pose/discovery.go
+
+Backfilled on 2026-09-29: `20c6565` (Before 5.0.2: honest update failures, SIGTERM on stdio, and the overdue backlog (#94)) carries this spec's trailer and also changed the 16 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - The reader goroutine stays blocked on stdin after a shutdown; the process is
