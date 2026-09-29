@@ -8,7 +8,7 @@ depends_on: pose-report-help-names-every-flag
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers: surface:help-names-flags-the-parser-accepts
+delivers: capability:help-names-flags-the-parser-accepts
 ---
 
 # Spec: `pose <command> --help` names only flags the command accepts
@@ -74,9 +74,11 @@ first time it is followed.
 
 ### Delivery targets
 
-- surface:help-names-flags-the-parser-accepts module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:help-names-flags-the-parser-accepts module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
+Reclassified the same day: this spec changed the CLI package only through tests, comments or internal logic, and no command-level test exercises it, so it delivers a capability, not a surface.
 
 ### Technical risks
 - None: text only.
