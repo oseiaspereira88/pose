@@ -8,7 +8,7 @@ depends_on: pose-report-help-names-every-flag
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:help-names-flags-the-parser-accepts
 ---
 
 # Spec: `pose <command> --help` names only flags the command accepts
