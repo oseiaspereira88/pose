@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-review-plan-producible-evidence-classes
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:attestation-evidence-must-be-in-the-bundle, capability:attestation-evidence-must-be-in-the-bundle
 ---
 
 # Spec: A passed criterion must be supported by the bundle it approves
