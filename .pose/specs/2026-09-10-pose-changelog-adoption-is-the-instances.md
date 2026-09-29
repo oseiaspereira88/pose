@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-changelog-and-dor-policy-types
 priority: 0
 components: pose-mcp
-delivers: surface:changelog-adoption-is-the-instances, capability:changelog-adoption-is-the-instances
+delivers: capability:changelog-adoption-is-the-instances
 task_type: bugfix
 ---
 
@@ -81,10 +81,11 @@ Backfilled on 2026-09-29: `6f58750` (Two more follow-ups: the changelog date and
 
 ### Delivery targets
 
-- surface:changelog-adoption-is-the-instances module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 - capability:changelog-adoption-is-the-instances module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
+Reclassified the same day: this spec changed the CLI package only through tests, comments or internal logic, and no command-level test exercises it, so it delivers a capability, not a surface.
 
 ### Technical risks
 - Emptying the date in the scaffold copy alone would have been undone by the
