@@ -1,0 +1,3411 @@
+{
+  "schema_version": 1,
+  "bundle_id": "rvb-3d2705de830989d3",
+  "bundle_digest": "sha256:3d2705de830989d3aab7937b8fde76d5408312cace797cad60ff536aee344d8c",
+  "state": "sealed",
+  "sealed_at": "2026-09-29T00:40:05Z",
+  "payload": {
+    "scope": {
+      "ref": "spec:pose-v6-release-readiness",
+      "kind": "spec",
+      "slug": "pose-v6-release-readiness",
+      "depends_on": [
+        "pose-abm-causality-attestation",
+        "pose-abm-retrospective-replay",
+        "pose-governance-outcomes-v2"
+      ],
+      "components": [
+        "mcp-enforce",
+        "pose-mcp"
+      ],
+      "deliveries": [
+        "governance:pose-v6-release-readiness"
+      ],
+      "sections": [
+        {
+          "kind": "semantic-section",
+          "path": "decisions",
+          "digest": "sha256:cbf2775f0928b471e13523692813348bf5c0c096f3818ee27e57b786bacbcf81",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "intent",
+          "digest": "sha256:a1dd863c0927e3f0dbbd352bb4cd392b032c417637343447437fbea57ebe3173",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "requirements",
+          "digest": "sha256:a54334018a854406c0549a324ca3963250d42fc90352f4be707a4e15ecee74b6",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "technical plan",
+          "digest": "sha256:b21fc616d46c710bf9e17858251b2dd4ccebef9d6728be3f6cb0c6d73d07ed74",
+          "reason": "governed semantic review input"
+        }
+      ]
+    },
+    "subject": {
+      "change_sets": [
+        "cs-cd7f657dd16e"
+      ],
+      "base": "816a95d2e5a882b880e929f2873c0c09894e5374",
+      "head": "11d16301b49755dad63851db435b16529aa18c1e",
+      "implementation_digest": "sha256:a233d63319929564d26afb07692646d3d08f11240cee1c65460911f83d94d7e7",
+      "patch_digest": "sha256:7620a18323f05a5424ab674aa2bb0241c2e7c94b4fb5e9a26ef25ccbe404ed8a",
+      "tree_digest": "sha256:04570a4ea7be5759f76e3aac049c6b8095a011e5226a7dfd36a2a702585f70ec",
+      "entries": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-v6-release-readiness.md",
+          "class": "governance",
+          "digest": "sha256:b73aa4ecccded2aa21c85acbf924224d8169594d648bfab4516499fe90c75799",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v6.0.0/events.jsonl",
+          "class": "governance",
+          "digest": "sha256:1ac73d91720ca5581df84c6e9f66026feb0d445e102792c8daaa6db876692974",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v6.0.0/publication-evidence.json",
+          "class": "governance",
+          "digest": "sha256:e8786018758d55820f3adda99d2404c10b4d1fa9089a9a007ff0af2573f577e6",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v6.0.0/tagged-evidence.json",
+          "class": "governance",
+          "digest": "sha256:8ca586abb1833ac540ec3a42d89e5caf8c2b6be97b8b6338b6967a82d589893b",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v6.0.0/verification-report.md",
+          "class": "governance",
+          "digest": "sha256:801cea3119c4c0c5043ac3dd1d9084ab460c56f01330b11212e101e12eb3f1de",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v6.0.0/verification-run.json",
+          "class": "governance",
+          "digest": "sha256:9e15585f2936b71ded6ac7000f9af111ba3db4b58632d3b1100e7157626ee6eb",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": ".pose/releases/v6.0.0/verified-evidence.json",
+          "class": "governance",
+          "digest": "sha256:afc9bcde11657e4bcef9b9b857fe9cabc87806a891359b3c68d605d4a509d540",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_release_archive_test.go",
+          "class": "implementation",
+          "digest": "sha256:116a9170fe9d91c962afc5f4bd3e395121357b68032ce5a899408f88d9b41647",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/version/release_snapshot_test.go",
+          "class": "implementation",
+          "digest": "sha256:0be88d66e082dab4aa4ce2be249c9f1c20ce5e3601f0e30f3e282c121508da15",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/release.yml",
+          "class": "implementation",
+          "digest": "sha256:5b589e789080b3972f2d6ace03d2c0812f28b09ad33424c2153e69f38029ae31",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/security.yml",
+          "class": "implementation",
+          "digest": "sha256:d03e414d2ae7e22da48ddeea5a6fa35f73fdd6b43accaa1c1727b9a320f27eba",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json",
+          "class": "governance",
+          "digest": "sha256:8ae37d0aa49cce2cf800625280d554431c4dc68b7a098f42e1b50a310b477857",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "README.md",
+          "class": "documentation",
+          "digest": "sha256:b3b3d0ab2e0a31e08a7f4fe473355a87a5107991a851867fd123bfc1367a2e2c",
+          "reason": "attributed documentation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "compatibility.json",
+          "class": "governance",
+          "digest": "sha256:efad7026b24152f80a9092f1163f1d319846e52e35cde00a3632fb96e0a9de6d",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/ci.md",
+          "class": "implementation",
+          "digest": "sha256:eb7a83c18dacde363e70279d240eec901582298caa269a629e99478d28d7366e",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go",
+          "class": "implementation",
+          "digest": "sha256:b2c3ade2712326e57717414c9af9a3d91c8da5f7e44eb2ed1172da56b5c4e007",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/version/version.go",
+          "class": "implementation",
+          "digest": "sha256:bc1b77e7129ddfd81d890322caf23199fb20ed1e1cc010bb4cdda90e8bbb837f",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/server.json",
+          "class": "governance",
+          "digest": "sha256:53194527a0b13953d553baae9a4dca59d784c3d5b06eeff390fade6343f821f2",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "tests/release/compat.sh",
+          "class": "implementation",
+          "digest": "sha256:c84752ec0e0462da595942324ecf679ee985253651a70454d72636bc61afb505",
+          "reason": "attributed implementation path in the immutable change set"
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:c801d14900a93956600ab9e111b0f8485f0a0ce3cfc2c8c42b399d8640931810",
+      "independence": "same-actor-separate-execution",
+      "components": [
+        {
+          "id": "docs-site",
+          "path": "docs-site",
+          "kind": "package",
+          "language": "python",
+          "domain": "python",
+          "criticality": "low",
+          "validation_profile": "baseline",
+          "metadata_status": "partial",
+          "metadata_missing": [
+            "owner"
+          ],
+          "origin": "declared+observed",
+          "sources": [
+            "artifact:pose-v6-release-readiness:docs-site/docs/ci.md",
+            "observed:pose-v6-release-readiness:docs-site/docs/ci.md"
+          ]
+        },
+        {
+          "id": "mcp-enforce",
+          "path": "mcp-enforce",
+          "kind": "package",
+          "language": "go",
+          "domain": "go",
+          "criticality": "medium",
+          "validation_profile": "baseline",
+          "metadata_status": "partial",
+          "metadata_missing": [
+            "owner"
+          ],
+          "origin": "declared",
+          "sources": [
+            "spec:pose-v6-release-readiness:component:mcp-enforce"
+          ]
+        },
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "go",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "partial",
+          "metadata_missing": [
+            "owner"
+          ],
+          "origin": "declared+observed",
+          "sources": [
+            "artifact:pose-v6-release-readiness:pose-mcp/internal/pose/review_bundle.go",
+            "artifact:pose-v6-release-readiness:pose-mcp/internal/pose/review_release_archive_test.go",
+            "artifact:pose-v6-release-readiness:pose-mcp/internal/version/release_snapshot_test.go",
+            "artifact:pose-v6-release-readiness:pose-mcp/internal/version/version.go",
+            "artifact:pose-v6-release-readiness:pose-mcp/server.json",
+            "delivery:governance:pose-v6-release-readiness:pose-mcp",
+            "observed:pose-v6-release-readiness:pose-mcp/internal/pose/review_bundle.go",
+            "observed:pose-v6-release-readiness:pose-mcp/internal/pose/review_release_archive_test.go",
+            "observed:pose-v6-release-readiness:pose-mcp/internal/version/release_snapshot_test.go",
+            "observed:pose-v6-release-readiness:pose-mcp/internal/version/version.go",
+            "observed:pose-v6-release-readiness:pose-mcp/server.json",
+            "spec:pose-v6-release-readiness:component:pose-mcp"
+          ]
+        },
+        {
+          "id": "scripts",
+          "path": "scripts",
+          "kind": "directory",
+          "origin": "declared",
+          "sources": [
+            "delivery:governance:pose-v6-release-readiness:scripts/release.sh"
+          ]
+        },
+        {
+          "id": "tests",
+          "path": "tests",
+          "kind": "directory",
+          "origin": "declared+observed",
+          "sources": [
+            "artifact:pose-v6-release-readiness:tests/release/compat.sh",
+            "observed:pose-v6-release-readiness:tests/release/compat.sh"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "backend-concurrency",
+          "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-contracts",
+          "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-input-errors",
+          "description": "Inputs, validation failures and error paths are bounded, typed and actionable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-integration-impact",
+          "description": "Providers, consumers and inter-component boundaries remain integrated.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-observability",
+          "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "compatibility",
+          "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "correctness",
+          "description": "Functional and negative behavior is correct.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "cross-component-integration",
+          "description": "Observed component boundaries and contracts are integrated and covered by current evidence.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "integration"
+          ],
+          "profiles": [
+            "synthetic:cross-component"
+          ]
+        },
+        {
+          "id": "documentation",
+          "description": "Operational docs, templates and scaffold match runtime behavior.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "operability",
+          "description": "Errors, explanations and remediation are actionable.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "requirements",
+          "description": "Every requirement has current, relevant evidence.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "scope",
+          "description": "The implementation matches the approved spec scope.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "security",
+          "description": "Inputs, paths, evidence and authority boundaries are safe.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "security"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "artifact-check",
+            "--spec",
+            "pose-v6-release-readiness",
+            "--strict"
+          ],
+          "rationale": "reconcile declared artifacts with Git-observed provenance",
+          "criteria": [
+            "requirements",
+            "scope"
+          ],
+          "preconditions": [
+            "artifacts-attributed"
+          ]
+        },
+        {
+          "id": "assess-design",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "design",
+            "--spec",
+            "pose-v6-release-readiness",
+            "--json"
+          ],
+          "rationale": "observe bounded structural deltas on the canonical review subject",
+          "evidence_classes": [
+            "structure"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "docs-site"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "docs-site",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "mcp-enforce"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "mcp-enforce",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "scripts"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "scripts",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "tests"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "tests",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-integrate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "assess",
+            "integrate"
+          ],
+          "rationale": "inspect providers, consumers and inter-component contract gaps",
+          "evidence_classes": [
+            "integration"
+          ],
+          "criteria": [
+            "backend-contracts",
+            "backend-integration-impact",
+            "cross-component-integration"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "criteria": [
+            "correctness"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "spec:pose-v6-release-readiness"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "history-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "history-check",
+            "--strict"
+          ],
+          "rationale": "verify append-only governance history",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "spec:pose-v6-release-readiness"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "docs-site"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "docs-site",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "mcp-enforce"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "mcp-enforce",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "scripts"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "scripts",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "tests"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "tests",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "criteria": [
+            "backend-concurrency",
+            "backend-input-errors",
+            "backend-observability",
+            "correctness",
+            "requirements"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "producer_coverage": "none",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "docs-site"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "component": "docs-site",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "mcp-enforce"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "component": "mcp-enforce",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "producer_coverage": "none",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "scripts"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "component": "scripts",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "producer_coverage": "none",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "tests"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "component": "tests",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        }
+      ],
+      "selected_profiles": [
+        {
+          "ref": "spec-closeout@1",
+          "category": "base",
+          "order": 0,
+          "source": ".pose/review-profiles/spec-closeout.json",
+          "rationale": "selected by terminal scope policy"
+        },
+        {
+          "ref": "backend-review@1",
+          "category": "language",
+          "order": 1,
+          "source": ".pose/review-profiles/backend-review.json",
+          "components": [
+            "mcp-enforce",
+            "pose-mcp"
+          ],
+          "rationale": "matched typed language selector"
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "design-225d8c8f5561abdf",
+        "check": "assess-design",
+        "evidence_class": "structure",
+        "outcome": "pass",
+        "subject_digest": "sha256:a233d63319929564d26afb07692646d3d08f11240cee1c65460911f83d94d7e7",
+        "subject_observation": "observed",
+        "provenance_digest": "sha256:225d8c8f5561abdf640625d779a39b7ebc160073760bd1fe04e7713c234aa222",
+        "report": "derived:design-delta/225d8c8f5561abdf640625d779a39b7ebc160073760bd1fe04e7713c234aa222"
+      },
+      {
+        "id": "pose-mcp/go/abm-atomic-start-integration",
+        "module": "pose-mcp",
+        "check": "abm-atomic-start-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-causality-closeout-integration",
+        "module": "pose-mcp",
+        "check": "abm-causality-closeout-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-contract-nodes-integration",
+        "module": "pose-mcp",
+        "check": "abm-contract-nodes-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-progressive-review-integration",
+        "module": "pose-mcp",
+        "check": "abm-progressive-review-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-remediation-lineage-integration",
+        "module": "pose-mcp",
+        "check": "abm-remediation-lineage-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-replay-reachability",
+        "module": "pose-mcp",
+        "check": "abm-replay-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-retrospective-replay-integration",
+        "module": "pose-mcp",
+        "check": "abm-retrospective-replay-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/artifact-claim-boundary-integration",
+        "module": "pose-mcp",
+        "check": "artifact-claim-boundary-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/build",
+        "module": "pose-mcp",
+        "check": "build",
+        "evidence_class": "build",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/check-verdict-mode-integration",
+        "module": "pose-mcp",
+        "check": "check-verdict-mode-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/check-workers-integration",
+        "module": "pose-mcp",
+        "check": "check-workers-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-graph-reuse-integration",
+        "module": "pose-mcp",
+        "check": "delivery-graph-reuse-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-integration",
+        "module": "pose-mcp",
+        "check": "delivery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-reachability",
+        "module": "pose-mcp",
+        "check": "delivery-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/federated-roadmap-acceptance-integration",
+        "module": "pose-mcp",
+        "check": "federated-roadmap-acceptance-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/federated-roadmap-negative-gates",
+        "module": "pose-mcp",
+        "check": "federated-roadmap-negative-gates",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/federated-spec-acceptance-integration",
+        "module": "pose-mcp",
+        "check": "federated-spec-acceptance-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/governance-outcomes-v2-contract",
+        "module": "pose-mcp",
+        "check": "governance-outcomes-v2-contract",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-context-integration",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-context-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-context-reachability",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-context-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-installed-journey",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-installed-journey",
+        "evidence_class": "e2e",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-negative-gates",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-negative-gates",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/parallel-gate-integration",
+        "module": "pose-mcp",
+        "check": "parallel-gate-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/parse-memo-integration",
+        "module": "pose-mcp",
+        "check": "parse-memo-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/qualified-artifact-resolution-integration",
+        "module": "pose-mcp",
+        "check": "qualified-artifact-resolution-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/release-review-archive-integration",
+        "module": "pose-mcp",
+        "check": "release-review-archive-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-bundle-convergence",
+        "module": "pose-mcp",
+        "check": "review-bundle-convergence",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-policy-adoption-integration",
+        "module": "pose-mcp",
+        "check": "review-policy-adoption-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-soundness-residuals-integration",
+        "module": "pose-mcp",
+        "check": "review-soundness-residuals-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-authority-transfer-integration",
+        "module": "pose-mcp",
+        "check": "spec-authority-transfer-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-authority-transfer-mcp-status",
+        "module": "pose-mcp",
+        "check": "spec-authority-transfer-mcp-status",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-authority-transfer-negative-gates",
+        "module": "pose-mcp",
+        "check": "spec-authority-transfer-negative-gates",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test",
+        "module": "pose-mcp",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "65c94dbcc3ebc85151fafd5c74efe73b2bd47e5b",
+        "provenance_digest": "sha256:c35b17bf9aab0d3ff474d40b84992f79a0f6353997fb2ddbfd6892190db16225",
+        "report": ".pose/results/delivery-validation.json"
+      }
+    ],
+    "governing_contracts": [
+      "component-aware",
+      "evidence-vocabulary",
+      "explicit-judgment",
+      "review-bundles",
+      "structural-causality"
+    ],
+    "gates": {
+      "accepted_risk_severities": [
+        "low"
+      ],
+      "allow_criterion_reuse": true,
+      "identity_assurance": "declared"
+    },
+    "consumed_inputs": [
+      {
+        "kind": "governed-config",
+        "path": ".pose/indexes/validation-matrix.json",
+        "digest": "sha256:8ae37d0aa49cce2cf800625280d554431c4dc68b7a098f42e1b50a310b477857",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "governed-config",
+        "path": ".pose/policy/review.json",
+        "digest": "sha256:abfa1c9bdf90b6b907a6b724e1b83edb40b8a5eb65a16c6f8214f142bb6e4586",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "review-plan",
+        "path": "spec-closeout@1",
+        "digest": "sha256:c801d14900a93956600ab9e111b0f8485f0a0ce3cfc2c8c42b399d8640931810",
+        "reason": "effective component-aware plan contract"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/backend-review.json",
+        "digest": "sha256:71063c042b4e085bb9afc13e4ac675d0b51a0534b59787a437d1650c156cb5f1",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/spec-closeout.json",
+        "digest": "sha256:3d114c8cb6398ab16bd0a1daca8540728af282558ff37156aea878bcc9d238a5",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/backend-go.md",
+        "digest": "sha256:2289a86134e7d6667ae4dba4bfd68dee8acd59246912e32c35648d399e6d3e31",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/documentation-style.md",
+        "digest": "sha256:5c5c666fc6c796cf9ae3876d25d3fd4fa523d121892459dc0d681d73da1d60ae",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/security.md",
+        "digest": "sha256:1cbf29c12d09cad0799e2d8715e94f84a49ee8fa09867bb5f12a544f8df43774",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "schema",
+        "path": "review-bundle@1",
+        "digest": "sha256:e7c9643ec88eccb2a6dea3ee3291c351983d78e1d2fa44b61399514c5021bcb0",
+        "reason": "canonical bundle and attestation schema identity"
+      },
+      {
+        "kind": "tool-catalog",
+        "path": "native-review-tools@1",
+        "digest": "sha256:c801d14900a93956600ab9e111b0f8485f0a0ce3cfc2c8c42b399d8640931810",
+        "reason": "closed resolved native tool contract"
+      }
+    ]
+  },
+  "excluded_inputs": [
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/assessments/README.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/assessments/consolidated.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/assessments/docs-site.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/assessments/integrations.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/assessments/mcp-enforce.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/assessments/pose-mcp.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/assessments/technical-debt.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/reports/2026-09-28-abm-dependency-review.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/reports/2026-09-28-standard-validate-native.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/reports/history/standard-validate-native.jsonl",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/results/abm-dependency-review.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/results/delivery-validation.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/results/pose-v6-snapshot.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-006ead3e48f6f449.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-00e8019a5375a90c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-01c35f112a4832a8.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-02bc6f502a26775f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-068c673be1749d63.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-06bccb6217cb0a62.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-06f6c29515526976.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-06fa79edb0b31baf.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-0702b44d71bf4a89.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-08b7c35da303d75d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-0a0e308a95c08519.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-0a35117742fef082.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-0e3483b9c42dd2a1.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-0f8527d67944eef2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-100b7717295bed43.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-107fa49996931b97.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-11051f73f3c2d48d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-136fbe28df261c02.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-143f66cc70946edd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-1699669da8d48386.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-16b93d5350d97a79.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-1864f753c6b360e2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-195b269b986df182.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-1b6b7f8b7ce4be39.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-1de5ae58d707950d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-1e9b1ab9c80db670.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-20393c84a4c5216b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-2195cd716267e450.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-22e593daba43cd07.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-230280fc34877007.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-23e89485097a59ce.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-23f515e0a2a311c2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-25156bc96a9fef0d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-2604e1af055082c1.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-26ae4943c54db62c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-26ec050a1c9aee0e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-276a4c8393eb9415.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-2b834fde170df2fc.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-2d914c5be0c96837.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-2e4b9b9eded44bcc.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-2ef570f590395a2f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-2f603d93f2d91c12.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-30c017ba28eb66ed.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-30f278a1ee11ff8e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-33b3bd0ed217bff1.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-35fafe29af0fd5e6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-36222f95ea68b5bf.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-366e4d80266d2d4e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-36862db521974173.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-378f1c988b2bd8be.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-37cc04711f6f7664.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-3a3013f366e1d13e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-3b525634c8a1c254.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-3b792f9063f2790e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-3b920f66b9c14dac.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-3eedf0f5b8a691c7.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-3fd9dd2fd1a6aac2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-41c88c052acaed9c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-42bf3f36e5a773c4.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-435862ceb5692382.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-43ce0de5acd190b2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-4483cfca80dd0224.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-463fe0b4c78e06ba.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-46e5f54bb3f6e3c5.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-4743fb77175c9789.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-49a78548cdc30cfd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-4a0e7cc5ec6cd134.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-4ad67625e6451a44.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-4b754e0434f9f480.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-4bbeeca7add9773b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-5517736489ce75cf.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-589db753f74c1795.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-5961212a1b3b7a31.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-5dbb743f2e853684.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-5e0bf432366ad62e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-5f0a3667d8aa6084.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-5f440b9aa3f54346.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-5fa2673983b2818c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-5fde2a2aa4b5ddc9.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-6125bace00b0f20b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-62cffb41315b504f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-634c7bfe15c1cf1c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-64d9d50a648b2c68.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-666781254e070f21.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-67663c0ff820b339.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-67c5904d37b828ab.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-68fb244c1518867f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-69288904b7744224.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-6aa6deb5affcebd5.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-6ac72003887575f5.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-6bab4982e8a560be.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-6c3c63bd93e9d7a6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-6cd9da2731ee7dbe.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-6ce76ea1c0f07cde.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-6d7e4703aefd1bde.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-6e297308dd1a1430.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-731db6b021a4074c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-74584fb64d8d5b08.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-74d1397260ab149b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-74dfcb41debcc309.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-75655c7e4d5667fd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-7619820d5b4dac4d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-76ba1c54fd164a93.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-77f1b757029da7fe.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-7904b1252114377f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-7ba8f82bb5be8713.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-7c1a3091f4ac802a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-7c6ce29718671ab2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-7c71e86c8d80dee4.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-7e76171b0e715cc0.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-813863ba227f3c77.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-828a3f974f1efec8.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-851c9a0ea97e79f2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-85a291f4e30c9532.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-85f8e977f137a367.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-8e38830aafb11b1f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-8ee2e7f920567f88.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-9097cb22d5d24e55.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-913aab8e61b7c739.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-919c8b44beb43ca2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-923e68554210cf84.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-923f1e2d5a1278df.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-92455ff978851af3.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-9287d1e33d5c4d9d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-92effeef38fc7ad5.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-9327d2926dd7b980.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-93b82eb32c36c3c6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-98b4a32492a3e638.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-98f98293c6c4a1c6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-9b11ca399d046589.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-9ba41f7a3ecb5a7e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-9da803e643b073ad.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-9e3a84d33b9f78ca.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-9fd6a885d74889be.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-a02de68845c0a806.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-a036e1a97df0e604.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-a3992eb7529b0826.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-a45db8d6c490b7cd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-a4bcf813dbebaf24.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-a68c95521257c5df.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-a780e343a8ac6b6e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-a94cc10524316fd4.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-aa038d9f09d00196.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-ab74da9658285ef9.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-ab86d68b11c9760c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-ab992bfd11da8d57.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-ac1f2e05a1096235.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-ad0033d383167225.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-ad92d96e46e4e3ff.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-ad94eb38777d111c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-b06beac5be330ef6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-b2351a1bad26c201.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-b51c660e95121190.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-b6d1a87638f7fdb6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-bb528d9f46127502.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-bc5c32ca60e7eb8b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-bd96703a3bda08c0.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-bed04c785ad309e3.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-c1b5dfc4efa4b5c2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-c22fd4f7248f86b4.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-c27ae4d936f2130e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-c48f176a4debbd37.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-c66aa6fd01b906ac.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-c8ab26bbfa286167.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-ca7044d340325569.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-cb9b39c85fe61109.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-cca7ae00698eb9a6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-ccc5d84a06af6dd3.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-d1a1be5f6ce64e7c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-d23fa211d6b4abbc.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-d2637ecdce857069.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-d67edc9c8b1167d7.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-d91d75c10c1d11bd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-db94cc2074eee039.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-dbdb0c1efb592d6f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-dbf895a7225378ad.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-decae7efeff209f5.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-df570b1ce9b6ffbb.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-dfb155ad329c1390.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e00c5d2296d83dce.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e12a12a8fd54e61a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e1c575680860e228.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e2bb5fa91cdca46a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e351aff0b396285c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e3e662da534811cb.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e44578decc129f98.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e49d4b052817114a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e54e04209ee140dc.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e729c860aede99fb.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e7f0948e0b52f5cf.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e7f8f2a683185511.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-e8d1c801e0af00c6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-eaffe9b7512c9a5d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-ebb828664e33c6d8.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-eef8ca5f37dc0b9e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-f0225f1f6c3763de.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-f068a8f030c16e16.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-f3a066ade730bdfa.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-f3bd7eb6e32f8675.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-f3e79d7b6d0cc222.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-f5f507c986f9af90.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-attestations/rva-fbaccc71906174f1.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-0032c52ad95462b5.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-02cddbf58f26b615.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-0302fb63ce24e8a4.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-036220f897de14b5.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-039a764e86d1c9f1.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-05aa4e352b61e477.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-09480b299eb54d4d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-0a15bdcd612ae975.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-0b47240ef9f718c9.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-0d22733794d9fb53.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-0ff4e90f734e4d54.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-141b2d571eeddde9.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-1479ee8c7c60ea3b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-168baa62179bbe37.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-1c312cef2fe5bd33.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-1c593b14e6797c62.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-1d5e2644c0b2fc07.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-1e1d570bf8352162.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-1f785489b067e8a5.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-20c1a49678e17b52.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-2309cf6caae0767f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-2bb2c3fdb0f41c61.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-2c60e1b5fd2f9eb7.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-2ebd607bdfbbed6b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-32c3d4f0c4429d99.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-351d0899064c5b20.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-364991aaf2d09861.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-3868c8c1308d4b81.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-3875d1df347e4c97.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-38867009a7854224.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-39162313655ee79e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-3942fe3e484998c4.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-3a576eabc8d1348b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-3c1fe2d64e7be5ed.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-3f534b5fee0319d1.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-416572564ea5949a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-4a3b1e9af2aaabdb.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-4ab2bcd414ed7d25.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-4ad497c39e09ce6b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-4b6590453127e43a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-4bc1bc7afc98b565.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-4c0546b90ee00e2c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-50b2f7263d510b56.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-51049ae06f08960d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-515562d5e8f16127.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-517098dee5ff8ad6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-51b4da3e25ef8f19.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-521fcc8813a85dbd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-5485aeed4e12cbbd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-54e8a2381eac47f1.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-56187f69b3c6aee9.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-5800651946126a5c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-596c17da4e14d24a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-598862692a2c99ed.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-5ab332d48c618791.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-5bdf0d34b77617cd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-5cffc03421c6009c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-5daa59d28af071db.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-5eeac008e002a7cb.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-609d0a4a1dc11524.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-61695beff1680dca.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-626f1b8b0c803bc7.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-642c2ed5392ec5a2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-651c77b3db12e990.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-6536d98744dfb455.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-6597875ebc9e6d70.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-66002e53e4de506a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-6b1f6e4bb7afe00b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-6d069810a142a32b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-6d3e8638bc7c7e63.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-6ec222f795475316.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-6fd331f0c0fa2cbe.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-700a629d76b422c6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-709543bb53bb5db3.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-7134aa8d76d6eadc.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-71c25497f3eaf355.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-74817a6a3ceabdfc.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-777cb885c6cbf617.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-7a8cbdd2e869b4c8.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-7cb51297f8268798.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-7ccc31f8c2b740b9.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-7e307694dc11dfb7.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-7ee9fbfa99abe257.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-7f410fe83bb31c97.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-800581eb43261474.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-82749c6422f9b357.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-83344ac0b6ff577a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-83628440a7a1247d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-86765ec6effb57ae.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-86ae6a9a08fe4f05.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-86f389f68c5e4ffa.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-885e9e395ca73115.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-88b0c0a5307c79aa.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-89499137d426f1ae.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-8a521857b192584c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-8c32284b62a3db02.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-91ab16b2b024fdb0.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-93795677bdd28f86.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-95059455afe4b0ea.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-95ffb1f62cba4191.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-988f49d132b1ca26.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-98d8786a72cb06ed.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-99f27259d27e186e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-9cf4145043e62edb.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-a04c3110ddfee618.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-a0734522693a92b6.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-a120e580336efe5b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-a1f189dd2ba24666.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-a2f65cf793a5654b.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-a910fbdd57300e50.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-aa163fc0b3388483.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-aad14734052d72b4.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-ac71cde4104eaccd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-accb55a014dbc60d.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-af9f0802f53cb646.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-afa9aeb96b0a784a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b02464a2fbe95500.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b0b50f746e0d7383.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b0ba7d0977464ed9.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b297a858ca39abee.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b349a6eaf37e2c46.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b36da66423c71d50.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b5032f62eb870f22.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b57dd5845e345251.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b67f9fd5365520d2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b8881b0d72e5996f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-b9d94cf4976a0516.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-ba67668f85a7cb71.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-ba6af9222298f4c1.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-bba4da7f0101ea7f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-c250d5874bf9e243.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-c75a7041102f7332.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-ca974a9f5386caf2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-cce08385747695c3.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-cf1f3b64e92922c7.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-cfaeb6d54e9e3ec1.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-cfdfadb197a7259a.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-d0fee6133683805c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-d38badfb103168cb.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-d805f6d4a4af2854.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-d932be028fb57a41.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-d9fee4351d5af4c2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-da4044dc1bf5c0ba.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-dae8ec6f24dfca41.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-db6cc7481146ad7e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-dc0864650d10ced9.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-df1882a3c4a6e2cc.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-df461992562d7193.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-e3b2b219eac52706.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-e47dcb0a379e17b1.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-e48b0dffcd68fdfd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-e52a5285d8032e49.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-e58767bb94bb0b29.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-e8fffab06071e802.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-ebea7706a6335acd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-ed25ace6522d1d3c.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-ee849c1aab674f73.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-eed1627862a4b547.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-ef88149f0c3f6d40.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-f0dfb3017e1d2b05.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-f2d3bca8d67079bb.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-f4ec72b26e63e3a2.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-f6d43d88b503e3cd.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-f6e275d557025e31.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-f8345d8ca2352137.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-f8c550d2797eb3c5.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-f96de4c00db5770e.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/review-bundles/rvb-fc1e2102c2ef228f.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/components/docs-site.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/components/mcp-enforce.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/components/pose-mcp.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/history.jsonl",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/integrations.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/project-state.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/refresh-log.jsonl",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-evidence",
+      "path": ".pose/state/technical-debt.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-index",
+      "path": ".pose/indexes/delivery-integrity.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-index",
+      "path": ".pose/indexes/releases.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-index",
+      "path": ".pose/indexes/spec-graph.json",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "derived-section",
+      "path": "final report",
+      "digest": "sha256:521f08bdf03d3b093f125c8aa17d8a66de7374c661f4bfabac02c0f6fdde2858",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "tasks",
+      "digest": "sha256:e0a64bb7adcaba46c18cc29f7e452a40b65812bead59480256526e8e60d99938",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "validation",
+      "digest": "sha256:ab87ab712213d7e3c1de73e55fe884afbd3c511fafd96583da7915d76212908d",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "lifecycle",
+      "path": "/home/go/IdeaProjects/harne8/pose-dist/.pose/specs/2026-09-28-pose-v6-release-readiness.md",
+      "reason": "status and completed_at do not define the reviewed semantic subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-09-26-pose-abm-review-soundness-residuals.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-09-28-pose-abm-retrospective-replay.md",
+      "reason": "attributed path is outside the semantic review subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-09-28-pose-v6-release-readiness.md",
+      "reason": "attributed path is outside the semantic review subject"
+    }
+  ],
+  "range_observations": [
+    {
+      "change_set": "cs-cd7f657dd16e",
+      "state": "contaminated",
+      "attributed_commits": 20,
+      "range_commits": 26,
+      "unattributed_commits": 6,
+      "reason": "the range spans commits this change set does not attribute; its paths are attributed, its base..head is not"
+    }
+  ],
+  "warnings": [
+    "change set cs-cd7f657dd16e attributes 20 commit(s) but its range spans 26; 6 commit(s) in base..head belong to other work, so the range is provenance and the attributed paths are the subject",
+    "metadata-incomplete review component docs-site missing:owner",
+    "metadata-incomplete review component mcp-enforce missing:owner",
+    "metadata-incomplete review component pose-mcp missing:owner",
+    "review tool validate (component docs-site) asks for evidence of class build|e2e|integration|unit from a component the validation matrix declares runs no check; record it not-used with the reason, or register a check for that component",
+    "review tool validate (component scripts) asks for evidence of class build|e2e|integration|unit from a component the validation matrix declares runs no check; record it not-used with the reason, or register a check for that component",
+    "review tool validate (component tests) asks for evidence of class build|e2e|integration|unit from a component the validation matrix declares runs no check; record it not-used with the reason, or register a check for that component",
+    "sealed evidence ran against a commit other than the subject head 11d16301b497; it is current by provenance, not by having observed this change: build:pose-mcp/go/build, e2e:pose-mcp/go/multi-repo-agent-installed-journey, integration:pose-mcp/go/abm-atomic-start-integration, integration:pose-mcp/go/abm-causality-closeout-integration, integration:pose-mcp/go/abm-contract-nodes-integration, integration:pose-mcp/go/abm-progressive-review-integration, integration:pose-mcp/go/abm-remediation-lineage-integration, integration:pose-mcp/go/abm-retrospective-replay-integration, integration:pose-mcp/go/artifact-claim-boundary-integration, integration:pose-mcp/go/check-verdict-mode-integration, integration:pose-mcp/go/check-workers-integration, integration:pose-mcp/go/delivery-graph-reuse-integration, integration:pose-mcp/go/delivery-integration, integration:pose-mcp/go/federated-roadmap-acceptance-integration, integration:pose-mcp/go/federated-roadmap-negative-gates, integration:pose-mcp/go/federated-spec-acceptance-integration, integration:pose-mcp/go/governance-outcomes-v2-contract, integration:pose-mcp/go/multi-repo-agent-context-integration, integration:pose-mcp/go/multi-repo-agent-negative-gates, integration:pose-mcp/go/parallel-gate-integration, integration:pose-mcp/go/parse-memo-integration, integration:pose-mcp/go/qualified-artifact-resolution-integration, integration:pose-mcp/go/release-review-archive-integration, integration:pose-mcp/go/review-bundle-convergence, integration:pose-mcp/go/review-policy-adoption-integration, integration:pose-mcp/go/review-soundness-residuals-integration, integration:pose-mcp/go/spec-authority-transfer-integration, integration:pose-mcp/go/spec-authority-transfer-mcp-status, integration:pose-mcp/go/spec-authority-transfer-negative-gates, reachability:pose-mcp/go/abm-replay-reachability, reachability:pose-mcp/go/delivery-reachability, reachability:pose-mcp/go/multi-repo-agent-context-reachability, unit:pose-mcp/go/test",
+    "unmapped review component path:.github/workflows/release.yml",
+    "unmapped review component path:.github/workflows/security.yml",
+    "unmapped review component path:.pose/assessments/README.md",
+    "unmapped review component path:.pose/assessments/consolidated.md",
+    "unmapped review component path:.pose/assessments/docs-site.md",
+    "unmapped review component path:.pose/assessments/integrations.md",
+    "unmapped review component path:.pose/assessments/mcp-enforce.md",
+    "unmapped review component path:.pose/assessments/pose-mcp.md",
+    "unmapped review component path:.pose/assessments/technical-debt.md",
+    "unmapped review component path:.pose/changelogs/unreleased/pose-v6-release-readiness.md",
+    "unmapped review component path:.pose/changelogs/v6.0.0/pose-v6-release-readiness.md",
+    "unmapped review component path:.pose/indexes/delivery-integrity.json",
+    "unmapped review component path:.pose/indexes/releases.json",
+    "unmapped review component path:.pose/indexes/spec-graph.json",
+    "unmapped review component path:.pose/indexes/validation-matrix.json",
+    "unmapped review component path:.pose/reports/2026-09-28-abm-dependency-review.md",
+    "unmapped review component path:.pose/reports/2026-09-28-standard-validate-native.md",
+    "unmapped review component path:.pose/reports/history/standard-validate-native.jsonl",
+    "unmapped review component path:.pose/results/abm-dependency-review.json",
+    "unmapped review component path:.pose/results/delivery-validation.json",
+    "unmapped review component path:.pose/results/pose-v6-snapshot.json",
+    "unmapped review component path:.pose/specs/2026-09-28-pose-v6-release-readiness.md",
+    "unmapped review component path:.pose/state/components/docs-site.json",
+    "unmapped review component path:.pose/state/components/mcp-enforce.json",
+    "unmapped review component path:.pose/state/components/pose-mcp.json",
+    "unmapped review component path:.pose/state/history.jsonl",
+    "unmapped review component path:.pose/state/integrations.json",
+    "unmapped review component path:.pose/state/project-state.md",
+    "unmapped review component path:.pose/state/refresh-log.jsonl",
+    "unmapped review component path:.pose/state/technical-debt.json",
+    "unmapped review component path:README.md",
+    "unmapped review component path:compatibility.json"
+  ],
+  "path": ".pose/review-bundles/rvb-3d2705de830989d3.json"
+}

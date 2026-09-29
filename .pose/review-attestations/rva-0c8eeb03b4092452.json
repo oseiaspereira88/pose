@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0c8eeb03b4092452",
+  "bundle_id": "rvb-2bfb47a84142896c",
+  "bundle_digest": "sha256:2bfb47a84142896ccc2bfff5c4f57c6852c0709722aa3526415ec1d5c1c205a5",
+  "reviewer": "agent:codex-archive-dependency-renewal-20260928",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Inspected CLI, MCP, file schemas and adoption boundaries; unknown obligations are refused, frozen historical inputs remain auditable, and experimental overlays remain opt-in. Inspected the actual published/verified ledger receipts: immutable tag commit 3faf1fe, publish run 36437204793, independent run 36438036943 and authenticated asset digests. These receipts update publication facts; the later local archive-reader patch belongs to its own approved spec and is not part of the public 6.0.0 binary. Reviewed the only runtime delta, the archive reader: alternate ownership requires the same immutable commit and its exact path diff, unique intact committed ledger and confinement. Existing authority, judgment and subject identity checks are preserved; current canonical 34-check matrix and archive negatives passed. Evidence is carried forward where the engine explicitly says so."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Inspected the canonical spec, CLI reference, applicable skills and embedded manual; explicit pending judgments and the implemented contract are consistent. Portuguese auto-approval guidance was corrected in the residual spec. Inspected the actual published/verified ledger receipts: immutable tag commit 3faf1fe, publish run 36437204793, independent run 36438036943 and authenticated asset digests. These receipts update publication facts; the later local archive-reader patch belongs to its own approved spec and is not part of the public 6.0.0 binary. Reviewed the only runtime delta, the archive reader: alternate ownership requires the same immutable commit and its exact path diff, unique intact committed ledger and confinement. Existing authority, judgment and subject identity checks are preserved; current canonical 34-check matrix and archive negatives passed. Evidence is carried forward where the engine explicitly says so."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Inspected bounded errors, freshness and unavailable states; diagnostics identify the next required action without converting unknown evidence into approval. No causal or telemetry benefit is inferred. Inspected the actual published/verified ledger receipts: immutable tag commit 3faf1fe, publish run 36437204793, independent run 36438036943 and authenticated asset digests. These receipts update publication facts; the later local archive-reader patch belongs to its own approved spec and is not part of the public 6.0.0 binary. Reviewed the only runtime delta, the archive reader: alternate ownership requires the same immutable commit and its exact path diff, unique intact committed ledger and confinement. Existing authority, judgment and subject identity checks are preserved; current canonical 34-check matrix and archive negatives passed. Evidence is carried forward where the engine explicitly says so."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Compared attributed implementation and structural observation with the canonical source requirements; changes stay within the declared contract and separately tracked integrity residuals. Inspected the actual published/verified ledger receipts: immutable tag commit 3faf1fe, publish run 36437204793, independent run 36438036943 and authenticated asset digests. These receipts update publication facts; the later local archive-reader patch belongs to its own approved spec and is not part of the public 6.0.0 binary. Reviewed the only runtime delta, the archive reader: alternate ownership requires the same immutable commit and its exact path diff, unique intact committed ledger and confinement. Existing authority, judgment and subject identity checks are preserved; current canonical 34-check matrix and archive negatives passed. Evidence is carried forward where the engine explicitly says so."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Inspected confinement, immutable evidence, identity and authority checks; missing support cannot authorize writes or approve findings. Critical wont-fix and negative-decision reuse bypasses are fixed and covered by Store, CLI and signed-import tests. Inspected the actual published/verified ledger receipts: immutable tag commit 3faf1fe, publish run 36437204793, independent run 36438036943 and authenticated asset digests. These receipts update publication facts; the later local archive-reader patch belongs to its own approved spec and is not part of the public 6.0.0 binary. Reviewed the only runtime delta, the archive reader: alternate ownership requires the same immutable commit and its exact path diff, unique intact committed ledger and confinement. Existing authority, judgment and subject identity checks are preserved; current canonical 34-check matrix and archive negatives passed. Evidence is carried forward where the engine explicitly says so."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-225d8c8f5561abdf",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Documentation-only changes were read directly; registered metadata and no-producer status are already in the sealed plan."
+    },
+    {
+      "id": "assess-discover",
+      "component": "mcp-enforce",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Documentation-only changes were read directly; registered metadata and no-producer status are already in the sealed plan."
+    },
+    {
+      "id": "suggest-review",
+      "component": "mcp-enforce",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "passed",
+      "evidence": "report:.pose/reports/2026-09-28-abm-dependency-review.md",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The validation matrix explicitly registers no producer for this docs component; inspected documentation manually."
+    },
+    {
+      "id": "validate",
+      "component": "mcp-enforce",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Executed required gates and inspected the current source evidence; conclusions and limits are recorded in the source review report. Rechecked native attribution and the current canonical module evidence; the archive-reader change preserves this scope contract."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "The validation matrix explicitly registers no producer for this docs component; inspected documentation manually."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "The validation matrix explicitly registers no producer for this docs component; inspected documentation manually."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/release-review-archive-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T00:48:17Z",
+  "path": ".pose/review-attestations/rva-0c8eeb03b4092452.json"
+}
