@@ -7,7 +7,7 @@ supersedes:
 depends_on:
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:review-plan-producible-evidence-classes
 ---
 
 # Spec: Review plans may only demand producible evidence
