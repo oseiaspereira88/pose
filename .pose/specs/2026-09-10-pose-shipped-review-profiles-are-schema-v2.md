@@ -7,7 +7,7 @@ supersedes:
 depends_on:
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:shipped-review-profiles-are-schema-v2
 task_type: bugfix
 ---
 
