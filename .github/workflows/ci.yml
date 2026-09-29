@@ -3,6 +3,9 @@ on:
   pull_request:
   push:
     branches: [main]
+  # The release job runs this whole workflow at the tagged commit and needs it
+  # green (spec release-runs-the-ci-gates).
+  workflow_call:
 permissions: { contents: read }
 jobs:
   test:
