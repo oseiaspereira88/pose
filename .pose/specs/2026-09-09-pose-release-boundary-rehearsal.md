@@ -1,8 +1,8 @@
 ---
 slug: pose-release-boundary-rehearsal
-status: in-progress
+status: done
 created_at: 2026-09-09
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-self-update-handoff-path, pose-adoption-stamp-stays-readable
 priority: 0
