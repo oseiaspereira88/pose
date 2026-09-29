@@ -70,6 +70,11 @@ Both are the kind of change that passes review by looking consistent.
 - created: pose-mcp/internal/pose/live_policy_reads_test.go
 - modified: .pose/specs/2026-09-10-pose-cross-version-guard-is-this-repositorys.md
 - modified: .pose/specs/2026-09-10-pose-reuse-is-sealed-signing-stays-live.md
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/stack_seed.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
+
+Backfilled on 2026-09-29: `6f58750` (Two more follow-ups: the changelog date and the one live read (#85)) carries this spec's trailer and also changed the 3 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - Reading source text is coarser than reading types, and a policy field reached
