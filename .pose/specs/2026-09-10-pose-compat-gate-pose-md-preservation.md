@@ -8,7 +8,7 @@ depends_on: pose-compat-gate-manual-refresh-assertion
 priority: 0
 components: pose-mcp
 task_type: refactor
-delivers:
+delivers: surface:compat-gate-pose-md-preservation
 ---
 
 # Spec: The release gate holds POSE.md to the preservation property
