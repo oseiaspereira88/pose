@@ -84,6 +84,12 @@ contribute nothing.
 - modified: pose-mcp/internal/scaffold/dist/.pose/indexes/validation-matrix.json
 - modified: .pose/specs/2026-09-08-pose-one-evidence-class-vocabulary.md
 
+### Delivery targets
+
+- capability:emittable-analysis-evidence-classes module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Moving `go vet` off `build` removes the only Go producer of that class. A
   `go build ./...` check restores it; without that step the change would have
