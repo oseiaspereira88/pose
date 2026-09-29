@@ -77,6 +77,11 @@ and one of them had already been copied into a spec written this week.
 - modified: pose-mcp/internal/cli/validate_root_and_nodemodules_test.go
 - modified: pose-mcp/internal/pose/discovery.go
 - modified: .pose/specs/2026-09-10-pose-compat-gate-pose-md-preservation.md
+- created: pose-mcp/internal/cli/mcp_sigterm_test.go
+- created: pose-mcp/internal/cli/update_reports_delivered_state_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
+
+Backfilled on 2026-09-29: `20c6565` (Before 5.0.2: honest update failures, SIGTERM on stdio, and the overdue backlog (#94)) carries this spec's trailer and also changed the 3 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - None: the suite passes unchanged, so no assertion depended on the text.
