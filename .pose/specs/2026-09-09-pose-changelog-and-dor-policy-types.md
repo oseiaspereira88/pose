@@ -194,7 +194,7 @@ message an author reads; and require an untouched instance to be unchanged.
 - R2 [satisfied] <TestChangelogCategoriesFallBackToTheDefaults covers an absent policy and an empty list>
 - R3 [satisfied] <TestRenderOrderIsPresentationAndStillCarriesAnAddedCategory asserts the heading exists and comes after the known ones>
 - R4 [satisfied] <DoRPolicy carries schemaVersion, adopted_at, defaultTaskType and taskTypes, and both readiness.go and check.go read it; the shipped dor.json now carries adopted_at:"" with a comment saying the gate is opt-in>
-- R5 [satisfied] <policyKeyChecks holds changelog.json and dor.json; policyFilesWithoutAModelledStruct is empty, and TestEveryShippedPolicyIsHeldToItsKeysOrExempted fails on any shipped policy that is neither>
+- R5 [satisfied] <policyKeyChecks holds changelog.json and dor.json; policyFilesWithoutAModelledStruct is empty, and TestEveryShippedPolicyIsHeldToItsKeysOrExempted fails on any shipped policy that is neither> surface:changelog-and-dor-policy-types evidence:integration
 
 ### Known gaps
 - The shipped `changelog.json` carries `adopted_at: "2026-08-03"`, which is this
