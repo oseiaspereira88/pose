@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-7e4d3e281d352024",
+  "bundle_id": "rvb-540be0a5edc56185",
+  "bundle_digest": "sha256:540be0a5edc56185361a8ec530c8c8141b8916f5f96f37b62f716d6cca154347",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-355b03129c4e30db",
+      "rationale": "Diagnostic only."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-355b03129c4e30db",
+      "rationale": "The remedy is part of the finding."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-355b03129c4e30db",
+      "rationale": "Unproducible demands surface before a review blocks on them."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Tests the change set introduced and that pass in the sealed unit run: TestAModuleOverrideCountsAsAProducer, TestDoctorReportsADemandedClassNoCheckProduces, TestMovingTheOnlyProducerIsReported, TestNoFindingWhenNothingIsDemanded."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-355b03129c4e30db",
+      "rationale": "Doctor names classes selected profiles demand that no check or override produces."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-355b03129c4e30db",
+      "rationale": "Read-only diagnostic."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-report-a-demanded-class-nothing-produces reports no error after the claims were reconciled on 2026-09-29."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "surface-check --spec pose-report-a-demanded-class-nothing-produces --strict reported 0 findings against these sealed results; the delivery reachability check passed in the same run."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed native matrix passed 43 of 43 at this revision."
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T21:12:58Z",
+  "path": ".pose/review-attestations/rva-7e4d3e281d352024.json"
+}
