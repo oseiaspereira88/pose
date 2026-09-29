@@ -84,6 +84,13 @@ testing them buys little. Three describe behaviour:
 
 Backfilled on 2026-09-29: `a94a7a2` (Three diagnostics follow-ups: audit coverage, unread policy keys, carried-forward evidence (#69)) carries this spec's trailer and also changed the 4 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:doctor-fixtures-exercise-production-path module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:doctor-fixtures-exercise-production-path module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Coverage says a statement ran, not that an assertion depended on it. Each test
   here also asserts the contrary case, which is the cheap defence; it is not a
