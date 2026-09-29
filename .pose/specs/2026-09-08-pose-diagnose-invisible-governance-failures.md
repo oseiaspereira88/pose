@@ -207,9 +207,9 @@ accident.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <doctor.go: review.evidence-vocabulary, scoped to the profiles .pose/policy/review.json selects; tests assert warn on a selected profile naming a class outside ValidEvidenceClasses, ok when every class is producible, and ok when the offending profile is on disk but unselected>
-- R2 [satisfied] <doctor.go: validate.evidence-class-coverage; test asserts warn on a matrix check with no evidenceClass and ok otherwise>
-- R3 [satisfied] <artifact_integrity.go prints artifact.change_set.base/head/commits by default; test asserts the fields appear without --json>
+- R1 [satisfied] <doctor.go: review.evidence-vocabulary, scoped to the profiles .pose/policy/review.json selects; tests assert warn on a selected profile naming a class outside ValidEvidenceClasses, ok when every class is producible, and ok when the offending profile is on disk but unselected> surface:diagnose-invisible-governance-failures evidence:integration
+- R2 [satisfied] <doctor.go: validate.evidence-class-coverage; test asserts warn on a matrix check with no evidenceClass and ok otherwise> surface:diagnose-invisible-governance-failures evidence:integration
+- R3 [satisfied] <artifact_integrity.go prints artifact.change_set.base/head/commits by default; test asserts the fields appear without --json> surface:diagnose-invisible-governance-failures evidence:integration
 
 ### Known gaps
 - Closed after v1.8.0 shipped: `review.evidence-vocabulary` reported every
