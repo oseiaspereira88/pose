@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-be7e0f9f7ef3f2c4",
+  "bundle_id": "rvb-12471147fe662418",
+  "bundle_digest": "sha256:12471147fe662418e2f3bd686ccc71a7a61179a4b263fe88e17b64975fd1a326",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/test-git-isolation-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/test-git-isolation-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/test-git-isolation-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Only test binaries change: testgit is imported solely from TestMain in three _test files, so the shipped binary does not link it and the engine's git calls keep the user's configuration. Isolating GIT_CONFIG_GLOBAL removes the developer's ~/.gitconfig from tests, which CI runners never had; the full suite passed three consecutive runs that way, and GIT_CONFIG_COUNT stays free for the test that already uses it."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/test-git-isolation-integration",
+      "rationale": "The package comment states the mechanism (detached maintenance after every commit), the observed failure text and why GIT_CONFIG_GLOBAL rather than GIT_CONFIG_COUNT. The spec records that the flake did not reproduce alone in 40 runs and that the trace, not the flake, is the evidence. The changelog fragment says the engine's own git use is unchanged."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/test-git-isolation-integration",
+      "rationale": "CI now gates releases, so a random cleanup failure could block one. The writer is removed rather than retried, and the probe fails if maintenance comes back, so a future git default change surfaces as a named test failure instead of intermittent red."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/test-git-isolation-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-2e0471c573c7e716",
+      "rationale": "One internal package with its test, three TestMain hooks and the registered producer. No fixture, assertion or production code changed; shell test scripts are named as residual risk rather than folded in."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/test-git-isolation-integration",
+      "rationale": "The config file is written to a fresh private temp directory and removed after the run. It disables maintenance only; it adds no credential helper, hook path or safe.directory, and it narrows the configuration tests inherit rather than widening it."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/test-git-isolation-integration"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/test-git-isolation-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T03:06:54Z",
+  "path": ".pose/review-attestations/rva-be7e0f9f7ef3f2c4.json"
+}

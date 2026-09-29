@@ -1,8 +1,8 @@
 ---
 slug: test-git-repos-run-no-background-maintenance
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on:
 priority: 1
@@ -118,17 +118,28 @@ not the flake, is the evidence.
 2026-09-29, implemented. With `maintenance.auto` flipped back to true, the probe's
 isolated case fails. The full suite passed three consecutive runs under isolation.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 40/40 into the results path; bundle
+`rvb-12471147fe662418`, 37 evidence items; attestation `rva-be7e0f9f7ef3f2c4`,
+`agent:claude-opus-5-5`, approved with five explicit judgments.
+
 ### Requirement trace
 
-- R1 [pending] pose-mcp/internal/testgit/testgit.go
-- R2 [pending] test:TestIsolatedCommitStartsNoBackgroundMaintenance
-- R3 [pending] check:test
+- R1 [satisfied] governance:test-git-isolation evidence:integration check:test-git-isolation-integration test:TestIsolatedCommitStartsNoBackgroundMaintenance — the
+  cli, pose and mcpserver TestMain hooks call testgit.Isolate before m.Run
+- R2 [satisfied] governance:test-git-isolation evidence:integration check:test-git-isolation-integration test:TestIsolatedCommitStartsNoBackgroundMaintenance — git's
+  trace shows maintenance started under an empty global config and none under
+  isolation; flipping maintenance.auto back fails the isolated case
+- R3 [satisfied] governance:test-git-isolation evidence:integration check:test-git-isolation-integration check:test — the full suite passed three consecutive runs
+  under isolation, and the registered `test` check passed in both closeout runs
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+The test binaries that create Git repositories start no detached maintenance, so
+their temporary-directory cleanup no longer races a background writer.
 
 ### Residual risks
 
