@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-attestation-evidence-must-be-in-the-bundle
 priority: 1
 components: pose-mcp
-delivers:
+delivers: surface:attest-records-not-applicable
 ---
 
 # Spec: A reviewer can record a criterion as not applicable
