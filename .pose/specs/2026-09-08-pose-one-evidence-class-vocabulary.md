@@ -89,6 +89,12 @@ downstream guards unnecessary rather than merely redundant.
 - modified: pose-mcp/internal/pose/review_plan_test.go
 - modified: pose-mcp/internal/pose/delivery_surface.go
 
+### Delivery targets
+
+- capability:one-evidence-class-vocabulary module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - An instance whose own profile declares any of the ten dropped names stops
   loading it, which fails review planning rather than degrading it. That is the
