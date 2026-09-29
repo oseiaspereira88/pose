@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-evidence-scoped-to-component
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:component-evidence-is-not-inherited-upward
 ---
 
 # Spec: Component evidence answers downward, not upward
