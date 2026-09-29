@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-closeout-regenerates-before-sealing
 priority: 1
 components: pose-mcp
-delivers:
+delivers: surface:seal-names-carried-forward-evidence, capability:seal-names-carried-forward-evidence
 ---
 
 # Spec: Sealing says when evidence did not observe the change
