@@ -1,8 +1,8 @@
 ---
 slug: pose-reuse-is-sealed-signing-stays-live
-status: in-progress
+status: done
 created_at: 2026-09-10
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-bundle-findings-take-the-contract-the-legacy-path-had
 priority: 0
