@@ -8,7 +8,7 @@ depends_on: pose-skill-command-parity
 priority: 0
 components: pose-mcp
 task_type: refactor
-delivers:
+delivers: surface:parity-reads-the-cli-surface
 ---
 
 # Spec: Locale parity reads the commands from the CLI
