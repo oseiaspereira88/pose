@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-release-boundary-rehearsal
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:cross-version-guard-is-this-repositorys
 task_type: bugfix
 ---
 
