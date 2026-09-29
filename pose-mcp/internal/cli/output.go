@@ -8,8 +8,11 @@ package cli
 // (--color, --quiet, --verbose) are parsed by each command and applied on top.
 
 import (
+	"bytes"
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 )
@@ -30,6 +33,8 @@ type outputFlags struct {
 	JSON  bool
 	Quiet bool
 	Color cliout.ColorMode
+	// JSONOut is a project-relative file the document is also written to.
+	JSONOut string
 }
 
 // splitOutputFlags removes --json, --quiet and --color <mode> from args and
@@ -44,6 +49,15 @@ func splitOutputFlags(args []string) ([]string, outputFlags, string) {
 			flags.JSON = true
 		case "--quiet":
 			flags.Quiet = true
+		case "--json-out":
+			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
+				return nil, flags, "--json-out requires a path"
+			}
+			i++
+			if !confinedRelativePath(args[i]) {
+				return nil, flags, "--json-out must be a relative path inside the project"
+			}
+			flags.JSONOut = args[i]
 		case "--color":
 			if i+1 >= len(args) {
 				return nil, flags, "--color requires a value (auto, always or never)"
@@ -70,13 +84,18 @@ type gateOutput struct {
 	// result is stdout for a full human run and io.Discard otherwise, for the
 	// prose a gate prints around its findings.
 	result io.Writer
+	// root anchors --json-out; a gate sets it once it knows the project.
+	root string
 }
 
 func newGateOutput(command string, flags outputFlags, stdout, stderr io.Writer) *gateOutput {
 	r := renderWithColor(stdout, stderr, flags.Color)
 	r.SetQuiet(flags.Quiet)
-	if flags.JSON {
+	switch {
+	case flags.JSON:
 		r.RecordJSON(command)
+	case flags.JSONOut != "":
+		r.RecordTee(command)
 	}
 	result := stdout
 	if flags.JSON || flags.Quiet {
@@ -107,11 +126,32 @@ func (g *gateOutput) VerdictWord(state cliout.State, word, line, text string) {
 		g.r.Verdict(cliout.Verdict{State: state, Word: word, Text: text})
 		return
 	}
+	g.r.RecordVerdict(cliout.Verdict{State: state, Word: word, Text: text})
 	g.r.ContractLine(line)
 }
 
 // RecordNote adds a machine-only field that has no contract line of its own.
 func (g *gateOutput) RecordNote(name, value string) { g.r.RecordField(name, value) }
 
-// Close flushes the machine document, if any.
-func (g *gateOutput) Close() { _ = g.r.FlushJSON() }
+// Close writes the --json-out file, then flushes the stdout document, if any.
+func (g *gateOutput) Close() {
+	if g.flags.JSONOut != "" {
+		if err := writeJSONOut(g.r, g.root, g.flags.JSONOut); err != nil {
+			g.r.Failure(err.Error())
+		}
+	}
+	_ = g.r.FlushJSON()
+}
+
+// writeJSONOut writes r's document to path, relative to root.
+func writeJSONOut(r *cliout.Renderer, root, path string) error {
+	var buf bytes.Buffer
+	if err := r.WriteJSONTo(&buf); err != nil {
+		return err
+	}
+	target := filepath.Join(root, filepath.FromSlash(path))
+	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+		return err
+	}
+	return writeAtomic(target, buf.Bytes(), 0o644)
+}

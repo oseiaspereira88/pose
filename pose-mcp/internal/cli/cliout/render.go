@@ -25,7 +25,13 @@ type Renderer struct {
 	// record is non-nil when the result channel is a JSON document
 	// (spec pose-cli-output-rendering-system R8).
 	record *Record
+	// tee keeps the human result output while recording, for --json-out: the
+	// document goes to a file and the terminal still gets the report.
+	tee bool
 }
+
+// suppressed reports whether human result output gives way to the document.
+func (r *Renderer) suppressed() bool { return r.record != nil && !r.tee }
 
 // New builds a renderer for two streams and their resolved profiles.
 func New(out, err io.Writer, outProfile, errProfile Profile) *Renderer {
@@ -98,7 +104,9 @@ func (r *Renderer) Verdict(v Verdict) {
 		if v.Text != "" {
 			r.record.Verdict = word + " — " + v.Text
 		}
-		return
+		if !r.tee {
+			return
+		}
 	}
 	line := Msg(MsgResultLabel, r.locale) + ": " + paint(r.outP, v.State.color()+sgrBold, word)
 	if v.Text != "" {
@@ -129,7 +137,9 @@ func (r *Renderer) Finding(f Finding) {
 			Severity: f.State.Key(), Code: f.Code, Path: f.Path,
 			Message: f.Message, Remediation: f.Remediation, MessageID: f.ID,
 		})
-		return
+		if !r.tee {
+			return
+		}
 	}
 	if r.outP.Quiet {
 		return
@@ -166,7 +176,9 @@ func (r *Renderer) Finding(f Finding) {
 func (r *Renderer) Field(name, value string) {
 	if r.record != nil {
 		r.RecordField(name, value)
-		return
+		if !r.tee {
+			return
+		}
 	}
 	fmt.Fprintf(r.out, "%s=%s\n", name, value)
 }
@@ -175,7 +187,7 @@ func (r *Renderer) Field(name, value string) {
 // historical verdict line that consumers match exactly. It is never styled,
 // and it is skipped while recording, where the document carries the decision.
 func (r *Renderer) ContractLine(line string) {
-	if r.record != nil {
+	if r.suppressed() {
 		return
 	}
 	fmt.Fprintln(r.out, line)
@@ -183,7 +195,7 @@ func (r *Renderer) ContractLine(line string) {
 
 // Section titles a block of result output.
 func (r *Renderer) Section(title string) {
-	if r.outP.Quiet || r.record != nil {
+	if r.outP.Quiet || r.suppressed() {
 		return
 	}
 	fmt.Fprintln(r.out, paint(r.outP, sgrBold, title))
@@ -227,7 +239,7 @@ type Table struct {
 }
 
 func (r *Renderer) Table(t Table) {
-	if r.outP.Quiet || r.record != nil {
+	if r.outP.Quiet || r.suppressed() {
 		return
 	}
 	w := tabwriter.NewWriter(r.out, 0, 0, 2, ' ', 0)

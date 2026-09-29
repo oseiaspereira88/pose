@@ -232,3 +232,56 @@ func TestEveryGateOnTheMachineChannelPrintsOneDocument(t *testing.T) {
 		}
 	}
 }
+
+// --json-out writes the same document to a file and keeps the human report on
+// stdout, which --json replaces (R2).
+func TestJSONOutWritesTheDocumentAndKeepsTheReport(t *testing.T) {
+	root := machineChannelFixture(t, true)
+	var out, errB bytes.Buffer
+	code := cmdLintSpecInRoot(root, []string{"--all", "--json-out", "out/lint.json"}, &out, &errB)
+	if code != 1 {
+		t.Fatalf("exit=%d", code)
+	}
+	if !strings.Contains(out.String(), "lint.specs.failed=1") || !strings.Contains(out.String(), "Resultado: FALHA") {
+		t.Errorf("--json-out must keep the human report:\n%s", out.String())
+	}
+	raw, err := os.ReadFile(filepath.Join(root, "out", "lint.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	record := decodeRecord(t, string(raw))
+	if record.Command != "lint-spec" || record.Outcome != cliout.StateFail.Key() || len(record.Findings) == 0 {
+		t.Errorf("file document incomplete: %+v", record)
+	}
+	if code := cmdLintSpecInRoot(root, []string{"--all", "--json-out", "../escape.json"}, &out, &errB); code != 2 {
+		t.Errorf("a path outside the project must be refused, got %d", code)
+	}
+}
+
+// validate --json <path> named a file where every other --json prints to
+// stdout. It keeps working, and says it is deprecated (R2).
+func TestValidateJSONPathIsADeprecatedAliasOfJSONOut(t *testing.T) {
+	root := resultFixture(t)
+	var out, errB bytes.Buffer
+	if code := cmdValidate(root, []string{"--json", "result.json"}, &out, &errB); code != 0 {
+		t.Fatalf("exit=%d %s", code, errB.String())
+	}
+	if !strings.Contains(errB.String(), "deprecated") || strings.Contains(out.String(), "deprecated") {
+		t.Errorf("the deprecation must be announced on stderr only: stdout=%q stderr=%q", out.String(), errB.String())
+	}
+	first := loadRun(t, root)
+	if err := os.Remove(filepath.Join(root, "result.json")); err != nil {
+		t.Fatal(err)
+	}
+	out.Reset()
+	errB.Reset()
+	if code := cmdValidate(root, []string{"--json-out", "result.json"}, &out, &errB); code != 0 {
+		t.Fatalf("--json-out exit=%d %s", code, errB.String())
+	}
+	if strings.Contains(errB.String(), "deprecated") {
+		t.Errorf("--json-out must not warn: %s", errB.String())
+	}
+	if second := loadRun(t, root); second.SchemaVersion != first.SchemaVersion || second.Outcome != first.Outcome {
+		t.Errorf("the alias and --json-out wrote different documents: %+v vs %+v", first, second)
+	}
+}

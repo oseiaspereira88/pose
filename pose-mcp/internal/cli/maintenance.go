@@ -646,6 +646,7 @@ func cmdKnowledgeCheck(root string, args []string, stdout, stderr io.Writer) int
 		return 2
 	}
 	gate := newGateOutput("knowledge-check", flags, stdout, stderr)
+	gate.root = root
 	defer gate.Close()
 	// Schema problems used to go to stderr as [ERROR] lines while dangling
 	// citations went to stdout; both are this gate's result.

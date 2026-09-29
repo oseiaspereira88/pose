@@ -64,7 +64,7 @@ Before reviewing or closing a cross-project task, run `pose context --task <xref
 3. Regenerate the evidence the bundle will seal, **before** sealing it, into
    the path `.pose/policy/delivery.json` declares as `results_path`:
    ```bash
-   pose validate --tolerant --json <results_path>
+   pose validate --tolerant --json-out <results_path>
    pose index
    ```
    The engine reads that **one file** and nothing else under `.pose/results/`.

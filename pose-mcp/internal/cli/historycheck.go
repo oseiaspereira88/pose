@@ -44,6 +44,7 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "pose history-check: %v\n", err)
 		return 2
 	}
+	gate.root = root
 	historyDir := filepath.Join(root, ".pose", "reports", "history")
 	if fi, err := os.Stat(historyDir); err != nil || !fi.IsDir() {
 		fmt.Fprintf(stderr, cliText(locale, "Error: history directory not found: %s\n", "Erro: history dir ausente: %s\n"), historyDir)

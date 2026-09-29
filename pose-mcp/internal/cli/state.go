@@ -131,14 +131,13 @@ func cmdStateValidate(root string, stdout, stderr io.Writer) int {
 
 func cmdStateValidateWith(root string, flags outputFlags, stdout, stderr io.Writer) int {
 	gate := newGateOutput("state", flags, stdout, stderr)
+	gate.root = root
 	defer gate.Close()
 	store := pose.Store{Root: root}
 	if !store.HasProjectState() {
 		fmt.Fprintln(gate.result, "Project state not initialized (run `pose state init`). Additive: this is a valid state.")
 		gate.RecordNote("initialized", "false")
-		if flags.JSON {
-			gate.r.Verdict(cliout.Verdict{State: cliout.StatePass, Text: "project state not initialized; additive, valid"})
-		}
+		gate.r.RecordVerdict(cliout.Verdict{State: cliout.StatePass, Text: "project state not initialized; additive, valid"})
 		return 0
 	}
 	state, err := store.ProjectState(context.Background(), "")
@@ -146,8 +145,8 @@ func cmdStateValidateWith(root string, flags outputFlags, stdout, stderr io.Writ
 		fmt.Fprintf(stderr, "Error: %v\n", err)
 		if flags.JSON {
 			gate.r.Finding(cliout.Finding{State: cliout.StateError, Code: "unreadable", Message: err.Error()})
-			gate.r.Verdict(cliout.Verdict{State: cliout.StateFail, Text: err.Error()})
 		}
+		gate.r.RecordVerdict(cliout.Verdict{State: cliout.StateFail, Text: err.Error()})
 		return 1
 	}
 	brokenPointers := store.ValidatePointers(state)

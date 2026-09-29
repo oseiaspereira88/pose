@@ -199,6 +199,7 @@ func cmdSkillsCheck(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	}
 	out := newGateOutput("skills-check", flags, stdout, stderr)
+	out.root = root
 	defer out.Close()
 	skillsDir := filepath.Join(root, ".agents", "skills")
 	entries, err := os.ReadDir(skillsDir)

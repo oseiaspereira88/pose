@@ -345,7 +345,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			// pose-monorepo-validation-advisory, R2) — sugar over the
 			// existing selector, no new selection logic.
 			rootOnly = true
-		case "--stack", "--module", "--workspace", "--report-task", "--json", "--junit", "--sarif", "--emit-plan", "--changed-from", "--changed-to":
+		case "--stack", "--module", "--workspace", "--report-task", "--json", "--json-out", "--junit", "--sarif", "--emit-plan", "--changed-from", "--changed-to":
 			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
 				fmt.Fprintf(stderr, cliText(locale, "Error: %s requires a value.\n", "Erro: %s exige um valor.\n"), args[i])
 				return 2
@@ -364,8 +364,14 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 				workspaceFilter = args[i]
 			case "--report-task":
 				reportTask = args[i]
-			case "--json":
+			case "--json-out":
 				jsonOut = args[i]
+			case "--json":
+				// Everywhere else --json prints to stdout; here it named a file.
+				// It keeps working, announced as deprecated (spec
+				// pose-cli-output-machine-channel, R2).
+				jsonOut = args[i]
+				render(stdout, stderr).Hint(cliText(locale, "validate --json <path> is deprecated; use --json-out <path>.", "validate --json <path> está depreciado; use --json-out <path>."))
 			case "--junit":
 				junitOut = args[i]
 			case "--sarif":

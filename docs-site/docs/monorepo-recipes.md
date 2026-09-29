@@ -133,7 +133,7 @@ of any `dependsOn` edge — this is how a repository marks a module every
 change must validate, such as a shared schema or proto directory):
 
 ```bash
-pose validate --changed-from HEAD --explain --json result.json
+pose validate --changed-from HEAD --explain --json-out result.json
 ```
 
 ```text

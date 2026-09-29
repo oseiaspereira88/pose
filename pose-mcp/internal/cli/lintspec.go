@@ -858,10 +858,11 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 	mode := "strict"
 	requiredOnly, readyCheck, designCheck := false, false, false
 	asJSON, quiet := false, false
+	jsonOut := ""
 	colorMode := cliout.ColorAuto
 	target := ""
-	usage := cliText(locale, "Usage: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check] [--json] [--quiet] [--color auto|always|never]",
-		"Uso: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check] [--json] [--quiet] [--color auto|always|never]")
+	usage := cliText(locale, "Usage: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check] [--json] [--json-out <path>] [--quiet] [--color auto|always|never]",
+		"Uso: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check] [--json] [--json-out <path>] [--quiet] [--color auto|always|never]")
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		switch a {
@@ -881,6 +882,13 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 			asJSON = true
 		case "--quiet":
 			quiet = true
+		case "--json-out":
+			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") || !confinedRelativePath(args[i+1]) {
+				render(stdout, stderr).Failure(cliText(locale, "--json-out requires a relative path inside the project", "--json-out exige um caminho relativo dentro do projeto"))
+				return 2
+			}
+			i++
+			jsonOut = args[i]
 		case "--color":
 			if i+1 >= len(args) {
 				fmt.Fprintf(stderr, cliText(locale, "Error: %s requires a value.\n", "Erro: %s exige um valor.\n"), a)
@@ -919,8 +927,11 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 	// With --quiet the per-spec output is discarded and only the verdict line
 	// is printed; progress and warnings on stderr are untouched.
 	out := renderWithColor(stdout, stderr, colorMode)
-	if asJSON {
+	switch {
+	case asJSON:
 		out.RecordJSON("lint-spec")
+	case jsonOut != "":
+		out.RecordTee("lint-spec")
 	}
 	human := !asJSON && !quiet
 	perSpec := out
@@ -991,19 +1002,27 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 	out.RecordCount("specs_checked", totalLinted)
 	out.RecordCount("specs_failed", totalFailed)
 	out.RecordField("mode", mode)
-	defer func() { _ = out.FlushJSON() }()
+	defer func() {
+		if jsonOut != "" {
+			if err := writeJSONOut(out, root, jsonOut); err != nil {
+				out.Failure(err.Error())
+			}
+		}
+		_ = out.FlushJSON()
+	}()
 	fmt.Fprintln(result)
 	fmt.Fprintf(result, "lint.specs.checked=%d\n", totalLinted)
 	fmt.Fprintf(result, "lint.specs.failed=%d\n", totalFailed)
 	verdict := func(state cliout.State, line, text string) {
+		word := ""
+		if state == cliout.StateWarning {
+			word = "TOLERATED_FAILURE"
+		}
 		if asJSON {
-			word := ""
-			if state == cliout.StateWarning {
-				word = "TOLERATED_FAILURE"
-			}
 			out.Verdict(cliout.Verdict{State: state, Word: word, Text: text})
 			return
 		}
+		out.RecordVerdict(cliout.Verdict{State: state, Word: word, Text: text})
 		fmt.Fprintln(stdout, line)
 	}
 	if totalFailed > 0 {

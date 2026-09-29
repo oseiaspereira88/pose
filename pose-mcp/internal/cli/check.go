@@ -83,10 +83,11 @@ func cmdCheck(root string, args []string, stdout, stderr io.Writer) int {
 
 func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, locale cliLocale) int {
 	mode := "strict"
-	usage := cliText(locale, "Usage: pose check [--strict|--tolerant] [--json] [--quiet] [--color auto|always|never]",
-		"Uso: pose check [--strict|--tolerant] [--json] [--quiet] [--color auto|always|never]")
-	known := []string{"--strict", "--tolerant", "--json", "--quiet", "--color"}
+	usage := cliText(locale, "Usage: pose check [--strict|--tolerant] [--json] [--json-out <path>] [--quiet] [--color auto|always|never]",
+		"Uso: pose check [--strict|--tolerant] [--json] [--json-out <path>] [--quiet] [--color auto|always|never]")
+	known := []string{"--strict", "--tolerant", "--json", "--json-out", "--quiet", "--color"}
 	asJSON, quiet := false, false
+	jsonOut := ""
 	colorMode := cliout.ColorAuto
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -98,6 +99,13 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 			asJSON = true
 		case "--quiet":
 			quiet = true
+		case "--json-out":
+			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") || !confinedRelativePath(args[i+1]) {
+				render(stdout, stderr).Failure(cliText(locale, "--json-out requires a relative path inside the project", "--json-out exige um caminho relativo dentro do projeto"))
+				return 2
+			}
+			i++
+			jsonOut = args[i]
 		case "--color":
 			if i+1 >= len(args) {
 				fmt.Fprintf(stderr, cliText(locale, "Error: %s requires a value.\n", "Erro: %s exige um valor.\n"), args[i])
@@ -119,8 +127,11 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 	}
 	out := renderWithColor(stdout, stderr, colorMode)
 	out.SetQuiet(quiet)
-	if asJSON {
+	switch {
+	case asJSON:
 		out.RecordJSON("check")
+	case jsonOut != "":
+		out.RecordTee("check")
 	}
 	checker := &nativeChecker{root: root, mode: mode, locale: locale, stdout: stdout, out: out}
 	checker.checkRequiredStructure()
@@ -140,7 +151,14 @@ func cmdCheckWithLocale(root string, args []string, stdout, stderr io.Writer, lo
 	checker.checkCommandReference()
 	out.RecordCount("errors", checker.errors)
 	out.RecordCount("warnings", checker.warnings)
-	defer func() { _ = out.FlushJSON() }()
+	defer func() {
+		if jsonOut != "" {
+			if err := writeJSONOut(out, root, jsonOut); err != nil {
+				out.Failure(err.Error())
+			}
+		}
+		_ = out.FlushJSON()
+	}()
 	if checker.errors > 0 {
 		noteCommandUsage(stdout, countedUsageResult("fail", checker.errors, checker.warnings, false))
 		out.Verdict(cliout.Verdict{State: cliout.StateFail,

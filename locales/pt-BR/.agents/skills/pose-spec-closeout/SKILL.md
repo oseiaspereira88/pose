@@ -95,7 +95,7 @@ Antes de revisar ou fechar tarefa entre projetos, rode `pose context --task <xre
 3. Regenerar a evidência que o bundle vai selar, **antes** de selar, no caminho
    que `.pose/policy/delivery.json` declara em `results_path`:
    ```bash
-   pose validate --tolerant --json <results_path>
+   pose validate --tolerant --json-out <results_path>
    pose index
    ```
    O motor lê **esse único arquivo** e mais nada em `.pose/results/`. Pular não

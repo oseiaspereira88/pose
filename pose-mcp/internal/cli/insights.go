@@ -109,6 +109,7 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 		}
 	}
 	gate := newGateOutput("recurrence-check", flags, stdout, stderr)
+	gate.root = root
 	defer gate.Close()
 	records, _ := readHistory(root, stderr)
 	cutoff := time.Now().UTC().AddDate(0, 0, -days)
@@ -183,20 +184,18 @@ func cmdRecurrenceCheck(root string, args []string, stdout, stderr io.Writer) in
 	gate.Field("recurrence.flagged_keys", strconv.Itoa(flagged))
 	// This gate has no pinned human verdict line; the machine document still
 	// records the decision.
-	if flags.JSON {
-		state, text := cliout.StatePass, "no recurrent failure"
-		if flagged > 0 {
-			state, text = cliout.StateWarning, fmt.Sprintf("%d recurrent key(s)", flagged)
-			if mode == "strict" {
-				state = cliout.StateFail
-			}
+	state, text := cliout.StatePass, "no recurrent failure"
+	if flagged > 0 {
+		state, text = cliout.StateWarning, fmt.Sprintf("%d recurrent key(s)", flagged)
+		if mode == "strict" {
+			state = cliout.StateFail
 		}
-		word := ""
-		if state == cliout.StateWarning {
-			word = "RECURRENT"
-		}
-		gate.r.Verdict(cliout.Verdict{State: state, Word: word, Text: text})
 	}
+	word := ""
+	if state == cliout.StateWarning {
+		word = "RECURRENT"
+	}
+	gate.r.RecordVerdict(cliout.Verdict{State: state, Word: word, Text: text})
 	if flagged > 0 && mode == "strict" {
 		return 1
 	}

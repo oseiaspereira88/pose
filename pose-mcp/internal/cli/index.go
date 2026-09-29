@@ -28,41 +28,20 @@ type indexedModule struct {
 }
 
 func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
-	asJSON, quiet := false, false
-	colorMode := cliout.ColorAuto
-	for i := 0; i < len(args); i++ {
-		switch args[i] {
-		case "--json":
-			asJSON = true
-		case "--quiet":
-			quiet = true
-		case "--color":
-			if i+1 >= len(args) {
-				return usageError(stderr, "Usage: pose index [--json] [--quiet] [--color auto|always|never]")
-			}
-			i++
-			parsed, ok := cliout.ParseColorMode(args[i])
-			if !ok {
-				render(stdout, stderr).UnknownToken("value", args[i], []string{"auto", "always", "never"})
-				return 2
-			}
-			colorMode = parsed
-		default:
-			return usageError(stderr, "Usage: pose index [--json] [--quiet] [--color auto|always|never]")
-		}
+	rest, flags, flagErr := splitOutputFlags(args)
+	if flagErr != "" || len(rest) > 0 {
+		return usageError(stderr, "Usage: pose index [--json] [--json-out <path>] [--quiet] [--color auto|always|never]")
 	}
-	out := renderWithColor(stdout, stderr, colorMode)
-	out.SetQuiet(quiet)
-	if asJSON {
-		out.RecordJSON("index")
-	}
-	defer func() { _ = out.FlushJSON() }()
+	gate := newGateOutput("index", flags, stdout, stderr)
+	gate.root = root
+	defer gate.Close()
+	out := gate.r
 	// fail reports why the indexes could not be written. The human line keeps
 	// going to stderr as before; the machine document names the same failure.
 	fail := func(code, message string) int {
-		if asJSON {
+		if out.Recording() {
 			out.Finding(cliout.Finding{State: cliout.StateError, Code: code, Message: message})
-			out.Verdict(cliout.Verdict{State: cliout.StateFail, Text: message})
+			out.RecordVerdict(cliout.Verdict{State: cliout.StateFail, Text: message})
 		}
 		render(stdout, stderr).Failure("pose index: " + message)
 		return 1
@@ -168,12 +147,8 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	out.RecordCount("roadmaps", len(roadmapMap))
 	out.RecordCount("modules", len(modules))
 	out.RecordCount("delivery_findings", len(deliveryGraph.Findings))
-	if asJSON {
-		out.Verdict(cliout.Verdict{State: cliout.StatePass, Text: "indexes updated"})
-		return 0
-	}
 	// A pinned contract line; --quiet keeps it, since it is the verdict.
-	fmt.Fprintf(stdout, "POSE indexes updated at %s\n", dir)
+	gate.Verdict(cliout.StatePass, "POSE indexes updated at "+dir, "indexes updated")
 	return 0
 }
 

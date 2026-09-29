@@ -60,6 +60,32 @@ func (r *Renderer) RecordJSON(command string) {
 	r.record = &Record{SchemaVersion: RecordSchemaVersion, Command: command, Outcome: StatePass.Key(), Findings: []RecordedFinding{}}
 }
 
+// RecordTee records the same document without suppressing the human output,
+// for a caller that writes the document elsewhere with WriteJSONTo.
+func (r *Renderer) RecordTee(command string) {
+	r.RecordJSON(command)
+	r.tee = true
+}
+
+// RecordVerdict records a decision without printing it, for a command whose
+// human verdict is a pinned line it prints itself.
+func (r *Renderer) RecordVerdict(v Verdict) {
+	if r.record == nil {
+		return
+	}
+	word := v.Word
+	if word == "" {
+		word = Msg(MsgResultOK, r.locale)
+		if v.State == StateFail || v.State == StateError {
+			word = Msg(MsgResultFail, r.locale)
+		}
+	}
+	r.record.Outcome, r.record.Verdict = v.State.Key(), word
+	if v.Text != "" {
+		r.record.Verdict = word + " — " + v.Text
+	}
+}
+
 // Recording reports whether the result channel is a JSON document.
 func (r *Renderer) Recording() bool { return r.record != nil }
 
@@ -88,7 +114,7 @@ func (r *Renderer) RecordCount(name string, value int) {
 // FlushJSON writes the document. A command calls it once, last, whatever its
 // exit code: a gate that failed still owes the machine its findings.
 func (r *Renderer) FlushJSON() error {
-	if r.record == nil {
+	if r.record == nil || r.tee {
 		return nil
 	}
 	raw, err := json.MarshalIndent(r.record, "", "  ")

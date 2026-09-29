@@ -105,7 +105,7 @@ head_commit="$(git rev-parse HEAD)"
   --change-from "$base_commit" \
   --change-to "$head_commit" >/dev/null
 "$pose_bin" index >/dev/null
-"$pose_bin" validate --strict --module app --json .pose/results/delivery-validation.json >/dev/null
+"$pose_bin" validate --strict --module app --json-out .pose/results/delivery-validation.json >/dev/null
 "$pose_bin" index >/dev/null
 
 policy_tmp="$work_root/review-policy.json"

@@ -92,7 +92,7 @@ Implementation artifacts are declared as each increment lands.
 - [x] Increment 1: `lint-spec` and `index` — the two whose findings already pass
       through the renderer or have none
 - [x] Increment 2: the five remaining gates
-- [ ] Increment 3: `--json-out`, the `validate --json <path>` deprecation, and
+- [x] Increment 3: `--json-out`, the `validate --json <path>` deprecation, and
       the report path fix
 
 ### Validation
