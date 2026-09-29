@@ -1,8 +1,8 @@
 ---
 slug: pose-roadmap-check-reaches-its-gate
-status: in-progress
+status: done
 created_at: 2026-09-09
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-remaining-command-surfaces-coverage
 priority: 0
