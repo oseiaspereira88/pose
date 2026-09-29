@@ -82,6 +82,12 @@ attention the check was built to earn, and teaches them to skim it.
 - modified: pose-mcp/internal/cli/doctor.go
 - modified: pose-mcp/internal/cli/doctor_invisible_failures_test.go
 
+### Delivery targets
+
+- surface:doctor-selected-profiles-only module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - A profile selected by a policy the check cannot parse goes unreported. That is
   the same silence as an instance with no review policy, and preferable to
