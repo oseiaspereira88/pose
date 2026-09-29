@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-shipped-review-profiles-are-schema-v2
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:doctor-reports-a-profile-left-behind
 task_type: feature
 ---
 
