@@ -77,6 +77,12 @@ target that does not exist.
 - modified: pose-mcp/internal/cli/surface_check.go
 - modified: .pose/specs/2026-09-09-pose-remaining-command-surfaces-coverage.md
 
+### Delivery targets
+
+- surface:roadmap-check-reaches-its-gate module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Continuing past the profiles branch reaches `ListSpecs` in a case that used to
   return first, and the store wraps its error — `os.IsNotExist` does not unwrap,
