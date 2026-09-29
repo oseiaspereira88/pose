@@ -77,6 +77,12 @@ of something larger than themselves.
 - modified: pose-mcp/internal/pose/delivery_surface.go
 - modified: .pose/specs/2026-09-09-pose-component-evidence-is-not-inherited-upward.md
 
+### Delivery targets
+
+- capability:report-coverage-that-rests-on-inference module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - A repository laid out with checks at the module root and targets inside it
   sees one finding per target and class. That is the intended visibility, and it
