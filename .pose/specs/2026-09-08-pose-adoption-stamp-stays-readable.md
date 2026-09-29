@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-contract-adoption-registry
 priority: 0
 components: pose-mcp
-delivers: surface:adoption-stamp-stays-readable, capability:adoption-stamp-stays-readable
+delivers: capability:adoption-stamp-stays-readable
 ---
 
 # Spec: The adoption stamp does not lock out the previous engine
@@ -86,10 +86,11 @@ The implementation shipped in the v2.0.2 release commit `36664a7`, which carries
 
 ### Delivery targets
 
-- surface:adoption-stamp-stays-readable module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 - capability:adoption-stamp-stays-readable module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
+Reclassified the same day: this spec changed the CLI package only through tests, comments or internal logic, and no command-level test exercises it, so it delivers a capability, not a surface.
 
 ### Technical risks
 - R4 gives up a real check: a misspelled policy key is now silently ignored
