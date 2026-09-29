@@ -1,8 +1,8 @@
 ---
 slug: pose-v6-0-2-release-readiness
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 depends_on: review-verify-retains-completed-scopes
 priority: 0
 components: pose-mcp
@@ -122,18 +122,32 @@ pending fragments.
 2026-09-29: the 6.0.1 upgrade pin `6f0536e6…b5d2` is the digest of v6.0.1's
 `checksums.txt` in its publication and independent verification evidence.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 42/42 into the results path; bundle
+`rvb-00c089a38e191cef`, 39 evidence items; attestation `rva-87f463651d2da702`,
+`agent:claude-opus-5-5`, approved with five explicit judgments. A first attestation
+adapted from the 6.0.1 closeout carried four statements about 6.0.0 and the 6.0.1
+notes; it was discarded before commit and replaced.
+
 ### Requirement trace
 
-- R1 [pending] check:public-claims
-- R2 [pending] report:compatibility-report.md
-- R3 [pending] release check
-- R4 [pending] release status
+- R1 [satisfied] governance:pose-v6-0-2-release-readiness evidence:unit check:public-claims — CLI, MCP manifest,
+  compatibility.json, both READMEs and the CI docs pin state 6.0.2
+- R2 [satisfied] governance:pose-v6-0-2-release-readiness report:compatibility-report.md — compat.sh authenticated 6.0.1
+  by checksums.txt digest 6f0536e6…b5d2 and upgraded from all seven supported
+  releases
+- R3 [satisfied] governance:pose-v6-0-2-release-readiness report:.pose/releases/v6.0.2/manifest.json — plan, prepare and
+  `release check --strict` passed; manifest and notes frozen at dd9a569
+- R4 [satisfied] governance:pose-v6-0-2-release-readiness report:.pose/releases/v6.0.2/verified-evidence.json — tagged,
+  published and verified recorded; `pose release status` reports verified
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+POSE 6.0.2 is published and independently verified, carrying the retention of a
+closed scope's approval under `review verify` and federated acceptance.
 
 ### Residual risks
 
