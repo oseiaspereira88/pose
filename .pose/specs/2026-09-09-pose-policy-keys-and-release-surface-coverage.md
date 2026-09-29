@@ -192,11 +192,11 @@ install; the release rule most worth having is shown failing when removed.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <policyKeyChecks holds review, delivery, artifacts, capabilities, docs, release and state to keys taken from their own structs by PolicyKnownKeys; TestDoctorReportsUnreadKeysInEveryModelledPolicy fires one warn per file>
-- R2 [satisfied] <capabilities.json passes both capabilityPolicy and capabilityTriggerPolicy; TestDoctorAcceptsCapabilityKeysReadByEitherConsumer fails if either reader's keys are missing>
-- R3 [satisfied] <PolicyKeyIsAnnotation exempts the `_`-prefixed keys the shipped policies carry; TestDoctorDoesNotReportTheAnnotationKey>
-- R4 [satisfied] <the release check also reads .pose/release-policy.json, where LoadReleasePolicy falls back; TestDoctorReadsTheReleasePolicyWhereTheEngineDoes>
-- R5 [satisfied] <TestEveryShippedPolicyIsHeldToItsKeysOrExempted reads the shipped policy set from the embedded scaffold and fails on any file that is neither wired nor exempted, and on an exemption for a file no longer shipped>
+- R1 [satisfied] <policyKeyChecks holds review, delivery, artifacts, capabilities, docs, release and state to keys taken from their own structs by PolicyKnownKeys; TestDoctorReportsUnreadKeysInEveryModelledPolicy fires one warn per file> surface:policy-keys-and-release-surface-coverage evidence:integration
+- R2 [satisfied] <capabilities.json passes both capabilityPolicy and capabilityTriggerPolicy; TestDoctorAcceptsCapabilityKeysReadByEitherConsumer fails if either reader's keys are missing> surface:policy-keys-and-release-surface-coverage evidence:integration
+- R3 [satisfied] <PolicyKeyIsAnnotation exempts the `_`-prefixed keys the shipped policies carry; TestDoctorDoesNotReportTheAnnotationKey> surface:policy-keys-and-release-surface-coverage evidence:integration
+- R4 [satisfied] <the release check also reads .pose/release-policy.json, where LoadReleasePolicy falls back; TestDoctorReadsTheReleasePolicyWhereTheEngineDoes> surface:policy-keys-and-release-surface-coverage evidence:integration
+- R5 [satisfied] <TestEveryShippedPolicyIsHeldToItsKeysOrExempted reads the shipped policy set from the embedded scaffold and fails on any file that is neither wired nor exempted, and on an exemption for a file no longer shipped> surface:policy-keys-and-release-surface-coverage evidence:integration
 - R6 [satisfied] <release_lifecycle.go went from 0 of 20 functions executed to 20 of 20; the tests go through cmdRelease, the production dispatch, against a prepared and tagged fixture>
 
 ### Known gaps
