@@ -155,8 +155,8 @@ then measure that every named function left zero.
 
 ### Requirement trace
 - R1 [satisfied] <every case runs through runCLI, which calls Main in the fixture directory; cmdReviewCheck, cmdHistoryCheck, cmdDocsSync, cmdDocsReview, cmdContributeSubmit and cmdRoadmapCheck all report coverage>
-- R2 [satisfied] <TestTheseCommandsRefuseAnInvocationTheyCannotServe requires exit 2 and the message for six usage paths; the review-check, roadmap-check and contribute-submit tests each add a refusal of their own>
-- R3 [satisfied] <TestSpecReadyReadsTheSectionsTheDoRRequires covers a complete spec, an empty section, prose with no numbered criterion and a configured task type; TestSpecSectionsIgnoreWhatIsCommentedOut, TestSectionFilledSkipsScaffoldProse, TestFrontmatterBodyHandlesBothShapes and TestParseRoadmapReadsMilestonesAndFallsBackToTheFilename cover the helpers>
+- R2 [satisfied] <TestTheseCommandsRefuseAnInvocationTheyCannotServe requires exit 2 and the message for six usage paths; the review-check, roadmap-check and contribute-submit tests each add a refusal of their own> surface:remaining-command-surfaces-coverage evidence:integration
+- R3 [satisfied] <TestSpecReadyReadsTheSectionsTheDoRRequires covers a complete spec, an empty section, prose with no numbered criterion and a configured task type; TestSpecSectionsIgnoreWhatIsCommentedOut, TestSectionFilledSkipsScaffoldProse, TestFrontmatterBodyHandlesBothShapes and TestParseRoadmapReadsMilestonesAndFallsBackToTheFilename cover the helpers> surface:remaining-command-surfaces-coverage evidence:integration
 - R4 [satisfied] <the history fixture creates the history directory, the docs-sync fixture writes a manifest, and the roadmap fixture writes delivery profiles and a spec; each also keeps the missing-precondition case as its own assertion>
 
 ### Known gaps
