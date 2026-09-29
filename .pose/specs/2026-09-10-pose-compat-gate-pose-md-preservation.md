@@ -64,6 +64,15 @@ real prior release.
 - renamed: .pose/changelogs/unreleased/pose-compat-gate-pose-md-preservation.md -> .pose/changelogs/v5.0.1/pose-compat-gate-pose-md-preservation.md
 - modified: tests/release/compat.sh
 - modified: .pose/specs/2026-08-07-pose-compat-gate-manual-refresh-assertion.md
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/help_test.go
+- modified: pose-mcp/internal/cli/report.go
+- created: pose-mcp/internal/scaffold/cli_surface_test.go
+- modified: pose-mcp/internal/scaffold/locale_coverage_test.go
+- modified: pose-mcp/internal/scaffold/manual_locale_parity_test.go
+- modified: pose-mcp/internal/scaffold/skill_locale_parity_test.go
+
+Backfilled on 2026-09-29: `da8a6d7` (Backlog before 5.0.1: four stale follow-ups and three quiet guards (#91)) carries this spec's trailer and also changed the 7 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - None beyond the gate's own: a prior release that could not keep the note
