@@ -1,8 +1,8 @@
 ---
 slug: pose-doctor-reports-a-profile-left-behind
-status: in-progress
+status: done
 created_at: 2026-09-10
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-shipped-review-profiles-are-schema-v2
 priority: 0
