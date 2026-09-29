@@ -1,5 +1,14 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "spec": "retained-review-survives-an-invalid-newer-approval",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A closed scope whose newest approval no longer validates, typically against an evidence rule introduced after it, keeps the older approval it was closed with again. 6.0.2 voided it, so a scope approved twice and never rejected read as unreviewed and `pose check --strict` failed. A newer rejection or request for changes still voids any older approval.",
+      "path": "retained-review-survives-an-invalid-newer-approval.md",
+      "digest": "sha256:3752c9ab933a7a16292839e757aa3d60add9b086890474cb10f95b91fe2771bc"
+    }
+  ],
   "releases": [
     {
       "version": "v6.0.2",
