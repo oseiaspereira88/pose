@@ -73,6 +73,13 @@ resolving one afterwards. The one caller that outlives an update kept resolving.
 - modified: pose-mcp/internal/pose/cli.go
 - modified: pose-mcp/internal/cli/self_update_release_test.go
 
+### Delivery targets
+
+- surface:mcp-server-survives-self-update module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:mcp-server-survives-self-update module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - A server older than the binary now at its path runs a newer CLI. Its commands
   are the ones that CLI was released with, so a flag the server passes and the
