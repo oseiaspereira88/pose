@@ -77,6 +77,12 @@ criterion whose only accepted class lost its producer.
 - modified: pose-mcp/internal/cli/doctor_class_producers_test.go
 - modified: .pose/specs/2026-09-10-pose-report-a-demanded-class-nothing-produces.md
 
+### Delivery targets
+
+- surface:class-producers-reads-the-disjunction module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Skipping by language selector could hide a criterion that would apply through
   another selector. It only skips when the profile names languages and none is
