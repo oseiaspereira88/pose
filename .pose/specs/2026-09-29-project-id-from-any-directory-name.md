@@ -55,6 +55,9 @@ Relaxing the project-id grammar. Ids stay slugs, because they are parsed inside
 - R4: `pose doctor` reports an invalid id stamped in `.mcp.json` by an earlier engine
   as a fixable `mcp.config` warning, and `pose doctor --fix --yes` replaces only that
   id, preserving the rest of the server entry.
+- R5: `pose install` refuses an invalid `--project-id` before writing anything, and
+  a reinstall does not carry forward an invalid id recovered from `AGENTS.md` or
+  `.mcp.json`; a valid declared id survives a reinstall unchanged.
 
 ## 3. Technical Plan
 
@@ -97,6 +100,7 @@ resolved on 6.0.0. Reverting restores the failure.
 - [x] Name the cause when a declared id is refused, and surface it from `pose index`.
 - [x] Let `pose doctor --fix` repair an invalid id stamped by an earlier engine.
 - [x] Prove the new test fails with the old derivation.
+- [x] Refuse an invalid `--project-id` and stop a reinstall from carrying forward an id that never resolved.
 
 ## 5. Decisions
 
@@ -113,8 +117,9 @@ resolved on 6.0.0. Reverting restores the failure.
 - Status: active
 - Refuse, do not fold, an invalid declared id. A declared id may be referenced from
   elsewhere; rewriting it at read time would make two spellings of one project. The
-  one place that rewrites is `doctor --fix`, which is explicit and confined to
-  `.mcp.json`.
+  places that rewrite are explicit writes of the machinery — `pose install`/`update`
+  and `doctor --fix` — and only an id no resolver accepts; a valid declared id,
+  including one that differs from the directory name, survives both.
 
 ## 6. Validation
 
@@ -123,6 +128,7 @@ resolved on 6.0.0. Reverting restores the failure.
 | Install and index in named directories | `go test ./internal/cli -run AnyDirectoryName -count=1` | `MyApp`, `Acme Portal`, `tmp.9Sz2E9`, `my-app` all install and index |
 | Declared invalid id | `go test ./internal/cli -run DeclaredProjectID -count=1` | refusal names the variable, the value and the replacement |
 | Doctor repair | `go test ./internal/cli -run InvalidStampedProjectID -count=1` | fixable warning, repair, then ok |
+| Install and reinstall ids | `go test ./internal/cli -run 'InvalidExplicitProjectID|NeverResolved|ValidDeclaredProjectID' -count=1` | explicit invalid id refused with exit 2 and nothing written; stale id replaced; valid declared id kept |
 | Migration guides (CI step) | `bash tests/import/migration-guides.sh` | `All documented migration claims hold.` |
 | Full suite | `go test ./... -count=1` | pass |
 
@@ -140,12 +146,21 @@ test fails for `MyApp`, `Acme Portal` and `tmp.9Sz2E9` and passes for `my-app`; 
 the fix it passes for all four. The full Go suite and the migration-guides script
 pass.
 
+2026-09-29, review. Reading the diff against the install path found two gaps in the
+first commit. `--project-id` was never validated, so an operator could stamp an id
+every resolver refuses. And a reinstall recovers the declared id from `AGENTS.md` and
+`.mcp.json` before deriving one, so an instance that 5.x stamped as `proj.MyApp` kept
+it through `pose update --force`; only `doctor --fix` repaired it. Both are closed
+with tests; with the recovery check removed, the reinstall test fails with
+`reinstall kept "proj.MyApp"`.
+
 ### Requirement trace
 
 - R1 [pending] test:TestInstallAndIndexAcceptAnyDirectoryName
 - R2 [pending] test:TestInstallAndIndexAcceptAnyDirectoryName
 - R3 [pending] test:TestIndexNamesWhyADeclaredProjectIDIsRefused
 - R4 [pending] test:TestDoctorRepairsAnInvalidStampedProjectID
+- R5 [pending] test:TestInstallRefusesAnInvalidExplicitProjectID test:TestReinstallReplacesAnIDThatNeverResolved test:TestReinstallKeepsAValidDeclaredProjectID
 
 ## 7. Final Report
 

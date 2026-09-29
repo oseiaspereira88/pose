@@ -101,6 +101,10 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 	}
+	if projectID != "" && posemodel.ValidateSlug(projectID) != nil {
+		fmt.Fprintf(stderr, text("pose install: --project-id %q is not a valid project id; use lowercase letters, digits, '.', '_' or '-' (for example %q)\n", "pose install: --project-id %q não é um id de projeto válido; use letras minúsculas, dígitos, '.', '_' ou '-' (por exemplo %q)\n"), projectID, posemodel.ProjectIDFor(strings.TrimPrefix(projectID, "proj.")))
+		return 2
+	}
 	if projectName == "" || projectID == "" {
 		// An already-installed target's declared identity is recovered from
 		// its own AGENTS.md/.mcp.json before ever falling back to the
@@ -123,7 +127,9 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			}
 		}
 		if projectID == "" {
-			if detectedID != "" {
+			// An id an engine before 6.0.1 stamped from a directory name such
+			// as MyApp never resolved, so it is not an identity to preserve.
+			if detectedID != "" && posemodel.ValidateSlug(detectedID) == nil {
 				projectID = detectedID
 			} else {
 				projectID = posemodel.ProjectIDFor(projectName)

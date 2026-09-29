@@ -150,3 +150,76 @@ func doctorMCPFinding(t *testing.T, root string) doctorFinding {
 	t.Fatal("doctor reported no mcp.config finding")
 	return doctorFinding{}
 }
+
+func TestInstallRefusesAnInvalidExplicitProjectID(t *testing.T) {
+	unsetProjectEnv(t)
+	root := newNamedGitRepo(t, "app")
+	var out, errB bytes.Buffer
+	if code := cmdInstall([]string{root, "--project-id", "proj.MyApp"}, &out, &errB); code != 2 {
+		t.Fatalf("install exit=%d, want 2: %s %s", code, out.String(), errB.String())
+	}
+	if !strings.Contains(errB.String(), `"proj.myapp"`) {
+		t.Fatalf("refusal does not name the valid form: %s", errB.String())
+	}
+	if _, err := os.Stat(filepath.Join(root, ".pose")); !os.IsNotExist(err) {
+		t.Fatalf("refused install wrote .pose/: %v", err)
+	}
+}
+
+func TestReinstallReplacesAnIDThatNeverResolved(t *testing.T) {
+	unsetProjectEnv(t)
+	root := newNamedGitRepo(t, "MyApp")
+	var out, errB bytes.Buffer
+	if code := cmdInstall([]string{root}, &out, &errB); code != 0 {
+		t.Fatalf("install exit=%d err=%s", code, errB.String())
+	}
+	// What an engine before this fix stamped for a checkout named MyApp.
+	for _, name := range []string{".mcp.json", "AGENTS.md"} {
+		path := filepath.Join(root, name)
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(strings.ReplaceAll(string(raw), "proj.myapp", "proj.MyApp")), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	out.Reset()
+	errB.Reset()
+	if code := cmdInstall([]string{root, "--force"}, &out, &errB); code != 0 {
+		t.Fatalf("reinstall exit=%d err=%s", code, errB.String())
+	}
+	raw, err := os.ReadFile(filepath.Join(root, ".mcp.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := declaredMCPProjectID(raw); got != "proj.myapp" {
+		t.Fatalf("reinstall kept %q", got)
+	}
+	out.Reset()
+	errB.Reset()
+	if code := cmdIndex(root, nil, &out, &errB); code != 0 {
+		t.Fatalf("index after reinstall: %s %s", out.String(), errB.String())
+	}
+}
+
+func TestReinstallKeepsAValidDeclaredProjectID(t *testing.T) {
+	unsetProjectEnv(t)
+	root := newNamedGitRepo(t, "MyApp")
+	var out, errB bytes.Buffer
+	if code := cmdInstall([]string{root, "--project-id", "proj.acme-core"}, &out, &errB); code != 0 {
+		t.Fatalf("install exit=%d err=%s", code, errB.String())
+	}
+	out.Reset()
+	errB.Reset()
+	if code := cmdInstall([]string{root, "--force"}, &out, &errB); code != 0 {
+		t.Fatalf("reinstall exit=%d err=%s", code, errB.String())
+	}
+	raw, err := os.ReadFile(filepath.Join(root, ".mcp.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := declaredMCPProjectID(raw); got != "proj.acme-core" {
+		t.Fatalf("reinstall rewrote a valid declared id to %q", got)
+	}
+}
