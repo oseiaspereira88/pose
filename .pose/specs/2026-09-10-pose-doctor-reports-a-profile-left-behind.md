@@ -140,9 +140,9 @@ the current one not to be named.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestDoctorReportsAReviewProfileBelowTheCurrentSchema requires the warn, the profile's name and a hint naming `pose update`>
+- R1 [satisfied] <TestDoctorReportsAReviewProfileBelowTheCurrentSchema requires the warn, the profile's name and a hint naming `pose update`> surface:doctor-reports-a-profile-left-behind evidence:integration
 - R2 [satisfied] <the same test requires the current profile not to appear in the message — naming it would tell an operator to migrate what is already migrated>
-- R3 [satisfied] <TestDoctorSaysNothingWhenThereAreNoProfiles requires no finding at all on an instance with none>
+- R3 [satisfied] <TestDoctorSaysNothingWhenThereAreNoProfiles requires no finding at all on an instance with none> surface:doctor-reports-a-profile-left-behind evidence:integration
 
 ### Known gaps
 - The check reports the schema and not what a stale profile actually declares.
