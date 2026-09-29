@@ -258,7 +258,7 @@ handle it.
 - R4 [satisfied] <doctor's review.contract-adoption iterates the registry and names each unrecorded contract with its summary>
 - R5 [satisfied] <a probe contract with no other code was stamped and reported; neither command references a contract id>
 - R6 [satisfied] <loadReviewPolicy validates the component-aware and review-bundles dates through ContractAdoptedAt, and reviewBundlesLegacyAttemptExempt consumes it the same way; TestPolicyRecordingDatesOnlyInTheMapIsValidAndHonoured loads a policy carrying no legacy field and asserts all three resolve, plus that the legacy field is still read when the map is silent and loses when both are present>
-- R7 [satisfied] <stampContractAdoption checks the raw document for LegacyContractField before stamping; TestStampContractAdoptionRespectsAClearedLegacyField asserts the cleared contract is skipped while a contract the policy says nothing about is still stamped>
+- R7 [satisfied] <stampContractAdoption checks the raw document for LegacyContractField before stamping; TestStampContractAdoptionRespectsAClearedLegacyField asserts the cleared contract is skipped while a contract the policy says nothing about is still stamped> surface:contract-adoption-registry evidence:integration
 
 ### Known gaps
 - Only the three git fixtures in `review_bundle_test.go` disable auto gc. Every
