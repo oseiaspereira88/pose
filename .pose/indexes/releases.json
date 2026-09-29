@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "pose-cli-output-machine-channel",
+      "category": "changed",
+      "breaking": false,
+      "body": "`lint-spec`, `index`, `history-check`, `knowledge-check`, `skills-check`, `recurrence-check` and `state` accept `--json`, `--quiet` and `--color`, and every gate on the machine channel, `check` included, accepts `--json-out \u003cpath\u003e` to write the same document to a file while keeping the human report. Their findings now go through the renderer: `history-check`, `knowledge-check` and `recurrence-check` findings that went to stderr as `[WARNING]`/`[ERROR]`/`[RECURRENT]` lines are now the gate's result on stdout. Verdict lines and `name=value` fields are unchanged.\n\n**Deprecated:** `pose validate --json \u003cpath\u003e`. Everywhere else `--json` prints to stdout; use `pose validate --json-out \u003cpath\u003e`. The old spelling keeps working and prints a deprecation notice on stderr.\n\n`pose report` no longer drops the first character of the first changed path (`README.md` was recorded as `EADME.md`), and the contributor hint goes to stderr in `check` and `artifact-check` too.",
+      "path": "pose-cli-output-machine-channel.md",
+      "digest": "sha256:7a607d258d0680ab77b343ee294883470ffe20837343d6d399b3ca6fa03f1271"
+    },
+    {
       "spec": "pose-lint-spec-all-is-a-gate",
       "category": "changed",
       "breaking": false,
