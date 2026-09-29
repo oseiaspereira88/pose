@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-one-evidence-class-vocabulary
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:emittable-analysis-evidence-classes
 ---
 
 # Spec: Analysis results have evidence classes of their own
