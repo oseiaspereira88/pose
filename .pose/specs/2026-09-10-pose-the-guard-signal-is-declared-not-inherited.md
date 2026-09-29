@@ -79,6 +79,12 @@ jobs which need it declare it.
 
 Backfilled on 2026-09-29: `6209806` (Two follow-ups the v4.0.1 fixes opened (#84)) carries this spec's trailer and also changed the 2 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:the-guard-signal-is-declared-not-inherited module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - A job added later that runs the suite and forgets the variable would skip the
   test silently. That is what the contract test exists to catch, and it caught a
