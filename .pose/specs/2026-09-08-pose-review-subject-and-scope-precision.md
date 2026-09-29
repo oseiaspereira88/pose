@@ -7,7 +7,7 @@ supersedes:
 depends_on:
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:review-subject-and-scope-precision
 ---
 
 # Spec: Precision in the review subject and its component scope
