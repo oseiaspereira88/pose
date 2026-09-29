@@ -1,15 +1,181 @@
 {
-  "pending": [
-    {
-      "spec": "retained-review-survives-an-invalid-newer-approval",
-      "category": "fixed",
-      "breaking": false,
-      "body": "A closed scope whose newest approval no longer validates, typically against an evidence rule introduced after it, keeps the older approval it was closed with again. 6.0.2 voided it, so a scope approved twice and never rejected read as unreviewed and `pose check --strict` failed. A newer rejection or request for changes still voids any older approval.",
-      "path": "retained-review-survives-an-invalid-newer-approval.md",
-      "digest": "sha256:3752c9ab933a7a16292839e757aa3d60add9b086890474cb10f95b91fe2771bc"
-    }
-  ],
+  "pending": [],
   "releases": [
+    {
+      "version": "v6.0.3",
+      "state": "verified",
+      "manifest": {
+        "schema_version": 1,
+        "version": "v6.0.3",
+        "previous_version": "v6.0.2",
+        "prepared_at": "2026-09-29T10:49:56Z",
+        "specs": [
+          "pose-v6-0-3-release-readiness",
+          "retained-review-survives-an-invalid-newer-approval"
+        ],
+        "categories": {
+          "changed": 1,
+          "fixed": 1
+        },
+        "fragments": [
+          {
+            "spec": "pose-v6-0-3-release-readiness",
+            "category": "changed",
+            "breaking": false,
+            "body": "Prepare POSE 6.0.3 with aligned public version metadata and an authenticated upgrade path from 6.0.2, pinned by the SHA-256 of its published `checksums.txt`. The release introduces no contract, schema or capability.",
+            "path": "pose-v6-0-3-release-readiness.md",
+            "digest": "sha256:46f9449eb1be2cc79fac0685944f54ba600dd88692a95e2ffae488dab98ca15f"
+          },
+          {
+            "spec": "retained-review-survives-an-invalid-newer-approval",
+            "category": "fixed",
+            "breaking": false,
+            "body": "A closed scope whose newest approval no longer validates, typically against an evidence rule introduced after it, keeps the older approval it was closed with again. 6.0.2 voided it, so a scope approved twice and never rejected read as unreviewed and `pose check --strict` failed. A newer rejection or request for changes still voids any older approval.",
+            "path": "retained-review-survives-an-invalid-newer-approval.md",
+            "digest": "sha256:3752c9ab933a7a16292839e757aa3d60add9b086890474cb10f95b91fe2771bc"
+          }
+        ],
+        "breaking": false,
+        "notes_digest": "sha256:5bb5e96bf2b1752aea91794b3fd65993a930c8563b8d9da34554dcc916876b4b",
+        "release_input_digest": "sha256:94f6ff4b1fda3ba60ce200035811797265622ef13ff7e70eebfd59b77dcd9891",
+        "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+        "version_evidence": {
+          "source": "pose-mcp/internal/version/version.go",
+          "value": "v6.0.3"
+        }
+      },
+      "events": [
+        {
+          "schema_version": 1,
+          "version": "v6.0.3",
+          "state": "tagged",
+          "recorded_at": "2026-09-29T11:07:31Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "git",
+            "repository": "oseiaspereira88/pose",
+            "version": "v6.0.3",
+            "tag": "v6.0.3",
+            "commit": "c54e21289b0b1016ea4e07592191f6a7d0ba90e6",
+            "published_at": "2026-09-29T10:54:38Z",
+            "url": "https://github.com/oseiaspereira88/pose/tree/v6.0.3"
+          },
+          "evidence_digest": "sha256:190930b114e44b941ba5a5160fc133f1f54b4231f4fccd3694f0ccd132a2cbce"
+        },
+        {
+          "schema_version": 1,
+          "version": "v6.0.3",
+          "state": "published",
+          "recorded_at": "2026-09-29T11:07:31Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github",
+            "repository": "oseiaspereira88/pose",
+            "version": "v6.0.3",
+            "tag": "v6.0.3",
+            "commit": "c54e21289b0b1016ea4e07592191f6a7d0ba90e6",
+            "published_at": "2026-09-29T11:05:33Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v6.0.3",
+            "workflow_run": "36558478776",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:a499887f456b10ce37ea3c3cb9adedf90d62b979fc8b945917aeb4e64a0f15ff",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:4e35ca6faea407f7c22c5d7ae63b90f3964c876e1da474fc5d20f2f9cdd2ef09",
+              "Harne8.Pose.yaml": "sha256:ac01cb88ace5ea37bae1a9e1bab1a0274c5c1c6d4b8623ed6bd4a43ba8ab3adf",
+              "checksums.txt": "sha256:6ed3af3e45a7a057a2aace4c4a598eb439faafcafde14fad76ebdb941fa02f82",
+              "checksums.txt.sigstore.json": "sha256:82b3d6bd8206cc075f9b5cddb9aa3f833f5e29e73fcd322e73dba67781d4046d",
+              "compatibility-report.md": "sha256:df3feb9736005853f32375802602bcbb2483d36c8b13d490cc07d665fa6a4c7e",
+              "compatibility.json": "sha256:13c037b9e8ce988ea7a5ddbdc7a018a58184c2b46f2f7f207a59f5c709042371",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:4d0eb826695b35ebf04ad2ba330bb1b290cce2c838076cfa493674bec81ac896",
+              "pose-rule-kubernetes.tar.gz": "sha256:3263647506399c4d357b5a0a3e178109ea292c5b4b0d1a4f40cc078db8bf584d",
+              "pose.rb": "sha256:0afe1567a94b927cac13923b689a7c88419ecaa562ef771fad06b3fcc92a5d8a",
+              "pose_6.0.3_darwin_amd64.tar.gz": "sha256:3584348fdbd3705c06f1cc6f104a994141f7261b21b256c5d2ca78030d64160a",
+              "pose_6.0.3_darwin_amd64.tar.gz.cdx.json": "sha256:c3b976153103be74745356a356a145bc1b55c6fceab6341b4bdda673831c782c",
+              "pose_6.0.3_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:d0efed467f1f3b92ea4e79b0ef543bb0d4e4c98be73f89bce9c138224a83edcf",
+              "pose_6.0.3_darwin_amd64.tar.gz.sigstore.json": "sha256:20ea2c1ae831e6b8a439285bd57f98122eedaa882fd8cf1ab467b9f14838615c",
+              "pose_6.0.3_darwin_arm64.tar.gz": "sha256:f4dd098bfb559048d8b3ebebb577d298942dce74e50b6067ba91caadaaca27b2",
+              "pose_6.0.3_darwin_arm64.tar.gz.cdx.json": "sha256:f096de2f875a8fe2751fa6f0475c6d647c824808c33076264183e2a781c71902",
+              "pose_6.0.3_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:3edbd824dcf26adb93ea5ab910a81661ab7a7d285aa5c4bd28b08da3bdf6af10",
+              "pose_6.0.3_darwin_arm64.tar.gz.sigstore.json": "sha256:7fa59bb49af5f2df82e73057ea95d4275e3de3341d7dc679a84f3b7771a078ea",
+              "pose_6.0.3_linux_amd64.tar.gz": "sha256:2edf8ff62a47ba18cf5d84c2f7c14589e86a8220ad40ef40e1b90c2751013bb9",
+              "pose_6.0.3_linux_amd64.tar.gz.cdx.json": "sha256:b4c5a968941798f7b5e1071ac34ffdfe263fdead3449914945a36f53432a16ad",
+              "pose_6.0.3_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:8ccdb3c52e87ac2194ceab51794715a2c1ff2ed67eaf539e46f54a460737ba9e",
+              "pose_6.0.3_linux_amd64.tar.gz.sigstore.json": "sha256:91ca5163ee2ecadb965dec79ccac201763cb1f6c2923f73ca1b37500836566ac",
+              "pose_6.0.3_linux_arm64.tar.gz": "sha256:e0091577e31f0f1fe6fc9f49f1533a660c5d86191f57068a7efb436855bafc4a",
+              "pose_6.0.3_linux_arm64.tar.gz.cdx.json": "sha256:363c38b09f9a6bb3bc419c42104c33ebd4324134bd9e52d42edd335295460e21",
+              "pose_6.0.3_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:c10f88e749bcbccf0ae4f61f4deaded9508bb2978055b19d5bab65be0546c164",
+              "pose_6.0.3_linux_arm64.tar.gz.sigstore.json": "sha256:9125c4b589742252624b6a5e066a433519ecd01323aa355c55c4c7f29118c72b",
+              "pose_6.0.3_windows_amd64.zip": "sha256:237a9038fab90d03a313606cb1e8362584a48a44bd11873eaeaa2afbc18c95e8",
+              "pose_6.0.3_windows_amd64.zip.cdx.json": "sha256:516981185096eb7419c2d06d2e395ff5b963bf90fd2ea581b0f9a9a0b85d8023",
+              "pose_6.0.3_windows_amd64.zip.cdx.json.sigstore.json": "sha256:133fe308f81f457c03dfe616b7b0365aa58cb85172704b7b84304f2472b5b25a",
+              "pose_6.0.3_windows_amd64.zip.sigstore.json": "sha256:692b9d3c6f06f18e51e16e506516e7b427704ca227aa92a0d3e89d1b1fea5944",
+              "pose_6.0.3_windows_arm64.zip": "sha256:eb991920fab770874d646534e08ce60f215f8fe32053c900fc24b4d210fb4adb",
+              "pose_6.0.3_windows_arm64.zip.cdx.json": "sha256:432ddd1f91260b6ce8407c92d4629bcbb3f4c74b194095366f51fb52d4239507",
+              "pose_6.0.3_windows_arm64.zip.cdx.json.sigstore.json": "sha256:8300eac296ec8f2963179aa86c28306a1ec495820f0b89481768e705c3e0d0c5",
+              "pose_6.0.3_windows_arm64.zip.sigstore.json": "sha256:84c63f74bfea1ff01b7209d6d4b94cfc010aa78c83c61075e3c697aa1527979b"
+            }
+          },
+          "evidence_digest": "sha256:7a98612c24aa286533367967755fda9674b4551e185f7a134684d7c8c31deef8"
+        },
+        {
+          "schema_version": 1,
+          "version": "v6.0.3",
+          "state": "verified",
+          "recorded_at": "2026-09-29T11:07:32Z",
+          "evidence": {
+            "schema_version": 1,
+            "provider": "github-actions",
+            "repository": "oseiaspereira88/pose",
+            "version": "v6.0.3",
+            "tag": "v6.0.3",
+            "commit": "c54e21289b0b1016ea4e07592191f6a7d0ba90e6",
+            "published_at": "2026-09-29T11:05:33Z",
+            "url": "https://github.com/oseiaspereira88/pose/releases/tag/v6.0.3",
+            "workflow_run": "https://github.com/oseiaspereira88/pose/actions/runs/36559606732",
+            "assets": {
+              "Harne8.Pose.installer.yaml": "sha256:a499887f456b10ce37ea3c3cb9adedf90d62b979fc8b945917aeb4e64a0f15ff",
+              "Harne8.Pose.locale.en-US.yaml": "sha256:4e35ca6faea407f7c22c5d7ae63b90f3964c876e1da474fc5d20f2f9cdd2ef09",
+              "Harne8.Pose.yaml": "sha256:ac01cb88ace5ea37bae1a9e1bab1a0274c5c1c6d4b8623ed6bd4a43ba8ab3adf",
+              "checksums.txt": "sha256:6ed3af3e45a7a057a2aace4c4a598eb439faafcafde14fad76ebdb941fa02f82",
+              "checksums.txt.sigstore.json": "sha256:82b3d6bd8206cc075f9b5cddb9aa3f833f5e29e73fcd322e73dba67781d4046d",
+              "compatibility-report.md": "sha256:df3feb9736005853f32375802602bcbb2483d36c8b13d490cc07d665fa6a4c7e",
+              "compatibility.json": "sha256:13c037b9e8ce988ea7a5ddbdc7a018a58184c2b46f2f7f207a59f5c709042371",
+              "install.sh": "sha256:d69537b74690925f27bd41c84a91817030a1c846841003786a83fe7b47732928",
+              "pose-rule-kubernetes.sigstore.json": "sha256:4d0eb826695b35ebf04ad2ba330bb1b290cce2c838076cfa493674bec81ac896",
+              "pose-rule-kubernetes.tar.gz": "sha256:3263647506399c4d357b5a0a3e178109ea292c5b4b0d1a4f40cc078db8bf584d",
+              "pose.rb": "sha256:0afe1567a94b927cac13923b689a7c88419ecaa562ef771fad06b3fcc92a5d8a",
+              "pose_6.0.3_darwin_amd64.tar.gz": "sha256:3584348fdbd3705c06f1cc6f104a994141f7261b21b256c5d2ca78030d64160a",
+              "pose_6.0.3_darwin_amd64.tar.gz.cdx.json": "sha256:c3b976153103be74745356a356a145bc1b55c6fceab6341b4bdda673831c782c",
+              "pose_6.0.3_darwin_amd64.tar.gz.cdx.json.sigstore.json": "sha256:d0efed467f1f3b92ea4e79b0ef543bb0d4e4c98be73f89bce9c138224a83edcf",
+              "pose_6.0.3_darwin_amd64.tar.gz.sigstore.json": "sha256:20ea2c1ae831e6b8a439285bd57f98122eedaa882fd8cf1ab467b9f14838615c",
+              "pose_6.0.3_darwin_arm64.tar.gz": "sha256:f4dd098bfb559048d8b3ebebb577d298942dce74e50b6067ba91caadaaca27b2",
+              "pose_6.0.3_darwin_arm64.tar.gz.cdx.json": "sha256:f096de2f875a8fe2751fa6f0475c6d647c824808c33076264183e2a781c71902",
+              "pose_6.0.3_darwin_arm64.tar.gz.cdx.json.sigstore.json": "sha256:3edbd824dcf26adb93ea5ab910a81661ab7a7d285aa5c4bd28b08da3bdf6af10",
+              "pose_6.0.3_darwin_arm64.tar.gz.sigstore.json": "sha256:7fa59bb49af5f2df82e73057ea95d4275e3de3341d7dc679a84f3b7771a078ea",
+              "pose_6.0.3_linux_amd64.tar.gz": "sha256:2edf8ff62a47ba18cf5d84c2f7c14589e86a8220ad40ef40e1b90c2751013bb9",
+              "pose_6.0.3_linux_amd64.tar.gz.cdx.json": "sha256:b4c5a968941798f7b5e1071ac34ffdfe263fdead3449914945a36f53432a16ad",
+              "pose_6.0.3_linux_amd64.tar.gz.cdx.json.sigstore.json": "sha256:8ccdb3c52e87ac2194ceab51794715a2c1ff2ed67eaf539e46f54a460737ba9e",
+              "pose_6.0.3_linux_amd64.tar.gz.sigstore.json": "sha256:91ca5163ee2ecadb965dec79ccac201763cb1f6c2923f73ca1b37500836566ac",
+              "pose_6.0.3_linux_arm64.tar.gz": "sha256:e0091577e31f0f1fe6fc9f49f1533a660c5d86191f57068a7efb436855bafc4a",
+              "pose_6.0.3_linux_arm64.tar.gz.cdx.json": "sha256:363c38b09f9a6bb3bc419c42104c33ebd4324134bd9e52d42edd335295460e21",
+              "pose_6.0.3_linux_arm64.tar.gz.cdx.json.sigstore.json": "sha256:c10f88e749bcbccf0ae4f61f4deaded9508bb2978055b19d5bab65be0546c164",
+              "pose_6.0.3_linux_arm64.tar.gz.sigstore.json": "sha256:9125c4b589742252624b6a5e066a433519ecd01323aa355c55c4c7f29118c72b",
+              "pose_6.0.3_windows_amd64.zip": "sha256:237a9038fab90d03a313606cb1e8362584a48a44bd11873eaeaa2afbc18c95e8",
+              "pose_6.0.3_windows_amd64.zip.cdx.json": "sha256:516981185096eb7419c2d06d2e395ff5b963bf90fd2ea581b0f9a9a0b85d8023",
+              "pose_6.0.3_windows_amd64.zip.cdx.json.sigstore.json": "sha256:133fe308f81f457c03dfe616b7b0365aa58cb85172704b7b84304f2472b5b25a",
+              "pose_6.0.3_windows_amd64.zip.sigstore.json": "sha256:692b9d3c6f06f18e51e16e506516e7b427704ca227aa92a0d3e89d1b1fea5944",
+              "pose_6.0.3_windows_arm64.zip": "sha256:eb991920fab770874d646534e08ce60f215f8fe32053c900fc24b4d210fb4adb",
+              "pose_6.0.3_windows_arm64.zip.cdx.json": "sha256:432ddd1f91260b6ce8407c92d4629bcbb3f4c74b194095366f51fb52d4239507",
+              "pose_6.0.3_windows_arm64.zip.cdx.json.sigstore.json": "sha256:8300eac296ec8f2963179aa86c28306a1ec495820f0b89481768e705c3e0d0c5",
+              "pose_6.0.3_windows_arm64.zip.sigstore.json": "sha256:84c63f74bfea1ff01b7209d6d4b94cfc010aa78c83c61075e3c697aa1527979b"
+            },
+            "publication_digest": "sha256:7a98612c24aa286533367967755fda9674b4551e185f7a134684d7c8c31deef8"
+          },
+          "evidence_digest": "sha256:6506383064b00576928d33d93ba64156fdfb531c7b91e6ec584d8953cd49457d"
+        }
+      ],
+      "gaps": []
+    },
     {
       "version": "v6.0.2",
       "state": "verified",
