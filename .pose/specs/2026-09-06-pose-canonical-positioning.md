@@ -89,6 +89,19 @@ README into a dual-framework setup will hit contradictions POSE cannot resolve.
 - modified: README.pt-BR.md
 - modified: docs-site/docs/index.md
 - modified: docs-site/docs/concepts.md
+- modified: docs-site/docs/analytics.md
+- modified: docs-site/docs/architecture.md
+- modified: docs-site/docs/capability-assessment.md
+- modified: docs-site/docs/ci.md
+- modified: docs-site/docs/cli.md
+- modified: docs-site/docs/frontmatter.md
+- modified: docs-site/docs/mcp.md
+- modified: docs-site/docs/monorepo-recipes.md
+- modified: docs-site/docs/package-channels.md
+- modified: docs-site/docs/product-roadmaps.md
+- modified: docs-site/docs/quickstart.md
+
+Backfilled on 2026-09-29: `82726a3` (docs: keep the Diátaxis applicability line evergreen), `3ed4cc0` (docs: reposition POSE as a governed SDD framework) carries this spec's trailer and also changed the 11 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Delivery targets
 - governance:canonical-positioning module:. profile:release-governance entrypoint:README.md
