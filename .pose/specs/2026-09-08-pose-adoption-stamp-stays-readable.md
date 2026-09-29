@@ -79,6 +79,10 @@ Writing the legacy key says the same thing to both engines.
 - modified: pose-mcp/internal/cli/stack_seed.go
 - modified: pose-mcp/internal/cli/stack_seed_test.go
 - modified: pose-mcp/internal/pose/review_closeout.go
+- modified: docs-site/docs/ci.md
+- modified: pose-mcp/internal/version/version.go
+
+The implementation shipped in the v2.0.2 release commit `36664a7`, which carries no trailer; the change set `range:36664a7^..54158ef` is recorded by report so the code claims resolve. That commit also bumped `ci.md` and `version.go` for the release, declared below for the same reason.
 
 ### Technical risks
 - R4 gives up a real check: a misspelled policy key is now silently ignored
