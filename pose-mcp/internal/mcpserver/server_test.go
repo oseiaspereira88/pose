@@ -13,13 +13,20 @@ import (
 	"testing"
 
 	"github.com/harne8/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/testgit"
 	usagepkg "github.com/harne8/pose-mcp/internal/usage"
 	"github.com/harne8/pose-mcp/internal/version"
 )
 
 func TestMain(m *testing.M) {
 	_ = os.Setenv("POSE_USAGE_DISABLED", "1")
-	os.Exit(m.Run())
+	cleanup, err := testgit.Isolate()
+	if err != nil {
+		panic(err)
+	}
+	code := m.Run()
+	cleanup()
+	os.Exit(code)
 }
 
 // fakeReporter implements Reporter for testing the conductor_run_* tools.

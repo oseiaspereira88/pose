@@ -10,11 +10,19 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/harne8/pose-mcp/internal/testgit"
 )
 
 func TestMain(m *testing.M) {
 	_ = os.Setenv("POSE_USAGE_DISABLED", "1")
-	os.Exit(m.Run())
+	cleanup, err := testgit.Isolate()
+	if err != nil {
+		panic(err)
+	}
+	code := m.Run()
+	cleanup()
+	os.Exit(code)
 }
 
 // newGitRepo creates a temp dir initialized as a git repository and returns

@@ -491,6 +491,17 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "test-git-isolation-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/testgit",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delivery-graph-reuse-integration",
           "program": "go",
           "args": [
