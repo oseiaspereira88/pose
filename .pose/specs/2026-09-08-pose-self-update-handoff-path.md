@@ -149,8 +149,8 @@ assertion fails when the path is re-resolved instead.
 
 ### Requirement trace
 - R1 [satisfied] <performSelfUpdate returns execPath and "" when it replaced nothing; cmdUpdate hands that path to runSelfUpdatedBinary, which no longer resolves anything>
-- R2 [satisfied] <TestSelfUpdateHandoffRunsThePathItWasGiven asserts the stub receives `update --no-self --locale pt-BR`>
-- R3 [satisfied] <TestSelfUpdateHandoffPropagatesTheExitCode asserts a child exiting 3 makes the update report 3, so a failure after the handoff is not reported as success>
+- R2 [satisfied] <TestSelfUpdateHandoffRunsThePathItWasGiven asserts the stub receives `update --no-self --locale pt-BR`> surface:self-update-handoff-path evidence:integration
+- R3 [satisfied] <TestSelfUpdateHandoffPropagatesTheExitCode asserts a child exiting 3 makes the update report 3, so a failure after the handoff is not reported as success> surface:self-update-handoff-path evidence:integration
 
 ### Known gaps
 - Nothing exercises the full download-replace-handoff sequence; the release
