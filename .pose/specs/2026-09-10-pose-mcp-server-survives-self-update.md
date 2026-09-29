@@ -154,7 +154,7 @@ binary.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestMCPServerRunsTheCLIAfterTheBinaryIsUpdated starts `pose serve-mcp --stdio`, runs the real `pose update` on the binary it was started from, then calls pose_check and requires no `.old` in the answer>
+- R1 [satisfied] <TestMCPServerRunsTheCLIAfterTheBinaryIsUpdated starts `pose serve-mcp --stdio`, runs the real `pose update` on the binary it was started from, then calls pose_check and requires no `.old` in the answer> surface:mcp-server-survives-self-update evidence:integration
 - R2 [satisfied] <the same test requires the tool's output to be the updated binary's own, `FIXTURE-POSE-3.0.0 args=[check`>
 
 ### Known gaps
