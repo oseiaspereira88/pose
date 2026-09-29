@@ -80,6 +80,12 @@ upstream from `harne8-adopt-pose-v5-0-3`.
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
+### Delivery targets
+
+- surface:machinery-backs-up-only-local-edits module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - The first update after this change still backs up every changed file on an
   instance whose manifest predates digests. That is the honest answer for a
