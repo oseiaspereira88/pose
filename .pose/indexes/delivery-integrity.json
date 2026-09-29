@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:e3ef52231aa4cc71010f7e9b3d671e8a65d49c4e3bbe33051c8ab39d7afbde66",
-  "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+  "input_digest": "sha256:11b7e6056b28089b6cef55544fa150c8a576b88c79a057c882654431c90ee2f9",
+  "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -21204,10 +21204,10 @@
       }
     },
     {
-      "id": "change-set:cs-de1cfd0df20f",
+      "id": "change-set:cs-de300f71b98b",
       "type": "change-set",
       "attributes": {
-        "diff_digest": "sha256:2e4f216aed4bd8ee9b1baf913d748c86a307d0e2dc50b788a187b2e668450910",
+        "diff_digest": "sha256:8dbf4618cf5ed0da326d1490dab42fc9cb2338ce0b3b090cb8886cc2c455727f",
         "selector": "trailers:review-check-names-a-negative-verdict"
       }
     },
@@ -27496,6 +27496,11 @@
     },
     {
       "from": "artifact:.pose/indexes/delivery-integrity.json",
+      "to": "delivery:capability:completed-review-verdict-reporting",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/delivery-integrity.json",
       "to": "delivery:capability:content-keyed-parse-memos",
       "type": "implemented-by"
     },
@@ -27742,6 +27747,11 @@
     {
       "from": "artifact:.pose/indexes/spec-graph.json",
       "to": "delivery:capability:completed-review-retention-precedence",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/spec-graph.json",
+      "to": "delivery:capability:completed-review-verdict-reporting",
       "type": "implemented-by"
     },
     {
@@ -28442,6 +28452,11 @@
     {
       "from": "artifact:.pose/results/delivery-validation.json",
       "to": "delivery:capability:completed-review-retention-precedence",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/results/delivery-validation.json",
+      "to": "delivery:capability:completed-review-verdict-reporting",
       "type": "implemented-by"
     },
     {
@@ -74750,27 +74765,52 @@
       "type": "changes"
     },
     {
-      "from": "change-set:cs-de1cfd0df20f",
+      "from": "change-set:cs-de300f71b98b",
       "to": "artifact:.pose/changelogs/unreleased/review-check-names-a-negative-verdict.md",
       "type": "changes"
     },
     {
-      "from": "change-set:cs-de1cfd0df20f",
+      "from": "change-set:cs-de300f71b98b",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-de300f71b98b",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-de300f71b98b",
+      "to": "artifact:.pose/indexes/roadmaps.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-de300f71b98b",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-de300f71b98b",
       "to": "artifact:.pose/indexes/validation-matrix.json",
       "type": "changes"
     },
     {
-      "from": "change-set:cs-de1cfd0df20f",
+      "from": "change-set:cs-de300f71b98b",
+      "to": "artifact:.pose/results/delivery-validation.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-de300f71b98b",
       "to": "artifact:.pose/specs/2026-09-29-review-check-names-a-negative-verdict.md",
       "type": "changes"
     },
     {
-      "from": "change-set:cs-de1cfd0df20f",
+      "from": "change-set:cs-de300f71b98b",
       "to": "artifact:pose-mcp/internal/pose/completed_review_retention_test.go",
       "type": "changes"
     },
     {
-      "from": "change-set:cs-de1cfd0df20f",
+      "from": "change-set:cs-de300f71b98b",
       "to": "artifact:pose-mcp/internal/pose/review_closeout.go",
       "type": "changes"
     },
@@ -150176,7 +150216,7 @@
     },
     {
       "from": "spec:review-check-names-a-negative-verdict",
-      "to": "change-set:cs-de1cfd0df20f",
+      "to": "change-set:cs-de300f71b98b",
       "type": "observed-by"
     },
     {
@@ -194604,15 +194644,16 @@
       "diff_digest": "sha256:72af7cc0ea0a50dfa3bc67a719aee0929704b7b02bbcabb4252593ad8fa3e24a"
     },
     {
-      "id": "cs-de1cfd0df20f",
+      "id": "cs-de300f71b98b",
       "spec": "review-check-names-a-negative-verdict",
       "selector": "trailers:review-check-names-a-negative-verdict",
       "base": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0^",
-      "head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
+      "head": "99779cb972e008627327d5ce01c7f99f043f22fe",
       "resolved_base": "0e04b93857b0f3bcb6e4c7fa1ccf4c1177a6fa28",
-      "resolved_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
+      "resolved_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
       "commits": [
-        "073660938c3243cc090a6d6d9bd7a918b3dd4ba0"
+        "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
+        "99779cb972e008627327d5ce01c7f99f043f22fe"
       ],
       "paths": [
         {
@@ -194625,7 +194666,27 @@
         },
         {
           "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
           "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
         },
         {
           "action": "modified",
@@ -194636,7 +194697,7 @@
           "path": "pose-mcp/internal/pose/review_closeout.go"
         }
       ],
-      "diff_digest": "sha256:2e4f216aed4bd8ee9b1baf913d748c86a307d0e2dc50b788a187b2e668450910"
+      "diff_digest": "sha256:8dbf4618cf5ed0da326d1490dab42fc9cb2338ce0b3b090cb8886cc2c455727f"
     },
     {
       "id": "cs-dede4700477b",
@@ -205400,15 +205461,6 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
-      "id": "dif-63a4dc0dd6ce",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "review-check-names-a-negative-verdict",
-      "path": ".pose/results/delivery-validation.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-63b551637a1c",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -206348,15 +206400,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-8c99c7441d7f",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "review-check-names-a-negative-verdict",
-      "path": ".pose/indexes/delivery-integrity.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-8cc42284cc70",
       "code": "undeclared",
       "severity": "error",
@@ -206731,15 +206774,6 @@
       "change_set": "cs-0a6ec53623c1",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
-      "id": "dif-9f64b73e55e6",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "review-check-names-a-negative-verdict",
-      "path": ".pose/indexes/spec-graph.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-9fae1a1e6f95",
@@ -210838,9 +210872,9 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -211061,7 +211095,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -211074,9 +211108,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -211297,7 +211331,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -211310,9 +211344,9 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -211533,7 +211567,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -211546,9 +211580,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -211769,7 +211803,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -211782,9 +211816,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -212005,7 +212039,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -212018,9 +212052,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -212241,7 +212275,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -212254,9 +212288,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -212477,7 +212511,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -212490,9 +212524,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -212713,7 +212747,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -212726,9 +212760,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -212949,7 +212983,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -212962,9 +212996,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -213185,7 +213219,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -213198,9 +213232,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -213421,7 +213455,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -213434,9 +213468,9 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -213657,7 +213691,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -213670,9 +213704,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -213893,7 +213927,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -213906,9 +213940,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -214129,7 +214163,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -214142,9 +214176,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -214365,7 +214399,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -214378,9 +214412,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -214601,7 +214635,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -214614,9 +214648,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -214837,7 +214871,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -214850,9 +214884,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -215073,7 +215107,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -215086,9 +215120,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -215309,7 +215343,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -215322,9 +215356,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -215545,7 +215579,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -215558,9 +215592,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -215781,7 +215815,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -215794,9 +215828,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -216017,7 +216051,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -216030,9 +216064,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -216253,7 +216287,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -216266,9 +216300,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -216489,7 +216523,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -216502,9 +216536,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -216725,7 +216759,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -216738,9 +216772,9 @@
       "evidence_class": "e2e",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -216961,7 +216995,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -216974,9 +217008,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -217197,7 +217231,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -217210,9 +217244,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -217433,7 +217467,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -217446,9 +217480,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -217669,7 +217703,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -217682,9 +217716,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -217905,7 +217939,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -217918,9 +217952,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -218141,7 +218175,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -218154,9 +218188,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -218377,7 +218411,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -218390,9 +218424,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -218613,7 +218647,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -218626,9 +218660,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -218849,7 +218883,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -218862,9 +218896,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -219085,7 +219119,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -219098,9 +219132,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -219321,7 +219355,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -219334,9 +219368,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -219557,7 +219591,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -219570,9 +219604,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -219793,7 +219827,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -219806,9 +219840,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -220029,7 +220063,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -220042,9 +220076,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -220265,7 +220299,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -220278,9 +220312,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -220501,7 +220535,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -220514,9 +220548,9 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "073660938c3243cc090a6d6d9bd7a918b3dd4ba0",
-      "generated_at": "2026-09-29T13:27:05Z",
-      "provenance_digest": "sha256:190e7a8a3947fbabda3e2f9270c6e6871c8736179797fb6b31277ae47122df58",
+      "git_head": "99779cb972e008627327d5ce01c7f99f043f22fe",
+      "generated_at": "2026-09-29T13:28:49Z",
+      "provenance_digest": "sha256:ea4bbb067950154406fb46343e7b2a41765687e6a630742059d9cdc9e1508b97",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -220737,7 +220771,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "retained-review-survives-an-invalid-newer-approval": "sha256:a4cf306baba3a1f1b823a48dc1aeab53be7c92cbc54f1efe2a3c5448ac855f42",
-        "review-check-names-a-negative-verdict": "sha256:74f552008f44b3279393a65006da09e608ea067680ca3a7e09c2d03514c54adb",
+        "review-check-names-a-negative-verdict": "sha256:78757f140cd8178c5eace74c38ae363de1761d33cb7e4080dc19b56932d22dcd",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
         "review-verify-retains-completed-scopes": "sha256:ecf32b791a9a5da6a97405c3aea6bddf3b23587d6a8f7e06562e8a16ac4e75b8",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
@@ -221278,7 +221312,10 @@
       "spec:review-check-names-a-negative-verdict",
       "artifact:.pose/changelogs/unreleased/review-check-names-a-negative-verdict.md",
       "artifact:.pose/specs/2026-09-29-review-check-names-a-negative-verdict.md",
+      "artifact:.pose/indexes/delivery-integrity.json",
+      "artifact:.pose/indexes/spec-graph.json",
       "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/results/delivery-validation.json",
       "artifact:pose-mcp/internal/pose/completed_review_retention_test.go",
       "artifact:pose-mcp/internal/pose/review_closeout.go",
       "delivery:capability:completed-review-verdict-reporting",

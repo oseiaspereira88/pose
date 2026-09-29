@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-ab0bdeae3026626c",
+  "bundle_id": "rvb-a96a5aafe8131eba",
+  "bundle_digest": "sha256:a96a5aafe8131eba566a1bcad68527ac1c747ac4123c6098f8fd5912e11eaf05",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "Only the report changes: a closed scope whose newest review is negative was already unapproved and stays so. Scopes that predate review bundles still take the legacy path, and approved or retained scopes are untouched."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "The comment at the new branch says why the old message misled; the spec records the audio-relay case where review verify and review-check disagreed, and the fragment states the change for operators."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "An operator now sees the blocking attestation, its decision and each open finding with its action in review-check and check --strict, instead of a missing-record message that pointed the wrong way."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-200d42b6e29722e0",
+      "rationale": "One lookup helper, one branch in ReviewCheck, one test and the producer's test selector; no gate outcome changed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "The branch only reads recorded attestations and cannot approve anything; the approval path and its retention rule are unchanged."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/completed-review-retention-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T13:30:10Z",
+  "path": ".pose/review-attestations/rva-ab0bdeae3026626c.json"
+}

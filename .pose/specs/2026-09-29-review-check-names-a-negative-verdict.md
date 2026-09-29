@@ -1,8 +1,8 @@
 ---
 slug: review-check-names-a-negative-verdict
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: retained-review-survives-an-invalid-newer-approval
 priority: 1
@@ -100,16 +100,24 @@ Reporting only. Reverting restores the misleading message.
 findings f4 and f5. With the fix, the new test passes; with the lookup disabled it
 fails with `[no review attempt exists for spec:backend]`. The full suite passes.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 42/42 into the results path; `surface-check --strict` with
+0 findings; bundle `rvb-a96a5aafe8131eba`, 39 evidence items; attestation
+`rva-ab0bdeae3026626c`, `agent:claude-opus-5-5`, approved with five explicit judgments.
+
 ### Requirement trace
 
-- R1 [pending] test:TestReviewCheckNamesANegativeVerdictOnAClosedScope
-- R2 [pending] test:TestReviewCheckNamesANegativeVerdictOnAClosedScope
+- R1 [satisfied] capability:completed-review-verdict-reporting evidence:integration check:completed-review-retention-integration test:TestReviewCheckNamesANegativeVerdictOnAClosedScope — the changes-requested attestation is reported as current,
+  with a blocker naming its decision and one per changes-requested finding
+- R2 [satisfied] capability:completed-review-verdict-reporting evidence:integration check:completed-review-retention-integration test:TestReviewCheckNamesANegativeVerdictOnAClosedScope — the scope stays unapproved
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+`review-check` and `check --strict` name the negative verdict and its open findings
+for a closed scope instead of reporting that no review exists.
 
 ### Residual risks
 
