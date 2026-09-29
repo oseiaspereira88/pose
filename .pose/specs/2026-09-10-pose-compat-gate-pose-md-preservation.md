@@ -74,6 +74,12 @@ real prior release.
 
 Backfilled on 2026-09-29: `da8a6d7` (Backlog before 5.0.1: four stale follow-ups and three quiet guards (#91)) carries this spec's trailer and also changed the 7 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:compat-gate-pose-md-preservation module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - None beyond the gate's own: a prior release that could not keep the note
   would now fail the pair, which is the point.
