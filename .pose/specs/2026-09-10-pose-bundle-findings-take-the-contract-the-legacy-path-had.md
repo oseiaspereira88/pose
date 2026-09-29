@@ -84,6 +84,12 @@ nothing would have reported it.
 - modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
 - modified: pose-mcp/internal/pose/review_bundle.go
 
+### Delivery targets
+
+- capability:bundle-findings-take-the-contract-the-legacy-path-had module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - `omitempty` does nothing for a struct value. The first version of `Gates` was
   one, so every payload serialised `"gates":{}` and the digest of all 483
