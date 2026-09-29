@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-doctor-selected-profiles-only
 priority: 1
 components: pose-mcp
-delivers:
+delivers: surface:doctor-fixtures-exercise-production-path, capability:doctor-fixtures-exercise-production-path
 ---
 
 # Spec: Audit which doctor branches the suite actually reaches
