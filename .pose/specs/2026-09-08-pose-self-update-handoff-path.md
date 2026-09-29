@@ -77,6 +77,12 @@ tested and the gap was in what it did not.
 
 Backfilled on 2026-09-29: `5492f57` (fix(update): hand off by the path the new binary was written to) carries this spec's trailer and also changed the 2 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:self-update-handoff-path module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - The returned path doubles as the "did it replace" signal, so an empty string
   means no replacement. That is one value carrying two meanings; the alternative
