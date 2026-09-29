@@ -31,6 +31,14 @@
       "body": "The Portuguese README pins the released version again: in 6.0.0 its checksum-pinned install instructions downloaded 5.0.8. The release workflow now runs the whole CI workflow at the commit it publishes and waits for it to pass. 6.0.0 was cut from a commit whose CI failed on two gates that the release workflow did not run.",
       "path": "release-runs-the-ci-gates.md",
       "digest": "sha256:6382a29ca7907b1dcc763cecd6473c8916a689ab8758852606b50e4cfef94840"
+    },
+    {
+      "spec": "test-git-repos-run-no-background-maintenance",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The engine's test suite no longer fails at random with `TempDir RemoveAll cleanup: ... .git: directory not empty`. Git starts a detached `maintenance run --auto` after each commit, which kept writing into test repositories while they were being removed. The test binaries now run git with automatic maintenance disabled; the engine's own git invocations are unchanged.",
+      "path": "test-git-repos-run-no-background-maintenance.md",
+      "digest": "sha256:67834cf16501ec5e93e634f35e7ed13423624770f4f14eb72c0e1206263e1868"
     }
   ],
   "releases": [
