@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-adoption-stamp-stays-readable
 priority: 1
 components: pose-mcp
-delivers:
+delivers: surface:doctor-reports-unread-policy-keys, capability:doctor-reports-unread-policy-keys
 ---
 
 # Spec: Say when a review policy key is not read
