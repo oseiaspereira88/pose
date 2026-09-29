@@ -74,6 +74,12 @@ has already been fixed — the instance just has not heard.
 
 Backfilled on 2026-09-29: `6209806` (Two follow-ups the v4.0.1 fixes opened (#84)) carries this spec's trailer and also changed the 5 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
+### Delivery targets
+
+- surface:doctor-reports-a-profile-left-behind module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - The check reads every profile in the directory, including ones a project
   authored itself. That is the intent: a hand-written v1 profile has the same
