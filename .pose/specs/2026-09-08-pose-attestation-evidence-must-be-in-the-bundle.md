@@ -1,8 +1,8 @@
 ---
 slug: pose-attestation-evidence-must-be-in-the-bundle
-status: in-progress
+status: done
 created_at: 2026-09-08
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-review-plan-producible-evidence-classes
 priority: 0
