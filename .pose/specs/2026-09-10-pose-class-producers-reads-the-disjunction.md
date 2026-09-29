@@ -8,7 +8,7 @@ depends_on: pose-report-a-demanded-class-nothing-produces
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:class-producers-reads-the-disjunction
 ---
 
 # Spec: The class-producers check reports a criterion, not a class
