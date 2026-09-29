@@ -8,7 +8,7 @@ depends_on: pose-cli-output-rendering-system
 priority: 2
 components: pose-mcp, cli
 task_type: feature
-delivers:
+delivers: surface:cli-machine-channel
 ---
 
 # Spec: Every gate answers the machine channel
@@ -76,9 +76,52 @@ rest.
 - `docs-site/docs/cli.md`, `POSE.md` and its locale/scaffold copies
 
 ### Artifacts
-- created: .pose/specs/2026-09-12-pose-cli-output-machine-channel.md
+- modified: .pose/specs/2026-09-12-pose-cli-output-machine-channel.md
+- created: .pose/changelogs/unreleased/pose-cli-output-machine-channel.md
+- modified: .pose/indexes/validation-matrix.json
+- created: pose-mcp/internal/cli/machine_channel_test.go
+- created: pose-mcp/internal/cli/report_changed_files_test.go
+- modified: .agents/skills/pose-spec-closeout/SKILL.md
+- modified: .pose/workflows/ui-surface.md
+- modified: POSE.md
+- modified: docs-site/docs/cli.md
+- modified: docs-site/docs/monorepo-recipes.md
+- modified: locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: locales/pt-BR/.pose/workflows/ui-surface.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/cliout/record.go
+- modified: pose-mcp/internal/cli/cliout/render.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/historycheck.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/insights.go
+- modified: pose-mcp/internal/cli/knowledge_usage.go
+- modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/output.go
+- modified: pose-mcp/internal/cli/output_contract_test.go
+- modified: pose-mcp/internal/cli/report.go
+- modified: pose-mcp/internal/cli/skills_check.go
+- modified: pose-mcp/internal/cli/state.go
+- modified: pose-mcp/internal/cli/state_test.go
+- modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
+- modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/workflows/ui-surface.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/ui-surface.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: tests/e2e/review-bundle/run.sh
 
-Implementation artifacts are declared as each increment lands.
+The spec file itself was created by the v5.0.7 release commit under the parent
+spec's trailer, so this change set only modifies it.
+
+### Delivery targets
+
+- surface:cli-machine-channel module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 - Each gate's metric lines are its own contract with its own consumers; they are
@@ -96,7 +139,8 @@ Implementation artifacts are declared as each increment lands.
       the report path fix
 
 ### Validation
-- [ ] A golden document per gate, and the allowlist lower than it started
+- [x] A golden document per gate, and the allowlist lower than it started
+- [ ] Run the checks, obtain review and close
 
 ---
 
@@ -133,24 +177,47 @@ subject, and the allowlist lower than before.
 - Expected: exit 0
 
 ### Execution log
-- Pending.
+- Date: 2026-09-29
+- Environment: local, engine at main
+- Notes: measured first: none of the seven gates accepted `--json`, and
+  `reportChangedFiles` reproduced `EADME.md` for an unstaged `README.md`. The
+  gates were moved in three increments. Before each commit the human stdout of
+  the old and new binaries was compared byte for byte on this repository:
+  `lint-spec --all`, a single spec, `--ready-check` and `--design-check`, and
+  the five remaining gates, identical except `recurrence-check`, whose
+  recurrent-key finding moved from stderr to stdout as intended. The direct
+  print ratchet fell from 1069 to 1034 sites; `index.go` left it entirely. Two
+  shared pieces were added: `splitOutputFlags`/`gateOutput` for the flags and
+  the verdict, and in `cliout` a `ContractLine` emitter, a tee recording mode
+  for `--json-out` and `RecordVerdict`. The per-gate test decodes one document
+  from each of the five gates run over this repository and checks that the
+  outcome agrees with the exit code. `go test ./...` passes.
 
 ### Results summary
-- Pending.
+- Successes: R1 to R5.
+- Failures: none.
 
 ### Requirement trace
-- Pending.
+- R1 [satisfied] surface:cli-machine-channel evidence:integration check:machine-channel-integration test:TestEveryGateOnTheMachineChannelPrintsOneDocument test:TestLintSpecJSONIsOneDocumentWithTheFindings test:TestIndexJSONReportsWhatItIndexed — the seven gates emit findings and fields through the renderer and accept --json, --quiet and --color
+- R2 [satisfied] surface:cli-machine-channel evidence:integration check:machine-channel-integration test:TestJSONOutWritesTheDocumentAndKeepsTheReport test:TestValidateJSONPathIsADeprecatedAliasOfJSONOut — --json-out writes the document and keeps the report; validate --json <path> still works and warns on stderr; the changelog fragment announces the deprecation
+- R3 [satisfied] surface:cli-machine-channel evidence:integration check:machine-channel-integration test:TestDirectPrintSitesOnlyShrink — the allowlist fell by 35 sites across lintspec, index, historycheck, insights, maintenance, skills_check and state, and no entry grew
+- R4 [satisfied] surface:cli-machine-channel evidence:integration check:machine-channel-integration test:TestReportChangedFilesKeepsTheFirstPath — fails with the old TrimSpace, passes with TrimRight of the newline
+- R5 [satisfied] surface:cli-machine-channel evidence:integration check:machine-channel-integration test:TestQuietCheckPrintsTheVerdictAlone — the contributor hint reaches stderr in check, artifact-check and lint-spec, and never stdout
 
 ### Known gaps
-- Pending.
+- Findings in `history-check`, `knowledge-check` and `recurrence-check` changed
+  channel and format; a script that grepped stderr for `[ERROR]` or
+  `[RECURRENT]` must read stdout or `--json` instead.
 
 ---
 
 ## 7. Final Report
 
 ### Summary
-Pending.
+The seven gates that had no machine channel have one, every gate on the channel
+can also write its document to a file, and `validate --json <path>` is
+deprecated in favour of `--json-out <path>`.
 
 ### Follow-ups
 
-- None.
+None.
