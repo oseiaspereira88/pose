@@ -1,8 +1,8 @@
 ---
 slug: pose-remaining-command-surfaces-coverage
-status: in-progress
+status: done
 created_at: 2026-09-09
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-policy-keys-and-release-surface-coverage
 priority: 0
