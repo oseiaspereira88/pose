@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-49870d22ee54e8c0",
+  "bundle_id": "rvb-a8d5cf8258f04ba4",
+  "bundle_digest": "sha256:a8d5cf8258f04ba4ea07ad5ce9da06d3b8ca243bab72e5f6f95037b655f6f703",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-fba5c68ce362083e",
+      "rationale": "Bundles that refused to seal on these paths now seal; nothing that sealed before seals differently."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-fba5c68ce362083e",
+      "rationale": "The changelog fragment and the classifier comments state which class each path takes and why."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-fba5c68ce362083e",
+      "rationale": "Closeouts that touched the capability assessment are no longer blocked by a misleading unclassified-path error."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Tests the change set introduced and that pass in the sealed unit run: TestReviewSubjectClassifiesTheCapabilityAssessment."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-fba5c68ce362083e",
+      "rationale": "Two paths gain a classification in reviewBundlePathClass; every other unknown path still blocks."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-fba5c68ce362083e",
+      "rationale": "The assessment stays in the reviewed subject, so a change to it cannot pass unseen; only the history, a log of its snapshots, is excluded."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec review-subject-classifies-capabilities reports no error after the claims were reconciled on 2026-09-29."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "surface-check --spec review-subject-classifies-capabilities --strict reported 0 findings against these sealed results; the delivery reachability check passed in the same run."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed native matrix passed 43 of 43 at this revision."
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T21:13:14Z",
+  "path": ".pose/review-attestations/rva-49870d22ee54e8c0.json"
+}

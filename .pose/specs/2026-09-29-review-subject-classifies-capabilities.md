@@ -1,8 +1,8 @@
 ---
 slug: review-subject-classifies-capabilities
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on:
 priority: 1
@@ -74,7 +74,7 @@ seals differently. Reverting restores the refusal.
 - [x] Reproduce the refusal on a real change set.
 - [x] Pin the classification in a test that fails without the fix.
 - [x] Classify the assessment as governance and the history as derived evidence.
-- [ ] Run the checks, obtain review and close.
+- [x] Run the checks, obtain review and close.
 
 ## 5. Decisions
 
@@ -105,6 +105,13 @@ and the same for `history.jsonl`; so did the two other specs of squash commit
 the unclassified-path blocker for both files. With it, the test and the whole
 `internal/pose` package pass.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 43/43 into the results path, including
+`review-subject-capabilities-integration`; bundle `rvb-a8d5cf8258f04ba4`; attestation `rva-49870d22ee54e8c0`,
+`agent:claude-opus-5-5`, approved with five explicit judgments. The three specs
+of squash `20c6565` sealed in the same run.
+
 ### Requirement trace
 
 - R1 [satisfied] capability:review-subject-capabilities evidence:integration check:review-subject-capabilities-integration test:TestReviewSubjectClassifiesTheCapabilityAssessment — no blocker names a `.pose/capabilities/` path
@@ -115,7 +122,8 @@ the unclassified-path blocker for both files. With it, the test and the whole
 
 ### Scope delivered
 
-Pending closeout.
+Change sets that touch the capability assessment seal for review: the assessment
+is reviewed as governance and its history is excluded as derived evidence.
 
 ### Residual risks
 
