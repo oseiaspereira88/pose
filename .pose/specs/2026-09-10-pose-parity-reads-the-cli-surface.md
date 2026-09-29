@@ -81,6 +81,11 @@ while it checks less.
 - modified: pose-mcp/internal/scaffold/locale_coverage_test.go
 - modified: .pose/specs/2026-08-08-pose-skill-command-parity.md
 - modified: .pose/specs/2026-08-08-pose-manual-locale-parity.md
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/help_test.go
+- modified: pose-mcp/internal/cli/report.go
+
+Backfilled on 2026-09-29: `da8a6d7` (Backlog before 5.0.1: four stale follow-ups and three quiet guards (#91)) carries this spec's trailer and also changed the 3 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - A handler that picks its subcommand some other way — `switch
