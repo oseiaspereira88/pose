@@ -8,7 +8,7 @@ depends_on: pose-upgrade-path-audit-fixes
 priority: 0
 components: pose-mcp
 task_type: refactor
-delivers:
+delivers: surface:code-cites-the-specs-that-delivered-it, contract:code-cites-the-specs-that-delivered-it, capability:code-cites-the-specs-that-delivered-it
 ---
 
 # Spec: Code comments cite specs that exist
