@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-attestation-evidence-must-be-in-the-bundle
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:tool-dispositions-must-be-supported
 ---
 
 # Spec: A tool disposition must be supported by the bundle too
