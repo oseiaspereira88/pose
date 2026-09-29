@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-contract-adoption-stamp
 priority: 1
 components: pose-mcp
-delivers:
+delivers: surface:contract-adoption-registry, capability:contract-adoption-registry
 ---
 
 # Spec: One mechanism for when an instance received a contract
