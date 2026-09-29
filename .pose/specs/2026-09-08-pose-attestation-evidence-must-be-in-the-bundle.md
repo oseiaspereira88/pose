@@ -138,6 +138,13 @@ unsatisfiable the moment evidence is actually required.
 - modified: pose-mcp/internal/scaffold/dist/.pose/review-profiles/milestone-integration.json
 - modified: pose-mcp/internal/scaffold/dist/.pose/review-profiles/spec-closeout.json
 
+### Delivery targets
+
+- surface:attestation-evidence-must-be-in-the-bundle module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:attestation-evidence-must-be-in-the-bundle module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - The exemption is a waiver, and a waiver is a place a future change could hide.
   It is dated, opt-in, bounded to completed scopes, and covers only the checks
