@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-policy-keys-and-release-surface-coverage
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:changelog-and-dor-policy-types, capability:changelog-and-dor-policy-types
 ---
 
 # Spec: changelog.json and dor.json are read through types of their own
