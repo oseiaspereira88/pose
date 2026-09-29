@@ -98,6 +98,9 @@ skim the gate.
 - modified: pose-mcp/internal/cli/maintenance.go
 - modified: pose-mcp/internal/pose/review_closeout.go
 - created: pose-mcp/internal/pose/review_closeout_contract_test.go
+- modified: pose-mcp/internal/pose/review_bundle_test.go
+
+Backfilled on 2026-09-29: `a532420` (One registry for when an instance received a contract (#61)) carries this spec's trailer and also changed the 1 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - The stamp waives a rule for everything reviewed before the update. Someone who
