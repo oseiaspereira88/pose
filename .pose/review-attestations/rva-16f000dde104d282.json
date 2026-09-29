@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-16f000dde104d282",
+  "bundle_id": "rvb-0e7233d3ead951fc",
+  "bundle_digest": "sha256:0e7233d3ead951fc8a6700ce4b7e2f3c42ca6211833ad395f981579d42c89746",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "The public contract here is version metadata: server.json, the CLI version and compatibility.json. Their end-to-end check is compat.sh, which is not a matrix producer; it verified the candidate reports 6.0.3 on every surface and upgraded instances from all eight supported releases, and the independent verification ran the published binary reporting 6.0.3."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The release adds no contract, schema or capability; the notes say so. The upgrade path from 6.0.2 is authenticated by the checksums.txt digest its own independent verification recorded, and compat.sh exercised the eight supported prior releases through upgrade, strict gate, idempotent reapply and preservation of a populated pt-BR instance with user edits."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Both README install snippets and the CI docs pin state 6.0.3, verified by public-claims before the tag. The canonical notes were generated from the two reviewed fragments and read before freezing: one Changed entry for the version cut and one Fixed entry for the retained-review precedence. The spec log records every gate, run id and digest check."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The release was cut through plan, prepare, strict check and a tag created only after the owner asked to publish and CI passed on the frozen commit. The provider run published after its ci job, the 35 evidence digests match the provider's assets, and pose release status reports verified with an empty pending queue. Harne8 can now pin a published revision instead of the unreleased ea46c26."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-396ac64ccf456bab",
+      "rationale": "Version metadata in five files, the 6.0.2 upgrade pin, the frozen manifest and notes, and the release records. No engine behaviour changed in this spec; the fix it ships was reviewed and closed in its own spec."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The prior-release pin was read from v6.0.2's verified evidence, which matched both its publication evidence and the provider's asset. The published artifacts were verified by signature, SLSA provenance and SBOM before execution, and the rebuild was bit-identical. Evidence files carry no credentials."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Scanner executed on this repository during the release cycle; the version cut adds no provider or consumer."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The matrix registers no checks for docs-site. The ci.md pin was verified by public-claims; no docs build is claimed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "The matrix registers no checks for scripts, and no script changed in this spec."
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T11:11:12Z",
+  "path": ".pose/review-attestations/rva-16f000dde104d282.json"
+}

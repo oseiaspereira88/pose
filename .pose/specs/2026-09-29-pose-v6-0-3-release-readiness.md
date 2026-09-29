@@ -1,8 +1,8 @@
 ---
 slug: pose-v6-0-3-release-readiness
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 depends_on: retained-review-survives-an-invalid-newer-approval
 priority: 0
 components: pose-mcp
@@ -120,18 +120,34 @@ the 35 digests in the publication evidence match the provider's. Verification ru
 reporting 6.0.3 and a bit-identical rebuild (`a1e7f082…df87`). `pose release status
 --version v6.0.3` reports `verified` with 0 pending fragments.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 42/42 into the results path; bundle
+`rvb-0e7233d3ead951fc`, 39 evidence items; attestation `rva-16f000dde104d282`,
+`agent:claude-opus-5-5`, approved with five explicit judgments written for this
+release. Drafting this spec from 6.0.2's found that its execution log had been
+inserted under Tasks; the copy was corrected here, and the closed 6.0.2 spec keeps
+it, since Tasks is part of what its review sealed.
+
 ### Requirement trace
 
-- R1 [pending] check:public-claims
-- R2 [pending] report:compatibility-report.md
-- R3 [pending] release check
-- R4 [pending] release status
+- R1 [satisfied] governance:pose-v6-0-3-release-readiness evidence:unit check:public-claims — CLI, MCP manifest,
+  compatibility.json, both READMEs and the CI docs pin state 6.0.3
+- R2 [satisfied] governance:pose-v6-0-3-release-readiness report:compatibility-report.md — compat.sh authenticated 6.0.2
+  by checksums.txt digest efcb8fbd…0a03 and upgraded from all eight supported
+  releases
+- R3 [satisfied] governance:pose-v6-0-3-release-readiness report:.pose/releases/v6.0.3/manifest.json — plan, prepare and
+  `release check --strict` passed; manifest and notes frozen at c54e212
+- R4 [satisfied] governance:pose-v6-0-3-release-readiness report:.pose/releases/v6.0.3/verified-evidence.json — tagged,
+  published and verified recorded; `pose release status` reports verified
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+POSE 6.0.3 is published and independently verified, carrying the precedence fix
+that keeps a closed scope's standing approval past a newer approval that no longer
+validates.
 
 ### Residual risks
 
