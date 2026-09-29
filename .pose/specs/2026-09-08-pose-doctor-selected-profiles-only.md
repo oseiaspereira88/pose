@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-diagnose-invisible-governance-failures
 priority: 1
 components: pose-mcp
-delivers:
+delivers: surface:doctor-selected-profiles-only
 ---
 
 # Spec: Doctor reports only the review profiles policy selects
