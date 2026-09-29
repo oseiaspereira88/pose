@@ -76,7 +76,7 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	specs, _ := store.ListSpecs("", "")
 	resolver, project, resolveErr := posepkg.EnvironmentArtifactResolver(root, "")
 	if resolveErr != nil {
-		render(stdout, stderr).Failure("pose index: invalid-project-configuration")
+		render(stdout, stderr).Failure("pose index: invalid-project-configuration: " + resolveErr.Error())
 		return 1
 	}
 	specMap := map[string]any{}

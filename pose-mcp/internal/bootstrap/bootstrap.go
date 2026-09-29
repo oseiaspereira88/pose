@@ -112,7 +112,7 @@ func Run(args []string) {
 			log.Fatalf("pose-mcp: no .pose/ under project root %q: %v", root, err)
 		}
 		if defaultProjectID == "" {
-			defaultProjectID = "proj." + filepath.Base(filepath.Clean(root))
+			defaultProjectID = pose.DefaultProjectID(root)
 		}
 	} else {
 		defaultProjectID = "" // no root -> no default project

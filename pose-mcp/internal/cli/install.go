@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
@@ -125,7 +126,7 @@ func cmdInstall(args []string, stdout, stderr io.Writer) int {
 			if detectedID != "" {
 				projectID = detectedID
 			} else {
-				projectID = "proj." + projectName
+				projectID = posemodel.ProjectIDFor(projectName)
 			}
 		}
 	}
@@ -444,12 +445,22 @@ func configureMCP(path, target, projectID string) (string, error) {
 	changed := false
 	for name, rawEntry := range servers {
 		entry, ok := rawEntry.(map[string]any)
-		if !ok || !legacyMCPEntry(name, entry) {
+		if !ok {
 			continue
 		}
 		env, _ := entry["env"].(map[string]any)
-		servers[name] = nativeMCPEntry(target, projectID, env)
-		changed = true
+		if legacyMCPEntry(name, entry) {
+			servers[name] = nativeMCPEntry(target, projectID, env)
+			changed = true
+			continue
+		}
+		// Engines before 6.0.1 stamped "proj." + the directory name verbatim.
+		// Only an id no resolver accepts is replaced; a valid one is the
+		// instance's declared identity and stays.
+		if id, _ := env["POSE_DEFAULT_PROJECT_ID"].(string); (name == "pose" || name == "harne8-pose") && id != "" && posemodel.ValidateSlug(id) != nil {
+			env["POSE_DEFAULT_PROJECT_ID"] = projectID
+			changed = true
+		}
 	}
 	if !changed {
 		return "preserved", nil

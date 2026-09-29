@@ -81,7 +81,7 @@ var doctorFixRegistry = map[string]doctorFix{
 	"mcp.config": {
 		describe: "regenerate .mcp.json to point at the native pose binary",
 		apply: func(root string) error {
-			projectID := "proj." + filepath.Base(root)
+			projectID := posemodel.DefaultProjectID(root)
 			_, err := configureMCP(filepath.Join(root, ".mcp.json"), root, projectID)
 			return err
 		},
@@ -310,6 +310,11 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	// 6. MCP uses the same native binary directly.
 	if b, err := os.ReadFile(filepath.Join(root, ".mcp.json")); err != nil {
 		add("mcp.config", "warn", text("static .mcp.json configuration not found", "configuração estática .mcp.json ausente"), text("run 'pose install', then restart/reconnect the client and call pose_mcp_context", "rode 'pose install', reinicie/reconecte o cliente e chame pose_mcp_context"))
+		markStaticMCPConfig()
+	} else if id := declaredMCPProjectID(b); id != "" && posemodel.ValidateSlug(id) != nil {
+		// Engines before 6.0.1 stamped "proj." + the directory name verbatim, so
+		// a checkout named MyApp carries an id every resolver refuses.
+		add("mcp.config", "warn", fmt.Sprintf(text("static MCP configuration declares an invalid project id %q", "configuração estática MCP declara um id de projeto inválido %q"), id), fmt.Sprintf(text("run 'pose doctor --fix --yes' to declare %s, then restart/reconnect the client", "rode 'pose doctor --fix --yes' para declarar %s e reinicie/reconecte o cliente"), posemodel.DefaultProjectID(root)))
 		markStaticMCPConfig()
 	} else if strings.Contains(string(b), `"command": "pose"`) {
 		add("mcp.config", "ok", text("static MCP configuration points to the native pose binary", "configuração estática MCP aponta para o binário pose nativo"), text("active connection not checked; call pose_mcp_context after workspace or configuration changes", "conexão ativa não verificada; chame pose_mcp_context após mudar workspace ou configuração"))
@@ -1310,4 +1315,19 @@ func doctorFixApply(root string, before []doctorFinding, candidates []string, js
 		}
 	}
 	return 0
+}
+
+// declaredMCPProjectID returns the POSE_DEFAULT_PROJECT_ID the "pose" server
+// entry of a .mcp.json declares, or "" when it declares none or cannot be read.
+func declaredMCPProjectID(raw []byte) string {
+	var doc struct {
+		MCPServers map[string]struct {
+			Env map[string]any `json:"env"`
+		} `json:"mcpServers"`
+	}
+	if json.Unmarshal(raw, &doc) != nil {
+		return ""
+	}
+	id, _ := doc.MCPServers["pose"].Env["POSE_DEFAULT_PROJECT_ID"].(string)
+	return id
 }

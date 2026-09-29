@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
@@ -440,7 +441,7 @@ func detectProjectIdentity(existing, root string) (name, id string) {
 		name = filepath.Base(root)
 	}
 	if id == "" {
-		id = "proj." + name
+		id = posemodel.ProjectIDFor(name)
 	}
 	return name, id
 }

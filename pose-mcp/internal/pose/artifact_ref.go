@@ -384,6 +384,37 @@ func artifactPathWithin(root, path string) bool {
 	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
 }
 
+// ProjectIDFor derives the project id POSE assigns when none is declared. A
+// directory or project name is free text ("MyApp", "Acme Portal"); a project id
+// is a slug, so the name is folded into one: lowercased, with every character a
+// slug cannot hold replaced by '-'. A name that is already a valid slug is
+// returned unchanged, so existing identities stay what they were.
+func ProjectIDFor(name string) string {
+	var b strings.Builder
+	for _, r := range strings.ToLower(name) {
+		switch {
+		case r >= 'a' && r <= 'z', r >= '0' && r <= '9', r == '.', r == '_', r == '-':
+			b.WriteRune(r)
+		default:
+			b.WriteRune('-')
+		}
+	}
+	slug := b.String()
+	for strings.Contains(slug, "..") {
+		slug = strings.ReplaceAll(slug, "..", ".")
+	}
+	slug = strings.TrimLeft(slug, "._-")
+	if slug == "" {
+		slug = "project"
+	}
+	return "proj." + slug
+}
+
+// DefaultProjectID is the id of a project root that declares none.
+func DefaultProjectID(root string) string {
+	return ProjectIDFor(filepath.Base(filepath.Clean(root)))
+}
+
 // EnvironmentArtifactResolver reuses the CLI's existing project configuration.
 // Merely placing a checkout inside another repository never registers it.
 func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, string, error) {
@@ -392,6 +423,11 @@ func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, st
 		return ArtifactResolver{}, "", err
 	}
 	id := os.Getenv("POSE_DEFAULT_PROJECT_ID")
+	if id != "" && ValidateSlug(id) != nil {
+		// A declared identity is never rewritten: it may already name this
+		// project in another repository's references. Say how to replace it.
+		return ArtifactResolver{}, "", fmt.Errorf("invalid-project-id: POSE_DEFAULT_PROJECT_ID %q is not a valid project id; declare %q instead (in .mcp.json, `pose doctor --fix` rewrites it)", id, ProjectIDFor(strings.TrimPrefix(id, "proj.")))
+	}
 	if id == "" {
 		for candidate, path := range explicit {
 			if !sameProjectRoot(root, path) {
@@ -404,10 +440,10 @@ func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, st
 		}
 	}
 	if id == "" {
-		id = "proj." + filepath.Base(root)
+		id = DefaultProjectID(root)
 	}
 	if ValidateSlug(id) != nil {
-		return ArtifactResolver{}, "", fmt.Errorf("invalid-project-id")
+		return ArtifactResolver{}, "", fmt.Errorf("invalid-project-id: %q is not a valid project id", id)
 	}
 	if selected, ok := explicit[id]; ok && !sameProjectRoot(selected, root) {
 		return ArtifactResolver{}, "", fmt.Errorf("conflicting-project-binding")

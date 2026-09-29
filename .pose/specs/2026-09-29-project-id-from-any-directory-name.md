@@ -1,0 +1,165 @@
+---
+slug: project-id-from-any-directory-name
+status: in-progress
+created_at: 2026-09-29
+completed_at:
+supersedes:
+depends_on:
+priority: 0
+components: pose-mcp
+task_type: bugfix
+delivers: surface:project-id-derivation
+---
+
+# Spec: A project installs and indexes whatever its directory is called
+
+## 1. Intent
+
+### Goal
+
+`pose install` and `pose index` succeed in a Git repository whose directory name is
+not a slug — `MyApp`, `Acme Portal`, the `tmp.9Sz2E9ps7b` that `mktemp` returns. On
+6.0.0 both fail with `pose index: invalid-project-configuration` and nothing else.
+
+### Business value
+
+Uppercase directory names are the norm on macOS and Windows and common everywhere
+else, so a first-time user of 6.0.0 meets a failed install before any POSE concept.
+The failure also kept `main`'s CI red from 2026-09-21: the migration-guides script
+installs into `mktemp -d`. A CI that stays red stops being read, and v6.0.0 was
+published from a commit whose CI was red for this and for a second, unrelated
+defect (spec `release-runs-the-ci-gates`).
+
+### Constraints
+
+A project id that someone declared — `POSE_DEFAULT_PROJECT_ID`, `POSE_PROJECT_ROOTS`,
+`--project-id` — is identity and may be cited by another repository's `xref:`. It is
+never rewritten silently. Only the id POSE derives when none is declared changes, and
+it changes only for names that were never valid.
+
+### Non-goals
+
+Relaxing the project-id grammar. Ids stay slugs, because they are parsed inside
+`xref:<project>/<kind>:<slug>` references.
+
+## 2. Requirements
+
+- R1: A project that declares no id receives `proj.` plus its directory name folded
+  into a slug: lowercased, with every character a slug cannot hold replaced by `-`.
+  A name that is already a valid slug keeps the id it had.
+- R2: `pose install` seeds `.mcp.json` with that id, and `pose index` succeeds, for
+  directory names with uppercase letters, spaces and dots.
+- R3: An invalid declared id is still refused, and the refusal names the variable,
+  the value and the id to declare instead. `pose index` prints that cause instead
+  of only `invalid-project-configuration`.
+- R4: `pose doctor` reports an invalid id stamped in `.mcp.json` by an earlier engine
+  as a fixable `mcp.config` warning, and `pose doctor --fix --yes` replaces only that
+  id, preserving the rest of the server entry.
+
+## 3. Technical Plan
+
+The id was derived as `"proj." + filepath.Base(root)` in five places — the artifact
+resolver, `install`, the manual merge, `doctor`'s MCP repair and the MCP server
+bootstrap — and 6.0.0 started validating it as a slug in the resolver
+(`pose-qualified-artifact-resolution`). One helper, `ProjectIDFor`, now folds a name
+into a slug and every derivation uses it. The existing MCP repair only migrated
+legacy `pose-mcp` entries and left a native entry untouched, so it also learns to
+replace an invalid id in a native entry.
+
+Test roots come from `t.TempDir()`, whose basenames (`001`) are always slugs; that is
+why no Go test saw the regression. The new tests name directories the way people do.
+
+### Artifacts
+
+- created: .pose/specs/2026-09-29-project-id-from-any-directory-name.md
+- created: .pose/changelogs/unreleased/project-id-from-any-directory-name.md
+- created: pose-mcp/internal/cli/project_id_directory_name_test.go
+- modified: pose-mcp/internal/pose/artifact_ref.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/install.go
+- modified: pose-mcp/internal/cli/managed_docs.go
+- modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/bootstrap/bootstrap.go
+
+### Delivery targets
+
+- surface:project-id-derivation module:pose-mcp/internal/cli profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+### Rollout and reversal
+
+No stored identity changes: a valid derived id is unchanged, and an invalid one never
+resolved on 6.0.0. Reverting restores the failure.
+
+## 4. Tasks
+
+- [x] Reproduce the failed install in a directory named like `MyApp`, and the CI failure it caused.
+- [x] Fold derived ids into slugs through one helper used by every derivation.
+- [x] Name the cause when a declared id is refused, and surface it from `pose index`.
+- [x] Let `pose doctor --fix` repair an invalid id stamped by an earlier engine.
+- [x] Prove the new test fails with the old derivation.
+
+## 5. Decisions
+
+### Decision D1
+
+- Status: active
+- Fold the derived id instead of accepting uppercase ids. The grammar is shared with
+  `xref:` parsing and with ids other repositories already cite; widening it is a
+  contract change for every consumer, while folding changes only ids that never
+  worked.
+
+### Decision D2
+
+- Status: active
+- Refuse, do not fold, an invalid declared id. A declared id may be referenced from
+  elsewhere; rewriting it at read time would make two spellings of one project. The
+  one place that rewrites is `doctor --fix`, which is explicit and confined to
+  `.mcp.json`.
+
+## 6. Validation
+
+| Scenario | Command (from pose-mcp) | Expected evidence |
+| --- | --- | --- |
+| Install and index in named directories | `go test ./internal/cli -run AnyDirectoryName -count=1` | `MyApp`, `Acme Portal`, `tmp.9Sz2E9`, `my-app` all install and index |
+| Declared invalid id | `go test ./internal/cli -run DeclaredProjectID -count=1` | refusal names the variable, the value and the replacement |
+| Doctor repair | `go test ./internal/cli -run InvalidStampedProjectID -count=1` | fixable warning, repair, then ok |
+| Migration guides (CI step) | `bash tests/import/migration-guides.sh` | `All documented migration claims hold.` |
+| Full suite | `go test ./... -count=1` | pass |
+
+### Execution log
+
+2026-09-29: CI's `Documented migration paths still hold` step failed on every push
+since 2026-09-21 with `pose install failed in /tmp/tmp.9Sz2E9ps7b`. Reproduced
+locally: `pose install` delivered the machinery and then reported
+`pose index: invalid-project-configuration`. The swallowed cause was
+`invalid-project-id` for `proj.tmp.9Sz2E9ps7b`. Directories `myapp`, `my.app` and
+`my_app` indexed; `MyApp` did not.
+
+2026-09-29, implemented. With the derivation reverted to the 6.0.0 form, the new
+test fails for `MyApp`, `Acme Portal` and `tmp.9Sz2E9` and passes for `my-app`; with
+the fix it passes for all four. The full Go suite and the migration-guides script
+pass.
+
+### Requirement trace
+
+- R1 [pending] test:TestInstallAndIndexAcceptAnyDirectoryName
+- R2 [pending] test:TestInstallAndIndexAcceptAnyDirectoryName
+- R3 [pending] test:TestIndexNamesWhyADeclaredProjectIDIsRefused
+- R4 [pending] test:TestDoctorRepairsAnInvalidStampedProjectID
+
+## 7. Final Report
+
+### Scope delivered
+
+Pending closeout.
+
+### Residual risks
+
+Two directories whose names fold to the same slug (`MyApp`, `myapp`) derive the same
+id. They are separate repositories, and each resolves only its own root unless an
+operator registers both in `POSE_PROJECT_ROOTS`, where the existing
+`conflicting-project-binding` refusal applies.
+
+### Follow-ups
+
+None.
