@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-c53e341646cd998d",
+  "bundle_id": "rvb-5ca38df0762539af",
+  "bundle_digest": "sha256:5ca38df0762539af9617e24460d63ad6c850f3212f8f9a860c663203411caf37",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-4f884a79ff78f360",
+      "rationale": "Diagnostic only; policies with known keys report ok."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-4f884a79ff78f360",
+      "rationale": "The hint lists the keys the engine reads."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-4f884a79ff78f360",
+      "rationale": "A misspelled key is named instead of silently ignored."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Tests the change set introduced and that pass in the sealed unit run: TestDoctorAcceptsArtifactRootsThatResolve, TestDoctorReportsAnMCPConfigThatIsNotTheNativeBinary, TestDoctorReportsAnUnproducibleClassDemandedByATool, TestDoctorReportsReviewPolicyKeysTheEngineDoesNotRead, TestKnownPolicyKeysComeFromTheStruct, TestSealIsSilentWhenEvidenceObservedTheSubject, TestSealWarnsWhenEvidenceRanAgainstAnotherCommit."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-4f884a79ff78f360",
+      "rationale": "Doctor reports top-level review.json keys the engine does not model, deriving the known set from ReviewPolicy."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-4f884a79ff78f360",
+      "rationale": "Complements the tolerant decoder from pose-adoption-stamp-stays-readable."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-doctor-reports-unread-policy-keys reports no error after the claims were reconciled on 2026-09-29."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "surface-check --spec pose-doctor-reports-unread-policy-keys --strict reported 0 findings against these sealed results; the delivery reachability check passed in the same run."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed native matrix passed 43 of 43 at this revision."
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T21:12:35Z",
+  "path": ".pose/review-attestations/rva-c53e341646cd998d.json"
+}
