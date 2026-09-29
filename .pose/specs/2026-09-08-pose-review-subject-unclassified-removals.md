@@ -87,6 +87,12 @@ content behind the path to review.
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 - modified: .pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md
 
+### Delivery targets
+
+- capability:review-subject-unclassified-removals module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - A path could be removed to get an unknown file past the gate. The removal is
   still recorded in the subject with its own class, so a reviewer sees it; and
