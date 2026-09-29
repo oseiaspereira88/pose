@@ -1,8 +1,8 @@
 ---
 slug: pose-bundles-seal-the-contracts-that-govern-them
-status: in-progress
+status: done
 created_at: 2026-09-09
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-contract-adoption-registry
 priority: 0
