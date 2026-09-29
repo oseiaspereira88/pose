@@ -8,7 +8,7 @@ depends_on: pose-one-follow-up-format
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:validate-report-carries-its-run
 ---
 
 # Spec: `pose validate --report` records the run it made
