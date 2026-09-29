@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-tool-dispositions-must-be-supported
 priority: 0
 components: pose-mcp
-delivers:
+delivers: capability:evidence-scoped-to-component
 ---
 
 # Spec: Evidence answers for the component it was asked about
