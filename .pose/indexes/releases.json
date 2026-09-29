@@ -1,6 +1,14 @@
 {
   "pending": [
     {
+      "spec": "calendar-dates-tolerate-utc-stamping",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A spec created and closed on the same local evening west of UTC passes the lifecycle gate again. `pose new-spec` stamps `created_at` with the UTC date, so at 23:30 in UTC-3 it recorded tomorrow, and the local `completed_at` a person writes by hand was refused as earlier. Between two bare dates, one day of difference is now accepted as that skew; two days, or any regression between full timestamps, is still an error. Knowledge review dates follow the same rule.",
+      "path": "calendar-dates-tolerate-utc-stamping.md",
+      "digest": "sha256:9e74c8912fd16f4a61c0f04b8883bb6f84d668cb12f324f3e5e1722deec7d9ca"
+    },
+    {
       "spec": "pose-review-archive-coattributed-fragments",
       "category": "fixed",
       "breaking": false,
@@ -15,6 +23,14 @@
       "body": "`pose install` and `pose index` work again in a repository whose directory name is not a slug, such as `MyApp` or `Acme Portal`. On 6.0.0 the id derived from the directory name was refused and both commands failed with `invalid-project-configuration`. The derived id is now folded into a slug (`proj.myapp`); a name that was already valid keeps its id. A declared id is never rewritten: an invalid one is refused with the value to declare instead, and `pose doctor --fix --yes` replaces one an earlier engine stamped into `.mcp.json`.",
       "path": "project-id-from-any-directory-name.md",
       "digest": "sha256:686ad3c389cc1a40a0c823681a6afc3e7c50bde69493c851674e30e712b4a25e"
+    },
+    {
+      "spec": "release-runs-the-ci-gates",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The Portuguese README pins the released version again: in 6.0.0 its checksum-pinned install instructions downloaded 5.0.8. The release workflow now runs the whole CI workflow at the commit it publishes and waits for it to pass. 6.0.0 was cut from a commit whose CI failed on two gates that the release workflow did not run.",
+      "path": "release-runs-the-ci-gates.md",
+      "digest": "sha256:6382a29ca7907b1dcc763cecd6473c8916a689ab8758852606b50e4cfef94840"
     }
   ],
   "releases": [
