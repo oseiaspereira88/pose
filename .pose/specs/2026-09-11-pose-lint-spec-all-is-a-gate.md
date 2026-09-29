@@ -1,7 +1,7 @@
 ---
 slug: pose-lint-spec-all-is-a-gate
-status: in-progress
-completed_at:
+status: done
+completed_at: 2026-09-29
 created_at: 2026-09-11
 supersedes:
 depends_on: pose-one-follow-up-format
@@ -119,7 +119,7 @@ gate itself is a CI step.
 
 ### Validation
 - [x] Break a spec's structure and see the enforcement fail
-- [ ] Run the checks, obtain review and close
+- [x] Run the checks, obtain review and close
 
 ---
 
@@ -179,6 +179,10 @@ enforcement fails on a deliberately broken spec.
   `[covered]` slug removed again it exits 1, which is what the new CI step runs;
   the workflow test fails when the step is absent. Both edited done specs keep
   their approved reviews (retained completed scope).
+
+- Closeout 2026-09-29 UTC: full matrix 45/45 including `lint-spec-all-gate-contract`;
+  bundle `rvb-db51d512b3fff9bf`; attestation `rva-ab3c0b36ee719bba`,
+  `agent:claude-opus-5-5`, approved with five explicit judgments.
 
 ### Results summary
 - Successes: R1 to R4.
