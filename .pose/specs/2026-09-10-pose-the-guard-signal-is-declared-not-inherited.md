@@ -1,8 +1,8 @@
 ---
 slug: pose-the-guard-signal-is-declared-not-inherited
-status: in-progress
+status: done
 created_at: 2026-09-10
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-cross-version-guard-is-this-repositorys
 priority: 0
