@@ -77,6 +77,12 @@ testing them buys little. Three describe behaviour:
 - created: .pose/specs/2026-09-09-pose-doctor-fixtures-exercise-production-path.md
 - renamed: .pose/changelogs/unreleased/pose-doctor-fixtures-exercise-production-path.md -> .pose/changelogs/v4.0.0/pose-doctor-fixtures-exercise-production-path.md
 - created: pose-mcp/internal/cli/doctor_fixture_audit_test.go
+- modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_bundle_test.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+
+Backfilled on 2026-09-29: `a94a7a2` (Three diagnostics follow-ups: audit coverage, unread policy keys, carried-forward evidence (#69)) carries this spec's trailer and also changed the 4 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - Coverage says a statement ran, not that an assertion depended on it. Each test
