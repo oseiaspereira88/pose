@@ -1,8 +1,8 @@
 ---
 slug: pose-dist-adopt-published-v6-0-4
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 depends_on: pose-v6-0-4-release-readiness
 priority: 0
 components: docs
@@ -43,7 +43,7 @@ real diff before declaring anything more.
 
 - [x] Authenticate the published artifact and binary.
 - [x] Deliver native machinery and verify preservation and idempotence.
-- [ ] Run strict checks, obtain review and close adoption.
+- [x] Run strict checks, obtain review and close adoption.
 
 ## 5. Decisions
 
@@ -64,17 +64,25 @@ verified ledger; cosign verified both against the exact tag identity; the binary
 --no-self` changed only `engine_version` 6.0.0→6.0.4 and skipped POSE.md as the
 scaffold template; the second run produced no change.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 42/42 into the results path; bundle
+`rvb-029ba6005823e5df`; attestation `rva-c5d3fcaf1cef7449`, `agent:claude-opus-5-5`,
+approved. A first attestation marked correctness and requirements not-applicable
+although the bundle seals build and test evidence; the engine refused it and it was
+replaced with judged criteria.
+
 ### Requirement trace
 
-- R1 [pending] .pose/state/machinery-manifest.json
-- R2 [pending] second update without change
-- R3 [pending] check --strict
+- R1 [satisfied] report:.pose/state/machinery-manifest.json — engine_version 6.0.4 recorded by the native update without force
+- R2 [satisfied] check:test — the repeated update produced no change; policies, ledger and content preserved
+- R3 [satisfied] check:test — `pose check --strict` passes
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+This repository's own instance records the published 6.0.4 engine.
 
 ### Follow-ups
 
