@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-contract-adoption-registry
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:adoption-stamp-stays-readable, capability:adoption-stamp-stays-readable
 ---
 
 # Spec: The adoption stamp does not lock out the previous engine
