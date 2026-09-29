@@ -184,12 +184,12 @@ each refusal separately.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <reviewCriterionDispositions applies the override; TestAttestRecordsNotApplicableWithARationale asserts the disposition, the rationale and the absent evidence>
+- R1 [satisfied] <reviewCriterionDispositions applies the override; TestAttestRecordsNotApplicableWithARationale asserts the disposition, the rationale and the absent evidence> surface:attest-records-not-applicable evidence:integration
 - R2 [satisfied] <the disposition switch accepts exactly the three the engine validates; the "unknown disposition" case asserts the refusal>
 - R3 [satisfied] <the "no rationale" case asserts the error names the flag shape>
 - R4 [satisfied] <the same test asserts the unnamed criterion keeps passed with the picked evidence, and that optional criteria stay out>
 - R5 [satisfied] <the "criterion not in the plan", "optional criterion" and "duplicate" cases>
-- R6 [satisfied] <the finding branch requires the evidence slot to name a finding present in the parsed --finding list; TestAttestTiesAFindingCriterionToARecordedFinding asserts the accepted form and that the same criterion is refused with no finding recorded, plus two refusal cases for an empty and an unknown id>
+- R6 [satisfied] <the finding branch requires the evidence slot to name a finding present in the parsed --finding list; TestAttestTiesAFindingCriterionToARecordedFinding asserts the accepted form and that the same criterion is refused with no finding recorded, plus two refusal cases for an empty and an unknown id> surface:attest-records-not-applicable evidence:integration
 
 ### Known gaps
 - The finding is named by id, and nothing checks that it is the finding that
