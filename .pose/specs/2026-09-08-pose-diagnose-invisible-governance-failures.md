@@ -109,6 +109,12 @@ what it knows and reports a downstream symptom instead of the upstream loss.
 
 The earlier claim named `doctor_test.go`, which never existed; commit `a17bf75` created `doctor_invisible_failures_test.go`, now declared.
 
+### Delivery targets
+
+- surface:diagnose-invisible-governance-failures module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Both doctor checks warn rather than error. An instance can legitimately carry
   a profile it does not use, or a check whose results feed no review, and
