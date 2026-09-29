@@ -94,6 +94,13 @@ indistinguishable from an oversight.
 - modified: pose-mcp/internal/cli/policy_keys_test.go
 - modified: .pose/specs/2026-09-09-pose-policy-keys-and-release-surface-coverage.md
 
+### Delivery targets
+
+- surface:changelog-and-dor-policy-types module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:changelog-and-dor-policy-types module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - `LoadReleaseFragments`, `RenderReleaseNotes` and `NewReleaseManifest` gained a
   parameter, so every call site had to be found rather than defaulted. That is
