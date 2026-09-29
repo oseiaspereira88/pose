@@ -7,7 +7,7 @@ supersedes:
 depends_on:
 priority: 1
 components: pose-mcp
-delivers:
+delivers: capability:review-subject-unclassified-removals
 ---
 
 # Spec: An unclassified removal does not block a review bundle
