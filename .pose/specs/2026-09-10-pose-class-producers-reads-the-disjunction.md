@@ -156,7 +156,7 @@ Assert both corrections and require the original case to keep failing.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <the check walks criteria and tools, and reports one only when none of its classes is produced; TestDoctorReportsADemandedClassNoCheckProduces requires the criterion id and its class set in the message>
+- R1 [satisfied] <the check walks criteria and tools, and reports one only when none of its classes is produced; TestDoctorReportsADemandedClassNoCheckProduces requires the criterion id and its class set in the message> surface:class-producers-reads-the-disjunction evidence:integration
 - R2 [satisfied] <TestACriterionAcceptingAProducedClassIsNotReported gives a criterion `e2e|unit` with only `unit` produced and requires silence>
 - R3 [satisfied] <TestAProfileForAnAbsentLanguageIsNotReported has an overlay selected by typescript in a repository with only a Go module, and requires ok>
 - R4 [satisfied] <the same test then adds a typescript module and requires the criterion to be reported>
