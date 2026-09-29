@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-review-plan-producible-evidence-classes
 priority: 0
 components: pose-mcp
-delivers: surface:attestation-evidence-must-be-in-the-bundle, capability:attestation-evidence-must-be-in-the-bundle
+delivers: capability:attestation-evidence-must-be-in-the-bundle
 ---
 
 # Spec: A passed criterion must be supported by the bundle it approves
@@ -140,10 +140,11 @@ unsatisfiable the moment evidence is actually required.
 
 ### Delivery targets
 
-- surface:attestation-evidence-must-be-in-the-bundle module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 - capability:attestation-evidence-must-be-in-the-bundle module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
+Reclassified the same day: this spec changed the CLI package only through tests, comments or internal logic, and no command-level test exercises it, so it delivers a capability, not a surface.
 
 ### Technical risks
 - The exemption is a waiver, and a waiver is a place a future change could hide.
