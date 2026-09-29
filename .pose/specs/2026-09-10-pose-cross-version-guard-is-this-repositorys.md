@@ -67,6 +67,10 @@ pull request whose only content was the adoption.
 - created: .pose/specs/2026-09-10-pose-cross-version-guard-is-this-repositorys.md
 - renamed: .pose/changelogs/unreleased/pose-cross-version-guard-is-this-repositorys.md -> .pose/changelogs/v4.0.1/pose-cross-version-guard-is-this-repositorys.md
 - modified: pose-mcp/internal/cli/release_compatibility_test.go
+- created: pose-mcp/internal/cli/shipped_profiles_schema_test.go
+- modified: pose-mcp/internal/cli/stack_seed.go
+
+Backfilled on 2026-09-29: `ef50d0a` (Two v4.0.0 defects the adoption found (#82)) carries this spec's trailer and also changed the 2 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - `GITHUB_REPOSITORY` is provider-specific. On a provider that does not set it
