@@ -158,7 +158,7 @@ the key list is derived rather than restated.
 - R1 [satisfied] <doctor's review.policy-keys compares the raw document's top-level keys against ReviewPolicyKnownKeys; the test asserts both misspellings are named>
 - R2 [satisfied] <the hint joins the derived list; asserted by checking it contains contract_adoptions>
 - R3 [satisfied] <the same test rewrites the policy with only known keys and asserts ok>
-- R4 [satisfied] <ReviewPolicyKnownKeys reflects over the struct tags; TestKnownPolicyKeysComeFromTheStruct asserts it finds real fields and excludes nested-struct ones>
+- R4 [satisfied] <ReviewPolicyKnownKeys reflects over the struct tags; TestKnownPolicyKeysComeFromTheStruct asserts it finds real fields and excludes nested-struct ones> surface:doctor-reports-unread-policy-keys evidence:integration
 
 ### Known gaps
 - Only top-level keys are compared. A misspelling inside `profiles` or
