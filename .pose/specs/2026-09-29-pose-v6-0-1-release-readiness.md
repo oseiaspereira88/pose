@@ -1,8 +1,8 @@
 ---
 slug: pose-v6-0-1-release-readiness
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 depends_on: project-id-from-any-directory-name, calendar-dates-tolerate-utc-stamping, test-git-repos-run-no-background-maintenance
 priority: 0
 components: pose-mcp
@@ -141,7 +141,7 @@ declaration now names the observed path.
 ### Closeout
 
 2026-09-29 UTC. Full matrix 41/41 into the results path; bundle
-`rvb-9a81e5d21e337110`, 38 evidence items; attestation `rva-251af5a85ba82ada`,
+`rvb-913e4293d0046d1a`, 38 evidence items; attestation `rva-2698106eabd1fdf4`,
 `agent:claude-opus-5-5`, approved with five explicit judgments. A first
 attestation cited unit evidence for `backend-contracts`, which requires
 integration, was refused by `review-check`, and was replaced before closing.
