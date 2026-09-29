@@ -50,6 +50,8 @@ runs CI at the commit it publishes, so the verdict cannot refer to another tree.
 - R2: `ci.yml` stays one definition: the release calls it, it is not copied.
 - R3: `README.pt-BR.md` pins the released version in both install snippets, and
   `pose public-claims --strict` passes.
+- R4: A contract test fails when `ci.yml` stops being callable, when the `ci`
+  job stops calling it, or when `release` stops needing `ci`.
 
 ## 3. Technical Plan
 
@@ -64,6 +66,8 @@ the version the English ones already carry.
 - modified: .github/workflows/ci.yml
 - modified: .github/workflows/release.yml
 - modified: README.pt-BR.md
+- created: pose-mcp/internal/version/release_needs_ci_test.go
+- modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
 
@@ -79,7 +83,7 @@ the release job. Reverting is removing `needs: ci` and the `ci` job.
 - [x] Identify why v6.0.0 was published while CI failed on it.
 - [x] Pin the released version in the Portuguese README.
 - [x] Make CI callable and make the release depend on it.
-- [ ] Observe a release run in which the `ci` job gates the `release` job.
+- [x] Observe a release run in which the `ci` job gates the `release` job.
 
 ## 5. Decisions
 
@@ -97,6 +101,7 @@ the release job. Reverting is removing `needs: ci` and the `ci` job.
 | Public claims | `pose public-claims --strict` | `public-claims.errors=0` |
 | Workflow structure | `go -C pose-mcp test ./internal/version -count=1` | release workflow contract tests pass |
 | Workflow shape | YAML parse of both workflows | `ci.yml` triggers include `workflow_call`; `release` needs `ci` |
+| Wiring contract | `go -C pose-mcp test ./internal/version -run 'ReleaseWorkflowWaitsForCI|ReleaseNeedsCIFindings' -count=1` | the repository's workflows pass; each removed link is one finding; a commented `needs` is not wiring |
 | Release run | next tag or `workflow_dispatch` rehearsal | `ci` job runs first; `release` waits for it |
 
 ### Execution log
@@ -112,11 +117,24 @@ claims gate.
 the release workflow contract tests pass. No `actionlint` is installed here, so the
 workflow semantics are observed only by the next release run.
 
+2026-09-29, observed on the v6.0.1 release. Run `36516495961`, triggered by the
+tag push at commit `3847ad2`: `ci / test` ran 03:17:44–03:21:02 and
+`ci / governance` 03:17:43–03:21:24, both successful; `release` started at
+03:21:27, three seconds after the last CI job ended, and succeeded at 03:27:52.
+The release job's `needs: ci` held it until CI passed. Independent verification
+run `36517247097` then verified the published v6.0.1.
+
+2026-09-29, closeout. The release run proves the wiring once; nothing stopped a
+later edit from dropping `needs: ci` again. `TestReleaseWorkflowWaitsForCI` now
+pins all three links; with `needs: ci` removed from `release.yml` it fails with
+"release.yml's `release` job does not need `ci`".
+
 ### Requirement trace
 
 - R1 [pending] release run with `ci` gating `release`
 - R2 [pending] .github/workflows/release.yml calls .github/workflows/ci.yml
 - R3 [pending] check:public-claims
+- R4 [pending] test:TestReleaseWorkflowWaitsForCI
 
 ## 7. Final Report
 

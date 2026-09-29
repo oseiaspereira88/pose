@@ -502,6 +502,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "release-needs-ci-contract",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/version",
+            "-run",
+            "ReleaseWorkflowWaitsForCI|ReleaseNeedsCIFindings",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delivery-graph-reuse-integration",
           "program": "go",
           "args": [
