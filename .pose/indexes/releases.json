@@ -7,6 +7,14 @@
       "body": "Keep archived review subjects readable when a shared immutable commit attributes the fragment to more than one spec, while preserving ownership and committed-ledger checks.",
       "path": "pose-review-archive-coattributed-fragments.md",
       "digest": "sha256:371236f9e3ef8eeb278a846aa4a28a8a69243305dd1dc20fd94f1d1c4c40c091"
+    },
+    {
+      "spec": "project-id-from-any-directory-name",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose install` and `pose index` work again in a repository whose directory name is not a slug, such as `MyApp` or `Acme Portal`. On 6.0.0 the id derived from the directory name was refused and both commands failed with `invalid-project-configuration`. The derived id is now folded into a slug (`proj.myapp`); a name that was already valid keeps its id. A declared id is never rewritten: an invalid one is refused with the value to declare instead, and `pose doctor --fix --yes` replaces one an earlier engine stamped into `.mcp.json`.",
+      "path": "project-id-from-any-directory-name.md",
+      "digest": "sha256:686ad3c389cc1a40a0c823681a6afc3e7c50bde69493c851674e30e712b4a25e"
     }
   ],
   "releases": [
