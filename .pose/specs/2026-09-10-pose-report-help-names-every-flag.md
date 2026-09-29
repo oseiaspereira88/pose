@@ -8,7 +8,7 @@ depends_on: pose-manual-locale-parity
 priority: 0
 components: pose-mcp
 task_type: bugfix
-delivers:
+delivers: surface:report-help-names-every-flag
 ---
 
 # Spec: `pose report --help` names every flag it accepts
