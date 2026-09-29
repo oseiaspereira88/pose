@@ -72,6 +72,12 @@ first time it is followed.
 - renamed: .pose/changelogs/unreleased/pose-help-names-flags-the-parser-accepts.md -> .pose/changelogs/v5.0.3/pose-help-names-flags-the-parser-accepts.md
 - modified: pose-mcp/internal/cli/help_catalog.go
 
+### Delivery targets
+
+- surface:help-names-flags-the-parser-accepts module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - None: text only.
 
