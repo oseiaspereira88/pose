@@ -76,6 +76,23 @@ had not.
 - modified: pose-mcp/internal/cli/install.go
 - modified: pose-mcp/internal/cli/maintenance.go
 - modified: .pose/specs/2026-08-10-pose-fragment-error-clarity.md
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/cli/doctor_instance_config_test.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/install_locale_identity_test.go
+- modified: pose-mcp/internal/cli/managed_docs.go
+- modified: pose-mcp/internal/cli/managed_docs_test.go
+- created: pose-mcp/internal/cli/mcp_sigterm_test.go
+- modified: pose-mcp/internal/cli/release_compatibility_test.go
+- modified: pose-mcp/internal/cli/self_update_release_test.go
+- modified: pose-mcp/internal/cli/stack_seed.go
+- modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/cli/validate_root_and_nodemodules_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/pose/discovery.go
+
+Backfilled on 2026-09-29: `20c6565` (Before 5.0.2: honest update failures, SIGTERM on stdio, and the overdue backlog (#94)) carries this spec's trailer and also changed the 15 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - A run whose index fails for a reason this run caused now reaches the gate
