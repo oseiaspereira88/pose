@@ -83,6 +83,12 @@ it.
 - modified: pose-mcp/internal/pose/release_lifecycle.go
 - modified: .pose/specs/2026-09-08-pose-adoption-stamp-stays-readable.md
 
+### Delivery targets
+
+- capability:release-notes-name-contract-adoption module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - `RenderReleaseNotes` feeds `NotesDigest`, so changing it changes what a future
   release freezes. Past releases are unaffected because nothing re-renders them:
