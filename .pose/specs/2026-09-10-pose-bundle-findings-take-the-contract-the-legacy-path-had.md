@@ -1,8 +1,8 @@
 ---
 slug: pose-bundle-findings-take-the-contract-the-legacy-path-had
-status: in-progress
+status: done
 created_at: 2026-09-10
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on: pose-bundles-seal-the-contracts-that-govern-them
 priority: 0
