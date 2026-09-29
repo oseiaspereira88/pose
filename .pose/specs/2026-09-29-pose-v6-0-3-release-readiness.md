@@ -81,9 +81,9 @@ A patch release. A failed publication is recorded and retried against the same t
 
 - [x] Bump version metadata and pin the 6.0.2 upgrade path by its verified digest.
 - [x] Pass the compatibility gate from every supported prior release.
-- [ ] Plan, prepare and strictly check the release; commit the frozen snapshot without a trailer.
-- [ ] Create the tag after explicit confirmation and monitor the release run.
-- [ ] Record publication and independent verification evidence.
+- [x] Plan, prepare and strictly check the release; commit the frozen snapshot without a trailer.
+- [x] Create the tag after explicit confirmation and monitor the release run.
+- [x] Record publication and independent verification evidence.
 
 ## 5. Decisions
 
@@ -108,6 +108,17 @@ A patch release. A failed publication is recorded and retried against the same t
 `checksums.txt` in its publication and independent verification evidence.
 `tests/release/compat.sh v6.0.3` passed the candidate surfaces, the installer E2E
 and upgrades from 6.0.2, 6.0.1, 6.0.0, 5.0.8, 1.1.0, 1.0.0, 0.19.0 and 0.18.2.
+
+2026-09-29: `release plan` recommended `patch` for 2 fragments; `release prepare
+--apply` froze manifest and notes in `c54e212`, committed without a trailer;
+`release check --strict` reported a valid prepared snapshot, and CI passed on it.
+With the owner's request to prepare and publish, annotated tag `v6.0.3` was pushed
+at `c54e212` once that CI passed. Release run `36558478776` ran `ci`
+(10:54:45–10:58:06) before `release` (10:58:08–11:05:37) and published 36 assets;
+the 35 digests in the publication evidence match the provider's. Verification run
+`36559606732` verified signatures, provenance, checksums, SBOM, the binary
+reporting 6.0.3 and a bit-identical rebuild (`a1e7f082…df87`). `pose release status
+--version v6.0.3` reports `verified` with 0 pending fragments.
 
 ### Requirement trace
 
