@@ -146,9 +146,9 @@ Hold the help to the parser, and prove the test catches the previous help.
 - Failures: none.
 
 ### Requirement trace
-- R1 [satisfied] <TestReportHelpNamesEveryFlag runs `pose report --help` and requires every key of reportValueFlags, plus --git-stage, to appear; it reports 11 against the previous help>
+- R1 [satisfied] <TestReportHelpNamesEveryFlag runs `pose report --help` and requires every key of reportValueFlags, plus --git-stage, to appear; it reports 11 against the previous help> surface:report-help-names-every-flag evidence:integration
 - R2 [satisfied] <the usage line and --outcome entry read pass|fail|partial|skipped|unknown, the set cmdReport validates>
-- R3 [satisfied] <TestBilingualHelpParity passes with every new FlagHelp carrying both descriptions>
+- R3 [satisfied] <TestBilingualHelpParity passes with every new FlagHelp carrying both descriptions> surface:report-help-names-every-flag evidence:integration
 
 ### Known gaps
 - Other commands' help is not held to their parsers.
