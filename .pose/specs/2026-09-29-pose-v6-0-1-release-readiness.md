@@ -85,10 +85,10 @@ retried against the same tag, never recreated.
 ## 4. Tasks
 
 - [x] Bump version metadata and pin the 6.0.0 upgrade path by its verified digest.
-- [ ] Pass the compatibility gate from every supported prior release.
-- [ ] Plan, prepare and strictly check the release; commit the frozen snapshot.
-- [ ] Create the tag after explicit confirmation and monitor the release run.
-- [ ] Record publication and independent verification evidence.
+- [x] Pass the compatibility gate from every supported prior release.
+- [x] Plan, prepare and strictly check the release; commit the frozen snapshot.
+- [x] Create the tag after explicit confirmation and monitor the release run.
+- [x] Record publication and independent verification evidence.
 
 ## 5. Decisions
 
@@ -114,6 +114,23 @@ retried against the same tag, never recreated.
 2026-09-29: the `checksums.txt` of v6.0.0, downloaded from the release, hashes to
 `5674b2dc…99f2e`, the value in both the publication and the independent
 verification evidence of v6.0.0.
+
+2026-09-29: `tests/release/compat.sh v6.0.1` passed from 6.0.0, 5.0.8, 1.1.0, 1.0.0,
+0.19.0 and 0.18.2, each with a verified artifact, a populated pt-BR instance,
+user modifications, the strict gate, idempotent reapply and preservation.
+`release plan` recommended `patch` for 6 fragments; `release prepare --apply`
+froze manifest and notes at `3847ad2`; `release check --strict` reported a valid
+prepared snapshot, and the four closed specs whose fragments were archived kept
+fresh, approved reviews. CI passed on `3847ad2`.
+
+2026-09-29: with the owner's confirmation, annotated tag `v6.0.1` was pushed at
+`3847ad2`. Release run `36516495961` ran `ci` then `release` and published 36
+assets; the 35 digests in the publication evidence match the provider's, the 36th
+being the evidence file itself. Verification run `36517247097` passed checksums,
+Sigstore signatures with SBOMs, SLSA provenance, the binary reporting 6.0.1, a
+fresh install gate and a bit-identical rebuild. `pose release record` imported
+tagged, published and verified; `pose release status --version v6.0.1` reports
+`verified` with 0 pending fragments.
 
 ### Requirement trace
 
