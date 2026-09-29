@@ -323,7 +323,10 @@ func reportChangedFiles(root, since string) []string {
 		return nil
 	}
 	files := []string{}
-	for _, line := range strings.Split(strings.TrimSpace(string(output)), "\n") {
+	// Trim only the trailing newline: in porcelain output a leading space is
+	// part of the first line's status, and trimming it shifted the path cut
+	// below by one character.
+	for _, line := range strings.Split(strings.TrimRight(string(output), "\n"), "\n") {
 		if line == "" {
 			continue
 		}

@@ -393,6 +393,18 @@ func lintProjectRoot(specPath string) string {
 }
 
 func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr io.Writer, designCheck ...bool) int {
+	return lintOneSpecWith(render(stdout, stderr), true, specPath, requiredOnly, readyCheck, stderr, len(designCheck) > 0 && designCheck[0])
+}
+
+// lintOneSpecWith lints one spec through r. A caller that lints many specs into
+// one machine document passes fields=false: the per-spec `spec.*` fields would
+// collide in the document's field map, and every finding already names its spec.
+func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredOnly, readyCheck bool, stderr io.Writer, checkDesign bool) int {
+	field := func(name, value string) {
+		if fields {
+			r.Field(name, value)
+		}
+	}
 	locale := cliLocaleValue()
 	raw, err := os.ReadFile(specPath)
 	if err != nil {
@@ -406,16 +418,15 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 	if slug == "" {
 		slug = filepath.Base(filepath.Dir(specPath))
 	}
-	lint := specFindings{r: render(stdout, stderr), slug: slug}
+	lint := specFindings{r: r, slug: slug}
 	if frontmatter["status"] == "superseded" {
 		if canonical, ok := posepkg.VerifiedTransferStub(lintProjectRoot(specPath), slug, string(raw)); ok {
 			// A verified redirect owns no requirements or lifecycle of its
 			// own; the canonical task is linted where it lives.
-			lint.r.Field("spec.redirect", canonical.String())
+			field("spec.redirect", canonical.String())
 			return 0
 		}
 	}
-	checkDesign := len(designCheck) > 0 && designCheck[0]
 	lineageFailures := 0
 	if links := posepkg.RemediationValues(frontmatter["remediates"]); len(links) > 0 {
 		root, lineageErr := projectRootAt(filepath.Dir(specPath))
@@ -426,8 +437,8 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			lint.finding(cliout.StateError, "remediation-lineage", lineageErr.Error())
 			lineageFailures++
 		}
-		lint.r.Field("spec.remediation.links", strconv.Itoa(len(links)))
-		lint.r.Field("spec.remediation.failures", strconv.Itoa(lineageFailures))
+		field("spec.remediation.links", strconv.Itoa(len(links)))
+		field("spec.remediation.failures", strconv.Itoa(lineageFailures))
 	}
 	designFailures := 0
 	emitDesignBasis := func() {
@@ -439,19 +450,12 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			root = ""
 		}
 		report := posepkg.ValidateDesignBasis(string(raw), root)
-		var designOutput strings.Builder
-		designOutput.WriteString("spec.design_basis.present=")
-		designOutput.WriteString(strconv.FormatBool(report.HasSection))
-		designOutput.WriteByte('\n')
-		designOutput.WriteString("spec.design_basis.assumptions=")
-		designOutput.WriteString(strconv.Itoa(len(report.Assumptions)))
-		designOutput.WriteByte('\n')
-		designOutput.WriteString("spec.design_basis.decisions=")
-		designOutput.WriteString(strconv.Itoa(len(report.Decisions)))
-		designOutput.WriteByte('\n')
-		designOutput.WriteString("spec.design_basis.diagnostics=")
-		designOutput.WriteString(strconv.Itoa(len(report.Diagnostics)))
-		designOutput.WriteByte('\n')
+		// Buffered so the fields follow the findings, as they always have.
+		designFields := [][2]string{}
+		designFields = append(designFields, [2]string{"spec.design_basis.present", strconv.FormatBool(report.HasSection)})
+		designFields = append(designFields, [2]string{"spec.design_basis.assumptions", strconv.Itoa(len(report.Assumptions))})
+		designFields = append(designFields, [2]string{"spec.design_basis.decisions", strconv.Itoa(len(report.Decisions))})
+		designFields = append(designFields, [2]string{"spec.design_basis.diagnostics", strconv.Itoa(len(report.Diagnostics))})
 		errors, warnings := 0, 0
 		for _, diagnostic := range report.Diagnostics {
 			state := cliout.StateWarning
@@ -465,18 +469,14 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 			lint.finding(state, "design-basis/"+diagnostic.Code, message)
 		}
 		designFailures = errors
-		designOutput.WriteString("spec.design_basis.errors=")
-		designOutput.WriteString(strconv.Itoa(errors))
-		designOutput.WriteByte('\n')
-		designOutput.WriteString("spec.design_basis.warnings=")
-		designOutput.WriteString(strconv.Itoa(warnings))
-		designOutput.WriteByte('\n')
+		designFields = append(designFields, [2]string{"spec.design_basis.errors", strconv.Itoa(errors)})
+		designFields = append(designFields, [2]string{"spec.design_basis.warnings", strconv.Itoa(warnings)})
 		if report.Digest != "" {
-			designOutput.WriteString("spec.design_basis.digest=")
-			designOutput.WriteString(report.Digest)
-			designOutput.WriteByte('\n')
+			designFields = append(designFields, [2]string{"spec.design_basis.digest", report.Digest})
 		}
-		_, _ = io.WriteString(stdout, designOutput.String())
+		for _, f := range designFields {
+			field(f[0], f[1])
+		}
 	}
 
 	if readyCheck {
@@ -505,8 +505,8 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		if failures > 0 {
 			ready = "false"
 		}
-		fmt.Fprintf(stdout, "spec.ready=%s\n", ready)
-		fmt.Fprintf(stdout, "spec.ready.failures=%d\n", failures)
+		field("spec.ready", ready)
+		field("spec.ready.failures", strconv.Itoa(failures))
 		if failures > 0 {
 			return 1
 		}
@@ -818,24 +818,24 @@ func lintOneSpec(specPath string, requiredOnly, readyCheck bool, stdout, stderr 
 		}
 	}
 
-	fmt.Fprintf(stdout, "spec.path=%s\n", specPath)
-	fmt.Fprintf(stdout, "spec.status=%s\n", specStatus)
-	fmt.Fprintf(stdout, "spec.sections.total=%d\n", total)
-	fmt.Fprintf(stdout, "spec.sections.filled=%d\n", filled)
-	fmt.Fprintf(stdout, "spec.sections.skeleton=%d\n", skeleton)
-	fmt.Fprintf(stdout, "spec.sections.empty=%d\n", empty)
-	fmt.Fprintf(stdout, "spec.required.missing=%d\n", requiredMissing)
-	fmt.Fprintf(stdout, "spec.followups.total=%d\n", len(followups))
-	fmt.Fprintf(stdout, "spec.followups.open=%d\n", followupsOpen)
-	fmt.Fprintf(stdout, "spec.lifecycle.failures=%d\n", lifecycle)
-	fmt.Fprintf(stdout, "spec.requirements.ids=%d\n", len(parseRequirementIDs(sections["Requirements"])))
-	fmt.Fprintf(stdout, "spec.requirements.duplicate_failures=%d\n", ridFailures)
-	fmt.Fprintf(stdout, "spec.trace.present=%t\n", trace.HasSection)
-	fmt.Fprintf(stdout, "spec.trace.entries=%d\n", traceEntries)
-	fmt.Fprintf(stdout, "spec.trace.missing=%d\n", len(trace.Missing))
-	fmt.Fprintf(stdout, "spec.trace.failures=%d\n", traceFailures)
-	fmt.Fprintf(stdout, "spec.amendments.events=%d\n", amendEvents)
-	fmt.Fprintf(stdout, "spec.amendments.failures=%d\n", amendFailures)
+	field("spec.path", specPath)
+	field("spec.status", specStatus)
+	field("spec.sections.total", strconv.Itoa(total))
+	field("spec.sections.filled", strconv.Itoa(filled))
+	field("spec.sections.skeleton", strconv.Itoa(skeleton))
+	field("spec.sections.empty", strconv.Itoa(empty))
+	field("spec.required.missing", strconv.Itoa(requiredMissing))
+	field("spec.followups.total", strconv.Itoa(len(followups)))
+	field("spec.followups.open", strconv.Itoa(followupsOpen))
+	field("spec.lifecycle.failures", strconv.Itoa(lifecycle))
+	field("spec.requirements.ids", strconv.Itoa(len(parseRequirementIDs(sections["Requirements"]))))
+	field("spec.requirements.duplicate_failures", strconv.Itoa(ridFailures))
+	field("spec.trace.present", strconv.FormatBool(trace.HasSection))
+	field("spec.trace.entries", strconv.Itoa(traceEntries))
+	field("spec.trace.missing", strconv.Itoa(len(trace.Missing)))
+	field("spec.trace.failures", strconv.Itoa(traceFailures))
+	field("spec.amendments.events", strconv.Itoa(amendEvents))
+	field("spec.amendments.failures", strconv.Itoa(amendFailures))
 	emitDesignBasis()
 
 	if requiredMissing > 0 || lifecycle > 0 || ridFailures > 0 || traceFailures > 0 || amendFailures > 0 || designFailures > 0 || lineageFailures > 0 {
@@ -857,8 +857,13 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 	locale := cliLocaleValue()
 	mode := "strict"
 	requiredOnly, readyCheck, designCheck := false, false, false
+	asJSON, quiet := false, false
+	colorMode := cliout.ColorAuto
 	target := ""
-	for _, a := range args {
+	usage := cliText(locale, "Usage: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check] [--json] [--quiet] [--color auto|always|never]",
+		"Uso: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check] [--json] [--quiet] [--color auto|always|never]")
+	for i := 0; i < len(args); i++ {
+		a := args[i]
 		switch a {
 		case "--strict":
 			mode = "strict"
@@ -872,8 +877,24 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 			designCheck = true
 		case "--all":
 			target = "--all"
+		case "--json":
+			asJSON = true
+		case "--quiet":
+			quiet = true
+		case "--color":
+			if i+1 >= len(args) {
+				fmt.Fprintf(stderr, cliText(locale, "Error: %s requires a value.\n", "Erro: %s exige um valor.\n"), a)
+				return 2
+			}
+			i++
+			parsed, ok := cliout.ParseColorMode(args[i])
+			if !ok {
+				render(stdout, stderr).UnknownToken(cliText(locale, "value", "valor"), args[i], []string{"auto", "always", "never"})
+				return 2
+			}
+			colorMode = parsed
 		case "-h", "--help":
-			fmt.Fprintln(stdout, cliText(locale, "Usage: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check]", "Uso: pose lint-spec <slug>|--all [--strict|--tolerant] [--required-only] [--ready-check] [--design-check]"))
+			fmt.Fprintln(stdout, usage)
 			return 0
 		default:
 			if strings.HasPrefix(a, "--") {
@@ -893,12 +914,30 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 	}
 	specsDir := filepath.Join(root, ".pose", "specs")
 
+	// out carries the result. With --json it records one document; the
+	// per-spec lint writes into it, keeping its fields only for a single spec.
+	// With --quiet the per-spec output is discarded and only the verdict line
+	// is printed; progress and warnings on stderr are untouched.
+	out := renderWithColor(stdout, stderr, colorMode)
+	if asJSON {
+		out.RecordJSON("lint-spec")
+	}
+	human := !asJSON && !quiet
+	perSpec := out
+	if quiet && !asJSON {
+		perSpec = cliout.NewPlain(io.Discard, stderr)
+	}
+	result := stdout
+	if !human {
+		result = io.Discard
+	}
+
 	totalLinted, totalFailed := 0, 0
 	var failedSpecs []string
 	lintOne := func(path string, slug string) {
 		totalLinted++
-		fmt.Fprintln(stdout, "---")
-		if rc := lintOneSpec(path, requiredOnly, readyCheck, stdout, stderr, designCheck); rc != 0 {
+		fmt.Fprintln(result, "---")
+		if rc := lintOneSpecWith(perSpec, !asJSON || target != "--all", path, requiredOnly, readyCheck, stderr, designCheck); rc != 0 {
 			totalFailed++
 			if slug == "" {
 				slug = strings.TrimSuffix(filepath.Base(path), ".md")
@@ -947,30 +986,51 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 		}
 	}
 
-	fmt.Fprintln(stdout)
-	fmt.Fprintf(stdout, "lint.specs.checked=%d\n", totalLinted)
-	fmt.Fprintf(stdout, "lint.specs.failed=%d\n", totalFailed)
+	// The summary and verdict lines below are pinned contract lines; the
+	// machine document carries the same facts as counts and a verdict.
+	out.RecordCount("specs_checked", totalLinted)
+	out.RecordCount("specs_failed", totalFailed)
+	out.RecordField("mode", mode)
+	defer func() { _ = out.FlushJSON() }()
+	fmt.Fprintln(result)
+	fmt.Fprintf(result, "lint.specs.checked=%d\n", totalLinted)
+	fmt.Fprintf(result, "lint.specs.failed=%d\n", totalFailed)
+	verdict := func(state cliout.State, line, text string) {
+		if asJSON {
+			out.Verdict(cliout.Verdict{State: state, Text: text})
+			return
+		}
+		fmt.Fprintln(stdout, line)
+	}
 	if totalFailed > 0 {
 		findings := make([]usageFinding, 0, len(failedSpecs))
 		for _, slug := range failedSpecs {
 			findings = append(findings, usageFinding{ID: "spec:" + slug, Severity: "error"})
 		}
 		noteUsageFindings(stdout, "fail", findings, true)
-		fmt.Fprintf(stdout, "Resultado: FALHA (%d spec(s) com seção obrigatória vazia/esquelética ou gate de ciclo de vida violado)\n", totalFailed)
 		if mode == "strict" {
-			PrintContributorFailureHint(root, stdout, locale)
+			verdict(cliout.StateFail, fmt.Sprintf("Resultado: FALHA (%d spec(s) com seção obrigatória vazia/esquelética ou gate de ciclo de vida violado)", totalFailed),
+				fmt.Sprintf(cliText(locale, "%d spec(s) with an empty or skeletal required section or a violated lifecycle gate", "%d spec(s) com seção obrigatória vazia/esquelética ou gate de ciclo de vida violado"), totalFailed))
+			if human {
+				PrintContributorFailureHint(root, stderr, locale)
+			}
 			return 1
 		}
-		fmt.Fprintln(stdout, cliText(locale, "Tolerant mode: record a follow-up to complete specs.", "Modo tolerant: registrar follow-up para completar specs."))
-		fmt.Fprintln(stdout, "Resultado: FALHA_TOLERADA")
+		verdict(cliout.StateWarning, fmt.Sprintf("Resultado: FALHA (%d spec(s) com seção obrigatória vazia/esquelética ou gate de ciclo de vida violado)", totalFailed),
+			fmt.Sprintf(cliText(locale, "%d spec(s) failed; tolerated in tolerant mode", "%d spec(s) falharam; tolerado no modo tolerant"), totalFailed))
+		if !asJSON {
+			fmt.Fprintln(result, cliText(locale, "Tolerant mode: record a follow-up to complete specs.", "Modo tolerant: registrar follow-up para completar specs."))
+			fmt.Fprintln(stdout, "Resultado: FALHA_TOLERADA")
+		}
 		return 0
 	}
 	if closeoutHookErr != nil {
 		fmt.Fprintf(stderr, "pose lint-spec: %v\n", closeoutHookErr)
-		fmt.Fprintln(stdout, "Resultado: FALHA (state-refresh estrito falhou no pós-closeout)")
+		verdict(cliout.StateFail, "Resultado: FALHA (state-refresh estrito falhou no pós-closeout)",
+			cliText(locale, "the strict state refresh after closeout failed", "state-refresh estrito falhou no pós-closeout"))
 		return 1
 	}
 	noteUsageFindings(stdout, "pass", nil, true)
-	fmt.Fprintln(stdout, "Resultado: SUCESSO")
+	verdict(cliout.StatePass, "Resultado: SUCESSO", "")
 	return 0
 }

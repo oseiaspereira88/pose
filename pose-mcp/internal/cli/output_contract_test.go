@@ -76,9 +76,15 @@ func TestQuietCheckPrintsTheVerdictAlone(t *testing.T) {
 		t.Fatalf("--quiet must print the verdict alone, got %q", out.String())
 	}
 	// Without --quiet the same run does print the hint, so the test is about the
-	// flag and not about contributor mode being inactive.
+	// flag and not about contributor mode being inactive. The hint is advice,
+	// so it goes to stderr and a piped result stays machine-clean (spec
+	// pose-cli-output-machine-channel, R5).
 	out.Reset()
-	if code := cmdCheck(root, []string{"--strict"}, &out, &errB); code != 1 || !strings.Contains(out.String(), "Contributor Mode ACTIVE") {
-		t.Fatalf("contributor mode must be active in this fixture: exit=%d out=%q", code, out.String())
+	errB.Reset()
+	if code := cmdCheck(root, []string{"--strict"}, &out, &errB); code != 1 || !strings.Contains(errB.String(), "Contributor Mode ACTIVE") {
+		t.Fatalf("contributor mode must be active in this fixture, hint on stderr: exit=%d err=%q", code, errB.String())
+	}
+	if strings.Contains(out.String(), "Contributor Mode ACTIVE") {
+		t.Fatalf("the hint reached stdout: %q", out.String())
 	}
 }

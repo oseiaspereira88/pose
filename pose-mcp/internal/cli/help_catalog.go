@@ -155,7 +155,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "lint-spec",
 		SummaryEN:       "Lint specification lifecycle, sections, and requirement traceability",
 		SummaryPtBR:     "Valida ciclo de vida, seções e rastreabilidade de requisitos da spec",
-		Usage:           "pose lint-spec <slug>|--all [--strict|--tolerant] [--ready-check] [--required-only] [--design-check]",
+		Usage:           "pose lint-spec <slug>|--all [--strict|--tolerant] [--ready-check] [--required-only] [--design-check] [--json] [--quiet] [--color auto|always|never]",
 		DescriptionEN:   "Validates that a spec document conforms to the 7-section template, has stable requirement IDs (R1, R2), complete frontmatter, valid traceability evidence upon closeout, and an optional read-only design-basis projection.",
 		DescriptionPtBR: "Valida se a spec está em conformidade com o template de 7 seções, IDs estáveis de requisitos (R1, R2), frontmatter completo, evidências válidas de rastreabilidade e uma projeção advisory opcional da base de decisões.",
 		Flags: []FlagHelp{
@@ -164,6 +164,9 @@ var commandHelpCatalog = map[string]CommandHelp{
 			{"--all", "Lint all specifications present under .pose/specs/", "Valida todas as especificações presentes sob .pose/specs/"},
 			{"--required-only", "Check only mandatory core sections without optional decisions", "Verifica apenas seções obrigatórias sem decisões opcionais"},
 			{"--design-check", "Project structured Assumption/Decision basis and objective diagnostics (advisory, read-only)", "Projeta base estruturada de premissas/decisões e diagnósticos objetivos (advisory, read-only)"},
+			{"--json", "Print one JSON document with the verdict, findings and counts instead of the human report", "Imprime um documento JSON com veredito, findings e contagens no lugar do relatório humano"},
+			{"--quiet", "Print the verdict alone", "Imprime apenas o veredito"},
+			{"--color auto|always|never", "Force or suppress colour; NO_COLOR and POSE_COLOR are honoured", "Força ou suprime cor; NO_COLOR e POSE_COLOR são respeitados"},
 		},
 		Examples: []string{
 			"pose lint-spec my-feature --ready-check",
@@ -460,9 +463,14 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "index",
 		SummaryEN:       "Regenerate POSE cached indexes (.pose/indexes/)",
 		SummaryPtBR:     "Regenera os índices cacheados do POSE (.pose/indexes/)",
-		Usage:           "pose index",
+		Usage:           "pose index [--json] [--quiet] [--color auto|always|never]",
 		DescriptionEN:   "Recomputes and writes all static indexes including spec-graph.json, roadmaps.json, releases.json, and delivery-integrity.json.",
 		DescriptionPtBR: "Recalcula e grava todos os índices estáticos incluindo spec-graph.json, roadmaps.json, releases.json e delivery-integrity.json.",
+		Flags: []FlagHelp{
+			{"--json", "Print one JSON document with the verdict, findings and counts instead of the human report", "Imprime um documento JSON com veredito, findings e contagens no lugar do relatório humano"},
+			{"--quiet", "Print the verdict alone", "Imprime apenas o veredito"},
+			{"--color auto|always|never", "Force or suppress colour; NO_COLOR and POSE_COLOR are honoured", "Força ou suprime cor; NO_COLOR e POSE_COLOR são respeitados"},
+		},
 		Examples: []string{
 			"pose index",
 		},

@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"os"
 	"path/filepath"
@@ -27,8 +28,44 @@ type indexedModule struct {
 }
 
 func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
-	if len(args) > 0 {
-		return usageError(stderr, "Usage: pose index")
+	asJSON, quiet := false, false
+	colorMode := cliout.ColorAuto
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--json":
+			asJSON = true
+		case "--quiet":
+			quiet = true
+		case "--color":
+			if i+1 >= len(args) {
+				return usageError(stderr, "Usage: pose index [--json] [--quiet] [--color auto|always|never]")
+			}
+			i++
+			parsed, ok := cliout.ParseColorMode(args[i])
+			if !ok {
+				render(stdout, stderr).UnknownToken("value", args[i], []string{"auto", "always", "never"})
+				return 2
+			}
+			colorMode = parsed
+		default:
+			return usageError(stderr, "Usage: pose index [--json] [--quiet] [--color auto|always|never]")
+		}
+	}
+	out := renderWithColor(stdout, stderr, colorMode)
+	out.SetQuiet(quiet)
+	if asJSON {
+		out.RecordJSON("index")
+	}
+	defer func() { _ = out.FlushJSON() }()
+	// fail reports why the indexes could not be written. The human line keeps
+	// going to stderr as before; the machine document names the same failure.
+	fail := func(code, message string) int {
+		if asJSON {
+			out.Finding(cliout.Finding{State: cliout.StateError, Code: code, Message: message})
+			out.Verdict(cliout.Verdict{State: cliout.StateFail, Text: message})
+		}
+		render(stdout, stderr).Failure("pose index: " + message)
+		return 1
 	}
 	modules, manifests, dockers, charts, readmes := scanModules(root)
 	metadataDefaults, metadata := loadModuleMetadata(root)
@@ -76,15 +113,13 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	specs, _ := store.ListSpecs("", "")
 	resolver, project, resolveErr := posepkg.EnvironmentArtifactResolver(root, "")
 	if resolveErr != nil {
-		render(stdout, stderr).Failure("pose index: invalid-project-configuration: " + resolveErr.Error())
-		return 1
+		return fail("invalid-project-configuration", "invalid-project-configuration: "+resolveErr.Error())
 	}
 	specMap := map[string]any{}
 	edges := []map[string]string{}
 	for _, s := range specs {
 		if _, exists := specMap[s.Slug]; exists {
-			render(stdout, stderr).Failure("pose index: conflicting-artifact-identity")
-			return 1
+			return fail("conflicting-artifact-identity", "conflicting-artifact-identity")
 		}
 		identity, _ := posepkg.ParseArtifactRef("spec:" + s.Slug)
 		identity.Project = project
@@ -104,35 +139,40 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	for _, r := range roadmaps {
 		federated, err := store.FederatedRoadmapAcceptance(project, r.Slug, resolver)
 		if err != nil {
-			render(stdout, stderr).Failure(fmt.Sprintf("pose index: federated roadmap %s: %v", r.Slug, err))
-			return 1
+			return fail("federated-roadmap", fmt.Sprintf("federated roadmap %s: %v", r.Slug, err))
 		}
 		roadmapMap[r.Slug] = map[string]any{"status": r.Status, "created_at": r.CreatedAt, "depends_on": r.DependsOn, "consumes": r.Consumes, "milestones": r.Milestones, "federated_acceptance": federated, "path": relativePath(root, r.Path)}
 	}
 	deliveryGraph, err := buildCurrentDeliveryGraph(root)
 	if err != nil {
-		fmt.Fprintf(stderr, "pose index: delivery integrity: %v\n", err)
-		return 1
+		return fail("delivery-integrity", fmt.Sprintf("delivery integrity: %v", err))
 	}
 	releaseStatus, err := store.GetReleaseStatus("")
 	if err != nil {
-		fmt.Fprintf(stderr, "pose index: release lifecycle: %v\n", err)
-		return 1
+		return fail("release-lifecycle", fmt.Sprintf("release lifecycle: %v", err))
 	}
 	outputs := map[string]any{"repo-map.json": repo, "services.json": services, "packages.json": packages, "spec-graph.json": map[string]any{"schemaVersion": 1, "specs": specMap, "edges": edges}, "roadmaps.json": map[string]any{"schemaVersion": 1, "roadmaps": roadmapMap}, "delivery-integrity.json": deliveryGraph, "releases.json": releaseStatus}
 	dir := filepath.Join(root, ".pose", "indexes")
 	for name, value := range outputs {
 		b, e := json.MarshalIndent(value, "", "  ")
 		if e != nil {
-			fmt.Fprintln(stderr, e)
-			return 1
+			return fail("encode", fmt.Sprintf("encoding %s: %v", name, e))
 		}
 		b = append(b, '\n')
 		if e = writeAtomic(filepath.Join(dir, name), b, 0o644); e != nil {
-			fmt.Fprintln(stderr, e)
-			return 1
+			return fail("write", fmt.Sprintf("writing %s: %v", name, e))
 		}
 	}
+	out.RecordField("indexes_dir", dir)
+	out.RecordCount("specs", len(specMap))
+	out.RecordCount("roadmaps", len(roadmapMap))
+	out.RecordCount("modules", len(modules))
+	out.RecordCount("delivery_findings", len(deliveryGraph.Findings))
+	if asJSON {
+		out.Verdict(cliout.Verdict{State: cliout.StatePass, Text: "indexes updated"})
+		return 0
+	}
+	// A pinned contract line; --quiet keeps it, since it is the verdict.
 	fmt.Fprintf(stdout, "POSE indexes updated at %s\n", dir)
 	return 0
 }

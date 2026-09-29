@@ -1,6 +1,6 @@
 ---
 slug: pose-cli-output-machine-channel
-status: draft
+status: in-progress
 created_at: 2026-09-12
 completed_at:
 supersedes:
@@ -89,7 +89,7 @@ Implementation artifacts are declared as each increment lands.
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1: `lint-spec` and `index` — the two whose findings already pass
+- [x] Increment 1: `lint-spec` and `index` — the two whose findings already pass
       through the renderer or have none
 - [ ] Increment 2: the five remaining gates
 - [ ] Increment 3: `--json-out`, the `validate --json <path>` deprecation, and
