@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-reuse-is-sealed-signing-stays-live
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:only-the-signing-gate-is-read-live, capability:only-the-signing-gate-is-read-live
 task_type: feature
 ---
 
