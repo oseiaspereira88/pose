@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-changelog-and-dor-policy-types
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:changelog-adoption-is-the-instances, capability:changelog-adoption-is-the-instances
 task_type: bugfix
 ---
 
