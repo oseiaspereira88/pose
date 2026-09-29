@@ -105,6 +105,11 @@ among them. That repository is migrated separately.
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/cli/cli_test.go
+- modified: pose-mcp/internal/cli/report.go
+- modified: pose-mcp/internal/cli/validate.go
+
+Backfilled on 2026-09-29: `7859fae` (One follow-up format, shown where follow-ups are written (#93)) carries this spec's trailer and also changed the 3 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - A follow-up whose prose mentions `owner:` or `review:` without being metadata
