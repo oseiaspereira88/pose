@@ -103,9 +103,11 @@ what it knows and reports a downstream symptom instead of the upstream loss.
 - created: .pose/specs/2026-09-08-pose-diagnose-invisible-governance-failures.md
 - renamed: .pose/changelogs/unreleased/pose-diagnose-invisible-governance-failures.md -> .pose/changelogs/v1.8.0/pose-diagnose-invisible-governance-failures.md
 - modified: pose-mcp/internal/cli/doctor.go
-- modified: pose-mcp/internal/cli/doctor_test.go
+- created: pose-mcp/internal/cli/doctor_invisible_failures_test.go
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/artifact_integrity_test.go
+
+The earlier claim named `doctor_test.go`, which never existed; commit `a17bf75` created `doctor_invisible_failures_test.go`, now declared.
 
 ### Technical risks
 - Both doctor checks warn rather than error. An instance can legitimately carry
