@@ -1,0 +1,7 @@
+---
+spec: pose-v6-0-2-release-readiness
+category: changed
+breaking: false
+---
+
+Prepare POSE 6.0.2 with aligned public version metadata and an authenticated upgrade path from 6.0.1, pinned by the SHA-256 of its published `checksums.txt`. The release introduces no contract, schema or capability.
