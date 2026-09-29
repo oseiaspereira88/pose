@@ -65,7 +65,7 @@ from that run's evidence.
 ### Artifacts
 
 - created: .pose/specs/2026-09-29-pose-v6-0-1-release-readiness.md
-- created: .pose/changelogs/unreleased/pose-v6-0-1-release-readiness.md
+- created: .pose/changelogs/v6.0.1/pose-v6-0-1-release-readiness.md
 - modified: compatibility.json
 - modified: pose-mcp/internal/version/version.go
 - modified: pose-mcp/server.json
@@ -131,6 +131,12 @@ Sigstore signatures with SBOMs, SLSA provenance, the binary reporting 6.0.1, a
 fresh install gate and a bit-identical rebuild. `pose release record` imported
 tagged, published and verified; `pose release status --version v6.0.1` reports
 `verified` with 0 pending fragments.
+
+The first `pose close` refused `action-mismatch` on the fragment path. The freeze
+commit `3847ad2` carries this spec's trailer (v6.0.0's freeze carried none), so this
+change set sees the fragment created and then archived, and the merged action is a
+creation at `.pose/changelogs/v6.0.1/`. The commit is the tagged one and stays; the
+declaration now names the observed path.
 
 ### Closeout
 
