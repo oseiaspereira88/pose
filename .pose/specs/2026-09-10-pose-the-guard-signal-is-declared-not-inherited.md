@@ -74,6 +74,10 @@ jobs which need it declare it.
 - modified: .github/workflows/ci.yml
 - modified: .github/workflows/security.yml
 - modified: .github/workflows/release.yml
+- modified: pose-mcp/internal/cli/doctor.go
+- created: pose-mcp/internal/cli/doctor_profile_schema_test.go
+
+Backfilled on 2026-09-29: `6209806` (Two follow-ups the v4.0.1 fixes opened (#84)) carries this spec's trailer and also changed the 2 paths declared last. They are claimed so the Git change set reconciles; the commit bundled other work, so a claim here records provenance, not that this spec designed the change.
 
 ### Technical risks
 - A job added later that runs the suite and forgets the variable would skip the
