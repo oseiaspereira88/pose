@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-5dbe27ed5bc24b69",
+  "bundle_id": "rvb-08aec677b0697484",
+  "bundle_digest": "sha256:08aec677b069748435917bbee790514e700bf3a69c1d77f6e97322ae5e9985ab",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "No bundle, attestation or schema changes. Closed scopes that verify reported superseded now report closed, matching what review-check already said; the one tightening is that a closed scope whose newest attestation rejects or requests changes is no longer approved through an older approval, which only removes a false pass. Open scopes and changed federated manifests behave as before, the latter pinned by the existing revocation test."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "The helper comment names both routine causes of supersession (closeout-commit provenance and new matrix checks), why federation read the stricter answer, and the preserved legacy-evidence waiver. The spec records the measurement at both pins, the regression the full suite caught, and the two proofs against the defect. The changelog fragment states the user-visible effect for consumers."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "Pinning a newer engine no longer requires resealing and reattesting every consumed upstream scope; the last pin needed 28. Measured on this repository: the ABM sources and the multirepo foundation verify closed at c5c029c, and Harne8's closeout-check for harne8-abm-governed-execution is terminal. verify keeps reporting the delta and names the retention in a warning, so an operator still sees what changed since the review."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-64276067cc1e150c",
+      "rationale": "One shared helper, its use in review-check and verify, the manifest guard and one test file with its producer. Narrowing the sealed matrix was considered and rejected in the spec because the closeout commit alone supersedes a bundle."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "Retention requires the newest attested bundle's attestation to pass the full attestation validation, including decision, authority and evidence rules, so a later rejection wins. A changed federated manifest disables retention, so revoked trust or an unauthorized or moved source still stales a closed scope; TestFederatedRoadmapMilestoneBundleSealsOwnManifestAndKeepsLegacySeals caught the first version that allowed it and passes now."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/completed-review-retention-integration"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-29T04:43:14Z",
+  "path": ".pose/review-attestations/rva-5dbe27ed5bc24b69.json"
+}

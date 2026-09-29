@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "input_digest": "sha256:e2a86133b37c64e38872b5d1bb93867878866cfcdd51a18e95e961667aaaf50f",
-  "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+  "input_digest": "sha256:3a258fcc984a5fe98977c16ff242a96f70edf9085a779e2e84131973da4c5689",
+  "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
   "nodes": [
     {
       "id": "artifact:.agents/skills/README.md",
@@ -19132,6 +19132,14 @@
       }
     },
     {
+      "id": "change-set:cs-11ac2ee5a23a",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:31809ca82fab97563e7319302e1f5fa3247fe9d7d975c580c50e9853c09f884d",
+        "selector": "trailers:review-verify-retains-completed-scopes"
+      }
+    },
+    {
       "id": "change-set:cs-11c958dc8d2c",
       "type": "change-set",
       "attributes": {
@@ -20641,14 +20649,6 @@
       "attributes": {
         "diff_digest": "sha256:ee9db403c733ac84cbc53be52927be1616c6dbcc2afbcdde471bab0e3baa30ce",
         "selector": "range:0d40bc7^..0d40bc7"
-      }
-    },
-    {
-      "id": "change-set:cs-b7c37bc6e50b",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:c80ccdf7918c33b43eb7c6ba5936ef80f5599c00c8de11fc44fa68db1c09dbd6",
-        "selector": "trailers:review-verify-retains-completed-scopes"
       }
     },
     {
@@ -27116,6 +27116,11 @@
     },
     {
       "from": "artifact:.pose/indexes/delivery-integrity.json",
+      "to": "delivery:capability:completed-review-retention",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/delivery-integrity.json",
       "to": "delivery:capability:content-keyed-parse-memos",
       "type": "implemented-by"
     },
@@ -27352,6 +27357,11 @@
     {
       "from": "artifact:.pose/indexes/spec-graph.json",
       "to": "delivery:capability:artifact-claim-boundary",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/spec-graph.json",
+      "to": "delivery:capability:completed-review-retention",
       "type": "implemented-by"
     },
     {
@@ -28037,6 +28047,11 @@
     {
       "from": "artifact:.pose/results/delivery-validation.json",
       "to": "delivery:capability:artifact-claim-boundary",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/results/delivery-validation.json",
+      "to": "delivery:capability:completed-review-retention",
       "type": "implemented-by"
     },
     {
@@ -44302,6 +44317,56 @@
     {
       "from": "change-set:cs-10bfd095c5a5",
       "to": "artifact:.pose/specs/pose-package-manager-distribution/spec.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-11ac2ee5a23a",
+      "to": "artifact:.pose/changelogs/unreleased/review-verify-retains-completed-scopes.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-11ac2ee5a23a",
+      "to": "artifact:.pose/indexes/delivery-integrity.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-11ac2ee5a23a",
+      "to": "artifact:.pose/indexes/releases.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-11ac2ee5a23a",
+      "to": "artifact:.pose/indexes/spec-graph.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-11ac2ee5a23a",
+      "to": "artifact:.pose/indexes/validation-matrix.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-11ac2ee5a23a",
+      "to": "artifact:.pose/results/delivery-validation.json",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-11ac2ee5a23a",
+      "to": "artifact:.pose/specs/2026-09-29-review-verify-retains-completed-scopes.md",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-11ac2ee5a23a",
+      "to": "artifact:pose-mcp/internal/pose/completed_review_retention_test.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-11ac2ee5a23a",
+      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "type": "changes"
+    },
+    {
+      "from": "change-set:cs-11ac2ee5a23a",
+      "to": "artifact:pose-mcp/internal/pose/review_closeout.go",
       "type": "changes"
     },
     {
@@ -66337,36 +66402,6 @@
     {
       "from": "change-set:cs-b7ba2659ac0c",
       "to": "artifact:.pose/specs/pose-review-bundle-convergence/spec.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-b7c37bc6e50b",
-      "to": "artifact:.pose/changelogs/unreleased/review-verify-retains-completed-scopes.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-b7c37bc6e50b",
-      "to": "artifact:.pose/indexes/validation-matrix.json",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-b7c37bc6e50b",
-      "to": "artifact:.pose/specs/2026-09-29-review-verify-retains-completed-scopes.md",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-b7c37bc6e50b",
-      "to": "artifact:pose-mcp/internal/pose/completed_review_retention_test.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-b7c37bc6e50b",
-      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
-      "type": "changes"
-    },
-    {
-      "from": "change-set:cs-b7c37bc6e50b",
-      "to": "artifact:pose-mcp/internal/pose/review_closeout.go",
       "type": "changes"
     },
     {
@@ -148006,7 +148041,7 @@
     },
     {
       "from": "spec:review-verify-retains-completed-scopes",
-      "to": "change-set:cs-b7c37bc6e50b",
+      "to": "change-set:cs-11ac2ee5a23a",
       "type": "observed-by"
     },
     {
@@ -164346,6 +164381,62 @@
         }
       ],
       "diff_digest": "sha256:479afb7e047c23989298eaca757d5df1b804692acbbe9d18b59a4f93bdb1cd35"
+    },
+    {
+      "id": "cs-11ac2ee5a23a",
+      "spec": "review-verify-retains-completed-scopes",
+      "selector": "trailers:review-verify-retains-completed-scopes",
+      "base": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123^",
+      "head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "resolved_base": "c5c029c45bc50da8db841b8e0bdc9d2802b9905c",
+      "resolved_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "commits": [
+        "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
+        "3e0fa7c1ff21fb2703cc22190016c929574f6c5c"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/review-verify-retains-completed-scopes.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-09-29-review-verify-retains-completed-scopes.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/completed_review_retention_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_closeout.go"
+        }
+      ],
+      "diff_digest": "sha256:31809ca82fab97563e7319302e1f5fa3247fe9d7d975c580c50e9853c09f884d"
     },
     {
       "id": "cs-11c958dc8d2c",
@@ -185089,45 +185180,6 @@
       "diff_digest": "sha256:ee9db403c733ac84cbc53be52927be1616c6dbcc2afbcdde471bab0e3baa30ce"
     },
     {
-      "id": "cs-b7c37bc6e50b",
-      "spec": "review-verify-retains-completed-scopes",
-      "selector": "trailers:review-verify-retains-completed-scopes",
-      "base": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123^",
-      "head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "resolved_base": "c5c029c45bc50da8db841b8e0bdc9d2802b9905c",
-      "resolved_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "commits": [
-        "6dc88bc04415600e0ce545a3cd80fe2cfadd2123"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/review-verify-retains-completed-scopes.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-09-29-review-verify-retains-completed-scopes.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/completed_review_retention_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_closeout.go"
-        }
-      ],
-      "diff_digest": "sha256:c80ccdf7918c33b43eb7c6ba5936ef80f5599c00c8de11fc44fa68db1c09dbd6"
-    },
-    {
       "id": "cs-b9a18ddeb02d",
       "spec": "pose-dist-adopts-spec-authority-transfer",
       "selector": "trailers:pose-dist-adopts-spec-authority-transfer",
@@ -200385,15 +200437,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-0770cc308f64",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "review-verify-retains-completed-scopes",
-      "path": ".pose/indexes/spec-graph.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
-    },
-    {
       "id": "dif-077380ea5742",
       "code": "undeclared-delivery",
       "severity": "error",
@@ -200753,15 +200796,6 @@
       "change_set": "cs-83204800ddd5",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-177be4b9c717",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "review-verify-retains-completed-scopes",
-      "path": ".pose/indexes/delivery-integrity.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-17c3ddea6e92",
@@ -203699,15 +203733,6 @@
       "path": "pose-mcp/internal/mcpserver/cursorstore_redis_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-95e4aa92cf78",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "review-verify-retains-completed-scopes",
-      "path": ".pose/results/delivery-validation.json",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-9681d9cf421c",
@@ -207931,9 +207956,9 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -208152,7 +208177,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -208163,9 +208188,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -208384,7 +208409,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -208395,9 +208420,9 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -208616,7 +208641,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -208627,9 +208652,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -208848,7 +208873,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -208859,9 +208884,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -209080,7 +209105,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -209091,9 +209116,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -209312,7 +209337,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -209323,9 +209348,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -209544,7 +209569,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -209555,9 +209580,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -209776,7 +209801,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -209787,9 +209812,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -210008,7 +210033,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -210019,9 +210044,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -210240,7 +210265,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -210251,9 +210276,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -210472,7 +210497,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -210483,9 +210508,9 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -210704,7 +210729,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -210715,9 +210740,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -210936,7 +210961,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -210947,9 +210972,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -211168,7 +211193,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -211179,9 +211204,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -211400,7 +211425,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -211411,9 +211436,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -211632,7 +211657,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -211643,9 +211668,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -211864,7 +211889,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -211875,9 +211900,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -212096,7 +212121,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -212107,9 +212132,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -212328,7 +212353,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -212339,9 +212364,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -212560,7 +212585,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -212571,9 +212596,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -212792,7 +212817,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -212803,9 +212828,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -213024,7 +213049,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -213035,9 +213060,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -213256,7 +213281,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -213267,9 +213292,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -213488,7 +213513,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -213499,9 +213524,9 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -213720,7 +213745,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -213731,9 +213756,9 @@
       "evidence_class": "e2e",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -213952,7 +213977,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -213963,9 +213988,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -214184,7 +214209,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -214195,9 +214220,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -214416,7 +214441,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -214427,9 +214452,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -214648,7 +214673,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -214659,9 +214684,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -214880,7 +214905,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -214891,9 +214916,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -215112,7 +215137,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -215123,9 +215148,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -215344,7 +215369,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -215355,9 +215380,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -215576,7 +215601,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -215587,9 +215612,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -215808,7 +215833,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -215819,9 +215844,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -216040,7 +216065,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -216051,9 +216076,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -216272,7 +216297,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -216283,9 +216308,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -216504,7 +216529,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -216515,9 +216540,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -216736,7 +216761,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -216747,9 +216772,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -216968,7 +216993,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -216979,9 +217004,9 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -217200,7 +217225,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -217211,9 +217236,9 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -217432,7 +217457,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     },
@@ -217443,9 +217468,9 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "git_head": "6dc88bc04415600e0ce545a3cd80fe2cfadd2123",
-      "generated_at": "2026-09-29T04:39:56Z",
-      "provenance_digest": "sha256:771fbfe37388f491652c6ea3f36452ae458447896dc6c34bb89a3e068359f2c2",
+      "git_head": "3e0fa7c1ff21fb2703cc22190016c929574f6c5c",
+      "generated_at": "2026-09-29T04:41:46Z",
+      "provenance_digest": "sha256:7df3a53f84885edc01152aed69719dfb75abc714d44e20dbb903404d7ea87cae",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:0d6922a40869b2d2a50bdc76159f7e6eaf2785aa97fb7d36e8776a097845c249",
@@ -217664,7 +217689,7 @@
         "project-id-from-any-directory-name": "sha256:a0e7bb53e783c1372962d620c9dbb7e5ee115e07d20c41fd48159d05073b6509",
         "release-runs-the-ci-gates": "sha256:9fa617aba922e9f403beefe169d3c77202cf1c2d0290f1609f3022dfa7460c3f",
         "review-policy-adoption-is-the-instances": "sha256:631cc44f1aa1c1cb452962bfaaf8e8a07dedee64a50e8aded7000348149beca9",
-        "review-verify-retains-completed-scopes": "sha256:d8f919d9a77fc3f7c40a39f8cc1b2e3d27757e27bea90f4049d3727195407462",
+        "review-verify-retains-completed-scopes": "sha256:d00d7debaebf41b900e5529ec06787bc527557e57bd7211a4eff5c57d8d42a80",
         "test-git-repos-run-no-background-maintenance": "sha256:b11c6e9ed2710916c8658b742c76b4aaf28f3118a00195693a2d8df0133e5d82"
       }
     }
@@ -218114,7 +218139,10 @@
       "artifact:.pose/changelogs/unreleased/review-verify-retains-completed-scopes.md",
       "artifact:.pose/specs/2026-09-29-review-verify-retains-completed-scopes.md",
       "artifact:pose-mcp/internal/pose/completed_review_retention_test.go",
+      "artifact:.pose/indexes/delivery-integrity.json",
+      "artifact:.pose/indexes/spec-graph.json",
       "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/results/delivery-validation.json",
       "artifact:pose-mcp/internal/pose/review_bundle.go",
       "artifact:pose-mcp/internal/pose/review_closeout.go",
       "delivery:capability:completed-review-retention",

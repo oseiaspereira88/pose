@@ -1,8 +1,8 @@
 ---
 slug: review-verify-retains-completed-scopes
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-29
 supersedes:
 depends_on:
 priority: 0
@@ -152,19 +152,35 @@ closed-scope case reports `superseded`; with the old fallback loop the rejection
 case reports an approval. With the corrected binary, Harne8's
 `closeout-check spec:harne8-abm-governed-execution` at pin `c5c029c` is terminal.
 
+### Closeout
+
+2026-09-29 UTC. Full matrix 42/42 into the results path; bundle
+`rvb-08aec677b0697484`, 39 evidence items; attestation `rva-5dbe27ed5bc24b69`,
+`agent:claude-opus-5-5`, approved with five explicit judgments.
+
 ### Requirement trace
 
-- R1 [pending] test:TestCompletedReviewRetention
-- R2 [pending] test:TestCompletedReviewRetention
-- R3 [pending] test:TestCompletedReviewRetention
-- R4 [pending] harne8 closeout-check
-- R5 [pending] test:TestFederatedRoadmapMilestoneBundleSealsOwnManifestAndKeepsLegacySeals
+- R1 [satisfied] capability:completed-review-retention evidence:integration check:completed-review-retention-integration test:TestCompletedReviewRetention — a closed scope stays closed,
+  fresh and approved with its own bundle after a matrix change, reports the delta and
+  a retention warning, and review-check agrees
+- R2 [satisfied] capability:completed-review-retention evidence:integration check:completed-review-retention-integration test:TestCompletedReviewRetention — a newer rejected attestation
+  is not overridden by the older approval, in verify and in review-check
+- R3 [satisfied] capability:completed-review-retention evidence:integration check:completed-review-retention-integration test:TestCompletedReviewRetention — an open scope with a changed
+  input is still superseded
+- R4 [satisfied] capability:completed-review-retention evidence:integration check:completed-review-retention-integration test:TestFederatedRoadmapMilestoneBundleSealsOwnManifestAndKeepsLegacySeals
+  — federated acceptance tests pass; Harne8's closeout-check for
+  harne8-abm-governed-execution is terminal at pin c5c029c with the corrected engine
+- R5 [satisfied] capability:completed-review-retention evidence:integration check:completed-review-retention-integration test:TestFederatedRoadmapMilestoneBundleSealsOwnManifestAndKeepsLegacySeals
+  — revoking the source's authorization still stales a closed milestone
 
 ## 7. Final Report
 
 ### Scope delivered
 
-Pending closeout.
+`review verify` and federated acceptance keep a closed scope's approval through
+routine drift, as `review-check` did, while a newer negative review or a changed
+federated manifest still invalidates it. Pinning a newer engine no longer requires
+renewing every consumed upstream review.
 
 ### Residual risks
 
