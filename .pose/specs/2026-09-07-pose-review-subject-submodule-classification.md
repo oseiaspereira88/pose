@@ -81,6 +81,12 @@ been satisfied.
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_bundle_test.go
 
+### Delivery targets
+
+- capability:review-subject-submodule-classification module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+Declared on 2026-09-29 at closeout: the delivery-surface policy (adopted 2026-08-04) requires a typed target for each delivery root the change set touched, and the spec predates that requirement being applied to it.
+
 ### Technical risks
 - Resolution costs one `git ls-files` per otherwise-unclassified path. That set
   is small by construction — it is the set that would have blocked the seal —
