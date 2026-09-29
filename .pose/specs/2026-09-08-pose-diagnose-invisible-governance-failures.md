@@ -7,7 +7,7 @@ supersedes:
 depends_on:
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:diagnose-invisible-governance-failures
 ---
 
 # Spec: Make invisible governance failures diagnosable
