@@ -7,7 +7,7 @@ supersedes:
 depends_on: pose-policy-keys-and-release-surface-coverage
 priority: 0
 components: pose-mcp
-delivers:
+delivers: surface:remaining-command-surfaces-coverage
 ---
 
 # Spec: The command surfaces the audit found at zero
