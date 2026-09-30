@@ -1,8 +1,8 @@
 ---
 slug: pose-dist-adopt-published-v6-1-0
-status: in-progress
+status: done
 created_at: 2026-09-30
-completed_at:
+completed_at: 2026-09-30
 depends_on: pose-v6-1-0-release-readiness
 priority: 0
 components: docs
@@ -42,7 +42,7 @@ real diff before declaring anything more.
 
 - [x] Authenticate the published artifact and binary.
 - [x] Deliver native machinery and verify preservation and idempotence.
-- [ ] Run strict checks, obtain review and close adoption.
+- [x] Run strict checks, obtain review and close adoption.
 
 ## 5. Decisions
 
@@ -65,6 +65,12 @@ machinery files 6.1.0 changed, `pose-spec-closeout/SKILL.md` and
 `ui-surface.md`, whose content already matched; POSE.md was skipped as the
 scaffold template. A second and a third run produced no change, and
 `pose check --strict` passes.
+
+### Closeout
+
+2026-09-30 UTC. Full matrix 46/46 into the results path; bundle
+`rvb-ea9b95e9fda04070`; attestation `rva-967c2016e0d68f7c`, `agent:claude-opus-5-5`,
+approved with five explicit judgments.
 
 ### Requirement trace
 

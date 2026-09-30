@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-967c2016e0d68f7c",
+  "bundle_id": "rvb-ea9b95e9fda04070",
+  "bundle_digest": "sha256:ea9b95e9fda04070b4c9436e0a99b8e7c0564949c5e3469770f8193e17ad6593",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-73aade560de3235f",
+      "rationale": "Schema stays v1; the update changed only engine_version 6.0.4 to 6.1.0 and two digests of files whose content already matched, and left policies, ledger, profiles and the scaffold template POSE.md untouched."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-73aade560de3235f",
+      "rationale": "The spec records the authenticated binary, the single-file change and the idempotent repeats."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-73aade560de3235f",
+      "rationale": "The native update repeated without drift and the strict check passes; the instance reports the engine it runs."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 and R2 are verified by the native update and its repeats recorded in the spec; R3 by the strict check. The sealed unit run covers the engine that performs the update, unchanged by this scope."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-73aade560de3235f",
+      "rationale": "Two paths: the machinery manifest stamp and the adoption spec."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-73aade560de3235f",
+      "rationale": "The global CLI ran only after the v6.1.0 archive digest and Sigstore identity matched the verified ledger and the binary equalled the independent rebuild; no policy or trust setting changed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-dist-adopt-published-v6-1-0 reports no error after the claims were reconciled on 2026-09-29."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-30T03:07:24Z",
+  "path": ".pose/review-attestations/rva-967c2016e0d68f7c.json"
+}
