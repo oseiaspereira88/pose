@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-1cdabb1ab3f82440",
+  "bundle_id": "rvb-01b26fc844910932",
+  "bundle_digest": "sha256:01b26fc84491093219a6911713406eca46ffe1e61b06780214a850e23b02e18e",
+  "reviewer": "agent:claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-review-archive-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-review-archive-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-1f13d79b76868b8b",
+      "rationale": "The compatibility gate upgraded instances from every supported release, 6.0.4 back to 0.18.2, and schema stays v1; the minor bump signals the deprecation and the new flags."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-review-archive-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-1f13d79b76868b8b",
+      "rationale": "Canonical notes are frozen with every fragment, including the validate --json deprecation, and the spec records why a minor was chosen over the recommended patch."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-1f13d79b76868b8b",
+      "rationale": "pose release status reports verified with 0 pending fragments, and each ledger event carries the provider's evidence."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 by public-claims --strict over the bumped surfaces; R2 by tests/release/compat.sh v6.1.0 across ten supported upgrades; R3 by release check --strict on the frozen snapshot; R4 by the recorded tagged, published and verified events and pose release status reporting verified. The sealed unit run covers the engine being released."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-1f13d79b76868b8b",
+      "rationale": "Version metadata, the 6.0.4 upgrade pin, the frozen snapshot and the release ledger; no engine code changes in this scope."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-1f13d79b76868b8b",
+      "rationale": "The 6.0.4 pin equals both its verified evidence and a fresh hash of the published checksums.txt; the release job ran only after CI passed at the tag, and the independent verifier checked signatures, provenance and SBOM before executing anything."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --spec pose-v6-1-0-release-readiness reports no error after the claims were reconciled on 2026-09-29."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/release-review-archive-integration",
+      "rationale": "pose assess integrate ran on 2026-09-29 and reported the same 57 medium gaps as the baseline recorded earlier on 2026-09-29 (HTTP and MCP endpoints with no in-repository consumer); only the timestamp changed, so this scope adds no provider or consumer gap."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "the validation matrix declares no check for component docs-site"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed native matrix passed 46 of 46 at this revision."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "the validation matrix declares no check for component scripts"
+    }
+  ],
+  "evidence_refs": [
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-09-30T00:11:11Z",
+  "path": ".pose/review-attestations/rva-1cdabb1ab3f82440.json"
+}

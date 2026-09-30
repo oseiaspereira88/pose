@@ -1,8 +1,8 @@
 ---
 slug: pose-v6-1-0-release-readiness
-status: in-progress
+status: done
 created_at: 2026-09-29
-completed_at:
+completed_at: 2026-09-30
 depends_on: pose-cli-output-machine-channel
 priority: 0
 components: pose-mcp
@@ -127,6 +127,12 @@ evidence match the provider's. Verification run `36648334558` verified
 signatures, provenance, checksums, SBOM, the binary reporting 6.1.0 and a
 bit-identical rebuild (`6e4b0e5b…1cd4`). `pose release status --version v6.1.0`
 reports `verified` with 0 pending fragments.
+
+### Closeout
+
+2026-09-29 UTC. Full matrix 46/46 into the results path; `surface-check --strict`
+with 0 findings; bundle `rvb-01b26fc844910932`; attestation `rva-1cdabb1ab3f82440`,
+`agent:claude-opus-5-5`, approved with five explicit judgments.
 
 ### Requirement trace
 
