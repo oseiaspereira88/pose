@@ -63,8 +63,8 @@ Run the actual signing-only and sealed-gate guards against production source.
 
 ### Requirement trace
 
-- R1 [satisfied] capability:sealed-policy-read-guard evidence:integration test:TestLivePolicyReadAliasGuard
-- R2 [satisfied] test:TestLivePolicyReadAliasGuard
+- R1 [satisfied] capability:sealed-policy-read-guard evidence:integration test:TestLivePolicyReadsFollowAliasesAndIgnoreText
+- R2 [satisfied] test:TestLivePolicyReadsFollowAliasesAndIgnoreText test:TestOnlyTheSigningGateIsReadFromLivePolicy
 
 ## 7. Final Report
 
