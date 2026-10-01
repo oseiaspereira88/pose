@@ -46,6 +46,11 @@ two explicit declarations must pass. Run the guard on every actual workflow.
 - 2026-10-01: targeted synthetic guards and production-source/workflow guards
   passed. No native runner or release execution was required.
 
+### Requirement trace
+
+- R1 [satisfied] test:TestJobsRunningTheGoSuiteCheckOutFullHistory test:TestHistoryPromiseBelongsToEachSuiteStep
+- R2 [satisfied] test:TestHistoryPromiseBelongsToEachSuiteStep
+
 ## 7. Final Report
 
 Implementation validated; governed review and closeout pending.
