@@ -3,6 +3,7 @@ slug: pose-live-policy-reads-through-aliases
 status: in-progress
 created_at: 2026-10-01
 completed_at:
+delivers: capability:sealed-policy-read-guard
 components: pose-mcp
 task_type: bugfix
 changelog: none
@@ -27,6 +28,14 @@ Close the regex blind spot in the sealed-review security regression guard.
 - modified: pose-mcp/internal/pose/live_policy_reads_test.go
 - created: .pose/specs/2026-10-01-pose-live-policy-reads-through-aliases.md
 
+### Delivery targets
+
+- capability:sealed-policy-read-guard module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+These targets identify local engine behavior exercised by this scope. Test-only
+changes strengthen its regression coverage; they do not introduce a new runtime
+endpoint or claim composition in Harne8.
+
 ## 4. Tasks
 
 - [x] Parse the selected validator/helper bodies with standard Go AST tooling.
@@ -46,8 +55,16 @@ Run the actual signing-only and sealed-gate guards against production source.
 
 ### Execution log
 
+- Strict module validation passed 45/45 on 2026-10-01; full canonical validation
+  is regenerated before sealing the governed review.
+
 - 2026-10-01: targeted synthetic guards and production-source/workflow guards
   passed. No native runner or release execution was required.
+
+### Requirement trace
+
+- R1 [satisfied] capability:sealed-policy-read-guard evidence:integration test:TestLivePolicyReadAliasGuard
+- R2 [satisfied] test:TestLivePolicyReadAliasGuard
 
 ## 7. Final Report
 
