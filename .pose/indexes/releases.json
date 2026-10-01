@@ -1,12 +1,60 @@
 {
   "pending": [
     {
+      "spec": "pose-design-delta-batched-git-reads",
+      "category": "changed",
+      "breaking": false,
+      "body": "Structural assessment reuses one bounded Git batch reader for blob reads within\nan assessment, reducing process creation while retaining path, symlink and byte\nlimits. The process is closed and reaped at the end of the operation.",
+      "path": "pose-design-delta-batched-git-reads.md",
+      "digest": "sha256:5b8bd034308a0ab90580b5997f413151ed4bde5070ec7cd1f7768d4a2ebe3ef1"
+    },
+    {
+      "spec": "pose-governance-residual-diagnostics",
+      "category": "changed",
+      "breaking": false,
+      "body": "Doctor identifies conflicting adoption dates, counts legacy sealed bundles and\nnames invalid declarations inside stale review profiles. Roadmap checks explain\nwhen no cut criteria exist. Review verification retains selected sealed-evidence\nobservation warnings, including for completed scopes whose approval is retained.",
+      "path": "pose-governance-residual-diagnostics.md",
+      "digest": "sha256:0eb26ce18aa2f7c81e807395da5ddd989113ecad7bbdadb48716dd197106bdbe"
+    },
+    {
+      "spec": "pose-history-quiet-tolerated-verdict",
+      "category": "fixed",
+      "breaking": false,
+      "body": "History checks in quiet mode emit one final verdict when unstaged or untracked\nJSONL is tolerated, preserving strict failure and tolerant success exit codes.",
+      "path": "pose-history-quiet-tolerated-verdict.md",
+      "digest": "sha256:9af58c0cb5029758a9d2161c09859bc968e4c4198592cac68fbafab29345da63"
+    },
+    {
+      "spec": "pose-package-channels-deferred-native-verification",
+      "category": "changed",
+      "breaking": false,
+      "body": "Native Homebrew and WinGet verification is deferred to an explicitly dispatched\nGitHub Actions round after implementation. It no longer starts automatically\nafter releases or blocks other implementation work; actual channel support\nclaims still require successful native evidence.",
+      "path": "pose-package-channels-deferred-native-verification.md",
+      "digest": "sha256:55afa2a2bfdbb330791d60e3450c74d0e1a633519b7447be8e26995f6c670760"
+    },
+    {
+      "spec": "pose-release-doc-discovery-and-sbom-parser",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Release asset parity discovers nested documentation instead of relying on a\nmanual source list. SBOM fixtures share the verifier's direct dependency parser.\nLocal verification includes the current CI gates and explicitly identifies fast\nmode omissions.",
+      "path": "pose-release-doc-discovery-and-sbom-parser.md",
+      "digest": "sha256:e79d98771cd54f04c272d3c832f6e982d02c87de70520879d9939ca47257c8de"
+    },
+    {
       "spec": "pose-usage-findings-adjudication",
       "category": "added",
       "breaking": false,
       "body": "Add explicit, reviewable verdicts for stable POSE usage findings. `pose usage`\nand MCP `pose_usage` report adjudicated counts, false-positive rate and\nunmatched verdicts beside automatic observations.",
       "path": "pose-usage-findings-adjudication.md",
       "digest": "sha256:24ee0175b8728692b1ffd7b2c54a44291fae423a0a4eb1251acbd6de0e31a000"
+    },
+    {
+      "spec": "pose-v6-2-0-delivery-authority-diagnostics",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Delivery graph failures are reported once with their originating spec instead\nof being repeated against unrelated completed specs. Human authority issuer\npins receive format diagnostics, authority claims use their envelope schema,\nand excluded lifecycle paths remain portable between checkouts.",
+      "path": "pose-v6-2-0-delivery-authority-diagnostics.md",
+      "digest": "sha256:f03e7744cef14e65f07a8567365e49fe925e7b80b46200b245ecf5497b84fa1c"
     },
     {
       "spec": "pose-v6-2-0-release-stability",
