@@ -14,16 +14,11 @@
 - _Not provided_
 
 ## Files Changed
-- pose-mcp/internal/cli/check.go
-- pose-mcp/internal/cli/surface_check.go
-- pose-mcp/internal/pose/review_authority_test.go
-- pose-mcp/internal/pose/review_bundle.go
-- pose-mcp/internal/pose/review_bundle_test.go
-- pose-mcp/internal/pose/review_closeout.go
-- .pose/changelogs/unreleased/pose-v6-2-0-delivery-authority-diagnostics.md
+- .pose/assessments/technical-debt.md
+- .pose/reports/2026-10-01-standard-validate-native.md
+- .pose/reports/history/standard-validate-native.jsonl
+- .pose/state/technical-debt.json
 - .pose/investigations/
-- .pose/specs/2026-10-01-pose-v6-2-0-delivery-authority-diagnostics.md
-- pose-mcp/internal/cli/check_delivery_diagnostics_test.go
 
 ## Validation Commands
 - go build ./...
@@ -73,62 +68,62 @@
 - go test ./internal/cli -run TestMultiRepoAgentInstalled -count=1
 
 ## Results
-- - [pass] pose-mcp/go/build (1.6s)
-- - [pass] pose-mcp/go/test (26.0s)
-- - [pass] pose-mcp/go/vet (1.7s)
-- - [pass] pose-mcp/go/release-review-archive-integration (0.5s)
+- - [pass] pose-mcp/go/build (1.4s)
+- - [pass] pose-mcp/go/test (40.7s)
+- - [pass] pose-mcp/go/vet (0.2s)
+- - [pass] pose-mcp/go/release-review-archive-integration (0.6s)
 - - [pass] pose-mcp/go/abm-retrospective-replay-integration (0.4s)
-- - [pass] pose-mcp/go/abm-replay-reachability (0.6s)
-- - [pass] pose-mcp/go/review-soundness-residuals-integration (0.7s)
-- - [pass] pose-mcp/go/governance-outcomes-v2-contract (1.0s)
-- - [pass] pose-mcp/go/abm-remediation-lineage-integration (1.0s)
-- - [pass] pose-mcp/go/abm-contract-nodes-integration (0.9s)
-- - [pass] pose-mcp/go/abm-atomic-start-integration (0.8s)
-- - [pass] pose-mcp/go/abm-causality-closeout-integration (0.6s)
-- - [pass] pose-mcp/go/abm-progressive-review-integration (0.7s)
-- - [pass] pose-mcp/go/artifact-claim-boundary-integration (1.1s)
-- - [pass] pose-mcp/go/check-verdict-mode-integration (0.7s)
-- - [pass] pose-mcp/go/project-id-derivation-integration (0.8s)
-- - [pass] pose-mcp/go/calendar-date-skew-integration (0.6s)
+- - [pass] pose-mcp/go/abm-replay-reachability (0.7s)
+- - [pass] pose-mcp/go/review-soundness-residuals-integration (0.8s)
+- - [pass] pose-mcp/go/governance-outcomes-v2-contract (1.3s)
+- - [pass] pose-mcp/go/abm-remediation-lineage-integration (1.3s)
+- - [pass] pose-mcp/go/abm-contract-nodes-integration (1.3s)
+- - [pass] pose-mcp/go/abm-atomic-start-integration (1.2s)
+- - [pass] pose-mcp/go/abm-causality-closeout-integration (0.9s)
+- - [pass] pose-mcp/go/abm-progressive-review-integration (1.0s)
+- - [pass] pose-mcp/go/artifact-claim-boundary-integration (1.4s)
+- - [pass] pose-mcp/go/check-verdict-mode-integration (1.2s)
+- - [pass] pose-mcp/go/project-id-derivation-integration (1.1s)
+- - [pass] pose-mcp/go/calendar-date-skew-integration (0.9s)
 - - [pass] pose-mcp/go/test-git-isolation-integration (0.1s)
 - - [pass] pose-mcp/go/release-needs-ci-contract (0.6s)
-- - [pass] pose-mcp/go/completed-review-retention-integration (2.3s)
-- - [pass] pose-mcp/go/review-subject-capabilities-integration (0.1s)
-- - [pass] pose-mcp/go/public-claims-release-line-integration (0.6s)
-- - [pass] pose-mcp/go/lint-spec-all-gate-contract (0.6s)
-- - [pass] pose-mcp/go/machine-channel-integration (1.2s)
-- - [pass] pose-mcp/go/usage-adjudication-integration (0.8s)
-- - [pass] pose-mcp/go/usage-adjudication-reachability (0.7s)
-- - [pass] pose-mcp/go/delivery-graph-reuse-integration (0.6s)
-- - [pass] pose-mcp/go/parse-memo-integration (0.1s)
-- - [pass] pose-mcp/go/parallel-gate-integration (8.4s)
-- - [pass] pose-mcp/go/check-workers-integration (0.6s)
-- - [pass] pose-mcp/go/review-policy-adoption-integration (0.7s)
-- - [pass] pose-mcp/go/delivery-integration (1.1s)
-- - [pass] pose-mcp/go/delivery-reachability (0.8s)
-- - [pass] pose-mcp/go/review-bundle-convergence (0.9s)
-- - [pass] pose-mcp/go/qualified-artifact-resolution-integration (0.7s)
-- - [pass] pose-mcp/go/federated-roadmap-acceptance-integration (7.4s)
-- - [pass] pose-mcp/go/federated-spec-acceptance-integration (0.8s)
-- - [pass] pose-mcp/go/federated-roadmap-negative-gates (0.7s)
-- - [pass] pose-mcp/go/spec-authority-transfer-integration (1.3s)
-- - [pass] pose-mcp/go/spec-authority-transfer-negative-gates (0.7s)
-- - [pass] pose-mcp/go/spec-authority-transfer-mcp-status (0.6s)
-- - [pass] pose-mcp/go/multi-repo-agent-context-reachability (0.6s)
-- - [pass] pose-mcp/go/multi-repo-agent-context-integration (1.6s)
-- - [pass] pose-mcp/go/multi-repo-agent-negative-gates (0.7s)
-- - [pass] pose-mcp/go/multi-repo-agent-installed-journey (1.3s)
+- - [pass] pose-mcp/go/completed-review-retention-integration (2.7s)
+- - [pass] pose-mcp/go/review-subject-capabilities-integration (0.2s)
+- - [pass] pose-mcp/go/public-claims-release-line-integration (0.9s)
+- - [pass] pose-mcp/go/lint-spec-all-gate-contract (1.2s)
+- - [pass] pose-mcp/go/machine-channel-integration (1.7s)
+- - [pass] pose-mcp/go/usage-adjudication-integration (1.1s)
+- - [pass] pose-mcp/go/usage-adjudication-reachability (0.9s)
+- - [pass] pose-mcp/go/delivery-graph-reuse-integration (0.8s)
+- - [pass] pose-mcp/go/parse-memo-integration (0.2s)
+- - [pass] pose-mcp/go/parallel-gate-integration (6.8s)
+- - [pass] pose-mcp/go/check-workers-integration (1.3s)
+- - [pass] pose-mcp/go/review-policy-adoption-integration (0.8s)
+- - [pass] pose-mcp/go/delivery-integration (1.3s)
+- - [pass] pose-mcp/go/delivery-reachability (1.1s)
+- - [pass] pose-mcp/go/review-bundle-convergence (1.2s)
+- - [pass] pose-mcp/go/qualified-artifact-resolution-integration (1.1s)
+- - [pass] pose-mcp/go/federated-roadmap-acceptance-integration (8.9s)
+- - [pass] pose-mcp/go/federated-spec-acceptance-integration (0.9s)
+- - [pass] pose-mcp/go/federated-roadmap-negative-gates (1.1s)
+- - [pass] pose-mcp/go/spec-authority-transfer-integration (1.7s)
+- - [pass] pose-mcp/go/spec-authority-transfer-negative-gates (1.2s)
+- - [pass] pose-mcp/go/spec-authority-transfer-mcp-status (1.0s)
+- - [pass] pose-mcp/go/multi-repo-agent-context-reachability (1.6s)
+- - [pass] pose-mcp/go/multi-repo-agent-context-integration (2.7s)
+- - [pass] pose-mcp/go/multi-repo-agent-negative-gates (1.2s)
+- - [pass] pose-mcp/go/multi-repo-agent-installed-journey (2.2s)
 - Result: SUCCESS
 
 ## Execution Metadata
-- Generated at (UTC): 2026-10-01T08:23:23Z
+- Generated at (UTC): 2026-10-01T21:24:46Z
 - Context: auto-validate
 - Validation profile: strict
-- Sequence for task/spec: 211
+- Sequence for task/spec: 217
 - Stable comparison hash: 5b47855e60f64e73728abd99582eb01357a94f0c289ad7fa9125d680a322e54f
 
 ## Historical Comparison
-- Previous execution: 2026-10-01T08:10:31Z
+- Previous execution: 2026-10-01T19:04:37Z
 - Status: stable
 - Stable field diffs:
 - _No changes in stable fields_
