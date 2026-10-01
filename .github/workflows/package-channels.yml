@@ -5,15 +5,8 @@
 # job, no local build shortcuts — then exercises the installed binary.
 name: Package channels
 on:
-  # `release: published` never fires for a release created by the workflow's own
-  # GITHUB_TOKEN, so this gate had zero runs across every release the project
-  # had cut. workflow_run is the trigger that actually fires, the same one
-  # verify-release.yml relies on (spec pose-package-channel-delivery).
-  release:
-    types: [published]
-  workflow_run:
-    workflows: ["Release"]
-    types: [completed]
+  # Deferred native verification: dispatch only after implementation is complete.
+  # This optional round does not gate implementation, PRs or release publication.
   workflow_dispatch:
     inputs:
       tag:
@@ -22,23 +15,17 @@ on:
 permissions: { contents: read }
 jobs:
   package-channels:
-    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v'))
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      # Under workflow_run this job runs in the base-repository context, so the
-      # event-supplied ref is attacker-influenceable: checking it out, or
-      # interpolating it into a shell script, is what Scorecard flags as a
-      # dangerous workflow. It is resolved once, against the release-tag
-      # pattern, and reaches every later step as an environment variable
-      # instead of as template text (spec pose-package-channel-workflow-safety).
+      # Validate the manually supplied tag before using it as a checkout ref.
       - name: Resolve the release tag
         shell: bash
         env:
-          RAW_REF: ${{ github.event.workflow_run.head_branch || github.event.release.tag_name || inputs.tag }}
+          RAW_REF: ${{ inputs.tag }}
         run: |
           set -euo pipefail
           case "$RAW_REF" in

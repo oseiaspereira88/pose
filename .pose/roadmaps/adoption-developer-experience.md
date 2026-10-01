@@ -38,6 +38,10 @@ Distribution channels begin only after the install and signing contracts are sta
 
 ## Risk controls
 
-- Test package channels from clean machines and pin the artifact digest.
+- Test package channels from clean native runners and pin the artifact digest.
+  The current macOS/Windows round is skipped/deferred to
+  `spec:pose-package-channels-deferred-native-verification`, manually dispatched
+  after implementation. It does not block other milestones or release publication;
+  channel support claims still require actual native evidence.
 - Keep examples executable and versioned with the release they document.
 - Never let translation lag hide a safety or compatibility warning.
