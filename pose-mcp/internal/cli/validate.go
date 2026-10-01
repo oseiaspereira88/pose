@@ -776,7 +776,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 		if check.Outcome == "error" {
 			severity = "error"
 		}
-		usageFindings = append(usageFindings, usageFinding{ID: check.ID + "\x00" + check.Outcome, Severity: severity})
+		usageFindings = append(usageFindings, usageFinding{ID: check.ID, Severity: severity})
 	}
 	noteUsageFindings(stdout, result, usageFindings, true)
 	for name, writer := range map[string]struct {

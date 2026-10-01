@@ -1,6 +1,6 @@
 ---
 slug: pose-usage-findings-adjudication
-status: draft
+status: in-progress
 completed_at:
 created_at: 2026-09-11
 supersedes:
@@ -43,6 +43,8 @@ recorded below — and a patch release is the wrong place to make it.
 ### Non-goals
 - Adjudicating findings from gates that emit one conservative observation
   without a stable identity; there is nothing to point at.
+- Persisting absolute paths, traversal, free-form or sensitive finding
+  identities in the tracked journal; the CLI accepts only bounded identifiers.
 - Feeding verdicts back into a gate's behaviour. Suppressing a finding is a
   policy change, made where the policy lives.
 
@@ -74,26 +76,51 @@ recorded below — and a patch release is the wrong place to make it.
 - `pose-mcp/internal/mcpserver` — `pose_usage` report shape
 
 ### Artifacts
-- created: .pose/specs/2026-09-11-pose-usage-findings-adjudication.md
-- modified: .pose/specs/2026-08-10-pose-usage-metrics.md
+- modified: .pose/specs/2026-09-11-pose-usage-findings-adjudication.md
+- created: .pose/adr/2026-10-01-reviewable-usage-verdict-journal.md
+- created: .pose/changelogs/unreleased/pose-usage-findings-adjudication.md
+- created: pose-mcp/internal/usage/verdict.go
+- created: pose-mcp/internal/usage/verdict_test.go
+- modified: pose-mcp/internal/usage/usage.go
+- modified: pose-mcp/internal/cli/usage.go
+- modified: pose-mcp/internal/cli/usage_test.go
+- modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
+- modified: pose-mcp/internal/mcpserver/server_test.go
+- modified: docs-site/docs/analytics.md
+- modified: docs-site/docs/cli.md
+- modified: docs-site/docs/mcp.md
+- modified: .pose/assessments/README.md
+- modified: .pose/assessments/consolidated.md
+- modified: .pose/assessments/docs-site.md
+- modified: .pose/assessments/integrations.md
+- modified: .pose/assessments/mcp-enforce.md
+- modified: .pose/assessments/pose-mcp.md
+- modified: .pose/assessments/technical-debt.md
+- modified: .pose/state/components/docs-site.json
+- modified: .pose/state/components/mcp-enforce.json
+- modified: .pose/state/components/pose-mcp.json
+- modified: .pose/state/integrations.json
+- modified: .pose/state/project-state.md
+- modified: .pose/state/technical-debt.json
 
 ### Technical risks
-- Finding identities are persisted only as HMACs under a per-machine salt. A
-  verdict keyed by that HMAC does not match on another machine; a verdict keyed
-  by the raw identity puts that identity somewhere the usage ADR chose not to.
-  Decision 1 is about exactly this.
+- A tracked verdict ID may reveal a module name. The command accepts only
+  bounded relative identifiers, and reviewers must inspect each journal line
+  before committing it. The local automatic events retain their HMAC boundary.
 
 ---
 
 ## 4. Tasks
 
 ### Implementation
-- [ ] Increment 1: Decide storage and identity; write the ADR (Decision 1)
-- [ ] Increment 2: Record verdicts (R1, R3)
-- [ ] Increment 3: Report them beside the automatic counts (R2, R4)
+- [x] Increment 1: Decide storage and identity; write the ADR (Decision 1)
+- [x] Increment 2: Record verdicts (R1, R3)
+- [x] Increment 3: Report them beside the automatic counts (R2, R4)
 
 ### Validation
-- [ ] A verdict recorded on one machine matches the same finding observed on another
+- [x] A verdict recorded under one local salt matches the same finding under another
 
 ---
 
@@ -120,7 +147,9 @@ recorded below — and a patch release is the wrong place to make it.
 - Recommendation: B. A verdict is a governance decision, which belongs where the
   team can see and review it; the privacy concern behind hashing was persisting
   IDs outside review, which B does not do.
-- Status: pending — the owner decides, then the ADR is written, before Increment 2.
+- Status: accepted for 6.2.0 with a bounded stable-ID subset; see ADR
+  `reviewable-usage-verdict-journal`. The journal accepts relative structured
+  check IDs and rejects absolute, traversing or free-form identities.
 
 ---
 
@@ -130,6 +159,15 @@ recorded below — and a patch release is the wrong place to make it.
 Record verdicts against findings observed by real runs, on two machines or two
 salts, and require the report to match and separate them.
 
+| Layer / scenario | Command | Expected evidence |
+| --- | --- | --- |
+| Unit: append, supersession, two salts, unmatched | `go test ./internal/usage -run Verdict -count=1` | Latest verdict wins on each machine; old lines remain; unmatched count is explicit |
+| Negative: malformed journal, unsafe identity, missing reason | `go test ./internal/usage -run Verdict -count=1` | Recording rejects unsafe input and reporting rejects corrupt governed source |
+| CLI contract: record and query | `go test ./internal/cli -run UsageAdjudicate -count=1` | Explicit args required; JSON and human output keep automatic counts distinct |
+| Module regression (required) | `go test ./...` and `go vet ./...` | All packages pass |
+| Module matrix (required) | `pose validate --strict --module pose-mcp` | All applicable gates pass |
+| MCP contract (required) | `go test ./internal/mcpserver -run Usage -count=1` | MCP returns same adjudication projection |
+
 ### Deterministic checks
 
 #### Test
@@ -138,28 +176,47 @@ salts, and require the report to match and separate them.
 - Expected: exit 0
 
 ### Execution log
-- Date: 2026-09-11
-- Environment: not started
-- Notes: draft; nothing implemented.
+- 2026-10-01: `go test ./...` and `go vet ./...` passed. Targeted unit,
+  CLI and MCP tests covered two salts, append-only supersession, unmatched
+  verdicts, unsafe IDs, corrupt journal, symlink rejection and a real
+  structured validation finding. The final
+  `pose validate --strict --module pose-mcp` passed 43/43 steps after
+  stable-check-ID normalization.
+- 2026-10-01: `pose assess integrate` completed with 57 existing
+  consumer-unobserved warnings; `pose assess tech-debt` found zero markers.
+  The CI vulnerability scanner reported no vulnerabilities, and the CI secret
+  scanner found no leaks in 1,404 commits.
+- 2026-10-01: `pose artifact-check --spec pose-usage-findings-adjudication
+  --from a6cc2c5 --to c4b9c3b --strict --json` matched all 28 declared paths
+  to all 28 observed paths, with no missing or undeclared paths. The default
+  trailer range also includes the original composite draft commit, so this
+  release delivery uses its explicit bounded range.
 
 ### Results summary
-- Successes: none yet.
-- Failures: none.
+- Successes: feature tests, full Go suite, vet, integration assessment,
+  technical-debt assessment and security scans.
+- Failures: an initial test exposed unnameable NUL-suffixed validation IDs;
+  the adapter now uses the stable check ID alone and the regression passes.
 
 ### Requirement trace
-- R1 [waived: draft, not implemented] <pending Decision 1>
-- R2 [waived: draft, not implemented] <pending Decision 1>
-- R3 [waived: draft, not implemented] <pending Decision 1>
-- R4 [waived: draft, not implemented] <pending Decision 1>
+- R1 [satisfied] test:TestUsageAdjudicateRecordsAndReportsSeparately
+- R2 [satisfied] test:TestVerdictJoinsAcrossLocalSaltsAndSupersedes test:TestUsageMCPReportsHumanVerdictsBesideAutomaticCounts
+- R3 [satisfied] test:TestVerdictJoinsAcrossLocalSaltsAndSupersedes
+- R4 [satisfied] test:TestVerdictUnmatchedWithoutLocalEvents
 
 ### Known gaps
-- Everything; this spec records the intent and the decision it needs.
+- Verdicts for historical validation events with the former NUL-suffixed
+  identity remain unmatched until a new validation run records the check ID.
+- Free-form and absolute-path finding IDs remain outside the supported
+  adjudication subset.
 
 ---
 
 ## 7. Final Report
 
 ### Summary
-Deferred from 5.0.2 with its open decision stated.
+The reviewable verdict journal, CLI recording command, and shared CLI/MCP
+adjudication projection are implemented. Automatic event metrics remain
+separate and privacy-bounded.
 
 ### Follow-ups

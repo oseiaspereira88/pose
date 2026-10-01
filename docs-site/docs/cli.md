@@ -118,6 +118,7 @@ as current, but named so a reviewer can tell carried-forward evidence apart.
 | `pose stats governance [--since-days N] [--maturity-days N] [--min-sample N]` | Separate governance preparation, judgment, intervention, freshness and coverage dimensions; no quality score |
 | `pose assess design --spec S [--json] [--max-files N] [--max-bytes N]` | Bounded structural delta projection from the canonical review subject; no complexity score and no writes |
 | `pose usage [--since-days N] [--tool NAME] [--surface cli\|mcp] [--json]` | Automatic local tool calls, outcomes, finding lifecycle and latency by CLI/MCP surface |
+| `pose usage adjudicate --tool NAME --finding ID --verdict valid\|wont-fix\|false-positive --reason TEXT --by ALIAS` | Append a reviewed finding verdict to `.pose/usage/verdicts.jsonl` |
 | `pose index` | Regenerate all indexes (repo-map, spec-graph, roadmaps…) |
 | `pose report --task "..." [--outcome pass\|fail\|partial\|skipped\|unknown] [--spec S] [--since ref] [--change-from A --change-to B] [--validate-output P] [--git-stage] [...]` | Versionable report + history JSONL; `pose report --help` lists all sixteen flags |
 | `pose public-claims [--strict\|--tolerant] [--json]` | Check that every surface a project declares (site, README, docs) claims the version it actually released, from `.pose/public/claims.json` (opt-in; start from `.pose/templates/public-claims.json`) |
@@ -141,11 +142,14 @@ Set `POSE_USAGE_DIR` only when an operator needs an explicit absolute local
 state directory (for example, a persistent container mount); the default Git
 common-dir/user-cache resolution is preferred.
 
-POSE does not infer the human adjudication states `valid`, `wont-fix` or
-`false-positive`. Recording them is designed in the draft spec
-`pose-usage-findings-adjudication`, which keeps verdicts separate from the
-automatic observation counts and still has its storage decision open. See
-[Analytics and delivery metrics](analytics.md) for interpretation and examples.
+POSE does not infer human verdicts. `pose usage adjudicate` records an explicit
+decision in a tracked, append-only project journal. The finding ID must be a
+bounded stable identifier; relative slash-separated check IDs are accepted,
+while absolute paths, traversal and free-form text are rejected. Reports show
+`valid`, `wont-fix`, `false-positive` and unmatched totals separately from automatic
+observations; the false-positive rate uses only matched adjudicated findings.
+Review the identity and reason before committing the journal. See
+[Analytics and delivery metrics](analytics.md) for interpretation.
 
 ## DORA and adoption metrics
 

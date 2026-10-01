@@ -10,6 +10,7 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	usagepkg "github.com/harne8/pose-mcp/internal/usage"
 )
 
@@ -222,6 +223,9 @@ func noteUsageFindings(stdout io.Writer, semantic string, findings []usageFindin
 }
 
 func cmdUsage(root string, args []string, stdout, stderr io.Writer) int {
+	if len(args) > 0 && args[0] == "adjudicate" {
+		return cmdUsageAdjudicate(root, args[1:], stdout, stderr)
+	}
 	query := usagepkg.Query{SinceDays: 30}
 	jsonOut := false
 	for i := 0; i < len(args); i++ {
@@ -270,20 +274,63 @@ func cmdUsage(root string, args []string, stdout, stderr io.Writer) int {
 	fmt.Fprintf(stdout, "# POSE usage (%s)\n\n", window)
 	if !report.Available {
 		fmt.Fprintf(stdout, "unavailable: %s\n", report.Reason)
-		fmt.Fprintf(stdout, "records.scanned=%d\nrecords.invalid=%d\n", report.RecordsScanned, report.InvalidRecords)
-		return 0
+	} else {
+		tw := tabwriter.NewWriter(stdout, 0, 4, 2, ' ', 0)
+		fmt.Fprintln(tw, "TOOL\tSURFACE\tCALLS\tPASS\tFAIL\tEXEC ERR\tFINDINGS\tERROR F\tWARN F\tUNIQUE\tNEW\tRESOLVED\tREOPENED\tP95 MS")
+		for _, row := range report.Rows {
+			executionErrors := row.Failed + row.Invalid + row.Denied + row.Errors
+			fmt.Fprintf(tw, "%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%.2f\n",
+				row.Tool, row.Surface, row.Calls, row.Pass, row.Fail, executionErrors,
+				row.FindingsObserved, row.FindingsBySeverity["error"], row.FindingsBySeverity["warning"],
+				row.UniqueFindings, row.NewFindings,
+				row.ResolvedFindings, row.ReopenedFindings, row.P95DurationMS)
+		}
+		_ = tw.Flush()
 	}
-	tw := tabwriter.NewWriter(stdout, 0, 4, 2, ' ', 0)
-	fmt.Fprintln(tw, "TOOL\tSURFACE\tCALLS\tPASS\tFAIL\tEXEC ERR\tFINDINGS\tERROR F\tWARN F\tUNIQUE\tNEW\tRESOLVED\tREOPENED\tP95 MS")
-	for _, row := range report.Rows {
-		executionErrors := row.Failed + row.Invalid + row.Denied + row.Errors
-		fmt.Fprintf(tw, "%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%.2f\n",
-			row.Tool, row.Surface, row.Calls, row.Pass, row.Fail, executionErrors,
-			row.FindingsObserved, row.FindingsBySeverity["error"], row.FindingsBySeverity["warning"],
-			row.UniqueFindings, row.NewFindings,
-			row.ResolvedFindings, row.ReopenedFindings, row.P95DurationMS)
+	if len(report.Adjudications) > 0 {
+		cliout.NewPlain(stdout, stderr).Section("\n# Human verdicts")
+		tw := tabwriter.NewWriter(stdout, 0, 4, 2, ' ', 0)
+		_, _ = tw.Write([]byte("TOOL\tVALID\tWONT FIX\tFALSE POSITIVE\tUNMATCHED\tFALSE POSITIVE RATE\n"))
+		for _, row := range report.Adjudications {
+			_, _ = tw.Write([]byte(fmt.Sprintf("%s\t%d\t%d\t%d\t%d\t%.1f%%\n", row.Tool, row.Valid, row.WontFix, row.FalsePositive, row.Unmatched, row.FalsePositiveRate*100)))
+		}
+		_ = tw.Flush()
 	}
-	_ = tw.Flush()
 	fmt.Fprintf(stdout, "\nrecords.scanned=%d\nrecords.matched=%d\nrecords.invalid=%d\n", report.RecordsScanned, report.RecordsMatched, report.InvalidRecords)
+	return 0
+}
+
+func cmdUsageAdjudicate(root string, args []string, stdout, stderr io.Writer) int {
+	input := usagepkg.VerdictInput{}
+	for i := 0; i < len(args); i++ {
+		if i+1 >= len(args) {
+			return usageError(stderr, "Usage: pose usage adjudicate --tool NAME --finding ID --verdict valid|wont-fix|false-positive --reason TEXT --by ALIAS")
+		}
+		flag := args[i]
+		value := args[i+1]
+		if strings.HasPrefix(value, "--") {
+			return usageError(stderr, "pose usage adjudicate: "+flag+" requires a value")
+		}
+		i++
+		switch flag {
+		case "--tool":
+			input.Tool = value
+		case "--finding":
+			input.FindingID = value
+		case "--verdict":
+			input.Disposition = value
+		case "--reason":
+			input.Reason = value
+		case "--by":
+			input.By = value
+		default:
+			return usageError(stderr, "Usage: pose usage adjudicate --tool NAME --finding ID --verdict valid|wont-fix|false-positive --reason TEXT --by ALIAS")
+		}
+	}
+	if err := usagepkg.RecordVerdict(root, input); err != nil {
+		cliout.NewPlain(stdout, stderr).Failure("pose usage adjudicate: " + err.Error())
+		return 2
+	}
+	cliout.NewPlain(stdout, stderr).ContractLine(fmt.Sprintf("recorded %s verdict for %s/%s", input.Disposition, input.Tool, input.FindingID))
 	return 0
 }

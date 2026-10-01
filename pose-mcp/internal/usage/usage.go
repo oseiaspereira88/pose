@@ -117,17 +117,18 @@ type Row struct {
 }
 
 type Report struct {
-	SchemaVersion  int    `json:"schema_version"`
-	GeneratedAt    string `json:"generated_at"`
-	SinceDays      int    `json:"since_days"`
-	ToolFilter     string `json:"tool_filter,omitempty"`
-	SurfaceFilter  string `json:"surface_filter,omitempty"`
-	Available      bool   `json:"available"`
-	Reason         string `json:"reason,omitempty"`
-	RecordsScanned int    `json:"records_scanned"`
-	RecordsMatched int    `json:"records_matched"`
-	InvalidRecords int    `json:"invalid_records"`
-	Rows           []Row  `json:"rows"`
+	SchemaVersion  int               `json:"schema_version"`
+	GeneratedAt    string            `json:"generated_at"`
+	SinceDays      int               `json:"since_days"`
+	ToolFilter     string            `json:"tool_filter,omitempty"`
+	SurfaceFilter  string            `json:"surface_filter,omitempty"`
+	Available      bool              `json:"available"`
+	Reason         string            `json:"reason,omitempty"`
+	RecordsScanned int               `json:"records_scanned"`
+	RecordsMatched int               `json:"records_matched"`
+	InvalidRecords int               `json:"invalid_records"`
+	Rows           []Row             `json:"rows"`
+	Adjudications  []AdjudicationRow `json:"adjudications"`
 }
 
 // Record persists one event. Failure is returned for diagnostics, but callers
@@ -221,7 +222,11 @@ func Aggregate(root string, query Query) (Report, error) {
 	if now.IsZero() {
 		now = time.Now().UTC()
 	}
-	report := Report{SchemaVersion: SchemaVersion, GeneratedAt: now.Format(time.RFC3339), SinceDays: query.SinceDays, ToolFilter: query.Tool, SurfaceFilter: query.Surface, Rows: []Row{}}
+	report := Report{SchemaVersion: SchemaVersion, GeneratedAt: now.Format(time.RFC3339), SinceDays: query.SinceDays, ToolFilter: query.Tool, SurfaceFilter: query.Surface, Rows: []Row{}, Adjudications: []AdjudicationRow{}}
+	verdicts, err := readVerdicts(root)
+	if err != nil {
+		return report, err
+	}
 	dir, err := storageDir(root)
 	if err != nil {
 		return report, err
@@ -229,6 +234,7 @@ func Aggregate(root string, query Query) (Report, error) {
 	events, invalid, err := readEvents(dir)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
+			report.Adjudications = summarizeVerdicts(verdicts, nil, nil, query.Tool)
 			report.Reason = "no usage events recorded"
 			return report, nil
 		}
@@ -241,6 +247,7 @@ func Aggregate(root string, query Query) (Report, error) {
 		cutoff = now.AddDate(0, 0, -query.SinceDays)
 	}
 	rows := map[string]*Row{}
+	observed := map[string]bool{}
 	seen := map[string]bool{}
 	active := map[string]map[string]bool{}
 	for _, event := range events {
@@ -262,6 +269,7 @@ func Aggregate(root string, query Query) (Report, error) {
 		current := make(map[string]bool, len(event.FindingFingerprints))
 		for _, fingerprint := range event.FindingFingerprints {
 			current[fingerprint] = true
+			observed[event.Tool+"\x00"+fingerprint] = true
 			globalKey := key + "\x00" + fingerprint
 			if include {
 				row.uniqueFingerprints[fingerprint] = true
@@ -314,10 +322,59 @@ func Aggregate(root string, query Query) (Report, error) {
 		return report.Rows[i].Surface < report.Rows[j].Surface
 	})
 	report.Available = report.RecordsMatched > 0
+	salt, saltExists, err := readSalt(filepath.Join(dir, "salt"))
+	if err != nil {
+		return report, err
+	}
+	if !saltExists {
+		report.Adjudications = summarizeVerdicts(verdicts, nil, observed, query.Tool)
+	} else {
+		report.Adjudications = summarizeVerdicts(verdicts, salt, observed, query.Tool)
+	}
 	if !report.Available {
 		report.Reason = "no usage events matched the query"
 	}
 	return report, nil
+}
+
+func summarizeVerdicts(verdicts []Verdict, salt []byte, observed map[string]bool, toolFilter string) []AdjudicationRow {
+	latest := map[string]Verdict{}
+	for _, verdict := range verdicts {
+		if toolFilter == "" || verdict.Tool == toolFilter {
+			latest[verdict.Tool+"\x00"+verdict.FindingID] = verdict
+		}
+	}
+	byTool := map[string]*AdjudicationRow{}
+	for _, verdict := range latest {
+		row := byTool[verdict.Tool]
+		if row == nil {
+			row = &AdjudicationRow{Tool: verdict.Tool}
+			byTool[verdict.Tool] = row
+		}
+		fingerprint := token(salt, "finding\x00"+verdict.Tool+"\x00"+verdict.FindingID)
+		if !observed[verdict.Tool+"\x00"+fingerprint] {
+			row.Unmatched++
+			continue
+		}
+		switch verdict.Disposition {
+		case "valid":
+			row.Valid++
+		case "wont-fix":
+			row.WontFix++
+		case "false-positive":
+			row.FalsePositive++
+		}
+	}
+	out := make([]AdjudicationRow, 0, len(byTool))
+	for _, row := range byTool {
+		total := row.Valid + row.WontFix + row.FalsePositive
+		if total > 0 {
+			row.FalsePositiveRate = float64(row.FalsePositive) / float64(total)
+		}
+		out = append(out, *row)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Tool < out[j].Tool })
+	return out
 }
 
 func validateObservation(observation Observation) error {

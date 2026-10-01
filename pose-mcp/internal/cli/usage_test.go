@@ -65,6 +65,43 @@ func TestUsageRejectsPartiallyParsedSinceDays(t *testing.T) {
 	})
 }
 
+func TestUsageAdjudicateRecordsAndReportsSeparately(t *testing.T) {
+	repo := newGitRepo(t)
+	if err := os.Mkdir(filepath.Join(repo, ".pose"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("POSE_USAGE_DIR", t.TempDir())
+	inDir(t, repo, func() {
+		var out, errOut bytes.Buffer
+		args := []string{"usage", "adjudicate", "--tool", "validate", "--finding", "check-a", "--verdict", "false-positive", "--reason", "Rule is noisy", "--by", "reviewer"}
+		if code := Main(args, &out, &errOut); code != 0 {
+			t.Fatalf("adjudicate exit=%d stderr=%s", code, errOut.String())
+		}
+		out.Reset()
+		errOut.Reset()
+		if code := Main([]string{"usage", "--json"}, &out, &errOut); code != 0 {
+			t.Fatalf("usage exit=%d stderr=%s", code, errOut.String())
+		}
+		var report usagepkg.Report
+		if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+			t.Fatal(err)
+		}
+		if report.Available || len(report.Adjudications) != 1 || report.Adjudications[0].Unmatched != 1 || report.RecordsMatched != 0 {
+			t.Fatalf("verdict projection=%+v", report)
+		}
+		out.Reset()
+		errOut.Reset()
+		if code := Main([]string{"usage"}, &out, &errOut); code != 0 || !bytes.Contains(out.Bytes(), []byte("UNMATCHED")) {
+			t.Fatalf("human projection exit=%d stdout=%s stderr=%s", code, out.String(), errOut.String())
+		}
+		out.Reset()
+		errOut.Reset()
+		if code := Main([]string{"usage", "adjudicate", "--tool", "validate", "--finding", "/home/private.go", "--verdict", "valid", "--reason", "Bad", "--by", "reviewer"}, &out, &errOut); code != 2 {
+			t.Fatalf("unsafe identity exit=%d", code)
+		}
+	})
+}
+
 func TestInvalidGateInvocationIsNotASemanticFailure(t *testing.T) {
 	result := defaultCommandUsage("validate", 2)
 	if result.SemanticOutcome != "unknown" || result.FindingCount != 0 {
@@ -91,6 +128,13 @@ func TestValidateUsageUsesStructuredCheckFindings(t *testing.T) {
 		row := report.Rows[0]
 		if row.Partial != 1 || row.FindingsObserved != 1 || row.UniqueFindings != 1 {
 			t.Fatalf("validate usage = %+v", row)
+		}
+		if err := usagepkg.RecordVerdict(root, usagepkg.VerdictInput{Tool: "validate", FindingID: "mod/go/broken", Disposition: "valid", Reason: "Verified structured check", By: "reviewer"}); err != nil {
+			t.Fatal(err)
+		}
+		adjudicated, err := usagepkg.Aggregate(root, usagepkg.Query{SinceDays: 0, Tool: "validate", Surface: "cli"})
+		if err != nil || len(adjudicated.Adjudications) != 1 || adjudicated.Adjudications[0].Valid != 1 || adjudicated.Adjudications[0].Unmatched != 0 {
+			t.Fatalf("real validation finding did not join: %+v err=%v", adjudicated.Adjudications, err)
 		}
 	})
 }

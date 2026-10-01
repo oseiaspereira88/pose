@@ -690,7 +690,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "usage",
 		SummaryEN:       "Inspect local CLI and MCP tool usage telemetry and outcome metrics",
 		SummaryPtBR:     "Inspeciona métricas locais de uso e sucesso de comandos CLI e MCP",
-		Usage:           "pose usage [--since-days N] [--tool <name>] [--surface cli|mcp] [--json]",
+		Usage:           "pose usage [--since-days N] [--tool <name>] [--surface cli|mcp] [--json] | pose usage adjudicate --tool NAME --finding ID --verdict valid|wont-fix|false-positive --reason TEXT --by ALIAS",
 		DescriptionEN:   "Reports local tool invocation counts, error rates, average latency, and structured finding lifecycle without external network reporting.",
 		DescriptionPtBR: "Informa contagens de invocação de ferramentas, taxas de erro, latência média e ciclo de achados sem envio externo de dados.",
 		Flags: []FlagHelp{
@@ -698,10 +698,12 @@ var commandHelpCatalog = map[string]CommandHelp{
 			{"--tool <name>", "Filter report to a specific CLI command or MCP tool name", "Filtra o relatório para uma ferramenta ou comando específico"},
 			{"--surface <cli|mcp>", "Filter by invocation interface surface", "Filtra pela interface de invocação (cli ou mcp)"},
 			{"--json", "Output usage telemetry in JSON format", "Emite a telemetria de uso em formato JSON"},
+			{"adjudicate", "Append a human finding verdict to the project journal", "Registra um veredito humano no diário do projeto"},
 		},
 		Examples: []string{
 			"pose usage --surface mcp",
 			"pose usage --tool validate --since-days 7",
+			"pose usage adjudicate --tool validate --finding check-a --verdict false-positive --reason 'Reviewed result' --by reviewer",
 		},
 	},
 	"dora-metrics": {

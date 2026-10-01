@@ -161,8 +161,9 @@ source content and raw finding IDs are excluded. No usage event is transmitted
 over the network.
 
 Human confirmation of a finding as `valid`, `wont-fix` or `false-positive` is
-not inferred from repeated calls. It remains a
-tracked evolution; see [Analytics and delivery metrics](analytics.md).
+recorded explicitly with `pose usage adjudicate`. `pose_usage` includes those
+per-tool totals and unmatched verdicts separately from automatic counts. See
+[Analytics and delivery metrics](analytics.md).
 
 ## Optional tools
 
