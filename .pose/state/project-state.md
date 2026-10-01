@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-09-28T14:12:34Z
-baseline_commit: 390dfa6339b2ef32b636bcc7f2de2ce4b8e60a50
+generated_at: 2026-10-01T06:21:18Z
+baseline_commit: e92891af0cdb68c9843e9cbfefef967e454e80e0
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:4de2e360468d -->
+<!-- state:derived hash:815c4c9bec4c -->
 
-- specs: total=253 draft=4 in-progress=65 blocked=0 done=184 superseded=0 abandoned=0
+- specs: total=272 draft=1 in-progress=11 blocked=0 done=260 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
-  - spec:pose-abm-review-soundness-residuals (2026-09-28)
-  - spec:pose-governance-outcomes-v2 (2026-09-28)
-  - spec:pose-v6-release-readiness (2026-09-28)
-  - spec:pose-abm-retrospective-replay (2026-09-28)
-  - spec:pose-abm-contract-nodes (2026-09-27)
-  - ... e mais 179 (ver `pose_list_specs status:done`)
+  - spec:pose-usage-findings-adjudication (2026-10-01)
+  - spec:pose-dist-adopt-published-v6-1-0 (2026-09-30)
+  - spec:pose-v6-1-0-release-readiness (2026-09-30)
+  - spec:pose-help-names-flags-the-parser-accepts (2026-09-29)
+  - spec:pose-compat-gate-pose-md-preservation (2026-09-29)
+  - ... e mais 255 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:448ea70c32fa -->
+<!-- state:derived hash:ba1456fab0ee -->
 
-- abertos: 120
-- por criticidade: high=7 medium=28 low=61 sem-classificação=24
+- abertos: 123
+- por criticidade: high=8 medium=29 low=62 sem-classificação=24
 - vencidos (review < hoje): 2
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
@@ -66,16 +66,16 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:9a1d002fe59e -->
+<!-- state:derived hash:228a4bfe78ca -->
 
-- último registro: task=validate-native outcome=pass (2026-09-28T13:33:44Z)
-- últimos 30 dias: total=127 outcome_ok=111 outcome_outro=16
-- reports revisados (.md): total=150
+- último registro: task=record-the-v2-0-2-change-set-of-pose-adoption-stamp-stays-readable outcome=skipped (2026-09-29T19:45:14Z)
+- últimos 30 dias: total=128 outcome_ok=111 outcome_outro=17
+- reports revisados (.md): total=153
+  - report:2026-09-29-standard-record-the-v2-0-2-change-set-of-pose-adoption-stamp-stays-readable.md
+  - report:2026-09-28-review-archive-coattribution.md
+  - report:2026-09-28-pose-dist-v6-adoption.md
   - report:2026-09-28-abm-dependency-review.md
   - report:2026-09-28-standard-validate-native.md
-  - report:2026-09-27-standard-validate-native.md
-  - report:2026-09-26-standard-validate-native.md
-  - report:2026-09-26-federated-carried-forward-proof.md
 
 ## Arquitetura
 <!-- state:derived hash:690a8f0eaa52 status:active -->

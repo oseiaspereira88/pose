@@ -581,6 +581,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "usage-adjudication-integration",
+          "program": "go",
+          "args": ["test", "./internal/usage", "./internal/cli", "./internal/mcpserver", "-run", "Verdict|UsageAdjudicate|UsageMCPReportsHumanVerdicts|ValidateUsageUsesStructuredCheckFindings", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "usage-adjudication-reachability",
+          "program": "go",
+          "args": ["test", "./internal/cli", "./internal/mcpserver", "-run", "UsageAdjudicate|UsageMCPReportsHumanVerdicts", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "reachability"
+        },
+        {
           "name": "delivery-graph-reuse-integration",
           "program": "go",
           "args": [

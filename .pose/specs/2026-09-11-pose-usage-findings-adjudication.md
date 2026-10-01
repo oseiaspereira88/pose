@@ -1,14 +1,14 @@
 ---
 slug: pose-usage-findings-adjudication
-status: in-progress
-completed_at:
+status: done
+completed_at: 2026-10-01
 created_at: 2026-09-11
 supersedes:
 depends_on: pose-usage-metrics
 priority: 0
 components: pose-mcp
 task_type: feature
-delivers:
+delivers: surface:usage-adjudication, contract:usage-adjudication, capability:usage-adjudication
 ---
 
 # Spec: A person can say whether a usage finding was real
@@ -76,9 +76,10 @@ recorded below — and a patch release is the wrong place to make it.
 - `pose-mcp/internal/mcpserver` — `pose_usage` report shape
 
 ### Artifacts
-- modified: .pose/specs/2026-09-11-pose-usage-findings-adjudication.md
+- created: .pose/specs/2026-09-11-pose-usage-findings-adjudication.md
 - created: .pose/adr/2026-10-01-reviewable-usage-verdict-journal.md
 - created: .pose/changelogs/unreleased/pose-usage-findings-adjudication.md
+- modified: .pose/indexes/validation-matrix.json
 - created: pose-mcp/internal/usage/verdict.go
 - created: pose-mcp/internal/usage/verdict_test.go
 - modified: pose-mcp/internal/usage/usage.go
@@ -104,6 +105,41 @@ recorded below — and a patch release is the wrong place to make it.
 - modified: .pose/state/integrations.json
 - modified: .pose/state/project-state.md
 - modified: .pose/state/technical-debt.json
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/cli/doctor_instance_config_test.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/install.go
+- modified: pose-mcp/internal/cli/install_locale_identity_test.go
+- modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/cli/managed_docs.go
+- modified: pose-mcp/internal/cli/managed_docs_test.go
+- created: pose-mcp/internal/cli/mcp_sigterm_test.go
+- modified: pose-mcp/internal/cli/release_compatibility_test.go
+- modified: pose-mcp/internal/cli/self_update_release_test.go
+- modified: pose-mcp/internal/cli/stack_seed.go
+- created: pose-mcp/internal/cli/update_reports_delivered_state_test.go
+- modified: pose-mcp/internal/cli/validate_root_and_nodemodules_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/pose/discovery.go
+
+Backfilled on 2026-10-01: `20c6565` created this draft in a composite commit
+and carries its trailer. The 17 paths declared last record that historical
+provenance; their changes belong to the update diagnostics, stdio shutdown
+and source-reference corrections already shipped in 5.0.2. They do not expand
+the adjudication feature. `c3f8471` implements the current delivery. The spec
+file action is `created` across the complete attributed interval.
+
+### Delivery targets
+
+- surface:usage-adjudication module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- contract:usage-adjudication module:pose-mcp profile:api-contract entrypoint:pose-mcp/cmd/pose/main.go
+- capability:usage-adjudication module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+The CLI records verdicts and projects the shared aggregation; MCP projects
+the same aggregation. These are local engine targets. The capability target
+also covers the historical `internal/pose` root in the composite attribution;
+it does not claim a composed Harne8 capability or any new discovery behavior.
 
 ### Technical risks
 - A tracked verdict ID may reveal a module name. The command accepts only
@@ -187,10 +223,20 @@ salts, and require the report to match and separate them.
   The CI vulnerability scanner reported no vulnerabilities, and the CI secret
   scanner found no leaks in 1,404 commits.
 - 2026-10-01: `pose artifact-check --spec pose-usage-findings-adjudication
-  --from a6cc2c5 --to c4b9c3b --strict --json` matched all 28 declared paths
+  --from a6cc2c5 --to c3f8471 --strict --json` matched all 28 declared paths
   to all 28 observed paths, with no missing or undeclared paths. The default
   trailer range also includes the original composite draft commit, so this
   release delivery uses its explicit bounded range.
+- 2026-10-01 closeout reconciliation: backfilled the composite draft's
+  historical paths and declared local CLI/MCP targets. Registered
+  `usage-adjudication-integration` and `usage-adjudication-reachability` to
+  seal evidence from the actual verdict, CLI and MCP tests.
+- 2026-10-01: strict complete matrix passed 48/48 at `e92891a`;
+  default artifact-check reported no errors and surface-check reported three
+  targets with zero findings. Bundle `rvb-a681f14fe132b0e8` and attestation
+  `rva-ee025f7e49b88dd3` passed review verify and review-check. `pose close`
+  applied the lifecycle transition. The global strict check passed with 17
+  existing warnings; the component assessment was refreshed after closure.
 
 ### Results summary
 - Successes: feature tests, full Go suite, vet, integration assessment,
@@ -199,10 +245,10 @@ salts, and require the report to match and separate them.
   the adapter now uses the stable check ID alone and the regression passes.
 
 ### Requirement trace
-- R1 [satisfied] test:TestUsageAdjudicateRecordsAndReportsSeparately
-- R2 [satisfied] test:TestVerdictJoinsAcrossLocalSaltsAndSupersedes test:TestUsageMCPReportsHumanVerdictsBesideAutomaticCounts
-- R3 [satisfied] test:TestVerdictJoinsAcrossLocalSaltsAndSupersedes
-- R4 [satisfied] test:TestVerdictUnmatchedWithoutLocalEvents
+- R1 [satisfied] surface:usage-adjudication evidence:integration check:usage-adjudication-integration check:usage-adjudication-reachability test:TestUsageAdjudicateRecordsAndReportsSeparately
+- R2 [satisfied] contract:usage-adjudication capability:usage-adjudication evidence:integration check:usage-adjudication-integration test:TestVerdictJoinsAcrossLocalSaltsAndSupersedes test:TestUsageMCPReportsHumanVerdictsBesideAutomaticCounts
+- R3 [satisfied] surface:usage-adjudication evidence:unit test:TestVerdictJoinsAcrossLocalSaltsAndSupersedes
+- R4 [satisfied] contract:usage-adjudication evidence:integration test:TestVerdictUnmatchedWithoutLocalEvents
 
 ### Known gaps
 - Verdicts for historical validation events with the former NUL-suffixed

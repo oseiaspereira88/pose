@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-ee025f7e49b88dd3",
+  "bundle_id": "rvb-a681f14fe132b0e8",
+  "bundle_digest": "sha256:a681f14fe132b0e8c9f117c6670ce22a72f651a7e92acb569092ffac98e444a9",
+  "reviewer": "agent:codex-review-pass",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/usage-adjudication-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/usage-adjudication-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/usage-adjudication-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/usage-adjudication-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/usage-adjudication-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "structure:design-b38499d19f52ddb1",
+      "rationale": "Adjudications are additive; automatic storage stays unchanged; historical validation identity normalization and unmatched verdicts are documented."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/usage-adjudication-integration"
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/usage-adjudication-integration"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-b38499d19f52ddb1",
+      "rationale": "ADR CLI analytics and MCP references match the command; provenance backfill distinguishes historical bundled work from current delivery."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/usage-adjudication-integration",
+      "rationale": "Real CLI and MCP tests cover recording reporting unmatched findings and unsafe input; malformed governed journals fail visibly."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/usage-adjudication-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-b38499d19f52ddb1",
+      "rationale": "Reviewed c3f8471 implementation, 20c6565 historical update diagnostics stdio cancellation and provenance comments, and e92891a metadata with two actual integration and reachability checks."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Tests refuse unsafe IDs and symlinks; HMAC observations remain local; shared verdicts do not aggregate reviewer identities."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Default attributed history reconciles after explicitly declaring historical composite paths; no error findings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/usage-adjudication-integration",
+      "rationale": "Assessment reports the same 57 existing consumer-unobserved gaps; current CLI and MCP use shared aggregation tested by the sealed adjudication check."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during review"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/usage-adjudication-reachability",
+      "rationale": "Three local targets, 48 validation results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Fresh strict complete matrix passed 48 of 48."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "No component checks are registered in the matrix."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "All registered module checks passed in strict mode."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/usage-adjudication-integration",
+    "structure:design-b38499d19f52ddb1",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-01T06:20:16Z",
+  "path": ".pose/review-attestations/rva-ee025f7e49b88dd3.json"
+}
