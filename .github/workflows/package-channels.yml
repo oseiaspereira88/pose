@@ -90,7 +90,10 @@ jobs:
           mkdir -p "$tap/Formula"
           cp package-manifests/homebrew/pose.rb "$tap/Formula/pose.rb"
           brew install --formula harne8/local/pose
-          pose doctor --json
+          smoke="$(mktemp -d)"
+          git -C "$smoke" init -q
+          pose install "$smoke" --skip-mcp
+          (cd "$smoke" && pose doctor --json)
           brew uninstall pose
       - name: Install via WinGet
         if: runner.os == 'Windows'
@@ -117,8 +120,22 @@ jobs:
           winget install --manifest .\package-manifests\winget --accept-package-agreements --accept-source-agreements --disable-interactivity
           if ($LASTEXITCODE -ne 0) { throw "install from the published manifest failed" }
 
-          pose doctor --json
-          if ($LASTEXITCODE -ne 0) { throw "the installed binary failed doctor" }
+          # The source checkout's project state is unrelated to the installed
+          # binary and may differ after a Windows checkout. Inspect a fresh
+          # instance created by that binary instead.
+          $smoke = Join-Path $env:RUNNER_TEMP "pose-package-channel-smoke"
+          New-Item -ItemType Directory -Force -Path $smoke | Out-Null
+          git -C $smoke init -q
+          if ($LASTEXITCODE -ne 0) { throw "could not initialize the smoke repository" }
+          pose install $smoke --skip-mcp
+          if ($LASTEXITCODE -ne 0) { throw "the installed binary could not install a fresh instance" }
+          Push-Location $smoke
+          try {
+            pose doctor --json
+            if ($LASTEXITCODE -ne 0) { throw "the installed binary failed doctor in a fresh instance" }
+          } finally {
+            Pop-Location
+          }
 
           # Cleanup, not a guarantee: winget does not track an archive package
           # installed from a local manifest, so neither --id nor --manifest

@@ -340,7 +340,7 @@ behavioral/change layout.
 | `pose contribute stage --title "..." [--type bug\|enhancement\|limitation] [--body "..."]` | Stage a structured feedback artifact in `.pose/contributions/` |
 | `pose contribute list [--json]` | List all staged feedback contributions awaiting developer adjudication |
 
-When enabled, executing AI agents automatically stage feedback, bug reports, and stack extension proposals under `.pose/contributions/` whenever encountering workflow frictions. Staging is default and local, while submission to upstream GitHub (`oseiaspereira88/pose`) remains under full developer control. Staged feedback strictly isolates POSE engine behavior and is prohibited from containing proprietary source code, internal hostnames, or credentials.
+When enabled, agents ask for developer confirmation before staging feedback, bug reports, or stack extension proposals under `.pose/contributions/`. They ask separately before submitting anything to upstream GitHub (`oseiaspereira88/pose`). Staged feedback strictly isolates POSE engine behavior and is prohibited from containing proprietary source code, internal hostnames, or credentials.
 
 ## Maintenance
 

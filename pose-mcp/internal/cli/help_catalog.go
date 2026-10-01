@@ -391,8 +391,8 @@ var commandHelpCatalog = map[string]CommandHelp{
 		SummaryEN:       "Manage Open-Source POSE Contributor Mode and feedback staging",
 		SummaryPtBR:     "Gerencia o Modo Contribuidor Open-Source do POSE e rascunhos de feedback",
 		Usage:           "pose contribute <enable|disable|status|stage|list> [--target <dir>] [--json]",
-		DescriptionEN:   "Controls POSE Contributor Mode, signaling executing AI agents to automatically stage sanitized feedback artifacts under .pose/contributions/ without leaking proprietary code.",
-		DescriptionPtBR: "Controla o Modo Contribuidor do POSE, sinalizando agentes de IA para registrar rascunhos de feedback sob .pose/contributions/ sem vazar código privado.",
+		DescriptionEN:   "Controls POSE Contributor Mode; agents ask for user confirmation before staging sanitized feedback under .pose/contributions/ or submitting it upstream.",
+		DescriptionPtBR: "Controla o Modo Contribuidor do POSE; agentes solicitam confirmação do usuário antes de registrar feedback sanitizado sob .pose/contributions/ ou submetê-lo upstream.",
 		Subcommands: []SubcommandHelp{
 			{"enable", "pose contribute enable [--target <dir>]", "Enable contributor mode and inject governed agent instructions", "Ativa o modo contribuidor e injeta instruções governadas de agente"},
 			{"disable", "pose contribute disable [--target <dir>]", "Disable contributor mode and remove instructions from manuals", "Desativa o modo contribuidor e remove instruções dos manuais"},

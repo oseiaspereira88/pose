@@ -475,6 +475,43 @@ func TestReviewBundleRejectsUnclassifiedSubjectPath(t *testing.T) {
 	}
 }
 
+func TestReviewBundleSealsRootEnvExampleAsGovernance(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	content := []byte("SERVICE_URL=https://example.test\nAPI_KEY=replace-me\n")
+	writeReviewFixture(t, root, ".env.example", string(content))
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "modified", Path: ".env.example"})
+	raw, err := json.Marshal(graph)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.SealReviewBundle("spec:backend", time.Date(2026, 8, 13, 12, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("root .env.example blocked sealing: %v", err)
+	}
+	for _, entry := range bundle.Payload.Subject.Entries {
+		if entry.Path == ".env.example" {
+			if entry.Class != "governance" || entry.Digest != digestBytes(content) {
+				t.Fatalf("root .env.example was not sealed with its bytes: %+v", entry)
+			}
+			return
+		}
+	}
+	t.Fatal("root .env.example missing from sealed subject")
+}
+
+func TestReviewBundleDoesNotGeneralizeEnvExampleClassification(t *testing.T) {
+	for _, path := range []string{".env", "nested/.env.example"} {
+		if class, include := reviewBundlePathClass(path, ScopeRef{Kind: "spec", Slug: "backend"}, nil); class != "" || include {
+			t.Errorf("%s classified as %q, include=%v", path, class, include)
+		}
+	}
+}
+
 func TestReviewBundleClassifiesSubmodulePath(t *testing.T) {
 	root, store := reviewBundleFixture(t)
 	for _, args := range [][]string{

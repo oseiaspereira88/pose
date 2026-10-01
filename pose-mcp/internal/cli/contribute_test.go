@@ -111,6 +111,42 @@ func TestContributeEnableInjectsDocSections(t *testing.T) {
 	}
 }
 
+func TestContributorDocsRequireConsentForStagingAndSubmission(t *testing.T) {
+	for _, tc := range []struct {
+		locale        string
+		stageConsent  string
+		submitConsent string
+	}{
+		{"en", "ask the user for confirmation before staging", "ask the user for confirmation before submitting"},
+		{"pt-BR", "confirmação do usuário antes de registrar", "confirmação do usuário antes de submeter"},
+	} {
+		t.Run(tc.locale, func(t *testing.T) {
+			root := t.TempDir()
+			for _, name := range []string{"AGENTS.md", "POSE.md"} {
+				if err := os.WriteFile(filepath.Join(root, name), []byte("# "+name+"\n"), 0o644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := injectContributorDocs(root, tc.locale); err != nil {
+				t.Fatal(err)
+			}
+			for _, name := range []string{"AGENTS.md", "POSE.md"} {
+				raw, err := os.ReadFile(filepath.Join(root, name))
+				if err != nil {
+					t.Fatal(err)
+				}
+				body := string(raw)
+				if !strings.Contains(body, tc.stageConsent) || !strings.Contains(body, tc.submitConsent) {
+					t.Errorf("%s (%s) lacks consent for both actions: %s", name, tc.locale, body)
+				}
+				if strings.Contains(body, "automatically stage") || strings.Contains(body, "registrarão automaticamente") {
+					t.Errorf("%s (%s) promises automatic staging", name, tc.locale)
+				}
+			}
+		})
+	}
+}
+
 func TestManagedDocsPreservesContributorMode(t *testing.T) {
 	canonical := `# AGENTS.md
 
@@ -228,4 +264,3 @@ func TestContributeStatusLifecycleTransitions(t *testing.T) {
 		t.Fatalf("expected dismissed item in list, got: %s", stdout.String())
 	}
 }
-

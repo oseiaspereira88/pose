@@ -147,8 +147,8 @@ func cmdContributeEnable(target string, flags []string, stdout, stderr io.Writer
 	}
 
 	fmt.Fprintln(stdout, text(
-		"POSE Contributor Mode is now ENABLED.\nExecuting agents will proactively stage sanitized feedback artifacts under .pose/contributions/.",
-		"Modo Contribuidor POSE agora está ATIVO.\nAgentes em execução registrarão artefatos sanitizados de feedback sob .pose/contributions/.",
+		"POSE Contributor Mode is now ENABLED.\nAgents must ask for user confirmation before staging sanitized feedback under .pose/contributions/ or submitting it upstream.",
+		"Modo Contribuidor POSE agora está ATIVO.\nAgentes devem solicitar confirmação do usuário antes de registrar feedback sanitizado sob .pose/contributions/ ou submetê-lo upstream.",
 	))
 	return 0
 }
@@ -194,12 +194,12 @@ func cmdContributeStatus(target string, flags []string, stdout, stderr io.Writer
 
 	if jsonOut {
 		type statusJSON struct {
-			Active       bool                  `json:"active"`
-			EnabledAt    string                `json:"enabled_at,omitempty"`
-			Upstream     string                `json:"upstream"`
-			StagedCount  int                   `json:"staged_count"`
-			StagedFiles  []stagedContribution `json:"staged_files"`
-			PrivacyRule  string                `json:"privacy_rule"`
+			Active      bool                 `json:"active"`
+			EnabledAt   string               `json:"enabled_at,omitempty"`
+			Upstream    string               `json:"upstream"`
+			StagedCount int                  `json:"staged_count"`
+			StagedFiles []stagedContribution `json:"staged_files"`
+			PrivacyRule string               `json:"privacy_rule"`
 		}
 		res := statusJSON{
 			Active:      state.Active,
@@ -623,7 +623,7 @@ func injectContributorDocs(target, loc string) error {
 **Contributor Mode is ACTIVE.** When executing tasks, if you encounter POSE engine defects, tool frictions, missing stack rules, diagnostic false-positives, or clear improvement opportunities:
 
 1. **Continuous Opportunity Scouting**: On every issue resolution or task execution, proactively scout for related improvements, edge cases, root-level parity gaps, or complementary corrections across adjacent tools and commands.
-2. **User Consent & Explicit Adjudication**: The decision to create/stage feedback or submit contributions upstream MUST ALWAYS be made by the user. When observing a friction or opportunity, the agent must inform the user and ask for confirmation before staging a draft under ` + "`.pose/contributions/<timestamp>-<slug>.md`" + ` or submitting an upstream GitHub issue.
+2. **User Consent & Explicit Adjudication**: The decision to create/stage feedback or submit contributions upstream MUST ALWAYS be made by the user. When observing a friction or opportunity, inform the user and ask the user for confirmation before staging a draft under ` + "`.pose/contributions/<timestamp>-<slug>.md`" + `. Separately, ask the user for confirmation before submitting an upstream GitHub issue.
 3. **Strict Privacy Invariant**: NEVER include proprietary business logic, internal hostnames/domains, customer data, API keys, credentials, or private source code in staged contributions. All examples must use generic, synthetic reproductions.
 4. **Lifecycle & Status Integrity**: Contribution and feedback artifacts maintain an explicit status lifecycle (` + "`staged`" + ` -> ` + "`submitted`" + ` / ` + "`dismissed`" + `) with tracking metadata (` + "`submitted_at`" + `, ` + "`upstream_issue`" + `). Always check artifact status so subsequent sessions never mix up submitted vs pending drafts or re-submit already handled items.`
 
@@ -634,7 +634,7 @@ func injectContributorDocs(target, loc string) error {
 **Modo Contribuidor está ATIVO.** Ao executar tarefas, se você encontrar defeitos no motor POSE, atritos de ferramentas, regras de stack ausentes, falsos positivos de diagnóstico ou oportunidades de melhoria:
 
 1. **Prospecção Contínua de Oportunidades**: A cada resolução de issue ou execução de tarefa, faça prospecção proativa de melhorias relacionadas, casos de borda, lacunas de paridade na raiz ou correções complementares em ferramentas e comandos adjacentes.
-2. **Decisão do Usuário e Adjudicação Interativa**: A decisão de registrar rascunhos de feedback ou submeter contribuições upstream DEVE SEMPRE ser do usuário. Ao observar um atrito ou oportunidade, o agente deve informar o usuário e solicitar confirmação antes de registrar rascunhos sob ` + "`.pose/contributions/<timestamp>-<slug>.md`" + ` ou abrir issues upstream no GitHub.
+2. **Decisão do Usuário e Adjudicação Interativa**: A decisão de registrar rascunhos de feedback ou submeter contribuições upstream DEVE SEMPRE ser do usuário. Ao observar um atrito ou oportunidade, informe o usuário e solicite confirmação do usuário antes de registrar rascunhos sob ` + "`.pose/contributions/<timestamp>-<slug>.md`" + `. Separadamente, solicite confirmação do usuário antes de submeter uma issue upstream no GitHub.
 3. **Invariante Rígida de Privacidade**: NUNCA inclua regras de negócio proprietárias, hostnames/domínios internos, dados de clientes, chaves de API, credenciais ou código-fonte privado nas contribuições. Todos os exemplos devem utilizar código sintético e genérico.
 4. **Integridade de Ciclo de Vida e Status**: Artefatos de contribuição e feedback mantêm um ciclo de vida explícito de status (` + "`staged`" + ` -> ` + "`submitted`" + ` / ` + "`dismissed`" + `) com metadados de rastreio (` + "`submitted_at`" + `, ` + "`upstream_issue`" + `). Consulte sempre o status dos artefatos para evitar reenvio ou confusão entre itens pendentes e submetidos.`
 
@@ -642,7 +642,7 @@ func injectContributorDocs(target, loc string) error {
 
 <!-- pose:contributor-mode -->
 
-This repository has enabled POSE Contributor Mode. Executing AI agents will automatically stage feedback, bug reports, and stack extension proposals under ` + "`.pose/contributions/`" + ` when encountering workflow friction.
+This repository has enabled POSE Contributor Mode. When encountering workflow friction, agents must ask the user for confirmation before staging feedback, bug reports, or stack extension proposals under ` + "`.pose/contributions/`" + `. Agents must also ask the user for confirmation before submitting an upstream GitHub issue.
 
 - Check staged contributions: ` + "`pose contribute list`" + `
 - Check contributor status: ` + "`pose contribute status`" + `
@@ -654,7 +654,7 @@ This repository has enabled POSE Contributor Mode. Executing AI agents will auto
 
 <!-- pose:contributor-mode -->
 
-Este repositório habilitou o Modo Contribuidor POSE. Agentes de IA em execução registrarão automaticamente relatórios de feedback, bugs e propostas de extensões sob ` + "`.pose/contributions/`" + ` ao encontrar atritos de execução.
+Este repositório habilitou o Modo Contribuidor POSE. Ao encontrar atritos de execução, agentes devem solicitar confirmação do usuário antes de registrar feedback, bugs ou propostas de extensões sob ` + "`.pose/contributions/`" + `. Agentes também devem solicitar confirmação do usuário antes de submeter uma issue upstream no GitHub.
 
 - Ver contribuições em rascunho: ` + "`pose contribute list`" + `
 - Ver status de contribuidor: ` + "`pose contribute status`" + `
@@ -760,4 +760,3 @@ func PrintContributorDoctorHint(root string, w io.Writer, loc cliLocale) {
 		"[INFO] Modo Contribuidor: ATIVO (.pose/contributions/) — Encontrou atrito de ambiente ou motor? Registre feedback com 'pose contribute stage'.",
 	))
 }
-
