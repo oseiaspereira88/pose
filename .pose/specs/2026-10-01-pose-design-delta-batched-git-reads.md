@@ -67,6 +67,9 @@ Performance evidence is local and does not predict every repository's timing.
 
 ### Execution log
 
+- PR #129 CodeQL finding #122: parse blob sizes directly as native int and
+  reject native integer overflow before allocation; cover native maximum,
+  overflow, negative/malformed sizes, caller caps and empty blobs.
 - Strict module validation passed 45/45 on 2026-10-01; full canonical validation
   is regenerated before sealing the governed review.
 

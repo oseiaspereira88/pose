@@ -7,8 +7,27 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"testing"
 )
+
+func TestGitBatchBlobSizeRejectsNativeIntegerOverflow(t *testing.T) {
+	maxInt := int(^uint(0) >> 1)
+	for _, raw := range []string{strconv.FormatUint(uint64(maxInt)+1, 10), "18446744073709551616", "-1", "invalid"} {
+		if _, err := gitBatchBlobSize(raw, maxInt); err == nil {
+			t.Fatalf("invalid size accepted: %q", raw)
+		}
+	}
+	if got, err := gitBatchBlobSize(strconv.Itoa(maxInt), maxInt); err != nil || got != maxInt {
+		t.Fatalf("native maximum rejected: %d %v", got, err)
+	}
+	if _, err := gitBatchBlobSize("2", 1); !errors.Is(err, errDesignDeltaTooLarge) {
+		t.Fatalf("caller cap ignored: %v", err)
+	}
+	if got, err := gitBatchBlobSize("0", 0); err != nil || got != 0 {
+		t.Fatalf("empty blob rejected: %d %v", got, err)
+	}
+}
 
 func batchGitFixture(t testing.TB) string {
 	t.Helper()

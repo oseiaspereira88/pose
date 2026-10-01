@@ -79,14 +79,11 @@ func (r *gitBatchReader) read(object string, max int) ([]byte, error) {
 	if len(fields) != 3 || fields[1] != "blob" {
 		return fail(errors.New("invalid Git batch blob header"))
 	}
-	size, err := strconv.ParseInt(fields[2], 10, 64)
-	if err != nil || size < 0 {
-		return fail(errors.New("invalid Git batch blob size"))
+	size, err := gitBatchBlobSize(fields[2], max)
+	if err != nil {
+		return fail(err)
 	}
-	if size > int64(max) {
-		return fail(errDesignDeltaTooLarge)
-	}
-	body := make([]byte, int(size))
+	body := make([]byte, size)
 	if _, err := io.ReadFull(r.output, body); err != nil {
 		return fail(err)
 	}
@@ -95,6 +92,17 @@ func (r *gitBatchReader) read(object string, max int) ([]byte, error) {
 		return fail(fmt.Errorf("invalid Git batch content delimiter: %v", err))
 	}
 	return body, nil
+}
+
+func gitBatchBlobSize(raw string, max int) (int, error) {
+	size, err := strconv.Atoi(raw)
+	if err != nil || size < 0 {
+		return 0, errors.New("invalid Git batch blob size")
+	}
+	if size > max {
+		return 0, errDesignDeltaTooLarge
+	}
+	return size, nil
 }
 
 func (r *gitBatchReader) close() {
