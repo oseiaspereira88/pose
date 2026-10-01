@@ -133,6 +133,7 @@ type designDeltaCollector struct {
 	displayIDs map[string]string
 	warnings   []string
 	bytesLeft  int
+	gitReader  *gitBatchReader
 }
 
 var errDesignDeltaTooLarge = errors.New("design delta read exceeds configured byte limit")
@@ -214,6 +215,8 @@ func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, o
 		detectors: map[string]*designDeltaDetectorState{}, deltaKeys: map[string]bool{},
 		displayIDs: map[string]string{}, bytesLeft: options.MaxBytes,
 	}
+	collector.gitReader = &gitBatchReader{root: rootAbs}
+	defer collector.gitReader.close()
 	for _, id := range defaultDesignDeltaDetectors() {
 		collector.detectors[id] = &designDeltaDetectorState{}
 	}
@@ -594,18 +597,21 @@ func (c *designDeltaCollector) readGitFile(revision, path string) ([]byte, strin
 		}
 		return nil, "symlink"
 	}
-	exists, err := gitObjectExists(c.root, revision, path)
-	if err != nil {
-		return nil, "invalid"
-	}
-	if !exists {
-		return nil, "absent"
-	}
 	remaining := c.bytesLeft
 	if remaining <= 0 {
+		exists, err := gitObjectExists(c.root, revision, path)
+		if err != nil {
+			return nil, "invalid"
+		}
+		if !exists {
+			return nil, "absent"
+		}
 		return nil, "too-large"
 	}
-	raw, err := gitShowBounded(c.root, revision, path, remaining)
+	raw, err := c.gitReader.read(revision+":"+path, remaining)
+	if errors.Is(err, errGitBatchMissing) {
+		return nil, "absent"
+	}
 	if err != nil {
 		if errors.Is(err, errDesignDeltaTooLarge) {
 			c.bytesLeft = 0
