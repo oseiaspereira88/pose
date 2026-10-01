@@ -78,10 +78,10 @@ capacidade.
   - report:2026-09-26-federated-carried-forward-proof.md
 
 ## Arquitetura
-<!-- state:derived hash:2fcd68a831b2 status:active -->
+<!-- state:derived hash:690a8f0eaa52 status:active -->
 
-- componentes: total=1 verificados=1 completude=100.0%
-- linhas_de_codigo: producao=52491 testes=40508 total=92999
+- componentes: total=3 verificados=3 completude=100.0%
+- linhas_de_codigo: producao=54212 testes=43085 total=97297
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=58 ativos=1 gaps=57

@@ -75,13 +75,24 @@ may set `POSE_USAGE_DIR` to an absolute local directory, for example a
 persistent container mount. Set `POSE_USAGE_DISABLED=1` to stop new events;
 existing events remain queryable.
 
-!!! note "Human confirmation is a recorded evolution"
+### Review finding verdicts
 
-    POSE does not infer whether an observed finding is `valid`,
-    `wont-fix` or `false-positive`. Recording that verdict is designed in the
-    draft spec `pose-usage-findings-adjudication`, whose storage decision is
-    still open. Automatic observation counts remain separate so a later human
-    decision cannot rewrite what the gate saw.
+```bash
+pose usage adjudicate --tool validate --finding check-a --verdict false-positive --reason "Reviewed result" --by reviewer
+pose usage --tool validate --json
+```
+
+The command appends to `.pose/usage/verdicts.jsonl`, a tracked and reviewable
+project journal. A later line for the same tool and stable finding ID supersedes
+the earlier verdict without deleting it. IDs must use bounded identifier syntax;
+relative slash-separated check IDs are accepted, while absolute, traversing and
+free-form IDs are rejected. Review the ID and reason before
+committing. Each machine joins verdicts to its own privacy-bounded events with
+its local HMAC salt. A verdict with no matching local event is reported as
+unmatched. This join checks all local event history, even when `--since-days`
+limits automatic usage counts. The false-positive rate divides matched false
+positives by all matched adjudicated findings, leaving automatic observations
+unchanged.
 
 ## Measure adoption
 

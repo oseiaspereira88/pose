@@ -208,6 +208,27 @@ func TestUsageRecordsMCPDispatchAndExcludesItsOwnQuery(t *testing.T) {
 	}
 }
 
+func TestUsageMCPReportsHumanVerdictsBesideAutomaticCounts(t *testing.T) {
+	root := t.TempDir()
+	usageDir := t.TempDir()
+	t.Setenv("POSE_USAGE_DIR", usageDir)
+	if err := os.Mkdir(filepath.Join(root, ".pose"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := usagepkg.RecordVerdict(root, usagepkg.VerdictInput{Tool: "pose_check", FindingID: "rule-a", Disposition: "false-positive", Reason: "Reviewed in project", By: "reviewer"}); err != nil {
+		t.Fatal(err)
+	}
+	server := New(pose.Store{Root: root})
+	out, err := server.dispatch(context.Background(), "pose_usage", json.RawMessage(`{"since_days":0,"tool":"pose_check"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	report, ok := out.(usagepkg.Report)
+	if !ok || report.Available || len(report.Adjudications) != 1 || report.Adjudications[0].Unmatched != 1 || report.RecordsMatched != 0 {
+		t.Fatalf("MCP usage projection=%+v type=%T", out, out)
+	}
+}
+
 func TestMCPUsageKeepsUnstructuredGateFailureConservative(t *testing.T) {
 	summary := summarizeMCPUsage(&pose.GateResult{
 		Command: "pose check --strict",

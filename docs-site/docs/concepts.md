@@ -129,9 +129,9 @@ always an error — upgrade the engine, never downgrade the instance.
 
 ## Open-Source Contributor Protocol
 
-When developers enable POSE Contributor Mode (`pose contribute enable`), executing AI agents automatically stage feedback, bug reports, and stack extension proposals under `.pose/contributions/` whenever observing workflow friction or engine limitations.
+When developers enable POSE Contributor Mode (`pose contribute enable`), agents identify workflow friction and engine limitations, then ask the developer before staging feedback, bug reports, or stack extension proposals under `.pose/contributions/`.
 
 The protocol enforces three core principles:
-1. **Automated Local Staging**: Agents draft feedback by default without interrupting the flow or requiring manual prompts.
+1. **Explicit Local Staging**: Agents ask for developer confirmation before recording a local draft.
 2. **Strict Privacy Invariant**: Staged reports isolate POSE mechanics using generic, synthetic reproductions. Proprietary business logic, company hostnames, customer data, and secrets are strictly excluded.
-3. **Developer Sovereignty**: Contributions remain strictly local until the developer explicitly decides to review, submit, or file upstream issues (`oseiaspereira88/pose`).
+3. **Developer Sovereignty**: Agents ask for a separate confirmation before submitting feedback or filing upstream issues (`oseiaspereira88/pose`).

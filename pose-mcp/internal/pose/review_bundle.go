@@ -1043,7 +1043,9 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	// adds an environment variable — which the composition contract enumerates —
 	// could not seal a review bundle at all, because the classifier refuses an
 	// unclassified subject path rather than guessing at one.
-	for _, exact := range []string{".pose/docs.json", ".pose/docs-review.jsonl", ".pose/release-policy.json", ".pose/project.json", "compatibility.json", "composition-contract.json", "pose-mcp/server.json"} {
+	// The root .env.example is an authored configuration example. Keep it in
+	// the subject for byte-level review without classifying secret-bearing .env.
+	for _, exact := range []string{".pose/docs.json", ".pose/docs-review.jsonl", ".pose/release-policy.json", ".pose/project.json", ".env.example", "compatibility.json", "composition-contract.json", "pose-mcp/server.json"} {
 		if path == exact {
 			return "governance", true
 		}

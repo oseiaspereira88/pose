@@ -391,8 +391,8 @@ var commandHelpCatalog = map[string]CommandHelp{
 		SummaryEN:       "Manage Open-Source POSE Contributor Mode and feedback staging",
 		SummaryPtBR:     "Gerencia o Modo Contribuidor Open-Source do POSE e rascunhos de feedback",
 		Usage:           "pose contribute <enable|disable|status|stage|list> [--target <dir>] [--json]",
-		DescriptionEN:   "Controls POSE Contributor Mode, signaling executing AI agents to automatically stage sanitized feedback artifacts under .pose/contributions/ without leaking proprietary code.",
-		DescriptionPtBR: "Controla o Modo Contribuidor do POSE, sinalizando agentes de IA para registrar rascunhos de feedback sob .pose/contributions/ sem vazar código privado.",
+		DescriptionEN:   "Controls POSE Contributor Mode; agents ask for user confirmation before staging sanitized feedback under .pose/contributions/ or submitting it upstream.",
+		DescriptionPtBR: "Controla o Modo Contribuidor do POSE; agentes solicitam confirmação do usuário antes de registrar feedback sanitizado sob .pose/contributions/ ou submetê-lo upstream.",
 		Subcommands: []SubcommandHelp{
 			{"enable", "pose contribute enable [--target <dir>]", "Enable contributor mode and inject governed agent instructions", "Ativa o modo contribuidor e injeta instruções governadas de agente"},
 			{"disable", "pose contribute disable [--target <dir>]", "Disable contributor mode and remove instructions from manuals", "Desativa o modo contribuidor e remove instruções dos manuais"},
@@ -690,7 +690,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "usage",
 		SummaryEN:       "Inspect local CLI and MCP tool usage telemetry and outcome metrics",
 		SummaryPtBR:     "Inspeciona métricas locais de uso e sucesso de comandos CLI e MCP",
-		Usage:           "pose usage [--since-days N] [--tool <name>] [--surface cli|mcp] [--json]",
+		Usage:           "pose usage [--since-days N] [--tool <name>] [--surface cli|mcp] [--json] | pose usage adjudicate --tool NAME --finding ID --verdict valid|wont-fix|false-positive --reason TEXT --by ALIAS",
 		DescriptionEN:   "Reports local tool invocation counts, error rates, average latency, and structured finding lifecycle without external network reporting.",
 		DescriptionPtBR: "Informa contagens de invocação de ferramentas, taxas de erro, latência média e ciclo de achados sem envio externo de dados.",
 		Flags: []FlagHelp{
@@ -698,10 +698,12 @@ var commandHelpCatalog = map[string]CommandHelp{
 			{"--tool <name>", "Filter report to a specific CLI command or MCP tool name", "Filtra o relatório para uma ferramenta ou comando específico"},
 			{"--surface <cli|mcp>", "Filter by invocation interface surface", "Filtra pela interface de invocação (cli ou mcp)"},
 			{"--json", "Output usage telemetry in JSON format", "Emite a telemetria de uso em formato JSON"},
+			{"adjudicate", "Append a human finding verdict to the project journal", "Registra um veredito humano no diário do projeto"},
 		},
 		Examples: []string{
 			"pose usage --surface mcp",
 			"pose usage --tool validate --since-days 7",
+			"pose usage adjudicate --tool validate --finding check-a --verdict false-positive --reason 'Reviewed result' --by reviewer",
 		},
 	},
 	"dora-metrics": {
