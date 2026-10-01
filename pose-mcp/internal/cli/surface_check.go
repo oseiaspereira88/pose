@@ -37,14 +37,14 @@ func collectDeliveryTargets(root string, specs []posemodel.Spec, profiles map[st
 	for _, summary := range specs {
 		full, err := store.GetSpec(summary.Slug)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, fmt.Errorf("spec:%s: %w", summary.Slug, err)
 		}
 		parsed, _, err := posemodel.ParseDeliveryTargets(*full)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, fmt.Errorf("spec:%s: %w", summary.Slug, err)
 		}
 		if err := posemodel.ValidateDeliveryTargets(root, parsed, profiles); err != nil {
-			return nil, nil, err
+			return nil, nil, fmt.Errorf("spec:%s: %w", summary.Slug, err)
 		}
 		fullSpecs = append(fullSpecs, *full)
 		targets = append(targets, parsed...)

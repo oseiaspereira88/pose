@@ -570,7 +570,11 @@ func (s Store) reviewBundleScopeProjection(scope ScopeRef) (ReviewBundleScope, [
 				excluded = append(excluded, ReviewBundleInput{Kind: "derived-section", Path: name, Digest: digestText(sections[name]), Reason: "operational closeout content is verified by its own gate"})
 			}
 		}
-		excluded = append(excluded, ReviewBundleInput{Kind: "lifecycle", Path: filepath.ToSlash(sp.Path), Reason: "status and completed_at do not define the reviewed semantic subject"})
+		lifecyclePath, err := filepath.Rel(s.Root, sp.Path)
+		if err != nil {
+			return projection, nil, err
+		}
+		excluded = append(excluded, ReviewBundleInput{Kind: "lifecycle", Path: filepath.ToSlash(lifecyclePath), Reason: "status and completed_at do not define the reviewed semantic subject"})
 	case "milestone":
 		rm, err := s.GetRoadmap(scope.Roadmap)
 		if err != nil {
@@ -3105,7 +3109,7 @@ func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestat
 	if policyErr != nil {
 		return append(blockers, policyErr.Error())
 	}
-	if claim.SchemaVersion != ReviewSchemaVersion {
+	if claim.SchemaVersion != ReviewBundleSchemaVersion {
 		blockers = append(blockers, fmt.Sprintf("the authority claim has unsupported schema version %d", claim.SchemaVersion))
 	}
 	if claim.BundleDigest != bundle.BundleDigest {

@@ -491,8 +491,8 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 			}
 		}
 		for _, issuer := range p.HumanAuthorityIssuers {
-			if strings.TrimSpace(issuer) == "" || strings.ContainsAny(issuer, "\r\n") {
-				return ReviewPolicy{}, fmt.Errorf("pose: invalid human authority issuer")
+			if !validHumanAuthorityIssuerPin(issuer) {
+				return ReviewPolicy{}, fmt.Errorf("pose: invalid human authority issuer pin; expected <issuer>#sha256:<64 hex digits>")
 			}
 		}
 	}
@@ -502,6 +502,15 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 		}
 	}
 	return p, nil
+}
+
+func validHumanAuthorityIssuerPin(pin string) bool {
+	issuer, digest, found := strings.Cut(pin, "#sha256:")
+	if !found || strings.TrimSpace(issuer) == "" || strings.TrimSpace(issuer) != issuer || strings.ContainsAny(issuer, "\r\n#") || len(digest) != 64 {
+		return false
+	}
+	_, err := hex.DecodeString(digest)
+	return err == nil
 }
 
 // GetReviewPolicy exposes the validated provider-neutral policy to command

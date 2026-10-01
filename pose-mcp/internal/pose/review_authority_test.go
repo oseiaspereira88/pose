@@ -66,7 +66,7 @@ func (f authorityFixture) attestation(t *testing.T, reviewer, implementationPrin
 	att.BundleDigest = f.bundle.BundleDigest
 	att.AttestedAt = f.now.Add(time.Minute).Format(time.RFC3339)
 	att.Authority = &ReviewAuthorityClaim{
-		SchemaVersion:           ReviewSchemaVersion,
+		SchemaVersion:           ReviewBundleSchemaVersion,
 		Project:                 "fixture-project",
 		BundleDigest:            f.bundle.BundleDigest,
 		Principal:               reviewer,
@@ -346,5 +346,47 @@ func TestABMReviewAuthorityMandatoryHumanKeepsDifferentActorSeparation(t *testin
 	valid = resignAuthorityAttestation(t, f, valid)
 	if blockers := f.store.validateBundleAttestation(f.bundle, valid); len(blockers) != 0 {
 		t.Fatalf("a granted human reviewing another actor's run must pass: %v", blockers)
+	}
+}
+
+func TestHumanAuthorityIssuerPinsValidated(t *testing.T) {
+	for _, pin := range []string{"", "issuer", "issuer#sha256:short", "#sha256:" + strings.Repeat("a", 64), "issuer#sha256:" + strings.Repeat("z", 64), "issuer\n#sha256:" + strings.Repeat("a", 64), "issuer#other#sha256:" + strings.Repeat("a", 64)} {
+		t.Run(pin, func(t *testing.T) {
+			f := verifiedAuthorityFixture(t, "different-actor")
+			path := filepath.Join(f.root, ".pose/policy/review.json")
+			raw, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var policy map[string]any
+			if err := json.Unmarshal(raw, &policy); err != nil {
+				t.Fatal(err)
+			}
+			policy["human_authority_issuers"] = []string{pin}
+			raw, err = json.Marshal(policy)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(path, raw, 0644); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := f.store.GetReviewPolicy(); err == nil || !strings.Contains(err.Error(), "human authority issuer pin") {
+				t.Fatalf("malformed pin accepted: %v", err)
+			}
+		})
+	}
+	if !validHumanAuthorityIssuerPin("issuer#sha256:" + strings.Repeat("a", 64)) {
+		t.Fatal("valid pin rejected")
+	}
+}
+
+func TestABMReviewAuthorityRejectsUnsupportedClaimSchema(t *testing.T) {
+	f := verifiedAuthorityFixture(t, "different-actor")
+	att := f.attestation(t, "agent:reviewer", "agent:implementer", "review-run-2", "implementation-run-1")
+	att.Authority.SchemaVersion = ReviewBundleSchemaVersion + 1
+	att = resignAuthorityAttestation(t, f, att)
+	verification := verifyAuthorityAttestation(t, f, att)
+	if verification.Approved || !containsSubstring(verification.Blockers, "unsupported schema version") {
+		t.Fatalf("unsupported claim schema accepted or misdiagnosed: %+v", verification)
 	}
 }

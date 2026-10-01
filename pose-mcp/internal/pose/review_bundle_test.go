@@ -2026,3 +2026,23 @@ func TestReviewBundleSealsEvidenceForPlannedComponentModules(t *testing.T) {
 		t.Fatal("a module no validate tool answers for was sealed")
 	}
 }
+
+func TestReviewBundleExcludedLifecyclePathIsPortable(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, input := range bundle.ExcludedInputs {
+		if input.Kind == "lifecycle" {
+			if filepath.IsAbs(input.Path) || strings.Contains(input.Path, "..") || !strings.HasPrefix(input.Path, ".pose/specs/") {
+				t.Fatalf("lifecycle path is not repository-relative: %q", input.Path)
+			}
+			if _, err := os.Stat(filepath.Join(store.Root, filepath.FromSlash(input.Path))); err != nil {
+				t.Fatal(err)
+			}
+			return
+		}
+	}
+	t.Fatal("lifecycle exclusion missing")
+}
