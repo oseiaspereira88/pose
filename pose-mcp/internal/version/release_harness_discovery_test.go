@@ -68,12 +68,20 @@ func TestLocalVerifyCoversCurrentCIGates(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := string(local)
-	for _, match := range regexp.MustCompile(`(?m)^\s*run: bash ([^\s]+)([^\n]*)`).FindAllStringSubmatch(string(ci), -1) {
+	scripts := regexp.MustCompile(`(?m)^\s*run: bash ([^\s]+)([^\n]*)`).FindAllStringSubmatch(string(ci), -1)
+	if len(scripts) == 0 {
+		t.Fatal("no CI script gates detected")
+	}
+	for _, match := range scripts {
 		if !strings.Contains(text, "bash "+match[1]+match[2]) {
 			t.Errorf("local verifier omits CI gate: %s", match[0])
 		}
 	}
-	for _, match := range regexp.MustCompile(`(?m)^\s*run: '\"\$RUNNER_TEMP/pose\" ([^']+)'`).FindAllStringSubmatch(string(ci), -1) {
+	commands := regexp.MustCompile(`(?m)^\s*run: '\"\$RUNNER_TEMP/pose\" ([^']+)'`).FindAllStringSubmatch(string(ci), -1)
+	if len(commands) == 0 {
+		t.Fatal("no CI POSE gates detected")
+	}
+	for _, match := range commands {
 		if !strings.Contains(text, `"$BIN" `+match[1]) {
 			t.Errorf("local verifier omits CI gate: %s", match[1])
 		}
