@@ -100,7 +100,7 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 			gate.r.Hint(cliText(locale, "To fix: git add .pose/reports/history/", "Para corrigir: git add .pose/reports/history/"))
 			return 1
 		}
-		if !flags.JSON {
+		if !flags.JSON && !flags.Quiet {
 			fmt.Fprintln(stdout, line)
 		}
 		fmt.Fprintln(gate.result, cliText(locale, "Tolerant mode: record and version before the next merge.", "Modo tolerant: registrar e versionar antes do próximo merge."))
