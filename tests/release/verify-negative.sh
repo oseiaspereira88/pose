@@ -124,20 +124,12 @@ mkdir -p "$good_sbom"
 echo "archive" > "$good_sbom/pose_9.9.9_linux_amd64.tar.gz"
 # The inventory must also name every direct production dependency, so the
 # control is built from the real go.mod rather than from invented module names.
-python3 - "$good_sbom/pose_9.9.9_linux_amd64.tar.gz.cdx.json" "$repo_root/pose-mcp/go.mod" <<'PYGEN'
-import json, re, sys
-out, gomod = sys.argv[1], sys.argv[2]
-deps, block = [], False
-for line in open(gomod):
-    if line.startswith("require ("):
-        block = True; continue
-    if block and line.startswith(")"):
-        block = False; continue
-    if "indirect" in line:
-        continue
-    m = re.match(r"\s*([\w.\-/]+)\s+v", line) if block else re.match(r"require\s+([\w.\-/]+)\s+v", line)
-    if m:
-        deps.append(m.group(1))
+bash "$sbom_verify" --direct-dependencies > "$work/direct-dependencies.txt"
+python3 - "$good_sbom/pose_9.9.9_linux_amd64.tar.gz.cdx.json" "$work/direct-dependencies.txt" <<'PYGEN'
+import json, sys
+out, dependency_list = sys.argv[1], sys.argv[2]
+with open(dependency_list) as inventory:
+    deps = [line.strip() for line in inventory if line.strip()]
 comps = [{"name": d, "version": "1.0.0", "type": "library",
           "licenses": [{"license": {"id": "MIT"}}]} for d in deps]
 # Pad to 20 components, keeping coverage at 90% — above the 75% floor.

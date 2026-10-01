@@ -16,8 +16,8 @@
 #   bash scripts/verify.sh          # everything
 #   bash scripts/verify.sh --fast   # skip the container and installer E2E steps
 #
-# Requires: Go (see pose-mcp/go.mod) and git. --fast additionally avoids
-# needing Docker.
+# Requires: Go (see pose-mcp/go.mod), git, jq, python3 and shellcheck.
+# Full mode additionally requires Docker and authenticated gh read access.
 
 set -euo pipefail
 
@@ -31,7 +31,9 @@ for arg in "$@"; do
   esac
 done
 
-BIN="$(mktemp -d)/pose"
+VERIFY_WORK="$(mktemp -d)"
+trap 'rm -rf "$VERIFY_WORK"' EXIT
+BIN="$VERIFY_WORK/pose"
 FAILED=()
 
 step() {
@@ -49,17 +51,25 @@ printf '\033[1m==> Building the development binary\033[0m\n'
 go -C pose-mcp build -o "$BIN" ./cmd/pose
 "$BIN" version
 
-step "Go tests"                 go -C pose-mcp test ./... -count=1
+step "Go tests"                 env POSE_RELEASE_HISTORY_AVAILABLE=true go -C pose-mcp test ./... -count=1
+step "Shellcheck" shellcheck --severity=warning install.sh scripts/*.sh tests/*.sh tests/*/*.sh examples/demo/*.sh
 step "Structural gate"          "$BIN" check --strict
 step "Agent Skills conformance" "$BIN" skills-check --strict
+step "Spec structure gate"       "$BIN" lint-spec --all
 step "History gate"             "$BIN" history-check
 step "Public claims gate"       "$BIN" public-claims --strict
 
+step "Artifact-identity negative gate" bash tests/release/verify-negative.sh
+step "Migration guides" bash tests/import/migration-guides.sh
+step "First governed loop" bash tests/quickstart/first-governed-loop.sh
+step "Demo fixture verification" bash examples/demo/record.sh --verify
+
 if [ "$FAST" -eq 0 ]; then
-  step "Installer E2E"          bash tests/install/run.sh
-  step "Artifact-identity negative gate" bash tests/release/verify-negative.sh
+  step "Installer E2E" bash tests/install/run.sh
+  step "Container build" bash tests/release/container-build.sh
+  step "Action runtime verification (online)" bash tests/release/action-runtime-verify.sh
 else
-  printf '\n\033[33m--fast: skipped the installer E2E and negative artifact gate.\033[0m\n'
+  printf '\n\033[33m--fast: skipped installer E2E, container build and online action-runtime verification.\033[0m\n'
   printf '\033[33mCI still runs them; run without --fast before opening a pull request.\033[0m\n'
 fi
 
