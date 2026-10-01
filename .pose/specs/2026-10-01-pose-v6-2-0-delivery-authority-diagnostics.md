@@ -3,6 +3,7 @@ slug: pose-v6-2-0-delivery-authority-diagnostics
 status: in-progress
 created_at: 2026-10-01
 completed_at:
+delivers: surface:delivery-authority-diagnostics, capability:delivery-authority-diagnostics
 priority: 1
 components: pose-mcp
 task_type: bugfix
@@ -56,6 +57,15 @@ Native platform verification is independent and deferred.
 Malformed pins previously failed at authority matching; earlier rejection must
 not accidentally authorize them or reject existing valid pins.
 
+### Delivery targets
+
+- surface:delivery-authority-diagnostics module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:delivery-authority-diagnostics module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+These targets identify local engine behavior exercised by this scope. Test-only
+changes strengthen its regression coverage; they do not introduce a new runtime
+endpoint or claim composition in Harne8.
+
 ## 4. Tasks
 
 - [x] Reproduce duplicate findings using malformed draft plus completed specs.
@@ -76,6 +86,9 @@ schema rejection. Run full Go tests/vet/build through module validation.
 
 ### Execution log
 
+- Strict module validation passed 45/45 on 2026-10-01; full canonical validation
+  is regenerated before sealing the governed review.
+
 - 2026-10-01: malformed draft reproduced three findings for three unrelated
   completed specs in both modes; corrected regression now emits one finding
   naming spec:broken, preserving strict error versus tolerant warning.
@@ -89,7 +102,7 @@ schema rejection. Run full Go tests/vet/build through module validation.
 
 ### Requirement trace
 
-- R1 [satisfied] test:TestCheckDeliveryGraphFailureReportedOnce
+- R1 [satisfied] surface:delivery-authority-diagnostics capability:delivery-authority-diagnostics evidence:integration check:delivery-integration test:TestCheckDeliveryGraphFailureReportedOnce
 - R2 [satisfied] test:TestABMReviewAuthorityValid test:TestABMReviewAuthorityRejectsUnsupportedClaimSchema
 - R3 [satisfied] test:TestHumanAuthorityIssuerPinsValidated
 - R4 [satisfied] test:TestReviewBundleExcludedLifecyclePathIsPortable
