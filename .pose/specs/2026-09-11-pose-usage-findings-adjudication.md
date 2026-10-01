@@ -1,7 +1,7 @@
 ---
 slug: pose-usage-findings-adjudication
-status: in-progress
-completed_at:
+status: done
+completed_at: 2026-10-01
 created_at: 2026-09-11
 supersedes:
 depends_on: pose-usage-metrics
@@ -223,7 +223,7 @@ salts, and require the report to match and separate them.
   The CI vulnerability scanner reported no vulnerabilities, and the CI secret
   scanner found no leaks in 1,404 commits.
 - 2026-10-01: `pose artifact-check --spec pose-usage-findings-adjudication
-  --from a6cc2c5 --to c4b9c3b --strict --json` matched all 28 declared paths
+  --from a6cc2c5 --to c3f8471 --strict --json` matched all 28 declared paths
   to all 28 observed paths, with no missing or undeclared paths. The default
   trailer range also includes the original composite draft commit, so this
   release delivery uses its explicit bounded range.
@@ -231,6 +231,12 @@ salts, and require the report to match and separate them.
   historical paths and declared local CLI/MCP targets. Registered
   `usage-adjudication-integration` and `usage-adjudication-reachability` to
   seal evidence from the actual verdict, CLI and MCP tests.
+- 2026-10-01: strict complete matrix passed 48/48 at `e92891a`;
+  default artifact-check reported no errors and surface-check reported three
+  targets with zero findings. Bundle `rvb-a681f14fe132b0e8` and attestation
+  `rva-ee025f7e49b88dd3` passed review verify and review-check. `pose close`
+  applied the lifecycle transition. The global strict check passed with 17
+  existing warnings; the component assessment was refreshed after closure.
 
 ### Results summary
 - Successes: feature tests, full Go suite, vet, integration assessment,
