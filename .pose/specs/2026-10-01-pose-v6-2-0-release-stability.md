@@ -112,7 +112,8 @@ run must provide platform evidence.
 
 - [x] Run targeted regression tests and `go test ./...`.
 - [x] Run `go vet ./...` and `pose validate --strict --module pose-mcp`.
-- [ ] Verify the package channels on macOS and Windows during the release.
+- [x] Transfer native macOS/Windows verification to the dedicated deferred spec
+  at the user's request; execution is skipped, not passed.
 
 ## 5. Decisions
 
@@ -146,7 +147,7 @@ run must provide platform evidence.
 | Secret file stays unclassified | `go test ./internal/pose -run TestReviewBundleDoesNotGeneralizeEnvExampleClassification -count=1` | Both negative paths rejected |
 | Package smoke uses a fresh instance | `go test ./internal/version -run TestPackageChannelSmokeUsesFreshInstance -count=1` | Both OS legs install, then doctor inside it |
 | Module regression | `go test ./...` and `go vet ./...` | All packages pass |
-| Release runner | Package channels workflow for the next tag | Both OS jobs pass |
+| Deferred native round | See `spec:pose-package-channels-deferred-native-verification` | Skipped now; future manual jobs must both pass |
 
 ### Execution log
 
@@ -162,11 +163,14 @@ run must provide platform evidence.
 
 - R1 [satisfied] test:TestContributorDocsRequireConsentForStagingAndSubmission
 - R2 [satisfied] test:TestReviewBundleSealsRootEnvExampleAsGovernance test:TestReviewBundleDoesNotGeneralizeEnvExampleClassification
-- R3 [satisfied] test:TestPackageChannelSmokeUsesFreshInstance check:package-channels
+- R3 [satisfied] test:TestPackageChannelSmokeUsesFreshInstance test:TestPackageChannelVerificationIsManualOnly
 
 ### Known gaps
 
-The full macOS/Windows package smoke requires a tagged release.
+The full macOS/Windows package smoke is skipped/deferred by explicit user
+direction on 2026-10-01. It belongs to
+`spec:pose-package-channels-deferred-native-verification`, is scheduled only
+after implementation, and does not block other specs or release publication.
 
 ## 7. Final Report
 
@@ -177,10 +181,11 @@ package smoke are implemented and covered by deterministic regressions.
 
 ### Residual risks
 
-The next tagged package-channel workflow must demonstrate the Windows fix.
+Native behavior remains unverified until the dedicated manual round runs.
+Structural Linux checks do not establish macOS/Windows success.
 
 ### Follow-ups
 
-- [open] Review the first 6.2.0 package-channel run and retain its macOS and
-  Windows job evidence before declaring channel verification complete.
-  (owner:@pose-maintainers crit:high review:2026-10-15)
+- [spawned: pose-package-channels-deferred-native-verification] Run the native
+  package-channel round only after implementation finishes and retain both OS
+  job results. Explicitly deferred by the user; nonblocking for all other work.

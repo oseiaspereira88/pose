@@ -20,8 +20,8 @@ additive; Homebrew is not currently an end-user install channel.
 
 | Channel | Format | Publication mechanism | Publication lag | Support tier |
 |---|---|---|---|---|
-| Homebrew | `pose.rb` formula | Attached to the GitHub release as an asset. **No install channel:** Homebrew requires a formula to be in a tap, and installing one from a path or URL is rejected — so the published formula is consumable only by a tap that does not exist yet | n/a | Generated and install-tested on every tagged release, through a throwaway tap on the clean-host matrix; not consumable by an end user |
-| WinGet | 3-file manifest set (`version`/`installer`/`locale.en-US`) | Generated in CI and attached to the release; a maintainer submits it as a PR to `microsoft/winget-pkgs` | Days, gated by upstream Microsoft review — tracked per release in the closing spec's follow-ups until publication is automated | Maintained: manifest generation and local install exercised on every tagged release; upstream publication is a manual, tracked step |
+| Homebrew | `pose.rb` formula | Attached to the GitHub release as an asset. **No install channel:** Homebrew requires a formula to be in a tap, and installing one from a path or URL is rejected — so the published formula is consumable only by a tap that does not exist yet | n/a | Generated per release; native install verification deferred to a manual clean-host round through a throwaway tap; not consumable by an end user |
+| WinGet | 3-file manifest set (`version`/`installer`/`locale.en-US`) | Generated in CI and attached to the release; a maintainer submits it as a PR to `microsoft/winget-pkgs` | Days, gated by upstream Microsoft review — tracked per release in the closing spec's follow-ups until publication is automated | Manifest generation maintained; native local-install verification deferred to a manual round; upstream publication is a manual, tracked step |
 
 Install commands:
 
@@ -40,7 +40,7 @@ winget install Harne8.Pose
     Earlier versions of this page offered
     `brew install --formula <url>`. Homebrew rejects that: a formula must be in
     a tap, and installing from a path or a URL is unsupported. The formula is
-    still generated, published and install-tested every release, so a tap can
+    still generated and published every release, so a tap can
     be stood up without regenerating anything — but until one exists there is
     no `brew` command that installs POSE, and the verified download is the
     supported path on macOS.
@@ -49,8 +49,13 @@ winget install Harne8.Pose
 
 The `Package channels` CI workflow (`.github/workflows/package-channels.yml`)
 installs, runs `pose doctor --json` and uninstalls through each channel on
-an unmodified macOS and Windows runner for every published release (spec
-`pose-package-manager-distribution`, R3). On macOS the formula is installed
+native `macos-latest` and `windows-latest` GitHub-hosted runners when manually
+dispatched with a published release tag. As requested on 2026-10-01, this round
+is **skipped/deferred** until implementation is complete, tracked by spec
+`pose-package-channels-deferred-native-verification`. It does not block
+implementation, PR validation or release publication. No native run has been
+performed for the current changes, and historical runs do not verify them.
+On macOS the formula is installed
 through a throwaway local tap, since that is the only supported way to install
 a formula file — the artifact under test is the published `pose.rb`, not the
 tap. A channel that fails this matrix blocks that release's support-tier claim,
@@ -61,7 +66,8 @@ That matrix ran for the first time on v0.21.0 and exposed two install-path
 defects: Homebrew requires a tap, and WinGet requires local-manifest policy to
 be enabled. The repaired clean-host run (`31240578941`) then passed artifact
 validation, install and `pose doctor --json` on both macOS and Windows. This is
-why the formula remains release-tested while this page still does not present
+historical evidence only; it does not establish verification of subsequent
+changes. This page still does not present
 it as an end-user Homebrew channel: a throwaway CI tap is proof of the artifact,
 not a maintained public tap.
 
