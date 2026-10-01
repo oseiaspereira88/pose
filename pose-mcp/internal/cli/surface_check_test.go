@@ -124,4 +124,12 @@ func TestRoadmapCheckNamesAbsentCutCriteria(t *testing.T) {
 	if len(result.Warnings) != 1 || !strings.Contains(result.Warnings[0], "no cut criteria") || !result.Terminal {
 		t.Fatalf("empty criteria status: %s", &out)
 	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdRoadmapCheck(root, []string{"empty"}, &out, &errOut); code != 0 {
+		t.Fatalf("human code=%d: %s", code, &errOut)
+	}
+	if !strings.Contains(out.String(), "no cut criteria") || errOut.Len() != 0 {
+		t.Fatalf("human warning missing or on wrong channel: stdout=%s stderr=%s", &out, &errOut)
+	}
 }

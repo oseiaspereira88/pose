@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"io/fs"
 	"os"
@@ -12,6 +11,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
@@ -255,7 +255,7 @@ func cmdRoadmapCheck(root string, args []string, stdout, stderr io.Writer) int {
 	} else {
 		fmt.Fprintf(stdout, "roadmap.slug=%s\nroadmap.criteria=%d\nroadmap.terminal=%t\n", slug, len(criteria), len(blockers) == 0)
 		for _, warning := range warnings {
-			fmt.Fprintln(stdout, "[WARNING] "+warning)
+			render(stdout, stderr).Finding(cliout.Finding{State: cliout.StateWarning, Message: warning})
 		}
 		for _, blocker := range uniqueCLIStrings(blockers) {
 			fmt.Fprintln(stdout, "[BLOCKER] "+blocker)

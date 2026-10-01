@@ -62,6 +62,9 @@ Capture profile bytes before/after to prove diagnostic projection does not write
 
 ### Execution log
 
+- Reused knowledge:cli-output-design-taxonomy: emit new warnings through cliout.
+- Fixed the direct-print regression in the human roadmap warning; added a
+  regression assertion for its stdout channel and unchanged successful exit.
 - Targeted doctor conflict/count/profile and roadmap warning tests passed.
 - Selected retained-evidence warning regression passed while approval stays closed.
 
