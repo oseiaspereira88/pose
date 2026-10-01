@@ -3,6 +3,7 @@ slug: pose-history-quiet-tolerated-verdict
 status: in-progress
 created_at: 2026-10-01
 completed_at:
+delivers: surface:history-quiet-verdict
 components: pose-mcp
 task_type: bugfix
 ---
@@ -28,6 +29,14 @@ unstaged changes: quiet output printed an initial failure and final tolerated ve
 - created: .pose/specs/2026-10-01-pose-history-quiet-tolerated-verdict.md
 - created: .pose/changelogs/unreleased/pose-history-quiet-tolerated-verdict.md
 
+### Delivery targets
+
+- surface:history-quiet-verdict module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+These targets identify local engine behavior exercised by this scope. Test-only
+changes strengthen its regression coverage; they do not introduce a new runtime
+endpoint or claim composition in Harne8.
+
 ## 4. Tasks
 
 - [x] Suppress the intermediate human line in quiet mode.
@@ -45,12 +54,15 @@ code in each mode. Run the actual whole-repository machine-channel regression.
 
 ### Execution log
 
+- Strict module validation passed 45/45 on 2026-10-01; full canonical validation
+  is regenerated before sealing the governed review.
+
 - Synthetic untracked/modified JSONL in strict and tolerant modes passed.
 - Whole-repository machine-channel regression passed with unstaged history.
 
 ### Requirement trace
 
-- R1 [satisfied] test:TestHistoryQuietPrintsOneToleratedOrStrictVerdict
+- R1 [satisfied] surface:history-quiet-verdict evidence:integration check:delivery-integration test:TestHistoryQuietPrintsOneToleratedOrStrictVerdict
 
 ## 7. Final Report
 
