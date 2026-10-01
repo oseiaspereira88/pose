@@ -3,6 +3,7 @@ slug: pose-design-delta-batched-git-reads
 status: in-progress
 created_at: 2026-10-01
 completed_at:
+delivers: capability:structural-git-batch
 components: pose-mcp
 task_type: feature
 priority: 3
@@ -35,6 +36,14 @@ with one bounded, operation-scoped cat-file batch process.
 - created: .pose/adr/2026-10-01-scoped-git-batch-reader-for-structural-assessment.md
 - created: .pose/changelogs/unreleased/pose-design-delta-batched-git-reads.md
 
+### Delivery targets
+
+- capability:structural-git-batch module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+These targets identify local engine behavior exercised by this scope. Test-only
+changes strengthen its regression coverage; they do not introduce a new runtime
+endpoint or claim composition in Harne8.
+
 ## 4. Tasks
 
 - [x] Add bounded reader with explicit process ownership and cancellation.
@@ -58,6 +67,9 @@ Performance evidence is local and does not predict every repository's timing.
 
 ### Execution log
 
+- Strict module validation passed 45/45 on 2026-10-01; full canonical validation
+  is regenerated before sealing the governed review.
+
 - Real Git framing, missing/empty/space-name parity, delimiter injection, byte
   limits and process teardown tests passed. Existing structural-delta tests passed.
 - Fixed 128-read benchmark, one local sample: independent existence/content
@@ -66,7 +78,7 @@ Performance evidence is local and does not predict every repository's timing.
 
 ### Requirement trace
 
-- R1 [satisfied] test:TestGitBatchReadsMatchGitShowAndReuseProcess
+- R1 [satisfied] capability:structural-git-batch evidence:integration check:delivery-integration test:TestGitBatchReadsMatchGitShowAndReuseProcess
 - R2 [satisfied] test:TestGitBatchReadsMatchGitShowAndReuseProcess
 - R3 [satisfied] test:TestGitBatchRejectsLimitsAndRequestInjection
 - R4 [satisfied] test:BenchmarkGitBlobReadProcessVsBatch
