@@ -537,6 +537,28 @@ func (s Store) loadReviewProfile(ref string) (ReviewProfile, []byte, error) {
 	return profile, raw, nil
 }
 
+// ReviewProfileMigrationIssue projects a profile onto schema v2 for diagnostics.
+// It never rewrites the profile or changes the schema accepted by planning.
+func (s Store) ReviewProfileMigrationIssue(raw []byte) string {
+	var fields map[string]json.RawMessage
+	var profile ReviewProfile
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		return err.Error()
+	}
+	if err := json.Unmarshal(raw, &profile); err != nil {
+		return err.Error()
+	}
+	fields["schema_version"] = json.RawMessage("2")
+	projected, err := json.Marshal(fields)
+	if err != nil {
+		return err.Error()
+	}
+	if _, err := s.parseReviewProfile(profile.Ref(), projected); err != nil {
+		return err.Error()
+	}
+	return ""
+}
+
 // parseReviewProfile validates profile bytes whatever their source. Rule and
 // evidence-class refs are still checked against the current tree, because a
 // baseline criterion whose rule no longer exists is a gap now, not then.

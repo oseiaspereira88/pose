@@ -2425,6 +2425,7 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 				// review's authority, so it stales a closed scope as it always did.
 				if bundle, att := s.retainedCompletedReview(scopeRef, scope, policy); bundle != nil && sameFederatedManifest(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest) {
 					verification.Bundle, verification.Attestation = bundle, att
+					verification.Warnings = append(verification.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
 					verification.Fresh, verification.Approved = true, true
 					verification.State = "closed"
 					verification.NextAction = "scope is closed with its retained approved bundle attestation"
@@ -2441,6 +2442,7 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 		return verification, nil
 	}
 	verification.Bundle = current
+	verification.Warnings = uniqueSorted(append(verification.Warnings, staleEvidenceWarnings(current.Payload.Subject, current.Payload.Evidence)...))
 	verification.Fresh = true
 	verification.State = "ready-for-review"
 	attestations, err := s.ListReviewAttestations(current.BundleID)
