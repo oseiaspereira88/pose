@@ -3,6 +3,7 @@ slug: pose-governance-residual-diagnostics
 status: in-progress
 created_at: 2026-10-01
 completed_at:
+delivers: surface:governance-residual-diagnostics, capability:governance-residual-diagnostics
 components: pose-mcp
 task_type: bugfix
 priority: 3
@@ -42,11 +43,20 @@ without changing which policy is authoritative or invalidating completed reviews
 - created: .pose/specs/2026-10-01-pose-governance-residual-diagnostics.md
 - created: .pose/changelogs/unreleased/pose-governance-residual-diagnostics.md
 
+### Delivery targets
+
+- surface:governance-residual-diagnostics module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:governance-residual-diagnostics module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+These targets identify local engine behavior exercised by this scope. Test-only
+changes strengthen its regression coverage; they do not introduce a new runtime
+endpoint or claim composition in Harne8.
+
 ## 4. Tasks
 
 - [x] Add diagnostic-only findings and retain prior validation decisions.
 - [x] Cover empty, valid, contradictory and historical inputs.
-- [ ] Run required module checks.
+- [x] Run required module checks.
 
 ## 5. Decisions
 
@@ -62,6 +72,9 @@ Capture profile bytes before/after to prove diagnostic projection does not write
 
 ### Execution log
 
+- Strict module validation passed 45/45 on 2026-10-01; full canonical validation
+  is regenerated before sealing the governed review.
+
 - Reused knowledge:cli-output-design-taxonomy: emit new warnings through cliout.
 - Fixed the direct-print regression in the human roadmap warning; added a
   regression assertion for its stdout channel and unchanged successful exit.
@@ -70,7 +83,7 @@ Capture profile bytes before/after to prove diagnostic projection does not write
 
 ### Requirement trace
 
-- R1 [satisfied] test:TestDoctorReportsConflictingAdoptionDates
+- R1 [satisfied] surface:governance-residual-diagnostics capability:governance-residual-diagnostics evidence:integration check:delivery-integration test:TestDoctorReportsConflictingAdoptionDates
 - R2 [satisfied] test:TestDoctorCountsLegacySealedBundleFields
 - R3 [satisfied] test:TestDoctorNamesStaleProfileDeclarationWithoutRewriting
 - R4 [satisfied] test:TestRoadmapCheckNamesAbsentCutCriteria
