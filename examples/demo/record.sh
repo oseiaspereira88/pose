@@ -141,7 +141,7 @@ if OUT="$("$BIN" lint-spec customer-export --strict 2>&1)"; then
 fi
 grep -q "R1 has no trace entry" <<<"$OUT" \
   || fail "the expected blocking reason changed: $(head -3 <<<"$OUT")"
-[ "$VERIFY" -eq 1 ] || printf '%s\n' "$OUT" | grep -Ei "error|resultado|result" | head -3
+[ "$VERIFY" -eq 1 ] || printf '%s\n' "$OUT" | grep -Ei "error|R1 has no trace entry|resultado|result" | head -3
 beat 3
 
 say "The code is not in question. The promise is unconnected to evidence."
@@ -160,7 +160,7 @@ io.open(p, 'w', encoding='utf-8').write(s)
 PY
 run "pose lint-spec customer-export --strict"
 if OUT2="$("$BIN" lint-spec customer-export --strict 2>&1)"; then
-  [ "$VERIFY" -eq 1 ] || printf '%s\n' "$OUT2" | grep -Ei "trace|resultado|result" | head -4
+  [ "$VERIFY" -eq 1 ] || printf '%s\n' "$OUT2" | grep -E "spec.trace.missing=|Resultado:|Result:"
 else
   fail "the closeout gate still refuses after the trace was declared"
 fi
