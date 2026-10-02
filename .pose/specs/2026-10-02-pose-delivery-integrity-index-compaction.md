@@ -1,8 +1,8 @@
 ---
 slug: pose-delivery-integrity-index-compaction
-status: in-progress
+status: done
 created_at: 2026-10-02
-completed_at:
+completed_at: 2026-10-02
 delivers: capability:delivery-integrity-index-compaction
 components: pose-mcp
 task_type: refactor
