@@ -1,0 +1,22 @@
+name: Repair Dependabot runtime evidence
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+permissions: { contents: read }
+concurrency:
+  group: runtime-repair-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+jobs:
+  repair:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.head_repository.full_name == github.repository && startsWith(github.event.workflow_run.head_branch, 'dependabot/github_actions/')
+    runs-on: ubuntu-latest
+    permissions: { contents: write, actions: write }
+    steps:
+      # Default-branch code only. Never check out or execute the PR revision.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - name: Repair bounded pin-only update
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/repair-dependabot-runtimes.py

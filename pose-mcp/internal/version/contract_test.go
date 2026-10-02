@@ -7,6 +7,7 @@ package version_test
 import (
 	"encoding/json"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 	"testing"
@@ -16,6 +17,26 @@ import (
 )
 
 var semverRe = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(-[0-9A-Za-z.-]+)?$`)
+
+func TestDependabotRuntimeRepairTrustBoundary(t *testing.T) {
+	command := exec.Command("python3", "../../../tests/release/repair-dependabot-runtimes.py")
+	if output, err := command.CombinedOutput(); err != nil {
+		t.Fatalf("Dependabot runtime repair: %v\n%s", err, output)
+	}
+	workflow, err := os.ReadFile("../../../.github/workflows/repair-dependabot-runtimes.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, unsafe := range []string{"pull_request_target:", "ref: ${{", "secrets.", "actions/cache@"} {
+		if strings.Contains(string(workflow), unsafe) {
+			t.Errorf("runtime repair must not expose PR execution authority: %s", unsafe)
+		}
+	}
+	ci, err := os.ReadFile("../../../.github/workflows/ci.yml")
+	if err != nil || !strings.Contains(string(ci), "  workflow_dispatch:") {
+		t.Fatal("CI must accept the explicit dispatch after a token-driven repair")
+	}
+}
 
 // R2: a development build exposes an explicit development identifier and
 // never impersonates a release.
