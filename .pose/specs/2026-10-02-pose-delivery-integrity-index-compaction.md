@@ -283,9 +283,6 @@ Untracking the index and regenerating it only in CI is not decided here.
 ## 7. Final Report
 
 ### Delivered scope
-
-Pending.
-
+The delivery-integrity index is written in schema 2: validation runs and result sets are stored once, repeated edges are written once and `changes` edges are derived from the change sets. On this repository the same inputs write 4.6 MB instead of 10.9 MB with the same provenance digest, claims, change sets and findings; `pose index` took 2.5 percent longer. Gates and MCP tools read the expanded graph.
 ### Follow-ups
-
-Pending.
+No follow-ups introduced. Untracking the index and regenerating it only in CI is not decided here.
