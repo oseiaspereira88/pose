@@ -215,12 +215,12 @@ and the six that share the fixtures in `release_surface_coverage_test.go`.
 
 ### Requirement trace
 
-- R1 [satisfied] check:release-version-source-integration — TestReleaseVersionSourceCutsAProjectThatIsNotTheEngine plans, refuses a version that differs from the declared file, prepares and checks a project through Main.
-- R2 [satisfied] check:release-version-source-integration — TestReleaseVersionSourceReadsTextAndJSON and TestReleaseVersionSourceReadsAJSONKey cover a bare value, a v-prefixed value, a -dev suffix and a JSON key.
-- R3 [satisfied] check:release-version-source-integration — the cut test asserts version_evidence is exactly source, kind and value and that the manifest holds no absolute path.
-- R4 [satisfied] check:release-version-source-integration — TestReleaseVersionSourceRejectsUnsafeOrMalformedSources covers fifteen rejections without leaking a path, and TestReleaseVersionSourceRejectionWritesNothing asserts that nothing is written.
-- R5 [satisfied] check:release-version-source-reachability — TestReleaseVersionSourceIsRequiredOutsideTheEngineRepository and TestReleaseVersionSourceLeavesTheEngineRepositoryOnItsCompiledVersion drive Main for a project with no source and for the engine repository.
-- R6 [satisfied] check:release-version-source-integration — TestReleasePolicyOmitsAnUnsetVersionSource; release check of v6.1.0 and v6.2.0 passed with the candidate binary.
+- R1 [satisfied] surface:release-version-source evidence:integration check:release-version-source-integration — TestReleaseVersionSourceCutsAProjectThatIsNotTheEngine plans, refuses a version that differs from the declared file, prepares and checks a project through Main.
+- R2 [satisfied] surface:release-version-source evidence:integration check:release-version-source-integration — TestReleaseVersionSourceReadsTextAndJSON and TestReleaseVersionSourceReadsAJSONKey cover a bare value, a v-prefixed value, a -dev suffix and a JSON key.
+- R3 [satisfied] surface:release-version-source evidence:integration check:release-version-source-integration — the cut test asserts version_evidence is exactly source, kind and value and that the manifest holds no absolute path.
+- R4 [satisfied] surface:release-version-source evidence:integration check:release-version-source-integration — TestReleaseVersionSourceRejectsUnsafeOrMalformedSources covers fifteen rejections without leaking a path, and TestReleaseVersionSourceRejectionWritesNothing asserts that nothing is written.
+- R5 [satisfied] surface:release-version-source evidence:integration check:release-version-source-reachability — TestReleaseVersionSourceIsRequiredOutsideTheEngineRepository and TestReleaseVersionSourceLeavesTheEngineRepositoryOnItsCompiledVersion drive Main for a project with no source and for the engine repository.
+- R6 [satisfied] surface:release-version-source evidence:integration check:release-version-source-integration — TestReleasePolicyOmitsAnUnsetVersionSource; release check of v6.1.0 and v6.2.0 passed with the candidate binary.
 ### Known gaps
 
 Projects released from tags alone have no source kind here.
@@ -228,9 +228,6 @@ Projects released from tags alone have no source kind here.
 ## 7. Final Report
 
 ### Delivered scope
-
-Pending.
-
+A project can declare the file that holds its own release version in `.pose/policy/release.json`, and `pose release plan`, `prepare` and `check` compare a cut with it. Outside the engine repository a policy without it is refused by name instead of being compared with the engine version. Policies that do not set it digest as before; v6.1.0 and v6.2.0 still verify.
 ### Follow-ups
-
-Pending.
+No follow-ups introduced. Projects released from tags alone have no source kind; that is recorded as a known gap, not a commitment.
