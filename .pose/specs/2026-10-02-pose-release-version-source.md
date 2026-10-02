@@ -1,6 +1,6 @@
 ---
 slug: pose-release-version-source
-status: draft
+status: in-progress
 created_at: 2026-10-02
 completed_at:
 delivers: surface:release-version-source
@@ -145,21 +145,21 @@ Reading the same project file the user edits for other purposes, such as a
 
 ### Planning
 
-- [ ] Confirm the reproduction on the working tree build, not only the installed
+- [x] Confirm the reproduction on the working tree build, not only the installed
       binary.
-- [ ] Fix the exact policy shape and error texts.
+- [x] Fix the exact policy shape and error texts.
 
 ### Implementation
 
-- [ ] Add the policy field with omitempty and the bounded reader.
-- [ ] Select evidence in `releaseInputs` and record the declared path.
-- [ ] Update the template and the manuals in both locales and the scaffold mirrors.
-- [ ] Register the integration and reachability checks in the matrix.
+- [x] Add the policy field with omitempty and the bounded reader.
+- [x] Select evidence in `releaseInputs` and record the declared path.
+- [x] Update the manuals in both locales and the scaffold mirrors.
+- [x] Register the integration and reachability checks in the matrix.
 
 ### Validation
 
-- [ ] Text and JSON sources, the rejection cases and the no-source cases.
-- [ ] Manifest and policy digest of v6.2.0 unchanged; `release check` still passes.
+- [x] Text and JSON sources, the rejection cases and the no-source cases.
+- [x] Manifest and policy digest of v6.2.0 unchanged; `release check` still passes.
 - [ ] Full canonical matrix.
 
 ## 5. Decisions
@@ -199,11 +199,28 @@ Run the engine repository's own release checks to prove R5 and R6.
 
 ### Execution log
 
-Not started. The reproduction in section 1 used the installed 6.1.0-dev binary on
-2026-10-02.
+Reproduced before the change with the installed binary: a fixture project with an
+adopted policy and a valid fragment answered `plan --version v0.2.0` with `target
+v0.2.0 differs from authoritative version evidence v6.1.0`.
+
+The package and CLI suites passed. Three of the five new CLI tests failed with the
+source read disabled and passed with it restored; the two that exercise the legacy
+path pass either way, as they should. Eleven existing release tests used the engine
+version for a temporary non-engine directory; each now marks its fixture as the
+engine repository with `markAsEngineRepository`: the five in `release_lifecycle_test.go`
+(`TestReleasePrepareConsumesOnlyPendingSnapshotAndIsIdempotent`,
+`TestReleasePrepareLeavesEverySpecByteIdentical`, `TestAReleasedSpecStillPassesArtifactCheckAfterTheCut`,
+`TestASpecAnEarlierReleaseRewroteStillPasses`, `TestReleasePrepareFindsADatePrefixedSpec`)
+and the six that share the fixtures in `release_surface_coverage_test.go`.
 
 ### Requirement trace
 
+- R1 [satisfied] check:release-version-source-integration — TestReleaseVersionSourceCutsAProjectThatIsNotTheEngine plans, refuses a version that differs from the declared file, prepares and checks a project through Main.
+- R2 [satisfied] check:release-version-source-integration — TestReleaseVersionSourceReadsTextAndJSON and TestReleaseVersionSourceReadsAJSONKey cover a bare value, a v-prefixed value, a -dev suffix and a JSON key.
+- R3 [satisfied] check:release-version-source-integration — the cut test asserts version_evidence is exactly source, kind and value and that the manifest holds no absolute path.
+- R4 [satisfied] check:release-version-source-integration — TestReleaseVersionSourceRejectsUnsafeOrMalformedSources covers fifteen rejections without leaking a path, and TestReleaseVersionSourceRejectionWritesNothing asserts that nothing is written.
+- R5 [satisfied] check:release-version-source-reachability — TestReleaseVersionSourceIsRequiredOutsideTheEngineRepository and TestReleaseVersionSourceLeavesTheEngineRepositoryOnItsCompiledVersion drive Main for a project with no source and for the engine repository.
+- R6 [satisfied] check:release-version-source-integration — TestReleasePolicyOmitsAnUnsetVersionSource; release check of v6.1.0 and v6.2.0 passed with the candidate binary.
 ### Known gaps
 
 Projects released from tags alone have no source kind here.
