@@ -1049,7 +1049,7 @@ func reviewBundlePathClass(path string, scope ScopeRef, components []ReviewPlanC
 	// unclassified subject path rather than guessing at one.
 	// The root .env.example is an authored configuration example. Keep it in
 	// the subject for byte-level review without classifying secret-bearing .env.
-	for _, exact := range []string{".pose/docs.json", ".pose/docs-review.jsonl", ".pose/release-policy.json", ".pose/project.json", ".env.example", "compatibility.json", "composition-contract.json", "pose-mcp/server.json"} {
+	for _, exact := range []string{".pose/docs.json", ".pose/docs-review.jsonl", ".pose/release-policy.json", ".pose/project.json", ".env.example", ".gitleaks.toml", "compatibility.json", "composition-contract.json", "pose-mcp/server.json"} {
 		if path == exact {
 			return "governance", true
 		}

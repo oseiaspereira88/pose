@@ -504,6 +504,37 @@ func TestReviewBundleSealsRootEnvExampleAsGovernance(t *testing.T) {
 	t.Fatal("root .env.example missing from sealed subject")
 }
 
+func TestReviewBundleSealsRootGitleaksConfigBytes(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	content := []byte("[extend]\nuseDefault = true\n")
+	writeReviewFixture(t, root, ".gitleaks.toml", string(content))
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	graph.ChangeSets[0].Paths = append(graph.ChangeSets[0].Paths, ObservedPath{Action: "modified", Path: ".gitleaks.toml"})
+	raw, _ := json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	bundle, err := store.SealReviewBundle("spec:backend", time.Date(2026, 8, 13, 12, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, entry := range bundle.Payload.Subject.Entries {
+		if entry.Path == ".gitleaks.toml" && entry.Class == "governance" && entry.Digest == digestBytes(content) {
+			return
+		}
+	}
+	t.Fatal("security config bytes missing from sealed subject")
+}
+
+func TestReviewBundleDoesNotGeneralizeGitleaksClassification(t *testing.T) {
+	for _, path := range []string{"nested/.gitleaks.toml", "unknown.toml", ".env"} {
+		if class, include := reviewBundlePathClass(path, ScopeRef{Kind: "spec", Slug: "backend"}, nil); class != "" || include {
+			t.Errorf("unexpected classification for %s: %s", path, class)
+		}
+	}
+}
+
 func TestReviewBundleDoesNotGeneralizeEnvExampleClassification(t *testing.T) {
 	for _, path := range []string{".env", "nested/.env.example"} {
 		if class, include := reviewBundlePathClass(path, ScopeRef{Kind: "spec", Slug: "backend"}, nil); class != "" || include {
