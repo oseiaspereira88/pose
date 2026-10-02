@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "version": "v6.3.0",
+  "previous_version": "v6.2.0",
+  "prepared_at": "2026-10-02T20:29:03Z",
+  "specs": [
+    "pose-ci-release-completeness",
+    "pose-clean-activation-evidence",
+    "pose-cli-profile-parity",
+    "pose-delivery-integrity-index-compaction",
+    "pose-dependabot-runtime-repair",
+    "pose-extension-target-preview",
+    "pose-release-version-source"
+  ],
+  "categories": {
+    "added": 3,
+    "changed": 2,
+    "fixed": 2
+  },
+  "fragments": [
+    {
+      "spec": "pose-ci-release-completeness",
+      "category": "changed",
+      "breaking": false,
+      "body": "Fail deterministic gates on omitted local checks, unpaired release steps and missing published assets. Seal exact root gitleaks configuration bytes without generalizing the review boundary.",
+      "path": "pose-ci-release-completeness.md",
+      "digest": "sha256:0d392422659ba5922229602baa48ef5c33abdc1a3a7e78893ebccb16158f26bf"
+    },
+    {
+      "spec": "pose-clean-activation-evidence",
+      "category": "added",
+      "breaking": false,
+      "body": "Retain an automated clean-container activation measurement and a real blocked-then-resolved terminal recording; the reported command-path timing excludes human reading and development.",
+      "path": "pose-clean-activation-evidence.md",
+      "digest": "sha256:d56c5f61423d5d0ca9877d0528404de835b3029d1f45884a33e3369fdc38bbb6"
+    },
+    {
+      "spec": "pose-cli-profile-parity",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Keep coloured table alignment and UTF-8 wrapping consistent across profiles, fully localize token errors, and preserve quiet output and structured findings.",
+      "path": "pose-cli-profile-parity.md",
+      "digest": "sha256:698d7dce0b94bba768f386a490336343e6f3245674fdcb2f5a6b61a1c4f34e12"
+    },
+    {
+      "spec": "pose-delivery-integrity-index-compaction",
+      "category": "changed",
+      "breaking": false,
+      "body": "Write the delivery-integrity index in schema 2: validation runs and result sets are stored once, repeated edges are written once and `changes` edges are derived from the change sets. On this repository the index shrinks from 10.9 MB to 4.6 MB for the same inputs, with the same provenance digest, claims, change sets and findings, and it now grows with deliveries rather than with deliveries times results. Gates and MCP tools read the same graph as before. An earlier engine refuses a schema 2 index as invalid until `pose index` rewrites it; this engine still reads schema 1.",
+      "path": "pose-delivery-integrity-index-compaction.md",
+      "digest": "sha256:9f6cb5ce22f5e58edb927ae771e03b80de1ca2a814f8f427334a3b57259fe2bc"
+    },
+    {
+      "spec": "pose-dependabot-runtime-repair",
+      "category": "added",
+      "breaking": false,
+      "body": "Repair runtime evidence for bounded same-repository Dependabot action-pin PRs using trusted scripts, a non-forced manifest-only commit and explicit CI dispatch.",
+      "path": "pose-dependabot-runtime-repair.md",
+      "digest": "sha256:f53208ede1e7c61fc31461cdb7544cf704bdb28052dd588b00fc1fd774155c82"
+    },
+    {
+      "spec": "pose-extension-target-preview",
+      "category": "fixed",
+      "breaking": false,
+      "body": "Show the absolute extension destination in the installation plan and reject malformed or absent targets before package lookup or writes.",
+      "path": "pose-extension-target-preview.md",
+      "digest": "sha256:aa0bb572456726b5ad68b7e5c13bc4c2e4fdaba30aeb812856783126b1b3aed9"
+    },
+    {
+      "spec": "pose-release-version-source",
+      "category": "added",
+      "breaking": false,
+      "body": "Let a project declare the file that holds its own release version with `version_source` in `.pose/policy/release.json`, so `pose release plan`, `prepare` and `check` work outside the engine repository. A project with no declared source outside the engine repository is now refused with a message naming the field instead of being compared with the engine's version; policies that do not set it digest as before.",
+      "path": "pose-release-version-source.md",
+      "digest": "sha256:2cfb4991ec3b1c7ed04a592ca446a5ee49bbbbc9c9114b0a5796ec33b01a1398"
+    }
+  ],
+  "breaking": false,
+  "notes_digest": "sha256:a51bdddb065599f91a6a4757154611ccaad3db23bf30de4e5919014ddb812c72",
+  "release_input_digest": "sha256:a58cd1d3462fb6c1b6ccf0efa99eeb7125097bb30ccd59f342ff5f4443d3338a",
+  "policy_digest": "sha256:fa5ecaa9568d7a0cf604066a07ed3f17a131c747b8ada8d2bc4ed0c16f892192",
+  "version_evidence": {
+    "source": "pose-mcp/internal/version/version.go",
+    "value": "v6.3.0"
+  }
+}
