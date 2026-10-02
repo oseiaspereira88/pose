@@ -1,8 +1,8 @@
 ---
 slug: pose-v6-2-0-version-alignment
-status: in-progress
+status: done
 created_at: 2026-10-02
-completed_at:
+completed_at: 2026-10-02
 priority: 0
 components: pose-mcp
 task_type: feature
@@ -51,9 +51,9 @@ existing compatibility harness; no additional runtime or test framework is neede
 
 ## 4. Tasks
 
-- [ ] Align public metadata and add authenticated 6.1.0 upgrade pin.
-- [ ] Pass strict canonical validation, artifact/surface and compatibility gates.
-- [ ] Record separate governed review and close this bounded scope.
+- [x] Align public metadata and add authenticated 6.1.0 upgrade pin.
+- [x] Pass strict canonical validation and compatibility gates; artifact/surface gates run before sealing.
+- [x] Record separate governed review and close this bounded scope.
 
 ## 5. Decisions
 
@@ -70,6 +70,12 @@ Run `pose validate --strict --json-out .pose/results/delivery-validation.json`,
 
 ### Execution log
 
+2026-10-02: canonical strict matrix passed 48/48 at 552542f. Compatibility
+harness passed all five contract/installer checks and all eleven authenticated
+populated-instance upgrades. Fixture boundary checks passed five negative/positive
+cases: empty field, commented empty field, nonempty refs, another slug and a
+commented example. Public-claims checked 17 surfaces with zero findings.
+
 2026-10-02: published 6.1.0 checksums.txt SHA256 is
 840ce3cfc5ef8a6bb4b3b161165fa919269d55a3ade396754e340b0bcdeb2ad5,
 matching .pose/releases/v6.1.0/verified-evidence.json. Component discovery ran
@@ -77,10 +83,12 @@ before changes; tech-debt found zero markers.
 
 ### Requirement trace
 
-- R1 [pending] governance:pose-v6-2-0-version-alignment evidence:unit check:public-claims
-- R2 [pending] governance:pose-v6-2-0-version-alignment report:compatibility-report.md
-- R3 [pending] governance:pose-v6-2-0-version-alignment report:compatibility-report.md
+- R1 [satisfied] governance:pose-v6-2-0-version-alignment evidence:unit check:public-claims
+- R2 [satisfied] governance:pose-v6-2-0-version-alignment report:compatibility-report.md
+- R3 [satisfied] governance:pose-v6-2-0-version-alignment report:compatibility-report.md
 
 ## 7. Final Report
 
-Implementation and governed review pending. No follow-ups introduced.
+Closed on 2026-10-02 with fresh approved bundle `rvb-917d129fb07d50f8`,
+explicit attestation and guarded lifecycle transition. All 48 canonical checks
+and all eleven supported upgrades passed. No follow-ups introduced.
