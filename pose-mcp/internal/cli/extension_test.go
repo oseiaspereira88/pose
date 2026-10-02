@@ -391,6 +391,9 @@ func TestExtensionInstallTargetFlag(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("install with --target failed: %s", out)
 	}
+	if !strings.Contains(out, "extension.target="+targetDir+"\n") {
+		t.Fatalf("plan does not identify the target: %s", out)
+	}
 
 	if _, err := os.Stat(filepath.Join(targetDir, ".agents/skills/acme-target-skill/SKILL.md")); err != nil {
 		t.Fatalf("expected file in targetDir: %v", err)
@@ -401,5 +404,32 @@ func TestExtensionInstallTargetFlag(t *testing.T) {
 
 	if _, err := os.Stat(filepath.Join(root, ".agents/skills/acme-target-skill/SKILL.md")); err == nil {
 		t.Fatal("root should not contain extension files when --target is provided")
+	}
+}
+
+func TestExtensionInstallRejectsInvalidTargetBeforeLookup(t *testing.T) {
+	root := t.TempDir()
+	for _, args := range [][]string{{"--target"}, {"--target", "--yes"}, {"--target", filepath.Join(root, "missing")}} {
+		code, out := runExt(t, root, append([]string{"install", "must-not-fetch-from-catalog"}, args...)...)
+		if code == 0 || strings.Contains(out, "resolving") {
+			t.Fatalf("invalid target reached package lookup: code=%d out=%s", code, out)
+		}
+		entries, _ := os.ReadDir(root)
+		if len(entries) != 0 {
+			t.Fatal("rejected target wrote into the repository")
+		}
+	}
+}
+
+func TestExtensionInstallDryRunShowsDefaultTargetWithoutWriting(t *testing.T) {
+	root, packages := t.TempDir(), t.TempDir()
+	pkg := writeExtPkg(t, packages, "target-preview", "1.0.0", "skill", map[string]string{".agents/skills/preview/SKILL.md": "body"}, nil)
+	code, out := runExt(t, root, "install", pkg, "--allow-unsigned", "--dry-run")
+	if code != 0 || !strings.Contains(out, "extension.target="+root+"\n") {
+		t.Fatalf("missing default destination: %d %s", code, out)
+	}
+	entries, _ := os.ReadDir(root)
+	if len(entries) != 0 {
+		t.Fatal("dry-run wrote to the default target")
 	}
 }

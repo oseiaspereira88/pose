@@ -463,9 +463,17 @@ func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) i
 		if a == "--locale" && i+1 < len(flags) {
 			locale = flags[i+1]
 		}
-		if a == "--target" && i+1 < len(flags) {
+		if a == "--target" {
+			if i+1 >= len(flags) || strings.HasPrefix(flags[i+1], "--") {
+				return usageError(stderr, "--target requires a directory")
+			}
 			root = flags[i+1]
 		}
+	}
+	root, targetErr := filepath.Abs(root)
+	if targetErr != nil || !isDir(root) {
+		render(stdout, stderr).Failure(cliText(cliLocaleValue(), "extension target must be an existing directory", "o destino da extensão deve ser um diretório existente"))
+		return 1
 	}
 	// An explicit --locale wins; otherwise auto-detect the target's own
 	// locale the same way `pose install`/`pose update` already do, so a
@@ -517,6 +525,7 @@ func cmdExtensionInstall(root string, args []string, stdout, stderr io.Writer) i
 		fmt.Fprintf(stderr, "pose extension install: %v\n", err)
 		return 1
 	}
+	render(stdout, stderr).Field("extension.target", root)
 	fmt.Fprintf(stdout, "[plan] %s@%s (%s) digest=%s locale=%s\n", plan.ID, plan.Version, plan.Kind, plan.Digest, locale)
 	for _, f := range plan.Files {
 		fmt.Fprintf(stdout, "  + %s\n", f)
