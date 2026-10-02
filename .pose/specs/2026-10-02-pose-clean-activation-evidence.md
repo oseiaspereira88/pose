@@ -53,10 +53,10 @@ Cold image/toolchain preparation is outside command-path timing and reported sep
 
 ## 4. Tasks
 ### Implementation
-- [ ] Measure the clean published command path.
-- [ ] Record and validate the real demo.
+- [x] Measure the clean published command path.
+- [x] Record and validate the real demo.
 ### Validation
-- [ ] Run the unchanged default harness, capture contract and clean container.
+- [x] Run the unchanged default harness, capture contract and clean container.
 
 ## 5. Decisions
 ### Decision 1
@@ -67,7 +67,7 @@ Cold image/toolchain preparation is outside command-path timing and reported sep
 
 ## 6. Validation
 ### Strategy
-Use a fresh container with only the harness mounted read-only and the actual published installer downloaded over HTTPS. The Go fixture needs the development toolchain; it has no warmed module cache. Capture output through a PTY with monotonic timestamps, then validate JSON events and the actual expected gate transition.
+Use a fresh container with only the harness copied into it and the actual published installer downloaded over HTTPS. The Go fixture needs the development toolchain; it has no warmed module cache. Capture output through a PTY with monotonic timestamps, then validate JSON events and the actual expected gate transition.
 ### Deterministic checks
 - Command: bash tests/quickstart/first-governed-loop.sh
 - Scope: real readiness, test execution and closeout trace
@@ -76,14 +76,17 @@ Use a fresh container with only the harness mounted read-only and the actual pub
 - Scope: recorded source, event chronology, duration and transition
 - Expected: a real successful capture below 60 seconds
 ### Execution log
-Implementation pending.
+Fresh-container published v6.2.0 installation and the real governed loop passed in 6.964 seconds (installer 2.807, doctor 0.015, loop 4.142). This excludes image/package preparation and human reading/development. The unchanged default harness passed. A live PTY demo at source 9d8ebffd62caab2f321645daf825876a297c10de completed in 19.229 seconds with exit 0; cast/GIF hashes are retained in report:2026-10-02-demo-recording.json. Canonical module validation passed 50/50; ShellCheck passed.
 ### Requirement trace
-Record after validation.
+- R1: report:2026-10-02-clean-quickstart.json — fresh container, published version, image identity, timings and successful outcomes retained.
+- R2: test:tests/quickstart/first-governed-loop.sh — the default and supplied-binary paths execute a real Go application test before its requirement trace.
+- R3: report:2026-10-02-demo-recording.json — live asciicast v2 and readable real-time GIF, original timestamps, source revision and successful exit.
+- R4: check:clean-activation-recording-integration — TestActivationRecordingContract validates ordered events, duration, actual blocked/resolved facts and asset digests; public embeddings remain scheduled after publication.
 ### Known gaps
 Publishing documentation and frontend embeddings follows the release under the maintainer's explicit ordering.
 
 ## 7. Final Report
 ### Delivered scope
-Pending validation.
+The clean published command path is measured honestly and a real blocked-then-resolved demonstration is retained as cast and GIF. Five cycle-specific integration checks are registered in the canonical module matrix. Final documentation/frontend embedding follows publication as explicitly requested.
 ### Follow-ups
 None.
