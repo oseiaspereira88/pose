@@ -64,9 +64,9 @@ Use local synthetic unsigned fixture packages; malformed target tests use a cata
 ### Execution log
 Explicit/default/dry-run/rejected target regressions and existing doctor profile/adoption diagnostics passed. Canonical module validation passed 50/50 on 2026-10-02.
 ### Requirement trace
-- R1 [satisfied] check:extension-target-integration — explicit and default target tests assert the absolute extension.target field before writes or withheld consent.
-- R2 [satisfied] check:extension-target-integration — TestExtensionInstallRejectsInvalidTargetBeforeLookup rejects missing values, following flags and absent directories without lookup or creation.
-- R3 [satisfied] check:extension-target-integration — TestExtensionInstallTargetFlag and TestExtensionInstallDryRunShowsDefaultTargetWithoutWriting prove destination isolation; existing doctor regressions remain passing.
+- R1 [satisfied] surface:extension-target-preview evidence:integration check:extension-target-integration — explicit and default target tests assert the absolute extension.target field before writes or withheld consent.
+- R2 [satisfied] surface:extension-target-preview evidence:integration check:extension-target-integration — TestExtensionInstallRejectsInvalidTargetBeforeLookup rejects missing values, following flags and absent directories without lookup or creation.
+- R3 [satisfied] surface:extension-target-preview evidence:integration check:extension-target-integration — TestExtensionInstallTargetFlag and TestExtensionInstallDryRunShowsDefaultTargetWithoutWriting prove destination isolation; existing doctor regressions remain passing.
 ### Known gaps
 Native package-channel runtime remains deferred.
 
