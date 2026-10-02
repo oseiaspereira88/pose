@@ -102,7 +102,7 @@ else
     # delivers field. This synthetic fixture declares no delivery: remove only
     # that exact template example before measuring the candidate's upgrade.
     # Do not relax the real validator or rewrite any declared delivery.
-    python3 - "$fixture" <<'PY'
+    python3 - "$fixture" <<'PY' || return 1
 import pathlib, re, sys
 for path in (pathlib.Path(sys.argv[1]) / ".pose/specs").rglob("*.md"):
     raw = path.read_text()
@@ -114,7 +114,6 @@ for path in (pathlib.Path(sys.argv[1]) / ".pose/specs").rglob("*.md"):
     example = "- surface:exemplo module:caminho/do/modulo profile:web-ui entrypoint:caminho/do/entrypoint-de-producao\n"
     path.write_text(re.sub(r"(?m)^" + re.escape(example), "", raw))
 PY
-    if [ "$?" -ne 0 ]; then return 1; fi
     local marker
     marker="upgrade-lab: user customization preserved across upgrade"
     # --no-self is mandatory here: a bare `update` self-updates to the latest
