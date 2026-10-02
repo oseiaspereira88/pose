@@ -1,8 +1,8 @@
 ---
 slug: pose-live-policy-reads-through-aliases
-status: in-progress
+status: done
 created_at: 2026-10-01
-completed_at:
+completed_at: 2026-10-01
 delivers: capability:sealed-policy-read-guard
 components: pose-mcp
 task_type: bugfix
@@ -68,4 +68,4 @@ Run the actual signing-only and sealed-gate guards against production source.
 
 ## 7. Final Report
 
-Implementation validated; governed review and closeout pending.
+Implementation validated and closed through the governed review gate on 2026-10-01. Canonical strict validation passed 48/48 checks at f41b5aa; review bundle `rvb-6bf323b456383c97` was fresh and approved before `pose close`.
