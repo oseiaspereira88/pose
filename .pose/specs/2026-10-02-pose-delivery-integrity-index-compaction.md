@@ -1,6 +1,6 @@
 ---
 slug: pose-delivery-integrity-index-compaction
-status: draft
+status: in-progress
 created_at: 2026-10-02
 completed_at:
 delivers: capability:delivery-integrity-index-compaction
@@ -205,7 +205,7 @@ reordering bug would change the node ID between runs and put noise back into dif
 - [x] Equivalence test against a graph built with the schema 1 writer.
 - [x] Digest-identity test against this repository's change sets and claims.
 - [x] Growth test with synthetic deliveries and results.
-- [ ] Run the full canonical matrix and compare sealed-bundle freshness.
+- [x] Run the full canonical matrix and compare sealed-bundle freshness.
 
 ## 5. Decisions
 
@@ -267,6 +267,15 @@ what this machine varies between runs and not a speedup.
 
 ### Requirement trace
 
+- R1 [satisfied] check:delivery-integrity-index-compaction-integration — TestCompactIndexStoresARunsScopeProvenanceOnce asserts one run and one scope map in the file, and per-result maps after reading.
+- R2 [satisfied] check:delivery-integrity-index-compaction-integration — TestCompactIndexSharesOneNodePerDistinctResultSet asserts one set node, one validated-by edge per delivery and the members once.
+- R3 [satisfied] check:delivery-integrity-index-compaction-integration — the same test asserts that no edge is repeated in the file or in the built graph.
+- R4 [satisfied] check:delivery-integrity-index-compaction-integration — the same test asserts that no path lists a result.
+- R5 [satisfied] check:delivery-integrity-index-compaction-integration — TestCompactIndexExpandsToTheGraphItWasWrittenFrom asserts the expanded graph is byte-equal to the written one; two clean clones of one commit agreed on the provenance digest, claims, change sets, findings and result identities.
+- R6 [satisfied] check:delivery-integrity-index-compaction-integration — TestCompactIndexGrowsWithDeliveriesNotWithTheirProduct and TestCompactIndexWorstCaseIsNoLargerThanTheExpandedPairs bound growth by deliveries and by distinct sets.
+- R7 [satisfied] check:delivery-integrity-index-compaction-integration — TestCompactIndexLeavesTheProvenanceDigestsAlone, and the clone comparison, show the provenance and scoped digests unchanged and prior evidence still current.
+- R8 [satisfied] check:delivery-integrity-index-compaction-integration — TestDeliveryIntegrityIndexReadsSchemaOneAndTwoAndNothingElse and TestStoreReadsTheIndexItWroteInSchemaTwo cover both schemas and the refusals.
+- R9 [satisfied] check:delivery-integrity-index-compaction-integration — TestCompactIndexDerivesChangesEdgesFromTheChangeSets covers the omission, the derivation and the kept case; TestIndexWritesTheCompactDeliveryIntegritySchema covers the command.
 ### Known gaps
 
 Untracking the index and regenerating it only in CI is not decided here.
