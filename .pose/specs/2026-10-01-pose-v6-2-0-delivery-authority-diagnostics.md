@@ -1,8 +1,8 @@
 ---
 slug: pose-v6-2-0-delivery-authority-diagnostics
-status: in-progress
+status: done
 created_at: 2026-10-01
-completed_at:
+completed_at: 2026-10-01
 delivers: surface:delivery-authority-diagnostics, capability:delivery-authority-diagnostics
 priority: 1
 components: pose-mcp
@@ -111,7 +111,7 @@ schema rejection. Run full Go tests/vet/build through module validation.
 
 ### Delivered scope
 
-Four bounded corrections implemented; governed review and closeout pending.
+Implementation validated and closed through the governed review gate on 2026-10-01. Canonical strict validation passed 48/48 checks at f41b5aa; review bundle `rvb-dc6e8974393c12d4` was fresh and approved before `pose close`.
 
 ### Follow-ups
 
