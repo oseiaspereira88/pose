@@ -50,9 +50,9 @@ Tests fail closed on unsupported workflow forms; retain production and independe
 
 ## 4. Tasks
 ### Implementation
-- [ ] Implement derived checks with negative controls.
+- [x] Implement derived checks with negative controls.
 ### Validation
-- [ ] Run obligation, asset and byte-retention regressions.
+- [x] Run obligation, asset and byte-retention regressions.
 
 ## 5. Decisions
 ### Decision 1
@@ -71,14 +71,17 @@ Apply pose-test-plan: mutate copies of the CI/release workflows to add an omitte
 | Classification boundary (required) | go -C pose-mcp test ./internal/pose -run ReviewBundle -count=1 | Byte retention and negative path tests pass |
 | Canonical matrix (required) | pose validate --strict --module pose-mcp --json-out .pose/results/delivery-validation.json --report | All checks pass |
 ### Execution log
-Implementation pending.
+Canonical module validation passed 50/50 on 2026-10-02. Obligation mutations and all 35 single-asset removals were rejected. The independently retrieved v6.2.0 provider inventory satisfied the full asset contract; byte-retention regressions and ShellCheck passed.
 ### Requirement trace
-Record after validation.
+- R1: check:ci-release-obligations-integration — TestLocalVerifyCoversCurrentCIGates rejects newly omitted shell, POSE and Go gates.
+- R2: check:ci-release-obligations-integration — an inserted release step without a following clean-tree assertion fails.
+- R3: check:ci-release-obligations-integration — each required archive, signature, SBOM, checksum, extra file and package manifest is individually removed and rejected; the real v6.2.0 inventory passed.
+- R4: test:TestReviewBundleSealsRootGitleaksConfigBytes and test:TestReviewBundleDoesNotGeneralizeGitleaksClassification — exact root bytes retained; secret and similarly named paths stay unclassified.
 ### Known gaps
 No native OS execution is implied by asset presence.
 
 ## 7. Final Report
 ### Delivered scope
-Pending validation.
+Local verification parity, clean-tree pairing and independent published asset completeness are enforced with negative controls. Exact root security configuration can be reviewed without widening secret-file classification.
 ### Follow-ups
 None.
