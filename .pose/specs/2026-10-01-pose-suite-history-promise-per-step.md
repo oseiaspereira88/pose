@@ -1,8 +1,8 @@
 ---
 slug: pose-suite-history-promise-per-step
-status: in-progress
+status: done
 created_at: 2026-10-01
-completed_at:
+completed_at: 2026-10-01
 components: pose-mcp
 task_type: bugfix
 changelog: none
@@ -53,4 +53,4 @@ two explicit declarations must pass. Run the guard on every actual workflow.
 
 ## 7. Final Report
 
-Implementation validated; governed review and closeout pending.
+Implementation validated and closed through the governed review gate on 2026-10-01. Canonical strict validation passed 48/48 checks at f41b5aa; review bundle `rvb-4c25f3ec247a586d` was fresh and approved before `pose close`.
