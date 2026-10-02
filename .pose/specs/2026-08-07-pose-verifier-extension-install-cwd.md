@@ -169,4 +169,5 @@ removed one dead assignment.
 
 ### Follow-ups
 
-- [open] `pose extension install` takes no target directory and silently uses the current one. It caused a manual mis-install and then this gate defect. Consider an explicit target argument. (owner:@pose-maintainers crit:medium review:2026-10-02)
+- [done] `pose extension install` takes no target directory and silently uses the current one. It caused a manual mis-install and then this gate defect. Consider an explicit target argument. (owner:@pose-maintainers crit:medium review:2026-10-02)
+ Resolved in current source; regression: `TestExtensionInstallTarget`.

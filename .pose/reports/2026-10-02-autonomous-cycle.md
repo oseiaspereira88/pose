@@ -1,0 +1,26 @@
+# Autonomous implementation cycle after POSE v6.2.0
+
+Authorized by the maintainer on 2026-10-02. Execute in this order:
+
+1. Reconcile old specs and follow-ups with current code and retained evidence.
+2. Prevent action-pin updates from leaving the runtime manifest stale.
+3. Enforce local/CI gate parity, release clean-tree assertions and published asset coverage.
+4. Complete bounded CLI rendering gaps and profile tests; preserve machine contracts.
+5. Reconcile and complete install/update diagnostics against actual code.
+6. Measure the documented quickstart in a clean environment and produce the reproducible demo artifact.
+7. Publish one new release after implementation, reviews and deterministic gates finish. No intermediate release. Select its version from the final governed change set.
+8. After publication, audit and update POSE manuals, docs-site content and related Harne8 frontend content against the published version. Preserve immutable release notes and manifest.
+
+The macOS/Windows package round remains deferred by the previous explicit instruction. Public community posts, a Homebrew tap and WinGet upstream submission are outside this cycle. The docs host redirect stays under its existing deferred decision.
+
+## Evidence and disposition
+
+Baseline: engine 42a62dedaf366721846ea589dadfa0ed937870a7, v6.2.0 verified. Preserve Harne8's pre-existing index/results edits. Work branch: feat/pose-next-autonomous-cycle.
+
+Initial inventory: 13 nonterminal specs and 123 open follow-ups. Counts alone are not the implementation backlog: source and tests already implement several listed gaps. Review each requirement; close only with current attribution, validation and native approved review. Keep genuinely pending acceptance open.
+
+## Progress
+
+- Step 1: inventory reconciled. Three stale follow-ups now record direct completion: explicit extension target, stale review-profile diagnostic, report first-path truncation. No already delivered behavior will be implemented again. Legacy release/security and renderer specs need refreshed traces and native closeout; keep their status in-progress until those gates pass. Canonical positioning and README require requirement-level review; the migration/landing dependency is completed in the final cross-repository documentation phase. Quickstart measurement and demo remain implementation work in step 6. Docs redirect, public community surfaces, AGY-only smoke and native channels retain their actual external/deferred acceptance.
+- The old release-security bundle is blocked by the classifier not recognizing exact root `.gitleaks.toml`; address that precise review boundary in step 3, retaining its contents rather than excluding them.
+- Steps 2–8: pending in the order above.

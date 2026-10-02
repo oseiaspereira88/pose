@@ -432,5 +432,5 @@ that channel so far.
 ### Follow-ups
 
 - [covered: pose-cli-output-machine-channel] Give the remaining seven gates a machine channel, add `--json-out <path>`, deprecate `validate --json <path>`, and empty the allowlist the ratchet holds at 1094.
-- [open] `pose report` records the first changed file with its leading character cut: `reportChangedFiles` trims the whole `git status --porcelain` output before slicing the three-character prefix, so `README.md` is written as `EADME.md`, as this release's own evidence shows. Found by the review of pose#112 and carried as R4 of `pose-cli-output-machine-channel` (owner:unowned crit:low review:2026-12-12)
+- [done] `pose report` records the first changed file with its leading character cut: `reportChangedFiles` trims the whole `git status --porcelain` output before slicing the three-character prefix, so `README.md` is written as `EADME.md`, as this release's own evidence shows. Found by the review of pose#112 and carried as R4 of `pose-cli-output-machine-channel` (owner:unowned crit:low review:2026-12-12) Resolved in current source; regression: `TestReportChangedFilesKeepsTheFirstPath`.
 - [open] Raise localisation parity beyond the lines this work touched: 28% of print sites were localisable when it started, and the catalog only covers what the renderer emits (owner:unowned crit:low review:2027-03-12)
