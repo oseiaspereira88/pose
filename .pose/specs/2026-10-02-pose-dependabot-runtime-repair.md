@@ -49,10 +49,10 @@ Validate identity, SHA-only changes and parent revision. Token-driven pushes do 
 
 ## 4. Tasks
 ### Implementation
-- [ ] Add bounded trusted repair and read-only PR inspection.
-- [ ] Preserve no-op, concurrency rejection and explicit CI dispatch.
+- [x] Add bounded trusted repair and read-only PR inspection.
+- [x] Preserve no-op, concurrency rejection and explicit CI dispatch.
 ### Validation
-- [ ] Run provider-boundary positive/negative tests and workflow security contracts.
+- [x] Run provider-boundary positive/negative tests and workflow security contracts.
 
 ## 5. Decisions
 ### Decision 1
@@ -72,14 +72,17 @@ Apply pose-test-plan. Mock provider calls at the boundary; assert the complete m
 | Workflow authority and pins (required) | go -C pose-mcp test ./internal/version -count=1 | Security and runtime contracts pass |
 | Module regression (required) | pose validate --strict --module pose-mcp --json-out .pose/results/delivery-validation.json --report | Canonical matrix passes |
 ### Execution log
-Implementation pending.
+Seven provider-boundary tests, workflow authority contracts and the canonical module matrix passed on 2026-10-02 (50/50 checks). ShellCheck 0.11.0 also passed the complete CI script set.
 ### Requirement trace
-Record after validation.
+- R1: check:dependabot-runtime-repair-integration — exact tested head, same repository, bot identity and open state are checked before generation.
+- R2: check:dependabot-runtime-repair-integration — mixed changes, action-identity edits, mutable refs and conflicts are refused.
+- R3: check:dependabot-runtime-repair-integration — trusted policy and a one-path Git-data commit are asserted; branch writes are non-forced.
+- R4: check:dependabot-runtime-repair-integration — no-op, stale-head rejection and explicit workflow dispatch are covered.
 ### Known gaps
 First real Dependabot repair requires the workflow on the default branch; tests prove the API boundary before deployment.
 
 ## 7. Final Report
 ### Delivered scope
-Pending validation.
+A trusted default-branch workflow repairs only derived runtime evidence for eligible Dependabot action pins. PR review and existing security gates remain required.
 ### Follow-ups
 None.
