@@ -1,8 +1,8 @@
 ---
 slug: pose-compat-fixture-delivery-example
-status: in-progress
+status: done
 created_at: 2026-10-02
-completed_at:
+completed_at: 2026-10-02
 priority: 0
 components: pose-mcp
 task_type: bugfix
@@ -47,7 +47,7 @@ fixture slug and empty delivers field; never normalize real repositories.
 
 - [x] Reproduce the 1.1.0 strict delivery mismatch with authenticated binaries.
 - [x] Normalize only the synthetic template example before candidate upgrade.
-- [ ] Pass full compatibility, canonical validation and governed closeout.
+- [x] Pass full compatibility, canonical validation and governed closeout.
 
 ## 5. Decisions
 
@@ -63,6 +63,12 @@ legacy fixture's strict error.
 
 ### Execution log
 
+2026-10-02: canonical strict matrix passed 48/48 at 552542f. Compatibility
+harness passed all five contract/installer checks and all eleven authenticated
+populated-instance upgrades. Fixture boundary checks passed five negative/positive
+cases: empty field, commented empty field, nonempty refs, another slug and a
+commented example. Public-claims checked 17 surfaces with zero findings.
+
 2026-10-02: ten upgrade pairs passed before the fix. Authenticated 1.1.0 failed
 strict check with 'delivers frontmatter and Delivery targets must contain the
 exact same refs'. Candidate version/public metadata contracts passed after the
@@ -70,10 +76,12 @@ separate action-runtime record refresh.
 
 ### Requirement trace
 
-- R1 [pending] governance:compat-fixture-delivery-example evidence:integration check:delivery-integration
-- R2 [pending] governance:compat-fixture-delivery-example report:compatibility-report.md
-- R3 [pending] governance:compat-fixture-delivery-example report:compatibility-report.md
+- R1 [satisfied] governance:compat-fixture-delivery-example evidence:integration check:delivery-integration
+- R2 [satisfied] governance:compat-fixture-delivery-example report:compatibility-report.md
+- R3 [satisfied] governance:compat-fixture-delivery-example report:compatibility-report.md
 
 ## 7. Final Report
 
-Implementation complete; validation and separate governed review pending.
+Closed on 2026-10-02 with fresh approved bundle `rvb-07d0fe5d38e43c93`,
+explicit attestation and guarded lifecycle transition. Five fixture-boundary
+cases and all eleven supported upgrades passed. No follow-ups introduced.
