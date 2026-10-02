@@ -73,10 +73,10 @@ Apply pose-test-plan: mutate copies of the CI/release workflows to add an omitte
 ### Execution log
 Canonical module validation passed 50/50 on 2026-10-02. Obligation mutations and all 35 single-asset removals were rejected. The independently retrieved v6.2.0 provider inventory satisfied the full asset contract; byte-retention regressions and ShellCheck passed.
 ### Requirement trace
-- R1: check:ci-release-obligations-integration — TestLocalVerifyCoversCurrentCIGates rejects newly omitted shell, POSE and Go gates.
-- R2: check:ci-release-obligations-integration — an inserted release step without a following clean-tree assertion fails.
-- R3: check:ci-release-obligations-integration — each required archive, signature, SBOM, checksum, extra file and package manifest is individually removed and rejected; the real v6.2.0 inventory passed.
-- R4: test:TestReviewBundleSealsRootGitleaksConfigBytes and test:TestReviewBundleDoesNotGeneralizeGitleaksClassification — exact root bytes retained; secret and similarly named paths stay unclassified.
+- R1 [satisfied] check:ci-release-obligations-integration — TestLocalVerifyCoversCurrentCIGates rejects newly omitted shell, POSE and Go gates.
+- R2 [satisfied] check:ci-release-obligations-integration — an inserted release step without a following clean-tree assertion fails.
+- R3 [satisfied] check:ci-release-obligations-integration — each required archive, signature, SBOM, checksum, extra file and package manifest is individually removed and rejected; the real v6.2.0 inventory passed.
+- R4 [satisfied] test:TestReviewBundleSealsRootGitleaksConfigBytes and test:TestReviewBundleDoesNotGeneralizeGitleaksClassification — exact root bytes retained; secret and similarly named paths stay unclassified.
 ### Known gaps
 No native OS execution is implied by asset presence.
 
