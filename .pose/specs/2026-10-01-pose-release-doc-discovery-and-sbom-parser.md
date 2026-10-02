@@ -1,8 +1,8 @@
 ---
 slug: pose-release-doc-discovery-and-sbom-parser
-status: in-progress
+status: done
 created_at: 2026-10-01
-completed_at:
+completed_at: 2026-10-01
 components: pose-mcp
 task_type: bugfix
 priority: 2
@@ -73,4 +73,4 @@ release, signing identity or platform runner is required.
 
 ## 7. Final Report
 
-Implementation and validation in progress.
+Implementation validated and closed through the governed review gate on 2026-10-01. Canonical strict validation passed 48/48 checks at f41b5aa; review bundle `rvb-3b6f52e24b22f0d3` was fresh and approved before `pose close`.
