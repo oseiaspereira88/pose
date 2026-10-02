@@ -112,7 +112,7 @@ for path in (pathlib.Path(sys.argv[1]) / ".pose/specs").rglob("*.md"):
     if not re.search(r"(?m)^delivers:\s*(?:#[^\n]*)?$", frontmatter):
         continue
     example = "- surface:exemplo module:caminho/do/modulo profile:web-ui entrypoint:caminho/do/entrypoint-de-producao\n"
-    path.write_text(raw.replace(example, ""))
+    path.write_text(re.sub(r"(?m)^" + re.escape(example), "", raw))
 PY
     if [ "$?" -ne 0 ]; then return 1; fi
     local marker
