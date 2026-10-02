@@ -33,6 +33,7 @@ Existing default test and --verify invocations remain valid.
 
 ## 3. Technical Plan
 ### Artifacts
+- modified: .pose/indexes/validation-matrix.json
 - modified: tests/quickstart/first-governed-loop.sh
 - created: tests/quickstart/measure-clean-environment.sh
 - modified: examples/demo/record.sh

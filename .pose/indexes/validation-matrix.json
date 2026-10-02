@@ -583,14 +583,29 @@
         {
           "name": "usage-adjudication-integration",
           "program": "go",
-          "args": ["test", "./internal/usage", "./internal/cli", "./internal/mcpserver", "-run", "Verdict|UsageAdjudicate|UsageMCPReportsHumanVerdicts|ValidateUsageUsesStructuredCheckFindings", "-count=1"],
+          "args": [
+            "test",
+            "./internal/usage",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "Verdict|UsageAdjudicate|UsageMCPReportsHumanVerdicts|ValidateUsageUsesStructuredCheckFindings",
+            "-count=1"
+          ],
           "severity": "required",
           "evidenceClass": "integration"
         },
         {
           "name": "usage-adjudication-reachability",
           "program": "go",
-          "args": ["test", "./internal/cli", "./internal/mcpserver", "-run", "UsageAdjudicate|UsageMCPReportsHumanVerdicts", "-count=1"],
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "UsageAdjudicate|UsageMCPReportsHumanVerdicts",
+            "-count=1"
+          ],
           "severity": "required",
           "evidenceClass": "reachability"
         },
@@ -857,6 +872,71 @@
           ],
           "severity": "required",
           "evidenceClass": "e2e"
+        },
+        {
+          "name": "dependabot-runtime-repair-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/version",
+            "-run",
+            "TestDependabotRuntimeRepairTrustBoundary",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "ci-release-obligations-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/version",
+            "-run",
+            "TestLocalVerify|TestReleaseObligationsAndNegativeControls",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "cli-profile-parity-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli/cliout",
+            "-run",
+            "TestLifecycleRendererProfileGoldens|TestColouredTablesKeepPlainAlignment|TestUTF8ProseWrapsByCharacters|TestUnknownKindsAreFullyLocalised",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "extension-target-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestExtensionInstallTargetFlag|TestExtensionInstallRejectsInvalidTargetBeforeLookup|TestExtensionInstallDryRunShowsDefaultTargetWithoutWriting",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "clean-activation-recording-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/version",
+            "-run",
+            "TestActivationRecordingContract",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

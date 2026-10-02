@@ -115,3 +115,10 @@ func TestReleaseObligationsAndNegativeControls(t *testing.T) {
 		t.Fatalf("release obligations: %v\n%s", err, output)
 	}
 }
+
+func TestActivationRecordingContract(t *testing.T) {
+	command := exec.Command("python3", "../../../examples/demo/capture.py", "--check")
+	if output, err := command.CombinedOutput(); err != nil {
+		t.Fatalf("activation recording: %v\n%s", err, output)
+	}
+}
