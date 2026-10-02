@@ -30,7 +30,9 @@ for arg in "$@"; do
   esac
 done
 
-BIN="$(mktemp -d)/pose"
+export POSE_LOCALE=en
+BUILD_WORK="$(mktemp -d)"
+BIN="$BUILD_WORK/pose"
 go -C pose-mcp build -o "$BIN" ./cmd/pose >/dev/null
 
 fail() { printf '\033[31mFAIL:\033[0m %s\n' "$1" >&2; exit 1; }
@@ -41,6 +43,7 @@ say()  { [ "$VERIFY" -eq 1 ] || printf '\n\033[1;36m%s\033[0m\n' "$1"; }
 run()  { [ "$VERIFY" -eq 1 ] || printf '\033[1m$ %s\033[0m\n' "$*"; }
 
 WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK" "$BUILD_WORK"' EXIT
 cd "$WORK"
 git init -q
 git config user.email demo@example.com
@@ -138,7 +141,7 @@ if OUT="$("$BIN" lint-spec customer-export --strict 2>&1)"; then
 fi
 grep -q "R1 has no trace entry" <<<"$OUT" \
   || fail "the expected blocking reason changed: $(head -3 <<<"$OUT")"
-[ "$VERIFY" -eq 1 ] || printf '%s\n' "$OUT" | grep -E "ERROR|Resultado" | head -3
+[ "$VERIFY" -eq 1 ] || printf '%s\n' "$OUT" | grep -Ei "error|resultado|result" | head -3
 beat 3
 
 say "The code is not in question. The promise is unconnected to evidence."
@@ -157,7 +160,7 @@ io.open(p, 'w', encoding='utf-8').write(s)
 PY
 run "pose lint-spec customer-export --strict"
 if OUT2="$("$BIN" lint-spec customer-export --strict 2>&1)"; then
-  [ "$VERIFY" -eq 1 ] || printf '%s\n' "$OUT2" | grep -E "trace|Resultado" | head -4
+  [ "$VERIFY" -eq 1 ] || printf '%s\n' "$OUT2" | grep -Ei "trace|resultado|result" | head -4
 else
   fail "the closeout gate still refuses after the trace was declared"
 fi

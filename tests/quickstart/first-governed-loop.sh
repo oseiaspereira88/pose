@@ -10,11 +10,15 @@
 
 set -euo pipefail
 
-cd "$(dirname "$0")/../.."
-ROOT="$PWD"
-
-BIN="$(mktemp -d)/pose"
-go -C pose-mcp build -o "$BIN" ./cmd/pose
+if [ "${1:-}" = "--binary" ]; then
+  BIN="${2:?--binary requires the native binary path}"
+  ROOT="$PWD"
+else
+  cd "$(dirname "$0")/../.."
+  ROOT="$PWD"
+  BIN="$(mktemp -d)/pose"
+  go -C pose-mcp build -o "$BIN" ./cmd/pose
+fi
 
 fail() { printf '\033[31mFAIL:\033[0m %s\n' "$1" >&2; exit 1; }
 ok()   { printf '\033[32m  ok\033[0m %s\n' "$1"; }
@@ -65,6 +69,22 @@ ok "step 3: entry gate passes once Intent and R1 exist"
 # Step 4 — the trail resolves.
 "$BIN" suggest feature >/dev/null 2>&1 || fail "pose suggest feature failed"
 ok "step 4: suggest resolves the applicable trail"
+
+# Step 5 executes a real test whose name will become the requirement trace.
+cat > svc/export.go <<'GO'
+package svc
+import "strings"
+func CSV(records []string) string { return strings.Join(records, ",") }
+GO
+cat > svc/export_test.go <<'GO'
+package svc
+import "testing"
+func TestCustomerExportWritesCSV(t *testing.T) {
+  if got := CSV([]string{"a", "b"}); got != "a,b" { t.Fatalf("got %q", got) }
+}
+GO
+out="$("$BIN" validate --strict 2>&1)" || fail "repository checks failed"
+ok "step 5: declared checks pass on the real CSV implementation"
 
 # Step 6 — declaring done must be REFUSED while R1 has no trace entry. This is
 # the beat the whole page is built around.
