@@ -1,8 +1,8 @@
 ---
 slug: pose-cli-profile-parity
-status: in-progress
+status: done
 created_at: 2026-10-02
-completed_at:
+completed_at: 2026-10-02
 priority: 3
 components: pose-mcp
 task_type: bugfix
