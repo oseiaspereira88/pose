@@ -1,8 +1,8 @@
 ---
 slug: pose-release-version-source
-status: in-progress
+status: done
 created_at: 2026-10-02
-completed_at:
+completed_at: 2026-10-02
 delivers: surface:release-version-source
 components: pose-mcp
 task_type: feature
