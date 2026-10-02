@@ -114,3 +114,53 @@ level down — a gate that reads as met by evidence that says nothing about it.
   adoption cost of any change to a closed set, and no encoding avoids it; the
   set being closed is what makes it worth having.
 
+
+### 2026-10-02 — the index stores validation evidence once
+
+Spec `pose-delivery-integrity-index-compaction`.
+
+**What changed.** The index file moves to schema 2. The graph a caller holds in
+memory is unchanged and keeps schema 1; only what is written differs. Results that
+share one validation run reference it, and the run's `scope_provenance` map is
+stored once. The results that validate a delivery are one shared `validation-set`
+node per distinct set, linked from each delivery with a single `validated-by` edge
+and to its members with `contains` edges. A delivery path names its set instead of
+listing every result. `changes` edges, which are each change set's observed paths,
+are left out and named in `implied_edges`. Every edge is written once.
+
+**Why.** The index went from 3.2 MB to 9.1 MB between v5.0.8 and v6.2.0 while specs
+grew by a third. Three structures grew as deliveries times results: one
+`validated-by` edge per delivery and passing result, 53 identical copies of a
+247-entry `scope_provenance` map, and the same results repeated in every path. The
+edge list also held 9,638 exact duplicates, because an entrypoint shared by many
+targets was linked once per target. On this repository the same inputs now write
+4.6 MB instead of 10.9 MB, with the same provenance digest, claims, change sets and
+findings.
+
+**Options considered.**
+
+1. Remove only the duplicate edges. Exact and needs no schema change, but one edge
+   per delivery and result remains, so growth stays quadratic.
+2. Link a delivery to a module and evidence class instead of to results. Linear,
+   but the edge would assert less: currency is checked per target and spec.
+3. Share one node per distinct result set. Exact, and bounded by what differs
+   between deliveries. Selected, together with edge deduplication.
+
+**Consequences.**
+
+- Reading expands the index back to the exact pairs, so every gate and MCP tool sees
+  the same graph. The provenance digest and the scoped digests hash claims and
+  change sets only and do not move; sealed bundles stay current.
+- The graph's `input_digest` is recomputed over the expanded graph and changes once.
+  No bundle consumes it.
+- Worst case, every delivery has a distinct set, and the index costs what the
+  expanded pairs cost; it is no larger. The saving depends on deliveries repeating
+  their evidence, which gates on a module do.
+- The index is now written by `IndexJSON`, not by marshalling the graph, because the
+  MCP tools return the graph and their output must stay the expanded form.
+- An engine that does not know schema 2 refuses the file as an invalid index and
+  `pose index` from that engine writes schema 1 over it. Neither reads one as the
+  other. A reader that walks the raw file for `validation-result` nodes follows one
+  more hop, and finds no `changes` edges unless it derives them.
+- A delivery path now lists its validation results in sorted order; they are a set,
+  and the order they were found in cannot be given back from a stored set.

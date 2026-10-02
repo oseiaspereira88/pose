@@ -42,8 +42,8 @@ func parseDeliveryIntegrityGraph(raw []byte) (DeliveryIntegrityGraph, bool) {
 	}
 	deliveryGraphCache.Unlock()
 
-	var graph DeliveryIntegrityGraph
-	if err := json.Unmarshal(raw, &graph); err != nil || graph.SchemaVersion != DeliveryIntegritySchemaVersion {
+	graph, ok := decodeDeliveryIntegrityIndex(raw)
+	if !ok {
 		return DeliveryIntegrityGraph{}, false
 	}
 	stored := copyDeliveryIntegrityGraph(graph)
@@ -53,6 +53,37 @@ func parseDeliveryIntegrityGraph(raw []byte) (DeliveryIntegrityGraph, bool) {
 	deliveryGraphCache.valid = true
 	deliveryGraphCache.Unlock()
 	return graph, true
+}
+
+// decodeDeliveryIntegrityIndex reads schema 1, written as the expanded graph, and
+// schema 2, which stores validation runs and sets once. Any other schema is not
+// read as either.
+func decodeDeliveryIntegrityIndex(raw []byte) (DeliveryIntegrityGraph, bool) {
+	var head struct {
+		SchemaVersion int `json:"schema_version"`
+	}
+	if err := json.Unmarshal(raw, &head); err != nil {
+		return DeliveryIntegrityGraph{}, false
+	}
+	switch head.SchemaVersion {
+	case DeliveryIntegritySchemaVersion:
+		var graph DeliveryIntegrityGraph
+		if err := json.Unmarshal(raw, &graph); err != nil {
+			return DeliveryIntegrityGraph{}, false
+		}
+		return graph, true
+	case DeliveryIntegrityIndexSchemaVersion:
+		var compact compactDeliveryGraph
+		if err := json.Unmarshal(raw, &compact); err != nil {
+			return DeliveryIntegrityGraph{}, false
+		}
+		graph, err := expandDeliveryIndex(compact)
+		if err != nil {
+			return DeliveryIntegrityGraph{}, false
+		}
+		return graph, true
+	}
+	return DeliveryIntegrityGraph{}, false
 }
 
 func bytesEqual(a, b []byte) bool {

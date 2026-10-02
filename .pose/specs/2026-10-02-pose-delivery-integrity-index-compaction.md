@@ -94,9 +94,15 @@ indentation style of the written JSON; the equivalent growth in
   includes it.
 - R7: The provenance digest and every scoped digest computed on this repository
   shall be identical before and after the change.
-- R8: A reader shall accept schema 1 and schema 2 indexes. A schema 1 index found
-  on disk shall be rebuilt, never reinterpreted, and an engine that does not know
-  schema 2 shall rebuild instead of trusting it.
+- R8: A reader shall accept schema 1, read as written, and schema 2, expanded. It
+  shall refuse any other schema, and a schema 2 file with an unknown run, an unknown
+  validation set or an unknown implied edge type, instead of reading it as
+  something else. An engine that does not know schema 2 refuses it as an invalid
+  index; the next `pose index` writes schema 2 over a schema 1 file.
+- R9: Change-set-to-artifact `changes` edges follow from each change set's observed
+  paths, so the index shall leave them out and name them in `implied_edges`, and
+  reading shall derive exactly those edges. When the graph's `changes` edges are not
+  exactly the implied ones, the index shall keep them all and omit the marker.
 
 ### Non-functional
 
@@ -124,20 +130,26 @@ the change remain fresh after it.
 
 ### Affected areas
 
-`pose-mcp/internal/pose`: graph construction in `delivery_surface.go`, the graph
-type and schema constant in `delivery_integrity.go`, and the cache reader in
-`delivery_integrity_cache.go`. The writers in `cli/index.go` and
-`cli/artifact_integrity.go` call the graph's JSON encoding and stay unchanged. The
-MCP tools read the index through the same types.
+`pose-mcp/internal/pose`: graph construction in `delivery_surface.go`, edge
+ordering in `delivery_integrity.go`, the cache reader in
+`delivery_integrity_cache.go` and a new encoder and expander. The three writers
+in `cli/index.go`, `cli/artifact_integrity.go` and `cli/review_closeout.go` call
+the graph's `IndexJSON` instead of marshalling it, because marshalling the graph
+directly is also what the MCP tools return and their output must not change. The
+MCP tools read the index through the same expanded types.
 
 ### Artifacts
 
 - modified: pose-mcp/internal/pose/delivery_surface.go
 - modified: pose-mcp/internal/pose/delivery_integrity.go
 - modified: pose-mcp/internal/pose/delivery_integrity_cache.go
-- modified: pose-mcp/internal/pose/module_scope_direction_test.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- created: pose-mcp/internal/cli/delivery_integrity_index_test.go
 - created: pose-mcp/internal/pose/delivery_integrity_compact.go
 - created: pose-mcp/internal/pose/delivery_integrity_compact_test.go
+- modified: .pose/indexes/validation-matrix.json
 - modified: .pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md
 - created: .pose/specs/2026-10-02-pose-delivery-integrity-index-compaction.md
 - created: .pose/changelogs/unreleased/pose-delivery-integrity-index-compaction.md
@@ -153,7 +165,8 @@ command, flag or MCP tool.
 ### API/contract changes
 
 The index gains `schema_version: 2`, a `validation_runs` table, `validation-set`
-nodes and `contains` edges. Results carry a run reference in place of their own map.
+nodes, `contains` edges and an `implied_edges` marker. A delivery path lists its
+validation results as one set reference, in sorted order. Results carry a run reference in place of their own map.
 `validated-by` now points from a delivery target to a `validation-set`. Consumers
 that walk the graph for `validation-result` nodes follow one more hop. The
 amendment to the ADR records this and the reason the pairs are lossless.
@@ -177,21 +190,21 @@ reordering bug would change the node ID between runs and put noise back into dif
 
 ### Planning
 
-- [ ] Confirm the measurements above against a fresh `pose index` on v6.2.0.
-- [ ] Decide the exact `validation-set` ID format and the `validation_runs` shape.
+- [x] Confirm the measurements above against a fresh `pose index` on v6.2.0.
+- [x] Decide the exact `validation-set` ID format and the `validation_runs` shape.
 
 ### Implementation
 
-- [ ] Compute sets from the existing per-target result loop, preserving the
+- [x] Compute sets from the existing per-target result loop, preserving the
       currency check per target and spec.
-- [ ] Write schema 2 and read schema 1 and 2.
-- [ ] Amend the ADR and add the changelog fragment.
+- [x] Write schema 2 and read schema 1 and 2.
+- [x] Amend the ADR and add the changelog fragment.
 
 ### Validation
 
-- [ ] Equivalence test against a graph built with the schema 1 writer.
-- [ ] Digest-identity test against this repository's change sets and claims.
-- [ ] Growth test with synthetic deliveries and results.
+- [x] Equivalence test against a graph built with the schema 1 writer.
+- [x] Digest-identity test against this repository's change sets and claims.
+- [x] Growth test with synthetic deliveries and results.
 - [ ] Run the full canonical matrix and compare sealed-bundle freshness.
 
 ## 5. Decisions
@@ -237,8 +250,20 @@ fresh.
 
 ### Execution log
 
-Not started. The measurements in section 1 were taken on 2026-10-02 from the v6.2.0
-index and the working tree.
+The measurements in section 1 were taken on 2026-10-02 from the v6.2.0 index and
+the working tree.
+
+Implemented in one pass; the module suite (`go test ./...`) and `go vet` passed.
+Tests were shown to fail without the change by disabling set sharing, sharing the
+scope map between results, removing edge deduplication and deriving no `changes`
+edges; each mutation failed the tests that name it, and the code was restored.
+
+Measured on the same commit (`006bd65`) in two clean clones, one indexed by an
+engine built from that commit and one by this change: the provenance digest,
+claims, change sets, findings and result identities were identical; the index went
+from 10,944,610 to 4,625,216 bytes (42.3%), edges from 33,019 to 7,674; `pose index` took a median
+of 46.85 s before and 48.01 s after over five runs, 2.5% longer, which is within
+what this machine varies between runs and not a speedup.
 
 ### Requirement trace
 

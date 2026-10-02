@@ -404,10 +404,8 @@ func BuildDeliveryIntegrityWithReleases(specs []Spec, claims []ArtifactClaim, ch
 		}
 	}
 	sort.Slice(graph.Nodes, func(i, j int) bool { return graph.Nodes[i].ID < graph.Nodes[j].ID })
-	sort.Slice(graph.Edges, func(i, j int) bool {
-		a, b := graph.Edges[i], graph.Edges[j]
-		return a.From+"\x00"+a.Type+"\x00"+a.To < b.From+"\x00"+b.Type+"\x00"+b.To
-	})
+	sort.Slice(graph.Edges, func(i, j int) bool { return edgeLess(graph.Edges[i], graph.Edges[j]) })
+	graph.Edges = dedupeSortedEdges(graph.Edges)
 	sort.Slice(graph.Findings, func(i, j int) bool { return graph.Findings[i].ID < graph.Findings[j].ID })
 	for path := range graph.Reverse {
 		sort.Strings(graph.Reverse[path])

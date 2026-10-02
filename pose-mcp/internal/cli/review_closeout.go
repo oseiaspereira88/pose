@@ -449,7 +449,7 @@ func cmdReviewBundle(root string, args []string, stdout, stderr io.Writer) int {
 	indexPath := filepath.Join(root, ".pose", "indexes", "delivery-integrity.json")
 	if _, statErr := os.Stat(indexPath); statErr != nil {
 		if deliveryGraph, err := buildCurrentDeliveryGraph(root); err == nil {
-			if raw, err := json.MarshalIndent(deliveryGraph, "", "  "); err == nil {
+			if raw, err := deliveryGraph.IndexJSON(); err == nil {
 				_ = os.MkdirAll(filepath.Join(root, ".pose", "indexes"), 0o755)
 				_ = os.WriteFile(indexPath, append(raw, '\n'), 0o644)
 			}

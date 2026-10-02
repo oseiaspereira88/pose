@@ -133,7 +133,13 @@ func cmdIndex(root string, args []string, stdout, stderr io.Writer) int {
 	outputs := map[string]any{"repo-map.json": repo, "services.json": services, "packages.json": packages, "spec-graph.json": map[string]any{"schemaVersion": 1, "specs": specMap, "edges": edges}, "roadmaps.json": map[string]any{"schemaVersion": 1, "roadmaps": roadmapMap}, "delivery-integrity.json": deliveryGraph, "releases.json": releaseStatus}
 	dir := filepath.Join(root, ".pose", "indexes")
 	for name, value := range outputs {
-		b, e := json.MarshalIndent(value, "", "  ")
+		var b []byte
+		var e error
+		if graph, ok := value.(posepkg.DeliveryIntegrityGraph); ok {
+			b, e = graph.IndexJSON()
+		} else {
+			b, e = json.MarshalIndent(value, "", "  ")
+		}
 		if e != nil {
 			return fail("encode", fmt.Sprintf("encoding %s: %v", name, e))
 		}

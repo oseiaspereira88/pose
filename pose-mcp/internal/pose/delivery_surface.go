@@ -491,7 +491,7 @@ func BuildDeliverySurface(graph DeliveryIntegrityGraph, specs []Spec, targets []
 			}
 			graph.Findings = append(graph.Findings, NewDeliveryIntegrityFinding(code, deliverySeverity(policy, code), target.Spec, target.Ref, "", "required current evidence is missing: "+strings.Join(missing, ", "), "run registered checks with the required evidenceClass against the current provenance digest"))
 		}
-		graph.Paths[target.Ref] = uniqueDeliveryPath(path)
+		graph.Paths[target.Ref] = canonicalDeliveryPath(uniqueDeliveryPath(path))
 	}
 	for _, setList := range setsBySpec {
 		for _, set := range setList {
@@ -625,9 +625,8 @@ func deliveryEvidenceCurrent(result DeliveryValidationResult, spec, status strin
 
 func finalizeExtendedDeliveryGraph(graph *DeliveryIntegrityGraph) {
 	sort.Slice(graph.Nodes, func(i, j int) bool { return graph.Nodes[i].ID < graph.Nodes[j].ID })
-	sort.Slice(graph.Edges, func(i, j int) bool {
-		return graph.Edges[i].From+"\x00"+graph.Edges[i].Type+"\x00"+graph.Edges[i].To < graph.Edges[j].From+"\x00"+graph.Edges[j].Type+"\x00"+graph.Edges[j].To
-	})
+	sort.Slice(graph.Edges, func(i, j int) bool { return edgeLess(graph.Edges[i], graph.Edges[j]) })
+	graph.Edges = dedupeSortedEdges(graph.Edges)
 	sort.Slice(graph.Findings, func(i, j int) bool { return graph.Findings[i].ID < graph.Findings[j].ID })
 	sort.Slice(graph.Deliveries, func(i, j int) bool { return graph.Deliveries[i].Ref < graph.Deliveries[j].Ref })
 	sort.Slice(graph.ValidationResults, func(i, j int) bool { return graph.ValidationResults[i].ID < graph.ValidationResults[j].ID })
@@ -712,6 +711,19 @@ func matchingDeliveryRoot(path string, roots []DeliveryRoot) (DeliveryRoot, bool
 	}
 	return DeliveryRoot{}, false
 }
+
+// canonicalDeliveryPath lists the validation results at the end of a path in
+// sorted order. They are a set, not a sequence; the index stores them as one, so
+// the order they were found in is not something it can give back.
+func canonicalDeliveryPath(path []string) []string {
+	tail := len(path)
+	for tail > 0 && strings.HasPrefix(path[tail-1], validationResultPrefix) {
+		tail--
+	}
+	sort.Strings(path[tail:])
+	return path
+}
+
 func uniqueDeliveryPath(values []string) []string {
 	seen := map[string]bool{}
 	out := []string{}
