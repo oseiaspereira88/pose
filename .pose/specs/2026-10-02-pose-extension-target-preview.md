@@ -44,9 +44,9 @@ Validate before catalog fetch; emit via renderer without increasing the direct-p
 
 ## 4. Tasks
 ### Implementation
-- [ ] Validate target arguments and show the resolved destination.
+- [x] Validate target arguments and show the resolved destination.
 ### Validation
-- [ ] Exercise default, explicit, dry-run and malformed targets.
+- [x] Exercise default, explicit, dry-run and malformed targets.
 
 ## 5. Decisions
 ### Decision 1
@@ -62,14 +62,16 @@ Use local synthetic unsigned fixture packages; malformed target tests use a cata
 - Scope: destination and existing diagnostics
 - Expected: all positive and negative cases pass
 ### Execution log
-Implementation pending.
+Explicit/default/dry-run/rejected target regressions and existing doctor profile/adoption diagnostics passed. Canonical module validation passed 50/50 on 2026-10-02.
 ### Requirement trace
-Record after validation.
+- R1: check:extension-target-integration — explicit and default target tests assert the absolute extension.target field before writes or withheld consent.
+- R2: check:extension-target-integration — TestExtensionInstallRejectsInvalidTargetBeforeLookup rejects missing values, following flags and absent directories without lookup or creation.
+- R3: check:extension-target-integration — TestExtensionInstallTargetFlag and TestExtensionInstallDryRunShowsDefaultTargetWithoutWriting prove destination isolation; existing doctor regressions remain passing.
 ### Known gaps
 Native package-channel runtime remains deferred.
 
 ## 7. Final Report
 ### Delivered scope
-Pending validation.
+Install previews identify their absolute destination. Malformed target arguments fail before package lookup and absent directories are never created implicitly.
 ### Follow-ups
 None.
