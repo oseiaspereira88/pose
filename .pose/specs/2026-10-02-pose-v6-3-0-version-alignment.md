@@ -1,8 +1,8 @@
 ---
 slug: pose-v6-3-0-version-alignment
-status: in-progress
+status: done
 created_at: 2026-10-02
-completed_at:
+completed_at: 2026-10-02
 priority: 0
 components: pose-mcp
 task_type: feature
