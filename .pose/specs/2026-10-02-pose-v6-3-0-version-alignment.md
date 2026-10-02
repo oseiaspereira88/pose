@@ -97,9 +97,6 @@ The native macOS and Windows package round remains deferred.
 ## 7. Final Report
 
 ### Delivered scope
-
-Pending.
-
+Version, registry manifest, README snippets in both locales and the CI guide agree on 6.3.0, and the compatibility matrix adds 6.2.0 pinned to the published checksums.txt digest. The compatibility gate passed five contract gates and twelve populated-instance upgrades.
 ### Follow-ups
-
-Pending.
+No follow-ups introduced. The native macOS and Windows package round remains deferred.
