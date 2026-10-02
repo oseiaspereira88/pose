@@ -74,10 +74,10 @@ Apply pose-test-plan. Mock provider calls at the boundary; assert the complete m
 ### Execution log
 Seven provider-boundary tests, workflow authority contracts and the canonical module matrix passed on 2026-10-02 (50/50 checks). ShellCheck 0.11.0 also passed the complete CI script set.
 ### Requirement trace
-- R1: check:dependabot-runtime-repair-integration — exact tested head, same repository, bot identity and open state are checked before generation.
-- R2: check:dependabot-runtime-repair-integration — mixed changes, action-identity edits, mutable refs and conflicts are refused.
-- R3: check:dependabot-runtime-repair-integration — trusted policy and a one-path Git-data commit are asserted; branch writes are non-forced.
-- R4: check:dependabot-runtime-repair-integration — no-op, stale-head rejection and explicit workflow dispatch are covered.
+- R1 [satisfied] check:dependabot-runtime-repair-integration — exact tested head, same repository, bot identity and open state are checked before generation.
+- R2 [satisfied] check:dependabot-runtime-repair-integration — mixed changes, action-identity edits, mutable refs and conflicts are refused.
+- R3 [satisfied] check:dependabot-runtime-repair-integration — trusted policy and a one-path Git-data commit are asserted; branch writes are non-forced.
+- R4 [satisfied] check:dependabot-runtime-repair-integration — no-op, stale-head rejection and explicit workflow dispatch are covered.
 ### Known gaps
 First real Dependabot repair requires the workflow on the default branch; tests prove the API boundary before deployment.
 
