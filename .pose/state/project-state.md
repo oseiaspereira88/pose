@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-01T23:43:32Z
-baseline_commit: f41b5aa25d61afa54461abcc8d6c5d44168e6460
+generated_at: 2026-10-02T07:41:12Z
+baseline_commit: 552542f3b81409fdfa4dfa985f50ec8f4bab8bc1
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:f29f84ce4133 -->
+<!-- state:derived hash:2f965e642b24 -->
 
-- specs: total=281 draft=2 in-progress=11 blocked=0 done=268 superseded=0 abandoned=0
+- specs: total=283 draft=2 in-progress=10 blocked=0 done=271 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
-  - spec:pose-cli-live-helper-coverage (2026-10-01)
-  - spec:pose-live-policy-reads-through-aliases (2026-10-01)
-  - spec:pose-history-quiet-tolerated-verdict (2026-10-01)
-  - spec:pose-suite-history-promise-per-step (2026-10-01)
+  - spec:pose-v6-2-0-release-stability (2026-10-02)
+  - spec:pose-compat-fixture-delivery-example (2026-10-02)
+  - spec:pose-v6-2-0-version-alignment (2026-10-02)
+  - spec:pose-release-doc-discovery-and-sbom-parser (2026-10-01)
   - spec:pose-governance-residual-diagnostics (2026-10-01)
-  - ... e mais 263 (ver `pose_list_specs status:done`)
+  - ... e mais 266 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:3240b415e51a -->
@@ -66,16 +66,16 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:2bbd50c07f60 -->
+<!-- state:derived hash:3c6820c1182c -->
 
 - último registro: task=validate-native outcome=pass (2026-10-01T21:24:46Z)
 - últimos 30 dias: total=136 outcome_ok=115 outcome_outro=21
-- reports revisados (.md): total=155
+- reports revisados (.md): total=157
+  - report:2026-10-02-compatibility-620.md
+  - report:2026-10-01-pr129-review.md
   - report:2026-10-01-standard-validate-native.md
   - report:pose-v6-2-0-autonomous-work.md
   - report:2026-09-29-standard-record-the-v2-0-2-change-set-of-pose-adoption-stamp-stays-readable.md
-  - report:2026-09-28-review-archive-coattribution.md
-  - report:2026-09-28-pose-dist-v6-adoption.md
 
 ## Arquitetura
 <!-- state:derived hash:19a4164022b2 status:active -->
