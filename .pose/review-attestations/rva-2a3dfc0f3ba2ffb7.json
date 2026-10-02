@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-2a3dfc0f3ba2ffb7",
+  "bundle_id": "rvb-917d129fb07d50f8",
+  "bundle_digest": "sha256:917d129fb07d50f8eb0ff5ffa0a3f806d11e5aaa94860e1a019aa9043ae98298",
+  "reviewer": "agent:codex-release-review-20261002",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Canonical strict matrix passed 48/48; existing positive and negative contracts cover the production module. Actual compatibility harness additionally passed all eleven prior versions."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Canonical strict matrix passed 48/48; existing positive and negative contracts cover the production module. Actual compatibility harness additionally passed all eleven prior versions."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Canonical strict matrix passed 48/48; existing positive and negative contracts cover the production module. Actual compatibility harness additionally passed all eleven prior versions."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Canonical strict matrix passed 48/48; existing positive and negative contracts cover the production module. Actual compatibility harness additionally passed all eleven prior versions."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Canonical strict matrix passed 48/48; existing positive and negative contracts cover the production module. Actual compatibility harness additionally passed all eleven prior versions."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "All eleven authenticated populated-instance upgrade pairs and five contract/installer checks passed; all prior support pins remain intact and no schema changed."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Canonical strict matrix passed 48/48; existing positive and negative contracts cover the production module. Actual compatibility harness additionally passed all eleven prior versions."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Canonical strict matrix passed 48/48; existing positive and negative contracts cover the production module. Actual compatibility harness additionally passed all eleven prior versions."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Both locale READMEs and the CI guide agree with authoritative 6.2.0 metadata; public-claims found zero findings across seventeen surfaces."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The 6.1.0 checksum was independently downloaded and matched verified release evidence; compatibility kept strict checking, idempotency and preservation active."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Canonical strict matrix passed 48/48; existing positive and negative contracts cover the production module. Actual compatibility harness additionally passed all eleven prior versions."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Only version metadata, the authenticated upgrade pin and the declared spec changed; artifact and surface gates passed. Preparation is distinct from publication."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Downloaded prior binaries are authenticated before execution; published tags/assets were preserved. Secret scanning and both module vulnerability scans passed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed applicable canonical validation, exact artifact/surface gates, discovery, debt/integration assessment and rule selection."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "No architectural refactor or concurrency change is introduced; exact scope, existing runtime contracts and bounded fixture behavior were inspected directly."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Direct documentation and shell review applies the relevant security/process rules; extra LOC inventory does not establish this behavior."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed applicable canonical validation, exact artifact/surface gates, discovery, debt/integration assessment and rule selection."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Direct documentation and shell review applies the relevant security/process rules; extra LOC inventory does not establish this behavior."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Executed applicable canonical validation, exact artifact/surface gates, discovery, debt/integration assessment and rule selection."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed applicable canonical validation, exact artifact/surface gates, discovery, debt/integration assessment and rule selection."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Direct documentation and shell review applies the relevant security/process rules; extra LOC inventory does not establish this behavior."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed applicable canonical validation, exact artifact/surface gates, discovery, debt/integration assessment and rule selection."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Direct documentation and shell review applies the relevant security/process rules; extra LOC inventory does not establish this behavior."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Executed applicable canonical validation, exact artifact/surface gates, discovery, debt/integration assessment and rule selection."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "No registered producer exists for this component; documentation was reviewed directly and the real compatibility harness ran separately."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Executed applicable canonical validation, exact artifact/surface gates, discovery, debt/integration assessment and rule selection."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "No registered producer exists for this component; documentation was reviewed directly and the real compatibility harness ran separately."
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "integration:pose-mcp/go/abm-causality-closeout-integration",
+    "integration:pose-mcp/go/abm-contract-nodes-integration",
+    "integration:pose-mcp/go/abm-progressive-review-integration",
+    "integration:pose-mcp/go/abm-remediation-lineage-integration",
+    "integration:pose-mcp/go/abm-retrospective-replay-integration",
+    "integration:pose-mcp/go/artifact-claim-boundary-integration",
+    "integration:pose-mcp/go/calendar-date-skew-integration",
+    "integration:pose-mcp/go/check-verdict-mode-integration",
+    "integration:pose-mcp/go/check-workers-integration",
+    "integration:pose-mcp/go/completed-review-retention-integration",
+    "integration:pose-mcp/go/delivery-graph-reuse-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+    "integration:pose-mcp/go/federated-roadmap-negative-gates",
+    "integration:pose-mcp/go/federated-spec-acceptance-integration",
+    "integration:pose-mcp/go/governance-outcomes-v2-contract",
+    "integration:pose-mcp/go/lint-spec-all-gate-contract",
+    "integration:pose-mcp/go/machine-channel-integration",
+    "integration:pose-mcp/go/multi-repo-agent-context-integration",
+    "integration:pose-mcp/go/multi-repo-agent-negative-gates",
+    "integration:pose-mcp/go/parallel-gate-integration",
+    "integration:pose-mcp/go/parse-memo-integration",
+    "integration:pose-mcp/go/project-id-derivation-integration",
+    "integration:pose-mcp/go/public-claims-release-line-integration",
+    "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+    "integration:pose-mcp/go/release-needs-ci-contract",
+    "integration:pose-mcp/go/release-review-archive-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "integration:pose-mcp/go/review-policy-adoption-integration",
+    "integration:pose-mcp/go/review-soundness-residuals-integration",
+    "integration:pose-mcp/go/review-subject-capabilities-integration",
+    "integration:pose-mcp/go/spec-authority-transfer-integration",
+    "integration:pose-mcp/go/spec-authority-transfer-mcp-status",
+    "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+    "integration:pose-mcp/go/test-git-isolation-integration",
+    "integration:pose-mcp/go/usage-adjudication-integration",
+    "reachability:pose-mcp/go/abm-replay-reachability",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "reachability:pose-mcp/go/multi-repo-agent-context-reachability",
+    "reachability:pose-mcp/go/usage-adjudication-reachability",
+    "structure:design-ce560d3204df5f44",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-02T07:39:54Z",
+  "path": ".pose/review-attestations/rva-2a3dfc0f3ba2ffb7.json"
+}
