@@ -1,8 +1,8 @@
 ---
 slug: pose-v6-2-0-release-stability
-status: in-progress
+status: done
 created_at: 2026-10-01
-completed_at:
+completed_at: 2026-10-02
 delivers: surface:release-stability, capability:release-stability
 supersedes:
 depends_on:
@@ -186,6 +186,9 @@ after implementation, and does not block other specs or release publication.
 ## 7. Final Report
 
 ### Delivered scope
+
+Closed on 2026-10-02 after canonical 48/48 validation, fresh approved bundle
+`rvb-6ffe65ceee14e443`, explicit attestation and guarded lifecycle transition.
 
 Contributor consent text, root example classification and installed-instance
 package smoke are implemented and covered by deterministic regressions.
