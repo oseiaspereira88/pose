@@ -1,8 +1,8 @@
 ---
 slug: pose-dependabot-runtime-repair
-status: in-progress
+status: done
 created_at: 2026-10-02
-completed_at:
+completed_at: 2026-10-02
 priority: 1
 components: pose-mcp
 task_type: feature
