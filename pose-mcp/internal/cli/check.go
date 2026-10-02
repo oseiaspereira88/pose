@@ -206,6 +206,10 @@ func (checker *nativeChecker) checkDeliveryContracts() {
 	// reuse is only safe because focusSurfaceGraph no longer filters through the
 	// caller's backing array.
 	graph, graphErr := buildCurrentDeliveryGraph(checker.root)
+	if graphErr != nil {
+		checker.failOrWarn("delivery contract: " + graphErr.Error())
+		return
+	}
 	slugs := []string{}
 	for _, path := range findSpecFiles(checker.root) {
 		fm := simpleFrontmatter(path)
@@ -227,12 +231,6 @@ func (checker *nativeChecker) checkDeliveryContracts() {
 		targets, found, err := pose.ParseDeliveryTargets(*full)
 		if err != nil || len(full.Delivers) > 0 && (!found || len(targets) == 0) {
 			return []string{fmt.Sprintf("delivery contract: spec:%s: %v", slug, err)}
-		}
-		// A graph that could not be built is reported once per spec, exactly as
-		// before: the error belonged to every spec the loop would have checked,
-		// and swallowing it here would turn an unreadable graph into a clean run.
-		if graphErr != nil {
-			return []string{"delivery contract: spec:" + slug + ": " + graphErr.Error()}
 		}
 		messages := []string{}
 		for _, blocker := range deliverySpecBlockersFromGraph(graph, slug) {

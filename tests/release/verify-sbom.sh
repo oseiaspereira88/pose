@@ -14,6 +14,19 @@
 # Env:   SBOM_MIN_LICENSE_PCT (default 75)
 set -euo pipefail
 
+# Direct production dependencies must be named by the inventory.
+go_mod="$(dirname "$0")/../../pose-mcp/go.mod"
+direct_deps=()
+if [[ -f "$go_mod" ]]; then
+  mapfile -t direct_deps < <(awk '/^require \(/{grab=1;next} /^\)/{grab=0} grab && $0 !~ /indirect/ {print $1} /^require [^(]/ && $0 !~ /indirect/ {print $2}' "$go_mod")
+fi
+
+# The positive-control fixture uses this same dependency inventory.
+if [[ "${1:-}" == "--direct-dependencies" ]]; then
+  printf '%s\n' "${direct_deps[@]}"
+  exit 0
+fi
+
 dir="${1:?usage: verify-sbom.sh <artifact-dir>}"
 min_pct="${SBOM_MIN_LICENSE_PCT:-75}"
 
@@ -26,13 +39,6 @@ archives=("$dir"/pose_*.tar.gz "$dir"/pose_*.zip)
 if [[ ${#archives[@]} -eq 0 ]]; then
   err "no release archives found in $dir"
   exit 1
-fi
-
-# Direct production dependencies must be named by the inventory.
-go_mod="$(dirname "$0")/../../pose-mcp/go.mod"
-direct_deps=()
-if [[ -f "$go_mod" ]]; then
-  mapfile -t direct_deps < <(awk '/^require \(/{grab=1;next} /^\)/{grab=0} grab && $0 !~ /indirect/ {print $1} /^require [^(]/ && $0 !~ /indirect/ {print $2}' "$go_mod")
 fi
 
 for artifact in "${archives[@]}"; do

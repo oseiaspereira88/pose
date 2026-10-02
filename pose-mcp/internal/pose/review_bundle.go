@@ -570,7 +570,11 @@ func (s Store) reviewBundleScopeProjection(scope ScopeRef) (ReviewBundleScope, [
 				excluded = append(excluded, ReviewBundleInput{Kind: "derived-section", Path: name, Digest: digestText(sections[name]), Reason: "operational closeout content is verified by its own gate"})
 			}
 		}
-		excluded = append(excluded, ReviewBundleInput{Kind: "lifecycle", Path: filepath.ToSlash(sp.Path), Reason: "status and completed_at do not define the reviewed semantic subject"})
+		lifecyclePath, err := filepath.Rel(s.Root, sp.Path)
+		if err != nil {
+			return projection, nil, err
+		}
+		excluded = append(excluded, ReviewBundleInput{Kind: "lifecycle", Path: filepath.ToSlash(lifecyclePath), Reason: "status and completed_at do not define the reviewed semantic subject"})
 	case "milestone":
 		rm, err := s.GetRoadmap(scope.Roadmap)
 		if err != nil {
@@ -2421,6 +2425,7 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 				// review's authority, so it stales a closed scope as it always did.
 				if bundle, att := s.retainedCompletedReview(scopeRef, scope, policy); bundle != nil && sameFederatedManifest(bundle.Payload.FederatedManifest, prepared.Payload.FederatedManifest) {
 					verification.Bundle, verification.Attestation = bundle, att
+					verification.Warnings = append(verification.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
 					verification.Fresh, verification.Approved = true, true
 					verification.State = "closed"
 					verification.NextAction = "scope is closed with its retained approved bundle attestation"
@@ -2437,6 +2442,7 @@ func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error
 		return verification, nil
 	}
 	verification.Bundle = current
+	verification.Warnings = uniqueSorted(append(verification.Warnings, staleEvidenceWarnings(current.Payload.Subject, current.Payload.Evidence)...))
 	verification.Fresh = true
 	verification.State = "ready-for-review"
 	attestations, err := s.ListReviewAttestations(current.BundleID)
@@ -3105,7 +3111,7 @@ func (s Store) verifiedAuthorityBlockers(bundle ReviewBundle, att ReviewAttestat
 	if policyErr != nil {
 		return append(blockers, policyErr.Error())
 	}
-	if claim.SchemaVersion != ReviewSchemaVersion {
+	if claim.SchemaVersion != ReviewBundleSchemaVersion {
 		blockers = append(blockers, fmt.Sprintf("the authority claim has unsupported schema version %d", claim.SchemaVersion))
 	}
 	if claim.BundleDigest != bundle.BundleDigest {

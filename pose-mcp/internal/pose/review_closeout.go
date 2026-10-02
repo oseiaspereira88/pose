@@ -491,8 +491,8 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 			}
 		}
 		for _, issuer := range p.HumanAuthorityIssuers {
-			if strings.TrimSpace(issuer) == "" || strings.ContainsAny(issuer, "\r\n") {
-				return ReviewPolicy{}, fmt.Errorf("pose: invalid human authority issuer")
+			if !validHumanAuthorityIssuerPin(issuer) {
+				return ReviewPolicy{}, fmt.Errorf("pose: invalid human authority issuer pin; expected <issuer>#sha256:<64 hex digits>")
 			}
 		}
 	}
@@ -502,6 +502,15 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 		}
 	}
 	return p, nil
+}
+
+func validHumanAuthorityIssuerPin(pin string) bool {
+	issuer, digest, found := strings.Cut(pin, "#sha256:")
+	if !found || strings.TrimSpace(issuer) == "" || strings.TrimSpace(issuer) != issuer || strings.ContainsAny(issuer, "\r\n#") || len(digest) != 64 {
+		return false
+	}
+	_, err := hex.DecodeString(digest)
+	return err == nil
 }
 
 // GetReviewPolicy exposes the validated provider-neutral policy to command
@@ -526,6 +535,28 @@ func (s Store) loadReviewProfile(ref string) (ReviewProfile, []byte, error) {
 		return ReviewProfile{}, nil, err
 	}
 	return profile, raw, nil
+}
+
+// ReviewProfileMigrationIssue projects a profile onto schema v2 for diagnostics.
+// It never rewrites the profile or changes the schema accepted by planning.
+func (s Store) ReviewProfileMigrationIssue(raw []byte) string {
+	var fields map[string]json.RawMessage
+	var profile ReviewProfile
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		return err.Error()
+	}
+	if err := json.Unmarshal(raw, &profile); err != nil {
+		return err.Error()
+	}
+	fields["schema_version"] = json.RawMessage("2")
+	projected, err := json.Marshal(fields)
+	if err != nil {
+		return err.Error()
+	}
+	if _, err := s.parseReviewProfile(profile.Ref(), projected); err != nil {
+		return err.Error()
+	}
+	return ""
 }
 
 // parseReviewProfile validates profile bytes whatever their source. Rule and

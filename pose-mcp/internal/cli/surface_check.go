@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"io/fs"
 	"os"
@@ -12,6 +11,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
@@ -37,14 +37,14 @@ func collectDeliveryTargets(root string, specs []posemodel.Spec, profiles map[st
 	for _, summary := range specs {
 		full, err := store.GetSpec(summary.Slug)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, fmt.Errorf("spec:%s: %w", summary.Slug, err)
 		}
 		parsed, _, err := posemodel.ParseDeliveryTargets(*full)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, fmt.Errorf("spec:%s: %w", summary.Slug, err)
 		}
 		if err := posemodel.ValidateDeliveryTargets(root, parsed, profiles); err != nil {
-			return nil, nil, err
+			return nil, nil, fmt.Errorf("spec:%s: %w", summary.Slug, err)
 		}
 		fullSpecs = append(fullSpecs, *full)
 		targets = append(targets, parsed...)
@@ -245,11 +245,18 @@ func cmdRoadmapCheck(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	roadmap, criteria, federated, blockers, graph := gate.roadmap, gate.criteria, gate.federated, gate.blockers, gate.graph
-	result := map[string]any{"schema_version": 1, "roadmap": slug, "status": roadmap.Status, "criteria": criteria, "federated_acceptance": federated, "terminal": len(blockers) == 0, "blockers": uniqueCLIStrings(blockers), "graph_digest": graph.InputDigest}
+	warnings := []string{}
+	if len(criteria) == 0 {
+		warnings = append(warnings, "roadmap declares no cut criteria; this result evaluates member acceptance only")
+	}
+	result := map[string]any{"schema_version": 1, "roadmap": slug, "status": roadmap.Status, "criteria": criteria, "federated_acceptance": federated, "terminal": len(blockers) == 0, "blockers": uniqueCLIStrings(blockers), "graph_digest": graph.InputDigest, "warnings": warnings}
 	if jsonOutput {
 		_ = writeJSON(stdout, result)
 	} else {
 		fmt.Fprintf(stdout, "roadmap.slug=%s\nroadmap.criteria=%d\nroadmap.terminal=%t\n", slug, len(criteria), len(blockers) == 0)
+		for _, warning := range warnings {
+			render(stdout, stderr).Finding(cliout.Finding{State: cliout.StateWarning, Message: warning})
+		}
 		for _, blocker := range uniqueCLIStrings(blockers) {
 			fmt.Fprintln(stdout, "[BLOCKER] "+blocker)
 		}

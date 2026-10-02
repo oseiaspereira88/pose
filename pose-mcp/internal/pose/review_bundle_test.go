@@ -2026,3 +2026,80 @@ func TestReviewBundleSealsEvidenceForPlannedComponentModules(t *testing.T) {
 		t.Fatal("a module no validate tool answers for was sealed")
 	}
 }
+
+func TestReviewBundleExcludedLifecyclePathIsPortable(t *testing.T) {
+	_, store := reviewBundleFixture(t)
+	bundle, err := store.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, input := range bundle.ExcludedInputs {
+		if input.Kind == "lifecycle" {
+			if filepath.IsAbs(input.Path) || strings.Contains(input.Path, "..") || !strings.HasPrefix(input.Path, ".pose/specs/") {
+				t.Fatalf("lifecycle path is not repository-relative: %q", input.Path)
+			}
+			if _, err := os.Stat(filepath.Join(store.Root, filepath.FromSlash(input.Path))); err != nil {
+				t.Fatal(err)
+			}
+			return
+		}
+	}
+	t.Fatal("lifecycle exclusion missing")
+}
+
+func TestRetainedVerifyReportsSelectedEvidenceObservation(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	policyPath := filepath.Join(root, ".pose/policy/review.json")
+	raw, err := os.ReadFile(policyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var policy map[string]any
+	if err := json.Unmarshal(raw, &policy); err != nil {
+		t.Fatal(err)
+	}
+	policy["review_bundles"] = true
+	policy["review_bundles_adopted_at"] = "2026-08-13"
+	raw, err = json.Marshal(policy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, ".pose/policy/review.json", string(raw))
+	graph, err := store.GetDeliveryIntegrity("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := range graph.ValidationResults {
+		graph.ValidationResults[i].GitHead = "earlier-evidence-head"
+	}
+	raw, err = json.Marshal(graph)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	now := time.Date(2026, 8, 13, 12, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.RecordReviewAttestation(approvedBundleAttestation(bundle, "agent:test-review"), now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	closeBackendSpec(t, store)
+	for i := range graph.ValidationResults {
+		graph.ValidationResults[i].GitHead = bundle.Payload.Subject.Head
+	}
+	raw, err = json.Marshal(graph)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	addMatrixCheck(t, store)
+	verification, err := store.VerifyReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if verification.State != "closed" || !verification.Approved || !strings.Contains(strings.Join(verification.Warnings, " "), "earlier-evidence-head") && !strings.Contains(strings.Join(verification.Warnings, " "), "integration:validate-backend") {
+		t.Fatalf("selected evidence warning lost: %+v", verification)
+	}
+}

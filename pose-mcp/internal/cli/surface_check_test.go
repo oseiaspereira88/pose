@@ -106,3 +106,30 @@ func TestValidationMatrixRejectsUnknownEvidenceClass(t *testing.T) {
 		t.Fatal("unknown evidence class accepted")
 	}
 }
+
+func TestRoadmapCheckNamesAbsentCutCriteria(t *testing.T) {
+	root := surfaceFixture(t)
+	writeArtifactTestFile(t, root, ".pose/roadmaps/empty.md", "---\nslug: empty\nstatus: draft\ncreated_at: 2026-10-01\n---\n# Empty roadmap\n")
+	var out, errOut bytes.Buffer
+	if code := cmdRoadmapCheck(root, []string{"empty", "--json"}, &out, &errOut); code != 0 {
+		t.Fatalf("code=%d: %s", code, &errOut)
+	}
+	var result struct {
+		Warnings []string `json:"warnings"`
+		Terminal bool     `json:"terminal"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Warnings) != 1 || !strings.Contains(result.Warnings[0], "no cut criteria") || !result.Terminal {
+		t.Fatalf("empty criteria status: %s", &out)
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := cmdRoadmapCheck(root, []string{"empty"}, &out, &errOut); code != 0 {
+		t.Fatalf("human code=%d: %s", code, &errOut)
+	}
+	if !strings.Contains(out.String(), "no cut criteria") || errOut.Len() != 0 {
+		t.Fatalf("human warning missing or on wrong channel: stdout=%s stderr=%s", &out, &errOut)
+	}
+}

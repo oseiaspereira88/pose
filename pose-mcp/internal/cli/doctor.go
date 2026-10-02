@@ -911,6 +911,17 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	if raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "review.json")); err == nil {
 		var policy posemodel.ReviewPolicy
 		if json.Unmarshal(raw, &policy) == nil {
+			var declarations map[string]json.RawMessage
+			_ = json.Unmarshal(raw, &declarations)
+			for _, contract := range posemodel.ReviewContracts() {
+				adopted, recorded := policy.ContractAdoptions[contract.ID]
+				var legacy string
+				if value, present := declarations[contract.LegacyField]; recorded && present && json.Unmarshal(value, &legacy) == nil && adopted != legacy {
+					add("review.adoption-conflict", "warn",
+						fmt.Sprintf(text("contract %s records conflicting adoption dates: map=%q, %s=%q", "contrato %s registra datas de adoção conflitantes: mapa=%q, %s=%q"), contract.ID, adopted, contract.LegacyField, legacy),
+						text("contract_adoptions takes precedence; reconcile the legacy date without changing the intended adoption boundary", "contract_adoptions tem precedência; reconcilie a data legada sem alterar o limite de adoção pretendido"))
+				}
+			}
 			// Legacy attempts live in `.pose/reviews/*.md` — the directory
 			// Store.ListReviewAttempts reads. An earlier version of this check
 			// globbed `.pose/review-attempts/`, which nothing writes, so the
@@ -977,7 +988,11 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 			}
 			examined++
 			if profile.SchemaVersion < posemodel.ReviewPolicySchemaVersion {
-				behind = append(behind, fmt.Sprintf("%s (v%d)", entry.Name(), profile.SchemaVersion))
+				detail := fmt.Sprintf("%s (v%d)", entry.Name(), profile.SchemaVersion)
+				if issue := (posemodel.Store{Root: root}).ReviewProfileMigrationIssue(raw); issue != "" {
+					detail += ": " + issue
+				}
+				behind = append(behind, detail)
 			}
 		}
 		sort.Strings(behind)
@@ -990,6 +1005,32 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		} else if examined > 0 {
 			add("review.profile-schema", "ok",
 				fmt.Sprintf(text("every review profile is at schema v%d", "todo review profile está no schema v%d"), posemodel.ReviewPolicySchemaVersion), "")
+		}
+	}
+
+	if paths, err := filepath.Glob(filepath.Join(root, ".pose/review-bundles/*.json")); err == nil {
+		missingContracts, missingGates, examined := 0, 0, 0
+		for _, path := range paths {
+			raw, err := os.ReadFile(path)
+			if err != nil {
+				continue
+			}
+			var bundle posemodel.ReviewBundle
+			if json.Unmarshal(raw, &bundle) != nil || bundle.State != "sealed" {
+				continue
+			}
+			examined++
+			if len(bundle.Payload.GoverningContracts) == 0 {
+				missingContracts++
+			}
+			if bundle.Payload.Gates == nil {
+				missingGates++
+			}
+		}
+		if missingContracts > 0 || missingGates > 0 {
+			add("review.legacy-bundles", "warn",
+				fmt.Sprintf(text("%d sealed bundle(s): %d without governing contracts, %d without sealed gates", "%d bundle(s) selado(s): %d sem contratos governantes, %d sem gates selados"), examined, missingContracts, missingGates),
+				text("these bundles use compatibility fallbacks; retain those fallbacks until historical acceptance has been audited", "esses bundles usam fallbacks de compatibilidade; preserve-os até auditar o aceite histórico"))
 		}
 	}
 

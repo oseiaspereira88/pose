@@ -20,12 +20,11 @@ version="${tag#v}"
 repo="${DOCS_PARITY_REPO:-oseiaspereira88/pose}"
 repo_root="$(git rev-parse --show-toplevel)"
 
-# Documentation sources that hand a user a download URL.
-sources=(
-  "$repo_root/README.md"
-  "$repo_root/docs-site/docs/package-channels.md"
-  "$repo_root/docs-site/docs/ci.md"
-)
+# Discover documentation sources; null delimiters preserve paths with spaces.
+sources=("$repo_root/README.md")
+while IFS= read -r -d '' source; do
+  sources+=("$source")
+done < <(find "$repo_root/docs-site/docs" -type f -name '*.md' -print0)
 
 # Collect the asset names the docs reference, with placeholders expanded.
 # Both `vX.Y.Z` (literal placeholder) and `v${V}`/`v$V` (shell-substituted in a

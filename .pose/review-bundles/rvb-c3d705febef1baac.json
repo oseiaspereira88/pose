@@ -1,0 +1,1113 @@
+{
+  "schema_version": 1,
+  "bundle_id": "rvb-c3d705febef1baac",
+  "bundle_digest": "sha256:c3d705febef1baaca75cd9bc795221b1cbcd496a1ddeac83815a48530bb1f887",
+  "state": "sealed",
+  "sealed_at": "2026-10-01T23:29:47Z",
+  "payload": {
+    "scope": {
+      "ref": "spec:pose-history-quiet-tolerated-verdict",
+      "kind": "spec",
+      "slug": "pose-history-quiet-tolerated-verdict",
+      "components": [
+        "pose-mcp"
+      ],
+      "deliveries": [
+        "surface:history-quiet-verdict"
+      ],
+      "sections": [
+        {
+          "kind": "semantic-section",
+          "path": "decisions",
+          "digest": "sha256:73f3c3a7f8b01ef2dce289b5277a9e184f23abf4286b263f2774e97bee46d373",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "intent",
+          "digest": "sha256:ec3521644f93dcf689ebb596e468a869d986eb629d7ac4a0067943d6352e50f3",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "requirements",
+          "digest": "sha256:3d01d45c5ed3ff48cca9711254dbafd694c6502ba6c4ee9f01c5881633206d1e",
+          "reason": "governed semantic review input"
+        },
+        {
+          "kind": "semantic-section",
+          "path": "technical plan",
+          "digest": "sha256:aad68d410235f44a14eee87781f280517ab5298838fed6b394c75b7d948d2150",
+          "reason": "governed semantic review input"
+        }
+      ]
+    },
+    "subject": {
+      "change_sets": [
+        "cs-a458f4614ae4"
+      ],
+      "base": "32d3b9d2aed38071eb505e01cc919c1d1e81c97a",
+      "head": "0491655920359bf3a7b584b8c3a05bc817cff862",
+      "implementation_digest": "sha256:391066d8ab567b2c7f7bf918f09ecce77b48b624e5c7bd71be1c101c49ccdac3",
+      "patch_digest": "sha256:c9f2fe1f5755f8d2e36e3bce8e0f1dfb6515c3fb56bc35f4a7047976f1692804",
+      "tree_digest": "sha256:0fb71b6b9cb078002121b4edcf0a03bfce1627902c8ac91b4f6fc74b612c19cc",
+      "entries": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-history-quiet-tolerated-verdict.md",
+          "class": "governance",
+          "digest": "sha256:559c0024b0a09398a2bdc0401bf25648b8d51016496b0d0f7e0b243516abca3e",
+          "reason": "attributed governance path in the immutable change set"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/history_quiet_test.go",
+          "class": "implementation",
+          "digest": "sha256:d611b229b4dc5a511d043119c88ddec876c2ec8029d0179175b1ae192b3d263a",
+          "reason": "attributed implementation path in the immutable change set"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/historycheck.go",
+          "class": "implementation",
+          "digest": "sha256:a77ca99de92d51d5d2b798c51d52c64134dd540d9f0ffd60f299d94063205ac8",
+          "reason": "attributed implementation path in the immutable change set"
+        }
+      ]
+    },
+    "plan": {
+      "plan_digest": "sha256:735e55836605908f3853c18ca0363a0357fcc1bfd05e2b419e595d57f1312966",
+      "independence": "same-actor-separate-execution",
+      "components": [
+        {
+          "id": "pose-mcp",
+          "path": "pose-mcp",
+          "kind": "package",
+          "language": "go",
+          "domain": "go",
+          "criticality": "high",
+          "validation_profile": "baseline",
+          "metadata_status": "partial",
+          "metadata_missing": [
+            "owner"
+          ],
+          "origin": "declared+observed",
+          "sources": [
+            "artifact:pose-history-quiet-tolerated-verdict:pose-mcp/internal/cli/history_quiet_test.go",
+            "artifact:pose-history-quiet-tolerated-verdict:pose-mcp/internal/cli/historycheck.go",
+            "delivery:surface:history-quiet-verdict:pose-mcp",
+            "delivery:surface:history-quiet-verdict:pose-mcp/cmd/pose/main.go",
+            "observed:pose-history-quiet-tolerated-verdict:pose-mcp/internal/cli/history_quiet_test.go",
+            "observed:pose-history-quiet-tolerated-verdict:pose-mcp/internal/cli/historycheck.go",
+            "spec:pose-history-quiet-tolerated-verdict:component:pose-mcp"
+          ]
+        }
+      ],
+      "criteria": [
+        {
+          "id": "backend-concurrency",
+          "description": "Concurrent access, cancellation and lifecycle behavior are safe where applicable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-contracts",
+          "description": "Public API, event, file and tool contracts remain compatible or explicitly migrated.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-input-errors",
+          "description": "Inputs, validation failures and error paths are bounded, typed and actionable.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-integration-impact",
+          "description": "Providers, consumers and inter-component boundaries remain integrated.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "integration"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "backend-observability",
+          "description": "Failures are diagnosable through bounded, non-sensitive logs, metrics or returned context.",
+          "required": true,
+          "kind": "mechanical",
+          "rules": [
+            "backend-go",
+            "security"
+          ],
+          "evidence_classes": [
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "backend-review@1"
+          ]
+        },
+        {
+          "id": "compatibility",
+          "description": "Public CLI, file and MCP contracts are compatible or explicitly migrated.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "correctness",
+          "description": "Functional and negative behavior is correct.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "documentation",
+          "description": "Operational docs, templates and scaffold match runtime behavior.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "operability",
+          "description": "Errors, explanations and remediation are actionable.",
+          "required": true,
+          "kind": "judgment",
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "requirements",
+          "description": "Every requirement has current, relevant evidence.",
+          "required": true,
+          "kind": "mechanical",
+          "evidence_classes": [
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "scope",
+          "description": "The implementation matches the approved spec scope.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "documentation-style"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        },
+        {
+          "id": "security",
+          "description": "Inputs, paths, evidence and authority boundaries are safe.",
+          "required": true,
+          "kind": "judgment",
+          "rules": [
+            "security"
+          ],
+          "profiles": [
+            "spec-closeout@1"
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "id": "artifact-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "artifact-check",
+            "--spec",
+            "pose-history-quiet-tolerated-verdict",
+            "--strict"
+          ],
+          "rationale": "reconcile declared artifacts with Git-observed provenance",
+          "criteria": [
+            "requirements",
+            "scope"
+          ],
+          "preconditions": [
+            "artifacts-attributed"
+          ]
+        },
+        {
+          "id": "assess-design",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "design",
+            "--spec",
+            "pose-history-quiet-tolerated-verdict",
+            "--json"
+          ],
+          "rationale": "observe bounded structural deltas on the canonical review subject",
+          "evidence_classes": [
+            "structure"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-discover",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "discover",
+            "--component",
+            "pose-mcp"
+          ],
+          "rationale": "inspect component structure, language, size and visible debt",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-integrate",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "integrate"
+          ],
+          "rationale": "inspect providers, consumers and inter-component contract gaps",
+          "evidence_classes": [
+            "integration"
+          ],
+          "criteria": [
+            "backend-contracts",
+            "backend-integration-impact"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "assess-tech-debt",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "assess",
+            "tech-debt"
+          ],
+          "rationale": "inspect unresolved TODO, FIXME, panic and stub findings",
+          "criteria": [
+            "correctness"
+          ],
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "closeout-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "closeout-check",
+            "spec:pose-history-quiet-tolerated-verdict"
+          ],
+          "rationale": "verify remaining hierarchical closeout blockers",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "review-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "review-check",
+            "spec:pose-history-quiet-tolerated-verdict"
+          ],
+          "rationale": "verify exact review-plan coverage and freshness",
+          "preconditions": [
+            "review-complete"
+          ]
+        },
+        {
+          "id": "suggest-review",
+          "requiredness": "recommended",
+          "args": [
+            "pose",
+            "suggest",
+            "review",
+            "--path",
+            "pose-mcp"
+          ],
+          "rationale": "resolve the component-specific workflow, skill, rules and validation trail",
+          "component": "pose-mcp",
+          "preconditions": [
+            "scope-authorized"
+          ]
+        },
+        {
+          "id": "surface-check",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "surface-check",
+            "--spec",
+            "pose-history-quiet-tolerated-verdict",
+            "--strict"
+          ],
+          "rationale": "verify delivery composition, reachability and fresh evidence",
+          "evidence_classes": [
+            "integration",
+            "reachability"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "criteria": [
+            "backend-concurrency",
+            "backend-input-errors",
+            "backend-observability",
+            "correctness",
+            "requirements"
+          ],
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        },
+        {
+          "id": "validate",
+          "requiredness": "required",
+          "args": [
+            "pose",
+            "validate",
+            "--strict",
+            "--module",
+            "pose-mcp"
+          ],
+          "rationale": "run the registered deterministic checks for the affected module",
+          "evidence_classes": [
+            "build",
+            "e2e",
+            "integration",
+            "unit"
+          ],
+          "component": "pose-mcp",
+          "preconditions": [
+            "delivery-target-declared"
+          ]
+        }
+      ],
+      "selected_profiles": [
+        {
+          "ref": "spec-closeout@1",
+          "category": "base",
+          "order": 0,
+          "source": ".pose/review-profiles/spec-closeout.json",
+          "rationale": "selected by terminal scope policy"
+        },
+        {
+          "ref": "backend-review@1",
+          "category": "language",
+          "order": 1,
+          "source": ".pose/review-profiles/backend-review.json",
+          "components": [
+            "pose-mcp"
+          ],
+          "rationale": "matched typed language selector"
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "design-940fae36ef4d4299",
+        "check": "assess-design",
+        "evidence_class": "structure",
+        "outcome": "pass",
+        "subject_digest": "sha256:391066d8ab567b2c7f7bf918f09ecce77b48b624e5c7bd71be1c101c49ccdac3",
+        "subject_observation": "observed",
+        "provenance_digest": "sha256:940fae36ef4d42990f16cb36a49e4038dfbd4c6fe6d8710d8214f21ea8118e95",
+        "report": "derived:design-delta/940fae36ef4d42990f16cb36a49e4038dfbd4c6fe6d8710d8214f21ea8118e95"
+      },
+      {
+        "id": "pose-mcp/go/abm-atomic-start-integration",
+        "module": "pose-mcp",
+        "check": "abm-atomic-start-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-causality-closeout-integration",
+        "module": "pose-mcp",
+        "check": "abm-causality-closeout-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-contract-nodes-integration",
+        "module": "pose-mcp",
+        "check": "abm-contract-nodes-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-progressive-review-integration",
+        "module": "pose-mcp",
+        "check": "abm-progressive-review-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-remediation-lineage-integration",
+        "module": "pose-mcp",
+        "check": "abm-remediation-lineage-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-replay-reachability",
+        "module": "pose-mcp",
+        "check": "abm-replay-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/abm-retrospective-replay-integration",
+        "module": "pose-mcp",
+        "check": "abm-retrospective-replay-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/artifact-claim-boundary-integration",
+        "module": "pose-mcp",
+        "check": "artifact-claim-boundary-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/build",
+        "module": "pose-mcp",
+        "check": "build",
+        "evidence_class": "build",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/calendar-date-skew-integration",
+        "module": "pose-mcp",
+        "check": "calendar-date-skew-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/check-verdict-mode-integration",
+        "module": "pose-mcp",
+        "check": "check-verdict-mode-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/check-workers-integration",
+        "module": "pose-mcp",
+        "check": "check-workers-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/completed-review-retention-integration",
+        "module": "pose-mcp",
+        "check": "completed-review-retention-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-graph-reuse-integration",
+        "module": "pose-mcp",
+        "check": "delivery-graph-reuse-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-integration",
+        "module": "pose-mcp",
+        "check": "delivery-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/delivery-reachability",
+        "module": "pose-mcp",
+        "check": "delivery-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/federated-roadmap-acceptance-integration",
+        "module": "pose-mcp",
+        "check": "federated-roadmap-acceptance-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/federated-roadmap-negative-gates",
+        "module": "pose-mcp",
+        "check": "federated-roadmap-negative-gates",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/federated-spec-acceptance-integration",
+        "module": "pose-mcp",
+        "check": "federated-spec-acceptance-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/governance-outcomes-v2-contract",
+        "module": "pose-mcp",
+        "check": "governance-outcomes-v2-contract",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/lint-spec-all-gate-contract",
+        "module": "pose-mcp",
+        "check": "lint-spec-all-gate-contract",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/machine-channel-integration",
+        "module": "pose-mcp",
+        "check": "machine-channel-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-context-integration",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-context-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-context-reachability",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-context-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-installed-journey",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-installed-journey",
+        "evidence_class": "e2e",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/multi-repo-agent-negative-gates",
+        "module": "pose-mcp",
+        "check": "multi-repo-agent-negative-gates",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/parallel-gate-integration",
+        "module": "pose-mcp",
+        "check": "parallel-gate-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/parse-memo-integration",
+        "module": "pose-mcp",
+        "check": "parse-memo-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/project-id-derivation-integration",
+        "module": "pose-mcp",
+        "check": "project-id-derivation-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/public-claims-release-line-integration",
+        "module": "pose-mcp",
+        "check": "public-claims-release-line-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/qualified-artifact-resolution-integration",
+        "module": "pose-mcp",
+        "check": "qualified-artifact-resolution-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/release-needs-ci-contract",
+        "module": "pose-mcp",
+        "check": "release-needs-ci-contract",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/release-review-archive-integration",
+        "module": "pose-mcp",
+        "check": "release-review-archive-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-bundle-convergence",
+        "module": "pose-mcp",
+        "check": "review-bundle-convergence",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-policy-adoption-integration",
+        "module": "pose-mcp",
+        "check": "review-policy-adoption-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-soundness-residuals-integration",
+        "module": "pose-mcp",
+        "check": "review-soundness-residuals-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/review-subject-capabilities-integration",
+        "module": "pose-mcp",
+        "check": "review-subject-capabilities-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-authority-transfer-integration",
+        "module": "pose-mcp",
+        "check": "spec-authority-transfer-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-authority-transfer-mcp-status",
+        "module": "pose-mcp",
+        "check": "spec-authority-transfer-mcp-status",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/spec-authority-transfer-negative-gates",
+        "module": "pose-mcp",
+        "check": "spec-authority-transfer-negative-gates",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test",
+        "module": "pose-mcp",
+        "check": "test",
+        "evidence_class": "unit",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/test-git-isolation-integration",
+        "module": "pose-mcp",
+        "check": "test-git-isolation-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/usage-adjudication-integration",
+        "module": "pose-mcp",
+        "check": "usage-adjudication-integration",
+        "evidence_class": "integration",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      },
+      {
+        "id": "pose-mcp/go/usage-adjudication-reachability",
+        "module": "pose-mcp",
+        "check": "usage-adjudication-reachability",
+        "evidence_class": "reachability",
+        "outcome": "pass",
+        "subject_observation": "carried-forward",
+        "git_head": "f41b5aa25d61afa54461abcc8d6c5d44168e6460",
+        "provenance_digest": "sha256:3aae3508b8d17d5d8f43f381ae4a5ebec98dc794bf495219cc59b40fc709256d",
+        "report": ".pose/results/delivery-validation.json"
+      }
+    ],
+    "governing_contracts": [
+      "component-aware",
+      "evidence-vocabulary",
+      "explicit-judgment",
+      "review-bundles",
+      "structural-causality"
+    ],
+    "gates": {
+      "accepted_risk_severities": [
+        "low"
+      ],
+      "allow_criterion_reuse": true,
+      "identity_assurance": "declared"
+    },
+    "consumed_inputs": [
+      {
+        "kind": "governed-config",
+        "path": ".pose/indexes/validation-matrix.json",
+        "digest": "sha256:701de6b960b9c46a04ac3ec569dd65c283634f1bf42886bf5dfdbb1046c55ac5",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "governed-config",
+        "path": ".pose/policy/review.json",
+        "digest": "sha256:abfa1c9bdf90b6b907a6b724e1b83edb40b8a5eb65a16c6f8214f142bb6e4586",
+        "reason": "consumed review policy or validation contract"
+      },
+      {
+        "kind": "review-plan",
+        "path": "spec-closeout@1",
+        "digest": "sha256:735e55836605908f3853c18ca0363a0357fcc1bfd05e2b419e595d57f1312966",
+        "reason": "effective component-aware plan contract"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/backend-review.json",
+        "digest": "sha256:71063c042b4e085bb9afc13e4ac675d0b51a0534b59787a437d1650c156cb5f1",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "review-profile",
+        "path": ".pose/review-profiles/spec-closeout.json",
+        "digest": "sha256:3d114c8cb6398ab16bd0a1daca8540728af282558ff37156aea878bcc9d238a5",
+        "reason": "selected by effective review plan"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/backend-go.md",
+        "digest": "sha256:2289a86134e7d6667ae4dba4bfd68dee8acd59246912e32c35648d399e6d3e31",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/documentation-style.md",
+        "digest": "sha256:5c5c666fc6c796cf9ae3876d25d3fd4fa523d121892459dc0d681d73da1d60ae",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "rule",
+        "path": ".pose/rules/security.md",
+        "digest": "sha256:1cbf29c12d09cad0799e2d8715e94f84a49ee8fa09867bb5f12a544f8df43774",
+        "reason": "selected by effective review criterion"
+      },
+      {
+        "kind": "schema",
+        "path": "review-bundle@1",
+        "digest": "sha256:e7c9643ec88eccb2a6dea3ee3291c351983d78e1d2fa44b61399514c5021bcb0",
+        "reason": "canonical bundle and attestation schema identity"
+      },
+      {
+        "kind": "tool-catalog",
+        "path": "native-review-tools@1",
+        "digest": "sha256:735e55836605908f3853c18ca0363a0357fcc1bfd05e2b419e595d57f1312966",
+        "reason": "closed resolved native tool contract"
+      }
+    ]
+  },
+  "excluded_inputs": [
+    {
+      "kind": "derived-section",
+      "path": "final report",
+      "digest": "sha256:b7bdb83eab6e461f732ceb2dace53dbc966c44b0d85b4fc343f8a03c648da1a7",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "tasks",
+      "digest": "sha256:e3466fe3dfa04b7e3d39aa547a3d9b77612b5524e00a05fd6521d090693fa374",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "derived-section",
+      "path": "validation",
+      "digest": "sha256:6c042d81b10f10458dae607c4cd2dff55433051c1c135d4f1f464bfd415ee949",
+      "reason": "operational closeout content is verified by its own gate"
+    },
+    {
+      "kind": "lifecycle",
+      "path": ".pose/specs/2026-10-01-pose-history-quiet-tolerated-verdict.md",
+      "reason": "status and completed_at do not define the reviewed semantic subject"
+    },
+    {
+      "kind": "semantic-scope",
+      "path": ".pose/specs/2026-10-01-pose-history-quiet-tolerated-verdict.md",
+      "reason": "attributed path is outside the semantic review subject"
+    }
+  ],
+  "range_observations": [
+    {
+      "change_set": "cs-a458f4614ae4",
+      "state": "contaminated",
+      "attributed_commits": 2,
+      "range_commits": 16,
+      "unattributed_commits": 14,
+      "reason": "the range spans commits this change set does not attribute; its paths are attributed, its base..head is not"
+    }
+  ],
+  "warnings": [
+    "change set cs-a458f4614ae4 attributes 2 commit(s) but its range spans 16; 14 commit(s) in base..head belong to other work, so the range is provenance and the attributed paths are the subject",
+    "metadata-incomplete review component pose-mcp missing:owner",
+    "sealed evidence ran against a commit other than the subject head 049165592035; it is current by provenance, not by having observed this change: build:pose-mcp/go/build, e2e:pose-mcp/go/multi-repo-agent-installed-journey, integration:pose-mcp/go/abm-atomic-start-integration, integration:pose-mcp/go/abm-causality-closeout-integration, integration:pose-mcp/go/abm-contract-nodes-integration, integration:pose-mcp/go/abm-progressive-review-integration, integration:pose-mcp/go/abm-remediation-lineage-integration, integration:pose-mcp/go/abm-retrospective-replay-integration, integration:pose-mcp/go/artifact-claim-boundary-integration, integration:pose-mcp/go/calendar-date-skew-integration, integration:pose-mcp/go/check-verdict-mode-integration, integration:pose-mcp/go/check-workers-integration, integration:pose-mcp/go/completed-review-retention-integration, integration:pose-mcp/go/delivery-graph-reuse-integration, integration:pose-mcp/go/delivery-integration, integration:pose-mcp/go/federated-roadmap-acceptance-integration, integration:pose-mcp/go/federated-roadmap-negative-gates, integration:pose-mcp/go/federated-spec-acceptance-integration, integration:pose-mcp/go/governance-outcomes-v2-contract, integration:pose-mcp/go/lint-spec-all-gate-contract, integration:pose-mcp/go/machine-channel-integration, integration:pose-mcp/go/multi-repo-agent-context-integration, integration:pose-mcp/go/multi-repo-agent-negative-gates, integration:pose-mcp/go/parallel-gate-integration, integration:pose-mcp/go/parse-memo-integration, integration:pose-mcp/go/project-id-derivation-integration, integration:pose-mcp/go/public-claims-release-line-integration, integration:pose-mcp/go/qualified-artifact-resolution-integration, integration:pose-mcp/go/release-needs-ci-contract, integration:pose-mcp/go/release-review-archive-integration, integration:pose-mcp/go/review-bundle-convergence, integration:pose-mcp/go/review-policy-adoption-integration, integration:pose-mcp/go/review-soundness-residuals-integration, integration:pose-mcp/go/review-subject-capabilities-integration, integration:pose-mcp/go/spec-authority-transfer-integration, integration:pose-mcp/go/spec-authority-transfer-mcp-status, integration:pose-mcp/go/spec-authority-transfer-negative-gates, integration:pose-mcp/go/test-git-isolation-integration, integration:pose-mcp/go/usage-adjudication-integration, reachability:pose-mcp/go/abm-replay-reachability, reachability:pose-mcp/go/delivery-reachability, reachability:pose-mcp/go/multi-repo-agent-context-reachability, reachability:pose-mcp/go/usage-adjudication-reachability, unit:pose-mcp/go/test",
+    "unmapped review component path:.pose/changelogs/unreleased/pose-history-quiet-tolerated-verdict.md",
+    "unmapped review component path:.pose/specs/2026-10-01-pose-history-quiet-tolerated-verdict.md"
+  ],
+  "path": ".pose/review-bundles/rvb-c3d705febef1baac.json"
+}

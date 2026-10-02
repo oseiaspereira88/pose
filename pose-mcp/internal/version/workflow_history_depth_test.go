@@ -60,8 +60,19 @@ func scanJobDepths(t *testing.T, path string) []jobDepth {
 	// Set while inside a checkout step, so `fetch-depth` is attributed to the
 	// checkout rather than to any later step that happens to mention it.
 	inCheckout := false
+	stepRuns, stepPromises := false, false
+	flushStep := func() {
+		if current != nil && stepRuns {
+			current.runsFullSuite = true
+			current.promisesTags = current.promisesTags && stepPromises
+		}
+		stepRuns, stepPromises = false, false
+	}
 	for scanner.Scan() {
 		line := scanner.Text()
+		if strings.HasPrefix(strings.TrimSpace(line), "#") {
+			continue
+		}
 		if strings.HasPrefix(line, "jobs:") {
 			inJobs = true
 			continue
@@ -71,14 +82,18 @@ func scanJobDepths(t *testing.T, path string) []jobDepth {
 		}
 		if m := jobKeyRe.FindStringSubmatch(line); m != nil {
 			if current != nil {
+				flushStep()
 				jobs = append(jobs, *current)
 			}
-			current = &jobDepth{workflow: filepath.Base(path), job: m[1]}
+			current = &jobDepth{workflow: filepath.Base(path), job: m[1], promisesTags: true}
 			inCheckout = false
 			continue
 		}
 		if current == nil {
 			continue
+		}
+		if strings.HasPrefix(strings.TrimLeft(line, " "), "- ") {
+			flushStep()
 		}
 		if checkoutRe.MatchString(line) {
 			current.hasCheckout = true
@@ -95,13 +110,14 @@ func scanJobDepths(t *testing.T, path string) []jobDepth {
 			}
 		}
 		if fullSuiteRe.MatchString(line) {
-			current.runsFullSuite = true
+			stepRuns = true
 		}
 		if promiseRe.MatchString(line) {
-			current.promisesTags = true
+			stepPromises = true
 		}
 	}
 	if current != nil {
+		flushStep()
 		jobs = append(jobs, *current)
 	}
 	return jobs
@@ -136,5 +152,37 @@ func TestJobsRunningTheGoSuiteCheckOutFullHistory(t *testing.T) {
 	}
 	if examined == 0 {
 		t.Error("no job was found running the Go suite — the command detection is broken, not the workflows")
+	}
+}
+
+func TestHistoryPromiseBelongsToEachSuiteStep(t *testing.T) {
+	for _, tc := range []struct {
+		name, second string
+		want         bool
+	}{
+		{"missing", "", false},
+		{"comment", "        # POSE_RELEASE_HISTORY_AVAILABLE: true\n", false},
+		{"declared", "        env: { POSE_RELEASE_HISTORY_AVAILABLE: true }\n", true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			source := `jobs:
+  test:
+    steps:
+      - uses: actions/checkout@pin
+        with: { fetch-depth: 0 }
+      - name: first
+        env: { POSE_RELEASE_HISTORY_AVAILABLE: true }
+        run: go test ./...
+      - name: second
+` + tc.second + "        run: go test ./...\n"
+			path := filepath.Join(t.TempDir(), "workflow.yml")
+			if err := os.WriteFile(path, []byte(source), 0644); err != nil {
+				t.Fatal(err)
+			}
+			jobs := scanJobDepths(t, path)
+			if len(jobs) != 1 || !jobs[0].runsFullSuite || jobs[0].promisesTags != tc.want {
+				t.Fatalf("jobs: %+v", jobs)
+			}
+		})
 	}
 }
