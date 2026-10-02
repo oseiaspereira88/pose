@@ -47,9 +47,9 @@ Keep field bytes unchanged; tests compare coloured and plain alignment after str
 
 ## 4. Tasks
 ### Implementation
-- [ ] Fix alignment, wrapping and token-kind localisation.
+- [x] Fix alignment, wrapping and token-kind localisation.
 ### Validation
-- [ ] Verify profile golden suite, boundary regressions and module matrix.
+- [x] Verify profile golden suite, boundary regressions and module matrix.
 
 ## 5. Decisions
 ### Decision 1
@@ -66,14 +66,17 @@ Test the same semantic finding/field/verdict sequence in every profile. Compare 
 - Scope: rendering and machine channels
 - Expected: exact fixtures, no lost fields or machine colour
 ### Execution log
-Implementation pending.
+Four boundary/profile tests and the entire CLI suite passed. The canonical module matrix passed 50/50 on 2026-10-02; fourteen profile/locale golden cases preserve finding, field and verdict facts.
 ### Requirement trace
-Record after validation.
+- R1: check:cli-profile-parity-integration — TestColouredTablesKeepPlainAlignment compares stripped coloured and plain output.
+- R2: check:cli-profile-parity-integration — TestUTF8ProseWrapsByCharacters covers multibyte prose and indivisible contract fields.
+- R3: check:cli-profile-parity-integration — TestUnknownKindsAreFullyLocalised checks flag/command messages and suggestions in both locales.
+- R4: check:cli-profile-parity-integration — TestLifecycleRendererProfileGoldens pins seven profiles in en and pt-BR, including quiet facts, isolated streams and valid undecorated JSON.
 ### Known gaps
 Untouched legacy call sites retain their enforced non-growing allowlist; localising those is explicitly outside the parent rendering scope.
 
 ## 7. Final Report
 ### Delivered scope
-Pending validation.
+Coloured alignment, character-aware wrapping and unknown-token localisation are corrected. The shared renderer has fourteen semantic/profile golden cases; existing machine-channel and legacy ratchet behavior is preserved.
 ### Follow-ups
 None.
