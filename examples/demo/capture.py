@@ -52,7 +52,7 @@ def render(events, duration):
         cleaned = ansi.sub('', text).replace('\r\n', '\n')
         screen = []
         for line in cleaned.split('\n'):
-            line = line.rsplit('\r', 1)[-1]
+            line = line.rsplit('\r', 1)[-1].expandtabs(8)
             screen.extend([line[i:i+112] for i in range(0, max(1, len(line)), 112)])
         image = Image.new('RGB', (1060, 620), '#111827')
         draw = ImageDraw.Draw(image)
