@@ -29,14 +29,16 @@ const (
 	MsgStateInfo    MessageID = "state.info"
 	MsgStateHint    MessageID = "state.hint"
 
-	MsgFix       MessageID = "finding.fix"
-	MsgUsage     MessageID = "error.usage"
-	MsgError     MessageID = "error.label"
-	MsgSuggest   MessageID = "error.suggest"
-	MsgUnknown   MessageID = "error.unknown"
-	MsgStepsDone MessageID = "steps.summary"
-	MsgFullOut   MessageID = "steps.full_output"
-	MsgElapsed   MessageID = "steps.elapsed"
+	MsgFix            MessageID = "finding.fix"
+	MsgUsage          MessageID = "error.usage"
+	MsgError          MessageID = "error.label"
+	MsgSuggest        MessageID = "error.suggest"
+	MsgUnknown        MessageID = "error.unknown"
+	MsgUnknownFlag    MessageID = "error.unknown_flag"
+	MsgUnknownCommand MessageID = "error.unknown_command"
+	MsgStepsDone      MessageID = "steps.summary"
+	MsgFullOut        MessageID = "steps.full_output"
+	MsgElapsed        MessageID = "steps.elapsed"
 )
 
 type message struct {
@@ -59,11 +61,13 @@ var catalog = map[MessageID]message{
 	MsgStateInfo:    {"info", "info"},
 	MsgStateHint:    {"hint", "dica"},
 
-	MsgFix:     {"fix", "correção"},
-	MsgUsage:   {"Usage", "Uso"},
-	MsgError:   {"Error", "Erro"},
-	MsgSuggest: {"did you mean %q?", "você quis dizer %q?"},
-	MsgUnknown: {"unknown %s: %q", "%s desconhecido: %q"},
+	MsgFix:            {"fix", "correção"},
+	MsgUsage:          {"Usage", "Uso"},
+	MsgError:          {"Error", "Erro"},
+	MsgSuggest:        {"did you mean %q?", "você quis dizer %q?"},
+	MsgUnknown:        {"unknown %s: %q", "%s desconhecido: %q"},
+	MsgUnknownFlag:    {"unknown flag: %q", "opção desconhecida: %q"},
+	MsgUnknownCommand: {"unknown command: %q", "comando desconhecido: %q"},
 
 	MsgStepsDone: {"%d step(s) · %s · %s", "%d passo(s) · %s · %s"},
 	MsgFullOut:   {"full output in %s", "saída completa em %s"},

@@ -14,6 +14,7 @@ import (
 	"sort"
 	"strings"
 	"text/tabwriter"
+	"unicode/utf8"
 )
 
 // Renderer owns every byte a command prints. It holds one profile per stream,
@@ -180,6 +181,9 @@ func (r *Renderer) Field(name, value string) {
 			return
 		}
 	}
+	if r.outP.Quiet {
+		return
+	}
 	fmt.Fprintf(r.out, "%s=%s\n", name, value)
 }
 
@@ -225,7 +229,14 @@ func (r *Renderer) Usage(text string) {
 // commands, naming the offending token alone and suggesting the nearest valid
 // name when one is close enough to be a typo.
 func (r *Renderer) UnknownToken(kind, token string, candidates []string) {
-	r.Failure(Msg(MsgUnknown, r.locale, kind, token))
+	switch kind {
+	case "flag":
+		r.Failure(Msg(MsgUnknownFlag, r.locale, token))
+	case "command":
+		r.Failure(Msg(MsgUnknownCommand, r.locale, token))
+	default:
+		r.Failure(Msg(MsgUnknown, r.locale, kind, token))
+	}
 	if best, ok := nearest(token, candidates); ok {
 		r.Hint(Msg(MsgSuggest, r.locale, best))
 	}
@@ -242,14 +253,21 @@ func (r *Renderer) Table(t Table) {
 	if r.outP.Quiet || r.suppressed() {
 		return
 	}
-	w := tabwriter.NewWriter(r.out, 0, 0, 2, ' ', 0)
+	var plain strings.Builder
+	w := tabwriter.NewWriter(&plain, 0, 0, 2, ' ', 0)
 	if len(t.Header) > 0 {
-		fmt.Fprintln(w, paint(r.outP, sgrBold, strings.Join(t.Header, "\t")))
+		fmt.Fprintln(w, strings.Join(t.Header, "\t"))
 	}
 	for _, row := range t.Rows {
 		fmt.Fprintln(w, strings.Join(row, "\t"))
 	}
 	_ = w.Flush()
+	text := plain.String()
+	if len(t.Header) > 0 {
+		header, rest, _ := strings.Cut(text, "\n")
+		text = paint(r.outP, sgrBold, header) + "\n" + rest
+	}
+	fmt.Fprint(r.out, text)
 }
 
 // wrap breaks prose at the profile's budget and indents it. Contract lines
@@ -273,7 +291,7 @@ func (r *Renderer) wrap(text string, indent int) []string {
 			candidate += " "
 		}
 		candidate += word
-		if len(candidate) > budget+indent && current != pad {
+		if utf8.RuneCountInString(candidate) > budget+indent && current != pad {
 			lines = append(lines, current)
 			current = pad + word
 			continue
