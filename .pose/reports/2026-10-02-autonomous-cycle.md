@@ -23,4 +23,10 @@ Initial inventory: 13 nonterminal specs and 123 open follow-ups. Counts alone ar
 
 - Step 1: inventory reconciled. Three stale follow-ups now record direct completion: explicit extension target, stale review-profile diagnostic, report first-path truncation. No already delivered behavior will be implemented again. Legacy release/security and renderer specs need refreshed traces and native closeout; keep their status in-progress until those gates pass. Canonical positioning and README require requirement-level review; the migration/landing dependency is completed in the final cross-repository documentation phase. Quickstart measurement and demo remain implementation work in step 6. Docs redirect, public community surfaces, AGY-only smoke and native channels retain their actual external/deferred acceptance.
 - The old release-security bundle is blocked by the classifier not recognizing exact root `.gitleaks.toml`; address that precise review boundary in step 3, retaining its contents rather than excluding them.
-- Steps 2–8: pending in the order above.
+- Step 2: trusted Dependabot repair implemented and seven provider-boundary tests passed; first live provider execution awaits deployment on main.
+- Step 3: complete 35-asset check, CI gate discovery/negative controls, pre-build run/assert pairing and exact root security-config sealing implemented; targeted tests passed.
+- Step 4: 14 renderer profile/locale goldens plus alignment, UTF-8 and token-kind fixes; CLI package suite passed.
+- Step 5: existing doctor diagnostics verified; extension plan now identifies its absolute destination and invalid targets fail before lookup/writes. Targeted tests passed.
+- Step 6: clean automated activation measured at 6.964s on published 6.2.0; actual paced demo recorded at 19.739s with real refusal and resolution. Reports and cast/GIF retained. This is not a human reading/development budget.
+- Step 7: pending full matrix, exact source/artifact review, closeout and one final release. No intermediate tag or release was created.
+- Step 8: explicitly pending until publication; includes POSE manuals, docs-site and Harne8 frontend content, plus linking the measured activation and real demo.

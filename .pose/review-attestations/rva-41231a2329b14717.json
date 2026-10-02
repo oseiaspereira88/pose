@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-41231a2329b14717",
+  "bundle_id": "rvb-11937ee31819ba62",
+  "bundle_digest": "sha256:11937ee31819ba628193b9a2cfa3734d8f08c47a08f59a46ea6952e7c3f16b5d",
+  "reviewer": "human:oseias",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Covered by the registered checks that passed in the full strict matrix; this scope adds its own check extension-target-integration."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Covered by the registered checks that passed in the full strict matrix; this scope adds its own check extension-target-integration."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Covered by the registered checks that passed in the full strict matrix; this scope adds its own check extension-target-integration."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "Covered by the registered checks that passed in the full strict matrix; this scope adds its own check extension-target-integration."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "Covered by the registered checks that passed in the full strict matrix; this scope adds its own check extension-target-integration."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "Default and explicit --target installs behave as before. Only a missing target value, a following flag or an absent directory now fail with a usage error instead of silently using the current repository; the install plan gains one extension.target line."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Covered by the registered checks that passed in the full strict matrix; this scope adds its own check extension-target-integration."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "The spec, its artifact list, the requirement trace and the unreleased changelog fragment describe the change and agree with the tests that exercise it."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "A rejected target names the argument and fails before any package lookup, and the plan shows the absolute destination before consent or writes."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+      "rationale": "Covered by the registered checks that passed in the full strict matrix; this scope adds its own check extension-target-integration."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "The attributed paths are the install command, its tests and the fragment. artifact-check and surface-check reported no finding for this spec."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "An invalid target creates no directory and triggers no package lookup. Signature verification and explicit --yes consent are unchanged, and the tests assert that nothing is written on dry-run or rejection."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "artifact-check --strict ran at the validated commit with zero findings for this spec."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-e3d4828dd443738c",
+      "rationale": "The bounded structural delta was derived when the bundle was sealed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "assess discover on pose-mcp reported 54088 production and 43660 test lines with no debt markers."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "assess integrate reported only the two existing HTTP provider gaps (healthz and mcp consumers), not touched by this scope."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "assess tech-debt reported zero debt markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "suggest review for pose-mcp resolved the review workflow, skill and rules used here."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "surface-check --strict ran with zero findings for this spec."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "The full strict matrix passed 56 of 56 checks at b338d45 and this scope has its own registered checks."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/extension-target-integration",
+      "rationale": "The full strict matrix passed 56 of 56 checks at b338d45 and this scope has its own registered checks."
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-02T16:55:33Z",
+  "path": ".pose/review-attestations/rva-41231a2329b14717.json"
+}
