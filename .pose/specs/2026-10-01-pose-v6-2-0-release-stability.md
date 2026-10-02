@@ -1,8 +1,9 @@
 ---
 slug: pose-v6-2-0-release-stability
-status: in-progress
+status: done
 created_at: 2026-10-01
-completed_at:
+completed_at: 2026-10-02
+delivers: surface:release-stability, capability:release-stability
 supersedes:
 depends_on:
 priority: 1
@@ -74,6 +75,8 @@ The community-launch roadmap and unrelated follow-ups remain separate scopes.
 
 ### Artifacts
 
+- created: .pose/specs/2026-10-01-pose-v6-2-0-release-stability.md
+
 - modified: pose-mcp/internal/cli/contribute.go
 - modified: pose-mcp/internal/cli/contribute_test.go
 - modified: pose-mcp/internal/cli/help_catalog.go
@@ -99,6 +102,14 @@ None.
 The Windows runner cannot be reproduced on this Linux host. A structural
 workflow regression test covers the smoke boundary; the next tagged workflow
 run must provide platform evidence.
+
+### Delivery targets
+
+- surface:release-stability module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+- capability:release-stability module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+These targets identify contributor guidance and immutable review classification.
+Package smoke has structural coverage; native execution remains deferred.
 
 ## 4. Tasks
 
@@ -161,8 +172,8 @@ run must provide platform evidence.
 
 ### Requirement trace
 
-- R1 [satisfied] test:TestContributorDocsRequireConsentForStagingAndSubmission
-- R2 [satisfied] test:TestReviewBundleSealsRootEnvExampleAsGovernance test:TestReviewBundleDoesNotGeneralizeEnvExampleClassification
+- R1 [satisfied] surface:release-stability evidence:integration check:delivery-integration test:TestContributorDocsRequireConsentForStagingAndSubmission
+- R2 [satisfied] capability:release-stability evidence:integration check:delivery-integration test:TestReviewBundleSealsRootEnvExampleAsGovernance test:TestReviewBundleDoesNotGeneralizeEnvExampleClassification
 - R3 [satisfied] test:TestPackageChannelSmokeUsesFreshInstance test:TestPackageChannelVerificationIsManualOnly
 
 ### Known gaps
@@ -175,6 +186,9 @@ after implementation, and does not block other specs or release publication.
 ## 7. Final Report
 
 ### Delivered scope
+
+Closed on 2026-10-02 after canonical 48/48 validation, fresh approved bundle
+`rvb-6ffe65ceee14e443`, explicit attestation and guarded lifecycle transition.
 
 Contributor consent text, root example classification and installed-instance
 package smoke are implemented and covered by deterministic regressions.
