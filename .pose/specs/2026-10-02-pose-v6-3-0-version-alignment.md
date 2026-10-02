@@ -52,8 +52,8 @@ compatibility harness; no additional runtime or test framework is needed.
 
 ## 4. Tasks
 
-- [ ] Align public metadata and add the authenticated 6.2.0 upgrade pin.
-- [ ] Pass strict canonical validation and compatibility gates; artifact and surface gates run before sealing.
+- [x] Align public metadata and add the authenticated 6.2.0 upgrade pin.
+- [x] Pass strict canonical validation and compatibility gates; artifact and surface gates run before sealing.
 - [ ] Record a separate governed review and close this bounded scope.
 
 ## 5. Decisions
@@ -78,8 +78,18 @@ download` and hashed: SHA256 2e937ae3a7ac12fca99148bd71179e4adc052b0005e7bea7d43
 equal to the digest in `.pose/releases/v6.2.0/publication-evidence.json` and
 `verified-evidence.json`.
 
+2026-10-02: `bash tests/release/compat.sh v6.3.0` at commit 5fbcb21 passed all five
+contract and installer gates and all twelve authenticated populated-instance
+upgrades, 6.2.0 through 0.18.2, with the candidate built as the release pipeline
+stamps it; the resulting report is the untracked `compatibility-report.md`.
+`pose public-claims --strict` checked 17 surfaces with zero errors and reported
+the released version as 6.3.0.
+
 ### Requirement trace
 
+- R1 [satisfied] governance:pose-v6-3-0-version-alignment evidence:unit check:public-claims
+- R2 [satisfied] governance:pose-v6-3-0-version-alignment report:compatibility-report.md
+- R3 [satisfied] governance:pose-v6-3-0-version-alignment report:compatibility-report.md
 ### Known gaps
 
 The native macOS and Windows package round remains deferred.
