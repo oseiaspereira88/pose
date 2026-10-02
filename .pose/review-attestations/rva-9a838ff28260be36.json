@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-9a838ff28260be36",
+  "bundle_id": "rvb-3b6f52e24b22f0d3",
+  "bundle_digest": "sha256:3b6f52e24b22f0d346fe6ae74f8dca380f0968d9a3d27ad16dc63fc91a8ddba4",
+  "reviewer": "agent:codex-review-20261001",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Current registered checks cover the reviewed production module and its positive and negative regressions."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Current registered checks cover the reviewed production module and its positive and negative regressions."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Current registered checks cover the reviewed production module and its positive and negative regressions."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Current registered checks cover the reviewed production module and its positive and negative regressions."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Current registered checks cover the reviewed production module and its positive and negative regressions."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Download parity now discovers all Markdown sources; the SBOM inventory reuses its existing dependency parser and fast-mode omissions are explicit."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Current registered checks cover the reviewed production module and its positive and negative regressions."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Current registered checks cover the reviewed production module and its positive and negative regressions."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Spec artifacts delivery targets and requirement trace match the reviewed implementation; native release verification is not claimed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Missing documented assets and noncompliant SBOMs are rejected; compliant inventory passed the actual negative harness."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Current registered checks cover the reviewed production module and its positive and negative regressions."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Exact attributed paths and spec requirements match; canonical artifact and surface gates passed with no scoped errors."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Null-delimited paths preserve spaces; SBOM controls do not authenticate invented dependencies; the CI security and secrets checks passed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed required gates and current full validation; assessments and rule selection were reviewed explicitly."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-4fa775b9ac7e7670",
+      "rationale": "Executed required gates and current full validation; assessments and rule selection were reviewed explicitly."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Executed required gates and current full validation; assessments and rule selection were reviewed explicitly."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Domain rules and the actual shell harness were reviewed directly; an additional LOC inventory does not verify this contract."
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "Domain rules and the actual shell harness were reviewed directly; an additional LOC inventory does not verify this contract."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Executed required gates and current full validation; assessments and rule selection were reviewed explicitly."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Executed required gates and current full validation; assessments and rule selection were reviewed explicitly."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Executed required gates and current full validation; assessments and rule selection were reviewed explicitly."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Domain rules and the actual shell harness were reviewed directly; an additional LOC inventory does not verify this contract."
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "Domain rules and the actual shell harness were reviewed directly; an additional LOC inventory does not verify this contract."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:mcp-enforce/go/build",
+      "rationale": "Executed required gates and current full validation; assessments and rule selection were reviewed explicitly."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Executed required gates and current full validation; assessments and rule selection were reviewed explicitly."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "No registered producer exists for this component; the full matrix reports this absence and the shell harness was exercised separately."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "No registered producer exists for this component; the full matrix reports this absence and the shell harness was exercised separately."
+    }
+  ],
+  "evidence_refs": [
+    "build:mcp-enforce/go/build",
+    "build:pose-mcp/go/build",
+    "e2e:pose-mcp/go/multi-repo-agent-installed-journey",
+    "integration:pose-mcp/go/abm-atomic-start-integration",
+    "integration:pose-mcp/go/abm-causality-closeout-integration",
+    "integration:pose-mcp/go/abm-contract-nodes-integration",
+    "integration:pose-mcp/go/abm-progressive-review-integration",
+    "integration:pose-mcp/go/abm-remediation-lineage-integration",
+    "integration:pose-mcp/go/abm-retrospective-replay-integration",
+    "integration:pose-mcp/go/artifact-claim-boundary-integration",
+    "integration:pose-mcp/go/calendar-date-skew-integration",
+    "integration:pose-mcp/go/check-verdict-mode-integration",
+    "integration:pose-mcp/go/check-workers-integration",
+    "integration:pose-mcp/go/completed-review-retention-integration",
+    "integration:pose-mcp/go/delivery-graph-reuse-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+    "integration:pose-mcp/go/federated-roadmap-negative-gates",
+    "integration:pose-mcp/go/federated-spec-acceptance-integration",
+    "integration:pose-mcp/go/governance-outcomes-v2-contract",
+    "integration:pose-mcp/go/lint-spec-all-gate-contract",
+    "integration:pose-mcp/go/machine-channel-integration",
+    "integration:pose-mcp/go/multi-repo-agent-context-integration",
+    "integration:pose-mcp/go/multi-repo-agent-negative-gates",
+    "integration:pose-mcp/go/parallel-gate-integration",
+    "integration:pose-mcp/go/parse-memo-integration",
+    "integration:pose-mcp/go/project-id-derivation-integration",
+    "integration:pose-mcp/go/public-claims-release-line-integration",
+    "integration:pose-mcp/go/qualified-artifact-resolution-integration",
+    "integration:pose-mcp/go/release-needs-ci-contract",
+    "integration:pose-mcp/go/release-review-archive-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "integration:pose-mcp/go/review-policy-adoption-integration",
+    "integration:pose-mcp/go/review-soundness-residuals-integration",
+    "integration:pose-mcp/go/review-subject-capabilities-integration",
+    "integration:pose-mcp/go/spec-authority-transfer-integration",
+    "integration:pose-mcp/go/spec-authority-transfer-mcp-status",
+    "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+    "integration:pose-mcp/go/test-git-isolation-integration",
+    "integration:pose-mcp/go/usage-adjudication-integration",
+    "reachability:pose-mcp/go/abm-replay-reachability",
+    "reachability:pose-mcp/go/delivery-reachability",
+    "reachability:pose-mcp/go/multi-repo-agent-context-reachability",
+    "reachability:pose-mcp/go/usage-adjudication-reachability",
+    "structure:design-4fa775b9ac7e7670",
+    "unit:mcp-enforce/go/test",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-10-01T23:40:04Z",
+  "path": ".pose/review-attestations/rva-9a838ff28260be36.json"
+}

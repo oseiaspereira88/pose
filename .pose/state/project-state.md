@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-10-01T06:21:18Z
-baseline_commit: e92891af0cdb68c9843e9cbfefef967e454e80e0
+generated_at: 2026-10-01T23:43:32Z
+baseline_commit: f41b5aa25d61afa54461abcc8d6c5d44168e6460
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:815c4c9bec4c -->
+<!-- state:derived hash:f29f84ce4133 -->
 
-- specs: total=272 draft=1 in-progress=11 blocked=0 done=260 superseded=0 abandoned=0
+- specs: total=281 draft=2 in-progress=11 blocked=0 done=268 superseded=0 abandoned=0
 - roadmaps: total=12 active=1 done=11
 - últimos closeouts:
-  - spec:pose-usage-findings-adjudication (2026-10-01)
-  - spec:pose-dist-adopt-published-v6-1-0 (2026-09-30)
-  - spec:pose-v6-1-0-release-readiness (2026-09-30)
-  - spec:pose-help-names-flags-the-parser-accepts (2026-09-29)
-  - spec:pose-compat-gate-pose-md-preservation (2026-09-29)
-  - ... e mais 255 (ver `pose_list_specs status:done`)
+  - spec:pose-cli-live-helper-coverage (2026-10-01)
+  - spec:pose-live-policy-reads-through-aliases (2026-10-01)
+  - spec:pose-history-quiet-tolerated-verdict (2026-10-01)
+  - spec:pose-suite-history-promise-per-step (2026-10-01)
+  - spec:pose-governance-residual-diagnostics (2026-10-01)
+  - ... e mais 263 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:ba1456fab0ee -->
+<!-- state:derived hash:3240b415e51a -->
 
 - abertos: 123
-- por criticidade: high=8 medium=29 low=62 sem-classificação=24
+- por criticidade: high=7 medium=30 low=62 sem-classificação=24
 - vencidos (review < hoje): 2
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
@@ -66,22 +66,22 @@ capacidade.
 - knowledge: total=10 ativo=10 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:228a4bfe78ca -->
+<!-- state:derived hash:2bbd50c07f60 -->
 
-- último registro: task=record-the-v2-0-2-change-set-of-pose-adoption-stamp-stays-readable outcome=skipped (2026-09-29T19:45:14Z)
-- últimos 30 dias: total=128 outcome_ok=111 outcome_outro=17
-- reports revisados (.md): total=153
+- último registro: task=validate-native outcome=pass (2026-10-01T21:24:46Z)
+- últimos 30 dias: total=136 outcome_ok=115 outcome_outro=21
+- reports revisados (.md): total=155
+  - report:2026-10-01-standard-validate-native.md
+  - report:pose-v6-2-0-autonomous-work.md
   - report:2026-09-29-standard-record-the-v2-0-2-change-set-of-pose-adoption-stamp-stays-readable.md
   - report:2026-09-28-review-archive-coattribution.md
   - report:2026-09-28-pose-dist-v6-adoption.md
-  - report:2026-09-28-abm-dependency-review.md
-  - report:2026-09-28-standard-validate-native.md
 
 ## Arquitetura
-<!-- state:derived hash:690a8f0eaa52 status:active -->
+<!-- state:derived hash:19a4164022b2 status:active -->
 
 - componentes: total=3 verificados=3 completude=100.0%
-- linhas_de_codigo: producao=54212 testes=43085 total=97297
+- linhas_de_codigo: producao=54413 testes=43811 total=98224
 - linguagens: go
 - saude_de_codigo: TODOs=0 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=58 ativos=1 gaps=57
