@@ -98,6 +98,23 @@ else
       printf '\n<!-- upgrade-lab: user customization preserved across upgrade -->\n' >> AGENTS.md
       printf '\n<!-- upgrade-lab: user customization preserved across upgrade -->\n' >> POSE.md
     ) || return 1
+    # v1.1.0's empty template includes a live example delivery despite an empty
+    # delivers field. This synthetic fixture declares no delivery: remove only
+    # that exact template example before measuring the candidate's upgrade.
+    # Do not relax the real validator or rewrite any declared delivery.
+    python3 - "$fixture" <<'PY'
+import pathlib, re, sys
+for path in (pathlib.Path(sys.argv[1]) / ".pose/specs").rglob("*.md"):
+    raw = path.read_text()
+    frontmatter = raw.split("---", 2)[1] if raw.startswith("---\n") else ""
+    if not re.search(r"(?m)^slug:\s*upgrade-lab-fixture\s*$", frontmatter):
+        continue
+    if not re.search(r"(?m)^delivers:\s*(?:#[^\n]*)?$", frontmatter):
+        continue
+    example = "- surface:exemplo module:caminho/do/modulo profile:web-ui entrypoint:caminho/do/entrypoint-de-producao\n"
+    path.write_text(raw.replace(example, ""))
+PY
+    if [ "$?" -ne 0 ]; then return 1; fi
     local marker
     marker="upgrade-lab: user customization preserved across upgrade"
     # --no-self is mandatory here: a bare `update` self-updates to the latest
