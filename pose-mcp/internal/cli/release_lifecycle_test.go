@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -23,6 +24,13 @@ func writeReleaseFixture(t *testing.T, root, rel, body string) {
 	}
 }
 
+// markAsEngineRepository makes a fixture the engine repository, the one place
+// where the compiled engine version is the authoritative release evidence.
+func markAsEngineRepository(t *testing.T, root string) {
+	t.Helper()
+	writeReleaseFixture(t, root, posemodel.EngineVersionFile, "package version\n")
+}
+
 func releaseGit(t *testing.T, root string, args ...string) {
 	t.Helper()
 	cmd := exec.Command("git", args...)
@@ -37,6 +45,7 @@ func TestReleasePrepareConsumesOnlyPendingSnapshotAndIsIdempotent(t *testing.T) 
 	root := t.TempDir()
 	target := "v" + version.ReleaseBase()
 	writeReleaseFixture(t, root, ".pose/release-policy.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo"}`)
+	markAsEngineRepository(t, root)
 	writeReleaseFixture(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: done\n---\n")
 	writeReleaseFixture(t, root, ".pose/changelogs/unreleased/alpha.md", "---\nspec: alpha\ncategory: added\nbreaking: false\n---\n\nAdds alpha.\n")
 	var out, errOut bytes.Buffer
@@ -100,6 +109,7 @@ func TestReleasePrepareLeavesEverySpecByteIdentical(t *testing.T) {
 	root := t.TempDir()
 	target := "v" + version.ReleaseBase()
 	writeReleaseFixture(t, root, ".pose/release-policy.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo"}`)
+	markAsEngineRepository(t, root)
 	claimed := "---\nslug: alpha\nstatus: done\n---\n\n### Artifacts\n" +
 		"- created: .pose/changelogs/unreleased/alpha.md\n" +
 		"- modified: internal/alpha.go\n"
@@ -136,6 +146,7 @@ func releasedSpecFixture(t *testing.T) (root, target string) {
 	artifactGit(t, root, "add", "--", ".")
 	artifactGit(t, root, "commit", "-q", "-m", "baseline")
 	writeArtifactTestFile(t, root, ".pose/release-policy.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo"}`)
+	markAsEngineRepository(t, root)
 	// The fragments are governed, so an archived one left unclaimed would be an
 	// orphan; the release notes are the release's, not a spec's, and excluded.
 	writeArtifactTestFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-03","governed_roots":["internal",".pose/changelogs"],"exclusions":[".pose/changelogs/`+target+`.md"],"severities":{"existence":"error","action-mismatch":"error","undeclared":"error","orphan":"error"}}`)
@@ -199,6 +210,7 @@ func TestReleasePrepareFindsADatePrefixedSpec(t *testing.T) {
 	root := t.TempDir()
 	target := "v" + version.ReleaseBase()
 	writeReleaseFixture(t, root, ".pose/release-policy.json", `{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo"}`)
+	markAsEngineRepository(t, root)
 	writeReleaseFixture(t, root, ".pose/specs/2026-08-21-alpha.md", "---\nslug: alpha\nstatus: done\n---\n")
 	writeReleaseFixture(t, root, ".pose/changelogs/unreleased/alpha.md", "---\nspec: alpha\ncategory: added\nbreaking: false\n---\n\nAdds alpha.\n")
 
@@ -208,5 +220,118 @@ func TestReleasePrepareFindsADatePrefixedSpec(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, ".pose/changelogs", target, "alpha.md")); err != nil {
 		t.Errorf("the fragment was not archived: %v", err)
+	}
+}
+
+// A project that is not the engine declares where its own version lives. These
+// tests go through Main from a project directory, the way an operator runs it.
+
+func versionSourceProject(t *testing.T, policy, versionFile, versionBody string) string {
+	t.Helper()
+	root := t.TempDir()
+	writeReleaseFixture(t, root, ".pose/policy/release.json", policy)
+	if versionFile != "" {
+		writeReleaseFixture(t, root, versionFile, versionBody)
+	}
+	writeReleaseFixture(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: done\n---\n")
+	writeReleaseFixture(t, root, ".pose/changelogs/unreleased/alpha.md", "---\nspec: alpha\ncategory: added\nbreaking: false\n---\n\nAdds alpha.\n")
+	t.Setenv("POSE_PROJECT_ROOT", "")
+	t.Setenv("POSE_PROJECT_ROOTS", "")
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "")
+	t.Chdir(root)
+	return root
+}
+
+func runReleaseMain(args ...string) (string, int) {
+	var out, errOut bytes.Buffer
+	code := Main(append([]string{"release"}, args...), &out, &errOut)
+	return out.String() + errOut.String(), code
+}
+
+const versionSourceTextPolicy = `{"schema_version":1,"adopted_at":"2026-10-02","provider":"github","repository":"owner/repo","version_source":{"path":"VERSION","kind":"text"}}`
+
+func TestReleaseVersionSourceCutsAProjectThatIsNotTheEngine(t *testing.T) {
+	root := versionSourceProject(t, versionSourceTextPolicy, "VERSION", "0.2.0\n")
+	if out, code := runReleaseMain("plan", "--version", "v0.2.0"); code != 0 {
+		t.Fatalf("plan code=%d %s", code, out)
+	}
+	out, code := runReleaseMain("plan", "--version", "v0.3.0")
+	if code == 0 || !strings.Contains(out, "differs from authoritative version evidence v0.2.0") {
+		t.Fatalf("a version that differs from the declared file must be refused: code=%d %s", code, out)
+	}
+	if out, code := runReleaseMain("prepare", "--version", "v0.2.0", "--apply"); code != 0 {
+		t.Fatalf("prepare code=%d %s", code, out)
+	}
+	raw, err := os.ReadFile(filepath.Join(root, ".pose/releases/v0.2.0/manifest.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var manifest struct {
+		Evidence map[string]string `json:"version_evidence"`
+	}
+	if err := json.Unmarshal(raw, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{"source": "VERSION", "kind": "text", "value": "v0.2.0"}
+	if len(manifest.Evidence) != len(want) {
+		t.Fatalf("evidence=%v", manifest.Evidence)
+	}
+	for k, v := range want {
+		if manifest.Evidence[k] != v {
+			t.Fatalf("evidence=%v want %v", manifest.Evidence, want)
+		}
+	}
+	if strings.Contains(string(raw), root) {
+		t.Fatal("manifest records an absolute path")
+	}
+	if out, code := runReleaseMain("check", "--version", "v0.2.0", "--strict"); code != 0 {
+		t.Fatalf("check code=%d %s", code, out)
+	}
+}
+
+func TestReleaseVersionSourceReadsAJSONKey(t *testing.T) {
+	versionSourceProject(t, `{"schema_version":1,"adopted_at":"2026-10-02","provider":"github","repository":"owner/repo","version_source":{"path":"app/package.json","kind":"json","key":"version"}}`, "app/package.json", `{"name":"app","version":"1.7.3"}`)
+	if out, code := runReleaseMain("plan", "--version", "v1.7.3"); code != 0 {
+		t.Fatalf("plan code=%d %s", code, out)
+	}
+}
+
+func TestReleaseVersionSourceRejectionWritesNothing(t *testing.T) {
+	root := versionSourceProject(t, versionSourceTextPolicy, "VERSION", "not-a-version\n")
+	out, code := runReleaseMain("prepare", "--version", "v0.2.0", "--apply")
+	if code == 0 || !strings.Contains(out, "version_source") || !strings.Contains(out, "semantic version") {
+		t.Fatalf("an invalid source must be refused by name: code=%d %s", code, out)
+	}
+	for _, rel := range []string{".pose/releases", ".pose/changelogs/v0.2.0", ".pose/changelogs/v0.2.0.md"} {
+		if _, err := os.Stat(filepath.Join(root, rel)); err == nil {
+			t.Fatalf("%s was written for a rejected source", rel)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(root, ".pose/changelogs/unreleased/alpha.md")); err != nil {
+		t.Fatal("the pending fragment was consumed")
+	}
+}
+
+func TestReleaseVersionSourceIsRequiredOutsideTheEngineRepository(t *testing.T) {
+	versionSourceProject(t, `{"schema_version":1,"adopted_at":"2026-10-02","provider":"github","repository":"owner/repo"}`, "", "")
+	out, code := runReleaseMain("plan", "--version", "v"+version.ReleaseBase())
+	if code == 0 || !strings.Contains(out, "version_source") || !strings.Contains(out, "only inside the engine repository") {
+		t.Fatalf("the engine version must not be accepted for another project: code=%d %s", code, out)
+	}
+}
+
+func TestReleaseVersionSourceLeavesTheEngineRepositoryOnItsCompiledVersion(t *testing.T) {
+	root := versionSourceProject(t, `{"schema_version":1,"adopted_at":"2026-10-02","provider":"github","repository":"owner/repo"}`, "", "")
+	markAsEngineRepository(t, root)
+	target := "v" + version.ReleaseBase()
+	if out, code := runReleaseMain("prepare", "--version", target, "--apply"); code != 0 {
+		t.Fatalf("prepare code=%d %s", code, out)
+	}
+	raw, err := os.ReadFile(filepath.Join(root, ".pose/releases", target, "manifest.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(raw), `"source": "`+posemodel.EngineVersionFile+`"`) || strings.Contains(string(raw), `"kind"`) {
+		t.Fatalf("engine evidence changed shape: %s", raw)
 	}
 }

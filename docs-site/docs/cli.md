@@ -475,6 +475,25 @@ contract registry, so it cannot be forgotten. The compatibility alias
 `release-notes --version` reads only the prepared snapshot; use `--preview`
 explicitly for the pending queue.
 
+### Release version source
+
+A cut is compared with one authoritative version. In the engine repository that
+is the engine's own version. Any other project declares the file that holds its
+version in `.pose/policy/release.json`:
+
+```json
+{ "version_source": { "path": "VERSION", "kind": "text" } }
+```
+
+`kind` is `text` (one line) or `json` (a top-level string `key`, such as
+`{"path": "package.json", "kind": "json", "key": "version"}`). The value is
+`X.Y.Z`; a leading `v` and a `-dev` suffix are accepted and a pre-release tag is
+not. The path must stay inside the project, the file is read once and bounded,
+and the manifest records only the declared path, the kind and the compared
+version. A project with no `version_source` outside the engine repository is
+refused with a message naming the field. A policy that does not declare one
+digests exactly as before.
+
 `release prepare` moves each selected fragment from
 `.pose/changelogs/unreleased/` to `.pose/changelogs/<version>/` and never edits
 a spec. A spec that declared its fragment keeps the claim it wrote:

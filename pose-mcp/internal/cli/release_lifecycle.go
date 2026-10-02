@@ -133,7 +133,10 @@ func releaseInputs(root, target string) (posemodel.ReleasePolicy, []posemodel.Re
 			}
 		}
 	}
-	evidence := map[string]string{"source": "pose-mcp/internal/version/version.go", "value": "v" + version.ReleaseBase()}
+	evidence, err := releaseVersionEvidence(root, policy)
+	if err != nil {
+		return policy, nil, "", nil, err
+	}
 	if evidence["value"] != target {
 		return policy, nil, "", nil, fmt.Errorf("target %s differs from authoritative version evidence %s", target, evidence["value"])
 	}
@@ -141,6 +144,24 @@ func releaseInputs(root, target string) (posemodel.ReleasePolicy, []posemodel.Re
 		return policy, nil, "", nil, fmt.Errorf("target %s must be newer than %s", target, previous)
 	}
 	return policy, fragments, previous, evidence, nil
+}
+
+// releaseVersionEvidence selects the authoritative version a cut is compared
+// with: the file the policy declares, or, only inside the engine repository, the
+// compiled engine version. Elsewhere the engine's number belongs to another
+// project, so it is refused instead of silently accepted.
+func releaseVersionEvidence(root string, policy posemodel.ReleasePolicy) (map[string]string, error) {
+	if policy.VersionSource != nil {
+		value, err := posemodel.ReadReleaseVersionSource(root, *policy.VersionSource)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]string{"source": filepath.ToSlash(filepath.Clean(policy.VersionSource.Path)), "kind": policy.VersionSource.Kind, "value": value}, nil
+	}
+	if !posemodel.ProjectHasEngineVersionFile(root) {
+		return nil, fmt.Errorf("release policy declares no version_source: the engine version is authoritative only inside the engine repository; set version_source in .pose/policy/release.json to the file that holds this project's version")
+	}
+	return map[string]string{"source": posemodel.EngineVersionFile, "value": "v" + version.ReleaseBase()}, nil
 }
 
 func versionLess(a, b string) bool {
@@ -513,23 +534,7 @@ func cmdReleaseRecord(root string, args []string, stdout, stderr io.Writer) int 
 }
 
 func confinedProjectPath(root, path string) (string, error) {
-	if filepath.IsAbs(path) {
-		return "", fmt.Errorf("absolute path")
-	}
-	full := filepath.Join(root, filepath.Clean(path))
-	rel, err := filepath.Rel(root, full)
-	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-		return "", fmt.Errorf("escape")
-	}
-	resolved, err := filepath.EvalSymlinks(full)
-	if err != nil {
-		return "", err
-	}
-	resolvedRel, err := filepath.Rel(root, resolved)
-	if err != nil || resolvedRel == ".." || strings.HasPrefix(resolvedRel, ".."+string(filepath.Separator)) {
-		return "", fmt.Errorf("symlink escape")
-	}
-	return full, nil
+	return posemodel.ConfinedProjectPath(root, path)
 }
 
 func cmdReleaseStatus(root string, args []string, stdout, stderr io.Writer) int {
@@ -703,4 +708,3 @@ func appendReleasePolicyChecks(checker *nativeChecker) {
 		}
 	}
 }
-

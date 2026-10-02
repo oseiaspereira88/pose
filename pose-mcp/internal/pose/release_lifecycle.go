@@ -26,6 +26,10 @@ type ReleasePolicy struct {
 	Provider      string `json:"provider"`
 	Repository    string `json:"repository"`
 	RequireVerify bool   `json:"require_verification"`
+	// VersionSource names the project file that holds the project's own version.
+	// It is a pointer with omitempty so a policy that leaves it unset serializes,
+	// and therefore digests, exactly as it did before the field existed.
+	VersionSource *ReleaseVersionSource `json:"version_source,omitempty"`
 }
 
 type ReleaseFragment struct {
@@ -119,6 +123,11 @@ func LoadReleasePolicy(root string) (ReleasePolicy, error) {
 	}
 	if policy.AdoptedAt != "" && (policy.Provider == "" || policy.Repository == "") {
 		return policy, fmt.Errorf("invalid release policy: provider and repository are required once adopted")
+	}
+	if policy.VersionSource != nil {
+		if err := policy.VersionSource.Validate(); err != nil {
+			return policy, fmt.Errorf("invalid release policy: version_source: %w", err)
+		}
 	}
 	return policy, nil
 }

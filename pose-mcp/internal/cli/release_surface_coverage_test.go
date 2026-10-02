@@ -29,6 +29,7 @@ func releaseSurfaceFixture(t *testing.T, category string, breaking bool) string 
 	root := t.TempDir()
 	writeReleaseFixture(t, root, ".pose/policy/release.json",
 		`{"schema_version":1,"adopted_at":"2026-08-03","provider":"github","repository":"owner/repo"}`)
+	markAsEngineRepository(t, root)
 	writeReleaseFixture(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: done\n---\n")
 	body := "---\nspec: alpha\ncategory: " + category + "\nbreaking: "
 	if breaking {
