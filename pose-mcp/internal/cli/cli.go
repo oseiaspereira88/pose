@@ -107,6 +107,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 		return cmdNewKnowledge(root, args, stdout, stderr)
+	case "migrate":
+		root, err := projectRoot()
+		if err != nil {
+			render(io.Discard, stderr).Failure("pose migrate: " + err.Error())
+			return 1
+		}
+		return cmdMigrate(root, args, stdout, stderr)
 	case "specs":
 		root, err := projectRoot()
 		if err != nil {

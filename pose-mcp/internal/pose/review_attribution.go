@@ -264,7 +264,7 @@ func (s Store) ListReviewAttributionSupplements(attestationID string) ([]ReviewA
 			return nil, readErr
 		}
 		var sup ReviewAttributionSupplement
-		if json.Unmarshal(raw, &sup) != nil || sup.AttestationID != attestationID {
+		if json.Unmarshal(raw, &sup) != nil || (attestationID != "" && sup.AttestationID != attestationID) {
 			continue
 		}
 		out = append(out, sup)

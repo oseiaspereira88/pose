@@ -181,7 +181,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "specs",
 		SummaryEN:       "List, filter, and discover specifications across the repository",
 		SummaryPtBR:     "Lista, filtra e descobre especificações em todo o repositório",
-		Usage:           "pose specs [--recent <N>] [--status <s>] [--since <d>] [--components <c>] [--json]",
+		Usage:           "pose specs [--recent <N>] [--status <s>] [--since <d>] [--components <c>] [--json] | pose specs facts <slug> [--json]",
 		DescriptionEN:   "Discovers and lists repository specifications sorted chronologically (newest first). Supports filtering by lifecycle status, tags, recent limit, and relative time windows.",
 		DescriptionPtBR: "Descobre e lista especificações do repositório ordenadas cronologicamente (mais recentes primeiro). Suporta filtros por status, tags, limite recente e janelas de tempo.",
 		Flags: []FlagHelp{
@@ -254,7 +254,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "new-spec",
 		SummaryEN:       "Scaffold a new feature specification",
 		SummaryPtBR:     "Cria o scaffold de uma nova especificação de feature",
-		Usage:           "pose new-spec <slug> [--folder] [--legacy] [--task <artifact-ref>] [--expect-context <digest>]",
+		Usage:           "pose new-spec <slug> [--folder] [--legacy] [--surface minimal|standard|full] [--task <artifact-ref>] [--expect-context <digest>]",
 		DescriptionEN:   "Creates a local draft spec, reuses a task's canonical spec when it already resolves, and routes an explicitly qualified cross-project create only when the configured project binding and context revision still match.",
 		DescriptionPtBR: "Cria uma spec local em rascunho, reutiliza a spec canônica quando a tarefa já resolve e só roteia uma criação entre projetos quando o vínculo configurado e a revisão do contexto continuam válidos.",
 		Examples: []string{
@@ -337,7 +337,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "action",
 		SummaryEN:       "Open, read and resolve material requests to a person or an external system",
 		SummaryPtBR:     "Abre, lê e resolve solicitações materiais a uma pessoa ou a um sistema externo",
-		Usage:           "pose action <open|list|show|resolve|cancel|waive|invalidate> ...",
+		Usage:           "pose action <open|list|show|resolve|cancel|waive|invalidate> ... | pose action list --present [--actor <id|role>] [--json]",
 		DescriptionEN:   "An action request records a decision, approval, input, external operation or acceptance that no other source holds, with its question, options and consequences, recipient, qualified targets and per-phase effects. Open one only when a different answer would materially change execution, scope, authority, risk acceptance, closeout or publication, and no authorization already given covers it. Writes are previews until --apply. A resolution names the request digest it answers and the revision it read, carries an idempotency key, and is accepted only from an actor holding the recipient role in .pose/policy/actions.json; under verified assurance it also needs a signed claim. Answered is not satisfied: a declined approval, a rejected acceptance or a failed operation leaves the request's condition unmet.",
 		DescriptionPtBR: "Uma action request registra uma decisão, aprovação, informação, operação externa ou aceite que nenhuma outra fonte guarda, com a pergunta, as opções e consequências, o destinatário, os alvos qualificados e os efeitos por fase. Abra uma somente quando uma resposta diferente mudaria materialmente execução, escopo, autoridade, aceitação de risco, closeout ou publicação, e nenhuma autorização já dada a cobre. Escritas são preview até --apply. Uma resolução nomeia o digest da solicitação que responde e a revisão que leu, traz uma chave de idempotência e só é aceita de um ator que detém o papel destinatário em .pose/policy/actions.json; com garantia verificada também exige uma claim assinada. Respondida não é satisfeita: uma aprovação recusada, um aceite rejeitado ou uma operação falha deixam a condição sem atendimento.",
 		Subcommands: []SubcommandHelp{
@@ -478,7 +478,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "followups",
 		SummaryEN:       "List and triage open spec follow-ups and near-duplicates",
 		SummaryPtBR:     "Lista e faz triagem de follow-ups em aberto e quase-duplicatas",
-		Usage:           "pose followups [--open|--all] [--json] [--overdue]",
+		Usage:           "pose followups [--open|--all] [--json] [--overdue] | pose followups --candidates [--json]",
 		DescriptionEN:   "Aggregates all follow-up items declared across specs in section 7 (Final Report), flagging overdue SLAs and near-duplicate proposals.",
 		DescriptionPtBR: "Agrega todos os follow-ups declarados nas specs na seção 7 (Final Report), sinalizando SLAs vencidos e propostas quase-duplicadas.",
 		Flags: []FlagHelp{
@@ -692,17 +692,34 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose roadmap-check platform-v2 --strict",
 		},
 	},
+	"migrate": {
+		Name:            "migrate",
+		SummaryEN:       "Dry-run the legacy inventory a future major would convert, keep or refuse",
+		SummaryPtBR:     "Executa o dry-run do inventário de legado que uma futura major converteria, manteria ou recusaria",
+		Usage:           "pose migrate v7 --dry-run [--json]",
+		DescriptionEN:   "Counts spec layouts, blocked specs, legacy and unknown review policy keys, sealed bundles, attestations by identity mode and attribution, and incomplete transfers, with the action and removal criterion of each class. Writes nothing; 6.x has no apply.",
+		DescriptionPtBR: "Conta layouts de spec, specs blocked, chaves legadas e desconhecidas da política de review, bundles selados, atestações por modo de identidade e atribuição, e transferências incompletas, com a ação e o critério de remoção de cada classe. Não escreve nada; a 6.x não tem apply.",
+		Flags: []FlagHelp{
+			{"--dry-run", "Required: inventory only", "Obrigatório: apenas inventário"},
+			{"--json", "Output the inventory as JSON", "Emite o inventário em JSON"},
+		},
+		Examples: []string{
+			"pose migrate v7 --dry-run",
+		},
+	},
 	"stats": {
 		Name:            "stats",
 		SummaryEN:       "Display historical POSE engineering statistics and task metrics",
 		SummaryPtBR:     "Exibe estatísticas históricas de engenharia e métricas de tarefas do POSE",
-		Usage:           "pose stats replay [--limit N] [--json] | pose stats [workflows|tasks|contexts] [--since-days N] [--json] | pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--json]",
+		Usage:           "pose stats replay [--limit N] [--json] | pose stats [workflows|tasks|contexts] [--since-days N] [--json] | pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--waits] [--rework] [--json]",
 		DescriptionEN:   "Aggregates historical outcomes, or (with governance) reports separate preparation, judgment, intervention, freshness and coverage dimensions without a quality score.",
 		DescriptionPtBR: "Agrega resultados históricos ou, com governance, separa preparação, julgamento, intervenção, atualidade e cobertura sem score de qualidade.",
 		Flags: []FlagHelp{
 			{"--since-days <N>", "Analyze historical data within the last N days (default: 30)", "Analisa dados históricos dos últimos N dias (padrão: 30)"},
 			{"--maturity-days <N>", "Governance query maturity window (default: 30)", "Janela de maturidade da consulta governance (padrão: 30)"},
 			{"--min-sample <N>", "Governance query minimum sample (default: 3)", "Amostra mínima da consulta governance (padrão: 3)"},
+			{"--waits", "Governance: request age, attributed wait and known blocking, kept apart", "Governance: idade das solicitações, espera atribuída e bloqueio conhecido, separados"},
+			{"--rework", "Governance: why review work was redone, by what changed; unknown otherwise", "Governance: por que o trabalho de review foi refeito, pelo que mudou; senão desconhecido"},
 			{"--json", "Output statistics in JSON format", "Emite as estatísticas em formato JSON"},
 		},
 		Examples: []string{

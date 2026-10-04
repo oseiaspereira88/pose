@@ -1,12 +1,13 @@
 ---
 slug: pose-v7-legacy-cleanup-plan
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-legacy-contract-cutoffs, pose-blocked-semantics-alignment, pose-flat-spec-amendments, pose-effective-governance-projection, pose-transfer-preserves-obligations, pose-agency-readiness-pilot
 priority: 3
 components: pose-mcp
+delivers: surface:migrate-v7-dry-run
 task_type: refactor
 ---
 
@@ -75,11 +76,25 @@ Planning report and dry-run tooling.
 
 - created: .pose/specs/2026-10-04-pose-v7-legacy-cleanup-plan.md
 - created: .pose/reports/pose-v7-legacy-cleanup-plan.md
+- created: pose-mcp/internal/pose/legacy_inventory.go
 - created: pose-mcp/internal/cli/migrate_dryrun.go
 - created: pose-mcp/internal/cli/migrate_dryrun_test.go
+- modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/pose/review_attribution.go
+- modified: docs-site/docs/cli.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
+- created: .pose/changelogs/unreleased/pose-v7-legacy-cleanup-plan.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:migrate-v7-dry-run module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -88,7 +103,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation
@@ -126,6 +141,8 @@ Dry-run over both brownfield corpora with zero writes verified by tree hash.
 - Expected: pass
 
 ## 7. Final Report
+
+Measured at 9c3a038 (`pose migrate v7 --dry-run`, 0.5 s): 318 flat and 3 dated folder specs, no undated folder and no blocked spec, 5 legacy review policy adoption keys, no unknown key, 1307 sealed bundles (483 without `governing_contracts`), 1301 declared-identity attestations (1285 without attribution or supplement), no incomplete transfer. A first run reported 10 incomplete transfers because it read each transfer's status as the source project; the ten ABM transfers are `activated` on this, the destination side. The predicate now uses the current project and its role in the plan. R2's apply half is deliberately not built in 6.x: `--apply` is refused and the plan lists what a 7.0 apply must carry (revision guard, per-class checkpoint, gate rehearsal). The help catalog entries for five earlier commands were updated in this commit because the catalog lagged their flags.
 
 ### Delivered scope
 
