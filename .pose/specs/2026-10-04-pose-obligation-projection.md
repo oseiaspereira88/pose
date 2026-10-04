@@ -158,6 +158,17 @@ tree-hash invariance; policy-change invalidation test; latency measurement on po
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] test:TestProjectionIsReadOnlyAndNavigableToItsSource check:obligation-projection-integration
+- R2 [satisfied] test:TestResolvingTheSourceRemovesTheObligationWithoutAnotherWrite check:obligation-contract-integration
+- R3 [satisfied] test:TestCorrelationKeepsEveryDistinctRestriction check:obligation-projection-integration
+- R4 [satisfied] test:TestProjectionIsReadOnlyAndNavigableToItsSource check:obligation-projection-integration
+- R5 [satisfied] <includes authority_context_revision> test:TestSnapshotChangesInvalidateAnEarlierAnswer check:obligation-projection-integration
+- R6 [satisfied] test:TestAFailingProducerIsCoverageNotZeroObligations check:obligation-contract-integration test:TestUnintegratedProducersAreAlwaysListed check:obligation-projection-integration
+- R7 [satisfied] test:TestSnapshotChangesInvalidateAnEarlierAnswer check:obligation-projection-integration
+- R8 [satisfied] test:TestQueryFiltersByScopeActorPhaseAndCategory check:obligation-projection-integration
+
 ## 7. Final Report
 
 R5 named an authority context revision the first snapshot did not carry. The snapshot now records `authority_context_revision`, the `context_revision` that `pose context` computes for the project, and includes it in the digest; selecting another project identity reports `authority-context` among the changes.
