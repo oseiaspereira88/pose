@@ -4,27 +4,71 @@
   "title": "POSE review attestation",
   "type": "object",
   "additionalProperties": true,
-  "required": ["schema_version", "attestation_id", "bundle_id", "bundle_digest", "reviewer", "decision", "criteria", "findings", "attested_at"],
+  "required": [
+    "schema_version",
+    "attestation_id",
+    "bundle_id",
+    "bundle_digest",
+    "reviewer",
+    "decision",
+    "criteria",
+    "findings",
+    "attested_at"
+  ],
   "$defs": {
     "criterionDisposition": {
-      "type": "object", "additionalProperties": true,
-      "required": ["id", "disposition"],
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "id",
+        "disposition"
+      ],
       "properties": {
-        "id": {"type": "string"},
-        "disposition": {"enum": ["passed", "not-applicable", "finding"]},
-        "evidence": {"type": "string"},
-        "rationale": {"type": "string"},
+        "id": {
+          "type": "string"
+        },
+        "disposition": {
+          "enum": [
+            "passed",
+            "not-applicable",
+            "finding"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
         "mappings": {
           "comment": "One answer per material structural fact, required when the planned criterion declares requires_structural_mapping. Either a basis that reaches a requirement or constraint, or one of the three explicit non-mappings with a rationale.",
           "type": "array",
           "items": {
-            "type": "object", "additionalProperties": true,
-            "required": ["delta"],
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "delta"
+            ],
             "properties": {
-              "delta": {"type": "string", "pattern": "^SD-[0-9a-f]{8,12}$"},
-              "basis": {"type": "string", "pattern": "^[RACD][0-9]+$"},
-              "disposition": {"enum": ["mapped", "missing-evidence", "not-applicable", "accepted-risk"]},
-              "rationale": {"type": "string"}
+              "delta": {
+                "type": "string",
+                "pattern": "^SD-[0-9a-f]{8,12}$"
+              },
+              "basis": {
+                "type": "string",
+                "pattern": "^[RACD][0-9]+$"
+              },
+              "disposition": {
+                "enum": [
+                  "mapped",
+                  "missing-evidence",
+                  "not-applicable",
+                  "accepted-risk"
+                ]
+              },
+              "rationale": {
+                "type": "string"
+              }
             }
           }
         }
@@ -32,48 +76,202 @@
     }
   },
   "properties": {
-    "schema_version": {"const": 1},
-    "attestation_id": {"type": "string", "pattern": "^rva-[a-f0-9]{16}$"},
-    "bundle_id": {"type": "string", "pattern": "^rvb-[a-f0-9]{16}$"},
-    "bundle_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "reviewer": {"type": "string", "pattern": "^(agent|human):[^\\r\\n]+$"},
-    "decision": {"enum": ["approved", "approved-with-reservations", "changes-requested", "rejected"]},
-    "criteria": {"type": "array", "items": {"$ref": "#/$defs/criterionDisposition"}},
-    "tools": {"type": "array", "items": {"type": "object"}},
-    "evidence_refs": {"type": "array", "items": {"type": "string"}},
-    "findings": {"type": "array", "items": {"type": "object"}},
+    "schema_version": {
+      "const": 1
+    },
+    "attestation_id": {
+      "type": "string",
+      "pattern": "^rva-[a-f0-9]{16}$"
+    },
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^rvb-[a-f0-9]{16}$"
+    },
+    "bundle_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "reviewer": {
+      "type": "string",
+      "pattern": "^(agent|human):[^\\r\\n]+$"
+    },
+    "decision": {
+      "enum": [
+        "approved",
+        "approved-with-reservations",
+        "changes-requested",
+        "rejected"
+      ]
+    },
+    "criteria": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/criterionDisposition"
+      }
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
     "authority": {
       "type": "object",
-      "required": ["schema_version", "project", "bundle_digest", "principal", "role", "review_execution", "issuer", "issued_at", "audience"],
+      "required": [
+        "schema_version",
+        "project",
+        "bundle_digest",
+        "principal",
+        "role",
+        "review_execution",
+        "issuer",
+        "issued_at",
+        "audience"
+      ],
       "properties": {
-        "schema_version": {"const": 1},
-        "project": {"type": "string", "minLength": 1},
-        "bundle_digest": {"$ref": "review-bundle.schema.json#/$defs/digest"},
-        "principal": {"type": "string", "pattern": "^(agent|human):[^\\r\\n]+$"},
-        "role": {"enum": ["agent", "human"]},
-        "review_execution": {"type": "string", "minLength": 1},
-        "implementation_principal": {"type": "string"},
-        "implementation_execution": {"type": "string"},
-        "issuer": {"type": "string", "minLength": 1},
-        "issued_at": {"type": "string", "format": "date-time"},
-        "expires_at": {"type": "string", "format": "date-time"},
-        "audience": {"type": "string", "minLength": 1}
+        "schema_version": {
+          "const": 1
+        },
+        "project": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bundle_digest": {
+          "$ref": "review-bundle.schema.json#/$defs/digest"
+        },
+        "principal": {
+          "type": "string",
+          "pattern": "^(agent|human):[^\\r\\n]+$"
+        },
+        "role": {
+          "enum": [
+            "agent",
+            "human"
+          ]
+        },
+        "review_execution": {
+          "type": "string",
+          "minLength": 1
+        },
+        "implementation_principal": {
+          "type": "string"
+        },
+        "implementation_execution": {
+          "type": "string"
+        },
+        "issuer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "audience": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
-    "reused_from": {"type": "array", "items": {"type": "object"}},
-    "supersedes": {"type": "string"},
+    "attribution": {
+      "description": "Who prepared, concluded, confirmed and applied the review (spec pose-review-attribution-roles). Optional; absent on legacy records, which render as legacy-undifferentiated. Never derived from reviewer.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "prepared_by": {
+          "type": "string",
+          "pattern": "^(agent|human):[^\\r\\n]+$"
+        },
+        "concluded_by": {
+          "type": "string",
+          "pattern": "^(agent|human):[^\\r\\n]+$"
+        },
+        "confirmed_by": {
+          "type": "string",
+          "pattern": "^(agent|human):[^\\r\\n]+$"
+        },
+        "applied_by": {
+          "type": "string",
+          "pattern": "^(agent|human):[^\\r\\n]+$"
+        },
+        "confirmation_mode": {
+          "enum": [
+            "none",
+            "adopted-conclusions",
+            "authorized-operation"
+          ]
+        },
+        "confirmation_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "reused_from": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "supersedes": {
+      "type": "string"
+    },
     "envelope": {
       "type": "object",
-      "required": ["issuer", "subject", "algorithm", "public_key", "signature"],
+      "required": [
+        "issuer",
+        "subject",
+        "algorithm",
+        "public_key",
+        "signature"
+      ],
       "properties": {
-        "issuer": {"type": "string"},
-        "subject": {"type": "string", "pattern": "^rvb-[a-f0-9]{16}$"},
-        "algorithm": {"const": "ed25519"},
-        "public_key": {"type": "string"},
-        "signature": {"type": "string"}
+        "issuer": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string",
+          "pattern": "^rvb-[a-f0-9]{16}$"
+        },
+        "algorithm": {
+          "const": "ed25519"
+        },
+        "public_key": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        }
       }
     },
-    "attested_at": {"type": "string", "format": "date-time"},
-    "path": {"type": "string"}
+    "attested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "path": {
+      "type": "string"
+    }
   }
 }

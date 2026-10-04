@@ -89,6 +89,7 @@ regression fixtures.
 - modified: pose-mcp/internal/pose/review_assurance.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - created: pose-mcp/internal/cli/review_attribution.go
+- modified: pose-mcp/schemas/v1/review-attestation.schema.json
 - created: pose-mcp/internal/cli/review_attribution_cli_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/help_catalog.go
