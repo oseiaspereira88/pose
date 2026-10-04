@@ -134,6 +134,14 @@ change invalidation.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] <request origins and targets are qualified xrefs> test:TestSameLocalNodeInDifferentSpecsOrProjectsNeverCollides check:obligation-contract-integration
+- R2 [satisfied] test:TestTransferInvalidatesSourceRequestsOnceEvenWhenResumed check:transfer-actions-integration
+- R3 [satisfied] <answers are bound to the source project and invalidated at source retirement> test:TestTransferInvalidatesSourceRequestsOnceEvenWhenResumed check:transfer-actions-integration
+- R4 [satisfied] <the source journal keeps the history> test:TestTransferInvalidatesSourceRequestsOnceEvenWhenResumed check:transfer-actions-integration
+- R5 [satisfied] <the plan lists each request as invalidate-in-source or history-only; none is transferable by design> test:TestTransferRefusesARequestOpenedAfterThePreview check:transfer-actions-integration
+
 ## 7. Final Report
 
 ### Delivered scope
