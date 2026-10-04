@@ -642,3 +642,15 @@ dizem) e `separation_verified` (o que uma claim assinada vinculada ao bundle
 estabeleceu, ou `not-verified`). Em `declared`, `human:` e
 `agent:independent-` aparecem como declarações. `cognitive_independence` é
 sempre `not-observable`.
+
+A atribuição é registrada separada da identidade. `pose review attest` aceita
+`--prepared-by`, `--concluded-by`, `--confirmed-by` com
+`--confirmation-mode adopted-conclusions|authorized-operation`, e
+`--applied-by`; nenhum deles é preenchido a partir de `--reviewer`, e uma
+confirmação fica vinculada ao digest exato da decisão, dos critérios, das
+ferramentas e dos findings gravados. Adotar conclusões e autorizar uma operação
+aparecem de forma diferente, e uma confirmação só é `verified` quando uma claim
+de autoridade verificada nomeia aquela pessoa. Registros anteriores não têm o
+bloco e aparecem como `legacy-undifferentiated`. `pose review
+attribution-supplement` esclarece um registro existente por referência, sem
+alterá-lo, e não pode acrescentar confirmação.

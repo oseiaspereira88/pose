@@ -23,6 +23,9 @@ type ReviewAssurance struct {
 	VerifiedClaim         *ReviewAssuranceClaim `json:"verified_claim,omitempty"`
 	CognitiveIndependence string                `json:"cognitive_independence"`
 	Limitations           []string              `json:"limitations"`
+	// Attribution separates who prepared, concluded, confirmed and applied
+	// the record (spec pose-review-attribution-roles).
+	Attribution *ReviewAttributionDisclosure `json:"attribution,omitempty"`
 }
 
 // ReviewAssuranceClaim is the part of a verified authority claim the
@@ -97,6 +100,16 @@ func reviewVerifiedSeparation(independence string) string {
 // the bundle has no attestation yet; the disclosure then states what will be
 // required and that nothing was verified.
 func (s Store) DescribeReviewAssurance(bundle ReviewBundle, att *ReviewAttestation) ReviewAssurance {
+	out := s.describeReviewAssurance(bundle, att)
+	if att != nil {
+		supplements, _ := s.ListReviewAttributionSupplements(att.AttestationID)
+		attribution := DescribeReviewAttribution(*att, out, supplements)
+		out.Attribution = &attribution
+	}
+	return out
+}
+
+func (s Store) describeReviewAssurance(bundle ReviewBundle, att *ReviewAttestation) ReviewAssurance {
 	out := ReviewAssurance{
 		IdentityAssurance:     bundle.Payload.SealedGates().IdentityAssurance,
 		SeparationRequired:    firstNonempty(bundle.Payload.Plan.Independence, "none"),
@@ -149,6 +162,8 @@ func describeAttemptAssurance(assurance, independence string, attempt *ReviewAtt
 		out.Limitations = []string{ReviewLimitationNoRecord, ReviewLimitationCognitive}
 		return out
 	}
+	legacy := ReviewAttributionDisclosure{State: ReviewAttributionLegacy, ConfirmationMode: ReviewConfirmationNone, ConfirmationAssurance: reviewConfirmationAssuranceNone}
+	out.Attribution = &legacy
 	out.Reviewer = attempt.Reviewer
 	out.ReviewerRole = reviewDeclaredRole(attempt.Reviewer)
 	out.SeparationDeclared = reviewDeclaredSeparation(attempt.Reviewer)
@@ -176,7 +191,11 @@ func RenderReviewAssurance(a ReviewAssurance) string {
 	case reviewAssuranceNotVerified:
 		identity = "identity not verified"
 	}
-	return reviewer + " — " + identity + "; assurance " + a.IdentityAssurance +
+	text := reviewer + " — " + identity + "; assurance " + a.IdentityAssurance +
 		"; separation required " + a.SeparationRequired + ", declared " + a.SeparationDeclared + ", verified " + a.SeparationVerified +
 		"; cognitive independence " + a.CognitiveIndependence
+	if a.Attribution != nil {
+		text += "; " + RenderReviewAttribution(*a.Attribution)
+	}
+	return text
 }

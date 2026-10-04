@@ -359,6 +359,10 @@ type ReviewAttestation struct {
 	EvidenceRefs  []string                    `json:"evidence_refs,omitempty"`
 	Findings      []ReviewFinding             `json:"findings"`
 	Authority     *ReviewAuthorityClaim       `json:"authority,omitempty"`
+	// Attribution separates who prepared, concluded, confirmed and applied
+	// the review (spec pose-review-attribution-roles). Absent on every record
+	// written before it, which renders as legacy-undifferentiated.
+	Attribution *ReviewAttribution       `json:"attribution,omitempty"`
 	ReusedFrom    []ReviewAttestationReuse    `json:"reused_from,omitempty"`
 	Supersedes    string                      `json:"supersedes,omitempty"`
 	Envelope      *ReviewAttestationSignature `json:"envelope,omitempty"`
@@ -2162,6 +2166,9 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 	if att.Decision != "approved" && att.Decision != "approved-with-reservations" && att.Decision != "changes-requested" && att.Decision != "rejected" {
 		return ReviewAttestation{}, fmt.Errorf("pose: invalid review decision %q", att.Decision)
 	}
+	if err := ValidateReviewAttribution(att); err != nil {
+		return ReviewAttestation{}, err
+	}
 	att.SchemaVersion = ReviewBundleSchemaVersion
 	if att.AttestedAt == "" {
 		att.AttestedAt = now.UTC().Truncate(time.Second).Format(time.RFC3339)
@@ -2529,6 +2536,9 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 	}
 	if !strings.HasPrefix(att.Reviewer, "agent:") && !strings.HasPrefix(att.Reviewer, "human:") {
 		blockers = append(blockers, "reviewer execution identity is malformed")
+	}
+	if err := ValidateReviewAttribution(att); err != nil {
+		blockers = append(blockers, strings.TrimPrefix(err.Error(), "pose: "))
 	}
 	// Two axes, kept apart. Independence says what separation the review
 	// requires; assurance says whether the reviewer's identity is read from the

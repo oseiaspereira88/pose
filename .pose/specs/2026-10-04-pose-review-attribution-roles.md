@@ -1,12 +1,13 @@
 ---
 slug: pose-review-attribution-roles
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-review-assurance-disclosure
 priority: 0
 components: pose-mcp
+delivers: surface:review-attribution-roles
 task_type: feature
 ---
 
@@ -83,25 +84,42 @@ regression fixtures.
 ### Artifacts
 
 - created: .pose/specs/2026-10-04-pose-review-attribution-roles.md
-- modified: pose-mcp/internal/pose/review_bundle.go
-- modified: pose-mcp/internal/pose/review_closeout.go
 - created: pose-mcp/internal/pose/review_attribution.go
 - created: pose-mcp/internal/pose/review_attribution_test.go
+- modified: pose-mcp/internal/pose/review_assurance.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- created: pose-mcp/internal/cli/review_attribution.go
+- created: pose-mcp/internal/cli/review_attribution_cli_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
-- modified: pose-mcp/schemas/review-attestation.schema.json
-- modified: pose-mcp/internal/mcpserver/server.go
-- modified: pose-mcp/internal/mcpserver/catalog.go
-- modified: pose-mcp/internal/mcpserver/server_test.go
-- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
-- modified: docs-site/docs/mcp.md
+- modified: pose-mcp/internal/cli/help_catalog.go
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-review-attribution-roles.md
+- created: .pose/review-attribution-supplements/ras-0ca079e2c924c0e8.json
+- created: .pose/review-attribution-supplements/ras-21f767fd60315767.json
+- created: .pose/review-attribution-supplements/ras-221f26e00b557474.json
+- created: .pose/review-attribution-supplements/ras-3eaf568374d8e50a.json
+- created: .pose/review-attribution-supplements/ras-4e2ee3a523c62e9a.json
+- created: .pose/review-attribution-supplements/ras-6cf659ef89c042dc.json
+- created: .pose/review-attribution-supplements/ras-7bc10f2f50911ffc.json
+- created: .pose/review-attribution-supplements/ras-805a590f36277320.json
+- created: .pose/review-attribution-supplements/ras-88552b7409b34fec.json
+- created: .pose/review-attribution-supplements/ras-89fe1c9bd5a6ccd3.json
+- created: .pose/review-attribution-supplements/ras-af30e43144313b67.json
+- created: .pose/review-attribution-supplements/ras-b1670b461a950223.json
+- created: .pose/review-attribution-supplements/ras-be779d9d77d3112e.json
+- created: .pose/review-attribution-supplements/ras-d95b251af78afcb9.json
+- created: .pose/review-attribution-supplements/ras-f516d63eafabda4f.json
+- created: .pose/review-attribution-supplements/ras-fa5875f2b91dc117.json
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:review-attribution-roles module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -110,7 +128,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation
@@ -136,6 +154,14 @@ against the tree, as the ABM specs did, before the first implementation commit.
 - Rationale: renaming cannot distinguish the four observed cases; a bound confirmation can
 - Consequences: one more registered contract; renders change for new records only
 - Falsifier: real records show the roles are always identical, making the block pure ceremony
+
+### Decision D2
+- Basis: R1, R6
+- Minimal option: version the attribution by its own block schema_version
+- Selected option: version the attribution by its own block schema_version
+- Rationale: a registry contract is sealed into every new bundle and held as a requirement; attribution is optional by design, so registering it would either make it mandatory or register a contract that requires nothing
+- Consequences: the non-functional note about stamping the contract is replaced by the block version; readers accept both shapes and an absent block reads as legacy-undifferentiated
+- Falsifier: a consumer needs to know, from the bundle alone, whether attribution was expected for it
 
 
 ## 6. Validation

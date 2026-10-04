@@ -1058,6 +1058,33 @@
           ],
           "severity": "required",
           "evidenceClass": "reachability"
+        },
+        {
+          "name": "review-attribution-roles-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "Attribution|630Cycle|SerializesAsBefore|OnlyAVerifiedHuman|ReviewConfirmation|TestReviewerFlagNeverFills|TestReviewAttestRecordsExplicitAttribution",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "review-attribution-roles-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestReviewerFlagNeverFills|TestReviewAttestRecordsExplicitAttribution",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },

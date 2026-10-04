@@ -635,3 +635,14 @@ plan), `separation_declared` (what the record's identity strings say) and
 `separation_verified` (what a signed claim bound to the bundle established, or
 `not-verified`). Under `declared`, `human:` and `agent:independent-` are shown
 as declarations. `cognitive_independence` is always `not-observable`.
+
+Attribution is recorded apart from identity. `pose review attest` accepts
+`--prepared-by`, `--concluded-by`, `--confirmed-by` with
+`--confirmation-mode adopted-conclusions|authorized-operation`, and
+`--applied-by`; none of them is ever filled from `--reviewer`, and a
+confirmation is bound to the digest of the exact decision, criteria, tools and
+findings written. Adopting conclusions and authorizing an operation render
+differently, and a confirmation is `verified` only when a verified authority
+claim names that human. Records written before this carry no block and render
+as `legacy-undifferentiated`. `pose review attribution-supplement` clarifies an
+existing record by reference, append-only, and cannot add a confirmation.

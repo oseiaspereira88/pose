@@ -340,7 +340,7 @@ func writeJSON(w io.Writer, value any) int {
 
 func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|auto-attest|verify|record> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|auto-attest|verify|record|attribution-supplement> ...")
 		return 2
 	}
 	if code, handled := routeQualifiedReviewScope(root, args, stdout, stderr); handled {
@@ -357,8 +357,10 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewVerify(root, args[1:], stdout, stderr)
 	case "record":
 		return cmdReviewRecord(root, args[1:], stdout, stderr)
+	case "attribution-supplement":
+		return cmdReviewAttributionSupplement(root, args[1:], stdout, stderr)
 	default:
-		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|auto-attest|verify|record> ...")
+		fmt.Fprintln(stderr, "Usage: pose review <bundle|attest|auto-attest|verify|record|attribution-supplement> ...")
 		return 2
 	}
 }
@@ -625,9 +627,32 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	var target, reviewer, decision, expectedPlanDigest string
 	var evidence, findings, rawTools, rawCriteria, rawMappings []string
+	// Attribution roles are explicit flags and never derived from --reviewer
+	// (spec pose-review-attribution-roles).
+	var attribution posemodel.ReviewAttribution
+	attributed := false
 	apply := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
+		case "--prepared-by", "--concluded-by", "--confirmed-by", "--applied-by", "--confirmation-mode":
+			if i+1 >= len(args) {
+				render(stdout, stderr).Failure("pose review attest: missing option value")
+				return 2
+			}
+			i++
+			attributed = true
+			switch args[i-1] {
+			case "--prepared-by":
+				attribution.PreparedBy = args[i]
+			case "--concluded-by":
+				attribution.ConcludedBy = args[i]
+			case "--confirmed-by":
+				attribution.ConfirmedBy = args[i]
+			case "--applied-by":
+				attribution.AppliedBy = args[i]
+			case "--confirmation-mode":
+				attribution.ConfirmationMode = args[i]
+			}
 		case "--reviewer", "--decision", "--evidence", "--finding", "--tool", "--criterion", "--mapping", "--plan-digest":
 			if i+1 >= len(args) {
 				fmt.Fprintln(stderr, "pose review attest: missing option value")
@@ -711,6 +736,18 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	att := posemodel.ReviewAttestation{BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest, Reviewer: reviewer, Decision: decision, Criteria: criteria, Tools: tools, EvidenceRefs: evidence, Findings: parsedFindings}
+	if attributed {
+		attribution.SchemaVersion = posemodel.ReviewAttributionSchemaVersion
+		att.Attribution = &attribution
+		if attribution.ConfirmedBy != "" {
+			// The confirmation is bound to exactly what this command writes.
+			attribution.ConfirmationDigest = posemodel.ReviewConfirmationDigest(att)
+		}
+		if err := posemodel.ValidateReviewAttribution(att); err != nil {
+			render(stdout, stderr).Failure(fmt.Sprintf("pose review attest: %v", err))
+			return 2
+		}
+	}
 	if !apply {
 		fmt.Fprintf(stdout, "review_attestation.plan=record\nreview_attestation.bundle_id=%s\nreview_attestation.bundle_digest=%s\nreview_attestation.plan_digest=%s\nreview_attestation.apply=false\n", bundle.BundleID, bundle.BundleDigest, bundle.Payload.Plan.PlanDigest)
 		return 0
