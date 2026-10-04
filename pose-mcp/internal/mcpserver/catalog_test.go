@@ -75,7 +75,7 @@ func TestCatalogGovernanceBijection(t *testing.T) {
 			continue
 		}
 		switch gov.Risk {
-		case RiskRead, RiskGate, RiskExternal:
+		case RiskRead, RiskGate, RiskExternal, RiskGovernanceWrite:
 		default:
 			t.Errorf("tool %q has invalid risk class %q", name, gov.Risk)
 		}

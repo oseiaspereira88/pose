@@ -16,6 +16,9 @@
       "optional": true,
       "activation": "Conductor reporter configured (CONDUCTOR_URL, CONDUCTOR_RUN_TOKEN, CONDUCTOR_PROJECT_ID)"
     },
+    "pose_action_open": {
+      "risk": "governance-write"
+    },
     "pose_action_requests": {
       "risk": "read"
     },
@@ -368,7 +371,97 @@
       "name": "pose_spec_readiness"
     },
     {
-      "description": "Read material requests to a person or an external system (decision, approval, input, external operation, acceptance): question, options with consequences, recipient, qualified targets, per-phase effects, the request digest an answer must name, the append-only journal and the derived state and satisfaction (answered is not satisfied: a declined approval leaves the condition unmet). Read-only: requests are opened and resolved with `pose action` on the CLI, where a resolution names the digest and revision it answers and needs the recipient role.",
+      "description": "Open a material request to a person or an external system — the MCP equivalent of `pose action open`. Open one only when a different answer would materially change execution, scope, authority, risk acceptance, closeout or publication and no authorization already given covers it. Previews (writes nothing) unless apply is true; with apply it appends to the request's journal under .pose/actions/. Resolving stays on the CLI, where an answer names the digest and revision it answers and needs the recipient role.",
+      "inputSchema": {
+        "properties": {
+          "apply": {
+            "description": "Record the request; without it the call is a preview",
+            "type": "boolean"
+          },
+          "context": {
+            "description": "Optional context",
+            "type": "string"
+          },
+          "effects": {
+            "description": "Per-phase effects, e.g. closeout:block or release:advisory",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "execution": {
+            "description": "Optional id of the asking execution",
+            "type": "string"
+          },
+          "kind": {
+            "description": "decision, approval, input, external-operation or acceptance",
+            "type": "string"
+          },
+          "options": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Option id → its consequence; a decision needs at least two",
+            "type": "object"
+          },
+          "origin": {
+            "description": "spec:\u003cslug\u003e, milestone:\u003croadmap\u003e/\u003cid\u003e or roadmap:\u003cslug\u003e",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "question": {
+            "description": "The question, as the person will read it",
+            "type": "string"
+          },
+          "recipient": {
+            "description": "Principal that must answer (or use recipient_role; neither means unassigned)",
+            "type": "string"
+          },
+          "recipient_role": {
+            "description": "Role that must answer, from .pose/policy/actions.json",
+            "type": "string"
+          },
+          "recommend": {
+            "description": "Optional recommended option id",
+            "type": "string"
+          },
+          "requested_by": {
+            "description": "agent:\u003cid\u003e or human:\u003cid\u003e asking",
+            "type": "string"
+          },
+          "subject": {
+            "description": "Optional requirement:R4 or path:\u003cfile\u003e whose change invalidates an answer",
+            "type": "string"
+          },
+          "supersedes": {
+            "description": "Optional act-\u003cid\u003e this request replaces",
+            "type": "string"
+          },
+          "targets": {
+            "description": "Restricted nodes: self, requirement:R4 inside the origin, or xref:...",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "origin",
+          "kind",
+          "question",
+          "requested_by",
+          "targets",
+          "effects"
+        ],
+        "type": "object"
+      },
+      "name": "pose_action_open"
+    },
+    {
+      "description": "Read material requests to a person or an external system (decision, approval, input, external operation, acceptance): question, options with consequences, recipient, qualified targets, per-phase effects, the request digest an answer must name, the append-only journal and the derived state and satisfaction (answered is not satisfied: a declined approval leaves the condition unmet). Read-only: open with pose_action_open or `pose action open`; resolve with `pose action resolve` on the CLI, where a resolution names the digest and revision it answers and needs the recipient role.",
       "inputSchema": {
         "properties": {
           "actor": {

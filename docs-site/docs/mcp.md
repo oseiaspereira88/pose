@@ -90,7 +90,7 @@ POSE stays fully offline unless **both** of the following are set:
 | `OTEL_METRIC_EXPORT_INTERVAL` | Metric export interval in milliseconds (default `15000`) |
 
 Every span and metric carries only the tool name and its catalog risk
-class (`read`/`gate`/`external-side-effect`) — never an argument, path,
+class (`read`/`gate`/`governance-write`/`external-side-effect`) — never an argument, path,
 repo name or user id. Metrics: `pose.mcp.tool.call.duration` (histogram),
 `pose.mcp.policy.denial.count` (counter), `pose.mcp.tool.call.inflight`
 (current concurrency). Logs are structured JSON on stderr, correlated to
@@ -112,7 +112,8 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_spec_amendments` | Append-only amendment history of one spec plus unacknowledged changes, the versioned R/A/D contract-node projection and whether `contract_nodes_version` is adopted |
 | `pose_spec_readiness` | Is a spec eligible? Resolves local and authorized qualified `depends_on` refs (specs, milestones, roadmaps); `phases: true` adds per-phase clear/restricted/partially-restricted/unknown beside the legacy `ready` |
 | `pose_mcp_context` | Active server identity, transport, selection mode, policy-filtered logical project IDs and an optional project-resolution probe; never host paths |
-| `pose_action_requests` | Material requests to a person or external system with question, options, consequences, recipient, targets, per-phase effects, request digest, journal and derived state; read-only — `pose action` opens and resolves them on the CLI |
+| `pose_action_open` | Open a material request (the MCP equivalent of `pose action open`): preview unless `apply` is true; risk class `governance-write` — it appends to the request journal under `.pose/actions/`, never touches the network, and cannot resolve |
+| `pose_action_requests` | Material requests to a person or external system with question, options, consequences, recipient, targets, per-phase effects, request digest, journal and derived state; read-only — `pose_action_open` or `pose action open` opens them, `pose action resolve` resolves them on the CLI |
 | `pose_obligations` | Everything still owed, projected read-only from readiness, closeout, review judgment, start reconciliation and open follow-ups: stable ids, qualified refs, reason codes, conditions, recipients and per-phase effects, with a snapshot and per-producer coverage (an empty list with incomplete coverage is not "nothing owed"); `attention` groups the ids for an actor. Same domain function as `pose state --attention` |
 | `pose_project_state` | Current project state in one call: curated + derived sections (specs/roadmaps, follow-ups, capabilities, decisions/knowledge, validation evidence, architecture), staleness and tamper detection, plus `effective_governance` computed live (optional `governance_scope`) |
 | `pose_start_status` | Read-only atomic start view: digest-bound start preview (readiness, dependencies, declared obligations, R/A/D baseline) and status (phase, node origins, reconciliation needs) |

@@ -90,6 +90,10 @@ skills.
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/catalog.go
 - modified: pose-mcp/internal/mcpserver/server_test.go
+- created: pose-mcp/internal/mcpserver/action_open_test.go
+- modified: pose-mcp/internal/mcpserver/catalog_test.go
+- created: .pose/adr/2026-10-04-mcp-governance-write-risk-class.md
+- modified: .pose/adr/2026-07-19-mcp-tool-catalog-is-a-release-gated-contract.md
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: docs-site/docs/mcp.md
 - modified: docs-site/docs/obligations.md
@@ -170,6 +174,8 @@ corpus case for a non-material question.
 - Expected: pass
 
 ## 7. Final Report
+
+R1 also asks for the MCP equivalent of `pose action open`, which the first implementation left out: MCP could only read requests. `pose_action_open` now previews unless `apply` is true and calls the same domain function as the CLI. It needed a fourth catalog risk class, `governance-write`, recorded in ADR `2026-10-04-mcp-governance-write-risk-class`, because `gate` promises no writes. Resolution stays CLI-only.
 
 The agency-readiness pilot rehearsal, run in a clone named `pilot-clone`, recorded its request as `xref:proj.pilot-clone/...`: the resolver derives the project id from the directory name without an error, and the snapshot only reported a fallback when the resolver failed. The snapshot now lists the limitation whenever no identity is declared, and `action open --apply` repeats it (stderr under `--json`). Refusing would break every project that runs the CLI without a declared identity, so the request is still recorded.
 

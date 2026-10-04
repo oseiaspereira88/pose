@@ -36,7 +36,9 @@ Option 3. The catalog contract:
   of the diff — golden updates are review-gated, never automatic.
 - Every tool declares a **risk class**: `read` (repository-owned governance
   state), `gate` (deterministic local gates, no writes/network) or
-  `external-side-effect` (emits events to an external system).
+  `external-side-effect` (emits events to an external system). A fourth class,
+  `governance-write`, was added by
+  [2026-10-04-mcp-governance-write-risk-class](2026-10-04-mcp-governance-write-risk-class.md).
 - **Optional tools** (`conductor_run_*`) are always advertised, declare an
   explicit activation condition (Conductor reporter configuration) and must
   pass tests in both the enabled and disabled paths. Disabled calls return

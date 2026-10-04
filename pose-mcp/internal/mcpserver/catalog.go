@@ -17,6 +17,10 @@ const (
 	RiskGate RiskClass = "gate"
 	// RiskExternal tools emit events to an external system.
 	RiskExternal RiskClass = "external-side-effect"
+	// RiskGovernanceWrite tools append to a repository-owned governance
+	// journal; they preview unless `apply` is true, and never touch the
+	// network (spec pose-action-requests).
+	RiskGovernanceWrite RiskClass = "governance-write"
 )
 
 // toolGovernance is the per-tool governance record advertised to reviewers
@@ -45,6 +49,7 @@ var catalogGovernance = map[string]toolGovernance{
 	"pose_list_specs":                   {Risk: RiskRead},
 	"pose_spec_readiness":               {Risk: RiskRead},
 	"pose_obligations":                  {Risk: RiskRead},
+	"pose_action_open":                  {Risk: RiskGovernanceWrite},
 	"pose_action_requests":              {Risk: RiskRead},
 	"pose_mcp_context":                  {Risk: RiskRead},
 	"pose_project_state":                {Risk: RiskRead},

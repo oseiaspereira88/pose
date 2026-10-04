@@ -1266,21 +1266,6 @@
           "evidenceClass": "reachability"
         },
         {
-          "name": "action-requests-integration",
-          "program": "go",
-          "args": [
-            "test",
-            "./internal/pose",
-            "./internal/cli",
-            "./internal/mcpserver",
-            "-run",
-            "ActionRequest|SupersededRequest|TestActionOpen|TestToolsList|TestCatalog",
-            "-count=1"
-          ],
-          "severity": "required",
-          "evidenceClass": "integration"
-        },
-        {
           "name": "action-requests-reachability",
           "program": "go",
           "args": [
@@ -1586,6 +1571,21 @@
             "./internal/cli",
             "-run",
             "WaitsSeparate|ReworkClassifies|MissingTimestamp|BookkeepingChanges|EquivalenceAgrees|TestGovernanceStats|WaitsAloneDoesNotComputeOutcomes",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "action-requests-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "TestActionRequest|TestActionOpen|TestOpenActionRequest|TestSupersededRequest|TestToolsCall_ActionOpen|TestCatalog|TestToolsList",
             "-count=1"
           ],
           "severity": "required",

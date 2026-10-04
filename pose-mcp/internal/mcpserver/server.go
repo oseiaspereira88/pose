@@ -1053,6 +1053,81 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			*pose.Readiness
 			Phases []pose.PhaseReadiness `json:"phases"`
 		}{readiness, phases.Phases}, nil
+	case "pose_action_open":
+		// The MCP equivalent of `pose action open` (spec pose-action-requests
+		// R1): the same domain function, a preview unless apply is true.
+		var a struct {
+			Origin      string            `json:"origin"`
+			Kind        string            `json:"kind"`
+			Question    string            `json:"question"`
+			Context     string            `json:"context"`
+			RequestedBy string            `json:"requested_by"`
+			Execution   string            `json:"execution"`
+			Recipient   string            `json:"recipient"`
+			Role        string            `json:"recipient_role"`
+			Options     map[string]string `json:"options"`
+			Recommend   string            `json:"recommend"`
+			Targets     []string          `json:"targets"`
+			Effects     []string          `json:"effects"`
+			Subject     string            `json:"subject"`
+			Supersedes  string            `json:"supersedes"`
+			Apply       bool              `json:"apply"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_action_open: invalid arguments")
+		}
+		for name, value := range map[string]string{"origin": a.Origin, "kind": a.Kind, "question": a.Question, "requested_by": a.RequestedBy} {
+			if strings.TrimSpace(value) == "" {
+				return nil, fmt.Errorf("pose_action_open: required argument %q missing", name)
+			}
+		}
+		if len(a.Targets) == 0 || len(a.Effects) == 0 {
+			return nil, fmt.Errorf("pose_action_open: required argument %q missing", "targets/effects")
+		}
+		r := pose.ActionRequest{Origin: a.Origin, Kind: a.Kind, Question: a.Question, Context: a.Context,
+			RequestedBy: pose.ActionPrincipal{Principal: a.RequestedBy, Execution: a.Execution},
+			Recipient:   pose.ObligationActor{Principal: a.Recipient, Role: a.Role}, Recommend: a.Recommend, Supersedes: a.Supersedes}
+		ids := make([]string, 0, len(a.Options))
+		for id := range a.Options {
+			ids = append(ids, id)
+		}
+		sort.Strings(ids)
+		for _, id := range ids {
+			r.Options = append(r.Options, pose.ActionOption{ID: id, Consequence: a.Options[id]})
+		}
+		for _, raw := range a.Targets {
+			target, err := pose.ParseActionTarget(raw)
+			if err != nil {
+				return nil, fmt.Errorf("pose_action_open: invalid target %q", raw)
+			}
+			r.Targets = append(r.Targets, target)
+		}
+		for _, raw := range a.Effects {
+			phase, mode, ok := strings.Cut(raw, ":")
+			if !ok {
+				return nil, fmt.Errorf("pose_action_open: effect %q must be <phase>:<block|advisory>", raw)
+			}
+			r.Effects = append(r.Effects, pose.ObligationEffect{Phase: phase, Mode: mode})
+		}
+		if a.Subject != "" {
+			if path, ok := strings.CutPrefix(a.Subject, "path:"); ok {
+				r.Subject = &pose.ActionSubject{Path: path}
+			} else {
+				node, err := pose.ParseActionTarget(a.Subject)
+				if err != nil {
+					return nil, fmt.Errorf("pose_action_open: invalid subject %q", a.Subject)
+				}
+				r.Subject = &pose.ActionSubject{Node: node}
+			}
+		}
+		if !a.Apply {
+			prepared, err := store.PrepareActionRequest(r, time.Now())
+			if err != nil {
+				return nil, err
+			}
+			return map[string]any{"preview": true, "request": prepared, "apply": "false (call again with apply: true to record it)"}, nil
+		}
+		return store.OpenActionRequest(r, time.Now())
 	case "pose_action_requests":
 		var a struct {
 			ID      string `json:"id"`
@@ -2148,13 +2223,43 @@ func toolDefinitions() []map[string]any {
 			},
 		},
 		{
+			"name": "pose_action_open",
+			"description": "Open a material request to a person or an external system — the MCP equivalent of `pose action open`. " +
+				"Open one only when a different answer would materially change execution, scope, authority, risk acceptance, " +
+				"closeout or publication and no authorization already given covers it. Previews (writes nothing) unless apply " +
+				"is true; with apply it appends to the request's journal under .pose/actions/. Resolving stays on the CLI, " +
+				"where an answer names the digest and revision it answers and needs the recipient role.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"origin":         map[string]any{"type": "string", "description": "spec:<slug>, milestone:<roadmap>/<id> or roadmap:<slug>"},
+					"kind":           map[string]any{"type": "string", "description": "decision, approval, input, external-operation or acceptance"},
+					"question":       map[string]any{"type": "string", "description": "The question, as the person will read it"},
+					"context":        map[string]any{"type": "string", "description": "Optional context"},
+					"requested_by":   map[string]any{"type": "string", "description": "agent:<id> or human:<id> asking"},
+					"execution":      map[string]any{"type": "string", "description": "Optional id of the asking execution"},
+					"recipient":      map[string]any{"type": "string", "description": "Principal that must answer (or use recipient_role; neither means unassigned)"},
+					"recipient_role": map[string]any{"type": "string", "description": "Role that must answer, from .pose/policy/actions.json"},
+					"options":        map[string]any{"type": "object", "description": "Option id → its consequence; a decision needs at least two", "additionalProperties": map[string]any{"type": "string"}},
+					"recommend":      map[string]any{"type": "string", "description": "Optional recommended option id"},
+					"targets":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": "Restricted nodes: self, requirement:R4 inside the origin, or xref:..."},
+					"effects":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": "Per-phase effects, e.g. closeout:block or release:advisory"},
+					"subject":        map[string]any{"type": "string", "description": "Optional requirement:R4 or path:<file> whose change invalidates an answer"},
+					"supersedes":     map[string]any{"type": "string", "description": "Optional act-<id> this request replaces"},
+					"apply":          map[string]any{"type": "boolean", "description": "Record the request; without it the call is a preview"},
+					"project_id":     map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
+				},
+				"required": []string{"origin", "kind", "question", "requested_by", "targets", "effects"},
+			},
+		},
+		{
 			"name": "pose_action_requests",
 			"description": "Read material requests to a person or an external system (decision, approval, input, " +
 				"external operation, acceptance): question, options with consequences, recipient, qualified targets, " +
 				"per-phase effects, the request digest an answer must name, the append-only journal and the derived " +
 				"state and satisfaction (answered is not satisfied: a declined approval leaves the condition unmet). " +
-				"Read-only: requests are opened and resolved with `pose action` on the CLI, where a resolution names " +
-				"the digest and revision it answers and needs the recipient role.",
+				"Read-only: open with pose_action_open or `pose action open`; resolve with `pose action resolve` on the CLI, " +
+				"where a resolution names the digest and revision it answers and needs the recipient role.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
