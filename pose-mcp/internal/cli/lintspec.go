@@ -513,12 +513,22 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 		return 0
 	}
 
-	targets := append([]string{}, requiredSections...)
+	// A spec declares its surface (spec pose-progressive-spec-surface): a
+	// minimal surface does not require the planner-local Tasks section. It
+	// never relaxes the lifecycle gates below — trace, follow-ups and
+	// amendments are checked the same way.
+	required := posepkg.RequiredSpecSections(strings.TrimSpace(frontmatter["surface"]))
+	targets := append([]string{}, required...)
 	if !requiredOnly {
 		targets = append(targets, optionalSections...)
+		for _, name := range requiredSections {
+			if !containsSection(targets, name) {
+				targets = append(targets, name)
+			}
+		}
 	}
 	isRequired := map[string]bool{}
-	for _, s := range requiredSections {
+	for _, s := range required {
 		isRequired[s] = true
 	}
 
@@ -1065,4 +1075,13 @@ func cmdLintSpecInRoot(root string, args []string, stdout, stderr io.Writer) int
 	noteUsageFindings(stdout, "pass", nil, true)
 	verdict(cliout.StatePass, "Resultado: SUCESSO", "")
 	return 0
+}
+
+func containsSection(names []string, name string) bool {
+	for _, n := range names {
+		if n == name {
+			return true
+		}
+	}
+	return false
 }

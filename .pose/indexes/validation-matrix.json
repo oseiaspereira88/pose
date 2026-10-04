@@ -1484,6 +1484,33 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "spec-surface-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/pose",
+            "-run",
+            "MinimalSurface|LintAppliesTheSurface|SpecFactsAreDerived|TestNewSpec",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "spec-surface-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestMinimalSurfaceKeepsGovernanceAndDropsRitual|TestLintAppliesTheSurfaceButNotToLifecycleGates",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },

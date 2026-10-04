@@ -9,6 +9,7 @@ remediates:          # optional explicit links: spec:slug@defect-fix, finding:rv
 priority:            # integer >= 0 (lower = higher priority); ordering preference, not a blocker
 components:          # optional, inline comma-separated list: modules/components touched (e.g. mcp-server, cli) — used by pose_list_specs' `components` filter
 task_type:           # optional: feature | bugfix | refactor — a key of taskTypes in .pose/policy/dor.json; selects the sections the Definition of Ready requires (default: defaultTaskType)
+surface:             # optional: minimal | standard | full (default) — minimal drops Tasks and derivable report sections; `pose specs facts <slug>` derives them
 delivers:            # optional typed refs: surface:id, contract:id, capability:id, infrastructure:id, governance:id
 ---
 

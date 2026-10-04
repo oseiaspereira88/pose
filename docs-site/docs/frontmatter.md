@@ -16,6 +16,7 @@ deterministic tooling (and by agents) without a YAML edge-case zoo.
 ---
 slug: my-feature
 status: draft        # draft | in-progress | done | superseded | abandoned; blocked = operational wait, not terminal
+surface: minimal     # optional: minimal | standard | full (default)
 created_at: 2026-01-15
 completed_at:        # stamped on the transition to done
 supersedes:          # slug of the superseded spec

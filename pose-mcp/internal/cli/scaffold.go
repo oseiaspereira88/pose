@@ -59,6 +59,7 @@ func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 	expectedContext := ""
 	isFolder := false
 	isLegacy := false
+	surface := ""
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		switch a {
@@ -68,6 +69,17 @@ func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 			isLegacy = true
 		case "--flat":
 			// flat is default
+		case "--surface":
+			if i+1 >= len(args) {
+				render(io.Discard, stderr).Failure("--surface requires minimal, standard or full")
+				return 2
+			}
+			i++
+			surface = args[i]
+			if surface != pose.SpecSurfaceMinimal && surface != pose.SpecSurfaceStandard && surface != pose.SpecSurfaceFull {
+				render(io.Discard, stderr).Failure("--surface requires minimal, standard or full")
+				return 2
+			}
 		case "--task", "--expect-context":
 			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
 				render(io.Discard, stderr).Failure(cliText(locale, "task/context option requires a value", "a opção de tarefa/contexto exige um valor"))
@@ -161,6 +173,9 @@ func cmdNewSpec(root string, args []string, stdout, stderr io.Writer) int {
 	content := strings.ReplaceAll(string(template), "<feature-slug>", slug)
 	content = strings.ReplaceAll(content, "<YYYY-MM-DD>", today)
 	content = strings.ReplaceAll(content, "<created_at>", today)
+	if surface != "" {
+		content = applySpecSurface(content, surface)
+	}
 
 	var targetPath string
 	if isFolder {
@@ -339,4 +354,41 @@ func cmdNewRoadmap(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, cliText(locale, "Roadmap created: %s (status: draft)\n", "Roadmap criado: %s (status: draft)\n"), path)
 	return 0
+}
+
+// applySpecSurface records the surface in the frontmatter and, for minimal,
+// drops what a small change does not need (spec
+// pose-progressive-spec-surface): the planner-local Tasks section and the
+// Final Report subsections `pose specs facts` derives. Intent, requirements,
+// artifacts, the requirement trace and follow-ups stay.
+func applySpecSurface(content, surface string) string {
+	content = strings.Replace(content, "\ntask_type:", "\nsurface: "+surface+"\ntask_type:", 1)
+	if !strings.Contains(content, "\nsurface: ") {
+		content = strings.Replace(content, "\n---\n", "\nsurface: "+surface+"\n---\n", 1)
+	}
+	if surface != pose.SpecSurfaceMinimal {
+		return content
+	}
+	parts := strings.Split(content, "\n## ")
+	kept := []string{parts[0]}
+	for _, part := range parts[1:] {
+		heading := strings.TrimSpace(strings.TrimLeft(strings.SplitN(part, "\n", 2)[0], "0123456789. "))
+		if heading == "Tasks" || heading == "Decisions" {
+			continue
+		}
+		if heading == "Final Report" {
+			sub := strings.Split(part, "\n### ")
+			report := []string{sub[0]}
+			for _, section := range sub[1:] {
+				name := strings.TrimSpace(strings.SplitN(section, "\n", 2)[0])
+				if name == "Files and modules changed" || name == "Validation executed" {
+					continue
+				}
+				report = append(report, section)
+			}
+			part = strings.Join(report, "\n### ") + "\n<!-- Files changed and checks run are derived: `pose specs facts <slug>`. -->\n"
+		}
+		kept = append(kept, part)
+	}
+	return strings.Join(kept, "\n## ")
 }

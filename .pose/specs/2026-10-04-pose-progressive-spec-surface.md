@@ -1,12 +1,13 @@
 ---
 slug: pose-progressive-spec-surface
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-effective-governance-projection, pose-state-attention, pose-adaptive-assessment-freshness
 priority: 2
 components: pose-mcp
+delivers: surface:progressive-spec-surface
 task_type: feature
 ---
 
@@ -77,13 +78,27 @@ Spec scaffolding, lint, factual summary generator, templates.
 - created: .pose/specs/2026-10-04-pose-progressive-spec-surface.md
 - created: pose-mcp/internal/pose/spec_facts.go
 - created: pose-mcp/internal/pose/spec_facts_test.go
-- modified: pose-mcp/internal/cli/specs_cmd.go
 - modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/cli/scaffold.go
+- modified: pose-mcp/internal/cli/specs_cmd.go
+- created: pose-mcp/internal/cli/spec_surface_test.go
 - modified: .pose/templates/spec.md
+- modified: locales/pt-BR/.pose/templates/spec.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/templates/spec.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/templates/spec.md
+- modified: docs-site/docs/frontmatter.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-progressive-spec-surface.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:progressive-spec-surface module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -92,7 +107,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

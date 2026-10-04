@@ -14,6 +14,9 @@ import (
 
 // cmdSpecs handles the `pose specs` discovery and listing CLI command.
 func cmdSpecs(root string, args []string, stdout, stderr io.Writer) int {
+	if len(args) > 0 && args[0] == "facts" {
+		return cmdSpecFacts(root, args[1:], stdout, stderr)
+	}
 	locale := cliLocaleValue()
 	statusFilter := ""
 	componentsFilter := ""
@@ -158,4 +161,33 @@ func parseSinceDate(val string) (time.Time, error) {
 		return t, nil
 	}
 	return time.Time{}, fmt.Errorf("invalid since format %q", val)
+}
+
+// cmdSpecFacts prints the factual part of a spec's report, derived from the
+// delivery index (spec pose-progressive-spec-surface).
+func cmdSpecFacts(root string, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		return usageError(stderr, "Usage: pose specs facts <slug> [--json]")
+	}
+	facts, err := pose.Store{Root: root}.DeriveSpecFacts(args[0])
+	if err != nil {
+		render(stdout, stderr).Failure("pose specs facts: " + err.Error())
+		return 1
+	}
+	if len(args) > 1 && args[1] == "--json" {
+		return writeJSON(stdout, facts)
+	}
+	out := render(stdout, stderr)
+	out.Field("facts.source", facts.Source)
+	out.Field("facts.commits", fmt.Sprint(facts.Commits))
+	for _, p := range facts.Paths {
+		out.Field("facts.path", p.Action+": "+p.Path)
+	}
+	for _, c := range facts.Checks {
+		out.Field("facts.check", c.Module+" "+c.Check+" ("+c.EvidenceClass+") "+c.Outcome)
+	}
+	for _, l := range facts.Limitations {
+		out.Field("facts.limitation", l)
+	}
+	return 0
 }

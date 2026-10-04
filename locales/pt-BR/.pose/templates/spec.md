@@ -8,6 +8,7 @@ depends_on:          # pré-requisitos, lista inline: outra-spec, milestone:<roa
 priority:            # inteiro >= 0 (menor = mais prioritário); preferência de ordem, não pré-requisito
 components:          # opcional, lista inline separada por vírgula: módulos/componentes afetados (ex: mcp-server, cli) — usado pelo filtro `components` do `pose_list_specs`
 task_type:           # opcional: feature | bugfix | refactor — chave de taskTypes em .pose/policy/dor.json; escolhe as seções que a Definition of Ready exige (padrão: defaultTaskType)
+surface:             # opcional: minimal | standard | full (padrão) — minimal remove Tasks e as seções derivadas do relatório; `pose specs facts <slug>` as deriva
 delivers:            # refs tipadas opcionais: surface:id, contract:id, capability:id, infrastructure:id, governance:id
 ---
 
