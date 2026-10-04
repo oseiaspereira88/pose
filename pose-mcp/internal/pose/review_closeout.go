@@ -183,6 +183,13 @@ type ReviewPolicy struct {
 	OverlayProfiles                  []string          `json:"overlay_profiles,omitempty"`
 	ReviewBundles                    bool              `json:"review_bundles,omitempty"`
 	ReviewBundlesAdoptedAt           string            `json:"review_bundles_adopted_at,omitempty"`
+	// ExplicitJudgmentAdoptedAt and StructuralCausalityAdoptedAt are the legacy
+	// keys the registry names for the two 6.0.0 contracts. They were declared
+	// in policies and named by the registry long before the typed policy read
+	// them, so a configured cutoff produced no effect (spec
+	// pose-legacy-contract-cutoffs). `contract_adoptions` still wins.
+	ExplicitJudgmentAdoptedAt    string `json:"explicit_judgment_adopted_at,omitempty"`
+	StructuralCausalityAdoptedAt string `json:"structural_causality_adopted_at,omitempty"`
 	AllowCriterionReuse              bool              `json:"allow_criterion_reuse,omitempty"`
 	RequireSignedAttestations        bool              `json:"require_signed_attestations,omitempty"`
 	TrustedAttestationIssuers        []string          `json:"trusted_attestation_issuers,omitempty"`
@@ -462,6 +469,21 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 		if p.ReviewBundles {
 			if _, err := time.Parse(time.DateOnly, p.ContractAdoptedAt("review-bundles")); err != nil {
 				return ReviewPolicy{}, fmt.Errorf("pose: review-bundles adoption date must be YYYY-MM-DD when review bundles are enabled")
+			}
+		}
+		// Every registered contract's date, wherever it is declared, is a date
+		// or empty. An unparsable value would otherwise read as "no cutoff",
+		// and reviewPredatesAdoption would exempt nothing without anyone being
+		// told why.
+		for _, contract := range reviewContracts {
+			if date := p.ContractAdoptedAt(contract.ID); date != "" {
+				if _, err := time.Parse(time.DateOnly, date); err != nil {
+					key := contract.LegacyField
+					if _, inMap := p.ContractAdoptions[contract.ID]; inMap || key == "" {
+						key = "contract_adoptions." + contract.ID
+					}
+					return ReviewPolicy{}, fmt.Errorf("pose: %s must be YYYY-MM-DD, got %q", key, date)
+				}
 			}
 		}
 		for _, issuer := range p.TrustedAttestationIssuers {
@@ -1544,19 +1566,96 @@ func (p ReviewPolicy) ContractAdoptedAt(id string) string {
 		}
 	}
 	for _, contract := range reviewContracts {
-		if contract.ID != id {
-			continue
-		}
-		switch contract.LegacyField {
-		case "component_aware_adopted_at":
-			return p.ComponentAwareAdoptedAt
-		case "review_bundles_adopted_at":
-			return p.ReviewBundlesAdoptedAt
-		case "evidence_vocabulary_reconciled_at":
-			return p.EvidenceVocabularyReconciledAt
+		if contract.ID == id {
+			return p.legacyContractDate(contract.LegacyField)
 		}
 	}
 	return ""
+}
+
+// legacyContractDate reads a registry contract's legacy top-level key. Every
+// LegacyField in the registry must have a case here; a table test walks the
+// registry so a contract added without one fails instead of reading as a
+// cutoff nobody applies.
+func (p ReviewPolicy) legacyContractDate(field string) string {
+	switch field {
+	case "component_aware_adopted_at":
+		return p.ComponentAwareAdoptedAt
+	case "review_bundles_adopted_at":
+		return p.ReviewBundlesAdoptedAt
+	case "evidence_vocabulary_reconciled_at":
+		return p.EvidenceVocabularyReconciledAt
+	case "explicit_judgment_adopted_at":
+		return p.ExplicitJudgmentAdoptedAt
+	case "structural_causality_adopted_at":
+		return p.StructuralCausalityAdoptedAt
+	}
+	return ""
+}
+
+// Where a contract's adoption date comes from. The typed policy renders an
+// absent key and an explicitly empty one identically, so these are read from
+// the raw document.
+const (
+	ContractAdoptionAbsent      = "absent"
+	ContractAdoptionMap         = "map"
+	ContractAdoptionMapEmpty    = "map-explicit-empty"
+	ContractAdoptionLegacy      = "legacy"
+	ContractAdoptionLegacyEmpty = "legacy-explicit-empty"
+)
+
+// ContractAdoptionSource reports how a policy declares one contract's adoption.
+// LegacyShadowed is true when a legacy key is present but the map entry is the
+// one in force.
+type ContractAdoptionSource struct {
+	Contract       string `json:"contract"`
+	Source         string `json:"source"`
+	Date           string `json:"date,omitempty"`
+	LegacyField    string `json:"legacy_field,omitempty"`
+	LegacyShadowed bool   `json:"legacy_shadowed,omitempty"`
+}
+
+// ContractAdoptionSourceOf classifies the raw review policy's declaration for
+// a registered contract.
+func ContractAdoptionSourceOf(raw []byte, id string) (ContractAdoptionSource, error) {
+	var doc map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return ContractAdoptionSource{}, err
+	}
+	out := ContractAdoptionSource{Contract: id, Source: ContractAdoptionAbsent, LegacyField: LegacyContractField(id)}
+	var legacy *string
+	if out.LegacyField != "" {
+		if value, ok := doc[out.LegacyField]; ok {
+			var date string
+			if err := json.Unmarshal(value, &date); err != nil {
+				return ContractAdoptionSource{}, fmt.Errorf("pose: %s must be a string", out.LegacyField)
+			}
+			legacy = &date
+		}
+	}
+	if value, ok := doc["contract_adoptions"]; ok {
+		var adoptions map[string]string
+		if err := json.Unmarshal(value, &adoptions); err != nil {
+			return ContractAdoptionSource{}, fmt.Errorf("pose: contract_adoptions must map ids to dates")
+		}
+		if date, ok := adoptions[id]; ok {
+			out.Date = date
+			out.Source = ContractAdoptionMap
+			if date == "" {
+				out.Source = ContractAdoptionMapEmpty
+			}
+			out.LegacyShadowed = legacy != nil
+			return out, nil
+		}
+	}
+	if legacy != nil {
+		out.Date = *legacy
+		out.Source = ContractAdoptionLegacy
+		if *legacy == "" {
+			out.Source = ContractAdoptionLegacyEmpty
+		}
+	}
+	return out, nil
 }
 
 // ContractAdoptionRecorded reports whether the instance has said anything about

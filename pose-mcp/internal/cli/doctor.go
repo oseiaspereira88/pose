@@ -922,6 +922,27 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 						text("contract_adoptions takes precedence; reconcile the legacy date without changing the intended adoption boundary", "contract_adoptions tem precedência; reconcilie a data legada sem alterar o limite de adoção pretendido"))
 				}
 			}
+			// Where each contract's date comes from (spec
+			// pose-legacy-contract-cutoffs). Absent, explicitly empty, map and
+			// legacy are different statements, and the typed policy cannot
+			// tell them apart, so the raw document is classified here.
+			sources := []string{}
+			for _, contract := range posemodel.ReviewContracts() {
+				source, err := posemodel.ContractAdoptionSourceOf(raw, contract.ID)
+				if err != nil {
+					continue
+				}
+				entry := contract.ID + "=" + source.Source
+				if source.Date != "" {
+					entry += "(" + source.Date + ")"
+				}
+				if source.LegacyShadowed {
+					entry += text("[legacy "+source.LegacyField+" shadowed by contract_adoptions]", "[legado "+source.LegacyField+" sombreado por contract_adoptions]")
+				}
+				sources = append(sources, entry)
+			}
+			add("review.adoption-source", "ok",
+				fmt.Sprintf(text("contract adoption sources: %s", "origem das adoções de contrato: %s"), strings.Join(sources, ", ")), "")
 			// Legacy attempts live in `.pose/reviews/*.md` — the directory
 			// Store.ListReviewAttempts reads. An earlier version of this check
 			// globbed `.pose/review-attempts/`, which nothing writes, so the

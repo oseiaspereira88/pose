@@ -1,12 +1,13 @@
 ---
 slug: pose-legacy-contract-cutoffs
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: 
 priority: 0
 components: pose-mcp
+delivers: surface:legacy-contract-cutoffs
 task_type: bugfix
 ---
 
@@ -81,14 +82,17 @@ diagnostics.
 
 - created: .pose/specs/2026-10-04-pose-legacy-contract-cutoffs.md
 - modified: pose-mcp/internal/pose/review_closeout.go
-- modified: pose-mcp/internal/pose/review_policy_baseline.go
-- modified: pose-mcp/internal/pose/governing_contracts_test.go
+- created: pose-mcp/internal/pose/review_contract_legacy_test.go
 - modified: pose-mcp/internal/cli/doctor.go
-- modified: pose-mcp/internal/cli/policy_keys.go
+- created: pose-mcp/internal/cli/doctor_legacy_contract_cutoffs_test.go
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-legacy-contract-cutoffs.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:legacy-contract-cutoffs module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -97,7 +101,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

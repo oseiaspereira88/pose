@@ -978,6 +978,33 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "legacy-contract-cutoffs-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "TestContractAdopt|TestLegacyKeyCutoffs|TestLoadReviewPolicyRejectsAnUnparsableRegisteredAdoptionDate|TestDoctorReports(Legacy|AShadowed)",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "legacy-contract-cutoffs-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestDoctorReports(Legacy|AShadowed)",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },
