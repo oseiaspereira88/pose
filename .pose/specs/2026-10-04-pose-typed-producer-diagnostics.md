@@ -139,6 +139,14 @@ string is its rendering; locale invariance test.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:typed-producer-diagnostics evidence:integration test:TestJudgmentPendencyNamesItsSourceAndCondition check:typed-diagnostics-integration
+- R2 [satisfied] test:TestReadinessWaitingRefsCarryTypedCodes check:typed-diagnostics-integration
+- R3 [satisfied] test:TestCloseoutDiagnosticsTypeTheBlockersAndTheNextStep check:typed-diagnostics-integration test:TestCloseoutCheckJSONCarriesTypedDiagnostics
+- R4 [satisfied] test:TestDiagnosticCodeDoesNotDependOnWording check:typed-diagnostics-integration
+- R5 [satisfied] test:TestEveryEmittedDiagnosticCodeIsCatalogued check:typed-diagnostics-integration
+
 ## 7. Final Report
 
 ### Delivered scope
