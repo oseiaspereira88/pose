@@ -1,12 +1,13 @@
 ---
 slug: pose-obligation-projection
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-obligation-contract, pose-typed-producer-diagnostics
 priority: 0
 components: pose-mcp
+delivers: capability:obligation-projection
 task_type: feature
 ---
 
@@ -80,12 +81,37 @@ New obligation aggregator and adapters, snapshot binding, coverage.
 - created: .pose/specs/2026-10-04-pose-obligation-projection.md
 - created: pose-mcp/internal/pose/obligation_projection.go
 - created: pose-mcp/internal/pose/obligation_projection_test.go
-- created: pose-mcp/internal/pose/obligation_adapters.go
-- created: pose-mcp/internal/pose/obligation_snapshot.go
+- created: pose-mcp/internal/pose/obligation_projection_probe_test.go
+- created: pose-mcp/internal/pose/followups_parse.go
+- modified: pose-mcp/internal/cli/followups.go
+- modified: pose-mcp/internal/cli/adversarial_corpus_test.go
+- modified: pose-mcp/internal/cli/testdata/adversarial/README.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-obligation-projection.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- capability:obligation-projection module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+### Measurement
+
+Measured on pose-dist at `a38f994` plus this change (321 specs, 42 non-terminal,
+16 cores), through `TestProbeProjectionOnRepo` with `POSE_PROBE_ROOT` set:
+228 obligations (72 dependency, 21 judgment, 23 reconciliation, 112 residual
+debt) in 6.19 s with sequential producers, 1.84 s with a per-spec worker pool,
+and 1.51–1.66 s over three runs with producers running side by side. The race
+detector reports no race. The one-second target is not met: readiness spends
+most of its time resolving each dependency through the store, which re-lists
+the project's specs per reference; that cost is recorded as residual work, not
+hidden by a cache keyed on modification time.
+
+The follow-up parser moved from the CLI into `pose` so the backlog and the
+projection read a bullet the same way; `pose followups --open --json` gave the
+same 289 total before and after the move (open 112, the eight dispositions
+applied by pose-open-backlog-reconciliation accounting for the difference with
+the earlier 120).
 
 ### Technical risks
 
@@ -94,7 +120,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

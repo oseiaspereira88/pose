@@ -3,9 +3,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"io"
 	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -63,41 +63,7 @@ var followupCriticality = map[string]bool{"low": true, "medium": true, "high": t
 // text. Returns the stripped text and the parsed fields; metaErr describes a
 // malformed group ("" when valid or absent).
 func parseFollowupMeta(text string) (stripped, owner, crit, review, by, metaErr string) {
-	m := followupMetaGroup.FindStringSubmatchIndex(text)
-	if m == nil {
-		return strings.TrimSpace(text), "unowned", "", "", "", ""
-	}
-	group := text[m[2]:m[3]]
-	stripped = strings.TrimSpace(text[:m[0]])
-	owner = "unowned"
-	for _, field := range strings.Fields(group) {
-		key, value, ok := strings.Cut(field, ":")
-		if !ok || value == "" {
-			return stripped, owner, crit, review, by, "malformed ownership field '" + field + "' (use key:value)"
-		}
-		switch key {
-		case "owner":
-			owner = value
-		case "crit":
-			if !followupCriticality[value] {
-				return stripped, owner, crit, review, by, "invalid crit '" + value + "' (use low|medium|high)"
-			}
-			crit = value
-		case "review":
-			if !followupReviewDate.MatchString(value) {
-				return stripped, owner, crit, review, by, "invalid review date '" + value + "' (use YYYY-MM-DD)"
-			}
-			review = value
-		case "by":
-			by = value
-		default:
-			return stripped, owner, crit, review, by, "unknown ownership field '" + key + "' (use owner|crit|review|by)"
-		}
-	}
-	if crit == "" || review == "" {
-		return stripped, owner, crit, review, by, "incomplete ownership group (declare owner, crit and review together)"
-	}
-	return stripped, owner, crit, review, by, ""
+	return posemodel.ParseFollowupMeta(text)
 }
 
 func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
@@ -250,88 +216,16 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func collectFollowups(root string) []followup {
-	paths, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*", "spec.md"))
-	flatPaths, _ := filepath.Glob(filepath.Join(root, ".pose", "specs", "*.md"))
-	for _, p := range flatPaths {
-		if !strings.EqualFold(filepath.Base(p), "README.md") {
-			paths = append(paths, p)
-		}
-	}
-	sort.Strings(paths)
+	// The spec-body parser is shared with the obligation projection (spec
+	// pose-obligation-projection), so the backlog and Attention cannot read
+	// the same bullet two ways.
 	entries := []followup{}
-	for _, path := range paths {
-		raw, err := os.ReadFile(path)
-		if err != nil {
-			continue
-		}
-		body := followupHTMLComment.ReplaceAllString(string(raw), "")
-		fm := simpleFrontmatter(path)
-		specSlug := fm["slug"]
-		if specSlug == "" {
-			if filepath.Base(path) == "spec.md" {
-				specSlug = filepath.Base(filepath.Dir(path))
-			} else {
-				specSlug = strings.TrimSuffix(filepath.Base(path), ".md")
-			}
-		}
-		status := frontmatterStatus(body)
-		inFinal, inFollowups := false, false
-		// A follow-up may wrap across lines. Everything until the next bullet or
-		// heading belongs to the current one: parsing line by line truncated the
-		// text and, worse, silently dropped a trailing "(owner:… review:…)"
-		// group that had wrapped, leaving the item unowned with no diagnostic
-		// (spec pose-release-cycle-debt-closure, R4).
-		var pending string
-		flush := func() {
-			if pending == "" {
-				return
-			}
-			text, disposition, target := pending, "", ""
-			if parsed := followupDisposition.FindStringSubmatch(text); parsed != nil {
-				disposition, target, text = parsed[1], strings.TrimSpace(parsed[2]), strings.TrimSpace(parsed[3])
-			}
-			stripped, owner, crit, review, by, metaErr := parseFollowupMeta(text)
-			if stripped != "" {
-				entries = append(entries, followup{
-					Spec: specSlug, SpecStatus: status,
-					RawDisposition: disposition, Target: target, Text: stripped,
-					Owner: owner, Criticality: crit, Review: review, By: by, MetaErr: metaErr,
-				})
-			}
-			pending = ""
-		}
-		for _, line := range strings.Split(body, "\n") {
-			if strings.HasPrefix(line, "## ") {
-				flush()
-				heading := strings.TrimSpace(strings.TrimLeft(line, "#0123456789. "))
-				inFinal = strings.HasPrefix(strings.ToLower(heading), "final report")
-				inFollowups = false
-				continue
-			}
-			if inFinal && strings.HasPrefix(line, "### ") {
-				flush()
-				inFollowups = strings.HasPrefix(strings.ToLower(strings.TrimSpace(strings.TrimPrefix(line, "###"))), "follow-up")
-				continue
-			}
-			if !inFollowups {
-				continue
-			}
-			if match := followupBullet.FindStringSubmatch(line); match != nil {
-				flush()
-				pending = match[1]
-				continue
-			}
-			// Continuation of the bullet being read: indented, non-empty, and
-			// not the start of anything else. A blank line ends the item.
-			if pending != "" {
-				if trimmed := strings.TrimSpace(line); trimmed != "" {
-					pending += " " + trimmed
-				} else {
-					flush()
-				}
-			}
-		}
-		flush()
+	for _, item := range posemodel.ParseSpecFollowups(root) {
+		entries = append(entries, followup{
+			Spec: item.Spec, SpecStatus: item.SpecStatus,
+			RawDisposition: item.RawDisposition, Target: item.Target, Text: item.Text,
+			Owner: item.Owner, Criticality: item.Criticality, Review: item.Review, By: item.By, MetaErr: item.MetaErr,
+		})
 	}
 	entries = append(entries, collectCapabilityStaleFollowups(root)...)
 	entries = append(entries, collectDocsReviewFollowups(root)...)

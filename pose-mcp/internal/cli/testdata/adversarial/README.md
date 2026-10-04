@@ -23,7 +23,7 @@ adopting project's features.
 | `flat-specs-share-one-journal` | enforced | Two flat specs record amendments in one shared journal | pose-flat-spec-amendments |
 | `local-metadata-read-as-published` | enforced | A locally read version is presented as a proven publication | pose-public-claims-publication-provenance |
 | `invented-trace-test-ref` | known-gap | A requirement trace cites a test that does not exist and `lint-spec --strict` passes (follow-up 097 of pose-abm-design-basis) | pose-mechanization-adversarial-corpus |
-| `unavailable-producer-reads-as-empty` | planned | A producer fails and Attention reports zero obligations as a complete answer | pose-obligation-projection |
+| `unavailable-producer-reads-as-empty` | enforced | A producer fails and Attention reports zero obligations as a complete answer | pose-obligation-projection |
 | `trivial-change-raises-a-request` | planned | A trivial change or an already-authorized instruction produces an ActionRequest | pose-action-requests |
 | `declined-approval-satisfies` | planned | A declined approval, or a cancellation without authority, releases a gate | pose-action-request-resolution |
 | `closeout-plan-fills-judgment` | planned | The recoverable closeout plan answers a judgment criterion to finish | pose-recoverable-closeout-plan |

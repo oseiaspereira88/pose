@@ -1221,6 +1221,20 @@
           ],
           "severity": "required",
           "evidenceClass": "reachability"
+        },
+        {
+          "name": "obligation-projection-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "Projection|Resolving|FailingProducer|Unintegrated|Correlation|SnapshotChanges|QueryFilters|TestAdversarialCorpus|Followup",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

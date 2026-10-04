@@ -15,6 +15,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -89,6 +90,16 @@ var adversarialCorpus = []adversarialCase{
 		p := resolvePublicVersionProvenance(root, "compatibility.json", "1.7.10")
 		return p.PublishedVersion != "" || p.PublishedVersionState != "unproven", p.PublishedVersionState
 	}},
+	{"unavailable-producer-reads-as-empty", "enforced", "pose-obligation-projection", func(t *testing.T) (bool, string) {
+		root := t.TempDir()
+		mustWrite(t, filepath.Join(root, ".pose/policy/review.json"), "{not json")
+		mustWrite(t, filepath.Join(root, ".pose/specs/2026-10-04-open.md"), "---\nslug: open\nstatus: in-progress\n---\n\n# Spec: open\n")
+		r, err := posemodel.Store{Root: root}.ProjectObligations(posemodel.ObligationQuery{})
+		if err != nil {
+			return false, err.Error()
+		}
+		return r.Complete || len(r.Obligations) == 0 && !hasUnavailableCoverage(r), "complete=" + fmt.Sprint(r.Complete)
+	}},
 	{"invented-trace-test-ref", "known-gap", "pose-mechanization-adversarial-corpus", func(t *testing.T) (bool, string) {
 		// Follow-up 097 of pose-abm-design-basis: lint counts trace refs but
 		// does not resolve `test:` names, so a trace citing a test that does
@@ -101,6 +112,15 @@ var adversarialCorpus = []adversarialCase{
 		rc := lintOneSpec(path, true, false, &out, &errB)
 		return rc == 0, out.String()
 	}},
+}
+
+func hasUnavailableCoverage(r posemodel.ObligationReport) bool {
+	for _, c := range r.Coverage {
+		if c.State == posemodel.CoverageStateUnavailable {
+			return true
+		}
+	}
+	return false
 }
 
 func corpusObligation() posemodel.Obligation {
