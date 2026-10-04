@@ -135,6 +135,14 @@ Grouping fixture; digest-equals-render test; session reopen test.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] test:TestRelatedRequestsAreGroupedWithoutMergingAnswers check:action-presentation-integration
+- R2 [satisfied] <release-only requests are grouped as able to wait, with earliest_phase> test:TestRelatedRequestsAreGroupedWithoutMergingAnswers check:action-presentation-integration
+- R3 [satisfied] <each item carries the request digest and revision it is answered against> test:TestRelatedRequestsAreGroupedWithoutMergingAnswers check:action-presentation-integration
+- R4 [satisfied] <a satisfied request is not presented again> test:TestRelatedRequestsAreGroupedWithoutMergingAnswers check:action-presentation-integration
+- R5 [satisfied] <pose_action_requests with present:true> test:TestToolsList check:action-presentation-integration test:TestCatalogGovernanceBijection
+
 ## 7. Final Report
 
 ### Delivered scope
