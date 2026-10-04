@@ -1,12 +1,13 @@
 ---
 slug: pose-public-claims-publication-provenance
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: 
 priority: 0
 components: pose-mcp
+delivers: surface:public-claims-version-provenance
 task_type: bugfix
 ---
 
@@ -78,13 +79,15 @@ Public claims gate, its JSON contract and template, release lifecycle evidence l
 - created: .pose/specs/2026-10-04-pose-public-claims-publication-provenance.md
 - modified: pose-mcp/internal/cli/publicclaims.go
 - modified: pose-mcp/internal/cli/publicclaims_test.go
-- modified: .pose/templates/public-claims.json
-- modified: .pose/public/claims.json
-- modified: pose-mcp/internal/cli/release_manifests.go
+- created: pose-mcp/internal/cli/publicclaims_provenance_test.go
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-public-claims-publication-provenance.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:public-claims-version-provenance module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -93,7 +96,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

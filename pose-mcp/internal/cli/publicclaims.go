@@ -23,6 +23,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // Version-claim shapes. Each carries the version in group 1 so one extractor
@@ -125,6 +127,52 @@ func releasedVersion(root, source string) (string, error) {
 		return "", fmt.Errorf("%s declares no engine_version", source)
 	}
 	return doc.EngineVersion, nil
+}
+
+// publicVersionProvenance separates three facts the gate used to collapse
+// into `released_version` (spec pose-public-claims-publication-provenance):
+// the candidate the local compatibility metadata names, whether a release
+// manifest for it was prepared (and how far its lifecycle got), and the most
+// recent version whose publication is proven by retained release events.
+// Local metadata supports candidate consistency only; it never proves that a
+// version was published.
+type publicVersionProvenance struct {
+	CandidateVersion      string `json:"candidate_version"`
+	CandidateSource       string `json:"candidate_source"`
+	CandidateState        string `json:"candidate_state"`
+	PreparedVersion       string `json:"prepared_version,omitempty"`
+	PreparedSource        string `json:"prepared_source,omitempty"`
+	PublishedVersion      string `json:"published_version,omitempty"`
+	PublishedSource       string `json:"published_source,omitempty"`
+	PublishedVersionState string `json:"published_version_state"`
+}
+
+// resolvePublicVersionProvenance reads only retained, local release records:
+// the gate stays offline and still runs before a release exists.
+func resolvePublicVersionProvenance(root, source, candidate string) publicVersionProvenance {
+	out := publicVersionProvenance{CandidateVersion: candidate, CandidateSource: source, CandidateState: "unprepared", PublishedVersionState: "unproven"}
+	tag := "v" + strings.TrimPrefix(candidate, "v")
+	status, err := (posemodel.Store{Root: root}).GetReleaseStatus("")
+	if err != nil || status == nil {
+		out.CandidateState = "unknown"
+		out.PublishedVersionState = "unknown"
+		return out
+	}
+	for _, release := range status.Releases {
+		if release.Version == tag {
+			out.CandidateState = release.State
+			out.PreparedVersion = strings.TrimPrefix(release.Version, "v")
+			out.PreparedSource = ".pose/releases/" + release.Version + "/manifest.json"
+		}
+		// Releases are sorted newest first; the first with retained
+		// publication evidence is the latest proven publication.
+		if out.PublishedVersion == "" && (release.State == "published" || release.State == "verified") && len(release.Gaps) == 0 {
+			out.PublishedVersion = strings.TrimPrefix(release.Version, "v")
+			out.PublishedSource = ".pose/releases/" + release.Version + "/events.jsonl"
+			out.PublishedVersionState = release.State
+		}
+	}
+	return out
 }
 
 // versionClaimsIn returns every distinct version a surface claims, in stable
@@ -257,13 +305,20 @@ func cmdPublicClaims(root string, args []string, stdout, stderr io.Writer) int {
 		findings = append(findings, checkPublicSurface(root, s, contract, release)...)
 	}
 
+	provenance := resolvePublicVersionProvenance(root, contract.VersionSource, release)
 	if asJSON {
 		payload := struct {
-			SchemaVersion int                  `json:"schema_version"`
-			Release       string               `json:"released_version"`
-			Surfaces      int                  `json:"surfaces_checked"`
-			Findings      []publicClaimFinding `json:"findings"`
-		}{1, release, len(surfaces), findings}
+			SchemaVersion int `json:"schema_version"`
+			// Release is the legacy field: it always held the candidate read
+			// from local metadata, never a proven publication. It keeps that
+			// value for one minor; read candidate_version and
+			// published_version instead.
+			Release          string                  `json:"released_version"`
+			DeprecatedFields map[string]string       `json:"deprecated_fields"`
+			Provenance       publicVersionProvenance `json:"version_provenance"`
+			Surfaces         int                     `json:"surfaces_checked"`
+			Findings         []publicClaimFinding    `json:"findings"`
+		}{1, release, map[string]string{"released_version": "holds the local candidate version, not a proven publication; use version_provenance.candidate_version and version_provenance.published_version"}, provenance, len(surfaces), findings}
 		enc := json.NewEncoder(stdout)
 		enc.SetIndent("", "  ")
 		if err := enc.Encode(payload); err != nil {
@@ -274,7 +329,16 @@ func cmdPublicClaims(root string, args []string, stdout, stderr io.Writer) int {
 		for _, f := range findings {
 			fmt.Fprintf(stdout, "[%s] %s: %s: %s\n", strings.ToUpper(f.Severity), f.Surface, f.Claim, f.Message)
 		}
-		fmt.Fprintf(stdout, "public-claims.released_version=%s\n", release)
+		// The surfaces are checked against the candidate. Whether that
+		// candidate was prepared or published is reported separately and
+		// only from retained release records.
+		fmt.Fprintf(stdout, "public-claims.candidate_version=%s\n", provenance.CandidateVersion)
+		fmt.Fprintf(stdout, "public-claims.candidate_state=%s\n", provenance.CandidateState)
+		if provenance.PublishedVersion != "" {
+			fmt.Fprintf(stdout, "public-claims.published_version=%s (%s, %s)\n", provenance.PublishedVersion, provenance.PublishedVersionState, provenance.PublishedSource)
+		} else {
+			fmt.Fprintf(stdout, "public-claims.published_version=%s\n", provenance.PublishedVersionState)
+		}
 		fmt.Fprintf(stdout, "public-claims.surfaces=%d\n", len(surfaces))
 		fmt.Fprintf(stdout, "public-claims.errors=%d\n", len(findings))
 	}

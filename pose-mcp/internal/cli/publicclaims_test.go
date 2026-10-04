@@ -68,8 +68,11 @@ func TestPublicClaimsPassesOnCompliantSurfaces(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("expected pass, got exit=%d out=%s", code, out)
 	}
-	if !strings.Contains(out, "public-claims.released_version=1.7.10") {
-		t.Errorf("released version not reported: %s", out)
+	if !strings.Contains(out, "public-claims.candidate_version=1.7.10") {
+		t.Errorf("candidate version not reported: %s", out)
+	}
+	if strings.Contains(out, "released_version") {
+		t.Errorf("the terminal still labels a local candidate as released: %s", out)
 	}
 }
 
