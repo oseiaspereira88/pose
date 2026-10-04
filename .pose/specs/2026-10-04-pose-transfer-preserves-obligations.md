@@ -1,12 +1,13 @@
 ---
 slug: pose-transfer-preserves-obligations
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-obligation-contract, pose-action-request-resolution, pose-phase-scoped-readiness
 priority: 0
 components: pose-mcp
+delivers: capability:transfer-preserves-obligations
 task_type: feature
 ---
 
@@ -75,11 +76,18 @@ Spec transfer preview/apply/resume, action request journal remapping.
 - created: .pose/specs/2026-10-04-pose-transfer-preserves-obligations.md
 - modified: pose-mcp/internal/pose/spec_transfer.go
 - created: pose-mcp/internal/pose/spec_transfer_actions_test.go
-- modified: pose-mcp/internal/pose/action_request.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-transfer-preserves-obligations.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- capability:transfer-preserves-obligations module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -88,7 +96,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

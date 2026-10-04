@@ -1376,6 +1376,19 @@
           ],
           "severity": "required",
           "evidenceClass": "reachability"
+        },
+        {
+          "name": "transfer-actions-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "TransferInvalidates|TransferRefusesARequest|SpecTransfer",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

@@ -105,6 +105,20 @@ type SpecTransferPlan struct {
 	ProjectRevisions       []SpecTransferProjectRevision    `json:"project_revisions"`
 	AffectedProjects       []string                         `json:"affected_projects"`
 	Blockers               []string                         `json:"blockers,omitempty"`
+	// ActionRequests lists the source spec's action requests and what the
+	// transfer does with each (spec pose-transfer-preserves-obligations).
+	// A request and its answer are bound to the source project; neither
+	// carries authority into the destination.
+	ActionRequests []SpecTransferAction `json:"action_requests,omitempty"`
+}
+
+// SpecTransferAction is one source request and its transfer disposition:
+// `invalidate-in-source` for an open or answered request (the destination
+// re-opens it if it still applies), `history-only` for one already closed.
+type SpecTransferAction struct {
+	ID          string `json:"id"`
+	State       string `json:"state"`
+	Disposition string `json:"disposition"`
 }
 
 type SpecTransferStatus struct {
@@ -362,6 +376,12 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 	}
 	plan.SourceStubDigest = digestHex([]byte(renderTransferRedirectStub(request.Source, request.Destination)))
 	plan.SourceRedirectDigest = digestHex(redirectBytes(request.Source, request.Destination, ""))
+
+	actions, err := transferActionDispositions(sourceStore, request.Source)
+	if err != nil {
+		return plan, err
+	}
+	plan.ActionRequests = actions
 
 	impacts, blockers, err := discoverTransferImpacts(projectRoots, request.Source, request.Destination)
 	if err != nil {
@@ -2023,6 +2043,12 @@ func advanceSpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, autho
 	if err := writeTransferFile(redirectPath, redirect, ""); err != nil {
 		return status, err
 	}
+	// The source no longer answers for the spec, so its requests stop
+	// answering for it too. Idempotent per operation: a resumed transfer
+	// re-records nothing.
+	if err := invalidateTransferredActions(sourceStore, plan); err != nil {
+		return status, err
+	}
 	if err := recordTransferReceipt(sourceStore.Root, plan, plan.Source.Project, "source-retired", []string{plan.SourcePath, filepath.ToSlash(filepath.Join(".pose", "transfers", plan.OperationID, "source-spec.md")), filepath.ToSlash(filepath.Join(".pose", "transfers", "redirects", plan.Source.Slug+".json"))}); err != nil {
 		return status, err
 	}
@@ -2093,4 +2119,59 @@ func transferContains(values []string, value string) bool {
 		}
 	}
 	return false
+}
+
+// transferActionDispositions lists the source spec's requests in id order.
+func transferActionDispositions(store Store, source ArtifactRef) ([]SpecTransferAction, error) {
+	views, err := store.ListActionRequests()
+	if err != nil {
+		return nil, specTransferError("action-requests-unreadable")
+	}
+	origin := source
+	origin.Kind = "spec"
+	var out []SpecTransferAction
+	for _, view := range views {
+		if view.Request.Origin != origin.String() || view.Request.Project != source.Project {
+			continue
+		}
+		disposition := "history-only"
+		if view.State == ActionStateOpen || view.State == ActionStateAnswered {
+			disposition = "invalidate-in-source"
+		}
+		out = append(out, SpecTransferAction{ID: view.Request.ID, State: view.State, Disposition: disposition})
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out, nil
+}
+
+// invalidateTransferredActions appends an invalidation to every request the
+// plan marks invalidate-in-source.
+func invalidateTransferredActions(store Store, plan SpecTransferPlan) error {
+	// A request opened after the preview is not in the plan; moving the spec
+	// would leave it answering for a spec the source no longer owns.
+	planned := map[string]bool{}
+	for _, action := range plan.ActionRequests {
+		planned[action.ID] = true
+	}
+	current, err := transferActionDispositions(store, plan.Source)
+	if err != nil {
+		return err
+	}
+	for _, action := range current {
+		if action.Disposition == "invalidate-in-source" && !planned[action.ID] {
+			return specTransferError("action-requests-changed-since-preview")
+		}
+	}
+	for _, action := range plan.ActionRequests {
+		if action.Disposition != "invalidate-in-source" {
+			continue
+		}
+		event := ActionEvent{Type: ActionEventInvalidated, Actor: "agent:pose-spec-transfer", Execution: plan.OperationID,
+			Reason:         "spec transferred to " + plan.Destination.String() + "; this request and any answer stay with the source project and grant nothing in the destination",
+			IdempotencyKey: "transfer:" + plan.OperationID + ":" + action.ID}
+		if _, err := store.appendActionEvent(action.ID, event, -1, time.Now()); err != nil && !errors.Is(err, ErrActionNotOpen) {
+			return specTransferError("action-request-invalidation-failed")
+		}
+	}
+	return nil
 }
