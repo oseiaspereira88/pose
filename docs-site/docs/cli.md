@@ -121,7 +121,7 @@ as current, but named so a reviewer can tell carried-forward evidence apart.
 | `pose usage adjudicate --tool NAME --finding ID --verdict valid\|wont-fix\|false-positive --reason TEXT --by ALIAS` | Append a reviewed finding verdict to `.pose/usage/verdicts.jsonl` |
 | `pose index` | Regenerate all indexes (repo-map, spec-graph, roadmaps…) |
 | `pose report --task "..." [--outcome pass\|fail\|partial\|skipped\|unknown] [--spec S] [--since ref] [--change-from A --change-to B] [--validate-output P] [--git-stage] [...]` | Versionable report + history JSONL; `pose report --help` lists all sixteen flags |
-| `pose public-claims [--strict\|--tolerant] [--json]` | Check that every surface a project declares (site, README, docs) claims the version it actually released, from `.pose/public/claims.json` (opt-in; start from `.pose/templates/public-claims.json`) |
+| `pose public-claims [--strict\|--tolerant] [--json]` | Check that every surface a project declares (site, README, docs) claims the current candidate version, and report separately whether that candidate was prepared and which version has retained publication evidence, from `.pose/public/claims.json` (opt-in; start from `.pose/templates/public-claims.json`) |
 
 `pose usage` needs no counters from agents. POSE records recognized terminal
 CLI commands and project-backed MCP tool calls at their execution boundaries;
