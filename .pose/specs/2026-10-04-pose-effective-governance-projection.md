@@ -146,6 +146,14 @@ observes both gate and projection change together.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:effective-governance evidence:integration test:TestStateGovernanceIsReachableAndReadOnly check:effective-governance-integration test:TestToolsCall_ProjectState_CarriesEffectiveGovernance
+- R2 [satisfied] test:TestUnadoptedCapabilitiesAreSupportedAndNotInForce check:effective-governance-integration
+- R3 [satisfied] test:TestTheProjectionReadsWhatTheGatesRead check:effective-governance-integration
+- R4 [satisfied] test:TestScopedProjectionReportsTheBundlesStampedContracts check:effective-governance-integration
+- R5 [satisfied] test:TestTheProjectionWritesNothing check:effective-governance-integration
+
 ## 7. Final Report
 
 ### Delivered scope
