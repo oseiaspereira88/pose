@@ -136,6 +136,14 @@ reuse refused.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] test:TestBookkeepingChangesKeepCriteriaEquivalentAndCodeChangesNameTheInput check:material-reuse-integration
+- R2 [satisfied] test:TestBookkeepingChangesKeepCriteriaEquivalentAndCodeChangesNameTheInput check:material-reuse-integration
+- R3 [satisfied] test:TestEquivalenceAgreesWithTheReuseDigest check:material-reuse-integration
+- R4 [satisfied] test:TestEquivalenceAgreesWithTheReuseDigest check:material-reuse-integration
+- R5 [satisfied] <verify carries delta.criterion_reuse> test:TestBookkeepingChangesKeepCriteriaEquivalentAndCodeChangesNameTheInput check:material-reuse-integration
+
 ## 7. Final Report
 
 ### Delivered scope
