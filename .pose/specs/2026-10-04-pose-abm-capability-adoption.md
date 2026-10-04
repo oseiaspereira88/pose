@@ -1,6 +1,6 @@
 ---
 slug: pose-abm-capability-adoption
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
@@ -76,9 +76,11 @@ ABM capability follow-ups, pilot report, review policy (only after decision).
 - created: .pose/specs/2026-10-04-pose-abm-capability-adoption.md
 - created: .pose/reports/pose-abm-capability-adoption.md
 - created: .pose/results/pose-abm-capability-adoption.json
+- created: .pose/actions/act-7d587a8e4f3bf0fc.jsonl
+- created: .pose/actions/act-fa1d72f029d567a0.jsonl
+- created: .pose/actions/act-08a9fd2d9a0e50bb.jsonl
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
 
 ### Technical risks
 
@@ -87,7 +89,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation
@@ -127,10 +129,12 @@ start and contract nodes on the next real specs.
 
 ## 7. Final Report
 
+A shadow on five disposable clones at ce17db6 (report `.pose/reports/pose-abm-capability-adoption.md`) measured each capability against an unadopted baseline. Contract nodes had no observable effect in this corpus. Atomic start added 39 closeout-restricting `start-reconciliation` obligations, one per spec already in progress, with no command to record a legacy baseline and no adoption cutoff; that stops its rollout without invalidating the code. Causality closeout stamped its contract on all 39 prepared bundles; its attestation cost was not measured. No implementation was added. The three adoption decisions are open as action requests act-7d587a8e4f3bf0fc, act-fa1d72f029d567a0 and act-08a9fd2d9a0e50bb, addressed to human:oseias with the agent's recommendation (adopt, defer, defer); the review policy changes only after each answer.
+
 ### Delivered scope
 
 Not started. Filled at closeout from the requirement trace and the change sets.
 
 ### Follow-ups
 
-None recorded at planning time.
+- [open] Atomic start needs a baseline command for specs already in progress, or an adoption cutoff, before it can be adopted: the shadow measured 39 closeout-blocking reconciliations with no remedy (owner:@pose-maintainers crit:medium review:2026-11-01)

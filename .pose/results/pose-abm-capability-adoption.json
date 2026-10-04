@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "spec": "pose-abm-capability-adoption",
+  "kind": "shadow",
+  "corpus": {
+    "repository": "pose-dist",
+    "revision": "ce17db6",
+    "in_progress_specs": 39,
+    "draft_specs": 3,
+    "clone": "one disposable clone per configuration"
+  },
+  "engine": "pose 6.3.0-dev (candidate build)",
+  "configs": {
+    "base": {
+      "flags": {},
+      "lint_all": {
+        "exit": 0,
+        "errors": 0,
+        "warnings": 172,
+        "ms": 5185
+      },
+      "attention": {
+        "exit": 0,
+        "by_reason": {
+          "review-blocker": 59,
+          "review-not-approved": 39,
+          "followup-open": 112,
+          "dependency-not-done": 72,
+          "action-open": 1,
+          "assessment-stale": 1
+        },
+        "ms": 2205
+      },
+      "bundles_with_causality_contract": 0,
+      "bundle_blockers_total": 59,
+      "start_preview_exits": [
+        0
+      ],
+      "check_strict": {
+        "exit": 0,
+        "result": [
+          "Result: SUCCESS — (strict mode) with 17 warning(s)."
+        ],
+        "ms": 80919
+      }
+    },
+    "contract-nodes": {
+      "flags": {
+        "contract_nodes_version": 1
+      },
+      "lint_all": {
+        "exit": 0,
+        "errors": 0,
+        "warnings": 172,
+        "ms": 5310
+      },
+      "attention": {
+        "exit": 0,
+        "by_reason": {
+          "review-blocker": 59,
+          "review-not-approved": 39,
+          "followup-open": 112,
+          "dependency-not-done": 72,
+          "action-open": 1,
+          "assessment-stale": 1
+        },
+        "ms": 2189
+      },
+      "bundles_with_causality_contract": 0,
+      "bundle_blockers_total": 59,
+      "start_preview_exits": [
+        0
+      ]
+    },
+    "atomic-start": {
+      "flags": {
+        "atomic_start_version": 1
+      },
+      "lint_all": {
+        "exit": 0,
+        "errors": 0,
+        "warnings": 172,
+        "ms": 5233
+      },
+      "attention": {
+        "exit": 0,
+        "by_reason": {
+          "review-blocker": 59,
+          "review-not-approved": 39,
+          "followup-open": 112,
+          "dependency-not-done": 72,
+          "start-reconciliation": 39,
+          "action-open": 1,
+          "assessment-stale": 1
+        },
+        "ms": 2862
+      },
+      "bundles_with_causality_contract": 0,
+      "bundle_blockers_total": 59,
+      "start_preview_exits": [
+        0
+      ]
+    },
+    "causality": {
+      "flags": {
+        "causality_closeout_version": 1
+      },
+      "lint_all": {
+        "exit": 0,
+        "errors": 0,
+        "warnings": 172,
+        "ms": 5341
+      },
+      "attention": {
+        "exit": 0,
+        "by_reason": {
+          "review-blocker": 59,
+          "review-not-approved": 39,
+          "followup-open": 112,
+          "dependency-not-done": 72,
+          "action-open": 1,
+          "assessment-stale": 1
+        },
+        "ms": 2449
+      },
+      "bundles_with_causality_contract": 39,
+      "bundle_blockers_total": 59,
+      "start_preview_exits": [
+        0
+      ]
+    },
+    "all": {
+      "flags": {
+        "contract_nodes_version": 1,
+        "atomic_start_version": 1,
+        "causality_closeout_version": 1
+      },
+      "lint_all": {
+        "exit": 0,
+        "errors": 0,
+        "warnings": 172,
+        "ms": 5358
+      },
+      "attention": {
+        "exit": 0,
+        "by_reason": {
+          "review-blocker": 59,
+          "review-not-approved": 39,
+          "followup-open": 112,
+          "dependency-not-done": 72,
+          "start-reconciliation": 39,
+          "action-open": 1,
+          "assessment-stale": 1
+        },
+        "ms": 2492
+      },
+      "bundles_with_causality_contract": 39,
+      "bundle_blockers_total": 59,
+      "start_preview_exits": [
+        0
+      ],
+      "check_strict": {
+        "exit": 0,
+        "result": [
+          "Result: SUCCESS — (strict mode) with 17 warning(s)."
+        ],
+        "ms": 81472
+      }
+    }
+  },
+  "findings": {
+    "contract-nodes": {
+      "observable_effect": "none on lint, Attention, bundles or start previews in this corpus",
+      "why": "the gate acts on amendments; no flat spec has an amendment journal and the 3 folder specs were not amended",
+      "risk": "low; unmeasured where amendments are frequent"
+    },
+    "atomic-start": {
+      "observable_effect": "39 start-reconciliation obligations, one per in-progress spec, each restricting closeout",
+      "why": "every spec started before adoption reads as in-progress without a recorded start",
+      "remedy_available": false,
+      "rollout_blocker": "no command records a baseline for a spec already in progress, and adoption has no cutoff date, so adopting would block 39 closeouts with nothing to do about it"
+    },
+    "causality-closeout": {
+      "observable_effect": "the causality-closeout contract is stamped on all 39 prepared bundles; blockers and criteria at preparation are unchanged",
+      "unmeasured": "the attestation cost: no attestation was concluded under the stamped contract in the shadow"
+    }
+  },
+  "follow_ups": {
+    "pose-abm-contract-nodes": "adoption decision requested",
+    "pose-abm-atomic-start": "blocked by the missing legacy baseline or cutoff; decision requested",
+    "pose-abm-causality-attestation": "shadow ran on this corpus; attestation cost unmeasured; decision requested"
+  },
+  "decisions": {
+    "state": "pending",
+    "requested_via": "three action requests on spec:pose-abm-capability-adoption addressed to human:oseias"
+  }
+}
