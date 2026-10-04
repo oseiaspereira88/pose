@@ -110,6 +110,11 @@ delivers:            # refs tipadas opcionais: surface:id, contract:id, capabili
 > Para uma base material, mantenha nós estruturados `Premissa A<N>` e
 > `Decisão D<N>` nesta seção e execute `pose lint-spec <slug> --design-check`
 > (advisory).
+> Só para uma premissa material, `Escopo de validade:` nomeia o contexto em que
+> ela vale e `Gatilho de obsolescência: doc:<path>@<pin>` fixa o conteúdo contra o
+> qual foi julgada; uma mudança nesse conteúdo projeta uma obrigação de julgamento
+> `premise-stale`. Não há expiração por calendário, e premissas triviais não
+> precisam de nenhum dos dois campos.
 
 ```markdown
 ### Premissa A1

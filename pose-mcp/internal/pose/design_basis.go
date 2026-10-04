@@ -48,7 +48,12 @@ type DesignAssumption struct {
 	EvidenceRefs []DesignReference `json:"evidence_refs,omitempty"`
 	Scope        string            `json:"scope,omitempty"`
 	Affects      []string          `json:"affects,omitempty"`
-	Line         int               `json:"line"`
+	// ValidScope and StaleTriggers are optional (spec
+	// pose-assumption-validity-scope): the context the assumption holds in
+	// and the pinned material content whose change asks for judgment.
+	ValidScope    string          `json:"valid_scope,omitempty"`
+	StaleTriggers []DesignTrigger `json:"stale_triggers,omitempty"`
+	Line          int             `json:"line"`
 }
 
 type DesignDecision struct {
@@ -147,6 +152,7 @@ func parseDesignBasis(body, root string) DesignBasisReport {
 
 	for _, item := range report.Assumptions {
 		validateAssumption(&report, item, root, requirements, constraints)
+		validatePremiseValidity(&report, item)
 	}
 	for _, item := range report.Decisions {
 		validateDecision(&report, item, assumptions, decisions, requirements, constraints)
@@ -303,14 +309,16 @@ func assumptionFromNode(node designNode, root string) DesignAssumption {
 	evidence := firstDesignField(node.fields, "evidence", "evidencia")
 	scope := firstDesignField(node.fields, "scope", "escopo")
 	return DesignAssumption{
-		ID:           node.id,
-		Claim:        claim,
-		Status:       strings.ToLower(strings.TrimSpace(status)),
-		Evidence:     evidence,
-		EvidenceRefs: designReferences(evidence, root),
-		Scope:        scope,
-		Affects:      designIDList(firstDesignField(node.fields, "affects", "afeta", "impacta")),
-		Line:         node.line,
+		ID:            node.id,
+		Claim:         claim,
+		Status:        strings.ToLower(strings.TrimSpace(status)),
+		Evidence:      evidence,
+		EvidenceRefs:  designReferences(evidence, root),
+		Scope:         scope,
+		Affects:       designIDList(firstDesignField(node.fields, "affects", "afeta", "impacta")),
+		ValidScope:    firstDesignField(node.fields, "validscope", "validityscope", "escopodevalidade"),
+		StaleTriggers: parseDesignTriggers(firstDesignField(node.fields, "staletrigger", "staletriggers", "gatilhodeobsolescencia", "gatilhosdeobsolescencia"), root),
+		Line:          node.line,
 	}
 }
 
@@ -613,6 +621,11 @@ func designBasisDigest(report DesignBasisReport) string {
 		view.Assumptions[i].EvidenceRefs = append([]DesignReference(nil), view.Assumptions[i].EvidenceRefs...)
 		for j := range view.Assumptions[i].EvidenceRefs {
 			view.Assumptions[i].EvidenceRefs[j].Resolution = ""
+		}
+		view.Assumptions[i].StaleTriggers = append([]DesignTrigger(nil), view.Assumptions[i].StaleTriggers...)
+		for j := range view.Assumptions[i].StaleTriggers {
+			view.Assumptions[i].StaleTriggers[j].State = ""
+			view.Assumptions[i].StaleTriggers[j].Current = ""
 		}
 	}
 	for i := range view.Decisions {

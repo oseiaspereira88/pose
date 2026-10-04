@@ -111,6 +111,10 @@ delivers:            # optional typed refs: surface:id, contract:id, capability:
 > alternatives. For a material basis, keep structured `Assumption A<N>` and
 > `Decision D<N>` nodes in this section and run
 > `pose lint-spec <slug> --design-check` (advisory).
+> Only for a material premise, `Valid scope:` names the context it holds in and
+> `Stale trigger: doc:<path>@<pin>` pins the content it was judged against; a
+> change to that content projects a `premise-stale` judgment obligation. There is
+> no calendar expiry, and trivial premises need neither field.
 
 ```markdown
 ### Assumption A1

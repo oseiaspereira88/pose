@@ -1525,6 +1525,19 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "premise-validity-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "ContractChangeAsks|TrivialAssumptions|ValidityFieldsAreParsed|PortugueseValidity|TestABMDesignBasis",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },
