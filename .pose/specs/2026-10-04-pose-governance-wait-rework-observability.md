@@ -146,6 +146,15 @@ superseded attestations.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:governance-wait-rework-observability evidence:integration test:TestWaitsSeparateAgeAttributedWaitAndKnownBlocking check:governance-waits-integration check:governance-waits-reachability
+- R2 [satisfied] test:TestWaitsSeparateAgeAttributedWaitAndKnownBlocking check:governance-waits-integration
+- R3 [satisfied] test:TestAMissingTimestampStaysUnknown check:governance-waits-integration
+- R4 [satisfied] test:TestReworkClassifiesByWhatChangedAndKeepsUnknown check:governance-waits-integration
+- R5 [satisfied] <scripts/bench-governance.sh records corpus revision and engine version and reports time and index bytes separately; run recorded in the Final Report>
+- R6 [satisfied] test:TestWaitsAloneDoesNotComputeOutcomes check:governance-waits-integration
+
 ## 7. Final Report
 
 The agency-readiness pilot rehearsal measured `stats governance --waits` at 88 s: it recomputed the whole outcomes report before printing the waits. `--waits` and `--rework` now compute only their dimensions (11 ms on the rehearsal clone); `--outcomes` adds the outcomes when wanted.
