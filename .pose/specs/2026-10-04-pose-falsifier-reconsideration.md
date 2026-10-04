@@ -1,12 +1,13 @@
 ---
 slug: pose-falsifier-reconsideration
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-assumption-validity-scope
 priority: 3
 components: pose-mcp
+delivers: capability:falsifier-reconsideration
 task_type: feature
 ---
 
@@ -74,13 +75,27 @@ Design basis, evidence binding, obligation adapters.
 ### Artifacts
 
 - created: .pose/specs/2026-10-04-pose-falsifier-reconsideration.md
-- modified: pose-mcp/internal/pose/design_basis.go
 - created: pose-mcp/internal/pose/falsifier_observation.go
 - created: pose-mcp/internal/pose/falsifier_observation_test.go
+- modified: pose-mcp/internal/pose/design_basis.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
+- modified: pose-mcp/internal/pose/readiness_phases.go
+- modified: .pose/templates/spec.md
+- modified: locales/pt-BR/.pose/templates/spec.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/templates/spec.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/templates/spec.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-falsifier-reconsideration.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- capability:falsifier-reconsideration module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -89,7 +104,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

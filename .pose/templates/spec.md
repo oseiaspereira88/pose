@@ -115,6 +115,9 @@ delivers:            # optional typed refs: surface:id, contract:id, capability:
 > `Stale trigger: doc:<path>@<pin>` pins the content it was judged against; a
 > change to that content projects a `premise-stale` judgment obligation. There is
 > no calendar expiry, and trivial premises need neither field.
+> Likewise, a material decision may add `Expected effect:` and `Falsifier check:
+> check:<module>/<check>`; a failed indexed result of that check projects a
+> reconsideration candidate, never a verdict. Small fixes need neither.
 
 ```markdown
 ### Assumption A1

@@ -115,6 +115,10 @@ delivers:            # refs tipadas opcionais: surface:id, contract:id, capabili
 > qual foi julgada; uma mudança nesse conteúdo projeta uma obrigação de julgamento
 > `premise-stale`. Não há expiração por calendário, e premissas triviais não
 > precisam de nenhum dos dois campos.
+> Da mesma forma, uma decisão material pode acrescentar `Efeito esperado:` e
+> `Verificação do falsificador: check:<module>/<check>`; um resultado indexado com
+> falha nesse check projeta um candidato a reconsideração, nunca um veredito.
+> Correções pequenas não precisam de nenhum dos dois.
 
 ```markdown
 ### Premissa A1

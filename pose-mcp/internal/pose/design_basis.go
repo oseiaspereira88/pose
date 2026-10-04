@@ -64,6 +64,11 @@ type DesignDecision struct {
 	Rationale      string   `json:"rationale,omitempty"`
 	Consequences   string   `json:"consequences,omitempty"`
 	Falsifier      string   `json:"falsifier,omitempty"`
+	// ExpectedEffect and FalsifierCheck are optional (spec
+	// pose-falsifier-reconsideration): the effect the decision expects and
+	// the indexed check whose failure contradicts it.
+	ExpectedEffect string `json:"expected_effect,omitempty"`
+	FalsifierCheck string `json:"falsifier_check,omitempty"`
 	// Status is optional: a decision is active unless it declares
 	// `Status: withdrawn` (spec pose-abm-contract-nodes).
 	Status string `json:"status,omitempty"`
@@ -156,6 +161,7 @@ func parseDesignBasis(body, root string) DesignBasisReport {
 	}
 	for _, item := range report.Decisions {
 		validateDecision(&report, item, assumptions, decisions, requirements, constraints)
+		validateFalsifierCheck(&report, item)
 	}
 	sort.Slice(report.Assumptions, func(i, j int) bool { return report.Assumptions[i].ID < report.Assumptions[j].ID })
 	sort.Slice(report.Decisions, func(i, j int) bool { return report.Decisions[i].ID < report.Decisions[j].ID })
@@ -331,6 +337,8 @@ func decisionFromNode(node designNode) DesignDecision {
 		Rationale:      firstDesignField(node.fields, "rationale", "racional", "justificativa"),
 		Consequences:   firstDesignField(node.fields, "consequences", "consequencias"),
 		Falsifier:      firstDesignField(node.fields, "falsifier", "falsificador", "condicaodefalsificacao"),
+		ExpectedEffect: firstDesignField(node.fields, "expectedeffect", "efeitoesperado"),
+		FalsifierCheck: firstDesignField(node.fields, "falsifiercheck", "verificacaodofalsificador"),
 		Status:         strings.ToLower(strings.TrimSpace(firstDesignField(node.fields, "status", "estado"))),
 		Line:           node.line,
 	}
