@@ -45,16 +45,19 @@ type ObligationReport struct {
 // ObligationSnapshot says which state an answer describes. It reuses the
 // digests the engine already computes; it is not a second policy.
 type ObligationSnapshot struct {
-	Project        string   `json:"project_id"`
-	SourceRevision string   `json:"source_revision"`
-	WorktreeDirty  bool     `json:"worktree_dirty"`
-	PolicyDigest   string   `json:"policy_digest"`
-	ContractDigest string   `json:"contract_digest"`
-	IndexDigest    string   `json:"index_digest,omitempty"`
-	GeneratedAt    string   `json:"generated_at"`
-	Coherent       bool     `json:"coherent"`
-	Limitations    []string `json:"limitations,omitempty"`
-	Digest         string   `json:"digest"`
+	Project        string `json:"project_id"`
+	SourceRevision string `json:"source_revision"`
+	WorktreeDirty  bool   `json:"worktree_dirty"`
+	PolicyDigest   string `json:"policy_digest"`
+	ContractDigest string `json:"contract_digest"`
+	// AuthorityContextRevision is the context_revision `pose context` returns
+	// for this project: the authority binding the answer was computed under.
+	AuthorityContextRevision string   `json:"authority_context_revision,omitempty"`
+	IndexDigest              string   `json:"index_digest,omitempty"`
+	GeneratedAt              string   `json:"generated_at"`
+	Coherent                 bool     `json:"coherent"`
+	Limitations              []string `json:"limitations,omitempty"`
+	Digest                   string   `json:"digest"`
 }
 
 // ProducerCoverage is one producer's state for this read.
@@ -573,7 +576,14 @@ func correlateObligations(items []Obligation) []Obligation {
 // CurrentObligationSnapshot binds an answer to the repository state it read.
 func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 	snap := ObligationSnapshot{GeneratedAt: time.Now().UTC().Format(time.RFC3339), Coherent: true}
-	_, project, err := EnvironmentArtifactResolver(s.Root, "")
+	resolver, project, err := EnvironmentArtifactResolver(s.Root, "")
+	if err == nil && project != "" {
+		if ctx, ctxErr := ResolveAgentProjectContext(resolver, project, ""); ctxErr == nil {
+			snap.AuthorityContextRevision = ctx.ContextRevision
+		} else {
+			snap.Limitations = append(snap.Limitations, "authority context unavailable: "+ctxErr.Error())
+		}
+	}
 	if err != nil || project == "" {
 		project = DefaultProjectID(s.Root)
 		snap.Limitations = append(snap.Limitations, "project identity fell back to the directory name")
@@ -606,7 +616,7 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 }
 
 func snapshotDigest(snap ObligationSnapshot) string {
-	digest, _ := digestJSON([]string{snap.Project, snap.SourceRevision, fmt.Sprint(snap.WorktreeDirty), snap.PolicyDigest, snap.ContractDigest, snap.IndexDigest})
+	digest, _ := digestJSON([]string{snap.Project, snap.SourceRevision, fmt.Sprint(snap.WorktreeDirty), snap.PolicyDigest, snap.ContractDigest, snap.AuthorityContextRevision, snap.IndexDigest})
 	return digest
 }
 
@@ -629,6 +639,9 @@ func (s Store) ObligationSnapshotChanges(snap ObligationSnapshot) []string {
 	}
 	if now.ContractDigest != snap.ContractDigest {
 		changed = append(changed, "authority-contract")
+	}
+	if now.AuthorityContextRevision != snap.AuthorityContextRevision {
+		changed = append(changed, "authority-context")
 	}
 	if now.IndexDigest != snap.IndexDigest {
 		changed = append(changed, "delivery-index")

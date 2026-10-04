@@ -160,6 +160,8 @@ tree-hash invariance; policy-change invalidation test; latency measurement on po
 
 ## 7. Final Report
 
+R5 named an authority context revision the first snapshot did not carry. The snapshot now records `authority_context_revision`, the `context_revision` that `pose context` computes for the project, and includes it in the digest; selecting another project identity reports `authority-context` among the changes.
+
 ### Delivered scope
 
 Not started. Filled at closeout from the requirement trace and the change sets.

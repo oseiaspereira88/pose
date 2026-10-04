@@ -180,6 +180,19 @@ func TestSnapshotChangesInvalidateAnEarlierAnswer(t *testing.T) {
 	if len(changed) == 0 || changed[0] != "policy" {
 		t.Fatalf("a policy change was not detected: %v", changed)
 	}
+	// R5/R7: the authority context the answer was computed under is bound
+	// too; selecting another project identity invalidates the answer.
+	if snap.AuthorityContextRevision == "" {
+		t.Fatalf("snapshot lacks the authority context revision: %+v", snap)
+	}
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.another-identity")
+	found := false
+	for _, c := range s.ObligationSnapshotChanges(snap) {
+		found = found || c == "authority-context"
+	}
+	if !found {
+		t.Fatalf("a changed authority context was not detected: %v", s.ObligationSnapshotChanges(snap))
+	}
 }
 
 func TestQueryFiltersByScopeActorPhaseAndCategory(t *testing.T) {
