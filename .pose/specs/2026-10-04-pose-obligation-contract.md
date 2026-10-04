@@ -82,6 +82,7 @@ New obligation types, artifact ref grammar extension for node refs, schema, ADR.
 - modified: pose-mcp/schemas/README.md
 - modified: .pose/adr/2026-10-04-obligations-are-projected-action-requests-are-persisted.md
 - created: docs-site/docs/obligations.md
+- modified: .pose/public/claims.json
 - modified: docs-site/mkdocs.yml
 - modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-obligation-contract.md
