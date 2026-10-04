@@ -140,6 +140,14 @@ passes), then passes after the owning spec lands.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] <case human-label-without-confirmation> test:TestAdversarialCorpus check:adversarial-corpus
+- R2 [satisfied] <case unavailable-producer-reads-as-empty> test:TestAdversarialCorpus check:adversarial-corpus
+- R3 [satisfied] <case trivial-change-raises-a-request> test:TestAdversarialCorpus check:adversarial-corpus
+- R4 [satisfied] <cases drive refusals and recovery: declined-approval-satisfies, closeout-plan-fills-judgment, stale-preview-authorizes-apply> test:TestAdversarialCorpus check:adversarial-corpus
+- R5 [satisfied] <one case per later gate; the cheapest-formal-satisfaction question is in the pose-review skill> test:TestAdversarialCorpus check:adversarial-corpus test:TestDelegatedCorpusCasesStillExist check:adversarial-corpus-integration
+
 ## 7. Final Report
 
 Seven cases were added for the gates delivered later in the program (R5): a stale start preview, a code change that keeps a judgment, a minimal surface without trace, a stale assessment, an unpinned and a calendar premise trigger (all enforced), and an unobserved falsifier check (known-gap). The transfer gate's case is `delegated` to `TestTransferRefusesARequestOpenedAfterThePreview`, whose fixture lives in the pose package; the corpus checks that the test still exists. Disabling the premise validation made both premise cases fail, as they must.
