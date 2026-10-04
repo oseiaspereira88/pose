@@ -147,6 +147,15 @@ filled corpus case.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:recoverable-closeout-plan evidence:integration test:TestClosePlanPreviewsWithoutWriting check:closeout-plan-integration test:TestAnInterruptedCloseoutResumesWithoutDuplication
+- R2 [satisfied] <evidence is regenerated into results_path and indexed before sealing> test:TestAnInterruptedCloseoutResumesWithoutDuplication check:closeout-plan-integration
+- R3 [satisfied] test:TestAnInterruptedCloseoutResumesWithoutDuplication check:closeout-plan-integration
+- R4 [satisfied] test:TestAStalePlanDigestIsRefused check:closeout-plan-integration
+- R5 [satisfied] test:TestTheClosePlanStopsAtJudgmentAndNeverAnswersIt check:closeout-plan-integration
+- R6 [satisfied] <the pose-spec-closeout skill leads with the plan flow and keeps the primitive commands for diagnosis>
+
 ## 7. Final Report
 
 ### Delivered scope
