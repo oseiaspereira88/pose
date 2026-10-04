@@ -332,12 +332,13 @@ func cmdPublicClaims(root string, args []string, stdout, stderr io.Writer) int {
 		// The surfaces are checked against the candidate. Whether that
 		// candidate was prepared or published is reported separately and
 		// only from retained release records.
-		fmt.Fprintf(stdout, "public-claims.candidate_version=%s\n", provenance.CandidateVersion)
-		fmt.Fprintf(stdout, "public-claims.candidate_state=%s\n", provenance.CandidateState)
+		out := render(stdout, stderr)
+		out.Field("public-claims.candidate_version", provenance.CandidateVersion)
+		out.Field("public-claims.candidate_state", provenance.CandidateState)
 		if provenance.PublishedVersion != "" {
-			fmt.Fprintf(stdout, "public-claims.published_version=%s (%s, %s)\n", provenance.PublishedVersion, provenance.PublishedVersionState, provenance.PublishedSource)
+			out.Field("public-claims.published_version", provenance.PublishedVersion+" ("+provenance.PublishedVersionState+", "+provenance.PublishedSource+")")
 		} else {
-			fmt.Fprintf(stdout, "public-claims.published_version=%s\n", provenance.PublishedVersionState)
+			out.Field("public-claims.published_version", provenance.PublishedVersionState)
 		}
 		fmt.Fprintf(stdout, "public-claims.surfaces=%d\n", len(surfaces))
 		fmt.Fprintf(stdout, "public-claims.errors=%d\n", len(findings))

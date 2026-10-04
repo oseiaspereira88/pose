@@ -82,6 +82,7 @@ Public claims gate, its JSON contract and template, release lifecycle evidence l
 - created: pose-mcp/internal/cli/publicclaims_provenance_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: docs-site/docs/cli.md
+- modified: pose-mcp/internal/cli/testdata/direct-print-sites.json
 - created: .pose/changelogs/unreleased/pose-public-claims-publication-provenance.md
 
 Reconciled against the tree at activation.
