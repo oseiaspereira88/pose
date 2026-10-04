@@ -84,6 +84,11 @@ func (s Store) dorApplies(createdAt string) bool {
 type WaitingRef struct {
 	Ref    string `json:"ref"`
 	Reason string `json:"reason"`
+	// Code is the typed cause (spec pose-typed-producer-diagnostics); Reason
+	// stays the human rendering.
+	Code string `json:"code,omitempty"`
+	// Detail is the resolver state or graph reason the code came from.
+	Detail string `json:"detail,omitempty"`
 }
 
 // Readiness answers "can this spec be worked on / executed now?" from the
@@ -156,21 +161,23 @@ func (s Store) SpecReadinessWithResolver(slug, project string, resolver Artifact
 		r.WaitingOn = append(r.WaitingOn, WaitingRef{
 			Ref:    "dor:acceptance-criteria",
 			Reason: "Definition of Ready: no acceptance criteria with stable IDs (- R<N>: ...) in Requirements",
+			Code:   "dor-acceptance-criteria-missing",
 		})
 	}
 
 	for _, raw := range sp.DependsOn {
 		ref, parseErr := ParseArtifactRef(raw)
-		reason := ""
+		reason, state, graph, notDone := "", "", "", false
 		if parseErr != nil {
-			reason = "invalid-artifact-reference"
+			reason, state = "invalid-artifact-reference", "invalid-artifact-reference"
 		} else {
 			resolved := resolver.Resolve(project, raw)
 			if !resolved.Resolved {
-				reason = resolved.State
+				reason, state = resolved.State, resolved.State
 			} else if graphReason := resolver.ValidateGraph(project, raw); graphReason != "" {
-				reason = graphReason
+				reason, graph = graphReason, graphReason
 			} else if resolved.Status != "done" {
+				notDone = true
 				reason = fmt.Sprintf("%s status is %q (needs done)", ref.Kind, resolved.Status)
 				if ref.Kind == "milestone" && ref.Project == "" {
 					reason = s.milestoneWaitingReason(ref.Slug + "/" + ref.Milestone)
@@ -178,7 +185,7 @@ func (s Store) SpecReadinessWithResolver(slug, project string, resolver Artifact
 			}
 		}
 		if reason != "" {
-			r.WaitingOn = append(r.WaitingOn, WaitingRef{Ref: raw, Reason: reason})
+			r.WaitingOn = append(r.WaitingOn, WaitingRef{Ref: raw, Reason: reason, Code: dependencyWaitingCode(state, graph, notDone), Detail: firstNonempty(state, graph)})
 		}
 	}
 

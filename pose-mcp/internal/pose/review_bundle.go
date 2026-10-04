@@ -387,6 +387,12 @@ type ReviewAttestationPendency struct {
 	Criterion string `json:"criterion"`
 	Kind      string `json:"kind"`
 	Reason    string `json:"reason"`
+	// Code, Source and Condition type the pendency (spec
+	// pose-typed-producer-diagnostics): which bundle owes it and what
+	// satisfies it.
+	Code      string `json:"code,omitempty"`
+	Source    string `json:"source,omitempty"`
+	Condition string `json:"condition,omitempty"`
 }
 
 // ReviewAttestationPreparation is what automation can honestly produce on its
@@ -2000,7 +2006,8 @@ func (s Store) prepareReviewAttestation(bundleID, reviewer string, now time.Time
 			if len(criterion.EvidenceClasses) > 0 {
 				reason = "the profile asks a reviewer to conclude, even though evidence of class " + strings.Join(criterion.EvidenceClasses, "|") + " exists"
 			}
-			pending = append(pending, ReviewAttestationPendency{Criterion: criterion.ID, Kind: ReviewCriterionKindJudgment, Reason: reason})
+			pending = append(pending, ReviewAttestationPendency{Criterion: criterion.ID, Kind: ReviewCriterionKindJudgment, Reason: reason,
+				Code: "judgment-unanswered", Source: bundleID, Condition: DiagnosticCatalog["judgment-unanswered"].Condition})
 			continue
 		}
 		critEvidence := pickScoped(criterion.EvidenceClasses, reviewCriterionComponents(bundle.Payload.Plan, criterion))

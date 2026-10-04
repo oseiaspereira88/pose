@@ -394,6 +394,13 @@ type CloseoutState struct {
 	Terminal            bool                              `json:"terminal"`
 	NextAction          string                            `json:"next_action"`
 	Blockers            []string                          `json:"blockers"`
+	// Diagnostics type the blockers (spec pose-typed-producer-diagnostics).
+	// Blockers this function builds are rendered from them; review and
+	// federated blockers that arrive as text are carried as opaque items.
+	Diagnostics []Diagnostic `json:"diagnostics,omitempty"`
+	// NextStep is NextAction as a code and refs, for a consumer that must not
+	// parse the sentence.
+	NextStep *Diagnostic `json:"next_step,omitempty"`
 }
 
 var reviewLineRE = regexp.MustCompile(`^-\s+([A-Za-z0-9._-]+)\s+\[([^]]+)\](?:\s+(.*))?$`)
@@ -2058,6 +2065,14 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 		return CloseoutState{}, err
 	}
 	state := CloseoutState{SchemaVersion: ReviewSchemaVersion, Scope: ref, ScopeDigest: review.ScopeDigest, Review: review, LifecycleDone: true, Blockers: append([]string{}, review.Blockers...)}
+	var diagnostics []Diagnostic
+	for _, blocker := range review.Blockers {
+		diagnostics = append(diagnostics, OpaqueDiagnostic("review-blocker", DiagnosticCloseout, blocker))
+	}
+	block := func(d Diagnostic) {
+		diagnostics = append(diagnostics, d)
+		state.Blockers = append(state.Blockers, d.Message)
+	}
 	childStore := s
 	childStore.FederatedProjectID = ""
 	childStore.FederatedResolver = nil
@@ -2083,7 +2098,7 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 				slug, external := s.milestoneMember(raw)
 				if external {
 					if s.FederatedResolver == nil {
-						state.Blockers = append(state.Blockers, "external member "+raw+" needs federated acceptance")
+						block(NewDiagnostic("external-member-unaccepted", "external member "+raw+" needs federated acceptance", raw))
 					}
 					continue
 				}
@@ -2093,7 +2108,7 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 				}
 				state.Children = append(state.Children, child)
 				if !child.Terminal {
-					state.Blockers = append(state.Blockers, "child "+child.Scope+" is not closed")
+					block(NewDiagnostic("child-scope-open", "child "+child.Scope+" is not closed", child.Scope))
 				}
 			}
 			break
@@ -2114,7 +2129,7 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 			}
 			state.Children = append(state.Children, child)
 			if !child.Terminal {
-				state.Blockers = append(state.Blockers, "child "+child.Scope+" is not closed")
+				block(NewDiagnostic("child-scope-open", "child "+child.Scope+" is not closed", child.Scope))
 			}
 		}
 	}
@@ -2131,7 +2146,9 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 		}
 		state.FederatedAcceptance = &acceptance
 		if !acceptance.Ready {
-			state.Blockers = append(state.Blockers, acceptance.Blockers...)
+			for _, blocker := range acceptance.Blockers {
+				block(OpaqueDiagnostic("federated-acceptance-blocker", DiagnosticCloseout, blocker))
+			}
 		}
 	}
 	if includeFederated && s.FederatedResolver != nil && scope.Kind == "spec" {
@@ -2142,15 +2159,27 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 		if applies {
 			state.FederatedAcceptance = &acceptance
 			if !acceptance.Ready {
-				state.Blockers = append(state.Blockers, acceptance.Blockers...)
+				for _, blocker := range acceptance.Blockers {
+					block(OpaqueDiagnostic("federated-acceptance-blocker", DiagnosticCloseout, blocker))
+				}
 			}
 		}
 	}
 	if !review.Required {
 		state.Blockers = removeReviewOnlyBlockers(state.Blockers)
+		kept := diagnostics[:0]
+		for _, d := range diagnostics {
+			if len(removeReviewOnlyBlockers([]string{d.Message})) == 1 {
+				kept = append(kept, d)
+			}
+		}
+		diagnostics = kept
+	}
+	if review.Required && !review.Approved {
+		diagnostics = append(diagnostics, NewDiagnostic("review-not-approved", "review of "+ref+" is not approved", ref))
 	}
 	if !state.LifecycleDone && scope.Kind != "milestone" {
-		state.Blockers = append(state.Blockers, "lifecycle status is not done")
+		block(NewDiagnostic("lifecycle-not-done", "lifecycle status is not done", ref))
 	}
 	state.Blockers = uniqueSorted(state.Blockers)
 	state.Terminal = len(state.Blockers) == 0 && (review.Approved || !review.Required) && state.LifecycleDone
@@ -2180,7 +2209,49 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 	if state.NextAction == "" {
 		state.NextAction = "resolve closeout blockers for " + ref
 	}
+	SortDiagnostics(diagnostics)
+	state.Diagnostics = dedupeDiagnostics(diagnostics)
+	state.NextStep = closeoutNextStep(state, review, ref)
 	return state, nil
+}
+
+// closeoutNextStep types NextAction: the same decision, as a code and refs.
+func closeoutNextStep(state CloseoutState, review ReviewEvaluation, ref string) *Diagnostic {
+	step := func(code string, refs ...string) *Diagnostic {
+		return &Diagnostic{Code: code, Domain: DiagnosticCloseout, Refs: refs, Message: state.NextAction}
+	}
+	switch {
+	case state.Terminal:
+		return step("none")
+	case len(state.Children) > 0:
+		for _, child := range state.Children {
+			if !child.Terminal {
+				return step("continue-child", child.Scope)
+			}
+		}
+		return step("resolve-federated-blockers", ref)
+	case !review.Approved && review.Required:
+		return step("record-fresh-review", ref)
+	case !state.LifecycleDone:
+		return step("apply-lifecycle-transition", ref)
+	case state.FederatedAcceptance != nil && !state.FederatedAcceptance.Ready:
+		return step("resolve-federated-blockers", ref)
+	}
+	return step("resolve-closeout-blockers", ref)
+}
+
+func dedupeDiagnostics(items []Diagnostic) []Diagnostic {
+	seen := map[string]bool{}
+	out := make([]Diagnostic, 0, len(items))
+	for _, d := range items {
+		key := d.Code + "|" + strings.Join(d.Refs, ",") + "|" + d.Message
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		out = append(out, d)
+	}
+	return out
 }
 
 // GetCloseoutStateWithFederatedAcceptance adds the current cross-project

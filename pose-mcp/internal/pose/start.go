@@ -28,18 +28,21 @@ const (
 
 // StartPlan is the digest-bound preview of a start.
 type StartPlan struct {
-	SchemaVersion int                     `json:"schema_version"`
-	Spec          string                  `json:"spec"`
-	SpecPath      string                  `json:"spec_path"`
-	SpecDigest    string                  `json:"spec_digest"`
-	Revision      string                  `json:"revision"`
-	FromStatus    string                  `json:"from_status"`
-	Ready         bool                    `json:"ready"`
-	WaitingOn     []WaitingRef            `json:"waiting_on"`
-	Reason        string                  `json:"reason,omitempty"`
-	Obligations   []string                `json:"obligations"`
-	Baseline      ContractNodesProjection `json:"baseline"`
-	Digest        string                  `json:"digest"`
+	SchemaVersion int          `json:"schema_version"`
+	Spec          string       `json:"spec"`
+	SpecPath      string       `json:"spec_path"`
+	SpecDigest    string       `json:"spec_digest"`
+	Revision      string       `json:"revision"`
+	FromStatus    string       `json:"from_status"`
+	Ready         bool         `json:"ready"`
+	WaitingOn     []WaitingRef `json:"waiting_on"`
+	Reason        string       `json:"reason,omitempty"`
+	Obligations   []string     `json:"obligations"`
+	// ObligationItems types Obligations: each declared review criterion the
+	// start leaves owed at closeout (spec pose-typed-producer-diagnostics).
+	ObligationItems []Diagnostic            `json:"obligation_items,omitempty"`
+	Baseline        ContractNodesProjection `json:"baseline"`
+	Digest          string                  `json:"digest"`
 }
 
 // StartRecord is the journal of one applied start.
@@ -124,6 +127,9 @@ func (s Store) PreviewStart(slug string) (StartPlan, error) {
 		}
 	}
 	plan.Obligations = s.startObligations(slug)
+	for _, criterion := range plan.Obligations {
+		plan.ObligationItems = append(plan.ObligationItems, NewDiagnostic("review-criterion-owed", "review criterion "+criterion+" is answered at closeout", "spec:"+slug+"#criterion:"+criterion))
+	}
 	plan.Baseline = ProjectContractNodes(slug, spec.Body)
 	plan.Digest = startPlanDigest(plan)
 	return plan, nil
