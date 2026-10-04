@@ -146,6 +146,14 @@ var adversarialCorpus = []adversarialCase{
 		}
 		return true, "no release phase"
 	}},
+	{"closeout-plan-fills-judgment", "enforced", "pose-recoverable-closeout-plan", func(t *testing.T) (bool, string) {
+		root := reviewBundleCLIFixture(t)
+		writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":2,"id":"spec-closeout","version":2,"scope":"spec","criteria":[{"id":"security","description":"safe"}]}`)
+		var out, errB bytes.Buffer
+		inDir(t, root, func() { Main([]string{"close", "spec:bundle", "--apply", "--reviewer", "agent:r"}, &out, &errB) })
+		files, _ := filepath.Glob(filepath.Join(root, ".pose", "review-attestations", "*.json"))
+		return len(files) > 0, out.String()
+	}},
 	{"invented-trace-test-ref", "known-gap", "pose-mechanization-adversarial-corpus", func(t *testing.T) (bool, string) {
 		// Follow-up 097 of pose-abm-design-basis: lint counts trace refs but
 		// does not resolve `test:` names, so a trace citing a test that does

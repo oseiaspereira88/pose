@@ -56,6 +56,20 @@ never becomes overdue. `pose lint-spec` warns when it sees that.
 3. Stop and obtain user confirmation before writing `spawned`, `covered`, or `duplicate`. These transitions create work or silently discard an item if wrong. `open`, `done`, and `wont-do` do not require confirmation.
 4. Ensure every target slug exists and does not point back to the current spec.
 
+## Recoverable plan (preferred)
+
+For a spec, `pose close spec:<slug> --plan` shows the ordered closeout —
+context, evidence, index, seal, mechanical attestation, judgment, verify,
+transition — computed from the repository. `pose close spec:<slug> --apply
+--reviewer agent:<id>` runs every mechanical step in that order (it regenerates
+`results_path` before sealing) and stops with exit 3 when a judgment criterion
+needs a reviewer: answer it with `pose review attest`, then
+`pose close spec:<slug> --resume --reviewer agent:<id>`. An interrupted run is
+resumed the same way; done steps are not repeated. The plan never answers a
+judgment, never publishes and never edits policy. Commit the spec, index,
+results, bundle and attestation in one closeout commit afterwards. The steps
+below are the same flow by hand, for diagnosis.
+
 ## Steps
 
 Before reviewing or closing a cross-project task, run `pose context --task <xref> --json` and use its current `context_revision`. Resolve redirects to the canonical authority; stop on ambiguity, unsupported metadata, stale binding or `transfer-in-progress`. Cross-project review writes and close require an explicit `POSE_PROJECT_ROOTS` binding plus `--expect-context <context_revision>`.

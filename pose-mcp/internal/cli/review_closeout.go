@@ -1355,6 +1355,11 @@ func writeFileExclusive(path string, content []byte) error {
 }
 
 func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
+	for _, arg := range args {
+		if arg == "--plan" || arg == "--apply" || arg == "--resume" {
+			return cmdClosePlan(root, args, stdout, stderr)
+		}
+	}
 	expectedContext := ""
 	remaining := make([]string, 0, len(args))
 	for i := 0; i < len(args); i++ {

@@ -1,12 +1,13 @@
 ---
 slug: pose-recoverable-closeout-plan
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-typed-producer-diagnostics, pose-obligation-projection, pose-phase-scoped-readiness
 priority: 1
 components: pose-mcp
+delivers: surface:recoverable-closeout-plan
 task_type: feature
 ---
 
@@ -77,19 +78,29 @@ Closeout domain, continuous closeout, CLI/MCP close, closeout skill.
 
 - created: .pose/specs/2026-10-04-pose-recoverable-closeout-plan.md
 - created: pose-mcp/internal/pose/closeout_plan.go
-- created: pose-mcp/internal/pose/closeout_plan_test.go
-- modified: pose-mcp/internal/pose/review_closeout.go
+- created: pose-mcp/internal/cli/closeout_plan.go
+- created: pose-mcp/internal/cli/closeout_plan_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/cli/check.go
+- modified: pose-mcp/internal/cli/adversarial_corpus_test.go
+- modified: pose-mcp/internal/cli/testdata/adversarial/README.md
 - modified: .agents/skills/pose-spec-closeout/SKILL.md
-- modified: pose-mcp/internal/mcpserver/server.go
-- modified: pose-mcp/internal/mcpserver/catalog.go
-- modified: pose-mcp/internal/mcpserver/server_test.go
-- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
-- modified: docs-site/docs/mcp.md
+- modified: locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-recoverable-closeout-plan.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:recoverable-closeout-plan module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -98,7 +109,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

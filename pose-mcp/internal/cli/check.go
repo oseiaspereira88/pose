@@ -408,6 +408,7 @@ func isRuntimeReference(ref string) bool {
 		// role; neither exists on a fresh install (spec pose-action-requests).
 		".pose/actions",
 		".pose/policy/actions.json",
+		".pose/closeout-plans",
 		".pose/contributions",
 		".pose/feedback",
 		".pose/results",

@@ -1389,6 +1389,32 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "closeout-plan-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "ClosePlan|InterruptedCloseout|StopsAtJudgment|StalePlanDigest|TestAdversarialCorpus",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "closeout-plan-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestAnInterruptedCloseoutResumesWithoutDuplication|TestClosePlanPreviewsWithoutWriting",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },

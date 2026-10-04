@@ -83,6 +83,21 @@ O gate `lint-spec` reforça isso de forma determinística: o alvo de
 Logo, ao marcar `[covered: X]`/`[duplicate: X]`, a spec `X` já deve existir; ao
 marcar `[spawned: X]`, crie a spec `X` antes (ou junto) de fechar a de origem.
 
+## Plano recuperável (preferido)
+
+Para uma spec, `pose close spec:<slug> --plan` mostra o closeout ordenado —
+contexto, evidência, índice, selagem, attestation mecânica, julgamento,
+verificação, transição — calculado a partir do repositório. `pose close
+spec:<slug> --apply --reviewer agent:<id>` executa cada passo mecânico nessa
+ordem (regenera o `results_path` antes de selar) e para com saída 3 quando um
+critério de julgamento precisa de um revisor: responda com `pose review
+attest`, depois `pose close spec:<slug> --resume --reviewer agent:<id>`. Uma
+execução interrompida é retomada do mesmo jeito; passos concluídos não se
+repetem. O plano nunca responde um julgamento, nunca publica e nunca edita
+policy. Depois, faça um único commit de closeout com spec, índice, resultados,
+bundle e attestation. Os passos abaixo são o mesmo fluxo à mão, para
+diagnóstico.
+
 ## Steps
 
 Antes de revisar ou fechar tarefa entre projetos, rode `pose context --task <xref> --json` e use o `context_revision` atual. Resolva redirects até a autoridade canônica; pare diante de ambiguidade, metadado não suportado, vínculo obsoleto ou `transfer-in-progress`. Escritas de review e close em outro projeto exigem vínculo explícito em `POSE_PROJECT_ROOTS` e `--expect-context <context_revision>`.

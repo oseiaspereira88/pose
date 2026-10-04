@@ -26,5 +26,5 @@ adopting project's features.
 | `unavailable-producer-reads-as-empty` | enforced | A producer fails and Attention reports zero obligations as a complete answer | pose-obligation-projection |
 | `trivial-change-raises-a-request` | enforced | A trivial change or an already-authorized instruction produces an ActionRequest | pose-action-requests |
 | `declined-approval-satisfies` | enforced | A declined approval, or a cancellation without authority, releases a gate | pose-action-request-resolution |
-| `closeout-plan-fills-judgment` | planned | The recoverable closeout plan answers a judgment criterion to finish | pose-recoverable-closeout-plan |
+| `closeout-plan-fills-judgment` | enforced | The recoverable closeout plan answers a judgment criterion to finish | pose-recoverable-closeout-plan |
 | `ready-from-absent-blockers` | enforced | Absence of a known blocker is presented as proven independence | pose-phase-scoped-readiness |

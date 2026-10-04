@@ -377,11 +377,15 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "close",
 		SummaryEN:       "Apply review-gated lifecycle closeout to a spec or milestone",
 		SummaryPtBR:     "Aplica fechamento governado com portão de review em spec ou marco",
-		Usage:           "pose close <scope|xref> [--expect-context <digest>] [--json]",
+		Usage:           "pose close <scope|xref> [--expect-context <digest>] [--json] | pose close spec:<slug> --plan|--apply|--resume [--reviewer agent:<id>] [--digest <plan digest>]",
 		DescriptionEN:   "Transitions a completed specification (or milestone) after verifying review and delivery gates. Cross-project close requires an explicit project binding and fresh context digest.",
 		DescriptionPtBR: "Transiciona uma spec (ou marco) para status: done após verificar se atestações de review, rastreio de requisitos e garantias de entrega foram cumpridos.",
 		Flags: []FlagHelp{
 			{"--json", "Output closeout transition details in JSON format", "Emite os detalhes da transição de fechamento em formato JSON"},
+			{"--plan", "Preview the ordered, recoverable closeout plan of a spec", "Mostra o plano ordenado e recuperável de closeout de uma spec"},
+			{"--apply", "Run the plan's mechanical steps; stop at a pending judgment (exit 3)", "Executa os passos mecânicos do plano; para num julgamento pendente (saída 3)"},
+			{"--resume", "Re-plan after an interruption and continue without repeating done steps", "Recalcula o plano após uma interrupção e continua sem repetir passos concluídos"},
+			{"--reviewer <id>", "Reviewing execution that records the mechanical attestation", "Execução revisora que registra a attestation mecânica"},
 			{"--expect-context <digest>", "Require the context revision returned by a fresh pose context call", "Exige a revisão de contexto retornada por uma chamada pose context atual"},
 		},
 		Examples: []string{
