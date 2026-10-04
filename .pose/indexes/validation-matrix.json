@@ -1292,6 +1292,33 @@
           ],
           "severity": "required",
           "evidenceClass": "reachability"
+        },
+        {
+          "name": "action-resolution-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "Actor|Declining|DeclaredHuman|CancelAndWaive|ReplayIs|StaleDigest|AnotherProject|VerifiedClaim|TestActionResolve|TestAdversarialCorpus",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "action-resolution-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestActionResolveRefusesTheWrongActorAndRecordsTheRightOne",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },

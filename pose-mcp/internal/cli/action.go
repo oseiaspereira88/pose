@@ -14,7 +14,7 @@ import (
 // pose-action-request-resolution): open, read and resolve material requests
 // to an actor. Writes are preview by default and need --apply.
 func cmdAction(root string, args []string, stdout, stderr io.Writer) int {
-	const usage = "Usage: pose action <open|list|show> ..."
+	const usage = "Usage: pose action <open|list|show|resolve|cancel|waive|invalidate> ..."
 	if len(args) == 0 {
 		return usageError(stderr, usage)
 	}
@@ -25,6 +25,8 @@ func cmdAction(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdActionList(root, args[1:], stdout, stderr)
 	case "show":
 		return cmdActionShow(root, args[1:], stdout, stderr)
+	case "resolve", "cancel", "waive", "invalidate":
+		return cmdActionResolve(root, args[0], args[1:], stdout, stderr)
 	default:
 		return usageError(stderr, usage)
 	}

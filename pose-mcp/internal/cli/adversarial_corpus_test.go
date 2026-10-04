@@ -21,6 +21,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -99,6 +100,35 @@ var adversarialCorpus = []adversarialCase{
 			return false, err.Error()
 		}
 		return r.Complete || len(r.Obligations) == 0 && !hasUnavailableCoverage(r), "complete=" + fmt.Sprint(r.Complete)
+	}},
+	{"trivial-change-raises-a-request", "enforced", "pose-action-requests", func(t *testing.T) (bool, string) {
+		// No command opens a request implicitly: reading state, previewing a
+		// request and running the lifecycle leave no journal behind.
+		root := t.TempDir()
+		mustWrite(t, filepath.Join(root, ".pose/specs/2026-10-04-tiny.md"), "---\nslug: tiny\nstatus: in-progress\n---\n\n# Spec: tiny\n\n## 2. Requirements\n\n- R1: Fix a typo.\n")
+		for _, args := range [][]string{{"state", "--attention"}, {"start", "spec:tiny"}, {"close", "spec:tiny"}, {"action", "open", "--origin", "spec:tiny", "--kind", "approval", "--question", "q", "--requested-by", "agent:a", "--target", "requirement:R1", "--effect", "closeout:block"}} {
+			var out, errB bytes.Buffer
+			inDir(t, root, func() { Main(args, &out, &errB) })
+		}
+		_, err := os.Stat(filepath.Join(root, ".pose", "actions"))
+		return err == nil, "a request journal exists"
+	}},
+	{"declined-approval-satisfies", "enforced", "pose-action-request-resolution", func(t *testing.T) (bool, string) {
+		root := t.TempDir()
+		mustWrite(t, filepath.Join(root, ".pose/specs/2026-10-04-s.md"), "---\nslug: s\nstatus: in-progress\n---\n\n# Spec: s\n")
+		mustWrite(t, filepath.Join(root, ".pose/policy/actions.json"), `{"schema_version":1,"roles":{"maintainer":["human:m"]}}`)
+		store := posemodel.Store{Root: root}
+		view, err := store.OpenActionRequest(posemodel.ActionRequest{Origin: "spec:s", Kind: posemodel.ActionApproval, Question: "Publish?", RequestedBy: posemodel.ActionPrincipal{Principal: "agent:a"},
+			Recipient: posemodel.ObligationActor{Role: "maintainer"}, Targets: []posemodel.NodeRef{{Artifact: "self"}}, Effects: []posemodel.ObligationEffect{{Phase: posemodel.PhaseRelease, Mode: posemodel.EffectBlock}}}, time.Now())
+		if err != nil {
+			return false, err.Error()
+		}
+		after, err := store.ResolveActionRequest(posemodel.ActionResolution{RequestID: view.Request.ID, Type: posemodel.ActionEventAnswered, Actor: "human:m", Answer: "decline", RequestDigest: view.Request.RequestDigest, ExpectedRevision: 1, IdempotencyKey: "k"}, time.Now())
+		if err != nil {
+			return false, err.Error()
+		}
+		cancel, _ := store.ResolveActionRequest(posemodel.ActionResolution{RequestID: view.Request.ID, Type: posemodel.ActionEventCancelled, Actor: "agent:other", Reason: "r", RequestDigest: view.Request.RequestDigest, ExpectedRevision: 2, IdempotencyKey: "c"}, time.Now())
+		return after.Satisfaction == posemodel.SatisfactionSatisfied || cancel.State == posemodel.ActionStateCancelled, after.Satisfaction
 	}},
 	{"invented-trace-test-ref", "known-gap", "pose-mechanization-adversarial-corpus", func(t *testing.T) (bool, string) {
 		// Follow-up 097 of pose-abm-design-basis: lint counts trace refs but

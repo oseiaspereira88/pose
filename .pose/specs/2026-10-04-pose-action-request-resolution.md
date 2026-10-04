@@ -1,12 +1,13 @@
 ---
 slug: pose-action-request-resolution
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-review-attribution-roles, pose-action-requests
 priority: 0
 components: pose-mcp
+delivers: surface:action-request-resolution
 task_type: feature
 ---
 
@@ -82,17 +83,19 @@ tools.
 - created: .pose/specs/2026-10-04-pose-action-request-resolution.md
 - created: pose-mcp/internal/pose/action_resolution.go
 - created: pose-mcp/internal/pose/action_resolution_test.go
-- modified: pose-mcp/internal/pose/action_request.go
+- created: pose-mcp/internal/cli/action_resolve.go
+- created: pose-mcp/internal/cli/action_test.go
 - modified: pose-mcp/internal/cli/action.go
-- modified: pose-mcp/internal/mcpserver/server.go
-- modified: pose-mcp/internal/mcpserver/catalog.go
-- modified: pose-mcp/internal/mcpserver/server_test.go
-- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
-- modified: docs-site/docs/mcp.md
+- modified: pose-mcp/internal/cli/adversarial_corpus_test.go
+- modified: pose-mcp/internal/cli/testdata/adversarial/README.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-action-request-resolution.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:action-request-resolution module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -101,7 +104,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation
@@ -113,7 +116,21 @@ against the tree, as the ABM specs did, before the first implementation commit.
 
 ## 5. Decisions
 
-No material decision beyond the transversal ADR at planning time.
+### Decision D1
+- Date: 2026-10-04
+- Context: MCP exposes only read, gate and external-event tools; review sealing and attestation import are CLI writes.
+- Options considered: add repository-write MCP tools for open and resolve; keep writes on the CLI and read over MCP.
+- Decision: keep writes on the CLI; `pose_action_requests` reads.
+- Rationale: a repository-write class would change the MCP catalog's security contract, which needs its own ADR; the trusted channel (Harne8) can drive the CLI or a future authenticated write path.
+- Consequences: agents resolve through `pose action`; the MCP read returns the same views.
+
+### Decision D2
+- Date: 2026-10-04
+- Context: a role must be held by an actor for an answer to count.
+- Options considered: trust a role named on the command line; declare role membership in policy.
+- Decision: `.pose/policy/actions.json` maps roles to principals; signing pins, the human-authority grant and the audience stay in the review policy.
+- Rationale: one trust configuration; a role named by the resolver alone would let any actor claim it.
+- Consequences: a role-addressed request has nobody to resolve it until the instance declares the role.
 
 ## 6. Validation
 
