@@ -150,6 +150,14 @@ Parity tests domain/CLI/MCP; stale-query test; non-adopted instance golden uncha
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:governed-effects evidence:integration test:TestAdoptedEffectsRefuseCloseoutUntilTheRequestIsSatisfied check:governed-effects-integration test:TestADeclinedRequestKeepsRefusing
+- R2 [satisfied] <same code action-request-pending on CLI and MCP> test:TestCloseRefusesWhileAnAdoptedRequestRestrictsCloseout check:governed-effects-integration test:TestToolsCall_CloseoutState_CarriesTheGovernedEffect
+- R3 [satisfied] test:TestAStartPreviewTakenBeforeARequestIsStaleAtApply check:governed-effects-integration
+- R4 [satisfied] test:TestWithoutAdoptionARequestRestrictsNoTransition check:governed-effects-integration test:TestUnadoptedCapabilitiesAreSupportedAndNotInForce check:effective-governance-integration
+- R5 [satisfied] <the fresh preview reports action-request-pending and writes nothing> test:TestAStartPreviewTakenBeforeARequestIsStaleAtApply check:governed-effects-integration
+
 ## 7. Final Report
 
 ### Delivered scope
