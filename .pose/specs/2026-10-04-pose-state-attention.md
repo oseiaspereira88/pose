@@ -143,6 +143,14 @@ filter test.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:state-attention evidence:integration test:TestStateAttentionShowsCoverageFirstAndSeparatesKinds check:state-attention-integration
+- R2 [satisfied] test:TestStateAttentionAndMCPShareIDs check:state-attention-integration test:TestToolsCall_Obligations_ReturnsReportWithCoverage
+- R3 [satisfied] test:TestStateAttentionShowsCoverageFirstAndSeparatesKinds check:state-attention-integration
+- R4 [satisfied] test:TestStateAttentionShowsCoverageFirstAndSeparatesKinds check:state-attention-integration
+- R5 [satisfied] test:TestStateAttentionShowsCoverageFirstAndSeparatesKinds check:state-attention-integration
+
 ## 7. Final Report
 
 ### Delivered scope
