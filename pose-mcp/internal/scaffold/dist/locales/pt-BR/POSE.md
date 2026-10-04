@@ -632,3 +632,13 @@ ao principal do revisor e às execuções exigidas pelo plano. O papel humano
 também exige um grant específico. Bundles sem esse gate selado continuam
 auditáveis em modo `declared`; o POSE não infere independência cognitiva nem
 exige Harne8 para review offline.
+
+Toda superfície de review informa o que o seu registro prova. `review-plan`
+mostra a garantia de identidade em vigor; `review verify`, `review-check` e
+`closeout-check` mostram uma linha de garantia e trazem um objeto `assurance`
+no JSON com três leituras de separação distintas: `separation_required` (o
+plano), `separation_declared` (o que as strings de identidade do registro
+dizem) e `separation_verified` (o que uma claim assinada vinculada ao bundle
+estabeleceu, ou `not-verified`). Em `declared`, `human:` e
+`agent:independent-` aparecem como declarações. `cognitive_independence` é
+sempre `not-observable`.

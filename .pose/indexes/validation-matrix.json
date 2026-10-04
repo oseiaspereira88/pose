@@ -1031,6 +1031,33 @@
           ],
           "severity": "required",
           "evidenceClass": "reachability"
+        },
+        {
+          "name": "review-assurance-disclosure-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "Assurance|TestDeclared|TestVerifiedAssurance|TestLegacyAttemptUnder|TestReviewSurfacesDisclose|TestNoSurfaceClaimsAnIndependentReview|TestABMReviewAuthority",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "review-assurance-disclosure-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestReviewSurfacesDiscloseDeclaredAssuranceOfAHumanLabel",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },

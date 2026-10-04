@@ -378,6 +378,9 @@ type ReviewEvaluation struct {
 	BundleDigest  string         `json:"bundle_digest,omitempty"`
 	AttestationID string         `json:"attestation_id,omitempty"`
 	BundleState   string         `json:"bundle_state,omitempty"`
+	// Assurance discloses what the current review record proves about its
+	// reviewer (spec pose-review-assurance-disclosure).
+	Assurance *ReviewAssurance `json:"assurance,omitempty"`
 }
 
 type CloseoutState struct {
@@ -962,6 +965,49 @@ func roadmapMilestoneSection(body, id string) string {
 }
 
 func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
+	eval, err := s.reviewCheck(ref)
+	if err == nil {
+		s.attachEvaluationAssurance(&eval)
+	}
+	return eval, err
+}
+
+// attachEvaluationAssurance discloses the record the evaluation settled on:
+// the sealed bundle and attestation when there is one, the legacy attempt
+// otherwise.
+func (s Store) attachEvaluationAssurance(eval *ReviewEvaluation) {
+	if eval.BundleID != "" {
+		if bundle, err := s.LoadReviewBundle(eval.BundleID); err == nil {
+			var att *ReviewAttestation
+			if eval.AttestationID != "" {
+				if attestations, listErr := s.ListReviewAttestations(eval.BundleID); listErr == nil {
+					for i := range attestations {
+						if attestations[i].AttestationID == eval.AttestationID {
+							att = &attestations[i]
+						}
+					}
+				}
+			}
+			assurance := s.DescribeReviewAssurance(bundle, att)
+			eval.Assurance = &assurance
+			return
+		}
+	}
+	if !eval.Required && eval.Current == nil {
+		return
+	}
+	independence, required := "", ""
+	if scope, err := ParseScopeRef(eval.Scope); err == nil {
+		if policy, policyErr := s.GetReviewPolicy(); policyErr == nil {
+			independence = policy.ReviewerIndependence[scope.Kind]
+			required = policy.ReviewIdentityAssurance(scope.Kind)
+		}
+	}
+	assurance := describeAttemptAssurance(required, independence, eval.Current)
+	eval.Assurance = &assurance
+}
+
+func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 	scope, err := ParseScopeRef(ref)
 	if err != nil {
 		return ReviewEvaluation{}, err
@@ -1191,7 +1237,7 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 		}
 	case "different-actor":
 		if !strings.HasPrefix(current.Reviewer, "agent:independent-") && !strings.HasPrefix(current.Reviewer, "human:") {
-			eval.Blockers = append(eval.Blockers, "review policy requires an independent reviewer identity")
+			eval.Blockers = append(eval.Blockers, "review policy requires a different-actor reviewer identity; under declared assurance that is read from the reviewer prefix, not authenticated")
 		}
 	case "mandatory-human":
 		if !strings.HasPrefix(current.Reviewer, "human:") {

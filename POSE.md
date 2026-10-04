@@ -626,3 +626,12 @@ bundle digest, project audience, reviewer principal and executions required by
 the review plan. A human role also needs a dedicated authority grant. Existing
 bundles without this sealed gate remain auditable in `declared` mode; POSE does
 not infer cognitive independence or require Harne8 for offline review.
+
+Every review surface discloses what its record proves. `review-plan` prints the
+identity assurance in force; `review verify`, `review-check` and
+`closeout-check` print one assurance line and carry an `assurance` object in
+JSON with three separation readings kept apart: `separation_required` (the
+plan), `separation_declared` (what the record's identity strings say) and
+`separation_verified` (what a signed claim bound to the bundle established, or
+`not-verified`). Under `declared`, `human:` and `agent:independent-` are shown
+as declarations. `cognitive_independence` is always `not-observable`.

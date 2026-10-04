@@ -1,12 +1,13 @@
 ---
 slug: pose-review-assurance-disclosure
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: 
 priority: 0
 components: pose-mcp
+delivers: surface:review-assurance-disclosure
 task_type: feature
 ---
 
@@ -78,18 +79,25 @@ MCP review tools, manual.
 ### Artifacts
 
 - created: .pose/specs/2026-10-04-pose-review-assurance-disclosure.md
+- created: pose-mcp/internal/pose/review_assurance.go
+- created: pose-mcp/internal/pose/review_assurance_test.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/review_closeout.go
-- modified: pose-mcp/internal/pose/review_authority_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
+- created: pose-mcp/internal/cli/review_assurance_cli_test.go
+- created: pose-mcp/internal/cli/review_independence_wording_test.go
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-review-assurance-disclosure.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:review-assurance-disclosure module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -98,7 +106,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

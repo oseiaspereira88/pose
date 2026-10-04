@@ -418,6 +418,9 @@ type ReviewBundleVerification struct {
 	NextAction  string             `json:"next_action"`
 	Warnings    []string           `json:"warnings,omitempty"`
 	Blockers    []string           `json:"blockers,omitempty"`
+	// Assurance discloses what this record proves about its reviewer (spec
+	// pose-review-assurance-disclosure).
+	Assurance *ReviewAssurance `json:"assurance,omitempty"`
 }
 
 // PrepareReviewBundle resolves a deterministic bundle without writing it.
@@ -2344,6 +2347,15 @@ func (s Store) ListReviewAttestations(bundleID string) ([]ReviewAttestation, err
 }
 
 func (s Store) VerifyReviewBundle(scope string) (ReviewBundleVerification, error) {
+	verification, err := s.verifyReviewBundle(scope)
+	if err == nil && verification.Bundle != nil {
+		assurance := s.DescribeReviewAssurance(*verification.Bundle, verification.Attestation)
+		verification.Assurance = &assurance
+	}
+	return verification, err
+}
+
+func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error) {
 	policy, err := s.GetReviewPolicy()
 	if err != nil {
 		return ReviewBundleVerification{}, err
@@ -2534,7 +2546,7 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 		switch bundle.Payload.Plan.Independence {
 		case "different-actor":
 			if !strings.HasPrefix(att.Reviewer, "agent:independent-") && !strings.HasPrefix(att.Reviewer, "human:") {
-				blockers = append(blockers, "review policy requires an independent reviewer identity")
+				blockers = append(blockers, "review policy requires a different-actor reviewer identity; under declared assurance that is read from the reviewer prefix, not authenticated")
 			}
 		case "mandatory-human":
 			if !strings.HasPrefix(att.Reviewer, "human:") {

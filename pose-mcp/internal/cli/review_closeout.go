@@ -56,6 +56,9 @@ func cmdReviewCheck(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	fmt.Fprintf(stdout, "review.scope=%s\nreview.required=%t\nreview.profile=%s\nreview.digest=%s\nreview.fresh=%t\nreview.approved=%t\n", eval.Scope, eval.Required, eval.Profile, eval.ScopeDigest, eval.Fresh, eval.Approved)
+	if eval.Assurance != nil {
+		render(stdout, stderr).Field("review.assurance", posemodel.RenderReviewAssurance(*eval.Assurance))
+	}
 	for _, warning := range eval.Warnings {
 		fmt.Fprintf(stdout, "[WARN] %s\n", warning)
 	}
@@ -109,6 +112,20 @@ func cmdReviewPlan(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	fmt.Fprintf(stdout, "review_plan.scope=%s\nreview_plan.scope_digest=%s\nreview_plan.plan_digest=%s\nreview_plan.base_profile=%s\nreview_plan.independence=%s\nreview_plan.band=%s\nreview_plan.components=%d\nreview_plan.criteria=%d\nreview_plan.tools=%d\n", plan.Scope, plan.ScopeDigest, plan.PlanDigest, plan.BaseProfile, plan.Independence, plan.Band, len(plan.Components), len(plan.Criteria), len(plan.Tools))
+	// The plan states the separation it requires; whether that separation can
+	// be authenticated depends on the identity assurance in force, which the
+	// plan digest deliberately does not include (spec
+	// pose-review-assurance-disclosure).
+	if scope, scopeErr := posemodel.ParseScopeRef(plan.Scope); scopeErr == nil {
+		if policy, policyErr := (posemodel.Store{Root: root}).GetReviewPolicy(); policyErr == nil {
+			assurance := policy.ReviewIdentityAssurance(scope.Kind)
+			meaning := "the reviewer identity is the string the reviewer writes; the required separation will be declared, not authenticated"
+			if assurance == posemodel.ReviewIdentityAssuranceVerified {
+				meaning = "the reviewer identity and separation must be established by a signed authority claim bound to the bundle"
+			}
+			render(stdout, stderr).Field("review_plan.identity_assurance", assurance+" ("+meaning+")")
+		}
+	}
 	// The forecast and the observed expansion print without --explain: a
 	// reviewer who never asks for the long form still has to see that the
 	// obligations in front of them came from scope nobody declared. These lines
@@ -262,6 +279,9 @@ func cmdCloseoutCheck(root string, args []string, stdout, stderr io.Writer) int 
 		return 0
 	}
 	fmt.Fprintf(stdout, "closeout.scope=%s\ncloseout.digest=%s\ncloseout.lifecycle_done=%t\ncloseout.review_approved=%t\ncloseout.terminal=%t\ncloseout.next_action=%s\n", state.Scope, state.ScopeDigest, state.LifecycleDone, state.Review.Approved, state.Terminal, state.NextAction)
+	if state.Review.Assurance != nil {
+		render(stdout, stderr).Field("closeout.review_assurance", posemodel.RenderReviewAssurance(*state.Review.Assurance))
+	}
 	for _, blocker := range state.Blockers {
 		fmt.Fprintf(stderr, "[ERROR] %s\n", blocker)
 	}
@@ -545,6 +565,9 @@ func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
 		}
 	} else {
 		fmt.Fprintf(stdout, "review_verify.scope=%s\nreview_verify.state=%s\nreview_verify.fresh=%t\nreview_verify.approved=%t\nreview_verify.next_action=%s\n", verification.Scope, verification.State, verification.Fresh, verification.Approved, verification.NextAction)
+		if verification.Assurance != nil {
+			render(stdout, stderr).Field("review_verify.assurance", posemodel.RenderReviewAssurance(*verification.Assurance))
+		}
 		for _, warning := range verification.Warnings {
 			fmt.Fprintf(stdout, "[WARN] %s\n", warning)
 		}
