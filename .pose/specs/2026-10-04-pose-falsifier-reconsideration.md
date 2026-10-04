@@ -1,0 +1,137 @@
+---
+slug: pose-falsifier-reconsideration
+status: draft
+created_at: 2026-10-04
+completed_at:
+supersedes:
+depends_on: pose-assumption-validity-scope
+priority: 3
+components: pose-mcp
+task_type: feature
+---
+
+# Spec: Close the loop of falsifiers and expected effects with explicit reconsideration
+
+## 1. Intent
+
+### Goal
+
+Optionally link a material decision to an expected effect and observable falsifier, and
+raise a reconsideration obligation when a pertinent observation contradicts it.
+
+### Business value
+
+A decision justified before the change must be reconsiderable when observations
+contradict its basis or expected effect.
+
+### Constraints
+
+Opt-in for material decisions; never judges architectural adequacy automatically; keeps
+rationale and history.
+
+Program source: backlog items POSE-32 (P3, wave 4) of the
+[third consolidated analysis](../reports/2026-10-03-pose-consolidated-analysis.md) (findings F11; sources
+E11, E19, E21). Cross-cutting decisions: [ADR](../adr/2026-10-04-obligations-are-projected-action-requests-are-persisted.md). Owner proposed:
+@pose-maintainers. This is a planning spec: no requirement is declared satisfied.
+
+### Non-goals
+
+Automatic causal inference; automatic architecture invalidation.
+
+### Anti-mechanization guardrail
+
+Observar contradição e pedir julgamento, sem transformar hipótese em quality gate
+universal.
+
+## 2. Requirements
+
+### Functional
+
+- R1: A pertinent observation contrary to a selected falsifier shall produce a reconsideration candidate.
+- R2: The previous decision shall keep rationale and history.
+- R3: Architectural adequacy shall not be judged automatically.
+- R4: The mechanism shall be opt-in for material decisions and not require causal modelling in small fixes.
+- R5: Decision nodes may declare `Expected effect` and an observable `Falsifier check` reference.
+
+### Non-functional
+
+- None specific beyond the shared constraints.
+
+### Security
+
+- None specific beyond the shared constraints.
+
+### Compatibility
+
+- Existing decisions unaffected.
+
+## 3. Technical Plan
+
+### Affected areas
+
+Design basis, evidence binding, obligation adapters.
+
+### Artifacts
+
+- created: .pose/specs/2026-10-04-pose-falsifier-reconsideration.md
+- modified: pose-mcp/internal/pose/design_basis.go
+- created: pose-mcp/internal/pose/falsifier_observation.go
+- created: pose-mcp/internal/pose/falsifier_observation_test.go
+- created: .pose/changelogs/unreleased/pose-falsifier-reconsideration.md
+
+The paths above are the planned surface at 2026-10-04; reconcile them at activation
+against the tree, as the ABM specs did, before the first implementation commit.
+
+### Technical risks
+
+- Impossible falsifiers; reviewer judgment, not syntax.
+
+## 4. Tasks
+
+### Planning
+- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
+
+### Implementation
+- [ ] Write the failing tests named in Validation first (the gate must fail before it passes)
+- [ ] Implement incrementally, one requirement group per commit with `POSE-Spec: pose-falsifier-reconsideration`
+
+### Validation
+- [ ] Run the deterministic checks below and retain results
+
+## 5. Decisions
+
+No material decision beyond the transversal ADR at planning time.
+
+## 6. Validation
+
+### Strategy
+
+Fixture with a failing falsifier check raises candidate; no automatic status change.
+
+### Deterministic checks
+
+#### Test
+- Command: `cd pose-mcp && go test ./...`
+- Scope: engine packages touched by this spec
+- Expected: pass, including the new negative tests
+
+#### Lint
+- Command: `cd pose-mcp && go vet ./...`
+- Scope: pose-mcp
+- Expected: no findings
+
+#### Security / Contract
+- Command: `pose lint-spec pose-falsifier-reconsideration --strict` and `pose check --strict`
+- Scope: this spec and the instance
+- Expected: pass
+
+## 7. Final Report
+
+### Delivered scope
+
+Not started. Filled at closeout from the requirement trace and the change sets.
+
+### Follow-ups
+
+None recorded at planning time.
