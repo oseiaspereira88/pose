@@ -62,11 +62,14 @@ func cmdState(root string, args []string, stdout, stderr io.Writer) int {
 		if arg == "--governance" {
 			return cmdStateGovernance(root, args, stdout, stderr)
 		}
+		if arg == "--attention" {
+			return cmdStateAttention(root, args, stdout, stderr)
+		}
 	}
 	if len(args) == 0 || strings.HasPrefix(args[0], "--") {
 		rest, flags, flagErr := splitOutputFlags(args)
 		if flagErr != "" || len(rest) > 0 {
-			return usageError(stderr, "Usage: pose state [--json] [--quiet] [--color auto|always|never] | pose state --governance [--scope <ref>] [--json] | pose state [init|refresh [--if-stale]|diff]")
+			return usageError(stderr, "Usage: pose state [--json] [--quiet] [--color auto|always|never] | pose state --governance [--scope <ref>] [--json] | pose state --attention [--scope <ref>] [--actor <id|role>] [--phase <p>] [--kind <c>] [--json] | pose state [init|refresh [--if-stale]|diff]")
 		}
 		return cmdStateValidateWith(root, flags, stdout, stderr)
 	}

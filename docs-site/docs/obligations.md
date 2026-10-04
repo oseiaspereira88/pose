@@ -58,6 +58,23 @@ A subsystem that still reports a blocker only as text is projected as
 `coverage: legacy-opaque`: its origin and the limitation are kept, and it
 gains no invented actor, target or unblock condition.
 
+## Reading it: Attention
+
+`pose state --attention` (and the MCP tool `pose_obligations`) read the
+projection. The answer starts with coverage: if any producer failed or is not
+integrated yet, it says `INCOMPLETE` before anything else, because an empty
+group is only meaningful when every producer was read. Then it lists what
+needs a person or role (`--actor` narrows this), what restricts each phase,
+and residual debt, which never restricts a phase by default.
+
+```bash
+pose state --attention --scope spec:storage-refactor
+pose state --attention --actor reviewer --json
+```
+
+Attention is not a gate. When governed effects are adopted, the write points
+of start, close and release revalidate the obligations of their own phase.
+
 ## What this model does not do
 
 It does not schedule work, assign workers, deliver notifications or compute a

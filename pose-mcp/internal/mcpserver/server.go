@@ -1039,6 +1039,27 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			project = s.roots.Context().DefaultProjectID
 		}
 		return store.SpecReadinessWithResolver(a.Slug, project, resolver)
+	case "pose_obligations":
+		var a struct {
+			Scope string `json:"scope"`
+			Actor string `json:"actor"`
+			Kind  string `json:"kind"`
+			Phase string `json:"phase"`
+			State string `json:"state"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_obligations: invalid arguments")
+		}
+		// Same domain function as `pose state --attention`: the actor groups
+		// the answer, it does not hide what blocks a phase.
+		report, err := store.ProjectObligations(pose.ObligationQuery{Scope: a.Scope, Category: a.Kind, Phase: a.Phase, Satisfaction: a.State})
+		if err != nil {
+			return nil, err
+		}
+		return struct {
+			pose.ObligationReport
+			Attention pose.Attention `json:"attention"`
+		}{report, pose.BuildAttention(report, a.Actor)}, nil
 	case "pose_project_state":
 		var a struct {
 			Section         string `json:"section"`
@@ -2077,6 +2098,28 @@ func toolDefinitions() []map[string]any {
 					},
 				},
 				"required": []string{"slug"},
+			},
+		},
+		{
+			"name": "pose_obligations",
+			"description": "Read everything still owed, projected read-only from the subsystems that own it " +
+				"(readiness, closeout, review judgment, start reconciliation, open follow-ups): one record per " +
+				"obligation with a stable id, qualified source and targets, reason code, satisfaction condition, " +
+				"recipient, per-phase effect (block or advisory), satisfaction, knowledge and waiting. Every answer " +
+				"carries a snapshot (revision, dirty tree, policy and contract digests) and per-producer coverage; " +
+				"a producer that failed or is not integrated is listed, so an empty list with incomplete coverage " +
+				"never means nothing is owed. `attention` groups the same ids for the actor. Read-only: resolve an " +
+				"obligation at its source, never here.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"scope":      map[string]any{"type": "string", "description": "Optional spec:<slug>, milestone:<roadmap>/<id> or roadmap:<slug>; omit for every non-terminal spec"},
+					"actor":      map[string]any{"type": "string", "description": "Optional principal or role whose items attention lists first"},
+					"kind":       map[string]any{"type": "string", "description": "Optional category filter: dependency, judgment, evidence, reconciliation, remediation, release, actor-action, residual-debt"},
+					"phase":      map[string]any{"type": "string", "description": "Optional phase filter: start, execution, review, closeout, release"},
+					"state":      map[string]any{"type": "string", "description": "Optional satisfaction filter: pending, satisfied, waived, cancelled, invalidated"},
+					"project_id": map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
+				},
 			},
 		},
 		{

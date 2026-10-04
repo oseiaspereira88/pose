@@ -1235,6 +1235,35 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "state-attention-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "Attention|TestToolsCall_Obligations|TestToolsList|TestCatalog",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "state-attention-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "TestStateAttentionShowsCoverageFirstAndSeparatesKinds|TestStateAttentionAndMCPShareIDs|TestToolsCall_Obligations_ReturnsReportWithCoverage",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },
