@@ -46,6 +46,10 @@ func (s Store) GovernanceWaits(now time.Time) (GovernanceWaitReport, error) {
 	if err != nil {
 		return report, err
 	}
+	return governanceWaitsFrom(report, views, now), nil
+}
+
+func governanceWaitsFrom(report GovernanceWaitReport, views []ActionRequestView, now time.Time) GovernanceWaitReport {
 	var ages []float64
 	blocking := map[string][][2]time.Time{}
 	for _, view := range views {
@@ -93,7 +97,7 @@ func (s Store) GovernanceWaits(now time.Time) (GovernanceWaitReport, error) {
 	for _, intervals := range blocking {
 		report.KnownBlockingSeconds += unionSeconds(intervals)
 	}
-	return report, nil
+	return report
 }
 
 func distribution(values []float64) WaitDistribution {

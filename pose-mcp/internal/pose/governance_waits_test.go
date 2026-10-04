@@ -84,3 +84,20 @@ func TestReworkClassifiesByWhatChangedAndKeepsUnknown(t *testing.T) {
 		}
 	}
 }
+
+func TestAMissingTimestampStaysUnknown(t *testing.T) {
+	now := time.Date(2026, 10, 4, 12, 0, 0, 0, time.UTC)
+	views := []ActionRequestView{
+		{Request: ActionRequest{ID: "act-a", RequestedAt: "not-a-time"}, Events: []ActionEvent{{Type: "opened"}}},
+		{Request: ActionRequest{ID: "act-b", RequestedAt: now.Add(-time.Hour).Format(time.RFC3339)}, Events: []ActionEvent{{Type: "opened"}, {Type: ActionEventAnswered, At: "garbled"}}},
+	}
+	report := governanceWaitsFrom(GovernanceWaitReport{ByCause: map[string]float64{}}, views, now)
+	if report.Unknown != 2 {
+		t.Fatalf("missing or unreadable timestamps were not counted as unknown: %+v", report)
+	}
+	if report.AgeSeconds.Count != 1 || report.AgeSeconds.Max != 3600 {
+		// The garbled answer time leaves the request measured up to now, and
+		// says so through Unknown; it never invents a zero-length wait.
+		t.Fatalf("age: %+v", report.AgeSeconds)
+	}
+}
