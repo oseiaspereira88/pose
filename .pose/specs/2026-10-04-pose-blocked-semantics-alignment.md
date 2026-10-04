@@ -1,0 +1,154 @@
+---
+slug: pose-blocked-semantics-alignment
+status: draft
+created_at: 2026-10-04
+completed_at:
+supersedes:
+depends_on: 
+priority: 0
+components: pose-mcp
+task_type: feature
+---
+
+# Spec: Align the meaning of blocked across lifecycle, transfer, readiness and metrics
+
+## 1. Intent
+
+### Goal
+
+Give `blocked` one documented meaning — a non-terminal operational condition — in the
+skill, the manual, readiness, state and metrics, while keeping its technical use in spec
+transfer and every legacy reader working.
+
+### Business value
+
+The closeout skill calls `blocked` terminal; readiness treats it as a special non-ready
+state and keeps done/superseded/abandoned terminal; adoption metrics put it in the
+denominator of resolved specs (it lowers the success ratio without adding to the
+numerator); spec transfer uses it during staging and when fresh evidence is required.
+Waiting is being read as an outcome.
+
+### Constraints
+
+Do not convert legacy `blocked` specs to `in-progress`: some were never started. When
+history is insufficient, keep the raw status and report the previous phase as unknown.
+The old metric series keeps its meaning; a new versioned dimension carries the corrected
+one.
+
+Program source: backlog items POSE-05 (P0, wave 0) of the
+[third consolidated analysis](../reports/2026-10-03-pose-consolidated-analysis.md) (findings F07; sources
+E06, E13, E14, E15). Cross-cutting decisions: [ADR](../adr/2026-10-04-obligations-are-projected-action-requests-are-persisted.md). Owner proposed:
+@pose-maintainers. This is a planning spec: no requirement is declared satisfied.
+
+### Non-goals
+
+Removing `blocked` in a patch release; unblocking records without a known cause; a
+`waiting-*` status family.
+
+### Anti-mechanization guardrail
+
+Não eliminar um estado antes de migrar todos os seus usos técnicos.
+
+## 2. Requirements
+
+### Functional
+
+- R1: The skill, manual, template comment and help text shall describe `blocked` as a non-terminal operational condition distinct from done, superseded and abandoned.
+- R2: `pose state` and readiness shall report a blocked spec with its raw status, `terminal: false` and, when no cause is recorded, `cause: unknown`.
+- R3: Adoption metrics shall keep the v1 resolved-ratio series unchanged and add a versioned v2 dimension that excludes operational waiting from resolved outcomes; both are labelled.
+- R4: Spec transfer staging and fresh-evidence protection shall keep refusing the protected transitions during the alignment, verified by the existing interrupted-transfer tests.
+- R5: A legacy blocked spec without a known start shall never be rewritten to `in-progress` by any command.
+- R6: `pose lint-spec` shall warn (not fail) on `status: blocked` without a recorded cause, pointing to the ActionRequest/obligation model once adopted.
+
+### Non-functional
+
+- Inventory of every reader and writer of the `blocked` literal recorded in the spec before code changes.
+
+### Security
+
+- No change weakens the transfer guard.
+
+### Compatibility
+
+- Metric v1 unchanged; v2 additive; status values unchanged on disk.
+
+## 3. Technical Plan
+
+### Affected areas
+
+Readiness, state, adoption metrics, spec transfer, closeout skill, manual and templates.
+
+### Artifacts
+
+- created: .pose/specs/2026-10-04-pose-blocked-semantics-alignment.md
+- modified: pose-mcp/internal/pose/readiness.go
+- modified: pose-mcp/internal/pose/state.go
+- modified: pose-mcp/internal/pose/spec_transfer.go
+- modified: pose-mcp/internal/cli/adoption_metrics.go
+- modified: pose-mcp/internal/cli/lintspec.go
+- modified: .agents/skills/pose-spec-closeout/SKILL.md
+- modified: .pose/templates/spec.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: .pose/changelogs/unreleased/pose-blocked-semantics-alignment.md
+
+The paths above are the planned surface at 2026-10-04; reconcile them at activation
+against the tree, as the ABM specs did, before the first implementation commit.
+
+### Technical risks
+
+- Hidden readers of the literal; mitigated by the recorded inventory and grep-based test.
+
+## 4. Tasks
+
+### Planning
+- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
+
+### Implementation
+- [ ] Write the failing tests named in Validation first (the gate must fail before it passes)
+- [ ] Implement incrementally, one requirement group per commit with `POSE-Spec: pose-blocked-semantics-alignment`
+
+### Validation
+- [ ] Run the deterministic checks below and retain results
+
+## 5. Decisions
+
+No material decision beyond the transversal ADR at planning time.
+
+## 6. Validation
+
+### Strategy
+
+Inventory first (grep of the literal across engine, scaffold and skills). Tests: metric
+v1 golden unchanged, v2 excludes blocked; legacy blocked spec untouched by start/close;
+transfer interrupted tests still pass.
+
+### Deterministic checks
+
+#### Test
+- Command: `cd pose-mcp && go test ./...`
+- Scope: engine packages touched by this spec
+- Expected: pass, including the new negative tests
+
+#### Lint
+- Command: `cd pose-mcp && go vet ./...`
+- Scope: pose-mcp
+- Expected: no findings
+
+#### Security / Contract
+- Command: `pose lint-spec pose-blocked-semantics-alignment --strict` and `pose check --strict`
+- Scope: this spec and the instance
+- Expected: pass
+
+## 7. Final Report
+
+### Delivered scope
+
+Not started. Filled at closeout from the requirement trace and the change sets.
+
+### Follow-ups
+
+None recorded at planning time.
