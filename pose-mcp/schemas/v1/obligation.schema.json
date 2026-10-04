@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pose.dev/schemas/v1/obligation.schema.json",
+  "title": "POSE obligation (read model)",
+  "description": "One thing still owed, projected from the subsystem that owns it (spec pose-obligation-contract). Derived, never a second ledger: the projection holds no resolution state of its own. Satisfaction, knowledge, waiting and effects are separate axes; unknown knowledge is never satisfied, waived or cancelled.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "id",
+    "project_id",
+    "source",
+    "category",
+    "reason_code",
+    "condition",
+    "recipient",
+    "targets",
+    "effects",
+    "satisfaction",
+    "knowledge",
+    "waiting",
+    "observation",
+    "message"
+  ],
+  "$defs": {
+    "nodeRef": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "artifact"
+      ],
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "pattern": "^xref:[a-z0-9][a-z0-9.-]*/(spec|roadmap|milestone):"
+        },
+        "kind": {
+          "enum": [
+            "requirement",
+            "assumption",
+            "decision",
+            "criterion",
+            "surface",
+            "release",
+            "followup",
+            "finding",
+            "action"
+          ]
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^obl-[0-9a-f]{16}$"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "producer",
+        "ref"
+      ],
+      "properties": {
+        "producer": {
+          "type": "string"
+        },
+        "ref": {
+          "$ref": "#/$defs/nodeRef"
+        },
+        "detail": {
+          "type": "string"
+        }
+      }
+    },
+    "category": {
+      "enum": [
+        "actor-action",
+        "dependency",
+        "evidence",
+        "judgment",
+        "reconciliation",
+        "release",
+        "remediation",
+        "residual-debt"
+      ]
+    },
+    "reason_code": {
+      "type": "string"
+    },
+    "condition": {
+      "type": "string"
+    },
+    "rule": {
+      "type": "string"
+    },
+    "recipient": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "principal": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "unassigned": {
+          "type": "boolean"
+        }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nodeRef"
+      }
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "phase",
+          "mode"
+        ],
+        "properties": {
+          "phase": {
+            "enum": [
+              "closeout",
+              "execution",
+              "release",
+              "review",
+              "start"
+            ]
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/nodeRef"
+            }
+          },
+          "mode": {
+            "enum": [
+              "advisory",
+              "block"
+            ]
+          }
+        }
+      }
+    },
+    "satisfaction": {
+      "enum": [
+        "cancelled",
+        "invalidated",
+        "pending",
+        "satisfied",
+        "waived"
+      ]
+    },
+    "knowledge": {
+      "enum": [
+        "known",
+        "unknown"
+      ]
+    },
+    "waiting": {
+      "enum": [
+        "actor",
+        "artifact",
+        "execution",
+        "external",
+        "none",
+        "unknown"
+      ]
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "freshness",
+        "coverage"
+      ],
+      "properties": {
+        "source_revision": {
+          "type": "string"
+        },
+        "freshness": {
+          "enum": [
+            "current",
+            "stale",
+            "unknown"
+          ]
+        },
+        "coverage": {
+          "enum": [
+            "complete",
+            "legacy-opaque",
+            "partial"
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "message": {
+      "type": "string"
+    },
+    "correlated_with": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

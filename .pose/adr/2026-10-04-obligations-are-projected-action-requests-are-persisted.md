@@ -2,10 +2,15 @@
 
 ## Status
 
-Proposed — 2026-10-04. Planning decision for the `record-truthfulness`,
+Accepted — 2026-10-04, with the versioned read model of `pose-obligation-contract`
+(`pose-mcp/internal/pose/obligation.go`, `pose-mcp/schemas/v1/obligation.schema.json`).
+Proposed the same day as the planning decision for the `record-truthfulness`,
 `agency-readiness`, `governance-efficiency` and `epistemic-lifecycle` roadmaps.
-It becomes Accepted when `pose-obligation-contract` closes with the schema and
-invariants below verified; until then no engine behaviour depends on it.
+
+The invariants are enforced by `ValidateObligation`: a stable id from the
+logical source, qualified node references, separate satisfaction / knowledge /
+waiting / effect axes, `unknown` never carrying a resolution, and a
+legacy-opaque blocker carrying no invented actor or target.
 
 ## Context
 

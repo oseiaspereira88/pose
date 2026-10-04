@@ -1,12 +1,13 @@
 ---
 slug: pose-obligation-contract
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-blocked-semantics-alignment
 priority: 1
 components: pose-mcp
+delivers: capability:obligation-contract
 task_type: feature
 ---
 
@@ -76,14 +77,20 @@ New obligation types, artifact ref grammar extension for node refs, schema, ADR.
 - created: .pose/specs/2026-10-04-pose-obligation-contract.md
 - created: pose-mcp/internal/pose/obligation.go
 - created: pose-mcp/internal/pose/obligation_test.go
-- modified: pose-mcp/internal/pose/artifact_ref.go
-- created: pose-mcp/schemas/obligation.schema.json
+- modified: pose-mcp/internal/pose/schema_test.go
+- created: pose-mcp/schemas/v1/obligation.schema.json
+- modified: pose-mcp/schemas/README.md
 - modified: .pose/adr/2026-10-04-obligations-are-projected-action-requests-are-persisted.md
-- created: docs/architecture/pose-obligations-and-agency.md
+- created: docs-site/docs/obligations.md
+- modified: docs-site/mkdocs.yml
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-obligation-contract.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- capability:obligation-contract module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -92,7 +99,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation
