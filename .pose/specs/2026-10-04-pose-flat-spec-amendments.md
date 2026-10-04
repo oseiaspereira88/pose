@@ -137,6 +137,14 @@ tests.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:flat-spec-amendments evidence:integration test:TestAmendWorksForFlatSpecsWithAJournalPerSpec check:flat-spec-amendments-integration
+- R2 [satisfied] test:TestAmendmentsPathIsPerSpecForFlatAndUnchangedForFolders check:flat-spec-amendments-integration
+- R3 [satisfied] test:TestAmendWorksForFlatSpecsWithAJournalPerSpec check:flat-spec-amendments-integration
+- R4 [satisfied] test:TestAmendmentsPathIsPerSpecForFlatAndUnchangedForFolders check:flat-spec-amendments-integration
+- R5 [satisfied] <pose_spec_amendments reads through the same store resolver> test:TestAmendWorksForFlatSpecsWithAJournalPerSpec check:flat-spec-amendments-integration
+
 ## 7. Final Report
 
 ### Delivered scope
