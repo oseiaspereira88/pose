@@ -1041,15 +1041,27 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		return store.SpecReadinessWithResolver(a.Slug, project, resolver)
 	case "pose_project_state":
 		var a struct {
-			Section string `json:"section"`
+			Section         string `json:"section"`
+			GovernanceScope string `json:"governance_scope"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_project_state: invalid arguments")
 		}
+		// Effective governance is read live from the policies the gates read,
+		// so it is current even when the persisted artifact is stale.
+		governance, governanceErr := store.EffectiveGovernance(a.GovernanceScope)
 		if !store.HasProjectState() {
-			return map[string]any{"initialized": false, "message": "project state not initialized (run `pose state init`)"}, nil
+			out := map[string]any{"initialized": false, "message": "project state not initialized (run `pose state init`)"}
+			if governanceErr == nil {
+				out["effective_governance"] = governance
+			}
+			return out, nil
 		}
-		return store.ProjectState(ctx, a.Section)
+		state, err := store.ProjectState(ctx, a.Section)
+		if err == nil && governanceErr == nil {
+			state.EffectiveGovernance = &governance
+		}
+		return state, err
 	case "pose_start_status":
 		var a struct {
 			Slug string `json:"slug"`
@@ -2100,10 +2112,17 @@ func toolDefinitions() []map[string]any {
 				"`refresh_pending` when an automatic refresh failed and has not succeeded since. " +
 				"Returns {initialized: false, message} when the project has not run " +
 				"`pose state init` yet — a project without this artifact is still valid everywhere " +
-				"else.",
+				"else. Every response carries effective_governance, computed live: for each " +
+				"contract, capability and gate whether it is supported, configured, applicable and " +
+				"effective here, with reason codes.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
+					"governance_scope": map[string]any{
+						"type": "string",
+						"description": "Optional scope (spec:<slug>, milestone:<roadmap>/<id>, roadmap:<slug>) whose newest " +
+							"sealed bundle is compared with the contracts the policy seals today in effective_governance",
+					},
 					"section": map[string]any{
 						"type": "string",
 						"description": "Optional exact section name (e.g. \"Follow-ups\") to fetch only " +

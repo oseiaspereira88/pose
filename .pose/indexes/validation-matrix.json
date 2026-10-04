@@ -1152,6 +1152,35 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "effective-governance-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "Governance|Unadopted|ProjectionReads|ScopedProjection|ProjectionWrites|ProjectState",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "effective-governance-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "TestStateGovernanceIsReachableAndReadOnly|TestToolsCall_ProjectState_CarriesEffectiveGovernance",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },

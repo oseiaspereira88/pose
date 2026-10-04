@@ -58,10 +58,15 @@ type stateHistoryEntry struct {
 }
 
 func cmdState(root string, args []string, stdout, stderr io.Writer) int {
+	for _, arg := range args {
+		if arg == "--governance" {
+			return cmdStateGovernance(root, args, stdout, stderr)
+		}
+	}
 	if len(args) == 0 || strings.HasPrefix(args[0], "--") {
 		rest, flags, flagErr := splitOutputFlags(args)
 		if flagErr != "" || len(rest) > 0 {
-			return usageError(stderr, "Usage: pose state [--json] [--quiet] [--color auto|always|never] | pose state [init|refresh [--if-stale]|diff]")
+			return usageError(stderr, "Usage: pose state [--json] [--quiet] [--color auto|always|never] | pose state --governance [--scope <ref>] [--json] | pose state [init|refresh [--if-stale]|diff]")
 		}
 		return cmdStateValidateWith(root, flags, stdout, stderr)
 	}

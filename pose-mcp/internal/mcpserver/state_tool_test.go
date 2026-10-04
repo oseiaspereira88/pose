@@ -98,3 +98,18 @@ func TestToolsCall_ProjectState_InCatalog(t *testing.T) {
 		t.Fatal("pose_project_state not advertised in the tool catalog")
 	}
 }
+
+// Spec pose-effective-governance-projection: the MCP state read carries the
+// live projection whether or not the artifact exists.
+func TestToolsCall_ProjectState_CarriesEffectiveGovernance(t *testing.T) {
+	for _, withArtifact := range []bool{false, true} {
+		ts := newStateTestServer(t, withArtifact)
+		_, out := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_project_state","arguments":{}}}`)
+		sc, _ := out.Result["structuredContent"].(map[string]any)
+		governance, _ := sc["effective_governance"].(map[string]any)
+		entries, _ := governance["entries"].([]any)
+		if len(entries) == 0 {
+			t.Fatalf("artifact=%v: effective_governance missing: %+v", withArtifact, sc)
+		}
+	}
+}

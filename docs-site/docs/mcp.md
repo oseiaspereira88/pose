@@ -112,7 +112,7 @@ are logged and swallowed, bounded by the shutdown timeout.
 | `pose_spec_amendments` | Append-only amendment history of one spec plus unacknowledged changes, the versioned R/A/D contract-node projection and whether `contract_nodes_version` is adopted |
 | `pose_spec_readiness` | Is a spec eligible? Resolves local and authorized qualified `depends_on` refs (specs, milestones, roadmaps) |
 | `pose_mcp_context` | Active server identity, transport, selection mode, policy-filtered logical project IDs and an optional project-resolution probe; never host paths |
-| `pose_project_state` | Current project state in one call: curated + derived sections (specs/roadmaps, follow-ups, capabilities, decisions/knowledge, validation evidence, architecture), staleness and tamper detection |
+| `pose_project_state` | Current project state in one call: curated + derived sections (specs/roadmaps, follow-ups, capabilities, decisions/knowledge, validation evidence, architecture), staleness and tamper detection, plus `effective_governance` computed live (optional `governance_scope`) |
 | `pose_start_status` | Read-only atomic start view: digest-bound start preview (readiness, dependencies, declared obligations, R/A/D baseline) and status (phase, node origins, reconciliation needs) |
 | `pose_closeout_state` | Hierarchical review state, child blockers, next governed action and terminal closeout for a typed scope |
 | `pose_review_plan` | Deterministic component-aware review plan: mapping provenance, selected profiles, criteria, safe native-tool argv, evidence expectations, independence and blockers |

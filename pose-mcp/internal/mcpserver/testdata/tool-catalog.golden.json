@@ -375,9 +375,13 @@
       "name": "pose_mcp_context"
     },
     {
-      "description": "Read the project-state artifact (.pose/state/project-state.md): the current state of the project in one call instead of scanning specs, roadmaps, follow-ups, capabilities, knowledge and reports individually. Each section is either curated (human prose) or derived (counts + typed pointers, automatically recomputed after spec closeout, amend, evidence reconciliation and capability snapshot events); the response reports staleness (age/commits since the last refresh), flags any section hand-edited since then, and surfaces `refresh_pending` when an automatic refresh failed and has not succeeded since. Returns {initialized: false, message} when the project has not run `pose state init` yet — a project without this artifact is still valid everywhere else.",
+      "description": "Read the project-state artifact (.pose/state/project-state.md): the current state of the project in one call instead of scanning specs, roadmaps, follow-ups, capabilities, knowledge and reports individually. Each section is either curated (human prose) or derived (counts + typed pointers, automatically recomputed after spec closeout, amend, evidence reconciliation and capability snapshot events); the response reports staleness (age/commits since the last refresh), flags any section hand-edited since then, and surfaces `refresh_pending` when an automatic refresh failed and has not succeeded since. Returns {initialized: false, message} when the project has not run `pose state init` yet — a project without this artifact is still valid everywhere else. Every response carries effective_governance, computed live: for each contract, capability and gate whether it is supported, configured, applicable and effective here, with reason codes.",
       "inputSchema": {
         "properties": {
+          "governance_scope": {
+            "description": "Optional scope (spec:\u003cslug\u003e, milestone:\u003croadmap\u003e/\u003cid\u003e, roadmap:\u003cslug\u003e) whose newest sealed bundle is compared with the contracts the policy seals today in effective_governance",
+            "type": "string"
+          },
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
             "type": "string"

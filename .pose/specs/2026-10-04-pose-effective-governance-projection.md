@@ -1,12 +1,13 @@
 ---
 slug: pose-effective-governance-projection
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-legacy-contract-cutoffs, pose-review-assurance-disclosure
 priority: 1
 components: pose-mcp
+delivers: surface:effective-governance
 task_type: feature
 ---
 
@@ -79,20 +80,25 @@ State builder, review policy and capability readers, MCP state tool, manual.
 - created: pose-mcp/internal/pose/effective_governance.go
 - created: pose-mcp/internal/pose/effective_governance_test.go
 - modified: pose-mcp/internal/pose/state.go
+- created: pose-mcp/internal/cli/state_governance.go
+- created: pose-mcp/internal/cli/state_governance_test.go
 - modified: pose-mcp/internal/cli/state.go
 - modified: pose-mcp/internal/mcpserver/server.go
-- modified: pose-mcp/internal/mcpserver/catalog.go
-- modified: pose-mcp/internal/mcpserver/server_test.go
+- modified: pose-mcp/internal/mcpserver/state_tool_test.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: docs-site/docs/mcp.md
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-effective-governance-projection.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:effective-governance module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -101,7 +107,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation
