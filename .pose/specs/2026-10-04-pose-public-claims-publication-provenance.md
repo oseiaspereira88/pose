@@ -137,6 +137,14 @@ reports published.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:public-claims-version-provenance evidence:integration test:TestPublicClaimsReportsAPreparedCandidateAsPreparedNeverPublished check:public-claims-provenance-integration
+- R2 [satisfied] test:TestPublicClaimsReportsAPreparedCandidateAsPreparedNeverPublished check:public-claims-provenance-integration
+- R3 [satisfied] test:TestPublicClaimsReportsAPreparedCandidateAsPreparedNeverPublished check:public-claims-provenance-integration
+- R4 [satisfied] test:TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven check:public-claims-provenance-integration test:TestPublicClaimsRejectsAPublicationWithLifecycleGaps
+- R5 [satisfied] <released_version keeps its value with a deprecation note> test:TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven check:public-claims-provenance-integration
+
 ## 7. Final Report
 
 ### Delivered scope
