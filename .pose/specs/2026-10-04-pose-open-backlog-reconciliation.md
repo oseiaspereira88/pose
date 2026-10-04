@@ -1,6 +1,6 @@
 ---
 slug: pose-open-backlog-reconciliation
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
@@ -80,9 +80,15 @@ The twelve non-terminal specs, follow-up inventory, reports.
 - created: .pose/specs/2026-10-04-pose-open-backlog-reconciliation.md
 - created: .pose/reports/2026-10-pose-open-backlog-reconciliation.md
 - created: .pose/results/pose-open-backlog-reconciliation.json
+- modified: .pose/specs/2026-09-08-pose-contract-adoption-registry.md
+- modified: .pose/specs/2026-09-09-pose-bundles-seal-the-contracts-that-govern-them.md
+- modified: .pose/specs/2026-09-10-pose-bundle-findings-take-the-contract-the-legacy-path-had.md
+- modified: .pose/specs/2026-09-10-pose-changelog-adoption-is-the-instances.md
+- modified: .pose/specs/2026-09-19-pose-abm-review-authority.md
+- modified: .pose/specs/2026-09-26-pose-federated-milestone-scoped-acceptance.md
+- modified: .pose/specs/2026-09-26-pose-roadmap-gate-scopes-milestones-and-external-members.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
 
 ### Technical risks
 
@@ -91,7 +97,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

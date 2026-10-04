@@ -249,10 +249,10 @@ Harne8 issuer integration is intentionally a later scope.
 - [open] `Project` e `Audience` da claim são comparados ao mesmo
   `authority_audience` e nunca podem divergir; decidir se um dos dois sai do
   contrato (owner:@pose-maintainers crit:low review:2026-10-19)
-- [open] `claim.SchemaVersion` é comparado com `ReviewSchemaVersion`, a
+- [done] `claim.SchemaVersion` é comparado com `ReviewSchemaVersion`, a
   constante do profile/attempt, enquanto o envelope usa
   `ReviewBundleSchemaVersion`; hoje ambas valem 1 e a checagem funciona por
-  coincidência (owner:@pose-maintainers crit:low review:2026-10-19)
-- [open] `HumanAuthorityIssuers` valida apenas não-vazio e ausência de newline,
+  coincidência. Resolved, reconciled 2026-10-04 (spec pose-open-backlog-reconciliation): verifiedAuthorityBlockers compares claim.SchemaVersion with ReviewBundleSchemaVersion; test TestABMReviewAuthorityRejectsUnsupportedClaimSchema.
+- [done] `HumanAuthorityIssuers` valida apenas não-vazio e ausência de newline,
   sem conferir a forma `<issuer>#sha256:<digest>`; um pin malformado falha
-  fechado, sem diagnóstico (owner:@pose-maintainers crit:low review:2026-10-19)
+  fechado, sem diagnóstico. Resolved, reconciled 2026-10-04 (spec pose-open-backlog-reconciliation): policy parsing validates the issuer#sha256:digest pin form; test TestHumanAuthorityIssuerPinsValidated.

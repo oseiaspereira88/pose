@@ -1,0 +1,1239 @@
+{
+  "schema_version": 1,
+  "spec": "pose-open-backlog-reconciliation",
+  "snapshot": {
+    "head": "4133b56",
+    "spec_graph_sha256_prefix": "00d8ab366fd0e641",
+    "open": 120,
+    "overdue": 11,
+    "unowned": 52,
+    "total": 289
+  },
+  "class_counts": {
+    "accepted-or-deferred-residual": 36,
+    "adoption-pilot-rollout": 14,
+    "external-or-human-operation": 12,
+    "material-implementation": 32,
+    "evidence-review-or-acceptance": 9,
+    "coverage-candidate": 8,
+    "satisfaction-candidate": 9
+  },
+  "followups": [
+    {
+      "n": 1,
+      "spec": "pose-changed-scope-validation",
+      "text": "Seed dependsOn edges for this repository's real modules (pose-mcp, mcp-enforce) once cross-module coupling needs scoped validation.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-16",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 2,
+      "spec": "pose-harne8-control-plane-integration",
+      "text": "Add an MCP-exposed variant of evidence reconciliation once a real Harness integration exists to validate the wire shape against — `pose reconcile-evidence` ships CLI-only in this release, consistent with every other locally-testable contract this roadmap built.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-19",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 3,
+      "spec": "pose-mcp-project-scope-contract",
+      "text": "Promote POSE_MCP_STRICT_PROJECT_SELECTION to the default once multi-project deployments have had a full release cycle to adopt it explicitly.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-23",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 4,
+      "spec": "pose-mcp-protocol-completeness",
+      "text": "Revisit the resources/prompts boundary only if a concrete, ADR-worthy use case emerges (e.g. an approved semantic-search adapter) — do not extend it incrementally.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-20",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 5,
+      "spec": "pose-otel-observability",
+      "text": "Revisit OTLP log export (`go.opentelemetry.io/otel/sdk/log` + `otlploghttp`) once both reach a stable `v1.x` release — currently alpha (`v0.x`), deliberately not adopted.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-19",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 6,
+      "spec": "pose-package-manager-distribution",
+      "text": "Submit the first generated WinGet manifest to `winget-pkgs` and record the observed publication lag in `package-channels.md`. No longer blocked by F1+F2 — `pose-package-channel-delivery` gave the gate a trigger that fires and a command that runs, and `pose-package-channel-workflow-safety` made its checkout safe — but still waiting on the first tagged cut to actually emit a manifest, since neither change has run in a release yet.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-09-18",
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 7,
+      "spec": "pose-package-manager-distribution",
+      "text": "Revisit Homebrew tap ownership once install volume justifies the maintenance cost over the formula-URL install.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-19",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 8,
+      "spec": "pose-safe-validate-orchestration",
+      "text": "Wire a real HarnessExecutor once the Harness component exists in the Harne8 platform, and add an integration test against it.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-11-20",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 9,
+      "spec": "pose-safe-validate-orchestration",
+      "text": "Consider centralizing orchestrator state in Conductor for multi-replica deployments, mirroring conductor_run_* — the current in-process registry is single-node only.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-20",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 10,
+      "spec": "pose-semantic-governance-assist",
+      "text": "Add a real semantic (embedding or LLM-backed) `SuggestionProvider` once an approved, safely-testable endpoint exists — the allowlist and sanitization pass are already structured for it.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-19",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 11,
+      "spec": "pose-stack-catalog-expansion",
+      "text": "Add fixture repositories (poetry, pipenv, dotnet solution) under tests/ to exercise pose stacks end-to-end once the monorepo recipes milestone lands.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-20",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 12,
+      "spec": "pose-validation-runtime-guardrails",
+      "text": "Wire the approval-identity stamping (ADR-007 execution identity) once Conductor exposes the endpoint, so emitted plans become executable by the Harness.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-16",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 13,
+      "spec": "pose-capability-mechanism",
+      "text": "Reassessment protocol automation (triggers on spec closeout) is the platform spec `pose-capability-assessment-triggers`, out of this repository until the hooks contract lands.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-20",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 14,
+      "spec": "pose-action-runtime-currency-gate",
+      "text": "If the recorded-runtime manifest proves to be pure overhead in practice — R3 never catching a drift R1 would have missed — collapse the two into the online check alone and delete the manifest. Decide on evidence after two or three bump cycles, not on principle.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2027-02-05",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 15,
+      "spec": "pose-dependency-digest-pinning",
+      "text": "Nothing verifies that the version comment beside a SHA names the version that SHA actually is, so a wrong comment misleads every future reviewer while the pin itself stays valid. The same resolution the `pose-action-runtime-currency-gate` draft needs would settle this too — consider folding the two checks together rather than building both.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-06",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 16,
+      "spec": "pose-extension-reference-publication",
+      "text": "F1: `frontend-react.md` and `backend-go.md` ship to every instance for the same bad reason `kubernetes.md` did. Decide whether they follow it out of machinery now that the extension path is proven.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-19",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 17,
+      "spec": "pose-extension-reference-publication",
+      "text": "F2: `pose extension install` gives no signal that the target is the repository the operator is standing in. A confirmation or an explicit target argument would prevent an accidental install into a working tree.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-20",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 18,
+      "spec": "pose-governance-gate-activation",
+      "text": "R6: review the first quarterly audit run (2026-10-01) and the first real recurrence intervention (`validate-native`, registered 2026-08-14; knowledge:escalation-validate-native), then record both verdicts. The intervention window ends 2026-09-28 and the audit cannot be reviewed before it runs.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-08",
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 19,
+      "spec": "pose-machinery-distribution-contract",
+      "text": "Once machinery delivery lands, revisit whether `pose upgrade --force` still has a legitimate use, or whether it only exists because plain upgrade used to be incapable.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-12-18",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 20,
+      "spec": "pose-machinery-distribution-contract",
+      "text": "The machinery manifest cannot tell a deliberate deletion from unseen content on its first run, so one deleted file returns once per pre-existing instance. If that proves to matter, seed the manifest during the schema migration instead.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-20",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 21,
+      "spec": "pose-release-cycle-debt-closure",
+      "text": "R3's stub proves the script's logic, not the network: a provider redirect, rate limit or partial body is still unexercised. Decide whether that is worth a real local HTTP origin.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-20",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 22,
+      "spec": "pose-release-signing-rejection",
+      "text": "Consider exercising the tamper case during a release run, where a signing identity exists: sign a fixture, alter it, and require the gate to reject it. That is the one rejection reason still asserted rather than demonstrated.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-02",
+      "class": "evidence-review-or-acceptance",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 23,
+      "spec": "pose-shellcheck-ci-gate",
+      "text": "The missing-`cd` defect was valid shell and invisible to static analysis. The durable answer is reproducing a gate's exact command locally before cutting, which is process rather than tooling — consider whether the release workflow can execute the verification legs against a snapshot before a tag exists.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-02",
+      "class": "evidence-review-or-acceptance",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 24,
+      "spec": "pose-verifier-assets-variable-fix",
+      "text": "Decide whether verify-release.yml should verify published artifacts with the verifier from the tag or from the default branch. The tag-based checkout made a fixable verifier defect permanent for v0.20.1.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-02",
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 25,
+      "spec": "pose-dependency-pin-refresh",
+      "text": "A Dependabot PR fails CI until `.github/action-runtimes.json` is refreshed, and nothing automates that step on the PR branch — observed on PR #12, fixed by one command. Consider a workflow that runs `scripts/refresh-action-runtimes.sh` and commits the result when the actor is Dependabot, which would turn the gate's deliberate friction into a self-healing one. Worth weighing against the argument for keeping a human in the loop on every dependency bump.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-06",
+      "class": "coverage-candidate",
+      "proposed_disposition": "covered: pose-dependabot-runtime-repair",
+      "awaits": "maintainer confirmation (closeout skill: covered/duplicate/spawned need confirmation)"
+    },
+    {
+      "n": 26,
+      "spec": "pose-docs-asset-parity",
+      "text": "The document list is enumerated by hand, which is the same gap shape that left `tests/release/` outside shellcheck for three failed releases. Consider extracting download URLs from all of `docs-site/docs/` and `README.md` by glob instead of by list.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-06",
+      "class": "evidence-review-or-acceptance",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 27,
+      "spec": "pose-package-channel-install-repair",
+      "text": "Decide whether to stand up a Homebrew tap. The prior decision to defer it compared tap maintenance against the formula-URL install; that alternative no longer exists, so the comparison is now tap-or-nothing and macOS users have no `brew` path at all. The formula is already generated, published and install-tested every release, so a tap consumes existing artifacts rather than needing new ones.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-08",
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 28,
+      "spec": "pose-package-channel-install-repair",
+      "text": "`pose.rb` left the docs-parity check's coverage when it left the documentation, so a release that silently stops publishing it would only be caught by the channel matrix. Consider asserting the published asset set against what the release workflow uploads, independently of what the docs happen to reference.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-06",
+      "class": "evidence-review-or-acceptance",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 29,
+      "spec": "pose-release-clean-tree-attribution",
+      "text": "Nothing enforces that a step added before goreleaser gets a clean-tree assertion after it, which is the same enumerate-by-hand gap as the shellcheck file list and the docs-parity source list. Three instances now share this shape; consider whether it is worth one check that verifies the pairing rather than three separate manual lists.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-06",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 30,
+      "spec": "pose-sbom-negative-coverage",
+      "text": "The positive control parses `pose-mcp/go.mod` for direct dependencies, duplicating what `verify-sbom.sh` does; the two can drift and the failure would look like a real defect rather than a fixture problem. Consider having the harness ask `verify-sbom.sh` for the dependency list it will require, so there is one parser.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-06",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 31,
+      "spec": "pose-workflow-event-ref-contract",
+      "text": "The scanner recognises the YAML forms this repository happens to use. If the workflows ever adopt anchors, flow mappings or unusual block indicators, the contract silently narrows. Revisit whether `gopkg.in/yaml.v3` — already in go.sum as an indirect dependency — is worth promoting for the workflow contracts, which would remove the whole class of blind spot.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-06",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 32,
+      "spec": "pose-composition-contract",
+      "text": "Publishing the contract does not make the composition consume it. Until `docker-compose.prod.yaml` derives its build contexts, ports and environment names from the published artifact, both sides still restate the same facts and the contract is documentation. Coordinate the monorepo-side change, and decide whether a check there should fail when its compose disagrees with the contract this repository ships.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-09",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 33,
+      "spec": "pose-locale-coverage-contract",
+      "text": "The gate compares commands but ignores their flags, because a flag list differs legitimately between a terse source and an example-rich translation. `pose surface-check --strict` and `pose surface-check` are the same command to it, and only one of them is the doctrine. Decide whether flags that change a command's obligation — `--strict`, `--apply` — should be compared, and if so, how without reintroducing noise.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-10",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 34,
+      "spec": "pose-locale-coverage-contract",
+      "text": "Only `pt-BR` exists, so the contract has never been exercised by a second locale. When one is added, confirm the declaration map does not need per-locale exceptions — if it does, the map is the wrong shape and should be per-locale rather than global.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-12-10",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 35,
+      "spec": "pose-unified-review-convergence",
+      "text": "Monitor adoption of unified review auto-attest across subagents and CI pipelines",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-15",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 36,
+      "spec": "pose-adaptive-rule-delivery",
+      "text": "non-Go/React/Kubernetes stack extensions (Rust, Python, mobile, Cloudflare Workers, etc.) — this spec wires resolution for whatever extensions exist; authoring new ones is separate content work with no spec of its own yet.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 37,
+      "spec": "pose-adaptive-rule-delivery",
+      "text": "a fetch/catalog mechanism so `pose extension install` can resolve an extension ID to a real package without the operator sourcing it manually — Decision 1's deferred scope, needed before the doctor advisory can become a single runnable command.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 38,
+      "spec": "pose-domain-rule-extension-migration",
+      "text": "a general rule-extension catalog/registry (the issue's \"~10 stack packages, official catalog\" ask) is explicitly out of scope here — worth its own future roadmap item once this two-file migration proves out in practice, not assumed as an automatic next step.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 39,
+      "spec": "pose-domain-rule-extension-migration",
+      "text": "extensions carry no locale variant — a pt-BR instance installing `pose-rule-backend-go`/`pose-rule-frontend-react` gets English-only content, a real (if pre-existing, matching kubernetes) gap worth its own spec if localized rule extensions become a priority.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 40,
+      "spec": "pose-extension-catalog-resolution",
+      "text": "extend the release workflow to sign and publish `pose-rule-backend-go`/`pose-rule-frontend-react` the same way `pose-rule-kubernetes` already is, so they become genuinely catalog-resolvable rather than only local-directory-installable — this is a `pose-extension-reference-publication`-shaped change, not part of this spec's own scope.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 41,
+      "spec": "pose-extension-catalog-resolution",
+      "text": "search across release history (not only the latest tag) once an extension actually needs to stay resolvable after falling out of the latest release's asset list (Decision 1's accepted scope limit) — premature without a real case demanding it.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 42,
+      "spec": "pose-install-gate-failure-recovery-notice",
+      "text": "Actual rollback (restoring all already-written files, including newly created ones with no `.pose-backup`, to the pre-install state) was explicitly out of scope here — revisit if operators report the notice alone isn't enough in practice",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-15",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 43,
+      "spec": "pose-monorepo-validation-advisory",
+      "text": "`validationProfile` in `module-metadata.json`'s schema is dead weight (`validate.go` never reads it) — worth its own follow-up to either give it real behavior or remove it, not incidental to this spec.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 44,
+      "spec": "pose-onboarding-context-extraction",
+      "text": "`docs/*` crawling beyond `README.md`/`CLAUDE.md` — deliberately scoped out (Non-goals); revisit only if operators report the two-file excerpt is insufficient in practice.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 45,
+      "spec": "pose-onboarding-context-extraction",
+      "text": "a retroactive \"regenerate Project context from the current README.md\" path for already-installed instances stuck with the placeholder (Decision 1's accepted consequence) — no clear trigger for when an operator would want this versus keeping what they already have, so not assumed as a follow-on spec yet.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 46,
+      "spec": "pose-review-bundle-roadmap-path-portability",
+      "text": "`reviewBundleScopeProjection`'s spec-scope `excluded` lifecycle entry (`review_bundle.go` line ~274) also carries an absolute `filepath.ToSlash(sp.Path)` — currently harmless since `excluded` never feeds `ChangedSections`, but the same class of mistake; worth a small follow-up for hygiene/defense-in-depth, not urgent since it has no observed effect today.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "evidence-review-or-acceptance",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 47,
+      "spec": "pose-review-bundle-root-file-classification",
+      "text": "If more root-level release/governance files accumulate the same unclassified gap, consider a small allowlist config instead of extending the if-chain per file",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-15",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 48,
+      "spec": "pose-rule-extension-locale-parity",
+      "text": "`pose-rule-kubernetes` still has no pt-BR variant (Decision 1) — worth its own small follow-up once a reviewed translation exists, given it is also the one extension actually signed/published, so closing it touches the release-signing step this spec deliberately left untouched.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 49,
+      "spec": "pose-scaffold-index-template-neutralization",
+      "text": "cleanup path for already-affected consumer instances (codass, audio-relay, harne8 and any other repo installed before this spec closed) — `pose update` only seeds these files when absent, so existing pollution is not self-healing; needs its own scoped decision, not assumed here.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 50,
+      "spec": "pose-stack-detection-consolidation",
+      "text": "README/CLAUDE.md context extraction into `AGENTS.md` (issue #21's 4th problem) — deliberately excluded from this roadmap given its different risk profile; belongs in its own future spec (`pose-onboarding-context-extraction`), not folded in here.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 51,
+      "spec": "pose-stack-detection-consolidation",
+      "text": "consolidate `scanModules`/`discovery.go` onto `discoverValidationModules` (or vice versa) where genuinely redundant, and add Cloudflare Workers to `validation-matrix.json`'s `stacks` catalog so `wrangler.json(c)` detection becomes meaningful — Decision 1's deferred scope, not assumed as an automatic next step.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 52,
+      "spec": "pose-test-self-exec-flake-fix",
+      "text": "harden or replace `TestValidateNativeRunsStructuredChecksWithoutShell`'s `os.Executable()` self-reference with the same stable-binary pattern used here, to close the same risk class proactively rather than waiting for it to flake again.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 53,
+      "spec": "pose-validation-scanner-consolidation",
+      "text": "`internal/pose/discovery.go`'s `hasProjectManifest` carries its own independent marker list (Decision 1) — if it drifts noticeably from `stackForManifestFile`'s coverage in the future, worth revisiting whether they should share a base list while keeping their distinct presence-vs-classification semantics.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 54,
+      "spec": "pose-validation-scanner-consolidation",
+      "text": "a deeper Cloudflare Workers check set (bundling/type-checking, not just `wrangler --version`) once real usage shows what a meaningful gate looks like for that stack.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 55,
+      "spec": "pose-update-instance-directory-completeness",
+      "text": "Module-metadata discovery should recognize when a pre-existing entry (any key that does not resolve to a real subdirectory) already represents the project root before adding a new `\".\"` entry for the same physical directory — needs a real design decision (a non-resolving key could be a deliberate root alias or genuinely stale data; these are not distinguishable without more signal than discovery currently has).",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-11-16",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 56,
+      "spec": "pose-update-instance-directory-completeness",
+      "text": "Module/stack discovery (all three walkers: discoverValidationModules, scanModules, internal/pose's capability discovery) should respect `.gitignore` — an entirely-gitignored directory tree (observed: harne8's `graphforge/`) should never be discovered as a governed module.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-11-16",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 57,
+      "spec": "pose-upgrade-path-audit-fixes",
+      "text": "Narrowing the provenance digest so a purely-additive `module-metadata.json` change does not invalidate unrelated closed specs' review attestations (Decision 2's accepted boundary) — worth its own spec if the review-reseal cascade this causes proves costly in practice beyond this one fixture-discovery case.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-11-20",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 58,
+      "spec": "pose-upgrade-path-audit-fixes",
+      "text": "A configurable per-repository exclusion list for module discovery, if a real case ever needs more than the hardcoded `testdata`/`fixture`/`fixtures` names this spec adds (Non-goals).",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-20",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 59,
+      "spec": "pose-upgrade-path-audit-fixes",
+      "text": "A full Android/Kotlin validation profile (`validation-matrix.json` checks) now that discovery classifies the domain correctly — same deferred-scope pattern `pose-validation-scanner-consolidation` used for Cloudflare Workers.",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-11-20",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 60,
+      "spec": "pose-agy-smoke-test",
+      "text": "Avaliar automação periódica de smoke tests em CI.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 61,
+      "spec": "pose-public-claims-contract",
+      "text": "The harne8 site surfaces (`site/pose.html`, `site/index.html`, the shared footer) live in another repository and are not covered by this contract. They carry their own gate in `site/test/static-site.test.mjs`, which duplicates part of this logic. Either the site adopts `pose public-claims` against its own contract, or the two gates drift apart.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 62,
+      "spec": "pose-public-claims-contract",
+      "text": "Nothing flags a public surface that exists but was never declared in `claims.json`. A periodic reconciliation between the contract and the docs manifest would close the residual risk noted above.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 63,
+      "spec": "pose-release-security-gate-integrity",
+      "text": "CI has been red on `main` since at least 2026-08-22 and nobody acted on it, exactly as with the ten failed releases. Two independent automated signals were screaming and neither reached a human. Whatever notification gap causes that is the real defect; the two fixes here only remove today's noise.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 64,
+      "spec": "pose-release-security-gate-integrity",
+      "text": "The release workflow fails silently: ten consecutive failed releases produced no notification, and the drift was found only by an audit. A failed release on a tag should page the maintainer.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 65,
+      "spec": "pose-release-security-gate-integrity",
+      "text": "Dependabot bumps action SHAs without refreshing `.github/action-runtimes.json`, so every actions bump breaks `main` until fixed by hand. Either teach the bump to refresh the record, or gate the dependabot PR on the same test so it never merges red.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "coverage-candidate",
+      "proposed_disposition": "covered: pose-dependabot-runtime-repair",
+      "awaits": "maintainer confirmation (closeout skill: covered/duplicate/spawned need confirmation)"
+    },
+    {
+      "n": 66,
+      "spec": "pose-release-security-gate-integrity",
+      "text": "`.harne8-agent-sync.json` is still tracked in the parent `harne8` repository. The same false positive will surface there if it ever runs an equivalent history scan.",
+      "owner": "unowned",
+      "criticality": null,
+      "review": null,
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 67,
+      "spec": "pose-review-plan-producible-evidence-classes",
+      "text": "Derive tool evidence classes from the module's registered checks once the planner can reach the matrix",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2026-12-07",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 68,
+      "spec": "pose-review-subject-submodule-classification",
+      "text": "Report the submodule's own dirty detail rather than just the directory",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2026-12-07",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 69,
+      "spec": "pose-attest-records-not-applicable",
+      "text": "Check that a finding named by a criterion is the one describing that criterion's problem, not merely a recorded id",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-01-08",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 70,
+      "spec": "pose-contract-adoption-registry",
+      "text": "Report a policy whose contract_adoptions and legacy field disagree about the same contract",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2026-12-08",
+      "class": "satisfaction-candidate",
+      "applied_disposition": "done",
+      "evidence": "doctor check review.adoption-conflict; test TestDoctorReportsConflictingAdoptionDates"
+    },
+    {
+      "n": 71,
+      "spec": "pose-contract-adoption-registry",
+      "text": "Disable git auto gc for every test fixture that inits a repository, not only the three that flaked",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2026-12-08",
+      "class": "coverage-candidate",
+      "proposed_disposition": "covered: test-git-repos-run-no-background-maintenance",
+      "awaits": "maintainer confirmation (closeout skill: covered/duplicate/spawned need confirmation)"
+    },
+    {
+      "n": 72,
+      "spec": "pose-one-evidence-class-vocabulary",
+      "text": "Consider whether the evidence-class vocabulary should be extensible by an instance rather than compiled in",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-08",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 73,
+      "spec": "pose-public-claims-onboarding",
+      "text": "Have the template's version_claims modes derive from the contract schema so a new mode cannot be documented in only one place",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2026-12-08",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 74,
+      "spec": "pose-review-subject-and-scope-precision",
+      "text": "Review whether other synthesised tools should be component-scoped like validate, rather than only the one this defect exposed",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2026-12-08",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 75,
+      "spec": "pose-review-subject-unclassified-removals",
+      "text": "Consider reporting unclassified paths as a finding on the bundle rather than a blocker, so a reviewer sees them without the gate refusing",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2026-12-08",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 76,
+      "spec": "pose-bundles-seal-the-contracts-that-govern-them",
+      "text": "Report how many sealed bundles carry no governing_contracts, so the dated rule has a removal signal instead of living forever by default",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-09",
+      "class": "satisfaction-candidate",
+      "applied_disposition": "done",
+      "evidence": "doctor check review.legacy-bundles; test TestDoctorCountsLegacySealedBundleFields"
+    },
+    {
+      "n": 77,
+      "spec": "pose-changelog-and-dor-policy-types",
+      "text": "Let a configured changelog category declare its heading, instead of capitalising its own name",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-09",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 78,
+      "spec": "pose-emittable-analysis-evidence-classes",
+      "text": "Ship a default check that emits `security-scan`, so the class has a producer out of the box rather than only when a project registers one",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2026-12-09",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 79,
+      "spec": "pose-release-boundary-rehearsal",
+      "text": "Consider asserting the archive layout against what `.goreleaser.yaml` actually produces, rather than against the name `extractPoseBinary` expects — the fixture and the extractor agree by construction here",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2026-12-09",
+      "class": "evidence-review-or-acceptance",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 80,
+      "spec": "pose-release-notes-name-contract-adoption",
+      "text": "Say the same thing where an operator meets it rather than only in the notes: `pose update` stamps a contract adoption without mentioning that older engines stop reading the repository",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2026-12-09",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 81,
+      "spec": "pose-remaining-command-surfaces-coverage",
+      "text": "Cover what the audit found and this spec did not: the assess trio, the install and self-update helpers, runServeMCP, parseSinceDate, inferSuggestDomain, siblingSpecStatus and hasOpenChild",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-01-09",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 82,
+      "spec": "pose-roadmap-check-reaches-its-gate",
+      "text": "Have `roadmap-check` say when a roadmap declares no cut criteria, so a roadmap with nothing to gate on is distinguishable from one that passed",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-01-09",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 83,
+      "spec": "pose-seal-names-carried-forward-evidence",
+      "text": "Carry the carried-forward warning into review verify, so it is visible when reading an attestation rather than only when sealing",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-01-09",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 84,
+      "spec": "pose-bundle-findings-take-the-contract-the-legacy-path-had",
+      "text": "Report how many sealed bundles carry no `gates`, alongside the same count for `governing_contracts` — both are pre-field bundles reading by a fallback, and neither has a signal for when the fallback can go",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-10",
+      "class": "satisfaction-candidate",
+      "applied_disposition": "done",
+      "evidence": "doctor check review.legacy-bundles; test TestDoctorCountsLegacySealedBundleFields"
+    },
+    {
+      "n": 85,
+      "spec": "pose-changelog-adoption-is-the-instances",
+      "text": "Report a changelog adoption date earlier than the instance's own first spec, so an instance that inherited this repository's date before the fix can see that it is gating by a date that is not its own",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-10",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 86,
+      "spec": "pose-changelog-adoption-is-the-instances",
+      "text": "The shipped review policy still carries this repository's adoption dates — `adopted_at` 2026-08-02, `component_aware_adopted_at` 2026-08-13, `review_bundles_adopted_at` 2026-08-14, `evidence_vocabulary_reconciled_at` 2026-09-08 — and a fresh `pose install` copies them, while the changelog policy beside it is stamped with the install day. `adopted_at` is the cutoff `pose check` uses to require review closeouts, so an instance importing a history of done specs is judged by someone else's date. Measured 2026-09-11 on a 5.0.2 install. Decide whether install stamps these like the changelog date",
+      "owner": "unowned",
+      "criticality": "medium",
+      "review": "2026-10-11",
+      "class": "satisfaction-candidate",
+      "applied_disposition": "done",
+      "evidence": "pose-mcp/internal/scaffold/dist/.pose/policy/review.json carries no adoption dates"
+    },
+    {
+      "n": 87,
+      "spec": "pose-class-producers-reads-the-disjunction",
+      "text": "Resolve profile selection through the component-aware planner rather than by reading the language selector, so a profile that cannot apply for any reason is skipped and not only for an absent language",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-10",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 88,
+      "spec": "pose-doctor-reports-a-profile-left-behind",
+      "text": "Report what a stale profile actually declares that schema v2 would refuse, so the finding names the harm rather than the condition",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-10",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 89,
+      "spec": "pose-only-the-signing-gate-is-read-live",
+      "text": "Read the validator with the AST rather than a regular expression, so a policy field reached through a local variable is seen too",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-10",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 90,
+      "spec": "pose-report-a-demanded-class-nothing-produces",
+      "text": "Let a project record that a demanded class is imported on purpose, so the finding distinguishes evidence that arrives from elsewhere from evidence nobody produces",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-10",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 91,
+      "spec": "pose-report-coverage-that-rests-on-inference",
+      "text": "Revisit the declared-subtree contract once `inferred-coverage` has been observed in real repositories — the four approaches and why each was set aside are in the ADR amendment, and the missing input was how much anyone actually relies on the inference",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-06-10",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 92,
+      "spec": "pose-report-help-names-every-flag",
+      "text": "Hold every command's help to the flags its parser accepts, not only `pose report`'s — measure how many commands accept flags their help does not name before deciding whether it is worth one check",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-10",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 93,
+      "spec": "pose-the-guard-signal-is-declared-not-inherited",
+      "text": "Read the declaration per step rather than per job, so a job that runs the suite twice and declares it once is not reported as covered",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-10",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 94,
+      "spec": "pose-cli-output-rendering-system",
+      "text": "Raise localisation parity beyond the lines this work touched: 28% of print sites were localisable when it started, and the catalog only covers what the renderer emits",
+      "owner": "unowned",
+      "criticality": "low",
+      "review": "2027-03-12",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 95,
+      "spec": "pose-lint-spec-all-is-a-gate",
+      "text": "Decide in the next major, with an ADR, whether `pose check --strict` lints every spec against the template for all instances (Decision 1, option B)",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-12-29",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 96,
+      "spec": "pose-abm-design-basis",
+      "text": "Compor `governance:design-basis-projection` no Harne8 e provar alcançabilidade antes de afirmar capacidade composta; o alvo declarado aqui é local e de governança",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-19",
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 97,
+      "spec": "pose-abm-design-basis",
+      "text": "O requirement trace de R7 citava `TestABMDesignBasisDigestStable`, que não existe: `lint-spec --strict` conta as entradas mas não resolve os refs `test:`, então uma referência inventada passa no gate. Decidir se o lint passa a resolvê-los",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-19",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 98,
+      "spec": "pose-abm-governance-outcomes",
+      "text": "Introduzir lineage `remediates` com categorias, refs órfãs/ciclos e janela madura em spec dedicada",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-19",
+      "class": "accepted-or-deferred-residual",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 99,
+      "spec": "pose-abm-review-authority",
+      "text": "Compor `governance:verified-review-authority` no Harne8 e provar alcançabilidade ponta a ponta; o alvo declarado aqui é local e de governança, e nenhuma instância adotou `verified` ainda",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-19",
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 100,
+      "spec": "pose-abm-review-authority",
+      "text": "Fornecer, no Harne8, o adapter de issuer e a projeção de policy protegida que permitem emitir claims de autoridade; sem eles o modo `verified` existe no motor e não tem quem o alimente",
+      "owner": "@harne8-platform",
+      "criticality": "medium",
+      "review": "2026-10-19",
+      "class": "coverage-candidate",
+      "proposed_disposition": "covered: xref:proj.harne8/spec:harne8-action-request-confirmation-channel",
+      "awaits": "maintainer confirmation (closeout skill: covered/duplicate/spawned need confirmation)"
+    },
+    {
+      "n": 101,
+      "spec": "pose-abm-review-authority",
+      "text": "`Project` e `Audience` da claim são comparados ao mesmo `authority_audience` e nunca podem divergir; decidir se um dos dois sai do contrato",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-19",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 102,
+      "spec": "pose-abm-review-authority",
+      "text": "`claim.SchemaVersion` é comparado com `ReviewSchemaVersion`, a constante do profile/attempt, enquanto o envelope usa `ReviewBundleSchemaVersion`; hoje ambas valem 1 e a checagem funciona por coincidência",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-19",
+      "class": "satisfaction-candidate",
+      "applied_disposition": "done",
+      "evidence": "verifiedAuthorityBlockers compares claim.SchemaVersion with ReviewBundleSchemaVersion; test TestABMReviewAuthorityRejectsUnsupportedClaimSchema"
+    },
+    {
+      "n": 103,
+      "spec": "pose-abm-review-authority",
+      "text": "`HumanAuthorityIssuers` valida apenas não-vazio e ausência de newline, sem conferir a forma `<issuer>#sha256:<digest>`; um pin malformado falha fechado, sem diagnóstico",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-19",
+      "class": "satisfaction-candidate",
+      "applied_disposition": "done",
+      "evidence": "policy parsing validates the issuer#sha256:digest pin form; test TestHumanAuthorityIssuerPinsValidated"
+    },
+    {
+      "n": 104,
+      "spec": "pose-abm-review-soundness",
+      "text": "Reviewer authority is still satisfied by a declared prefix, so `different-actor` and `mandatory-human` assert identity they do not verify",
+      "owner": "@pose-maintainers",
+      "criticality": "high",
+      "review": "2026-10-03",
+      "class": "coverage-candidate",
+      "proposed_disposition": "covered: pose-review-assurance-disclosure",
+      "awaits": "maintainer confirmation (closeout skill: covered/duplicate/spawned need confirmation)"
+    },
+    {
+      "n": 105,
+      "spec": "pose-abm-structural-delta",
+      "text": "Run Harne8 composition dogfooding before claiming a composed capability",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-19",
+      "class": "adoption-pilot-rollout",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 106,
+      "spec": "pose-abm-subject-evidence",
+      "text": "The range observation counts commits without naming which specs the unattributed ones belong to; moving the trailer scan out of the CLI layer would let it say",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-17",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 107,
+      "spec": "review-policy-adoption-is-the-instances",
+      "text": "The v1 migration fallback dates above",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-10-20",
+      "class": "evidence-review-or-acceptance",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 108,
+      "spec": "check-worker-count-is-the-machines",
+      "text": "Batch Git object reads through cat-file --batch: 7,248 spawns per run, about a quarter of the remaining item work, and the only lever left that does not depend on cores",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-11-21",
+      "class": "material-implementation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 109,
+      "spec": "pose-review-root-binding-parity",
+      "text": "Re-pin and validate the adopting repository only after this source spec passes review and closeout.",
+      "owner": "@pose-maintainers",
+      "criticality": "high",
+      "review": "2026-10-02",
+      "class": "satisfaction-candidate",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 110,
+      "spec": "pose-federated-carried-forward-proof",
+      "text": "Recheck Harne8's federation pin after the source fix is reviewed and adopted.",
+      "owner": "@harne8-platform",
+      "criticality": "high",
+      "review": "2026-09-27",
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 111,
+      "spec": "pose-federated-milestone-scoped-acceptance",
+      "text": "Pin this engine revision in Harne8, renew its consumer reviews and close `milestone:harne8-multirepo-consistency/adoption`.",
+      "owner": "@harne8-platform",
+      "criticality": "high",
+      "review": "2026-10-03",
+      "class": "satisfaction-candidate",
+      "applied_disposition": "done",
+      "evidence": "Harne8 roadmap harne8-multirepo-consistency is status done"
+    },
+    {
+      "n": 112,
+      "spec": "pose-federated-spec-dependency-acceptance",
+      "text": "Rerun the Harne8 adoption negative after this engine revision is pinned.",
+      "owner": "@harne8-platform",
+      "criticality": "high",
+      "review": "2026-10-03",
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 113,
+      "spec": "pose-roadmap-gate-scopes-milestones-and-external-members",
+      "text": "Pin this engine revision in Harne8 and close `milestone:harne8-multirepo-consistency/adoption` through `pose close`.",
+      "owner": "@harne8-platform",
+      "criticality": "high",
+      "review": "2026-10-03",
+      "class": "satisfaction-candidate",
+      "applied_disposition": "done",
+      "evidence": "Harne8 roadmap harne8-multirepo-consistency is status done"
+    },
+    {
+      "n": 114,
+      "spec": "pose-spec-transfer-reconcile-terminal",
+      "text": "Apply the reconciliation to Harne8's seven ABM coordinators after a rehearsal on populated copies.",
+      "owner": "@harne8-platform",
+      "criticality": "high",
+      "review": "2026-10-03",
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 115,
+      "spec": "pose-abm-atomic-start",
+      "text": "Adotar `atomic_start_version` depois do stop/go do piloto, junto com `contract_nodes_version`.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-11-01",
+      "class": "coverage-candidate",
+      "proposed_disposition": "covered: pose-abm-capability-adoption",
+      "awaits": "maintainer confirmation (closeout skill: covered/duplicate/spawned need confirmation)"
+    },
+    {
+      "n": 116,
+      "spec": "pose-abm-causality-attestation",
+      "text": "Rodar o shadow comparativo do causality-closeout sobre os corpora e adotar `causality_closeout_version` depois do stop/go do piloto.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-11-01",
+      "class": "coverage-candidate",
+      "proposed_disposition": "covered: pose-abm-capability-adoption",
+      "awaits": "maintainer confirmation (closeout skill: covered/duplicate/spawned need confirmation)"
+    },
+    {
+      "n": 117,
+      "spec": "pose-abm-contract-nodes",
+      "text": "Adotar `contract_nodes_version` nas instâncias depois do stop/go do piloto de campo, com baseline v2 das specs em pasta.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-11-01",
+      "class": "coverage-candidate",
+      "proposed_disposition": "covered: pose-abm-capability-adoption",
+      "awaits": "maintainer confirmation (closeout skill: covered/duplicate/spawned need confirmation)"
+    },
+    {
+      "n": 118,
+      "spec": "pose-v6-release-readiness",
+      "text": "Make the temporary Git fixture cleanup deterministic for the existing 500-commit attribution test; the observed CI cleanup race must not recur",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-28",
+      "class": "evidence-review-or-acceptance",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 119,
+      "spec": "review-verify-retains-completed-scopes",
+      "text": "One malformed draft spec is reported as a delivery-contract error on every other spec (148 in this repository) instead of once on itself",
+      "owner": "@pose-maintainers",
+      "criticality": "low",
+      "review": "2026-10-13",
+      "class": "evidence-review-or-acceptance",
+      "disposition": "open (unchanged)"
+    },
+    {
+      "n": 120,
+      "spec": "pose-package-channels-deferred-native-verification",
+      "text": "Execute the final native round after implementation completes; retain both OS job conclusions before making channel support claims.",
+      "owner": "@pose-maintainers",
+      "criticality": "medium",
+      "review": "2026-12-01",
+      "class": "external-or-human-operation",
+      "disposition": "open (unchanged)"
+    }
+  ]
+}

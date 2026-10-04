@@ -138,4 +138,4 @@ members owned by another project to federated acceptance.
 wiring is covered by the consumer measurement rather than a unit test.
 
 ### Follow-ups
-- [open] Pin this engine revision in Harne8 and close `milestone:harne8-multirepo-consistency/adoption` through `pose close`. (owner:@harne8-platform crit:high review:2026-10-03)
+- [done] Pin this engine revision in Harne8 and close `milestone:harne8-multirepo-consistency/adoption` through `pose close`. Resolved, reconciled 2026-10-04 (spec pose-open-backlog-reconciliation): Harne8 roadmap harne8-multirepo-consistency is status done.

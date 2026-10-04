@@ -181,5 +181,5 @@ supersedes their reviews, independently of manifest versioning; each such
 fix carries the renewal and a new pin in consumers.
 
 ### Follow-ups
-- [open] Pin this engine revision in Harne8, renew its consumer reviews and
-  close `milestone:harne8-multirepo-consistency/adoption`. (owner:@harne8-platform crit:high review:2026-10-03)
+- [done] Pin this engine revision in Harne8, renew its consumer reviews and
+  close `milestone:harne8-multirepo-consistency/adoption`. Resolved, reconciled 2026-10-04 (spec pose-open-backlog-reconciliation): Harne8 roadmap harne8-multirepo-consistency is status done.
