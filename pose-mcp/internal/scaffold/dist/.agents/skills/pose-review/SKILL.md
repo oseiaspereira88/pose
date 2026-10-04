@@ -26,7 +26,7 @@ Resolve the selected task with `pose context --task <typed-or-qualified-artifact
 5. Select rules with `pose suggest review --path <affected-dir>` for every mapped component.
 6. Search `.pose/knowledge/` for prior module decisions, accepted risks, and pending follow-ups.
 7. Require deterministic `pose validate --strict` evidence matching delivery targets.
-8. Evaluate every required plan criterion, including cross-component boundaries.
+8. Evaluate every required plan criterion, including cross-component boundaries. When the change adds or alters a governance gate, also answer: what is the cheapest way to satisfy this gate in form without producing its value, and what stops that? Point to the adversarial corpus case that proves it (`pose-mcp/internal/cli/testdata/adversarial/README.md`), or record the gap.
 9. Classify findings as critical, high, medium, or low with evidence and expected action.
 10. Run `pose recurrence-check --tolerant --window-days 14`; use recurrence escalation for a matching systemic signal.
 11. Create a handoff with `pose new-knowledge handoff <slug>` for accepted residual risk, monitoring, or deferred action.

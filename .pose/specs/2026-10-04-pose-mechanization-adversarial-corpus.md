@@ -1,12 +1,14 @@
 ---
 slug: pose-mechanization-adversarial-corpus
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-review-assurance-disclosure, pose-obligation-contract
 priority: 1
 components: pose-mcp
+delivers: capability:adversarial-corpus
+changelog: none
 task_type: feature
 ---
 
@@ -75,13 +77,22 @@ Test corpus under pose testdata, review template for governance changes.
 ### Artifacts
 
 - created: .pose/specs/2026-10-04-pose-mechanization-adversarial-corpus.md
-- created: pose-mcp/internal/pose/testdata/adversarial/README.md
-- created: pose-mcp/internal/pose/adversarial_corpus_test.go
-- modified: .pose/templates/review.md
+- created: pose-mcp/internal/cli/adversarial_corpus_test.go
+- created: pose-mcp/internal/cli/testdata/adversarial/README.md
+- modified: .agents/skills/pose-review/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md
 - modified: .pose/indexes/validation-matrix.json
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- capability:adversarial-corpus module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+The review template planned in the draft (`.pose/templates/review.md`) is the
+parsed legacy review-attempt format, so the cheapest-formal-satisfaction
+question went into the review skill instead, where governance changes are
+reviewed.
 
 ### Technical risks
 
@@ -90,7 +101,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

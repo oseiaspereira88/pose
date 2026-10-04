@@ -1181,6 +1181,19 @@
           ],
           "severity": "required",
           "evidenceClass": "reachability"
+        },
+        {
+          "name": "adversarial-corpus",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestAdversarialCorpus",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },
