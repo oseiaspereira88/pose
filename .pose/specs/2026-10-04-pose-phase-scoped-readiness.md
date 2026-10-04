@@ -143,6 +143,14 @@ coverage; legacy Ready invariance.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:phase-scoped-readiness evidence:integration test:TestToolsCall_SpecReadiness_PhasesBesideLegacyReady check:phase-readiness-integration test:TestAPhaseWithAnUnreadProducerIsUnknownNotClear
+- R2 [satisfied] test:TestACloseoutOnlyRequestDoesNotRestrictStartOrExecution check:phase-readiness-integration
+- R3 [satisfied] test:TestALocalizedRestrictionIsNotAFullStopNorProofOfIndependence check:phase-readiness-integration
+- R4 [satisfied] test:TestALocalizedRestrictionIsNotAFullStopNorProofOfIndependence check:phase-readiness-integration
+- R5 [satisfied] test:TestLegacyReadyKeepsItsMeaning check:phase-readiness-integration
+
 ## 7. Final Report
 
 ### Delivered scope
