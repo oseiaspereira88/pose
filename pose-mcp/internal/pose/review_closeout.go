@@ -385,6 +385,10 @@ type ReviewEvaluation struct {
 	// Assurance discloses what the current review record proves about its
 	// reviewer (spec pose-review-assurance-disclosure).
 	Assurance *ReviewAssurance `json:"assurance,omitempty"`
+	// The records the evaluation settled on, kept so the assurance is
+	// described without reading every attestation again.
+	settledBundle      *ReviewBundle
+	settledAttestation *ReviewAttestation
 }
 
 type CloseoutState struct {
@@ -990,6 +994,11 @@ func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
 // the sealed bundle and attestation when there is one, the legacy attempt
 // otherwise.
 func (s Store) attachEvaluationAssurance(eval *ReviewEvaluation) {
+	if eval.settledBundle != nil {
+		assurance := s.DescribeReviewAssurance(*eval.settledBundle, eval.settledAttestation)
+		eval.Assurance = &assurance
+		return
+	}
 	if eval.BundleID != "" {
 		if bundle, err := s.LoadReviewBundle(eval.BundleID); err == nil {
 			var att *ReviewAttestation
@@ -1066,11 +1075,13 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 			if verification.Bundle != nil {
 				eval.ScopeDigest = verification.Bundle.BundleDigest
 				eval.BundleID = verification.Bundle.BundleID
+				eval.settledBundle = verification.Bundle
 				eval.BundleDigest = verification.Bundle.BundleDigest
 				eval.PlanDigest = verification.Bundle.Payload.Plan.PlanDigest
 			}
 			if verification.Attestation != nil {
 				eval.AttestationID = verification.Attestation.AttestationID
+				eval.settledAttestation = verification.Attestation
 				att := verification.Attestation
 				eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
 			}
@@ -1085,9 +1096,11 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 				eval.BundleState = "closed"
 				eval.ScopeDigest = bundle.BundleDigest
 				eval.BundleID = bundle.BundleID
+				eval.settledBundle = bundle
 				eval.BundleDigest = bundle.BundleDigest
 				eval.PlanDigest = bundle.Payload.Plan.PlanDigest
 				eval.AttestationID = att.AttestationID
+				eval.settledAttestation = att
 				eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
 				eval.Warnings = append(eval.Warnings, retainedCompletedReviewWarning)
 				return eval, nil
@@ -1100,9 +1113,11 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 				eval.BundleState = att.Decision
 				eval.ScopeDigest = bundle.BundleDigest
 				eval.BundleID = bundle.BundleID
+				eval.settledBundle = bundle
 				eval.BundleDigest = bundle.BundleDigest
 				eval.PlanDigest = bundle.Payload.Plan.PlanDigest
 				eval.AttestationID = att.AttestationID
+				eval.settledAttestation = att
 				eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
 				eval.Blockers = append(eval.Blockers, "latest review "+att.AttestationID+" of "+ref+" decided "+att.Decision+"; remediate its findings and seal a superseding bundle")
 				for _, finding := range att.Findings {
@@ -1128,11 +1143,13 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 			if verification.Bundle != nil {
 				eval.ScopeDigest = verification.Bundle.BundleDigest
 				eval.BundleID = verification.Bundle.BundleID
+				eval.settledBundle = verification.Bundle
 				eval.BundleDigest = verification.Bundle.BundleDigest
 				eval.PlanDigest = verification.Bundle.Payload.Plan.PlanDigest
 			}
 			if verification.Attestation != nil {
 				eval.AttestationID = verification.Attestation.AttestationID
+				eval.settledAttestation = verification.Attestation
 				att := verification.Attestation
 				eval.Current = &ReviewAttempt{SchemaVersion: ReviewBundleSchemaVersion, ReviewID: att.AttestationID, Scope: ref, ScopeDigest: att.BundleDigest, PlanDigest: eval.PlanDigest, Profile: profileRef, Reviewer: att.Reviewer, Decision: att.Decision, ReviewedAt: att.AttestedAt, Supersedes: att.Supersedes, EvidenceRefs: att.EvidenceRefs, Criteria: att.Criteria, Tools: att.Tools, Findings: att.Findings, Path: att.Path}
 			}

@@ -115,7 +115,7 @@ as current, but named so a reviewer can tell carried-forward evidence apart.
 |---|---|
 | `pose suggest [<type>] [--domain d] [--path p] [--json]` | Canonical trail: workflow + skill + rules |
 | `pose stats [workflows\|tasks\|contexts] [--since-days N]` | Outcome aggregation from history |
-| `pose stats governance [--since-days N] [--maturity-days N] [--min-sample N]` | Separate governance preparation, judgment, intervention, freshness and coverage dimensions; no quality score |
+| `pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--waits] [--rework]` | Separate governance preparation, judgment, intervention, freshness and coverage dimensions, plus request waits (age, attributed wait, known blocking) and rework causes; no quality score |
 | `pose assess design --spec S [--json] [--max-files N] [--max-bytes N]` | Bounded structural delta projection from the canonical review subject; no complexity score and no writes |
 | `pose usage [--since-days N] [--tool NAME] [--surface cli\|mcp] [--json]` | Automatic local tool calls, outcomes, finding lifecycle and latency by CLI/MCP surface |
 | `pose usage adjudicate --tool NAME --finding ID --verdict valid\|wont-fix\|false-positive --reason TEXT --by ALIAS` | Append a reviewed finding verdict to `.pose/usage/verdicts.jsonl` |

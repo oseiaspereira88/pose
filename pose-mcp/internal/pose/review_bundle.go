@@ -2441,6 +2441,9 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 		if len(bundles) > 0 {
 			previous := bundles[len(bundles)-1]
 			delta := ReviewBundleDiff(previous, prepared)
+			// The per-criterion explanation is computed only where a person
+			// reads it; analytics over many bundles use the plain diff.
+			delta.CriterionReuse = ExplainCriterionReuse(previous, prepared)
 			if attempts, listErr := s.ListReviewAttestations(previous.BundleID); listErr == nil && len(attempts) > 0 {
 				for _, finding := range attempts[len(attempts)-1].Findings {
 					delta.ChangedFindings = append(delta.ChangedFindings, finding.ID)
@@ -3027,7 +3030,7 @@ func reviewCriterionSubjectSensitive(criterion ReviewPlanCriterion) bool {
 }
 
 func ReviewBundleDiff(from, to ReviewBundle) ReviewBundleDelta {
-	delta := ReviewBundleDelta{FromBundle: from.BundleID, ToBundle: to.BundleID, CriterionReuse: ExplainCriterionReuse(from, to)}
+	delta := ReviewBundleDelta{FromBundle: from.BundleID, ToBundle: to.BundleID}
 	fromComponents := map[string]string{}
 	toComponents := map[string]string{}
 	for _, component := range from.Payload.Plan.Components {

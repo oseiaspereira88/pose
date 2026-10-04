@@ -1,12 +1,13 @@
 ---
 slug: pose-governance-wait-rework-observability
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-typed-producer-diagnostics, pose-action-request-resolution, pose-phase-scoped-readiness, pose-recoverable-closeout-plan
 priority: 2
 components: pose-mcp
+delivers: surface:governance-wait-rework-observability
 task_type: feature
 ---
 
@@ -77,15 +78,26 @@ Governance outcomes, stats CLI, benchmark scripts.
 ### Artifacts
 
 - created: .pose/specs/2026-10-04-pose-governance-wait-rework-observability.md
-- modified: pose-mcp/internal/pose/governance_outcomes.go
 - created: pose-mcp/internal/pose/governance_waits.go
 - created: pose-mcp/internal/pose/governance_waits_test.go
 - modified: pose-mcp/internal/cli/governance_stats.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/pose/reuse_equivalence_test.go
 - created: scripts/bench-governance.sh
+- modified: docs-site/docs/cli.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-governance-wait-rework-observability.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:governance-wait-rework-observability module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -94,7 +106,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation
@@ -133,6 +145,8 @@ superseded attestations.
 - Expected: pass
 
 ## 7. Final Report
+
+Measured on this repository at 6e5f4d9 with `scripts/bench-governance.sh 1`: `state --attention` 1.9 s, `check --strict` 83.7 s, `index` 60.0 s, delivery index 5.09 MB. The pre-batch engine (133478d) takes the same 82.8 s for `check --strict` as the current one, so the batch did not regress it; the cost predates this roadmap. On the same corpus `stats governance --rework` reported 1307 sealed bundles over 206 scopes: 477 superseded because the subject changed, 571 because the review plan changed, 17 for intent or plan, 33 for evidence, 3 unknown; of 1301 attestations, 8 extra ones followed an attestation invalid against today's policy and 36 have no recorded cause.
 
 ### Delivered scope
 

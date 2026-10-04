@@ -43,9 +43,12 @@ func TestBookkeepingChangesKeepCriteriaEquivalentAndCodeChangesNameTheInput(t *t
 	if !sawSubject {
 		t.Fatalf("a code change did not name the changed subject input: %+v", ExplainCriterionReuse(sealed, changed))
 	}
-	delta := ReviewBundleDiff(sealed, changed)
-	if len(delta.CriterionReuse) == 0 {
-		t.Fatal("the bundle delta does not carry the reuse explanation")
+	verification, err := store.VerifyReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if verification.Delta == nil || len(verification.Delta.CriterionReuse) == 0 {
+		t.Fatalf("verify does not carry the reuse explanation: %+v", verification.Delta)
 	}
 }
 
@@ -55,6 +58,7 @@ func TestEquivalenceAgreesWithTheReuseDigest(t *testing.T) {
 	writeReviewFixture(t, root, "api/server.go", "package api\n\nfunc Ready() bool { return false }\n")
 	changed, _ := store.PrepareReviewBundle("spec:backend")
 	delta := ReviewBundleDiff(sealed, changed)
+	delta.CriterionReuse = ExplainCriterionReuse(sealed, changed)
 	reusable := map[string]bool{}
 	for _, id := range delta.ReusableCriteria {
 		reusable[id] = true
