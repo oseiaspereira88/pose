@@ -1,5 +1,7 @@
 # Obligations, agency and readiness
 
+**Doc type:** Explanation &nbsp;·&nbsp; **Applies to:** POSE 6.x (current stable)
+
 POSE answers one operational question for a delivery: **what is still owed,
 by whom, from which source, restricting which phase of which scope, and what
 continues meanwhile?** This page describes the model behind that answer. The
