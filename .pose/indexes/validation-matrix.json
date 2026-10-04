@@ -1470,6 +1470,20 @@
           ],
           "severity": "required",
           "evidenceClass": "reachability"
+        },
+        {
+          "name": "action-presentation-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/mcpserver",
+            "-run",
+            "RelatedRequestsAreGrouped|TestToolsList|TestCatalog",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },

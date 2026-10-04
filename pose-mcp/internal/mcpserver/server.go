@@ -1055,8 +1055,10 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}{readiness, phases.Phases}, nil
 	case "pose_action_requests":
 		var a struct {
-			ID    string `json:"id"`
-			State string `json:"state"`
+			ID      string `json:"id"`
+			State   string `json:"state"`
+			Present bool   `json:"present"`
+			Actor   string `json:"actor"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_action_requests: invalid arguments")
@@ -1067,6 +1069,9 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		views, err := store.ListActionRequests()
 		if err != nil {
 			return nil, err
+		}
+		if a.Present {
+			return pose.PresentActionRequests(views, a.Actor), nil
 		}
 		filtered := []pose.ActionRequestView{}
 		for _, v := range views {
@@ -2155,6 +2160,8 @@ func toolDefinitions() []map[string]any {
 				"properties": map[string]any{
 					"id":         map[string]any{"type": "string", "description": "Optional act-<16 hex> id; omit to list"},
 					"state":      map[string]any{"type": "string", "description": "Optional state filter: open, answered, cancelled, waived, superseded, invalidated"},
+					"present":    map[string]any{"type": "boolean", "description": "Group the requests still waiting for an answer for one conversation: by origin and earliest restricted phase, those restricting start or execution first; each keeps its id, digest and answer"},
+					"actor":      map[string]any{"type": "string", "description": "With present: only requests addressed to this principal or role"},
 					"project_id": map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
 				},
 			},

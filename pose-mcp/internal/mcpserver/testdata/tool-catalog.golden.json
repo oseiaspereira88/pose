@@ -371,9 +371,17 @@
       "description": "Read material requests to a person or an external system (decision, approval, input, external operation, acceptance): question, options with consequences, recipient, qualified targets, per-phase effects, the request digest an answer must name, the append-only journal and the derived state and satisfaction (answered is not satisfied: a declined approval leaves the condition unmet). Read-only: requests are opened and resolved with `pose action` on the CLI, where a resolution names the digest and revision it answers and needs the recipient role.",
       "inputSchema": {
         "properties": {
+          "actor": {
+            "description": "With present: only requests addressed to this principal or role",
+            "type": "string"
+          },
           "id": {
             "description": "Optional act-\u003c16 hex\u003e id; omit to list",
             "type": "string"
+          },
+          "present": {
+            "description": "Group the requests still waiting for an answer for one conversation: by origin and earliest restricted phase, those restricting start or execution first; each keeps its id, digest and answer",
+            "type": "boolean"
           },
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",

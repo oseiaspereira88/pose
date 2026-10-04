@@ -136,11 +136,19 @@ func cmdActionOpen(root string, args []string, stdout, stderr io.Writer) int {
 }
 
 func cmdActionList(root string, args []string, stdout, stderr io.Writer) int {
-	state, jsonOutput := "", false
+	state, jsonOutput, present, actor := "", false, false, ""
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--json":
 			jsonOutput = true
+		case "--present":
+			present = true
+		case "--actor":
+			if i+1 >= len(args) {
+				return usageError(stderr, "Usage: pose action list [--state <state>] [--present [--actor <id|role>]] [--json]")
+			}
+			i++
+			actor = args[i]
 		case "--state":
 			if i+1 >= len(args) {
 				return usageError(stderr, "Usage: pose action list [--state <state>] [--json]")
@@ -155,6 +163,35 @@ func cmdActionList(root string, args []string, stdout, stderr io.Writer) int {
 	if err != nil {
 		render(stdout, stderr).Failure("pose action list: " + err.Error())
 		return 1
+	}
+	if present {
+		// Grouped for one conversation (spec pose-action-request-presentation):
+		// requests that restrict start or execution first; release-only ones
+		// can wait. Each keeps its own id, digest and answer.
+		presentation := posemodel.PresentActionRequests(views, actor)
+		if jsonOutput {
+			return writeJSON(stdout, presentation)
+		}
+		out := render(stdout, stderr)
+		out.Field("actions.present", fmt.Sprintf("%d request(s) to answer now, %d that can wait for their phase", presentation.InterruptNow, presentation.CanWait))
+		for _, group := range presentation.Groups {
+			when := "can wait until " + group.EarliestPhase
+			if group.Interrupt {
+				when = "needed before " + group.EarliestPhase
+			}
+			out.Field("actions.group", group.Origin+" — "+when)
+			for _, item := range group.Requests {
+				out.Field("  "+item.ID, fmt.Sprintf("%s: %s (restricts %s; answer against %s at revision %d)", item.Kind, item.Question, strings.Join(item.Restricts, ","), item.RequestDigest, item.Revision))
+				for _, option := range item.Options {
+					marker := ""
+					if option.ID == item.Recommend {
+						marker = " (recommended)"
+					}
+					out.Field("    option."+option.ID, option.Consequence+marker)
+				}
+			}
+		}
+		return 0
 	}
 	filtered := []posemodel.ActionRequestView{}
 	for _, v := range views {
