@@ -7,7 +7,8 @@ mechanically. Each row is the cheapest formal satisfaction of one gate. An
 `enforced` case fails the build when the shortcut works again; a `known-gap`
 case fails the build when the gap closes, so it cannot close or reopen
 silently; a `planned` case belongs to a spec not yet delivered and gains code
-before that spec closes.
+before that spec closes; a `delegated` case is enforced by a test in another
+package, named in the row, whose existence the corpus checks.
 
 This corpus belongs to developing POSE's governance. It adds no checklist to an
 adopting project's features.
@@ -28,3 +29,11 @@ adopting project's features.
 | `declined-approval-satisfies` | enforced | A declined approval, or a cancellation without authority, releases a gate | pose-action-request-resolution |
 | `closeout-plan-fills-judgment` | enforced | The recoverable closeout plan answers a judgment criterion to finish | pose-recoverable-closeout-plan |
 | `ready-from-absent-blockers` | enforced | Absence of a known blocker is presented as proven independence | pose-phase-scoped-readiness |
+| `stale-preview-authorizes-apply` | enforced | A start previewed before a restricting request is applied after it | pose-governed-effect-enforcement |
+| `code-change-keeps-judgment` | enforced | The reviewed code changes and every criterion still reads as equivalent, so the old judgment is reused | pose-material-equivalence-reuse |
+| `minimal-surface-skips-trace` | enforced | A done spec declares the minimal surface to drop its requirement trace | pose-progressive-spec-surface |
+| `stale-assessment-reused` | enforced | The assessed component changes and the old assessment still reads as fresh | pose-adaptive-assessment-freshness |
+| `unpinned-premise-trigger-reads-current` | enforced | A premise trigger without a pin can never go stale and nothing says so | pose-assumption-validity-scope |
+| `calendar-ttl-as-premise-trigger` | enforced | An arbitrary expiry date is accepted as the material trigger of a premise | pose-assumption-validity-scope |
+| `unobserved-falsifier-reads-uncontradicted` | known-gap | A falsifier check that no run produces raises nothing, and nothing says the falsifier was never observed | pose-falsifier-reconsideration |
+| `request-opened-after-preview-transfers` | delegated | A request opened after a transfer preview is moved with the spec (`pose/spec_transfer_actions_test.go:TestTransferRefusesARequestOpenedAfterThePreview`) | pose-transfer-preserves-obligations |

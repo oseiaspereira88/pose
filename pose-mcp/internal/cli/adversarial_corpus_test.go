@@ -212,7 +212,7 @@ func TestAdversarialCorpusReadmeListsEveryCase(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	row := regexp.MustCompile("(?m)^\\| `([a-z0-9-]+)` \\| (enforced|known-gap|planned) \\|")
+	row := regexp.MustCompile("(?m)^\\| `([a-z0-9-]+)` \\| (enforced|known-gap|planned|delegated) \\|")
 	listed := map[string]string{}
 	for _, m := range row.FindAllStringSubmatch(string(raw), -1) {
 		listed[m[1]] = m[2]
@@ -224,7 +224,7 @@ func TestAdversarialCorpusReadmeListsEveryCase(t *testing.T) {
 		delete(listed, tc.name)
 	}
 	for name, status := range listed {
-		if status != "planned" {
+		if status != "planned" && status != "delegated" {
 			t.Errorf("README lists %s (%s) with no corpus case", name, status)
 		}
 	}

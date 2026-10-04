@@ -82,6 +82,7 @@ Test corpus under pose testdata, review template for governance changes.
 - modified: .agents/skills/pose-review/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-review/SKILL.md
 - modified: .pose/indexes/validation-matrix.json
+- created: pose-mcp/internal/cli/adversarial_corpus_gates_test.go
 
 Reconciled against the tree at activation.
 
@@ -140,6 +141,8 @@ passes), then passes after the owning spec lands.
 - Expected: pass
 
 ## 7. Final Report
+
+Seven cases were added for the gates delivered later in the program (R5): a stale start preview, a code change that keeps a judgment, a minimal surface without trace, a stale assessment, an unpinned and a calendar premise trigger (all enforced), and an unobserved falsifier check (known-gap). The transfer gate's case is `delegated` to `TestTransferRefusesARequestOpenedAfterThePreview`, whose fixture lives in the pose package; the corpus checks that the test still exists. Disabling the premise validation made both premise cases fail, as they must.
 
 ### Delivered scope
 
