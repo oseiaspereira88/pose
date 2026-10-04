@@ -74,9 +74,22 @@ func CurrentRequirementHashes(body string) map[string]string {
 	return hashes
 }
 
-// AmendmentsPath returns the sibling event log of a spec.md path.
+// AmendmentsPath returns the event log of a spec, derived from its identity
+// path so no two specs share one (spec pose-flat-spec-amendments).
+//
+// A folder spec (`<dir>/spec.md`, or the directory of a split spec) keeps its
+// sibling `amendments.jsonl`, which every existing journal uses. A flat dated
+// spec (`.pose/specs/YYYY-MM-DD-<slug>.md`) gets `YYYY-MM-DD-<slug>.amendments.jsonl`
+// beside it; the sibling rule would have put every flat spec of a directory
+// in one shared `.pose/specs/amendments.jsonl`.
 func AmendmentsPath(specPath string) string {
-	return filepath.Join(filepath.Dir(specPath), "amendments.jsonl")
+	if info, err := os.Stat(specPath); err == nil && info.IsDir() {
+		return filepath.Join(specPath, "amendments.jsonl")
+	}
+	if filepath.Base(specPath) == "spec.md" || !strings.HasSuffix(specPath, ".md") {
+		return filepath.Join(filepath.Dir(specPath), "amendments.jsonl")
+	}
+	return strings.TrimSuffix(specPath, ".md") + ".amendments.jsonl"
 }
 
 // LoadAmendments parses an amendments.jsonl. A missing file yields an empty

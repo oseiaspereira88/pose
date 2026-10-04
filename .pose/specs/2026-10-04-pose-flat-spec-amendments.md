@@ -1,12 +1,13 @@
 ---
 slug: pose-flat-spec-amendments
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-legacy-contract-cutoffs
 priority: 1
 components: pose-mcp
+delivers: surface:flat-spec-amendments
 task_type: bugfix
 ---
 
@@ -73,14 +74,23 @@ Amend CLI, amendments domain, store resolution.
 ### Artifacts
 
 - created: .pose/specs/2026-10-04-pose-flat-spec-amendments.md
-- modified: pose-mcp/internal/cli/amend.go
 - modified: pose-mcp/internal/pose/amendments.go
-- modified: pose-mcp/internal/pose/spec.go
 - created: pose-mcp/internal/pose/amendments_flat_test.go
+- modified: pose-mcp/internal/cli/amend.go
+- modified: pose-mcp/internal/cli/spec_format.go
+- created: pose-mcp/internal/cli/amend_flat_test.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-flat-spec-amendments.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:flat-spec-amendments module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -89,7 +99,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

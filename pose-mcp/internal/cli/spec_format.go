@@ -161,6 +161,19 @@ func cmdSpecFormatMigrate(root string, args []string, stdout, stderr io.Writer, 
 			}
 		}
 
+		// A flat spec's amendment journal sits beside it as
+		// <name>.amendments.jsonl (spec pose-flat-spec-amendments); it is a
+		// companion too, and travels with the spec.
+		flatJournal := ""
+		if !isDir {
+			if journal := pose.AmendmentsPath(specPath); journal != "" {
+				if _, statErr := os.Stat(journal); statErr == nil {
+					flatJournal = journal
+					hasCompanion = true
+				}
+			}
+		}
+
 		// Invariant: companion artifacts FORCE folder envelope
 		targetFormat := formatPref
 		if hasCompanion {
@@ -278,6 +291,9 @@ func cmdSpecFormatMigrate(root string, args []string, stdout, stderr io.Writer, 
 			} else {
 				// Move single flat file into targetDir/spec.md
 				_ = os.Rename(specPath, targetPath)
+				if flatJournal != "" {
+					_ = os.Rename(flatJournal, filepath.Join(targetDir, "amendments.jsonl"))
+				}
 			}
 		} else {
 			// Target is flat file

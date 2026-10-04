@@ -92,7 +92,16 @@ func cmdAmend(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "pose amend: %v\n", err)
 		return 2
 	}
+	// Resolve through the store, which knows flat dated, folder and legacy
+	// layouts alike; building `<slug>/spec.md` here left every flat spec
+	// without amendments (spec pose-flat-spec-amendments).
 	specPath := filepath.Join(root, ".pose", "specs", slug, "spec.md")
+	if resolved, resolveErr := (posepkg.Store{Root: root}).GetSpec(slug); resolveErr == nil {
+		specPath = resolved.Path
+		if info, statErr := os.Stat(specPath); statErr == nil && info.IsDir() {
+			specPath = filepath.Join(specPath, "spec.md")
+		}
+	}
 	raw, err := os.ReadFile(specPath)
 	if err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "pose amend: spec not found: %s\n", "pose amend: spec não encontrada: %s\n"), specPath)
