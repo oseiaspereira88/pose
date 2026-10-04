@@ -141,6 +141,14 @@ invariance test.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:legacy-contract-cutoffs evidence:integration test:TestContractAdoptedAtReadsEveryRegisteredLegacyField check:legacy-contract-cutoffs-integration
+- R2 [satisfied] test:TestContractAdoptionMapPrevailsOverLegacyIncludingExplicitEmpty check:legacy-contract-cutoffs-integration test:TestDoctorReportsAShadowedLegacyCutoff
+- R3 [satisfied] test:TestLegacyKeyCutoffsReachTheDatedRuleButNeverAStampedBundle check:legacy-contract-cutoffs-integration
+- R4 [satisfied] test:TestContractAdoptedAtReadsEveryRegisteredLegacyField check:legacy-contract-cutoffs-integration
+- R5 [satisfied] test:TestContractAdoptionSourceDistinguishesEveryDeclaration check:legacy-contract-cutoffs-integration test:TestDoctorReportsLegacyContractCutoffSources
+
 ## 7. Final Report
 
 ### Delivered scope
