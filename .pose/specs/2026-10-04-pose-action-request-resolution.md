@@ -157,6 +157,18 @@ verified path with a test issuer.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:action-request-resolution evidence:integration test:TestActionResolveRefusesTheWrongActorAndRecordsTheRightOne check:action-resolution-integration test:TestAVerifiedClaimBoundToTheRequestIsAccepted
+- R2 [satisfied] test:TestAnActorWithoutTheRoleDoesNotSatisfyTheRequest check:action-resolution-integration
+- R3 [satisfied] test:TestDecliningAnApprovalIsAnAnswerThatAuthorizesNothing check:action-resolution-integration
+- R4 [satisfied] test:TestADeclaredHumanAnswerIsLabelledAndRefusedWhereVerifiedIsRequired check:action-resolution-integration test:TestAVerifiedClaimBoundToTheRequestIsAccepted
+- R5 [satisfied] test:TestCancelAndWaiveNeedTheRightAuthority check:action-resolution-integration
+- R6 [satisfied] test:TestReplayIsIdempotentAndConflictsAreRefused check:action-resolution-integration
+- R7 [satisfied] test:TestReplayIsIdempotentAndConflictsAreRefused check:action-resolution-integration
+- R8 [satisfied] test:TestAStaleDigestOrAChangedSubjectDoesNotSatisfy check:action-resolution-integration
+- R9 [satisfied] test:TestAResolutionFromAnotherProjectIsRefused check:action-resolution-integration
+
 ## 7. Final Report
 
 ### Delivered scope
