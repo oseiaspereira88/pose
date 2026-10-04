@@ -70,8 +70,11 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
 	all, jsonOut, scopeSet, threshold := false, false, false, 60
 	overdueOnly, failOverdue, ownerFilter := false, false, ""
+	candidatesOnly := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
+		case "--candidates":
+			candidatesOnly = true
 		case "--overdue":
 			overdueOnly = true
 		case "--fail-overdue":
@@ -113,6 +116,9 @@ func cmdFollowups(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, cliText(locale, "Error: unknown option: %s\n", "Erro: opção desconhecida: %s\n"), args[i])
 			return 2
 		}
+	}
+	if candidatesOnly {
+		return cmdFollowupCandidates(root, jsonOut, threshold, stdout, stderr)
 	}
 	allEntries := collectFollowups(root)
 	today := followupToday()
@@ -397,4 +403,27 @@ func uniqueFollowupSpecs(entries []followup) int {
 		specs[entry.Spec] = true
 	}
 	return len(specs)
+}
+
+// cmdFollowupCandidates lists reconciliation candidates (spec
+// pose-followup-reconciliation-candidates): a done target, a test the
+// follow-up names that now exists, a passed review date, or a lexical
+// near-duplicate. Nothing is dispositioned; the reason and its limits are shown.
+func cmdFollowupCandidates(root string, jsonOut bool, threshold int, stdout, stderr io.Writer) int {
+	candidates, err := posemodel.Store{Root: root}.FollowupCandidates(followupToday())
+	if err != nil {
+		render(stdout, stderr).Failure("pose followups --candidates: " + err.Error())
+		return 1
+	}
+	duplicates := clusterFollowups(collectFollowups(root), float64(threshold)/100)
+	if jsonOut {
+		return writeJSON(stdout, map[string]any{"candidates": candidates, "possible_duplicates": duplicates, "limits": "candidates are prompts for judgment; no disposition was written"})
+	}
+	out := render(stdout, stderr)
+	out.Field("followups.candidates", fmt.Sprintf("%d open follow-up(s) with a reconciliation reason; none was dispositioned", len(candidates)))
+	for _, c := range candidates {
+		out.Field(fmt.Sprintf("  %s#%d", c.Spec, c.Ordinal), strings.Join(c.Kinds, ",")+" — "+strings.Join(c.Evidence, "; ")+" — "+c.Text)
+	}
+	out.Field("followups.possible_duplicates", fmt.Sprintf("%d lexical cluster(s); similarity is not equivalence", len(duplicates)))
+	return 0
 }

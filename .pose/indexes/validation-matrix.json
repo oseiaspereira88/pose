@@ -1443,6 +1443,33 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "followup-candidates-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "CandidatesAreRaised|FollowupCandidatesAreReachable|Followup",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "followup-candidates-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestFollowupCandidatesAreReachableAndWriteNothing",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },

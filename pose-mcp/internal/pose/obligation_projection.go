@@ -499,6 +499,12 @@ func (s Store) followupObligations(project string, specs []Spec, scope string) (
 	for _, sp := range specs {
 		inScope[sp.Slug] = true
 	}
+	candidates := map[string]FollowupCandidate{}
+	if list, err := s.FollowupCandidates(""); err == nil {
+		for _, c := range list {
+			candidates[fmt.Sprintf("%s#%d", c.Spec, c.Ordinal)] = c
+		}
+	}
 	var out []Obligation
 	for _, item := range ParseSpecFollowups(s.Root) {
 		if item.RawDisposition != "open" {
@@ -519,6 +525,11 @@ func (s Store) followupObligations(project string, specs []Spec, scope string) (
 			o.Recipient = ObligationActor{Principal: item.Owner}
 		}
 		o.Message = item.Spec + ": " + item.Text
+		if c, ok := candidates[fmt.Sprintf("%s#%d", item.Spec, item.Ordinal)]; ok {
+			// A reconciliation reason is shown, never acted on.
+			o.Message += " [reconciliation candidate: " + strings.Join(c.Evidence, "; ") + "]"
+			o.Observation.Limitations = append(o.Observation.Limitations, c.Limits)
+		}
 		out = append(out, o)
 	}
 	return out, nil
