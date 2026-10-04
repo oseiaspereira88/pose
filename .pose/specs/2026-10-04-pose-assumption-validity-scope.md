@@ -140,6 +140,14 @@ Contract version bump fixture raises premise-stale; trivial assumption no obliga
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] test:TestAContractChangeAsksForJudgmentOnTheBoundPremise check:premise-validity-integration
+- R2 [satisfied] <the evidence stays recorded and is described as judged against the pinned content> test:TestAContractChangeAsksForJudgmentOnTheBoundPremise check:premise-validity-integration
+- R3 [satisfied] test:TestTrivialAssumptionsGetNoTTLAndCalendarTriggersAreNotEvaluated check:premise-validity-integration
+- R4 [satisfied] <advisory on review, scoped to the assumption and its decisions> test:TestAContractChangeAsksForJudgmentOnTheBoundPremise check:premise-validity-integration
+- R5 [satisfied] test:TestValidityFieldsAreParsedAndDoNotChangeExistingDigests check:premise-validity-integration test:TestPortugueseValidityLabelsAreParsed
+
 ## 7. Final Report
 
 ### Delivered scope
