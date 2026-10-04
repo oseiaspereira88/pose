@@ -1,6 +1,6 @@
 ---
 slug: pose-agency-readiness-pilot
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
@@ -76,9 +76,9 @@ own spec or amendment).
 - created: .pose/specs/2026-10-04-pose-agency-readiness-pilot.md
 - created: .pose/reports/pose-agency-readiness-pilot.md
 - created: .pose/results/pose-agency-readiness-pilot.json
+- created: .pose/actions/act-dd6a58232dd28ea5.jsonl
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
 
 ### Technical risks
 
@@ -87,7 +87,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation
@@ -125,6 +125,8 @@ Pre-registered scenarios and baseline taken before enabling the capability.
 - Expected: pass
 
 ## 7. Final Report
+
+An automated rehearsal ran the slice on a disposable clone at 768e6c7 (report `.pose/reports/pose-agency-readiness-pilot.md`, record `.pose/results/pose-agency-readiness-pilot.json`). It is not human experience: the answering principal was a script fixture. All 17 steps behaved as designed, including four refusals and one subject-change invalidation, and an unrelated commit did not re-ask the answered decision. Two defects surfaced and were fixed under their owning specs: `stats governance --waits` took 88 s (2a0fdc8, now 13 ms) and a directory-derived project identity was silent (768e6c7). Authority transfer and Harne8 consumption were not exercised. The stop/go (R5) is open as action request `act-dd6a58232dd28ea5`, addressed to human:oseias with the agent's recommendation; the policy stays unadopted until it is answered, so this spec cannot close before then.
 
 ### Delivered scope
 

@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "spec": "pose-agency-readiness-pilot",
+  "kind": "automated-rehearsal",
+  "not_human_experience": "the human principal human:pilot-rehearsal is a script fixture; no person answered anything",
+  "corpus": {
+    "repository": "pose-dist",
+    "revision": "768e6c7",
+    "clone": "disposable git clone, discarded after the run",
+    "adoption": "agency_readiness_version: 1 and an actions.json role map, in the clone only"
+  },
+  "engine": "pose 6.3.0-dev (candidate build of the revision above)",
+  "steps": [
+    {
+      "step": "attention-before",
+      "exit": 0,
+      "expect": "0",
+      "ms": 2559,
+      "cmd": "pose state --attention --json"
+    },
+    {
+      "step": "open-decision",
+      "exit": 0,
+      "expect": "0",
+      "ms": 36,
+      "cmd": "pose action open --origin spec:pose-v7-legacy-cleanup-plan --kind decision --question Should a 7.0 apply refuse to run while consumers report blocked specs? --requested-by agent:pilot-impl --execution pilot-1 --recipient-role maintainer --option refuse=Apply refuses; consumers convert first. --option convert=Apply converts blocked to in-progress plus a wait. --recommend refuse --target requirement:R5 --effect closeout:block --subject requirement:R5 --apply --json"
+    },
+    {
+      "step": "attention-shows",
+      "exit": 0,
+      "expect": "0",
+      "ms": 2291,
+      "cmd": "pose state --attention"
+    },
+    {
+      "step": "present",
+      "exit": 0,
+      "expect": "0",
+      "ms": 7,
+      "cmd": "pose action list --present"
+    },
+    {
+      "step": "close-refused",
+      "exit": 1,
+      "expect": "1",
+      "ms": 223,
+      "cmd": "pose close spec:pose-v7-legacy-cleanup-plan"
+    },
+    {
+      "step": "self-answer-refused",
+      "exit": 1,
+      "expect": "1",
+      "ms": 13,
+      "cmd": "pose action resolve act-0fa1f57f58cb1ced --actor agent:pilot-impl --request-digest sha256:adcf825fb7343c9b0381e08c151a272001f3c06a476c8a031e1f438eb1b2ac1f --expected-revision 1 --idempotency-key k-self --answer refuse --apply"
+    },
+    {
+      "step": "stale-revision-refused",
+      "exit": 1,
+      "expect": "1",
+      "ms": 15,
+      "cmd": "pose action resolve act-0fa1f57f58cb1ced --actor human:pilot-rehearsal --role maintainer --request-digest sha256:adcf825fb7343c9b0381e08c151a272001f3c06a476c8a031e1f438eb1b2ac1f --expected-revision 99 --idempotency-key k-stale --answer refuse --apply"
+    },
+    {
+      "step": "answer",
+      "exit": 0,
+      "expect": "0",
+      "ms": 18,
+      "cmd": "pose action resolve act-0fa1f57f58cb1ced --actor human:pilot-rehearsal --role maintainer --request-digest sha256:adcf825fb7343c9b0381e08c151a272001f3c06a476c8a031e1f438eb1b2ac1f --expected-revision 1 --idempotency-key k-1 --answer refuse --channel pilot-script --apply"
+    },
+    {
+      "step": "answer-replay-idempotent",
+      "exit": 0,
+      "expect": "0",
+      "ms": 29,
+      "cmd": "pose action resolve act-0fa1f57f58cb1ced --actor human:pilot-rehearsal --role maintainer --request-digest sha256:adcf825fb7343c9b0381e08c151a272001f3c06a476c8a031e1f438eb1b2ac1f --expected-revision 1 --idempotency-key k-1 --answer refuse --channel pilot-script --apply"
+    },
+    {
+      "step": "attention-after",
+      "exit": 0,
+      "expect": "0",
+      "ms": 2461,
+      "cmd": "pose state --attention"
+    },
+    {
+      "step": "closeout-plan",
+      "exit": 0,
+      "expect": "0",
+      "ms": 185,
+      "cmd": "pose close spec:pose-v7-legacy-cleanup-plan --plan"
+    },
+    {
+      "step": "after-unrelated",
+      "exit": 0,
+      "expect": "0",
+      "ms": 12,
+      "cmd": "pose action show act-0fa1f57f58cb1ced"
+    },
+    {
+      "step": "after-subject-change",
+      "exit": 0,
+      "expect": "0",
+      "ms": 12,
+      "cmd": "pose action show act-0fa1f57f58cb1ced"
+    },
+    {
+      "step": "present-again",
+      "exit": 0,
+      "expect": "0",
+      "ms": 13,
+      "cmd": "pose action list --present"
+    },
+    {
+      "step": "open-external",
+      "exit": 0,
+      "expect": "0",
+      "ms": 28,
+      "cmd": "pose action open --origin spec:pose-v7-legacy-cleanup-plan --kind external-operation --question Publish the 7.0 migration guide on the docs site --requested-by agent:pilot-impl --recipient-role maintainer --target self --effect release:advisory --apply"
+    },
+    {
+      "step": "waits",
+      "exit": 0,
+      "expect": "0",
+      "ms": 13,
+      "cmd": "pose stats governance --waits"
+    },
+    {
+      "step": "closeout-resume-plan",
+      "exit": 0,
+      "expect": "0",
+      "ms": 21,
+      "cmd": "pose close spec:pose-v7-legacy-cleanup-plan --plan --json"
+    }
+  ],
+  "summary": {
+    "commands": 17,
+    "human_interventions_scripted": 2,
+    "refusals_expected_and_observed": 4,
+    "invalidations": {
+      "subject-changed": 1,
+      "unrelated-change": 0
+    },
+    "re_asked_after_unrelated_change": false,
+    "re_asked_after_subject_change": true
+  },
+  "baseline": {
+    "engine": "pose at 133478d (before the agency-readiness roadmap)",
+    "decision_channel": "none recorded: a decision lived in chat or a follow-up line",
+    "closeout_refusal_for_an_unanswered_decision": "absent",
+    "attention_surface": "absent; the open decision had to be found by reading specs and follow-ups",
+    "measured": "not timed: the baseline has no equivalent operation to time"
+  },
+  "defects_found": [
+    {
+      "id": "stats-waits-latency",
+      "measured": "88412 ms for stats governance --waits",
+      "fix": "2a0fdc8 (spec pose-governance-wait-rework-observability): 13 ms"
+    },
+    {
+      "id": "derived-identity-silent",
+      "measured": "request recorded as xref:proj.pilot-clone/... with no limitation",
+      "fix": "768e6c7 (spec pose-action-requests): snapshot limitation and open warning"
+    }
+  ],
+  "unknowns": [
+    "friction for a person: no person ran the flow",
+    "authority transfer and Harne8 consumption were not exercised in this rehearsal (covered by unit tests only)",
+    "Attention latency stays about 2.2-2.6 s on this corpus, above the 1 s target of pose-obligation-projection"
+  ],
+  "stop_go": {
+    "state": "pending",
+    "decided_by": null,
+    "requested_via": "action request on spec:pose-agency-readiness-pilot addressed to human:oseias"
+  }
+}
