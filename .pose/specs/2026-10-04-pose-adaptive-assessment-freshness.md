@@ -151,6 +151,14 @@ Binding mutation tests; workflow text test that no always-run instruction remain
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] test:TestAssessmentFreshnessFollowsTheBindingNotTheClock check:assessment-freshness-integration
+- R2 [satisfied] <a committed content change stales the binding> test:TestAssessmentFreshnessFollowsTheBindingNotTheClock check:assessment-freshness-integration
+- R3 [satisfied] test:TestAStaleAssessmentIsAnAdvisoryObligation check:obligation-contract-integration
+- R4 [satisfied] test:TestNoWorkflowAlwaysRunsDiscovery check:assessment-freshness-integration
+- R5 [satisfied] <assess discover --if-stale prints reused or refreshed with the binding compared> test:TestAssessmentFreshnessFollowsTheBindingNotTheClock check:assessment-freshness-integration
+
 ## 7. Final Report
 
 ### Delivered scope
