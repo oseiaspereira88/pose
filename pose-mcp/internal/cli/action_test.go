@@ -16,6 +16,9 @@ import (
 
 func actionCLIFixture(t *testing.T) string {
 	t.Helper()
+	// A declared identity, as an installed project has; the derived-identity
+	// warning has its own test.
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.storage-test")
 	root := t.TempDir()
 	mustWrite(t, filepath.Join(root, ".pose/specs/2026-10-04-storage.md"), "---\nslug: storage\nstatus: in-progress\n---\n\n# Spec: storage\n\n## 2. Requirements\n\n- R4: Keep reading schema v1 records.\n")
 	mustWrite(t, filepath.Join(root, ".pose/policy/actions.json"), `{"schema_version":1,"roles":{"maintainer":["human:maintainer"]}}`)
@@ -87,5 +90,37 @@ func TestActionResolveRefusesTheWrongActorAndRecordsTheRightOne(t *testing.T) {
 	var views []posemodel.ActionRequestView
 	if err := json.Unmarshal([]byte(listed), &views); err != nil || len(views) != 1 || views[0].Satisfaction != posemodel.SatisfactionSatisfied {
 		t.Fatalf("list: %v %s", err, listed)
+	}
+}
+
+// Found by the agency-readiness pilot rehearsal: a request qualified with a
+// directory-derived project id must say so.
+func TestActionOpenDisclosesADirectoryDerivedIdentity(t *testing.T) {
+	root := actionCLIFixture(t)
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "")
+	var out, errB bytes.Buffer
+	code := 0
+	inDir(t, root, func() { code = Main(append(append([]string{}, openArgs...), "--apply", "--json"), &out, &errB) })
+	if code != 0 {
+		t.Fatalf("open: %s %s", out.String(), errB.String())
+	}
+	var view posemodel.ActionRequestView
+	if err := json.Unmarshal(out.Bytes(), &view); err != nil {
+		t.Fatalf("the warning broke the JSON on stdout: %v", err)
+	}
+	if !strings.Contains(errB.String(), "derived from the directory name") {
+		t.Fatalf("no identity warning on stderr: %q", errB.String())
+	}
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "proj.storage-test")
+	errB.Reset()
+	out.Reset()
+	args := append([]string{}, openArgs...)
+	args[7] = "Another question?"
+	inDir(t, root, func() { code = Main(append(args, "--apply"), &out, &errB) })
+	if code != 0 {
+		t.Fatalf("second open: %s %s", out.String(), errB.String())
+	}
+	if strings.Contains(out.String()+errB.String(), "derived from the directory name") {
+		t.Fatal("a declared identity still produced the warning")
 	}
 }

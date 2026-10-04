@@ -415,6 +415,25 @@ func DefaultProjectID(root string) string {
 	return ProjectIDFor(filepath.Base(filepath.Clean(root)))
 }
 
+// ProjectIdentityDeclared reports whether this root's project id was declared
+// (POSE_DEFAULT_PROJECT_ID, or an explicit POSE_PROJECT_ROOTS binding) rather
+// than derived from the directory name, which changes with the checkout.
+func ProjectIdentityDeclared(root string) bool {
+	if os.Getenv("POSE_DEFAULT_PROJECT_ID") != "" {
+		return true
+	}
+	explicit, err := ParseRootsJSON(os.Getenv("POSE_PROJECT_ROOTS"))
+	if err != nil {
+		return false
+	}
+	for _, path := range explicit {
+		if sameProjectRoot(root, path) {
+			return true
+		}
+	}
+	return false
+}
+
 // EnvironmentArtifactResolver reuses the CLI's existing project configuration.
 // Merely placing a checkout inside another repository never registers it.
 func EnvironmentArtifactResolver(root, projectsDir string) (ArtifactResolver, string, error) {

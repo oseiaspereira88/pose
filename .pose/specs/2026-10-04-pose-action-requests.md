@@ -81,6 +81,9 @@ skills.
 - created: pose-mcp/internal/pose/action_request.go
 - created: pose-mcp/internal/pose/action_request_test.go
 - created: pose-mcp/internal/cli/action.go
+- modified: pose-mcp/internal/cli/action_test.go
+- modified: pose-mcp/internal/pose/artifact_ref.go
+- modified: pose-mcp/internal/pose/obligation_projection.go
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/help_catalog.go
 - modified: pose-mcp/internal/cli/check.go
@@ -167,6 +170,8 @@ corpus case for a non-material question.
 - Expected: pass
 
 ## 7. Final Report
+
+The agency-readiness pilot rehearsal, run in a clone named `pilot-clone`, recorded its request as `xref:proj.pilot-clone/...`: the resolver derives the project id from the directory name without an error, and the snapshot only reported a fallback when the resolver failed. The snapshot now lists the limitation whenever no identity is declared, and `action open --apply` repeats it (stderr under `--json`). Refusing would break every project that runs the CLI without a declared identity, so the request is still recorded.
 
 ### Delivered scope
 

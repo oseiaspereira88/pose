@@ -128,11 +128,33 @@ func cmdActionOpen(root string, args []string, stdout, stderr io.Writer) int {
 		out.Failure("pose action open: " + err.Error())
 		return 1
 	}
+	identityWarning := actionIdentityFallback(store)
 	if jsonOutput {
+		if identityWarning != "" {
+			// stderr keeps the JSON on stdout parseable.
+			render(stderr, stderr).Field("action.limitation", identityWarning)
+		}
 		return writeJSON(stdout, view)
 	}
 	renderActionView(out, view)
+	if identityWarning != "" {
+		out.Field("action.limitation", identityWarning)
+	}
 	return 0
+}
+
+// actionIdentityFallback says when the request was qualified with a project
+// id derived from the directory name: the journal keeps that xref, so a clone
+// in another directory would record a different project (found by the
+// agency-readiness pilot rehearsal).
+func actionIdentityFallback(store posemodel.Store) string {
+	snapshot := store.CurrentObligationSnapshot()
+	for _, limitation := range snapshot.Limitations {
+		if strings.Contains(limitation, "fell back to the directory name") {
+			return "the request is qualified as " + snapshot.Project + ", derived from the directory name; declare POSE_DEFAULT_PROJECT_ID (in .mcp.json) so every checkout records the same project"
+		}
+	}
+	return ""
 }
 
 func cmdActionList(root string, args []string, stdout, stderr io.Writer) int {
