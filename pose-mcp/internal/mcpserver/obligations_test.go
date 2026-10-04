@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/harne8/pose-mcp/internal/pose"
 )
@@ -61,5 +62,36 @@ func TestToolsCall_SpecReadiness_PhasesBesideLegacyReady(t *testing.T) {
 	phases, _ := sc["phases"].([]any)
 	if sc["ready"] != true || len(phases) != 5 {
 		t.Fatalf("readiness with phases: %+v", sc)
+	}
+}
+
+// Spec pose-governed-effect-enforcement: MCP closeout state carries the same
+// refusal cause as the CLI, from the same domain function.
+func TestToolsCall_CloseoutState_CarriesTheGovernedEffect(t *testing.T) {
+	root := t.TempDir()
+	write := func(rel, body string) {
+		p := filepath.Join(root, rel)
+		_ = os.MkdirAll(filepath.Dir(p), 0o755)
+		_ = os.WriteFile(p, []byte(body), 0o644)
+	}
+	write(".pose/specs/2026-10-04-storage.md", "---\nslug: storage\nstatus: in-progress\n---\n\n# Spec: storage\n\n- R4: x\n")
+	write(".pose/policy/review.json", `{"schema_version":2,"enabled":false,"profiles":{"spec":"spec-closeout@1"},"agency_readiness_version":1}`)
+	store := pose.Store{Root: root}
+	if _, err := store.OpenActionRequest(pose.ActionRequest{Origin: "spec:storage", Kind: pose.ActionApproval, Question: "Close?", RequestedBy: pose.ActionPrincipal{Principal: "agent:a"},
+		Targets: []pose.NodeRef{{Artifact: "self"}}, Effects: []pose.ObligationEffect{{Phase: pose.PhaseCloseout, Mode: pose.EffectBlock}}}, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	ts := httptest.NewServer(New(store).Handler("", ""))
+	t.Cleanup(ts.Close)
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_closeout_state","arguments":{"scope":"spec:storage"}}}`)
+	sc, _ := out.Result["structuredContent"].(map[string]any)
+	diagnostics, _ := sc["diagnostics"].([]any)
+	found := false
+	for _, raw := range diagnostics {
+		d, _ := raw.(map[string]any)
+		found = found || d["code"] == "action-request-pending"
+	}
+	if !found || sc["terminal"] != false {
+		t.Fatalf("MCP closeout state lacks the governed effect: %+v", sc)
 	}
 }

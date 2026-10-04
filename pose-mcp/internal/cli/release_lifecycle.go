@@ -240,6 +240,26 @@ func cmdReleasePrepare(root string, args []string, stdout, stderr io.Writer) int
 		fmt.Fprintln(stderr, "pose release prepare: immutable candidate already exists with different inputs")
 		return 1
 	}
+	// Governed effects (spec pose-governed-effect-enforcement): under the
+	// adopted capability an unsatisfied action request restricting release
+	// of one of these specs refuses the freeze, and the dry-run says so.
+	releaseSpecs := []string{}
+	for _, fragment := range fragments {
+		releaseSpecs = append(releaseSpecs, fragment.Spec)
+	}
+	refusals, err := posemodel.Store{Root: root}.ReleaseGovernedRefusal(releaseSpecs)
+	if err != nil {
+		render(stdout, stderr).Failure("pose release prepare: " + err.Error())
+		return 1
+	}
+	if len(refusals) > 0 {
+		out := render(stdout, stderr)
+		for _, refusal := range refusals {
+			out.Field("release.refused."+refusal.Code, refusal.Message)
+		}
+		out.Failure(fmt.Sprintf("pose release prepare: %d action request(s) restrict this release", len(refusals)))
+		return 1
+	}
 	if !releaseFlag(args, "--apply") {
 		fmt.Fprintf(stdout, "Would prepare %s with %d fragments (dry-run); rerun with --apply.\n", target, len(fragments))
 		return 0

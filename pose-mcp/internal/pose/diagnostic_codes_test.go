@@ -16,7 +16,7 @@ import (
 func TestEveryEmittedDiagnosticCodeIsCatalogued(t *testing.T) {
 	emit := regexp.MustCompile(`(?:NewDiagnostic|OpaqueDiagnostic)\("([a-z0-9-]+)"`)
 	files, _ := filepath.Glob("*.go")
-	nextSteps := map[string]bool{"none": true, "continue-child": true, "resolve-federated-blockers": true, "record-fresh-review": true, "apply-lifecycle-transition": true, "resolve-closeout-blockers": true}
+	nextSteps := map[string]bool{"none": true, "continue-child": true, "resolve-federated-blockers": true, "record-fresh-review": true, "apply-lifecycle-transition": true, "resolve-closeout-blockers": true, "answer-action-request": true}
 	for _, file := range files {
 		if strings.HasSuffix(file, "_test.go") {
 			continue

@@ -144,6 +144,9 @@ func (s Store) EffectiveGovernance(scope string) (GovernanceProjection, error) {
 	capability("causality-closeout", "review.causality_closeout_version", causality, version(policy.CausalityCloseoutVersion),
 		causality && bundlesOn, causalityReasons,
 		pick(causality && bundlesOn, "new bundles stamp the causality-closeout contract", "supported and not in force: no bundle stamps causality-closeout"))
+	capability("agency-readiness", "review.agency_readiness_version", policy.AgencyReadinessVersion == AgencyReadinessPolicyVersion, version(policy.AgencyReadinessVersion),
+		policy.AgencyReadinessVersion == AgencyReadinessPolicyVersion, nil,
+		pick(policy.AgencyReadinessVersion == AgencyReadinessPolicyVersion, "unsatisfied action requests refuse the start, close and release they restrict", "supported and not adopted: action requests are shown in Attention and restrict no transition"))
 	capability("qualified-artifact-refs", "review.qualified_artifact_refs_version", policy.QualifiedArtifactRefsVersion == 1, version(policy.QualifiedArtifactRefsVersion),
 		policy.QualifiedArtifactRefsVersion == 1, nil, pick(policy.QualifiedArtifactRefsVersion == 1, "dependencies and members may name another project with xref:", "supported and not adopted: references stay local"))
 	capability("spec-authority-transfer", "review.spec_authority_transfer_version", policy.SpecAuthorityTransferVersion == 1, version(policy.SpecAuthorityTransferVersion),

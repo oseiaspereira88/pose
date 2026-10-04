@@ -1347,6 +1347,35 @@
           ],
           "severity": "required",
           "evidenceClass": "reachability"
+        },
+        {
+          "name": "governed-effects-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "WithoutAdoption|AdoptedEffects|DeclinedRequestKeeps|StartPreviewTaken|CloseRefusesWhile|CarriesTheGovernedEffect|Governance",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "governed-effects-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "TestCloseRefusesWhileAnAdoptedRequestRestrictsCloseout|TestToolsCall_CloseoutState_CarriesTheGovernedEffect",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },

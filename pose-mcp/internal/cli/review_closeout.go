@@ -1449,6 +1449,24 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 		fmt.Fprintf(stderr, "pose close: %v\n", err)
 		return 1
 	}
+	// Governed effects (spec pose-governed-effect-enforcement): this is the
+	// write point of the closeout transition, so an adopted, unsatisfied
+	// action request restricting closeout refuses here with its typed cause,
+	// whatever else the scope's review says.
+	governed := []string{}
+	for _, d := range state.Diagnostics {
+		if d.Code == "action-request-pending" {
+			governed = append(governed, d.Message)
+		}
+	}
+	if len(governed) > 0 {
+		out := render(stdout, stderr)
+		for _, message := range governed {
+			out.Field("close.refused.action-request-pending", message)
+		}
+		out.Failure(fmt.Sprintf("pose close: %d action request(s) restrict closeout of %s", len(governed), ref))
+		return 1
+	}
 	if !state.Review.Approved || len(state.Children) > 0 && hasOpenChild(state.Children) {
 		fmt.Fprintf(stderr, "pose close: scope is not eligible; next action: %s\n", state.NextAction)
 		return 1

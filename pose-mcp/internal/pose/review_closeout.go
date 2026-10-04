@@ -162,6 +162,10 @@ type ReviewPolicy struct {
 	// AtomicStartVersion adopts `pose start --apply` (spec
 	// pose-abm-atomic-start); preview needs no adoption.
 	AtomicStartVersion int `json:"atomic_start_version,omitempty"`
+	// AgencyReadinessVersion adopts governed effects: unsatisfied action
+	// requests refuse the transitions they restrict (spec
+	// pose-governed-effect-enforcement); 0 keeps the legacy behaviour.
+	AgencyReadinessVersion int `json:"agency_readiness_version,omitempty"`
 	// CausalityCloseoutVersion stamps the causality-closeout contract on new
 	// bundles (spec pose-abm-causality-attestation).
 	CausalityCloseoutVersion         int               `json:"causality_closeout_version,omitempty"`
@@ -436,6 +440,9 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	}
 	if p.CausalityCloseoutVersion != 0 && p.CausalityCloseoutVersion != CausalityCloseoutPolicyVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported causality_closeout_version %d (engine supports %d)", p.CausalityCloseoutVersion, CausalityCloseoutPolicyVersion)
+	}
+	if p.AgencyReadinessVersion != 0 && p.AgencyReadinessVersion != AgencyReadinessPolicyVersion {
+		return ReviewPolicy{}, fmt.Errorf("pose: unsupported agency_readiness_version %d (engine supports %d)", p.AgencyReadinessVersion, AgencyReadinessPolicyVersion)
 	}
 	if p.AtomicStartVersion != 0 && p.AtomicStartVersion != AtomicStartPolicyVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported atomic_start_version %d (engine supports %d)", p.AtomicStartVersion, AtomicStartPolicyVersion)
@@ -2181,6 +2188,21 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 	if !state.LifecycleDone && scope.Kind != "milestone" {
 		block(NewDiagnostic("lifecycle-not-done", "lifecycle status is not done", ref))
 	}
+	// Governed effects (spec pose-governed-effect-enforcement): under the
+	// adopted capability, an unsatisfied action request restricting closeout
+	// keeps the scope from being terminal, so close refuses through every
+	// surface that asks this function.
+	if scope.Kind == "spec" {
+		if adopted, adoptErr := s.AgencyReadinessAdopted(); adoptErr == nil && adopted {
+			restrictions, restrictErr := s.GovernedEffectRestrictions(PhaseCloseout, []string{scope.Slug})
+			if restrictErr != nil {
+				return state, restrictErr
+			}
+			for _, o := range restrictions {
+				block(governedEffectDiagnostic(o, PhaseCloseout, ref))
+			}
+		}
+	}
 	state.Blockers = uniqueSorted(state.Blockers)
 	state.Terminal = len(state.Blockers) == 0 && (review.Approved || !review.Required) && state.LifecycleDone
 	if state.Terminal {
@@ -2209,6 +2231,12 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 	if state.NextAction == "" {
 		state.NextAction = "resolve closeout blockers for " + ref
 	}
+	for _, d := range diagnostics {
+		if d.Code == "action-request-pending" && len(d.Refs) > 1 {
+			state.NextAction = "obtain a satisfying answer to action request " + d.Refs[1] + " (pose action show " + d.Refs[1] + ")"
+			break
+		}
+	}
 	SortDiagnostics(diagnostics)
 	state.Diagnostics = dedupeDiagnostics(diagnostics)
 	state.NextStep = closeoutNextStep(state, review, ref)
@@ -2219,6 +2247,11 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 func closeoutNextStep(state CloseoutState, review ReviewEvaluation, ref string) *Diagnostic {
 	step := func(code string, refs ...string) *Diagnostic {
 		return &Diagnostic{Code: code, Domain: DiagnosticCloseout, Refs: refs, Message: state.NextAction}
+	}
+	for _, d := range state.Diagnostics {
+		if d.Code == "action-request-pending" && len(d.Refs) > 1 {
+			return step("answer-action-request", d.Refs[1])
+		}
 	}
 	switch {
 	case state.Terminal:

@@ -103,8 +103,11 @@ pose state --attention --scope spec:storage-refactor
 pose state --attention --actor reviewer --json
 ```
 
-Attention is not a gate. When governed effects are adopted, the write points
-of start, close and release revalidate the obligations of their own phase.
+Attention is not a gate. Governed effects are: adopt them with
+`agency_readiness_version: 1` in the review policy, and `pose close`,
+`pose start --apply` and `pose release prepare` refuse while an unsatisfied
+action request restricts their phase, recomputing the restriction each time
+they run. Without adoption nothing changes.
 
 ## What this model does not do
 

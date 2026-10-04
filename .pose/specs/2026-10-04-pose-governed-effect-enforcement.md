@@ -1,12 +1,13 @@
 ---
 slug: pose-governed-effect-enforcement
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-obligation-projection, pose-action-request-resolution, pose-phase-scoped-readiness
 priority: 0
 components: pose-mcp
+delivers: surface:governed-effects
 task_type: feature
 ---
 
@@ -74,27 +75,30 @@ Start, close, release lifecycle domain functions; capability policy; CLI/MCP.
 ### Artifacts
 
 - created: .pose/specs/2026-10-04-pose-governed-effect-enforcement.md
-- modified: pose-mcp/internal/pose/start.go
-- modified: pose-mcp/internal/pose/review_closeout.go
-- modified: pose-mcp/internal/pose/release_lifecycle.go
-- modified: pose-mcp/internal/pose/capabilities.go
 - created: pose-mcp/internal/pose/governed_effects.go
 - created: pose-mcp/internal/pose/governed_effects_test.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/pose/start.go
+- modified: pose-mcp/internal/pose/diagnostic_codes.go
+- modified: pose-mcp/internal/pose/diagnostic_codes_test.go
+- modified: pose-mcp/internal/pose/effective_governance.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/release_lifecycle.go
-- modified: pose-mcp/internal/mcpserver/server.go
-- modified: pose-mcp/internal/mcpserver/catalog.go
-- modified: pose-mcp/internal/mcpserver/server_test.go
-- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
-- modified: docs-site/docs/mcp.md
+- created: pose-mcp/internal/cli/governed_effects_test.go
+- modified: pose-mcp/internal/mcpserver/obligations_test.go
+- modified: docs-site/docs/obligations.md
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-governed-effect-enforcement.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:governed-effects module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -103,7 +107,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation
@@ -115,7 +119,13 @@ against the tree, as the ABM specs did, before the first implementation commit.
 
 ## 5. Decisions
 
-No material decision beyond the transversal ADR at planning time.
+### Decision D1
+- Date: 2026-10-04
+- Context: the closeout transition is written by the CLI `close` (and continuous closeout); MCP has no close tool, and `pose release record` records facts that already happened outside.
+- Options considered: refuse at every command that reads closeout state; refuse where each transition is written; also refuse recording a publication.
+- Decision: the closeout state carries the typed diagnostic (so continuous closeout and every reader see it), `close` refuses on it explicitly, start refuses through its recomputed plan, and release refuses at `prepare`, the freeze. Recording a publication that happened is not refused.
+- Rationale: refusing to record an external fact would hide reality without preventing it; the freeze is the last point POSE controls.
+- Consequences: execution has no write point and is never refused; it is shown in phases and Attention.
 
 ## 6. Validation
 

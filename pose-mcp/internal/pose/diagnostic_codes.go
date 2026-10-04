@@ -49,6 +49,7 @@ var DiagnosticCatalog = map[string]struct {
 	"external-member-unaccepted":      {DiagnosticCloseout, "federated acceptance of the external member"},
 	"federated-acceptance-blocker":    {DiagnosticCloseout, "the federated acceptance blocker is resolved at its source"},
 	"review-criterion-owed":           {DiagnosticStart, "the criterion is answered at closeout review"},
+	"action-request-pending":          {DiagnosticCloseout, "the action request receives a satisfying answer from its authority, or is waived"},
 }
 
 // NewDiagnostic builds a catalogued diagnostic; the condition comes from the

@@ -120,6 +120,23 @@ func (s Store) PreviewStart(slug string) (StartPlan, error) {
 	} else {
 		plan.Reason = "readiness unavailable: " + err.Error()
 	}
+	// Governed effects: an unsatisfied action request restricting start
+	// keeps the plan not ready, and apply recomputes the plan, so a request
+	// opened after the preview still refuses the start.
+	if adopted, adoptErr := s.AgencyReadinessAdopted(); adoptErr == nil && adopted {
+		if restrictions, restrictErr := s.GovernedEffectRestrictions(PhaseStart, []string{slug}); restrictErr == nil {
+			for _, o := range restrictions {
+				plan.WaitingOn = append(plan.WaitingOn, WaitingRef{Ref: "action:" + o.Source.Detail, Reason: o.Message, Code: "action-request-pending"})
+				plan.Ready = false
+				if plan.Reason == "" || plan.Reason == "ready" {
+					plan.Reason = "an action request restricts start"
+				}
+			}
+		} else {
+			plan.Ready = false
+			plan.Reason = "governed effects could not be read: " + restrictErr.Error()
+		}
+	}
 	if spec.Status != "draft" {
 		plan.Ready = false
 		if plan.Reason == "" {
