@@ -1,12 +1,13 @@
 ---
 slug: pose-action-requests
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-obligation-contract, pose-obligation-projection
 priority: 1
 components: pose-mcp
+delivers: surface:action-requests
 task_type: feature
 ---
 
@@ -80,25 +81,31 @@ skills.
 - created: pose-mcp/internal/pose/action_request.go
 - created: pose-mcp/internal/pose/action_request_test.go
 - created: pose-mcp/internal/cli/action.go
-- created: pose-mcp/internal/cli/action_test.go
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/help_catalog.go
-- modified: pose-mcp/internal/pose/obligation_adapters.go
-- created: pose-mcp/schemas/action-request.schema.json
-- modified: .agents/skills/pose-feature/SKILL.md
+- modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/mcpserver/server.go
 - modified: pose-mcp/internal/mcpserver/catalog.go
 - modified: pose-mcp/internal/mcpserver/server_test.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: docs-site/docs/mcp.md
+- modified: docs-site/docs/obligations.md
+- modified: .agents/skills/pose-feature/SKILL.md
+- modified: locales/pt-BR/.agents/skills/pose-feature/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-feature/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-feature/SKILL.md
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-action-requests.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:action-requests module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -107,7 +114,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

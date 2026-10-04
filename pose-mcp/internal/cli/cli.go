@@ -221,6 +221,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 		return cmdStart(root, args, stdout, stderr)
+	case "action":
+		root, err := projectRoot()
+		if err != nil {
+			render(stdout, stderr).Failure("pose action: " + err.Error())
+			return 2
+		}
+		return cmdAction(root, args, stdout, stderr)
 	case "review", "review-plan", "review-check", "closeout-check", "close", "continuous-closeout", "artifact-check", "artifact-backfill", "surface-check", "roadmap-check":
 		root, err := projectRoot()
 		if err != nil {

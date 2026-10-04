@@ -333,6 +333,27 @@ var commandHelpCatalog = map[string]CommandHelp{
 			"pose review verify spec:my-feature",
 		},
 	},
+	"action": {
+		Name:            "action",
+		SummaryEN:       "Open, read and resolve material requests to a person or an external system",
+		SummaryPtBR:     "Abre, lê e resolve solicitações materiais a uma pessoa ou a um sistema externo",
+		Usage:           "pose action <open|list|show|resolve|cancel|waive|invalidate> ...",
+		DescriptionEN:   "An action request records a decision, approval, input, external operation or acceptance that no other source holds, with its question, options and consequences, recipient, qualified targets and per-phase effects. Open one only when a different answer would materially change execution, scope, authority, risk acceptance, closeout or publication, and no authorization already given covers it. Writes are previews until --apply. A resolution names the request digest it answers and the revision it read, carries an idempotency key, and is accepted only from an actor holding the recipient role in .pose/policy/actions.json; under verified assurance it also needs a signed claim. Answered is not satisfied: a declined approval, a rejected acceptance or a failed operation leaves the request's condition unmet.",
+		DescriptionPtBR: "Uma action request registra uma decisão, aprovação, informação, operação externa ou aceite que nenhuma outra fonte guarda, com a pergunta, as opções e consequências, o destinatário, os alvos qualificados e os efeitos por fase. Abra uma somente quando uma resposta diferente mudaria materialmente execução, escopo, autoridade, aceitação de risco, closeout ou publicação, e nenhuma autorização já dada a cobre. Escritas são preview até --apply. Uma resolução nomeia o digest da solicitação que responde e a revisão que leu, traz uma chave de idempotência e só é aceita de um ator que detém o papel destinatário em .pose/policy/actions.json; com garantia verificada também exige uma claim assinada. Respondida não é satisfeita: uma aprovação recusada, um aceite rejeitado ou uma operação falha deixam a condição sem atendimento.",
+		Subcommands: []SubcommandHelp{
+			{"open", "pose action open --origin <ref> --kind <kind> --question <text> --requested-by <p> --target <ref>... --effect <phase>:<mode>... [--option id=consequence]... [--recipient <p>|--recipient-role <r>] [--subject <ref|path:file>] [--supersedes <id>] [--apply]", "Preview or record a material request", "Visualiza ou registra uma solicitação material"},
+			{"list", "pose action list [--state <state>] [--json]", "List requests with their derived state", "Lista solicitações com o estado derivado"},
+			{"show", "pose action show <act-id> [--json]", "Show exactly the content an answer is bound to", "Mostra exatamente o conteúdo ao qual uma resposta fica vinculada"},
+			{"resolve", "pose action resolve <act-id> --actor <p> --answer <a> --request-digest <d> --expected-revision <n> --idempotency-key <k> [--claim <file>] [--apply]", "Record an answer from an authorized actor", "Registra a resposta de um ator autorizado"},
+			{"cancel", "pose action cancel <act-id> --actor <p> --reason <text> --request-digest <d> --expected-revision <n> --idempotency-key <k> [--apply]", "Withdraw a request (requester or authority)", "Retira uma solicitação (solicitante ou autoridade)"},
+			{"waive", "pose action waive <act-id> --actor <p> --reason <text> --request-digest <d> --expected-revision <n> --idempotency-key <k> [--apply]", "Dispense with the condition (authority only)", "Dispensa a condição (somente a autoridade)"},
+			{"invalidate", "pose action invalidate <act-id> --actor <p> --reason <text> --request-digest <d> --expected-revision <n> --idempotency-key <k> [--apply]", "Mark an answer as no longer applying", "Marca uma resposta como não aplicável"},
+		},
+		Examples: []string{
+			"pose action open --origin spec:storage --kind decision --question \"Keep reading schema v1?\" --option preserve-v1=\"Keep the v1 reader\" --option break-v1=\"Consumers migrate\" --recipient-role maintainer --requested-by agent:impl --target requirement:R4 --effect execution:block --effect closeout:block --apply",
+			"pose action resolve act-0123456789abcdef --actor human:maintainer --answer preserve-v1 --request-digest sha256:... --expected-revision 1 --idempotency-key answer-1 --apply",
+		},
+	},
 	"start": {
 		Name:            "start",
 		SummaryEN:       "Preview or apply the atomic start of a draft spec",

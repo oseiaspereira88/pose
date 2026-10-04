@@ -47,26 +47,27 @@ siga direto para a leitura abaixo — o artefato é aditivo, nunca bloqueante.
    find .pose/knowledge -name "*<modulo>*.md" -type f -not -path '*/archive/*'
    ```
 5. Preencher seções `Intent → Requirements → Technical Plan → Tasks` da spec de autoridade antes de codar.
-6. Implementar incrementalmente, comitar no repositório que possui a spec de autoridade com o trailer `POSE-Spec: <slug>` na mensagem do commit (ex: `POSE-Spec: <slug>`) e validar cada passo:
+6. Quando uma decisão, aprovação, informação, operação externa ou aceite pertence de fato a outra pessoa, registre com `pose action open` em vez de parar a sessão ou escondê-la num follow-up — mas somente quando uma resposta diferente mudaria materialmente execução, escopo, autoridade, aceitação de risco, closeout ou publicação e nenhuma autorização já dada a cobre. Dê alvos e as fases que ela restringe (`--effect closeout:block` quando não impede a implementação), continue o que ela não restringe e apresente as solicitações abertas juntas com `pose state --attention`. Uma escolha cosmética ou reversível que você pode fazer dentro do escopo autorizado não é solicitação.
+7. Implementar incrementalmente, comitar no repositório que possui a spec de autoridade com o trailer `POSE-Spec: <slug>` na mensagem do commit (ex: `POSE-Spec: <slug>`) e validar cada passo:
    ```bash
    pose validate --strict --module <path-afetado> --report
    ```
-7. Atualizar seção `Validation` da spec com os comandos executados e resultado.
-8. Se houver contexto reaproveitável para próxima execução (estado parcial, follow-up, transição de owner), criar handoff:
+8. Atualizar seção `Validation` da spec com os comandos executados e resultado.
+9. Se houver contexto reaproveitável para próxima execução (estado parcial, follow-up, transição de owner), criar handoff:
    ```bash
    pose new-knowledge handoff <slug>-handoff --owner @<squad>
    ```
-9. Preencher seção `Final Report` da spec com escopo entregue, riscos residuais e follow-ups.
-10. **Fechar a spec** (skill [pose-spec-closeout](../pose-spec-closeout/SKILL.md)): quando review bundles estiverem habilitados, selar o sujeito com `pose review bundle <referência-da-spec> --seal [--expect-context <digest>]`, coletar a metade mecânica com `pose review auto-attest <bundle-id> --reviewer agent:<id>` sem `--apply`, responder as pendências com `pose review attest <referência-da-spec> ... --apply [--expect-context <digest>]` e exigir `pose review verify <referência-da-spec>`. Para autoridade externa, use o `xref` e o contexto atual em cada escrita. Depois, definir `status: done` + `completed_at` no frontmatter, dar disposição a cada follow-up e rodar o gate de saída:
+10. Preencher seção `Final Report` da spec com escopo entregue, riscos residuais e follow-ups.
+11. **Fechar a spec** (skill [pose-spec-closeout](../pose-spec-closeout/SKILL.md)): quando review bundles estiverem habilitados, selar o sujeito com `pose review bundle <referência-da-spec> --seal [--expect-context <digest>]`, coletar a metade mecânica com `pose review auto-attest <bundle-id> --reviewer agent:<id>` sem `--apply`, responder as pendências com `pose review attest <referência-da-spec> ... --apply [--expect-context <digest>]` e exigir `pose review verify <referência-da-spec>`. Para autoridade externa, use o `xref` e o contexto atual em cada escrita. Depois, definir `status: done` + `completed_at` no frontmatter, dar disposição a cada follow-up e rodar o gate de saída:
    ```bash
    pose followups --all          # backlog cruzado + colisões antes de triar
    pose lint-spec <slug> --strict
    ```
-11. Atualizar métricas dinâmicas da plataforma após a entrega:
+12. Atualizar métricas dinâmicas da plataforma após a entrega:
     ```bash
     pose assess discover --update-state
     ```
-12. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
+13. Se o Modo Contribuidor estiver ativo e o escopo revelar regras de stack ausentes ou capacidades reutilizáveis para o motor POSE, registre uma proposta de contribuição com `pose contribute stage --type enhancement --title "<resumo>"`.
 
 ## Output requirements
 

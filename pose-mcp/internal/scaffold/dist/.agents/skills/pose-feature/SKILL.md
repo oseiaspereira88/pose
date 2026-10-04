@@ -30,13 +30,14 @@ stale, go straight to the reading below — the artifact is additive, never bloc
 2. Run `pose assess discover [--component <dir>]` / `pose_component_discover` to obtain LOC metrics, module structure, and debts before modifying code.
 3. Search `.pose/knowledge/` for related handoffs and decision logs; cite each one used as `knowledge:<slug>` in the spec, the form `pose knowledge-usage` counts.
 4. Complete Intent, Requirements, Technical Plan, and Tasks before coding.
-5. Implement incrementally, commit changes with a `POSE-Spec: <slug>` trailer in the commit message (e.g. `POSE-Spec: <slug>`) to attribute file modifications to the spec, and run `pose validate --strict --module <affected-path> --report`.
-6. Record executed commands and results in Validation.
-7. Create a handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, follow-ups, or owner transition.
-8. Complete the Final Report with delivered scope and residual risk.
-9. Use [pose-spec-closeout](../pose-spec-closeout/SKILL.md). When review bundles are enabled, seal the validated subject (`pose review bundle spec:<slug> --seal`), attach the independent attestation (`pose review auto-attest <bundle-id> --reviewer agent:<id>` to collect the mechanical half, then `pose review attest` to answer what it reports as pending) and require `pose review verify spec:<slug>` before closeout. Disposition follow-ups from `pose followups --all` and pass `pose lint-spec <slug> --strict`.
-10. Run `pose assess discover --update-state` upon delivery completion to refresh dynamic platform metrics.
-11. When Contributor Mode is active and scope reveals missing POSE stack rules or reusable engine capabilities, stage a contribution proposal with `pose contribute stage --type enhancement --title "<summary>"`.
+5. When a decision, approval, input, external operation or acceptance genuinely belongs to someone else, record it with `pose action open` instead of stopping the session or hiding it in a follow-up — but only when a different answer would materially change execution, scope, authority, risk acceptance, closeout or publication and no authorization already given covers it. Give it targets and the phases it restricts (`--effect closeout:block` when it does not stop implementation), keep working on what it does not restrict, and present the open requests together with `pose state --attention`. A cosmetic or reversible choice you can make within the authorized scope is not a request.
+6. Implement incrementally, commit changes with a `POSE-Spec: <slug>` trailer in the commit message (e.g. `POSE-Spec: <slug>`) to attribute file modifications to the spec, and run `pose validate --strict --module <affected-path> --report`.
+7. Record executed commands and results in Validation.
+8. Create a handoff with `pose new-knowledge handoff <slug>` when another execution needs partial state, follow-ups, or owner transition.
+9. Complete the Final Report with delivered scope and residual risk.
+10. Use [pose-spec-closeout](../pose-spec-closeout/SKILL.md). When review bundles are enabled, seal the validated subject (`pose review bundle spec:<slug> --seal`), attach the independent attestation (`pose review auto-attest <bundle-id> --reviewer agent:<id>` to collect the mechanical half, then `pose review attest` to answer what it reports as pending) and require `pose review verify spec:<slug>` before closeout. Disposition follow-ups from `pose followups --all` and pass `pose lint-spec <slug> --strict`.
+11. Run `pose assess discover --update-state` upon delivery completion to refresh dynamic platform metrics.
+12. When Contributor Mode is active and scope reveals missing POSE stack rules or reusable engine capabilities, stage a contribution proposal with `pose contribute stage --type enhancement --title "<summary>"`.
 
 ## Output requirements
 

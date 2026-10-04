@@ -58,6 +58,37 @@ A subsystem that still reports a blocker only as text is projected as
 `coverage: legacy-opaque`: its origin and the limitation are kept, and it
 gains no invented actor, target or unblock condition.
 
+## Action requests
+
+An **ActionRequest** is the one obligation POSE persists, because nothing else
+records it: a material request to a person or an external system.
+
+```bash
+pose action open --origin spec:storage --kind decision \
+  --question "Will the next delivery keep reading schema v1?" \
+  --option preserve-v1="Keep the v1 reader" --option break-v1="Consumers migrate" \
+  --recommend preserve-v1 --recipient-role maintainer --requested-by agent:impl \
+  --target requirement:R4 --effect execution:block --effect closeout:block \
+  --subject requirement:R4 --apply
+```
+
+Open one only when a different answer would materially change execution,
+scope, authority, risk acceptance, closeout or publication, and no authorization
+already given covers it. Everything else is conversation.
+
+A resolution is bound and guarded:
+
+- it names the request digest it answers — a changed question, option, target
+  or effect is a new request, and a changed subject invalidates an earlier answer;
+- it names the revision it read and carries an idempotency key — a retry is a
+  no-op, a second answer against the same revision is refused;
+- it comes from an actor holding the recipient role in `.pose/policy/actions.json`;
+  under `identity_assurance: verified` it also carries a signed claim from a
+  trusted issuer bound to project, audience, digest, principal and answer.
+
+**Answered is not satisfied.** A declined approval, a rejected acceptance or a
+failed external operation is recorded, and the condition stays unmet.
+
 ## Reading it: Attention
 
 `pose state --attention` (and the MCP tool `pose_obligations`) read the

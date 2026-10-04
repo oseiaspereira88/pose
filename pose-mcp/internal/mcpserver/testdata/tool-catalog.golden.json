@@ -16,6 +16,9 @@
       "optional": true,
       "activation": "Conductor reporter configured (CONDUCTOR_URL, CONDUCTOR_RUN_TOKEN, CONDUCTOR_PROJECT_ID)"
     },
+    "pose_action_requests": {
+      "risk": "read"
+    },
     "pose_capability_history": {
       "risk": "read"
     },
@@ -359,6 +362,27 @@
         "type": "object"
       },
       "name": "pose_spec_readiness"
+    },
+    {
+      "description": "Read material requests to a person or an external system (decision, approval, input, external operation, acceptance): question, options with consequences, recipient, qualified targets, per-phase effects, the request digest an answer must name, the append-only journal and the derived state and satisfaction (answered is not satisfied: a declined approval leaves the condition unmet). Read-only: requests are opened and resolved with `pose action` on the CLI, where a resolution names the digest and revision it answers and needs the recipient role.",
+      "inputSchema": {
+        "properties": {
+          "id": {
+            "description": "Optional act-\u003c16 hex\u003e id; omit to list",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
+            "type": "string"
+          },
+          "state": {
+            "description": "Optional state filter: open, answered, cancelled, waived, superseded, invalidated",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "pose_action_requests"
     },
     {
       "description": "Read everything still owed, projected read-only from the subsystems that own it (readiness, closeout, review judgment, start reconciliation, open follow-ups): one record per obligation with a stable id, qualified source and targets, reason code, satisfaction condition, recipient, per-phase effect (block or advisory), satisfaction, knowledge and waiting. Every answer carries a snapshot (revision, dirty tree, policy and contract digests) and per-producer coverage; a producer that failed or is not integrated is listed, so an empty list with incomplete coverage never means nothing is owed. `attention` groups the same ids for the actor. Read-only: resolve an obligation at its source, never here.",

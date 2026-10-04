@@ -403,6 +403,11 @@ func (checker *nativeChecker) checkReferences() {
 
 func isRuntimeReference(ref string) bool {
 	runtimePrefixes := []string{
+		// Action request journals are created by `pose action open --apply`,
+		// and the action policy by an instance that addresses requests to a
+		// role; neither exists on a fresh install (spec pose-action-requests).
+		".pose/actions",
+		".pose/policy/actions.json",
 		".pose/contributions",
 		".pose/feedback",
 		".pose/results",

@@ -1039,6 +1039,28 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			project = s.roots.Context().DefaultProjectID
 		}
 		return store.SpecReadinessWithResolver(a.Slug, project, resolver)
+	case "pose_action_requests":
+		var a struct {
+			ID    string `json:"id"`
+			State string `json:"state"`
+		}
+		if err := json.Unmarshal(args, &a); err != nil {
+			return nil, fmt.Errorf("pose_action_requests: invalid arguments")
+		}
+		if a.ID != "" {
+			return store.LoadActionRequest(a.ID)
+		}
+		views, err := store.ListActionRequests()
+		if err != nil {
+			return nil, err
+		}
+		filtered := []pose.ActionRequestView{}
+		for _, v := range views {
+			if a.State == "" || v.State == a.State {
+				filtered = append(filtered, v)
+			}
+		}
+		return map[string]any{"requests": filtered, "count": len(filtered)}, nil
 	case "pose_obligations":
 		var a struct {
 			Scope string `json:"scope"`
@@ -2098,6 +2120,23 @@ func toolDefinitions() []map[string]any {
 					},
 				},
 				"required": []string{"slug"},
+			},
+		},
+		{
+			"name": "pose_action_requests",
+			"description": "Read material requests to a person or an external system (decision, approval, input, " +
+				"external operation, acceptance): question, options with consequences, recipient, qualified targets, " +
+				"per-phase effects, the request digest an answer must name, the append-only journal and the derived " +
+				"state and satisfaction (answered is not satisfied: a declined approval leaves the condition unmet). " +
+				"Read-only: requests are opened and resolved with `pose action` on the CLI, where a resolution names " +
+				"the digest and revision it answers and needs the recipient role.",
+			"inputSchema": map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"id":         map[string]any{"type": "string", "description": "Optional act-<16 hex> id; omit to list"},
+					"state":      map[string]any{"type": "string", "description": "Optional state filter: open, answered, cancelled, waived, superseded, invalidated"},
+					"project_id": map[string]any{"type": "string", "description": "Optional project to scope the .pose root (multi-project); omit for the default root"},
+				},
 			},
 		},
 		{
