@@ -144,6 +144,14 @@ Golden tests for declared and verified fixtures; a negative test that a declared
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:review-assurance-disclosure evidence:integration test:TestReviewSurfacesDiscloseDeclaredAssuranceOfAHumanLabel check:review-assurance-disclosure-integration test:TestReviewCheckCarriesTheSameAssuranceAsVerify
+- R2 [satisfied] test:TestDeclaredHumanReviewerIsNeverRenderedAsAVerifiedPerson check:review-assurance-disclosure-integration test:TestDeclaredIndependentAgentPrefixIsADeclaration
+- R3 [satisfied] test:TestVerifiedAssuranceDisclosesTheClaimItVerified check:review-assurance-disclosure-integration test:TestVerifiedAssuranceWithoutAValidClaimVerifiesNothing
+- R4 [satisfied] test:TestDeclaredHumanReviewerIsNeverRenderedAsAVerifiedPerson check:review-assurance-disclosure-integration test:TestLegacyAttemptUnderVerifiedPolicyVerifiesNothing
+- R5 [satisfied] test:TestNoSurfaceClaimsAnIndependentReview check:review-assurance-disclosure-integration
+
 ## 7. Final Report
 
 ### Delivered scope
