@@ -188,11 +188,11 @@ type ReviewPolicy struct {
 	// in policies and named by the registry long before the typed policy read
 	// them, so a configured cutoff produced no effect (spec
 	// pose-legacy-contract-cutoffs). `contract_adoptions` still wins.
-	ExplicitJudgmentAdoptedAt    string `json:"explicit_judgment_adopted_at,omitempty"`
-	StructuralCausalityAdoptedAt string `json:"structural_causality_adopted_at,omitempty"`
-	AllowCriterionReuse              bool              `json:"allow_criterion_reuse,omitempty"`
-	RequireSignedAttestations        bool              `json:"require_signed_attestations,omitempty"`
-	TrustedAttestationIssuers        []string          `json:"trusted_attestation_issuers,omitempty"`
+	ExplicitJudgmentAdoptedAt    string   `json:"explicit_judgment_adopted_at,omitempty"`
+	StructuralCausalityAdoptedAt string   `json:"structural_causality_adopted_at,omitempty"`
+	AllowCriterionReuse          bool     `json:"allow_criterion_reuse,omitempty"`
+	RequireSignedAttestations    bool     `json:"require_signed_attestations,omitempty"`
+	TrustedAttestationIssuers    []string `json:"trusted_attestation_issuers,omitempty"`
 	// IdentityAssurance is per scope kind and holds `declared` or `verified`.
 	//
 	// It is a second axis, not a stronger value of the first. Independence says
