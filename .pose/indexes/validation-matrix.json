@@ -1513,20 +1513,6 @@
           "evidenceClass": "reachability"
         },
         {
-          "name": "governance-waits-integration",
-          "program": "go",
-          "args": [
-            "test",
-            "./internal/pose",
-            "./internal/cli",
-            "-run",
-            "WaitsSeparate|ReworkClassifies|BookkeepingChanges|EquivalenceAgrees|TestGovernanceStats",
-            "-count=1"
-          ],
-          "severity": "required",
-          "evidenceClass": "integration"
-        },
-        {
           "name": "premise-validity-integration",
           "program": "go",
           "args": [
@@ -1560,6 +1546,20 @@
             "./internal/cli",
             "-run",
             "MigrateDryRun|TestHelp",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "governance-waits-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "WaitsSeparate|ReworkClassifies|BookkeepingChanges|EquivalenceAgrees|TestGovernanceStats|WaitsAloneDoesNotComputeOutcomes",
             "-count=1"
           ],
           "severity": "required",

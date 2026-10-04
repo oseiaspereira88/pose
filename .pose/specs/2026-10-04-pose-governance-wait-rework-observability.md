@@ -85,6 +85,8 @@ Governance outcomes, stats CLI, benchmark scripts.
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/reuse_equivalence_test.go
 - created: scripts/bench-governance.sh
+- modified: pose-mcp/internal/cli/help_catalog.go
+- created: pose-mcp/internal/cli/governance_dimensions_test.go
 - modified: docs-site/docs/cli.md
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -145,6 +147,8 @@ superseded attestations.
 - Expected: pass
 
 ## 7. Final Report
+
+The agency-readiness pilot rehearsal measured `stats governance --waits` at 88 s: it recomputed the whole outcomes report before printing the waits. `--waits` and `--rework` now compute only their dimensions (11 ms on the rehearsal clone); `--outcomes` adds the outcomes when wanted.
 
 Measured on this repository at 6e5f4d9 with `scripts/bench-governance.sh 1`: `state --attention` 1.9 s, `check --strict` 83.7 s, `index` 60.0 s, delivery index 5.09 MB. The pre-batch engine (133478d) takes the same 82.8 s for `check --strict` as the current one, so the batch did not regress it; the cost predates this roadmap. On the same corpus `stats governance --rework` reported 1307 sealed bundles over 206 scopes: 477 superseded because the subject changed, 571 because the review plan changed, 17 for intent or plan, 33 for evidence, 3 unknown; of 1301 attestations, 8 extra ones followed an attestation invalid against today's policy and 36 have no recorded cause.
 

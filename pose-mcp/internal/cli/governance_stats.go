@@ -17,7 +17,7 @@ import (
 // accidentally acquire a shared pass-rate or quality score.
 func cmdGovernanceStats(root string, args []string, stdout, stderr io.Writer) int {
 	query := posepkg.GovernanceOutcomesQuery{}
-	jsonOut, waits, rework := false, false, false
+	jsonOut, waits, rework, outcomes := false, false, false, false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--json":
@@ -26,9 +26,11 @@ func cmdGovernanceStats(root string, args []string, stdout, stderr io.Writer) in
 			waits = true
 		case "--rework":
 			rework = true
+		case "--outcomes":
+			outcomes = true
 		case "--since-days", "--maturity-days", "--min-sample", "--band", "--report-type":
 			if i+1 >= len(args) {
-				return usageError(stderr, "Usage: pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--band baseline|elevated|critical|unknown] [--report-type standard|doc-audit|unknown] [--waits] [--rework] [--json]")
+				return usageError(stderr, "Usage: pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--band baseline|elevated|critical|unknown] [--report-type standard|doc-audit|unknown] [--waits] [--rework] [--outcomes] [--json]")
 			}
 			value := args[i+1]
 			switch args[i] {
@@ -52,13 +54,24 @@ func cmdGovernanceStats(root string, args []string, stdout, stderr io.Writer) in
 			}
 			i++
 		default:
-			return usageError(stderr, "Usage: pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--band baseline|elevated|critical|unknown] [--report-type standard|doc-audit|unknown] [--waits] [--rework] [--json]")
+			return usageError(stderr, "Usage: pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--band baseline|elevated|critical|unknown] [--report-type standard|doc-audit|unknown] [--waits] [--rework] [--outcomes] [--json]")
 		}
 	}
-	report, err := (posepkg.Store{Root: root}).GovernanceOutcomes(query)
-	if err != nil {
-		render(stdout, stderr).Failure(err.Error())
-		return 1
+	// --waits and --rework select their dimensions; the outcomes, which read
+	// the whole report history and every bundle's freshness, are added only
+	// when asked with --outcomes (the agency-readiness pilot measured 88 s for
+	// a waits query that recomputed them).
+	if !waits && !rework {
+		outcomes = true
+	}
+	var report *posepkg.GovernanceOutcomesReport
+	if outcomes {
+		r, err := (posepkg.Store{Root: root}).GovernanceOutcomes(query)
+		if err != nil {
+			render(stdout, stderr).Failure(err.Error())
+			return 1
+		}
+		report = r
 	}
 	// Waits and rework are separate dimensions (spec
 	// pose-governance-wait-rework-observability); they are reported beside
@@ -87,6 +100,11 @@ func cmdGovernanceStats(root string, args []string, stdout, stderr io.Writer) in
 			Waits  *posepkg.GovernanceWaitReport   `json:"waits,omitempty"`
 			Rework *posepkg.GovernanceReworkReport `json:"rework,omitempty"`
 		}{report, waitReport, reworkReport})
+	}
+	if report == nil {
+		out := render(stdout, stderr)
+		renderGovernanceDimensions(out, waitReport, reworkReport)
+		return 0
 	}
 	if jsonOut {
 		if err := json.NewEncoder(stdout).Encode(report); err != nil {
@@ -136,6 +154,11 @@ func cmdGovernanceStats(root string, args []string, stdout, stderr io.Writer) in
 	for _, link := range report.Remediation.Links {
 		out.Field("remediation.link", fmt.Sprintf("finding:%s/%s -> spec:%s category=%s band=%s", link.AttestationID, link.FindingID, link.RemediationSpec, link.Category, link.SourceBand))
 	}
+	renderGovernanceDimensions(out, waitReport, reworkReport)
+	return 0
+}
+
+func renderGovernanceDimensions(out interface{ Field(string, string) }, waitReport *posepkg.GovernanceWaitReport, reworkReport *posepkg.GovernanceReworkReport) {
 	if waitReport != nil {
 		out.Field("waits.requests", fmt.Sprintf("total=%d resolved=%d open=%d unknown=%d", waitReport.Requests, waitReport.Resolved, waitReport.Open, waitReport.Unknown))
 		out.Field("waits.age_seconds", fmt.Sprintf("count=%d median=%.0f max=%.0f", waitReport.AgeSeconds.Count, waitReport.AgeSeconds.Median, waitReport.AgeSeconds.Max))
@@ -159,7 +182,6 @@ func cmdGovernanceStats(root string, args []string, stdout, stderr io.Writer) in
 			out.Field("rework.limitation", l)
 		}
 	}
-	return 0
 }
 
 func sortedFloatKeys(values map[string]float64) []string {

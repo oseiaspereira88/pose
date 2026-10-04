@@ -711,7 +711,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 		Name:            "stats",
 		SummaryEN:       "Display historical POSE engineering statistics and task metrics",
 		SummaryPtBR:     "Exibe estatísticas históricas de engenharia e métricas de tarefas do POSE",
-		Usage:           "pose stats replay [--limit N] [--json] | pose stats [workflows|tasks|contexts] [--since-days N] [--json] | pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--waits] [--rework] [--json]",
+		Usage:           "pose stats replay [--limit N] [--json] | pose stats [workflows|tasks|contexts] [--since-days N] [--json] | pose stats governance [--since-days N] [--maturity-days N] [--min-sample N] [--waits] [--rework] [--outcomes] [--json]",
 		DescriptionEN:   "Aggregates historical outcomes, or (with governance) reports separate preparation, judgment, intervention, freshness and coverage dimensions without a quality score.",
 		DescriptionPtBR: "Agrega resultados históricos ou, com governance, separa preparação, julgamento, intervenção, atualidade e cobertura sem score de qualidade.",
 		Flags: []FlagHelp{
@@ -720,6 +720,7 @@ var commandHelpCatalog = map[string]CommandHelp{
 			{"--min-sample <N>", "Governance query minimum sample (default: 3)", "Amostra mínima da consulta governance (padrão: 3)"},
 			{"--waits", "Governance: request age, attributed wait and known blocking, kept apart", "Governance: idade das solicitações, espera atribuída e bloqueio conhecido, separados"},
 			{"--rework", "Governance: why review work was redone, by what changed; unknown otherwise", "Governance: por que o trabalho de review foi refeito, pelo que mudou; senão desconhecido"},
+			{"--outcomes", "Governance: with --waits/--rework, also compute the outcomes (reads the whole history)", "Governance: com --waits/--rework, calcula também os resultados (lê todo o histórico)"},
 			{"--json", "Output statistics in JSON format", "Emite as estatísticas em formato JSON"},
 		},
 		Examples: []string{
