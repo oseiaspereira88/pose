@@ -145,6 +145,14 @@ no-invention test.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:progressive-spec-surface evidence:integration test:TestMinimalSurfaceKeepsGovernanceAndDropsRitual check:delivery-integration test:TestLintAppliesTheSurfaceButNotToLifecycleGates
+- R2 [satisfied] <implemented as pose specs facts <slug>> test:TestSpecFactsAreDerivedFromTheIndex check:spec-surface-integration
+- R3 [satisfied] <facts carry paths and checks only> test:TestSpecFactsAreDerivedFromTheIndex check:spec-surface-integration
+- R4 [satisfied] <trace, follow-up and amendment gates unchanged; facts report their limitations> test:TestLintAppliesTheSurfaceButNotToLifecycleGates check:delivery-integration
+- R5 [satisfied] test:TestMinimalSurfaceKeepsGovernanceAndDropsRitual check:delivery-integration
+
 ## 7. Final Report
 
 ### Delivered scope
