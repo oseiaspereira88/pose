@@ -570,6 +570,22 @@ func cmdReviewVerify(root string, args []string, stdout, stderr io.Writer) int {
 		if verification.Assurance != nil {
 			render(stdout, stderr).Field("review_verify.assurance", posemodel.RenderReviewAssurance(*verification.Assurance))
 		}
+		// Why each criterion can or cannot be carried forward (spec
+		// pose-material-equivalence-reuse), and where reused answers came from.
+		if verification.Delta != nil {
+			for _, e := range verification.Delta.CriterionReuse {
+				line := e.Decision
+				if len(e.ChangedInputs) > 0 {
+					line += ": " + strings.Join(e.ChangedInputs, "; ")
+				}
+				render(stdout, stderr).Field("review_verify.reuse."+e.Criterion, line)
+			}
+		}
+		if verification.Attestation != nil {
+			for _, reuse := range verification.Attestation.ReusedFrom {
+				render(stdout, stderr).Field("review_verify.reused."+reuse.Criterion, "from "+reuse.FromAttestation+"; its inputs digest "+reuse.InputDigest+" is unchanged in this bundle")
+			}
+		}
 		for _, warning := range verification.Warnings {
 			fmt.Fprintf(stdout, "[WARN] %s\n", warning)
 		}

@@ -1,12 +1,13 @@
 ---
 slug: pose-material-equivalence-reuse
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-obligation-projection, pose-recoverable-closeout-plan
 priority: 1
 components: pose-mcp
+delivers: capability:material-equivalence-reuse
 task_type: feature
 ---
 
@@ -76,11 +77,19 @@ Criterion reuse, evidence binding, closeout plan.
 - created: pose-mcp/internal/pose/reuse_equivalence.go
 - created: pose-mcp/internal/pose/reuse_equivalence_test.go
 - modified: pose-mcp/internal/pose/review_bundle.go
-- modified: pose-mcp/internal/pose/closeout_plan.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-material-equivalence-reuse.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- capability:material-equivalence-reuse module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -89,7 +98,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

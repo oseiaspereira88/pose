@@ -415,6 +415,9 @@ type ReviewBundleDelta struct {
 	ChangedEvidenceClasses []string `json:"changed_evidence_classes,omitempty"`
 	ChangedFindings        []string `json:"changed_findings,omitempty"`
 	ReusableCriteria       []string `json:"reusable_criteria,omitempty"`
+	// CriterionReuse explains, per criterion, which material inputs changed
+	// (spec pose-material-equivalence-reuse).
+	CriterionReuse []CriterionReuseExplanation `json:"criterion_reuse,omitempty"`
 }
 
 type ReviewBundleVerification struct {
@@ -2913,7 +2916,7 @@ func evidenceModuleLabel(evidence ReviewBundleEvidence) string {
 	return evidence.Module
 }
 
-func reviewCriterionInputDigest(bundle ReviewBundle, criterion ReviewPlanCriterion) string {
+func reviewCriterionInputContract(bundle ReviewBundle, criterion ReviewPlanCriterion) criterionInputContract {
 	evidence := []ReviewBundleEvidence{}
 	classes := map[string]bool{}
 	for _, class := range criterion.EvidenceClasses {
@@ -2959,17 +2962,7 @@ func reviewCriterionInputDigest(bundle ReviewBundle, criterion ReviewPlanCriteri
 			}
 		}
 	}
-	contract := struct {
-		Criterion    ReviewPlanCriterion        `json:"criterion"`
-		Independence string                     `json:"independence"`
-		Scope        []ReviewBundleInput        `json:"scope,omitempty"`
-		Subject      []ReviewBundleSubjectEntry `json:"subject,omitempty"`
-		PatchDigest  string                     `json:"patch_digest,omitempty"`
-		TreeDigest   string                     `json:"tree_digest,omitempty"`
-		Evidence     []ReviewBundleEvidence     `json:"evidence,omitempty"`
-		Inputs       []ReviewBundleInput        `json:"inputs"`
-		Tools        []ReviewPlanTool           `json:"tools,omitempty"`
-	}{Criterion: criterion, Independence: bundle.Payload.Plan.Independence, Evidence: evidence, Inputs: sortedBundleInputs(inputs), Tools: relevantTools}
+	contract := criterionInputContract{Criterion: criterion, Independence: bundle.Payload.Plan.Independence, Evidence: evidence, Inputs: sortedBundleInputs(inputs), Tools: relevantTools}
 	if subjectSensitive {
 		contract.Scope = append([]ReviewBundleInput{}, bundle.Payload.Scope.Sections...)
 		contract.Subject = append([]ReviewBundleSubjectEntry{}, bundle.Payload.Subject.Entries...)
@@ -2989,7 +2982,26 @@ func reviewCriterionInputDigest(bundle ReviewBundle, criterion ReviewPlanCriteri
 			}
 		}
 	}
-	digest, _ := digestJSON(contract)
+	return contract
+}
+
+// criterionInputContract is everything a criterion's answer depends on. Its
+// digest decides reuse; its fields explain it (spec
+// pose-material-equivalence-reuse).
+type criterionInputContract struct {
+	Criterion    ReviewPlanCriterion        `json:"criterion"`
+	Independence string                     `json:"independence"`
+	Scope        []ReviewBundleInput        `json:"scope,omitempty"`
+	Subject      []ReviewBundleSubjectEntry `json:"subject,omitempty"`
+	PatchDigest  string                     `json:"patch_digest,omitempty"`
+	TreeDigest   string                     `json:"tree_digest,omitempty"`
+	Evidence     []ReviewBundleEvidence     `json:"evidence,omitempty"`
+	Inputs       []ReviewBundleInput        `json:"inputs"`
+	Tools        []ReviewPlanTool           `json:"tools,omitempty"`
+}
+
+func reviewCriterionInputDigest(bundle ReviewBundle, criterion ReviewPlanCriterion) string {
+	digest, _ := digestJSON(reviewCriterionInputContract(bundle, criterion))
 	return digest
 }
 
@@ -3015,7 +3027,7 @@ func reviewCriterionSubjectSensitive(criterion ReviewPlanCriterion) bool {
 }
 
 func ReviewBundleDiff(from, to ReviewBundle) ReviewBundleDelta {
-	delta := ReviewBundleDelta{FromBundle: from.BundleID, ToBundle: to.BundleID}
+	delta := ReviewBundleDelta{FromBundle: from.BundleID, ToBundle: to.BundleID, CriterionReuse: ExplainCriterionReuse(from, to)}
 	fromComponents := map[string]string{}
 	toComponents := map[string]string{}
 	for _, component := range from.Payload.Plan.Components {
