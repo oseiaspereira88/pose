@@ -1,0 +1,1762 @@
+{
+  "schema_version": 1,
+  "document_type": "proposed_consolidated_backlog",
+  "language": "pt-BR",
+  "analysis_date": "2026-10-03",
+  "repository": "oseiaspereira88/pose",
+  "source_revision": "392aaa5a007f745cdf1804f65631ea2792567fd9",
+  "status": "proposed_not_implemented",
+  "limits": [
+    "Auditoria arquitetural com leitura dirigida; suíte não executada nesta auditoria.",
+    "As 12 specs não terminais indicadas no índice foram lidas; os 123 follow-ups históricos ainda exigem reconciliação individual.",
+    "Estado do repositório Harne8 não verificado.",
+    "Horizontes de release são propostas, não compromissos."
+  ],
+  "priority_definitions": {
+    "P0": "Integridade e correção antes de confiar no comportamento dependente.",
+    "P1": "Evolução prioritária de produto ou validação.",
+    "P2": "Eficiência e extensão posterior.",
+    "P3": "Evolução futura e cleanup condicionado."
+  },
+  "sources": [
+    {
+      "id": "E01",
+      "label": "Relatório do ciclo autônomo e atribuição das attestations",
+      "paths": [
+        ".pose/reports/2026-10-02-autonomous-cycle.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/reports/2026-10-02-autonomous-cycle.md"
+      ]
+    },
+    {
+      "id": "E02",
+      "label": "Releases publicados consultados em 03/10/2026",
+      "paths": [
+        "releases"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/releases"
+      ]
+    },
+    {
+      "id": "E03",
+      "label": "Manifesto preparado da 6.3.0",
+      "paths": [
+        ".pose/releases/v6.3.0/manifest.json"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/releases/v6.3.0/manifest.json"
+      ]
+    },
+    {
+      "id": "E04",
+      "label": "Política de review da instância",
+      "paths": [
+        ".pose/policy/review.json"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/policy/review.json"
+      ]
+    },
+    {
+      "id": "E05",
+      "label": "Política de DoR da instância",
+      "paths": [
+        ".pose/policy/dor.json"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/policy/dor.json"
+      ]
+    },
+    {
+      "id": "E06",
+      "label": "Readiness e status terminais",
+      "paths": [
+        "pose-mcp/internal/pose/readiness.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/readiness.go"
+      ]
+    },
+    {
+      "id": "E07",
+      "label": "Bundle, attestation, pendency e autoridade",
+      "paths": [
+        "pose-mcp/internal/pose/review_bundle.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/review_bundle.go"
+      ]
+    },
+    {
+      "id": "E08",
+      "label": "Review policy, registry, cutoffs e closeout",
+      "paths": [
+        "pose-mcp/internal/pose/review_closeout.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/review_closeout.go"
+      ]
+    },
+    {
+      "id": "E09",
+      "label": "Atomic start e leitura de adoção",
+      "paths": [
+        "pose-mcp/internal/pose/start.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/start.go"
+      ]
+    },
+    {
+      "id": "E10",
+      "label": "Estado, freshness e RefreshPending",
+      "paths": [
+        "pose-mcp/internal/pose/state.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/state.go"
+      ]
+    },
+    {
+      "id": "E11",
+      "label": "Design Basis",
+      "paths": [
+        "pose-mcp/internal/pose/design_basis.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/design_basis.go"
+      ]
+    },
+    {
+      "id": "E12",
+      "label": "Template de spec",
+      "paths": [
+        ".pose/templates/spec.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/templates/spec.md"
+      ]
+    },
+    {
+      "id": "E13",
+      "label": "Instruções de spec closeout",
+      "paths": [
+        ".agents/skills/pose-spec-closeout/SKILL.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.agents/skills/pose-spec-closeout/SKILL.md"
+      ]
+    },
+    {
+      "id": "E14",
+      "label": "Adoption metrics e denominador de resolução",
+      "paths": [
+        "pose-mcp/internal/cli/adoption_metrics.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/cli/adoption_metrics.go"
+      ]
+    },
+    {
+      "id": "E15",
+      "label": "Transfer de specs e obrigações transportadas",
+      "paths": [
+        "pose-mcp/internal/pose/spec_transfer.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/spec_transfer.go"
+      ]
+    },
+    {
+      "id": "E16",
+      "label": "Testes de review authority",
+      "paths": [
+        "pose-mcp/internal/pose/review_authority_test.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/review_authority_test.go"
+      ]
+    },
+    {
+      "id": "E17",
+      "label": "Governance outcomes e wait unknown",
+      "paths": [
+        "pose-mcp/internal/pose/governance_outcomes.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/governance_outcomes.go"
+      ]
+    },
+    {
+      "id": "E18",
+      "label": "Medição automatizada do quickstart",
+      "paths": [
+        ".pose/reports/2026-10-02-clean-quickstart.json"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/reports/2026-10-02-clean-quickstart.json"
+      ]
+    },
+    {
+      "id": "E19",
+      "label": "Specs de adoção ABM",
+      "paths": [
+        ".pose/specs/2026-09-27-pose-abm-contract-nodes.md",
+        ".pose/specs/2026-09-27-pose-abm-atomic-start.md",
+        ".pose/specs/2026-09-27-pose-abm-causality-attestation.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-27-pose-abm-contract-nodes.md",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-27-pose-abm-atomic-start.md",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-27-pose-abm-causality-attestation.md"
+      ]
+    },
+    {
+      "id": "E20",
+      "label": "Medições de compactação e tempo do index",
+      "paths": [
+        ".pose/specs/2026-10-02-pose-delivery-integrity-index-compaction.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-10-02-pose-delivery-integrity-index-compaction.md"
+      ]
+    },
+    {
+      "id": "E21",
+      "label": "ADR de observação estrutural bounded",
+      "paths": [
+        ".pose/adr/2026-09-19-structural-delta-is-a-bounded-observation.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/adr/2026-09-19-structural-delta-is-a-bounded-observation.md"
+      ]
+    },
+    {
+      "id": "E22",
+      "label": "Índice de specs consultado",
+      "paths": [
+        ".pose/indexes/spec-graph.json"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/indexes/spec-graph.json"
+      ]
+    },
+    {
+      "id": "E23",
+      "label": "Specs de quickstart e demonstração",
+      "paths": [
+        ".pose/specs/2026-09-06-pose-first-governed-loop-quickstart.md",
+        ".pose/specs/2026-09-06-pose-launch-proof-demo.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-06-pose-first-governed-loop-quickstart.md",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-06-pose-launch-proof-demo.md"
+      ]
+    },
+    {
+      "id": "E24",
+      "label": "Instruções do fluxo de feature",
+      "paths": [
+        ".agents/skills/pose-feature/SKILL.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.agents/skills/pose-feature/SKILL.md"
+      ]
+    },
+    {
+      "id": "E25",
+      "label": "Specs de integração e operações externas",
+      "paths": [
+        ".pose/specs/2026-09-06-pose-sdd-migration-acquisition.md",
+        ".pose/specs/2026-09-06-pose-community-contribution-surfaces.md",
+        ".pose/specs/2026-09-06-pose-docs-canonical-route.md",
+        ".pose/specs/2026-08-19-pose-agy-smoke-test.md",
+        ".pose/specs/2026-10-01-pose-package-channels-deferred-native-verification.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-06-pose-sdd-migration-acquisition.md",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-06-pose-community-contribution-surfaces.md",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-06-pose-docs-canonical-route.md",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-08-19-pose-agy-smoke-test.md",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-10-01-pose-package-channels-deferred-native-verification.md"
+      ]
+    },
+    {
+      "id": "E26",
+      "label": "Specs de rendering e conteúdo",
+      "paths": [
+        ".pose/specs/2026-09-11-pose-cli-output-rendering-system.md",
+        ".pose/specs/2026-09-06-pose-canonical-positioning.md",
+        ".pose/specs/2026-09-06-pose-readme-evaluation-path.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-11-pose-cli-output-rendering-system.md",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-06-pose-canonical-positioning.md",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-06-pose-readme-evaluation-path.md"
+      ]
+    },
+    {
+      "id": "E27",
+      "label": "Contrato de public claims",
+      "paths": [
+        ".pose/public/claims.json"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/public/claims.json"
+      ]
+    },
+    {
+      "id": "E28",
+      "label": "Implementação do gate de public claims",
+      "paths": [
+        "pose-mcp/internal/cli/publicclaims.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/cli/publicclaims.go"
+      ]
+    },
+    {
+      "id": "E29",
+      "label": "Amendments, parser de referências e docs review",
+      "paths": [
+        "pose-mcp/internal/cli/amend.go",
+        "pose-mcp/internal/pose/amendments.go",
+        "pose-mcp/internal/pose/artifact_ref.go",
+        "pose-mcp/internal/pose/docs_review.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/cli/amend.go",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/amendments.go",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/artifact_ref.go",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/docs_review.go"
+      ]
+    },
+    {
+      "id": "E30",
+      "label": "Testes do contrato carimbado no bundle",
+      "paths": [
+        "pose-mcp/internal/pose/governing_contracts_test.go"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/pose-mcp/internal/pose/governing_contracts_test.go"
+      ]
+    },
+    {
+      "id": "E31",
+      "label": "Project state retido no commit",
+      "paths": [
+        ".pose/state/project-state.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/state/project-state.md"
+      ]
+    },
+    {
+      "id": "E32",
+      "label": "Specs de release/security ainda abertas",
+      "paths": [
+        ".pose/specs/2026-09-06-pose-release-security-gate-integrity.md",
+        ".pose/specs/2026-09-06-pose-release-recovery-verification.md"
+      ],
+      "urls": [
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-06-pose-release-security-gate-integrity.md",
+        "https://github.com/oseiaspereira88/pose/blob/392aaa5a007f745cdf1804f65631ea2792567fd9/.pose/specs/2026-09-06-pose-release-recovery-verification.md"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "POSE-01",
+      "epic": "Precisão semântica e compatibilidade",
+      "title": "Corrigir a leitura dos cutoffs legados de judgment e structural causality",
+      "priority": "P0",
+      "wave": 0,
+      "release_horizon": "6.3.x, conforme compatibilidade",
+      "work_kind": "correction",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F03"
+      ],
+      "evidence_refs": [
+        "E04",
+        "E08",
+        "E18",
+        "E30"
+      ],
+      "depends_on": [],
+      "problem": "A política declara duas datas que o caminho tipado e o fallback não consomem; a configuração pode sugerir uma proteção histórica inexistente.",
+      "deliverables": [
+        "Leitura coerente dos nomes legados e do mapa contract_adoptions",
+        "Matriz de compatibilidade de todos os contratos do registry",
+        "Diagnóstico que diferencia ausência, vazio explícito, mapa e legado"
+      ],
+      "acceptance_criteria": [
+        "Um arquivo com os dois nomes legados retorna as datas declaradas no fallback pertinente.",
+        "Quando mapa e legado coexistem, a precedência documentada do mapa prevalece, inclusive para vazio explícito.",
+        "Bundles carimbados conservam seus contratos e não são reavaliados por uma data editada depois.",
+        "Um teste percorre todas as entradas do registry e detecta chaves legadas declaradas mas não consumidas."
+      ],
+      "anti_mechanization_guardrail": "Corrigir o dado efetivo; não desativar um gate para fazer o histórico passar.",
+      "non_goals": [
+        "Reescrever attestations históricas",
+        "Adotar capacidades opt-in"
+      ]
+    },
+    {
+      "id": "POSE-02",
+      "epic": "Precisão semântica e compatibilidade",
+      "title": "Distinguir versão candidata, preparada e publicada em public claims",
+      "priority": "P0",
+      "wave": 0,
+      "release_horizon": "6.3.x para diagnóstico; contrato novo na próxima minor",
+      "work_kind": "correction",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F04"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E02",
+        "E03",
+        "E27",
+        "E28"
+      ],
+      "depends_on": [],
+      "problem": "O gate é offline e lê metadados locais, mas chama o resultado de released_version; publicação precisa de evidência específica.",
+      "deliverables": [
+        "Modelo de versão e estado de publicação com proveniência",
+        "Rótulos corretos no terminal",
+        "Contrato de saída versionado com tratamento do campo legado"
+      ],
+      "acceptance_criteria": [
+        "Preparar um manifesto sem publication evidence informa prepared, nunca published.",
+        "A consistência do candidato pode ser verificada offline antes da publicação.",
+        "published_version exige evidência de publicação pertinente; sua ausência aparece como desconhecida ou não comprovada.",
+        "Consumidores legados têm caminho documentado de transição, sem mudança silenciosa do significado de campos."
+      ],
+      "anti_mechanization_guardrail": "Preservar o gate de consistência sem transformar metadado local em fato externo.",
+      "non_goals": [
+        "Consultar GitHub em todo check",
+        "Publicar a 6.3.0 como parte deste item"
+      ]
+    },
+    {
+      "id": "POSE-03",
+      "epic": "Precisão semântica e compatibilidade",
+      "title": "Expor garantias reais de identidade e separação de review",
+      "priority": "P0",
+      "wave": 0,
+      "release_horizon": "6.3.x para explicações compatíveis",
+      "work_kind": "correction",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F01",
+        "F02"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E04",
+        "E07",
+        "E08",
+        "E16"
+      ],
+      "depends_on": [],
+      "problem": "O requisito de separação no plano e o nível de assurance ativo não podem ser apresentados como a mesma garantia.",
+      "deliverables": [
+        "Explicação uniforme de declared e verified",
+        "Distinção entre separação requerida, declarada e autenticada",
+        "Diagnósticos e documentação consistentes em review e closeout"
+      ],
+      "acceptance_criteria": [
+        "Uma política sem identity_assurance expõe declared explicitamente.",
+        "Prefixos agent: ou human: no modo declarado não aparecem como prova de pessoa ou execução separada.",
+        "O caminho verified expõe o claim, o binding e a autoridade efetivamente verificados.",
+        "Nenhuma saída promete independência cognitiva."
+      ],
+      "anti_mechanization_guardrail": "Não elevar a política de toda instância para verified apenas para melhorar o rótulo.",
+      "non_goals": [
+        "Provar pensamento independente",
+        "Exigir review humana universal"
+      ]
+    },
+    {
+      "id": "POSE-04",
+      "epic": "Agência e autoridade",
+      "title": "Versionar a atribuição de autoria, conclusão, confirmação e aplicação de review",
+      "priority": "P0",
+      "wave": 0,
+      "release_horizon": "Próxima minor para o contrato prospectivo",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F01",
+        "F02"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E07",
+        "E16"
+      ],
+      "depends_on": [
+        "POSE-03"
+      ],
+      "problem": "O episódio human:oseias não é resolvido apenas com identificação do reviewer; é preciso representar a intervenção realmente registrada.",
+      "deliverables": [
+        "Contrato prospectivo de atribuição com papéis opcionais e modos de intervenção",
+        "Binding da confirmação ao conteúdo relevante",
+        "Leitor dual e tratamento explícito de atribuição legada"
+      ],
+      "acceptance_criteria": [
+        "Review preparada e aplicada por agente conserva essa atribuição mesmo quando uma pessoa confirma o rascunho.",
+        "Autorizar uma operação e adotar conclusões produzem registros distinguíveis.",
+        "Ausência de um papel permanece unknown ou ausente, sem preenchimento por cópia de reviewer.",
+        "Assinaturas e digests de registros antigos permanecem verificáveis; novos campos pertencem a contrato compatível ou explicitamente versionado."
+      ],
+      "anti_mechanization_guardrail": "Mais campos declarativos não são vendidos como prova de intervenção humana.",
+      "non_goals": [
+        "Editar o ledger existente",
+        "Tornar quatro papéis obrigatórios em toda review"
+      ]
+    },
+    {
+      "id": "POSE-05",
+      "epic": "Lifecycle e observação",
+      "title": "Alinhar blocked entre lifecycle, transfer, readiness e métricas",
+      "priority": "P0",
+      "wave": 0,
+      "release_horizon": "6.3.x para docs; métricas e migração versionadas",
+      "work_kind": "correction",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F07"
+      ],
+      "evidence_refs": [
+        "E06",
+        "E13",
+        "E14",
+        "E15"
+      ],
+      "depends_on": [],
+      "problem": "Blocked representa espera operacional, é descrito como terminal e entra como resolução no denominador de sucesso; transfer também o usa como proteção técnica.",
+      "deliverables": [
+        "Taxonomia coerente de fase de lifecycle e condição operacional",
+        "Dimensão ou versão nova de métricas de resolução",
+        "Plano de compatibilidade do staging de transfer e de specs legadas"
+      ],
+      "acceptance_criteria": [
+        "Blocked é distinguido de entrega concluída e de abandono em todas as superfícies.",
+        "A série antiga mantém seu significado; a nova não trata espera operacional como resolução terminal.",
+        "Uma spec legada blocked sem início conhecido não é convertida automaticamente em in-progress.",
+        "Transfer interrompido ou dependente de evidência nova conserva sua proteção durante a migração."
+      ],
+      "anti_mechanization_guardrail": "Não eliminar um estado antes de migrar todos os seus usos técnicos.",
+      "non_goals": [
+        "Remover blocked em uma patch release",
+        "Desbloquear registros sem causa conhecida"
+      ]
+    },
+    {
+      "id": "POSE-06",
+      "epic": "Reconciliação do trabalho existente",
+      "title": "Reconciliar specs abertas e follow-ups com requisitos e evidência atual",
+      "priority": "P0",
+      "wave": 0,
+      "release_horizon": "Trabalho de manutenção anterior ao novo programa",
+      "work_kind": "reconciliation",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F10"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E18",
+        "E22",
+        "E23",
+        "E25",
+        "E26",
+        "E31",
+        "E32"
+      ],
+      "depends_on": [
+        "POSE-03"
+      ],
+      "problem": "O inventário já inclui entregas avançadas e aceitação externa; um backlog novo sem reconciliação repetiria trabalho.",
+      "deliverables": [
+        "Inventário requisito a requisito das specs não terminais",
+        "Triagem dos 123 follow-ups do snapshot histórico contra o inventário atual",
+        "Dispositions propostas com fonte, owner e autoridade; fechamento somente quando validado"
+      ],
+      "acceptance_criteria": [
+        "Cada requisito restante é classificado como implementação, evidência, review, aceitação, adoção ou operação externa.",
+        "Quickstart distingue execução automatizada medida de eventual aceitação humana ainda exigida.",
+        "Itens com integração Harne8 apontam para a autoridade do repositório correspondente sem afirmar conclusão não verificada.",
+        "Pendências já satisfeitas só recebem disposition mediante evidência e julgamento; contagens brutas não geram features."
+      ],
+      "anti_mechanization_guardrail": "A existência de código não autoriza auto-close sem adequação ao requisito.",
+      "non_goals": [
+        "Publicar issues ou Discussions automaticamente",
+        "Reverter adiamentos de canais nativos ou host de docs"
+      ]
+    },
+    {
+      "id": "POSE-07",
+      "epic": "Compatibilidade de artefatos",
+      "title": "Dar ao layout flat de spec a mesma integridade de amendments do layout em pasta",
+      "priority": "P1",
+      "wave": 0,
+      "release_horizon": "6.3.x ou próxima minor, conforme contrato do journal",
+      "work_kind": "correction",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F03",
+        "F10"
+      ],
+      "evidence_refs": [
+        "E19",
+        "E26",
+        "E29"
+      ],
+      "depends_on": [
+        "POSE-01"
+      ],
+      "problem": "pose amend constrói apenas .pose/specs/<slug>/spec.md, enquanto o fluxo cria specs datadas flat; mudanças materiais acabam registradas em texto substituto.",
+      "deliverables": [
+        "Resolução de spec pela autoridade e pelo Store já usados",
+        "Journal sem colisão para cada spec flat",
+        "Paridade de CLI, domínio e leitura histórica"
+      ],
+      "acceptance_criteria": [
+        "Amendment da mesma alteração material funciona em spec flat e em spec de pasta.",
+        "Duas specs flat no mesmo diretório não compartilham inadvertidamente amendments.jsonl.",
+        "IDs, hashes e histórico R/A/D são preservados conforme a capability aplicável.",
+        "A leitura de journals antigos continua funcionando sem migração silenciosa."
+      ],
+      "anti_mechanization_guardrail": "Usar resolução canônica; não inventar um segundo catálogo de specs.",
+      "non_goals": [
+        "Reformatar todas as specs existentes",
+        "Ativar contract nodes sem piloto"
+      ]
+    },
+    {
+      "id": "POSE-08",
+      "epic": "Governança efetiva",
+      "title": "Projetar governança suportada, configurada, aplicável e efetiva",
+      "priority": "P1",
+      "wave": 1,
+      "release_horizon": "6.4 proposta",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F03",
+        "F05"
+      ],
+      "evidence_refs": [
+        "E04",
+        "E05",
+        "E08",
+        "E09",
+        "E19",
+        "E30"
+      ],
+      "depends_on": [
+        "POSE-01",
+        "POSE-03"
+      ],
+      "problem": "A versão do engine não explica quais gates valem para aquela instância, escopo e bundle.",
+      "deliverables": [
+        "Projeção sobre registry, capacidades e plano efetivo existentes",
+        "Explicações de inatividade e cutoffs",
+        "Exposição no estado e no contexto de review"
+      ],
+      "acceptance_criteria": [
+        "Atomic start sem capability aparece suportado e não adotado.",
+        "DoR com adopted_at vazio não é reportado como cutoff de readiness ativo.",
+        "Contratos carimbados em bundle são distinguíveis da política atual e dos cutoffs de leitura legada.",
+        "A projeção não escreve política nem amplia critérios de review."
+      ],
+      "anti_mechanization_guardrail": "Introspecção sobre fontes existentes; nenhuma camada paralela de policy.",
+      "non_goals": [
+        "Auto-adotar capabilities",
+        "Unificar todos os schemas em uma breaking migration"
+      ]
+    },
+    {
+      "id": "POSE-09",
+      "epic": "Obligations e contexto",
+      "title": "Definir o contrato comum de obrigação e suas referências",
+      "priority": "P1",
+      "wave": 1,
+      "release_horizon": "6.4 proposta",
+      "work_kind": "architecture",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F05",
+        "F06",
+        "F08"
+      ],
+      "evidence_refs": [
+        "E06",
+        "E07",
+        "E08",
+        "E09",
+        "E15"
+      ],
+      "depends_on": [
+        "POSE-05"
+      ],
+      "problem": "A unificação precisa separar dever, satisfação, conhecimento, efeito e autoridade sem criar estado redundante.",
+      "deliverables": [
+        "ADR transversal com exemplos e invariantes",
+        "Schema versionado do read model e refs qualificadas de nós",
+        "Regra de IDs lógicos estáveis e de revisão da fonte"
+      ],
+      "acceptance_criteria": [
+        "A mesma obrigação mantém ID em consultas repetidas e após mudança só de wording.",
+        "R4 e D2 de specs ou projetos distintos nunca colidem.",
+        "Unknown não é usado como se fosse cancelamento, satisfação ou ausência de blocker.",
+        "Todo campo mutável tem fonte autoritativa identificada; a projeção não recebe journal de resolução próprio."
+      ],
+      "anti_mechanization_guardrail": "Derivar obrigações; persistir fatos novos somente onde forem necessários.",
+      "non_goals": [
+        "DAG obrigatório de requisitos",
+        "Scheduler ou filas"
+      ]
+    },
+    {
+      "id": "POSE-10",
+      "epic": "Obligations e contexto",
+      "title": "Adicionar reason codes e referências estruturadas aos produtores",
+      "priority": "P1",
+      "wave": 1,
+      "release_horizon": "6.4 proposta, rollout gradual",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F05",
+        "F09"
+      ],
+      "evidence_refs": [
+        "E06",
+        "E07",
+        "E08",
+        "E09",
+        "E15"
+      ],
+      "depends_on": [
+        "POSE-09"
+      ],
+      "problem": "Blockers e NextAction textuais não são um contrato seguro para normalização por agentes.",
+      "deliverables": [
+        "Diagnósticos tipados nos produtores prioritários",
+        "Mensagens humanas renderizadas a partir desses dados",
+        "Adapter legado explícito para causas ainda opacas"
+      ],
+      "acceptance_criteria": [
+        "Review judgment pendente identifica criterion, fonte e condição de satisfação.",
+        "Dependência não resolvida identifica a referência, código causal e domínio responsável.",
+        "Mudar locale ou wording não altera identidade nem efeito da obrigação.",
+        "Um blocker legado opaco conserva origem e limitação sem ganhar ator ou alvo inventado."
+      ],
+      "anti_mechanization_guardrail": "Normalizar fatos nos produtores; evitar classificação por regex de mensagens.",
+      "non_goals": [
+        "Converter todos os diagnósticos em uma única entrega",
+        "Remover strings legadas imediatamente"
+      ]
+    },
+    {
+      "id": "POSE-11",
+      "epic": "Obligations e contexto",
+      "title": "Implementar agregação de obligations somente leitura",
+      "priority": "P1",
+      "wave": 1,
+      "release_horizon": "6.4 proposta",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F05"
+      ],
+      "evidence_refs": [
+        "E06",
+        "E07",
+        "E08",
+        "E09",
+        "E15",
+        "E17",
+        "E29"
+      ],
+      "depends_on": [
+        "POSE-09",
+        "POSE-10"
+      ],
+      "problem": "Uma consulta precisa centralizar pendências sem duplicar as fontes atuais.",
+      "deliverables": [
+        "Adapters iniciais de readiness, review, closeout e start",
+        "Agregação determinística com filtros",
+        "Cobertura explícita de subsistemas ainda não integrados"
+      ],
+      "acceptance_criteria": [
+        "A consulta não modifica specs, reviews, state ou política.",
+        "Resolver uma condição na fonte remove ou satisfaz a projeção sem outro write.",
+        "Uma pendência referida por dois produtores é correlacionada sem apagar restrições distintas.",
+        "Cada item permite navegar à fonte e reproduzir seu motivo."
+      ],
+      "anti_mechanization_guardrail": "Attention de follow-up não o transforma em gate de entrega por padrão.",
+      "non_goals": [
+        "Persistir cada pendência como arquivo",
+        "Ferramenta resolve_obligation para obrigações derivadas"
+      ]
+    },
+    {
+      "id": "POSE-12",
+      "epic": "Obligations e contexto",
+      "title": "Garantir snapshot, freshness e cobertura nas respostas operacionais",
+      "priority": "P0",
+      "wave": 1,
+      "release_horizon": "6.4 antes de orientar ou restringir execução",
+      "work_kind": "integrity",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F05",
+        "F08",
+        "F10"
+      ],
+      "evidence_refs": [
+        "E08",
+        "E15",
+        "E22",
+        "E31"
+      ],
+      "depends_on": [
+        "POSE-09",
+        "POSE-11"
+      ],
+      "problem": "Uma lista vazia proveniente de fontes stale ou indisponíveis não significa ausência de obrigações.",
+      "deliverables": [
+        "Binding ao contexto, revisão e política pertinentes",
+        "Coverage por produtor e estados unavailable/stale/unsupported",
+        "Detecção de mudança durante a consulta e revalidação no write"
+      ],
+      "acceptance_criteria": [
+        "Falha de um produtor aparece na cobertura e nunca é silenciada como zero pendências.",
+        "Policy ou authority context alterados invalidam a confiança pertinente na resposta anterior.",
+        "Working tree e índice de revisões diferentes são identificados sem alegar um snapshot coerente inexistente.",
+        "Gate de escrita revalida suas condições; não confia apenas no resultado de uma consulta anterior."
+      ],
+      "anti_mechanization_guardrail": "Freshness não é um refresh automático irrestrito ou uma espera escondida.",
+      "non_goals": [
+        "Polling distribuído no core",
+        "Consultar serviços externos em toda leitura"
+      ]
+    },
+    {
+      "id": "POSE-13",
+      "epic": "Attention e experiência de uso",
+      "title": "Expor Attention e obligations com uma lógica comum para CLI e MCP",
+      "priority": "P1",
+      "wave": 1,
+      "release_horizon": "6.4 proposta",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F05",
+        "F06",
+        "F08"
+      ],
+      "evidence_refs": [
+        "E06",
+        "E07",
+        "E08",
+        "E31"
+      ],
+      "depends_on": [
+        "POSE-08",
+        "POSE-11",
+        "POSE-12"
+      ],
+      "problem": "O usuário precisa localizar o que depende dele; o agente precisa receber causas e refs sem reconstruí-las de strings.",
+      "deliverables": [
+        "Evolução de state/project state com Attention por escopo e ator",
+        "Uma consulta MCP estruturada com filtros",
+        "Renderização humana com bloqueios por fase e cobertura"
+      ],
+      "acceptance_criteria": [
+        "O usuário vê ator ou papel necessário, pergunta/condição, alvo e fase restringida.",
+        "CLI e MCP retornam os mesmos IDs, fontes e efeitos para o mesmo snapshot.",
+        "Attention distingue dívida residual, ação material e gate obrigatório.",
+        "Lista vazia com cobertura incompleta exibe a limitação antes de sugerir continuidade."
+      ],
+      "anti_mechanization_guardrail": "Evitar uma ferramenta top-level diferente para cada espécie de pendência.",
+      "non_goals": [
+        "Notificações por email ou Slack",
+        "Mutação durante a consulta"
+      ]
+    },
+    {
+      "id": "POSE-14",
+      "epic": "Agência e autoridade",
+      "title": "Persistir ActionRequest material com identidade e ciclo de vida mínimos",
+      "priority": "P1",
+      "wave": 2,
+      "release_horizon": "6.4 proposta",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F06"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E06",
+        "E07",
+        "E15"
+      ],
+      "depends_on": [
+        "POSE-09",
+        "POSE-11"
+      ],
+      "problem": "Escolhas e operações externas ainda não representadas precisam sobreviver a sessões com sua intenção e seu efeito.",
+      "deliverables": [
+        "Create/preview e leitura de solicitação material",
+        "Schema e journal de fatos próprios da solicitação",
+        "Destinatário, contexto, opções, consequências, targets e fases"
+      ],
+      "acceptance_criteria": [
+        "A solicitação reaparece depois de encerrar a sessão com ID e request digest preservados.",
+        "Qualquer pergunta comum não vira solicitação ou blocker automaticamente.",
+        "Instrução já autorizada é considerada pelo caller, sem uma confirmação repetida obrigatória.",
+        "Abrir ActionRequest exige alvos e efeito válidos; owner ausente permanece visível como unassigned."
+      ],
+      "anti_mechanization_guardrail": "Uma ActionRequest é uma necessidade governada, não um ticket para toda dúvida.",
+      "non_goals": [
+        "Guardar credenciais",
+        "Escolher automaticamente em nome do usuário"
+      ]
+    },
+    {
+      "id": "POSE-15",
+      "epic": "Agência e autoridade",
+      "title": "Resolver solicitações com atribuição e autoridade adequadas",
+      "priority": "P0",
+      "wave": 2,
+      "release_horizon": "6.4 antes de ActionRequest liberar gates",
+      "work_kind": "integrity",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F01",
+        "F02",
+        "F06"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E07",
+        "E08",
+        "E16"
+      ],
+      "depends_on": [
+        "POSE-04",
+        "POSE-14"
+      ],
+      "problem": "Uma resposta recebida precisa ser distinguida de autorização suficiente e de confirmação autenticada.",
+      "deliverables": [
+        "Resolution vinculada ao request digest e ao contexto",
+        "Validação de papel, tipo de resposta e nível de assurance",
+        "Modos explícitos de confirmação de conclusão e autorização de operação"
+      ],
+      "acceptance_criteria": [
+        "Um ator sem o papel exigido não satisfaz a solicitação.",
+        "Recusar aprovação registra a resposta sem autorizar a operação.",
+        "confirmed_by declarado por agente não passa como confirmação humana verificada.",
+        "Cancelar a solicitação não remove uma obrigação original que continua exigida; waiver depende do contrato e da autoridade."
+      ],
+      "anti_mechanization_guardrail": "Reusar os contratos de autoridade existentes e suas limitações explícitas.",
+      "non_goals": [
+        "Criar um IAM completo no POSE",
+        "Garantir compreensão cognitiva do humano"
+      ]
+    },
+    {
+      "id": "POSE-16",
+      "epic": "Agência e autoridade",
+      "title": "Proteger resoluções contra replay, conflito, retries e mudança do assunto",
+      "priority": "P0",
+      "wave": 2,
+      "release_horizon": "6.4 antes de enforcement",
+      "work_kind": "integrity",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F01",
+        "F06",
+        "F08"
+      ],
+      "evidence_refs": [
+        "E07",
+        "E09",
+        "E15",
+        "E16"
+      ],
+      "depends_on": [
+        "POSE-14",
+        "POSE-15"
+      ],
+      "problem": "Solicitações materiais persistentes introduzem concorrência e binding de decisões que não podem ser resolvidos por last-write-wins.",
+      "deliverables": [
+        "Revisão esperada e chave idempotente de operações",
+        "Eventos de supersession/invalidation sem perda de histórico",
+        "Binding por projeto, pedido, conteúdo pertinente e contexto"
+      ],
+      "acceptance_criteria": [
+        "Repetir a mesma operação não grava duas resoluções.",
+        "Duas respostas conflitantes com a mesma revisão esperada não são aceitas silenciosamente.",
+        "Mudar materialmente pergunta, alternativas ou assunto torna a resposta anterior insuficiente.",
+        "Uma resolução de outro projeto ou audience é recusada; contexto revalidado antes do efeito governado."
+      ],
+      "anti_mechanization_guardrail": "Mudanças derivadas sem relevância material não devem invalidar tudo por conveniência.",
+      "non_goals": [
+        "Lock service distribuído",
+        "Reescrever eventos passados"
+      ]
+    },
+    {
+      "id": "POSE-17",
+      "epic": "Readiness explicável",
+      "title": "Projetar readiness por fase e escopo com continuidade conservadora",
+      "priority": "P1",
+      "wave": 2,
+      "release_horizon": "6.4 proposta",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F07",
+        "F08"
+      ],
+      "evidence_refs": [
+        "E06",
+        "E07",
+        "E08",
+        "E09"
+      ],
+      "depends_on": [
+        "POSE-05",
+        "POSE-11",
+        "POSE-12",
+        "POSE-14"
+      ],
+      "problem": "A elegibilidade global atual não explica o efeito restrito de uma decisão, review ou aceitação pendente.",
+      "deliverables": [
+        "Projeção start/execution/review/closeout/release",
+        "Targets finos e fronteira de bloqueio",
+        "Preservação da semântica do Ready bool legado"
+      ],
+      "acceptance_criteria": [
+        "Uma ação somente de closeout não bloqueia start ou execução por efeito implícito.",
+        "Bloqueio localizado não é apresentado como paralisação total sem relação causal suficiente.",
+        "Ausência de dependência explícita não é tratada como prova de independência entre requisitos.",
+        "Consumidores antigos de Ready recebem o mesmo significado; elegibilidade parcial fica em contrato novo."
+      ],
+      "anti_mechanization_guardrail": "Não introduzir dezenas de estados persistidos da spec.",
+      "non_goals": [
+        "Scheduler de requisitos",
+        "Autorização global a partir de ausência de blockers conhecidos"
+      ]
+    },
+    {
+      "id": "POSE-18",
+      "epic": "Readiness explicável",
+      "title": "Aplicar efeitos governados nos gates de escrita de domínio, CLI e MCP",
+      "priority": "P0",
+      "wave": 2,
+      "release_horizon": "6.4 com adoção explícita",
+      "work_kind": "integrity",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F05",
+        "F06",
+        "F08"
+      ],
+      "evidence_refs": [
+        "E08",
+        "E09",
+        "E15"
+      ],
+      "depends_on": [
+        "POSE-12",
+        "POSE-15",
+        "POSE-16",
+        "POSE-17"
+      ],
+      "problem": "Uma pendência exibida na interface precisa restringir a transição correspondente, inclusive quando a UI é contornada.",
+      "deliverables": [
+        "Integração de obrigações aplicáveis com start, close e release",
+        "Paridade de operações via Store, CLI e MCP",
+        "Preview e gate com reason codes e comportamento por capability"
+      ],
+      "acceptance_criteria": [
+        "Chamada direta de domínio não fecha ou publica quando a condição adotada continua não satisfeita.",
+        "CLI e MCP recusam a mesma transição com a mesma causa estruturada.",
+        "Uma consulta anterior não permite um write depois de a fonte ou autoridade mudar.",
+        "Instância sem adoção mantém comportamento legado documentado e não recebe gates novos por update silencioso."
+      ],
+      "anti_mechanization_guardrail": "Obligation projection não pode virar policy engine paralelo.",
+      "non_goals": [
+        "Bloquear todas as fases por toda pendência",
+        "Adotar o novo contrato automaticamente"
+      ]
+    },
+    {
+      "id": "POSE-19",
+      "epic": "Autoridade federada",
+      "title": "Preservar solicitações e obrigações durante transfer e reconciliação de autoridade",
+      "priority": "P0",
+      "wave": 2,
+      "release_horizon": "6.4 antes de uso federado",
+      "work_kind": "integrity",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F05",
+        "F06",
+        "F07"
+      ],
+      "evidence_refs": [
+        "E15",
+        "E29"
+      ],
+      "depends_on": [
+        "POSE-09",
+        "POSE-16",
+        "POSE-17"
+      ],
+      "problem": "Uma ação ligada ao projeto e à spec antigos não pode autorizar o destino por acidente.",
+      "deliverables": [
+        "Mapeamento de targets e source refs no transfer",
+        "Tratamento de solicitações locais, externas e não transferíveis",
+        "Diagnósticos de staging interrompido e reconciliação"
+      ],
+      "acceptance_criteria": [
+        "Mesmos slug e R-ID em projetos diferentes conservam identidade distinta.",
+        "Transfer interrompido não deixa a origem nem o destino sugerirem autorização duplicada.",
+        "Confirmações cujo conteúdo/autoridade muda são invalidadas ou reconfirmadas explicitamente.",
+        "A leitura acompanha a autoridade canônica sem apagar a origem das obrigações transportadas."
+      ],
+      "anti_mechanization_guardrail": "Preservar o contrato de contexto e revision guard existente.",
+      "non_goals": [
+        "Scheduler cross-project",
+        "Delegar autoridade implicitamente pelo ato de mover arquivo"
+      ]
+    },
+    {
+      "id": "POSE-20",
+      "epic": "Attention e experiência de uso",
+      "title": "Agrupar pedidos relacionados e apresentar perguntas concretas ao usuário",
+      "priority": "P2",
+      "wave": 3,
+      "release_horizon": "Após o corte vertical 6.4",
+      "work_kind": "ux",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F06",
+        "F11"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E24"
+      ],
+      "depends_on": [
+        "POSE-13",
+        "POSE-14",
+        "POSE-17"
+      ],
+      "problem": "Um bom ciclo com humano maximiza trabalho autorizado e reduz interrupções sem fundir decisões distintas.",
+      "deliverables": [
+        "Agrupamento de apresentação por tema e impacto",
+        "Perguntas com alternativas, consequência e recomendação pertinente",
+        "Contrato consumível por Harne8 para decidir momento de apresentação"
+      ],
+      "acceptance_criteria": [
+        "Três solicitações relacionadas podem ser apresentadas juntas mantendo IDs e respostas independentes.",
+        "Pedidos que restringem só release não exigem interrupção imediata da implementação por padrão.",
+        "A pessoa vê exatamente o conteúdo que a resolução confirmará.",
+        "Reabrir uma sessão não repete pedidos já satisfeitos para o mesmo assunto."
+      ],
+      "anti_mechanization_guardrail": "Agrupar UI não significa auto-resolver nem ampliar autorização.",
+      "non_goals": [
+        "Enviar mensagens externas pelo core",
+        "Criar política universal de quando interromper"
+      ]
+    },
+    {
+      "id": "POSE-21",
+      "epic": "Eficiência operacional",
+      "title": "Evoluir closeout para um plano mecânico recuperável",
+      "priority": "P1",
+      "wave": 3,
+      "release_horizon": "Após o read model, minor subsequente",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F09"
+      ],
+      "evidence_refs": [
+        "E07",
+        "E08",
+        "E13"
+      ],
+      "depends_on": [
+        "POSE-10",
+        "POSE-11",
+        "POSE-12",
+        "POSE-17"
+      ],
+      "problem": "O operador ainda precisa executar uma ordem sensível de evidência, index, seal, attestation e transição.",
+      "deliverables": [
+        "Evolução do mecanismo de closeout existente com preview",
+        "Checkpoints, resume e idempotência",
+        "Preparação automática da evidência e critérios mecânicos; judgment explícito"
+      ],
+      "acceptance_criteria": [
+        "results_path é regenerado quando necessário antes de selar o resultado pertinente.",
+        "Interromper depois de preparar, indexar ou selar permite retomada sem duplicação.",
+        "Mudança material entre plano e apply exige revalidação ou plano novo.",
+        "O mecanismo termina com pendências de judgment quando não há conclusão; nunca preenche a resposta para completar o fluxo."
+      ],
+      "anti_mechanization_guardrail": "Operação recuperável, sem prometer transação ACID sobre Git e serviços externos.",
+      "non_goals": [
+        "Publicar ao fechar spec",
+        "Autoaprovar review ou alterar policy"
+      ]
+    },
+    {
+      "id": "POSE-22",
+      "epic": "Eficiência operacional",
+      "title": "Reusar evidência e critérios por equivalência material e proveniência",
+      "priority": "P1",
+      "wave": 3,
+      "release_horizon": "Minor subsequente",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F09",
+        "F11",
+        "F12"
+      ],
+      "evidence_refs": [
+        "E07",
+        "E08",
+        "E17"
+      ],
+      "depends_on": [
+        "POSE-12",
+        "POSE-21"
+      ],
+      "problem": "Refazer observações válidas custa tempo; copiar uma conclusão para outro assunto custa integridade.",
+      "deliverables": [
+        "Explicação de reused/invalidated com input bindings",
+        "Integração com criterion reuse existente",
+        "Invalidação delimitada por dados materiais"
+      ],
+      "acceptance_criteria": [
+        "Mudança de código pertinente, ferramenta ou ambiente invalida a evidência correspondente.",
+        "Reformatação de relatório derivado sem efeito material não exige julgamento novo automaticamente.",
+        "Judgment reaproveitado exige equivalência dos inputs do critério e permissão da política.",
+        "Cada reuse cita sua origem e o motivo pelo qual ainda vale."
+      ],
+      "anti_mechanization_guardrail": "Nem proibição universal de judgment reuse, nem reuse por proximidade de timestamp.",
+      "non_goals": [
+        "Reaproveitar aprovação humana para assunto distinto",
+        "Compartilhar caches sem binding de projeto"
+      ]
+    },
+    {
+      "id": "POSE-23",
+      "epic": "Governança proporcional",
+      "title": "Aplicar freshness e materialidade aos assessments",
+      "priority": "P2",
+      "wave": 3,
+      "release_horizon": "Minor subsequente",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F11"
+      ],
+      "evidence_refs": [
+        "E12",
+        "E24",
+        "E31"
+      ],
+      "depends_on": [
+        "POSE-08",
+        "POSE-12",
+        "POSE-22"
+      ],
+      "problem": "Discovery obrigatório antes e depois de toda alteração pode virar ritual quando observações relevantes continuam válidas.",
+      "deliverables": [
+        "Decisão refresh/reuse por componente e contrato observado",
+        "Explicação de stale triggers",
+        "Instruções de feature e closeout alinhadas ao engine"
+      ],
+      "acceptance_criteria": [
+        "Mudança trivial em área não pertinente não exige discovery global por padrão.",
+        "Mudança de contrato relevante invalida o assessment correspondente.",
+        "Assessment inexistente ou stale produz obrigação explícita no escopo pertinente.",
+        "Workflow e engine seguem a mesma regra, sem always-run remanescente que contradiga o modelo."
+      ],
+      "anti_mechanization_guardrail": "Freshness precisa de binding e não só de idade.",
+      "non_goals": [
+        "Pular discovery material para reduzir números",
+        "Cobrir todas as linguagens na primeira entrega"
+      ]
+    },
+    {
+      "id": "POSE-24",
+      "epic": "Governança proporcional",
+      "title": "Oferecer spec progressiva e gerar conteúdo factual derivável",
+      "priority": "P2",
+      "wave": 3,
+      "release_horizon": "Minor subsequente",
+      "work_kind": "ux",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F11"
+      ],
+      "evidence_refs": [
+        "E11",
+        "E12",
+        "E24"
+      ],
+      "depends_on": [
+        "POSE-08",
+        "POSE-13",
+        "POSE-23"
+      ],
+      "problem": "A quantidade de seções permite rigor, mas amplia preenchimento redundante e mecanização do relatório final.",
+      "deliverables": [
+        "Views por fase e materialidade",
+        "Resumo factual derivado com fonte e escopo",
+        "Separação explícita entre contrato autoritativo e Tasks operacionais"
+      ],
+      "acceptance_criteria": [
+        "Mudança trivial usa a superfície mínima pertinente, preservando gates adotados.",
+        "Arquivos e checks derivados não exigem transcrição manual redundante.",
+        "Intenção, rationale e accepted risk não são inventados pelo gerador.",
+        "A versão reduzida mantém unknown, coverage e pendências materiais visíveis."
+      ],
+      "anti_mechanization_guardrail": "Reduzir autoria mecânica sem reduzir accountability de decisões materiais.",
+      "non_goals": [
+        "Criar um mini Jira",
+        "Eliminar todas as seções de template por regra global"
+      ]
+    },
+    {
+      "id": "POSE-25",
+      "epic": "Reconciliação do trabalho existente",
+      "title": "Sinalizar candidatos a reconciliação de follow-ups sem auto-close",
+      "priority": "P2",
+      "wave": 3,
+      "release_horizon": "Minor subsequente",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F10"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E22",
+        "E25",
+        "E26"
+      ],
+      "depends_on": [
+        "POSE-06",
+        "POSE-09",
+        "POSE-13"
+      ],
+      "problem": "O backlog residual sofre drift e precisa mostrar evidência nova sem afirmar equivalência semântica automaticamente.",
+      "deliverables": [
+        "Candidatos target-terminal, evidence-present, overdue e possível duplicidade",
+        "Refs estáveis e evidence links da sugestão",
+        "Disposição no mecanismo autoritativo de follow-up"
+      ],
+      "acceptance_criteria": [
+        "Target done gera candidato a revisão, não disposition automática.",
+        "Similaridade lexical não produz duplicate sem julgamento.",
+        "A sugestão mostra por que foi levantada e os limites da evidência.",
+        "Um follow-up aberto não desaparece da projeção sem disposition ou limitação de cobertura explícita."
+      ],
+      "anti_mechanization_guardrail": "Não transformar todo candidato em novo artifact ou pergunta bloqueante.",
+      "non_goals": [
+        "Auto-fechar por existência de teste",
+        "Reclassificar dívida como gate de execução"
+      ]
+    },
+    {
+      "id": "POSE-26",
+      "epic": "Eficiência observável",
+      "title": "Observar idade de pendências e intervalos de espera por causa",
+      "priority": "P2",
+      "wave": 3,
+      "release_horizon": "Minor subsequente",
+      "work_kind": "observability",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F12"
+      ],
+      "evidence_refs": [
+        "E17"
+      ],
+      "depends_on": [
+        "POSE-14",
+        "POSE-16",
+        "POSE-17"
+      ],
+      "problem": "A telemetria atual mantém wait unknown; ActionRequest permite registrar eventos, mas idade e tempo bloqueado têm significados distintos.",
+      "deliverables": [
+        "Eventos temporais mínimos de solicitação e resolução",
+        "Métricas separadas de idade, espera observada e bloqueio conhecido",
+        "Cobertura temporal e unknown em históricos legados"
+      ],
+      "acceptance_criteria": [
+        "Uma solicitação aberta por seis horas não é contada automaticamente como seis horas de inatividade total.",
+        "Intervalos simultâneos são deduplicados na agregação de tempo total.",
+        "Timestamp ausente ou evento de origem não observado permanece unknown.",
+        "Métricas informam escopo, causa e cobertura, sem estimar tempo humano a partir de duração de comandos."
+      ],
+      "anti_mechanization_guardrail": "Não inferir telemetria que nunca foi observada.",
+      "non_goals": [
+        "Tracker de produtividade pessoal",
+        "Score de eficiência"
+      ]
+    },
+    {
+      "id": "POSE-27",
+      "epic": "Eficiência observável",
+      "title": "Explicar retrabalho de governança e medir custo computacional",
+      "priority": "P2",
+      "wave": 3,
+      "release_horizon": "Minor subsequente",
+      "work_kind": "observability",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F09",
+        "F12"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E17",
+        "E20"
+      ],
+      "depends_on": [
+        "POSE-10",
+        "POSE-21",
+        "POSE-26"
+      ],
+      "problem": "Attestations substituídas podem representar descoberta válida, assunto alterado ou falha de sequenciamento; a contagem sozinha não explica eficácia.",
+      "deliverables": [
+        "Taxonomia de causas de invalidation e supersession",
+        "Relatórios de attempts, reuse, comandos e custos por corpus",
+        "Benchmarks comparáveis para index/read/closeout com corpus e versão"
+      ],
+      "acceptance_criteria": [
+        "Retrabalho por mudança de assunto é separado de erro operacional ou conflito de review quando há evidência.",
+        "Causas desconhecidas não são atribuídas automaticamente a defeito do usuário ou do motor.",
+        "Benchmark usa os mesmos inputs e relata tempo e bytes separadamente.",
+        "Não há interpretação automática de muitas operações como má governança."
+      ],
+      "anti_mechanization_guardrail": "Métricas orientam investigação, sem ranking agregado.",
+      "non_goals": [
+        "Meta universal de menos reviews",
+        "Prometer speedup pela redução do arquivo"
+      ]
+    },
+    {
+      "id": "POSE-28",
+      "epic": "Qualidade do próprio programa",
+      "title": "Manter corpus adversarial contra cumprimento formal sem valor",
+      "priority": "P1",
+      "wave": 1,
+      "release_horizon": "Acompanha todas as ondas",
+      "work_kind": "validation",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F01",
+        "F02",
+        "F05",
+        "F06",
+        "F08",
+        "F11"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E07",
+        "E16",
+        "E21"
+      ],
+      "depends_on": [
+        "POSE-03",
+        "POSE-09"
+      ],
+      "problem": "Novos gates podem criar novos rituais; é necessário testar o comportamento e os limites que o schema não garante.",
+      "deliverables": [
+        "Casos reais e sintéticos de human-label sem confirmação, unknown omitido e bloqueio excessivo",
+        "Contraprovas com mutation/negative tests onde pertinentes",
+        "Verificação de mudanças triviais sem cerimônia adicional"
+      ],
+      "acceptance_criteria": [
+        "O caso do ciclo human:oseias detecta interpretação indevida mesmo com schema válido.",
+        "Reprodução com fonte indisponível não passa como Attention vazio completo.",
+        "Uma autorização já dada e uma mudança trivial não geram pedido humano artificial.",
+        "O corpus testa recusas e recovery, não só o JSON esperado do writer."
+      ],
+      "anti_mechanization_guardrail": "Este corpus pertence ao desenvolvimento da governança; não cria checklist obrigatório em cada feature do adotante.",
+      "non_goals": [
+        "LLM judge no core",
+        "Quality score automático"
+      ]
+    },
+    {
+      "id": "POSE-29",
+      "epic": "Adoção e eficácia",
+      "title": "Executar piloto do corte vertical de agência e readiness antes do enforcement amplo",
+      "priority": "P1",
+      "wave": 3,
+      "release_horizon": "Stop/go para rollout da minor proposta",
+      "work_kind": "pilot",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F05",
+        "F06",
+        "F08",
+        "F09",
+        "F11",
+        "F12"
+      ],
+      "evidence_refs": [
+        "E01",
+        "E19",
+        "E24"
+      ],
+      "depends_on": [
+        "POSE-13",
+        "POSE-15",
+        "POSE-16",
+        "POSE-17",
+        "POSE-18",
+        "POSE-28"
+      ],
+      "problem": "Schemas e testes não demonstram sozinhos utilidade nem a ausência de fricção em uma sessão real.",
+      "deliverables": [
+        "Piloto de mudança trivial, contrato material, decisão humana, operação externa e recovery",
+        "Baseline e comparativo de interação, espera, invalidation e resultado",
+        "Registro de stop/go com condições de rollback e adoção delimitada"
+      ],
+      "acceptance_criteria": [
+        "Um caso real atravessa criar pedido, consultar Attention, resolver, revalidar e continuar sem busca manual entre subsistemas.",
+        "Uma mudança trivial mantém o fluxo mínimo e uma autorização anterior não é pedida novamente.",
+        "O piloto registra unknown e problemas de modelagem, sem ajustar o gate silenciosamente para passar.",
+        "Adoção é explícita e independente de a implementação ter sido concluída."
+      ],
+      "anti_mechanization_guardrail": "Dogfooding deve ser complementado por uso fora do contexto do autor quando possível.",
+      "non_goals": [
+        "Rollout universal por release number",
+        "Confundir demo automatizada com experiência humana"
+      ]
+    },
+    {
+      "id": "POSE-30",
+      "epic": "Adoção e eficácia",
+      "title": "Concluir piloto e decisão de adoção das capacidades ABM já implementadas",
+      "priority": "P1",
+      "wave": 3,
+      "release_horizon": "Conforme stop/go existente",
+      "work_kind": "adoption",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F03",
+        "F10"
+      ],
+      "evidence_refs": [
+        "E04",
+        "E09",
+        "E19"
+      ],
+      "depends_on": [
+        "POSE-06",
+        "POSE-07",
+        "POSE-08"
+      ],
+      "problem": "Contract nodes, atomic start e causality closeout já têm implementação; o trabalho restante é o piloto, shadow e adoção autorizada.",
+      "deliverables": [
+        "Reconciliação das pendências de piloto existentes",
+        "Shadow comparativo de causality closeout",
+        "Decisão explícita de adoção ou manutenção do adiamento por capability"
+      ],
+      "acceptance_criteria": [
+        "Não é criada uma segunda implementação para a capacidade já existente.",
+        "O piloto e o shadow previstos nas specs produzem evidência e disposition.",
+        "A política só muda depois do stop/go aplicável e da decisão competente.",
+        "Falha de cerimônia ou compatibilidade é visível e pode impedir rollout sem invalidar a entrega de código já feita."
+      ],
+      "anti_mechanization_guardrail": "Respeitar a decisão anterior de implementar sem rollout.",
+      "non_goals": [
+        "Ativar flags por padrão",
+        "Supor que esta análise autoriza adoção"
+      ]
+    },
+    {
+      "id": "POSE-31",
+      "epic": "Validade epistemológica",
+      "title": "Representar staleness material de premissas e seus scopes",
+      "priority": "P3",
+      "wave": 4,
+      "release_horizon": "Futuro, após validação das ondas centrais",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F11"
+      ],
+      "evidence_refs": [
+        "E11",
+        "E19"
+      ],
+      "depends_on": [
+        "POSE-09",
+        "POSE-11",
+        "POSE-30"
+      ],
+      "problem": "Uma premissa pode conservar evidência antiga depois de mudar o contrato, provider ou contexto que a sustentava.",
+      "deliverables": [
+        "Scope de validade e triggers materiais de reconsideração",
+        "Projeção de premise-stale para premissas selecionadas",
+        "Binding a evidência e contrato pertinente"
+      ],
+      "acceptance_criteria": [
+        "Mudança de versão de contrato relevante sinaliza necessidade de revisão da premissa.",
+        "Uma evidência antiga continua retida sem ser apresentada como válida para contexto novo.",
+        "Premissas triviais não recebem TTL obrigatório arbitrário.",
+        "O sinal pede julgamento; não invalida automaticamente todo o design."
+      ],
+      "anti_mechanization_guardrail": "Validade por contexto e materialidade antes de expiração por calendário.",
+      "non_goals": [
+        "TTL universal em assumptions",
+        "Monitoramento de todos os providers no core"
+      ]
+    },
+    {
+      "id": "POSE-32",
+      "epic": "Validade epistemológica",
+      "title": "Fechar o ciclo de falsifiers e efeitos esperados com reconsideração explícita",
+      "priority": "P3",
+      "wave": 4,
+      "release_horizon": "Futuro, após o modelo de premissas",
+      "work_kind": "evolution",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F11"
+      ],
+      "evidence_refs": [
+        "E11",
+        "E19",
+        "E21"
+      ],
+      "depends_on": [
+        "POSE-31"
+      ],
+      "problem": "Uma decisão justificada antes da mudança precisa poder ser reconsiderada quando observações contrariam sua base ou seu efeito esperado.",
+      "deliverables": [
+        "Vínculo opcional entre decisão, efeito esperado e evidência material",
+        "Falsifiers observáveis selecionados explicitamente",
+        "Obligation de reconsideração com source facts"
+      ],
+      "acceptance_criteria": [
+        "Uma observação pertinente contrária ao falsifier gera candidato de reconsideração.",
+        "A decisão anterior conserva rationale e histórico.",
+        "A adequação da arquitetura não é julgada automaticamente pelo motor.",
+        "O mecanismo é opt-in para decisões materiais e não exige modelagem causal em toda correção pequena."
+      ],
+      "anti_mechanization_guardrail": "Observar contradição e pedir julgamento, sem transformar hipótese em quality gate universal.",
+      "non_goals": [
+        "Causal inference automática",
+        "Invalidação automática de arquitetura"
+      ]
+    },
+    {
+      "id": "POSE-33",
+      "epic": "Compatibilidade de longo prazo",
+      "title": "Planejar limpeza de schema, campos legados e blocked numa major apropriada",
+      "priority": "P3",
+      "wave": 4,
+      "release_horizon": "7.x somente se necessário e autorizado",
+      "work_kind": "migration",
+      "status": "proposed",
+      "owner_role": "pose-maintainer; responsável individual a atribuir",
+      "finding_refs": [
+        "F03",
+        "F07"
+      ],
+      "evidence_refs": [
+        "E08",
+        "E13",
+        "E14",
+        "E15",
+        "E19",
+        "E29"
+      ],
+      "depends_on": [
+        "POSE-01",
+        "POSE-05",
+        "POSE-07",
+        "POSE-08",
+        "POSE-19",
+        "POSE-29"
+      ],
+      "problem": "O acúmulo de representações precisa de uma taxonomia e eventual migração, mas a compatibilidade histórica é parte do valor do POSE.",
+      "deliverables": [
+        "Inventário de leitores, writers e schema floor suportado",
+        "Plano de deprecation e dry-run com corpus histórico",
+        "Critério para remoção de status ou campos e preservação do ledger"
+      ],
+      "acceptance_criteria": [
+        "A migração passa por specs flat, em pasta, bundles selados, modo declared/verified e transfer interrompido.",
+        "Dry-run explica o efeito sem escrever; apply tem recuperação e guard de revisão.",
+        "Campos desconhecidos não silenciam enforcement esperado em combinações suportadas.",
+        "Registros antigos conservam significado, assinatura e possibilidade de auditoria."
+      ],
+      "anti_mechanization_guardrail": "Uma major não é pretexto para reformar o motor inteiro sem benefício medido.",
+      "non_goals": [
+        "Breaking cleanup em 6.3.x",
+        "Remover história ou converter unknown em certeza"
+      ]
+    }
+  ]
+}
+
