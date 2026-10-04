@@ -20,8 +20,9 @@ Close a spec lifecycle and triage every follow-up without silently losing intent
 ## Lifecycle
 
 The normal path is `draft` to `in-progress` to `done`. Alternative terminal
-states are `blocked`, `superseded`, and `abandoned`. Set `completed_at` only
-when transitioning to `done`.
+states are `superseded` and `abandoned`. `blocked` is not terminal: it is an
+operational condition the spec can leave, never a delivery outcome, and it is
+never closed out. Set `completed_at` only when transitioning to `done`.
 
 ## Follow-up dispositions
 

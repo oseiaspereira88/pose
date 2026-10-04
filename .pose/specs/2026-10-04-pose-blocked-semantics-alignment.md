@@ -1,12 +1,13 @@
 ---
 slug: pose-blocked-semantics-alignment
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: 
 priority: 0
 components: pose-mcp
+delivers: surface:blocked-semantics
 task_type: feature
 ---
 
@@ -82,20 +83,41 @@ Readiness, state, adoption metrics, spec transfer, closeout skill, manual and te
 
 - created: .pose/specs/2026-10-04-pose-blocked-semantics-alignment.md
 - modified: pose-mcp/internal/pose/readiness.go
-- modified: pose-mcp/internal/pose/state.go
+- created: pose-mcp/internal/pose/readiness_blocked_test.go
 - modified: pose-mcp/internal/pose/spec_transfer.go
 - modified: pose-mcp/internal/cli/adoption_metrics.go
 - modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/cli/state_providers.go
+- created: pose-mcp/internal/cli/blocked_semantics_test.go
 - modified: .agents/skills/pose-spec-closeout/SKILL.md
 - modified: .pose/templates/spec.md
+- modified: docs-site/docs/concepts.md
+- modified: docs-site/docs/frontmatter.md
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/templates/spec.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-blocked-semantics-alignment.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:blocked-semantics module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
+
+### Reader and writer inventory
+
+Recorded at activation from the tree. Writers: spec transfer (`spec_transfer.go`,
+staging and fresh-evidence guard). Readers: readiness (`readiness.go`), lint and
+check status validation (`lintspec.go`, `check.go`), adoption metrics
+(`adoption_metrics.go`), state totals (`state_providers.go`), spec listing order
+(`spec.go`), the closeout skill, the manuals, the spec template and the docs
+pages `concepts.md`, `frontmatter.md` and `architecture.md` (whose state diagram
+already drew `blocked ⇄ in_progress`). Measured on pose-dist at activation, v1
+of the adoption metric read 3 folder-layout specs of the 321 the store lists.
 
 ### Technical risks
 
@@ -104,7 +126,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

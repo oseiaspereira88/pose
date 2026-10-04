@@ -112,8 +112,13 @@ priority:                # inteiro >= 0 (menor = mais prioritário)
 ```
 
 - **`status`** evolui `draft` → `in-progress` → `done`. Estados terminais
-  alternativos: `blocked`, `superseded` (use `supersedes:` na sucessora),
-  `abandoned`.
+  alternativos: `superseded` (use `supersedes:` na sucessora) e `abandoned`.
+  `blocked` não é terminal: é uma condição operacional da qual a spec pode
+  sair. A readiness mantém uma spec bloqueada como não pronta, continua
+  resolvendo seu `depends_on` e reporta `cause: dependency` ou
+  `cause: unknown`; a transferência de spec também usa `blocked` enquanto o
+  destino está em staging. Nunca é desfecho de entrega, e nenhum comando
+  reescreve uma spec `blocked` legada para `in-progress`.
 - **`created_at`/`completed_at`** dão a janela temporal real da spec (o mtime do
   arquivo é não-confiável porque muda a cada edição).
 - **`depends_on`** declara pré-requisitos como **lista inline separada por

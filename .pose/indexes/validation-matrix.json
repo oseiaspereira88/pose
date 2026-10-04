@@ -1085,6 +1085,33 @@
           ],
           "severity": "required",
           "evidenceClass": "reachability"
+        },
+        {
+          "name": "blocked-semantics-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "Blocked|TestAdoptionMetricsKeepsV1|TestLintWarnsOnBlocked|TestNoCommandRewrites|TestStateListsBlocked|TestSpecReadiness|Transfer",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "blocked-semantics-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestAdoptionMetricsKeepsV1|TestLintWarnsOnBlocked|TestNoCommandRewrites",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },

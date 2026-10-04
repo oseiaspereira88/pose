@@ -31,7 +31,9 @@ waivers and whether an observed finding is valid or accepted debt.
 ```
 draft ──(DoR gate)──► in-progress ──(closeout gate)──► done
                 │                          │
-                └── blocked / superseded / abandoned
+                └── superseded / abandoned (terminal)
+
+blocked ⇄ in-progress   (operational condition, never an outcome)
 ```
 
 - **Entry (Definition of Ready):** Intent/Requirements/Technical Plan filled,

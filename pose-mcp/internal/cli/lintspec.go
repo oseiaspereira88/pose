@@ -562,6 +562,15 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 		lint.finding(cliout.StateError, "frontmatter", fmt.Sprintf(cliText(locale, "invalid frontmatter status: '%s' (use draft|in-progress|done|blocked|superseded|abandoned)", "status inválido no frontmatter: '%s' (use draft|in-progress|done|blocked|superseded|abandoned)"), specStatus))
 		lifecycle++
 	}
+	// `blocked` is an operational condition, not an outcome (spec
+	// pose-blocked-semantics-alignment). Without a declared prerequisite
+	// nothing in the spec says what it waits on, so readiness can only report
+	// `cause: unknown`. A warning, never a failure: legacy records stay valid.
+	if specStatus == "blocked" && strings.TrimSpace(frontmatter["depends_on"]) == "" {
+		lint.finding(cliout.StateWarning, "frontmatter", cliText(locale,
+			"status: blocked records no cause (depends_on is empty), so readiness reports cause: unknown; declare the prerequisite in depends_on or describe the wait in Known gaps",
+			"status: blocked não registra causa (depends_on vazio), então a readiness reporta cause: unknown; declare o pré-requisito em depends_on ou descreva a espera em Known gaps"))
+	}
 
 	// Lifecycle dates.
 	parsed := map[string]time.Time{}

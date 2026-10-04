@@ -325,6 +325,11 @@ func PreviewSpecTransfer(resolver ArtifactResolver, request SpecTransferRequest,
 			plan.RequiresFreshEvidence = true
 		}
 	}
+	// `blocked` here is a technical guard, not an outcome: the destination
+	// cannot proceed until fresh evidence exists, and it leaves the state
+	// when it does. That is the operational meaning the lifecycle gives the
+	// status everywhere (spec pose-blocked-semantics-alignment); removing it
+	// needs a replacement guard first.
 	if plan.RequiresFreshEvidence {
 		finalStatus = "blocked"
 	}

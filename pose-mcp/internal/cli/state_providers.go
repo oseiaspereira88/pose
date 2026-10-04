@@ -66,6 +66,24 @@ func provideSpecsRoadmaps(store pose.Store) string {
 	lines = append(lines, fmt.Sprintf("- specs: total=%d draft=%d in-progress=%d blocked=%d done=%d superseded=%d abandoned=%d",
 		len(specs), counts["draft"], counts["in-progress"], counts["blocked"], counts["done"], counts["superseded"], counts["abandoned"]))
 	lines = append(lines, fmt.Sprintf("- roadmaps: total=%d active=%d done=%d", len(roadmaps), rCounts["active"], rCounts["done"]))
+	// A blocked spec is an operational condition, not an outcome (spec
+	// pose-blocked-semantics-alignment): list each with what readiness can
+	// say about its cause instead of folding it into the totals.
+	var blockedSpecs []string
+	for _, s := range specs {
+		if s.Status != "blocked" {
+			continue
+		}
+		cause := "unknown"
+		if readiness, rErr := store.SpecReadiness(s.Slug); rErr == nil && readiness.Cause != "" {
+			cause = readiness.Cause
+		}
+		blockedSpecs = append(blockedSpecs, fmt.Sprintf("spec:%s (cause: %s)", s.Slug, cause))
+	}
+	if len(blockedSpecs) > 0 {
+		sort.Strings(blockedSpecs)
+		lines = append(lines, "- blocked (operational, non-terminal): "+strings.Join(blockedSpecs, ", "))
+	}
 
 	sort.Slice(closeouts, func(i, j int) bool { return closeouts[i].CompletedAt > closeouts[j].CompletedAt })
 	if len(closeouts) > 0 {

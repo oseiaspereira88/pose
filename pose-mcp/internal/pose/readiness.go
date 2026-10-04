@@ -97,7 +97,20 @@ type Readiness struct {
 	Ready     bool         `json:"ready"`
 	WaitingOn []WaitingRef `json:"waiting_on"`
 	Reason    string       `json:"reason,omitempty"`
+	// Terminal says whether the status is a lifecycle outcome. `blocked` is
+	// not: it is an operational condition the spec can leave (spec
+	// pose-blocked-semantics-alignment).
+	Terminal bool `json:"terminal"`
+	// Cause names why a blocked spec is blocked when the engine can tell:
+	// `dependency` when declared prerequisites are unmet, `unknown` when
+	// nothing recorded explains it. Empty for every other status.
+	Cause string `json:"cause,omitempty"`
 }
+
+const (
+	ReadinessCauseDependency = "dependency"
+	ReadinessCauseUnknown    = "unknown"
+)
 
 var terminalStatuses = map[string]bool{
 	"done":       true,
@@ -126,13 +139,14 @@ func (s Store) SpecReadinessWithResolver(slug, project string, resolver Artifact
 	r := &Readiness{Slug: sp.Slug, Status: sp.Status, WaitingOn: []WaitingRef{}}
 
 	if terminalStatuses[sp.Status] {
+		r.Terminal = true
 		r.Reason = fmt.Sprintf("spec is in terminal status %q", sp.Status)
 		return r, nil
 	}
-	if sp.Status == "blocked" {
-		r.Reason = "spec is explicitly blocked"
-		return r, nil
-	}
+	// A blocked spec stays not ready, as it always was, but it is no longer a
+	// bare bit: its declared prerequisites are still resolved so the waiting
+	// set explains the block when it can, and an unexplained block says so.
+	blocked := sp.Status == "blocked"
 
 	// Definition of Ready (pose-definition-of-ready): specs criadas a partir do
 	// cutoff de adoção precisam de acceptance criteria com IDs estáveis antes de
@@ -168,6 +182,22 @@ func (s Store) SpecReadinessWithResolver(slug, project string, resolver Artifact
 		}
 	}
 
+	if blocked {
+		dependencies := 0
+		for _, waiting := range r.WaitingOn {
+			if !strings.HasPrefix(waiting.Ref, "dor:") {
+				dependencies++
+			}
+		}
+		if dependencies > 0 {
+			r.Cause = ReadinessCauseDependency
+			r.Reason = fmt.Sprintf("spec is blocked (an operational condition, not a terminal status) and waits on %d unsatisfied dependency(ies)", dependencies)
+		} else {
+			r.Cause = ReadinessCauseUnknown
+			r.Reason = "spec is blocked (an operational condition, not a terminal status) and no recorded cause explains it"
+		}
+		return r, nil
+	}
 	r.Ready = len(r.WaitingOn) == 0
 	if !r.Ready && r.Reason == "" {
 		r.Reason = fmt.Sprintf("%d unsatisfied dependency(ies)", len(r.WaitingOn))

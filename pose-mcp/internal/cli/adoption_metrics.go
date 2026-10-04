@@ -8,6 +8,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"io"
 	"os"
 	"path/filepath"
@@ -26,6 +27,68 @@ type adoptionReport struct {
 	SpecsAbandoned      int      `json:"specs_abandoned"`
 	SpecsBlocked        int      `json:"specs_blocked"`
 	SpecsPending        int      `json:"specs_pending"`
+	// TaskSuccessRatioV2 is the versioned replacement for TaskSuccessRatio
+	// (spec pose-blocked-semantics-alignment). v1 is unchanged for series
+	// continuity: it reads folder-layout specs only and counts `blocked` as a
+	// resolved outcome. v2 reads every spec the store lists and treats
+	// `blocked` as an operational condition, never as resolution.
+	TaskSuccessRatioV2  *float64          `json:"task_success_ratio_v2,omitempty"`
+	TaskSuccessReasonV2 string            `json:"task_success_reason_v2,omitempty"`
+	SpecsV2             *adoptionCountsV2 `json:"specs_v2,omitempty"`
+	MetricNotes         map[string]string `json:"metric_notes"`
+}
+
+type adoptionCountsV2 struct {
+	Done        int `json:"done"`
+	Abandoned   int `json:"abandoned"`
+	Superseded  int `json:"superseded"`
+	Blocked     int `json:"blocked"`
+	Pending     int `json:"pending"`
+	Unreadable  int `json:"unreadable_or_unknown"`
+	SpecsListed int `json:"specs_listed"`
+}
+
+const (
+	adoptionNoteV1 = "task_success_ratio (v1): done / (done + abandoned + blocked) over folder-layout specs only; blocked counted as resolved. Kept unchanged so the series keeps its meaning."
+	adoptionNoteV2 = "task_success_ratio_v2: done / (done + abandoned) over every spec the store lists; blocked is an operational condition and stays out of resolved outcomes, superseded is a replacement, not an outcome."
+)
+
+// computeAdoptionV2 counts with the store's resolution, which sees flat
+// dated specs and folder specs alike.
+func computeAdoptionV2(root string, report *adoptionReport) {
+	report.MetricNotes = map[string]string{"v1": adoptionNoteV1, "v2": adoptionNoteV2}
+	if root == "" {
+		return
+	}
+	specs, err := (posemodel.Store{Root: root}).ListSpecs("", "")
+	if err != nil {
+		report.TaskSuccessReasonV2 = "specs could not be listed: " + err.Error()
+		return
+	}
+	counts := &adoptionCountsV2{SpecsListed: len(specs)}
+	for _, spec := range specs {
+		switch spec.Status {
+		case "done":
+			counts.Done++
+		case "abandoned":
+			counts.Abandoned++
+		case "superseded":
+			counts.Superseded++
+		case "blocked":
+			counts.Blocked++
+		case "draft", "in-progress":
+			counts.Pending++
+		default:
+			counts.Unreadable++
+		}
+	}
+	report.SpecsV2 = counts
+	if resolved := counts.Done + counts.Abandoned; resolved == 0 {
+		report.TaskSuccessReasonV2 = "no resolved specs (done or abandoned) yet"
+	} else {
+		ratio := float64(counts.Done) / float64(resolved)
+		report.TaskSuccessRatioV2 = &ratio
+	}
 }
 
 type specStatusCount struct {
@@ -153,7 +216,7 @@ func computeAdoption(root string, specs []specStatusCount, history []historyReco
 		ratio := float64(report.SpecsDone) / float64(resolved)
 		report.TaskSuccessRatio = &ratio
 	}
-
+	computeAdoptionV2(root, &report)
 	return report
 }
 
@@ -198,5 +261,16 @@ func cmdAdoptionMetrics(root string, args []string, stdout, stderr io.Writer) in
 	}
 	fmt.Fprintf(stdout, "specs: done=%d abandoned=%d blocked=%d pending=%d\n",
 		report.SpecsDone, report.SpecsAbandoned, report.SpecsBlocked, report.SpecsPending)
+	out := render(stdout, stderr)
+	if report.TaskSuccessRatioV2 != nil {
+		out.Field("task_success_ratio_v2", fmt.Sprintf("%.4f", *report.TaskSuccessRatioV2))
+	} else {
+		out.Field("task_success_ratio_v2", "unavailable ("+report.TaskSuccessReasonV2+")")
+	}
+	if v2 := report.SpecsV2; v2 != nil {
+		out.Field("specs_v2", fmt.Sprintf("listed=%d done=%d abandoned=%d superseded=%d blocked(operational)=%d pending=%d unknown=%d", v2.SpecsListed, v2.Done, v2.Abandoned, v2.Superseded, v2.Blocked, v2.Pending, v2.Unreadable))
+	}
+	out.Field("metric_note.v1", adoptionNoteV1)
+	out.Field("metric_note.v2", adoptionNoteV2)
 	return 0
 }

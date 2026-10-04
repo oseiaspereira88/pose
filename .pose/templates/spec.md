@@ -1,6 +1,6 @@
 ---
 slug: <feature-slug>
-status: draft        # draft | in-progress | done | blocked | superseded | abandoned
+status: draft        # draft | in-progress | done | superseded | abandoned; blocked = operational wait, not terminal
 created_at: <YYYY-MM-DD>
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
