@@ -41,3 +41,25 @@ func TestToolsCall_Obligations_ReturnsReportWithCoverage(t *testing.T) {
 		t.Fatalf("MCP and the domain disagree on ids: %+v vs %+v", first, direct.Obligations)
 	}
 }
+
+// Spec pose-phase-scoped-readiness: phases are an opt-in block beside the
+// legacy `ready`.
+func TestToolsCall_SpecReadiness_PhasesBesideLegacyReady(t *testing.T) {
+	root := t.TempDir()
+	p := filepath.Join(root, ".pose/specs/2026-10-01-base.md")
+	_ = os.MkdirAll(filepath.Dir(p), 0o755)
+	_ = os.WriteFile(p, []byte("---\nslug: base\nstatus: draft\n---\n\n# Spec: base\n"), 0o644)
+	ts := httptest.NewServer(New(pose.Store{Root: root}).Handler("", ""))
+	t.Cleanup(ts.Close)
+	_, plain := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_spec_readiness","arguments":{"slug":"base"}}}`)
+	sc, _ := plain.Result["structuredContent"].(map[string]any)
+	if _, has := sc["phases"]; has || sc["ready"] != true {
+		t.Fatalf("plain readiness: %+v", sc)
+	}
+	_, withPhases := post(t, ts, `{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"pose_spec_readiness","arguments":{"slug":"base","phases":true}}}`)
+	sc, _ = withPhases.Result["structuredContent"].(map[string]any)
+	phases, _ := sc["phases"].([]any)
+	if sc["ready"] != true || len(phases) != 5 {
+		t.Fatalf("readiness with phases: %+v", sc)
+	}
+}

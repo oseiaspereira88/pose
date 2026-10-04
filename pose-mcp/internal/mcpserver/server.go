@@ -1017,7 +1017,8 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		return result, nil
 	case "pose_spec_readiness":
 		var a struct {
-			Slug string `json:"slug"`
+			Slug   string `json:"slug"`
+			Phases bool   `json:"phases"`
 		}
 		if err := json.Unmarshal(args, &a); err != nil || a.Slug == "" {
 			return nil, fmt.Errorf("pose_spec_readiness: required argument %q missing", "slug")
@@ -1038,7 +1039,20 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if project == "" {
 			project = s.roots.Context().DefaultProjectID
 		}
-		return store.SpecReadinessWithResolver(a.Slug, project, resolver)
+		readiness, err := store.SpecReadinessWithResolver(a.Slug, project, resolver)
+		if err != nil || !a.Phases {
+			return readiness, err
+		}
+		// `ready` keeps its legacy meaning; partial eligibility lives only in
+		// the separate phases block (spec pose-phase-scoped-readiness).
+		phases, err := store.SpecPhaseReadiness(a.Slug)
+		if err != nil {
+			return nil, err
+		}
+		return struct {
+			*pose.Readiness
+			Phases []pose.PhaseReadiness `json:"phases"`
+		}{readiness, phases.Phases}, nil
 	case "pose_action_requests":
 		var a struct {
 			ID    string `json:"id"`
@@ -2113,6 +2127,12 @@ func toolDefinitions() []map[string]any {
 					"slug": map[string]any{
 						"type":        "string",
 						"description": "Spec slug to evaluate",
+					},
+					"phases": map[string]any{
+						"type": "boolean",
+						"description": "Also return phases: per phase (start, execution, review, closeout, release) " +
+							"whether it is clear, restricted, partially-restricted on named nodes, or unknown because a " +
+							"relevant producer was not read; `ready` keeps its legacy meaning",
 					},
 					"project_id": map[string]any{
 						"type":        "string",

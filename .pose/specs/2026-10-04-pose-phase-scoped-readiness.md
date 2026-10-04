@@ -1,12 +1,13 @@
 ---
 slug: pose-phase-scoped-readiness
-status: draft
+status: in-progress
 created_at: 2026-10-04
 completed_at:
 supersedes:
 depends_on: pose-blocked-semantics-alignment, pose-obligation-projection, pose-action-requests
 priority: 1
 components: pose-mcp
+delivers: surface:phase-scoped-readiness
 task_type: feature
 ---
 
@@ -75,20 +76,27 @@ Readiness domain, start preview, state, MCP readiness/next steps.
 ### Artifacts
 
 - created: .pose/specs/2026-10-04-pose-phase-scoped-readiness.md
-- modified: pose-mcp/internal/pose/readiness.go
 - created: pose-mcp/internal/pose/readiness_phases.go
 - created: pose-mcp/internal/pose/readiness_phases_test.go
-- modified: pose-mcp/internal/pose/start.go
 - modified: pose-mcp/internal/cli/state_attention.go
+- modified: pose-mcp/internal/cli/adversarial_corpus_test.go
+- modified: pose-mcp/internal/cli/testdata/adversarial/README.md
 - modified: pose-mcp/internal/mcpserver/server.go
-- modified: pose-mcp/internal/mcpserver/catalog.go
-- modified: pose-mcp/internal/mcpserver/server_test.go
+- modified: pose-mcp/internal/mcpserver/obligations_test.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: docs-site/docs/mcp.md
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: .pose/indexes/validation-matrix.json
 - created: .pose/changelogs/unreleased/pose-phase-scoped-readiness.md
 
-The paths above are the planned surface at 2026-10-04; reconcile them at activation
-against the tree, as the ABM specs did, before the first implementation commit.
+Reconciled against the tree at activation.
+
+### Delivery targets
+
+- surface:phase-scoped-readiness module:pose-mcp profile:cli-surface entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Technical risks
 
@@ -97,7 +105,7 @@ against the tree, as the ABM specs did, before the first implementation commit.
 ## 4. Tasks
 
 ### Planning
-- [ ] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
+- [x] Activate: confirm intent, re-read the cited sources at HEAD, reconcile Artifacts
 - [ ] Run `pose assess discover --component pose-mcp` if the state is stale for the touched area
 
 ### Implementation

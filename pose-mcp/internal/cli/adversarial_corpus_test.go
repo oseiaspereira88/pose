@@ -130,6 +130,22 @@ var adversarialCorpus = []adversarialCase{
 		cancel, _ := store.ResolveActionRequest(posemodel.ActionResolution{RequestID: view.Request.ID, Type: posemodel.ActionEventCancelled, Actor: "agent:other", Reason: "r", RequestDigest: view.Request.RequestDigest, ExpectedRevision: 2, IdempotencyKey: "c"}, time.Now())
 		return after.Satisfaction == posemodel.SatisfactionSatisfied || cancel.State == posemodel.ActionStateCancelled, after.Satisfaction
 	}},
+	{"ready-from-absent-blockers", "enforced", "pose-phase-scoped-readiness", func(t *testing.T) (bool, string) {
+		// No restriction found is not clearance while a producer that could
+		// restrict the phase was not read (release queues are not projected).
+		root := t.TempDir()
+		mustWrite(t, filepath.Join(root, ".pose/specs/2026-10-04-s.md"), "---\nslug: s\nstatus: draft\n---\n\n# Spec: s\n")
+		phases, err := posemodel.Store{Root: root}.SpecPhaseReadiness("s")
+		if err != nil {
+			return false, err.Error()
+		}
+		for _, p := range phases.Phases {
+			if p.Phase == posemodel.PhaseRelease {
+				return p.State == posemodel.PhaseClear, p.State
+			}
+		}
+		return true, "no release phase"
+	}},
 	{"invented-trace-test-ref", "known-gap", "pose-mechanization-adversarial-corpus", func(t *testing.T) (bool, string) {
 		// Follow-up 097 of pose-abm-design-basis: lint counts trace refs but
 		// does not resolve `test:` names, so a trace citing a test that does

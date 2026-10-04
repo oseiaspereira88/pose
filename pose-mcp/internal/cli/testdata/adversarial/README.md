@@ -27,4 +27,4 @@ adopting project's features.
 | `trivial-change-raises-a-request` | enforced | A trivial change or an already-authorized instruction produces an ActionRequest | pose-action-requests |
 | `declined-approval-satisfies` | enforced | A declined approval, or a cancellation without authority, releases a gate | pose-action-request-resolution |
 | `closeout-plan-fills-judgment` | planned | The recoverable closeout plan answers a judgment criterion to finish | pose-recoverable-closeout-plan |
-| `ready-from-absent-blockers` | planned | Absence of a known blocker is presented as proven independence | pose-phase-scoped-readiness |
+| `ready-from-absent-blockers` | enforced | Absence of a known blocker is presented as proven independence | pose-phase-scoped-readiness |

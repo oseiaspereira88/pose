@@ -347,6 +347,10 @@
       "description": "Answer whether a POSE spec is eligible for work/execution: not in a terminal status and every depends_on ref satisfied (spec refs need status done; milestone:/roadmap: refs are fail-closed until roadmaps are projected). Returns {ready, status, waiting_on: [{ref, reason}], reason}. Consult before acting on a spec.",
       "inputSchema": {
         "properties": {
+          "phases": {
+            "description": "Also return phases: per phase (start, execution, review, closeout, release) whether it is clear, restricted, partially-restricted on named nodes, or unknown because a relevant producer was not read; `ready` keeps its legacy meaning",
+            "type": "boolean"
+          },
           "project_id": {
             "description": "Optional project to scope the .pose root (multi-project); omit for the default root",
             "type": "string"

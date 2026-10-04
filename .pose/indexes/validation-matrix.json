@@ -1319,6 +1319,34 @@
           ],
           "severity": "required",
           "evidenceClass": "reachability"
+        },
+        {
+          "name": "phase-readiness-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/mcpserver",
+            "./internal/cli",
+            "-run",
+            "CloseoutOnlyRequest|LocalizedRestriction|UnreadProducer|LegacyReadyKeeps|PhasesBesideLegacy|TestAdversarialCorpus|TestSpecReadiness",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "phase-readiness-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/mcpserver",
+            "-run",
+            "TestToolsCall_SpecReadiness_PhasesBesideLegacyReady",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },

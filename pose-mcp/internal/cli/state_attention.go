@@ -93,6 +93,20 @@ func cmdStateAttention(root string, args []string, stdout, stderr io.Writer) int
 			out.Field("  "+id, attentionLine(byID[id]))
 		}
 	}
+	// For one spec, the phases say what may continue (spec
+	// pose-phase-scoped-readiness): partial restriction is not proof that the
+	// rest is independent, and an unread producer makes a phase unknown.
+	if scope, scopeErr := pose.ParseScopeRef(q.Scope); scopeErr == nil && scope.Kind == "spec" {
+		if spec, specErr := (pose.Store{Root: root}).GetSpec(scope.Slug); specErr == nil {
+			for _, phase := range pose.PhasesFromReport(spec, report).Phases {
+				line := phase.State
+				if phase.Note != "" {
+					line += " — " + phase.Note
+				}
+				out.Field("attention.phase."+phase.Phase, line)
+			}
+		}
+	}
 	out.Field("attention.residual", fmt.Sprintf("%d advisory follow-up(s); they restrict no phase", len(attention.Residual)))
 	shown := attention.Residual
 	if len(shown) > 10 {
