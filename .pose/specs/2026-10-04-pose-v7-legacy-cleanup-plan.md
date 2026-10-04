@@ -140,6 +140,14 @@ Dry-run over both brownfield corpora with zero writes verified by tree hash.
 - Scope: this spec and the instance
 - Expected: pass
 
+### Requirement trace
+
+- R1 [satisfied] surface:migrate-v7-dry-run evidence:integration <interrupted transfers measured on this repository's side, see report> test:TestMigrateDryRunInventoriesLegacyWithoutWriting check:migrate-dryrun-integration check:migrate-dryrun-reachability
+- R2 [satisfied] <dry-run writes nothing; apply is refused in 6.x and its recovery and revision guard are stated in the plan> test:TestMigrateDryRunInventoriesLegacyWithoutWriting check:migrate-dryrun-integration
+- R3 [satisfied] <unknown review policy keys are reported as risks> test:TestMigrateDryRunInventoriesLegacyWithoutWriting check:migrate-dryrun-integration
+- R4 [satisfied] <report .pose/reports/pose-v7-legacy-cleanup-plan.md: sealed records are kept read-only and never rewritten>
+- R5 [satisfied] <report .pose/reports/pose-v7-legacy-cleanup-plan.md states each removal criterion with its measured benefit>
+
 ## 7. Final Report
 
 Measured at 9c3a038 (`pose migrate v7 --dry-run`, 0.5 s): 318 flat and 3 dated folder specs, no undated folder and no blocked spec, 5 legacy review policy adoption keys, no unknown key, 1307 sealed bundles (483 without `governing_contracts`), 1301 declared-identity attestations (1285 without attribution or supplement), no incomplete transfer. A first run reported 10 incomplete transfers because it read each transfer's status as the source project; the ten ABM transfers are `activated` on this, the destination side. The predicate now uses the current project and its role in the plan. R2's apply half is deliberately not built in 6.x: `--apply` is refused and the plan lists what a 7.0 apply must carry (revision guard, per-class checkpoint, gate rehearsal). The help catalog entries for five earlier commands were updated in this commit because the catalog lagged their flags.

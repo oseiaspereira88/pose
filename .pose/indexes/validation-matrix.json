@@ -1147,7 +1147,7 @@
             "test",
             "./internal/pose",
             "-run",
-            "Obligation|Collides|UnknownIsNever|LegacyOpaque|SchemaDrift",
+            "Obligation|Collides|UnknownIsNever|LegacyOpaque|SchemaDrift|EveryCategoryValidates",
             "-count=1"
           ],
           "severity": "required",
@@ -1590,6 +1590,32 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "governance-waits-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestWaitsAloneDoesNotComputeOutcomes",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
+        },
+        {
+          "name": "migrate-dryrun-reachability",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestMigrateDryRunInventoriesLegacyWithoutWriting",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "reachability"
         }
       ]
     },
